@@ -1,0 +1,2207 @@
+{
+  "behavioral_mutations": [
+    {
+      "issue_codes": [
+        "acquisition_compiled_first_gap_only",
+        "acquisition_receipt_content_hash_drift"
+      ],
+      "mutation_id": "acquisition_compiled_first_gap_only",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "acquisition_receipt_not_content_bound",
+        "acquisition_receipt_not_content_bound",
+        "acquisition_receipt_content_hash_drift"
+      ],
+      "mutation_id": "acquisition_receipt_not_content_bound",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "useful_design_rate_forced_without_grounding",
+        "acquisition_receipt_content_hash_drift",
+        "useful_design_rate_forced_without_grounding"
+      ],
+      "mutation_id": "useful_design_rate_forced_without_grounding",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "acquisition_did_not_reenter_same_cycle",
+        "acquisition_receipt_content_hash_drift"
+      ],
+      "mutation_id": "acquisition_did_not_reenter_same_cycle",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "world_did_not_grow_after_ingest",
+        "acquisition_receipt_content_hash_drift"
+      ],
+      "mutation_id": "world_did_not_grow_after_ingest",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "lossy_fallback_survives",
+        "acquisition_receipt_content_hash_drift"
+      ],
+      "mutation_id": "lossy_fallback_survives",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "id_family_ignores_frontier_width"
+      ],
+      "mutation_id": "id_family_ignores_frontier_width",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "affected_region_not_revalidated",
+        "acquisition_receipt_content_hash_drift"
+      ],
+      "mutation_id": "affected_region_not_revalidated",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "affected_region_under_approximated",
+        "acquisition_receipt_content_hash_drift"
+      ],
+      "mutation_id": "affected_region_under_approximated",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "grounding_blocker_not_acquirable"
+      ],
+      "mutation_id": "grounding_blocker_not_acquirable",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "acquisition_hook_family_falsely_scored",
+        "positive_receipt_invalid"
+      ],
+      "mutation_id": "acquisition_hook_family_falsely_scored",
+      "status": "red"
+    }
+  ],
+  "compute_economics": {
+    "full_world_rebuild": false,
+    "journal_first": true,
+    "one_variable_per_live_attempt": true,
+    "record_and_replay": true,
+    "reentry_scope": "affected_region_only",
+    "routine_check_network_calls": 0,
+    "wall_time_reported_by_validator": true
+  },
+  "contract_content_hash": "sha256:81807c791ab198a7cac91c08157dd4ef5e0964667edd4569af3dffbea46318b0",
+  "contract_id": "policyos.runtime.quality.acquisition_planner.n7",
+  "denominators": {
+    "acquisition_families": [
+      "ID",
+      "CERT",
+      "COV",
+      "HV",
+      "HKG",
+      "ADV",
+      "AUD",
+      "SAFE"
+    ],
+    "hook_unscored_families": [
+      "HV",
+      "HKG",
+      "ADV",
+      "AUD",
+      "SAFE"
+    ],
+    "requirement_gap_families": [
+      "data_requirement",
+      "legal_authority_requirement",
+      "method_validity_requirement",
+      "scholar_support_requirement",
+      "participation_provenance_requirement"
+    ],
+    "scored_families": [
+      "ID",
+      "CERT",
+      "COV"
+    ]
+  },
+  "fail_closed_probes": [
+    {
+      "issue_codes": [
+        "owner_validation_failed_closed"
+      ],
+      "network_calls": 0,
+      "probe_id": "missing_owner_artifact",
+      "status": "fail_closed"
+    }
+  ],
+  "fail_closed_receipt": {
+    "acquisition_family_scores": [
+      {
+        "affected_design_count": 0,
+        "basis": "near_frontier_width_sum",
+        "family": "ID",
+        "frontier_width_shrinkage": 0.25,
+        "score": 0.25,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "compiled_gap_family_presence",
+        "family": "CERT",
+        "frontier_width_shrinkage": 0.0,
+        "score": 0.0,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "compiled_gap_family_presence",
+        "family": "COV",
+        "frontier_width_shrinkage": 0.0,
+        "score": 0.0,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "HV",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "HKG",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "ADV",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "AUD",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "SAFE",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      }
+    ],
+    "acquisition_request": {
+      "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
+      "counterexample_ref": "pdc://gy/n6/counterexample/005",
+      "cycle_index": 5,
+      "driver": "missing_supporting_data",
+      "reentry": "same_generation_cycle_index",
+      "request_kind": "owner_grounding_evidence"
+    },
+    "affected_region": {
+      "dependency_index": {
+        "production_msme_panel": [
+          "design:credit",
+          "design:portfolio"
+        ],
+        "tax_admin_panel": [
+          "design:tax",
+          "design:portfolio"
+        ]
+      },
+      "design_ids": [],
+      "neighborhood_slots": [],
+      "over_approximation_basis": "Dep_out(x)_intersects_N_h_S_u_superset",
+      "rederived_design_ids": [],
+      "revalidation_stages": {},
+      "source_slots": []
+    },
+    "authority_boundary": {
+      "authoritative_for": [
+        "compiled_gap_denominator",
+        "owner_artifact_content_hashes",
+        "cost_quality_rights_binding_receipt",
+        "same_cycle_reentry",
+        "affected_region_revalidation"
+      ],
+      "may_not_use_for": [
+        "forced_useful_design_rate",
+        "domain_evidence_without_ingested_artifact",
+        "family_hook_scoring_for_HV_HKG_ADV_AUD_SAFE"
+      ]
+    },
+    "compiled_requirement_specs": [
+      {
+        "admissibility_predicates": [
+          "source_family_matches_compiled_requirement"
+        ],
+        "authority_profile_refs": [
+          "authority_profile.production"
+        ],
+        "claim_family": null,
+        "claim_id": "claim-source-family",
+        "claim_type": null,
+        "claim_use": null,
+        "concept_spine_refs": [
+          "concept:msme"
+        ],
+        "facet_refs": [],
+        "lineage_strictness": "strict",
+        "mandatory_facets": [
+          "source_contract_ref",
+          "lineage_refs"
+        ],
+        "metadata": {},
+        "missingness_tolerance": 0.02,
+        "obligation_refs": [],
+        "producer": "polisyos.data_requirement.compiler.DataRequirementCompiler",
+        "quality_minima": {
+          "min_completeness": 0.95,
+          "min_quality_score": 0.8,
+          "required_quality_refs": []
+        },
+        "recency_horizon": "P90D",
+        "required_data_families": [
+          "production_msme_panel"
+        ],
+        "requirement_id": "data-requirement:claim-source-family",
+        "rule_version_ref": "policyos.data_requirement.compiler.v1",
+        "schema_version": "policyos.data_requirement_spec.v1",
+        "scope": {
+          "geography": "state_or_region",
+          "jurisdiction": null,
+          "population": "msmes",
+          "time": "annual",
+          "time_role": "observation_time"
+        },
+        "source_requirement_refs": [],
+        "transformation_tolerance": "none"
+      }
+    ],
+    "compiled_spec_count": 1,
+    "compute_economics": {
+      "bundle_complementarity": "single_step_greedy_is_heuristic; adaptive_submodularity_unverified",
+      "cached_world_ref_reused": "world://before/n7-contract",
+      "e1_reentry_scope": "affected_region_only",
+      "e6_journal_first": true,
+      "e7_pre_live_gauntlet": "recorded_owner_responses_replayed_before_live_calls",
+      "e8_live_attempt_variable_count": 1,
+      "full_world_rebuild": false,
+      "journal_entry_count": 1,
+      "routine_check_network_calls": 0
+    },
+    "content_hash": "sha256:f05e1cedb0de05fce1e791969ecddd8fb5fb69023c7b6e4e2763277d9a8ef0bc",
+    "cost_summary_usd": 0.0,
+    "fail_closed_reasons": [
+      "owner_artifact_missing:data-requirement:claim-source-family"
+    ],
+    "fallback_strangle_receipt": {
+      "default_after": "all_required_data_gaps_compile_or_fail_closed",
+      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+      "predecessor_ref": "runtime.quality.acquisition_planner.required_data_single_item_fabrication",
+      "status": "strangled",
+      "surviving_callers": [],
+      "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
+    },
+    "generated_at": "2026-07-05T00:00:00Z",
+    "grown_world_added_slots": [],
+    "grown_world_after_ref": "world://before/n7-contract",
+    "grown_world_before_ref": "world://before/n7-contract",
+    "grown_world_delta_hash": "sha256:098e64a2cdb4ced97e4d9f5920d31f471af845463a7449e96714ced97e706153",
+    "journal_entries": [
+      {
+        "action": "remediate_source_contract",
+        "artifact_content_hash": null,
+        "artifact_ref": null,
+        "journal_ref": "journal://n7/data-requirement-claim-source-family/failed-closed",
+        "message": "owner_artifact_missing:data-requirement:claim-source-family",
+        "owner_component": "fabric.source_contract",
+        "requirement_ref": "data-requirement:claim-source-family",
+        "sequence": 1,
+        "status": "failed_closed"
+      }
+    ],
+    "no_result_costed_gap": false,
+    "owner_artifacts": [],
+    "planner_report": {
+      "acquisition_records": [
+        {
+          "accepted_deficit_ref": null,
+          "acquisition_id": "acquisition:run-n7-contract-fail-closed:requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "authority_level": "production",
+          "blocker_ref": null,
+          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "claim_ref": "claim-source-family",
+          "commit_authority": "advisory_recommendation_only",
+          "compiled_requirement_ref": "data-requirement:claim-source-family",
+          "decision_owner": "production_governance_owner",
+          "decision_owner_ref": null,
+          "eligible_strategies": [
+            "source_contract_remediation",
+            "closeout_block"
+          ],
+          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-claim-source-family.json",
+          "gap_id": "requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "gap_type": "scenario_source_family",
+          "ineligible_strategies": [
+            "academic_retrieval",
+            "accepted_deficit",
+            "agency_request",
+            "consultation",
+            "legal_corpus_expansion",
+            "method_remediation",
+            "production_snapshot_build",
+            "proxy_with_degraded_authority",
+            "public_registry",
+            "publish_with_limitation",
+            "rerun",
+            "survey"
+          ],
+          "ineligible_strategy_records": [
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "academic_retrieval",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "accepted_deficit",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "agency_request",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "consultation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "legal_corpus_expansion",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "method_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "production_snapshot_build",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "proxy_with_degraded_authority",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "public_registry",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "publish_with_limitation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "rerun",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "survey",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "limitation_ref": null,
+          "mandatory_gate_refs": [],
+          "mandatory_gate_state": "non_overridable",
+          "missing_requirement_fields": [
+            "required_data_family:production_msme_panel",
+            "mandatory_facet:source_contract_ref",
+            "mandatory_facet:lineage_refs"
+          ],
+          "next_actions": [
+            {
+              "action": "remediate_source_contract",
+              "blocks_closeout": false,
+              "commit_required": false,
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-claim-source-family.json",
+              "message": "Acquire or remediate evidence via source_contract_remediation for claim-source-family.",
+              "owner": "production_governance_owner",
+              "producer_expected": "fabric.source_contract",
+              "strategy": "source_contract_remediation"
+            }
+          ],
+          "planner_posture": "advisory",
+          "producer_expected": "fabric.source_contract",
+          "producer_output_ref": null,
+          "public_projection_effect": "no_public_effect_until_producer_output",
+          "recommended_strategy": "source_contract_remediation",
+          "requirement_family": "data_requirement",
+          "requirement_gap_ref": "requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "requirement_schema_version": "policyos.data_requirement_spec.v1",
+          "runtime_event_ref": "event://runtime/acquisition/run-n7-contract-fail-closed/requirement-gap-data-requirement-data-requirement-claim-source-family",
+          "scenario_requirement_refs": [
+            "data-requirement:claim-source-family",
+            "production_msme_panel"
+          ],
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "ready",
+          "strategy_records": [
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": "remediate_source_contract",
+              "strategy": "source_contract_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": "block_closeout",
+              "strategy": "closeout_block",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "terminal_disposition": "acquire",
+          "voi_ranking_ref": null
+        }
+      ],
+      "adr_refs": [
+        "ADR-0166"
+      ],
+      "authority_boundary": {
+        "authoritative_for": [
+          "gap_detected",
+          "eligible_strategies",
+          "ineligible_strategies",
+          "voi_ranking_considered",
+          "decision_owner",
+          "terminal_disposition",
+          "producer_expected",
+          "calibration_feedback_target"
+        ],
+        "may_not_use_for": [
+          "legal_authority",
+          "source_family_satisfaction",
+          "data_quality",
+          "method_validity",
+          "participation_representativeness",
+          "claim_support",
+          "closeout_pass"
+        ]
+      },
+      "capability_reality_status": "implemented",
+      "generated_at": "2026-07-05T15:55:46Z",
+      "pattern_refs": [
+        "P01",
+        "P09",
+        "P10"
+      ],
+      "run_id": "run-n7-contract-fail-closed",
+      "schema_version": "policyos.runtime.acquisition_planner.v1",
+      "status": "pass",
+      "summary": {
+        "accepted_deficit": 0,
+        "acquire": 1,
+        "blocked": 0,
+        "eligible_strategy_count": 2,
+        "ineligible_strategy_count": 12,
+        "limited": 0,
+        "record_count": 1,
+        "rerun": 0
+      }
+    },
+    "real_grounding_result_count": 0,
+    "receipt_id": "acquisition-receipt:run-n7-contract-fail-closed:5",
+    "reentry_cycle_index": 5,
+    "run_id": "run-n7-contract-fail-closed",
+    "schema_version": "policyos.runtime.quality.acquisition_receipt.v1",
+    "source_cycle_index": 5,
+    "status": "blocked",
+    "useful_design_rate_after": 0.0,
+    "useful_design_rate_before": 0.0
+  },
+  "grounding_acquisition_request": {
+    "acquisition_family": "CERT",
+    "blocker_kind": "world_slot",
+    "claim_ref": "claim:distress-score-grounding",
+    "compiles_to_n7": true,
+    "completion_id": "cg3-world-acquirable-n7-contract",
+    "needed_evidence": [
+      "measurement",
+      "mechanism"
+    ],
+    "owner_validation": "required",
+    "request_kind": "grounding_acquisition",
+    "source_owner": "CG3.WorldAcquirable",
+    "target_world_slot": "cells.distress_score"
+  },
+  "id_width_preference": {
+    "ranked_candidates": [
+      {
+        "affected_design_count": 3,
+        "candidate_id": "many-designs",
+        "family": "ID",
+        "frontier_width_shrinkage": 0.75,
+        "frontier_width_shrinkage_by_design": {
+          "design:a": 0.25,
+          "design:b": 0.25,
+          "design:c": 0.25
+        },
+        "score": 0.78,
+        "score_basis": "near_frontier_width_sum_plus_design_count"
+      },
+      {
+        "affected_design_count": 1,
+        "candidate_id": "single-design",
+        "family": "ID",
+        "frontier_width_shrinkage": 0.55,
+        "frontier_width_shrinkage_by_design": {
+          "design:a": 0.55
+        },
+        "score": 0.56,
+        "score_basis": "near_frontier_width_sum_plus_design_count"
+      }
+    ]
+  },
+  "known_residuals": [
+    {
+      "code": "hook_families_unscored",
+      "families": [
+        "HV",
+        "HKG",
+        "ADV",
+        "AUD",
+        "SAFE"
+      ],
+      "status": "disclosed"
+    },
+    {
+      "code": "adaptive_submodularity_unverified",
+      "detail": "bundle/complementarity is handled honestly; greedy ranking is heuristic",
+      "status": "disclosed"
+    },
+    {
+      "code": "live_owner_lane_cloud_gated",
+      "detail": "routine check replays frozen receipt; network owner calls remain gated",
+      "status": "disclosed"
+    }
+  ],
+  "no_result_receipt": {
+    "acquisition_family_scores": [
+      {
+        "affected_design_count": 0,
+        "basis": "near_frontier_width_sum",
+        "family": "ID",
+        "frontier_width_shrinkage": 0.25,
+        "score": 0.25,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "compiled_gap_family_presence",
+        "family": "CERT",
+        "frontier_width_shrinkage": 0.0,
+        "score": 0.0,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "compiled_gap_family_presence",
+        "family": "COV",
+        "frontier_width_shrinkage": 0.0,
+        "score": 0.0,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "HV",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "HKG",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "ADV",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "AUD",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "SAFE",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      }
+    ],
+    "acquisition_request": {
+      "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
+      "counterexample_ref": "pdc://gy/n6/counterexample/004",
+      "cycle_index": 4,
+      "driver": "missing_supporting_data",
+      "reentry": "same_generation_cycle_index",
+      "request_kind": "owner_grounding_evidence"
+    },
+    "affected_region": {
+      "dependency_index": {
+        "production_msme_panel": [
+          "design:credit",
+          "design:portfolio"
+        ],
+        "tax_admin_panel": [
+          "design:tax",
+          "design:portfolio"
+        ]
+      },
+      "design_ids": [],
+      "neighborhood_slots": [],
+      "over_approximation_basis": "Dep_out(x)_intersects_N_h_S_u_superset",
+      "rederived_design_ids": [],
+      "revalidation_stages": {},
+      "source_slots": []
+    },
+    "authority_boundary": {
+      "authoritative_for": [
+        "compiled_gap_denominator",
+        "owner_artifact_content_hashes",
+        "cost_quality_rights_binding_receipt",
+        "same_cycle_reentry",
+        "affected_region_revalidation"
+      ],
+      "may_not_use_for": [
+        "forced_useful_design_rate",
+        "domain_evidence_without_ingested_artifact",
+        "family_hook_scoring_for_HV_HKG_ADV_AUD_SAFE"
+      ]
+    },
+    "compiled_requirement_specs": [
+      {
+        "admissibility_predicates": [
+          "source_family_matches_compiled_requirement"
+        ],
+        "authority_profile_refs": [
+          "authority_profile.production"
+        ],
+        "claim_family": null,
+        "claim_id": "claim-source-family",
+        "claim_type": null,
+        "claim_use": null,
+        "concept_spine_refs": [
+          "concept:msme"
+        ],
+        "facet_refs": [],
+        "lineage_strictness": "strict",
+        "mandatory_facets": [
+          "source_contract_ref",
+          "lineage_refs"
+        ],
+        "metadata": {},
+        "missingness_tolerance": 0.02,
+        "obligation_refs": [],
+        "producer": "polisyos.data_requirement.compiler.DataRequirementCompiler",
+        "quality_minima": {
+          "min_completeness": 0.95,
+          "min_quality_score": 0.8,
+          "required_quality_refs": []
+        },
+        "recency_horizon": "P90D",
+        "required_data_families": [
+          "production_msme_panel"
+        ],
+        "requirement_id": "data-requirement:claim-source-family",
+        "rule_version_ref": "policyos.data_requirement.compiler.v1",
+        "schema_version": "policyos.data_requirement_spec.v1",
+        "scope": {
+          "geography": "state_or_region",
+          "jurisdiction": null,
+          "population": "msmes",
+          "time": "annual",
+          "time_role": "observation_time"
+        },
+        "source_requirement_refs": [],
+        "transformation_tolerance": "none"
+      }
+    ],
+    "compiled_spec_count": 1,
+    "compute_economics": {
+      "bundle_complementarity": "single_step_greedy_is_heuristic; adaptive_submodularity_unverified",
+      "cached_world_ref_reused": "world://before/n7-contract",
+      "e1_reentry_scope": "affected_region_only",
+      "e6_journal_first": true,
+      "e7_pre_live_gauntlet": "recorded_owner_responses_replayed_before_live_calls",
+      "e8_live_attempt_variable_count": 1,
+      "full_world_rebuild": false,
+      "journal_entry_count": 1,
+      "routine_check_network_calls": 0
+    },
+    "content_hash": "sha256:b2a086ef4320d59155d82e0ee84f48f7731765b46fdfd7d9aa26397d13773dc7",
+    "cost_summary_usd": 3.75,
+    "fail_closed_reasons": [],
+    "fallback_strangle_receipt": {
+      "default_after": "all_required_data_gaps_compile_or_fail_closed",
+      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+      "predecessor_ref": "runtime.quality.acquisition_planner.required_data_single_item_fabrication",
+      "status": "strangled",
+      "surviving_callers": [],
+      "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
+    },
+    "generated_at": "2026-07-05T00:00:00Z",
+    "grown_world_added_slots": [],
+    "grown_world_after_ref": "world://before/n7-contract",
+    "grown_world_before_ref": "world://before/n7-contract",
+    "grown_world_delta_hash": "sha256:cded380400af489acf713bbe6aba9ac65301ef2ba50f9476778676532a51f971",
+    "journal_entries": [
+      {
+        "action": "remediate_source_contract",
+        "artifact_content_hash": "sha256:cd6cedc4668c5c68d9498c43c331177fda94cdd24097ba01a451a84e854f3fce",
+        "artifact_ref": "fabric://recorded/no-result",
+        "journal_ref": "journal://n7/no-result/001",
+        "message": "owner artifact journaled before receipt validation",
+        "owner_component": "fabric.retrieval",
+        "requirement_ref": "data-requirement:claim-source-family",
+        "sequence": 1,
+        "status": "journaled"
+      }
+    ],
+    "no_result_costed_gap": true,
+    "owner_artifacts": [
+      {
+        "artifact_ref": "fabric://recorded/no-result",
+        "binding_refs": [],
+        "content_hash": "sha256:cd6cedc4668c5c68d9498c43c331177fda94cdd24097ba01a451a84e854f3fce",
+        "cost_usd": 3.75,
+        "ingested": true,
+        "journal_ref": "journal://n7/no-result/001",
+        "owner_component": "fabric.retrieval",
+        "payload": {
+          "grounding_results": [],
+          "world_slots": []
+        },
+        "quality": {
+          "query_validated": true
+        },
+        "requirement_ref": "data-requirement:claim-source-family",
+        "rights": {
+          "license": "recorded-open"
+        }
+      }
+    ],
+    "planner_report": {
+      "acquisition_records": [
+        {
+          "accepted_deficit_ref": null,
+          "acquisition_id": "acquisition:run-n7-contract-no-result:requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "authority_level": "production",
+          "blocker_ref": null,
+          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "claim_ref": "claim-source-family",
+          "commit_authority": "advisory_recommendation_only",
+          "compiled_requirement_ref": "data-requirement:claim-source-family",
+          "decision_owner": "production_governance_owner",
+          "decision_owner_ref": null,
+          "eligible_strategies": [
+            "source_contract_remediation",
+            "closeout_block"
+          ],
+          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-claim-source-family.json",
+          "gap_id": "requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "gap_type": "scenario_source_family",
+          "ineligible_strategies": [
+            "academic_retrieval",
+            "accepted_deficit",
+            "agency_request",
+            "consultation",
+            "legal_corpus_expansion",
+            "method_remediation",
+            "production_snapshot_build",
+            "proxy_with_degraded_authority",
+            "public_registry",
+            "publish_with_limitation",
+            "rerun",
+            "survey"
+          ],
+          "ineligible_strategy_records": [
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "academic_retrieval",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "accepted_deficit",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "agency_request",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "consultation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "legal_corpus_expansion",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "method_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "production_snapshot_build",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "proxy_with_degraded_authority",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "public_registry",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "publish_with_limitation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "rerun",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "survey",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "limitation_ref": null,
+          "mandatory_gate_refs": [],
+          "mandatory_gate_state": "non_overridable",
+          "missing_requirement_fields": [
+            "required_data_family:production_msme_panel",
+            "mandatory_facet:source_contract_ref",
+            "mandatory_facet:lineage_refs"
+          ],
+          "next_actions": [
+            {
+              "action": "remediate_source_contract",
+              "blocks_closeout": false,
+              "commit_required": false,
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-claim-source-family.json",
+              "message": "Acquire or remediate evidence via source_contract_remediation for claim-source-family.",
+              "owner": "production_governance_owner",
+              "producer_expected": "fabric.source_contract",
+              "strategy": "source_contract_remediation"
+            }
+          ],
+          "planner_posture": "advisory",
+          "producer_expected": "fabric.source_contract",
+          "producer_output_ref": null,
+          "public_projection_effect": "no_public_effect_until_producer_output",
+          "recommended_strategy": "source_contract_remediation",
+          "requirement_family": "data_requirement",
+          "requirement_gap_ref": "requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "requirement_schema_version": "policyos.data_requirement_spec.v1",
+          "runtime_event_ref": "event://runtime/acquisition/run-n7-contract-no-result/requirement-gap-data-requirement-data-requirement-claim-source-family",
+          "scenario_requirement_refs": [
+            "data-requirement:claim-source-family",
+            "production_msme_panel"
+          ],
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "ready",
+          "strategy_records": [
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": "remediate_source_contract",
+              "strategy": "source_contract_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": "block_closeout",
+              "strategy": "closeout_block",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "terminal_disposition": "acquire",
+          "voi_ranking_ref": null
+        }
+      ],
+      "adr_refs": [
+        "ADR-0166"
+      ],
+      "authority_boundary": {
+        "authoritative_for": [
+          "gap_detected",
+          "eligible_strategies",
+          "ineligible_strategies",
+          "voi_ranking_considered",
+          "decision_owner",
+          "terminal_disposition",
+          "producer_expected",
+          "calibration_feedback_target"
+        ],
+        "may_not_use_for": [
+          "legal_authority",
+          "source_family_satisfaction",
+          "data_quality",
+          "method_validity",
+          "participation_representativeness",
+          "claim_support",
+          "closeout_pass"
+        ]
+      },
+      "capability_reality_status": "implemented",
+      "generated_at": "2026-07-05T15:55:45Z",
+      "pattern_refs": [
+        "P01",
+        "P09",
+        "P10"
+      ],
+      "run_id": "run-n7-contract-no-result",
+      "schema_version": "policyos.runtime.acquisition_planner.v1",
+      "status": "pass",
+      "summary": {
+        "accepted_deficit": 0,
+        "acquire": 1,
+        "blocked": 0,
+        "eligible_strategy_count": 2,
+        "ineligible_strategy_count": 12,
+        "limited": 0,
+        "record_count": 1,
+        "rerun": 0
+      }
+    },
+    "real_grounding_result_count": 0,
+    "receipt_id": "acquisition-receipt:run-n7-contract-no-result:4",
+    "reentry_cycle_index": 4,
+    "run_id": "run-n7-contract-no-result",
+    "schema_version": "policyos.runtime.quality.acquisition_receipt.v1",
+    "source_cycle_index": 4,
+    "status": "completed_no_results",
+    "useful_design_rate_after": 0.0,
+    "useful_design_rate_before": 0.0
+  },
+  "pattern_pass": {
+    "acceptance_signal": "frozen receipt validates and decisive mutations turn red",
+    "existing_anti_patterns_found": [
+      "P28 required-data adapter collapsed many gaps into one",
+      "P29 receipt risk if owner artifacts are not content-bound"
+    ],
+    "missing_capability_labels": [
+      "surface_out_of_scope"
+    ],
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P15",
+      "P27",
+      "P28",
+      "P29",
+      "P32"
+    ],
+    "target_correct_pattern": "rework existing acquisition_planner owner into compile-all -> recorded owner execution -> content-bound receipt -> same-cycle affected-region re-entry"
+  },
+  "positive_receipt": {
+    "acquisition_family_scores": [
+      {
+        "affected_design_count": 3,
+        "basis": "near_frontier_width_sum",
+        "family": "ID",
+        "frontier_width_shrinkage": 0.75,
+        "score": 0.78,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 3,
+        "basis": "compiled_gap_family_presence",
+        "family": "CERT",
+        "frontier_width_shrinkage": 0.0,
+        "score": 0.0,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 3,
+        "basis": "compiled_gap_family_presence",
+        "family": "COV",
+        "frontier_width_shrinkage": 0.0,
+        "score": 0.0,
+        "scored": true,
+        "status": "scored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "HV",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "HKG",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "ADV",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "AUD",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      },
+      {
+        "affected_design_count": 0,
+        "basis": "hook_adopted_scoring_deferred",
+        "family": "SAFE",
+        "frontier_width_shrinkage": 0.0,
+        "score": null,
+        "scored": false,
+        "status": "hook_unscored"
+      }
+    ],
+    "acquisition_request": {
+      "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
+      "counterexample_ref": "pdc://gy/n6/counterexample/003",
+      "cycle_index": 3,
+      "driver": "missing_supporting_data",
+      "reentry": "same_generation_cycle_index",
+      "request_kind": "owner_grounding_evidence"
+    },
+    "affected_region": {
+      "dependency_index": {
+        "production_msme_panel": [
+          "design:credit",
+          "design:portfolio"
+        ],
+        "tax_admin_panel": [
+          "design:tax",
+          "design:portfolio"
+        ]
+      },
+      "design_ids": [
+        "design:credit",
+        "design:portfolio",
+        "design:tax"
+      ],
+      "neighborhood_slots": [
+        "production_msme_panel",
+        "tax_admin_panel"
+      ],
+      "over_approximation_basis": "Dep_out(x)_intersects_N_h_S_u_superset",
+      "rederived_design_ids": [
+        "design:credit",
+        "design:portfolio",
+        "design:tax"
+      ],
+      "revalidation_stages": {
+        "design:credit": [
+          "identification",
+          "calibration",
+          "value_set",
+          "grounding"
+        ],
+        "design:portfolio": [
+          "identification",
+          "calibration",
+          "value_set",
+          "grounding"
+        ],
+        "design:tax": [
+          "identification",
+          "calibration",
+          "value_set",
+          "grounding"
+        ]
+      },
+      "source_slots": [
+        "production_msme_panel",
+        "tax_admin_panel"
+      ]
+    },
+    "authority_boundary": {
+      "authoritative_for": [
+        "compiled_gap_denominator",
+        "owner_artifact_content_hashes",
+        "cost_quality_rights_binding_receipt",
+        "same_cycle_reentry",
+        "affected_region_revalidation"
+      ],
+      "may_not_use_for": [
+        "forced_useful_design_rate",
+        "domain_evidence_without_ingested_artifact",
+        "family_hook_scoring_for_HV_HKG_ADV_AUD_SAFE"
+      ]
+    },
+    "compiled_requirement_specs": [
+      {
+        "admissibility_predicates": [
+          "source_family_matches_compiled_requirement"
+        ],
+        "authority_profile_refs": [
+          "authority_profile.production"
+        ],
+        "claim_family": null,
+        "claim_id": "claim-source-family",
+        "claim_type": null,
+        "claim_use": null,
+        "concept_spine_refs": [
+          "concept:msme"
+        ],
+        "facet_refs": [],
+        "lineage_strictness": "strict",
+        "mandatory_facets": [
+          "source_contract_ref",
+          "lineage_refs"
+        ],
+        "metadata": {},
+        "missingness_tolerance": 0.02,
+        "obligation_refs": [],
+        "producer": "polisyos.data_requirement.compiler.DataRequirementCompiler",
+        "quality_minima": {
+          "min_completeness": 0.95,
+          "min_quality_score": 0.8,
+          "required_quality_refs": []
+        },
+        "recency_horizon": "P90D",
+        "required_data_families": [
+          "production_msme_panel"
+        ],
+        "requirement_id": "data-requirement:claim-source-family",
+        "rule_version_ref": "policyos.data_requirement.compiler.v1",
+        "schema_version": "policyos.data_requirement_spec.v1",
+        "scope": {
+          "geography": "state_or_region",
+          "jurisdiction": null,
+          "population": "msmes",
+          "time": "annual",
+          "time_role": "observation_time"
+        },
+        "source_requirement_refs": [],
+        "transformation_tolerance": "none"
+      },
+      {
+        "admissibility_predicates": [
+          "source_family_matches_compiled_requirement"
+        ],
+        "authority_profile_refs": [
+          "authority_profile.production"
+        ],
+        "claim_family": null,
+        "claim_id": "claim-calibration-panel",
+        "claim_type": null,
+        "claim_use": null,
+        "concept_spine_refs": [
+          "concept:msme"
+        ],
+        "facet_refs": [],
+        "lineage_strictness": "strict",
+        "mandatory_facets": [
+          "source_contract_ref",
+          "lineage_refs"
+        ],
+        "metadata": {},
+        "missingness_tolerance": 0.02,
+        "obligation_refs": [],
+        "producer": "polisyos.data_requirement.compiler.DataRequirementCompiler",
+        "quality_minima": {
+          "min_completeness": 0.95,
+          "min_quality_score": 0.8,
+          "required_quality_refs": []
+        },
+        "recency_horizon": "P90D",
+        "required_data_families": [
+          "tax_admin_panel"
+        ],
+        "requirement_id": "data-requirement:claim-calibration-panel",
+        "rule_version_ref": "policyos.data_requirement.compiler.v1",
+        "schema_version": "policyos.data_requirement_spec.v1",
+        "scope": {
+          "geography": "state_or_region",
+          "jurisdiction": null,
+          "population": "msmes",
+          "time": "annual",
+          "time_role": "observation_time"
+        },
+        "source_requirement_refs": [],
+        "transformation_tolerance": "none"
+      }
+    ],
+    "compiled_spec_count": 2,
+    "compute_economics": {
+      "bundle_complementarity": "single_step_greedy_is_heuristic; adaptive_submodularity_unverified",
+      "cached_world_ref_reused": "world://before/n7-contract",
+      "e1_reentry_scope": "affected_region_only",
+      "e6_journal_first": true,
+      "e7_pre_live_gauntlet": "recorded_owner_responses_replayed_before_live_calls",
+      "e8_live_attempt_variable_count": 1,
+      "full_world_rebuild": false,
+      "journal_entry_count": 2,
+      "routine_check_network_calls": 0
+    },
+    "content_hash": "sha256:0f0a39f23657a2c5fd5a372f8fc0f613572e31a1118976cc24806dee39b8b9f9",
+    "cost_summary_usd": 18.75,
+    "fail_closed_reasons": [],
+    "fallback_strangle_receipt": {
+      "default_after": "all_required_data_gaps_compile_or_fail_closed",
+      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+      "predecessor_ref": "runtime.quality.acquisition_planner.required_data_single_item_fabrication",
+      "status": "strangled",
+      "surviving_callers": [],
+      "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
+    },
+    "generated_at": "2026-07-05T00:00:00Z",
+    "grown_world_added_slots": [
+      "production_msme_panel",
+      "tax_admin_panel"
+    ],
+    "grown_world_after_ref": "world://n7/192b8a4fc69a252606d58ecc",
+    "grown_world_before_ref": "world://before/n7-contract",
+    "grown_world_delta_hash": "sha256:192b8a4fc69a252606d58ecc8c0369b97ca996265db7dca5427b3d8243a81394",
+    "journal_entries": [
+      {
+        "action": "remediate_source_contract",
+        "artifact_content_hash": "sha256:12f70e82b267bb5296314a05a1aae9faed0e58bac3ec5e1f0b19daef1c9e7c92",
+        "artifact_ref": "fabric://recorded/production-msme-panel",
+        "journal_ref": "journal://n7/production-msme-panel/001",
+        "message": "owner artifact journaled before receipt validation",
+        "owner_component": "fabric.ingestion",
+        "requirement_ref": "data-requirement:claim-source-family",
+        "sequence": 1,
+        "status": "journaled"
+      },
+      {
+        "action": "remediate_source_contract",
+        "artifact_content_hash": "sha256:07e2d9286ce424025193912965a90b7c76346c46f22042665715c5ad2a11652e",
+        "artifact_ref": "skg://recorded/tax-admin-panel",
+        "journal_ref": "journal://n7/tax-admin-panel/001",
+        "message": "owner artifact journaled before receipt validation",
+        "owner_component": "data_forge.skg",
+        "requirement_ref": "data-requirement:claim-calibration-panel",
+        "sequence": 2,
+        "status": "journaled"
+      }
+    ],
+    "no_result_costed_gap": false,
+    "owner_artifacts": [
+      {
+        "artifact_ref": "fabric://recorded/production-msme-panel",
+        "binding_refs": [
+          "claim-source-family"
+        ],
+        "content_hash": "sha256:12f70e82b267bb5296314a05a1aae9faed0e58bac3ec5e1f0b19daef1c9e7c92",
+        "cost_usd": 11.25,
+        "ingested": true,
+        "journal_ref": "journal://n7/production-msme-panel/001",
+        "owner_component": "fabric.ingestion",
+        "payload": {
+          "grounding_results": [
+            {
+              "candidate_id": "design:credit",
+              "grounded": true
+            }
+          ],
+          "world_slots": [
+            "production_msme_panel"
+          ]
+        },
+        "quality": {
+          "completeness": 0.98
+        },
+        "requirement_ref": "data-requirement:claim-source-family",
+        "rights": {
+          "license": "recorded-open"
+        }
+      },
+      {
+        "artifact_ref": "skg://recorded/tax-admin-panel",
+        "binding_refs": [
+          "claim-calibration-panel"
+        ],
+        "content_hash": "sha256:07e2d9286ce424025193912965a90b7c76346c46f22042665715c5ad2a11652e",
+        "cost_usd": 7.5,
+        "ingested": true,
+        "journal_ref": "journal://n7/tax-admin-panel/001",
+        "owner_component": "data_forge.skg",
+        "payload": {
+          "grounding_results": [
+            {
+              "candidate_id": "design:tax",
+              "grounded": true
+            }
+          ],
+          "world_slots": [
+            "tax_admin_panel"
+          ]
+        },
+        "quality": {
+          "skg_confidence": 0.91
+        },
+        "requirement_ref": "data-requirement:claim-calibration-panel",
+        "rights": {
+          "license": "recorded-open"
+        }
+      }
+    ],
+    "planner_report": {
+      "acquisition_records": [
+        {
+          "accepted_deficit_ref": null,
+          "acquisition_id": "acquisition:run-n7-contract-positive:requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "authority_level": "production",
+          "blocker_ref": null,
+          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "claim_ref": "claim-source-family",
+          "commit_authority": "advisory_recommendation_only",
+          "compiled_requirement_ref": "data-requirement:claim-source-family",
+          "decision_owner": "production_governance_owner",
+          "decision_owner_ref": null,
+          "eligible_strategies": [
+            "source_contract_remediation",
+            "closeout_block"
+          ],
+          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-claim-source-family.json",
+          "gap_id": "requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "gap_type": "scenario_source_family",
+          "ineligible_strategies": [
+            "academic_retrieval",
+            "accepted_deficit",
+            "agency_request",
+            "consultation",
+            "legal_corpus_expansion",
+            "method_remediation",
+            "production_snapshot_build",
+            "proxy_with_degraded_authority",
+            "public_registry",
+            "publish_with_limitation",
+            "rerun",
+            "survey"
+          ],
+          "ineligible_strategy_records": [
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "academic_retrieval",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "accepted_deficit",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "agency_request",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "consultation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "legal_corpus_expansion",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "method_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "production_snapshot_build",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "proxy_with_degraded_authority",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "public_registry",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "publish_with_limitation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "rerun",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "survey",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "limitation_ref": null,
+          "mandatory_gate_refs": [],
+          "mandatory_gate_state": "non_overridable",
+          "missing_requirement_fields": [
+            "required_data_family:production_msme_panel",
+            "mandatory_facet:source_contract_ref",
+            "mandatory_facet:lineage_refs"
+          ],
+          "next_actions": [
+            {
+              "action": "remediate_source_contract",
+              "blocks_closeout": false,
+              "commit_required": false,
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-claim-source-family.json",
+              "message": "Acquire or remediate evidence via source_contract_remediation for claim-source-family.",
+              "owner": "production_governance_owner",
+              "producer_expected": "fabric.source_contract",
+              "strategy": "source_contract_remediation"
+            }
+          ],
+          "planner_posture": "advisory",
+          "producer_expected": "fabric.source_contract",
+          "producer_output_ref": null,
+          "public_projection_effect": "no_public_effect_until_producer_output",
+          "recommended_strategy": "source_contract_remediation",
+          "requirement_family": "data_requirement",
+          "requirement_gap_ref": "requirement-gap:data_requirement:data-requirement:claim-source-family",
+          "requirement_schema_version": "policyos.data_requirement_spec.v1",
+          "runtime_event_ref": "event://runtime/acquisition/run-n7-contract-positive/requirement-gap-data-requirement-data-requirement-claim-source-family",
+          "scenario_requirement_refs": [
+            "data-requirement:claim-source-family",
+            "production_msme_panel"
+          ],
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "ready",
+          "strategy_records": [
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": "remediate_source_contract",
+              "strategy": "source_contract_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": "block_closeout",
+              "strategy": "closeout_block",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "terminal_disposition": "acquire",
+          "voi_ranking_ref": null
+        },
+        {
+          "accepted_deficit_ref": null,
+          "acquisition_id": "acquisition:run-n7-contract-positive:requirement-gap:data_requirement:data-requirement:claim-calibration-panel",
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "authority_level": "production",
+          "blocker_ref": null,
+          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:data-requirement:claim-calibration-panel",
+          "claim_ref": "claim-calibration-panel",
+          "commit_authority": "advisory_recommendation_only",
+          "compiled_requirement_ref": "data-requirement:claim-calibration-panel",
+          "decision_owner": "production_governance_owner",
+          "decision_owner_ref": null,
+          "eligible_strategies": [
+            "source_contract_remediation",
+            "closeout_block"
+          ],
+          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-claim-calibration-panel.json",
+          "gap_id": "requirement-gap:data_requirement:data-requirement:claim-calibration-panel",
+          "gap_type": "scenario_source_family",
+          "ineligible_strategies": [
+            "academic_retrieval",
+            "accepted_deficit",
+            "agency_request",
+            "consultation",
+            "legal_corpus_expansion",
+            "method_remediation",
+            "production_snapshot_build",
+            "proxy_with_degraded_authority",
+            "public_registry",
+            "publish_with_limitation",
+            "rerun",
+            "survey"
+          ],
+          "ineligible_strategy_records": [
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "academic_retrieval",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "accepted_deficit",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "agency_request",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "consultation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "legal_corpus_expansion",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "method_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "production_snapshot_build",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "proxy_with_degraded_authority",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "public_registry",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "publish_with_limitation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "rerun",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "non_overridable_mandatory_gate_dominates_voi",
+              "eligible": false,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": null,
+              "strategy": "survey",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "limitation_ref": null,
+          "mandatory_gate_refs": [],
+          "mandatory_gate_state": "non_overridable",
+          "missing_requirement_fields": [
+            "required_data_family:tax_admin_panel",
+            "mandatory_facet:source_contract_ref",
+            "mandatory_facet:lineage_refs"
+          ],
+          "next_actions": [
+            {
+              "action": "remediate_source_contract",
+              "blocks_closeout": false,
+              "commit_required": false,
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-claim-calibration-panel.json",
+              "message": "Acquire or remediate evidence via source_contract_remediation for claim-calibration-panel.",
+              "owner": "production_governance_owner",
+              "producer_expected": "fabric.source_contract",
+              "strategy": "source_contract_remediation"
+            }
+          ],
+          "planner_posture": "advisory",
+          "producer_expected": "fabric.source_contract",
+          "producer_output_ref": null,
+          "public_projection_effect": "no_public_effect_until_producer_output",
+          "recommended_strategy": "source_contract_remediation",
+          "requirement_family": "data_requirement",
+          "requirement_gap_ref": "requirement-gap:data_requirement:data-requirement:claim-calibration-panel",
+          "requirement_schema_version": "policyos.data_requirement_spec.v1",
+          "runtime_event_ref": "event://runtime/acquisition/run-n7-contract-positive/requirement-gap-data-requirement-data-requirement-claim-calibration-panel",
+          "scenario_requirement_refs": [
+            "data-requirement:claim-calibration-panel",
+            "tax_admin_panel"
+          ],
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "ready",
+          "strategy_records": [
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": "remediate_source_contract",
+              "strategy": "source_contract_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "non_overridable",
+              "next_action": "block_closeout",
+              "strategy": "closeout_block",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "terminal_disposition": "acquire",
+          "voi_ranking_ref": null
+        }
+      ],
+      "adr_refs": [
+        "ADR-0166"
+      ],
+      "authority_boundary": {
+        "authoritative_for": [
+          "gap_detected",
+          "eligible_strategies",
+          "ineligible_strategies",
+          "voi_ranking_considered",
+          "decision_owner",
+          "terminal_disposition",
+          "producer_expected",
+          "calibration_feedback_target"
+        ],
+        "may_not_use_for": [
+          "legal_authority",
+          "source_family_satisfaction",
+          "data_quality",
+          "method_validity",
+          "participation_representativeness",
+          "claim_support",
+          "closeout_pass"
+        ]
+      },
+      "capability_reality_status": "implemented",
+      "generated_at": "2026-07-05T15:55:45Z",
+      "pattern_refs": [
+        "P01",
+        "P09",
+        "P10"
+      ],
+      "run_id": "run-n7-contract-positive",
+      "schema_version": "policyos.runtime.acquisition_planner.v1",
+      "status": "pass",
+      "summary": {
+        "accepted_deficit": 0,
+        "acquire": 2,
+        "blocked": 0,
+        "eligible_strategy_count": 4,
+        "ineligible_strategy_count": 24,
+        "limited": 0,
+        "record_count": 2,
+        "rerun": 0
+      }
+    },
+    "real_grounding_result_count": 2,
+    "receipt_id": "acquisition-receipt:run-n7-contract-positive:3",
+    "reentry_cycle_index": 3,
+    "run_id": "run-n7-contract-positive",
+    "schema_version": "policyos.runtime.quality.acquisition_receipt.v1",
+    "source_cycle_index": 3,
+    "status": "completed",
+    "useful_design_rate_after": 1.0,
+    "useful_design_rate_before": 0.0
+  },
+  "producer": "tools.quality.validation.check_layer3_gy_acquisition_contract",
+  "receipt_schema_version": "policyos.runtime.quality.acquisition_receipt.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gy.acquisition_contract.v1",
+  "source_modules": [
+    "src/polisyos/runtime/quality/acquisition_planner.py",
+    "src/polisyos/runtime/quality/generation_cycle.py",
+    "src/polisyos/data_requirement/compiler.py",
+    "src/polisyos/runtime/http/services/control_worker.py",
+    "src/polisyos/fabric/retrieval/service.py",
+    "src/polisyos/fabric/data_plane/orchestrator.py",
+    "src/polisyos/data_forge/domains/academic/openalex/client.py",
+    "src/polisyos/data_forge/domains/academic/knowledge/skg_store.py"
+  ]
+}

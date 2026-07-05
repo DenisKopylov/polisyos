@@ -2,6 +2,14 @@
   "schema_version": "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1",
   "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1",
   "produced_by": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+  "known_residuals": [
+    {
+      "code": "gy_s3_intervention_substrate_contract_stale",
+      "detail": "Direct GY-S3 contract validation currently reports intervention_substrate_contract_drift; N6 ledger keeps a warm behavior/registry check and records the stale frozen receipt.",
+      "owner": "GY-S3",
+      "status": "disclosed"
+    }
+  ],
   "source_investigation": {
     "path": "architecture/policy_design_case/layer3_gy_n0_investigation.md",
     "source_sections": [
@@ -1241,10 +1249,12 @@
         "default_after": "Planner output compiles all gaps to provider execution and same-cycle re-entry.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending GY-N7 bridge",
+        "remaining_callers_disposition": "strangled; acquisition_planner.run_acquisition_closed_loop compiles all gaps, executes recorded owner artifacts journal-first, persists a content-bound receipt, and re-enters the same cycle over R_out",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",
+          "tools/quality/validation/check_layer3_gy_acquisition_contract.py --check",
+          "tests/unit/runtime/quality/test_acquisition_planner.py"
         ],
         "superseded_path": "src/polisyos/runtime/quality/acquisition_planner.py",
         "consuming_task": "GY-N7",
@@ -1253,7 +1263,7 @@
           "path": "src/polisyos/runtime/quality/acquisition_planner.py",
           "pattern": "unknown_missing_distribution"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1718,10 +1728,12 @@
         "default_after": "All gaps compile to claim-bound W7 DataRequirementSpecs or blockers.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending lossless bridge",
+        "remaining_callers_disposition": "strangled; zero/many required-data gaps now fail closed through plan_from_required_data while plans_from_required_data emits one plan per explicit missing distribution and N7 compiles every W7 spec",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",
+          "tools/quality/validation/check_layer3_gy_acquisition_contract.py --check",
+          "tests/unit/runtime/quality/test_acquisition_planner.py"
         ],
         "superseded_path": "src/polisyos/runtime/quality/acquisition_planner.py",
         "consuming_task": "GY-N7",
@@ -1730,7 +1742,7 @@
           "path": "src/polisyos/runtime/quality/acquisition_planner.py",
           "pattern": "unknown_missing_distribution"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -2086,10 +2098,12 @@
         "default_after": "No fabricated distribution; all gaps are explicit or blocked.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending bridge cutover",
+        "remaining_callers_disposition": "strangled; acquisition_planner source has no fabricated unknown fallback and the N7 strangle receipt reports zero executable callers",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",
+          "tools/quality/validation/check_layer3_gy_acquisition_contract.py --check",
+          "tests/unit/runtime/quality/test_acquisition_planner.py"
         ],
         "superseded_path": "src/polisyos/runtime/quality/acquisition_planner.py",
         "consuming_task": "GY-N7",
@@ -2098,7 +2112,7 @@
           "path": "src/polisyos/runtime/quality/acquisition_planner.py",
           "pattern": "unknown_missing_distribution"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {

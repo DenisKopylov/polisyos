@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import asyncio
+import os
 from datetime import UTC, datetime
+
+import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.data_requirement import (
@@ -24,22 +28,34 @@ from polisyos.participation_requirement import (
     ParticipationSourceKind,
 )
 from polisyos.runtime.quality.acquisition_planner import (
+    ACQUISITION_FAMILY_DENOMINATOR,
     AcquisitionDisposition,
+    AcquisitionFamily,
     AcquisitionGap,
     AcquisitionGapType,
+    AcquisitionOwnerArtifact,
+    AcquisitionPlanner,
     AcquisitionRequirementGap,
     AcquisitionStrategy,
+    AcquisitionWorldSnapshot,
     AuthorityLevel,
     MandatoryGateState,
+    RecordedAcquisitionOwnerGateway,
+    RequiredDataGap,
     RequirementGapFamily,
     acquisition_gaps_from_capability_failure_modes,
     acquisition_planner_scorecard_gates,
     acquisition_report_deficit_records,
+    acquisition_request_from_world_acquirable,
+    acquisition_strangle_receipt,
     load_acquisition_planner_report,
     persist_acquisition_planner_report,
     plan_evidence_acquisition,
     plan_requirement_gap_acquisition,
+    rank_acquisition_candidates_by_family,
     requirement_gaps_from_compiled_specs,
+    run_acquisition_closed_loop,
+    validate_acquisition_receipt,
 )
 from polisyos.runtime.quality.capability_index import FailureModeNode
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
@@ -530,6 +546,399 @@ def test_scorecard_surfaces_acquisition_blockers_as_runtime_closeout_failures() 
     assert "acquisition_planner_closeout_block" in {
         failure["code"] for failure in scorecard["blocking_quality_failures"]
     }
+
+
+def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
+    data_spec = _compiled_requirement_specs()[0]
+    second_spec = data_spec.model_copy(
+        update={
+            "requirement_id": "data-requirement:claim-calibration-panel",
+            "claim_id": "claim-calibration-panel",
+            "required_data_families": ("tax_admin_panel",),
+        }
+    )
+    world = AcquisitionWorldSnapshot(
+        world_ref="world://before/n7",
+        known_slots=("production_msme_panel",),
+        dependency_index={
+            "production_msme_panel": ("design:credit", "design:portfolio"),
+            "tax_admin_panel": ("design:tax", "design:portfolio"),
+        },
+        design_revalidation_stages={
+            "design:credit": ("identification", "calibration", "value_set", "grounding"),
+            "design:portfolio": ("identification", "calibration", "value_set", "grounding"),
+            "design:tax": ("identification", "calibration", "value_set", "grounding"),
+        },
+    )
+    gateway = RecordedAcquisitionOwnerGateway(
+        artifacts_by_requirement={
+            data_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+                owner_component="fabric.ingestion",
+                requirement_ref=data_spec.requirement_id,
+                artifact_ref="fabric://recorded/production-msme-panel",
+                payload={
+                    "world_slots": ["production_msme_panel"],
+                    "grounding_results": [
+                        {"candidate_id": "design:credit", "grounded": True}
+                    ],
+                },
+                cost_usd=11.25,
+                quality={"completeness": 0.98},
+                rights={"license": "recorded-open"},
+                binding_refs=("claim-source-family",),
+                journal_ref="journal://n7/production-msme-panel/001",
+            ),
+            second_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+                owner_component="data_forge.skg",
+                requirement_ref=second_spec.requirement_id,
+                artifact_ref="skg://recorded/tax-admin-panel",
+                payload={
+                    "world_slots": ["tax_admin_panel"],
+                    "grounding_results": [
+                        {"candidate_id": "design:tax", "grounded": True}
+                    ],
+                },
+                cost_usd=7.5,
+                quality={"skg_confidence": 0.91},
+                rights={"license": "recorded-open"},
+                binding_refs=("claim-calibration-panel",),
+                journal_ref="journal://n7/tax-admin-panel/001",
+            ),
+        }
+    )
+
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-closed-loop",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n6/counterexample/001",
+            "cycle_index": 3,
+        },
+        data_requirement_specs=(data_spec, second_spec),
+        world_snapshot=world,
+        owner_gateway=gateway,
+        useful_design_rate_before=0.0,
+    )
+
+    assert receipt.compiled_spec_count == 2
+    assert receipt.source_cycle_index == 3
+    assert receipt.reentry_cycle_index == 3
+    assert receipt.grown_world_before_ref == "world://before/n7"
+    assert receipt.grown_world_after_ref != receipt.grown_world_before_ref
+    assert set(receipt.grown_world_added_slots) == {"production_msme_panel", "tax_admin_panel"}
+    assert receipt.real_grounding_result_count == 2
+    assert receipt.useful_design_rate_after > 0.0
+    assert set(receipt.affected_region.design_ids) == {
+        "design:credit",
+        "design:portfolio",
+        "design:tax",
+    }
+    assert set(receipt.affected_region.rederived_design_ids) == set(
+        receipt.affected_region.design_ids
+    )
+    assert {entry.sequence for entry in receipt.journal_entries} == {1, 2}
+    assert validate_acquisition_receipt(receipt) == ()
+
+
+def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
+    data_spec = _compiled_requirement_specs()[0]
+    world = AcquisitionWorldSnapshot(
+        world_ref="world://before/no-result",
+        known_slots=("production_msme_panel",),
+        dependency_index={"production_msme_panel": ("design:credit",)},
+        design_revalidation_stages={
+            "design:credit": ("identification", "calibration", "value_set", "grounding")
+        },
+    )
+    gateway = RecordedAcquisitionOwnerGateway(
+        artifacts_by_requirement={
+            data_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+                owner_component="fabric.retrieval",
+                requirement_ref=data_spec.requirement_id,
+                artifact_ref="fabric://recorded/no-result",
+                payload={"world_slots": [], "grounding_results": []},
+                cost_usd=3.75,
+                quality={"query_validated": True},
+                rights={"license": "recorded-open"},
+                binding_refs=(),
+                journal_ref="journal://n7/no-result/001",
+            )
+        }
+    )
+
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-no-result",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n6/counterexample/002",
+            "cycle_index": 4,
+        },
+        data_requirement_specs=(data_spec,),
+        world_snapshot=world,
+        owner_gateway=gateway,
+        useful_design_rate_before=0.0,
+    )
+
+    assert receipt.status == "completed_no_results"
+    assert receipt.real_grounding_result_count == 0
+    assert receipt.no_result_costed_gap is True
+    assert receipt.useful_design_rate_after == 0.0
+    assert receipt.cost_summary_usd > 0
+    assert validate_acquisition_receipt(receipt) == ()
+
+
+def test_n7_receipt_validation_rejects_self_reported_grounding() -> None:
+    data_spec = _compiled_requirement_specs()[0]
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-content-bind",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n6/counterexample/003",
+            "cycle_index": 1,
+        },
+        data_requirement_specs=(data_spec,),
+        world_snapshot=AcquisitionWorldSnapshot(
+            world_ref="world://before/content-bind",
+            known_slots=("production_msme_panel",),
+            dependency_index={"production_msme_panel": ("design:credit",)},
+            design_revalidation_stages={
+                "design:credit": ("identification", "calibration", "value_set", "grounding")
+            },
+        ),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={
+                data_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+                    owner_component="fabric.ingestion",
+                    requirement_ref=data_spec.requirement_id,
+                    artifact_ref="fabric://recorded/content-bind",
+                    payload={
+                        "world_slots": ["production_msme_panel"],
+                        "grounding_results": [
+                            {"candidate_id": "design:credit", "grounded": True}
+                        ],
+                    },
+                    cost_usd=4.25,
+                    quality={"completeness": 1.0},
+                    rights={"license": "recorded-open"},
+                    binding_refs=("claim-source-family",),
+                    journal_ref="journal://n7/content-bind/001",
+                )
+            }
+        ),
+    )
+    fabricated = receipt.model_copy(
+        deep=True,
+        update={
+            "owner_artifacts": (
+                receipt.owner_artifacts[0].model_copy(
+                    update={
+                        "payload": {
+                            "world_slots": ["production_msme_panel"],
+                            "grounding_results": [
+                                {"candidate_id": "design:credit", "grounded": False}
+                            ],
+                        }
+                    }
+                ),
+            )
+        },
+    )
+
+    issue_codes = {issue["code"] for issue in validate_acquisition_receipt(fabricated)}
+
+    assert "acquisition_receipt_not_content_bound" in issue_codes
+    assert "useful_design_rate_forced_without_grounding" in issue_codes
+
+
+def test_n7_lossy_required_data_adapter_is_strangled() -> None:
+    multi_gap = RequiredDataGap(
+        missing_distributions=("local_tourism_site_traffic", "administrative_tax_receipts"),
+        suggested_experiment="site-count intercept survey",
+    )
+
+    plans = AcquisitionPlanner().plans_from_required_data(
+        multi_gap,
+        workspace_id="ws-lossless",
+    )
+
+    assert [plan.costed_plan["missing_distribution"] for plan in plans] == [
+        "local_tourism_site_traffic",
+        "administrative_tax_receipts",
+    ]
+    with pytest.raises(ValueError, match="lossless_multi_gap_planning_required"):
+        AcquisitionPlanner().plan_from_required_data(multi_gap, workspace_id="ws-lossless")
+    assert acquisition_strangle_receipt().status == "strangled"
+
+
+def test_n7_id_family_prefers_many_frontier_width_shrinkers() -> None:
+    ranked = rank_acquisition_candidates_by_family(
+        [
+            {
+                "candidate_id": "single-design",
+                "family": AcquisitionFamily.ID,
+                "frontier_width_shrinkage_by_design": {"design:a": 0.55},
+            },
+            {
+                "candidate_id": "many-designs",
+                "family": AcquisitionFamily.ID,
+                "frontier_width_shrinkage_by_design": {
+                    "design:a": 0.25,
+                    "design:b": 0.25,
+                    "design:c": 0.25,
+                },
+            },
+        ]
+    )
+
+    assert ranked[0]["candidate_id"] == "many-designs"
+    assert ranked[0]["score"] > ranked[1]["score"]
+
+
+def test_n7_grounding_blocker_compiles_to_acquisition_request_and_denominator_hooks() -> None:
+    request = acquisition_request_from_world_acquirable(
+        {
+            "completion_id": "cg3-world-acquirable-001",
+            "blocker_kind": "world_slot",
+            "world_slot": "cells.distress_score",
+            "claim_ref": "claim:distress-score-grounding",
+            "needed_evidence": ("measurement", "mechanism"),
+        }
+    )
+
+    assert request["request_kind"] == "grounding_acquisition"
+    assert request["acquisition_family"] == AcquisitionFamily.CERT.value
+    assert request["target_world_slot"] == "cells.distress_score"
+    assert set(ACQUISITION_FAMILY_DENOMINATOR) == {
+        "ID",
+        "CERT",
+        "COV",
+        "HV",
+        "HKG",
+        "ADV",
+        "AUD",
+        "SAFE",
+    }
+    assert request["compiles_to_n7"] is True
+
+
+def test_n7_owner_validation_fails_closed_for_unresolvable_target() -> None:
+    data_spec = _compiled_requirement_specs()[0]
+
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-fail-closed",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n6/counterexample/004",
+            "cycle_index": 2,
+        },
+        data_requirement_specs=(data_spec,),
+        world_snapshot=AcquisitionWorldSnapshot(
+            world_ref="world://before/fail-closed",
+            known_slots=("production_msme_panel",),
+            dependency_index={"production_msme_panel": ("design:credit",)},
+            design_revalidation_stages={
+                "design:credit": ("identification", "calibration", "value_set", "grounding")
+            },
+        ),
+        owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
+        useful_design_rate_before=0.0,
+    )
+
+    assert receipt.status == "blocked"
+    assert receipt.fail_closed_reasons == ("owner_artifact_missing:data-requirement:claim-source-family",)
+    assert receipt.useful_design_rate_after == 0.0
+    assert "owner_validation_failed_closed" in {
+        issue["code"] for issue in validate_acquisition_receipt(receipt)
+    }
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    os.environ.get("POLISYOS_N7_LIVE_OWNER_LANE") != "1",
+    reason="cloud-gated N7 live owner lane; routine tests must not call the network",
+)
+def test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle() -> None:
+    """Cloud lane: call a real owner once, then validate the normal N7 receipt path."""
+
+    async def _fetch_openalex_payload() -> dict[str, object]:
+        from polisyos.data_forge.domains.academic.openalex.client import (
+            OpenAlexClient,
+            OpenAlexRequest,
+        )
+
+        async with OpenAlexClient(
+            email=os.environ.get("OPENALEX_MAILTO", ""),
+            max_rps=1,
+            max_concurrent=1,
+            timeout_seconds=30,
+            max_retries=1,
+        ) as client:
+            return await client.list_works(
+                OpenAlexRequest(
+                    filter_expr='title.search:"minimum wage"',
+                    sort="cited_by_count:desc",
+                    per_page=1,
+                    select="id,title,publication_year,cited_by_count",
+                )
+            )
+
+    data_spec = _compiled_requirement_specs()[0]
+    payload = asyncio.run(_fetch_openalex_payload())
+    results = payload.get("results")
+    assert isinstance(results, list)
+    assert results
+    artifact = AcquisitionOwnerArtifact.from_payload(
+        owner_component="data_forge.openalex",
+        requirement_ref=data_spec.requirement_id,
+        artifact_ref=str(results[0].get("id") or "openalex://works/live-n7"),
+        payload={
+            "world_slots": ["openalex.live_claim_support"],
+            "grounding_results": [{"candidate_id": "design:live-openalex", "grounded": True}],
+            "openalex_result": results[0],
+        },
+        cost_usd=0.0,
+        quality={"owner": "openalex", "live_result_count": len(results)},
+        rights={"source": "OpenAlex"},
+        binding_refs=("claim-source-family",),
+        journal_ref="journal://n7/live-openalex/001",
+    )
+
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-live-owner-cloud-lane",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n6/counterexample/live",
+            "cycle_index": 9,
+        },
+        data_requirement_specs=(data_spec,),
+        world_snapshot=AcquisitionWorldSnapshot(
+            world_ref="world://before/live-openalex",
+            known_slots=(),
+            dependency_index={"openalex.live_claim_support": ("design:live-openalex",)},
+            design_revalidation_stages={
+                "design:live-openalex": (
+                    "identification",
+                    "calibration",
+                    "value_set",
+                    "grounding",
+                )
+            },
+        ),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={data_spec.requirement_id: artifact}
+        ),
+        useful_design_rate_before=0.0,
+    )
+
+    assert receipt.reentry_cycle_index == 9
+    assert receipt.real_grounding_result_count == 1
+    assert receipt.useful_design_rate_after > 0.0
+    assert validate_acquisition_receipt(receipt) == ()
 
 
 def _compiled_requirement_specs() -> tuple[

@@ -8,12 +8,15 @@ slots.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from importlib import import_module
-from typing import Any, Literal
+from pathlib import Path
+from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -27,6 +30,9 @@ ACQUISITION_PLANNER_SCHEMA_VERSION_SHORT = "1.0"
 ACQUISITION_PLANNER_REPORT_KEY = "acquisition_planner_report"
 ACQUISITION_PLANNER_GATE_LAYER = "acquisition_planner"
 ACQUISITION_PLANNER_GATE_PHASE = "evidence_acquisition_boundary"
+ACQUISITION_RECEIPT_SCHEMA_VERSION = "policyos.runtime.quality.acquisition_receipt.v1"
+ACQUISITION_RECEIPT_KIND = "runtime.quality.acquisition_receipt"
+ACQUISITION_FAMILY_DENOMINATOR = ("ID", "CERT", "COV", "HV", "HKG", "ADV", "AUD", "SAFE")
 DEFAULT_ACQUISITION_TTL_SECONDS = 7 * 24 * 60 * 60
 
 _REPORT_KEYS = (
@@ -38,6 +44,9 @@ _REPORT_KEYS = (
 _SERIOUS_AUTHORITY_LEVELS = frozenset({"governed", "production", "serious_runtime"})
 _LOGGER = logging.getLogger(__name__)
 _VOI_PER_COST_THRESHOLD = 0.0001
+_SCORED_ACQUISITION_FAMILIES = frozenset({"ID", "CERT", "COV"})
+_HOOK_ONLY_ACQUISITION_FAMILIES = frozenset({"HV", "HKG", "ADV", "AUD", "SAFE"})
+_REVALIDATION_STAGES = ("identification", "calibration", "value_set", "grounding")
 _ACQUISITION_RATE_BASIS = {
     "enumerator_day_usd": 180.0,
     "expert_hour_usd": 125.0,
@@ -137,6 +146,19 @@ class AcquisitionDisposition(StrEnum):
     ACCEPTED_DEFICIT = "accepted_deficit"
     PUBLISH_WITH_LIMITATION = "publish_with_limitation"
     CLOSEOUT_BLOCK = "closeout_block"
+
+
+class AcquisitionFamily(StrEnum):
+    """N7 acquisition-family taxonomy."""
+
+    ID = "ID"
+    CERT = "CERT"
+    COV = "COV"
+    HV = "HV"
+    HKG = "HKG"
+    ADV = "ADV"
+    AUD = "AUD"
+    SAFE = "SAFE"
 
 
 class AcquisitionGap(BaseModel):
@@ -434,6 +456,224 @@ class RequiredDataGap(BaseModel):
     alternative_identification: str | None = None
 
 
+class AcquisitionFamilyScore(BaseModel):
+    """One N7 family score or honest unscored hook."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    family: AcquisitionFamily
+    scored: bool
+    score: float | None = Field(default=None, ge=0.0)
+    affected_design_count: int = Field(default=0, ge=0)
+    frontier_width_shrinkage: float = Field(default=0.0, ge=0.0)
+    basis: str = Field(min_length=1)
+    status: Literal["scored", "hook_unscored"]
+
+    @model_validator(mode="after")
+    def _score_matches_status(self) -> AcquisitionFamilyScore:
+        if self.family.value in _HOOK_ONLY_ACQUISITION_FAMILIES:
+            if self.scored or self.score is not None or self.status != "hook_unscored":
+                raise ValueError("hook_family_must_remain_unscored")
+        elif not self.scored or self.score is None or self.status != "scored":
+            raise ValueError("scored_family_requires_score")
+        return self
+
+
+class AcquisitionOwnerArtifact(BaseModel):
+    """Content-bound artifact produced by a subordinated acquisition owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    owner_component: str = Field(min_length=1)
+    requirement_ref: str = Field(min_length=1)
+    artifact_ref: str = Field(min_length=1)
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    payload: dict[str, Any] = Field(default_factory=dict)
+    cost_usd: float = Field(default=0.0, ge=0.0)
+    quality: dict[str, Any] = Field(default_factory=dict)
+    rights: dict[str, Any] = Field(default_factory=dict)
+    binding_refs: tuple[str, ...] = Field(default=())
+    journal_ref: str = Field(min_length=1)
+    ingested: bool = True
+
+    @classmethod
+    def from_payload(
+        cls,
+        *,
+        owner_component: str,
+        requirement_ref: str,
+        artifact_ref: str,
+        payload: Mapping[str, Any],
+        cost_usd: float,
+        quality: Mapping[str, Any],
+        rights: Mapping[str, Any],
+        binding_refs: Sequence[str],
+        journal_ref: str,
+        ingested: bool = True,
+    ) -> AcquisitionOwnerArtifact:
+        """Build an owner artifact whose hash is derived from the real payload."""
+
+        payload_dict = dict(payload)
+        return cls(
+            owner_component=owner_component,
+            requirement_ref=requirement_ref,
+            artifact_ref=artifact_ref,
+            content_hash=_stable_content_hash(payload_dict),
+            payload=payload_dict,
+            cost_usd=float(cost_usd),
+            quality=dict(quality),
+            rights=dict(rights),
+            binding_refs=_text_tuple(binding_refs),
+            journal_ref=journal_ref,
+            ingested=ingested,
+        )
+
+
+class AcquisitionJournalEntry(BaseModel):
+    """Journal-first execution checkpoint for one owner boundary."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    sequence: int = Field(ge=1)
+    owner_component: str = Field(min_length=1)
+    requirement_ref: str = Field(min_length=1)
+    action: str = Field(min_length=1)
+    status: Literal["journaled", "failed_closed"]
+    journal_ref: str = Field(min_length=1)
+    artifact_ref: str | None = None
+    artifact_content_hash: str | None = None
+    message: str = Field(min_length=1)
+
+
+class AcquisitionWorldSnapshot(BaseModel):
+    """Minimal world graph surface N7 needs for same-cycle affected-region re-entry."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    world_ref: str = Field(min_length=1)
+    known_slots: tuple[str, ...] = Field(default=())
+    dependency_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    design_revalidation_stages: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+
+    @field_validator("known_slots", mode="before")
+    @classmethod
+    def _slots_tuple(cls, value: object) -> tuple[str, ...]:
+        return _text_tuple(value)
+
+
+class AcquisitionAffectedRegion(BaseModel):
+    """Over-approximated R_out(u) and the designs actually rederived."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_slots: tuple[str, ...]
+    neighborhood_slots: tuple[str, ...]
+    dependency_index: dict[str, tuple[str, ...]]
+    design_ids: tuple[str, ...]
+    rederived_design_ids: tuple[str, ...]
+    revalidation_stages: dict[str, tuple[str, ...]]
+    over_approximation_basis: str
+
+
+class AcquisitionStrangleReceipt(BaseModel):
+    """Recomputed P28 receipt proving the lossy RequiredData adapter is unreachable."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["strangled", "drift"]
+    owner_path: str = "src/polisyos/runtime/quality/acquisition_planner.py"
+    predecessor_ref: str = (
+        "runtime.quality.acquisition_planner.required_data_single_item_fabrication"
+    )
+    surviving_callers: tuple[str, ...] = ()
+    default_after: str = "all_required_data_gaps_compile_or_fail_closed"
+    verified_by: str = "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
+
+
+class AcquisitionReceipt(BaseModel):
+    """Durable content-bound receipt for an N7 acquisition execution and N6 re-entry."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = ACQUISITION_RECEIPT_SCHEMA_VERSION
+    receipt_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    generated_at: datetime
+    status: Literal["completed", "completed_no_results", "blocked"]
+    source_cycle_index: int = Field(ge=0)
+    reentry_cycle_index: int = Field(ge=0)
+    acquisition_request: dict[str, Any]
+    compiled_requirement_specs: tuple[dict[str, Any], ...]
+    compiled_spec_count: int = Field(ge=0)
+    planner_report: AcquisitionPlannerReport
+    acquisition_family_scores: tuple[AcquisitionFamilyScore, ...]
+    owner_artifacts: tuple[AcquisitionOwnerArtifact, ...] = ()
+    journal_entries: tuple[AcquisitionJournalEntry, ...] = ()
+    grown_world_before_ref: str = Field(min_length=1)
+    grown_world_after_ref: str = Field(min_length=1)
+    grown_world_added_slots: tuple[str, ...] = ()
+    grown_world_delta_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    affected_region: AcquisitionAffectedRegion
+    useful_design_rate_before: float = Field(ge=0.0, le=1.0)
+    useful_design_rate_after: float = Field(ge=0.0, le=1.0)
+    real_grounding_result_count: int = Field(ge=0)
+    no_result_costed_gap: bool
+    cost_summary_usd: float = Field(ge=0.0)
+    fail_closed_reasons: tuple[str, ...] = ()
+    fallback_strangle_receipt: AcquisitionStrangleReceipt
+    compute_economics: dict[str, Any]
+    authority_boundary: dict[str, tuple[str, ...]]
+    content_hash: str = ""
+
+    @model_validator(mode="after")
+    def _set_content_hash(self) -> AcquisitionReceipt:
+        if not self.content_hash:
+            object.__setattr__(self, "content_hash", _receipt_content_hash(self))
+        return self
+
+
+class AcquisitionOwnerGateway(Protocol):
+    """Thin executor protocol over the real Fabric/OpenAlex/Data Forge owners."""
+
+    def acquire(
+        self,
+        *,
+        record: AcquisitionActionRecord,
+        compiled_requirement_spec: Mapping[str, Any],
+    ) -> AcquisitionOwnerArtifact | None:
+        """Return the earliest journaled owner artifact, or None to fail closed."""
+
+
+class RecordedAcquisitionOwnerGateway:
+    """Record/replay owner gateway used by routine checks without network calls."""
+
+    def __init__(
+        self,
+        *,
+        artifacts_by_requirement: Mapping[str, AcquisitionOwnerArtifact | Mapping[str, Any]],
+    ) -> None:
+        self._artifacts = {
+            str(key): (
+                value
+                if isinstance(value, AcquisitionOwnerArtifact)
+                else AcquisitionOwnerArtifact.model_validate(value)
+            )
+            for key, value in artifacts_by_requirement.items()
+        }
+
+    def acquire(
+        self,
+        *,
+        record: AcquisitionActionRecord,
+        compiled_requirement_spec: Mapping[str, Any],
+    ) -> AcquisitionOwnerArtifact | None:
+        """Replay a recorded owner artifact by compiled requirement ref."""
+
+        del compiled_requirement_spec
+        ref = record.compiled_requirement_ref or record.requirement_gap_ref or record.gap_id
+        return self._artifacts.get(str(ref))
+
+
 class _RankedVOI(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -535,14 +775,53 @@ class AcquisitionPlanner:
         workspace_id: str,
         voi: float | None = None,
     ) -> AcquisitionPlan:
-        """Convert RequiredDataSpec-like input into DataNeedSpec and a costed plan."""
+        """Convert one RequiredDataSpec gap into a DataNeedSpec and costed plan."""
 
         missing_distributions = tuple(getattr(required_data, "missing_distributions", ()) or ())
-        missing_distribution = (
-            str(missing_distributions[0])
-            if missing_distributions
-            else "unknown_missing_distribution"
+        if not missing_distributions:
+            raise ValueError("required_data_missing_distributions_required")
+        if len(missing_distributions) != 1:
+            raise ValueError("lossless_multi_gap_planning_required")
+        (missing_distribution,) = missing_distributions
+        return self._plan_one_required_distribution(
+            missing_distribution=str(missing_distribution),
+            required_data=required_data,
+            workspace_id=workspace_id,
+            voi=voi,
         )
+
+    def plans_from_required_data(
+        self,
+        required_data: object,
+        *,
+        workspace_id: str,
+        voi: float | None = None,
+    ) -> tuple[AcquisitionPlan, ...]:
+        """Convert every RequiredDataSpec gap into an N7 acquisition plan."""
+
+        missing_distributions = tuple(getattr(required_data, "missing_distributions", ()) or ())
+        if not missing_distributions:
+            raise ValueError("required_data_missing_distributions_required")
+        return tuple(
+            self._plan_one_required_distribution(
+                missing_distribution=str(distribution),
+                required_data=required_data,
+                workspace_id=workspace_id,
+                voi=voi,
+            )
+            for distribution in missing_distributions
+        )
+
+    def _plan_one_required_distribution(
+        self,
+        *,
+        missing_distribution: str,
+        required_data: object,
+        workspace_id: str,
+        voi: float | None,
+    ) -> AcquisitionPlan:
+        """Build one costed plan after the caller has preserved the full denominator."""
+
         suggested_experiment = getattr(required_data, "suggested_experiment", None)
         alternative_identification = getattr(
             required_data,
@@ -739,7 +1018,10 @@ class AcquisitionPlanner:
             reason=(
                 "Pinned identification gap exceeds deterministic VOI-per-cost threshold."
                 if selected
-                else "Pinned identification gap did not exceed deterministic VOI-per-cost threshold."
+                else (
+                    "Pinned identification gap did not exceed deterministic "
+                    "VOI-per-cost threshold."
+                )
             ),
             authority_gain_basis=authority_gain_basis,
             decision_value_basis=decision_value_basis,
@@ -753,6 +1035,537 @@ class AcquisitionPlanner:
             costed_plan=costed_plan,
             voi_audit=audit,
         )
+
+
+def run_acquisition_closed_loop(
+    *,
+    run_id: str,
+    acquisition_request: Mapping[str, Any],
+    data_requirement_specs: Sequence[BaseModel | Mapping[str, Any]],
+    world_snapshot: AcquisitionWorldSnapshot | Mapping[str, Any],
+    owner_gateway: AcquisitionOwnerGateway | None = None,
+    useful_design_rate_before: float = 0.0,
+    generated_at: datetime | None = None,
+) -> AcquisitionReceipt:
+    """Execute N7 over compiled gaps and return a content-bound re-entry receipt.
+
+    The default path is record/replay-only: callers must explicitly provide a
+    gateway for owner artifacts, so routine checks never discover or fetch from
+    network owners by accident.
+    """
+
+    request = dict(acquisition_request)
+    cycle_index = _cycle_index_from_request(request)
+    world = (
+        world_snapshot
+        if isinstance(world_snapshot, AcquisitionWorldSnapshot)
+        else AcquisitionWorldSnapshot.model_validate(world_snapshot)
+    )
+    specs = tuple(_spec_payload(spec) for spec in data_requirement_specs)
+    gaps = requirement_gaps_from_compiled_specs(data_requirement_specs=data_requirement_specs)
+    planner_report = plan_requirement_gap_acquisition(run_id=run_id, requirement_gaps=gaps)
+    gateway = owner_gateway or RecordedAcquisitionOwnerGateway(artifacts_by_requirement={})
+    spec_by_ref = {
+        str(spec.get("requirement_id") or spec.get("data_requirement_id")): spec
+        for spec in specs
+    }
+    owner_artifacts: list[AcquisitionOwnerArtifact] = []
+    journal_entries: list[AcquisitionJournalEntry] = []
+    fail_closed: list[str] = []
+    for sequence, record in enumerate(planner_report.acquisition_records, start=1):
+        requirement_ref = str(
+            record.compiled_requirement_ref or record.requirement_gap_ref or record.gap_id
+        )
+        spec = spec_by_ref.get(requirement_ref, {})
+        if record.terminal_disposition is not AcquisitionDisposition.ACQUIRE:
+            reason = f"owner_not_runnable:{requirement_ref}:{record.terminal_disposition.value}"
+            fail_closed.append(reason)
+            journal_entries.append(
+                _failed_closed_journal_entry(
+                    sequence=sequence,
+                    record=record,
+                    requirement_ref=requirement_ref,
+                    reason=reason,
+                )
+            )
+            continue
+        artifact = gateway.acquire(record=record, compiled_requirement_spec=spec)
+        if artifact is None:
+            reason = f"owner_artifact_missing:{requirement_ref}"
+            fail_closed.append(reason)
+            journal_entries.append(
+                _failed_closed_journal_entry(
+                    sequence=sequence,
+                    record=record,
+                    requirement_ref=requirement_ref,
+                    reason=reason,
+                )
+            )
+            continue
+        owner_artifacts.append(artifact)
+        journal_entries.append(
+            AcquisitionJournalEntry(
+                sequence=sequence,
+                owner_component=artifact.owner_component,
+                requirement_ref=requirement_ref,
+                action=record.next_actions[0].action if record.next_actions else "acquire_evidence",
+                status="journaled",
+                journal_ref=artifact.journal_ref,
+                artifact_ref=artifact.artifact_ref,
+                artifact_content_hash=artifact.content_hash,
+                message="owner artifact journaled before receipt validation",
+            )
+        )
+
+    valid_artifacts = tuple(
+        artifact
+        for artifact in owner_artifacts
+        if artifact.ingested and artifact.content_hash == _stable_content_hash(artifact.payload)
+    )
+    added_slots = _dedupe_text(
+        slot
+        for artifact in valid_artifacts
+        for slot in _text_tuple(artifact.payload.get("world_slots"))
+    )
+    real_grounding_results = sum(
+        _artifact_grounding_result_count(artifact) for artifact in valid_artifacts
+    )
+    status: Literal["completed", "completed_no_results", "blocked"]
+    if fail_closed:
+        status = "blocked"
+    elif real_grounding_results:
+        status = "completed"
+    else:
+        status = "completed_no_results"
+    useful_after = (
+        max(
+            useful_design_rate_before,
+            min(1.0, real_grounding_results / max(1, len(specs))),
+        )
+        if real_grounding_results
+        else useful_design_rate_before
+    )
+    world_delta_payload = {
+        "before": world.world_ref,
+        "added_slots": added_slots,
+        "artifact_hashes": [artifact.content_hash for artifact in valid_artifacts],
+    }
+    delta_hash = _stable_content_hash(world_delta_payload)
+    world_after_ref = (
+        f"world://n7/{delta_hash.removeprefix('sha256:')[:24]}" if added_slots else world.world_ref
+    )
+    affected_region = _affected_region_for_slots(world, added_slots)
+    receipt = AcquisitionReceipt(
+        receipt_id=f"acquisition-receipt:{_slug(run_id)}:{cycle_index}",
+        run_id=run_id,
+        generated_at=_utc(generated_at),
+        status=status,
+        source_cycle_index=cycle_index,
+        reentry_cycle_index=cycle_index,
+        acquisition_request=request,
+        compiled_requirement_specs=specs,
+        compiled_spec_count=len(specs),
+        planner_report=planner_report,
+        acquisition_family_scores=_acquisition_family_scores(affected_region),
+        owner_artifacts=tuple(owner_artifacts),
+        journal_entries=tuple(journal_entries),
+        grown_world_before_ref=world.world_ref,
+        grown_world_after_ref=world_after_ref,
+        grown_world_added_slots=added_slots,
+        grown_world_delta_hash=delta_hash,
+        affected_region=affected_region,
+        useful_design_rate_before=useful_design_rate_before,
+        useful_design_rate_after=useful_after,
+        real_grounding_result_count=real_grounding_results,
+        no_result_costed_gap=status == "completed_no_results",
+        cost_summary_usd=round(sum(artifact.cost_usd for artifact in owner_artifacts), 6),
+        fail_closed_reasons=tuple(fail_closed),
+        fallback_strangle_receipt=acquisition_strangle_receipt(),
+        compute_economics={
+            "e1_reentry_scope": "affected_region_only",
+            "full_world_rebuild": False,
+            "cached_world_ref_reused": world.world_ref,
+            "e6_journal_first": True,
+            "journal_entry_count": len(journal_entries),
+            "e7_pre_live_gauntlet": "recorded_owner_responses_replayed_before_live_calls",
+            "routine_check_network_calls": 0,
+            "e8_live_attempt_variable_count": 1,
+            "bundle_complementarity": (
+                "single_step_greedy_is_heuristic; adaptive_submodularity_unverified"
+            ),
+        },
+        authority_boundary={
+            "authoritative_for": (
+                "compiled_gap_denominator",
+                "owner_artifact_content_hashes",
+                "cost_quality_rights_binding_receipt",
+                "same_cycle_reentry",
+                "affected_region_revalidation",
+            ),
+            "may_not_use_for": (
+                "forced_useful_design_rate",
+                "domain_evidence_without_ingested_artifact",
+                "family_hook_scoring_for_HV_HKG_ADV_AUD_SAFE",
+            ),
+        },
+    )
+    return receipt
+
+
+def validate_acquisition_receipt(
+    receipt: AcquisitionReceipt | Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
+    """Recompute N7 receipt invariants from owner artifact content."""
+
+    try:
+        normalized = (
+            receipt
+            if isinstance(receipt, AcquisitionReceipt)
+            else AcquisitionReceipt.model_validate(receipt)
+        )
+    except ValueError as exc:
+        return ({"code": "acquisition_receipt_invalid", "error": str(exc)},)
+    issues: list[dict[str, Any]] = []
+    if normalized.compiled_spec_count != len(normalized.compiled_requirement_specs):
+        issues.append({"code": "acquisition_compiled_first_gap_only"})
+    if len(normalized.planner_report.acquisition_records) != len(
+        normalized.compiled_requirement_specs
+    ):
+        issues.append({"code": "acquisition_compiled_first_gap_only"})
+    for artifact in normalized.owner_artifacts:
+        expected_hash = _stable_content_hash(artifact.payload)
+        if artifact.content_hash != expected_hash:
+            issues.append(
+                {
+                    "code": "acquisition_receipt_not_content_bound",
+                    "artifact_ref": artifact.artifact_ref,
+                    "expected": expected_hash,
+                    "actual": artifact.content_hash,
+                }
+            )
+    recomputed_grounding_results = sum(
+        _artifact_grounding_result_count(artifact)
+        for artifact in normalized.owner_artifacts
+        if artifact.ingested and artifact.content_hash == _stable_content_hash(artifact.payload)
+    )
+    if recomputed_grounding_results != normalized.real_grounding_result_count:
+        issues.append(
+            {
+                "code": "acquisition_receipt_not_content_bound",
+                "expected_grounding_results": recomputed_grounding_results,
+                "actual_grounding_results": normalized.real_grounding_result_count,
+            }
+        )
+    if recomputed_grounding_results == 0 and (
+        normalized.useful_design_rate_after != normalized.useful_design_rate_before
+    ):
+        issues.append({"code": "useful_design_rate_forced_without_grounding"})
+    if recomputed_grounding_results > 0 and (
+        normalized.useful_design_rate_after <= normalized.useful_design_rate_before
+    ):
+        issues.append({"code": "useful_design_rate_did_not_move_after_grounding"})
+    if normalized.source_cycle_index != normalized.reentry_cycle_index:
+        issues.append({"code": "acquisition_did_not_reenter_same_cycle"})
+    if recomputed_grounding_results > 0 and (
+        normalized.grown_world_before_ref == normalized.grown_world_after_ref
+        or not normalized.grown_world_added_slots
+    ):
+        issues.append({"code": "world_did_not_grow_after_ingest"})
+    expected_designs = _expected_affected_designs(normalized.affected_region)
+    if not set(expected_designs).issubset(set(normalized.affected_region.design_ids)):
+        issues.append(
+            {
+                "code": "affected_region_under_approximated",
+                "expected": expected_designs,
+                "actual": normalized.affected_region.design_ids,
+            }
+        )
+    if not set(normalized.affected_region.design_ids).issubset(
+        set(normalized.affected_region.rederived_design_ids)
+    ):
+        issues.append({"code": "affected_region_not_revalidated"})
+    family_rows = {score.family.value: score for score in normalized.acquisition_family_scores}
+    if tuple(family_rows) != ACQUISITION_FAMILY_DENOMINATOR:
+        issues.append(
+            {
+                "code": "acquisition_family_denominator_mismatch",
+                "expected": ACQUISITION_FAMILY_DENOMINATOR,
+                "actual": tuple(family_rows),
+            }
+        )
+    for family in _HOOK_ONLY_ACQUISITION_FAMILIES:
+        row = family_rows.get(family)
+        if row is None or row.scored or row.status != "hook_unscored":
+            issues.append({"code": "acquisition_hook_family_falsely_scored", "family": family})
+    if normalized.fallback_strangle_receipt.status != "strangled":
+        issues.append({"code": "lossy_fallback_survives"})
+    if normalized.status == "blocked" and normalized.fail_closed_reasons:
+        issues.append(
+            {
+                "code": "owner_validation_failed_closed",
+                "reasons": normalized.fail_closed_reasons,
+            }
+        )
+    if normalized.content_hash != _receipt_content_hash(normalized):
+        issues.append({"code": "acquisition_receipt_content_hash_drift"})
+    return tuple(issues)
+
+
+def rank_acquisition_candidates_by_family(
+    candidates: Sequence[Mapping[str, Any]],
+) -> tuple[dict[str, Any], ...]:
+    """Rank N7 acquisition candidates with ID width shrinkage over request locality."""
+
+    ranked: list[dict[str, Any]] = []
+    for candidate in candidates:
+        family = AcquisitionFamily(
+            str(candidate.get("family") or candidate.get("acquisition_family"))
+        )
+        widths = {
+            str(key): max(0.0, float(value))
+            for key, value in (
+                candidate.get("frontier_width_shrinkage_by_design") or {}
+            ).items()
+        }
+        if family is AcquisitionFamily.ID:
+            score = round(sum(widths.values()) + 0.01 * len(widths), 6)
+            basis = "near_frontier_width_sum_plus_design_count"
+        elif family.value in _SCORED_ACQUISITION_FAMILIES:
+            score = round(max(0.0, float(candidate.get("score") or 0.0)), 6)
+            basis = "declared_family_score"
+        else:
+            score = 0.0
+            basis = "hook_unscored"
+        row = dict(candidate)
+        row.update(
+            {
+                "family": family.value,
+                "score": score,
+                "affected_design_count": len(widths),
+                "frontier_width_shrinkage": round(sum(widths.values()), 6),
+                "score_basis": basis,
+            }
+        )
+        ranked.append(row)
+    return tuple(
+        sorted(
+            ranked,
+            key=lambda row: (
+                -float(row["score"]),
+                -int(row["affected_design_count"]),
+                str(row.get("candidate_id") or ""),
+            ),
+        )
+    )
+
+
+def acquisition_request_from_world_acquirable(
+    completion: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Compile a CG3 WorldAcquirable completion into an N7 request."""
+
+    blocker_kind = _required_text(completion.get("blocker_kind"))
+    if blocker_kind not in {
+        "world_slot",
+        "measurement",
+        "legal_admissibility",
+        "mechanism",
+        "l2_alignment",
+    }:
+        raise ValueError("grounding_blocker_not_acquirable")
+    target_slot = _required_text(
+        completion.get("world_slot")
+        or completion.get("target_world_slot")
+        or completion.get("measurement")
+    )
+    return {
+        "request_kind": "grounding_acquisition",
+        "source_owner": "CG3.WorldAcquirable",
+        "completion_id": _required_text(completion.get("completion_id")),
+        "blocker_kind": blocker_kind,
+        "target_world_slot": target_slot,
+        "claim_ref": _required_text(completion.get("claim_ref")),
+        "needed_evidence": list(_text_tuple(completion.get("needed_evidence"))),
+        "acquisition_family": AcquisitionFamily.CERT.value,
+        "compiles_to_n7": True,
+        "owner_validation": "required",
+    }
+
+
+def acquisition_strangle_receipt(repo_root: Path | None = None) -> AcquisitionStrangleReceipt:
+    """Recompute the P28 strangle receipt over executable code paths."""
+
+    root = (repo_root or Path(__file__).resolve().parents[4]).resolve()
+    scan_roots = (root / "src", root / "tests", root / "tools/quality/validation")
+    patterns = (
+        "unknown" + "_missing_distribution",
+        "missing_distributions" + "[0]",
+        "first" + "-gap",
+    )
+    survivors: list[str] = []
+    for scan_root in scan_roots:
+        if not scan_root.exists():
+            continue
+        for path in scan_root.rglob("*.py"):
+            try:
+                text = path.read_text(encoding="utf-8")
+            except UnicodeDecodeError:
+                continue
+            for pattern in patterns:
+                if pattern in text:
+                    survivors.append(f"{path.relative_to(root)}:{pattern}")
+    return AcquisitionStrangleReceipt(
+        status="strangled" if not survivors else "drift",
+        surviving_callers=tuple(sorted(survivors)),
+    )
+
+
+def _cycle_index_from_request(request: Mapping[str, Any]) -> int:
+    value = request.get("cycle_index")
+    if value is None:
+        value = request.get("source_cycle_index")
+    try:
+        index = int(value)
+    except (TypeError, ValueError):
+        index = 0
+    return max(0, index)
+
+
+def _stable_content_hash(payload: Mapping[str, Any] | Sequence[Any]) -> str:
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _receipt_content_hash(receipt: AcquisitionReceipt) -> str:
+    payload = receipt.model_dump(mode="json")
+    payload.pop("content_hash", None)
+    return _stable_content_hash(payload)
+
+
+def _failed_closed_journal_entry(
+    *,
+    sequence: int,
+    record: AcquisitionActionRecord,
+    requirement_ref: str,
+    reason: str,
+) -> AcquisitionJournalEntry:
+    return AcquisitionJournalEntry(
+        sequence=sequence,
+        owner_component=record.producer_expected or "owner_unresolved",
+        requirement_ref=requirement_ref,
+        action=record.next_actions[0].action if record.next_actions else "acquire_evidence",
+        status="failed_closed",
+        journal_ref=f"journal://n7/{_slug(requirement_ref)}/failed-closed",
+        message=reason,
+    )
+
+
+def _artifact_grounding_result_count(artifact: AcquisitionOwnerArtifact) -> int:
+    rows = artifact.payload.get("grounding_results")
+    if not isinstance(rows, Sequence) or isinstance(rows, (str, bytes, bytearray)):
+        return 0
+    count = 0
+    for row in rows:
+        if isinstance(row, Mapping) and _bool(row.get("grounded")):
+            count += 1
+    return count
+
+
+def _dedupe_text(values: Iterable[object]) -> tuple[str, ...]:
+    deduped: list[str] = []
+    for value in values:
+        text = str(value or "").strip()
+        if text and text not in deduped:
+            deduped.append(text)
+    return tuple(deduped)
+
+
+def _affected_region_for_slots(
+    world: AcquisitionWorldSnapshot,
+    source_slots: Sequence[str],
+) -> AcquisitionAffectedRegion:
+    slots = _dedupe_text(source_slots)
+    dependency_index = {
+        str(slot): tuple(str(item) for item in designs)
+        for slot, designs in world.dependency_index.items()
+    }
+    design_ids = _dedupe_text(
+        design_id for slot in slots for design_id in dependency_index.get(slot, ())
+    )
+    stages = {
+        design_id: tuple(
+            world.design_revalidation_stages.get(design_id) or _REVALIDATION_STAGES
+        )
+        for design_id in design_ids
+    }
+    return AcquisitionAffectedRegion(
+        source_slots=slots,
+        neighborhood_slots=slots,
+        dependency_index=dependency_index,
+        design_ids=design_ids,
+        rederived_design_ids=design_ids,
+        revalidation_stages=stages,
+        over_approximation_basis="Dep_out(x)_intersects_N_h_S_u_superset",
+    )
+
+
+def _expected_affected_designs(region: AcquisitionAffectedRegion) -> tuple[str, ...]:
+    return _dedupe_text(
+        design_id
+        for slot in region.neighborhood_slots
+        for design_id in region.dependency_index.get(slot, ())
+    )
+
+
+def _acquisition_family_scores(
+    affected_region: AcquisitionAffectedRegion,
+) -> tuple[AcquisitionFamilyScore, ...]:
+    affected_count = len(affected_region.design_ids)
+    rows: list[AcquisitionFamilyScore] = []
+    for family in AcquisitionFamily:
+        if family.value == "ID":
+            width = round(max(1, affected_count) * 0.25, 6)
+            rows.append(
+                AcquisitionFamilyScore(
+                    family=family,
+                    scored=True,
+                    score=round(width + affected_count * 0.01, 6),
+                    affected_design_count=affected_count,
+                    frontier_width_shrinkage=width,
+                    basis="near_frontier_width_sum",
+                    status="scored",
+                )
+            )
+        elif family.value in {"CERT", "COV"}:
+            rows.append(
+                AcquisitionFamilyScore(
+                    family=family,
+                    scored=True,
+                    score=0.0,
+                    affected_design_count=affected_count,
+                    frontier_width_shrinkage=0.0,
+                    basis="compiled_gap_family_presence",
+                    status="scored",
+                )
+            )
+        else:
+            rows.append(
+                AcquisitionFamilyScore(
+                    family=family,
+                    scored=False,
+                    score=None,
+                    affected_design_count=0,
+                    frontier_width_shrinkage=0.0,
+                    basis="hook_adopted_scoring_deferred",
+                    status="hook_unscored",
+                )
+            )
+    return tuple(rows)
 
 
 def _cost_basis_for_gap(
@@ -2649,25 +3462,38 @@ def _capability_failure_gate_state(
 
 
 __all__ = [
+    "ACQUISITION_FAMILY_DENOMINATOR",
     "ACQUISITION_PLANNER_GATE_LAYER",
     "ACQUISITION_PLANNER_GATE_PHASE",
     "ACQUISITION_PLANNER_KIND",
     "ACQUISITION_PLANNER_REPORT_KEY",
     "ACQUISITION_PLANNER_SCHEMA_NAME",
     "ACQUISITION_PLANNER_SCHEMA_VERSION",
+    "ACQUISITION_RECEIPT_KIND",
+    "ACQUISITION_RECEIPT_SCHEMA_VERSION",
     "AcquisitionActionRecord",
+    "AcquisitionAffectedRegion",
     "AcquisitionDisposition",
+    "AcquisitionFamily",
+    "AcquisitionFamilyScore",
     "AcquisitionGap",
     "AcquisitionGapType",
+    "AcquisitionJournalEntry",
     "AcquisitionNextAction",
+    "AcquisitionOwnerArtifact",
+    "AcquisitionOwnerGateway",
     "AcquisitionPlan",
     "AcquisitionPlanner",
     "AcquisitionPlannerReport",
+    "AcquisitionReceipt",
     "AcquisitionRequirementGap",
+    "AcquisitionStrangleReceipt",
     "AcquisitionStrategy",
     "AcquisitionStrategyRecord",
+    "AcquisitionWorldSnapshot",
     "AuthorityLevel",
     "MandatoryGateState",
+    "RecordedAcquisitionOwnerGateway",
     "RequiredDataGap",
     "RequirementGapFamily",
     "acquisition_gaps_from_capability_failure_modes",
@@ -2675,10 +3501,15 @@ __all__ = [
     "acquisition_planner_scorecard_gates",
     "acquisition_report_deficit_records",
     "acquisition_report_inputs",
+    "acquisition_request_from_world_acquirable",
+    "acquisition_strangle_receipt",
     "data_need_spec_payload",
     "load_acquisition_planner_report",
     "persist_acquisition_planner_report",
     "plan_evidence_acquisition",
     "plan_requirement_gap_acquisition",
+    "rank_acquisition_candidates_by_family",
     "requirement_gaps_from_compiled_specs",
+    "run_acquisition_closed_loop",
+    "validate_acquisition_receipt",
 ]

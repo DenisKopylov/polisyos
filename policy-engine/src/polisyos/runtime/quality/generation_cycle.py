@@ -64,6 +64,17 @@ ENGINE_SIMPLE_OWNER_REF = (
 
 FrontKind = Literal["decision", "research", "quarantine", "portfolio"]
 GenerationChannel = Literal["n4_owner", "grammar_fallback"]
+RevisionStrategy = Literal[
+    "acquire_or_elicit",
+    "adversarial_validate",
+    "spec_gap_reframe",
+    "hold_abstain",
+    "terminal_stop",
+    "human_escalation",
+    "tool_repair",
+    "composition_repair",
+    "recursive_block",
+]
 GroundingStatus = Literal[
     "current_valid",
     "grounded_shadow",
@@ -243,6 +254,8 @@ class DesignRevisionRequest(_StrictModel):
     previous_grammar_elements: tuple[str, ...]
     new_grammar_elements: tuple[str, ...]
     next_grammar_elements: tuple[str, ...]
+    revision_strategy: RevisionStrategy
+    strategy_payload: dict[str, Any] = Field(default_factory=dict)
     revised_problem: DesignProblem
     revision_driver: Literal["counterexample"] = "counterexample"
 
@@ -476,8 +489,7 @@ class PolicyGroundingPort:
             )
         chain = _object_get(disposition, "certificate_chain")
         certificate_refs = _certificate_refs(chain)
-        proxy_gap_ref = _object_get(chain, "cg4_proxy_gap_risk_id")
-        cg5_ref = _object_get(chain, "cg5_action_certificate_id")
+        proxy_gap_ref, quarantine_handoff_ref = _cg4_quarantine_refs(chain)
         bridge_codes = tuple(
             str(_object_get(record, "integration_status") or _object_get(record, "pattern") or "")
             for record in _sequence(_object_get(disposition, "bridge_missing_records"))
@@ -497,7 +509,7 @@ class PolicyGroundingPort:
                 *bridge_codes,
                 *(
                     ("cg4_proxy_gap:adversarial_validate",)
-                    if proxy_gap_ref and cg5_ref
+                    if proxy_gap_ref and quarantine_handoff_ref
                     else ()
                 ),
             )
@@ -525,9 +537,11 @@ class PolicyGroundingPort:
             grounding_disposition=raw_disposition,
             cgf_certificate_refs=certificate_refs,
             quarantine_action=(
-                "adversarial_validate" if proxy_gap_ref and cg5_ref else "none"
+                "adversarial_validate" if proxy_gap_ref and quarantine_handoff_ref else "none"
             ),
-            adversarial_validation_ref=str(cg5_ref) if cg5_ref else None,
+            adversarial_validation_ref=(
+                str(quarantine_handoff_ref) if quarantine_handoff_ref else None
+            ),
         )
 
 
@@ -793,6 +807,7 @@ class GenerationCycleController:
                     introduced_grammar_elements=(
                         cycle.revision_request.new_grammar_elements
                     ),
+                    design_problem=current_problem,
                 )
             except GenerationCycleError as exc:
                 terminal_status = "blocked"
@@ -1145,6 +1160,7 @@ def enforce_no_retry_without_new_grammar(
     previous_grammar_elements: Sequence[str],
     next_grammar_elements: Sequence[str],
     introduced_grammar_elements: Sequence[str],
+    design_problem: DesignProblem | None = None,
 ) -> None:
     """Enforce the S2 no-retry-without-new-grammar discipline."""
 
@@ -1159,6 +1175,13 @@ def enforce_no_retry_without_new_grammar(
             pass
         else:
             raise GenerationCycleError("new_grammar_elements_not_introduced")
+    if actual_introduced:
+        if design_problem is None:
+            raise GenerationCycleError("new_grammar_owner_missing")
+        _validate_owned_grammar_elements(
+            actual_introduced,
+            design_problem=design_problem,
+        )
     if same_candidate and grammar_did_not_grow:
         raise GenerationCycleError("no_retry_without_new_grammar")
     if grammar_did_not_grow:
@@ -1204,16 +1227,45 @@ def validate_generation_cycle_run(
                     "scheduler_action": cycle.voi_decision.scheduler_action,
                 }
             )
-        if (
-            cycle.revision_request.source_terminal_kind
-            and not any(
-                cycle.revision_request.source_terminal_kind in item
-                for item in cycle.revision_request.new_grammar_elements
+        try:
+            expected_strategy = _revision_strategy_for_terminal_kind(
+                cycle.revision_request.source_terminal_kind
             )
+        except GenerationCycleError:
+            expected_strategy = None
+        if cycle.revision_request.revision_strategy != expected_strategy:
+            issues.append(
+                {
+                    "code": "revision_not_terminal_driven",
+                    "cycle_index": index,
+                    "terminal_kind": cycle.revision_request.source_terminal_kind,
+                    "expected_strategy": expected_strategy,
+                    "actual_strategy": cycle.revision_request.revision_strategy,
+                }
+            )
+        if (
+            cycle.revision_request.strategy_payload.get("terminal_kind")
+            != cycle.revision_request.source_terminal_kind
         ):
             issues.append(
                 {
                     "code": "revision_not_terminal_driven",
+                    "cycle_index": index,
+                    "terminal_kind": cycle.revision_request.source_terminal_kind,
+                    "payload_terminal_kind": cycle.revision_request.strategy_payload.get(
+                        "terminal_kind"
+                    ),
+                }
+            )
+        try:
+            _validate_owned_grammar_elements(
+                cycle.revision_request.new_grammar_elements,
+                design_problem=cycle.revision_request.revised_problem,
+            )
+        except GenerationCycleError as exc:
+            issues.append(
+                {
+                    "code": exc.code,
                     "cycle_index": index,
                     "terminal_kind": cycle.revision_request.source_terminal_kind,
                 }
@@ -1322,25 +1374,154 @@ def _grounding_disposition_denominator() -> tuple[str, ...]:
     return tuple(str(item) for item in get_args(GroundingDispositionKind))
 
 
+def _revision_strategy_for_terminal_kind(terminal_kind: str) -> RevisionStrategy:
+    if terminal_kind == SearchTerminalKind.ACQUISITION_REQUIRED.value:
+        return "acquire_or_elicit"
+    if terminal_kind == SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value:
+        return "adversarial_validate"
+    if terminal_kind == SearchTerminalKind.A_SPEC_GAP.value:
+        return "spec_gap_reframe"
+    if terminal_kind == SearchTerminalKind.GROUNDED_ABSTENTION.value:
+        return "hold_abstain"
+    if terminal_kind in {
+        SearchTerminalKind.BUDGET_EXHAUSTED.value,
+        SearchTerminalKind.FRONTIER_STABLE.value,
+        SearchTerminalKind.GROUNDED_ADMISSIBLE.value,
+        SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value,
+    }:
+        return "terminal_stop"
+    if terminal_kind == SearchTerminalKind.HUMAN_DECISION_REQUIRED.value:
+        return "human_escalation"
+    if terminal_kind == SearchTerminalKind.TOOL_FAILURE.value:
+        return "tool_repair"
+    if terminal_kind == SearchTerminalKind.COMPOSITION_INVALID.value:
+        return "composition_repair"
+    if terminal_kind == SearchTerminalKind.RECURSIVE_BLOCKED.value:
+        return "recursive_block"
+    raise GenerationCycleError("unknown_terminal_kind", terminal_kind)
+
+
+def _revision_strategy_grammar_element(
+    problem: DesignProblem,
+    *,
+    strategy: RevisionStrategy,
+    issue: str,
+) -> str:
+    lever = problem.candidate_lever_space.candidate_levers[0]
+    return f"lever:{lever.lever_id}:{strategy}:{_slug(issue)}"
+
+
+def _revision_grammar_elements(
+    problem: DesignProblem,
+    *,
+    strategy: RevisionStrategy,
+    issue: str,
+) -> tuple[str, ...]:
+    if strategy in {
+        "adversarial_validate",
+        "spec_gap_reframe",
+        "tool_repair",
+        "composition_repair",
+        "recursive_block",
+    }:
+        return (
+            _revision_strategy_grammar_element(
+                problem,
+                strategy=strategy,
+                issue=issue,
+            ),
+        )
+    return ()
+
+
+def _revision_strategy_payload(
+    *,
+    strategy: RevisionStrategy,
+    terminal_kind: str,
+    issue: str,
+    counterexample: CounterexampleRecord,
+    new_grammar_elements: Sequence[str],
+    cycle_index: int,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "strategy": strategy,
+        "terminal_kind": terminal_kind,
+        "issue": issue,
+        "source_counterexample_ref": counterexample.counterexample_ref,
+    }
+    if strategy == "acquire_or_elicit":
+        payload["acquisition_request"] = {
+            "request_kind": "owner_grounding_evidence",
+            "driver": issue,
+            "counterexample_ref": counterexample.counterexample_ref,
+            "cycle_index": cycle_index,
+            "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
+            "reentry": "same_generation_cycle_index",
+            "network_policy": "record_replay_required_for_routine_check",
+        }
+    elif strategy == "adversarial_validate":
+        payload["adversarial_validation"] = {
+            "counterexample_ref": counterexample.counterexample_ref,
+            "grammar_constraints": tuple(new_grammar_elements),
+        }
+    elif strategy == "spec_gap_reframe":
+        payload["spec_gap"] = {
+            "missing_owner_signal": issue,
+            "counterexample_ref": counterexample.counterexample_ref,
+        }
+    elif strategy == "hold_abstain":
+        payload["hold_reason"] = "value_pending_n8_or_grounded_abstention"
+    elif strategy == "terminal_stop":
+        payload["stop_reason"] = terminal_kind
+    else:
+        payload["repair_scope"] = strategy
+    return payload
+
+
+def _validate_owned_grammar_elements(
+    elements: Sequence[str],
+    *,
+    design_problem: DesignProblem,
+) -> None:
+    lever_ids = {lever.lever_id for lever in design_problem.candidate_lever_space.candidate_levers}
+    strategies = {str(item) for item in get_args(RevisionStrategy)}
+    for element in elements:
+        parts = str(element).split(":")
+        if len(parts) != 4 or parts[0] != "lever":
+            raise GenerationCycleError("new_grammar_element_not_owned", str(element))
+        _, lever_id, strategy, issue = parts
+        if lever_id not in lever_ids or strategy not in strategies or not issue:
+            raise GenerationCycleError("new_grammar_element_not_owned", str(element))
+
+
 def _problem_ref(problem: DesignProblem) -> str:
     return gy_content_hash(problem.model_dump(mode="json"))
 
 
 def _candidate_id(candidate: object) -> str:
-    return str(getattr(candidate, "candidate_id", "") or getattr(candidate, "id", "candidate"))
+    return str(
+        _object_get(candidate, "candidate_id")
+        or _object_get(candidate, "id")
+        or "candidate"
+    )
 
 
 def _candidate_content_hash(candidate: object) -> str:
-    atom = getattr(candidate, "atom", None)
-    value = getattr(atom, "content_hash", None) or getattr(candidate, "content_hash", None)
+    atom = _object_get(candidate, "atom")
+    provenance = _object_get(candidate, "provenance")
+    value = (
+        _object_get(atom, "content_hash")
+        or _object_get(candidate, "content_hash")
+        or _object_get(provenance, "content_hash")
+    )
     if isinstance(value, str) and value.startswith("sha256:"):
         return value
     return gy_content_hash(_json_ready(_candidate_id(candidate)))
 
 
 def _candidate_world_ref(candidate: object, problem: DesignProblem) -> str | None:
-    atom = getattr(candidate, "atom", None)
-    value = getattr(atom, "world_model_record_ref", None)
+    atom = _object_get(candidate, "atom")
+    value = _object_get(atom, "world_model_record_ref")
     if value:
         return str(value)
     hint = problem.runtime_hints.get("world_model_record_ref")
@@ -1373,16 +1554,16 @@ def _candidate_owner_validation_issues(
     disposition_candidate_id = _object_get(disposition, "candidate_id")
     if disposition_candidate_id and str(disposition_candidate_id) != candidate_id:
         issues.append("candidate_cgf_id_mismatch")
-    atom = getattr(candidate, "atom", None)
+    atom = _object_get(candidate, "atom")
     if atom is None:
         issues.append("candidate_atom_missing")
         return tuple(issues)
     target_world_slots = tuple(
-        str(item) for item in _sequence(getattr(atom, "target_world_slots", ()))
+        str(item) for item in _sequence(_object_get(atom, "target_world_slots", ()))
     )
     if not target_world_slots:
         issues.append("candidate_owner_target_missing")
-    world_ref = getattr(atom, "world_model_record_ref", None)
+    world_ref = _object_get(atom, "world_model_record_ref")
     if world_ref and str(world_ref).startswith("world_model_record_pending:"):
         issues.append("candidate_world_model_ref_pending")
     if str(_object_get(disposition, "disposition") or "") == "shadow_bound":
@@ -1426,6 +1607,34 @@ def _grounding_unavailable(
     )
 
 
+def _cg4_quarantine_refs(chain: object) -> tuple[object | None, object | None]:
+    if chain is None:
+        return None, None
+    handoff = _object_get(chain, "quarantine_handoff") or _object_get(
+        chain, "cg4_quarantine_handoff"
+    )
+    proxy_gap = _object_get(chain, "proxy_gap_risk") or _object_get(
+        chain, "cg4_proxy_gap_risk"
+    )
+    proxy_gap_ref = (
+        _object_get(chain, "cg4_proxy_gap_risk_id")
+        or _object_get(proxy_gap, "risk_id")
+        or _object_get(proxy_gap, "proxy_gap_risk_id")
+        or _object_get(handoff, "risk_id")
+    )
+    handoff_ref = (
+        _object_get(handoff, "handoff_id")
+        or _object_get(handoff, "record_id")
+        or _object_get(chain, "cg4_quarantine_handoff_id")
+        or _object_get(chain, "cg5_action_certificate_id")
+        or _object_get(chain, "cg5_ticket_id")
+    )
+    action = _object_get(handoff, "action")
+    if proxy_gap_ref and (handoff_ref or action == "adversarial_validate"):
+        return proxy_gap_ref, handoff_ref or proxy_gap_ref
+    return None, None
+
+
 def _certificate_refs(chain: object) -> tuple[str, ...]:
     if chain is None:
         return ()
@@ -1447,6 +1656,13 @@ def _certificate_refs(chain: object) -> tuple[str, ...]:
         "cg5_ticket_hash",
     ):
         value = _object_get(chain, field)
+        if value:
+            refs.append(str(value))
+    handoff = _object_get(chain, "quarantine_handoff") or _object_get(
+        chain, "cg4_quarantine_handoff"
+    )
+    for field in ("handoff_id", "content_hash", "risk_id", "risk_content_hash"):
+        value = _object_get(handoff, field)
         if value:
             refs.append(str(value))
     return tuple(_dedupe(refs))
@@ -1592,8 +1808,21 @@ def _default_revision_request(
     )
     diagnostic_code = str(counterexample.diagnostic.code).split(".")
     issue = diagnostic_code[-1] if diagnostic_code else counterexample.counterexample_class
-    new_element = f"repair:{terminal_kind}:{issue}"
-    next_grammar = _dedupe((*previous_grammar, new_element))
+    strategy = _revision_strategy_for_terminal_kind(terminal_kind)
+    new_grammar_elements = _revision_grammar_elements(
+        problem,
+        strategy=strategy,
+        issue=issue,
+    )
+    strategy_payload = _revision_strategy_payload(
+        strategy=strategy,
+        terminal_kind=terminal_kind,
+        issue=issue,
+        counterexample=counterexample,
+        new_grammar_elements=new_grammar_elements,
+        cycle_index=cycle_index,
+    )
+    next_grammar = _dedupe((*previous_grammar, *new_grammar_elements))
     revised_problem = problem.model_copy(
         update={
             "runtime_hints": {
@@ -1602,7 +1831,9 @@ def _default_revision_request(
                 "generation_cycle_revision": {
                     "source_counterexample_ref": counterexample.counterexample_ref,
                     "previous_candidate_ref": candidate_id,
-                    "new_grammar_elements": (new_element,),
+                    "revision_strategy": strategy,
+                    "strategy_payload": strategy_payload,
+                    "new_grammar_elements": new_grammar_elements,
                 },
             }
         }
@@ -1611,7 +1842,8 @@ def _default_revision_request(
         {
             "previous_candidate_ref": candidate_id,
             "counterexample_ref": counterexample.counterexample_ref,
-            "new_grammar": new_element,
+            "revision_strategy": strategy,
+            "new_grammar": new_grammar_elements,
         }
     ).removeprefix("sha256:")[:16]
     return DesignRevisionRequest(
@@ -1621,8 +1853,10 @@ def _default_revision_request(
         previous_candidate_ref=candidate_id,
         next_candidate_ref=next_ref,
         previous_grammar_elements=previous_grammar,
-        new_grammar_elements=(new_element,),
+        new_grammar_elements=new_grammar_elements,
         next_grammar_elements=next_grammar,
+        revision_strategy=strategy,
+        strategy_payload=strategy_payload,
         revised_problem=revised_problem,
     )
 

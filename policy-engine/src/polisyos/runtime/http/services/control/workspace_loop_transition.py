@@ -367,7 +367,7 @@ class ControlPlaneWorkspaceLoopTransitionMixin:
             return WorkspaceLoop(
                 catalog_graph=getattr(self._registry_providers, "gy_catalog_graph", None),
                 artifact_store=self._artifact_store,
-            ).run_fixture(fixture_id)
+            ).run_control_plane_fixture(fixture_id)
         except Exception as exc:
             progress = self._workflow_failure_progress(
                 job=job,

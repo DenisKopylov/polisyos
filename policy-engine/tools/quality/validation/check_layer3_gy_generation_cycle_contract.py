@@ -17,7 +17,6 @@ from typing import Any, get_args
 from pydantic import ValidationError
 
 from polisyos.pdc import SearchTerminalKind, gy_content_hash
-from polisyos.runtime.quality.design_generation import GroundingDispositionKind
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -143,7 +142,9 @@ class _Lane0GenerationPort:
     async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> _GenerationResult:
         grammar = tuple(problem.runtime_hints.get("generation_cycle_grammar", ()))
         if cycle_index > 0 and any(
-            "repair:search_ceiling_repair_required" in item for item in grammar
+            "repair:search_ceiling_repair_required" in item
+            or "adversarial_validate" in item
+            for item in grammar
         ):
             candidate = _Candidate(
                 candidate_id="candidate_lane0_cycle_002",
@@ -406,10 +407,16 @@ def write(repo_root: Path) -> None:
 
     path = repo_root / OUTPUT_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(asyncio.run(build_live_payload(repo_root)), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    path.write_text(build_contract_json_for_write(repo_root), encoding="utf-8")
+
+
+def build_contract_json_for_write(repo_root: Path) -> str:
+    """Return byte-stable JSON for the frozen N6 contract artifact."""
+
+    payload = asyncio.run(build_live_payload(repo_root))
+    payload.pop("capture_wall_time_seconds", None)
+    payload["contract_content_hash"] = _contract_content_hash(payload)
+    return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
 def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
@@ -656,7 +663,15 @@ def _denominators() -> dict[str, Any]:
     )
     terminal_kinds = sorted(item.value for item in SearchTerminalKind)
     front_kinds = ["decision", "portfolio", "quarantine", "research"]
-    grounding_dispositions = sorted(str(item) for item in get_args(GroundingDispositionKind))
+    grounding_dispositions = sorted(
+        (
+            "shadow_bound",
+            "veto_false_analog",
+            "novel_cg3",
+            "non_binding_abstain",
+            "unknown_blocked",
+        )
+    )
     grounding_statuses = sorted(
         [
             "current_valid",

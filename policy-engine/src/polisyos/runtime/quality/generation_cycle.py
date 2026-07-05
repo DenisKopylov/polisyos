@@ -25,18 +25,37 @@ from typing import Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.data_requirement.compiler import DataRequirementCompiler
 from polisyos.pdc import (
     CounterexampleRecord,
     RefinementDecision,
-    SearchIteration,
     SearchTerminalKind,
     TypedDiagnosticRecord,
     ValueOfInformationEstimate,
     gy_content_hash,
 )
+from polisyos.pdc._impl.layer2_design_search import SearchIteration
+from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionReceipt,
+    AcquisitionWorldSnapshot,
+    RealAcquisitionOwnerGateway,
+    run_acquisition_closed_loop,
+)
 from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
+)
+from polisyos.runtime.quality.substrate_registry import (
+    SubstrateCoverage,
+    SubstrateLayer,
+    SubstrateRegistration,
+    SubstrateRegistry,
+    SubstrateRegistryError,
+    SubstrateSchemaRegime,
+    SubstrateTrustTier,
+    build_substrate_registry,
+    build_substrate_registry_entry,
+    build_substrate_registry_from_existing_catalogs,
 )
 from polisyos.runtime.quality.workspace.loop import (
     SearchExitDecisionInputs,
@@ -801,8 +820,12 @@ class GenerationCycleController:
                 cycle=cycle,
             )
             if acquisition_receipt is not None:
-                cycle = cycle.model_copy(
-                    update={"acquisition_receipt": acquisition_receipt.model_dump(mode="json")}
+                cycle, cycle_summaries = self._reenter_cycle_after_n7_acquisition(
+                    current_problem,
+                    cycle=cycle,
+                    cycle_summaries=cycle_summaries,
+                    acquisition_receipt=acquisition_receipt,
+                    budget_state=budget_state,
                 )
             cycles.append(cycle)
             summaries.extend(cycle_summaries)
@@ -941,26 +964,46 @@ class GenerationCycleController:
             "budget_state": budget_state,
             "previous_cycle": previous_cycle,
         }
-        finished = await self._engine.run_async(state)
+        runner = getattr(self._engine, "run_async", None)
+        if runner is not None:
+            finished = runner(state)
+            if inspect.isawaitable(finished):
+                finished = await finished
+        else:
+            finished = await self._run_engine_nodes_async(state)
         return finished["cycle"], tuple(finished["candidate_summaries"])
+
+    async def _run_engine_nodes_async(self, state: dict[str, Any]) -> dict[str, Any]:
+        for name, fn in getattr(self._engine, "_nodes", ()):
+            next_state = fn(state)
+            if inspect.isawaitable(next_state):
+                next_state = await next_state
+            state = next_state
+            if state.get("pruned") or name == getattr(self._engine, "_terminal_node", None):
+                break
+        return state
 
     def _run_n7_acquisition_if_requested(
         self,
         problem: DesignProblem,
         *,
         cycle: GenerationCycleRecord,
-    ) -> object | None:
+    ) -> AcquisitionReceipt | None:
         if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             return None
         acquisition_request = cycle.revision_request.strategy_payload.get("acquisition_request")
         if not isinstance(acquisition_request, Mapping):
             return None
-        specs = problem.runtime_hints.get("n7_data_requirement_specs")
-        world_snapshot = problem.runtime_hints.get("n7_world_snapshot")
-        owner_gateway = problem.runtime_hints.get("n7_owner_gateway") or self._acquisition_owner_gateway
-        if specs is None or world_snapshot is None or owner_gateway is None:
+        specs = self._n7_data_requirement_specs(problem, acquisition_request=acquisition_request)
+        world_snapshot = self._n7_world_snapshot(
+            problem,
+            cycle=cycle,
+            acquisition_request=acquisition_request,
+            specs=specs,
+        )
+        owner_gateway = self._n7_owner_gateway(problem)
+        if not specs:
             return None
-        from polisyos.runtime.quality.acquisition_planner import run_acquisition_closed_loop
 
         return run_acquisition_closed_loop(
             run_id=f"n7-reentry:{problem.design_problem_id}:{cycle.cycle_index}",
@@ -971,6 +1014,182 @@ class GenerationCycleController:
             useful_design_rate_before=float(
                 problem.runtime_hints.get("n7_useful_design_rate_before") or 0.0
             ),
+        )
+
+    def _n7_data_requirement_specs(
+        self,
+        problem: DesignProblem,
+        *,
+        acquisition_request: Mapping[str, Any],
+    ) -> tuple[object, ...]:
+        hinted = problem.runtime_hints.get("n7_data_requirement_specs")
+        if hinted is not None:
+            return tuple(hinted)
+        explicit = acquisition_request.get("data_requirement_specs") or acquisition_request.get(
+            "compiled_requirement_specs"
+        )
+        if isinstance(explicit, Sequence) and not isinstance(explicit, str | bytes | bytearray):
+            return tuple(explicit)
+        families = _n7_required_data_families(problem, acquisition_request)
+        if not families:
+            return ()
+        report = DataRequirementCompiler().compile_for_scenario(
+            {
+                "scenario_id": problem.design_problem_id,
+                "text": problem.problem_statement,
+                "domain": problem.domain,
+                "expected_evidence_contract": {
+                    "admissible_data_source_families": list(families),
+                },
+            }
+        )
+        return tuple(report.specs)
+
+    def _n7_world_snapshot(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle: GenerationCycleRecord,
+        acquisition_request: Mapping[str, Any],
+        specs: Sequence[object],
+    ) -> AcquisitionWorldSnapshot:
+        hinted = problem.runtime_hints.get("n7_world_snapshot")
+        if hinted is not None:
+            return (
+                hinted
+                if isinstance(hinted, AcquisitionWorldSnapshot)
+                else AcquisitionWorldSnapshot.model_validate(hinted)
+            )
+        families = _n7_required_families_from_specs(specs) or _n7_required_data_families(
+            problem,
+            acquisition_request,
+        )
+        registry = _n7_substrate_registry(
+            problem,
+            families=families,
+            repo_root=self._repo_root or Path.cwd(),
+        )
+        world_ref = str(
+            problem.runtime_hints.get("world_model_record_ref")
+            or f"s0://substrate-registry/{registry.substrate_version_id}"
+        )
+        return AcquisitionWorldSnapshot(
+            world_ref=world_ref,
+            known_slots=families,
+            dependency_index=dict.fromkeys(families, (cycle.selected_candidate_ref,)),
+            design_revalidation_stages={
+                cycle.selected_candidate_ref: (
+                    "identification",
+                    "calibration",
+                    "value_set",
+                    "grounding",
+                )
+            },
+            substrate_registry=registry.model_dump(mode="json"),
+            world_model_record_ref=problem.runtime_hints.get("world_model_record_ref"),
+        )
+
+    def _n7_owner_gateway(self, problem: DesignProblem) -> object:
+        hinted = problem.runtime_hints.get("n7_owner_gateway")
+        if hinted is not None:
+            return hinted
+        if self._acquisition_owner_gateway is not None:
+            return self._acquisition_owner_gateway
+        return RealAcquisitionOwnerGateway(repo_root=self._repo_root or Path.cwd())
+
+    def _reenter_cycle_after_n7_acquisition(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle: GenerationCycleRecord,
+        cycle_summaries: tuple[CandidateSummary, ...],
+        acquisition_receipt: AcquisitionReceipt,
+        budget_state: BudgetState,
+    ) -> tuple[GenerationCycleRecord, tuple[CandidateSummary, ...]]:
+        receipt_payload = acquisition_receipt.model_dump(mode="json")
+        rederived = _n7_rederived_grounding_for_candidate(
+            acquisition_receipt,
+            candidate_id=cycle.selected_candidate_ref,
+        )
+        if rederived is None:
+            return (
+                cycle.model_copy(update={"acquisition_receipt": receipt_payload}),
+                cycle_summaries,
+            )
+        grounding = CandidateGroundingObservation(
+            candidate_id=cycle.selected_candidate_ref,
+            status=rederived.status,
+            grounding_score=rederived.grounding_score,
+            issue_codes=rederived.issue_codes,
+            evidence_refs=rederived.evidence_refs,
+            current_valid=rederived.status == "current_valid",
+            report_ref=rederived.report_ref,
+            grounding_source="cgf_firewall",
+            grounding_disposition="shadow_bound",
+            cgf_certificate_refs=rederived.evidence_refs,
+        )
+        prior_summary = next(
+            (
+                summary
+                for summary in cycle_summaries
+                if summary.candidate_id == cycle.selected_candidate_ref
+            ),
+            None,
+        )
+        proxy_score = prior_summary.proxy_score if prior_summary is not None else 0.0
+        voi_estimate = prior_summary.voi_estimate if prior_summary is not None else 0.0
+        terminal_kind = _select_terminal_kind(
+            grounding=grounding,
+            proxy_score=proxy_score,
+            value_port=cycle.value_port,
+        )
+        counterexample = _counterexample_record(
+            problem=problem,
+            cycle_index=cycle.cycle_index,
+            candidate_id=cycle.selected_candidate_ref,
+            grounding=grounding,
+        )
+        revision = _default_revision_request(
+            problem=problem,
+            cycle_index=cycle.cycle_index,
+            candidate_id=cycle.selected_candidate_ref,
+            terminal_kind=terminal_kind,
+            counterexample=counterexample,
+        )
+        voi_decision = self.decide_next_action(
+            candidate_id=cycle.selected_candidate_ref,
+            proxy_score=proxy_score,
+            voi_estimate=voi_estimate,
+            prior_terminal_kind=terminal_kind,
+            budget_state=budget_state,
+        )
+        selected_candidate = {
+            "candidate_id": cycle.selected_candidate_ref,
+            "content_hash": cycle.selected_candidate_content_hash,
+            "atom": {
+                "content_hash": cycle.selected_candidate_content_hash,
+                "target_world_slots": rederived.source_slots,
+                "world_model_record_ref": acquisition_receipt.grown_world_after_ref,
+            },
+        }
+        reentered = _cycle_record(
+            problem=problem,
+            cycle_index=cycle.cycle_index,
+            candidate_ids=cycle.candidate_ids,
+            selected_candidate=selected_candidate,
+            grounding=grounding,
+            simulation=cycle.simulation,
+            value_port=cycle.value_port,
+            terminal_kind=terminal_kind,
+            counterexample=counterexample,
+            revision=revision,
+            voi_decision=voi_decision,
+        ).model_copy(update={"acquisition_receipt": receipt_payload})
+        return reentered, _n7_reentered_summaries(
+            cycle_summaries,
+            candidate_id=cycle.selected_candidate_ref,
+            grounding=grounding,
+            low_grounding_threshold=self._low_grounding_threshold,
         )
 
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:
@@ -1413,9 +1632,13 @@ def _grounding_status_denominator() -> tuple[str, ...]:
 
 
 def _grounding_disposition_denominator() -> tuple[str, ...]:
-    from polisyos.runtime.quality.design_generation import GroundingDispositionKind
-
-    return tuple(str(item) for item in get_args(GroundingDispositionKind))
+    return (
+        "shadow_bound",
+        "veto_false_analog",
+        "novel_cg3",
+        "non_binding_abstain",
+        "unknown_blocked",
+    )
 
 
 def _revision_strategy_for_terminal_kind(terminal_kind: str) -> RevisionStrategy:
@@ -1536,6 +1759,162 @@ def _validate_owned_grammar_elements(
         _, lever_id, strategy, issue = parts
         if lever_id not in lever_ids or strategy not in strategies or not issue:
             raise GenerationCycleError("new_grammar_element_not_owned", str(element))
+
+
+def _n7_required_data_families(
+    problem: DesignProblem,
+    acquisition_request: Mapping[str, Any],
+) -> tuple[str, ...]:
+    del problem
+    families: list[str] = []
+
+    def add(value: object) -> None:
+        text = str(value or "").strip()
+        if text and text not in families:
+            families.append(text)
+
+    for key in ("required_data_families", "world_slots", "target_world_slots"):
+        raw = acquisition_request.get(key)
+        if isinstance(raw, str):
+            add(raw)
+        elif isinstance(raw, Sequence):
+            for item in raw:
+                add(item)
+    for key in ("target_world_slot", "world_slot"):
+        add(acquisition_request.get(key))
+    driver = str(acquisition_request.get("driver") or "")
+    if driver.startswith("acquire_data:"):
+        add(driver.split(":", 1)[1])
+    return tuple(families)
+
+
+def _n7_required_families_from_specs(specs: Sequence[object]) -> tuple[str, ...]:
+    families: list[str] = []
+    for spec in specs:
+        payload = spec.model_dump(mode="json") if isinstance(spec, BaseModel) else spec
+        if not isinstance(payload, Mapping):
+            continue
+        raw = payload.get("required_data_families")
+        if isinstance(raw, str):
+            values = (raw,)
+        elif isinstance(raw, Sequence):
+            values = tuple(raw)
+        else:
+            values = ()
+        for item in values:
+            text = str(item or "").strip()
+            if text and text not in families:
+                families.append(text)
+    return tuple(families)
+
+
+def _n7_substrate_registry(
+    problem: DesignProblem,
+    *,
+    families: Sequence[str],
+    repo_root: Path,
+) -> SubstrateRegistry:
+    for key in ("substrate_registry", "s0_substrate_registry"):
+        raw = problem.runtime_hints.get(key)
+        if raw is not None:
+            return (
+                raw
+                if isinstance(raw, SubstrateRegistry)
+                else SubstrateRegistry.model_validate(raw)
+            )
+    try:
+        return build_substrate_registry_from_existing_catalogs(repo_root)
+    except (SubstrateRegistryError, FileNotFoundError, ValueError):
+        pass
+    entries = [
+        build_substrate_registry_entry(
+            SubstrateRegistration(
+                source_id=f"n6.bootstrap.{family}",
+                family_id=family,
+                layer=SubstrateLayer.L1,
+                coverage=SubstrateCoverage(
+                    coverage_score=0.01,
+                    coverage_kind="n6_bootstrap_world_slot",
+                    coverage_rule_ref=f"n6://coverage/{family}",
+                    dataset_count=1,
+                    metric_binding_count=1,
+                    observation_count=1,
+                ),
+                trust_tier=SubstrateTrustTier(
+                    tier="bootstrap",
+                    trust_cap=0.01,
+                    trust_multiplier=0.01,
+                    authority_ref=f"n6://trust/{family}",
+                ),
+                identification_mode="bootstrap_slot",
+                schema_regime=SubstrateSchemaRegime(
+                    schema_regime_id=f"manifest:{family}",
+                    authority_ref=f"n6://schema/{family}",
+                ),
+                data_version="n6-bootstrap",
+                snapshot_id=f"n6-bootstrap:{family}",
+                source_snapshot_id=f"n6-bootstrap:{family}",
+                provenance_refs=(f"n6://provenance/{family}",),
+                authority_refs=(f"n6://authority/{family}",),
+            )
+        )
+        for family in families
+    ]
+    return build_substrate_registry(
+        entries,
+        producer_ref="polisyos.runtime.quality.generation_cycle.N6",
+        source_catalog_refs=(f"n6://{problem.design_problem_id}/bootstrap-substrate-registry",),
+    )
+
+
+def _n7_rederived_grounding_for_candidate(
+    receipt: AcquisitionReceipt,
+    *,
+    candidate_id: str,
+) -> object | None:
+    for row in receipt.grounding_rederivations:
+        if row.design_id == candidate_id and row.status in {"current_valid", "grounded_shadow"}:
+            return row
+    return None
+
+
+def _n7_reentered_summaries(
+    summaries: tuple[CandidateSummary, ...],
+    *,
+    candidate_id: str,
+    grounding: CandidateGroundingObservation,
+    low_grounding_threshold: float,
+) -> tuple[CandidateSummary, ...]:
+    updated: list[CandidateSummary] = []
+    low_grounding = grounding.grounding_score < low_grounding_threshold or grounding.status in {
+        "grounding_failed",
+        "grounding_unavailable",
+    }
+    for summary in summaries:
+        if summary.candidate_id != candidate_id:
+            updated.append(summary)
+            continue
+        front: FrontKind = "quarantine" if summary.high_proxy and low_grounding else "research"
+        updated.append(
+            summary.model_copy(
+                update={
+                    "grounding_status": grounding.status,
+                    "grounding_source": grounding.grounding_source,
+                    "grounding_disposition": grounding.grounding_disposition,
+                    "grounding_score": grounding.grounding_score,
+                    "current_valid": grounding.current_valid,
+                    "front": front,
+                    "low_grounding": low_grounding,
+                    "quarantine_action": grounding.quarantine_action,
+                    "adversarial_validation_status": (
+                        "not_required"
+                        if front != "quarantine"
+                        else summary.adversarial_validation_status
+                    ),
+                }
+            )
+        )
+    return tuple(updated)
 
 
 def _problem_ref(problem: DesignProblem) -> str:

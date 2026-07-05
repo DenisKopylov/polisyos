@@ -1583,6 +1583,14 @@ def validate_acquisition_receipt(
                     "issues": artifact_issues,
                 }
             )
+            if "provenance_not_recomputable_from_real_owner_response" in artifact_issues:
+                issues.append(
+                    {
+                        "code": "acquisition_provenance_not_recomputable_from_real_owner",
+                        "artifact_ref": artifact.artifact_ref,
+                        "issues": artifact_issues,
+                    }
+                )
     recomputed_grounding_results = sum(
         1 for row in normalized.grounding_rederivations if row.status in _GROUNDED_STATUSES
     )
@@ -1970,6 +1978,17 @@ def _owner_artifact_validation_issues(artifact: AcquisitionOwnerArtifact) -> tup
             issues.append("capture_response_hash_mismatch")
         if not provenance.journal_first:
             issues.append("capture_not_journal_first")
+    raw_owner_response = artifact.payload.get("owner_response")
+    raw_owner_response_hash = artifact.payload.get("raw_owner_response_hash")
+    owner_response_kind = artifact.payload.get("owner_response_kind")
+    raw_response_hash_mismatch = (
+        not isinstance(raw_owner_response, Mapping)
+        or raw_owner_response_hash != _stable_content_hash(raw_owner_response)
+    )
+    if _is_real_owner_component(artifact.owner_component) and (
+        owner_response_kind != "real_owner_capture" or raw_response_hash_mismatch
+    ):
+        issues.append("provenance_not_recomputable_from_real_owner_response")
     return tuple(_dedupe_text(issues))
 
 
@@ -2153,6 +2172,7 @@ def _fabric_response_payload(
     return {
         "owner_response_kind": "real_owner_capture",
         "owner_response": dict(response),
+        "raw_owner_response_hash": _stable_content_hash(dict(response)),
         "acquired_substrate_registrations": registrations,
         "candidate_bindings": [
             {

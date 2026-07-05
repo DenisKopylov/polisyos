@@ -952,6 +952,11 @@ class WorkspaceLoop:
             recorded_artifact_refs=[artifact_ref],
         )
 
+    def run_control_plane_fixture(self, fixture_id: str) -> WorkspaceSearchExitContract:
+        """Run a named control-plane fixture through the workspace-loop owner."""
+
+        return self.run_fixture(fixture_id)
+
     def _phase2_store(self) -> FileSystemCAS:
         if self._artifact_store is not None:
             return self._artifact_store

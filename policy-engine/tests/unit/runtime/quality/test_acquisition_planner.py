@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
+import json
 import os
 from datetime import UTC, datetime
 from pathlib import Path
@@ -645,6 +647,14 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
 
 def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
     data_spec = _compiled_requirement_specs()[0]
+    owner_response = {"owner_response_kind": "fabric_retrieval_no_result", "rows": []}
+    payload = {
+        "owner_response_kind": "real_owner_capture",
+        "owner_response": owner_response,
+        "raw_owner_response_hash": _stable_json_hash(owner_response),
+        "acquired_substrate_registrations": [],
+        "candidate_bindings": [],
+    }
     world = AcquisitionWorldSnapshot(
         world_ref="world://before/no-result",
         known_slots=("production_msme_panel",),
@@ -660,7 +670,7 @@ def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
                 owner_component="fabric.retrieval",
                 requirement_ref=data_spec.requirement_id,
                 artifact_ref="fabric://recorded/no-result",
-                payload={"owner_response_kind": "fabric_retrieval_no_result", "rows": []},
+                payload=payload,
                 cost_usd=3.75,
                 quality={"query_validated": True},
                 rights={"license": "recorded-open"},
@@ -670,7 +680,7 @@ def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
                     owner_component="fabric.retrieval",
                     endpoint="RetrievalService.resolve",
                     request={"requirement_ref": data_spec.requirement_id},
-                    response={"owner_response_kind": "fabric_retrieval_no_result", "rows": []},
+                    response=payload,
                 ),
             )
         }
@@ -797,6 +807,70 @@ def test_n7_receipt_validation_rejects_uncaptured_owner_artifact() -> None:
     issue_codes = {issue["code"] for issue in validate_acquisition_receipt(receipt)}
 
     assert "acquisition_artifact_not_captured_from_owner" in issue_codes
+
+
+def test_n7_receipt_validation_rejects_fabricated_provenance_without_raw_owner_response() -> None:
+    data_spec = _compiled_requirement_specs()[0]
+    payload = {
+        "owner_response_kind": "acquisition_owner_raw_response",
+        "acquired_substrate_registrations": [
+            _registration(
+                source_id="fabric.production_msme_panel",
+                family_id="production_msme_panel",
+                snapshot_id="snapshot:production_msme_panel:2026-07-05",
+            ).model_dump(mode="json")
+        ],
+        "candidate_bindings": [
+            {
+                "candidate_id": "design:credit",
+                "candidate_content_hash": "sha256:" + "d" * 64,
+                "target_world_slots": ["production_msme_panel"],
+            }
+        ],
+    }
+    artifact = AcquisitionOwnerArtifact.from_payload(
+        owner_component="fabric.ingestion",
+        requirement_ref=data_spec.requirement_id,
+        artifact_ref="fabric://recorded/fabricated-provenance",
+        payload=payload,
+        cost_usd=4.25,
+        quality={"capture": "fabricated"},
+        rights={"license": "recorded-open"},
+        binding_refs=("design:credit",),
+        journal_ref="journal://n7/fabricated-provenance/001",
+        capture_provenance=_capture_provenance(
+            owner_component="fabric.ingestion",
+            endpoint="fabric.ingestion.acquire",
+            request={"requirement_ref": data_spec.requirement_id},
+            response=payload,
+        ),
+    )
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-fabricated-provenance",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n6/counterexample/fabricated-provenance",
+            "cycle_index": 1,
+        },
+        data_requirement_specs=(data_spec,),
+        world_snapshot=AcquisitionWorldSnapshot(
+            world_ref="world://before/fabricated-provenance",
+            known_slots=("production_msme_panel",),
+            dependency_index={"production_msme_panel": ("design:credit",)},
+            design_revalidation_stages={
+                "design:credit": ("identification", "calibration", "value_set", "grounding")
+            },
+            substrate_registry=_substrate_registry().model_dump(mode="json"),
+        ),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={data_spec.requirement_id: artifact}
+        ),
+    )
+
+    issue_codes = {issue["code"] for issue in validate_acquisition_receipt(receipt)}
+
+    assert "acquisition_provenance_not_recomputable_from_real_owner" in issue_codes
 
 
 def test_real_owner_gateway_records_local_skg_response_without_network() -> None:
@@ -1101,8 +1175,16 @@ def _owner_payload(
     candidate_id: str,
     extra: dict[str, object] | None = None,
 ) -> dict[str, object]:
+    owner_response: dict[str, object] = {
+        "owner_response_kind": "recorded_unit_owner_response",
+        "acquired_family": acquired_family,
+        "source_id": source_id,
+        "candidate_id": candidate_id,
+    }
     payload: dict[str, object] = {
-        "owner_response_kind": "acquisition_owner_raw_response",
+        "owner_response_kind": "real_owner_capture",
+        "owner_response": owner_response,
+        "raw_owner_response_hash": _stable_json_hash(owner_response),
         "acquired_substrate_registrations": [
             _registration(
                 source_id=source_id,
@@ -1177,6 +1259,11 @@ def _registration(*, source_id: str, family_id: str, snapshot_id: str) -> Substr
 
 def _slug_for_test(value: str) -> str:
     return "".join(ch for ch in value.lower() if ch.isalnum()) or "candidate"
+
+
+def _stable_json_hash(value: dict[str, object]) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode()
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
 def _compiled_requirement_specs() -> tuple[

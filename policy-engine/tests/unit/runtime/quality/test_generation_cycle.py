@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -11,6 +12,7 @@ from typing import Any
 import pytest
 
 from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
+from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCaptureProvenance,
     AcquisitionOwnerArtifact,
@@ -500,8 +502,16 @@ def _n7_owner_payload(
     source_id: str,
     candidate_id: str,
 ) -> dict[str, object]:
+    owner_response: dict[str, object] = {
+        "owner_response_kind": "recorded_unit_owner_response",
+        "acquired_family": acquired_family,
+        "source_id": source_id,
+        "candidate_id": candidate_id,
+    }
     return {
-        "owner_response_kind": "acquisition_owner_raw_response",
+        "owner_response_kind": "real_owner_capture",
+        "owner_response": owner_response,
+        "raw_owner_response_hash": _n7_stable_json_hash(owner_response),
         "acquired_substrate_registrations": [
             _n7_registration(
                 source_id=source_id,
@@ -517,6 +527,11 @@ def _n7_owner_payload(
             }
         ],
     }
+
+
+def _n7_stable_json_hash(value: dict[str, object]) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode()
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
 def _n7_substrate_registry() -> SubstrateRegistry:
@@ -806,14 +821,77 @@ async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() 
 
     run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
 
-    assert run.cycles[0].terminal_kind == "acquisition_required"
     assert run.cycles[0].acquisition_receipt is not None
     receipt = run.cycles[0].acquisition_receipt
     assert receipt["source_cycle_index"] == 0
     assert receipt["reentry_cycle_index"] == 0
     assert receipt["real_grounding_result_count"] == 1
     assert receipt["useful_design_rate_after"] > 0.0
+    assert run.cycles[0].terminal_kind == "grounded_abstention"
+    assert run.cycles[0].grounding.status == "grounded_shadow"
+    assert run.candidate_summaries[0].grounding_status == "grounded_shadow"
     assert run.acquisition_receipts == (receipt,)
+
+
+@pytest.mark.asyncio
+async def test_acquisition_required_derives_n7_inputs_without_test_hints_and_reenters() -> None:
+    compiled = compile_data_requirements_for_scenario(
+        {
+            "scenario_id": "generic_cycle_problem",
+            "text": "Acquire owner_panel_missing to ground the blocked candidate.",
+            "domain": "generic_policy",
+            "expected_evidence_contract": {
+                "admissible_data_source_families": ["owner_panel_missing"]
+            },
+        }
+    )
+    data_spec = compiled.specs[0]
+    payload = _n7_owner_payload(
+        acquired_family="owner_panel_missing",
+        source_id="fabric.owner_panel_missing",
+        candidate_id="candidate_cycle_1",
+    )
+    artifact = AcquisitionOwnerArtifact.from_payload(
+        owner_component="fabric.ingestion",
+        requirement_ref=data_spec.requirement_id,
+        artifact_ref="fabric://recorded/owner-panel-missing",
+        payload=payload,
+        cost_usd=2.0,
+        quality={"capture": "recorded-owner"},
+        rights={"license": "recorded-open"},
+        binding_refs=("candidate_cycle_1",),
+        journal_ref="journal://n7/owner-panel-missing/production-default",
+        capture_provenance=AcquisitionCaptureProvenance.from_owner_response(
+            owner_component="fabric.ingestion",
+            owner_endpoint="fabric.ingestion.acquire",
+            owner_request={"requirement_ref": data_spec.requirement_id},
+            owner_response=payload,
+            captured_at=datetime(2026, 7, 5, tzinfo=UTC),
+            capture_mode="local_substrate_owner",
+        ),
+    )
+    problem = _problem()
+    assert not any(key.startswith("n7_") for key in problem.runtime_hints)
+    controller = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AcquisitionGrounding(),
+        value_port=PendingN8ValuePort(),
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={data_spec.requirement_id: artifact}
+        ),
+    )
+
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+
+    cycle = run.cycles[0]
+    assert cycle.acquisition_receipt is not None
+    assert cycle.acquisition_receipt["real_grounding_result_count"] == 1
+    assert cycle.terminal_kind != "acquisition_required"
+    assert cycle.terminal_kind == "grounded_abstention"
+    assert cycle.grounding.status == "grounded_shadow"
+    assert cycle.grounding.report_ref
+    assert run.candidate_summaries[0].grounding_status == "grounded_shadow"
+    assert run.candidate_summaries[0].front == "research"
 
 
 @pytest.mark.asyncio

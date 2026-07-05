@@ -29,6 +29,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionOwnerArtifact,
     AcquisitionReceipt,
     AcquisitionWorldSnapshot,
+    RealAcquisitionOwnerGateway,
     RecordedAcquisitionOwnerGateway,
     acquisition_request_from_world_acquirable,
     rank_acquisition_candidates_by_family,
@@ -57,6 +58,7 @@ _EXPECTED_MUTATIONS = {
     "acquisition_did_not_reenter_same_cycle",
     "world_did_not_grow_after_ingest",
     "acquisition_artifact_not_captured_from_owner",
+    "acquisition_provenance_not_recomputable_from_real_owner",
     "lossy_fallback_survives",
     "id_family_ignores_frontier_width",
     "affected_region_not_revalidated",
@@ -75,9 +77,12 @@ def declared_outputs() -> list[str]:
 def build_live_payload(repo_root: Path) -> dict[str, Any]:
     """Recompute the frozen N7 receipt from recorded real-owner responses."""
 
-    del repo_root
-    positive = _positive_receipt()
-    no_result = _no_result_receipt()
+    positive_world_snapshot = _world_snapshot(
+        families=("production_msme_panel", "tax_admin_panel")
+    )
+    no_result_world_snapshot = _world_snapshot(families=("production_msme_panel",))
+    positive = _positive_receipt(repo_root, world_snapshot=positive_world_snapshot)
+    no_result = _no_result_receipt(repo_root, world_snapshot=no_result_world_snapshot)
     fail_closed = _fail_closed_receipt()
     payload: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
@@ -122,6 +127,10 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         "positive_receipt": positive.model_dump(mode="json"),
         "no_result_receipt": no_result.model_dump(mode="json"),
         "fail_closed_receipt": fail_closed.model_dump(mode="json"),
+        "recorded_rederive_inputs": {
+            "positive_world_snapshot": positive_world_snapshot.model_dump(mode="json"),
+            "no_result_world_snapshot": no_result_world_snapshot.model_dump(mode="json"),
+        },
         "id_width_preference": _id_width_preference(),
         "grounding_acquisition_request": acquisition_request_from_world_acquirable(
             {
@@ -253,10 +262,20 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     network_counter = AcquisitionNetworkCallCounter()
-    payload = build_live_payload(repo_root)
-    report = validate_payload(payload)
+    payload = _load_contract_payload(repo_root)
+    rederived = copy.deepcopy(payload)
+    rederived["positive_receipt"] = _rederive_receipt_from_recording(
+        payload["positive_receipt"],
+        payload["recorded_rederive_inputs"]["positive_world_snapshot"],
+    ).model_dump(mode="json")
+    rederived["no_result_receipt"] = _rederive_receipt_from_recording(
+        payload["no_result_receipt"],
+        payload["recorded_rederive_inputs"]["no_result_world_snapshot"],
+    ).model_dump(mode="json")
+    report = validate_payload(rederived)
+    report["issues"].extend(_rederive_mismatch_issues(payload, rederived))
     return {
-        "status": report["status"],
+        "status": "pass" if not report["issues"] else "fail",
         "issues": report["issues"],
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         "network_calls": network_counter.network_calls,
@@ -342,6 +361,9 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
         "acquisition_did_not_reenter_same_cycle": _mutate_reentry_cycle,
         "world_did_not_grow_after_ingest": _mutate_world_unchanged,
         "acquisition_artifact_not_captured_from_owner": _mutate_uncaptured_artifact,
+        "acquisition_provenance_not_recomputable_from_real_owner": (
+            _mutate_fabricated_capture_provenance
+        ),
         "lossy_fallback_survives": _mutate_lossy_fallback,
         "id_family_ignores_frontier_width": _mutate_id_width_preference,
         "affected_region_not_revalidated": _mutate_revalidation_scope,
@@ -364,70 +386,46 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
     return rows
 
 
-def _positive_receipt() -> AcquisitionReceipt:
+def _positive_receipt(
+    repo_root: Path,
+    *,
+    world_snapshot: AcquisitionWorldSnapshot,
+) -> AcquisitionReceipt:
     data_spec, second_spec = _compiled_specs()
-    world = _world_snapshot()
-    gateway = RecordedAcquisitionOwnerGateway(
-        artifacts_by_requirement={
-            data_spec.requirement_id: _captured_owner_artifact(
-                owner_component="fabric.ingestion",
-                requirement_ref=data_spec.requirement_id,
-                artifact_ref="fabric://recorded/production-msme-panel",
-                acquired_family="production_msme_panel",
-                source_id="fabric.production_msme_panel",
-                candidate_id="design:credit",
-                cost_usd=11.25,
-            ),
-            second_spec.requirement_id: _captured_owner_artifact(
-                owner_component="data_forge.skg",
-                requirement_ref=second_spec.requirement_id,
-                artifact_ref="skg://recorded/tax-admin-panel",
-                acquired_family="tax_admin_panel",
-                source_id="skg.tax_admin_panel",
-                candidate_id="design:tax",
-                cost_usd=7.5,
-            ),
-        }
+    skg_spec = {
+        **second_spec.model_dump(mode="json"),
+        "required_method_families": ["skg_schema_probe"],
+    }
+    gateway = RealAcquisitionOwnerGateway(
+        repo_root=repo_root,
+        captured_at=_FIXED_GENERATED_AT,
     )
     return run_acquisition_closed_loop(
         run_id="run-n7-contract-positive",
         acquisition_request=_n6_request(cycle_index=3),
-        data_requirement_specs=(data_spec, second_spec),
-        world_snapshot=world,
+        data_requirement_specs=(data_spec, skg_spec),
+        world_snapshot=world_snapshot,
         owner_gateway=gateway,
         useful_design_rate_before=0.0,
         generated_at=_FIXED_GENERATED_AT,
     )
 
 
-def _no_result_receipt() -> AcquisitionReceipt:
+def _no_result_receipt(
+    repo_root: Path,
+    *,
+    world_snapshot: AcquisitionWorldSnapshot,
+) -> AcquisitionReceipt:
     data_spec = _compiled_specs()[0]
-    gateway = RecordedAcquisitionOwnerGateway(
-        artifacts_by_requirement={
-            data_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
-                owner_component="fabric.retrieval",
-                requirement_ref=data_spec.requirement_id,
-                artifact_ref="fabric://recorded/no-result",
-                payload={"owner_response_kind": "fabric_retrieval_no_result", "rows": []},
-                cost_usd=3.75,
-                quality={"query_validated": True},
-                rights={"license": "recorded-open"},
-                binding_refs=(),
-                journal_ref="journal://n7/no-result/001",
-                capture_provenance=_capture_provenance(
-                    owner_component="fabric.retrieval",
-                    endpoint="RetrievalService.resolve",
-                    request={"requirement_ref": data_spec.requirement_id},
-                    response={"owner_response_kind": "fabric_retrieval_no_result", "rows": []},
-                ),
-            )
-        }
+    gateway = RealAcquisitionOwnerGateway(
+        repo_root=repo_root,
+        captured_at=_FIXED_GENERATED_AT,
     )
     return run_acquisition_closed_loop(
         run_id="run-n7-contract-no-result",
         acquisition_request=_n6_request(cycle_index=4),
         data_requirement_specs=(data_spec,),
-        world_snapshot=_world_snapshot(),
+        world_snapshot=world_snapshot,
         owner_gateway=gateway,
         useful_design_rate_before=0.0,
         generated_at=_FIXED_GENERATED_AT,
@@ -440,11 +438,62 @@ def _fail_closed_receipt() -> AcquisitionReceipt:
         run_id="run-n7-contract-fail-closed",
         acquisition_request=_n6_request(cycle_index=5),
         data_requirement_specs=(data_spec,),
-        world_snapshot=_world_snapshot(),
+        world_snapshot=_world_snapshot(families=("production_msme_panel",)),
         owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         useful_design_rate_before=0.0,
         generated_at=_FIXED_GENERATED_AT,
     )
+
+
+def _rederive_receipt_from_recording(
+    receipt_payload: dict[str, Any],
+    world_snapshot_payload: dict[str, Any],
+) -> AcquisitionReceipt:
+    receipt = AcquisitionReceipt.model_validate(receipt_payload)
+    artifacts_by_requirement = {
+        artifact.requirement_ref: artifact
+        for artifact in receipt.owner_artifacts
+    }
+    return run_acquisition_closed_loop(
+        run_id=receipt.run_id,
+        acquisition_request=receipt.acquisition_request,
+        data_requirement_specs=receipt.compiled_requirement_specs,
+        world_snapshot=AcquisitionWorldSnapshot.model_validate(world_snapshot_payload),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement=artifacts_by_requirement
+        ),
+        useful_design_rate_before=receipt.useful_design_rate_before,
+        generated_at=_FIXED_GENERATED_AT,
+    )
+
+
+def _rederive_mismatch_issues(
+    frozen: dict[str, Any],
+    rederived: dict[str, Any],
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    fields = (
+        "grown_world_after_ref",
+        "grown_world_added_slots",
+        "grown_world_delta_hash",
+        "world_write_outcomes",
+        "affected_region",
+        "grounding_rederivations",
+        "useful_design_rate_after",
+        "real_grounding_result_count",
+        "no_result_costed_gap",
+    )
+    for key in ("positive_receipt", "no_result_receipt"):
+        for field in fields:
+            if frozen[key].get(field) != rederived[key].get(field):
+                issues.append(
+                    {
+                        "code": "rederive_audit_mismatch",
+                        "receipt": key,
+                        "field": field,
+                    }
+                )
+    return issues
 
 
 def _compiled_specs() -> tuple[DataRequirementSpec, DataRequirementSpec]:
@@ -478,19 +527,24 @@ def _compiled_specs() -> tuple[DataRequirementSpec, DataRequirementSpec]:
     return base, second
 
 
-def _world_snapshot() -> AcquisitionWorldSnapshot:
+def _world_snapshot(
+    *,
+    families: tuple[str, ...] = ("production_msme_panel", "tax_admin_panel"),
+) -> AcquisitionWorldSnapshot:
+    dependency_index = {
+        family: (f"design:{family.replace('_', '-')}",)
+        for family in families
+    }
+    design_revalidation_stages = {
+        design_id: ("identification", "calibration", "value_set", "grounding")
+        for designs in dependency_index.values()
+        for design_id in designs
+    }
     return AcquisitionWorldSnapshot(
         world_ref="world://before/n7-contract",
-        known_slots=("production_msme_panel",),
-        dependency_index={
-            "production_msme_panel": ("design:credit", "design:portfolio"),
-            "tax_admin_panel": ("design:tax", "design:portfolio"),
-        },
-        design_revalidation_stages={
-            "design:credit": ("identification", "calibration", "value_set", "grounding"),
-            "design:portfolio": ("identification", "calibration", "value_set", "grounding"),
-            "design:tax": ("identification", "calibration", "value_set", "grounding"),
-        },
+        known_slots=families,
+        dependency_index=dependency_index,
+        design_revalidation_stages=design_revalidation_stages,
         substrate_registry=_substrate_registry().model_dump(mode="json"),
     )
 
@@ -689,9 +743,10 @@ def _mutate_compiled_denominator(payload: dict[str, Any]) -> None:
 
 
 def _mutate_content_binding(payload: dict[str, Any]) -> None:
-    payload["positive_receipt"]["owner_artifacts"][0]["payload"][
-        "acquired_substrate_registrations"
-    ][0]["family_id"] = "ghost.nonexistent_world_slot"
+    artifact = _first_artifact_with_registrations(payload["positive_receipt"]["owner_artifacts"])
+    artifact["payload"]["acquired_substrate_registrations"][0][
+        "family_id"
+    ] = "ghost.nonexistent_world_slot"
 
 
 def _mutate_forced_useful_rate(payload: dict[str, Any]) -> None:
@@ -717,6 +772,30 @@ def _mutate_lossy_fallback(payload: dict[str, Any]) -> None:
 
 def _mutate_uncaptured_artifact(payload: dict[str, Any]) -> None:
     payload["positive_receipt"]["owner_artifacts"][0]["capture_provenance"] = None
+
+
+def _mutate_fabricated_capture_provenance(payload: dict[str, Any]) -> None:
+    artifact = _first_artifact_with_registrations(payload["positive_receipt"]["owner_artifacts"])
+    fabricated_payload = {
+        "owner_response_kind": "acquisition_owner_raw_response",
+        "acquired_substrate_registrations": artifact["payload"].get(
+            "acquired_substrate_registrations",
+            [],
+        ),
+        "candidate_bindings": artifact["payload"].get("candidate_bindings", []),
+    }
+    fabricated_hash = _stable_content_hash(fabricated_payload)
+    artifact["payload"] = fabricated_payload
+    artifact["content_hash"] = fabricated_hash
+    artifact["capture_provenance"]["owner_response_hash"] = fabricated_hash
+
+
+def _first_artifact_with_registrations(artifacts: list[dict[str, Any]]) -> dict[str, Any]:
+    for artifact in artifacts:
+        registrations = artifact.get("payload", {}).get("acquired_substrate_registrations")
+        if registrations:
+            return artifact
+    return artifacts[0]
 
 
 def _mutate_id_width_preference(payload: dict[str, Any]) -> None:
@@ -758,6 +837,13 @@ def _contract_content_hash(payload: dict[str, Any]) -> str:
         if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
     }
     encoded = json.dumps(stable, sort_keys=True, separators=(",", ":"), default=str).encode(
+        "utf-8"
+    )
+    return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _stable_content_hash(payload: dict[str, Any]) -> str:
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode(
         "utf-8"
     )
     return "sha256:" + hashlib.sha256(encoded).hexdigest()

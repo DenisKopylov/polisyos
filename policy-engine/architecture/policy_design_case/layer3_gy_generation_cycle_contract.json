@@ -2,7 +2,7 @@
   "behavioral_mutations": [
     {
       "issue_codes": [
-        "revision_not_terminal_driven"
+        "new_grammar_element_not_owned"
       ],
       "mutation_id": "revision_not_terminal_driven",
       "status": "red"
@@ -77,14 +77,13 @@
       "status": "red"
     }
   ],
-  "capture_wall_time_seconds": 7.610575,
   "compute_economics": {
     "engine_set_reuse": "one_controller_engine_set_reused_across_cycles",
     "lane": "Lane-0",
     "non_cached_run_visibility": "rederive_audit_only",
     "owner_io": "zero"
   },
-  "contract_content_hash": "sha256:9f3775152749cc52b2354d7fc062903aac076467eb044b63f1a8148fcb9650b9",
+  "contract_content_hash": "sha256:6be0a29400442f00b0b3c4d5c3008c13d9c95db413b09b18d46dda24097851e5",
   "contract_id": "policyos.runtime.generation_cycle_controller",
   "denominators": {
     "counts": {
@@ -155,6 +154,7 @@
     }
   ],
   "generation_cycle_run": {
+    "acquisition_receipts": [],
     "blocked_reason": null,
     "candidate_summaries": [
       {
@@ -201,6 +201,7 @@
     "controller_ref": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
     "cycles": [
       {
+        "acquisition_receipt": null,
         "candidate_ids": [
           "candidate_lane0_cycle_001"
         ],
@@ -243,7 +244,7 @@
           "seed"
         ],
         "grounding": {
-          "adversarial_validation_ref": "cg5_action_1111111111111111",
+          "adversarial_validation_ref": "cg4_quarantine_1111111111111111",
           "candidate_id": "candidate_lane0_cycle_001",
           "cgf_certificate_refs": [
             "cg1_cert_n6_lane0",
@@ -304,7 +305,7 @@
           "governance_decision_class": null,
           "governance_decision_class_ref": null,
           "governance_refs": [],
-          "next_candidate_ref": "candidate://pending/11db93886b7463b2",
+          "next_candidate_ref": "candidate://pending/4000a7e3528eea4e",
           "reason": "voi_scheduler_advanced; terminal=search_ceiling_repair_required",
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
           "stakes_band": "moderate",
@@ -326,12 +327,12 @@
         "revision_driver": "counterexample",
         "revision_request": {
           "new_grammar_elements": [
-            "repair:search_ceiling_repair_required:shadow_bound"
+            "lever:resilience_grant:adversarial_validate:shadow_bound"
           ],
-          "next_candidate_ref": "candidate://pending/11db93886b7463b2",
+          "next_candidate_ref": "candidate://pending/4000a7e3528eea4e",
           "next_grammar_elements": [
             "seed",
-            "repair:search_ceiling_repair_required:shadow_bound"
+            "lever:resilience_grant:adversarial_validate:shadow_bound"
           ],
           "previous_candidate_ref": "candidate_lane0_cycle_001",
           "previous_grammar_elements": [
@@ -416,14 +417,27 @@
             "runtime_hints": {
               "generation_cycle_grammar": [
                 "seed",
-                "repair:search_ceiling_repair_required:shadow_bound"
+                "lever:resilience_grant:adversarial_validate:shadow_bound"
               ],
               "generation_cycle_revision": {
                 "new_grammar_elements": [
-                  "repair:search_ceiling_repair_required:shadow_bound"
+                  "lever:resilience_grant:adversarial_validate:shadow_bound"
                 ],
                 "previous_candidate_ref": "candidate_lane0_cycle_001",
-                "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001"
+                "revision_strategy": "adversarial_validate",
+                "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+                "strategy_payload": {
+                  "adversarial_validation": {
+                    "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+                    "grammar_constraints": [
+                      "lever:resilience_grant:adversarial_validate:shadow_bound"
+                    ]
+                  },
+                  "issue": "shadow_bound",
+                  "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+                  "strategy": "adversarial_validate",
+                  "terminal_kind": "search_ceiling_repair_required"
+                }
               }
             },
             "schema_version": "policyos.runtime.design_problem.v1",
@@ -437,8 +451,21 @@
           },
           "revision_driver": "counterexample",
           "revision_id": "gy.n6.revision.industrial_resilience_retooling.001",
+          "revision_strategy": "adversarial_validate",
           "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
-          "source_terminal_kind": "search_ceiling_repair_required"
+          "source_terminal_kind": "search_ceiling_repair_required",
+          "strategy_payload": {
+            "adversarial_validation": {
+              "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+              "grammar_constraints": [
+                "lever:resilience_grant:adversarial_validate:shadow_bound"
+              ]
+            },
+            "issue": "shadow_bound",
+            "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+            "strategy": "adversarial_validate",
+            "terminal_kind": "search_ceiling_repair_required"
+          }
         },
         "search_iteration": {
           "candidate_ref": "candidate_lane0_cycle_001",
@@ -487,6 +514,7 @@
         }
       },
       {
+        "acquisition_receipt": null,
         "candidate_ids": [
           "candidate_lane0_cycle_002"
         ],
@@ -517,11 +545,11 @@
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
         },
         "cycle_index": 1,
-        "design_problem_ref": "sha256:c691530c1a28538a2c74b0533e1e203125e0b512b591e2506418a31d14a2e8f9",
+        "design_problem_ref": "sha256:50723d4e3795780a0de5d6454ba184261b5c9041d7b39e6a61200a825ea08d85",
         "driven_by_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
         "grammar_elements": [
           "seed",
-          "repair:search_ceiling_repair_required:shadow_bound"
+          "lever:resilience_grant:adversarial_validate:shadow_bound"
         ],
         "grounding": {
           "adversarial_validation_ref": null,
@@ -555,7 +583,7 @@
           "status": "grounding_gap"
         },
         "introduced_grammar_elements": [
-          "repair:search_ceiling_repair_required:shadow_bound"
+          "lever:resilience_grant:adversarial_validate:shadow_bound"
         ],
         "refinement_decision": {
           "budget_refs": [
@@ -594,18 +622,18 @@
         "revision_driver": "counterexample",
         "revision_request": {
           "new_grammar_elements": [
-            "repair:search_ceiling_repair_required:novel_cg3"
+            "lever:resilience_grant:adversarial_validate:novel_cg3"
           ],
-          "next_candidate_ref": "candidate://pending/1c5a1d8ec8ad3f23",
+          "next_candidate_ref": "candidate://pending/57236c7fdf919ef7",
           "next_grammar_elements": [
             "seed",
-            "repair:search_ceiling_repair_required:shadow_bound",
-            "repair:search_ceiling_repair_required:novel_cg3"
+            "lever:resilience_grant:adversarial_validate:shadow_bound",
+            "lever:resilience_grant:adversarial_validate:novel_cg3"
           ],
           "previous_candidate_ref": "candidate_lane0_cycle_002",
           "previous_grammar_elements": [
             "seed",
-            "repair:search_ceiling_repair_required:shadow_bound"
+            "lever:resilience_grant:adversarial_validate:shadow_bound"
           ],
           "revised_problem": {
             "authority_profile": {
@@ -686,15 +714,28 @@
             "runtime_hints": {
               "generation_cycle_grammar": [
                 "seed",
-                "repair:search_ceiling_repair_required:shadow_bound",
-                "repair:search_ceiling_repair_required:novel_cg3"
+                "lever:resilience_grant:adversarial_validate:shadow_bound",
+                "lever:resilience_grant:adversarial_validate:novel_cg3"
               ],
               "generation_cycle_revision": {
                 "new_grammar_elements": [
-                  "repair:search_ceiling_repair_required:novel_cg3"
+                  "lever:resilience_grant:adversarial_validate:novel_cg3"
                 ],
                 "previous_candidate_ref": "candidate_lane0_cycle_002",
-                "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002"
+                "revision_strategy": "adversarial_validate",
+                "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+                "strategy_payload": {
+                  "adversarial_validation": {
+                    "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+                    "grammar_constraints": [
+                      "lever:resilience_grant:adversarial_validate:novel_cg3"
+                    ]
+                  },
+                  "issue": "novel_cg3",
+                  "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+                  "strategy": "adversarial_validate",
+                  "terminal_kind": "search_ceiling_repair_required"
+                }
               }
             },
             "schema_version": "policyos.runtime.design_problem.v1",
@@ -708,8 +749,21 @@
           },
           "revision_driver": "counterexample",
           "revision_id": "gy.n6.revision.industrial_resilience_retooling.002",
+          "revision_strategy": "adversarial_validate",
           "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-          "source_terminal_kind": "search_ceiling_repair_required"
+          "source_terminal_kind": "search_ceiling_repair_required",
+          "strategy_payload": {
+            "adversarial_validation": {
+              "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+              "grammar_constraints": [
+                "lever:resilience_grant:adversarial_validate:novel_cg3"
+              ]
+            },
+            "issue": "novel_cg3",
+            "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+            "strategy": "adversarial_validate",
+            "terminal_kind": "search_ceiling_repair_required"
+          }
         },
         "search_iteration": {
           "candidate_ref": "candidate_lane0_cycle_002",
@@ -795,7 +849,8 @@
     "schema_version": "policyos.runtime.generation_cycle_controller.v1",
     "strangle_receipt": {
       "allowed_fixture_callers": [
-        "src/polisyos/runtime/quality/workspace/loop.py:871"
+        "src/polisyos/runtime/quality/workspace/loop.py:872",
+        "src/polisyos/runtime/quality/workspace/loop.py:958"
       ],
       "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
       "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",
@@ -863,7 +918,7 @@
     "cycle_2_candidate_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
     "cycle_2_driven_by": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
     "cycle_2_introduced_grammar": [
-      "repair:search_ceiling_repair_required:shadow_bound"
+      "lever:resilience_grant:adversarial_validate:shadow_bound"
     ],
     "cycle_count": 2,
     "decision_front": [],
@@ -912,7 +967,8 @@
   ],
   "strangle_receipt": {
     "allowed_fixture_callers": [
-      "src/polisyos/runtime/quality/workspace/loop.py:871"
+      "src/polisyos/runtime/quality/workspace/loop.py:872",
+      "src/polisyos/runtime/quality/workspace/loop.py:958"
     ],
     "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
     "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",

@@ -288,6 +288,7 @@ class GenerationCycleRecord(_StrictModel):
     driven_by_counterexample_ref: str | None = None
     introduced_grammar_elements: tuple[str, ...] = ()
     revision_driver: Literal["counterexample", "none"] = "none"
+    acquisition_receipt: dict[str, Any] | None = None
 
 
 class StrangleReceipt(_StrictModel):
@@ -329,6 +330,7 @@ class GenerationCycleRun(_StrictModel):
     engine_owner_ref: str = ENGINE_SIMPLE_OWNER_REF
     terminal_denominator: tuple[str, ...]
     cycles: tuple[GenerationCycleRecord, ...]
+    acquisition_receipts: tuple[dict[str, Any], ...] = ()
     fronts: GenerationCycleFronts
     candidate_summaries: tuple[CandidateSummary, ...]
     value_port: ValuePortObservation
@@ -719,6 +721,7 @@ class GenerationCycleController:
         promotion_port: PromotionPort | None = None,
         revision_policy: RevisionPolicy | None = None,
         voi_scheduler: SimpleVOIScheduler | None = None,
+        acquisition_owner_gateway: object | None = None,
         repo_root: Path | None = None,
         model_id: str | None = None,
         high_proxy_threshold: float = 0.8,
@@ -735,6 +738,7 @@ class GenerationCycleController:
         self._value_port = value_port or PendingN8ValuePort()
         self._promotion_port = promotion_port or PendingN9PromotionPort()
         self._revision_policy = revision_policy or CounterexampleDrivenRevisionPolicy()
+        self._acquisition_owner_gateway = acquisition_owner_gateway
         self._voi_scheduler = voi_scheduler or SimpleVOIScheduler(
             stage_costs={3: Decimal("0.5"), 4: Decimal("1.0")},
             min_roi_threshold=1.0,
@@ -792,6 +796,14 @@ class GenerationCycleController:
                     terminal_status = "blocked"
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
+            acquisition_receipt = self._run_n7_acquisition_if_requested(
+                current_problem,
+                cycle=cycle,
+            )
+            if acquisition_receipt is not None:
+                cycle = cycle.model_copy(
+                    update={"acquisition_receipt": acquisition_receipt.model_dump(mode="json")}
+                )
             cycles.append(cycle)
             summaries.extend(cycle_summaries)
             if terminal_status == "blocked":
@@ -825,6 +837,9 @@ class GenerationCycleController:
             design_problem_ref=design_problem_ref,
             terminal_denominator=_terminal_denominator(),
             cycles=tuple(cycles),
+            acquisition_receipts=tuple(
+                cycle.acquisition_receipt for cycle in cycles if cycle.acquisition_receipt
+            ),
             fronts=fronts,
             candidate_summaries=tuple(summaries),
             value_port=cycles[-1].value_port if cycles else ValuePortObservation(),
@@ -928,6 +943,35 @@ class GenerationCycleController:
         }
         finished = await self._engine.run_async(state)
         return finished["cycle"], tuple(finished["candidate_summaries"])
+
+    def _run_n7_acquisition_if_requested(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle: GenerationCycleRecord,
+    ) -> object | None:
+        if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+            return None
+        acquisition_request = cycle.revision_request.strategy_payload.get("acquisition_request")
+        if not isinstance(acquisition_request, Mapping):
+            return None
+        specs = problem.runtime_hints.get("n7_data_requirement_specs")
+        world_snapshot = problem.runtime_hints.get("n7_world_snapshot")
+        owner_gateway = problem.runtime_hints.get("n7_owner_gateway") or self._acquisition_owner_gateway
+        if specs is None or world_snapshot is None or owner_gateway is None:
+            return None
+        from polisyos.runtime.quality.acquisition_planner import run_acquisition_closed_loop
+
+        return run_acquisition_closed_loop(
+            run_id=f"n7-reentry:{problem.design_problem_id}:{cycle.cycle_index}",
+            acquisition_request={**acquisition_request, "cycle_index": cycle.cycle_index},
+            data_requirement_specs=tuple(specs),
+            world_snapshot=world_snapshot,
+            owner_gateway=owner_gateway,
+            useful_design_rate_before=float(
+                problem.runtime_hints.get("n7_useful_design_rate_before") or 0.0
+            ),
+        )
 
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:
         result = self._generation_port(

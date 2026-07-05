@@ -11,7 +11,7 @@
     {
       "issue_codes": [
         "acquisition_receipt_not_content_bound",
-        "acquisition_receipt_not_content_bound",
+        "acquisition_artifact_not_captured_from_owner",
         "acquisition_receipt_content_hash_drift"
       ],
       "mutation_id": "acquisition_receipt_not_content_bound",
@@ -40,6 +40,14 @@
         "acquisition_receipt_content_hash_drift"
       ],
       "mutation_id": "world_did_not_grow_after_ingest",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "acquisition_artifact_not_captured_from_owner",
+        "acquisition_receipt_content_hash_drift"
+      ],
+      "mutation_id": "acquisition_artifact_not_captured_from_owner",
       "status": "red"
     },
     {
@@ -98,7 +106,7 @@
     "routine_check_network_calls": 0,
     "wall_time_reported_by_validator": true
   },
-  "contract_content_hash": "sha256:81807c791ab198a7cac91c08157dd4ef5e0964667edd4569af3dffbea46318b0",
+  "contract_content_hash": "sha256:b012d873cc881d839fdff45f17f67149329294fc145c952b4f03072fd524951c",
   "contract_id": "policyos.runtime.quality.acquisition_planner.n7",
   "denominators": {
     "acquisition_families": [
@@ -316,7 +324,7 @@
       "journal_entry_count": 1,
       "routine_check_network_calls": 0
     },
-    "content_hash": "sha256:f05e1cedb0de05fce1e791969ecddd8fb5fb69023c7b6e4e2763277d9a8ef0bc",
+    "content_hash": "sha256:8d5720da33877e77b47b4f5dfa2b9da84e08390502922d99e4d1b3c6b5f92437",
     "cost_summary_usd": 0.0,
     "fail_closed_reasons": [
       "owner_artifact_missing:data-requirement:claim-source-family"
@@ -330,6 +338,7 @@
       "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
     },
     "generated_at": "2026-07-05T00:00:00Z",
+    "grounding_rederivations": [],
     "grown_world_added_slots": [],
     "grown_world_after_ref": "world://before/n7-contract",
     "grown_world_before_ref": "world://before/n7-contract",
@@ -347,6 +356,7 @@
         "status": "failed_closed"
       }
     ],
+    "network_call_count": 0,
     "no_result_costed_gap": false,
     "owner_artifacts": [],
     "planner_report": {
@@ -626,7 +636,7 @@
         ]
       },
       "capability_reality_status": "implemented",
-      "generated_at": "2026-07-05T15:55:46Z",
+      "generated_at": "2026-07-05T00:00:00Z",
       "pattern_refs": [
         "P01",
         "P09",
@@ -654,7 +664,8 @@
     "source_cycle_index": 5,
     "status": "blocked",
     "useful_design_rate_after": 0.0,
-    "useful_design_rate_before": 0.0
+    "useful_design_rate_before": 0.0,
+    "world_write_outcomes": []
   },
   "grounding_acquisition_request": {
     "acquisition_family": "CERT",
@@ -897,7 +908,7 @@
       "journal_entry_count": 1,
       "routine_check_network_calls": 0
     },
-    "content_hash": "sha256:b2a086ef4320d59155d82e0ee84f48f7731765b46fdfd7d9aa26397d13773dc7",
+    "content_hash": "sha256:b1e7cfa3f57e2aba8b4a95147c50212cc954445f0b9130cc138e0f60c8b46a59",
     "cost_summary_usd": 3.75,
     "fail_closed_reasons": [],
     "fallback_strangle_receipt": {
@@ -909,14 +920,15 @@
       "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
     },
     "generated_at": "2026-07-05T00:00:00Z",
+    "grounding_rederivations": [],
     "grown_world_added_slots": [],
     "grown_world_after_ref": "world://before/n7-contract",
     "grown_world_before_ref": "world://before/n7-contract",
-    "grown_world_delta_hash": "sha256:cded380400af489acf713bbe6aba9ac65301ef2ba50f9476778676532a51f971",
+    "grown_world_delta_hash": "sha256:098e64a2cdb4ced97e4d9f5920d31f471af845463a7449e96714ced97e706153",
     "journal_entries": [
       {
         "action": "remediate_source_contract",
-        "artifact_content_hash": "sha256:cd6cedc4668c5c68d9498c43c331177fda94cdd24097ba01a451a84e854f3fce",
+        "artifact_content_hash": "sha256:a4dc679c32e741ca628420dc622a90892f432ab850b953adc8f7fdfa061f8591",
         "artifact_ref": "fabric://recorded/no-result",
         "journal_ref": "journal://n7/no-result/001",
         "message": "owner artifact journaled before receipt validation",
@@ -926,19 +938,30 @@
         "status": "journaled"
       }
     ],
+    "network_call_count": 0,
     "no_result_costed_gap": true,
     "owner_artifacts": [
       {
         "artifact_ref": "fabric://recorded/no-result",
         "binding_refs": [],
-        "content_hash": "sha256:cd6cedc4668c5c68d9498c43c331177fda94cdd24097ba01a451a84e854f3fce",
+        "capture_provenance": {
+          "capture_mode": "local_substrate_owner",
+          "captured_at": "2026-07-05T00:00:00Z",
+          "journal_first": true,
+          "network_call": false,
+          "owner_component": "fabric.retrieval",
+          "owner_endpoint": "RetrievalService.resolve",
+          "owner_request_hash": "sha256:a6f3bd1d916ef81dcf9862b65920618812eeb832012b6c98dad67b089c43942e",
+          "owner_response_hash": "sha256:a4dc679c32e741ca628420dc622a90892f432ab850b953adc8f7fdfa061f8591"
+        },
+        "content_hash": "sha256:a4dc679c32e741ca628420dc622a90892f432ab850b953adc8f7fdfa061f8591",
         "cost_usd": 3.75,
         "ingested": true,
         "journal_ref": "journal://n7/no-result/001",
         "owner_component": "fabric.retrieval",
         "payload": {
-          "grounding_results": [],
-          "world_slots": []
+          "owner_response_kind": "fabric_retrieval_no_result",
+          "rows": []
         },
         "quality": {
           "query_validated": true
@@ -1226,7 +1249,7 @@
         ]
       },
       "capability_reality_status": "implemented",
-      "generated_at": "2026-07-05T15:55:45Z",
+      "generated_at": "2026-07-05T00:00:00Z",
       "pattern_refs": [
         "P01",
         "P09",
@@ -1254,7 +1277,23 @@
     "source_cycle_index": 4,
     "status": "completed_no_results",
     "useful_design_rate_after": 0.0,
-    "useful_design_rate_before": 0.0
+    "useful_design_rate_before": 0.0,
+    "world_write_outcomes": [
+      {
+        "artifact_ref": "fabric://recorded/no-result",
+        "family_id": null,
+        "owner_component": "fabric.retrieval",
+        "reason": "owner_response_no_substrate_registrations",
+        "registry_content_hash_after": null,
+        "registry_content_hash_before": "sha256:c8d8b19b3252d7557d92fd393903216712a896241c8fbaff85d03c88bde88e7f",
+        "requirement_ref": "data-requirement:claim-source-family",
+        "source_id": null,
+        "status": "no_result",
+        "substrate_version_after": null,
+        "substrate_version_before": "substrate_version_c8d8b19b3252d755",
+        "world_ref_after": null
+      }
+    ]
   },
   "pattern_pass": {
     "acceptance_signal": "frozen receipt validates and decisive mutations turn red",
@@ -1531,7 +1570,7 @@
       "journal_entry_count": 2,
       "routine_check_network_calls": 0
     },
-    "content_hash": "sha256:0f0a39f23657a2c5fd5a372f8fc0f613572e31a1118976cc24806dee39b8b9f9",
+    "content_hash": "sha256:63ba3c5980fd81745471774fe5d23487c448cb2b4459519b3bc34c100ba48489",
     "cost_summary_usd": 18.75,
     "fail_closed_reasons": [],
     "fallback_strangle_receipt": {
@@ -1543,19 +1582,77 @@
       "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
     },
     "generated_at": "2026-07-05T00:00:00Z",
+    "grounding_rederivations": [
+      {
+        "design_id": "design:credit",
+        "evidence_refs": [
+          "n7-cg1-design-credit",
+          "sha256:81a7f259f547ec1d2009e2c0ae949bedc3eb973959e972cbdfffe0d55b5cb0b7",
+          "n7-cg2-design-credit",
+          "sha256:9549609ce6b5147f6baee5fc486cdf15974b6dbff1e48a8beb09ed60fc7680f2",
+          "n7-cg3-design-credit",
+          "sha256:0f0964b2ae52920fd961f9d9449ff65953d93c3c396c1dd27ba0c7f36eea94f6"
+        ],
+        "grounding_score": 0.72,
+        "issue_codes": [
+          "shadow_bound"
+        ],
+        "report_ref": "sha256:1d181b3d3382a1ff9fb33b817a66d0c0d10504dac0c3721c08f89e53a877438c",
+        "source_slots": [
+          "production_msme_panel",
+          "tax_admin_panel"
+        ],
+        "status": "grounded_shadow"
+      },
+      {
+        "design_id": "design:portfolio",
+        "evidence_refs": [],
+        "grounding_score": 0.0,
+        "issue_codes": [
+          "candidate_binding_missing_after_world_write"
+        ],
+        "report_ref": null,
+        "source_slots": [
+          "production_msme_panel",
+          "tax_admin_panel"
+        ],
+        "status": "grounding_unavailable"
+      },
+      {
+        "design_id": "design:tax",
+        "evidence_refs": [
+          "n7-cg1-design-tax",
+          "sha256:e43bc9505caafbec39a5db1d098da84ba92c2378c458724831b423806642ba27",
+          "n7-cg2-design-tax",
+          "sha256:82871aed86367708678e9c11c9ee7cbdadfa151216e9c0751f34325bd75da8a9",
+          "n7-cg3-design-tax",
+          "sha256:8fad035f29043a07a6770232e0b51e41b0d8d5758047b200ff3e81da80739f40"
+        ],
+        "grounding_score": 0.72,
+        "issue_codes": [
+          "shadow_bound"
+        ],
+        "report_ref": "sha256:f9711df0062f21ef7e4062fdb40880f1665380a6b8c73068ef74a128f6dc5914",
+        "source_slots": [
+          "production_msme_panel",
+          "tax_admin_panel"
+        ],
+        "status": "grounded_shadow"
+      }
+    ],
     "grown_world_added_slots": [
       "production_msme_panel",
       "tax_admin_panel"
     ],
-    "grown_world_after_ref": "world://n7/192b8a4fc69a252606d58ecc",
+    "grown_world_after_ref": "s0://substrate-registry/substrate_version_3ad5fb4379ef0b1f",
     "grown_world_before_ref": "world://before/n7-contract",
-    "grown_world_delta_hash": "sha256:192b8a4fc69a252606d58ecc8c0369b97ca996265db7dca5427b3d8243a81394",
+    "grown_world_delta_hash": "sha256:3ad5fb4379ef0b1fc60247cc9877fd05559c4a9cf5c0ae91d287258a566ac8bf",
     "journal_entries": [
       {
         "action": "remediate_source_contract",
-        "artifact_content_hash": "sha256:12f70e82b267bb5296314a05a1aae9faed0e58bac3ec5e1f0b19daef1c9e7c92",
+        "artifact_content_hash": "sha256:bd67ec82350ff8e3878392876f2706d376daa77c743e20bc5e69ef5ea881be54",
         "artifact_ref": "fabric://recorded/production-msme-panel",
-        "journal_ref": "journal://n7/production-msme-panel/001",
+        "journal_ref": "journal://n7/production_msme_panel/001",
         "message": "owner artifact journaled before receipt validation",
         "owner_component": "fabric.ingestion",
         "requirement_ref": "data-requirement:claim-source-family",
@@ -1564,9 +1661,9 @@
       },
       {
         "action": "remediate_source_contract",
-        "artifact_content_hash": "sha256:07e2d9286ce424025193912965a90b7c76346c46f22042665715c5ad2a11652e",
+        "artifact_content_hash": "sha256:b6a00582de780ef19dfef8f839935aac6fe8bf5b6a718f84b063f5ec2f68f000",
         "artifact_ref": "skg://recorded/tax-admin-panel",
-        "journal_ref": "journal://n7/tax-admin-panel/001",
+        "journal_ref": "journal://n7/tax_admin_panel/001",
         "message": "owner artifact journaled before receipt validation",
         "owner_component": "data_forge.skg",
         "requirement_ref": "data-requirement:claim-calibration-panel",
@@ -1574,31 +1671,86 @@
         "status": "journaled"
       }
     ],
+    "network_call_count": 0,
     "no_result_costed_gap": false,
     "owner_artifacts": [
       {
         "artifact_ref": "fabric://recorded/production-msme-panel",
         "binding_refs": [
-          "claim-source-family"
+          "design:credit"
         ],
-        "content_hash": "sha256:12f70e82b267bb5296314a05a1aae9faed0e58bac3ec5e1f0b19daef1c9e7c92",
+        "capture_provenance": {
+          "capture_mode": "local_substrate_owner",
+          "captured_at": "2026-07-05T00:00:00Z",
+          "journal_first": true,
+          "network_call": false,
+          "owner_component": "fabric.ingestion",
+          "owner_endpoint": "fabric.ingestion.acquire",
+          "owner_request_hash": "sha256:a6f3bd1d916ef81dcf9862b65920618812eeb832012b6c98dad67b089c43942e",
+          "owner_response_hash": "sha256:bd67ec82350ff8e3878392876f2706d376daa77c743e20bc5e69ef5ea881be54"
+        },
+        "content_hash": "sha256:bd67ec82350ff8e3878392876f2706d376daa77c743e20bc5e69ef5ea881be54",
         "cost_usd": 11.25,
         "ingested": true,
-        "journal_ref": "journal://n7/production-msme-panel/001",
+        "journal_ref": "journal://n7/production_msme_panel/001",
         "owner_component": "fabric.ingestion",
         "payload": {
-          "grounding_results": [
+          "acquired_substrate_registrations": [
             {
-              "candidate_id": "design:credit",
-              "grounded": true
+              "authority_refs": [
+                "contract://authority/production_msme_panel"
+              ],
+              "coverage": {
+                "coverage_dimensions": {},
+                "coverage_kind": "recorded_owner_response",
+                "coverage_rule_ref": "contract://coverage/production_msme_panel",
+                "coverage_score": 0.92,
+                "dataset_count": 1,
+                "metric_binding_count": 1,
+                "observation_count": 1,
+                "quality_scores": {}
+              },
+              "data_version": "2026-07-05",
+              "family_id": "production_msme_panel",
+              "identification_mode": "observed_panel",
+              "layer": "L1",
+              "provenance_refs": [
+                "contract://provenance/fabric.production_msme_panel"
+              ],
+              "schema_regime": {
+                "authority_ref": "contract://schema/production_msme_panel",
+                "boundary_buffer_periods": null,
+                "effective_end": null,
+                "effective_start": null,
+                "schema_regime_id": "manifest:production_msme_panel",
+                "source_version": null
+              },
+              "snapshot_id": "snapshot:production_msme_panel:2026-07-05",
+              "source_id": "fabric.production_msme_panel",
+              "source_snapshot_id": "snapshot:production_msme_panel:2026-07-05",
+              "trust_tier": {
+                "authority_ref": "contract://trust/production_msme_panel",
+                "max_coverage": null,
+                "min_coverage": null,
+                "tier": "recorded",
+                "trust_cap": 0.82,
+                "trust_multiplier": 0.82
+              }
             }
           ],
-          "world_slots": [
-            "production_msme_panel"
-          ]
+          "candidate_bindings": [
+            {
+              "candidate_content_hash": "sha256:designcredit0000000000000000000000000000000000000000000000000000",
+              "candidate_id": "design:credit",
+              "target_world_slots": [
+                "production_msme_panel"
+              ]
+            }
+          ],
+          "owner_response_kind": "acquisition_owner_raw_response"
         },
         "quality": {
-          "completeness": 0.98
+          "capture": "real_owner_recording"
         },
         "requirement_ref": "data-requirement:claim-source-family",
         "rights": {
@@ -1608,26 +1760,80 @@
       {
         "artifact_ref": "skg://recorded/tax-admin-panel",
         "binding_refs": [
-          "claim-calibration-panel"
+          "design:tax"
         ],
-        "content_hash": "sha256:07e2d9286ce424025193912965a90b7c76346c46f22042665715c5ad2a11652e",
+        "capture_provenance": {
+          "capture_mode": "local_substrate_owner",
+          "captured_at": "2026-07-05T00:00:00Z",
+          "journal_first": true,
+          "network_call": false,
+          "owner_component": "data_forge.skg",
+          "owner_endpoint": "data_forge.skg.acquire",
+          "owner_request_hash": "sha256:1f167bcdee4424a727de06ca1504686d6de778f3a7330b2ae7ebf31e7d1a306e",
+          "owner_response_hash": "sha256:b6a00582de780ef19dfef8f839935aac6fe8bf5b6a718f84b063f5ec2f68f000"
+        },
+        "content_hash": "sha256:b6a00582de780ef19dfef8f839935aac6fe8bf5b6a718f84b063f5ec2f68f000",
         "cost_usd": 7.5,
         "ingested": true,
-        "journal_ref": "journal://n7/tax-admin-panel/001",
+        "journal_ref": "journal://n7/tax_admin_panel/001",
         "owner_component": "data_forge.skg",
         "payload": {
-          "grounding_results": [
+          "acquired_substrate_registrations": [
             {
-              "candidate_id": "design:tax",
-              "grounded": true
+              "authority_refs": [
+                "contract://authority/tax_admin_panel"
+              ],
+              "coverage": {
+                "coverage_dimensions": {},
+                "coverage_kind": "recorded_owner_response",
+                "coverage_rule_ref": "contract://coverage/tax_admin_panel",
+                "coverage_score": 0.92,
+                "dataset_count": 1,
+                "metric_binding_count": 1,
+                "observation_count": 1,
+                "quality_scores": {}
+              },
+              "data_version": "2026-07-05",
+              "family_id": "tax_admin_panel",
+              "identification_mode": "observed_panel",
+              "layer": "L1",
+              "provenance_refs": [
+                "contract://provenance/skg.tax_admin_panel"
+              ],
+              "schema_regime": {
+                "authority_ref": "contract://schema/tax_admin_panel",
+                "boundary_buffer_periods": null,
+                "effective_end": null,
+                "effective_start": null,
+                "schema_regime_id": "manifest:tax_admin_panel",
+                "source_version": null
+              },
+              "snapshot_id": "snapshot:tax_admin_panel:2026-07-05",
+              "source_id": "skg.tax_admin_panel",
+              "source_snapshot_id": "snapshot:tax_admin_panel:2026-07-05",
+              "trust_tier": {
+                "authority_ref": "contract://trust/tax_admin_panel",
+                "max_coverage": null,
+                "min_coverage": null,
+                "tier": "recorded",
+                "trust_cap": 0.82,
+                "trust_multiplier": 0.82
+              }
             }
           ],
-          "world_slots": [
-            "tax_admin_panel"
-          ]
+          "candidate_bindings": [
+            {
+              "candidate_content_hash": "sha256:designtax0000000000000000000000000000000000000000000000000000000",
+              "candidate_id": "design:tax",
+              "target_world_slots": [
+                "tax_admin_panel"
+              ]
+            }
+          ],
+          "owner_response_kind": "acquisition_owner_raw_response"
         },
         "quality": {
-          "skg_confidence": 0.91
+          "capture": "real_owner_recording"
         },
         "requirement_ref": "data-requirement:claim-calibration-panel",
         "rights": {
@@ -2161,7 +2367,7 @@
         ]
       },
       "capability_reality_status": "implemented",
-      "generated_at": "2026-07-05T15:55:45Z",
+      "generated_at": "2026-07-05T00:00:00Z",
       "pattern_refs": [
         "P01",
         "P09",
@@ -2189,7 +2395,37 @@
     "source_cycle_index": 3,
     "status": "completed",
     "useful_design_rate_after": 1.0,
-    "useful_design_rate_before": 0.0
+    "useful_design_rate_before": 0.0,
+    "world_write_outcomes": [
+      {
+        "artifact_ref": "fabric://recorded/production-msme-panel",
+        "family_id": "production_msme_panel",
+        "owner_component": "fabric.ingestion",
+        "reason": null,
+        "registry_content_hash_after": "sha256:99aa4948d857b9973b5f1673af62c366cd2a271886f659d5cfc1bb1c7660f748",
+        "registry_content_hash_before": "sha256:c8d8b19b3252d7557d92fd393903216712a896241c8fbaff85d03c88bde88e7f",
+        "requirement_ref": "data-requirement:claim-source-family",
+        "source_id": "fabric.production_msme_panel",
+        "status": "written",
+        "substrate_version_after": "substrate_version_99aa4948d857b997",
+        "substrate_version_before": "substrate_version_c8d8b19b3252d755",
+        "world_ref_after": "s0://substrate-registry/substrate_version_99aa4948d857b997"
+      },
+      {
+        "artifact_ref": "skg://recorded/tax-admin-panel",
+        "family_id": "tax_admin_panel",
+        "owner_component": "data_forge.skg",
+        "reason": null,
+        "registry_content_hash_after": "sha256:3ad5fb4379ef0b1fc60247cc9877fd05559c4a9cf5c0ae91d287258a566ac8bf",
+        "registry_content_hash_before": "sha256:99aa4948d857b9973b5f1673af62c366cd2a271886f659d5cfc1bb1c7660f748",
+        "requirement_ref": "data-requirement:claim-calibration-panel",
+        "source_id": "skg.tax_admin_panel",
+        "status": "written",
+        "substrate_version_after": "substrate_version_3ad5fb4379ef0b1f",
+        "substrate_version_before": "substrate_version_99aa4948d857b997",
+        "world_ref_after": "s0://substrate-registry/substrate_version_3ad5fb4379ef0b1f"
+      }
+    ]
   },
   "producer": "tools.quality.validation.check_layer3_gy_acquisition_contract",
   "receipt_schema_version": "policyos.runtime.quality.acquisition_receipt.v1",

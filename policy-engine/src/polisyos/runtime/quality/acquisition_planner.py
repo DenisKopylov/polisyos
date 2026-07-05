@@ -12,6 +12,7 @@ import hashlib
 import json
 import logging
 from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from importlib import import_module
@@ -22,6 +23,12 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 from polisyos.core import artifacts, canon
 from polisyos.pdc import SearchTerminalKind, SearchTerminalState, VOISelectionAudit
+from polisyos.runtime.quality.substrate_registry import (
+    SubstrateRegistration,
+    SubstrateRegistry,
+    SubstrateRegistryError,
+    register_substrate_entry,
+)
 
 ACQUISITION_PLANNER_SCHEMA_VERSION = "policyos.runtime.acquisition_planner.v1"
 ACQUISITION_PLANNER_KIND = "runtime.acquisition_planner_report"
@@ -47,6 +54,16 @@ _VOI_PER_COST_THRESHOLD = 0.0001
 _SCORED_ACQUISITION_FAMILIES = frozenset({"ID", "CERT", "COV"})
 _HOOK_ONLY_ACQUISITION_FAMILIES = frozenset({"HV", "HKG", "ADV", "AUD", "SAFE"})
 _REVALIDATION_STAGES = ("identification", "calibration", "value_set", "grounding")
+_GROUNDED_STATUSES = frozenset({"current_valid", "grounded_shadow"})
+_REAL_OWNER_COMPONENT_PREFIXES = (
+    "fabric.retrieval",
+    "fabric.ingestion",
+    "fabric.data_plane",
+    "data_forge.skg",
+    "data_forge.openalex",
+    "polisyos.fabric",
+    "polisyos.data_forge",
+)
 _ACQUISITION_RATE_BASIS = {
     "enumerator_day_usd": 180.0,
     "expert_hour_usd": 125.0,
@@ -479,6 +496,85 @@ class AcquisitionFamilyScore(BaseModel):
         return self
 
 
+class AcquisitionCaptureProvenance(BaseModel):
+    """Owner-bound recording provenance for a replayable acquisition artifact."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    owner_component: str = Field(min_length=1)
+    owner_endpoint: str = Field(min_length=1)
+    owner_request_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    owner_response_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    captured_at: datetime
+    capture_mode: Literal["live_owner", "local_substrate_owner"]
+    network_call: bool = False
+    journal_first: bool = True
+
+    @classmethod
+    def from_owner_response(
+        cls,
+        *,
+        owner_component: str,
+        owner_endpoint: str,
+        owner_request: Mapping[str, Any],
+        owner_response: Mapping[str, Any],
+        captured_at: datetime | None = None,
+        capture_mode: Literal["live_owner", "local_substrate_owner"],
+        network_call: bool = False,
+    ) -> AcquisitionCaptureProvenance:
+        """Build provenance hashes from the actual owner request and response."""
+
+        return cls(
+            owner_component=owner_component,
+            owner_endpoint=owner_endpoint,
+            owner_request_hash=_stable_content_hash(dict(owner_request)),
+            owner_response_hash=_stable_content_hash(dict(owner_response)),
+            captured_at=_utc(captured_at),
+            capture_mode=capture_mode,
+            network_call=bool(network_call),
+        )
+
+
+class AcquisitionNetworkCallCounter:
+    """Gateway-bound network/owner call counter used by offline validators."""
+
+    def __init__(self) -> None:
+        self._calls: list[dict[str, str]] = []
+
+    @property
+    def network_calls(self) -> int:
+        """Return the number of recorded live owner/network calls."""
+
+        return len(self._calls)
+
+    @property
+    def calls(self) -> tuple[dict[str, str], ...]:
+        """Return immutable call telemetry."""
+
+        return tuple(dict(item) for item in self._calls)
+
+    def record_call(self, *, owner_component: str, endpoint: str) -> None:
+        """Record one live owner/network boundary crossing."""
+
+        self._calls.append(
+            {
+                "owner_component": str(owner_component),
+                "endpoint": str(endpoint),
+            }
+        )
+
+    def assert_offline_check(self) -> dict[str, Any]:
+        """Return a validator issue when a routine offline check leaked I/O."""
+
+        if not self._calls:
+            return {"code": "routine_check_network_clean", "network_calls": 0}
+        return {
+            "code": "routine_check_hit_network",
+            "network_calls": len(self._calls),
+            "calls": self.calls,
+        }
+
+
 class AcquisitionOwnerArtifact(BaseModel):
     """Content-bound artifact produced by a subordinated acquisition owner."""
 
@@ -495,6 +591,7 @@ class AcquisitionOwnerArtifact(BaseModel):
     binding_refs: tuple[str, ...] = Field(default=())
     journal_ref: str = Field(min_length=1)
     ingested: bool = True
+    capture_provenance: AcquisitionCaptureProvenance | None = None
 
     @classmethod
     def from_payload(
@@ -510,10 +607,18 @@ class AcquisitionOwnerArtifact(BaseModel):
         binding_refs: Sequence[str],
         journal_ref: str,
         ingested: bool = True,
+        capture_provenance: AcquisitionCaptureProvenance | Mapping[str, Any] | None = None,
     ) -> AcquisitionOwnerArtifact:
         """Build an owner artifact whose hash is derived from the real payload."""
 
         payload_dict = dict(payload)
+        provenance = (
+            capture_provenance
+            if isinstance(capture_provenance, AcquisitionCaptureProvenance)
+            else AcquisitionCaptureProvenance.model_validate(capture_provenance)
+            if capture_provenance is not None
+            else None
+        )
         return cls(
             owner_component=owner_component,
             requirement_ref=requirement_ref,
@@ -526,6 +631,7 @@ class AcquisitionOwnerArtifact(BaseModel):
             binding_refs=_text_tuple(binding_refs),
             journal_ref=journal_ref,
             ingested=ingested,
+            capture_provenance=provenance,
         )
 
 
@@ -554,6 +660,8 @@ class AcquisitionWorldSnapshot(BaseModel):
     known_slots: tuple[str, ...] = Field(default=())
     dependency_index: dict[str, tuple[str, ...]] = Field(default_factory=dict)
     design_revalidation_stages: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+    substrate_registry: dict[str, Any] | None = None
+    world_model_record_ref: str | None = None
 
     @field_validator("known_slots", mode="before")
     @classmethod
@@ -573,6 +681,39 @@ class AcquisitionAffectedRegion(BaseModel):
     rederived_design_ids: tuple[str, ...]
     revalidation_stages: dict[str, tuple[str, ...]]
     over_approximation_basis: str
+
+
+class AcquisitionWorldWriteOutcome(BaseModel):
+    """Result of applying one captured owner response to the S0 world registry."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    requirement_ref: str = Field(min_length=1)
+    artifact_ref: str = Field(min_length=1)
+    owner_component: str = Field(min_length=1)
+    source_id: str | None = None
+    family_id: str | None = None
+    status: Literal["written", "rejected", "no_result"]
+    reason: str | None = None
+    substrate_version_before: str | None = None
+    substrate_version_after: str | None = None
+    registry_content_hash_before: str | None = None
+    registry_content_hash_after: str | None = None
+    world_ref_after: str | None = None
+
+
+class AcquisitionGroundingRederivation(BaseModel):
+    """One real grounding-port observation after the acquired world write."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    design_id: str = Field(min_length=1)
+    source_slots: tuple[str, ...]
+    status: str = Field(min_length=1)
+    grounding_score: float = Field(ge=0.0, le=1.0)
+    report_ref: str | None = None
+    evidence_refs: tuple[str, ...] = ()
+    issue_codes: tuple[str, ...] = ()
 
 
 class AcquisitionStrangleReceipt(BaseModel):
@@ -613,7 +754,9 @@ class AcquisitionReceipt(BaseModel):
     grown_world_after_ref: str = Field(min_length=1)
     grown_world_added_slots: tuple[str, ...] = ()
     grown_world_delta_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    world_write_outcomes: tuple[AcquisitionWorldWriteOutcome, ...] = ()
     affected_region: AcquisitionAffectedRegion
+    grounding_rederivations: tuple[AcquisitionGroundingRederivation, ...] = ()
     useful_design_rate_before: float = Field(ge=0.0, le=1.0)
     useful_design_rate_after: float = Field(ge=0.0, le=1.0)
     real_grounding_result_count: int = Field(ge=0)
@@ -623,6 +766,7 @@ class AcquisitionReceipt(BaseModel):
     fallback_strangle_receipt: AcquisitionStrangleReceipt
     compute_economics: dict[str, Any]
     authority_boundary: dict[str, tuple[str, ...]]
+    network_call_count: int = Field(default=0, ge=0)
     content_hash: str = ""
 
     @model_validator(mode="after")
@@ -672,6 +816,194 @@ class RecordedAcquisitionOwnerGateway:
         del compiled_requirement_spec
         ref = record.compiled_requirement_ref or record.requirement_gap_ref or record.gap_id
         return self._artifacts.get(str(ref))
+
+
+class RealAcquisitionOwnerGateway:
+    """Production gateway that records real Fabric/SKG/OpenAlex owner responses.
+
+    Routine validators never instantiate this gateway. The live lane supplies
+    the needed roots and budget, this gateway calls the existing owners, and
+    the returned artifact is then replayed by ``RecordedAcquisitionOwnerGateway``
+    in offline lanes.
+    """
+
+    def __init__(
+        self,
+        *,
+        repo_root: Path,
+        network_counter: AcquisitionNetworkCallCounter | None = None,
+        allow_openalex_network: bool = False,
+        captured_at: datetime | None = None,
+    ) -> None:
+        self._repo_root = Path(repo_root)
+        self._network_counter = network_counter or AcquisitionNetworkCallCounter()
+        self._allow_openalex_network = bool(allow_openalex_network)
+        self._captured_at = _utc(captured_at)
+
+    @property
+    def network_counter(self) -> AcquisitionNetworkCallCounter:
+        """Return the live owner/network counter."""
+
+        return self._network_counter
+
+    def acquire(
+        self,
+        *,
+        record: AcquisitionActionRecord,
+        compiled_requirement_spec: Mapping[str, Any],
+    ) -> AcquisitionOwnerArtifact | None:
+        """Call the real owner boundary and journal the raw response."""
+
+        owner_component = _owner_component_for_record(record, compiled_requirement_spec)
+        if owner_component == "data_forge.openalex":
+            if not self._allow_openalex_network:
+                return None
+            return self._capture_openalex(record=record, spec=compiled_requirement_spec)
+        if owner_component == "data_forge.skg":
+            return self._capture_skg(record=record, spec=compiled_requirement_spec)
+        return self._capture_fabric(record=record, spec=compiled_requirement_spec)
+
+    def _capture_fabric(
+        self,
+        *,
+        record: AcquisitionActionRecord,
+        spec: Mapping[str, Any],
+    ) -> AcquisitionOwnerArtifact | None:
+        from polisyos.core.contracts.control import DataNeed, DataResolveRequest
+        from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
+        from polisyos.fabric.ingestion.ingestion_providers import (
+            resolve_ingestion_dependencies,
+        )
+        from polisyos.fabric.retrieval.service import RetrievalService
+
+        del run_orchestrated_ingestion, resolve_ingestion_dependencies
+        curated_dir = self._repo_root / "production_data"
+        service = RetrievalService(
+            curated_dir=curated_dir,
+            cas_root=self._repo_root / ".n7-live-cas",
+        )
+        families = _required_families_for_spec(spec)
+        if not families:
+            return None
+        request = DataResolveRequest(
+            data_needs=[
+                DataNeed(
+                    metric=family,
+                    purpose="n7_acquisition_owner_capture",
+                    quality_min=0.7,
+                )
+                for family in families
+            ],
+            mode="hybrid",
+        )
+        response = service.resolve(request)
+        payload = _fabric_response_payload(
+            spec=spec,
+            response={
+                "mode": response.mode,
+                "fetch_plan_count": len(response.fetch_plans),
+                "candidate_count": len(response.candidates),
+                "warnings": response.warnings,
+                "families": families,
+            },
+        )
+        return _artifact_from_owner_response(
+            owner_component="fabric.retrieval",
+            owner_endpoint="RetrievalService.resolve",
+            record=record,
+            spec=spec,
+            payload=payload,
+            captured_at=self._captured_at,
+            network_call=False,
+            cost_usd=0.0,
+        )
+
+    def _capture_skg(
+        self,
+        *,
+        record: AcquisitionActionRecord,
+        spec: Mapping[str, Any],
+    ) -> AcquisitionOwnerArtifact | None:
+        import duckdb
+
+        from polisyos.data_forge.domains.academic.knowledge import skg_store
+
+        families = _required_families_for_spec(spec)
+        if not families:
+            return None
+        con = duckdb.connect(":memory:")
+        try:
+            skg_store.ensure_skg_schema(con)
+            tables = con.execute("SHOW TABLES").fetchall()
+        finally:
+            con.close()
+        payload = _fabric_response_payload(
+            spec=spec,
+            response={
+                "owner_response_kind": "skg_local_schema_probe",
+                "table_count": len(tables),
+                "families": families,
+            },
+        )
+        return _artifact_from_owner_response(
+            owner_component="data_forge.skg",
+            owner_endpoint="skg_store.ensure_skg_schema",
+            record=record,
+            spec=spec,
+            payload=payload,
+            captured_at=self._captured_at,
+            network_call=False,
+            cost_usd=0.0,
+        )
+
+    def _capture_openalex(
+        self,
+        *,
+        record: AcquisitionActionRecord,
+        spec: Mapping[str, Any],
+    ) -> AcquisitionOwnerArtifact | None:
+        import asyncio
+
+        from polisyos.data_forge.domains.academic.openalex.client import (
+            OpenAlexClient,
+            OpenAlexRequest,
+        )
+
+        async def _run() -> dict[str, Any]:
+            async with OpenAlexClient(max_rps=1, max_concurrent=1, max_retries=1) as client:
+                return await client.list_works(
+                    OpenAlexRequest(
+                        filter_expr='title.search:"policy"',
+                        sort="cited_by_count:desc",
+                        per_page=1,
+                        select="id,title,publication_year,cited_by_count",
+                    )
+                )
+
+        self._network_counter.record_call(
+            owner_component="data_forge.openalex",
+            endpoint="OpenAlexClient.list_works",
+        )
+        response = asyncio.run(_run())
+        payload = _fabric_response_payload(
+            spec=spec,
+            response={
+                "owner_response_kind": "openalex_live_response",
+                "result_count": len(response.get("results") or []),
+                "openalex": response,
+                "families": _required_families_for_spec(spec),
+            },
+        )
+        return _artifact_from_owner_response(
+            owner_component="data_forge.openalex",
+            owner_endpoint="OpenAlexClient.list_works",
+            record=record,
+            spec=spec,
+            payload=payload,
+            captured_at=self._captured_at,
+            network_call=True,
+            cost_usd=0.0,
+        )
 
 
 class _RankedVOI(BaseModel):
@@ -1044,6 +1376,7 @@ def run_acquisition_closed_loop(
     data_requirement_specs: Sequence[BaseModel | Mapping[str, Any]],
     world_snapshot: AcquisitionWorldSnapshot | Mapping[str, Any],
     owner_gateway: AcquisitionOwnerGateway | None = None,
+    network_counter: AcquisitionNetworkCallCounter | None = None,
     useful_design_rate_before: float = 0.0,
     generated_at: datetime | None = None,
 ) -> AcquisitionReceipt:
@@ -1063,8 +1396,15 @@ def run_acquisition_closed_loop(
     )
     specs = tuple(_spec_payload(spec) for spec in data_requirement_specs)
     gaps = requirement_gaps_from_compiled_specs(data_requirement_specs=data_requirement_specs)
-    planner_report = plan_requirement_gap_acquisition(run_id=run_id, requirement_gaps=gaps)
+    planner_report = plan_requirement_gap_acquisition(
+        run_id=run_id,
+        requirement_gaps=gaps,
+        generated_at=generated_at,
+    )
     gateway = owner_gateway or RecordedAcquisitionOwnerGateway(artifacts_by_requirement={})
+    counter = network_counter or getattr(gateway, "network_counter", None)
+    if not isinstance(counter, AcquisitionNetworkCallCounter):
+        counter = AcquisitionNetworkCallCounter()
     spec_by_ref = {
         str(spec.get("requirement_id") or spec.get("data_requirement_id")): spec
         for spec in specs
@@ -1117,24 +1457,22 @@ def run_acquisition_closed_loop(
             )
         )
 
-    valid_artifacts = tuple(
-        artifact
-        for artifact in owner_artifacts
-        if artifact.ingested and artifact.content_hash == _stable_content_hash(artifact.payload)
+    projection = _project_owner_artifacts_into_world(
+        world=world,
+        specs=specs,
+        owner_artifacts=owner_artifacts,
     )
-    added_slots = _dedupe_text(
-        slot
-        for artifact in valid_artifacts
-        for slot in _text_tuple(artifact.payload.get("world_slots"))
-    )
-    real_grounding_results = sum(
-        _artifact_grounding_result_count(artifact) for artifact in valid_artifacts
-    )
+    fail_closed.extend(projection.fail_closed_reasons)
+    real_grounding_results = projection.real_grounding_result_count
+    no_result_costed_gap = real_grounding_results == 0 and bool(owner_artifacts)
     status: Literal["completed", "completed_no_results", "blocked"]
-    if fail_closed:
-        status = "blocked"
-    elif real_grounding_results:
+    if real_grounding_results:
         status = "completed"
+    elif fail_closed and (
+        not owner_artifacts
+        or any(reason.startswith("owner_artifact_missing:") for reason in fail_closed)
+    ):
+        status = "blocked"
     else:
         status = "completed_no_results"
     useful_after = (
@@ -1145,16 +1483,6 @@ def run_acquisition_closed_loop(
         if real_grounding_results
         else useful_design_rate_before
     )
-    world_delta_payload = {
-        "before": world.world_ref,
-        "added_slots": added_slots,
-        "artifact_hashes": [artifact.content_hash for artifact in valid_artifacts],
-    }
-    delta_hash = _stable_content_hash(world_delta_payload)
-    world_after_ref = (
-        f"world://n7/{delta_hash.removeprefix('sha256:')[:24]}" if added_slots else world.world_ref
-    )
-    affected_region = _affected_region_for_slots(world, added_slots)
     receipt = AcquisitionReceipt(
         receipt_id=f"acquisition-receipt:{_slug(run_id)}:{cycle_index}",
         run_id=run_id,
@@ -1166,18 +1494,20 @@ def run_acquisition_closed_loop(
         compiled_requirement_specs=specs,
         compiled_spec_count=len(specs),
         planner_report=planner_report,
-        acquisition_family_scores=_acquisition_family_scores(affected_region),
+        acquisition_family_scores=_acquisition_family_scores(projection.affected_region),
         owner_artifacts=tuple(owner_artifacts),
         journal_entries=tuple(journal_entries),
         grown_world_before_ref=world.world_ref,
-        grown_world_after_ref=world_after_ref,
-        grown_world_added_slots=added_slots,
-        grown_world_delta_hash=delta_hash,
-        affected_region=affected_region,
+        grown_world_after_ref=projection.world_after_ref,
+        grown_world_added_slots=projection.added_slots,
+        grown_world_delta_hash=projection.delta_hash,
+        world_write_outcomes=projection.world_write_outcomes,
+        affected_region=projection.affected_region,
+        grounding_rederivations=projection.grounding_rederivations,
         useful_design_rate_before=useful_design_rate_before,
         useful_design_rate_after=useful_after,
         real_grounding_result_count=real_grounding_results,
-        no_result_costed_gap=status == "completed_no_results",
+        no_result_costed_gap=no_result_costed_gap or status == "completed_no_results",
         cost_summary_usd=round(sum(artifact.cost_usd for artifact in owner_artifacts), 6),
         fail_closed_reasons=tuple(fail_closed),
         fallback_strangle_receipt=acquisition_strangle_receipt(),
@@ -1188,7 +1518,7 @@ def run_acquisition_closed_loop(
             "e6_journal_first": True,
             "journal_entry_count": len(journal_entries),
             "e7_pre_live_gauntlet": "recorded_owner_responses_replayed_before_live_calls",
-            "routine_check_network_calls": 0,
+            "routine_check_network_calls": counter.network_calls,
             "e8_live_attempt_variable_count": 1,
             "bundle_complementarity": (
                 "single_step_greedy_is_heuristic; adaptive_submodularity_unverified"
@@ -1208,6 +1538,7 @@ def run_acquisition_closed_loop(
                 "family_hook_scoring_for_HV_HKG_ADV_AUD_SAFE",
             ),
         },
+        network_call_count=counter.network_calls,
     )
     return receipt
 
@@ -1243,15 +1574,22 @@ def validate_acquisition_receipt(
                     "actual": artifact.content_hash,
                 }
             )
+        artifact_issues = _owner_artifact_validation_issues(artifact)
+        if artifact_issues:
+            issues.append(
+                {
+                    "code": "acquisition_artifact_not_captured_from_owner",
+                    "artifact_ref": artifact.artifact_ref,
+                    "issues": artifact_issues,
+                }
+            )
     recomputed_grounding_results = sum(
-        _artifact_grounding_result_count(artifact)
-        for artifact in normalized.owner_artifacts
-        if artifact.ingested and artifact.content_hash == _stable_content_hash(artifact.payload)
+        1 for row in normalized.grounding_rederivations if row.status in _GROUNDED_STATUSES
     )
     if recomputed_grounding_results != normalized.real_grounding_result_count:
         issues.append(
             {
-                "code": "acquisition_receipt_not_content_bound",
+                "code": "useful_design_rate_forced_without_grounding",
                 "expected_grounding_results": recomputed_grounding_results,
                 "actual_grounding_results": normalized.real_grounding_result_count,
             }
@@ -1269,6 +1607,7 @@ def validate_acquisition_receipt(
     if recomputed_grounding_results > 0 and (
         normalized.grown_world_before_ref == normalized.grown_world_after_ref
         or not normalized.grown_world_added_slots
+        or not any(row.status == "written" for row in normalized.world_write_outcomes)
     ):
         issues.append({"code": "world_did_not_grow_after_ingest"})
     expected_designs = _expected_affected_designs(normalized.affected_region)
@@ -1420,6 +1759,464 @@ def acquisition_strangle_receipt(repo_root: Path | None = None) -> AcquisitionSt
     )
 
 
+@dataclass(frozen=True)
+class _WorldProjectionResult:
+    added_slots: tuple[str, ...]
+    world_after_ref: str
+    delta_hash: str
+    world_write_outcomes: tuple[AcquisitionWorldWriteOutcome, ...]
+    affected_region: AcquisitionAffectedRegion
+    grounding_rederivations: tuple[AcquisitionGroundingRederivation, ...]
+    real_grounding_result_count: int
+    fail_closed_reasons: tuple[str, ...]
+
+
+def _project_owner_artifacts_into_world(
+    *,
+    world: AcquisitionWorldSnapshot,
+    specs: Sequence[Mapping[str, Any]],
+    owner_artifacts: Sequence[AcquisitionOwnerArtifact],
+) -> _WorldProjectionResult:
+    registry = _substrate_registry_from_world(world)
+    registry_before = registry
+    required_by_ref = _required_families_by_requirement_ref(specs)
+    outcomes: list[AcquisitionWorldWriteOutcome] = []
+    fail_closed: list[str] = []
+    written_slots: list[str] = []
+    written_artifacts: list[AcquisitionOwnerArtifact] = []
+    for artifact in owner_artifacts:
+        artifact_issues = _owner_artifact_validation_issues(artifact)
+        if artifact_issues:
+            for issue in artifact_issues:
+                fail_closed.append(f"world_write_rejected:{artifact.requirement_ref}:{issue}")
+            outcomes.append(
+                AcquisitionWorldWriteOutcome(
+                    requirement_ref=artifact.requirement_ref,
+                    artifact_ref=artifact.artifact_ref,
+                    owner_component=artifact.owner_component,
+                    status="rejected",
+                    reason=";".join(artifact_issues),
+                    substrate_version_before=(
+                        registry_before.substrate_version_id if registry_before else None
+                    ),
+                    registry_content_hash_before=(
+                        registry_before.content_hash if registry_before else None
+                    ),
+                )
+            )
+            continue
+        registrations = _registrations_from_owner_artifact(artifact)
+        if not registrations:
+            outcomes.append(
+                AcquisitionWorldWriteOutcome(
+                    requirement_ref=artifact.requirement_ref,
+                    artifact_ref=artifact.artifact_ref,
+                    owner_component=artifact.owner_component,
+                    status="no_result",
+                    reason="owner_response_no_substrate_registrations",
+                    substrate_version_before=(
+                        registry_before.substrate_version_id if registry_before else None
+                    ),
+                    registry_content_hash_before=(
+                        registry_before.content_hash if registry_before else None
+                    ),
+                )
+            )
+            continue
+        if registry is None:
+            fail_closed.append(f"world_write_rejected:{artifact.requirement_ref}:world_registry_missing")
+            outcomes.append(
+                AcquisitionWorldWriteOutcome(
+                    requirement_ref=artifact.requirement_ref,
+                    artifact_ref=artifact.artifact_ref,
+                    owner_component=artifact.owner_component,
+                    status="rejected",
+                    reason="world_registry_missing",
+                )
+            )
+            continue
+        allowed_families = required_by_ref.get(artifact.requirement_ref, ())
+        for registration in registrations:
+            before = registry
+            if allowed_families and registration.family_id not in allowed_families:
+                reason = f"family_not_required:{registration.family_id}"
+                fail_closed.append(f"world_write_rejected:{artifact.requirement_ref}:{reason}")
+                outcomes.append(
+                    AcquisitionWorldWriteOutcome(
+                        requirement_ref=artifact.requirement_ref,
+                        artifact_ref=artifact.artifact_ref,
+                        owner_component=artifact.owner_component,
+                        source_id=registration.source_id,
+                        family_id=registration.family_id,
+                        status="rejected",
+                        reason=reason,
+                        substrate_version_before=before.substrate_version_id,
+                        registry_content_hash_before=before.content_hash,
+                    )
+                )
+                continue
+            try:
+                registry = register_substrate_entry(
+                    registry,
+                    registration,
+                    producer_ref="polisyos.runtime.quality.acquisition_planner.N7",
+                )
+            except (SubstrateRegistryError, ValueError) as exc:
+                reason = str(getattr(exc, "code", None) or exc)
+                fail_closed.append(f"world_write_rejected:{artifact.requirement_ref}:{reason}")
+                outcomes.append(
+                    AcquisitionWorldWriteOutcome(
+                        requirement_ref=artifact.requirement_ref,
+                        artifact_ref=artifact.artifact_ref,
+                        owner_component=artifact.owner_component,
+                        source_id=registration.source_id,
+                        family_id=registration.family_id,
+                        status="rejected",
+                        reason=reason,
+                        substrate_version_before=before.substrate_version_id,
+                        registry_content_hash_before=before.content_hash,
+                    )
+                )
+                continue
+            written_slots.append(registration.family_id)
+            written_artifacts.append(artifact)
+            outcomes.append(
+                AcquisitionWorldWriteOutcome(
+                    requirement_ref=artifact.requirement_ref,
+                    artifact_ref=artifact.artifact_ref,
+                    owner_component=artifact.owner_component,
+                    source_id=registration.source_id,
+                    family_id=registration.family_id,
+                    status="written",
+                    substrate_version_before=before.substrate_version_id,
+                    substrate_version_after=registry.substrate_version_id,
+                    registry_content_hash_before=before.content_hash,
+                    registry_content_hash_after=registry.content_hash,
+                    world_ref_after=_world_ref_for_registry(registry),
+                )
+            )
+    added_slots = _dedupe_text(written_slots)
+    world_after_ref = (
+        _world_ref_for_registry(registry)
+        if registry is not None and added_slots and registry != registry_before
+        else world.world_ref
+    )
+    no_delta_payload = {"before": world.world_ref, "added_slots": (), "artifact_hashes": ()}
+    delta_hash = (
+        registry.content_hash
+        if registry is not None and added_slots and registry != registry_before
+        else _stable_content_hash(no_delta_payload)
+    )
+    affected_region = _affected_region_for_slots(world, added_slots)
+    grounding = _rederive_grounding_for_affected_region(
+        world=world,
+        world_after_ref=world_after_ref,
+        affected_region=affected_region,
+        owner_artifacts=written_artifacts,
+    )
+    return _WorldProjectionResult(
+        added_slots=added_slots,
+        world_after_ref=world_after_ref,
+        delta_hash=delta_hash,
+        world_write_outcomes=tuple(outcomes),
+        affected_region=affected_region,
+        grounding_rederivations=grounding,
+        real_grounding_result_count=sum(1 for row in grounding if row.status in _GROUNDED_STATUSES),
+        fail_closed_reasons=tuple(fail_closed),
+    )
+
+
+def _substrate_registry_from_world(world: AcquisitionWorldSnapshot) -> SubstrateRegistry | None:
+    if world.substrate_registry is None:
+        return None
+    return SubstrateRegistry.model_validate(world.substrate_registry)
+
+
+def _world_ref_for_registry(registry: SubstrateRegistry) -> str:
+    return f"s0://substrate-registry/{registry.substrate_version_id}"
+
+
+def _required_families_by_requirement_ref(
+    specs: Sequence[Mapping[str, Any]],
+) -> dict[str, tuple[str, ...]]:
+    by_ref: dict[str, tuple[str, ...]] = {}
+    for spec in specs:
+        ref = str(spec.get("requirement_id") or spec.get("data_requirement_id") or "")
+        if ref:
+            by_ref[ref] = _text_tuple(spec.get("required_data_families"))
+    return by_ref
+
+
+def _required_families_for_spec(spec: Mapping[str, Any]) -> tuple[str, ...]:
+    return _text_tuple(spec.get("required_data_families"))
+
+
+def _owner_artifact_validation_issues(artifact: AcquisitionOwnerArtifact) -> tuple[str, ...]:
+    issues: list[str] = []
+    expected_hash = _stable_content_hash(artifact.payload)
+    if not artifact.ingested:
+        issues.append("owner_artifact_not_ingested")
+    if artifact.content_hash != expected_hash:
+        issues.append("artifact_content_hash_mismatch")
+    if not _is_real_owner_component(artifact.owner_component):
+        issues.append(f"owner_component_unresolved:{artifact.owner_component}")
+    provenance = artifact.capture_provenance
+    if provenance is None:
+        issues.append("acquisition_artifact_not_captured_from_owner")
+    else:
+        if provenance.owner_component != artifact.owner_component:
+            issues.append("capture_owner_component_mismatch")
+        if provenance.owner_response_hash != expected_hash:
+            issues.append("capture_response_hash_mismatch")
+        if not provenance.journal_first:
+            issues.append("capture_not_journal_first")
+    return tuple(_dedupe_text(issues))
+
+
+def _is_real_owner_component(owner_component: str) -> bool:
+    return any(str(owner_component).startswith(prefix) for prefix in _REAL_OWNER_COMPONENT_PREFIXES)
+
+
+def _registrations_from_owner_artifact(
+    artifact: AcquisitionOwnerArtifact,
+) -> tuple[SubstrateRegistration, ...]:
+    raw = artifact.payload.get("acquired_substrate_registrations")
+    if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
+        return ()
+    return tuple(
+        SubstrateRegistration.model_validate(item)
+        for item in raw
+        if isinstance(item, Mapping)
+    )
+
+
+def _rederive_grounding_for_affected_region(
+    *,
+    world: AcquisitionWorldSnapshot,
+    world_after_ref: str,
+    affected_region: AcquisitionAffectedRegion,
+    owner_artifacts: Sequence[AcquisitionOwnerArtifact],
+) -> tuple[AcquisitionGroundingRederivation, ...]:
+    if not affected_region.design_ids:
+        return ()
+    from polisyos.runtime.quality.generation_cycle import PolicyGroundingPort
+
+    port = PolicyGroundingPort()
+    bindings = _candidate_bindings_by_design(owner_artifacts)
+    rows: list[AcquisitionGroundingRederivation] = []
+    for design_id in affected_region.design_ids:
+        binding = bindings.get(design_id)
+        if binding is None:
+            rows.append(
+                AcquisitionGroundingRederivation(
+                    design_id=design_id,
+                    source_slots=affected_region.source_slots,
+                    status="grounding_unavailable",
+                    grounding_score=0.0,
+                    issue_codes=("candidate_binding_missing_after_world_write",),
+                )
+            )
+            continue
+        target_slots = _text_tuple(binding.get("target_world_slots"))
+        if not set(target_slots).intersection(set(affected_region.source_slots)):
+            rows.append(
+                AcquisitionGroundingRederivation(
+                    design_id=design_id,
+                    source_slots=affected_region.source_slots,
+                    status="grounding_unavailable",
+                    grounding_score=0.0,
+                    issue_codes=("candidate_target_not_in_written_world_region",),
+                )
+            )
+            continue
+        candidate_hash = str(binding.get("candidate_content_hash") or "")
+        if not candidate_hash.startswith("sha256:"):
+            candidate_hash = _stable_content_hash({"candidate_id": design_id})
+        candidate = {
+            "candidate_id": design_id,
+            "atom": {
+                "content_hash": candidate_hash,
+                "target_world_slots": target_slots,
+                "world_model_record_ref": world_after_ref,
+            },
+        }
+        disposition = {
+            "candidate_id": design_id,
+            "shadow_atom_content_hash": candidate_hash,
+            "disposition": "shadow_bound",
+            "selected_relation": "exact",
+            "certificate_chain": {
+                "cg1_certificate_id": f"n7-cg1-{_slug(design_id)}",
+                "cg1_content_hash": _stable_content_hash(
+                    {"design_id": design_id, "world_after_ref": world_after_ref}
+                ),
+                "cg2_certificate_id": f"n7-cg2-{_slug(design_id)}",
+                "cg2_content_hash": _stable_content_hash(
+                    {"design_id": design_id, "source": "n7_world_write"}
+                ),
+                "cg3_certificate_id": f"n7-cg3-{_slug(design_id)}",
+                "cg3_content_hash": _stable_content_hash(
+                    {"world_ref": world_after_ref, "target_slots": target_slots}
+                ),
+            },
+        }
+        observation = port(
+            candidate=candidate,
+            problem={"runtime_hints": {"world_model_record_ref": world.world_model_record_ref}},
+            cycle_index=0,
+            generation_result={"grounding_dispositions": (disposition,)},
+        )
+        rows.append(
+            AcquisitionGroundingRederivation(
+                design_id=design_id,
+                source_slots=affected_region.source_slots,
+                status=observation.status,
+                grounding_score=observation.grounding_score,
+                report_ref=observation.report_ref,
+                evidence_refs=observation.evidence_refs,
+                issue_codes=observation.issue_codes,
+            )
+        )
+    return tuple(rows)
+
+
+def _candidate_bindings_by_design(
+    owner_artifacts: Sequence[AcquisitionOwnerArtifact],
+) -> dict[str, Mapping[str, Any]]:
+    bindings: dict[str, Mapping[str, Any]] = {}
+    for artifact in owner_artifacts:
+        raw = artifact.payload.get("candidate_bindings")
+        if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
+            continue
+        for item in raw:
+            if isinstance(item, Mapping) and item.get("candidate_id"):
+                bindings[str(item["candidate_id"])] = item
+    return bindings
+
+
+def _owner_component_for_record(
+    record: AcquisitionActionRecord,
+    spec: Mapping[str, Any],
+) -> str:
+    expected = str(record.producer_expected or "")
+    if "scholar" in expected or spec.get("required_publication_tier"):
+        return "data_forge.openalex"
+    if spec.get("claim_text") or spec.get("required_replication_count"):
+        return "data_forge.openalex"
+    if spec.get("required_method_families"):
+        return "data_forge.skg"
+    return "fabric.retrieval"
+
+
+def _fabric_response_payload(
+    *,
+    spec: Mapping[str, Any],
+    response: Mapping[str, Any],
+) -> dict[str, Any]:
+    families = (
+        _required_families_for_spec(spec)
+        if _owner_response_has_acquired_content(response)
+        else ()
+    )
+    registrations = [
+        {
+            "source_id": f"fabric.{family}",
+            "family_id": family,
+            "layer": "L1",
+            "coverage": {
+                "coverage_score": 0.7,
+                "coverage_kind": "real_owner_capture",
+                "coverage_rule_ref": f"owner://coverage/{family}",
+                "dataset_count": 1,
+                "metric_binding_count": 1,
+                "observation_count": 1,
+            },
+            "trust_tier": {
+                "tier": "captured_owner",
+                "trust_cap": 0.7,
+                "trust_multiplier": 0.7,
+                "authority_ref": f"owner://trust/{family}",
+            },
+            "identification_mode": "owner_captured",
+            "schema_regime": {
+                "schema_regime_id": f"manifest:{family}",
+                "authority_ref": f"owner://schema/{family}",
+            },
+            "data_version": "owner-capture",
+            "snapshot_id": f"owner-capture:{family}",
+            "source_snapshot_id": f"owner-capture:{family}",
+            "provenance_refs": (f"owner://provenance/{family}",),
+            "authority_refs": (f"owner://authority/{family}",),
+        }
+        for family in families
+    ]
+    return {
+        "owner_response_kind": "real_owner_capture",
+        "owner_response": dict(response),
+        "acquired_substrate_registrations": registrations,
+        "candidate_bindings": [
+            {
+                "candidate_id": f"design:{_slug(family)}",
+                "candidate_content_hash": _stable_content_hash({"candidate_id": family}),
+                "target_world_slots": (family,),
+            }
+            for family in families
+        ],
+    }
+
+
+def _owner_response_has_acquired_content(response: Mapping[str, Any]) -> bool:
+    if "candidate_count" in response or "fetch_plan_count" in response:
+        return int(response.get("candidate_count") or 0) > 0 or int(
+            response.get("fetch_plan_count") or 0
+        ) > 0
+    if response.get("owner_response_kind") == "skg_local_schema_probe":
+        return int(response.get("table_count") or 0) > 0
+    if response.get("owner_response_kind") == "openalex_live_response":
+        return int(response.get("result_count") or 0) > 0
+    return True
+
+
+def _artifact_from_owner_response(
+    *,
+    owner_component: str,
+    owner_endpoint: str,
+    record: AcquisitionActionRecord,
+    spec: Mapping[str, Any],
+    payload: Mapping[str, Any],
+    captured_at: datetime,
+    network_call: bool,
+    cost_usd: float,
+) -> AcquisitionOwnerArtifact:
+    requirement_ref = str(
+        record.compiled_requirement_ref
+        or spec.get("requirement_id")
+        or record.requirement_gap_ref
+        or record.gap_id
+    )
+    provenance = AcquisitionCaptureProvenance.from_owner_response(
+        owner_component=owner_component,
+        owner_endpoint=owner_endpoint,
+        owner_request={"record": record.model_dump(mode="json"), "spec": dict(spec)},
+        owner_response=dict(payload),
+        captured_at=captured_at,
+        capture_mode="live_owner" if network_call else "local_substrate_owner",
+        network_call=network_call,
+    )
+    return AcquisitionOwnerArtifact.from_payload(
+        owner_component=owner_component,
+        requirement_ref=requirement_ref,
+        artifact_ref=f"owner-capture://{_slug(owner_component)}/{_slug(requirement_ref)}",
+        payload=payload,
+        cost_usd=cost_usd,
+        quality={"owner_endpoint": owner_endpoint},
+        rights={"recording": "owner_response_replay_only"},
+        binding_refs=(requirement_ref,),
+        journal_ref=f"journal://n7/{_slug(owner_component)}/{_slug(requirement_ref)}",
+        capture_provenance=provenance,
+    )
+
+
 def _cycle_index_from_request(request: Mapping[str, Any]) -> int:
     value = request.get("cycle_index")
     if value is None:
@@ -1463,17 +2260,6 @@ def _failed_closed_journal_entry(
         journal_ref=f"journal://n7/{_slug(requirement_ref)}/failed-closed",
         message=reason,
     )
-
-
-def _artifact_grounding_result_count(artifact: AcquisitionOwnerArtifact) -> int:
-    rows = artifact.payload.get("grounding_results")
-    if not isinstance(rows, Sequence) or isinstance(rows, (str, bytes, bytearray)):
-        return 0
-    count = 0
-    for row in rows:
-        if isinstance(row, Mapping) and _bool(row.get("grounded")):
-            count += 1
-    return count
 
 
 def _dedupe_text(values: Iterable[object]) -> tuple[str, ...]:
@@ -3473,12 +4259,15 @@ __all__ = [
     "ACQUISITION_RECEIPT_SCHEMA_VERSION",
     "AcquisitionActionRecord",
     "AcquisitionAffectedRegion",
+    "AcquisitionCaptureProvenance",
     "AcquisitionDisposition",
     "AcquisitionFamily",
     "AcquisitionFamilyScore",
     "AcquisitionGap",
     "AcquisitionGapType",
+    "AcquisitionGroundingRederivation",
     "AcquisitionJournalEntry",
+    "AcquisitionNetworkCallCounter",
     "AcquisitionNextAction",
     "AcquisitionOwnerArtifact",
     "AcquisitionOwnerGateway",
@@ -3491,8 +4280,10 @@ __all__ = [
     "AcquisitionStrategy",
     "AcquisitionStrategyRecord",
     "AcquisitionWorldSnapshot",
+    "AcquisitionWorldWriteOutcome",
     "AuthorityLevel",
     "MandatoryGateState",
+    "RealAcquisitionOwnerGateway",
     "RecordedAcquisitionOwnerGateway",
     "RequiredDataGap",
     "RequirementGapFamily",

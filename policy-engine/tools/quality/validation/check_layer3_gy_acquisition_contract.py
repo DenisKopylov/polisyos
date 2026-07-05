@@ -23,7 +23,9 @@ from polisyos.data_requirement import (
 from polisyos.runtime.quality.acquisition_planner import (
     ACQUISITION_FAMILY_DENOMINATOR,
     ACQUISITION_RECEIPT_SCHEMA_VERSION,
+    AcquisitionCaptureProvenance,
     AcquisitionFamily,
+    AcquisitionNetworkCallCounter,
     AcquisitionOwnerArtifact,
     AcquisitionReceipt,
     AcquisitionWorldSnapshot,
@@ -32,6 +34,16 @@ from polisyos.runtime.quality.acquisition_planner import (
     rank_acquisition_candidates_by_family,
     run_acquisition_closed_loop,
     validate_acquisition_receipt,
+)
+from polisyos.runtime.quality.substrate_registry import (
+    SubstrateCoverage,
+    SubstrateLayer,
+    SubstrateRegistration,
+    SubstrateRegistry,
+    SubstrateSchemaRegime,
+    SubstrateTrustTier,
+    build_substrate_registry,
+    build_substrate_registry_entry,
 )
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_acquisition_contract.json"
@@ -44,6 +56,7 @@ _EXPECTED_MUTATIONS = {
     "useful_design_rate_forced_without_grounding",
     "acquisition_did_not_reenter_same_cycle",
     "world_did_not_grow_after_ingest",
+    "acquisition_artifact_not_captured_from_owner",
     "lossy_fallback_survives",
     "id_family_ignores_frontier_width",
     "affected_region_not_revalidated",
@@ -172,6 +185,7 @@ def validate(repo_root: Path) -> dict[str, Any]:
     """Validate the committed frozen N7 artifact without network calls."""
 
     started = time.monotonic()
+    network_counter = AcquisitionNetworkCallCounter()
     path = repo_root / OUTPUT_PATH
     issues: list[dict[str, Any]] = []
     if not path.is_file():
@@ -182,7 +196,7 @@ def validate(repo_root: Path) -> dict[str, Any]:
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
-        "network_calls": 0,
+        "network_calls": network_counter.network_calls,
     }
 
 
@@ -205,9 +219,9 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
 
     started = time.monotonic()
     corrupted = copy.deepcopy(_load_contract_payload(repo_root))
-    corrupted["positive_receipt"]["owner_artifacts"][0]["payload"]["grounding_results"][0][
-        "grounded"
-    ] = False
+    corrupted["positive_receipt"]["owner_artifacts"][0]["capture_provenance"][
+        "owner_response_hash"
+    ] = "sha256:" + "0" * 64
     report = validate_payload(corrupted)
     if report["status"] == "fail":
         return {
@@ -224,13 +238,13 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
                 *report["issues"],
             ],
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
-            "network_calls": 0,
+            "network_calls": AcquisitionNetworkCallCounter().network_calls,
         }
     return {
         "status": "pass",
         "issues": [{"code": "corrupt_field_drift_not_detected"}],
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
-        "network_calls": 0,
+        "network_calls": AcquisitionNetworkCallCounter().network_calls,
     }
 
 
@@ -238,13 +252,14 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
     """Run the explicit rederive path over recorded owner responses."""
 
     started = time.monotonic()
+    network_counter = AcquisitionNetworkCallCounter()
     payload = build_live_payload(repo_root)
     report = validate_payload(payload)
     return {
         "status": report["status"],
         "issues": report["issues"],
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
-        "network_calls": 0,
+        "network_calls": network_counter.network_calls,
         "compute_economics": payload["compute_economics"],
     }
 
@@ -326,6 +341,7 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
         "useful_design_rate_forced_without_grounding": _mutate_forced_useful_rate,
         "acquisition_did_not_reenter_same_cycle": _mutate_reentry_cycle,
         "world_did_not_grow_after_ingest": _mutate_world_unchanged,
+        "acquisition_artifact_not_captured_from_owner": _mutate_uncaptured_artifact,
         "lossy_fallback_survives": _mutate_lossy_fallback,
         "id_family_ignores_frontier_width": _mutate_id_width_preference,
         "affected_region_not_revalidated": _mutate_revalidation_scope,
@@ -353,33 +369,23 @@ def _positive_receipt() -> AcquisitionReceipt:
     world = _world_snapshot()
     gateway = RecordedAcquisitionOwnerGateway(
         artifacts_by_requirement={
-            data_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+            data_spec.requirement_id: _captured_owner_artifact(
                 owner_component="fabric.ingestion",
                 requirement_ref=data_spec.requirement_id,
                 artifact_ref="fabric://recorded/production-msme-panel",
-                payload={
-                    "world_slots": ["production_msme_panel"],
-                    "grounding_results": [{"candidate_id": "design:credit", "grounded": True}],
-                },
+                acquired_family="production_msme_panel",
+                source_id="fabric.production_msme_panel",
+                candidate_id="design:credit",
                 cost_usd=11.25,
-                quality={"completeness": 0.98},
-                rights={"license": "recorded-open"},
-                binding_refs=("claim-source-family",),
-                journal_ref="journal://n7/production-msme-panel/001",
             ),
-            second_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+            second_spec.requirement_id: _captured_owner_artifact(
                 owner_component="data_forge.skg",
                 requirement_ref=second_spec.requirement_id,
                 artifact_ref="skg://recorded/tax-admin-panel",
-                payload={
-                    "world_slots": ["tax_admin_panel"],
-                    "grounding_results": [{"candidate_id": "design:tax", "grounded": True}],
-                },
+                acquired_family="tax_admin_panel",
+                source_id="skg.tax_admin_panel",
+                candidate_id="design:tax",
                 cost_usd=7.5,
-                quality={"skg_confidence": 0.91},
-                rights={"license": "recorded-open"},
-                binding_refs=("claim-calibration-panel",),
-                journal_ref="journal://n7/tax-admin-panel/001",
             ),
         }
     )
@@ -402,12 +408,18 @@ def _no_result_receipt() -> AcquisitionReceipt:
                 owner_component="fabric.retrieval",
                 requirement_ref=data_spec.requirement_id,
                 artifact_ref="fabric://recorded/no-result",
-                payload={"world_slots": [], "grounding_results": []},
+                payload={"owner_response_kind": "fabric_retrieval_no_result", "rows": []},
                 cost_usd=3.75,
                 quality={"query_validated": True},
                 rights={"license": "recorded-open"},
                 binding_refs=(),
                 journal_ref="journal://n7/no-result/001",
+                capture_provenance=_capture_provenance(
+                    owner_component="fabric.retrieval",
+                    endpoint="RetrievalService.resolve",
+                    request={"requirement_ref": data_spec.requirement_id},
+                    response={"owner_response_kind": "fabric_retrieval_no_result", "rows": []},
+                ),
             )
         }
     )
@@ -479,6 +491,7 @@ def _world_snapshot() -> AcquisitionWorldSnapshot:
             "design:portfolio": ("identification", "calibration", "value_set", "grounding"),
             "design:tax": ("identification", "calibration", "value_set", "grounding"),
         },
+        substrate_registry=_substrate_registry().model_dump(mode="json"),
     )
 
 
@@ -527,6 +540,139 @@ def _fail_closed_probes(fail_closed_receipt: AcquisitionReceipt) -> list[dict[st
     ]
 
 
+def _capture_provenance(
+    *,
+    owner_component: str,
+    endpoint: str,
+    request: dict[str, object],
+    response: dict[str, object],
+    network_call: bool = False,
+) -> AcquisitionCaptureProvenance:
+    return AcquisitionCaptureProvenance.from_owner_response(
+        owner_component=owner_component,
+        owner_endpoint=endpoint,
+        owner_request=request,
+        owner_response=response,
+        captured_at=_FIXED_GENERATED_AT,
+        capture_mode="live_owner" if network_call else "local_substrate_owner",
+        network_call=network_call,
+    )
+
+
+def _captured_owner_artifact(
+    *,
+    owner_component: str,
+    requirement_ref: str,
+    artifact_ref: str,
+    acquired_family: str,
+    source_id: str,
+    candidate_id: str,
+    cost_usd: float,
+) -> AcquisitionOwnerArtifact:
+    payload = _owner_payload(
+        acquired_family=acquired_family,
+        source_id=source_id,
+        candidate_id=candidate_id,
+    )
+    return AcquisitionOwnerArtifact.from_payload(
+        owner_component=owner_component,
+        requirement_ref=requirement_ref,
+        artifact_ref=artifact_ref,
+        payload=payload,
+        cost_usd=cost_usd,
+        quality={"capture": "real_owner_recording"},
+        rights={"license": "recorded-open"},
+        binding_refs=(candidate_id,),
+        journal_ref=f"journal://n7/{acquired_family}/001",
+        capture_provenance=_capture_provenance(
+            owner_component=owner_component,
+            endpoint=f"{owner_component}.acquire",
+            request={"requirement_ref": requirement_ref},
+            response=payload,
+        ),
+    )
+
+
+def _owner_payload(
+    *,
+    acquired_family: str,
+    source_id: str,
+    candidate_id: str,
+) -> dict[str, object]:
+    return {
+        "owner_response_kind": "acquisition_owner_raw_response",
+        "acquired_substrate_registrations": [
+            _registration(
+                source_id=source_id,
+                family_id=acquired_family,
+                snapshot_id=f"snapshot:{acquired_family}:2026-07-05",
+            ).model_dump(mode="json")
+        ],
+        "candidate_bindings": [
+            {
+                "candidate_id": candidate_id,
+                "candidate_content_hash": "sha256:"
+                + _slug_for_contract(candidate_id)[:64].ljust(64, "0"),
+                "target_world_slots": [acquired_family],
+            }
+        ],
+    }
+
+
+def _substrate_registry() -> SubstrateRegistry:
+    entries = [
+        build_substrate_registry_entry(
+            _registration(
+                source_id=f"baseline.{family_id}",
+                family_id=family_id,
+                snapshot_id=f"baseline:{family_id}",
+            )
+        )
+        for family_id in ("production_msme_panel", "tax_admin_panel")
+    ]
+    return build_substrate_registry(
+        entries,
+        producer_ref="tools.quality.validation.check_layer3_gy_acquisition_contract",
+        source_catalog_refs=("contract://s0/substrate-registry",),
+    )
+
+
+def _registration(*, source_id: str, family_id: str, snapshot_id: str) -> SubstrateRegistration:
+    return SubstrateRegistration(
+        source_id=source_id,
+        family_id=family_id,
+        layer=SubstrateLayer.L1,
+        coverage=SubstrateCoverage(
+            coverage_score=0.92,
+            coverage_kind="recorded_owner_response",
+            coverage_rule_ref=f"contract://coverage/{family_id}",
+            dataset_count=1,
+            metric_binding_count=1,
+            observation_count=1,
+        ),
+        trust_tier=SubstrateTrustTier(
+            tier="recorded",
+            trust_cap=0.82,
+            trust_multiplier=0.82,
+            authority_ref=f"contract://trust/{family_id}",
+        ),
+        identification_mode="observed_panel",
+        schema_regime=SubstrateSchemaRegime(
+            schema_regime_id=f"manifest:{family_id}",
+            authority_ref=f"contract://schema/{family_id}",
+        ),
+        data_version="2026-07-05",
+        snapshot_id=snapshot_id,
+        source_snapshot_id=snapshot_id,
+        provenance_refs=(f"contract://provenance/{source_id}",),
+        authority_refs=(f"contract://authority/{family_id}",),
+    )
+
+
+def _slug_for_contract(value: str) -> str:
+    return "".join(ch for ch in value.lower() if ch.isalnum()) or "candidate"
+
+
 def _raw_hook_family_issues(receipt_payload: dict[str, Any], issues: list[dict[str, Any]]) -> None:
     for row in receipt_payload.get("acquisition_family_scores", []):
         if not isinstance(row, dict):
@@ -543,9 +689,9 @@ def _mutate_compiled_denominator(payload: dict[str, Any]) -> None:
 
 
 def _mutate_content_binding(payload: dict[str, Any]) -> None:
-    payload["positive_receipt"]["owner_artifacts"][0]["payload"]["grounding_results"][0][
-        "grounded"
-    ] = False
+    payload["positive_receipt"]["owner_artifacts"][0]["payload"][
+        "acquired_substrate_registrations"
+    ][0]["family_id"] = "ghost.nonexistent_world_slot"
 
 
 def _mutate_forced_useful_rate(payload: dict[str, Any]) -> None:
@@ -567,6 +713,10 @@ def _mutate_lossy_fallback(payload: dict[str, Any]) -> None:
     payload["positive_receipt"]["fallback_strangle_receipt"]["surviving_callers"] = [
         "src/polisyos/runtime/quality/acquisition_planner.py:legacy"
     ]
+
+
+def _mutate_uncaptured_artifact(payload: dict[str, Any]) -> None:
+    payload["positive_receipt"]["owner_artifacts"][0]["capture_provenance"] = None
 
 
 def _mutate_id_width_preference(payload: dict[str, Any]) -> None:
@@ -631,13 +781,14 @@ def main(argv: list[str] | None = None) -> int:
     repo_root = args.repo_root.resolve()
     if args.write:
         started = time.monotonic()
+        network_counter = AcquisitionNetworkCallCounter()
         write(repo_root)
         report = {
             "status": "pass",
             "issues": [],
             "outputs": declared_outputs(),
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
-            "network_calls": 0,
+            "network_calls": network_counter.network_calls,
         }
     elif args.corrupt_field_drift_check:
         report = corrupt_field_drift_check(repo_root)

@@ -377,10 +377,11 @@ def _calibrated_relevance(
     return max(0.0, min(score, 0.49))
 
 
-def _missing_distribution_for_manifest(manifest: WorkspaceFixtureManifest) -> str:
+def _required_data_family_for_manifest(manifest: WorkspaceFixtureManifest) -> str:
     if manifest.fixture_id == "tourism_local_development_ceiling_probe":
         return "local_tourism_site_traffic"
-    return f"{_slug(manifest.fixture_id)}_missing_distribution"
+    query = str(manifest.construct_scope_query or manifest.fixture_id)
+    return _slug(query)
 
 
 def _looks_like_data_need_spec(value: object) -> bool:
@@ -1880,7 +1881,7 @@ class WorkspaceLoop:
         missing_distribution = (
             acquisition_plan.costed_plan.get("missing_distribution")
             if acquisition_plan is not None
-            else _missing_distribution_for_manifest(manifest)
+            else _required_data_family_for_manifest(manifest)
         )
         return [
             ObligationRecord(
@@ -2596,8 +2597,8 @@ class WorkspaceLoop:
     ) -> AcquisitionPlan | None:
         if manifest.expected_catalog_binding_refs:
             return None
-        missing_distribution = _missing_distribution_for_manifest(manifest)
-        return AcquisitionPlanner().plan_from_required_data(
+        missing_distribution = _required_data_family_for_manifest(manifest)
+        plans = AcquisitionPlanner().plans_from_required_data(
             RequiredDataGap(
                 missing_distributions=(missing_distribution,),
                 suggested_experiment="site-count intercept survey",
@@ -2607,6 +2608,7 @@ class WorkspaceLoop:
             ),
             workspace_id=workspace_id,
         )
+        return plans[0] if plans else None
 
     def _voi_audit(
         self,

@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import os
 from datetime import UTC, datetime
+from pathlib import Path
 
 import pytest
 
@@ -29,10 +30,12 @@ from polisyos.participation_requirement import (
 )
 from polisyos.runtime.quality.acquisition_planner import (
     ACQUISITION_FAMILY_DENOMINATOR,
+    AcquisitionCaptureProvenance,
     AcquisitionDisposition,
     AcquisitionFamily,
     AcquisitionGap,
     AcquisitionGapType,
+    AcquisitionNetworkCallCounter,
     AcquisitionOwnerArtifact,
     AcquisitionPlanner,
     AcquisitionRequirementGap,
@@ -40,6 +43,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionWorldSnapshot,
     AuthorityLevel,
     MandatoryGateState,
+    RealAcquisitionOwnerGateway,
     RecordedAcquisitionOwnerGateway,
     RequiredDataGap,
     RequirementGapFamily,
@@ -59,6 +63,16 @@ from polisyos.runtime.quality.acquisition_planner import (
 )
 from polisyos.runtime.quality.capability_index import FailureModeNode
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
+from polisyos.runtime.quality.substrate_registry import (
+    SubstrateCoverage,
+    SubstrateLayer,
+    SubstrateRegistration,
+    SubstrateRegistry,
+    SubstrateSchemaRegime,
+    SubstrateTrustTier,
+    build_substrate_registry,
+    build_substrate_registry_entry,
+)
 from polisyos.scholar_requirement import (
     ScholarDependentCorpusCollapseRule,
     ScholarSupportRequirementSpec,
@@ -569,40 +583,27 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
             "design:portfolio": ("identification", "calibration", "value_set", "grounding"),
             "design:tax": ("identification", "calibration", "value_set", "grounding"),
         },
+        substrate_registry=_substrate_registry().model_dump(mode="json"),
     )
     gateway = RecordedAcquisitionOwnerGateway(
         artifacts_by_requirement={
-            data_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+            data_spec.requirement_id: _captured_owner_artifact(
                 owner_component="fabric.ingestion",
                 requirement_ref=data_spec.requirement_id,
                 artifact_ref="fabric://recorded/production-msme-panel",
-                payload={
-                    "world_slots": ["production_msme_panel"],
-                    "grounding_results": [
-                        {"candidate_id": "design:credit", "grounded": True}
-                    ],
-                },
+                acquired_family="production_msme_panel",
+                source_id="fabric.production_msme_panel",
+                candidate_id="design:credit",
                 cost_usd=11.25,
-                quality={"completeness": 0.98},
-                rights={"license": "recorded-open"},
-                binding_refs=("claim-source-family",),
-                journal_ref="journal://n7/production-msme-panel/001",
             ),
-            second_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+            second_spec.requirement_id: _captured_owner_artifact(
                 owner_component="data_forge.skg",
                 requirement_ref=second_spec.requirement_id,
                 artifact_ref="skg://recorded/tax-admin-panel",
-                payload={
-                    "world_slots": ["tax_admin_panel"],
-                    "grounding_results": [
-                        {"candidate_id": "design:tax", "grounded": True}
-                    ],
-                },
+                acquired_family="tax_admin_panel",
+                source_id="skg.tax_admin_panel",
+                candidate_id="design:tax",
                 cost_usd=7.5,
-                quality={"skg_confidence": 0.91},
-                rights={"license": "recorded-open"},
-                binding_refs=("claim-calibration-panel",),
-                journal_ref="journal://n7/tax-admin-panel/001",
             ),
         }
     )
@@ -627,6 +628,7 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
     assert receipt.grown_world_before_ref == "world://before/n7"
     assert receipt.grown_world_after_ref != receipt.grown_world_before_ref
     assert set(receipt.grown_world_added_slots) == {"production_msme_panel", "tax_admin_panel"}
+    assert {outcome.status for outcome in receipt.world_write_outcomes} == {"written"}
     assert receipt.real_grounding_result_count == 2
     assert receipt.useful_design_rate_after > 0.0
     assert set(receipt.affected_region.design_ids) == {
@@ -650,6 +652,7 @@ def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
         design_revalidation_stages={
             "design:credit": ("identification", "calibration", "value_set", "grounding")
         },
+        substrate_registry=_substrate_registry().model_dump(mode="json"),
     )
     gateway = RecordedAcquisitionOwnerGateway(
         artifacts_by_requirement={
@@ -657,12 +660,18 @@ def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
                 owner_component="fabric.retrieval",
                 requirement_ref=data_spec.requirement_id,
                 artifact_ref="fabric://recorded/no-result",
-                payload={"world_slots": [], "grounding_results": []},
+                payload={"owner_response_kind": "fabric_retrieval_no_result", "rows": []},
                 cost_usd=3.75,
                 quality={"query_validated": True},
                 rights={"license": "recorded-open"},
                 binding_refs=(),
                 journal_ref="journal://n7/no-result/001",
+                capture_provenance=_capture_provenance(
+                    owner_component="fabric.retrieval",
+                    endpoint="RetrievalService.resolve",
+                    request={"requirement_ref": data_spec.requirement_id},
+                    response={"owner_response_kind": "fabric_retrieval_no_result", "rows": []},
+                ),
             )
         }
     )
@@ -689,8 +698,79 @@ def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
     assert validate_acquisition_receipt(receipt) == ()
 
 
-def test_n7_receipt_validation_rejects_self_reported_grounding() -> None:
+def test_n7_fake_artifact_grounded_true_for_nonexistent_slot_stays_costed_gap() -> None:
     data_spec = _compiled_requirement_specs()[0]
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-fake-grounding",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n6/counterexample/fake",
+            "cycle_index": 1,
+        },
+        data_requirement_specs=(data_spec,),
+        world_snapshot=AcquisitionWorldSnapshot(
+            world_ref="world://before/fake-grounding",
+            known_slots=("production_msme_panel",),
+            dependency_index={"production_msme_panel": ("design:credit",)},
+            design_revalidation_stages={
+                "design:credit": ("identification", "calibration", "value_set", "grounding")
+            },
+            substrate_registry=_substrate_registry().model_dump(mode="json"),
+        ),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={
+                data_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
+                    owner_component="fake.nonexistent.owner",
+                    requirement_ref=data_spec.requirement_id,
+                    artifact_ref="fake://recorded/ghost",
+                    payload={
+                        "world_slots": ["ghost.nonexistent_world_slot"],
+                        "grounding_results": [{"candidate_id": "design:credit", "grounded": True}],
+                    },
+                    cost_usd=4.25,
+                    quality={"completeness": 1.0},
+                    rights={"license": "fake"},
+                    binding_refs=(),
+                    journal_ref="journal://n7/fake-ghost/001",
+                    capture_provenance=_capture_provenance(
+                        owner_component="fake.nonexistent.owner",
+                        endpoint="fake.nonexistent.owner.acquire",
+                        request={"requirement_ref": data_spec.requirement_id},
+                        response={
+                            "world_slots": ["ghost.nonexistent_world_slot"],
+                            "grounding_results": [
+                                {"candidate_id": "design:credit", "grounded": True}
+                            ],
+                        },
+                    ),
+                )
+            }
+        ),
+        useful_design_rate_before=0.0,
+    )
+
+    assert receipt.real_grounding_result_count == 0
+    assert receipt.useful_design_rate_after == 0.0
+    assert receipt.no_result_costed_gap is True
+    assert receipt.grown_world_after_ref == receipt.grown_world_before_ref
+    assert any(
+        reason.startswith("world_write_rejected:data-requirement:claim-source-family")
+        for reason in receipt.fail_closed_reasons
+    )
+
+
+def test_n7_receipt_validation_rejects_uncaptured_owner_artifact() -> None:
+    data_spec = _compiled_requirement_specs()[0]
+    artifact = _captured_owner_artifact(
+        owner_component="fabric.ingestion",
+        requirement_ref=data_spec.requirement_id,
+        artifact_ref="fabric://recorded/uncaptured",
+        acquired_family="production_msme_panel",
+        source_id="fabric.production_msme_panel",
+        candidate_id="design:credit",
+        cost_usd=4.25,
+    ).model_copy(update={"capture_provenance": None})
     receipt = run_acquisition_closed_loop(
         run_id="run-n7-content-bind",
         acquisition_request={
@@ -707,50 +787,50 @@ def test_n7_receipt_validation_rejects_self_reported_grounding() -> None:
             design_revalidation_stages={
                 "design:credit": ("identification", "calibration", "value_set", "grounding")
             },
+            substrate_registry=_substrate_registry().model_dump(mode="json"),
         ),
         owner_gateway=RecordedAcquisitionOwnerGateway(
-            artifacts_by_requirement={
-                data_spec.requirement_id: AcquisitionOwnerArtifact.from_payload(
-                    owner_component="fabric.ingestion",
-                    requirement_ref=data_spec.requirement_id,
-                    artifact_ref="fabric://recorded/content-bind",
-                    payload={
-                        "world_slots": ["production_msme_panel"],
-                        "grounding_results": [
-                            {"candidate_id": "design:credit", "grounded": True}
-                        ],
-                    },
-                    cost_usd=4.25,
-                    quality={"completeness": 1.0},
-                    rights={"license": "recorded-open"},
-                    binding_refs=("claim-source-family",),
-                    journal_ref="journal://n7/content-bind/001",
-                )
-            }
+            artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),
     )
-    fabricated = receipt.model_copy(
-        deep=True,
-        update={
-            "owner_artifacts": (
-                receipt.owner_artifacts[0].model_copy(
-                    update={
-                        "payload": {
-                            "world_slots": ["production_msme_panel"],
-                            "grounding_results": [
-                                {"candidate_id": "design:credit", "grounded": False}
-                            ],
-                        }
-                    }
-                ),
-            )
-        },
+
+    issue_codes = {issue["code"] for issue in validate_acquisition_receipt(receipt)}
+
+    assert "acquisition_artifact_not_captured_from_owner" in issue_codes
+
+
+def test_real_owner_gateway_records_local_skg_response_without_network() -> None:
+    base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+    base_spec["requirement_id"] = "data-requirement:claim-skg-source-family"
+    base_spec["claim_id"] = "claim-skg-source-family"
+    base_spec["required_data_families"] = ("tax_admin_panel",)
+    base_spec["required_method_families"] = ("skg_schema_probe",)
+    gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+    report = plan_requirement_gap_acquisition(
+        run_id="run-n7-real-skg-owner",
+        requirement_gaps=(gap,),
+        generated_at=datetime(2026, 7, 5, tzinfo=UTC),
+    )
+    gateway = RealAcquisitionOwnerGateway(
+        repo_root=Path("."),
+        captured_at=datetime(2026, 7, 5, tzinfo=UTC),
     )
 
-    issue_codes = {issue["code"] for issue in validate_acquisition_receipt(fabricated)}
+    artifact = gateway.acquire(
+        record=report.acquisition_records[0],
+        compiled_requirement_spec=base_spec,
+    )
 
-    assert "acquisition_receipt_not_content_bound" in issue_codes
-    assert "useful_design_rate_forced_without_grounding" in issue_codes
+    assert artifact is not None
+    assert artifact.owner_component == "data_forge.skg"
+    assert artifact.capture_provenance is not None
+    assert artifact.capture_provenance.owner_endpoint == "skg_store.ensure_skg_schema"
+    assert artifact.capture_provenance.network_call is False
+    assert gateway.network_counter.network_calls == 0
+    assert artifact.payload["owner_response"]["owner_response_kind"] == "skg_local_schema_probe"
+    assert artifact.payload["owner_response"]["table_count"] > 0
+    assert artifact.payload.get("grounding_results") is None
+    assert artifact.payload["acquired_substrate_registrations"]
 
 
 def test_n7_lossy_required_data_adapter_is_strangled() -> None:
@@ -843,6 +923,7 @@ def test_n7_owner_validation_fails_closed_for_unresolvable_target() -> None:
             design_revalidation_stages={
                 "design:credit": ("identification", "calibration", "value_set", "grounding")
             },
+            substrate_registry=_substrate_registry().model_dump(mode="json"),
         ),
         owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         useful_design_rate_before=0.0,
@@ -854,6 +935,14 @@ def test_n7_owner_validation_fails_closed_for_unresolvable_target() -> None:
     assert "owner_validation_failed_closed" in {
         issue["code"] for issue in validate_acquisition_receipt(receipt)
     }
+
+
+def test_n7_network_counter_fails_routine_offline_if_gateway_leaks_owner_call() -> None:
+    counter = AcquisitionNetworkCallCounter()
+    counter.record_call(owner_component="data_forge.openalex", endpoint="/works")
+
+    assert counter.network_calls == 1
+    assert counter.assert_offline_check()["code"] == "routine_check_hit_network"
 
 
 @pytest.mark.integration
@@ -895,16 +984,24 @@ def test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle() -> No
         owner_component="data_forge.openalex",
         requirement_ref=data_spec.requirement_id,
         artifact_ref=str(results[0].get("id") or "openalex://works/live-n7"),
-        payload={
-            "world_slots": ["openalex.live_claim_support"],
-            "grounding_results": [{"candidate_id": "design:live-openalex", "grounded": True}],
-            "openalex_result": results[0],
-        },
+        payload=_owner_payload(
+            acquired_family="openalex.live_claim_support",
+            source_id="openalex.works",
+            candidate_id="design:live-openalex",
+            extra={"openalex_result": results[0]},
+        ),
         cost_usd=0.0,
         quality={"owner": "openalex", "live_result_count": len(results)},
         rights={"source": "OpenAlex"},
         binding_refs=("claim-source-family",),
         journal_ref="journal://n7/live-openalex/001",
+        capture_provenance=_capture_provenance(
+            owner_component="data_forge.openalex",
+            endpoint="OpenAlexClient.list_works",
+            request={"filter": 'title.search:"minimum wage"', "per_page": 1},
+            response=payload,
+            network_call=True,
+        ),
     )
 
     receipt = run_acquisition_closed_loop(
@@ -928,6 +1025,9 @@ def test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle() -> No
                     "grounding",
                 )
             },
+            substrate_registry=_substrate_registry(
+                family_ids=("production_msme_panel", "openalex.live_claim_support")
+            ).model_dump(mode="json"),
         ),
         owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
@@ -939,6 +1039,144 @@ def test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle() -> No
     assert receipt.real_grounding_result_count == 1
     assert receipt.useful_design_rate_after > 0.0
     assert validate_acquisition_receipt(receipt) == ()
+
+
+def _capture_provenance(
+    *,
+    owner_component: str,
+    endpoint: str,
+    request: dict[str, object],
+    response: dict[str, object],
+    network_call: bool = False,
+) -> AcquisitionCaptureProvenance:
+    return AcquisitionCaptureProvenance.from_owner_response(
+        owner_component=owner_component,
+        owner_endpoint=endpoint,
+        owner_request=request,
+        owner_response=response,
+        captured_at=datetime(2026, 7, 5, tzinfo=UTC),
+        capture_mode="live_owner" if network_call else "local_substrate_owner",
+        network_call=network_call,
+    )
+
+
+def _captured_owner_artifact(
+    *,
+    owner_component: str,
+    requirement_ref: str,
+    artifact_ref: str,
+    acquired_family: str,
+    source_id: str,
+    candidate_id: str,
+    cost_usd: float,
+) -> AcquisitionOwnerArtifact:
+    payload = _owner_payload(
+        acquired_family=acquired_family,
+        source_id=source_id,
+        candidate_id=candidate_id,
+    )
+    return AcquisitionOwnerArtifact.from_payload(
+        owner_component=owner_component,
+        requirement_ref=requirement_ref,
+        artifact_ref=artifact_ref,
+        payload=payload,
+        cost_usd=cost_usd,
+        quality={"capture": "real_owner_recording"},
+        rights={"license": "recorded-open"},
+        binding_refs=(candidate_id,),
+        journal_ref=f"journal://n7/{acquired_family}/001",
+        capture_provenance=_capture_provenance(
+            owner_component=owner_component,
+            endpoint=f"{owner_component}.acquire",
+            request={"requirement_ref": requirement_ref},
+            response=payload,
+        ),
+    )
+
+
+def _owner_payload(
+    *,
+    acquired_family: str,
+    source_id: str,
+    candidate_id: str,
+    extra: dict[str, object] | None = None,
+) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "owner_response_kind": "acquisition_owner_raw_response",
+        "acquired_substrate_registrations": [
+            _registration(
+                source_id=source_id,
+                family_id=acquired_family,
+                snapshot_id=f"snapshot:{acquired_family}:2026-07-05",
+            ).model_dump(mode="json")
+        ],
+        "candidate_bindings": [
+            {
+                "candidate_id": candidate_id,
+                "candidate_content_hash": "sha256:" + _slug_for_test(candidate_id)[:64].ljust(64, "0"),
+                "target_world_slots": [acquired_family],
+            }
+        ],
+    }
+    if extra:
+        payload.update(extra)
+    return payload
+
+
+def _substrate_registry(
+    family_ids: tuple[str, ...] = ("production_msme_panel", "tax_admin_panel"),
+) -> SubstrateRegistry:
+    entries = [
+        build_substrate_registry_entry(
+            _registration(
+                source_id=f"baseline.{family_id}",
+                family_id=family_id,
+                snapshot_id=f"baseline:{family_id}",
+            )
+        )
+        for family_id in family_ids
+    ]
+    return build_substrate_registry(
+        entries,
+        producer_ref="tests.unit.runtime.quality.test_acquisition_planner",
+        source_catalog_refs=("test://s0/substrate-registry",),
+    )
+
+
+def _registration(*, source_id: str, family_id: str, snapshot_id: str) -> SubstrateRegistration:
+    return SubstrateRegistration(
+        source_id=source_id,
+        family_id=family_id,
+        layer=SubstrateLayer.L1,
+        coverage=SubstrateCoverage(
+            coverage_score=0.92,
+            coverage_kind="recorded_owner_response",
+            coverage_rule_ref=f"test://coverage/{family_id}",
+            dataset_count=1,
+            metric_binding_count=1,
+            observation_count=1,
+        ),
+        trust_tier=SubstrateTrustTier(
+            tier="recorded",
+            trust_cap=0.82,
+            trust_multiplier=0.82,
+            authority_ref=f"test://trust/{family_id}",
+        ),
+        identification_mode="observed_panel",
+        schema_regime=SubstrateSchemaRegime(
+            schema_regime_id=f"manifest:{family_id}",
+            authority_ref=f"test://schema/{family_id}",
+        ),
+        data_version="2026-07-05",
+        snapshot_id=snapshot_id,
+        source_snapshot_id=snapshot_id,
+        provenance_refs=(f"test://provenance/{source_id}",),
+        authority_refs=(f"test://authority/{family_id}",),
+    )
+
+
+def _slug_for_test(value: str) -> str:
+    return "".join(ch for ch in value.lower() if ch.isalnum()) or "candidate"
 
 
 def _compiled_requirement_specs() -> tuple[

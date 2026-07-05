@@ -1229,10 +1229,10 @@
     },
     {
       "owner_id": "acquisition_planner_execution_bridge",
-      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py:528",
-      "focus": "Bridge planner output into Fabric/Scholar/Data Forge execution and re-entry.",
+      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py:821",
+      "focus": "Closed-loop acquisition gateway, recorded owner receipt, S0 registry write, and affected-region re-grounding.",
       "disposition": "REWORK_TO_FIT",
-      "rationale": "Workspace stops at ACQUISITION_REQUIRED; GY-N7 must execute and re-enter with receipts.",
+      "rationale": "GY-N7 now reworks the existing planner owner into the acquisition execution bridge: real Fabric/SKG/OpenAlex gateway capture, replayed owner artifacts, S0 substrate-registry world growth, PolicyGroundingPort re-derivation, and same-cycle N6 re-entry.",
       "consuming_task": "GY-N7",
       "build_new_bridge_ref": null,
       "source_notebook_refs": [
@@ -1246,15 +1246,16 @@
         "disposition": "fenced_default_flipped",
         "required_disposition": "fenced_default_flipped",
         "default_before": "Planner output terminates at ACQUISITION_REQUIRED.",
-        "default_after": "Planner output compiles all gaps to provider execution and same-cycle re-entry.",
+        "default_after": "Planner output compiles all gaps to captured owner execution, S0 registry world write, PolicyGroundingPort re-grounding, and same-cycle re-entry.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "strangled; acquisition_planner.run_acquisition_closed_loop compiles all gaps, executes recorded owner artifacts journal-first, persists a content-bound receipt, and re-enters the same cycle over R_out",
+        "remaining_callers_disposition": "strangled; acquisition_planner.run_acquisition_closed_loop compiles all gaps, replays captured owner artifacts journal-first, writes the S0 substrate registry, re-derives grounding over R_out, and generation_cycle calls it on ACQUISITION_REQUIRED",
         "removed_loc": [],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",
           "tools/quality/validation/check_layer3_gy_acquisition_contract.py --check",
-          "tests/unit/runtime/quality/test_acquisition_planner.py"
+          "tests/unit/runtime/quality/test_acquisition_planner.py",
+          "tests/unit/runtime/quality/test_generation_cycle.py"
         ],
         "superseded_path": "src/polisyos/runtime/quality/acquisition_planner.py",
         "consuming_task": "GY-N7",
@@ -1728,12 +1729,13 @@
         "default_after": "All gaps compile to claim-bound W7 DataRequirementSpecs or blockers.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "strangled; zero/many required-data gaps now fail closed through plan_from_required_data while plans_from_required_data emits one plan per explicit missing distribution and N7 compiles every W7 spec",
+        "remaining_callers_disposition": "strangled; production callers use plans_from_required_data, synthetic fixture_missing_distribution construction is gone, and N7 compiles every W7 spec",
         "removed_loc": [],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",
           "tools/quality/validation/check_layer3_gy_acquisition_contract.py --check",
-          "tests/unit/runtime/quality/test_acquisition_planner.py"
+          "tests/unit/runtime/quality/test_acquisition_planner.py",
+          "tests/unit/runtime/quality/test_generation_cycle.py"
         ],
         "superseded_path": "src/polisyos/runtime/quality/acquisition_planner.py",
         "consuming_task": "GY-N7",
@@ -2078,10 +2080,10 @@
     },
     {
       "owner_id": "unknown_missing_distribution_adapter",
-      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py:528",
+      "owner_path": "src/polisyos/runtime/quality/workspace/loop.py:380",
       "focus": "unknown_missing_distribution fabrication and first-gap-only acquisition adaptation.",
       "disposition": "DELETE",
-      "rationale": "Fabricated unknown positive VOI is not acceptable authority; delete it once the lossless required-data bridge exists.",
+      "rationale": "Fabricated unknown positive VOI is not acceptable authority; the workspace caller now derives an explicit required-data family and uses the compile-all planner path.",
       "consuming_task": "GY-N7",
       "build_new_bridge_ref": null,
       "source_notebook_refs": [
@@ -2095,10 +2097,10 @@
         "disposition": "deleted",
         "required_disposition": "deleted",
         "default_before": "Empty or first gap can become unknown_missing_distribution with synthetic positive VOI.",
-        "default_after": "No fabricated distribution; all gaps are explicit or blocked.",
+        "default_after": "No fabricated distribution; workspace derives an explicit required-data family and production uses plans_from_required_data.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "strangled; acquisition_planner source has no fabricated unknown fallback and the N7 strangle receipt reports zero executable callers",
+        "remaining_callers_disposition": "strangled; acquisition_planner source has no fabricated unknown fallback, workspace no longer synthesizes *_missing_distribution, and the N7 strangle receipt reports zero executable callers",
         "removed_loc": [],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",

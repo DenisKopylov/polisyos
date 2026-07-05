@@ -1,12 +1,22 @@
 from __future__ import annotations
 
+import copy
+import json
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
+from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionCaptureProvenance,
+    AcquisitionOwnerArtifact,
+    AcquisitionWorldSnapshot,
+    RecordedAcquisitionOwnerGateway,
+)
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -23,6 +33,7 @@ from polisyos.runtime.quality.design_problem import (
 )
 from polisyos.runtime.quality.generation_cycle import (
     CandidateGroundingObservation,
+    CandidateSummary,
     GenerationCycleController,
     GenerationCycleError,
     GenerationCycleRun,
@@ -31,8 +42,20 @@ from polisyos.runtime.quality.generation_cycle import (
     PromotionPortObservation,
     SimulationPortObservation,
     StrangleReceipt,
+    _apply_promotion_to_summaries,
+    _derive_fronts,
     enforce_no_retry_without_new_grammar,
     validate_generation_cycle_run,
+)
+from polisyos.runtime.quality.substrate_registry import (
+    SubstrateCoverage,
+    SubstrateLayer,
+    SubstrateRegistration,
+    SubstrateRegistry,
+    SubstrateSchemaRegime,
+    SubstrateTrustTier,
+    build_substrate_registry,
+    build_substrate_registry_entry,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tools.quality.validation import check_layer3_gy_generation_cycle_contract as contract
@@ -137,7 +160,7 @@ class _CounterexampleAwareGenerator:
                     voi_estimate=0.82,
                 ),
             )
-        elif "repair:search_ceiling_repair_required:missing_supporting_data" in grammar:
+        elif "lever:grant:adversarial_validate:missing_supporting_data" in grammar:
             candidates = (
                 _Candidate(
                     candidate_id="candidate_cycle_2",
@@ -203,6 +226,28 @@ class _NoNewGrammarRevision:
                 "next_grammar_elements": prior_cycle.revision_request.previous_grammar_elements,
                 "revised_problem": kwargs["problem"],
                 "next_candidate_ref": prior_cycle.selected_candidate_ref,
+            }
+        )
+
+
+class _ConstantStrategyRevision:
+    def __call__(self, **kwargs: Any) -> Any:
+        prior_cycle = kwargs["prior_cycle"]
+        default = kwargs["default_revision"]
+        return default.model_copy(
+            update={
+                "revision_strategy": "adversarial_validate",
+                "strategy_payload": {
+                    **default.strategy_payload,
+                    "terminal_kind": "constant",
+                },
+                "new_grammar_elements": (
+                    "lever:grant:adversarial_validate:missing_supporting_data",
+                ),
+                "next_grammar_elements": (
+                    *prior_cycle.revision_request.previous_grammar_elements,
+                    "lever:grant:adversarial_validate:missing_supporting_data",
+                ),
             }
         )
 
@@ -426,6 +471,144 @@ def _budget(max_usd: str = "5.0") -> BudgetState:
     )
 
 
+def _n7_data_requirement_spec() -> DataRequirementSpec:
+    return DataRequirementSpec(
+        requirement_id="data-requirement:owner-panel-missing",
+        claim_id="claim-owner-panel-missing",
+        required_data_families=("owner_panel_missing",),
+        scope=DataRequirementScope(
+            population="firms",
+            geography="UA",
+            time="annual",
+            time_role="observation_time",
+        ),
+        recency_horizon="P90D",
+        lineage_strictness="strict",
+        quality_minima=DataQualityMinimums(min_quality_score=0.8, min_completeness=0.95),
+        missingness_tolerance=0.02,
+        transformation_tolerance="none",
+        admissibility_predicates=("source_family_matches_compiled_requirement",),
+        mandatory_facets=("source_contract_ref", "lineage_refs"),
+        concept_spine_refs=("concept:firm",),
+        authority_profile_refs=("authority_profile.research",),
+    )
+
+
+def _n7_owner_payload(
+    *,
+    acquired_family: str,
+    source_id: str,
+    candidate_id: str,
+) -> dict[str, object]:
+    return {
+        "owner_response_kind": "acquisition_owner_raw_response",
+        "acquired_substrate_registrations": [
+            _n7_registration(
+                source_id=source_id,
+                family_id=acquired_family,
+                snapshot_id=f"snapshot:{acquired_family}:2026-07-05",
+            ).model_dump(mode="json")
+        ],
+        "candidate_bindings": [
+            {
+                "candidate_id": candidate_id,
+                "candidate_content_hash": "sha256:" + "7" * 64,
+                "target_world_slots": [acquired_family],
+            }
+        ],
+    }
+
+
+def _n7_substrate_registry() -> SubstrateRegistry:
+    entry = build_substrate_registry_entry(
+        _n7_registration(
+            source_id="baseline.owner_panel_missing",
+            family_id="owner_panel_missing",
+            snapshot_id="baseline:owner_panel_missing",
+        )
+    )
+    return build_substrate_registry(
+        (entry,),
+        producer_ref="tests.unit.runtime.quality.test_generation_cycle",
+        source_catalog_refs=("test://n6-n7/substrate-registry",),
+    )
+
+
+def _n7_registration(*, source_id: str, family_id: str, snapshot_id: str) -> SubstrateRegistration:
+    return SubstrateRegistration(
+        source_id=source_id,
+        family_id=family_id,
+        layer=SubstrateLayer.L1,
+        coverage=SubstrateCoverage(
+            coverage_score=0.9,
+            coverage_kind="recorded_owner_response",
+            coverage_rule_ref=f"test://coverage/{family_id}",
+            dataset_count=1,
+            metric_binding_count=1,
+            observation_count=1,
+        ),
+        trust_tier=SubstrateTrustTier(
+            tier="recorded",
+            trust_cap=0.8,
+            trust_multiplier=0.8,
+            authority_ref=f"test://trust/{family_id}",
+        ),
+        identification_mode="observed_panel",
+        schema_regime=SubstrateSchemaRegime(
+            schema_regime_id=f"manifest:{family_id}",
+            authority_ref=f"test://schema/{family_id}",
+        ),
+        data_version="2026-07-05",
+        snapshot_id=snapshot_id,
+        source_snapshot_id=snapshot_id,
+        provenance_refs=(f"test://provenance/{source_id}",),
+        authority_refs=(f"test://authority/{family_id}",),
+    )
+
+
+def _real_n4_generation_result_with_candidate(
+    candidate_id: str,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    payload = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    for result in payload["generation_results"]:
+        for candidate in result.get("candidates") or ():
+            if candidate.get("candidate_id") == candidate_id:
+                return result, candidate
+    raise AssertionError(f"missing real N4 candidate {candidate_id}")
+
+
+def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
+    cg4_payload = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/grounding_phrasing_defense_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    handoff = next(
+        item
+        for item in cg4_payload["certificate"]["quarantine_handoffs"]
+        if item["action"] == "adversarial_validate"
+    )
+    result, candidate = _real_n4_generation_result_with_candidate(
+        "candidate_6c4c225a4ce4961a"
+    )
+    candidate = copy.deepcopy(candidate)
+    disposition = copy.deepcopy(result["grounding_dispositions"][0])
+    disposition["candidate_id"] = candidate["candidate_id"]
+    disposition["shadow_atom_content_hash"] = candidate["atom"]["content_hash"]
+    disposition["disposition"] = "shadow_bound"
+    disposition["certificate_chain"] = {
+        **(disposition.get("certificate_chain") or {}),
+        "quarantine_handoff": handoff,
+    }
+    return {"status": "generated", "candidates": [candidate], "grounding_dispositions": [disposition]}, candidate
+
+
 @pytest.mark.asyncio
 async def test_controller_runs_counterexample_driven_revision_over_two_real_cycles() -> None:
     generator = _CounterexampleAwareGenerator()
@@ -449,12 +632,16 @@ async def test_controller_runs_counterexample_driven_revision_over_two_real_cycl
     ]
     assert run.cycles[1].selected_candidate_content_hash != run.cycles[0].selected_candidate_content_hash
     assert run.cycles[1].driven_by_counterexample_ref == run.cycles[0].counterexample.counterexample_ref
+    assert run.cycles[0].revision_request.revision_strategy == "adversarial_validate"
     assert run.cycles[0].revision_request.new_grammar_elements == (
-        "repair:search_ceiling_repair_required:missing_supporting_data",
+        "lever:grant:adversarial_validate:missing_supporting_data",
     )
     assert run.cycles[1].introduced_grammar_elements == (
-        "repair:search_ceiling_repair_required:missing_supporting_data",
+        "lever:grant:adversarial_validate:missing_supporting_data",
     )
+    assert generator.problems[1].runtime_hints["generation_cycle_revision"][
+        "revision_strategy"
+    ] == "adversarial_validate"
     assert run.cycles[1].revision_driver == "counterexample"
     assert run.cycles[0].voi_decision.next_action == "advance"
     assert run.cycles[-1].voi_decision.next_action in {"stop", "escalate"}
@@ -471,9 +658,10 @@ def test_no_retry_without_new_grammar_blocks_same_candidate_retry() -> None:
         enforce_no_retry_without_new_grammar(
             previous_candidate_ref="candidate_cycle_1",
             next_candidate_ref="candidate_cycle_1",
-            previous_grammar_elements=("base",),
-            next_grammar_elements=("base",),
+            previous_grammar_elements=("seed",),
+            next_grammar_elements=("seed",),
             introduced_grammar_elements=(),
+            design_problem=_problem(),
         )
 
 
@@ -482,9 +670,31 @@ def test_no_retry_without_new_grammar_rejects_laundered_revision_claim() -> None
         enforce_no_retry_without_new_grammar(
             previous_candidate_ref="candidate_cycle_1",
             next_candidate_ref="candidate_cycle_2",
-            previous_grammar_elements=("base",),
-            next_grammar_elements=("base",),
+            previous_grammar_elements=("seed",),
+            next_grammar_elements=("seed",),
             introduced_grammar_elements=("fabricated_new_axis",),
+            design_problem=_problem(),
+        )
+
+
+def test_no_retry_without_new_grammar_rejects_fabricated_owned_by_caller_only() -> None:
+    with pytest.raises(GenerationCycleError, match="new_grammar_element_not_owned"):
+        enforce_no_retry_without_new_grammar(
+            previous_candidate_ref="candidate_a",
+            next_candidate_ref="candidate_b",
+            previous_grammar_elements=("seed",),
+            next_grammar_elements=("seed", "fabricated:not_from_s2_owner"),
+            introduced_grammar_elements=("fabricated:not_from_s2_owner",),
+            design_problem=_problem(),
+        )
+
+    with pytest.raises(GenerationCycleError, match="new_grammar_owner_missing"):
+        enforce_no_retry_without_new_grammar(
+            previous_candidate_ref="candidate_a",
+            next_candidate_ref="candidate_b",
+            previous_grammar_elements=("seed",),
+            next_grammar_elements=("seed", "fabricated:not_from_s2_owner"),
+            introduced_grammar_elements=("fabricated:not_from_s2_owner",),
         )
 
 
@@ -528,9 +738,98 @@ async def test_revision_changes_when_prior_terminal_changes() -> None:
 
     assert search_run.cycles[0].terminal_kind == "search_ceiling_repair_required"
     assert acquisition_run.cycles[0].terminal_kind == "acquisition_required"
+    assert search_run.cycles[0].revision_request.revision_strategy == "adversarial_validate"
+    assert acquisition_run.cycles[0].revision_request.revision_strategy == "acquire_or_elicit"
     assert (
-        search_run.cycles[0].revision_request.new_grammar_elements
-        != acquisition_run.cycles[0].revision_request.new_grammar_elements
+        search_run.cycles[0].revision_request.revision_strategy
+        != acquisition_run.cycles[0].revision_request.revision_strategy
+    )
+
+
+@pytest.mark.asyncio
+async def test_acquisition_required_invokes_n7_and_records_same_cycle_reentry() -> None:
+    data_spec = _n7_data_requirement_spec()
+    payload = _n7_owner_payload(
+        acquired_family="owner_panel_missing",
+        source_id="fabric.owner_panel_missing",
+        candidate_id="candidate_cycle_1",
+    )
+    artifact = AcquisitionOwnerArtifact.from_payload(
+        owner_component="fabric.ingestion",
+        requirement_ref=data_spec.requirement_id,
+        artifact_ref="fabric://recorded/owner-panel-missing",
+        payload=payload,
+        cost_usd=2.0,
+        quality={"capture": "real_owner_recording"},
+        rights={"license": "recorded-open"},
+        binding_refs=("candidate_cycle_1",),
+        journal_ref="journal://n7/owner-panel-missing/001",
+        capture_provenance=AcquisitionCaptureProvenance.from_owner_response(
+            owner_component="fabric.ingestion",
+            owner_endpoint="fabric.ingestion.acquire",
+            owner_request={"requirement_ref": data_spec.requirement_id},
+            owner_response=payload,
+            captured_at=datetime(2026, 7, 5, tzinfo=UTC),
+            capture_mode="local_substrate_owner",
+        ),
+    )
+    problem = _problem().model_copy(
+        update={
+            "runtime_hints": {
+                "n7_data_requirement_specs": (data_spec,),
+                "n7_world_snapshot": AcquisitionWorldSnapshot(
+                    world_ref="world://before/n6-n7",
+                    known_slots=("owner_panel_missing",),
+                    dependency_index={"owner_panel_missing": ("candidate_cycle_1",)},
+                    design_revalidation_stages={
+                        "candidate_cycle_1": (
+                            "identification",
+                            "calibration",
+                            "value_set",
+                            "grounding",
+                        )
+                    },
+                    substrate_registry=_n7_substrate_registry().model_dump(mode="json"),
+                ),
+                "n7_useful_design_rate_before": 0.0,
+            }
+        }
+    )
+    controller = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AcquisitionGrounding(),
+        value_port=PendingN8ValuePort(),
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={data_spec.requirement_id: artifact}
+        ),
+    )
+
+    run = await controller.run(problem, budget_state=_budget(), max_cycles=1)
+
+    assert run.cycles[0].terminal_kind == "acquisition_required"
+    assert run.cycles[0].acquisition_receipt is not None
+    receipt = run.cycles[0].acquisition_receipt
+    assert receipt["source_cycle_index"] == 0
+    assert receipt["reentry_cycle_index"] == 0
+    assert receipt["real_grounding_result_count"] == 1
+    assert receipt["useful_design_rate_after"] > 0.0
+    assert run.acquisition_receipts == (receipt,)
+
+
+@pytest.mark.asyncio
+async def test_constant_strategy_revision_is_rejected_as_not_terminal_driven() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AcquisitionGrounding(),
+        value_port=PendingN8ValuePort(),
+        revision_policy=_ConstantStrategyRevision(),
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    assert any(
+        issue["code"] == "revision_not_terminal_driven"
+        for issue in validate_generation_cycle_run(run)
     )
 
 
@@ -606,6 +905,31 @@ async def test_default_grounding_port_rejects_legacy_matrix_without_cgf_disposit
     assert run.fronts.decision.candidate_ids == ()
 
 
+def test_default_grounding_port_resolves_real_serialized_n4_candidate() -> None:
+    result, candidate = _real_n4_generation_result_with_candidate(
+        "candidate_6c4c225a4ce4961a"
+    )
+
+    grounding = PolicyGroundingPort()(
+        candidate=candidate,
+        problem=_problem(),
+        cycle_index=0,
+        generation_result=result,
+    )
+
+    assert grounding.candidate_id == "candidate_6c4c225a4ce4961a"
+    assert grounding.status != "grounding_unavailable"
+    assert "cgf_disposition_missing" not in grounding.issue_codes
+    assert grounding.grounding_source == "cgf_firewall"
+    assert grounding.grounding_disposition in {
+        "shadow_bound",
+        "novel_cg3",
+        "non_binding_abstain",
+        "veto_false_analog",
+        "unknown_blocked",
+    }
+
+
 @pytest.mark.asyncio
 async def test_candidate_owner_target_missing_fails_closed_through_cgf_grounding() -> None:
     controller = GenerationCycleController(
@@ -638,6 +962,84 @@ async def test_proxy_gap_candidate_stays_quarantined_before_any_promotion() -> N
     assert summary.quarantine_action == "adversarial_validate"
     assert run.fronts.decision.candidate_ids == ()
     assert run.fronts.quarantine.candidate_ids == (summary.candidate_id,)
+
+
+def test_real_cg4_proxy_gap_shape_routes_to_quarantine() -> None:
+    result, candidate = _real_cg4_proxy_gap_result()
+
+    grounding = PolicyGroundingPort()(
+        candidate=candidate,
+        problem=_problem(),
+        cycle_index=0,
+        generation_result=result,
+    )
+
+    assert grounding.quarantine_action == "adversarial_validate"
+    summary = CandidateSummary(
+        candidate_id=grounding.candidate_id,
+        content_hash=candidate["atom"]["content_hash"],
+        cycle_index=0,
+        generation_channel="n4_owner",
+        proxy_score=0.95,
+        voi_estimate=0.6,
+        grounding_status=grounding.status,
+        grounding_source=grounding.grounding_source,
+        grounding_disposition=grounding.grounding_disposition,
+        grounding_score=grounding.grounding_score,
+        current_valid=grounding.current_valid,
+        front="quarantine",
+        high_proxy=True,
+        low_grounding=True,
+        quarantine_action=grounding.quarantine_action,
+        adversarial_validation_status="completed_shadow_only",
+    )
+    fronts = _derive_fronts((summary,))
+
+    assert fronts.decision.candidate_ids == ()
+    assert fronts.quarantine.candidate_ids == (summary.candidate_id,)
+
+
+def test_decision_front_positive_and_proxy_conflict_paths_stay_live() -> None:
+    current_valid = CandidateSummary(
+        candidate_id="candidate_current_valid",
+        content_hash="sha256:" + "2" * 64,
+        cycle_index=0,
+        generation_channel="n4_owner",
+        proxy_score=0.2,
+        voi_estimate=0.1,
+        grounding_status="current_valid",
+        grounding_source="cgf_firewall",
+        grounding_disposition="shadow_bound",
+        grounding_score=0.9,
+        current_valid=True,
+        front="research",
+        high_proxy=False,
+        low_grounding=False,
+    )
+    conflict = current_valid.model_copy(
+        update={
+            "candidate_id": "candidate_conflict",
+            "content_hash": "sha256:" + "3" * 64,
+            "proxy_score": 0.95,
+            "grounding_score": 0.2,
+            "front": "quarantine",
+            "high_proxy": True,
+            "low_grounding": True,
+            "quarantine_action": "adversarial_validate",
+            "adversarial_validation_status": "required_before_decision",
+        }
+    )
+    promoted = _apply_promotion_to_summaries(
+        (current_valid, conflict),
+        PromotionPortObservation(
+            status="certified_current_valid",
+            certified_candidate_ids=("candidate_current_valid", "candidate_conflict"),
+        ),
+    )
+    fronts = _derive_fronts(tuple(promoted))
+
+    assert fronts.decision.candidate_ids == ("candidate_current_valid",)
+    assert fronts.quarantine.candidate_ids == ("candidate_conflict",)
 
 
 @pytest.mark.asyncio
@@ -683,6 +1085,14 @@ async def test_generation_cycle_contract_mutations_turn_red() -> None:
         "scheduling_actions": 4,
         "terminal_kinds": 12,
     }
+
+
+def test_generation_cycle_contract_write_payload_is_byte_stable() -> None:
+    first = contract.build_contract_json_for_write(REPO_ROOT)
+    second = contract.build_contract_json_for_write(REPO_ROOT)
+
+    assert first == second
+    assert "capture_wall_time_seconds" not in first
 
 
 def test_generation_cycle_strangle_receipt_recomputes_production_callers() -> None:

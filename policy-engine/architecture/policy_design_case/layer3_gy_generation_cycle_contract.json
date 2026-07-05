@@ -1,0 +1,923 @@
+{
+  "behavioral_mutations": [
+    {
+      "issue_codes": [
+        "revision_not_terminal_driven"
+      ],
+      "mutation_id": "revision_not_terminal_driven",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "retry_without_new_grammar_admitted",
+        "retry_without_new_grammar_admitted"
+      ],
+      "mutation_id": "retry_without_new_grammar_admitted",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "voi_scheduler_ignored_fixed_cycle_count"
+      ],
+      "mutation_id": "voi_scheduler_ignored_fixed_cycle_count",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "single_pass_fixture_survives_as_production_cycle",
+        "single_pass_fixture_survives_as_production_cycle"
+      ],
+      "mutation_id": "single_pass_fixture_survives_as_production_cycle",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "proxy_gap_candidate_promoted_without_adversarial_validate",
+        "proxy_gap_candidate_promoted_without_adversarial_validate",
+        "decision_front_admitted_non_current_valid"
+      ],
+      "mutation_id": "proxy_gap_candidate_promoted_without_adversarial_validate",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "decision_front_admitted_non_current_valid",
+        "decision_front_admitted_non_current_valid"
+      ],
+      "mutation_id": "decision_front_admitted_non_current_valid",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "grounding_bypassed_cgf_firewall"
+      ],
+      "mutation_id": "grounding_bypassed_cgf_firewall",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "coverage_depends_on_llm",
+        "decision_front_admitted_non_current_valid"
+      ],
+      "mutation_id": "coverage_depends_on_llm",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "generation_cycle_run_invalid"
+      ],
+      "mutation_id": "k_sim_shrank_k_world",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "full_denominator_curated_subset"
+      ],
+      "mutation_id": "full_denominator_curated_subset",
+      "status": "red"
+    }
+  ],
+  "capture_wall_time_seconds": 7.610575,
+  "compute_economics": {
+    "engine_set_reuse": "one_controller_engine_set_reused_across_cycles",
+    "lane": "Lane-0",
+    "non_cached_run_visibility": "rederive_audit_only",
+    "owner_io": "zero"
+  },
+  "contract_content_hash": "sha256:9f3775152749cc52b2354d7fc062903aac076467eb044b63f1a8148fcb9650b9",
+  "contract_id": "policyos.runtime.generation_cycle_controller",
+  "denominators": {
+    "counts": {
+      "front_kinds": 4,
+      "grounding_dispositions": 5,
+      "grounding_statuses": 5,
+      "scheduling_actions": 4,
+      "terminal_kinds": 12
+    },
+    "front_kinds": [
+      "decision",
+      "portfolio",
+      "quarantine",
+      "research"
+    ],
+    "grounding_dispositions": [
+      "non_binding_abstain",
+      "novel_cg3",
+      "shadow_bound",
+      "unknown_blocked",
+      "veto_false_analog"
+    ],
+    "grounding_statuses": [
+      "current_valid",
+      "grounded_shadow",
+      "grounding_failed",
+      "grounding_gap",
+      "grounding_unavailable"
+    ],
+    "scheduling_actions": [
+      "advance",
+      "defer",
+      "reject",
+      "retry_cheaper"
+    ],
+    "terminal_kinds": [
+      "a_spec_gap",
+      "acquisition_required",
+      "budget_exhausted",
+      "composition_invalid",
+      "frontier_stable",
+      "grounded_abstention",
+      "grounded_admissible",
+      "grounded_partial_admissible",
+      "human_decision_required",
+      "recursive_blocked",
+      "search_ceiling_repair_required",
+      "tool_failure"
+    ]
+  },
+  "fail_closed_probes": [
+    {
+      "probe_id": "fabricated_grounding_status",
+      "status": "fail_closed"
+    },
+    {
+      "code": "new_grammar_elements_not_introduced",
+      "probe_id": "laundered_revision_grammar",
+      "status": "fail_closed"
+    },
+    {
+      "probe_id": "candidate_owner_target_missing",
+      "status": "fail_closed"
+    },
+    {
+      "probe_id": "unknown_voi_action",
+      "status": "fail_closed"
+    }
+  ],
+  "generation_cycle_run": {
+    "blocked_reason": null,
+    "candidate_summaries": [
+      {
+        "adversarial_validation_status": "completed_shadow_only",
+        "candidate_id": "candidate_lane0_cycle_001",
+        "certified_by_n9": false,
+        "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+        "current_valid": false,
+        "cycle_index": 0,
+        "front": "quarantine",
+        "generation_channel": "n4_owner",
+        "grounding_disposition": "shadow_bound",
+        "grounding_score": 0.2,
+        "grounding_source": "cgf_firewall",
+        "grounding_status": "grounded_shadow",
+        "high_proxy": true,
+        "low_grounding": true,
+        "proxy_score": 0.91,
+        "quarantine_action": "adversarial_validate",
+        "voi_estimate": 0.74
+      },
+      {
+        "adversarial_validation_status": "not_required",
+        "candidate_id": "candidate_lane0_cycle_002",
+        "certified_by_n9": false,
+        "content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+        "current_valid": false,
+        "cycle_index": 1,
+        "front": "research",
+        "generation_channel": "n4_owner",
+        "grounding_disposition": "novel_cg3",
+        "grounding_score": 0.35,
+        "grounding_source": "cgf_firewall",
+        "grounding_status": "grounding_gap",
+        "high_proxy": false,
+        "low_grounding": true,
+        "proxy_score": 0.31,
+        "quarantine_action": "none",
+        "voi_estimate": 0.22
+      }
+    ],
+    "controller_ref": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+    "cycles": [
+      {
+        "candidate_ids": [
+          "candidate_lane0_cycle_001"
+        ],
+        "counterexample": {
+          "candidate_ref": "candidate_lane0_cycle_001",
+          "case_id": "industrial_resilience_retooling",
+          "counterexample_class": "real_design_blocker",
+          "counterexample_id": "gy.n6.counterexample.industrial_resilience_retooling.001",
+          "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+          "diagnostic": {
+            "authority_purpose": "shadow_search_refinement_only",
+            "code": "n6.grounded_shadow.shadow_bound",
+            "diagnostic_id": "gy.n6.diagnostic.industrial_resilience_retooling.001",
+            "message": "Candidate candidate_lane0_cycle_001 requires revision for shadow_bound.",
+            "owner": "team-policyos-runtime",
+            "rule_version_ref": "policyos.layer3.gy.n6.generation_cycle.v1",
+            "severity": "block"
+          },
+          "evidence_refs": [
+            "cg1_cert_n6_lane0",
+            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "cg2_cert_n6_lane0",
+            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "cg3_cert_n6_lane0",
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+            "cg4_proxy_gap_1111111111111111",
+            "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+            "cg4_quarantine_1111111111111111",
+            "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+            "cg5_action_1111111111111111",
+            "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+          ],
+          "routed_to": "refinement_policy",
+          "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
+        },
+        "cycle_index": 0,
+        "design_problem_ref": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+        "driven_by_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+        "grammar_elements": [
+          "seed"
+        ],
+        "grounding": {
+          "adversarial_validation_ref": "cg5_action_1111111111111111",
+          "candidate_id": "candidate_lane0_cycle_001",
+          "cgf_certificate_refs": [
+            "cg1_cert_n6_lane0",
+            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "cg2_cert_n6_lane0",
+            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "cg3_cert_n6_lane0",
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+            "cg4_proxy_gap_1111111111111111",
+            "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+            "cg4_quarantine_1111111111111111",
+            "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+            "cg5_action_1111111111111111",
+            "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+          ],
+          "current_valid": false,
+          "evidence_refs": [
+            "cg1_cert_n6_lane0",
+            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "cg2_cert_n6_lane0",
+            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "cg3_cert_n6_lane0",
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+            "cg4_proxy_gap_1111111111111111",
+            "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+            "cg4_quarantine_1111111111111111",
+            "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+            "cg5_action_1111111111111111",
+            "sha256:6666666666666666666666666666666666666666666666666666666666666666"
+          ],
+          "grounding_disposition": "shadow_bound",
+          "grounding_score": 0.2,
+          "grounding_source": "cgf_firewall",
+          "issue_codes": [
+            "shadow_bound",
+            "cg2_frozen_until_cg6",
+            "cg3_shadow_only",
+            "handoff_artifact_n6_direct_intake_not_wired",
+            "cg4_proxy_gap:adversarial_validate"
+          ],
+          "quarantine_action": "adversarial_validate",
+          "report_ref": "sha256:2919d68389ddcc746b7938b10f7f49878d16d4741cc59aac5fa1403fa43318a0",
+          "status": "grounded_shadow"
+        },
+        "introduced_grammar_elements": [],
+        "refinement_decision": {
+          "budget_refs": [
+            "budget://gy/n6/shadow-loop"
+          ],
+          "candidate_ref": "candidate_lane0_cycle_001",
+          "case_id": "industrial_resilience_retooling",
+          "consumed_counterexample_refs": [
+            "pdc://gy/n6/industrial_resilience_retooling/counterexample/001"
+          ],
+          "decision": "refine",
+          "decision_id": "gy.n6.refinement.industrial_resilience_retooling.001",
+          "decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/001",
+          "governance_decision_class": null,
+          "governance_decision_class_ref": null,
+          "governance_refs": [],
+          "next_candidate_ref": "candidate://pending/11db93886b7463b2",
+          "reason": "voi_scheduler_advanced; terminal=search_ceiling_repair_required",
+          "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
+          "stakes_band": "moderate",
+          "value_of_information": {
+            "budget_dimensions": [
+              "compute",
+              "acquisition",
+              "human_attention"
+            ],
+            "estimate_id": "gy_n6_voi_001",
+            "owner": "team-policyos-runtime",
+            "purpose": "Schedule N6 shadow revision only; does not grant authority.",
+            "rule_version_ref": "policyos.layer3.gy.n6.generation_cycle.v1",
+            "used_by_sites": [
+              "runtime.quality.generation_cycle"
+            ]
+          }
+        },
+        "revision_driver": "counterexample",
+        "revision_request": {
+          "new_grammar_elements": [
+            "repair:search_ceiling_repair_required:shadow_bound"
+          ],
+          "next_candidate_ref": "candidate://pending/11db93886b7463b2",
+          "next_grammar_elements": [
+            "seed",
+            "repair:search_ceiling_repair_required:shadow_bound"
+          ],
+          "previous_candidate_ref": "candidate_lane0_cycle_001",
+          "previous_grammar_elements": [
+            "seed"
+          ],
+          "revised_problem": {
+            "authority_profile": {
+              "authority_refs": [],
+              "mandate": "N6 frozen contract fixture; no promotion authority.",
+              "requested_authority_level": "research",
+              "requester_authority": "research_lab"
+            },
+            "candidate_lever_space": {
+              "allowed_operator_kinds": [
+                "grant",
+                "procurement_priority"
+              ],
+              "candidate_levers": [
+                {
+                  "instrument": "Retooling grant",
+                  "lever_id": "resilience_grant",
+                  "operator_kind": "grant",
+                  "target_slot": "industrial_resilience"
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "admissibility_basis": "request_text",
+                "constraint_id": "shadow_only",
+                "description": "Generated candidates remain shadow until A/N9 certification.",
+                "evidence_ref": null,
+                "hard": true,
+                "source_text": "Do not promote generated candidates."
+              }
+            ],
+            "design_problem_id": "industrial_resilience_retooling",
+            "domain": "industrial_policy",
+            "evidence_acquisition_needs": {
+              "needs": [
+                {
+                  "artifact_ref": null,
+                  "need_id": "industrial_panel",
+                  "question": "Which producer evidence grounds resilience effects?",
+                  "required_for": "A-side grounding",
+                  "source_hint": null,
+                  "status": "required"
+                }
+              ]
+            },
+            "ir_problem_frame_ref": null,
+            "jurisdiction_time": {
+              "as_of": "2026-07-05",
+              "data_time": "2026",
+              "policy_time": "2026",
+              "region": "UA",
+              "time_semantics": null,
+              "valid_time": "2026"
+            },
+            "model_spec_ref": null,
+            "nl_provenance": {
+              "raw_request": "Retool industrial resilience support.",
+              "source_context": {},
+              "source_surface": "generation_cycle_contract_lane0"
+            },
+            "objectives": [
+              {
+                "description": "Improve industrial resilience",
+                "direction": "maximize",
+                "metric_id": "industrial_resilience",
+                "objective_id": "industrial_resilience"
+              }
+            ],
+            "outcome_of_interest": {
+              "direction": "maximize",
+              "estimand": "average_treatment_effect",
+              "metric_id": "industrial_resilience",
+              "target_variable": "industrial_resilience"
+            },
+            "policy_request_frame_ref": null,
+            "problem_statement": "Retool industrial resilience support without laundering proxy signals.",
+            "runtime_hints": {
+              "generation_cycle_grammar": [
+                "seed",
+                "repair:search_ceiling_repair_required:shadow_bound"
+              ],
+              "generation_cycle_revision": {
+                "new_grammar_elements": [
+                  "repair:search_ceiling_repair_required:shadow_bound"
+                ],
+                "previous_candidate_ref": "candidate_lane0_cycle_001",
+                "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001"
+              }
+            },
+            "schema_version": "policyos.runtime.design_problem.v1",
+            "stakeholders": [
+              {
+                "name": "Industrial firms",
+                "role": "target_population",
+                "stakeholder_id": "industrial_firms"
+              }
+            ]
+          },
+          "revision_driver": "counterexample",
+          "revision_id": "gy.n6.revision.industrial_resilience_retooling.001",
+          "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+          "source_terminal_kind": "search_ceiling_repair_required"
+        },
+        "search_iteration": {
+          "candidate_ref": "candidate_lane0_cycle_001",
+          "counterexample_refs": [
+            "pdc://gy/n6/industrial_resilience_retooling/counterexample/001"
+          ],
+          "iteration_id": "gy.n6.iteration.industrial_resilience_retooling.001",
+          "refinement_decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/001",
+          "status": "refined_shadow"
+        },
+        "selected_candidate_content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "selected_candidate_ref": "candidate_lane0_cycle_001",
+        "simulation": {
+          "authority_blockers": [
+            "joint_simulation_request_missing"
+          ],
+          "candidate_id": "candidate_lane0_cycle_001",
+          "diagnostics": {
+            "port": "N5",
+            "reason": "joint_simulation_request_missing"
+          },
+          "k_world_ref_after": "world_model_record_industrial_resilience",
+          "k_world_ref_before": "world_model_record_industrial_resilience",
+          "k_world_update_mode": "read_only_no_k_world_narrowing",
+          "simulation_ref": null,
+          "status": "simulation_pending_n5",
+          "uncertainty_kind": null
+        },
+        "terminal_kind": "search_ceiling_repair_required",
+        "value_port": {
+          "authority_blockers": [
+            "value_gate_pending_n8"
+          ],
+          "reason": "N8 value gate is not present; N6 will not fabricate value.",
+          "status": "value_pending_n8",
+          "value_ref": null
+        },
+        "voi_decision": {
+          "candidate_id": "candidate_lane0_cycle_001",
+          "next_action": "advance",
+          "priority": 1.3880000000000001,
+          "reason": "voi_scheduler_advanced",
+          "scheduler_action": "advance",
+          "scheduler_reason": "advance_by_voi",
+          "terminal_kind": "search_ceiling_repair_required"
+        }
+      },
+      {
+        "candidate_ids": [
+          "candidate_lane0_cycle_002"
+        ],
+        "counterexample": {
+          "candidate_ref": "candidate_lane0_cycle_002",
+          "case_id": "industrial_resilience_retooling",
+          "counterexample_class": "real_design_blocker",
+          "counterexample_id": "gy.n6.counterexample.industrial_resilience_retooling.002",
+          "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+          "diagnostic": {
+            "authority_purpose": "shadow_search_refinement_only",
+            "code": "n6.grounding_gap.novel_cg3",
+            "diagnostic_id": "gy.n6.diagnostic.industrial_resilience_retooling.002",
+            "message": "Candidate candidate_lane0_cycle_002 requires revision for novel_cg3.",
+            "owner": "team-policyos-runtime",
+            "rule_version_ref": "policyos.layer3.gy.n6.generation_cycle.v1",
+            "severity": "block"
+          },
+          "evidence_refs": [
+            "cg1_cert_n6_lane0",
+            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "cg2_cert_n6_lane0",
+            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "cg3_cert_n6_lane0",
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+          ],
+          "routed_to": "refinement_policy",
+          "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
+        },
+        "cycle_index": 1,
+        "design_problem_ref": "sha256:c691530c1a28538a2c74b0533e1e203125e0b512b591e2506418a31d14a2e8f9",
+        "driven_by_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+        "grammar_elements": [
+          "seed",
+          "repair:search_ceiling_repair_required:shadow_bound"
+        ],
+        "grounding": {
+          "adversarial_validation_ref": null,
+          "candidate_id": "candidate_lane0_cycle_002",
+          "cgf_certificate_refs": [
+            "cg1_cert_n6_lane0",
+            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "cg2_cert_n6_lane0",
+            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "cg3_cert_n6_lane0",
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+          ],
+          "current_valid": false,
+          "evidence_refs": [
+            "cg1_cert_n6_lane0",
+            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+            "cg2_cert_n6_lane0",
+            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+            "cg3_cert_n6_lane0",
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+          ],
+          "grounding_disposition": "novel_cg3",
+          "grounding_score": 0.35,
+          "grounding_source": "cgf_firewall",
+          "issue_codes": [
+            "novel_cg3",
+            "missing_supporting_data"
+          ],
+          "quarantine_action": "none",
+          "report_ref": "sha256:6576a5e6944aab52f3c1840e0f6b03ebea04fd43206f3ed78cb80c176d1e2560",
+          "status": "grounding_gap"
+        },
+        "introduced_grammar_elements": [
+          "repair:search_ceiling_repair_required:shadow_bound"
+        ],
+        "refinement_decision": {
+          "budget_refs": [
+            "budget://gy/n6/shadow-loop"
+          ],
+          "candidate_ref": "candidate_lane0_cycle_002",
+          "case_id": "industrial_resilience_retooling",
+          "consumed_counterexample_refs": [
+            "pdc://gy/n6/industrial_resilience_retooling/counterexample/002"
+          ],
+          "decision": "abstain",
+          "decision_id": "gy.n6.refinement.industrial_resilience_retooling.002",
+          "decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/002",
+          "governance_decision_class": null,
+          "governance_decision_class_ref": null,
+          "governance_refs": [],
+          "next_candidate_ref": null,
+          "reason": "voi_scheduler_stopped:reject; terminal=search_ceiling_repair_required",
+          "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
+          "stakes_band": "moderate",
+          "value_of_information": {
+            "budget_dimensions": [
+              "compute",
+              "acquisition",
+              "human_attention"
+            ],
+            "estimate_id": "gy_n6_voi_002",
+            "owner": "team-policyos-runtime",
+            "purpose": "Schedule N6 shadow revision only; does not grant authority.",
+            "rule_version_ref": "policyos.layer3.gy.n6.generation_cycle.v1",
+            "used_by_sites": [
+              "runtime.quality.generation_cycle"
+            ]
+          }
+        },
+        "revision_driver": "counterexample",
+        "revision_request": {
+          "new_grammar_elements": [
+            "repair:search_ceiling_repair_required:novel_cg3"
+          ],
+          "next_candidate_ref": "candidate://pending/1c5a1d8ec8ad3f23",
+          "next_grammar_elements": [
+            "seed",
+            "repair:search_ceiling_repair_required:shadow_bound",
+            "repair:search_ceiling_repair_required:novel_cg3"
+          ],
+          "previous_candidate_ref": "candidate_lane0_cycle_002",
+          "previous_grammar_elements": [
+            "seed",
+            "repair:search_ceiling_repair_required:shadow_bound"
+          ],
+          "revised_problem": {
+            "authority_profile": {
+              "authority_refs": [],
+              "mandate": "N6 frozen contract fixture; no promotion authority.",
+              "requested_authority_level": "research",
+              "requester_authority": "research_lab"
+            },
+            "candidate_lever_space": {
+              "allowed_operator_kinds": [
+                "grant",
+                "procurement_priority"
+              ],
+              "candidate_levers": [
+                {
+                  "instrument": "Retooling grant",
+                  "lever_id": "resilience_grant",
+                  "operator_kind": "grant",
+                  "target_slot": "industrial_resilience"
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "admissibility_basis": "request_text",
+                "constraint_id": "shadow_only",
+                "description": "Generated candidates remain shadow until A/N9 certification.",
+                "evidence_ref": null,
+                "hard": true,
+                "source_text": "Do not promote generated candidates."
+              }
+            ],
+            "design_problem_id": "industrial_resilience_retooling",
+            "domain": "industrial_policy",
+            "evidence_acquisition_needs": {
+              "needs": [
+                {
+                  "artifact_ref": null,
+                  "need_id": "industrial_panel",
+                  "question": "Which producer evidence grounds resilience effects?",
+                  "required_for": "A-side grounding",
+                  "source_hint": null,
+                  "status": "required"
+                }
+              ]
+            },
+            "ir_problem_frame_ref": null,
+            "jurisdiction_time": {
+              "as_of": "2026-07-05",
+              "data_time": "2026",
+              "policy_time": "2026",
+              "region": "UA",
+              "time_semantics": null,
+              "valid_time": "2026"
+            },
+            "model_spec_ref": null,
+            "nl_provenance": {
+              "raw_request": "Retool industrial resilience support.",
+              "source_context": {},
+              "source_surface": "generation_cycle_contract_lane0"
+            },
+            "objectives": [
+              {
+                "description": "Improve industrial resilience",
+                "direction": "maximize",
+                "metric_id": "industrial_resilience",
+                "objective_id": "industrial_resilience"
+              }
+            ],
+            "outcome_of_interest": {
+              "direction": "maximize",
+              "estimand": "average_treatment_effect",
+              "metric_id": "industrial_resilience",
+              "target_variable": "industrial_resilience"
+            },
+            "policy_request_frame_ref": null,
+            "problem_statement": "Retool industrial resilience support without laundering proxy signals.",
+            "runtime_hints": {
+              "generation_cycle_grammar": [
+                "seed",
+                "repair:search_ceiling_repair_required:shadow_bound",
+                "repair:search_ceiling_repair_required:novel_cg3"
+              ],
+              "generation_cycle_revision": {
+                "new_grammar_elements": [
+                  "repair:search_ceiling_repair_required:novel_cg3"
+                ],
+                "previous_candidate_ref": "candidate_lane0_cycle_002",
+                "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002"
+              }
+            },
+            "schema_version": "policyos.runtime.design_problem.v1",
+            "stakeholders": [
+              {
+                "name": "Industrial firms",
+                "role": "target_population",
+                "stakeholder_id": "industrial_firms"
+              }
+            ]
+          },
+          "revision_driver": "counterexample",
+          "revision_id": "gy.n6.revision.industrial_resilience_retooling.002",
+          "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+          "source_terminal_kind": "search_ceiling_repair_required"
+        },
+        "search_iteration": {
+          "candidate_ref": "candidate_lane0_cycle_002",
+          "counterexample_refs": [
+            "pdc://gy/n6/industrial_resilience_retooling/counterexample/002"
+          ],
+          "iteration_id": "gy.n6.iteration.industrial_resilience_retooling.002",
+          "refinement_decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/002",
+          "status": "abstained"
+        },
+        "selected_candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "selected_candidate_ref": "candidate_lane0_cycle_002",
+        "simulation": {
+          "authority_blockers": [
+            "joint_simulation_request_missing"
+          ],
+          "candidate_id": "candidate_lane0_cycle_002",
+          "diagnostics": {
+            "port": "N5",
+            "reason": "joint_simulation_request_missing"
+          },
+          "k_world_ref_after": "world_model_record_industrial_resilience",
+          "k_world_ref_before": "world_model_record_industrial_resilience",
+          "k_world_update_mode": "read_only_no_k_world_narrowing",
+          "simulation_ref": null,
+          "status": "simulation_pending_n5",
+          "uncertainty_kind": null
+        },
+        "terminal_kind": "search_ceiling_repair_required",
+        "value_port": {
+          "authority_blockers": [
+            "value_gate_pending_n8"
+          ],
+          "reason": "N8 value gate is not present; N6 will not fabricate value.",
+          "status": "value_pending_n8",
+          "value_ref": null
+        },
+        "voi_decision": {
+          "candidate_id": "candidate_lane0_cycle_002",
+          "next_action": "stop",
+          "priority": 0.46,
+          "reason": "voi_scheduler_stopped:reject",
+          "scheduler_action": "reject",
+          "scheduler_reason": "roi_below_threshold",
+          "terminal_kind": "search_ceiling_repair_required"
+        }
+      }
+    ],
+    "design_problem_ref": "sha256:9ab0c5413349a249208adb507029e22f653d0bce922a5b9e8a363402aec1973b",
+    "engine_owner_ref": "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine",
+    "fronts": {
+      "decision": {
+        "candidate_ids": [],
+        "front_kind": "decision",
+        "reason": "N9-certified current_valid candidates only; N6 does not promote."
+      },
+      "portfolio": {
+        "candidate_ids": [],
+        "front_kind": "portfolio",
+        "reason": "Portfolio synthesis is Phase-5 deferred."
+      },
+      "quarantine": {
+        "candidate_ids": [
+          "candidate_lane0_cycle_001"
+        ],
+        "front_kind": "quarantine",
+        "reason": "High-proxy or high-gap candidates require adversarial validation first."
+      },
+      "research": {
+        "candidate_ids": [
+          "candidate_lane0_cycle_002"
+        ],
+        "front_kind": "research",
+        "reason": "Promising shadow candidates below decision authority."
+      }
+    },
+    "promotion_port": {
+      "certified_candidate_ids": [],
+      "reason": "N9 promotion gate is not present; N6 emits no certification.",
+      "status": "promotion_pending_n9"
+    },
+    "run_id": "generation_cycle_9ab0c5413349a249",
+    "schema_version": "policyos.runtime.generation_cycle_controller.v1",
+    "strangle_receipt": {
+      "allowed_fixture_callers": [
+        "src/polisyos/runtime/quality/workspace/loop.py:871"
+      ],
+      "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+      "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",
+      "production_single_pass_callers": [],
+      "status": "strangled",
+      "verified_by": "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
+    },
+    "terminal_denominator": [
+      "a_spec_gap",
+      "tool_failure",
+      "composition_invalid",
+      "recursive_blocked",
+      "search_ceiling_repair_required",
+      "human_decision_required",
+      "acquisition_required",
+      "budget_exhausted",
+      "frontier_stable",
+      "grounded_admissible",
+      "grounded_partial_admissible",
+      "grounded_abstention"
+    ],
+    "terminal_status": "completed",
+    "value_port": {
+      "authority_blockers": [
+        "value_gate_pending_n8"
+      ],
+      "reason": "N8 value gate is not present; N6 will not fabricate value.",
+      "status": "value_pending_n8",
+      "value_ref": null
+    }
+  },
+  "pattern_pass": {
+    "acceptance_signal": "frozen_lane0_run_and_decisive_mutation_red",
+    "existing_anti_patterns_found": [
+      "P27 legacy grounding matrix bypass",
+      "P28 single-pass production route",
+      "P29 marker-only contract risk"
+    ],
+    "missing_capability_labels": [
+      "surface_out_of_scope"
+    ],
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P10",
+      "P15",
+      "P27",
+      "P28",
+      "P29",
+      "P31",
+      "P32",
+      "P33",
+      "P34"
+    ],
+    "target_correct_pattern": "thin engine_simple controller over N4 CGF dispositions, N5 read-only simulation, S2 refinement records, and SimpleVOIScheduler routing"
+  },
+  "positive_gate": {
+    "cycle_1_candidate": "candidate_lane0_cycle_001",
+    "cycle_1_candidate_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "cycle_1_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+    "cycle_2_candidate": "candidate_lane0_cycle_002",
+    "cycle_2_candidate_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "cycle_2_driven_by": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+    "cycle_2_introduced_grammar": [
+      "repair:search_ceiling_repair_required:shadow_bound"
+    ],
+    "cycle_count": 2,
+    "decision_front": [],
+    "portfolio_front": [],
+    "quarantine_actions": {
+      "candidate_lane0_cycle_001": "adversarial_validate"
+    },
+    "quarantine_front": [
+      "candidate_lane0_cycle_001"
+    ],
+    "research_front": [
+      "candidate_lane0_cycle_002"
+    ],
+    "strangle_status": "strangled",
+    "value_port_status": "value_pending_n8",
+    "voi_decisions": [
+      {
+        "candidate_id": "candidate_lane0_cycle_001",
+        "next_action": "advance",
+        "priority": 1.3880000000000001,
+        "reason": "voi_scheduler_advanced",
+        "scheduler_action": "advance",
+        "scheduler_reason": "advance_by_voi",
+        "terminal_kind": "search_ceiling_repair_required"
+      },
+      {
+        "candidate_id": "candidate_lane0_cycle_002",
+        "next_action": "stop",
+        "priority": 0.46,
+        "reason": "voi_scheduler_stopped:reject",
+        "scheduler_action": "reject",
+        "scheduler_reason": "roi_below_threshold",
+        "terminal_kind": "search_ceiling_repair_required"
+      }
+    ]
+  },
+  "producer": "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
+  "schema_version": "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v1",
+  "source_modules": [
+    "src/polisyos/runtime/quality/generation_cycle.py",
+    "src/polisyos/scientist/orchestration/workflows/engine_simple.py",
+    "src/polisyos/runtime/quality/design_generation.py",
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "src/polisyos/scientist/methods/search/voi_scheduler.py",
+    "src/polisyos/pdc/_impl/layer2_design_search.py"
+  ],
+  "strangle_receipt": {
+    "allowed_fixture_callers": [
+      "src/polisyos/runtime/quality/workspace/loop.py:871"
+    ],
+    "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+    "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",
+    "production_single_pass_callers": [],
+    "status": "strangled",
+    "verified_by": "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
+  }
+}

@@ -2573,6 +2573,10 @@ USE_AS_IS:
 - owner_id: `scholar_kg_credal_lift_owner`; owner_path: `src/polisyos/data_forge/domains/academic/knowledge/skg_query.py:1745` - `SKGQuery` owns the L2 Scholar KG runtime lift: parameter estimates lower into the GY-N-V `ValueOuterSet`, SKG transport widens bounded value sets, contested edges lower to structural ambiguity, and candidate grounding resolves through the existing SKG version store.
 - owner_id: `lex_kg_admissibility_lift_owner`; owner_path: `src/polisyos/lex/knowledge/store.py:890` - `LegalKnowledgeStore` owns the L3 Lex KG runtime lift: rule thresholds evaluate with operator/unit/scope semantics, missing bounds fail closed, amendment `effective_from` gates temporal competence, and threshold rows bind to normative facts/provisions.
 
+REWORK_TO_FIT:
+
+- owner_id: `generation_cycle_controller_scaffold`; owner_path: `src/polisyos/runtime/quality/generation_cycle.py:1` - Existing GY-N6 controller scaffold: rework in place as the canonical thin controller over N4 CGF dispositions, N5 horizon observations, S2 refinement discipline, and Scientist VOI scheduling; do not create a parallel controller.
+
 ## GY-N1..N7 -> Owners Mapping
 
 This is the Pass 5 final owner/disposition synthesis for rewriting the GY-N1..N7 tasks. Pass 5 adds the hidden-sweep corrections: `fabric/world` + `ModelSpec` + Data Forge snapshot binding + Foundry input bindings make world-model work `UNIFY_EXISTING`; Scientist VOI scheduling is reusable for cycle control; Foundry Bayesian/transport primitives are real under Python 3.14; the coupled simulation engine is real while its ABM proof receipt is stubbed; the live gateway works with the currently supported Qwen model but not the hardcoded `gpt-5-mini` profile.

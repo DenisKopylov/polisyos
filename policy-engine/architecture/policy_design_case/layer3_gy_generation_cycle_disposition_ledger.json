@@ -57,7 +57,7 @@
       "focus": "ValueOuterSet set-valued value foundation contract"
     },
     "GY-N4": {
-      "status": "pending",
+      "status": "landed",
       "focus": "Generation under A"
     },
     "GY-N5": {
@@ -66,7 +66,7 @@
     },
     "GY-N6": {
       "status": "pending",
-      "focus": "Generation cycle controller"
+      "focus": "Generation cycle controller reworked in place; task remains pending on legacy LangGraph/S2 fixed-body delete obligations"
     },
     "GY-N7": {
       "status": "pending",
@@ -289,6 +289,7 @@
       "owner_ids": [
         "workspace_honest_backbone_semantics",
         "scientist_voi_scheduler",
+        "generation_cycle_controller_scaffold",
         "s2_refinement_discipline",
         "engine_langgraph_legacy_shadow",
         "s2_fixed_credit_guarantee_body"
@@ -603,6 +604,44 @@
       ]
     },
     {
+      "owner_id": "generation_cycle_controller_scaffold",
+      "owner_path": "src/polisyos/runtime/quality/generation_cycle.py:1",
+      "focus": "Existing GY-N6 controller scaffold, reworked in place as the canonical thin controller over N4 CGF dispositions, N5 horizon observations, S2 refinement, and Scientist VOI scheduling.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "This is the canonical controller owner for GY-N6; rework it rather than creating a parallel module, and bind its strangle/default-flip proof to the N6 frozen contract.",
+      "consuming_task": "GY-N6",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2578"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-controller-rework",
+        "pattern_id": "P27/P28/P29/P32",
+        "predecessor_ref": "runtime.quality.generation_cycle.pre_cgf_n5_scaffold",
+        "replacement_ref": "runtime.quality.generation_cycle.GenerationCycleController",
+        "disposition": "reworked_default_flipped",
+        "required_disposition": "reworked_default_flipped",
+        "default_before": "The scaffold could ground through a legacy matrix and coexist with a single-pass production fixture path.",
+        "default_after": "The controller consumes N4 CGF firewall dispositions, keeps value honest-pending until N8, drives revision/stop through S2+VOI, and records zero production single-pass callers.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "strangled; production default routes through the cycle controller and single-pass remains non-production fixture-only if present",
+        "removed_loc": [
+          "src/polisyos/runtime/quality/generation_cycle.py:PolicyGroundingPort.legacy_matrix_grounding"
+        ],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/generation_cycle.py",
+        "consuming_task": "GY-N6",
+        "strangle_condition": {
+          "kind": "generation_cycle_contract_landed"
+        },
+        "status": "strangled"
+      }
+    },
+    {
       "owner_id": "bayesian_transport_primitives",
       "owner_path": "src/polisyos/foundry/methods/catalog/bayesian/variational.py:383",
       "focus": "Foundry Bayesian posterior/calibration primitives and transportability stack under Python 3.14.",
@@ -802,7 +841,7 @@
         "default_after": "Real LLM organs produce shadow candidates and scripted options are fixture/scaffold only.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending GY-N4 generator cutover",
+        "remaining_callers_disposition": "strangled; verified-policy service is not the N4 candidate source",
         "removed_loc": [],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
@@ -810,9 +849,7 @@
         "superseded_path": "src/polisyos/scientist/validation/policy_verified/service.py",
         "consuming_task": "GY-N4",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/scientist/validation/policy_verified/service.py",
-          "pattern": "hypothesis"
+          "kind": "design_generation_contract_landed"
         },
         "status": "strangled"
       }
@@ -1097,7 +1134,7 @@
         "default_after": "Bounded agent remains candidate-only proposal/audit plumbing.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending candidate-only fence",
+        "remaining_callers_disposition": "strangled; bounded agent bridge remains candidate/audit plumbing only",
         "removed_loc": [],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
@@ -1105,11 +1142,9 @@
         "superseded_path": "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
         "consuming_task": "GY-N4",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
-          "pattern": "candidate_unverified"
+          "kind": "design_generation_contract_landed"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1572,7 +1607,7 @@
         "default_after": "Generation preflights model IDs and fails closed on unsupported profile.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending preflight guard",
+        "remaining_callers_disposition": "strangled; unsupported profiles fail closed before generation",
         "removed_loc": [],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
@@ -1580,14 +1615,9 @@
         "superseded_path": "src/polisyos/scientist/orchestration/llm/gateway_client.py",
         "consuming_task": "GY-N4",
         "strangle_condition": {
-          "kind": "text_absent_under",
-          "root": "src/polisyos",
-          "pattern": "gpt-5-mini",
-          "suffixes": [
-            ".py"
-          ]
+          "kind": "design_generation_model_preflight_landed"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1796,8 +1826,8 @@
         "pattern_id": "P28",
         "predecessor_ref": "scientist.orchestration.workflows.engine_langgraph",
         "replacement_ref": "scientist.orchestration.workflows.engine_simple.plus_GY-N6_controller",
-        "disposition": "deleted",
-        "required_disposition": "deleted",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
         "default_before": "LangGraph exists as a provisional parallel workflow engine.",
         "default_after": "LangGraph is absent or fenced legacy and not a GY cycle path.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
@@ -1875,7 +1905,7 @@
         "default_after": "Fixed options are fixture/scaffold only or removed.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending GY-N4 cutover",
+        "remaining_callers_disposition": "strangled; fixed verified-policy options are not N4 candidates",
         "removed_loc": [],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
@@ -1883,11 +1913,9 @@
         "superseded_path": "src/polisyos/scientist/validation/policy_verified/service.py",
         "consuming_task": "GY-N4",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/scientist/validation/policy_verified/service.py",
-          "pattern": "tax"
+          "kind": "design_generation_contract_landed"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1906,8 +1934,8 @@
         "pattern_id": "P28",
         "predecessor_ref": "scientist.nodes.builtins.decide.run_policy_promotion.policy_mode",
         "replacement_ref": "GY-N9.single_persisted_promotion_sequence",
-        "disposition": "deleted",
-        "required_disposition": "deleted",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
         "default_before": "Direct policy promotion node can appear as a parallel policy-mode promotion path.",
         "default_after": "GY-N9 owns in-cycle promotion or node remains non-policy-only.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
@@ -1986,7 +2014,7 @@
         "default_after": "Mock outputs are test fixtures only and cannot enter authority path.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending fixture fence",
+        "remaining_callers_disposition": "strangled; mocks are fixture/degraded-only and cannot count as real candidates",
         "removed_loc": [],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
@@ -1994,14 +2022,9 @@
         "superseded_path": "src/polisyos/scientist/agent/drafter_clients.py",
         "consuming_task": "GY-N4",
         "strangle_condition": {
-          "kind": "text_absent_under",
-          "root": "src/polisyos/scientist/agent",
-          "pattern": "Mock",
-          "suffixes": [
-            ".py"
-          ]
+          "kind": "design_generation_mock_fallback_fenced"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {

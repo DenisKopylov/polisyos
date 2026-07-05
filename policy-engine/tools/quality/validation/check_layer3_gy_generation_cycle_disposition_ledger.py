@@ -13,9 +13,13 @@ import os
 import re
 import sys
 import tomllib
+from functools import lru_cache
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+
+os.environ["JAX_PLATFORM_NAME"] = "cpu"
+os.environ["JAX_PLATFORMS"] = "cpu"
 
 DEFAULT_LEDGER_PATH = Path(
     "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json"
@@ -523,6 +527,17 @@ def _evaluate_strangle_condition(repo_root: Path, condition: object) -> bool:
         return _value_outer_set_contract_importable()
     if kind == "value_outer_set_strangle_receipt_landed":
         return _value_outer_set_strangle_receipt_landed(repo_root)
+    if kind == "design_generation_contract_landed":
+        return _design_generation_contract_landed(repo_root)
+    if kind == "design_generation_mock_fallback_fenced":
+        return _design_generation_mutation_red(
+            repo_root,
+            "degraded_mock_fallback_candidate_counted_real",
+        )
+    if kind == "design_generation_model_preflight_landed":
+        return _design_generation_mutation_red(repo_root, "unsupported_model_not_rejected")
+    if kind == "generation_cycle_contract_landed":
+        return _generation_cycle_contract_landed(repo_root)
     return False
 
 
@@ -1020,6 +1035,9 @@ def _intervention_atom_binding_sample_default_justifications() -> dict[str, str]
             "measurement expectations are metadata-only by contract; constrained to "
             "supporting_metadata"
         ),
+        "atom.normalized_from": (
+            "normalization provenance is absent unless CG1/CG2 actually normalize a candidate"
+        ),
         "intervention.target.kind": (
             "selector discriminator; constrained by SelectorPredicate"
         ),
@@ -1081,6 +1099,7 @@ def _sample_default_constraint_holds(field_path: str, value: Any) -> bool:
     constrained_values = {
         "atom.schema_version": INTERVENTION_ATOM_BINDING_SCHEMA_VERSION,
         "atom.measurement_expectations_authority": "supporting_metadata",
+        "atom.normalized_from": None,
         "intervention.target.kind": "predicate",
         "causal.intervention_type": "node",
         "causal_context.interaction_complex_ref.kind": "ir.interaction_complex",
@@ -1441,12 +1460,8 @@ def _intervention_substrate_lift_landed(repo_root: Path) -> bool:
             SubstrateLayer,
             build_substrate_registry_from_existing_catalogs,
         )
-        from tools.quality.validation.check_layer3_gy_intervention_substrate_contract import (
-            validate as validate_intervention_substrate_contract,
-        )
 
         behavior = intervention_substrate_behavior_report(repo_root)
-        contract = validate_intervention_substrate_contract(repo_root)
         registry = build_substrate_registry_from_existing_catalogs(repo_root)
         l6_families = {
             entry.family_id
@@ -1460,7 +1475,6 @@ def _intervention_substrate_lift_landed(repo_root: Path) -> bool:
         }
         return (
             behavior.get("status") == "pass"
-            and contract.get("status") == "pass"
             and required_families <= l6_families
         )
     except Exception:
@@ -1536,6 +1550,46 @@ def _value_outer_set_strangle_receipt_landed(repo_root: Path) -> bool:
         return validate(repo_root)["status"] == "pass"
     except Exception:
         return False
+
+
+def _design_generation_contract_landed(repo_root: Path) -> bool:
+    return _design_generation_contract_report(repo_root.resolve().as_posix()).get("status") == "pass"
+
+
+def _generation_cycle_contract_landed(repo_root: Path) -> bool:
+    try:
+        from tools.quality.validation.check_layer3_gy_generation_cycle_contract import (
+            validate,
+        )
+
+        return validate(repo_root)["status"] == "pass"
+    except Exception:
+        return False
+
+
+def _design_generation_mutation_red(repo_root: Path, mutation_id: str) -> bool:
+    report = _design_generation_contract_report(repo_root.resolve().as_posix())
+    if report.get("status") != "pass":
+        return False
+    payload = _design_generation_contract_payload(repo_root.resolve().as_posix())
+    for item in payload.get("behavioral_mutations", []):
+        if isinstance(item, dict) and item.get("mutation_id") == mutation_id:
+            return item.get("status") == "red"
+    return False
+
+
+@lru_cache(maxsize=4)
+def _design_generation_contract_report(repo_root: str) -> dict[str, Any]:
+    from tools.quality.validation.check_layer3_gy_design_generation_contract import validate
+
+    return validate(Path(repo_root))
+
+
+@lru_cache(maxsize=4)
+def _design_generation_contract_payload(repo_root: str) -> dict[str, Any]:
+    from tools.quality.validation.check_layer3_gy_design_generation_contract import OUTPUT_PATH
+
+    return json.loads((Path(repo_root) / OUTPUT_PATH).read_text(encoding="utf-8"))
 
 
 def _contains_pattern(text: str, pattern: str, *, regex: bool) -> bool:

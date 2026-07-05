@@ -423,6 +423,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.selection",
         "rank_method_catalog_entries",
     ),
+    "reachable_value_method_fqns": (
+        "polisyos.foundry.methods.selection",
+        "reachable_value_method_fqns",
+    ),
     "register_slot_schema": (
         "polisyos.foundry.methods.components.slot_schema",
         "register_slot_schema",
@@ -449,6 +453,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "store_execution_evidence",
     ),
     "store_method_artifact": ("polisyos.foundry.methods.artifacts", "store_method_artifact"),
+    "select_value_method_for_problem": (
+        "polisyos.foundry.methods.selection",
+        "select_value_method_for_problem",
+    ),
     "suggest_adapter_methods": (
         "polisyos.foundry.methods.selection",
         "suggest_adapter_methods",

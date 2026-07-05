@@ -184,16 +184,10 @@ class ValueOuterSet(BaseModel):
         if not isinstance(data, dict) or "width" not in data:
             return data
         payload = dict(data)
-        supplied_width = tuple(float(value) for value in payload.pop("width") or ())
-        lower = tuple(float(value) for value in payload.get("lower") or ())
-        upper = tuple(float(value) for value in payload.get("upper") or ())
-        if lower or upper:
-            expected = tuple(
-                max(0.0, round(hi - lo, 12))
-                for lo, hi in zip(lower, upper, strict=True)
-            )
-            if supplied_width and not _float_tuple_close(supplied_width, expected):
-                raise ValueError("value_outer_set_width_is_derived")
+        supplied_width = tuple(float(value) for value in payload.get("width") or ())
+        if supplied_width:
+            raise ValueError("value_outer_set_width_supplied_not_derived")
+        payload.pop("width", None)
         return payload
 
     @classmethod

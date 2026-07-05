@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+import time
 from collections.abc import Awaitable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
@@ -25,6 +26,11 @@ from typing import Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.contracts.value_outer_set import (
+    DataTrust,
+    ValueOuterSet,
+    ValueOuterSetIdentificationStatus,
+)
 from polisyos.data_requirement.compiler import DataRequirementCompiler
 from polisyos.pdc import (
     CounterexampleRecord,
@@ -105,6 +111,14 @@ GroundingStatus = Literal[
 LoopNextAction = Literal["advance", "stop", "escalate", "blocked"]
 QuarantineAction = Literal["none", "adversarial_validate"]
 ValuePortStatus = Literal["value_pending_n8", "value_ready", "value_blocked"]
+ValueEvaluationMode = Literal[
+    "simulate_only",
+    "retrospective",
+    "measurement_audit",
+    "sandbox_pilot",
+    "field_pilot",
+    "deployment",
+]
 PromotionPortStatus = Literal["promotion_pending_n9", "certified_current_valid", "not_promoted"]
 TerminalStatus = Literal["completed", "blocked"]
 
@@ -178,6 +192,66 @@ class SimulationPortObservation(_StrictModel):
         return self
 
 
+class ValueTransportReceipt(_StrictModel):
+    """N8 transport receipt bound to the WMR version that produced value."""
+
+    status: Literal["transported_limited", "direct", "blocked"]
+    world_model_record_id: str = Field(..., min_length=1)
+    world_model_record_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    transport_result_ref: str = Field(..., min_length=1)
+    transport_status: str = Field(..., min_length=1)
+    transport_mode: str = Field(..., min_length=1)
+    identification_engine: str = Field(..., min_length=1)
+    required_target_data: tuple[str, ...] = ()
+    limitation_refs: tuple[str, ...] = ()
+
+
+class ValueCalibrationReceipt(_StrictModel):
+    """N8 calibration admission receipt delegated to the S10 owner semantics."""
+
+    status: Literal["pass", "blocked"]
+    forecast_tier: str = Field(..., min_length=1)
+    calibration_record_ref: str | None = None
+    uncertainty_interval_refs: tuple[str, ...] = ()
+    false_clear_counts: dict[str, int] = Field(default_factory=dict)
+    issue_codes: tuple[str, ...] = ()
+
+
+class ValueGateReceipt(_StrictModel):
+    """Replay-visible value receipt emitted only after live owner gates pass."""
+
+    schema_version: str = "policyos.runtime.generation_cycle.value_gate_receipt.v1"
+    candidate_id: str = Field(..., min_length=1)
+    evaluation_mode: ValueEvaluationMode
+    selected_method_fqn: str = Field(..., min_length=1)
+    method_selection_trace: tuple[str, ...] = ()
+    identification_status: ValueOuterSetIdentificationStatus
+    value_outer_set: ValueOuterSet
+    transport_receipt: ValueTransportReceipt
+    calibration_receipt: ValueCalibrationReceipt
+    world_model_record_id: str = Field(..., min_length=1)
+    world_model_record_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    value_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    wall_time_ms: float = Field(ge=0.0)
+    wmr_cache_status: Literal["built", "reused"]
+    k_world_ref_before: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    k_world_ref_after: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _simulate_only_does_not_shrink_k_world(self) -> ValueGateReceipt:
+        if self.evaluation_mode == "simulate_only" and (
+            self.k_world_ref_before != self.k_world_ref_after
+        ):
+            raise ValueError("simulate_only_shrank_k_world")
+        if self.transport_receipt.world_model_record_content_hash != (
+            self.world_model_record_content_hash
+        ):
+            raise ValueError("value_world_version_laundered")
+        if self.value_outer_set.world_model_record_ref != self.world_model_record_content_hash:
+            raise ValueError("value_world_version_laundered")
+        return self
+
+
 class ValuePortObservation(_StrictModel):
     """N8 value-port observation; pending is explicit and non-authoritative."""
 
@@ -185,6 +259,15 @@ class ValuePortObservation(_StrictModel):
     value_ref: str | None = None
     authority_blockers: tuple[str, ...] = ("value_gate_pending_n8",)
     reason: str = "N8 value gate is not present; N6 will not fabricate value."
+    evaluation_mode: ValueEvaluationMode | None = None
+    selected_method_fqn: str | None = None
+    identification_status: ValueOuterSetIdentificationStatus | None = None
+    decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
+    world_model_record_content_hash: str | None = None
+    transport_receipt: ValueTransportReceipt | None = None
+    calibration_receipt: ValueCalibrationReceipt | None = None
+    value_receipt: ValueGateReceipt | None = None
+    wall_time_ms: float | None = Field(default=None, ge=0.0)
 
 
 class PromotionPortObservation(_StrictModel):
@@ -238,6 +321,10 @@ class CandidateSummary(_StrictModel):
     grounding_disposition: str | None = None
     grounding_score: float = Field(ge=0.0, le=1.0)
     current_valid: bool
+    value_status: ValuePortStatus = "value_pending_n8"
+    value_decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
+    value_ref: str | None = None
+    value_blockers: tuple[str, ...] = ()
     certified_by_n9: bool = False
     front: FrontKind
     high_proxy: bool
@@ -637,6 +724,215 @@ class PendingN8ValuePort:
         return ValuePortObservation()
 
 
+class FoundryValuePort:
+    """Default N8 port delegating value authority to Foundry and S10 owners."""
+
+    def __init__(self) -> None:
+        self._world_cache: dict[str, object] = {}
+
+    def __call__(
+        self,
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> ValuePortObservation:
+        """Compute value over a named WMR or fail closed with typed blockers."""
+
+        started = time.monotonic()
+        inputs = _value_gate_inputs(problem)
+        mode = _value_evaluation_mode(inputs)
+        if mode in {"sandbox_pilot", "field_pilot", "deployment"}:
+            return _blocked_value_observation(
+                code="eval_safety_gate_unavailable",
+                reason="EvalSafety is not wired yet; pilot/deployment value execution is blocked.",
+                mode=mode,
+                started=started,
+            )
+        data_trust = _value_data_trust(inputs)
+        if mode in {"retrospective", "measurement_audit"} and data_trust is None:
+            return _blocked_value_observation(
+                code="data_trust_gate_missing",
+                reason="Retrospective and measurement-audit value modes require DataTrust.",
+                mode=mode,
+                started=started,
+            )
+        data_trust = data_trust or _simulate_only_data_trust()
+        world_record, cache_status, world_error = self._world_record(problem, inputs=inputs)
+        if world_error is not None or world_record is None:
+            return _blocked_value_observation(
+                code=world_error or "world_model_record_missing",
+                reason="N8 requires a named WorldModelRecord.",
+                mode=mode,
+                started=started,
+            )
+        calibration_receipt = _value_calibration_receipt(
+            inputs=inputs,
+            world_record=world_record,
+        )
+        if calibration_receipt.status == "blocked":
+            return _blocked_value_observation(
+                code=(
+                    calibration_receipt.issue_codes[0]
+                    if calibration_receipt.issue_codes
+                    else "forecast_calibration_blocked"
+                ),
+                reason="S10 outcome-prediction calibration refused value authority.",
+                mode=mode,
+                started=started,
+                calibration_receipt=calibration_receipt,
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        method_state = inputs.get("method_state") or inputs.get("panel_observational_data")
+        if method_state is None:
+            return _blocked_value_observation(
+                code="value_method_state_missing",
+                reason="N8 requires real Foundry method input state.",
+                mode=mode,
+                started=started,
+                calibration_receipt=calibration_receipt,
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        selection = _select_value_method(
+            candidate=candidate,
+            problem=problem,
+            inputs=inputs,
+        )
+        if selection.get("status") != "selected" or not selection.get("selected_method_fqn"):
+            return _blocked_value_observation(
+                code=_first_text(selection.get("blockers")) or "value_method_selection_blocked",
+                reason=str(selection.get("reason") or "Foundry selector refused value method."),
+                mode=mode,
+                started=started,
+                calibration_receipt=calibration_receipt,
+                selected_method_fqn=_optional_text(selection.get("selected_method_fqn")),
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        method_result, method_error = _run_value_method(
+            method_fqn=str(selection["selected_method_fqn"]),
+            method_state=method_state,
+            method_params=_mapping(inputs.get("method_params")),
+            seed=int(inputs.get("seed") or inputs.get("random_seed") or 42),
+        )
+        if method_error is not None or method_result is None:
+            return _blocked_value_observation(
+                code=method_error or "foundry_method_refused_value",
+                reason="Foundry method did not produce a usable causal value estimate.",
+                mode=mode,
+                started=started,
+                calibration_receipt=calibration_receipt,
+                selected_method_fqn=str(selection["selected_method_fqn"]),
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        transport_receipt, transport_error = _run_value_transport(
+            inputs=inputs,
+            world_record=world_record,
+        )
+        if transport_error is not None or transport_receipt is None:
+            return _blocked_value_observation(
+                code=transport_error or "untransportable_forecast_minted_value",
+                reason="Transport owner refused to produce a transport receipt.",
+                mode=mode,
+                started=started,
+                calibration_receipt=calibration_receipt,
+                selected_method_fqn=str(selection["selected_method_fqn"]),
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        try:
+            value_set = _value_outer_set_from_foundry_result(
+                method_result=method_result,
+                transport_receipt=transport_receipt,
+                calibration_receipt=calibration_receipt,
+                world_record=world_record,
+                data_trust=data_trust,
+            )
+        except ValueError as exc:
+            return _blocked_value_observation(
+                code=str(exc).split(":", 1)[0],
+                reason=str(exc),
+                mode=mode,
+                started=started,
+                calibration_receipt=calibration_receipt,
+                selected_method_fqn=str(selection["selected_method_fqn"]),
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+                transport_receipt=transport_receipt,
+            )
+        decision = value_set.promotion_decision()
+        world_hash = str(_object_get(world_record, "content_hash"))
+        value_ref = gy_content_hash(
+            {
+                "candidate_id": _candidate_id(candidate),
+                "world_model_record_content_hash": world_hash,
+                "method_fqn": str(selection["selected_method_fqn"]),
+                "value_outer_set": value_set.canonical_payload(),
+                "transport_receipt": transport_receipt.model_dump(mode="json"),
+                "calibration_receipt": calibration_receipt.model_dump(mode="json"),
+            }
+        )
+        receipt = ValueGateReceipt(
+            candidate_id=_candidate_id(candidate),
+            evaluation_mode=mode,
+            selected_method_fqn=str(selection["selected_method_fqn"]),
+            method_selection_trace=tuple(str(item) for item in selection.get("score_trace", ())),
+            identification_status=value_set.identification_status,
+            value_outer_set=value_set,
+            transport_receipt=transport_receipt,
+            calibration_receipt=calibration_receipt,
+            world_model_record_id=str(_object_get(world_record, "world_model_record_id")),
+            world_model_record_content_hash=world_hash,
+            value_ref=value_ref,
+            wall_time_ms=(time.monotonic() - started) * 1000.0,
+            wmr_cache_status=cache_status,
+            k_world_ref_before=world_hash,
+            k_world_ref_after=world_hash,
+        )
+        blockers = tuple(reason for reason in decision.reasons if reason != "eligible")
+        return ValuePortObservation(
+            status="value_ready",
+            value_ref=value_ref,
+            authority_blockers=blockers,
+            reason=(
+                "N8 value computed by Foundry method execution plus "
+                "transport/calibration gates."
+            ),
+            evaluation_mode=mode,
+            selected_method_fqn=str(selection["selected_method_fqn"]),
+            identification_status=value_set.identification_status,
+            decision_grade=decision.capped_decision_grade,
+            world_model_record_content_hash=world_hash,
+            transport_receipt=transport_receipt,
+            calibration_receipt=calibration_receipt,
+            value_receipt=receipt,
+            wall_time_ms=receipt.wall_time_ms,
+        )
+
+    def _world_record(
+        self,
+        problem: DesignProblem,
+        *,
+        inputs: Mapping[str, Any],
+    ) -> tuple[object | None, Literal["built", "reused"], str | None]:
+        raw = inputs.get("world_model_record") or problem.runtime_hints.get("world_model_record")
+        if raw is None:
+            return None, "built", "world_model_record_missing"
+        try:
+            from polisyos.runtime.quality.world_model_record import WorldModelRecord
+
+            record = (
+                raw
+                if isinstance(raw, WorldModelRecord)
+                else WorldModelRecord.model_validate(raw)
+            )
+        except Exception as exc:
+            return None, "built", f"world_model_record_invalid:{exc}"
+        content_hash = str(record.content_hash)
+        if content_hash in self._world_cache:
+            return self._world_cache[content_hash], "reused", None
+        self._world_cache[content_hash] = record
+        return record, "built", None
+
+
 class PendingN9PromotionPort:
     """Honest N9-pending promotion port."""
 
@@ -755,7 +1051,7 @@ class GenerationCycleController:
         )
         self._grounding_port = grounding_port or PolicyGroundingPort()
         self._simulation_port = simulation_port or JointSimulationPort()
-        self._value_port = value_port or PendingN8ValuePort()
+        self._value_port = value_port or FoundryValuePort()
         self._promotion_port = promotion_port or PendingN9PromotionPort()
         self._revision_policy = revision_policy or CounterexampleDrivenRevisionPolicy()
         self._acquisition_owner_gateway = acquisition_owner_gateway
@@ -1133,6 +1429,7 @@ class GenerationCycleController:
             cycle_index=cycle.cycle_index,
             candidate_id=cycle.selected_candidate_ref,
             grounding=grounding,
+            value_port=cycle.value_port,
         )
         revision = _default_revision_request(
             problem=problem,
@@ -1306,6 +1603,7 @@ class GenerationCycleController:
             cycle_index=cycle_index,
             candidate_id=candidate_id,
             grounding=grounding,
+            value_port=state["value_port"],
         )
         default_revision = _default_revision_request(
             problem=problem,
@@ -1379,7 +1677,11 @@ class GenerationCycleController:
             }
         )
         summaries = tuple(
-            summary.model_copy(update={"counterexample_ref": counterexample.counterexample_ref})
+            _summary_with_value_observation(
+                summary,
+                value_port=state["value_port"],
+                counterexample_ref=counterexample.counterexample_ref,
+            )
             if summary.candidate_id == candidate_id
             else summary
             for summary in state["candidate_summaries"]
@@ -1552,6 +1854,13 @@ def validate_generation_cycle_run(
             continue
         if not (summary.certified_by_n9 and summary.current_valid):
             issues.append({"code": "decision_front_admitted_non_current_valid"})
+        if _summary_value_blocks_promotion(summary):
+            issues.append(
+                {
+                    "code": "value_blocked_candidate_promoted_to_decision_front",
+                    "candidate_id": candidate_id,
+                }
+            )
         if summary.high_proxy and summary.adversarial_validation_status != "completed_shadow_only":
             issues.append(
                 {
@@ -1896,6 +2205,387 @@ def _n7_reentered_summaries(
     return tuple(updated)
 
 
+def _value_gate_inputs(problem: DesignProblem) -> Mapping[str, Any]:
+    raw = problem.runtime_hints.get("value_gate_inputs") or problem.runtime_hints.get("value_gate")
+    return raw if isinstance(raw, Mapping) else {}
+
+
+def _value_evaluation_mode(inputs: Mapping[str, Any]) -> ValueEvaluationMode:
+    raw = str(inputs.get("evaluation_mode") or "simulate_only")
+    allowed = set(get_args(ValueEvaluationMode))
+    return raw if raw in allowed else "simulate_only"  # type: ignore[return-value]
+
+
+def _value_data_trust(inputs: Mapping[str, Any]) -> DataTrust | None:
+    raw = inputs.get("data_trust")
+    if raw is None:
+        return None
+    return raw if isinstance(raw, DataTrust) else DataTrust.model_validate(raw)
+
+
+def _simulate_only_data_trust() -> DataTrust:
+    return DataTrust(
+        tier="simulate_only_shadow",
+        trust_cap=0.6,
+        trust_multiplier=0.6,
+        min_coverage=0.0,
+        max_coverage=1.0,
+        promotion_floor=0.5,
+        authority_ref="policyos.runtime.n8.simulate_only_shadow",
+    )
+
+
+def _blocked_value_observation(
+    *,
+    code: str,
+    reason: str,
+    mode: ValueEvaluationMode,
+    started: float,
+    calibration_receipt: ValueCalibrationReceipt | None = None,
+    selected_method_fqn: str | None = None,
+    world_model_record_content_hash: str | None = None,
+    transport_receipt: ValueTransportReceipt | None = None,
+) -> ValuePortObservation:
+    return ValuePortObservation(
+        status="value_blocked",
+        value_ref=None,
+        authority_blockers=(code,),
+        reason=reason,
+        evaluation_mode=mode,
+        selected_method_fqn=selected_method_fqn,
+        decision_grade="blocked",
+        world_model_record_content_hash=world_model_record_content_hash,
+        transport_receipt=transport_receipt,
+        calibration_receipt=calibration_receipt,
+        wall_time_ms=(time.monotonic() - started) * 1000.0,
+    )
+
+
+def _value_calibration_receipt(
+    *,
+    inputs: Mapping[str, Any],
+    world_record: object,
+) -> ValueCalibrationReceipt:
+    raw_support = inputs.get("forecast_support")
+    if raw_support is None:
+        return ValueCalibrationReceipt(
+            status="blocked",
+            forecast_tier="blocked",
+            issue_codes=("forecast_support_missing",),
+        )
+    try:
+        from polisyos.runtime.quality.design_axes.outcome_prediction import (
+            ForecastCalibrationRecord,
+            ForecastSupport,
+            verify_prediction_authority_envelope,
+        )
+
+        support = (
+            raw_support
+            if isinstance(raw_support, ForecastSupport)
+            else ForecastSupport.model_validate(raw_support)
+        )
+        raw_calibration = inputs.get("forecast_calibration_record") or inputs.get(
+            "calibration_record"
+        )
+        calibration = None
+        if raw_calibration is not None:
+            calibration = (
+                raw_calibration
+                if isinstance(raw_calibration, ForecastCalibrationRecord)
+                else ForecastCalibrationRecord.model_validate(raw_calibration)
+            )
+        envelope = verify_prediction_authority_envelope(
+            forecast_support=support,
+            calibration_record=calibration,
+        )
+    except Exception as exc:
+        return ValueCalibrationReceipt(
+            status="blocked",
+            forecast_tier="blocked",
+            issue_codes=("uncalibrated_forecast_minted_value", str(exc)),
+        )
+    false_clear_counts = _false_clear_counts(inputs)
+    if any(count > 0 for count in false_clear_counts.values()):
+        return ValueCalibrationReceipt(
+            status="blocked",
+            forecast_tier=support.forecast_tier,
+            calibration_record_ref=support.calibration_record_ref,
+            uncertainty_interval_refs=tuple(support.uncertainty_interval_refs),
+            false_clear_counts=false_clear_counts,
+            issue_codes=("uncalibrated_forecast_minted_value",),
+        )
+    expected_policy_context = _optional_text(inputs.get("policy_context_ref"))
+    if expected_policy_context and support.policy_context_ref != expected_policy_context:
+        return ValueCalibrationReceipt(
+            status="blocked",
+            forecast_tier=support.forecast_tier,
+            calibration_record_ref=support.calibration_record_ref,
+            uncertainty_interval_refs=tuple(support.uncertainty_interval_refs),
+            false_clear_counts=false_clear_counts,
+            issue_codes=("regime_laundered_forecast_minted_value",),
+        )
+    if support.forecast_tier == "observable_calibrated":
+        if calibration is None or calibration.calibration_status != "pass":
+            return ValueCalibrationReceipt(
+                status="blocked",
+                forecast_tier=support.forecast_tier,
+                calibration_record_ref=support.calibration_record_ref,
+                uncertainty_interval_refs=tuple(support.uncertainty_interval_refs),
+                false_clear_counts=false_clear_counts,
+                issue_codes=("uncalibrated_forecast_minted_value",),
+            )
+    elif support.forecast_tier != "transported_limited":
+        return ValueCalibrationReceipt(
+            status="blocked",
+            forecast_tier=support.forecast_tier,
+            calibration_record_ref=support.calibration_record_ref,
+            uncertainty_interval_refs=tuple(support.uncertainty_interval_refs),
+            false_clear_counts=false_clear_counts,
+            issue_codes=("uncalibrated_forecast_minted_value",),
+        )
+    if envelope.envelope_status != "pass":
+        return ValueCalibrationReceipt(
+            status="blocked",
+            forecast_tier=support.forecast_tier,
+            calibration_record_ref=support.calibration_record_ref,
+            uncertainty_interval_refs=tuple(support.uncertainty_interval_refs),
+            false_clear_counts=false_clear_counts,
+            issue_codes=tuple(envelope.issue_codes) or ("uncalibrated_forecast_minted_value",),
+        )
+    del world_record
+    return ValueCalibrationReceipt(
+        status="pass",
+        forecast_tier=support.forecast_tier,
+        calibration_record_ref=support.calibration_record_ref,
+        uncertainty_interval_refs=tuple(support.uncertainty_interval_refs),
+        false_clear_counts=false_clear_counts,
+    )
+
+
+def _false_clear_counts(inputs: Mapping[str, Any]) -> dict[str, int]:
+    raw = inputs.get("false_clear_counts")
+    if not isinstance(raw, Mapping):
+        report = inputs.get("forecast_integrity_report")
+        if isinstance(report, Mapping):
+            raw = report.get("false_clear_counts")
+        else:
+            raw = getattr(report, "false_clear_counts", None)
+    if not isinstance(raw, Mapping):
+        return {}
+    return {str(key): max(0, int(value or 0)) for key, value in raw.items()}
+
+
+def _select_value_method(
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    inputs: Mapping[str, Any],
+) -> dict[str, Any]:
+    try:
+        from polisyos.foundry.methods.selection import select_value_method_for_problem
+    except ImportError as exc:
+        return {
+            "status": "blocked",
+            "blockers": ("value_method_selector_unavailable",),
+            "reason": str(exc),
+        }
+    return select_value_method_for_problem(
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn=_optional_text(inputs.get("method_fqn")),
+        observation_to_contract_manifest=inputs.get("observation_to_contract_manifest"),
+        runtime_budget_ms=(
+            float(inputs["runtime_budget_ms"])
+            if inputs.get("runtime_budget_ms") is not None
+            else None
+        ),
+    )
+
+
+def _run_value_method(
+    *,
+    method_fqn: str,
+    method_state: object,
+    method_params: Mapping[str, Any],
+    seed: int,
+) -> tuple[object | None, str | None]:
+    try:
+        from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+        from polisyos.foundry.methods.selection.registry import get_registry
+        from polisyos.ir.analytics.causal import EstimationStatus
+
+        registry = get_registry()
+        method_cls = registry.get(method_fqn)
+        result = MethodDispatcher.get_instance().dispatch(
+            method_class=method_cls,
+            signature=method_cls.signature,
+            state=method_state,
+            params=method_params,
+            seed=seed,
+        )
+        report = _method_report(result)
+        if report is None or getattr(report, "status", None) is not EstimationStatus.SUCCESS:
+            return None, "foundry_method_refused_value"
+        return result, None
+    except Exception as exc:
+        return None, f"foundry_method_refused_value:{exc}"
+
+
+def _run_value_transport(
+    *,
+    inputs: Mapping[str, Any],
+    world_record: object,
+) -> tuple[ValueTransportReceipt | None, str | None]:
+    raw_diagram = inputs.get("selection_diagram")
+    if raw_diagram is None:
+        return None, "transport_selection_diagram_missing"
+    try:
+        from polisyos.foundry.methods.catalog.causal.transport_engine import (
+            solve_transportability,
+        )
+        from polisyos.ir.analytics.transportability import (
+            SelectionDiagram,
+            TransportabilityStatus,
+        )
+
+        diagram = (
+            raw_diagram
+            if isinstance(raw_diagram, SelectionDiagram)
+            else SelectionDiagram.model_validate(raw_diagram)
+        )
+        result = solve_transportability(
+            selection_diagram=diagram,
+            query_treatment=str(inputs.get("query_treatment") or "X"),
+            query_outcome=str(inputs.get("query_outcome") or "Y"),
+            solver_mode=str(inputs.get("transport_solver_mode") or "auto"),
+            allow_degraded_transport=False,
+        )
+        if result.status is TransportabilityStatus.UNSUPPORTED:
+            return None, "untransportable_forecast_minted_value"
+        world_hash = str(_object_get(world_record, "content_hash"))
+        transport_ref = gy_content_hash(result.model_dump(mode="json"))
+        status: Literal["transported_limited", "direct", "blocked"] = (
+            "direct" if not diagram.s_nodes else "transported_limited"
+        )
+        return (
+            ValueTransportReceipt(
+                status=status,
+                world_model_record_id=str(_object_get(world_record, "world_model_record_id")),
+                world_model_record_content_hash=world_hash,
+                transport_result_ref=transport_ref,
+                transport_status=str(result.status.value),
+                transport_mode=str(result.transport_mode.value),
+                identification_engine=result.identification_engine,
+                required_target_data=tuple(str(item) for item in result.required_target_data),
+                limitation_refs=tuple(str(item) for item in result.warnings),
+            ),
+            None,
+        )
+    except Exception as exc:
+        return None, f"untransportable_forecast_minted_value:{exc}"
+
+
+def _value_outer_set_from_foundry_result(
+    *,
+    method_result: object,
+    transport_receipt: ValueTransportReceipt,
+    calibration_receipt: ValueCalibrationReceipt,
+    world_record: object,
+    data_trust: DataTrust,
+) -> ValueOuterSet:
+    report = _method_report(method_result)
+    if report is None:
+        raise ValueError("foundry_method_refused_value:report_missing")
+    point = getattr(report, "point_estimate", None)
+    interval = getattr(report, "confidence_interval", None)
+    if point is None or interval is None:
+        raise ValueError("foundry_method_refused_value:uncertainty_missing")
+    point_value = float(point)
+    lower_ci, upper_ci = (float(interval[0]), float(interval[1]))
+    identification_status = _derive_value_identification_status(
+        transport_receipt=transport_receipt,
+        calibration_receipt=calibration_receipt,
+    )
+    if identification_status == "point":
+        lower = upper = point_value
+    elif identification_status == "proxy":
+        half_width = max(abs(upper_ci - lower_ci) / 2.0, abs(point_value) * 0.1, 0.01)
+        lower = point_value - half_width
+        upper = point_value + half_width
+    else:
+        lower = lower_ci
+        upper = upper_ci
+        if lower == upper:
+            lower -= 0.01
+            upper += 0.01
+    method_name = str(getattr(report, "method", "foundry_value"))
+    world_hash = str(_object_get(world_record, "content_hash"))
+    return ValueOuterSet.interval_box(
+        coordinates=(method_name,),
+        lower=(lower,),
+        upper=(upper,),
+        identification_mode=identification_status,
+        assumptions=(
+            "foundry_method_output",
+            f"transport:{transport_receipt.transport_status}",
+            f"forecast_tier:{calibration_receipt.forecast_tier}",
+        ),
+        assumption_status=(
+            "declared" if identification_status == "proxy" else "externally_supported"
+        ),
+        calibration_scope={
+            "forecast_tier": calibration_receipt.forecast_tier,
+            "transport_status": transport_receipt.transport_status,
+            "transport_mode": transport_receipt.transport_mode,
+        },
+        data_trust=data_trust,
+        world_model_record_ref=world_hash,
+        epoch=str(_object_get(world_record, "valid_time_scope") or world_hash),
+        representation_status="certified",
+    )
+
+
+def _derive_value_identification_status(
+    *,
+    transport_receipt: ValueTransportReceipt,
+    calibration_receipt: ValueCalibrationReceipt,
+) -> ValueOuterSetIdentificationStatus:
+    if calibration_receipt.forecast_tier == "transported_limited":
+        return "proxy"
+    if transport_receipt.transport_status in {
+        "partially_identified",
+        "bounded_non_identified",
+    }:
+        return "partial"
+    return "point"
+
+
+def _method_report(method_result: object) -> object | None:
+    output = getattr(method_result, "output", None)
+    if isinstance(output, Mapping):
+        return output.get("report")
+    return None
+
+
+def _mapping(value: object) -> Mapping[str, Any]:
+    return value if isinstance(value, Mapping) else {}
+
+
+def _first_text(value: object) -> str | None:
+    values = _sequence(value)
+    for item in values:
+        text = _optional_text(item)
+        if text:
+            return text
+    return None
+
+
+def _optional_text(value: object) -> str | None:
+    text = str(value or "").strip()
+    return text or None
+
+
 def _problem_ref(problem: DesignProblem) -> str:
     return gy_content_hash(problem.model_dump(mode="json"))
 
@@ -2156,6 +2846,8 @@ def _select_terminal_kind(
         return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
     if value_port.status == "value_pending_n8":
         return SearchTerminalKind.GROUNDED_ABSTENTION.value
+    if _value_revision_issue(value_port):
+        return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
     if grounding.current_valid:
         return SearchTerminalKind.GROUNDED_ADMISSIBLE.value
     inputs = SearchExitDecisionInputs(
@@ -2173,27 +2865,80 @@ def _counterexample_record(
     cycle_index: int,
     candidate_id: str,
     grounding: CandidateGroundingObservation,
+    value_port: ValuePortObservation | None = None,
 ) -> CounterexampleRecord:
-    issue = grounding.issue_codes[0] if grounding.issue_codes else grounding.status
+    value_issue = _value_revision_issue(value_port)
+    issue = value_issue or (
+        grounding.issue_codes[0] if grounding.issue_codes else grounding.status
+    )
+    counterexample_class = "value_gap" if value_issue else "real_design_blocker"
     slug = _slug(problem.design_problem_id)
     return CounterexampleRecord(
         counterexample_id=f"gy.n6.counterexample.{slug}.{cycle_index + 1:03d}",
         counterexample_ref=f"pdc://gy/n6/{slug}/counterexample/{cycle_index + 1:03d}",
         case_id=problem.design_problem_id,
         candidate_ref=candidate_id,
-        counterexample_class="real_design_blocker",
+        counterexample_class=counterexample_class,
         diagnostic=TypedDiagnosticRecord(
             diagnostic_id=f"gy.n6.diagnostic.{slug}.{cycle_index + 1:03d}",
-            code=f"n6.{grounding.status}.{issue}",
+            code=(
+                f"n6.value.{issue}"
+                if value_issue
+                else f"n6.{grounding.status}.{issue}"
+            ),
             severity="block",
             message=f"Candidate {candidate_id} requires revision for {issue}.",
             authority_purpose="shadow_search_refinement_only",
             owner="team-policyos-runtime",
             rule_version_ref=GENERATION_CYCLE_RULE_VERSION,
         ),
-        evidence_refs=list(grounding.evidence_refs or ("grounding://missing",)),
+        evidence_refs=list(
+            (value_port.value_ref,) if value_port is not None and value_port.value_ref else ()
+        )
+        or list(grounding.evidence_refs or ("grounding://missing",)),
         routed_to="refinement_policy",
     )
+
+
+def _value_revision_issue(value_port: ValuePortObservation | None) -> str | None:
+    if value_port is None:
+        return None
+    if value_port.status == "value_blocked":
+        return (
+            value_port.authority_blockers[0]
+            if value_port.authority_blockers
+            else "value_blocked"
+        )
+    if value_port.status == "value_ready" and value_port.decision_grade in {"blocked", "low"}:
+        return f"value_{value_port.decision_grade}"
+    return None
+
+
+def _summary_with_value_observation(
+    summary: CandidateSummary,
+    *,
+    value_port: ValuePortObservation,
+    counterexample_ref: str,
+) -> CandidateSummary:
+    value_issue = _value_revision_issue(value_port)
+    update: dict[str, Any] = {
+        "value_status": value_port.status,
+        "value_decision_grade": value_port.decision_grade,
+        "value_ref": value_port.value_ref,
+        "value_blockers": tuple(value_port.authority_blockers),
+    }
+    if value_issue:
+        update["counterexample_ref"] = counterexample_ref
+        update["front"] = "research" if summary.front == "decision" else summary.front
+        update["certified_by_n9"] = False
+    return summary.model_copy(update=update)
+
+
+def _summary_value_blocks_promotion(summary: CandidateSummary) -> bool:
+    return summary.value_status == "value_blocked" or summary.value_decision_grade in {
+        "blocked",
+        "low",
+    }
 
 
 def _default_revision_request(
@@ -2490,6 +3235,7 @@ def _apply_promotion_to_summaries(
             summary.candidate_id in certified
             and promotion.status == "certified_current_valid"
             and summary.current_valid
+            and not _summary_value_blocks_promotion(summary)
             and (
                 not summary.high_proxy
                 or summary.adversarial_validation_status == "completed_shadow_only"
@@ -2620,6 +3366,7 @@ __all__ = [
     "CandidateSummary",
     "CounterexampleDrivenRevisionPolicy",
     "DesignRevisionRequest",
+    "FoundryValuePort",
     "GenerationCycleController",
     "GenerationCycleError",
     "GenerationCycleFronts",
@@ -2634,7 +3381,10 @@ __all__ = [
     "PromotionPortObservation",
     "SimulationPortObservation",
     "StrangleReceipt",
+    "ValueCalibrationReceipt",
+    "ValueGateReceipt",
     "ValuePortObservation",
+    "ValueTransportReceipt",
     "enforce_no_retry_without_new_grammar",
     "validate_generation_cycle_run",
 ]

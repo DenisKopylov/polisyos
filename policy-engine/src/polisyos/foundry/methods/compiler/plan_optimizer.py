@@ -88,7 +88,7 @@ _FQN_PREFIX_COMPLEXITY: list[tuple[str, str]] = [
     ("causal.meta", "O_n2"),
     ("causal.policy_learning", "O_n2"),
     ("causal.rdd", "O_n2"),
-    ("causal.synthetic_control", "O_n3"),
+    ("causal.panel", "O_n3"),
     ("econometrics.iv", "O_n2"),
     ("econometrics.panel", "O_n2"),
     ("econometrics.timeseries", "O_nlogn"),

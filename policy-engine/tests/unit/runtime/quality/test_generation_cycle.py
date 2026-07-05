@@ -44,6 +44,7 @@ from polisyos.runtime.quality.generation_cycle import (
     PromotionPortObservation,
     SimulationPortObservation,
     StrangleReceipt,
+    ValuePortObservation,
     _apply_promotion_to_summaries,
     _derive_fronts,
     _grounding_disposition_denominator,
@@ -1127,6 +1128,68 @@ def test_decision_front_positive_and_proxy_conflict_paths_stay_live() -> None:
 
     assert fronts.decision.candidate_ids == ("candidate_current_valid",)
     assert fronts.quarantine.candidate_ids == ("candidate_conflict",)
+
+
+def test_blocked_value_candidate_cannot_be_promoted_to_decision_front() -> None:
+    current_valid = CandidateSummary(
+        candidate_id="candidate_value_blocked",
+        content_hash="sha256:" + "2" * 64,
+        cycle_index=0,
+        generation_channel="n4_owner",
+        proxy_score=0.2,
+        voi_estimate=0.1,
+        grounding_status="current_valid",
+        grounding_source="cgf_firewall",
+        grounding_disposition="shadow_bound",
+        grounding_score=0.9,
+        current_valid=True,
+        value_status="value_blocked",
+        value_decision_grade="blocked",
+        value_blockers=("uncalibrated_forecast_minted_value",),
+        front="research",
+        high_proxy=False,
+        low_grounding=False,
+    )
+    promoted = _apply_promotion_to_summaries(
+        (current_valid,),
+        PromotionPortObservation(
+            status="certified_current_valid",
+            certified_candidate_ids=("candidate_value_blocked",),
+        ),
+    )
+    fronts = _derive_fronts(tuple(promoted))
+
+    assert fronts.decision.candidate_ids == ()
+    assert fronts.research.candidate_ids == ("candidate_value_blocked",)
+
+
+class _BlockedValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        del kwargs
+        return ValuePortObservation(
+            status="value_blocked",
+            authority_blockers=("uncalibrated_forecast_minted_value",),
+            reason="S10 calibration refused authority.",
+            decision_grade="blocked",
+        )
+
+
+@pytest.mark.asyncio
+async def test_value_block_feeds_revision_before_promotion() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_BlockedValuePort(),
+        promotion_port=_FabricatedPromotionPort(),
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    assert run.value_port.status == "value_blocked"
+    assert run.cycles[0].counterexample.counterexample_class == "value_gap"
+    assert run.cycles[0].counterexample.diagnostic.code.endswith(
+        "uncalibrated_forecast_minted_value"
+    )
+    assert run.fronts.decision.candidate_ids == ()
 
 
 @pytest.mark.asyncio

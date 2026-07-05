@@ -661,6 +661,54 @@ def _foundry_registry_estimate_candidates() -> list[str]:
     return sorted(dict.fromkeys(matches))[:10]
 
 
+def _phase2_value_method_selection(intent: dict[str, Any]) -> dict[str, Any]:
+    causal_variables = intent.get("causal_variables")
+    target_world_slots = (
+        tuple(str(item) for item in causal_variables)
+        if isinstance(causal_variables, list) and causal_variables
+        else ("credit_access", "firm_survival")
+    )
+    candidate = {
+        "candidate_id": str(intent.get("candidate_id") or "workspace_phase2_candidate"),
+        "atom": {
+            "intervention_id": str(intent.get("intervention_id") or "workspace_phase2"),
+            "target_world_slots": target_world_slots,
+        },
+        "diversity_key": (
+            str(intent.get("operation_class") or "estimate"),
+            *target_world_slots[:2],
+            "workspace_phase2",
+        ),
+    }
+    problem = {
+        "design_problem_id": str(intent.get("workspace_id") or "workspace_phase2"),
+        "problem_statement": str(intent.get("policy_question") or ""),
+        "domain": str(intent.get("domain") or "policy_runtime"),
+        "runtime_hints": {
+            "value_method_hint": intent.get("value_method_hint"),
+            "value_method_family": intent.get("value_method_family"),
+            "value_required_data_modalities": intent.get("value_required_data_modalities"),
+            "value_data_characteristics": intent.get("value_data_characteristics"),
+        },
+    }
+    try:
+        from polisyos.foundry.methods.selection import select_value_method_for_problem
+    except ImportError as exc:
+        return {
+            "status": "blocked",
+            "blockers": ("value_method_selector_unavailable",),
+            "reason": str(exc),
+        }
+    return select_value_method_for_problem(
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn=(
+            str(intent["causal_method_fqn"]) if intent.get("causal_method_fqn") else None
+        ),
+        observation_to_contract_manifest=intent.get("observation_to_contract_manifest"),
+    )
+
+
 def _slot_names(slots: object) -> list[str]:
     return [
         str(getattr(slot, "name", slot))
@@ -1041,9 +1089,8 @@ class WorkspaceLoop:
         }
 
     def _phase2_state(self, *, workspace_id: str, intent: dict[str, Any]) -> ExperimentState:
-        method_fqn = str(
-            intent.get("causal_method_fqn") or "causal.inference.synthetic_control@1.0.0"
-        )
+        method_selection = _phase2_value_method_selection({**intent, "workspace_id": workspace_id})
+        method_fqn = str(method_selection.get("selected_method_fqn") or "")
         causal_variables = self._phase2_causal_variables(intent=intent)
         observational_data_ref = self._phase2_observational_data_ref(intent=intent)
         return ExperimentState(
@@ -1062,6 +1109,7 @@ class WorkspaceLoop:
                 "random_seed": int(intent.get("random_seed", 42) or 42),
                 "causal_method_fqn": method_fqn,
                 "causal_method_params": {},
+                "causal_method_selection": method_selection,
                 "enable_causal_refutation": False,
                 "causal_refutation_params": {},
                 "enable_causal_sensitivity": False,

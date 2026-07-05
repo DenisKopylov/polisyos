@@ -1,0 +1,647 @@
+{
+  "compute_economics": {
+    "live_resolve_flag": "--rederive-audit",
+    "routine_check_live_solve": false,
+    "wall_time_recorded_by_validator": true,
+    "wall_time_reported_outside_byte_stable_artifact": true,
+    "wmr_cache_rule": "build_once_per_world_model_record_content_hash"
+  },
+  "contract_content_hash": "sha256:265a4f214d928fbc57817f3793e410a4978001345e701ab53dba78a79e3a2238",
+  "decisive_mutations": [
+    {
+      "mutation_id": "value_outer_set_width_supplied_not_derived",
+      "proof": "ValueOuterSet.model_validate rejects non-empty supplied width.",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "proxy_forecast_narrow_set_rejected",
+      "proof": "Proxy identification cannot emit a narrow/point set.",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "value_world_version_laundered",
+      "proof": "Receipt refuses V1 value as authority for V2 world hash.",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "dominance_timeout_forced_not_unknown",
+      "proof": "Timeout/approximation path returns unknown, not dominance.",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "simulate_only_shrank_k_world",
+      "proof": "simulate_only receipt refuses K_world narrowing.",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "bad_forecast_minted_value",
+      "proof": "uncalibrated:forecast_support_missing; unsupported:unsupported_method_unavailable; untransportable:untransportable_forecast_minted_value:4 validation errors for SelectionDiagram\nbase_graph\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nsource_context\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ntarget_context\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ninvalid\n  Extra inputs are not permitted [type=extra_forbidden, input_value='selection-diagram', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "pilot_mode_ran_without_eval_safety",
+      "proof": "EvalSafety blocks sandbox_pilot,field_pilot,deployment",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "value_method_selection_fixed_default",
+      "proof": "Advisor selected causal.diagnostics.parallel_trends_check@1.0.0 from registry denominator.",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "value_blocked_candidate_promoted_to_decision_front",
+      "proof": "N6 promotion reducer refuses value_blocked summary.",
+      "result": "RED"
+    }
+  ],
+  "denominators": {
+    "evaluation_modes": [
+      "simulate_only",
+      "retrospective",
+      "measurement_audit",
+      "sandbox_pilot",
+      "field_pilot",
+      "deployment"
+    ],
+    "identification_statuses": [
+      "point",
+      "partial",
+      "proxy"
+    ],
+    "python314_unavailable_method_blockers": [
+      {
+        "dependency_family": "dowhy",
+        "registered_methods": [
+          "causal.inference.dowhy_identify_estimate@1.0.0",
+          "causal.inference.dowhy_identify_estimate@2.0.0",
+          "causal.refutation.dowhy_refute@1.0.0"
+        ],
+        "status": "honest_blocker_if_backend_unavailable_under_python_3_14"
+      },
+      {
+        "dependency_family": "econml",
+        "registered_methods": [],
+        "status": "honest_blocker_if_backend_unavailable_under_python_3_14"
+      },
+      {
+        "dependency_family": "cvxpy",
+        "registered_methods": [],
+        "status": "honest_blocker_if_backend_unavailable_under_python_3_14"
+      }
+    ],
+    "reachable_value_methods": [
+      "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
+      "bayesian.flow.affine_normalizing_flow@1.0.0",
+      "bayesian.gp.gp_regression@1.0.0",
+      "bayesian.gp.sparse_gp_regression@1.0.0",
+      "bayesian.graphical.factor_graph_belief_propagation@1.0.0",
+      "bayesian.nonparametric.bart_regression@1.0.0",
+      "bayesian.nonparametric.dirichlet_process_mixture@1.0.0",
+      "bayesian.nonparametric.gaussian_mixture@1.0.0",
+      "bayesian.regression.hierarchical@1.0.0",
+      "bayesian.regression.linear_regression@1.0.0",
+      "bayesian.sampling.hmc@1.0.0",
+      "bayesian.sampling.nuts@1.0.0",
+      "bayesian.sbi.nle@1.0.0",
+      "bayesian.sbi.npe@1.0.0",
+      "bayesian.sbi.nre@1.0.0",
+      "bayesian.timeseries.autoregression@1.0.0",
+      "bayesian.variational.bbvi@1.0.0",
+      "bayesian.variational.mean_field_vi@1.0.0",
+      "bayesian.variational.svgd_regression@1.0.0",
+      "causal.advanced.bunching@1.0.0",
+      "causal.advanced.marginal_treatment_effect@1.0.0",
+      "causal.advanced.regression_kink@1.0.0",
+      "causal.advanced.shift_share_iv@1.0.0",
+      "causal.bounds.balke_pearl@1.0.0",
+      "causal.bounds.bounds_engine@1.0.0",
+      "causal.bounds.copula_bounds@1.0.0",
+      "causal.bounds.distributional_bounds_engine@1.0.0",
+      "causal.bounds.general_balke_pearl@1.0.0",
+      "causal.bounds.imbens_manski@1.0.0",
+      "causal.bounds.intersection_bounds@1.0.0",
+      "causal.bounds.lee@1.0.0",
+      "causal.bounds.manski@1.0.0",
+      "causal.bounds.optimization@1.0.0",
+      "causal.bounds.rosenbaum_sharp@1.0.0",
+      "causal.bounds.tan_bounds@1.0.0",
+      "causal.compiler.fold_aggregator@1.0.0",
+      "causal.continuous_treatment.entropy_balancing@1.0.0",
+      "causal.continuous_treatment.gps@1.0.0",
+      "causal.continuous_treatment.kernel_dr@1.0.0",
+      "causal.continuous_treatment.shift@1.0.0",
+      "causal.counterfactual.actual_causality@1.0.0",
+      "causal.counterfactual.hp_actual_cause@1.0.0",
+      "causal.counterfactual.ncm_engine@1.0.0",
+      "causal.counterfactual.path_specific_effects@1.0.0",
+      "causal.design.causal_experiment_designer@1.0.0",
+      "causal.diagnostics.independence.categorical_ci@1.0.0",
+      "causal.diagnostics.independence.hsic@1.0.0",
+      "causal.diagnostics.independence.kci@1.0.0",
+      "causal.diagnostics.independence.partial_correlation@1.0.0",
+      "causal.diagnostics.invariance.icp_invariance@1.0.0",
+      "causal.diagnostics.invariance.ks_invariance@1.0.0",
+      "causal.diagnostics.parallel_trends_check@1.0.0",
+      "causal.diagnostics.policy_overlap@1.0.0",
+      "causal.diagnostics.positivity_check@1.0.0",
+      "causal.diagnostics.support_mismatch@1.0.0",
+      "causal.discovery.dagma_discovery@1.0.0",
+      "causal.discovery.fci_discovery@1.0.0",
+      "causal.discovery.ges_discovery@1.0.0",
+      "causal.discovery.invariant_discovery_from_regimes@1.0.0",
+      "causal.discovery.pc_discovery@1.0.0",
+      "causal.discovery.pcmci_discovery@1.0.0",
+      "causal.discovery.unified_causal_discovery@1.1.0",
+      "causal.distributional.endogenous_group_decomposition@1.0.0",
+      "causal.distributional.unconditional_qte@1.0.0",
+      "causal.dynamic.a_learning.a_learning@1.0.0",
+      "causal.dynamic.causal_bandit.causal_bandit@1.0.0",
+      "causal.dynamic.dr_dtr.dr_dtr@1.0.0",
+      "causal.dynamic.g_computation.parametric_g_formula@1.0.0",
+      "causal.dynamic.ice_g_formula.ice_g_formula@1.0.0",
+      "causal.dynamic.ltmle.ltmle@1.0.0",
+      "causal.dynamic.ope.ope@1.0.0",
+      "causal.dynamic.owl.owl@1.0.0",
+      "causal.dynamic.q_learning.q_learning@1.0.0",
+      "causal.dynamic.snmm.snmm_g_estimation@1.0.0",
+      "causal.dynamic_graph.dscm@1.0.0",
+      "causal.fairness.causal_fairness_engine@1.0.0",
+      "causal.fairness.counterfactual_fairness@1.0.0",
+      "causal.fairness.path_specific_fairness@1.0.0",
+      "causal.fairness.tv_fairness_decomposer@1.0.0",
+      "causal.fusion.data_fusion@1.0.0",
+      "causal.hte.causal_bcf@1.0.0",
+      "causal.hte.causal_forest@1.0.0",
+      "causal.hte.double_ml@1.0.0",
+      "causal.hte.dr_learner@1.0.0",
+      "causal.hte.forest_dr@1.0.0",
+      "causal.hte.meta_learner@1.0.0",
+      "causal.hte.r_learner@1.0.0",
+      "causal.inference.did.borusyak_jaravel_spiess@1.0.0",
+      "causal.inference.did.callaway_santanna@1.0.0",
+      "causal.inference.did.dechaisemartin@1.0.0",
+      "causal.inference.did.staggered@1.0.0",
+      "causal.inference.did.standard@1.0.0",
+      "causal.inference.did.sun_abraham@1.0.0",
+      "causal.inference.dowhy_identify_estimate@1.0.0",
+      "causal.inference.dowhy_identify_estimate@2.0.0",
+      "causal.inference.regression_discontinuity@1.0.0",
+      "causal.inference.structural_time_series@1.0.0",
+      "causal.inference.synthetic_control@1.0.0",
+      "causal.interference.bipartite@1.0.0",
+      "causal.interference.network_aipw@1.0.0",
+      "causal.interference.network_cate@1.0.0",
+      "causal.interference.partial@1.0.0",
+      "causal.interference.spatial@1.0.0",
+      "causal.kernel.cme_plugin@1.0.0",
+      "causal.kernel.dr_cme@1.0.0",
+      "causal.kernel.effect_test@1.0.0",
+      "causal.kernel.frontdoor_cme@1.0.0",
+      "causal.kernel.kernel_semantics_diagnostics@1.0.0",
+      "causal.kernel.kiv@1.0.0",
+      "causal.kernel.nuisance.fit_cme_m_given_x@1.0.0",
+      "causal.kernel.nuisance.fit_cme_y_given_mx@1.0.0",
+      "causal.kernel.nuisance.fit_cme_y_given_xz@1.0.0",
+      "causal.kernel.nuisance.fit_density_ratio@1.0.0",
+      "causal.kernel.nuisance.fit_kiv_first_stage@1.0.0",
+      "causal.kernel.nuisance.fit_kiv_second_stage@1.0.0",
+      "causal.kernel.nuisance.fit_propensity@1.0.0",
+      "causal.kernel.nuisance.solve_proximal_bridge@1.0.0",
+      "causal.kernel.proximal_minimax@1.0.0",
+      "causal.kernel.refusal@1.0.0",
+      "causal.kernel.regularization_diagnostics@1.0.0",
+      "causal.kernel.transport_cme@1.0.0",
+      "causal.measurement_error.measurement_error_proxy@1.0.0",
+      "causal.mediation.causal_mediation@1.0.0",
+      "causal.mediation.controlled_direct_effect@1.0.0",
+      "causal.mediation.natural_effects@1.0.0",
+      "causal.missing_data.administrative_missingness_assessment@1.0.0",
+      "causal.missing_data.full_law_identify@1.0.0",
+      "causal.missing_data.ordered_recovery@1.0.0",
+      "causal.missing_data.recoverability_test@1.0.0",
+      "causal.multi_treatment.aipw@1.0.0",
+      "causal.multi_treatment.ipw@1.0.0",
+      "causal.nuisance.multinomial_propensity@1.0.0",
+      "causal.nuisance.parametric_conditional_density@1.0.0",
+      "causal.nuisance.super_learner@1.0.0",
+      "causal.operator.apply_probe@1.0.0",
+      "causal.operator.cme_krr@1.0.0",
+      "causal.operator.export_basis@1.0.0",
+      "causal.operator.kiv@1.0.0",
+      "causal.operator.operator_r_learner@1.0.0",
+      "causal.operator.proximal_minimax@1.0.0",
+      "causal.operator.unsupported_target@1.0.0",
+      "causal.prior.build_literature_prior@1.0.0",
+      "causal.prior.reconcile_causal_graph@1.0.0",
+      "causal.proximal.proximal_bridge@1.0.0",
+      "causal.proximal.proximal_mediation@1.0.0",
+      "causal.proximal.spatial_proximal_bridge@1.0.0",
+      "causal.refutation.dowhy_refute@1.0.0",
+      "causal.semiparametric.efficiency_bound@1.0.0",
+      "causal.sensitivity.sensitivity_metrics@1.0.0",
+      "causal.space_time.fem_spde_g_computation@1.0.0",
+      "causal.stochastic.policy_aipw@1.0.0",
+      "causal.stochastic.policy_plugin@1.0.0",
+      "causal.stochastic.policy_tmle@1.0.0",
+      "causal.structural.gcm_fit@1.0.0",
+      "causal.structural.gcm_query@1.0.0",
+      "causal.structural.parameter_transfer@1.0.0",
+      "causal.structural.twin_network_query@1.0.0",
+      "causal.targeting.policy_tree@1.0.0",
+      "causal.transport.check_transportability@1.0.0",
+      "causal.transport.density_ratio@1.0.0",
+      "causal.transport.symbolic_identify@1.0.0",
+      "causal.transport.symbolic_identify@2.0.0",
+      "causal.treatment_effects.aipw@1.0.0",
+      "causal.treatment_effects.cbps@1.0.0",
+      "causal.treatment_effects.cross_fit@1.0.0",
+      "causal.treatment_effects.cross_fit_continuous@1.0.0",
+      "causal.treatment_effects.entropy_balancing@1.0.0",
+      "causal.treatment_effects.ipw@1.0.0",
+      "causal.treatment_effects.propensity_matching@1.0.0",
+      "causal.treatment_effects.tmle@1.0.0",
+      "dependence.diagnostic.graph_dependence@1.0.0",
+      "distributional.poverty.ordinal_multidimensional@1.0.0",
+      "econometrics.diagnostics.cointegration_test@1.0.0",
+      "econometrics.diagnostics.forecast_backtest@1.0.0",
+      "econometrics.diagnostics.hausman_test@1.0.0",
+      "econometrics.diagnostics.sargan_hansen@1.0.0",
+      "econometrics.diagnostics.weak_iv_test@1.0.0",
+      "econometrics.factor.dynamic_factor_model@1.0.0",
+      "econometrics.factor.principal_components@1.0.0",
+      "econometrics.iv.gmm@1.0.0",
+      "econometrics.iv.high_dimensional_post_selection@1.0.0",
+      "econometrics.iv.two_stage_least_squares@1.0.0",
+      "econometrics.panel.difference_gmm@1.0.0",
+      "econometrics.panel.event_study@1.0.0",
+      "econometrics.panel.fixed_effects@1.0.0",
+      "econometrics.panel.latent_mobility@1.0.0",
+      "econometrics.panel.nonstationary_garch@1.0.0",
+      "econometrics.panel.random_effects@1.0.0",
+      "econometrics.panel.synthetic_did@1.0.0",
+      "econometrics.panel.system_gmm@1.0.0",
+      "econometrics.regression.quantile_regression@1.0.0",
+      "econometrics.spatial.spatial_autoregressive@1.0.0",
+      "econometrics.thresholds.state_dependent_frd@1.0.0",
+      "econometrics.thresholds.state_dependent_frkd@1.0.0",
+      "econometrics.thresholds.state_dependent_kink@1.0.0",
+      "econometrics.thresholds.state_dependent_threshold@1.0.0",
+      "econometrics.timeseries.arima@1.0.0",
+      "econometrics.timeseries.bayesian_var@1.0.0",
+      "econometrics.timeseries.change_point@1.0.0",
+      "econometrics.timeseries.garch@1.0.0",
+      "econometrics.timeseries.local_projections@1.0.0",
+      "econometrics.timeseries.var@1.0.0",
+      "econometrics.timeseries.vecm@1.0.0",
+      "forecasting.advanced.prophet@1.0.0",
+      "forecasting.decomposition.stl@1.0.0",
+      "forecasting.ensemble.simple_average@1.0.0",
+      "forecasting.hybrid.guarded_neural@1.0.0",
+      "forecasting.multivariate.vec_forecast@1.0.0",
+      "forecasting.reconciliation.bottom_up@1.0.0",
+      "forecasting.reconciliation.general_linear_projection@1.0.0",
+      "forecasting.regime_shift.hybrid@1.0.0",
+      "forecasting.univariate.exponential_smoothing@1.0.0",
+      "forecasting.univariate.theta@1.0.0",
+      "microsim.behavior.behavioral_response@1.0.0",
+      "microsim.behavior.behavioral_response@2.0.0",
+      "microsim.calibration.inverse_behavioral_calibration@1.0.0",
+      "microsim.calibration.reweighting_calibration@1.0.0",
+      "microsim.dynamic.dynamic_microsim@1.0.0",
+      "microsim.imputation.mnar_income_bounds@1.0.0",
+      "microsim.policy.tax_benefit_calculator@1.0.0",
+      "microsim.static.static_microsim@1.0.0",
+      "ml.deep.ft_transformer@1.0.0",
+      "ml.deep.tabnet@1.0.0",
+      "ml.deep.tabular_transformer@1.0.0",
+      "ml.diagnostics.shift_diagnostic@1.0.0",
+      "ml.dynamics.neural_ode@1.0.0",
+      "ml.graph.graph_conv@1.0.0",
+      "ml.regression.elastic_net@1.0.0",
+      "ml.regression.gaussian_process@1.0.0",
+      "ml.regression.gradient_boosting@1.0.0",
+      "ml.regression.quantile_forest@1.0.0",
+      "ml.regression.random_forest@1.0.0",
+      "ml.self_supervised.masked_autoencoder@1.0.0",
+      "ml.uncertainty.conformal_prediction@1.0.0",
+      "ml.uncertainty.graph_aware_conformal@1.0.0",
+      "ml.uncertainty.mondrian_aps_raps@1.0.0",
+      "ml.uncertainty.mondrian_cqr@1.0.0",
+      "ml.uncertainty.normalized_residual_mondrian@1.0.0",
+      "network.generative.diffusion_null_test@0.1.0",
+      "network.generative.ergm_null@0.1.0",
+      "network.peer_effects.peer_effect_decomposition@1.0.0",
+      "optimization.convex.quadratic_program@1.0.0",
+      "optimization.convex.robust_optimization@1.0.0",
+      "optimization.convex.set_based_robust_linear@1.0.0",
+      "optimization.convex.socp@1.0.0",
+      "optimization.stochastic.two_stage_stochastic_program@1.0.0",
+      "policy.evaluation.foundation_model_policy_analysis@1.0.0",
+      "policy.mcda.ahp@1.0.0",
+      "policy.mcda.electre@1.0.0",
+      "policy.mcda.rank_stability@1.0.0",
+      "policy.mcda.robust_ahp@1.0.0",
+      "policy.mcda.robust_electre@1.0.0",
+      "policy.mcda.robust_topsis@1.0.0",
+      "policy.mcda.topsis@1.0.0",
+      "policy.welfare.atkinson_swf@1.0.0",
+      "policy.welfare.cost_benefit_analysis@1.0.0",
+      "policy.welfare.cost_effectiveness@1.0.0",
+      "policy.welfare.rawlsian_swf@1.0.0",
+      "policy.welfare.sen_capability@1.0.0",
+      "policy.welfare.state_dependent_inverse_social_weights@1.0.0",
+      "policy.welfare.sufficient_statistics_welfare@1.0.0",
+      "policy.welfare.utilitarian_swf@1.0.0",
+      "simulation.inference.monte_carlo@1.0.0",
+      "survey.demography.cceb@1.0.0",
+      "survey.demography.demographic_consistency@1.0.0",
+      "survey.dr.design_missingness@1.0.0",
+      "survey.estimation.calibration_greg@1.0.0",
+      "survey.estimation.causal_frontier_fay_herriot@1.0.0",
+      "survey.estimation.fay_herriot_dependence_aware@1.0.0",
+      "survey.semiparametric.subgroup_mean@1.0.0",
+      "survey.weighting.rake_ipf@1.0.0",
+      "validation.calibration.calibration_diagnostic@1.0.0",
+      "validation.model.cross_validation@1.0.0",
+      "validation.model.walk_forward@1.0.0",
+      "validation.probabilistic.normal_scores@1.0.0"
+    ],
+    "reachable_value_methods_count": 275
+  },
+  "disposition": {
+    "disposition": "rework_existing_wire",
+    "owner_surface": "polisyos.runtime.quality.generation_cycle.FoundryValuePort",
+    "parallel_value_engine": "blocked_by_P27",
+    "selector_surface": "polisyos.foundry.methods.selection.select_value_method_for_problem",
+    "task": "GY-N8"
+  },
+  "frozen_value_receipts": [
+    {
+      "calibration_receipt": {
+        "calibration_record_ref": "pdc://layer3/gy/n8/calibration/observable-subset",
+        "false_clear_counts": {},
+        "forecast_tier": "observable_calibrated",
+        "issue_codes": [],
+        "status": "pass",
+        "uncertainty_interval_refs": [
+          "interval://layer3/gy/n8/95"
+        ]
+      },
+      "candidate_id": "candidate_point",
+      "evaluation_mode": "simulate_only",
+      "identification_status": "point",
+      "k_world_ref_after": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "k_world_ref_before": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "method_selection_trace": [
+        "foundry_registry_advisor"
+      ],
+      "schema_version": "policyos.runtime.generation_cycle.value_gate_receipt.v1",
+      "selected_method_fqn": "causal.inference.synthetic_control@1.0.0",
+      "transport_receipt": {
+        "identification_engine": "transport_engine",
+        "limitation_refs": [],
+        "required_target_data": [],
+        "status": "direct",
+        "transport_mode": "direct",
+        "transport_result_ref": "sha256:fdf3b9d4af33f7a55af8c1771867d4c656734fac0fd95e346fbf99dd554b9caf",
+        "transport_status": "identified",
+        "world_model_record_content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "world_model_record_id": "world_model_record_1111111111111111"
+      },
+      "value_outer_set": {
+        "assumption_status": "externally_supported",
+        "assumptions": [
+          "foundry_method_output",
+          "transport:identified"
+        ],
+        "calibration_scope": {
+          "forecast_tier": "observable_calibrated",
+          "transport_status": "identified"
+        },
+        "coordinates": [
+          "firm_survival"
+        ],
+        "data_trust": {
+          "authority_ref": "policyos.layer3.gy.n8.frozen_receipt",
+          "max_coverage": 1.0,
+          "min_coverage": 0.5,
+          "promotion_floor": 0.5,
+          "tier": "observable_calibrated",
+          "trust_cap": 0.85,
+          "trust_multiplier": 0.95
+        },
+        "epoch": "2026",
+        "identification_status": "point",
+        "lower": [
+          4.0
+        ],
+        "representation": "interval_box",
+        "representation_status": "certified",
+        "solver_time_budget_ms": null,
+        "upper": [
+          4.0
+        ],
+        "width": [
+          0.0
+        ],
+        "world_model_record_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "value_outer_set_width_derived": [
+        0.0
+      ],
+      "value_ref": "sha256:11fb7fe402a5d269918f4954344990c92dcc6c1b37f21620be40f2b65c419cbc",
+      "wall_time_ms": 0.0,
+      "wmr_cache_status": "built",
+      "world_model_record_content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "world_model_record_id": "world_model_record_1111111111111111"
+    },
+    {
+      "calibration_receipt": {
+        "calibration_record_ref": "pdc://layer3/gy/n8/calibration/observable-subset",
+        "false_clear_counts": {},
+        "forecast_tier": "observable_calibrated",
+        "issue_codes": [],
+        "status": "pass",
+        "uncertainty_interval_refs": [
+          "interval://layer3/gy/n8/95"
+        ]
+      },
+      "candidate_id": "candidate_partial",
+      "evaluation_mode": "simulate_only",
+      "identification_status": "partial",
+      "k_world_ref_after": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "k_world_ref_before": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "method_selection_trace": [
+        "foundry_registry_advisor"
+      ],
+      "schema_version": "policyos.runtime.generation_cycle.value_gate_receipt.v1",
+      "selected_method_fqn": "causal.inference.synthetic_control@1.0.0",
+      "transport_receipt": {
+        "identification_engine": "transport_engine",
+        "limitation_refs": [],
+        "required_target_data": [],
+        "status": "direct",
+        "transport_mode": "direct",
+        "transport_result_ref": "sha256:84f4484bc7df72dbce5c6eea6f52d89647d434887c2c609d4599aaf1351ba6ef",
+        "transport_status": "bounded_non_identified",
+        "world_model_record_content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "world_model_record_id": "world_model_record_1111111111111111"
+      },
+      "value_outer_set": {
+        "assumption_status": "externally_supported",
+        "assumptions": [
+          "foundry_method_output",
+          "transport:bounded_non_identified"
+        ],
+        "calibration_scope": {
+          "forecast_tier": "observable_calibrated",
+          "transport_status": "bounded_non_identified"
+        },
+        "coordinates": [
+          "firm_survival"
+        ],
+        "data_trust": {
+          "authority_ref": "policyos.layer3.gy.n8.frozen_receipt",
+          "max_coverage": 1.0,
+          "min_coverage": 0.5,
+          "promotion_floor": 0.5,
+          "tier": "observable_calibrated",
+          "trust_cap": 0.85,
+          "trust_multiplier": 0.95
+        },
+        "epoch": "2026",
+        "identification_status": "partial",
+        "lower": [
+          2.0
+        ],
+        "representation": "interval_box",
+        "representation_status": "certified",
+        "solver_time_budget_ms": null,
+        "upper": [
+          5.5
+        ],
+        "width": [
+          3.5
+        ],
+        "world_model_record_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "value_outer_set_width_derived": [
+        3.5
+      ],
+      "value_ref": "sha256:de47e733072a296b3ab47c6b5bf33137b7f90c93f1129c7386aae92be5b17ec4",
+      "wall_time_ms": 0.0,
+      "wmr_cache_status": "built",
+      "world_model_record_content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "world_model_record_id": "world_model_record_1111111111111111"
+    },
+    {
+      "calibration_receipt": {
+        "calibration_record_ref": "pdc://layer3/gy/n8/calibration/observable-subset",
+        "false_clear_counts": {},
+        "forecast_tier": "transported_limited",
+        "issue_codes": [],
+        "status": "pass",
+        "uncertainty_interval_refs": [
+          "interval://layer3/gy/n8/95"
+        ]
+      },
+      "candidate_id": "candidate_proxy",
+      "evaluation_mode": "simulate_only",
+      "identification_status": "proxy",
+      "k_world_ref_after": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "k_world_ref_before": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "method_selection_trace": [
+        "foundry_registry_advisor"
+      ],
+      "schema_version": "policyos.runtime.generation_cycle.value_gate_receipt.v1",
+      "selected_method_fqn": "causal.inference.synthetic_control@1.0.0",
+      "transport_receipt": {
+        "identification_engine": "transport_engine",
+        "limitation_refs": [],
+        "required_target_data": [],
+        "status": "transported_limited",
+        "transport_mode": "bounds_only",
+        "transport_result_ref": "sha256:27bfdb315bc1381969c0ecf2a3314543b591c6ed93da52ee08c249be4f68dd2b",
+        "transport_status": "transported_limited",
+        "world_model_record_content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "world_model_record_id": "world_model_record_1111111111111111"
+      },
+      "value_outer_set": {
+        "assumption_status": "externally_supported",
+        "assumptions": [
+          "foundry_method_output",
+          "transport:transported_limited"
+        ],
+        "calibration_scope": {
+          "forecast_tier": "transported_limited",
+          "transport_status": "transported_limited"
+        },
+        "coordinates": [
+          "firm_survival"
+        ],
+        "data_trust": {
+          "authority_ref": "policyos.layer3.gy.n8.frozen_receipt",
+          "max_coverage": 1.0,
+          "min_coverage": 0.5,
+          "promotion_floor": 0.5,
+          "tier": "observable_calibrated",
+          "trust_cap": 0.85,
+          "trust_multiplier": 0.95
+        },
+        "epoch": "2026",
+        "identification_status": "proxy",
+        "lower": [
+          0.5
+        ],
+        "representation": "interval_box",
+        "representation_status": "certified",
+        "solver_time_budget_ms": null,
+        "upper": [
+          8.0
+        ],
+        "width": [
+          7.5
+        ],
+        "world_model_record_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      },
+      "value_outer_set_width_derived": [
+        7.5
+      ],
+      "value_ref": "sha256:835619f1cae37469772806ca344058749ba8de7dee93f902203664f0d7eeef09",
+      "wall_time_ms": 0.0,
+      "wmr_cache_status": "built",
+      "world_model_record_content_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "world_model_record_id": "world_model_record_1111111111111111"
+    }
+  ],
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1",
+  "honest_blocked_cases": {
+    "pilot_or_deployment_mode": "eval_safety_gate_unavailable",
+    "regime_laundered": "regime_laundered_forecast_minted_value",
+    "uncalibrated": "uncalibrated_forecast_minted_value",
+    "unsupported_method": "unsupported_method_unavailable",
+    "untransportable": "untransportable_forecast_minted_value"
+  },
+  "mode_gates": {
+    "deployment": "blocked_pending_GY_O0_eval_safety",
+    "field_pilot": "blocked_pending_GY_O0_eval_safety",
+    "measurement_audit": "requires_data_trust",
+    "retrospective": "requires_data_trust",
+    "sandbox_pilot": "blocked_pending_GY_O0_eval_safety",
+    "simulate_only": "runs_value_gate_without_narrowing_k_world"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "all_decisive_mutations_red_and_live_rederive_passes",
+    "capability_labels": [],
+    "relevant_ids": [
+      "P10",
+      "P14",
+      "P27",
+      "P29",
+      "P32"
+    ],
+    "target_correct_pattern": "Foundry value method execution + S10 calibration + transport receipt over a named WorldModelRecord mints the only N8 value authority."
+  },
+  "produced_by": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+  "schema_version": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1"
+}

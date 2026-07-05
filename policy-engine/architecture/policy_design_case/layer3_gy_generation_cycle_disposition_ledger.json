@@ -81,8 +81,8 @@
       "focus": "Closed acquisition and same-cycle re-entry"
     },
     "GY-N8": {
-      "status": "pending",
-      "focus": "Value as live gate under Python 3.14"
+      "status": "wired_with_residuals",
+      "focus": "Value as live Foundry/S10/transport gate over a named WorldModelRecord; pilot/deployment EvalSafety and N9 promotion remain downstream"
     },
     "GY-N9": {
       "status": "pending",
@@ -130,6 +130,11 @@
       "consuming_task": "GY-N-V",
       "disposition": "BUILD_NEW_FOUNDATION_CONTRACT",
       "source": "docs/plans/active/layer3-slices/GY-engine-subordination.md:1309"
+    },
+    "FoundryValuePort": {
+      "consuming_task": "GY-N8",
+      "disposition": "REWORK_EXISTING_WIRE",
+      "source": "src/polisyos/runtime/quality/generation_cycle.py"
     }
   },
   "method_availability_gate": {
@@ -328,6 +333,7 @@
         "policy_runtime_support_backend",
         "workspace_method_selection_default",
         "transport_value_receipts",
+        "generation_cycle_foundry_value_port",
         "synthetic_policy_runtime_backend"
       ]
     },
@@ -2196,6 +2202,44 @@
           "kind": "value_outer_set_strangle_receipt_landed"
         },
         "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "generation_cycle_foundry_value_port",
+      "owner_path": "src/polisyos/runtime/quality/generation_cycle.py:727",
+      "focus": "N6 value_pending_n8 seam and fixed workspace value-method default.",
+      "disposition": "REWORK_EXISTING_WIRE",
+      "rationale": "The production value port now delegates value authority to Foundry method execution, S10 calibration, transportability, and ValueOuterSet receipt binding over a named WorldModelRecord; no parallel value engine is introduced.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": "FoundryValuePort",
+      "source_notebook_refs": [
+        "docs/plans/active/layer3-slices/GY-engine-subordination.md:1309"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-value-gate-foundry-wire",
+        "pattern_id": "P27/P29/P32",
+        "predecessor_ref": "runtime.quality.generation_cycle.PendingN8ValuePort.value_pending_n8",
+        "replacement_ref": "runtime.quality.generation_cycle.FoundryValuePort",
+        "disposition": "reworked_wire_existing",
+        "required_disposition": "reworked_wire_existing",
+        "default_before": "N6 returned value_pending_n8 and workspace phase 2 defaulted to synthetic_control.",
+        "default_after": "N6 invokes FoundryValuePort by default; workspace method selection routes through the Foundry registry/advisor and blocked/low value feeds revision before promotion.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "N8 production path wired; sandbox_pilot/field_pilot/deployment remain blocked pending GY-O0 EvalSafety and N9 promotion remains downstream",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --rederive-audit",
+          "tests/unit/runtime/quality/test_value_gate.py",
+          "tests/unit/runtime/quality/test_generation_cycle.py"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/generation_cycle.py",
+        "consuming_task": "GY-N8",
+        "strangle_condition": {
+          "kind": "value_gate_contract_landed"
+        },
+        "status": "wired_with_residuals"
       }
     }
   ]

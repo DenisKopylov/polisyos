@@ -23,7 +23,10 @@ from polisyos.core.observability.truthfulness import (
     truthfulness_depth,
 )
 from polisyos.foundry.methods.base import parse_fqn
-from polisyos.foundry.methods.catalog.snapshot import build_method_capability_matrix
+from polisyos.foundry.methods.catalog.snapshot import (
+    build_method_capability_matrix,
+    build_method_catalog_snapshot,
+)
 from polisyos.foundry.methods.compiler.plan_optimizer import MethodCostModel
 from polisyos.foundry.methods.components.consensus import (
     ConsensusTarget,
@@ -679,6 +682,392 @@ def attach_advisor_execution_context(
     if context is not None:
         payload[ADVISOR_EXECUTION_CONTEXT_PARAM] = context.model_dump(mode="json")
     return payload
+
+
+_VALUE_METHOD_TOKENS: frozenset[str] = frozenset(
+    {
+        "bayesian",
+        "bounds",
+        "causal",
+        "diagnostic",
+        "did",
+        "forecast",
+        "gcm",
+        "posterior",
+        "qp",
+        "synthetic",
+        "transport",
+        "uncertainty",
+        "variational",
+        "welfare",
+    }
+)
+
+
+def reachable_value_method_fqns(
+    *,
+    registry: MethodRegistry | None = None,
+    include_unavailable: bool = True,
+) -> tuple[str, ...]:
+    """Return the registry-derived value-method denominator for N8 selection."""
+
+    reg = registry or MethodRegistry.get_instance()
+    try:
+        from polisyos.foundry.methods import ensure_all_methods_registered
+
+        ensure_all_methods_registered(reg)
+    except Exception:
+        pass
+    try:
+        catalog = build_method_catalog_snapshot(registry=reg)
+    except Exception:
+        snapshot = reg.snapshot()
+        methods = tuple(
+            entry.fqn for entry in snapshot.entries() if _registry_entry_is_value_method(entry)
+        )
+        return tuple(sorted(dict.fromkeys(methods)))
+    methods = tuple(
+        entry.fqn
+        for entry in catalog.entries
+        if _catalog_entry_is_value_method(entry)
+        and (include_unavailable or bool(entry.runnable))
+    )
+    return tuple(sorted(dict.fromkeys(methods)))
+
+
+def select_value_method_for_problem(
+    *,
+    candidate: object,
+    problem: object,
+    registry: MethodRegistry | None = None,
+    requested_method_fqn: str | None = None,
+    observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
+    runtime_budget_ms: float | None = None,
+) -> dict[str, Any]:
+    """Select a value method through the real Foundry registry/advisor surface."""
+
+    reg = registry or MethodRegistry.get_instance()
+    try:
+        from polisyos.foundry.methods import ensure_all_methods_registered
+
+        ensure_all_methods_registered(reg)
+    except Exception as exc:
+        return _blocked_value_selection(
+            code="value_method_registry_unavailable",
+            reason=str(exc),
+        )
+
+    try:
+        catalog = build_method_catalog_snapshot(registry=reg)
+    except Exception as exc:
+        return _blocked_value_selection(
+            code="value_method_catalog_unavailable",
+            reason=str(exc),
+        )
+    value_entries = tuple(entry for entry in catalog.entries if _catalog_entry_is_value_method(entry))
+    if not value_entries:
+        return _blocked_value_selection(
+            code="value_method_registry_empty",
+            reason="No reachable Foundry value methods were discoverable.",
+            denominator=(),
+        )
+    denominator = tuple(sorted(entry.fqn for entry in value_entries))
+    entry_by_fqn = {entry.fqn: entry for entry in value_entries}
+    if requested_method_fqn:
+        requested = str(requested_method_fqn)
+        entry = entry_by_fqn.get(requested)
+        if entry is None:
+            return _blocked_value_selection(
+                code="unsupported_method_unavailable",
+                reason=f"Requested value method {requested!r} is not in the reachable registry.",
+                denominator=denominator,
+            )
+        if not entry.runnable:
+            return _blocked_value_selection(
+                code="unsupported_method_unavailable",
+                reason=f"Requested value method {requested!r} is registered but not runnable.",
+                selected_method_fqn=requested,
+                denominator=denominator,
+                disabled_reasons=tuple(str(item) for item in entry.disabled_reasons),
+            )
+        return {
+            "status": "selected",
+            "selected_method_fqn": requested,
+            "selection_source": "requested_registry_method",
+            "candidate_signal": _candidate_selection_signal(candidate),
+            "problem_signal": _problem_selection_signal(problem),
+            "denominator": denominator,
+            "score_trace": (),
+            "blockers": (),
+        }
+
+    query = MethodAdvisorQuery(
+        criteria=_value_selection_criteria(
+            candidate=candidate,
+            problem=problem,
+            value_entries=value_entries,
+            observation_to_contract_manifest=observation_to_contract_manifest,
+        ),
+        data=_value_data_characteristics(candidate=candidate, problem=problem),
+        runtime_budget_ms=runtime_budget_ms,
+        limit=max(1, min(8, len(value_entries))),
+        runnable_only=True,
+        cost_policy="ignore",
+    )
+    advised = advise_methods(catalog, query)
+    recommended = tuple(entry for entry in advised.recommended if entry.fqn in denominator)
+    runnable_recommended = tuple(entry for entry in recommended if entry.runnable)
+    if not runnable_recommended:
+        return _blocked_value_selection(
+            code="value_method_selection_no_runnable_method",
+            reason="The advisor found no runnable value method for the candidate/problem shape.",
+            denominator=denominator,
+            score_trace=tuple(item.fqn for item in advised.score_trace),
+        )
+    selected = runnable_recommended[0]
+    return {
+        "status": "selected",
+        "selected_method_fqn": selected.fqn,
+        "selection_source": "foundry_registry_advisor",
+        "candidate_signal": _candidate_selection_signal(candidate),
+        "problem_signal": _problem_selection_signal(problem),
+        "denominator": denominator,
+        "score_trace": tuple(item.fqn for item in advised.score_trace),
+        "blockers": (),
+    }
+
+
+def _catalog_entry_is_value_method(entry: MethodCatalogEntry) -> bool:
+    fields: list[str] = [
+        entry.fqn,
+        entry.name,
+        entry.namespace,
+        entry.family,
+        entry.variant,
+        entry.kind,
+        *entry.data_modalities,
+        *entry.required_deps,
+        *entry.optional_deps,
+    ]
+    fields.extend(_flatten_text((entry.capability_matrix,)))
+    haystack = " ".join(str(value).casefold() for value in fields)
+    return any(token in haystack for token in _VALUE_METHOD_TOKENS)
+
+
+def _registry_entry_is_value_method(entry: object) -> bool:
+    signature = getattr(entry, "signature", None)
+    metadata = getattr(entry, "metadata", None)
+    slots = [
+        *list(getattr(signature, "input_slots", ()) or ()),
+        *list(getattr(signature, "output_slots", ()) or ()),
+    ]
+    fields = [
+        getattr(entry, "fqn", ""),
+        getattr(signature, "name", ""),
+        getattr(signature, "namespace", ""),
+        getattr(signature, "family", ""),
+        getattr(signature, "variant", ""),
+        *list(getattr(metadata, "tags", ()) or ()),
+        *[getattr(slot, "name", slot) for slot in slots],
+    ]
+    haystack = " ".join(str(value).casefold() for value in fields)
+    return any(token in haystack for token in _VALUE_METHOD_TOKENS)
+
+
+def _value_selection_criteria(
+    *,
+    candidate: object,
+    problem: object,
+    value_entries: Sequence[MethodCatalogEntry],
+    observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
+) -> MethodSelectionCriteria:
+    family_prefixes = _value_family_prefixes(candidate=candidate, problem=problem)
+    modalities = _required_modalities(candidate=candidate, problem=problem)
+    manifest_targets = _manifest_targets(observation_to_contract_manifest)
+    if manifest_targets:
+        modalities = tuple(dict.fromkeys((*modalities, *manifest_targets)))
+    available_modalities = {
+        modality
+        for entry in value_entries
+        for modality in entry.data_modalities
+        if modality
+    }
+    required_modalities = tuple(item for item in modalities if item in available_modalities)
+    return MethodSelectionCriteria(
+        family_prefixes=family_prefixes,
+        required_data_modalities=required_modalities,
+        runnable_only=True,
+    )
+
+
+def _value_family_prefixes(*, candidate: object, problem: object) -> tuple[str, ...]:
+    signal = " ".join(
+        (
+            _candidate_selection_signal(candidate),
+            _problem_selection_signal(problem),
+        )
+    ).casefold()
+    prefixes: list[str] = []
+    if "posterior" in signal or "bayes" in signal:
+        prefixes.append("bayesian")
+    if "panel" in signal or "did" in signal or "causal" in signal or "transport" in signal:
+        prefixes.append("causal")
+    if "optimiz" in signal or "welfare" in signal:
+        prefixes.append("optimization")
+    if not prefixes:
+        prefixes.append("causal")
+    return tuple(dict.fromkeys(prefixes))
+
+
+def _value_data_characteristics(*, candidate: object, problem: object) -> DataCharacteristics:
+    hints = _problem_runtime_hints(problem)
+    raw = hints.get("value_data_characteristics")
+    if isinstance(raw, DataCharacteristics):
+        return raw
+    if isinstance(raw, Mapping):
+        return DataCharacteristics(
+            n_obs=_optional_int(raw.get("n_obs")),
+            n_units=_optional_int(raw.get("n_units")),
+            n_periods=_optional_int(raw.get("n_periods")),
+            has_instrument=bool(raw.get("has_instrument", False)),
+            has_running_variable=bool(raw.get("has_running_variable", False)),
+            is_panel=bool(raw.get("is_panel", False)),
+            treatment_is_binary=_optional_bool(raw.get("treatment_is_binary")),
+            outcome_is_continuous=_optional_bool(raw.get("outcome_is_continuous")),
+        )
+    signal = _candidate_selection_signal(candidate).casefold()
+    return DataCharacteristics(
+        n_obs=_optional_int(hints.get("n_obs")),
+        n_units=_optional_int(hints.get("n_units")),
+        n_periods=_optional_int(hints.get("n_periods")),
+        is_panel=bool("panel" in signal or "period" in signal),
+        treatment_is_binary=True,
+        outcome_is_continuous=True,
+    )
+
+
+def _required_modalities(*, candidate: object, problem: object) -> tuple[str, ...]:
+    hints = _problem_runtime_hints(problem)
+    raw = hints.get("value_required_data_modalities")
+    if isinstance(raw, str):
+        return (raw,)
+    if isinstance(raw, Sequence) and not isinstance(raw, str | bytes | bytearray):
+        return tuple(str(item) for item in raw if str(item))
+    signal = _candidate_selection_signal(candidate).casefold()
+    if "panel" in signal:
+        return ("panel",)
+    return ()
+
+
+def _manifest_targets(
+    manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
+) -> tuple[str, ...]:
+    if manifest is None:
+        return ()
+    rows: list[Mapping[str, Any]]
+    if isinstance(manifest, Mapping):
+        raw = manifest.get("contracts") or manifest.get("contract_targets") or manifest
+        rows = [raw] if isinstance(raw, Mapping) else list(raw) if isinstance(raw, Sequence) else []
+    else:
+        rows = list(manifest)
+    targets: list[str] = []
+    for row in rows:
+        if not isinstance(row, Mapping):
+            continue
+        for key in ("data_modality", "method_contract_target", "contract_target"):
+            value = str(row.get(key) or "").strip()
+            if value:
+                targets.append(value)
+    return tuple(dict.fromkeys(targets))
+
+
+def _blocked_value_selection(
+    *,
+    code: str,
+    reason: str,
+    selected_method_fqn: str | None = None,
+    denominator: Sequence[str] = (),
+    score_trace: Sequence[str] = (),
+    disabled_reasons: Sequence[str] = (),
+) -> dict[str, Any]:
+    return {
+        "status": "blocked",
+        "selected_method_fqn": selected_method_fqn,
+        "selection_source": "foundry_registry_advisor",
+        "denominator": tuple(denominator),
+        "score_trace": tuple(score_trace),
+        "blockers": (code,),
+        "disabled_reasons": tuple(disabled_reasons),
+        "reason": reason,
+    }
+
+
+def _candidate_selection_signal(candidate: object) -> str:
+    atom = _object_get(candidate, "atom")
+    fields = [
+        _object_get(candidate, "candidate_id"),
+        _object_get(candidate, "id"),
+        _object_get(candidate, "diversity_key"),
+        _object_get(atom, "target_world_slots"),
+        _object_get(atom, "intervention_id"),
+        _object_get(atom, "operator_kind"),
+    ]
+    return " ".join(_flatten_text(fields))
+
+
+def _problem_selection_signal(problem: object) -> str:
+    hints = _problem_runtime_hints(problem)
+    fields = [
+        _object_get(problem, "design_problem_id"),
+        _object_get(problem, "problem_statement"),
+        _object_get(problem, "domain"),
+        hints.get("value_method_family"),
+        hints.get("value_method_hint"),
+    ]
+    return " ".join(_flatten_text(fields))
+
+
+def _problem_runtime_hints(problem: object) -> Mapping[str, Any]:
+    hints = _object_get(problem, "runtime_hints")
+    return hints if isinstance(hints, Mapping) else {}
+
+
+def _object_get(value: object, field: str) -> object | None:
+    if isinstance(value, Mapping):
+        return value.get(field)
+    return getattr(value, field, None)
+
+
+def _flatten_text(values: Iterable[object]) -> tuple[str, ...]:
+    output: list[str] = []
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, Mapping):
+            output.extend(_flatten_text(value.values()))
+            continue
+        if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+            output.extend(_flatten_text(value))
+            continue
+        text = str(value).strip()
+        if text:
+            output.append(text)
+    return tuple(output)
+
+
+def _optional_int(value: object) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _optional_bool(value: object) -> bool | None:
+    if value is None or value == "":
+        return None
+    return bool(value)
 
 
 def rank_method_catalog_entries(
@@ -3108,6 +3497,8 @@ __all__ = [
     "method_selection_payload",
     "pareto_advise_methods",
     "rank_method_catalog_entries",
+    "reachable_value_method_fqns",
+    "select_value_method_for_problem",
     "suggest_adapter_methods",
     "suggest_alternative_methods",
     "suggest_plan_node_alternatives",

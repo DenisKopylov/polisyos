@@ -1,0 +1,1925 @@
+{
+  "behavioral_mutations": [
+    {
+      "content_hash": null,
+      "decision": null,
+      "decisive_reason": "dto_invariant_rejected_unsafe_bind",
+      "dto_invariant_raised": true,
+      "exercise": "real_exact_with_fabricated_calibration",
+      "mutation_id": "calibration_owner_validation_removed",
+      "status": "red"
+    },
+    {
+      "content_hash": "sha256:af907a724fa552995ac7e69bcecdf1f4b7e458b114a4afd5d0cf21cdcec3bc60",
+      "decision": "bind",
+      "decisive_reason": "bind_eligible",
+      "dto_invariant_raised": false,
+      "exercise": "real_false_analog_forged_as_exact",
+      "mutation_id": "certificate_revalidation_removed",
+      "status": "red"
+    },
+    {
+      "content_hash": "sha256:92776f9f2c25c7e3f10b5f61dfd4157902947bc15d977f56d9595963f985acf8",
+      "decision": "bind",
+      "decisive_reason": "bind_eligible",
+      "dto_invariant_raised": false,
+      "exercise": "real_exact_tampered_content_hash",
+      "mutation_id": "content_hash_check_removed",
+      "status": "red"
+    },
+    {
+      "content_hash": null,
+      "decision": null,
+      "decisive_reason": "dto_invariant_rejected_unsafe_bind",
+      "dto_invariant_raised": true,
+      "exercise": "real_false_analog_certificate",
+      "mutation_id": "false_analog_hard_abstain_removed",
+      "status": "red"
+    },
+    {
+      "content_hash": null,
+      "decision": null,
+      "decisive_reason": "dto_invariant_rejected_unsafe_bind",
+      "dto_invariant_raised": true,
+      "exercise": "real_exact_production_cold_start",
+      "mutation_id": "cold_start_freeze_removed",
+      "status": "red"
+    },
+    {
+      "content_hash": "sha256:a217b81bb5433d9cc7a10ef708387a6d8b6d421f871a885b49f8ab41f308033e",
+      "decision": "bind",
+      "decisive_reason": "bind_eligible",
+      "dto_invariant_raised": false,
+      "exercise": "real_exact_stale_reference",
+      "mutation_id": "epoch_binding_removed",
+      "status": "red"
+    },
+    {
+      "content_hash": "sha256:28b2fd115b1b5efffd8ede9cb2d7f719ed1c4214d367ee558352ce8dc87afb92",
+      "decision": "promotable",
+      "decisive_reason": "unsafe_resolver_trusted_certificate_promotable_field",
+      "dto_invariant_raised": false,
+      "exercise": "honest_hash_forged_production_promotable_certificate",
+      "mutation_id": "promotability_resolver_store_resolution_removed",
+      "status": "red",
+      "store_resolution": {
+        "authority_scope": "production",
+        "certificate_anchor_content_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "certificate_id": "cg2_cert_28b2fd115b1b5eff",
+        "certificate_promotable_claim": true,
+        "content_hash_valid": true,
+        "decision": "bind",
+        "owned_anchor_id": "fabricated_production_anchor",
+        "promotable": false,
+        "reason": "owned_anchor_missing",
+        "reference_epoch_match": true,
+        "store_anchor_content_hash": null,
+        "store_authority_scope": "production"
+      }
+    },
+    {
+      "content_hash": null,
+      "decision": null,
+      "decisive_reason": "real_multi_safe_unreachable_in_current_live_lever_space",
+      "dto_invariant_raised": false,
+      "exercise": "documented_unreachable_no_revalidation_disabled_synthetic",
+      "mutation_id": "robust_singleton_check_removed",
+      "status": "unreachable_structural"
+    },
+    {
+      "content_hash": null,
+      "decision": null,
+      "decisive_reason": "cg1_current_proposal_verdict_does_not_emit_generalization_partial_or_compositional",
+      "dto_invariant_raised": false,
+      "exercise": "documented_unreachable_no_revalidation_disabled_synthetic",
+      "mutation_id": "exact_spec_only_rule_removed",
+      "status": "unreachable_structural"
+    }
+  ],
+  "capability_reality": {
+    "consumer": "future production grounding admission surface / CG3 novel handoff",
+    "orchestration_bridge": "CG2 consumes content-bound CG1 certificate and live CG0 reference; bind output is a decision certificate, not silent admission",
+    "persisted_artifact_event": "architecture/policy_design_case/grounding_bind_contract.json",
+    "producer": "GroundingBindGate.certificate_for",
+    "semantic_test": "forged/stale/tampered fail closed, false analog hard abstains, cold-start freezes, out-of-lever N4 hands off, and unsafe mutations go red",
+    "surface": "generated Policy Design Case CG2 contract artifact",
+    "typed_contract_artifact": "GroundingDecisionCertificate + GroundingSafeSet + GroundingRiskLedger + GroundingCalibrationDecision",
+    "verification": "this recomputing validator plus unit probes and mutation reports"
+  },
+  "cg1_schema_version": "policyos.runtime.grounding_relation_certificate.v1",
+  "contract_id": "policyos.runtime.grounding_bind_caab",
+  "fast_replay_never_more_permissive_grid": {
+    "grid_scope": "bind_eligible_exact_and_certified_specialization_replay",
+    "tested": 2,
+    "unique_full_cg1_certificates": 2,
+    "violation_count": 0,
+    "violations": []
+  },
+  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_bind_contract.v1",
+  "no_parallel_relation_engine": true,
+  "no_second_reference_store": true,
+  "owner": "polisyos.runtime.quality.grounding_bind",
+  "pattern_pass": {
+    "acceptance_signal": "contract check plus corrupt-field check pass; mutations are red",
+    "missing_capability_labels": [
+      "consumer_missing"
+    ],
+    "relevant_ids": [
+      "P01",
+      "P03",
+      "P04",
+      "P05",
+      "P10",
+      "P27",
+      "P28",
+      "P29",
+      "P32",
+      "P33"
+    ],
+    "target_correct_pattern": "decision layer revalidates CG1 against live CG0, treats ambiguity as abstain, and freezes uncalibrated strata"
+  },
+  "probes": {
+    "certified_specialization_bind": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": "cg0_atom_49ebedb62a306a73",
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_57bbae98312bcf00",
+      "cg1_content_hash": "sha256:57bbae98312bcf00847fee1de304bac3535618c341f97b559d441f30a0c29fc7",
+      "content_hash": "sha256:d0e26da4a1a5175e7342b07f360f4db9ec8cdf2f2e66cc9c56d810839d353aac",
+      "decision": "bind",
+      "decisive_reason": "bind_eligible",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:57bbae98312bcf00847fee1de304bac3535618c341f97b559d441f30a0c29fc7",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_431cf219509d894d",
+        "replayed_content_hash": "sha256:431cf219509d894d1256f1f8f3b9e0e206c10ccda7173663cb6f5d0016f5fe25",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "certified-specialization",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "certified-specialization"
+    },
+    "cold_start_freeze": {
+      "authority_scope": "production",
+      "bound_atom_id": null,
+      "calibration_owner_validated": false,
+      "calibration_source": "none_wired_production_freezes",
+      "calibration_status": "cold_start",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_missing"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:a69ac754876f459c6b5eec44187e5b137609118f662902664a3038a63fd8499a",
+      "decision": "abstain",
+      "decisive_reason": "cold_start_conservative",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_7c94927de120890e",
+        "replayed_content_hash": "sha256:7c94927de120890e8aba03021232d795a7ec1206dc1d47fccb55c8c5ed77215c",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "exact",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.01,
+          "component": "delta_monitor",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.01
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0106,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    },
+    "deterministic_decision": {
+      "first_content_hash": "sha256:23b7793cc87d6ce541c1b7f651776a5186a33f1f3be2798e79054739f7af9c66",
+      "same_content_hash": true,
+      "second_content_hash": "sha256:23b7793cc87d6ce541c1b7f651776a5186a33f1f3be2798e79054739f7af9c66"
+    },
+    "exact_bind": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": "cg0_atom_49ebedb62a306a73",
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:23b7793cc87d6ce541c1b7f651776a5186a33f1f3be2798e79054739f7af9c66",
+      "decision": "bind",
+      "decisive_reason": "bind_eligible",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_7c94927de120890e",
+        "replayed_content_hash": "sha256:7c94927de120890e8aba03021232d795a7ec1206dc1d47fccb55c8c5ed77215c",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "exact",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    },
+    "fabricated_calibration_fail_closed": {
+      "authority_scope": "production",
+      "bound_atom_id": null,
+      "calibration_owner_validated": false,
+      "calibration_source": "none_wired_production_freezes",
+      "calibration_status": "cold_start",
+      "calibration_validation_reasons": [
+        "caller_calibration_not_owner_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:081f8f04070d6ded5530dc13ecd38d76f329c60a9d9962210685414303148639",
+      "decision": "abstain",
+      "decisive_reason": "cold_start_conservative",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_7c94927de120890e",
+        "replayed_content_hash": "sha256:7c94927de120890e8aba03021232d795a7ec1206dc1d47fccb55c8c5ed77215c",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "exact",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.01,
+          "component": "delta_monitor",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.01
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0106,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    },
+    "false_analog_hard_abstain": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_266dc6134647316e",
+      "cg1_content_hash": "sha256:266dc6134647316ebf264c2e09f840518e89622348545239a54b24e8482ef094",
+      "content_hash": "sha256:6670546f417fcac387d2414f298ac2fac62404cafdfa2c668b26324c6f1db12a",
+      "decision": "abstain",
+      "decisive_reason": "false_analog_hard_abstain",
+      "open_obligations": [
+        "no_unresolved_critical_axis"
+      ],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": false,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:266dc6134647316ebf264c2e09f840518e89622348545239a54b24e8482ef094",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_5fd4073f39d27605",
+        "replayed_content_hash": "sha256:5fd4073f39d2760548c15bcc591ae70a2b9be58a75586890f1dc36afcbb113ac",
+        "replayed_critical_contradictions": [
+          "op",
+          "target",
+          "do_value",
+          "scope",
+          "outcome",
+          "effect_path"
+        ],
+        "replayed_selected_atom_id": "cg1_counter_07efde91c8de2b2c",
+        "replayed_selected_relation": "novel-candidate",
+        "selected_atom_reproduced": false,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [],
+      "safe_count": 0,
+      "selected_relation": "novel-candidate"
+    },
+    "forged_relation_fail_closed": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_2db902c7a9de6c0b",
+      "cg1_content_hash": "sha256:2db902c7a9de6c0b54d89bce1015d4cd4979b830465cda3d20d43dd02f4a07b0",
+      "content_hash": "sha256:b5a31a53136f1b0d6e7f21425db923f820e6cfb39fabeca2149a23960b335462",
+      "decision": "abstain",
+      "decisive_reason": "relation_revalidation_mismatch",
+      "open_obligations": [
+        "no_unresolved_critical_axis"
+      ],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": false,
+        "critical_contradictions_reproduced": false,
+        "expected_content_hash": "sha256:2db902c7a9de6c0b54d89bce1015d4cd4979b830465cda3d20d43dd02f4a07b0",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_43c719711d7f57db",
+        "replayed_content_hash": "sha256:43c719711d7f57db699f743ae39fd8c30222a565f8e93f69d3d344a0e7db888d",
+        "replayed_critical_contradictions": [
+          "op",
+          "target",
+          "do_value",
+          "scope",
+          "outcome",
+          "effect_path"
+        ],
+        "replayed_selected_atom_id": "cg1_counter_07efde91c8de2b2c",
+        "replayed_selected_relation": "novel-candidate",
+        "selected_atom_reproduced": false,
+        "selected_relation_reproduced": false,
+        "stale_reasons": [],
+        "status": "mismatch"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [],
+      "safe_count": 0,
+      "selected_relation": "novel-candidate"
+    },
+    "production_default_freeze": {
+      "authority_scope": "production",
+      "bound_atom_id": null,
+      "calibration_owner_validated": false,
+      "calibration_source": "none_wired_production_freezes",
+      "calibration_status": "cold_start",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_missing"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:a69ac754876f459c6b5eec44187e5b137609118f662902664a3038a63fd8499a",
+      "decision": "abstain",
+      "decisive_reason": "cold_start_conservative",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_7c94927de120890e",
+        "replayed_content_hash": "sha256:7c94927de120890e8aba03021232d795a7ec1206dc1d47fccb55c8c5ed77215c",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "exact",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.01,
+          "component": "delta_monitor",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.01
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0106,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    },
+    "real_n4_out_of_lever_handoff": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": true,
+      "calibration_source": "frozen_n4_receipt",
+      "calibration_status": "frozen_receipt",
+      "calibration_validation_reasons": [
+        "frozen_real_output_payoff_receipt"
+      ],
+      "cg1_certificate_id": "cg1_cert_639e0083021f03c0",
+      "cg1_content_hash": "sha256:639e0083021f03c07e00fce5b1c8cb633740f3ad367cb283931c8fc95d1d1194",
+      "cg2_certificate_id": "cg2_cert_db8d606b0658702c",
+      "content_hash": "sha256:db8d606b0658702c7a52ace4cf833afef8fdd1b1af57c90ab2c3805a355049ef",
+      "decision": "novel_candidate",
+      "decisive_reason": "novel_candidate_handoff",
+      "frozen_receipt": true,
+      "open_obligations": [],
+      "production_promotable": false,
+      "proposal_id": "gy_n4.payroll_tax_credit",
+      "reference_epoch": null,
+      "revalidation": {
+        "reason": "routine_check_does_not_rederive_historical_n4_payoff",
+        "replayed": false,
+        "status": "frozen_receipt"
+      },
+      "risk_budget": 0.0,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "safe_atom_ids": [],
+      "safe_count": 0,
+      "selected_relation": "novel-candidate"
+    },
+    "robust_multi_safe_real_exercise": {
+      "coverage_status": "structurally_enforced_unreachable",
+      "decision": null,
+      "decisive_reason": "real_multi_safe_unreachable_in_current_live_lever_space",
+      "exercise_status": "unreachable_structurally_enforced",
+      "mutation_status": "unreachable_structural",
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation_disabled": false,
+      "structural_rule": "CG2 robust-singleton check remains enforced on every revalidated certificate; no live CG1 certificate currently yields |Safe_t| > 1"
+    },
+    "stale_epoch_fail_closed": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:27698b1b9adf0fc384e8754df82e5f9c45dc5facfabfa32abce92121e2163318",
+      "decision": "abstain",
+      "decisive_reason": "stale_cg1_certificate",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:b8401835b3a4a265",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": false,
+        "critical_contradictions_reproduced": false,
+        "expected_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+        "not_more_permissive_than_full": false,
+        "reference_versions_match": false,
+        "replayed": false,
+        "replayed_certificate_id": null,
+        "replayed_content_hash": null,
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": null,
+        "replayed_selected_relation": null,
+        "selected_atom_reproduced": false,
+        "selected_relation_reproduced": false,
+        "stale_reasons": [
+          "reference_versions_changed"
+        ],
+        "status": "stale"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    },
+    "tampered_fail_closed": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:66cd7735db9c7abf3533055a46bd19246b22f8525f3dea838e5dfb1a60ade656",
+      "decision": "abstain",
+      "decisive_reason": "tampered_cg1_certificate",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": false,
+        "critical_contradiction_tuple_reproduced": false,
+        "critical_contradictions_reproduced": false,
+        "expected_content_hash": "sha256:2108d65c863282362d3204cb538d3a0638787bd6b8e6d3f7e8c07ff9f7eb3edc",
+        "not_more_permissive_than_full": false,
+        "reference_versions_match": true,
+        "replayed": false,
+        "replayed_certificate_id": null,
+        "replayed_content_hash": null,
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": null,
+        "replayed_selected_relation": null,
+        "selected_atom_reproduced": false,
+        "selected_relation_reproduced": false,
+        "stale_reasons": [],
+        "status": "tampered"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    }
+  },
+  "production_api_boundary_probes": {
+    "policy_delta_ground_budget_override": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndelta_ground_budget\n  Extra inputs are not permitted [type=extra_forbidden, input_value=1.0, input_type=float]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_disable_calibration_freeze": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndisable_calibration_freeze\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_disable_calibration_owner_validation": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndisable_calibration_owner_validation\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_disable_certificate_revalidation": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndisable_certificate_revalidation\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_disable_content_hash_check": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndisable_content_hash_check\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_disable_epoch_binding": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndisable_epoch_binding\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_disable_exact_spec_only_rule": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndisable_exact_spec_only_rule\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_disable_false_analog_hard_abstain": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndisable_false_analog_hard_abstain\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_disable_robust_singleton_check": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ndisable_robust_singleton_check\n  Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_risk_component_bounds_override": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\nrisk_component_bounds\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'delta_monitor': 0.0}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "policy_seed_literal": {
+      "accepted": false,
+      "decision": "rejected",
+      "decisive_reason": "public_policy_rejected_bind_authority_knob",
+      "error": "1 validation error for GroundingBindPolicy\ncalibration_source\n  Extra inputs are not permitted [type=extra_forbidden, input_value='cg2_contract_seed_anchor', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "prior_hole_caller_ledger_sample0": {
+      "authority_scope": "production",
+      "bound_atom_id": null,
+      "calibration_owner_validated": false,
+      "calibration_source": "none_wired_production_freezes",
+      "calibration_status": "cold_start",
+      "calibration_validation_reasons": [
+        "caller_calibration_not_owner_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:081f8f04070d6ded5530dc13ecd38d76f329c60a9d9962210685414303148639",
+      "decision": "abstain",
+      "decisive_reason": "cold_start_conservative",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_7c94927de120890e",
+        "replayed_content_hash": "sha256:7c94927de120890e8aba03021232d795a7ec1206dc1d47fccb55c8c5ed77215c",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "exact",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.01,
+          "component": "delta_monitor",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.01
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0106,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    },
+    "spoofed_caller_ledger_valid_hash_high_samples": {
+      "authority_scope": "production",
+      "bound_atom_id": null,
+      "calibration_owner_validated": false,
+      "calibration_source": "none_wired_production_freezes",
+      "calibration_status": "cold_start",
+      "calibration_validation_reasons": [
+        "caller_calibration_not_owner_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:081f8f04070d6ded5530dc13ecd38d76f329c60a9d9962210685414303148639",
+      "decision": "abstain",
+      "decisive_reason": "cold_start_conservative",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_7c94927de120890e",
+        "replayed_content_hash": "sha256:7c94927de120890e8aba03021232d795a7ec1206dc1d47fccb55c8c5ed77215c",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "exact",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.01,
+          "component": "delta_monitor",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.01
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0106,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    }
+  },
+  "promotability_authority": {
+    "certificate_promotable_field": "advisory_not_authority",
+    "consumer_enforcement_status": "deferred_to_cg2_wiring_cg6_no_production_consumer_wired",
+    "consumer_obligation": "Every future production consumer of a CG2 bind must resolve promotability against the owned store before acting; no consumer may trust GroundingDecisionCertificate.production_promotable.",
+    "contract_testing_resolver": "resolve_grounding_decision_promotability_for_contract_testing",
+    "contract_testing_store": "cg2_contract_seed_anchor_non_promotable",
+    "production_owned_store": "empty_none_wired_no_caller_population_path",
+    "production_resolver": "resolve_grounding_decision_promotability"
+  },
+  "promotability_resolution_probes": {
+    "bogus_hash_forge": {
+      "dto_rejected": true,
+      "error": "1 validation error for GroundingDecisionCertificate\n  Value error, decision_certificate_content_hash_mismatch [type=value_error, input_value={'schema_version': 'polic....grounding_bind.cg2.v1'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+    },
+    "contract_testing_bind": {
+      "authority_scope": "contract_testing",
+      "decision": "bind",
+      "production_promotable": false,
+      "resolution": {
+        "authority_scope": "contract_testing",
+        "certificate_anchor_content_hash": "sha256:6e953ffe2ebd0a406341b3f261c9ba15f49772bfcfb368eea34107953661b8c2",
+        "certificate_id": "cg2_cert_23b7793cc87d6ce5",
+        "certificate_promotable_claim": false,
+        "content_hash_valid": true,
+        "decision": "bind",
+        "owned_anchor_id": "cg2_contract_seed_anchor:kref:09b6349c4ee0bfef:tax_relief_rate:global:exact",
+        "promotable": false,
+        "reason": "non_production_anchor_scope",
+        "reference_epoch_match": true,
+        "store_anchor_content_hash": "sha256:6e953ffe2ebd0a406341b3f261c9ba15f49772bfcfb368eea34107953661b8c2",
+        "store_authority_scope": "contract_testing"
+      }
+    },
+    "honest_hash_forge": {
+      "certificate_promotable_claim": true,
+      "dto_rejected": false,
+      "resolution": {
+        "authority_scope": "production",
+        "certificate_anchor_content_hash": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "certificate_id": "cg2_cert_28b2fd115b1b5eff",
+        "certificate_promotable_claim": true,
+        "content_hash_valid": true,
+        "decision": "bind",
+        "owned_anchor_id": "fabricated_production_anchor",
+        "promotable": false,
+        "reason": "owned_anchor_missing",
+        "reference_epoch_match": true,
+        "store_anchor_content_hash": null,
+        "store_authority_scope": "production"
+      }
+    }
+  },
+  "reference": {
+    "component_versions": {
+      "L2": "sha256:6f013f350e95724139c79f23ea5fcac440ad759de8ea2e0416c8996533eb56bb",
+      "L3": "sha256:19ba25cd24fbd27186d7ca9144775f00bd255fb7b5fca57caf5b7277dd6ddcf0",
+      "L6": "sha256:7489e7d1a9e77b458c63bdce652fccf2d31ddeb29e25b869c89ecf3b60c218b8",
+      "WMR": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca"
+    },
+    "denominator_status": {
+      "L2_CANONICAL_VARIABLE": {
+        "confirmed": 54404,
+        "contested": 528,
+        "incomplete": 244,
+        "total": 55176
+      },
+      "L2_CAUSAL_CLAIM": {
+        "confirmed": 376,
+        "contested": 7492,
+        "total": 7868
+      },
+      "L2_CAUSAL_EDGE": {
+        "confirmed": 14,
+        "contested": 7232,
+        "incomplete": 361,
+        "total": 7607
+      },
+      "L2_CONTESTED_EDGE": {
+        "contested": 723,
+        "total": 723
+      },
+      "L2_DATA_FORGE_VARIABLE_ALIGNMENT": {
+        "confirmed": 13912,
+        "contested": 437,
+        "incomplete": 5977,
+        "total": 20326
+      },
+      "L2_FAMILY_EDGE": {
+        "confirmed": 45,
+        "contested": 3908,
+        "incomplete": 11992,
+        "total": 15945
+      },
+      "L2_MODERATION_EDGE": {
+        "confirmed": 579,
+        "contested": 1257,
+        "incomplete": 23199,
+        "total": 25035
+      },
+      "L2_VARIABLE_ALIGNMENT": {
+        "confirmed": 72,
+        "contested": 335,
+        "total": 407
+      },
+      "L2_VARIABLE_HIERARCHY": {
+        "confirmed": 175,
+        "incomplete": 54182,
+        "total": 54357
+      },
+      "L3_AMENDMENT": {
+        "confirmed": 1494,
+        "contested": 1204,
+        "deprecated": 350,
+        "incomplete": 153090,
+        "out_of_scope": 58,
+        "total": 156196
+      },
+      "L3_REFERENCE_EDGE": {
+        "confirmed": 40419,
+        "contested": 33374,
+        "total": 73793
+      },
+      "L3_RULE_THRESHOLD": {
+        "confirmed": 51590,
+        "contested": 319712,
+        "deprecated": 3084,
+        "out_of_scope": 130,
+        "total": 374516
+      },
+      "L6_KNOB_OPERATOR": {
+        "confirmed": 3,
+        "total": 3
+      },
+      "L6_KNOB_WORLD_SLOT": {
+        "confirmed": 3,
+        "total": 3
+      },
+      "L6_LEX_INTERVENTION_MAP": {
+        "confirmed": 3,
+        "total": 3
+      },
+      "L6_OBSERVATION_CONTRACT_ROUTE": {
+        "confirmed": 4,
+        "total": 4
+      },
+      "WMR_POLICY_SLOT_MAP": {
+        "confirmed": 16,
+        "total": 16
+      },
+      "WMR_WORLD_SLOT": {
+        "confirmed": 16,
+        "total": 16
+      }
+    },
+    "edge_count": 791994,
+    "reference_epoch": "kref:09b6349c4ee0bfef",
+    "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9"
+  },
+  "relation_outcome_map": {
+    "blocked": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": false,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "cold_start",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_missing"
+      ],
+      "cg1_certificate_id": "cg1_cert_50a2d7a6c8215215",
+      "cg1_content_hash": "sha256:50a2d7a6c8215215a6e7318751dace083173a38d9a5614e1bebef2546a2fb9d2",
+      "content_hash": "sha256:12d059508f5a3e2d3588d57ca24217a71ce968a7d0ca59c638ca370dae53e598",
+      "decision": "abstain",
+      "decisive_reason": "relation_not_bind_eligible",
+      "open_obligations": [
+        "admissibility_closed",
+        "unit_scale_consistent",
+        "target_writable_wmr_slot",
+        "operator_registered_lever",
+        "l3_l6_consistency"
+      ],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:50a2d7a6c8215215a6e7318751dace083173a38d9a5614e1bebef2546a2fb9d2",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_8976cd91bba6e037",
+        "replayed_content_hash": "sha256:8976cd91bba6e037cbcb1afaf521c0041637547ec3a00ee3d1ab761aa744c60e",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_1d77bc8514fa3d95",
+        "replayed_selected_relation": "blocked",
+        "selected_atom_reproduced": false,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.01,
+          "component": "delta_monitor",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.01
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0106,
+      "safe_atom_ids": [],
+      "safe_count": 0,
+      "selected_relation": "blocked"
+    },
+    "certified-specialization": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": "cg0_atom_49ebedb62a306a73",
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_57bbae98312bcf00",
+      "cg1_content_hash": "sha256:57bbae98312bcf00847fee1de304bac3535618c341f97b559d441f30a0c29fc7",
+      "content_hash": "sha256:d0e26da4a1a5175e7342b07f360f4db9ec8cdf2f2e66cc9c56d810839d353aac",
+      "decision": "bind",
+      "decisive_reason": "bind_eligible",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:57bbae98312bcf00847fee1de304bac3535618c341f97b559d441f30a0c29fc7",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_431cf219509d894d",
+        "replayed_content_hash": "sha256:431cf219509d894d1256f1f8f3b9e0e206c10ccda7173663cb6f5d0016f5fe25",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "certified-specialization",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "certified-specialization"
+    },
+    "compositional": {
+      "coverage_status": "structurally_enforced_unreachable",
+      "decision": null,
+      "decisive_reason": "cg1_current_proposal_verdict_does_not_emit_selected_relation",
+      "relation": "compositional",
+      "revalidation_disabled": false,
+      "structural_rule": "CG2 exact/spec-only check remains enforced on every revalidated certificate"
+    },
+    "exact": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": "cg0_atom_49ebedb62a306a73",
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_e24e0aafe941e567",
+      "cg1_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+      "content_hash": "sha256:23b7793cc87d6ce541c1b7f651776a5186a33f1f3be2798e79054739f7af9c66",
+      "decision": "bind",
+      "decisive_reason": "bind_eligible",
+      "open_obligations": [],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:e24e0aafe941e5676c5702ad56b71afca3dddb673db0a010cc86f3a50ada2737",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_7c94927de120890e",
+        "replayed_content_hash": "sha256:7c94927de120890e8aba03021232d795a7ec1206dc1d47fccb55c8c5ed77215c",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_49ebedb62a306a73",
+        "replayed_selected_relation": "exact",
+        "selected_atom_reproduced": true,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "safe_count": 1,
+      "selected_relation": "exact"
+    },
+    "false-analog": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": true,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "calibrated",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_validated"
+      ],
+      "cg1_certificate_id": "cg1_cert_266dc6134647316e",
+      "cg1_content_hash": "sha256:266dc6134647316ebf264c2e09f840518e89622348545239a54b24e8482ef094",
+      "content_hash": "sha256:6670546f417fcac387d2414f298ac2fac62404cafdfa2c668b26324c6f1db12a",
+      "decision": "abstain",
+      "decisive_reason": "false_analog_hard_abstain",
+      "open_obligations": [
+        "no_unresolved_critical_axis"
+      ],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": false,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:266dc6134647316ebf264c2e09f840518e89622348545239a54b24e8482ef094",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_5fd4073f39d27605",
+        "replayed_content_hash": "sha256:5fd4073f39d2760548c15bcc591ae70a2b9be58a75586890f1dc36afcbb113ac",
+        "replayed_critical_contradictions": [
+          "op",
+          "target",
+          "do_value",
+          "scope",
+          "outcome",
+          "effect_path"
+        ],
+        "replayed_selected_atom_id": "cg1_counter_07efde91c8de2b2c",
+        "replayed_selected_relation": "novel-candidate",
+        "selected_atom_reproduced": false,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_monitor",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": false,
+          "source": "calibrated_stratum_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0007,
+      "safe_atom_ids": [],
+      "safe_count": 0,
+      "selected_relation": "novel-candidate"
+    },
+    "generalization": {
+      "coverage_status": "structurally_enforced_unreachable",
+      "decision": null,
+      "decisive_reason": "cg1_current_proposal_verdict_does_not_emit_selected_relation",
+      "relation": "generalization",
+      "revalidation_disabled": false,
+      "structural_rule": "CG2 exact/spec-only check remains enforced on every revalidated certificate"
+    },
+    "novel-candidate": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": true,
+      "calibration_source": "frozen_n4_receipt",
+      "calibration_status": "frozen_receipt",
+      "calibration_validation_reasons": [
+        "frozen_real_output_payoff_receipt"
+      ],
+      "cg1_certificate_id": "cg1_cert_639e0083021f03c0",
+      "cg1_content_hash": "sha256:639e0083021f03c07e00fce5b1c8cb633740f3ad367cb283931c8fc95d1d1194",
+      "cg2_certificate_id": "cg2_cert_db8d606b0658702c",
+      "content_hash": "sha256:db8d606b0658702c7a52ace4cf833afef8fdd1b1af57c90ab2c3805a355049ef",
+      "decision": "novel_candidate",
+      "decisive_reason": "novel_candidate_handoff",
+      "frozen_receipt": true,
+      "open_obligations": [],
+      "production_promotable": false,
+      "proposal_id": "gy_n4.payroll_tax_credit",
+      "reference_epoch": null,
+      "revalidation": {
+        "reason": "routine_check_does_not_rederive_historical_n4_payoff",
+        "replayed": false,
+        "status": "frozen_receipt"
+      },
+      "risk_budget": 0.0,
+      "risk_entries": [],
+      "risk_spend": 0.0,
+      "safe_atom_ids": [],
+      "safe_count": 0,
+      "selected_relation": "novel-candidate"
+    },
+    "partial": {
+      "coverage_status": "structurally_enforced_unreachable",
+      "decision": null,
+      "decisive_reason": "cg1_current_proposal_verdict_does_not_emit_selected_relation",
+      "relation": "partial",
+      "revalidation_disabled": false,
+      "structural_rule": "CG2 exact/spec-only check remains enforced on every revalidated certificate"
+    },
+    "unknown": {
+      "authority_scope": "contract_testing",
+      "bound_atom_id": null,
+      "calibration_owner_validated": false,
+      "calibration_source": "cg2_contract_seed_anchor",
+      "calibration_status": "cold_start",
+      "calibration_validation_reasons": [
+        "owned_calibration_anchor_missing"
+      ],
+      "cg1_certificate_id": "cg1_cert_01889d11f7fe5c21",
+      "cg1_content_hash": "sha256:01889d11f7fe5c21fd89f8f804e3c82f4fea322e843852ff4cfb93a8f952c54e",
+      "content_hash": "sha256:ff91fb852f76be56bcf554027eff512b454c1a0166a4aac63bf2edd376f2ea9b",
+      "decision": "abstain",
+      "decisive_reason": "relation_not_bind_eligible",
+      "open_obligations": [
+        "admissibility_closed",
+        "estimand_grounded",
+        "unit_scale_consistent",
+        "target_writable_wmr_slot",
+        "operator_registered_lever",
+        "no_unresolved_critical_axis"
+      ],
+      "production_promotable": false,
+      "reference_epoch": "kref:09b6349c4ee0bfef",
+      "revalidation": {
+        "content_hash_valid": true,
+        "critical_contradiction_tuple_reproduced": true,
+        "critical_contradictions_reproduced": true,
+        "expected_content_hash": "sha256:01889d11f7fe5c21fd89f8f804e3c82f4fea322e843852ff4cfb93a8f952c54e",
+        "not_more_permissive_than_full": true,
+        "reference_versions_match": true,
+        "replayed": true,
+        "replayed_certificate_id": "cg1_cert_84f3f027fd5a48a9",
+        "replayed_content_hash": "sha256:84f3f027fd5a48a989512e458e5df3cc2b510399e047f86d784fe8e0a1160484",
+        "replayed_critical_contradictions": [],
+        "replayed_selected_atom_id": "cg0_atom_1d77bc8514fa3d95",
+        "replayed_selected_relation": "unknown",
+        "selected_atom_reproduced": false,
+        "selected_relation_reproduced": true,
+        "stale_reasons": [],
+        "status": "passed"
+      },
+      "risk_budget": 0.01,
+      "risk_entries": [
+        {
+          "bound": 0.0002,
+          "component": "delta_RT1",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0002
+        },
+        {
+          "bound": 0.01,
+          "component": "delta_monitor",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.01
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_ref",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_retrieval_novel",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_runtime",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        },
+        {
+          "bound": 0.0001,
+          "component": "delta_type_adm",
+          "conservative_bound": true,
+          "source": "conservative_cold_start_bound",
+          "spend": 0.0001
+        }
+      ],
+      "risk_spend": 0.0106,
+      "safe_atom_ids": [],
+      "safe_count": 0,
+      "selected_relation": "unknown"
+    }
+  },
+  "relation_outcome_set": [
+    "blocked",
+    "certified-specialization",
+    "compositional",
+    "exact",
+    "false-analog",
+    "generalization",
+    "novel-candidate",
+    "partial",
+    "unknown"
+  ],
+  "reuse_existing_owners": [
+    "CG0 CredalReference built from real L2/L3/L6/WMR owners",
+    "CG1 GroundingRelationEngine.certificate_for and relation_set",
+    "CG1 axis witnesses and cross-modal CP-SAT witnesses",
+    "CG1 recorded N4 replay candidate source",
+    "GY-N11 confidence ledger semantics not wired here; status recorded as not_wired"
+  ],
+  "runtime_schema_version": "policyos.runtime.grounding_decision_certificate.v1",
+  "schema_version": "policyos.policy_design_case.grounding_bind_contract.v1",
+  "source_modules": [
+    "src/polisyos/runtime/quality/grounding_bind.py",
+    "src/polisyos/runtime/quality/grounding_relation.py",
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "tools/quality/validation/check_grounding_bind_contract.py",
+    "tools/quality/validation/check_grounding_relation_contract.py"
+  ]
+}

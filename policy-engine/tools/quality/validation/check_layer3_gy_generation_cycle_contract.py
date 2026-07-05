@@ -41,6 +41,7 @@ from polisyos.runtime.quality.generation_cycle import (
     enforce_no_retry_without_new_grammar,
     validate_generation_cycle_run,
 )
+from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
@@ -663,15 +664,7 @@ def _denominators() -> dict[str, Any]:
     )
     terminal_kinds = sorted(item.value for item in SearchTerminalKind)
     front_kinds = ["decision", "portfolio", "quarantine", "research"]
-    grounding_dispositions = sorted(
-        (
-            "shadow_bound",
-            "veto_false_analog",
-            "novel_cg3",
-            "non_binding_abstain",
-            "unknown_blocked",
-        )
-    )
+    grounding_dispositions = sorted(str(item) for item in get_args(GroundingDispositionKind))
     grounding_statuses = sorted(
         [
             "current_valid",

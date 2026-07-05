@@ -42,6 +42,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     run_acquisition_closed_loop,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
+from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
 )
@@ -964,24 +965,8 @@ class GenerationCycleController:
             "budget_state": budget_state,
             "previous_cycle": previous_cycle,
         }
-        runner = getattr(self._engine, "run_async", None)
-        if runner is not None:
-            finished = runner(state)
-            if inspect.isawaitable(finished):
-                finished = await finished
-        else:
-            finished = await self._run_engine_nodes_async(state)
+        finished = await self._engine.run_async(state)
         return finished["cycle"], tuple(finished["candidate_summaries"])
-
-    async def _run_engine_nodes_async(self, state: dict[str, Any]) -> dict[str, Any]:
-        for name, fn in getattr(self._engine, "_nodes", ()):
-            next_state = fn(state)
-            if inspect.isawaitable(next_state):
-                next_state = await next_state
-            state = next_state
-            if state.get("pruned") or name == getattr(self._engine, "_terminal_node", None):
-                break
-        return state
 
     def _run_n7_acquisition_if_requested(
         self,
@@ -1632,13 +1617,7 @@ def _grounding_status_denominator() -> tuple[str, ...]:
 
 
 def _grounding_disposition_denominator() -> tuple[str, ...]:
-    return (
-        "shadow_bound",
-        "veto_false_analog",
-        "novel_cg3",
-        "non_binding_abstain",
-        "unknown_blocked",
-    )
+    return tuple(str(item) for item in get_args(GroundingDispositionKind))
 
 
 def _revision_strategy_for_terminal_kind(terminal_kind: str) -> RevisionStrategy:

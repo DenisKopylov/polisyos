@@ -1,0 +1,969 @@
+{
+  "behavioral_mutations": [
+    {
+      "issue_codes": [
+        "contested_l2_probe_not_set_valued",
+        "contested_l2_probe_completion_set_collapsed",
+        "contested_l2_probe_scalar_confidence_laundered"
+      ],
+      "mutation_id": "contested_collapsed_to_scalar",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "fake_reference_edge_did_not_fail_closed",
+        "fake_reference_edge_confirmed"
+      ],
+      "mutation_id": "unstatusable_default_confirmed",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "contested_l2_probe_does_not_block_confirmation"
+      ],
+      "mutation_id": "contested_essential_all_confirmed",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "reference_repair_did_not_stale_certificate",
+        "reference_repair_missing_scoped_edge_stale_reason"
+      ],
+      "mutation_id": "reference_repair_no_stale",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "free_grow_edge_not_statused",
+        "free_grow_high_trust_edge_not_confirmed"
+      ],
+      "mutation_id": "free_grow_edge_requires_hand_table",
+      "status": "red"
+    }
+  ],
+  "capability_reality": {
+    "consumer": "CGF relation lifting and GroundingCertificate epoch binding",
+    "orchestration_bridge": "reference_lift(edge_scope) + all_essential_confirmed(edge_scope) for CG1/CG2 relation binding",
+    "persisted_artifact_event": "architecture/policy_design_case/grounding_credal_reference_contract.json",
+    "producer": "build_credal_reference over L2/L3/L6/WMR owners",
+    "semantic_test": "contested set-valued lift, fake-edge fail-closed, free-grow status derivation, reference-repair staling, backend gate",
+    "surface": "generated Policy Design Case CGF contract artifact",
+    "typed_contract_artifact": "CredalReference + CredalReferenceEdge + GroundingBackendAvailability",
+    "verification": "this recomputing validator plus focused tests/mutation probes"
+  },
+  "contract_id": "policyos.runtime.grounding_credal_reference",
+  "essential_edge_scope": {
+    "criterion": "An owner edge class is grounding-essential iff a JTCG hard constraint (slot_exists, allowed_target_type, unit_compatible, lex_applicable, threshold_satisfied, knob_maps_to, method.treatment/outcome, admissibility) or an RT1 relation axis (op, target, do_value, sign, params, unit, scope, population, time, outcome, effect_path, estimand, admissibility) depends on it.",
+    "excluded_edge_classes": [
+      {
+        "criterion_decision": "excluded",
+        "owner_table": "ds_alignment_audit",
+        "reason": "audit trail over ds_variable_alignments; not a separate JTCG/RT1 edge class once the authoritative alignment row is included"
+      },
+      {
+        "criterion_decision": "excluded",
+        "owner_table": "ds_alignment_hints",
+        "reason": "pre-binding hints only; no adopted raw-to-canonical edge and zero production rows in the current owner store"
+      },
+      {
+        "criterion_decision": "excluded",
+        "owner_table": "ac_claim_adjudications",
+        "reason": "claim-quality evidence consumed by L2 claim/edge status derivation, not a distinct hard-constraint reference edge"
+      },
+      {
+        "criterion_decision": "excluded",
+        "owner_table": "lex_references",
+        "reason": "raw reference extraction predecessor; lex_reference_edges is the resolved/partial cross-provision edge owner"
+      },
+      {
+        "criterion_decision": "excluded",
+        "owner_table": "lex_reference_resolution_audit",
+        "reason": "resolution audit trail for lex_reference_edges; not a separate admissibility edge class"
+      }
+    ],
+    "included_edge_classes": [
+      {
+        "dependency": "JTCG target identity; RT1 target/scope/population axes",
+        "modality": "L2_CANONICAL_VARIABLE",
+        "n_statused": 55176,
+        "n_total": 55176,
+        "owner_table": "ac_skg_variables",
+        "selection": "all SKG canonical-variable rows",
+        "status_counts": {
+          "confirmed": 54404,
+          "contested": 528,
+          "incomplete": 244
+        }
+      },
+      {
+        "dependency": "RT1 specialization/generalization narrower/broader axis",
+        "modality": "L2_VARIABLE_HIERARCHY",
+        "n_statused": 54357,
+        "n_total": 54357,
+        "owner_table": "ac_skg_variables.parent_name/approved_parent_name",
+        "selection": "rows with a parent_name or approved_parent_name signal",
+        "status_counts": {
+          "confirmed": 175,
+          "incomplete": 54182
+        }
+      },
+      {
+        "dependency": "JTCG/RT1 synonym and canonical target grounding",
+        "modality": "L2_VARIABLE_ALIGNMENT",
+        "n_statused": 407,
+        "n_total": 407,
+        "owner_table": "ac_skg_variable_synonyms",
+        "selection": "all SKG synonym-alignment rows",
+        "status_counts": {
+          "confirmed": 72,
+          "contested": 335
+        }
+      },
+      {
+        "dependency": "grounding retrieval and exact raw-to-canonical variable binding",
+        "modality": "L2_DATA_FORGE_VARIABLE_ALIGNMENT",
+        "n_statused": 20326,
+        "n_total": 20326,
+        "owner_table": "ds_variable_alignments",
+        "selection": "all production Data Forge variable-alignment rows",
+        "status_counts": {
+          "confirmed": 13912,
+          "contested": 437,
+          "incomplete": 5977
+        }
+      },
+      {
+        "dependency": "RT1 effect_path/sign axes and causal neighbourhood grounding",
+        "modality": "L2_CAUSAL_EDGE",
+        "n_statused": 7607,
+        "n_total": 7607,
+        "owner_table": "ac_skg_edges",
+        "selection": "all exact SKG causal-edge rows",
+        "status_counts": {
+          "confirmed": 14,
+          "contested": 7232,
+          "incomplete": 361
+        }
+      },
+      {
+        "dependency": "RT1 effect_path and specialization/generalization axes",
+        "modality": "L2_FAMILY_EDGE",
+        "n_statused": 15945,
+        "n_total": 15945,
+        "owner_table": "ac_skg_family_edges",
+        "selection": "all SKG family-level causal-edge rows",
+        "status_counts": {
+          "confirmed": 45,
+          "contested": 3908,
+          "incomplete": 11992
+        }
+      },
+      {
+        "dependency": "RT1 estimand/effect_path moderation axis",
+        "modality": "L2_MODERATION_EDGE",
+        "n_statused": 25035,
+        "n_total": 25035,
+        "owner_table": "ac_skg_moderation_edges",
+        "selection": "all SKG moderation-edge rows",
+        "status_counts": {
+          "confirmed": 579,
+          "contested": 1257,
+          "incomplete": 23199
+        }
+      },
+      {
+        "dependency": "RT1 sign/effect_path/admissibility axes",
+        "modality": "L2_CAUSAL_CLAIM",
+        "n_statused": 7868,
+        "n_total": 7868,
+        "owner_table": "ac_causal_claims",
+        "selection": "all SKG causal-claim rows",
+        "status_counts": {
+          "confirmed": 376,
+          "contested": 7492
+        }
+      },
+      {
+        "dependency": "credal ambiguity for conflicting causal directions",
+        "modality": "L2_CONTESTED_EDGE",
+        "n_statused": 723,
+        "n_total": 723,
+        "owner_table": "ac_skg_contested_edges",
+        "selection": "all SKG contested-edge rows",
+        "status_counts": {
+          "contested": 723
+        }
+      },
+      {
+        "dependency": "JTCG lex_applicable/threshold_satisfied/unit_compatible",
+        "modality": "L3_RULE_THRESHOLD",
+        "n_statused": 374516,
+        "n_total": 374516,
+        "owner_table": "lex_rule_thresholds joined to lex_normative_ready_facts",
+        "selection": "all L3 rule-threshold rows",
+        "status_counts": {
+          "confirmed": 51590,
+          "contested": 319712,
+          "deprecated": 3084,
+          "out_of_scope": 130
+        }
+      },
+      {
+        "dependency": "JTCG legal applicability and effective-window status",
+        "modality": "L3_AMENDMENT",
+        "n_statused": 156196,
+        "n_total": 156196,
+        "owner_table": "lex_amendments",
+        "selection": "all L3 amendment rows",
+        "status_counts": {
+          "confirmed": 1494,
+          "contested": 1204,
+          "deprecated": 350,
+          "incomplete": 153090,
+          "out_of_scope": 58
+        }
+      },
+      {
+        "dependency": "cross-provision admissibility/applicability references",
+        "modality": "L3_REFERENCE_EDGE",
+        "n_statused": 73793,
+        "n_total": 73793,
+        "owner_table": "lex_reference_edges",
+        "selection": "all resolved and partial L3 cross-reference rows",
+        "status_counts": {
+          "confirmed": 40419,
+          "contested": 33374
+        }
+      },
+      {
+        "dependency": "JTCG knob_maps_to/operator compatibility",
+        "modality": "L6_KNOB_OPERATOR",
+        "n_statused": 3,
+        "n_total": 3,
+        "owner_table": "intervention_knob_dictionary",
+        "selection": "all L6 knob dictionary entries",
+        "status_counts": {
+          "confirmed": 3
+        }
+      },
+      {
+        "dependency": "JTCG allowed target world slots",
+        "modality": "L6_KNOB_WORLD_SLOT",
+        "n_statused": 3,
+        "n_total": 3,
+        "owner_table": "intervention_knob_dictionary + WorldModelRecord",
+        "selection": "all L6 knob-to-world-slot bindings",
+        "status_counts": {
+          "confirmed": 3
+        }
+      },
+      {
+        "dependency": "JTCG law-to-knob admissibility",
+        "modality": "L6_LEX_INTERVENTION_MAP",
+        "n_statused": 3,
+        "n_total": 3,
+        "owner_table": "lex_intervention_map",
+        "selection": "all L6 law-token to knob bindings",
+        "status_counts": {
+          "confirmed": 3
+        }
+      },
+      {
+        "dependency": "JTCG method.treatment/outcome routing",
+        "modality": "L6_OBSERVATION_CONTRACT_ROUTE",
+        "n_statused": 4,
+        "n_total": 4,
+        "owner_table": "observation_to_contract_manifest",
+        "selection": "all observation family routes",
+        "status_counts": {
+          "confirmed": 4
+        }
+      },
+      {
+        "dependency": "JTCG slot_exists/allowed_target_type/unit_compatible",
+        "modality": "WMR_WORLD_SLOT",
+        "n_statused": 16,
+        "n_total": 16,
+        "owner_table": "WorldModelRecord.policy_slot_map",
+        "selection": "all composed WMR policy slots",
+        "status_counts": {
+          "confirmed": 16
+        }
+      },
+      {
+        "dependency": "policy-slot map lookup for JTCG target binding",
+        "modality": "WMR_POLICY_SLOT_MAP",
+        "n_statused": 16,
+        "n_total": 16,
+        "owner_table": "WorldModelRecord.policy_slot_map",
+        "selection": "all composed WMR policy-slot map rows",
+        "status_counts": {
+          "confirmed": 16
+        }
+      }
+    ]
+  },
+  "grounding_backend_availability": {
+    "ann": {
+      "available": true,
+      "name": "hnswlib",
+      "version": "0.8.0"
+    },
+    "content_hash": "sha256:62ec1437a0f60fad1bf5c6f475828a11fe645a21edc23fd4d5cfe3210a6f86cb",
+    "dense": {
+      "inclusion_criterion": "enable when CG1 first-pass FTS+alignment recall leaves a measured semantic-analog tail",
+      "reason": "no local model; gateway /embeddings untested",
+      "status": "deferred"
+    },
+    "milp_fallback": {
+      "available": true,
+      "name": "scipy.optimize.milp",
+      "solver": "HiGHS",
+      "version": "1.16.3"
+    },
+    "numeric_scaling": "basis_points",
+    "required_backend_status": "available",
+    "schema_version": "policyos.runtime.grounding_backend_availability.v1",
+    "solver": {
+      "available": true,
+      "name": "ortools_cp_sat",
+      "unsat_core": "assumptions",
+      "version": "9.15.6755"
+    },
+    "sparse": {
+      "available": true,
+      "name": "duckdb_fts",
+      "version": "1.4.3"
+    }
+  },
+  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_credal_reference_contract.v1",
+  "no_second_reference_store": true,
+  "owner": "polisyos.runtime.quality.credal_reference view over existing L2/L3/L6/WMR owners",
+  "pattern_pass": {
+    "acceptance_signal": "full-denominator status coverage, mutation-red set-valued discipline, and epoch staling",
+    "missing_capability_labels": [],
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P12",
+      "P15",
+      "P27",
+      "P29",
+      "P30",
+      "P31",
+      "P32",
+      "P33",
+      "P34"
+    ],
+    "target_correct_pattern": "owner-first credal view; statuses derived generically from owner signals; set-valued ambiguity preserved through scoped lift"
+  },
+  "probes": {
+    "all_contested_edges_set_valued": {
+      "failure_examples": [],
+      "n_contested": 376202,
+      "n_failures": 0
+    },
+    "contested_l2_set_valued": {
+      "all_essential_confirmed": false,
+      "completion_kinds": [
+        "alternative",
+        "alternative",
+        "may_not_exist"
+      ],
+      "edge_key": "L2_CONTESTED_EDGE::00bcf307fc4349d1afdef8d0",
+      "is_set_valued": true,
+      "lift": {
+        "admissible_completions": [
+          {
+            "completion_kind": "alternative",
+            "reason": "contested_direction_alternative",
+            "value": {
+              "direction": "mixed",
+              "dst": "economic.firm_financial_performance",
+              "src": "governance.state_ownership"
+            }
+          },
+          {
+            "completion_kind": "alternative",
+            "reason": "contested_direction_alternative",
+            "value": {
+              "direction": "negative",
+              "dst": "economic.firm_financial_performance",
+              "src": "governance.state_ownership"
+            }
+          },
+          {
+            "completion_kind": "may_not_exist",
+            "reason": "contested_edge_may_not_hold",
+            "value": {
+              "direction": "mixed",
+              "dst": "economic.firm_financial_performance",
+              "src": "governance.state_ownership"
+            }
+          }
+        ],
+        "content_hash": "sha256:ce105bf098ad2fb1d3ef5e2cbbd076166bf1f583549e94eab82290e555ed8bde",
+        "is_set_valued": true,
+        "status": "contested"
+      },
+      "status": "contested"
+    },
+    "fake_novel_fail_closed": {
+      "all_essential_confirmed": false,
+      "edge_key": "L2_CAUSAL_EDGE::cg0_fake_novel_edge_not_in_reference",
+      "is_set_valued": false,
+      "lift": {
+        "admissible_completions": [
+          {
+            "completion_kind": "excluded",
+            "reason": "edge_not_in_credal_reference",
+            "value": {
+              "edge_key": "L2_CAUSAL_EDGE::cg0_fake_novel_edge_not_in_reference"
+            }
+          }
+        ],
+        "content_hash": "sha256:d1a3d156cf2907758ab7c633e1825532208fd69b132d7e9e3a5a70f9faa2c00f",
+        "is_set_valued": false,
+        "status": "out_of_scope"
+      },
+      "status": "out_of_scope"
+    },
+    "free_grow_status_derivation": {
+      "admissible_completions": [
+        {
+          "completion_kind": "fixed",
+          "reason": "owner_signal_confirmed",
+          "value": {
+            "canonical_name": "cg0.free_grow_reference_probe",
+            "synonym": "cg0 novel alignment synonym"
+          }
+        }
+      ],
+      "edge_key": "L2_VARIABLE_ALIGNMENT::cg0 novel alignment synonym->cg0.free_grow_reference_probe",
+      "edge_known_to_code": false,
+      "provenance": {
+        "owner": "L2",
+        "signals": {
+          "approved": true,
+          "confidence": 0.91,
+          "method": "contract_free_grow_probe"
+        },
+        "source": "ac_skg_variable_synonyms",
+        "version": "in_memory_free_grow_probe"
+      },
+      "status": "confirmed"
+    },
+    "real_l3_superseded_threshold_deprecated": {
+      "admissible_completions": [
+        {
+          "completion_kind": "excluded",
+          "reason": "threshold_superseded_or_expired",
+          "value": {
+            "applies_to": "4",
+            "fact_id": "81e59bb10b4c612c5db6",
+            "metric": "percent",
+            "operator": "lte",
+            "unit": "percent",
+            "value_decimal": "99.9",
+            "value_text": "99,9"
+          }
+        }
+      ],
+      "edge_key": "L3_RULE_THRESHOLD::002b911d2cf232cb8536fe6e",
+      "provenance": {
+        "owner": "L3",
+        "signals": {
+          "as_of": "2026-06-29",
+          "doc_family_id": "b8ce706cb6abda9347",
+          "effective_from": "2020-12-01",
+          "effective_to": "2021-01-01",
+          "gate_reason_codes": [
+            "amendment_pattern",
+            "deterministic_high_conf",
+            "numeric_threshold_fallback",
+            "require_pattern",
+            "subtype_threshold_schedule_row",
+            "threshold_pattern"
+          ],
+          "next_effective_from": null,
+          "quality_band": "high_confidence_norm",
+          "temporal_resolution_status": "resolved",
+          "temporal_state": "current"
+        },
+        "source": "lex_rule_thresholds",
+        "version": "2036-01-01"
+      },
+      "status": "deprecated"
+    },
+    "reference_repair_stales_certificate": {
+      "certificate_id": "cg0-reference-repair-stale-probe",
+      "new_reference_epoch": "kref:1fd912ae7292023d",
+      "old_reference_epoch": "kref:09b6349c4ee0bfef",
+      "reasons": [
+        "reference_epoch_changed",
+        "reference_hash_changed",
+        "scoped_edge_hash_changed"
+      ],
+      "stale_edge_keys": [
+        "L2_CONTESTED_EDGE::00bcf307fc4349d1afdef8d0"
+      ],
+      "status": "stale"
+    }
+  },
+  "reference": {
+    "as_of": "2026-06-29",
+    "component_versions": {
+      "L2": "sha256:6f013f350e95724139c79f23ea5fcac440ad759de8ea2e0416c8996533eb56bb",
+      "L3": "sha256:19ba25cd24fbd27186d7ca9144775f00bd255fb7b5fca57caf5b7277dd6ddcf0",
+      "L6": "sha256:7489e7d1a9e77b458c63bdce652fccf2d31ddeb29e25b869c89ecf3b60c218b8",
+      "WMR": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca"
+    },
+    "denominator_status": {
+      "L2_CANONICAL_VARIABLE": {
+        "n_statused": 55176,
+        "n_total": 55176,
+        "status_counts": {
+          "confirmed": 54404,
+          "contested": 528,
+          "incomplete": 244
+        }
+      },
+      "L2_CAUSAL_CLAIM": {
+        "n_statused": 7868,
+        "n_total": 7868,
+        "status_counts": {
+          "confirmed": 376,
+          "contested": 7492
+        }
+      },
+      "L2_CAUSAL_EDGE": {
+        "n_statused": 7607,
+        "n_total": 7607,
+        "status_counts": {
+          "confirmed": 14,
+          "contested": 7232,
+          "incomplete": 361
+        }
+      },
+      "L2_CONTESTED_EDGE": {
+        "n_statused": 723,
+        "n_total": 723,
+        "status_counts": {
+          "contested": 723
+        }
+      },
+      "L2_DATA_FORGE_VARIABLE_ALIGNMENT": {
+        "n_statused": 20326,
+        "n_total": 20326,
+        "status_counts": {
+          "confirmed": 13912,
+          "contested": 437,
+          "incomplete": 5977
+        }
+      },
+      "L2_FAMILY_EDGE": {
+        "n_statused": 15945,
+        "n_total": 15945,
+        "status_counts": {
+          "confirmed": 45,
+          "contested": 3908,
+          "incomplete": 11992
+        }
+      },
+      "L2_MODERATION_EDGE": {
+        "n_statused": 25035,
+        "n_total": 25035,
+        "status_counts": {
+          "confirmed": 579,
+          "contested": 1257,
+          "incomplete": 23199
+        }
+      },
+      "L2_VARIABLE_ALIGNMENT": {
+        "n_statused": 407,
+        "n_total": 407,
+        "status_counts": {
+          "confirmed": 72,
+          "contested": 335
+        }
+      },
+      "L2_VARIABLE_HIERARCHY": {
+        "n_statused": 54357,
+        "n_total": 54357,
+        "status_counts": {
+          "confirmed": 175,
+          "incomplete": 54182
+        }
+      },
+      "L3_AMENDMENT": {
+        "n_statused": 156196,
+        "n_total": 156196,
+        "status_counts": {
+          "confirmed": 1494,
+          "contested": 1204,
+          "deprecated": 350,
+          "incomplete": 153090,
+          "out_of_scope": 58
+        }
+      },
+      "L3_REFERENCE_EDGE": {
+        "n_statused": 73793,
+        "n_total": 73793,
+        "status_counts": {
+          "confirmed": 40419,
+          "contested": 33374
+        }
+      },
+      "L3_RULE_THRESHOLD": {
+        "n_statused": 374516,
+        "n_total": 374516,
+        "status_counts": {
+          "confirmed": 51590,
+          "contested": 319712,
+          "deprecated": 3084,
+          "out_of_scope": 130
+        }
+      },
+      "L6_KNOB_OPERATOR": {
+        "n_statused": 3,
+        "n_total": 3,
+        "status_counts": {
+          "confirmed": 3
+        }
+      },
+      "L6_KNOB_WORLD_SLOT": {
+        "n_statused": 3,
+        "n_total": 3,
+        "status_counts": {
+          "confirmed": 3
+        }
+      },
+      "L6_LEX_INTERVENTION_MAP": {
+        "n_statused": 3,
+        "n_total": 3,
+        "status_counts": {
+          "confirmed": 3
+        }
+      },
+      "L6_OBSERVATION_CONTRACT_ROUTE": {
+        "n_statused": 4,
+        "n_total": 4,
+        "status_counts": {
+          "confirmed": 4
+        }
+      },
+      "WMR_POLICY_SLOT_MAP": {
+        "n_statused": 16,
+        "n_total": 16,
+        "status_counts": {
+          "confirmed": 16
+        }
+      },
+      "WMR_WORLD_SLOT": {
+        "n_statused": 16,
+        "n_total": 16,
+        "status_counts": {
+          "confirmed": 16
+        }
+      }
+    },
+    "reference_epoch": "kref:09b6349c4ee0bfef",
+    "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+    "sample_edges": {
+      "contested": [
+        {
+          "admissible_completions": [
+            {
+              "completion_kind": "alternative",
+              "reason": "candidate_canonical_identity",
+              "value": {
+                "canonical_name": "21st Century Education and Governance"
+              }
+            },
+            {
+              "completion_kind": "may_not_exist",
+              "reason": "canonical_identity_not_approved_or_low_confidence",
+              "value": {
+                "canonical_name": "21st Century Education and Governance"
+              }
+            }
+          ],
+          "content_hash": "sha256:778206d27470d44d54b798327d33736152ee4b304082edcb3d6076d4787b9d08",
+          "edge_id": "21st Century Education and Governance",
+          "modality": "L2_CANONICAL_VARIABLE",
+          "provenance": {
+            "owner": "L2",
+            "signals": {
+              "approved": false,
+              "approved_canonical_name": "",
+              "mention_count": 8,
+              "resolution_confidence": 0.0,
+              "resolution_method": "unresolved"
+            },
+            "source": "ac_skg_variables",
+            "version": "1"
+          },
+          "scale": null,
+          "status": "contested",
+          "unit": null
+        },
+        {
+          "admissible_completions": [
+            {
+              "completion_kind": "alternative",
+              "reason": "candidate_canonical_identity",
+              "value": {
+                "canonical_name": "3D Modeling in Geospatial Applications"
+              }
+            },
+            {
+              "completion_kind": "may_not_exist",
+              "reason": "canonical_identity_not_approved_or_low_confidence",
+              "value": {
+                "canonical_name": "3D Modeling in Geospatial Applications"
+              }
+            }
+          ],
+          "content_hash": "sha256:d572ab91c6119d60d05ee792ddee19019164a38bf02ff1b7190e963d86a2cb2f",
+          "edge_id": "3D Modeling in Geospatial Applications",
+          "modality": "L2_CANONICAL_VARIABLE",
+          "provenance": {
+            "owner": "L2",
+            "signals": {
+              "approved": false,
+              "approved_canonical_name": "",
+              "mention_count": 3,
+              "resolution_confidence": 0.0,
+              "resolution_method": "unresolved"
+            },
+            "source": "ac_skg_variables",
+            "version": "1"
+          },
+          "scale": null,
+          "status": "contested",
+          "unit": null
+        }
+      ],
+      "deprecated": [
+        {
+          "admissible_completions": [
+            {
+              "completion_kind": "excluded",
+              "reason": "amendment_superseded",
+              "value": {
+                "amended_doc_id": "fb918d34d0fb5c31",
+                "amending_doc_id": "00b2e1b61ddf167f",
+                "amendment_type": "amendment_signal",
+                "target_anchor": ""
+              }
+            }
+          ],
+          "content_hash": "sha256:65b67783f6b121286ed607edf9db115fc4c314e1d72c33b29d8b2c9a77993f91",
+          "edge_id": "0006bd91c249152a00b13d0b",
+          "modality": "L3_AMENDMENT",
+          "provenance": {
+            "owner": "L3",
+            "signals": {
+              "as_of": "2026-06-29",
+              "confidence": 0.6499999761581421,
+              "effective_from": "2024-07-01",
+              "metadata": {
+                "doc_scope_kind": "single_target_title",
+                "source_anchor": "art:3172",
+                "source_text": "\u0441\u043b\u043e\u0432\u0430 \"\u0437\u0430\u0441\u0442\u043e\u0441\u0443\u0432\u0430\u043d\u043d\u044f \u0434\u043e \u043d\u0438\u0445 \u0437\u0430\u0445\u043e\u0434\u0456\u0432 \u0433\u0430\u0440\u0430\u043d\u0442\u0443\u0432\u0430\u043d\u043d\u044f, \u043f\u0435\u0440\u0435\u0434\u0431\u0430\u0447\u0435\u043d\u0438\u0445 \u0440\u043e\u0437\u0434\u0456\u043b\u043e\u043c\" \u0437\u0430\u043c\u0456\u043d\u0438\u0442\u0438",
+                "target_hint": {
+                  "score": 0.4444,
+                  "source": "doc_title_inference",
+                  "target_doc_id": "fb918d34d0fb5c31",
+                  "target_doc_name": "\u041a\u043e\u0434\u0435\u043a\u0441 \u0437\u0430\u043a\u043e\u043d\u0456\u0432 \u043f\u0440\u043e \u043f\u0440\u0430\u0446\u044e \u0423\u043a\u0440\u0430\u0457\u043d\u0438",
+                  "target_resolution_candidates_count": 1
+                },
+                "target_resolution_candidates_count": 1,
+                "target_resolution_expected": true,
+                "target_resolution_method": "doc_title_inference",
+                "target_resolution_score": 0.4444
+              },
+              "next_effective_from": "2025-01-01",
+              "target_resolution_expected": true
+            },
+            "source": "lex_amendments",
+            "version": "2036-01-01"
+          },
+          "scale": null,
+          "status": "deprecated",
+          "unit": null
+        },
+        {
+          "admissible_completions": [
+            {
+              "completion_kind": "excluded",
+              "reason": "amendment_superseded",
+              "value": {
+                "amended_doc_id": "b02de7c27f8fc7a2",
+                "amending_doc_id": "af6d3071099002ff",
+                "amendment_type": "amendment_signal",
+                "target_anchor": ""
+              }
+            }
+          ],
+          "content_hash": "sha256:3b1ba53a3b85fb507491cadc27fd7fbf95be9d1de6574103e7d7c0623651a9b0",
+          "edge_id": "00080930c23fd2ce1d7efc77",
+          "modality": "L3_AMENDMENT",
+          "provenance": {
+            "owner": "L3",
+            "signals": {
+              "as_of": "2026-06-29",
+              "confidence": 0.6499999761581421,
+              "effective_from": "2013-01-01",
+              "metadata": {
+                "doc_scope_kind": "non_amendment_doc",
+                "source_anchor": "art:35",
+                "source_text": "\u0441\u043b\u043e\u0432\u0430 \"\u043f\u0440\u043e\u0434\u043e\u0432\u0436\u0435\u043d\u043d\u044f \u0441\u0442\u0440\u043e\u043a\u0443 \u0434\u0456\u0457\" \u0437\u0430\u043c\u0456\u043d\u0438\u0442\u0438",
+                "target_hint": {
+                  "score": 0.4,
+                  "source": "source_text_inference",
+                  "target_doc_id": "b02de7c27f8fc7a2",
+                  "target_doc_name": "\u041f\u0440\u043e \u043f\u043e\u0448\u0438\u0440\u0435\u043d\u043d\u044f \u0434\u0456\u0457 \u0440\u0456\u0448\u0435\u043d\u043d\u044f",
+                  "target_resolution_candidates_count": 1
+                },
+                "target_resolution_candidates_count": 1,
+                "target_resolution_expected": true,
+                "target_resolution_method": "source_text_inference",
+                "target_resolution_score": 0.4
+              },
+              "next_effective_from": "2019-07-01",
+              "target_resolution_expected": true
+            },
+            "source": "lex_amendments",
+            "version": "2036-01-01"
+          },
+          "scale": null,
+          "status": "deprecated",
+          "unit": null
+        }
+      ],
+      "incomplete": [
+        {
+          "admissible_completions": [
+            {
+              "completion_kind": "may_exist",
+              "reason": "canonical_variable_unresolved",
+              "value": {}
+            },
+            {
+              "completion_kind": "may_not_exist",
+              "reason": "canonical_variable_unresolved",
+              "value": {}
+            },
+            {
+              "completion_kind": "partial",
+              "reason": "canonical_variable_unresolved",
+              "value": {}
+            }
+          ],
+          "content_hash": "sha256:a973109cae45c1c9ce8bb5d12851449b1766466cf2e5b343b88aa94176767a1b",
+          "edge_id": "Academic Freedom and Politics",
+          "modality": "L2_CANONICAL_VARIABLE",
+          "provenance": {
+            "owner": "L2",
+            "signals": {
+              "approved": false,
+              "approved_canonical_name": "",
+              "mention_count": 1,
+              "resolution_confidence": 0.0,
+              "resolution_method": "unresolved"
+            },
+            "source": "ac_skg_variables",
+            "version": "1"
+          },
+          "scale": null,
+          "status": "incomplete",
+          "unit": null
+        },
+        {
+          "admissible_completions": [
+            {
+              "completion_kind": "may_exist",
+              "reason": "canonical_variable_unresolved",
+              "value": {}
+            },
+            {
+              "completion_kind": "may_not_exist",
+              "reason": "canonical_variable_unresolved",
+              "value": {}
+            },
+            {
+              "completion_kind": "partial",
+              "reason": "canonical_variable_unresolved",
+              "value": {}
+            }
+          ],
+          "content_hash": "sha256:94431a8b490681c00b38b0931cbd82b0561dc36b9150d325129296af0e5a6b58",
+          "edge_id": "Advanced Scientific Techniques and Applications",
+          "modality": "L2_CANONICAL_VARIABLE",
+          "provenance": {
+            "owner": "L2",
+            "signals": {
+              "approved": false,
+              "approved_canonical_name": "",
+              "mention_count": 1,
+              "resolution_confidence": 0.0,
+              "resolution_method": "unresolved"
+            },
+            "source": "ac_skg_variables",
+            "version": "1"
+          },
+          "scale": null,
+          "status": "incomplete",
+          "unit": null
+        }
+      ]
+    },
+    "schema_version": "policyos.runtime.grounding_credal_reference.v1",
+    "total_essential_edges": 791994
+  },
+  "reuse_existing_owners": [
+    "L2 Scholar Knowledge Graph DuckDB tables",
+    "L3 LegalKnowledgeStore / lex DuckDB tables",
+    "L6 intervention substrate bundle and owner validation",
+    "WorldModelRecord.policy_slot_map",
+    "SubstrateRegistry content-addressed owner paths",
+    "GY-N12-style epoch/hash staling through scoped edge hashes"
+  ],
+  "schema_version": "policyos.policy_design_case.grounding_credal_reference_contract.v1",
+  "set_valued_contract": {
+    "contested_edges_raise_ambiguity": true,
+    "full_product_materialized": false,
+    "lift_scope": "symbolic_edge_scope_only",
+    "scalar_confidence_penalty_allowed": false
+  },
+  "source_modules": [
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "src/polisyos/runtime/quality/substrate_registry.py",
+    "src/polisyos/runtime/quality/intervention_substrate.py",
+    "src/polisyos/runtime/quality/world_model_record.py",
+    "src/polisyos/runtime/quality/data_state_substrate.py",
+    "src/polisyos/lex/knowledge/store.py"
+  ],
+  "stale_conditions": [
+    "reference_epoch_changed",
+    "reference_hash_changed",
+    "scoped_edge_hash_changed",
+    "L2 alignment/contested-edge/canonical-variable repair",
+    "L3 threshold or amendment temporal/version change",
+    "L6 bundle or owner-validation binding change",
+    "WorldModelRecord policy-slot map/content hash change"
+  ],
+  "status_derivation": {
+    "derived_from_owner_signals": true,
+    "fail_closed_default": "incomplete",
+    "hand_assigned_edge_status_table": false,
+    "nonexistent_query_default": "out_of_scope"
+  }
+}

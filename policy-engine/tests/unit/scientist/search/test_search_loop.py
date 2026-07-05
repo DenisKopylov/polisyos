@@ -8,9 +8,9 @@ from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
+
 from polisyos.core.contracts.execution_plan import ExecutionPlan, MethodDagNode
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
-from polisyos.scientist.orchestration.llm.cycle import preflight_execution_plan
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
     SearchController,
@@ -28,6 +28,7 @@ from polisyos.scientist.methods.search.stopping import (
     MaxIterations,
     MaxWallTime,
 )
+from polisyos.scientist.orchestration.llm.cycle import preflight_execution_plan
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -341,6 +342,40 @@ class TestWorkflowEngineAbstraction:
         assert execution_log == ["a", "b"]
         assert result["a_done"]
         assert result["b_done"]
+
+    @pytest.mark.asyncio
+    async def test_simple_engine_run_async_awaits_nodes_and_honors_terminal(self):
+        """SimpleLoopEngine.run_async should keep owner loop semantics for async nodes."""
+
+        execution_log = []
+
+        async def node_a(state):
+            execution_log.append("a")
+            return {**state, "a_done": True}
+
+        async def node_b(state):
+            execution_log.append("b")
+            return {**state, "b_done": True}
+
+        async def node_c(state):
+            execution_log.append("c")
+            return {**state, "c_done": True}
+
+        engine = SimpleLoopEngine(
+            [
+                ("node_a", node_a),
+                ("node_b", node_b),
+                ("node_c", node_c),
+            ],
+            terminal_node="node_b",
+        )
+
+        result = await engine.run_async({"initial": True})
+
+        assert execution_log == ["a", "b"]
+        assert result["a_done"]
+        assert result["b_done"]
+        assert "c_done" not in result
 
     def test_simple_engine_step_by_step(self):
         """SimpleLoopEngine.step() should execute one node at a time."""

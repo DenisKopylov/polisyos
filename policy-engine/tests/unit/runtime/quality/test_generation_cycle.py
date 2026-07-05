@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, get_args
 
 import pytest
 
@@ -46,9 +46,11 @@ from polisyos.runtime.quality.generation_cycle import (
     StrangleReceipt,
     _apply_promotion_to_summaries,
     _derive_fronts,
+    _grounding_disposition_denominator,
     enforce_no_retry_without_new_grammar,
     validate_generation_cycle_run,
 )
+from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
     SubstrateLayer,
@@ -63,6 +65,13 @@ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetSt
 from tools.quality.validation import check_layer3_gy_generation_cycle_contract as contract
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_grounding_disposition_denominator_derives_from_canonical_type() -> None:
+    denominator = tuple(str(item) for item in get_args(GroundingDispositionKind))
+
+    assert _grounding_disposition_denominator() == denominator
+    assert contract._denominators()["grounding_dispositions"] == sorted(denominator)
 
 
 @dataclass(frozen=True)

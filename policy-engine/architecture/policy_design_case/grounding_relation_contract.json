@@ -1,0 +1,1875 @@
+{
+  "behavioral_mutations": [
+    {
+      "issue_codes": [
+        "false_analog_not_vetoed",
+        "false_analog_missing_critical_contradiction"
+      ],
+      "mutation_id": "surface_similarity_selected_exact_on_false_analog",
+      "selected_relation": "exact",
+      "solver_status": "SAT",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "greedy_inconsistent_not_blocked",
+        "greedy_inconsistent_unsat_core_missing"
+      ],
+      "mutation_id": "greedy_inconsistent_accepted_without_joint_solve",
+      "selected_relation": "novel-candidate",
+      "solver_status": "SAT",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "false_analog_minimal_swap_set_not_7_of_7",
+        "false_analog_case_not_vetoed",
+        "false_analog_case_not_vetoed",
+        "false_analog_case_not_vetoed",
+        "false_analog_case_not_vetoed",
+        "false_analog_case_not_vetoed",
+        "false_analog_case_not_vetoed",
+        "false_analog_case_not_vetoed"
+      ],
+      "mutation_id": "critical_axis_veto_removed",
+      "selected_relation": null,
+      "solver_status": null,
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "gy_k_confidence_decided_relation"
+      ],
+      "mutation_id": "gy_k_confidence_alone_selected_relation",
+      "selected_relation": "exact",
+      "solver_status": "SAT",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "unproven_contradiction_relation_set_over_vetoed"
+      ],
+      "mutation_id": "false_analog_on_unproven_contradiction",
+      "selected_relation": "unknown",
+      "solver_status": "SAT",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "pure_synonym_not_exact"
+      ],
+      "mutation_id": "exact_match_only_missed_synonym",
+      "selected_relation": "novel-candidate",
+      "solver_status": "SAT",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "real_n4_out_of_lever_not_novel_candidate",
+        "real_n4_known_space_not_out_of_lever",
+        "real_n4_not_handoff_rt3"
+      ],
+      "mutation_id": "novel_candidate_verdict_disabled",
+      "selected_relation": "unknown",
+      "solver_status": "SAT",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "false_analog_minimal_swap_set_not_7_of_7",
+        "false_analog_counter_family_incomplete",
+        "false_analog_case_not_vetoed"
+      ],
+      "mutation_id": "adversarial_counter_family_disabled",
+      "selected_relation": null,
+      "solver_status": null,
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "1 validation error for GroundingRelationCertificate\nrecommended_transition\n  Input should be 'shadow', 'quarantine', 'handoff_RT3' or 'bundle_bind-suggestion' [type=literal_error, input_value='exact_bind', input_type=str]\n    For further information visit https"
+      ],
+      "mutation_id": "cg1_shadow_only_violated_bind_or_promotion",
+      "status": "red"
+    }
+  ],
+  "candidate_set_coverage": {
+    "atom_universe_count": 6,
+    "axis_universe": [
+      "op",
+      "target",
+      "do_value",
+      "sign",
+      "params",
+      "unit",
+      "scope",
+      "population",
+      "time",
+      "outcome",
+      "effect_path",
+      "estimand",
+      "admissibility",
+      "wm_version"
+    ],
+    "critical_axis_universe": [
+      "op",
+      "target",
+      "do_value",
+      "sign",
+      "scope",
+      "population",
+      "outcome",
+      "effect_path",
+      "estimand"
+    ],
+    "denominator_status": {
+      "L2_CANONICAL_VARIABLE": {
+        "confirmed": 54404,
+        "contested": 528,
+        "incomplete": 244,
+        "total": 55176
+      },
+      "L2_CAUSAL_CLAIM": {
+        "confirmed": 376,
+        "contested": 7492,
+        "total": 7868
+      },
+      "L2_CAUSAL_EDGE": {
+        "confirmed": 14,
+        "contested": 7232,
+        "incomplete": 361,
+        "total": 7607
+      },
+      "L2_CONTESTED_EDGE": {
+        "contested": 723,
+        "total": 723
+      },
+      "L2_DATA_FORGE_VARIABLE_ALIGNMENT": {
+        "confirmed": 13912,
+        "contested": 437,
+        "incomplete": 5977,
+        "total": 20326
+      },
+      "L2_FAMILY_EDGE": {
+        "confirmed": 45,
+        "contested": 3908,
+        "incomplete": 11992,
+        "total": 15945
+      },
+      "L2_MODERATION_EDGE": {
+        "confirmed": 579,
+        "contested": 1257,
+        "incomplete": 23199,
+        "total": 25035
+      },
+      "L2_VARIABLE_ALIGNMENT": {
+        "confirmed": 72,
+        "contested": 335,
+        "total": 407
+      },
+      "L2_VARIABLE_HIERARCHY": {
+        "confirmed": 175,
+        "incomplete": 54182,
+        "total": 54357
+      },
+      "L3_AMENDMENT": {
+        "confirmed": 1494,
+        "contested": 1204,
+        "deprecated": 350,
+        "incomplete": 153090,
+        "out_of_scope": 58,
+        "total": 156196
+      },
+      "L3_REFERENCE_EDGE": {
+        "confirmed": 40419,
+        "contested": 33374,
+        "total": 73793
+      },
+      "L3_RULE_THRESHOLD": {
+        "confirmed": 51590,
+        "contested": 319712,
+        "deprecated": 3084,
+        "out_of_scope": 130,
+        "total": 374516
+      },
+      "L6_KNOB_OPERATOR": {
+        "confirmed": 3,
+        "total": 3
+      },
+      "L6_KNOB_WORLD_SLOT": {
+        "confirmed": 3,
+        "total": 3
+      },
+      "L6_LEX_INTERVENTION_MAP": {
+        "confirmed": 3,
+        "total": 3
+      },
+      "L6_OBSERVATION_CONTRACT_ROUTE": {
+        "confirmed": 4,
+        "total": 4
+      },
+      "WMR_POLICY_SLOT_MAP": {
+        "confirmed": 16,
+        "total": 16
+      },
+      "WMR_WORLD_SLOT": {
+        "confirmed": 16,
+        "total": 16
+      }
+    },
+    "dense_embeddings": "deferred_by_CG0_backend_gate",
+    "reference_edge_count": 791994,
+    "reference_epoch": "kref:09b6349c4ee0bfef",
+    "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+    "registered_l6_operator_count": 3,
+    "relation_universe": [
+      "exact",
+      "certified-specialization",
+      "generalization",
+      "partial",
+      "compositional",
+      "false-analog",
+      "novel-candidate",
+      "unknown"
+    ],
+    "retrieval_indexed_edge_count": 791994,
+    "retrieval_methods": [
+      "duckdb_fts_full_cg0_reference",
+      "l2_variable_alignments_or_hierarchy",
+      "causal_neighbourhood_skg",
+      "l3_thresholds",
+      "l6_knobs_lex_maps",
+      "adversarial_false_analog_countercandidates"
+    ],
+    "writable_wmr_slot_count": 16
+  },
+  "capability_reality": {
+    "consumer": "GY-N4 unblock shadow gate and future CG2 CAAB bind gate",
+    "orchestration_bridge": "shadow certificate can be consumed by CG2/CG3; CG1 itself emits no bind/admission/promotion",
+    "persisted_artifact_event": "architecture/policy_design_case/grounding_relation_contract.json",
+    "producer": "GroundingRelationEngine.certificate_for",
+    "semantic_test": "false-analog veto, joint unsat core, cross-modal blocked, synonym resolution, GY-K witness-only, shadow-only, unknown no over-veto",
+    "surface": "generated Policy Design Case CG1 contract artifact",
+    "typed_contract_artifact": "GroundingRelationCertificate + MechanisticSignature + CandidateRelationResult",
+    "verification": "this recomputing validator plus unit stress tests"
+  },
+  "contract_id": "policyos.runtime.grounding_relation_shadow",
+  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_relation_contract.v1",
+  "no_second_reference_store": true,
+  "owner": "polisyos.runtime.quality.grounding_relation",
+  "pattern_pass": {
+    "acceptance_signal": "stress probes and remove-property mutations go red without marker checks",
+    "missing_capability_labels": [],
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P10",
+      "P15",
+      "P27",
+      "P29",
+      "P31",
+      "P32",
+      "P33"
+    ],
+    "target_correct_pattern": "retrieval/GY-K prioritize and witness only; CP-SAT plus RT1 axis CSP owns relation; CG1 remains shadow-only"
+  },
+  "probes": {
+    "certified_specialization_boundary": {
+      "adversarial_countercandidate_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "axis_relations": {
+        "admissibility": "overlap",
+        "do_value": "narrower",
+        "effect_path": "equivalent",
+        "estimand": "equivalent",
+        "op": "equivalent",
+        "outcome": "equivalent",
+        "params": "narrower",
+        "population": "equivalent",
+        "scope": "equivalent",
+        "sign": "equivalent",
+        "target": "equivalent",
+        "time": "unknown",
+        "unit": "equivalent",
+        "wm_version": "equivalent"
+      },
+      "candidate_atom_count": 34,
+      "candidate_atom_ids": [
+        "cg0_atom_49ebedb62a306a73",
+        "cg0_atom_87eea362b750d159",
+        "cg0_atom_9808aa7bda80c304",
+        "cg0_atom_f82e3d10b2450b34",
+        "cg0_atom_1d77bc8514fa3d95",
+        "cg0_atom_aec60c9e0d200e7a",
+        "cg1_counter_12940b83253a2f8a",
+        "cg1_counter_232cc031fdea7862"
+      ],
+      "certificate_id": "cg1_cert_20e060bee17e885c",
+      "content_hash": "sha256:20e060bee17e885c26ef14d505f8525e77b6bf430c30fef71b8856ea3b822833",
+      "coverage_sufficient": true,
+      "critical_contradictions": [],
+      "known_space_verdict": "in_lever_space",
+      "out_of_lever_ops": [],
+      "out_of_lever_targets": [],
+      "recommended_transition": "shadow",
+      "relation_counts": {
+        "certified-specialization": 1,
+        "false-analog": 33
+      },
+      "residual_constraints": [
+        "do_value:narrower:do_value: proposal concrete value is inside atom do-domain",
+        "params:narrower:params: proposal concrete value is inside atom parameter domain"
+      ],
+      "selected_relation": "certified-specialization",
+      "solver_status": "SAT",
+      "unresolved_axes": [
+        "time"
+      ],
+      "unsat_core_if_any": []
+    },
+    "cross_modal_inconsistent": {
+      "adversarial_countercandidate_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "axis_relations": {},
+      "candidate_atom_count": 34,
+      "candidate_atom_ids": [
+        "cg0_atom_49ebedb62a306a73",
+        "cg0_atom_9808aa7bda80c304",
+        "cg0_atom_f82e3d10b2450b34",
+        "cg0_atom_1d77bc8514fa3d95",
+        "cg0_atom_87eea362b750d159",
+        "cg0_atom_aec60c9e0d200e7a",
+        "cg1_counter_07efde91c8de2b2c",
+        "cg1_counter_0f6aef90c790d964"
+      ],
+      "certificate_id": "cg1_cert_b1f957ceacdccd7c",
+      "content_hash": "sha256:b1f957ceacdccd7c8a96fdba61aaf9586578234d96a41cf07ce2c9a1f3051d8f",
+      "coverage_sufficient": true,
+      "critical_contradictions": [],
+      "known_space_verdict": "out_of_lever",
+      "out_of_lever_ops": [
+        "household_transfer"
+      ],
+      "out_of_lever_targets": [],
+      "recommended_transition": "quarantine",
+      "relation_counts": {
+        "blocked": 34
+      },
+      "residual_constraints": [],
+      "selected_relation": "blocked",
+      "solver_status": "UNSAT",
+      "unresolved_axes": [],
+      "unsat_core_if_any": [
+        "L3.law_token:tax_relief_statute.operator == tax_relief_rate",
+        "L3.law_token:tax_relief_statute.target == global.tax_rate",
+        "L6.knob:tax_relief_rate.operator == tax_relief_rate",
+        "L6.knob:tax_relief_rate.target == global.tax_rate",
+        "NL.op == household_transfer",
+        "NL.target == household_cells.transfer_intensity",
+        "do_AST.op == household_transfer",
+        "do_AST.target == household_cells.transfer_intensity",
+        "method.op == labor_market",
+        "method.target == firms.labor_count",
+        "method.outcome == firms.labor_count",
+        "method.estimand == local_average_treatment_effect",
+        "signature.op == household_transfer",
+        "signature.target == household_cells.transfer_intensity",
+        "signature.outcome == household_cells.disposable_income",
+        "signature.estimand == average_treatment_effect",
+        "slot_exists(household_cells.transfer_intensity, kref:09b6349c4ee0bfef)",
+        "unit_compatible(unitless, household_cells.transfer_intensity)",
+        "lex_applicable(tax_relief_statute)",
+        "method.treatment == do_AST(firms.labor_count, household_cells.transfer_intensity)",
+        "method.outcome in effect_bundle(firms.labor_count)",
+        "admissibility_passed_or_candidate_shadow",
+        "version_current(kref:09b6349c4ee0bfef)"
+      ]
+    },
+    "data_only_free_grow": {
+      "adversarial_countercandidate_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "axis_relations": {
+        "admissibility": "overlap",
+        "do_value": "narrower",
+        "effect_path": "equivalent",
+        "estimand": "equivalent",
+        "op": "equivalent",
+        "outcome": "equivalent",
+        "params": "narrower",
+        "population": "equivalent",
+        "scope": "equivalent",
+        "sign": "equivalent",
+        "target": "equivalent",
+        "time": "unknown",
+        "unit": "unknown",
+        "wm_version": "equivalent"
+      },
+      "candidate_atom_count": 35,
+      "candidate_atom_ids": [
+        "cg0_atom_f6d1290f174fd149",
+        "cg0_atom_1d77bc8514fa3d95",
+        "cg0_atom_87eea362b750d159",
+        "cg0_atom_aec60c9e0d200e7a",
+        "cg0_atom_49ebedb62a306a73",
+        "cg0_atom_9808aa7bda80c304",
+        "cg0_atom_f82e3d10b2450b34",
+        "cg1_counter_07efde91c8de2b2c"
+      ],
+      "certificate_id": "cg1_cert_b3a21dfeabe368b4",
+      "content_hash": "sha256:b3a21dfeabe368b46ef3556c9dd5d67ccb1d7f284a2c2416eb34d6f1eef400b1",
+      "coverage_sufficient": true,
+      "critical_contradictions": [],
+      "known_space_verdict": "in_lever_space",
+      "out_of_lever_ops": [],
+      "out_of_lever_targets": [],
+      "recommended_transition": "shadow",
+      "relation_counts": {
+        "certified-specialization": 1,
+        "false-analog": 34
+      },
+      "residual_constraints": [
+        "do_value:narrower:do_value: proposal concrete value is inside atom do-domain",
+        "params:narrower:params: proposal concrete value is inside atom parameter domain"
+      ],
+      "selected_relation": "certified-specialization",
+      "solver_status": "SAT",
+      "unresolved_axes": [
+        "unit",
+        "time"
+      ],
+      "unsat_core_if_any": []
+    },
+    "deterministic_certificate": {
+      "first_content_hash": "sha256:77d625e568ef4b1a4e1f458b40b081cf6498e48502460a15ea243cd9b7137dcd",
+      "same_content_hash": true,
+      "second_content_hash": "sha256:77d625e568ef4b1a4e1f458b40b081cf6498e48502460a15ea243cd9b7137dcd"
+    },
+    "fake_atom_not_exact": {
+      "adversarial_countercandidate_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "axis_relations": {},
+      "candidate_atom_count": 34,
+      "candidate_atom_ids": [
+        "cg0_atom_87eea362b750d159",
+        "cg0_atom_49ebedb62a306a73",
+        "cg0_atom_1d77bc8514fa3d95",
+        "cg0_atom_aec60c9e0d200e7a",
+        "cg0_atom_9808aa7bda80c304",
+        "cg0_atom_f82e3d10b2450b34",
+        "cg1_counter_07efde91c8de2b2c",
+        "cg1_counter_0f6aef90c790d964"
+      ],
+      "certificate_id": "cg1_cert_a2c202d93331c931",
+      "content_hash": "sha256:a2c202d93331c931b6b56d5ae0f096d88e9f01c9931872dbd4cec93c88d6b498",
+      "coverage_sufficient": true,
+      "critical_contradictions": [],
+      "known_space_verdict": "out_of_lever",
+      "out_of_lever_ops": [
+        "fake_atom_levitation"
+      ],
+      "out_of_lever_targets": [
+        "fake.world_slot"
+      ],
+      "recommended_transition": "quarantine",
+      "relation_counts": {
+        "blocked": 34
+      },
+      "residual_constraints": [],
+      "selected_relation": "blocked",
+      "solver_status": "UNSAT",
+      "unresolved_axes": [],
+      "unsat_core_if_any": [
+        "NL.op == fake_atom_levitation",
+        "NL.target == fake.world_slot",
+        "NL.outcome == fake.outcome",
+        "signature.op == fake_atom_levitation",
+        "signature.target == fake.world_slot",
+        "signature.outcome == fake.outcome",
+        "signature.estimand == average_treatment_effect",
+        "slot_exists(fake.world_slot, kref:09b6349c4ee0bfef)",
+        "unit_compatible(unitless, fake.world_slot)",
+        "admissibility_passed_or_candidate_shadow",
+        "version_current(kref:09b6349c4ee0bfef)"
+      ]
+    },
+    "false_analog_minimal_swap_set": {
+      "case_count": 7,
+      "cases": {
+        "do_value_unit_swap": {
+          "adversarial_countercandidate_reasons": [
+            "adversarial_false_analog_do_value_unit_swap",
+            "adversarial_false_analog_estimand_swap",
+            "adversarial_false_analog_op_swap",
+            "adversarial_false_analog_proxy_outcome_swap",
+            "adversarial_false_analog_scope_population_swap",
+            "adversarial_false_analog_sign_swap",
+            "adversarial_false_analog_target_swap"
+          ],
+          "axis_relations": {
+            "admissibility": "overlap",
+            "do_value": "narrower",
+            "effect_path": "equivalent",
+            "estimand": "equivalent",
+            "op": "equivalent",
+            "outcome": "equivalent",
+            "params": "narrower",
+            "population": "equivalent",
+            "scope": "equivalent",
+            "sign": "equivalent",
+            "target": "equivalent",
+            "time": "unknown",
+            "unit": "equivalent",
+            "wm_version": "equivalent"
+          },
+          "bad_safe_result_atom_ids": [],
+          "candidate_atom_count": 34,
+          "candidate_atom_ids": [
+            "cg0_atom_49ebedb62a306a73",
+            "cg0_atom_87eea362b750d159",
+            "cg0_atom_9808aa7bda80c304",
+            "cg0_atom_f82e3d10b2450b34",
+            "cg0_atom_1d77bc8514fa3d95",
+            "cg0_atom_aec60c9e0d200e7a",
+            "cg1_counter_12940b83253a2f8a",
+            "cg1_counter_232cc031fdea7862"
+          ],
+          "certificate_id": "cg1_cert_0cc32776d186ac6b",
+          "content_hash": "sha256:0cc32776d186ac6b0506c170afa493a27f1dd469e5d868cb1807117a94f0133f",
+          "contradictory_atom_vetoed": true,
+          "coverage_sufficient": true,
+          "critical_contradictions": [],
+          "exact_or_specialization_to_contradictory_atom": false,
+          "expected_axis": "do_value",
+          "false_analog_result_count": 33,
+          "false_analog_results": [
+            {
+              "atom_id": "cg0_atom_1d77bc8514fa3d95",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_87eea362b750d159",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_12940b83253a2f8a",
+              "critical_contradictions": [
+                "sign"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_232cc031fdea7862",
+              "critical_contradictions": [
+                "estimand"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_2db2facdebf3d9e9",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            }
+          ],
+          "known_space_verdict": "in_lever_space",
+          "out_of_lever_ops": [],
+          "out_of_lever_targets": [],
+          "recommended_transition": "shadow",
+          "relation_counts": {
+            "certified-specialization": 1,
+            "false-analog": 33
+          },
+          "residual_constraints": [
+            "do_value:narrower:do_value: proposal concrete value is inside atom do-domain",
+            "params:narrower:params: proposal concrete value is inside atom parameter domain"
+          ],
+          "selected_relation": "certified-specialization",
+          "solver_status": "SAT",
+          "unresolved_axes": [
+            "time"
+          ],
+          "unsat_core_if_any": []
+        },
+        "estimand_swap": {
+          "adversarial_countercandidate_reasons": [
+            "adversarial_false_analog_do_value_unit_swap",
+            "adversarial_false_analog_estimand_swap",
+            "adversarial_false_analog_op_swap",
+            "adversarial_false_analog_proxy_outcome_swap",
+            "adversarial_false_analog_scope_population_swap",
+            "adversarial_false_analog_sign_swap",
+            "adversarial_false_analog_target_swap"
+          ],
+          "axis_relations": {
+            "admissibility": "overlap",
+            "do_value": "narrower",
+            "effect_path": "equivalent",
+            "estimand": "contradiction",
+            "op": "equivalent",
+            "outcome": "equivalent",
+            "params": "narrower",
+            "population": "equivalent",
+            "scope": "equivalent",
+            "sign": "equivalent",
+            "target": "equivalent",
+            "time": "unknown",
+            "unit": "equivalent",
+            "wm_version": "equivalent"
+          },
+          "bad_safe_result_atom_ids": [],
+          "candidate_atom_count": 32,
+          "candidate_atom_ids": [
+            "cg0_atom_49ebedb62a306a73",
+            "cg0_atom_87eea362b750d159",
+            "cg0_atom_9808aa7bda80c304",
+            "cg0_atom_f82e3d10b2450b34",
+            "cg1_counter_12940b83253a2f8a",
+            "cg1_counter_232cc031fdea7862",
+            "cg1_counter_2db2facdebf3d9e9",
+            "cg1_counter_394ecde2db295cbb"
+          ],
+          "certificate_id": "cg1_cert_59f226a871981d04",
+          "content_hash": "sha256:59f226a871981d04cefd92f5e2b3f8a933bc80dcea406fbe91b35a181bd3fe4c",
+          "contradictory_atom_vetoed": true,
+          "coverage_sufficient": true,
+          "critical_contradictions": [
+            "estimand"
+          ],
+          "exact_or_specialization_to_contradictory_atom": false,
+          "expected_axis": "estimand",
+          "false_analog_result_count": 31,
+          "false_analog_results": [
+            {
+              "atom_id": "cg0_atom_49ebedb62a306a73",
+              "critical_contradictions": [
+                "estimand"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_87eea362b750d159",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "op",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_12940b83253a2f8a",
+              "critical_contradictions": [
+                "estimand",
+                "sign"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_2db2facdebf3d9e9",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_394ecde2db295cbb",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_42d3712a078bb495",
+              "critical_contradictions": [
+                "do_value",
+                "effect_path",
+                "estimand",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            }
+          ],
+          "known_space_verdict": "in_lever_space",
+          "out_of_lever_ops": [],
+          "out_of_lever_targets": [],
+          "recommended_transition": "handoff_RT3",
+          "relation_counts": {
+            "certified-specialization": 1,
+            "false-analog": 31
+          },
+          "residual_constraints": [],
+          "selected_relation": "novel-candidate",
+          "solver_status": "SAT",
+          "unresolved_axes": [
+            "time"
+          ],
+          "unsat_core_if_any": []
+        },
+        "op_swap": {
+          "adversarial_countercandidate_reasons": [
+            "adversarial_false_analog_do_value_unit_swap",
+            "adversarial_false_analog_estimand_swap",
+            "adversarial_false_analog_op_swap",
+            "adversarial_false_analog_proxy_outcome_swap",
+            "adversarial_false_analog_scope_population_swap",
+            "adversarial_false_analog_sign_swap",
+            "adversarial_false_analog_target_swap"
+          ],
+          "axis_relations": {
+            "admissibility": "overlap",
+            "do_value": "narrower",
+            "effect_path": "contradiction",
+            "estimand": "equivalent",
+            "op": "contradiction",
+            "outcome": "equivalent",
+            "params": "narrower",
+            "population": "equivalent",
+            "scope": "equivalent",
+            "sign": "equivalent",
+            "target": "equivalent",
+            "time": "unknown",
+            "unit": "equivalent",
+            "wm_version": "equivalent"
+          },
+          "bad_safe_result_atom_ids": [],
+          "candidate_atom_count": 34,
+          "candidate_atom_ids": [
+            "cg0_atom_49ebedb62a306a73",
+            "cg0_atom_87eea362b750d159",
+            "cg0_atom_9808aa7bda80c304",
+            "cg0_atom_f82e3d10b2450b34",
+            "cg0_atom_1d77bc8514fa3d95",
+            "cg0_atom_aec60c9e0d200e7a",
+            "cg1_counter_12940b83253a2f8a",
+            "cg1_counter_232cc031fdea7862"
+          ],
+          "certificate_id": "cg1_cert_3f3e923313b70959",
+          "content_hash": "sha256:3f3e923313b70959e452c0b4f4348c8d33a72bdf70c23fb72d2c1f5343e14dae",
+          "contradictory_atom_vetoed": true,
+          "coverage_sufficient": true,
+          "critical_contradictions": [
+            "op",
+            "effect_path"
+          ],
+          "exact_or_specialization_to_contradictory_atom": false,
+          "expected_axis": "op",
+          "false_analog_result_count": 34,
+          "false_analog_results": [
+            {
+              "atom_id": "cg0_atom_1d77bc8514fa3d95",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_49ebedb62a306a73",
+              "critical_contradictions": [
+                "effect_path",
+                "op"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_87eea362b750d159",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_12940b83253a2f8a",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "sign"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_232cc031fdea7862",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "op"
+              ]
+            }
+          ],
+          "known_space_verdict": "out_of_lever",
+          "out_of_lever_ops": [
+            "household_transfer"
+          ],
+          "out_of_lever_targets": [],
+          "recommended_transition": "handoff_RT3",
+          "relation_counts": {
+            "false-analog": 34
+          },
+          "residual_constraints": [],
+          "selected_relation": "novel-candidate",
+          "solver_status": "SAT",
+          "unresolved_axes": [
+            "time"
+          ],
+          "unsat_core_if_any": []
+        },
+        "proxy_outcome_swap": {
+          "adversarial_countercandidate_reasons": [
+            "adversarial_false_analog_do_value_unit_swap",
+            "adversarial_false_analog_estimand_swap",
+            "adversarial_false_analog_op_swap",
+            "adversarial_false_analog_proxy_outcome_swap",
+            "adversarial_false_analog_scope_population_swap",
+            "adversarial_false_analog_sign_swap",
+            "adversarial_false_analog_target_swap"
+          ],
+          "axis_relations": {
+            "admissibility": "overlap",
+            "do_value": "narrower",
+            "effect_path": "contradiction",
+            "estimand": "equivalent",
+            "op": "equivalent",
+            "outcome": "contradiction",
+            "params": "narrower",
+            "population": "equivalent",
+            "scope": "equivalent",
+            "sign": "equivalent",
+            "target": "equivalent",
+            "time": "unknown",
+            "unit": "equivalent",
+            "wm_version": "equivalent"
+          },
+          "bad_safe_result_atom_ids": [],
+          "candidate_atom_count": 34,
+          "candidate_atom_ids": [
+            "cg0_atom_49ebedb62a306a73",
+            "cg0_atom_9808aa7bda80c304",
+            "cg0_atom_87eea362b750d159",
+            "cg0_atom_f82e3d10b2450b34",
+            "cg0_atom_1d77bc8514fa3d95",
+            "cg0_atom_aec60c9e0d200e7a",
+            "cg1_counter_12940b83253a2f8a",
+            "cg1_counter_232cc031fdea7862"
+          ],
+          "certificate_id": "cg1_cert_788e5f418ce7f43c",
+          "content_hash": "sha256:788e5f418ce7f43ce49b35eab0afc94e83b13522fe6a490d05366ca5a51b1bc0",
+          "contradictory_atom_vetoed": true,
+          "coverage_sufficient": true,
+          "critical_contradictions": [
+            "outcome",
+            "effect_path"
+          ],
+          "exact_or_specialization_to_contradictory_atom": false,
+          "expected_axis": "outcome",
+          "false_analog_result_count": 34,
+          "false_analog_results": [
+            {
+              "atom_id": "cg0_atom_1d77bc8514fa3d95",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_49ebedb62a306a73",
+              "critical_contradictions": [
+                "effect_path",
+                "outcome"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_87eea362b750d159",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_12940b83253a2f8a",
+              "critical_contradictions": [
+                "effect_path",
+                "outcome",
+                "sign"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_232cc031fdea7862",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "outcome"
+              ]
+            }
+          ],
+          "known_space_verdict": "in_lever_space",
+          "out_of_lever_ops": [],
+          "out_of_lever_targets": [],
+          "recommended_transition": "handoff_RT3",
+          "relation_counts": {
+            "false-analog": 34
+          },
+          "residual_constraints": [],
+          "selected_relation": "novel-candidate",
+          "solver_status": "SAT",
+          "unresolved_axes": [
+            "time"
+          ],
+          "unsat_core_if_any": []
+        },
+        "scope_population_swap": {
+          "adversarial_countercandidate_reasons": [
+            "adversarial_false_analog_do_value_unit_swap",
+            "adversarial_false_analog_estimand_swap",
+            "adversarial_false_analog_op_swap",
+            "adversarial_false_analog_proxy_outcome_swap",
+            "adversarial_false_analog_scope_population_swap",
+            "adversarial_false_analog_sign_swap",
+            "adversarial_false_analog_target_swap"
+          ],
+          "axis_relations": {
+            "admissibility": "overlap",
+            "do_value": "narrower",
+            "effect_path": "contradiction",
+            "estimand": "equivalent",
+            "op": "contradiction",
+            "outcome": "contradiction",
+            "params": "narrower",
+            "population": "narrower",
+            "scope": "contradiction",
+            "sign": "equivalent",
+            "target": "contradiction",
+            "time": "unknown",
+            "unit": "equivalent",
+            "wm_version": "equivalent"
+          },
+          "bad_safe_result_atom_ids": [],
+          "candidate_atom_count": 34,
+          "candidate_atom_ids": [
+            "cg0_atom_49ebedb62a306a73",
+            "cg0_atom_f82e3d10b2450b34",
+            "cg0_atom_9808aa7bda80c304",
+            "cg0_atom_1d77bc8514fa3d95",
+            "cg0_atom_87eea362b750d159",
+            "cg0_atom_aec60c9e0d200e7a",
+            "cg1_counter_07efde91c8de2b2c",
+            "cg1_counter_0f6aef90c790d964"
+          ],
+          "certificate_id": "cg1_cert_730b1d1daa642d9c",
+          "content_hash": "sha256:730b1d1daa642d9cc6c37357609edc8dcf8d0d864fa76b202e69fa514f43eb24",
+          "contradictory_atom_vetoed": true,
+          "coverage_sufficient": true,
+          "critical_contradictions": [
+            "op",
+            "target",
+            "scope",
+            "outcome",
+            "effect_path"
+          ],
+          "exact_or_specialization_to_contradictory_atom": false,
+          "expected_axis": "scope",
+          "false_analog_result_count": 33,
+          "false_analog_results": [
+            {
+              "atom_id": "cg0_atom_1d77bc8514fa3d95",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_49ebedb62a306a73",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_87eea362b750d159",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "critical_contradictions": [
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "critical_contradictions": [
+                "population",
+                "scope"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_07efde91c8de2b2c",
+              "critical_contradictions": [
+                "do_value",
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_0f6aef90c790d964",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "sign",
+                "target"
+              ]
+            }
+          ],
+          "known_space_verdict": "in_lever_space",
+          "out_of_lever_ops": [],
+          "out_of_lever_targets": [],
+          "recommended_transition": "handoff_RT3",
+          "relation_counts": {
+            "certified-specialization": 1,
+            "false-analog": 33
+          },
+          "residual_constraints": [],
+          "selected_relation": "novel-candidate",
+          "solver_status": "SAT",
+          "unresolved_axes": [
+            "time"
+          ],
+          "unsat_core_if_any": []
+        },
+        "sign_swap": {
+          "adversarial_countercandidate_reasons": [
+            "adversarial_false_analog_do_value_unit_swap",
+            "adversarial_false_analog_estimand_swap",
+            "adversarial_false_analog_op_swap",
+            "adversarial_false_analog_proxy_outcome_swap",
+            "adversarial_false_analog_scope_population_swap",
+            "adversarial_false_analog_sign_swap",
+            "adversarial_false_analog_target_swap"
+          ],
+          "axis_relations": {
+            "admissibility": "overlap",
+            "do_value": "narrower",
+            "effect_path": "equivalent",
+            "estimand": "equivalent",
+            "op": "equivalent",
+            "outcome": "equivalent",
+            "params": "narrower",
+            "population": "equivalent",
+            "scope": "equivalent",
+            "sign": "contradiction",
+            "target": "equivalent",
+            "time": "unknown",
+            "unit": "equivalent",
+            "wm_version": "equivalent"
+          },
+          "bad_safe_result_atom_ids": [],
+          "candidate_atom_count": 34,
+          "candidate_atom_ids": [
+            "cg0_atom_49ebedb62a306a73",
+            "cg0_atom_87eea362b750d159",
+            "cg0_atom_1d77bc8514fa3d95",
+            "cg0_atom_aec60c9e0d200e7a",
+            "cg0_atom_9808aa7bda80c304",
+            "cg0_atom_f82e3d10b2450b34",
+            "cg1_counter_07efde91c8de2b2c",
+            "cg1_counter_0f6aef90c790d964"
+          ],
+          "certificate_id": "cg1_cert_fbc123da445f7dda",
+          "content_hash": "sha256:fbc123da445f7ddab9233d015f53b1aa3128515e09dd2f7ab75a91792549e2fc",
+          "contradictory_atom_vetoed": true,
+          "coverage_sufficient": true,
+          "critical_contradictions": [
+            "sign"
+          ],
+          "exact_or_specialization_to_contradictory_atom": false,
+          "expected_axis": "sign",
+          "false_analog_result_count": 33,
+          "false_analog_results": [
+            {
+              "atom_id": "cg0_atom_1d77bc8514fa3d95",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_49ebedb62a306a73",
+              "critical_contradictions": [
+                "sign"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_87eea362b750d159",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_07efde91c8de2b2c",
+              "critical_contradictions": [
+                "do_value",
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_0f6aef90c790d964",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "target"
+              ]
+            }
+          ],
+          "known_space_verdict": "in_lever_space",
+          "out_of_lever_ops": [],
+          "out_of_lever_targets": [],
+          "recommended_transition": "handoff_RT3",
+          "relation_counts": {
+            "certified-specialization": 1,
+            "false-analog": 33
+          },
+          "residual_constraints": [],
+          "selected_relation": "novel-candidate",
+          "solver_status": "SAT",
+          "unresolved_axes": [
+            "time"
+          ],
+          "unsat_core_if_any": []
+        },
+        "target_sibling": {
+          "adversarial_countercandidate_reasons": [
+            "adversarial_false_analog_do_value_unit_swap",
+            "adversarial_false_analog_estimand_swap",
+            "adversarial_false_analog_op_swap",
+            "adversarial_false_analog_proxy_outcome_swap",
+            "adversarial_false_analog_scope_population_swap",
+            "adversarial_false_analog_sign_swap",
+            "adversarial_false_analog_target_swap"
+          ],
+          "axis_relations": {
+            "admissibility": "overlap",
+            "do_value": "narrower",
+            "effect_path": "contradiction",
+            "estimand": "equivalent",
+            "op": "equivalent",
+            "outcome": "equivalent",
+            "params": "narrower",
+            "population": "equivalent",
+            "scope": "equivalent",
+            "sign": "equivalent",
+            "target": "contradiction",
+            "time": "unknown",
+            "unit": "equivalent",
+            "wm_version": "equivalent"
+          },
+          "bad_safe_result_atom_ids": [],
+          "candidate_atom_count": 34,
+          "candidate_atom_ids": [
+            "cg0_atom_49ebedb62a306a73",
+            "cg0_atom_87eea362b750d159",
+            "cg0_atom_f82e3d10b2450b34",
+            "cg0_atom_9808aa7bda80c304",
+            "cg0_atom_1d77bc8514fa3d95",
+            "cg0_atom_aec60c9e0d200e7a",
+            "cg1_counter_12940b83253a2f8a",
+            "cg1_counter_232cc031fdea7862"
+          ],
+          "certificate_id": "cg1_cert_6bb9e2a7f0f8dd74",
+          "content_hash": "sha256:6bb9e2a7f0f8dd74d0186174af670cbee6e8854cae818cbeb1d535df4354c226",
+          "contradictory_atom_vetoed": true,
+          "coverage_sufficient": true,
+          "critical_contradictions": [
+            "target",
+            "effect_path"
+          ],
+          "exact_or_specialization_to_contradictory_atom": false,
+          "expected_axis": "target",
+          "false_analog_result_count": 34,
+          "false_analog_results": [
+            {
+              "atom_id": "cg0_atom_1d77bc8514fa3d95",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_49ebedb62a306a73",
+              "critical_contradictions": [
+                "effect_path",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_87eea362b750d159",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_9808aa7bda80c304",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_aec60c9e0d200e7a",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "scope",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg0_atom_f82e3d10b2450b34",
+              "critical_contradictions": [
+                "effect_path",
+                "op",
+                "outcome",
+                "population",
+                "scope"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_12940b83253a2f8a",
+              "critical_contradictions": [
+                "effect_path",
+                "sign",
+                "target"
+              ]
+            },
+            {
+              "atom_id": "cg1_counter_232cc031fdea7862",
+              "critical_contradictions": [
+                "effect_path",
+                "estimand",
+                "target"
+              ]
+            }
+          ],
+          "known_space_verdict": "in_lever_space",
+          "out_of_lever_ops": [],
+          "out_of_lever_targets": [],
+          "recommended_transition": "handoff_RT3",
+          "relation_counts": {
+            "false-analog": 34
+          },
+          "residual_constraints": [],
+          "selected_relation": "novel-candidate",
+          "solver_status": "SAT",
+          "unresolved_axes": [
+            "time"
+          ],
+          "unsat_core_if_any": []
+        }
+      },
+      "counter_family_complete": true,
+      "observed_counter_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "passed_count": 7,
+      "required_counter_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ]
+    },
+    "greedy_inconsistent": {
+      "adversarial_countercandidate_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "axis_relations": {},
+      "candidate_atom_count": 34,
+      "candidate_atom_ids": [
+        "cg0_atom_49ebedb62a306a73",
+        "cg0_atom_87eea362b750d159",
+        "cg0_atom_1d77bc8514fa3d95",
+        "cg0_atom_aec60c9e0d200e7a",
+        "cg0_atom_9808aa7bda80c304",
+        "cg0_atom_f82e3d10b2450b34",
+        "cg1_counter_07efde91c8de2b2c",
+        "cg1_counter_0f6aef90c790d964"
+      ],
+      "certificate_id": "cg1_cert_eda30eb268208231",
+      "content_hash": "sha256:eda30eb268208231cf4b791b311c9fb45c2527a62dcfd81b75d2c286111fc0a1",
+      "coverage_sufficient": true,
+      "critical_contradictions": [],
+      "known_space_verdict": "in_lever_space",
+      "out_of_lever_ops": [],
+      "out_of_lever_targets": [],
+      "recommended_transition": "quarantine",
+      "relation_counts": {
+        "blocked": 34
+      },
+      "residual_constraints": [],
+      "selected_relation": "blocked",
+      "solver_status": "UNSAT",
+      "unresolved_axes": [],
+      "unsat_core_if_any": [
+        "L3.law_token:budget_law.operator == budget_allocation_multiplier",
+        "L3.law_token:budget_law.target == government.balance",
+        "L6.knob:tax_relief_rate.operator == tax_relief_rate",
+        "L6.knob:tax_relief_rate.target == global.tax_rate",
+        "NL.op == tax_relief_rate",
+        "NL.target == government.balance",
+        "NL.outcome == government.balance",
+        "NL.estimand == average_treatment_effect",
+        "do_AST.op == tax_relief_rate",
+        "do_AST.target == government.balance",
+        "method.op == tax_relief_rate",
+        "method.target == government.balance",
+        "method.outcome == government.balance",
+        "method.estimand == average_treatment_effect",
+        "signature.op == tax_relief_rate",
+        "signature.target == government.balance",
+        "signature.outcome == government.balance",
+        "signature.estimand == average_treatment_effect",
+        "slot_exists(government.balance, kref:09b6349c4ee0bfef)",
+        "allowed_target_type(tax_relief_rate, government.balance)",
+        "knob_maps_to(tax_relief_rate, government.balance)",
+        "params_in_operator_schema(tax_relief_rate)",
+        "threshold_satisfied(tax_relief_rate)",
+        "unit_compatible(usd, government.balance)",
+        "lex_applicable(budget_law)",
+        "method.treatment == do_AST(government.balance, government.balance)",
+        "method.outcome in effect_bundle(government.balance)",
+        "admissibility_passed_or_candidate_shadow",
+        "version_current(kref:09b6349c4ee0bfef)"
+      ]
+    },
+    "gy_k_witness_only": {
+      "adversarial_countercandidate_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "axis_relations": {
+        "admissibility": "overlap",
+        "do_value": "narrower",
+        "effect_path": "equivalent",
+        "estimand": "equivalent",
+        "op": "equivalent",
+        "outcome": "equivalent",
+        "params": "narrower",
+        "population": "equivalent",
+        "scope": "equivalent",
+        "sign": "contradiction",
+        "target": "equivalent",
+        "time": "unknown",
+        "unit": "equivalent",
+        "wm_version": "equivalent"
+      },
+      "candidate_atom_count": 34,
+      "candidate_atom_ids": [
+        "cg0_atom_49ebedb62a306a73",
+        "cg0_atom_87eea362b750d159",
+        "cg0_atom_1d77bc8514fa3d95",
+        "cg0_atom_aec60c9e0d200e7a",
+        "cg0_atom_9808aa7bda80c304",
+        "cg0_atom_f82e3d10b2450b34",
+        "cg1_counter_07efde91c8de2b2c",
+        "cg1_counter_0f6aef90c790d964"
+      ],
+      "certificate_id": "cg1_cert_08fc02b4cc0d92cb",
+      "content_hash": "sha256:08fc02b4cc0d92cb774962e8f290a80c8bf4cf729e5da0ef4875f7db3f1460b0",
+      "coverage_sufficient": true,
+      "critical_contradictions": [
+        "sign"
+      ],
+      "gy_k_witness_count": 14,
+      "known_space_verdict": "in_lever_space",
+      "out_of_lever_ops": [],
+      "out_of_lever_targets": [],
+      "recommended_transition": "handoff_RT3",
+      "relation_counts": {
+        "certified-specialization": 1,
+        "false-analog": 33
+      },
+      "residual_constraints": [],
+      "selected_relation": "novel-candidate",
+      "solver_status": "SAT",
+      "unresolved_axes": [
+        "time"
+      ],
+      "unsat_core_if_any": []
+    },
+    "pure_synonym_exact": {
+      "adversarial_countercandidate_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "axis_relations": {
+        "admissibility": "equivalent",
+        "do_value": "equivalent",
+        "effect_path": "equivalent",
+        "estimand": "equivalent",
+        "op": "equivalent",
+        "outcome": "equivalent",
+        "params": "equivalent",
+        "population": "equivalent",
+        "scope": "equivalent",
+        "sign": "equivalent",
+        "target": "equivalent",
+        "time": "equivalent",
+        "unit": "equivalent",
+        "wm_version": "equivalent"
+      },
+      "candidate_atom_count": 34,
+      "candidate_atom_ids": [
+        "cg0_atom_49ebedb62a306a73",
+        "cg0_atom_1d77bc8514fa3d95",
+        "cg0_atom_87eea362b750d159",
+        "cg0_atom_9808aa7bda80c304",
+        "cg0_atom_aec60c9e0d200e7a",
+        "cg0_atom_f82e3d10b2450b34",
+        "cg1_counter_07efde91c8de2b2c",
+        "cg1_counter_0f6aef90c790d964"
+      ],
+      "certificate_id": "cg1_cert_411bdf762a5e5e8d",
+      "content_hash": "sha256:411bdf762a5e5e8d2837ed99e04faca48c3565561ed5f9cb9dbd71245bc57727",
+      "coverage_sufficient": true,
+      "critical_contradictions": [],
+      "exact_string_match": false,
+      "known_space_verdict": "in_lever_space",
+      "out_of_lever_ops": [],
+      "out_of_lever_targets": [],
+      "recommended_transition": "shadow",
+      "relation_counts": {
+        "exact": 1,
+        "false-analog": 32,
+        "partial": 1
+      },
+      "residual_constraints": [],
+      "selected_relation": "exact",
+      "solver_status": "SAT",
+      "unresolved_axes": [],
+      "unsat_core_if_any": []
+    },
+    "real_n4_recorded_proposal": {
+      "axis_relations": {},
+      "candidate_atom_count": 1,
+      "candidate_atom_ids": [
+        "cg0_atom_49ebedb62a306a73"
+      ],
+      "candidate_id": "candidate_6c4c225a4ce4961a",
+      "certificate_id": "cg1_cert_8ce062a94c0fb31a",
+      "content_hash": "sha256:8ce062a94c0fb31a6922ab2bba330b186a89db0daaca01b63a16a1f458f3a795",
+      "coverage_sufficient": true,
+      "critical_contradictions": [],
+      "frozen_receipt": true,
+      "known_space_verdict": "frozen_shadow_bound",
+      "legacy_exact_match": "would_reject",
+      "proposal_id": "gy_n4.industrial_retention_tax_credit",
+      "recommended_transition": "shadow",
+      "relation_counts": {
+        "certified-specialization": 1
+      },
+      "residual_constraints": [],
+      "selected_relation": "certified-specialization",
+      "solver_status": "frozen_receipt",
+      "unresolved_axes": [],
+      "unsat_core_if_any": []
+    },
+    "shadow_only": {
+      "bind_admit_promote_emitted": false,
+      "forbidden_transition_count": 0,
+      "recommended_transitions": [
+        "quarantine",
+        "quarantine",
+        "shadow",
+        "shadow",
+        "shadow",
+        "quarantine",
+        "handoff_RT3",
+        "shadow"
+      ]
+    },
+    "unknown_unproven_contradiction": {
+      "adversarial_countercandidate_reasons": [
+        "adversarial_false_analog_do_value_unit_swap",
+        "adversarial_false_analog_estimand_swap",
+        "adversarial_false_analog_op_swap",
+        "adversarial_false_analog_proxy_outcome_swap",
+        "adversarial_false_analog_scope_population_swap",
+        "adversarial_false_analog_sign_swap",
+        "adversarial_false_analog_target_swap"
+      ],
+      "axis_relations": {
+        "admissibility": "overlap",
+        "do_value": "unknown",
+        "effect_path": "unknown",
+        "estimand": "unknown",
+        "op": "unknown",
+        "outcome": "unknown",
+        "params": "unknown",
+        "population": "unknown",
+        "scope": "unknown",
+        "sign": "unknown",
+        "target": "unknown",
+        "time": "unknown",
+        "unit": "unknown",
+        "wm_version": "equivalent"
+      },
+      "candidate_atom_count": 8,
+      "candidate_atom_ids": [
+        "cg0_atom_aec60c9e0d200e7a",
+        "cg1_counter_1037228d776398f6",
+        "cg1_counter_12dec8ae8e1128a3",
+        "cg1_counter_25b3c4b62072219a",
+        "cg1_counter_6434ad12b9b9bb0a",
+        "cg1_counter_96893e90ec1578b0",
+        "cg1_counter_de00b2ea087db951",
+        "cg1_counter_eec0a2d0ca819b40"
+      ],
+      "certificate_id": "cg1_cert_fa33d962ccb511ac",
+      "content_hash": "sha256:fa33d962ccb511ac5051a6022cc24700992cade79ab059b9375eddd241cc8ad3",
+      "coverage_sufficient": true,
+      "critical_contradictions": [],
+      "known_space_verdict": "in_lever_space",
+      "out_of_lever_ops": [],
+      "out_of_lever_targets": [],
+      "recommended_transition": "shadow",
+      "relation_counts": {
+        "unknown": 8
+      },
+      "residual_constraints": [],
+      "selected_relation": "unknown",
+      "solver_status": "SAT",
+      "unresolved_axes": [
+        "op",
+        "target",
+        "do_value",
+        "sign",
+        "params",
+        "unit",
+        "scope",
+        "population",
+        "time",
+        "outcome",
+        "effect_path",
+        "estimand"
+      ],
+      "unsat_core_if_any": []
+    }
+  },
+  "reuse_existing_owners": [
+    "CG0 CredalReference over L2/L3/L6/WMR",
+    "N2 InterventionAtomBinding for N4 candidate atom shape",
+    "N4 recorded gateway replay validator for the real proposal source",
+    "GY-K bounded entailment judge as per-axis witness only",
+    "OR-Tools CP-SAT with assumption unsat cores"
+  ],
+  "runtime_schema_version": "policyos.runtime.grounding_relation_certificate.v1",
+  "schema_version": "policyos.policy_design_case.grounding_relation_contract.v1",
+  "shadow_only": true,
+  "source_modules": [
+    "src/polisyos/runtime/quality/grounding_relation.py",
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "src/polisyos/runtime/quality/intervention_atom_binding.py",
+    "tools/quality/validation/check_grounding_relation_contract.py",
+    "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+  ]
+}

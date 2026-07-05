@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import inspect
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 from polisyos.scientist.orchestration.kernel.fsm import Phase
@@ -19,7 +20,12 @@ class SimpleLoopEngine:
 
     def __init__(
         self,
-        nodes: list[tuple[str, Callable[[dict[str, Any]], dict[str, Any]]]],
+        nodes: list[
+            tuple[
+                str,
+                Callable[[dict[str, Any]], dict[str, Any] | Awaitable[dict[str, Any]]],
+            ]
+        ],
         terminal_node: str = "pack_decision",
     ):
         self._nodes = nodes
@@ -33,6 +39,19 @@ class SimpleLoopEngine:
         state = initial_state
         for name, fn in self._nodes:
             state = fn(state)
+            if state.get("pruned") or name == self._terminal_node:
+                break
+        return state
+
+    async def run_async(self, initial_state: dict[str, Any]) -> dict[str, Any]:
+        """Run configured nodes, awaiting async node results when needed."""
+
+        state = initial_state
+        for name, fn in self._nodes:
+            next_state = fn(state)
+            if inspect.isawaitable(next_state):
+                next_state = await next_state
+            state = next_state
             if state.get("pruned") or name == self._terminal_node:
                 break
         return state

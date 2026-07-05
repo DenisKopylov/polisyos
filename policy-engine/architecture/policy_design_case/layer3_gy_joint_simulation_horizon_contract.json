@@ -1,0 +1,1971 @@
+{
+  "behavioral_mutations": [
+    {
+      "mutation": "fabricated_proof_ref",
+      "status": "red"
+    },
+    {
+      "mutation": "unemployment_kernel_for_non_matching_domain",
+      "status": "red"
+    },
+    {
+      "mutation": "cyclic_objective_silently_grounded",
+      "status": "red"
+    },
+    {
+      "mutation": "coupling_gate_removed_silently_sums_feedback",
+      "status": "red"
+    },
+    {
+      "mutation": "equilibrium_semantics_label_trusted",
+      "status": "red"
+    },
+    {
+      "mutation": "method_tag_trusted_over_output_shape",
+      "status": "red"
+    },
+    {
+      "mutation": "stub_shaped_engine_run_receipt",
+      "status": "red"
+    },
+    {
+      "mutation": "pending_wmr_ref",
+      "status": "red"
+    },
+    {
+      "mutation": "k_sim_shrinks_k_world",
+      "status": "red"
+    },
+    {
+      "mutation": "fabricated_interaction_term",
+      "status": "red"
+    },
+    {
+      "mutation": "static_engine_result_presented_as_horizon",
+      "status": "red"
+    },
+    {
+      "mutation": "dynamic_engine_state_does_not_advance",
+      "status": "red"
+    }
+  ],
+  "contract_id": "policyos.runtime.joint_simulation_horizon",
+  "pattern_pass": {
+    "acceptance_signal": "controller_run_and_mutation_red",
+    "missing_capability_labels": [],
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P17",
+      "P28",
+      "P29",
+      "P31",
+      "P32",
+      "P33"
+    ],
+    "target_correct_pattern": "real engine run plus content-bound K_sim receipt; no K_world shrinkage"
+  },
+  "positive_gate": {
+    "abm_stub_strangle": {
+      "content_bound_has_diagnostic": true,
+      "legacy_stub_marker_absent": true,
+      "stub_rejected": true
+    },
+    "coupling_gate": {
+      "supported_coupled_des_abm": {
+        "decision": "selected",
+        "engine_kind": "coupled_des_abm",
+        "feedback_classification": {
+          "coupling_classes": [
+            "shared_resource"
+          ],
+          "coupling_classification_ref": "pdc://layer2/s5/428f23723402/coupling-classification",
+          "coupling_gate_verdict": "compose_with_limitations",
+          "coupling_regime": "near_decomposable",
+          "engine_supported": true,
+          "feedback": false,
+          "general_equilibrium": false,
+          "limitations": [
+            "requires_capacity_aggregation"
+          ],
+          "numeric_interaction": "non_additive",
+          "shared_resource": true,
+          "support_blockers": [],
+          "support_status": "supported"
+        },
+        "receipt": {
+          "authoritative_for": [
+            "simulation_numerical_uncertainty"
+          ],
+          "calibration_status": "content_bound_run_receipt",
+          "diagnostics_attached": true,
+          "diagnostics_hash": "sha256:ea7f7cc2bc04603e4cf0ba1a5e4b30a2836b6dd4f362a8fcc01c327860bb1d5d",
+          "engine_kind": "coupled_des_abm",
+          "may_not_use_for": [
+            "world_credal_state_shrinkage",
+            "promotion"
+          ],
+          "metrics_hash": "sha256:7a2f545d43ee18fe5157df4faf1b195756cb2a90afe060fa4162262e525b38ff",
+          "payload_hash": "sha256:eaa49a15f3c86ab9fb8fe2d2346b27951038fe0de4aeb078cf3e68e14eb082a9",
+          "receipt_id": "joint_sim_receipt_eaa49a15f3c86ab9",
+          "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+          "trajectory_count": 4,
+          "trajectory_hash": "sha256:3042eb074eceaa6302c34fb1aee179a0c9cd6785475846107f197e56d9330b74",
+          "uncertainty_kind": "K_sim"
+        },
+        "trajectory_levels": [
+          "individual",
+          "joint",
+          "pairwise"
+        ]
+      },
+      "unsupported_shared_resource": {
+        "blockers": [
+          "unsupported_coupling_class:shared_resource"
+        ],
+        "decision": "unsupported",
+        "feedback_classification": {
+          "coupling_classes": [
+            "shared_resource"
+          ],
+          "coupling_classification_ref": "pdc://layer2/s5/428f23723402/coupling-classification",
+          "coupling_gate_verdict": "compose_with_limitations",
+          "coupling_regime": "near_decomposable",
+          "engine_supported": false,
+          "feedback": false,
+          "general_equilibrium": false,
+          "limitations": [
+            "eligible_joint_engine_missing",
+            "requires_capacity_aggregation",
+            "unsupported_coupling_class:shared_resource"
+          ],
+          "numeric_interaction": "unsupported",
+          "shared_resource": true,
+          "support_blockers": [
+            "unsupported_coupling_class:shared_resource"
+          ],
+          "support_status": "unsupported"
+        },
+        "interaction_count": 0,
+        "reason": "coupling_composition_gate_unsupported",
+        "receipt": {
+          "authoritative_for": [],
+          "calibration_status": "unsupported_coupling_gated",
+          "diagnostics_attached": true,
+          "diagnostics_hash": "sha256:c3fa7eba981d39ba305d4b326241b52194353eb222e87bf229cb28f1d1ee271d",
+          "engine_kind": "ncm_parallel_worlds",
+          "may_not_use_for": [
+            "world_credal_state_shrinkage",
+            "promotion"
+          ],
+          "metrics_hash": "sha256:44730af93aae358ed5c2cde04181ff87ef53774260f74585cd14bec3b8363725",
+          "payload_hash": "sha256:e506787ee5ad58face27b5225130ea1bb7f01552089ce4606a6f7d7304cfc989",
+          "receipt_id": "joint_sim_receipt_e506787ee5ad58fa",
+          "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+          "trajectory_count": 0,
+          "trajectory_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "uncertainty_kind": "K_sim"
+        },
+        "trajectory_count": 0
+      }
+    },
+    "dynamic_horizon": {
+      "engine_decisions": [
+        {
+          "blockers": [],
+          "decision": "selected",
+          "eligibility_source": "method_registry",
+          "engine_kind": "system_dynamics",
+          "equilibrium_semantics": "dynamic_SCM",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "output_shape": "time_series_trajectory",
+          "reason": "engine_eligibility_satisfied",
+          "temporal_capability": "multi_period"
+        }
+      ],
+      "equilibrium_semantics": {
+        "objective://stock-flow": "dynamic_SCM"
+      },
+      "horizon_steps": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "interaction_terms": [
+        {
+          "atom_ids": [
+            "capacity_inflow",
+            "demand_inflow"
+          ],
+          "by_step": {
+            "0": 0.0,
+            "1": 1.0,
+            "2": 1.9000000000000004,
+            "3": 2.710000000000001
+          },
+          "formula": "joint_effect_minus_sum_individual_effects",
+          "outcome": "stock0"
+        },
+        {
+          "atom_ids": [
+            "capacity_inflow",
+            "demand_inflow"
+          ],
+          "by_step": {
+            "0": 0.0,
+            "1": -1.0,
+            "2": -1.9000000000000004,
+            "3": -2.710000000000001
+          },
+          "formula": "joint_effect_minus_sum_individual_effects",
+          "outcome": "stock1"
+        }
+      ],
+      "joint_terminal_outcomes": {
+        "stock0": 12.71,
+        "stock1": 12.29
+      },
+      "receipt": {
+        "authoritative_for": [
+          "simulation_numerical_uncertainty"
+        ],
+        "calibration_status": "content_bound_run_receipt",
+        "diagnostics_attached": true,
+        "diagnostics_hash": "sha256:ed89c4325993c26c6e93b5daf7aa672f71432ad7f7a60557bd65b2b6ca8a1fb3",
+        "engine_kind": "system_dynamics",
+        "may_not_use_for": [
+          "world_credal_state_shrinkage",
+          "promotion"
+        ],
+        "metrics_hash": "sha256:6bac683ffd0cd326a2bd263b59bc97f3cfed9bc838e5e031953b9f75f154e0c6",
+        "payload_hash": "sha256:6d47635f9c3abc72416d4b6180b0e48ca1b727acfce9871beb884dd42b981263",
+        "receipt_id": "joint_sim_receipt_6d47635f9c3abc72",
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+        "trajectory_count": 4,
+        "trajectory_hash": "sha256:2c005903967f2ff952e710d66a205216f724ac2daa60aaa3bb7b7048404bd539",
+        "uncertainty_kind": "K_sim"
+      },
+      "receipt_payload_hash": "sha256:6d47635f9c3abc72416d4b6180b0e48ca1b727acfce9871beb884dd42b981263",
+      "selected_outcomes": [
+        "stock0",
+        "stock1"
+      ],
+      "trajectories": [
+        {
+          "atom_ids": [
+            "capacity_inflow"
+          ],
+          "diagnostics": {
+            "engine": "StockFlowSystemDynamicsEstimator",
+            "horizon_loop": true,
+            "temporal_capability": "multi_period"
+          },
+          "engine_kind": "system_dynamics",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "points": [
+            {
+              "effect": {
+                "stock0": 0.0,
+                "stock1": 0.0
+              },
+              "engine_state": {
+                "mass_balance": 6.0,
+                "stock_values": [
+                  10.0,
+                  0.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 10.0,
+                "stock1": 0.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "stock0": 1.0,
+                "stock1": 1.0
+              },
+              "engine_state": {
+                "mass_balance": 6.0,
+                "stock_values": [
+                  11.0,
+                  1.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.0,
+                "stock1": 1.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "stock0": 1.9000000000000004,
+                "stock1": 2.1
+              },
+              "engine_state": {
+                "mass_balance": 6.0,
+                "stock_values": [
+                  11.9,
+                  2.1
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.9,
+                "stock1": 2.1
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "stock0": 2.710000000000001,
+                "stock1": 3.29
+              },
+              "engine_state": {
+                "mass_balance": 6.0,
+                "stock_values": [
+                  12.71,
+                  3.29
+                ]
+              },
+              "outcomes": {
+                "stock0": 12.71,
+                "stock1": 3.29
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "demand_inflow"
+          ],
+          "diagnostics": {
+            "engine": "StockFlowSystemDynamicsEstimator",
+            "horizon_loop": true,
+            "temporal_capability": "multi_period"
+          },
+          "engine_kind": "system_dynamics",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "points": [
+            {
+              "effect": {
+                "stock0": 0.0,
+                "stock1": 0.0
+              },
+              "engine_state": {
+                "mass_balance": 9.0,
+                "stock_values": [
+                  10.0,
+                  0.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 10.0,
+                "stock1": 0.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "stock0": -1.0,
+                "stock1": 4.0
+              },
+              "engine_state": {
+                "mass_balance": 9.0,
+                "stock_values": [
+                  9.0,
+                  4.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 9.0,
+                "stock1": 4.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "stock0": -1.9000000000000004,
+                "stock1": 7.9
+              },
+              "engine_state": {
+                "mass_balance": 9.0,
+                "stock_values": [
+                  8.1,
+                  7.9
+                ]
+              },
+              "outcomes": {
+                "stock0": 8.1,
+                "stock1": 7.9
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "stock0": -2.710000000000001,
+                "stock1": 11.71
+              },
+              "engine_state": {
+                "mass_balance": 9.0,
+                "stock_values": [
+                  7.289999999999999,
+                  11.71
+                ]
+              },
+              "outcomes": {
+                "stock0": 7.289999999999999,
+                "stock1": 11.71
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "capacity_inflow",
+            "demand_inflow"
+          ],
+          "diagnostics": {
+            "engine": "StockFlowSystemDynamicsEstimator",
+            "horizon_loop": true,
+            "temporal_capability": "multi_period"
+          },
+          "engine_kind": "system_dynamics",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "points": [
+            {
+              "effect": {
+                "stock0": 0.0,
+                "stock1": 0.0
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  10.0,
+                  0.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 10.0,
+                "stock1": 0.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "stock0": 1.0,
+                "stock1": 4.0
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  11.0,
+                  4.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.0,
+                "stock1": 4.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "stock0": 1.9000000000000004,
+                "stock1": 8.1
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  11.9,
+                  8.1
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.9,
+                "stock1": 8.1
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "stock0": 2.710000000000001,
+                "stock1": 12.29
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  12.71,
+                  12.29
+                ]
+              },
+              "outcomes": {
+                "stock0": 12.71,
+                "stock1": 12.29
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "pairwise"
+        },
+        {
+          "atom_ids": [
+            "capacity_inflow",
+            "demand_inflow"
+          ],
+          "diagnostics": {
+            "engine": "StockFlowSystemDynamicsEstimator",
+            "horizon_loop": true,
+            "temporal_capability": "multi_period"
+          },
+          "engine_kind": "system_dynamics",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "points": [
+            {
+              "effect": {
+                "stock0": 0.0,
+                "stock1": 0.0
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  10.0,
+                  0.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 10.0,
+                "stock1": 0.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "stock0": 1.0,
+                "stock1": 4.0
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  11.0,
+                  4.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.0,
+                "stock1": 4.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "stock0": 1.9000000000000004,
+                "stock1": 8.1
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  11.9,
+                  8.1
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.9,
+                "stock1": 8.1
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "stock0": 2.710000000000001,
+                "stock1": 12.29
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  12.71,
+                  12.29
+                ]
+              },
+              "outcomes": {
+                "stock0": 12.71,
+                "stock1": 12.29
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "joint"
+        }
+      ],
+      "trajectory_levels": [
+        "individual",
+        "joint",
+        "pairwise"
+      ],
+      "uncertainty_kind": "K_sim",
+      "world_credal_state_after": {
+        "stock0": {
+          "high": 12.0,
+          "low": 8.0
+        }
+      },
+      "world_credal_state_before": {
+        "stock0": {
+          "high": 12.0,
+          "low": 8.0
+        }
+      },
+      "world_model_record_content_hash": "sha256:0838e7007bfecf6bad3c7b989fb7d18ff7005ddd63de11997f3c11db39d078b0",
+      "world_model_record_ref": "world_model_record_0838e7007bfecf6b"
+    },
+    "equilibrium_resolution_gate": {
+      "blockers": [
+        "declared_semantics_unbacked:game_model",
+        "output_shape:static_point"
+      ],
+      "decision": "unsupported",
+      "equilibrium_semantics": {
+        "objective://firm-survival": "unsupported"
+      },
+      "reason": "equilibrium_semantics_not_backed_by_engine",
+      "receipt": {
+        "authoritative_for": [],
+        "calibration_status": "no_run",
+        "diagnostics_attached": true,
+        "diagnostics_hash": "sha256:4470c947bac93970c4351f81062f9a67c99fc68fa19a407c9fffa9028a4d2a94",
+        "engine_kind": "ncm_parallel_worlds",
+        "may_not_use_for": [
+          "world_credal_state_shrinkage",
+          "promotion"
+        ],
+        "metrics_hash": "sha256:9a32a9ed4f050c7c1dd8c682e71d37c992a379061fce8bb2f03cd63a1e754a83",
+        "payload_hash": "sha256:2a36ec642a61202d3c3793ae19f08a0ee744cb16d2472c4dea72ab82f8e1b2d7",
+        "receipt_id": "joint_sim_receipt_2a36ec642a61202d",
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+        "trajectory_count": 0,
+        "trajectory_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uncertainty_kind": "K_sim"
+      },
+      "trajectory_count": 0
+    },
+    "none_semantics": {
+      "engine_decisions": [
+        {
+          "blockers": [],
+          "decision": "selected",
+          "eligibility_source": "method_registry",
+          "engine_kind": "ncm_parallel_worlds",
+          "equilibrium_semantics": "none",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "output_shape": "static_point",
+          "reason": "engine_eligibility_satisfied",
+          "temporal_capability": "static"
+        }
+      ],
+      "equilibrium_semantics": {
+        "objective://firm-survival": "none"
+      },
+      "horizon_steps": [
+        0
+      ],
+      "interaction_terms": [
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "by_step": {
+            "0": 5.0
+          },
+          "formula": "joint_effect_minus_sum_individual_effects",
+          "outcome": "firm_survival"
+        }
+      ],
+      "joint_terminal_outcomes": {
+        "firm_survival": 11.0
+      },
+      "receipt": {
+        "authoritative_for": [
+          "simulation_numerical_uncertainty"
+        ],
+        "calibration_status": "content_bound_run_receipt",
+        "diagnostics_attached": true,
+        "diagnostics_hash": "sha256:fee5f92e0084d8b152ac2a8e8d97ad22f4e3bc69d81337c6a15487e2811eaf19",
+        "engine_kind": "ncm_parallel_worlds",
+        "may_not_use_for": [
+          "world_credal_state_shrinkage",
+          "promotion"
+        ],
+        "metrics_hash": "sha256:3eb686e1e66222da647461853d80e13f3a15812c705e0e2c3923de86ec457b32",
+        "payload_hash": "sha256:9682d8e1cdc886da33e327d632a84ec2b87bd0bc1a32cce503da91df49d93e91",
+        "receipt_id": "joint_sim_receipt_9682d8e1cdc886da",
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+        "trajectory_count": 4,
+        "trajectory_hash": "sha256:8f2e3a03ce11beb48f190b56c20f61c71361912b086fc53596c4cceac00b8f48",
+        "uncertainty_kind": "K_sim"
+      },
+      "receipt_payload_hash": "sha256:9682d8e1cdc886da33e327d632a84ec2b87bd0bc1a32cce503da91df49d93e91",
+      "selected_outcomes": [
+        "firm_survival"
+      ],
+      "trajectories": [
+        {
+          "atom_ids": [
+            "income_subsidy"
+          ],
+          "diagnostics": {
+            "engine": "NCMEngineMethod",
+            "horizon_loop": false,
+            "temporal_capability": "static"
+          },
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "points": [
+            {
+              "effect": {
+                "firm_survival": 2.0
+              },
+              "engine_state": {
+                "intervention": {
+                  "income_delta": 1.0
+                }
+              },
+              "outcomes": {
+                "firm_survival": 3.0
+              },
+              "step": 0
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "NCMEngineMethod",
+            "horizon_loop": false,
+            "temporal_capability": "static"
+          },
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "points": [
+            {
+              "effect": {
+                "firm_survival": 3.0
+              },
+              "engine_state": {
+                "intervention": {
+                  "balance_delta": 1.0
+                }
+              },
+              "outcomes": {
+                "firm_survival": 4.0
+              },
+              "step": 0
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "NCMEngineMethod",
+            "horizon_loop": false,
+            "temporal_capability": "static"
+          },
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "points": [
+            {
+              "effect": {
+                "firm_survival": 10.0
+              },
+              "engine_state": {
+                "intervention": {
+                  "balance_delta": 1.0,
+                  "income_delta": 1.0
+                }
+              },
+              "outcomes": {
+                "firm_survival": 11.0
+              },
+              "step": 0
+            }
+          ],
+          "run_level": "pairwise"
+        },
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "NCMEngineMethod",
+            "horizon_loop": false,
+            "temporal_capability": "static"
+          },
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "points": [
+            {
+              "effect": {
+                "firm_survival": 10.0
+              },
+              "engine_state": {
+                "intervention": {
+                  "balance_delta": 1.0,
+                  "income_delta": 1.0
+                }
+              },
+              "outcomes": {
+                "firm_survival": 11.0
+              },
+              "step": 0
+            }
+          ],
+          "run_level": "joint"
+        }
+      ],
+      "trajectory_levels": [
+        "individual",
+        "joint",
+        "pairwise"
+      ],
+      "uncertainty_kind": "K_sim",
+      "world_credal_state_after": {
+        "firm_survival": {
+          "high": 0.8,
+          "low": 0.2
+        }
+      },
+      "world_credal_state_before": {
+        "firm_survival": {
+          "high": 0.8,
+          "low": 0.2
+        }
+      },
+      "world_model_record_content_hash": "sha256:0838e7007bfecf6bad3c7b989fb7d18ff7005ddd63de11997f3c11db39d078b0",
+      "world_model_record_ref": "world_model_record_0838e7007bfecf6b"
+    },
+    "program_graph_equilibrium_scm": {
+      "engine_decisions": [
+        {
+          "blockers": [],
+          "decision": "selected",
+          "eligibility_source": "program_graph_runtime_contract",
+          "engine_kind": "program_graph",
+          "equilibrium_semantics": "equilibrium_SCM",
+          "method_fqn": "foundry.execute.program_graph",
+          "objective_ref": "objective://program-graph-equilibrium-smoke",
+          "output_shape": "program_state_trajectory",
+          "reason": "engine_eligibility_satisfied",
+          "temporal_capability": "multi_period"
+        }
+      ],
+      "equilibrium_semantics": {
+        "objective://program-graph-equilibrium-smoke": "equilibrium_SCM"
+      },
+      "horizon_steps": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "interaction_terms": [
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "by_step": {
+            "0": -1650.0,
+            "1": -1815.0,
+            "2": -1996.5,
+            "3": -2196.1499633789062
+          },
+          "formula": "joint_effect_minus_sum_individual_effects",
+          "outcome": "mean_income"
+        }
+      ],
+      "joint_terminal_outcomes": {
+        "mean_income": 3110.400146484375
+      },
+      "receipt": {
+        "authoritative_for": [
+          "simulation_numerical_uncertainty"
+        ],
+        "calibration_status": "content_bound_run_receipt",
+        "diagnostics_attached": true,
+        "diagnostics_hash": "sha256:ed89c4325993c26c6e93b5daf7aa672f71432ad7f7a60557bd65b2b6ca8a1fb3",
+        "engine_kind": "program_graph",
+        "may_not_use_for": [
+          "world_credal_state_shrinkage",
+          "promotion"
+        ],
+        "metrics_hash": "sha256:5a910aa86293dc0cc4710462ce9d7293c953bd1d5d1062117a0ad192e75f5663",
+        "payload_hash": "sha256:6a574bd057f32a05ab01078f7bfad33526fea6ef27fc5273da31bb4961bcf727",
+        "receipt_id": "joint_sim_receipt_6a574bd057f32a05",
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+        "trajectory_count": 4,
+        "trajectory_hash": "sha256:3d2b27ba829ec6e79382c317bc2773b3f53e9fa45d0bcef10b367e850fed5333",
+        "uncertainty_kind": "K_sim"
+      },
+      "receipt_payload_hash": "sha256:6a574bd057f32a05ab01078f7bfad33526fea6ef27fc5273da31bb4961bcf727",
+      "selected_outcomes": [
+        "mean_income"
+      ],
+      "trajectories": [
+        {
+          "atom_ids": [
+            "income_subsidy"
+          ],
+          "diagnostics": {
+            "engine": "execute_program_graph",
+            "horizon_loop": true,
+            "metrics_ref_count": 4,
+            "state_delta_refs": [
+              "sha256:4cfe01f4a21733072b6df1b74655e31b9a54d63195582df38733ba38bb654b73",
+              "sha256:bb06ec77cd9d9463d045cedf45f481c377ca5a223dc8773c3b405d6eacb8bb5f",
+              "sha256:65df9e85975fc8da3eb5fcfb949db08b221d010432703910b5fd7a8232a4df28",
+              "sha256:ad3000c5a0cc4b86370d55b8eb0c9b903827e606298be670c6aa7c4690df8dd2"
+            ]
+          },
+          "engine_kind": "program_graph",
+          "method_fqn": "foundry.execute.program_graph",
+          "objective_ref": "objective://program-graph-equilibrium-smoke",
+          "points": [
+            {
+              "effect": {
+                "mean_income": 1650.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:4cfe01f4a21733072b6df1b74655e31b9a54d63195582df38733ba38bb654b73"
+              },
+              "outcomes": {
+                "mean_income": 1650.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "mean_income": 1815.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:bb06ec77cd9d9463d045cedf45f481c377ca5a223dc8773c3b405d6eacb8bb5f"
+              },
+              "outcomes": {
+                "mean_income": 1815.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "mean_income": 1996.5
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:65df9e85975fc8da3eb5fcfb949db08b221d010432703910b5fd7a8232a4df28"
+              },
+              "outcomes": {
+                "mean_income": 1996.5
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "mean_income": 2196.1499633789062
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:ad3000c5a0cc4b86370d55b8eb0c9b903827e606298be670c6aa7c4690df8dd2"
+              },
+              "outcomes": {
+                "mean_income": 2196.1499633789062
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "execute_program_graph",
+            "horizon_loop": true,
+            "metrics_ref_count": 4,
+            "state_delta_refs": [
+              "sha256:e2def28739b748e20e0d81851b0885af4eb5d6e118e0e433618038196bc2c8ef",
+              "sha256:9cb174db2401f508aa64b264788f4d21b88f78340e821f09fc0d964476e94cdc",
+              "sha256:9f2726c203ed4b6057243a52f9e972b0e9721ed34fc753fe88b2e89fd34e8512",
+              "sha256:4466995ab3580b2e5e2727d1b6f1122261b2eb31084d8cf54b6a27ba2f06cee0"
+            ]
+          },
+          "engine_kind": "program_graph",
+          "method_fqn": "foundry.execute.program_graph",
+          "objective_ref": "objective://program-graph-equilibrium-smoke",
+          "points": [
+            {
+              "effect": {
+                "mean_income": 1800.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:e2def28739b748e20e0d81851b0885af4eb5d6e118e0e433618038196bc2c8ef"
+              },
+              "outcomes": {
+                "mean_income": 1800.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "mean_income": 2160.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:9cb174db2401f508aa64b264788f4d21b88f78340e821f09fc0d964476e94cdc"
+              },
+              "outcomes": {
+                "mean_income": 2160.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "mean_income": 2592.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:9f2726c203ed4b6057243a52f9e972b0e9721ed34fc753fe88b2e89fd34e8512"
+              },
+              "outcomes": {
+                "mean_income": 2592.0
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "mean_income": 3110.400146484375
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:4466995ab3580b2e5e2727d1b6f1122261b2eb31084d8cf54b6a27ba2f06cee0"
+              },
+              "outcomes": {
+                "mean_income": 3110.400146484375
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "execute_program_graph",
+            "horizon_loop": true,
+            "metrics_ref_count": 4,
+            "state_delta_refs": [
+              "sha256:e2def28739b748e20e0d81851b0885af4eb5d6e118e0e433618038196bc2c8ef",
+              "sha256:9cb174db2401f508aa64b264788f4d21b88f78340e821f09fc0d964476e94cdc",
+              "sha256:9f2726c203ed4b6057243a52f9e972b0e9721ed34fc753fe88b2e89fd34e8512",
+              "sha256:4466995ab3580b2e5e2727d1b6f1122261b2eb31084d8cf54b6a27ba2f06cee0"
+            ]
+          },
+          "engine_kind": "program_graph",
+          "method_fqn": "foundry.execute.program_graph",
+          "objective_ref": "objective://program-graph-equilibrium-smoke",
+          "points": [
+            {
+              "effect": {
+                "mean_income": 1800.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:e2def28739b748e20e0d81851b0885af4eb5d6e118e0e433618038196bc2c8ef"
+              },
+              "outcomes": {
+                "mean_income": 1800.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "mean_income": 2160.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:9cb174db2401f508aa64b264788f4d21b88f78340e821f09fc0d964476e94cdc"
+              },
+              "outcomes": {
+                "mean_income": 2160.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "mean_income": 2592.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:9f2726c203ed4b6057243a52f9e972b0e9721ed34fc753fe88b2e89fd34e8512"
+              },
+              "outcomes": {
+                "mean_income": 2592.0
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "mean_income": 3110.400146484375
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:4466995ab3580b2e5e2727d1b6f1122261b2eb31084d8cf54b6a27ba2f06cee0"
+              },
+              "outcomes": {
+                "mean_income": 3110.400146484375
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "pairwise"
+        },
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "execute_program_graph",
+            "horizon_loop": true,
+            "metrics_ref_count": 4,
+            "state_delta_refs": [
+              "sha256:e2def28739b748e20e0d81851b0885af4eb5d6e118e0e433618038196bc2c8ef",
+              "sha256:9cb174db2401f508aa64b264788f4d21b88f78340e821f09fc0d964476e94cdc",
+              "sha256:9f2726c203ed4b6057243a52f9e972b0e9721ed34fc753fe88b2e89fd34e8512",
+              "sha256:4466995ab3580b2e5e2727d1b6f1122261b2eb31084d8cf54b6a27ba2f06cee0"
+            ]
+          },
+          "engine_kind": "program_graph",
+          "method_fqn": "foundry.execute.program_graph",
+          "objective_ref": "objective://program-graph-equilibrium-smoke",
+          "points": [
+            {
+              "effect": {
+                "mean_income": 1800.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:e2def28739b748e20e0d81851b0885af4eb5d6e118e0e433618038196bc2c8ef"
+              },
+              "outcomes": {
+                "mean_income": 1800.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "mean_income": 2160.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:9cb174db2401f508aa64b264788f4d21b88f78340e821f09fc0d964476e94cdc"
+              },
+              "outcomes": {
+                "mean_income": 2160.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "mean_income": 2592.0
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:9f2726c203ed4b6057243a52f9e972b0e9721ed34fc753fe88b2e89fd34e8512"
+              },
+              "outcomes": {
+                "mean_income": 2592.0
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "mean_income": 3110.400146484375
+              },
+              "engine_state": {
+                "metrics_ref_produced": true,
+                "state_delta_ref": "sha256:4466995ab3580b2e5e2727d1b6f1122261b2eb31084d8cf54b6a27ba2f06cee0"
+              },
+              "outcomes": {
+                "mean_income": 3110.400146484375
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "joint"
+        }
+      ],
+      "trajectory_levels": [
+        "individual",
+        "joint",
+        "pairwise"
+      ],
+      "uncertainty_kind": "K_sim",
+      "world_credal_state_after": {
+        "firm_survival": {
+          "high": 0.8,
+          "low": 0.2
+        }
+      },
+      "world_credal_state_before": {
+        "firm_survival": {
+          "high": 0.8,
+          "low": 0.2
+        }
+      },
+      "world_model_record_content_hash": "sha256:0838e7007bfecf6bad3c7b989fb7d18ff7005ddd63de11997f3c11db39d078b0",
+      "world_model_record_ref": "world_model_record_0838e7007bfecf6b"
+    },
+    "registry_output_shape_gate": {
+      "blockers": [
+        "output_shape:scalar_final_value",
+        "declared_semantics_unbacked:agent_based_model"
+      ],
+      "decision": "unsupported",
+      "equilibrium_semantics": {
+        "objective://queue-tag-counterexample": "unsupported"
+      },
+      "reason": "method_output_shape_does_not_back_semantics",
+      "receipt": {
+        "authoritative_for": [],
+        "calibration_status": "no_run",
+        "diagnostics_attached": true,
+        "diagnostics_hash": "sha256:4ef4ba4aa6648b7075361718d85e493c23ca81db6cbe78027f181159a63904a8",
+        "engine_kind": "method_registry_estimator",
+        "may_not_use_for": [
+          "world_credal_state_shrinkage",
+          "promotion"
+        ],
+        "metrics_hash": "sha256:1143f49e45f0043ed420fdb3754931e37245fc4ff360271f30bc458c25316602",
+        "payload_hash": "sha256:5c2cbf0393b462ceeff6caf34604ed0acc6a01a805b207670d40f3f685b5924e",
+        "receipt_id": "joint_sim_receipt_5c2cbf0393b462ce",
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+        "trajectory_count": 0,
+        "trajectory_hash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "uncertainty_kind": "K_sim"
+      },
+      "trajectory_count": 0
+    },
+    "static_scm": {
+      "engine_decisions": [
+        {
+          "blockers": [],
+          "decision": "selected",
+          "eligibility_source": "method_registry",
+          "engine_kind": "ncm_parallel_worlds",
+          "equilibrium_semantics": "static_SCM",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "output_shape": "static_point",
+          "reason": "engine_eligibility_satisfied",
+          "temporal_capability": "static"
+        }
+      ],
+      "equilibrium_semantics": {
+        "objective://firm-survival": "static_SCM"
+      },
+      "horizon_steps": [
+        0
+      ],
+      "interaction_terms": [
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "by_step": {
+            "0": 5.0
+          },
+          "formula": "joint_effect_minus_sum_individual_effects",
+          "outcome": "firm_survival"
+        }
+      ],
+      "joint_terminal_outcomes": {
+        "firm_survival": 11.0
+      },
+      "receipt": {
+        "authoritative_for": [
+          "simulation_numerical_uncertainty"
+        ],
+        "calibration_status": "content_bound_run_receipt",
+        "diagnostics_attached": true,
+        "diagnostics_hash": "sha256:fee5f92e0084d8b152ac2a8e8d97ad22f4e3bc69d81337c6a15487e2811eaf19",
+        "engine_kind": "ncm_parallel_worlds",
+        "may_not_use_for": [
+          "world_credal_state_shrinkage",
+          "promotion"
+        ],
+        "metrics_hash": "sha256:eab4ea3c06974a05dbbbd2ccbd7d0c081604c341aa22ee195f5287859cab3a2d",
+        "payload_hash": "sha256:27d8ed76923be102ebea3bd2cbb93804efa867b5610b8126cedfa93b1a0a66ee",
+        "receipt_id": "joint_sim_receipt_27d8ed76923be102",
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+        "trajectory_count": 4,
+        "trajectory_hash": "sha256:8f2e3a03ce11beb48f190b56c20f61c71361912b086fc53596c4cceac00b8f48",
+        "uncertainty_kind": "K_sim"
+      },
+      "receipt_payload_hash": "sha256:27d8ed76923be102ebea3bd2cbb93804efa867b5610b8126cedfa93b1a0a66ee",
+      "selected_outcomes": [
+        "firm_survival"
+      ],
+      "trajectories": [
+        {
+          "atom_ids": [
+            "income_subsidy"
+          ],
+          "diagnostics": {
+            "engine": "NCMEngineMethod",
+            "horizon_loop": false,
+            "temporal_capability": "static"
+          },
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "points": [
+            {
+              "effect": {
+                "firm_survival": 2.0
+              },
+              "engine_state": {
+                "intervention": {
+                  "income_delta": 1.0
+                }
+              },
+              "outcomes": {
+                "firm_survival": 3.0
+              },
+              "step": 0
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "NCMEngineMethod",
+            "horizon_loop": false,
+            "temporal_capability": "static"
+          },
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "points": [
+            {
+              "effect": {
+                "firm_survival": 3.0
+              },
+              "engine_state": {
+                "intervention": {
+                  "balance_delta": 1.0
+                }
+              },
+              "outcomes": {
+                "firm_survival": 4.0
+              },
+              "step": 0
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "NCMEngineMethod",
+            "horizon_loop": false,
+            "temporal_capability": "static"
+          },
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "points": [
+            {
+              "effect": {
+                "firm_survival": 10.0
+              },
+              "engine_state": {
+                "intervention": {
+                  "balance_delta": 1.0,
+                  "income_delta": 1.0
+                }
+              },
+              "outcomes": {
+                "firm_survival": 11.0
+              },
+              "step": 0
+            }
+          ],
+          "run_level": "pairwise"
+        },
+        {
+          "atom_ids": [
+            "income_subsidy",
+            "balance_grant"
+          ],
+          "diagnostics": {
+            "engine": "NCMEngineMethod",
+            "horizon_loop": false,
+            "temporal_capability": "static"
+          },
+          "engine_kind": "ncm_parallel_worlds",
+          "method_fqn": "causal.counterfactual.ncm_engine@1.0.0",
+          "objective_ref": "objective://firm-survival",
+          "points": [
+            {
+              "effect": {
+                "firm_survival": 10.0
+              },
+              "engine_state": {
+                "intervention": {
+                  "balance_delta": 1.0,
+                  "income_delta": 1.0
+                }
+              },
+              "outcomes": {
+                "firm_survival": 11.0
+              },
+              "step": 0
+            }
+          ],
+          "run_level": "joint"
+        }
+      ],
+      "trajectory_levels": [
+        "individual",
+        "joint",
+        "pairwise"
+      ],
+      "uncertainty_kind": "K_sim",
+      "world_credal_state_after": {
+        "firm_survival": {
+          "high": 0.8,
+          "low": 0.2
+        }
+      },
+      "world_credal_state_before": {
+        "firm_survival": {
+          "high": 0.8,
+          "low": 0.2
+        }
+      },
+      "world_model_record_content_hash": "sha256:0838e7007bfecf6bad3c7b989fb7d18ff7005ddd63de11997f3c11db39d078b0",
+      "world_model_record_ref": "world_model_record_0838e7007bfecf6b"
+    },
+    "status": "pass",
+    "time_unrolled_scm": {
+      "engine_decisions": [
+        {
+          "blockers": [],
+          "decision": "selected",
+          "eligibility_source": "method_registry",
+          "engine_kind": "system_dynamics",
+          "equilibrium_semantics": "time_unrolled_SCM",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "output_shape": "time_series_trajectory",
+          "reason": "engine_eligibility_satisfied",
+          "temporal_capability": "multi_period"
+        }
+      ],
+      "equilibrium_semantics": {
+        "objective://stock-flow": "time_unrolled_SCM"
+      },
+      "horizon_steps": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "interaction_terms": [
+        {
+          "atom_ids": [
+            "capacity_inflow",
+            "demand_inflow"
+          ],
+          "by_step": {
+            "0": 0.0,
+            "1": 1.0,
+            "2": 1.9000000000000004,
+            "3": 2.710000000000001
+          },
+          "formula": "joint_effect_minus_sum_individual_effects",
+          "outcome": "stock0"
+        },
+        {
+          "atom_ids": [
+            "capacity_inflow",
+            "demand_inflow"
+          ],
+          "by_step": {
+            "0": 0.0,
+            "1": -1.0,
+            "2": -1.9000000000000004,
+            "3": -2.710000000000001
+          },
+          "formula": "joint_effect_minus_sum_individual_effects",
+          "outcome": "stock1"
+        }
+      ],
+      "joint_terminal_outcomes": {
+        "stock0": 12.71,
+        "stock1": 12.29
+      },
+      "receipt": {
+        "authoritative_for": [
+          "simulation_numerical_uncertainty"
+        ],
+        "calibration_status": "content_bound_run_receipt",
+        "diagnostics_attached": true,
+        "diagnostics_hash": "sha256:ed89c4325993c26c6e93b5daf7aa672f71432ad7f7a60557bd65b2b6ca8a1fb3",
+        "engine_kind": "system_dynamics",
+        "may_not_use_for": [
+          "world_credal_state_shrinkage",
+          "promotion"
+        ],
+        "metrics_hash": "sha256:caf7f9fe41dd78ad9ffbf3271ff2e4a3d78868da54bb9060127f723bd31ebc4b",
+        "payload_hash": "sha256:98dd17e1349a976a49b6e5d18cea8b953a3b138b53eb68d1ae46adcb2a65a51f",
+        "receipt_id": "joint_sim_receipt_98dd17e1349a976a",
+        "schema_version": "policyos.runtime.joint_simulation_horizon.v1",
+        "trajectory_count": 4,
+        "trajectory_hash": "sha256:2c005903967f2ff952e710d66a205216f724ac2daa60aaa3bb7b7048404bd539",
+        "uncertainty_kind": "K_sim"
+      },
+      "receipt_payload_hash": "sha256:98dd17e1349a976a49b6e5d18cea8b953a3b138b53eb68d1ae46adcb2a65a51f",
+      "selected_outcomes": [
+        "stock0",
+        "stock1"
+      ],
+      "trajectories": [
+        {
+          "atom_ids": [
+            "capacity_inflow"
+          ],
+          "diagnostics": {
+            "engine": "StockFlowSystemDynamicsEstimator",
+            "horizon_loop": true,
+            "temporal_capability": "multi_period"
+          },
+          "engine_kind": "system_dynamics",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "points": [
+            {
+              "effect": {
+                "stock0": 0.0,
+                "stock1": 0.0
+              },
+              "engine_state": {
+                "mass_balance": 6.0,
+                "stock_values": [
+                  10.0,
+                  0.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 10.0,
+                "stock1": 0.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "stock0": 1.0,
+                "stock1": 1.0
+              },
+              "engine_state": {
+                "mass_balance": 6.0,
+                "stock_values": [
+                  11.0,
+                  1.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.0,
+                "stock1": 1.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "stock0": 1.9000000000000004,
+                "stock1": 2.1
+              },
+              "engine_state": {
+                "mass_balance": 6.0,
+                "stock_values": [
+                  11.9,
+                  2.1
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.9,
+                "stock1": 2.1
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "stock0": 2.710000000000001,
+                "stock1": 3.29
+              },
+              "engine_state": {
+                "mass_balance": 6.0,
+                "stock_values": [
+                  12.71,
+                  3.29
+                ]
+              },
+              "outcomes": {
+                "stock0": 12.71,
+                "stock1": 3.29
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "demand_inflow"
+          ],
+          "diagnostics": {
+            "engine": "StockFlowSystemDynamicsEstimator",
+            "horizon_loop": true,
+            "temporal_capability": "multi_period"
+          },
+          "engine_kind": "system_dynamics",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "points": [
+            {
+              "effect": {
+                "stock0": 0.0,
+                "stock1": 0.0
+              },
+              "engine_state": {
+                "mass_balance": 9.0,
+                "stock_values": [
+                  10.0,
+                  0.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 10.0,
+                "stock1": 0.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "stock0": -1.0,
+                "stock1": 4.0
+              },
+              "engine_state": {
+                "mass_balance": 9.0,
+                "stock_values": [
+                  9.0,
+                  4.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 9.0,
+                "stock1": 4.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "stock0": -1.9000000000000004,
+                "stock1": 7.9
+              },
+              "engine_state": {
+                "mass_balance": 9.0,
+                "stock_values": [
+                  8.1,
+                  7.9
+                ]
+              },
+              "outcomes": {
+                "stock0": 8.1,
+                "stock1": 7.9
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "stock0": -2.710000000000001,
+                "stock1": 11.71
+              },
+              "engine_state": {
+                "mass_balance": 9.0,
+                "stock_values": [
+                  7.289999999999999,
+                  11.71
+                ]
+              },
+              "outcomes": {
+                "stock0": 7.289999999999999,
+                "stock1": 11.71
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "individual"
+        },
+        {
+          "atom_ids": [
+            "capacity_inflow",
+            "demand_inflow"
+          ],
+          "diagnostics": {
+            "engine": "StockFlowSystemDynamicsEstimator",
+            "horizon_loop": true,
+            "temporal_capability": "multi_period"
+          },
+          "engine_kind": "system_dynamics",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "points": [
+            {
+              "effect": {
+                "stock0": 0.0,
+                "stock1": 0.0
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  10.0,
+                  0.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 10.0,
+                "stock1": 0.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "stock0": 1.0,
+                "stock1": 4.0
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  11.0,
+                  4.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.0,
+                "stock1": 4.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "stock0": 1.9000000000000004,
+                "stock1": 8.1
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  11.9,
+                  8.1
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.9,
+                "stock1": 8.1
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "stock0": 2.710000000000001,
+                "stock1": 12.29
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  12.71,
+                  12.29
+                ]
+              },
+              "outcomes": {
+                "stock0": 12.71,
+                "stock1": 12.29
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "pairwise"
+        },
+        {
+          "atom_ids": [
+            "capacity_inflow",
+            "demand_inflow"
+          ],
+          "diagnostics": {
+            "engine": "StockFlowSystemDynamicsEstimator",
+            "horizon_loop": true,
+            "temporal_capability": "multi_period"
+          },
+          "engine_kind": "system_dynamics",
+          "method_fqn": "simulation.system_dynamics.stock_flow@1.0.0",
+          "objective_ref": "objective://stock-flow",
+          "points": [
+            {
+              "effect": {
+                "stock0": 0.0,
+                "stock1": 0.0
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  10.0,
+                  0.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 10.0,
+                "stock1": 0.0
+              },
+              "step": 0
+            },
+            {
+              "effect": {
+                "stock0": 1.0,
+                "stock1": 4.0
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  11.0,
+                  4.0
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.0,
+                "stock1": 4.0
+              },
+              "step": 1
+            },
+            {
+              "effect": {
+                "stock0": 1.9000000000000004,
+                "stock1": 8.1
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  11.9,
+                  8.1
+                ]
+              },
+              "outcomes": {
+                "stock0": 11.9,
+                "stock1": 8.1
+              },
+              "step": 2
+            },
+            {
+              "effect": {
+                "stock0": 2.710000000000001,
+                "stock1": 12.29
+              },
+              "engine_state": {
+                "mass_balance": 15.0,
+                "stock_values": [
+                  12.71,
+                  12.29
+                ]
+              },
+              "outcomes": {
+                "stock0": 12.71,
+                "stock1": 12.29
+              },
+              "step": 3
+            }
+          ],
+          "run_level": "joint"
+        }
+      ],
+      "trajectory_levels": [
+        "individual",
+        "joint",
+        "pairwise"
+      ],
+      "uncertainty_kind": "K_sim",
+      "world_credal_state_after": {
+        "stock0": {
+          "high": 12.0,
+          "low": 8.0
+        }
+      },
+      "world_credal_state_before": {
+        "stock0": {
+          "high": 12.0,
+          "low": 8.0
+        }
+      },
+      "world_model_record_content_hash": "sha256:0838e7007bfecf6bad3c7b989fb7d18ff7005ddd63de11997f3c11db39d078b0",
+      "world_model_record_ref": "world_model_record_0838e7007bfecf6b"
+    }
+  },
+  "producer": "tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract",
+  "schema_version": "policyos.policy_design_case.layer3_gy.joint_simulation_horizon_contract.v1",
+  "source_modules": [
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "src/polisyos/runtime/quality/intervention_atom_binding.py",
+    "src/polisyos/runtime/quality/world_model_record.py",
+    "src/polisyos/foundry/execute/_internal/graph/__init__.py",
+    "src/polisyos/foundry/methods/catalog/causal/ncm_engine.py",
+    "src/polisyos/foundry/methods/catalog/simulation/coupled.py",
+    "src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+    "src/polisyos/ir/analytics/phase4_dynamics.py"
+  ]
+}

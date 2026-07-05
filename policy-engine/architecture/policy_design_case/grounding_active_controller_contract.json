@@ -1,0 +1,3412 @@
+{
+  "action_family_exercises": {
+    "families": [
+      "abstain",
+      "acquire_data",
+      "adversarial_validate",
+      "cheap_verify",
+      "elicit_human"
+    ]
+  },
+  "action_family_table": [
+    {
+      "action_family": "abstain",
+      "blocker_type": "exact",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "certified-specialization",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "generalization",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "partial",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "compositional",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "false-analog",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "novel-candidate",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "elicit_human",
+      "blocker_type": "unknown",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "blocked",
+      "gate": "CG1",
+      "rationale": "CG1 relation status is the typed RT1 blocker vocabulary.",
+      "rule_source": "SelectedRelation literal from grounding_relation.py",
+      "source_field": "selected_relation"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "op",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "target",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "do_value",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "sign",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "params",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "unit",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "elicit_human",
+      "blocker_type": "scope",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "elicit_human",
+      "blocker_type": "population",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "time",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "outcome",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "effect_path",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "estimand",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "elicit_human",
+      "blocker_type": "admissibility",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "wm_version",
+      "gate": "CG1",
+      "rationale": "Unresolved RT1 axes are semantic witness gaps.",
+      "rule_source": "RELATION_AXES from grounding_relation.py",
+      "source_field": "unresolved_axes"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "bind_eligible",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "tampered_cg1_certificate",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "stale_cg1_certificate",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "relation_revalidation_mismatch",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "false_analog_hard_abstain",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "novel_candidate_handoff",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "relation_not_bind_eligible",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "robust_singleton_empty",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "robust_singleton_ambiguous",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "open_obligation",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "risk_budget_exceeded",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "cold_start_conservative",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "calibration_drift_frozen",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "calibration_frozen",
+      "gate": "CG2",
+      "rationale": "CG2 decisive_reason is the bind-gate blocker vocabulary.",
+      "rule_source": "BindReason literal from grounding_bind.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "elicit_human",
+      "blocker_type": "admissibility_closed",
+      "gate": "CG2",
+      "rationale": "CG2 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingBindGate._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "estimand_grounded",
+      "gate": "CG2",
+      "rationale": "CG2 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingBindGate._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "unit_scale_consistent",
+      "gate": "CG2",
+      "rationale": "CG2 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingBindGate._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "target_writable_wmr_slot",
+      "gate": "CG2",
+      "rationale": "CG2 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingBindGate._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "operator_registered_lever",
+      "gate": "CG2",
+      "rationale": "CG2 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingBindGate._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "l3_l6_consistency",
+      "gate": "CG2",
+      "rationale": "CG2 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingBindGate._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "cheap_verify",
+      "blocker_type": "no_unresolved_critical_axis",
+      "gate": "CG2",
+      "rationale": "CG2 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingBindGate._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "all_obligations_closed",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "cg2_not_novel_candidate",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "cg2_revalidation_failed",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "cg1_binding_missing_or_mismatch",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "open_obligation",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "mechanism_witness_missing",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "mechanism_composition_unverified",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "world_slot_acquisition_required",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "data_trust_below_floor",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "ambiguous_completion_requires_acquisition",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "novel_irreducible_failed_existing_atom",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "outcome_wish",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "proxy_manipulation",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "abstain",
+      "blocker_type": "impossible_type",
+      "gate": "CG3",
+      "rationale": "CG3 decisive_reason is the admission blocker vocabulary.",
+      "rule_source": "GroundingAdmissionReason literal from grounding_admission.py",
+      "source_field": "decisive_reason"
+    },
+    {
+      "action_family": "elicit_human",
+      "blocker_type": "parse",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "novel_irreducible",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "type",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "world_bindable_or_acquirable",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "do_semantics",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "mechanism_witness",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "elicit_human",
+      "blocker_type": "estimand",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "elicit_human",
+      "blocker_type": "admissibility",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "data_trust",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "ambiguity",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "cg2_novel_handoff",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "acquire_data",
+      "blocker_type": "cg1_content_bound",
+      "gate": "CG3",
+      "rationale": "CG3 open obligations are owner-resolution blockers.",
+      "rule_source": "GroundingAdmissionEngine._obligations obligation ids",
+      "source_field": "open_obligations"
+    },
+    {
+      "action_family": "adversarial_validate",
+      "blocker_type": "proxy_gap_quarantine",
+      "gate": "CG4",
+      "rationale": "CG4 owns proxy-gap quarantine and adversarial validation routing.",
+      "rule_source": "GroundingProxyGapRisk.quarantine_action",
+      "source_field": "proxy_gap_risk.quarantine_action"
+    }
+  ],
+  "behavioral_mutations": [
+    {
+      "mutation_id": "never_buy_bind_boundary_removed",
+      "probe": {
+        "action_family": "acquire_data",
+        "advanced_by_gate": true,
+        "after_disposition": "admit_new_lever",
+        "after_reason": "trusted_claimed_resolution_contract_testing_mutation",
+        "before_disposition": "acquire_then_decide",
+        "false_bind_or_admit": false,
+        "final_certificate_id": null,
+        "final_content_hash": null,
+        "reentered_gate": "CG3",
+        "result_id": "cg5.forged.claim_only",
+        "trusted_claimed_resolution": false
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "counterfactual_stamp_removed",
+      "probe": {
+        "error": "1 validation error for GroundingActionCandidate"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "counterfactual_redaction_removed",
+      "probe": {
+        "counterfactual_inner_certificate_present": true
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "decisiveness_sensor_removed",
+      "probe": {
+        "selected_action": "cheap_verify"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "budget_dominance_removed",
+      "probe": {
+        "selected_action": "elicit_human"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "owner_revalidation_removed",
+      "probe": {
+        "action_family": "acquire_data",
+        "advanced_by_gate": true,
+        "after_disposition": "admit_new_lever",
+        "after_reason": "trusted_claimed_resolution_contract_testing_mutation",
+        "before_disposition": "acquire_then_decide",
+        "false_bind_or_admit": false,
+        "final_certificate_id": null,
+        "final_content_hash": null,
+        "reentered_gate": "CG3",
+        "result_id": "cg5.forged.claim_only",
+        "trusted_claimed_resolution": false
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "production_edge_acceptance_restored",
+      "probe": {
+        "action_family": "acquire_data",
+        "advanced_by_gate": true,
+        "after_disposition": "admit_new_lever",
+        "after_reason": "all_obligations_closed",
+        "before_disposition": "acquire_then_decide",
+        "false_bind_or_admit": false,
+        "final_certificate_id": "cg3_cert_b797e2d5d8d18bff",
+        "final_content_hash": "sha256:b797e2d5d8d18bfff24feea9ed3ba428388016b3f187c1e0c3817c5787b8fc1d",
+        "reentered_gate": "CG3",
+        "result_id": "cg5.attack.self_supplied_high_trust_edge",
+        "trusted_claimed_resolution": false
+      },
+      "status": "red"
+    }
+  ],
+  "blocker_denominator": {
+    "action_family_table_hash": "sha256:f47ca27ae53b7924ed95b948a2f25ff97a9fad1701b7de99f85b4f59f923e3bb",
+    "cg1_selected_relations": [
+      "exact",
+      "certified-specialization",
+      "generalization",
+      "partial",
+      "compositional",
+      "false-analog",
+      "novel-candidate",
+      "unknown",
+      "blocked"
+    ],
+    "cg1_unresolved_axes": [
+      "op",
+      "target",
+      "do_value",
+      "sign",
+      "params",
+      "unit",
+      "scope",
+      "population",
+      "time",
+      "outcome",
+      "effect_path",
+      "estimand",
+      "admissibility",
+      "wm_version"
+    ],
+    "cg2_decisive_reasons": [
+      "bind_eligible",
+      "tampered_cg1_certificate",
+      "stale_cg1_certificate",
+      "relation_revalidation_mismatch",
+      "false_analog_hard_abstain",
+      "novel_candidate_handoff",
+      "relation_not_bind_eligible",
+      "robust_singleton_empty",
+      "robust_singleton_ambiguous",
+      "open_obligation",
+      "risk_budget_exceeded",
+      "cold_start_conservative",
+      "calibration_drift_frozen",
+      "calibration_frozen"
+    ],
+    "cg2_open_obligations": [
+      "admissibility_closed",
+      "estimand_grounded",
+      "unit_scale_consistent",
+      "target_writable_wmr_slot",
+      "operator_registered_lever",
+      "l3_l6_consistency",
+      "no_unresolved_critical_axis"
+    ],
+    "cg3_decisive_reasons": [
+      "all_obligations_closed",
+      "cg2_not_novel_candidate",
+      "cg2_revalidation_failed",
+      "cg1_binding_missing_or_mismatch",
+      "open_obligation",
+      "mechanism_witness_missing",
+      "mechanism_composition_unverified",
+      "world_slot_acquisition_required",
+      "data_trust_below_floor",
+      "ambiguous_completion_requires_acquisition",
+      "novel_irreducible_failed_existing_atom",
+      "outcome_wish",
+      "proxy_manipulation",
+      "impossible_type"
+    ],
+    "cg3_open_obligations": [
+      "parse",
+      "novel_irreducible",
+      "type",
+      "world_bindable_or_acquirable",
+      "do_semantics",
+      "mechanism_witness",
+      "estimand",
+      "admissibility",
+      "data_trust",
+      "ambiguity",
+      "cg2_novel_handoff",
+      "cg1_content_bound"
+    ],
+    "cg4_proxy_gap_fields": [
+      "proxy_gap_quarantine"
+    ],
+    "fail_safe_for_unknown_blockers": "abstain_with_recorded_gap"
+  },
+  "capability_reality": {
+    "capability_label": "bridge_missing",
+    "consumer": "validator/audit surface; GY-N7 live direct intake remains bridge_missing",
+    "orchestration_bridge": "CG5 consumes CG1-CG4 certificates and routes action-result references back through CG1->CG2->CG3 or CG4; acquisition data must already be present through an owner-built reference",
+    "persisted_artifact_event": "architecture/policy_design_case/grounding_active_controller_contract.json",
+    "producer": "GroundingActiveController.certificate_for",
+    "semantic_test": "acquire loop lift, low-cost abstain, CG4 quarantine route, self-supplied edge fail-closed, production API boundary",
+    "surface": "generated Policy Design Case CG5 contract artifact",
+    "typed_contract_artifact": "GroundingActionCertificate + GroundingBlockerView + GroundingActionTicket + GroundingActionReentryRecord",
+    "verification": "this recomputing validator, unit probes, mutation probes, drift check"
+  },
+  "cases": {
+    "acquire_loop": {
+      "before": {
+        "acquisition_blocker": "mechanism_witness_required",
+        "certificate_id": "cg3_cert_f29db99276f10e54",
+        "content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+        "data_trust_cap": 0.0,
+        "data_trust_status": "open",
+        "decision": "acquire_then_decide",
+        "decisive_reason": "mechanism_witness_missing",
+        "mechanism_status": "open",
+        "open_obligations": [
+          "mechanism_witness",
+          "data_trust"
+        ],
+        "registry_patch_id": null
+      },
+      "certificate": {
+        "authority_scope": "contract_testing",
+        "blocker_denominator": {
+          "action_family_table_hash": "sha256:f47ca27ae53b7924ed95b948a2f25ff97a9fad1701b7de99f85b4f59f923e3bb",
+          "cg1_selected_relations": [
+            "exact",
+            "certified-specialization",
+            "generalization",
+            "partial",
+            "compositional",
+            "false-analog",
+            "novel-candidate",
+            "unknown",
+            "blocked"
+          ],
+          "cg1_unresolved_axes": [
+            "op",
+            "target",
+            "do_value",
+            "sign",
+            "params",
+            "unit",
+            "scope",
+            "population",
+            "time",
+            "outcome",
+            "effect_path",
+            "estimand",
+            "admissibility",
+            "wm_version"
+          ],
+          "cg2_decisive_reasons": [
+            "bind_eligible",
+            "tampered_cg1_certificate",
+            "stale_cg1_certificate",
+            "relation_revalidation_mismatch",
+            "false_analog_hard_abstain",
+            "novel_candidate_handoff",
+            "relation_not_bind_eligible",
+            "robust_singleton_empty",
+            "robust_singleton_ambiguous",
+            "open_obligation",
+            "risk_budget_exceeded",
+            "cold_start_conservative",
+            "calibration_drift_frozen",
+            "calibration_frozen"
+          ],
+          "cg2_open_obligations": [
+            "admissibility_closed",
+            "estimand_grounded",
+            "unit_scale_consistent",
+            "target_writable_wmr_slot",
+            "operator_registered_lever",
+            "l3_l6_consistency",
+            "no_unresolved_critical_axis"
+          ],
+          "cg3_decisive_reasons": [
+            "all_obligations_closed",
+            "cg2_not_novel_candidate",
+            "cg2_revalidation_failed",
+            "cg1_binding_missing_or_mismatch",
+            "open_obligation",
+            "mechanism_witness_missing",
+            "mechanism_composition_unverified",
+            "world_slot_acquisition_required",
+            "data_trust_below_floor",
+            "ambiguous_completion_requires_acquisition",
+            "novel_irreducible_failed_existing_atom",
+            "outcome_wish",
+            "proxy_manipulation",
+            "impossible_type"
+          ],
+          "cg3_open_obligations": [
+            "parse",
+            "novel_irreducible",
+            "type",
+            "world_bindable_or_acquirable",
+            "do_semantics",
+            "mechanism_witness",
+            "estimand",
+            "admissibility",
+            "data_trust",
+            "ambiguity",
+            "cg2_novel_handoff",
+            "cg1_content_bound"
+          ],
+          "cg4_proxy_gap_fields": [
+            "proxy_gap_quarantine"
+          ],
+          "fail_safe_for_unknown_blockers": "abstain_with_recorded_gap"
+        },
+        "blockers": [
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+            "blocker_type": "mechanism_witness_missing",
+            "evidence": {
+              "decision": "acquire_then_decide"
+            },
+            "gate": "CG3",
+            "gate_certificate_id": "cg3_cert_f29db99276f10e54",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "mechanism_witness_required",
+            "source_field": "decisive_reason"
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_97fccf8ed92d43da",
+            "blocker_type": "mechanism_witness",
+            "evidence": {
+              "evidence": {
+                "caller_claims_ignored": false,
+                "contested_count": 0,
+                "outcome": "cells.output",
+                "target": "cells.distress_score"
+              },
+              "evidence_refs": [],
+              "owner": "L2/SKG causal evidence",
+              "status": "open"
+            },
+            "gate": "CG3",
+            "gate_certificate_id": "cg3_cert_f29db99276f10e54",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "mechanism_witness",
+            "source_field": "open_obligations"
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_0f3dda095446fd4c",
+            "blocker_type": "data_trust",
+            "evidence": {
+              "evidence_ref": null,
+              "owner": "CG0/L2 owner-lifted L5 trust signals",
+              "reason": "l5_trust_floor_not_met",
+              "resolved_trust_cap": 0.0,
+              "status": "open",
+              "trust_floor": 0.5
+            },
+            "gate": "CG3",
+            "gate_certificate_id": "cg3_cert_f29db99276f10e54",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "data_trust",
+            "source_field": "open_obligations"
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_ac19a432286fe837",
+            "blocker_type": "novel_candidate_handoff",
+            "evidence": {
+              "decision": "novel_candidate"
+            },
+            "gate": "CG2",
+            "gate_certificate_id": "cg2_cert_9495fd8d268db008",
+            "mapping_status": "mapped",
+            "obligation_or_axis": null,
+            "source_field": "decisive_reason"
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_5be6ae3cb7f655fa",
+            "blocker_type": "operator_registered_lever",
+            "evidence": {
+              "operator": "regional_resilience_credit"
+            },
+            "gate": "CG2",
+            "gate_certificate_id": "cg2_cert_9495fd8d268db008",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "operator_registered_lever",
+            "source_field": "open_obligations"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_be40bddf95e73155",
+            "blocker_type": "no_unresolved_critical_axis",
+            "evidence": {
+              "critical_contradictions": [
+                "op",
+                "target",
+                "do_value",
+                "scope",
+                "population",
+                "outcome",
+                "effect_path"
+              ],
+              "unresolved_critical_axes": []
+            },
+            "gate": "CG2",
+            "gate_certificate_id": "cg2_cert_9495fd8d268db008",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "no_unresolved_critical_axis",
+            "source_field": "open_obligations"
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_22bb6256c16a9288",
+            "blocker_type": "novel-candidate",
+            "evidence": {
+              "recommended_transition": "handoff_RT3"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": null,
+            "source_field": "selected_relation"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_2ec89fcab9b6fb72",
+            "blocker_type": "unit",
+            "evidence": {
+              "selected_relation": "novel-candidate"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "unit",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_7e1ea5d088e78b86",
+            "blocker_type": "time",
+            "evidence": {
+              "selected_relation": "novel-candidate"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "time",
+            "source_field": "unresolved_axes"
+          }
+        ],
+        "candidates": [
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": "cg3_cert_43e2482230ec4a55",
+              "after_content_hash": "sha256:43e2482230ec4a55fcc1e6f8624eae85bcd7ff0e3ba058c010d0260f402b06aa",
+              "after_disposition": "admit_new_lever",
+              "after_reason": "all_obligations_closed",
+              "authoritative": false,
+              "before_certificate_id": "cg3_cert_f29db99276f10e54",
+              "before_content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+              "counterfactual": true,
+              "decisive": true,
+              "flipped": true,
+              "gate": "CG3",
+              "owner_shaped_resolution": {
+                "counterfactual_edge_content_hash": "sha256:7556e861adcb32ace639d6aae55c9517f01b7fd02a137e6e0743cbada2b31a06",
+                "counterfactual_edge_id": "cg5_counterfactual_cells_distress_score_cells_output",
+                "redacted_payload": true
+              },
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "Counterfactual owner-shaped acquisition edge re-entered CG1->CG2->CG3; result is planning-only and not persisted as a gate certificate.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_97fccf8ed92d43da",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": "cg3_cert_43e2482230ec4a55",
+              "after_content_hash": "sha256:43e2482230ec4a55fcc1e6f8624eae85bcd7ff0e3ba058c010d0260f402b06aa",
+              "after_disposition": "admit_new_lever",
+              "after_reason": "all_obligations_closed",
+              "authoritative": false,
+              "before_certificate_id": "cg3_cert_f29db99276f10e54",
+              "before_content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_97fccf8ed92d43da",
+              "counterfactual": true,
+              "decisive": true,
+              "flipped": true,
+              "gate": "CG3",
+              "owner_shaped_resolution": {
+                "counterfactual_edge_content_hash": "sha256:7556e861adcb32ace639d6aae55c9517f01b7fd02a137e6e0743cbada2b31a06",
+                "counterfactual_edge_id": "cg5_counterfactual_cells_distress_score_cells_output",
+                "redacted_payload": true
+              },
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "Counterfactual owner-shaped acquisition edge re-entered CG1->CG2->CG3; result is planning-only and not persisted as a gate certificate.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_0f3dda095446fd4c",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": "cg3_cert_43e2482230ec4a55",
+              "after_content_hash": "sha256:43e2482230ec4a55fcc1e6f8624eae85bcd7ff0e3ba058c010d0260f402b06aa",
+              "after_disposition": "admit_new_lever",
+              "after_reason": "all_obligations_closed",
+              "authoritative": false,
+              "before_certificate_id": "cg3_cert_f29db99276f10e54",
+              "before_content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_0f3dda095446fd4c",
+              "counterfactual": true,
+              "decisive": true,
+              "flipped": true,
+              "gate": "CG3",
+              "owner_shaped_resolution": {
+                "counterfactual_edge_content_hash": "sha256:7556e861adcb32ace639d6aae55c9517f01b7fd02a137e6e0743cbada2b31a06",
+                "counterfactual_edge_id": "cg5_counterfactual_cells_distress_score_cells_output",
+                "redacted_payload": true
+              },
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "Counterfactual owner-shaped acquisition edge re-entered CG1->CG2->CG3; result is planning-only and not persisted as a gate certificate.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_ac19a432286fe837",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg2_cert_9495fd8d268db008",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_ac19a432286fe837",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG2",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "no_owner_shaped_counterfactual_edge_for_blocker",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_5be6ae3cb7f655fa",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg2_cert_9495fd8d268db008",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_5be6ae3cb7f655fa",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG2",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "no_owner_shaped_counterfactual_edge_for_blocker",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_be40bddf95e73155",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg2_cert_9495fd8d268db008",
+              "before_content_hash": null,
+              "before_disposition": "novel-candidate",
+              "blocker_id": "cg5_blocker_be40bddf95e73155",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG2",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_22bb6256c16a9288",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_22bb6256c16a9288",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "no_owner_shaped_counterfactual_edge_for_blocker",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_2ec89fcab9b6fb72",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+              "before_content_hash": null,
+              "before_disposition": "novel-candidate",
+              "blocker_id": "cg5_blocker_2ec89fcab9b6fb72",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_7e1ea5d088e78b86",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_a23eb58a590a8a9e",
+              "before_content_hash": null,
+              "before_disposition": "novel-candidate",
+              "blocker_id": "cg5_blocker_7e1ea5d088e78b86",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          }
+        ],
+        "case_id": "cg5.acquire.mechanism_missing",
+        "certificate_id": "cg5_cert_e7626f8ba5667d34",
+        "cold_start_assumptions": {
+          "action_budget": 3,
+          "cost_currency": null,
+          "cost_provenance": "cold_start_ordinal_assumption",
+          "ordering_rule": "dominance_minimal_cost_decisive_action",
+          "ordinal_cost_order": {
+            "abstain": 0,
+            "acquire_data": 3,
+            "adversarial_validate": 2,
+            "cheap_verify": 1,
+            "elicit_human": 4
+          },
+          "robust_lcb_expected_voi": null,
+          "success_probability_interval": [
+            0.0,
+            1.0
+          ],
+          "success_probability_provenance": "cold_start_unknown_set_valued"
+        },
+        "content_hash": "sha256:e7626f8ba5667d34e70e657e40216947f9fd70df170d1752c7f339e4173bcd15",
+        "deferred_voi_fields": {
+          "deferred_to": [
+            "multi_action_EVSI",
+            "observation_model_learning",
+            "two_level_search_leverage_VOI"
+          ],
+          "multi_action_evsi": null,
+          "observation_model_learning": null,
+          "search_leverage_voi": null,
+          "status": "deferred_not_fabricated"
+        },
+        "never_buy_bind_boundary": {
+          "controller_can_close_obligation": false,
+          "controller_can_inject_evidence": false,
+          "controller_can_lower_threshold": false,
+          "controller_can_resolve_gate": false,
+          "counterfactuals_authoritative": false,
+          "only_gate_reentry_advances_case": true
+        },
+        "production_authoritative": false,
+        "reference_epoch": "kref:09b6349c4ee0bfef",
+        "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+        "remaining_candidate_action": "cheap_verify",
+        "schema_version": "policyos.runtime.grounding_action_certificate.v1",
+        "selected_action": "acquire_data",
+        "selected_ticket": {
+          "action_family": "acquire_data",
+          "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+          "content_hash": "sha256:01ab7251d99f4cf2bb72fdf1d1adc3a0bbeada49dd0513134d9ef3d6f5a16fff",
+          "integration_status": "handoff_artifact_gy_n7_direct_intake_not_wired",
+          "needed_result": [
+            "mechanism_witness_required"
+          ],
+          "no_resolution_claim": true,
+          "payload": {
+            "case_id": "cg5.acquire.mechanism_missing",
+            "integration_gap": "GY-N7 direct intake is not wired in CG5; owner-shaped data must return and re-enter gates.",
+            "target_blocker": {
+              "action_family": "acquire_data",
+              "blocker_id": "cg5_blocker_bfc22f2002d24a99",
+              "blocker_type": "mechanism_witness_missing",
+              "evidence": {
+                "decision": "acquire_then_decide"
+              },
+              "gate": "CG3",
+              "gate_certificate_id": "cg3_cert_f29db99276f10e54",
+              "mapping_status": "mapped",
+              "obligation_or_axis": "mechanism_witness_required",
+              "source_field": "decisive_reason"
+            }
+          },
+          "target_surface": "GY-N7.grounding_acquisition",
+          "ticket_id": "cg5_ticket_01ab7251d99f4cf2",
+          "ticket_kind": "acquisition_ticket"
+        },
+        "selection_reason": "minimal_cost_decisive_dominates_abstain",
+        "source_certificates": [
+          {
+            "certificate_id": "cg1_cert_a23eb58a590a8a9e",
+            "content_hash": "sha256:a23eb58a590a8a9e585890799e7858408b178c66b6806008330a3adcb40ebd77",
+            "disposition": "novel-candidate",
+            "gate": "CG1",
+            "reason": "handoff_RT3"
+          },
+          {
+            "certificate_id": "cg2_cert_9495fd8d268db008",
+            "content_hash": "sha256:9495fd8d268db00858fbf0cb6ba5d7949955599c99fdfb8ed447636f2ea984b1",
+            "disposition": "novel_candidate",
+            "gate": "CG2",
+            "reason": "novel_candidate_handoff"
+          },
+          {
+            "certificate_id": "cg3_cert_f29db99276f10e54",
+            "content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+            "disposition": "acquire_then_decide",
+            "gate": "CG3",
+            "reason": "mechanism_witness_missing"
+          }
+        ],
+        "validator_version": "policyos.runtime.grounding_active_controller.cg5.v1"
+      },
+      "reentry": {
+        "action_family": "acquire_data",
+        "advanced_by_gate": true,
+        "after_disposition": "admit_new_lever",
+        "after_reason": "all_obligations_closed",
+        "before_disposition": "acquire_then_decide",
+        "false_bind_or_admit": false,
+        "final_certificate_id": "cg3_cert_773c677bd3218d2a",
+        "final_content_hash": "sha256:773c677bd3218d2a3299ef618c61f4215523054a34bb26baefc487264633e9a5",
+        "reentered_gate": "CG3",
+        "result_id": "cg5.acquire.result.reference_only",
+        "trusted_claimed_resolution": false
+      }
+    },
+    "cg4_quarantine": {
+      "certificate": {
+        "authority_scope": "contract_testing",
+        "blocker_denominator": {
+          "action_family_table_hash": "sha256:f47ca27ae53b7924ed95b948a2f25ff97a9fad1701b7de99f85b4f59f923e3bb",
+          "cg1_selected_relations": [
+            "exact",
+            "certified-specialization",
+            "generalization",
+            "partial",
+            "compositional",
+            "false-analog",
+            "novel-candidate",
+            "unknown",
+            "blocked"
+          ],
+          "cg1_unresolved_axes": [
+            "op",
+            "target",
+            "do_value",
+            "sign",
+            "params",
+            "unit",
+            "scope",
+            "population",
+            "time",
+            "outcome",
+            "effect_path",
+            "estimand",
+            "admissibility",
+            "wm_version"
+          ],
+          "cg2_decisive_reasons": [
+            "bind_eligible",
+            "tampered_cg1_certificate",
+            "stale_cg1_certificate",
+            "relation_revalidation_mismatch",
+            "false_analog_hard_abstain",
+            "novel_candidate_handoff",
+            "relation_not_bind_eligible",
+            "robust_singleton_empty",
+            "robust_singleton_ambiguous",
+            "open_obligation",
+            "risk_budget_exceeded",
+            "cold_start_conservative",
+            "calibration_drift_frozen",
+            "calibration_frozen"
+          ],
+          "cg2_open_obligations": [
+            "admissibility_closed",
+            "estimand_grounded",
+            "unit_scale_consistent",
+            "target_writable_wmr_slot",
+            "operator_registered_lever",
+            "l3_l6_consistency",
+            "no_unresolved_critical_axis"
+          ],
+          "cg3_decisive_reasons": [
+            "all_obligations_closed",
+            "cg2_not_novel_candidate",
+            "cg2_revalidation_failed",
+            "cg1_binding_missing_or_mismatch",
+            "open_obligation",
+            "mechanism_witness_missing",
+            "mechanism_composition_unverified",
+            "world_slot_acquisition_required",
+            "data_trust_below_floor",
+            "ambiguous_completion_requires_acquisition",
+            "novel_irreducible_failed_existing_atom",
+            "outcome_wish",
+            "proxy_manipulation",
+            "impossible_type"
+          ],
+          "cg3_open_obligations": [
+            "parse",
+            "novel_irreducible",
+            "type",
+            "world_bindable_or_acquirable",
+            "do_semantics",
+            "mechanism_witness",
+            "estimand",
+            "admissibility",
+            "data_trust",
+            "ambiguity",
+            "cg2_novel_handoff",
+            "cg1_content_bound"
+          ],
+          "cg4_proxy_gap_fields": [
+            "proxy_gap_quarantine"
+          ],
+          "fail_safe_for_unknown_blockers": "abstain_with_recorded_gap"
+        },
+        "blockers": [
+          {
+            "action_family": "adversarial_validate",
+            "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+            "blocker_type": "proxy_gap_quarantine",
+            "evidence": {
+              "causal_evidence_score": 0.0,
+              "causal_evidence_threshold": 0.5,
+              "cg2_decision": "novel_candidate",
+              "cg3_decision": "non_new",
+              "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+              "disposition": "quarantine",
+              "low_evidence_reasons": [
+                "direct_mechanism_edge_absent_or_open",
+                "data_trust_below_floor_or_absent",
+                "denotation_match_absent",
+                "admission_obligations_open"
+              ],
+              "matched_surface_atom_id": "cg0_atom_49ebedb62a306a73",
+              "not_admissible_while_quarantined": true,
+              "not_bindable_while_quarantined": true,
+              "proposal_id": "cg5.cg4.proxy_gap",
+              "quarantine_action": "adversarial_validate",
+              "risk_id": "cg4_proxy_gap_fe321a6d02b85969",
+              "surface_affinity_score": 0.833333,
+              "surface_affinity_threshold": 0.62,
+              "threshold_source": "CG4-owned thresholds derived from reference-token surface affinity and CG3 production data_trust_floor; not caller supplied"
+            },
+            "gate": "CG4",
+            "gate_certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "quarantine",
+            "source_field": "proxy_gap_risk.quarantine_action"
+          }
+        ],
+        "candidates": [
+          {
+            "action_family": "adversarial_validate",
+            "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+            "decisiveness": {
+              "action_family": "adversarial_validate",
+              "after_certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
+              "after_content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+              "after_disposition": "cg4_adversarial_validation_recorded",
+              "after_reason": "adversarial_validate",
+              "authoritative": false,
+              "before_certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
+              "before_content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+              "before_disposition": "quarantine",
+              "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+              "counterfactual": true,
+              "decisive": true,
+              "flipped": true,
+              "gate": "CG4",
+              "owner_shaped_resolution": {
+                "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+                "proxy_gap_risk_id": "cg4_proxy_gap_fe321a6d02b85969",
+                "quarantine_action": "adversarial_validate",
+                "redacted_payload": true
+              },
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "CG4 proxy-gap quarantine is already gate-owned; CG5 can route the case to the real CG4 adversarial-validation harness and record the verdict.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 2,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          }
+        ],
+        "case_id": "cg5.cg4.proxy_gap",
+        "certificate_id": "cg5_cert_39ac953299512921",
+        "cold_start_assumptions": {
+          "action_budget": 3,
+          "cost_currency": null,
+          "cost_provenance": "cold_start_ordinal_assumption",
+          "ordering_rule": "dominance_minimal_cost_decisive_action",
+          "ordinal_cost_order": {
+            "abstain": 0,
+            "acquire_data": 3,
+            "adversarial_validate": 2,
+            "cheap_verify": 1,
+            "elicit_human": 4
+          },
+          "robust_lcb_expected_voi": null,
+          "success_probability_interval": [
+            0.0,
+            1.0
+          ],
+          "success_probability_provenance": "cold_start_unknown_set_valued"
+        },
+        "content_hash": "sha256:39ac953299512921b79f59e9fadb8cc21f752a3363f88c28043ab8b71b9f8532",
+        "deferred_voi_fields": {
+          "deferred_to": [
+            "multi_action_EVSI",
+            "observation_model_learning",
+            "two_level_search_leverage_VOI"
+          ],
+          "multi_action_evsi": null,
+          "observation_model_learning": null,
+          "search_leverage_voi": null,
+          "status": "deferred_not_fabricated"
+        },
+        "never_buy_bind_boundary": {
+          "controller_can_close_obligation": false,
+          "controller_can_inject_evidence": false,
+          "controller_can_lower_threshold": false,
+          "controller_can_resolve_gate": false,
+          "counterfactuals_authoritative": false,
+          "only_gate_reentry_advances_case": true
+        },
+        "production_authoritative": false,
+        "reference_epoch": "kref:09b6349c4ee0bfef",
+        "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+        "remaining_candidate_action": "adversarial_validate",
+        "schema_version": "policyos.runtime.grounding_action_certificate.v1",
+        "selected_action": "adversarial_validate",
+        "selected_ticket": {
+          "action_family": "adversarial_validate",
+          "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+          "content_hash": "sha256:6a53199f1056cef4d3fe1e00babaa1ccef14528053fe78cee255c922d20ec4c2",
+          "integration_status": "real_cg4_harness_route",
+          "needed_result": [
+            "CG4_adversarial_validation_record"
+          ],
+          "no_resolution_claim": true,
+          "payload": {
+            "case_id": "cg5.cg4.proxy_gap",
+            "target_blocker": {
+              "action_family": "adversarial_validate",
+              "blocker_id": "cg5_blocker_2bff1e7ed9f9e281",
+              "blocker_type": "proxy_gap_quarantine",
+              "evidence": {
+                "causal_evidence_score": 0.0,
+                "causal_evidence_threshold": 0.5,
+                "cg2_decision": "novel_candidate",
+                "cg3_decision": "non_new",
+                "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+                "disposition": "quarantine",
+                "low_evidence_reasons": [
+                  "direct_mechanism_edge_absent_or_open",
+                  "data_trust_below_floor_or_absent",
+                  "denotation_match_absent",
+                  "admission_obligations_open"
+                ],
+                "matched_surface_atom_id": "cg0_atom_49ebedb62a306a73",
+                "not_admissible_while_quarantined": true,
+                "not_bindable_while_quarantined": true,
+                "proposal_id": "cg5.cg4.proxy_gap",
+                "quarantine_action": "adversarial_validate",
+                "risk_id": "cg4_proxy_gap_fe321a6d02b85969",
+                "surface_affinity_score": 0.833333,
+                "surface_affinity_threshold": 0.62,
+                "threshold_source": "CG4-owned thresholds derived from reference-token surface affinity and CG3 production data_trust_floor; not caller supplied"
+              },
+              "gate": "CG4",
+              "gate_certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
+              "mapping_status": "mapped",
+              "obligation_or_axis": "quarantine",
+              "source_field": "proxy_gap_risk.quarantine_action"
+            }
+          },
+          "target_surface": "CG4.grounding_phrasing_defense",
+          "ticket_id": "cg5_ticket_6a53199f1056cef4",
+          "ticket_kind": "adversarial_validation_ticket"
+        },
+        "selection_reason": "minimal_cost_decisive_dominates_abstain",
+        "source_certificates": [
+          {
+            "certificate_id": "cg4_proxy_gap_fe321a6d02b85969",
+            "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+            "disposition": "quarantine",
+            "gate": "CG4",
+            "reason": "adversarial_validate"
+          }
+        ],
+        "validator_version": "policyos.runtime.grounding_active_controller.cg5.v1"
+      },
+      "reentry": {
+        "action_family": "adversarial_validate",
+        "advanced_by_gate": true,
+        "after_disposition": "quarantine",
+        "after_reason": "adversarial_validate",
+        "before_disposition": "quarantine",
+        "false_bind_or_admit": false,
+        "final_certificate_id": null,
+        "final_content_hash": null,
+        "reentered_gate": "CG4",
+        "result_id": "cg4_proxy_gap_fe321a6d02b85969.cg5_result_reference",
+        "trusted_claimed_resolution": false
+      },
+      "risk": {
+        "causal_evidence_score": 0.0,
+        "causal_evidence_threshold": 0.5,
+        "cg2_decision": "novel_candidate",
+        "cg3_decision": "non_new",
+        "content_hash": "sha256:fe321a6d02b859697d1631817eb8626b02b5af767c6a672be161662e833ce819",
+        "disposition": "quarantine",
+        "low_evidence_reasons": [
+          "direct_mechanism_edge_absent_or_open",
+          "data_trust_below_floor_or_absent",
+          "denotation_match_absent",
+          "admission_obligations_open"
+        ],
+        "matched_surface_atom_id": "cg0_atom_49ebedb62a306a73",
+        "not_admissible_while_quarantined": true,
+        "not_bindable_while_quarantined": true,
+        "proposal_id": "cg5.cg4.proxy_gap",
+        "quarantine_action": "adversarial_validate",
+        "risk_id": "cg4_proxy_gap_fe321a6d02b85969",
+        "surface_affinity_score": 0.833333,
+        "surface_affinity_threshold": 0.62,
+        "threshold_source": "CG4-owned thresholds derived from reference-token surface affinity and CG3 production data_trust_floor; not caller supplied"
+      }
+    },
+    "cheap_verify_structural_only": {
+      "certificate": {
+        "authority_scope": "contract_testing",
+        "blocker_denominator": {
+          "action_family_table_hash": "sha256:f47ca27ae53b7924ed95b948a2f25ff97a9fad1701b7de99f85b4f59f923e3bb",
+          "cg1_selected_relations": [
+            "exact",
+            "certified-specialization",
+            "generalization",
+            "partial",
+            "compositional",
+            "false-analog",
+            "novel-candidate",
+            "unknown",
+            "blocked"
+          ],
+          "cg1_unresolved_axes": [
+            "op",
+            "target",
+            "do_value",
+            "sign",
+            "params",
+            "unit",
+            "scope",
+            "population",
+            "time",
+            "outcome",
+            "effect_path",
+            "estimand",
+            "admissibility",
+            "wm_version"
+          ],
+          "cg2_decisive_reasons": [
+            "bind_eligible",
+            "tampered_cg1_certificate",
+            "stale_cg1_certificate",
+            "relation_revalidation_mismatch",
+            "false_analog_hard_abstain",
+            "novel_candidate_handoff",
+            "relation_not_bind_eligible",
+            "robust_singleton_empty",
+            "robust_singleton_ambiguous",
+            "open_obligation",
+            "risk_budget_exceeded",
+            "cold_start_conservative",
+            "calibration_drift_frozen",
+            "calibration_frozen"
+          ],
+          "cg2_open_obligations": [
+            "admissibility_closed",
+            "estimand_grounded",
+            "unit_scale_consistent",
+            "target_writable_wmr_slot",
+            "operator_registered_lever",
+            "l3_l6_consistency",
+            "no_unresolved_critical_axis"
+          ],
+          "cg3_decisive_reasons": [
+            "all_obligations_closed",
+            "cg2_not_novel_candidate",
+            "cg2_revalidation_failed",
+            "cg1_binding_missing_or_mismatch",
+            "open_obligation",
+            "mechanism_witness_missing",
+            "mechanism_composition_unverified",
+            "world_slot_acquisition_required",
+            "data_trust_below_floor",
+            "ambiguous_completion_requires_acquisition",
+            "novel_irreducible_failed_existing_atom",
+            "outcome_wish",
+            "proxy_manipulation",
+            "impossible_type"
+          ],
+          "cg3_open_obligations": [
+            "parse",
+            "novel_irreducible",
+            "type",
+            "world_bindable_or_acquirable",
+            "do_semantics",
+            "mechanism_witness",
+            "estimand",
+            "admissibility",
+            "data_trust",
+            "ambiguity",
+            "cg2_novel_handoff",
+            "cg1_content_bound"
+          ],
+          "cg4_proxy_gap_fields": [
+            "proxy_gap_quarantine"
+          ],
+          "fail_safe_for_unknown_blockers": "abstain_with_recorded_gap"
+        },
+        "blockers": [
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_e4f34928f2daa80c",
+            "blocker_type": "unknown",
+            "evidence": {
+              "recommended_transition": "shadow"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": null,
+            "source_field": "selected_relation"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_f174acbe107e4b2b",
+            "blocker_type": "op",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "op",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_82601a4b04a16ece",
+            "blocker_type": "target",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "target",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_26b755ff003cc495",
+            "blocker_type": "do_value",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "do_value",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_b495bcfdeaacad0a",
+            "blocker_type": "sign",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "sign",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_c7bca5f968b931ff",
+            "blocker_type": "params",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "params",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_959a04969847d00d",
+            "blocker_type": "unit",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "unit",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_b6b414eb8f1c01d4",
+            "blocker_type": "scope",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "scope",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_b576f55aaf892db1",
+            "blocker_type": "population",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "population",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_798d42f3bb8a1b84",
+            "blocker_type": "time",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "time",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_554c6fc8c9258a8e",
+            "blocker_type": "outcome",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "outcome",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_4427ce65783a62a5",
+            "blocker_type": "effect_path",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "effect_path",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_36a2c11eff4d1f06",
+            "blocker_type": "estimand",
+            "evidence": {
+              "selected_relation": "unknown"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "estimand",
+            "source_field": "unresolved_axes"
+          }
+        ],
+        "candidates": [
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_e4f34928f2daa80c",
+            "decisiveness": {
+              "action_family": "elicit_human",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_e4f34928f2daa80c",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "No executable owner result is available in CG5 for this action family; the ticket can only request external resolution.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 4,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": false
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_f174acbe107e4b2b",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_f174acbe107e4b2b",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_82601a4b04a16ece",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_82601a4b04a16ece",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_26b755ff003cc495",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_26b755ff003cc495",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_b495bcfdeaacad0a",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_b495bcfdeaacad0a",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_c7bca5f968b931ff",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_c7bca5f968b931ff",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_959a04969847d00d",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_959a04969847d00d",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_b6b414eb8f1c01d4",
+            "decisiveness": {
+              "action_family": "elicit_human",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_b6b414eb8f1c01d4",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "No executable owner result is available in CG5 for this action family; the ticket can only request external resolution.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 4,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": false
+          },
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_b576f55aaf892db1",
+            "decisiveness": {
+              "action_family": "elicit_human",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_b576f55aaf892db1",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "No executable owner result is available in CG5 for this action family; the ticket can only request external resolution.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 4,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": false
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_798d42f3bb8a1b84",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_798d42f3bb8a1b84",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_554c6fc8c9258a8e",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_554c6fc8c9258a8e",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_4427ce65783a62a5",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_4427ce65783a62a5",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_36a2c11eff4d1f06",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_22789862ef0bdb4e",
+              "before_content_hash": null,
+              "before_disposition": "unknown",
+              "blocker_id": "cg5_blocker_36a2c11eff4d1f06",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          }
+        ],
+        "case_id": "cg5.cheap_verify.structural_only",
+        "certificate_id": "cg5_cert_b52d09a66e699b84",
+        "cold_start_assumptions": {
+          "action_budget": 3,
+          "cost_currency": null,
+          "cost_provenance": "cold_start_ordinal_assumption",
+          "ordering_rule": "dominance_minimal_cost_decisive_action",
+          "ordinal_cost_order": {
+            "abstain": 0,
+            "acquire_data": 3,
+            "adversarial_validate": 2,
+            "cheap_verify": 1,
+            "elicit_human": 4
+          },
+          "robust_lcb_expected_voi": null,
+          "success_probability_interval": [
+            0.0,
+            1.0
+          ],
+          "success_probability_provenance": "cold_start_unknown_set_valued"
+        },
+        "content_hash": "sha256:b52d09a66e699b843204e0c8be7052c23824dacd44aee33c9ebdaa4aa7864b40",
+        "deferred_voi_fields": {
+          "deferred_to": [
+            "multi_action_EVSI",
+            "observation_model_learning",
+            "two_level_search_leverage_VOI"
+          ],
+          "multi_action_evsi": null,
+          "observation_model_learning": null,
+          "search_leverage_voi": null,
+          "status": "deferred_not_fabricated"
+        },
+        "never_buy_bind_boundary": {
+          "controller_can_close_obligation": false,
+          "controller_can_inject_evidence": false,
+          "controller_can_lower_threshold": false,
+          "controller_can_resolve_gate": false,
+          "counterfactuals_authoritative": false,
+          "only_gate_reentry_advances_case": true
+        },
+        "production_authoritative": false,
+        "reference_epoch": "kref:09b6349c4ee0bfef",
+        "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+        "remaining_candidate_action": "elicit_human",
+        "schema_version": "policyos.runtime.grounding_action_certificate.v1",
+        "selected_action": "abstain",
+        "selected_ticket": {
+          "action_family": "abstain",
+          "blocker_id": "cg5_blocker_e4f34928f2daa80c",
+          "content_hash": "sha256:2ecb63903b11816da7ca015d1e0f195cfea368cda1ca8966a5abd1f92d372964",
+          "integration_status": "terminal_for_this_round",
+          "needed_result": [],
+          "no_resolution_claim": true,
+          "payload": {
+            "blocker_count": 13,
+            "remaining_candidate_action": "elicit_human"
+          },
+          "target_surface": "CG5.round_closeout",
+          "ticket_id": "cg5_ticket_2ecb63903b11816d",
+          "ticket_kind": "abstain_record"
+        },
+        "selection_reason": "abstain_no_decisive_action",
+        "source_certificates": [
+          {
+            "certificate_id": "cg1_cert_22789862ef0bdb4e",
+            "content_hash": "sha256:22789862ef0bdb4eb5295eee13238c08e428017277f436f2168bfdbbe42af53d",
+            "disposition": "unknown",
+            "gate": "CG1",
+            "reason": "shadow"
+          }
+        ],
+        "validator_version": "policyos.runtime.grounding_active_controller.cg5.v1"
+      },
+      "cg1_relation": "unknown",
+      "unresolved_axes": [
+        "op",
+        "target",
+        "do_value",
+        "sign",
+        "params",
+        "unit",
+        "scope",
+        "population",
+        "time",
+        "outcome",
+        "effect_path",
+        "estimand"
+      ]
+    },
+    "low_voi_high_cost_abstain": {
+      "before": {
+        "acquisition_blocker": "admissibility_required",
+        "certificate_id": "cg3_cert_445640a900ff8646",
+        "content_hash": "sha256:445640a900ff8646caffed7c6d9cb6765c4dc423418a6fbb1f26d0a0c14eafe7",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "acquire_then_decide",
+        "decisive_reason": "open_obligation",
+        "mechanism_status": "closed",
+        "open_obligations": [
+          "admissibility"
+        ],
+        "registry_patch_id": null
+      },
+      "certificate": {
+        "authority_scope": "contract_testing",
+        "blocker_denominator": {
+          "action_family_table_hash": "sha256:f47ca27ae53b7924ed95b948a2f25ff97a9fad1701b7de99f85b4f59f923e3bb",
+          "cg1_selected_relations": [
+            "exact",
+            "certified-specialization",
+            "generalization",
+            "partial",
+            "compositional",
+            "false-analog",
+            "novel-candidate",
+            "unknown",
+            "blocked"
+          ],
+          "cg1_unresolved_axes": [
+            "op",
+            "target",
+            "do_value",
+            "sign",
+            "params",
+            "unit",
+            "scope",
+            "population",
+            "time",
+            "outcome",
+            "effect_path",
+            "estimand",
+            "admissibility",
+            "wm_version"
+          ],
+          "cg2_decisive_reasons": [
+            "bind_eligible",
+            "tampered_cg1_certificate",
+            "stale_cg1_certificate",
+            "relation_revalidation_mismatch",
+            "false_analog_hard_abstain",
+            "novel_candidate_handoff",
+            "relation_not_bind_eligible",
+            "robust_singleton_empty",
+            "robust_singleton_ambiguous",
+            "open_obligation",
+            "risk_budget_exceeded",
+            "cold_start_conservative",
+            "calibration_drift_frozen",
+            "calibration_frozen"
+          ],
+          "cg2_open_obligations": [
+            "admissibility_closed",
+            "estimand_grounded",
+            "unit_scale_consistent",
+            "target_writable_wmr_slot",
+            "operator_registered_lever",
+            "l3_l6_consistency",
+            "no_unresolved_critical_axis"
+          ],
+          "cg3_decisive_reasons": [
+            "all_obligations_closed",
+            "cg2_not_novel_candidate",
+            "cg2_revalidation_failed",
+            "cg1_binding_missing_or_mismatch",
+            "open_obligation",
+            "mechanism_witness_missing",
+            "mechanism_composition_unverified",
+            "world_slot_acquisition_required",
+            "data_trust_below_floor",
+            "ambiguous_completion_requires_acquisition",
+            "novel_irreducible_failed_existing_atom",
+            "outcome_wish",
+            "proxy_manipulation",
+            "impossible_type"
+          ],
+          "cg3_open_obligations": [
+            "parse",
+            "novel_irreducible",
+            "type",
+            "world_bindable_or_acquirable",
+            "do_semantics",
+            "mechanism_witness",
+            "estimand",
+            "admissibility",
+            "data_trust",
+            "ambiguity",
+            "cg2_novel_handoff",
+            "cg1_content_bound"
+          ],
+          "cg4_proxy_gap_fields": [
+            "proxy_gap_quarantine"
+          ],
+          "fail_safe_for_unknown_blockers": "abstain_with_recorded_gap"
+        },
+        "blockers": [
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_cfb5ca26f03cdc3a",
+            "blocker_type": "open_obligation",
+            "evidence": {
+              "decision": "acquire_then_decide"
+            },
+            "gate": "CG3",
+            "gate_certificate_id": "cg3_cert_445640a900ff8646",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "admissibility_required",
+            "source_field": "decisive_reason"
+          },
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_88207a6596566a7b",
+            "blocker_type": "admissibility",
+            "evidence": {
+              "admissibility": "candidate_unverified"
+            },
+            "gate": "CG3",
+            "gate_certificate_id": "cg3_cert_445640a900ff8646",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "admissibility",
+            "source_field": "open_obligations"
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_3967f2f371034de2",
+            "blocker_type": "novel_candidate_handoff",
+            "evidence": {
+              "decision": "novel_candidate"
+            },
+            "gate": "CG2",
+            "gate_certificate_id": "cg2_cert_98fe0e22b0108576",
+            "mapping_status": "mapped",
+            "obligation_or_axis": null,
+            "source_field": "decisive_reason"
+          },
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_dbd9937ca43f73bb",
+            "blocker_type": "admissibility_closed",
+            "evidence": {
+              "admissibility": "candidate_unverified"
+            },
+            "gate": "CG2",
+            "gate_certificate_id": "cg2_cert_98fe0e22b0108576",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "admissibility_closed",
+            "source_field": "open_obligations"
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_d465d9f4368301e7",
+            "blocker_type": "operator_registered_lever",
+            "evidence": {
+              "operator": "regional_resilience_credit"
+            },
+            "gate": "CG2",
+            "gate_certificate_id": "cg2_cert_98fe0e22b0108576",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "operator_registered_lever",
+            "source_field": "open_obligations"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_eaa8dc858d172e80",
+            "blocker_type": "no_unresolved_critical_axis",
+            "evidence": {
+              "critical_contradictions": [
+                "op",
+                "target",
+                "do_value",
+                "scope",
+                "population",
+                "outcome",
+                "effect_path"
+              ],
+              "unresolved_critical_axes": []
+            },
+            "gate": "CG2",
+            "gate_certificate_id": "cg2_cert_98fe0e22b0108576",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "no_unresolved_critical_axis",
+            "source_field": "open_obligations"
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_f0d40d2270bb10a8",
+            "blocker_type": "novel-candidate",
+            "evidence": {
+              "recommended_transition": "handoff_RT3"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_afafb93b123b4e74",
+            "mapping_status": "mapped",
+            "obligation_or_axis": null,
+            "source_field": "selected_relation"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_52731a97e5602678",
+            "blocker_type": "unit",
+            "evidence": {
+              "selected_relation": "novel-candidate"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_afafb93b123b4e74",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "unit",
+            "source_field": "unresolved_axes"
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_54a2c8c4212986e3",
+            "blocker_type": "time",
+            "evidence": {
+              "selected_relation": "novel-candidate"
+            },
+            "gate": "CG1",
+            "gate_certificate_id": "cg1_cert_afafb93b123b4e74",
+            "mapping_status": "mapped",
+            "obligation_or_axis": "time",
+            "source_field": "unresolved_axes"
+          }
+        ],
+        "candidates": [
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_cfb5ca26f03cdc3a",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg3_cert_445640a900ff8646",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_cfb5ca26f03cdc3a",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG3",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "no_owner_shaped_counterfactual_edge_for_blocker",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_88207a6596566a7b",
+            "decisiveness": {
+              "action_family": "elicit_human",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg3_cert_445640a900ff8646",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_88207a6596566a7b",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG3",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "No executable owner result is available in CG5 for this action family; the ticket can only request external resolution.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 4,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": false
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_3967f2f371034de2",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg2_cert_98fe0e22b0108576",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_3967f2f371034de2",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG2",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "no_owner_shaped_counterfactual_edge_for_blocker",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "elicit_human",
+            "blocker_id": "cg5_blocker_dbd9937ca43f73bb",
+            "decisiveness": {
+              "action_family": "elicit_human",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg3_cert_445640a900ff8646",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_dbd9937ca43f73bb",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG2",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "No executable owner result is available in CG5 for this action family; the ticket can only request external resolution.",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 4,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": false
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_d465d9f4368301e7",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg2_cert_98fe0e22b0108576",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_d465d9f4368301e7",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG2",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "no_owner_shaped_counterfactual_edge_for_blocker",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_eaa8dc858d172e80",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg2_cert_98fe0e22b0108576",
+              "before_content_hash": null,
+              "before_disposition": "novel-candidate",
+              "blocker_id": "cg5_blocker_eaa8dc858d172e80",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG2",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "acquire_data",
+            "blocker_id": "cg5_blocker_f0d40d2270bb10a8",
+            "decisiveness": {
+              "action_family": "acquire_data",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_afafb93b123b4e74",
+              "before_content_hash": null,
+              "before_disposition": "acquire_then_decide",
+              "blocker_id": "cg5_blocker_f0d40d2270bb10a8",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "no_owner_shaped_counterfactual_edge_for_blocker",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 3,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_52731a97e5602678",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_afafb93b123b4e74",
+              "before_content_hash": null,
+              "before_disposition": "novel-candidate",
+              "blocker_id": "cg5_blocker_52731a97e5602678",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          },
+          {
+            "action_family": "cheap_verify",
+            "blocker_id": "cg5_blocker_54a2c8c4212986e3",
+            "decisiveness": {
+              "action_family": "cheap_verify",
+              "after_certificate_id": null,
+              "after_content_hash": null,
+              "after_disposition": null,
+              "after_reason": null,
+              "authoritative": false,
+              "before_certificate_id": "cg1_cert_afafb93b123b4e74",
+              "before_content_hash": null,
+              "before_disposition": "novel-candidate",
+              "blocker_id": "cg5_blocker_54a2c8c4212986e3",
+              "counterfactual": true,
+              "decisive": false,
+              "flipped": false,
+              "gate": "CG1",
+              "owner_shaped_resolution": {},
+              "persisted_as_gate_certificate": false,
+              "planning_only_reason": "structural_only_no_live_gy_k_gateway",
+              "redacted_counterfactual_payload": true
+            },
+            "dominance_argument": "Cold-start success probability is set-valued [0,1], so robust LCB of expected VOI is not a point estimate. A gate-safe decisive action with bounded ordinal cost weakly dominates passive abstain because it can only produce owner-shaped input that must re-enter the gates.",
+            "ordinal_cost": 1,
+            "robust_lcb_expected_voi": null,
+            "success_probability_interval": [
+              0.0,
+              1.0
+            ],
+            "within_budget": true
+          }
+        ],
+        "case_id": "cg5.low_voi.high_cost",
+        "certificate_id": "cg5_cert_4dc9857b46564bcc",
+        "cold_start_assumptions": {
+          "action_budget": 3,
+          "cost_currency": null,
+          "cost_provenance": "cold_start_ordinal_assumption",
+          "ordering_rule": "dominance_minimal_cost_decisive_action",
+          "ordinal_cost_order": {
+            "abstain": 0,
+            "acquire_data": 3,
+            "adversarial_validate": 2,
+            "cheap_verify": 1,
+            "elicit_human": 4
+          },
+          "robust_lcb_expected_voi": null,
+          "success_probability_interval": [
+            0.0,
+            1.0
+          ],
+          "success_probability_provenance": "cold_start_unknown_set_valued"
+        },
+        "content_hash": "sha256:4dc9857b46564bcc25e9768321c8a6c5bd4e598776549d895ef1b1f772b1513f",
+        "deferred_voi_fields": {
+          "deferred_to": [
+            "multi_action_EVSI",
+            "observation_model_learning",
+            "two_level_search_leverage_VOI"
+          ],
+          "multi_action_evsi": null,
+          "observation_model_learning": null,
+          "search_leverage_voi": null,
+          "status": "deferred_not_fabricated"
+        },
+        "never_buy_bind_boundary": {
+          "controller_can_close_obligation": false,
+          "controller_can_inject_evidence": false,
+          "controller_can_lower_threshold": false,
+          "controller_can_resolve_gate": false,
+          "counterfactuals_authoritative": false,
+          "only_gate_reentry_advances_case": true
+        },
+        "production_authoritative": false,
+        "reference_epoch": "kref:a00408c5dc6536cf",
+        "reference_hash": "sha256:a00408c5dc6536cf44f86006bb2029528a7f9828760a6c67f8fd0e006da67c2e",
+        "remaining_candidate_action": "elicit_human",
+        "schema_version": "policyos.runtime.grounding_action_certificate.v1",
+        "selected_action": "abstain",
+        "selected_ticket": {
+          "action_family": "abstain",
+          "blocker_id": "cg5_blocker_cfb5ca26f03cdc3a",
+          "content_hash": "sha256:e0d1e2b92cfb4c6a9119b79388522882e168316991bf2f1efce41b499d261a0c",
+          "integration_status": "terminal_for_this_round",
+          "needed_result": [],
+          "no_resolution_claim": true,
+          "payload": {
+            "blocker_count": 9,
+            "remaining_candidate_action": "elicit_human"
+          },
+          "target_surface": "CG5.round_closeout",
+          "ticket_id": "cg5_ticket_e0d1e2b92cfb4c6a",
+          "ticket_kind": "abstain_record"
+        },
+        "selection_reason": "abstain_no_decisive_action",
+        "source_certificates": [
+          {
+            "certificate_id": "cg1_cert_afafb93b123b4e74",
+            "content_hash": "sha256:afafb93b123b4e74625f148a7bfb7db556d33ecf18daa371c69b814ad3855d55",
+            "disposition": "novel-candidate",
+            "gate": "CG1",
+            "reason": "handoff_RT3"
+          },
+          {
+            "certificate_id": "cg2_cert_98fe0e22b0108576",
+            "content_hash": "sha256:98fe0e22b0108576ba948f6014bd8d2ed28ca4739d74f7d76fe9f6ea9c8b4031",
+            "disposition": "novel_candidate",
+            "gate": "CG2",
+            "reason": "novel_candidate_handoff"
+          },
+          {
+            "certificate_id": "cg3_cert_445640a900ff8646",
+            "content_hash": "sha256:445640a900ff8646caffed7c6d9cb6765c4dc423418a6fbb1f26d0a0c14eafe7",
+            "disposition": "acquire_then_decide",
+            "gate": "CG3",
+            "reason": "open_obligation"
+          }
+        ],
+        "validator_version": "policyos.runtime.grounding_active_controller.cg5.v1"
+      }
+    },
+    "no_positive_writability_proof": {
+      "acquisition_blocker": "mechanism_witness_required",
+      "certificate_id": "cg3_cert_f37508320dcd52fb",
+      "content_hash": "sha256:f37508320dcd52fb2be1068f43e3e57fd57697b8b0dd11ae14e35484e0b8c0d9",
+      "data_trust_cap": 0.0,
+      "data_trust_status": "open",
+      "decision": "acquire_then_decide",
+      "decisive_reason": "mechanism_witness_missing",
+      "mechanism_status": "open",
+      "open_obligations": [
+        "do_semantics",
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "registry_patch_id": null
+    }
+  },
+  "contract_id": "policyos.runtime.grounding_active_controller_rt7",
+  "counterfactual_containment": {
+    "captured_counterfactual_admit_certificate_id": "cg3_cert_43e2482230ec4a55",
+    "counterfactual_edge_ids": [
+      "cg5_counterfactual_cells_distress_score_cells_output",
+      "cg5_counterfactual_cells_distress_score_cells_output",
+      "cg5_counterfactual_cells_distress_score_cells_output"
+    ],
+    "extracted_counterfactual_admit_refused": true,
+    "redaction_holds": true,
+    "reference_edge_count_after": 791994,
+    "reference_edge_count_before": 791994,
+    "reference_hash_after": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+    "reference_hash_before": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+    "reference_untouched_after_planning": true,
+    "registry_patch_resolution": {
+      "applied": false,
+      "certificate_patch_id": "cg3_patch_39492639389a4f9a",
+      "patch": null,
+      "reason": "admission_re_resolution_mismatch",
+      "recomputed_certificate_id": "cg3_cert_2860f27dd225d624",
+      "recomputed_patch_id": null
+    }
+  },
+  "deferred": {
+    "multi_action_evsi": null,
+    "observation_model_learning": null,
+    "search_leverage_voi": null,
+    "status": "deferred_not_fabricated"
+  },
+  "determinism": {
+    "first_content_hash": "sha256:e7626f8ba5667d34e70e657e40216947f9fd70df170d1752c7f339e4173bcd15",
+    "same_content_hash": true,
+    "second_content_hash": "sha256:e7626f8ba5667d34e70e657e40216947f9fd70df170d1752c7f339e4173bcd15"
+  },
+  "forged_inputs_fail_closed": {
+    "claimed_resolution_reentry": {
+      "action_family": "acquire_data",
+      "advanced_by_gate": false,
+      "after_disposition": "acquire_then_decide",
+      "after_reason": "mechanism_witness_missing",
+      "before_disposition": "acquire_then_decide",
+      "false_bind_or_admit": false,
+      "final_certificate_id": "cg3_cert_a671fc5f3e1ba2b1",
+      "final_content_hash": "sha256:a671fc5f3e1ba2b1bc0bbc74bda1318396465cc2bbb699bf6c11b1673498d09a",
+      "reentered_gate": "CG3",
+      "result_id": "cg5.forged.claim_only",
+      "trusted_claimed_resolution": false
+    },
+    "forged_certificate": {
+      "accepted": false,
+      "error": "1 validation error for GroundingActionCertificate"
+    },
+    "self_supplied_edge_reentry": {
+      "action_family": "acquire_data",
+      "advanced_by_gate": false,
+      "after_disposition": "acquire_then_decide",
+      "after_reason": "production_result_payload_rejected_owner_data_path",
+      "before_disposition": "acquire_then_decide",
+      "false_bind_or_admit": false,
+      "final_certificate_id": null,
+      "final_content_hash": null,
+      "reentered_gate": "CG3",
+      "result_id": "cg5.attack.self_supplied_high_trust_edge",
+      "trusted_claimed_resolution": false
+    },
+    "unknown_blocker_route": {
+      "action_family": "abstain",
+      "blocker_id": "cg5_blocker_338f0cb01f583604",
+      "blocker_type": "future_gate_reason",
+      "evidence": {
+        "routing": "unknown_blocker_fail_safe"
+      },
+      "gate": "UNKNOWN",
+      "gate_certificate_id": "cg5.future.unknown",
+      "mapping_status": "unknown_fail_safe",
+      "obligation_or_axis": null,
+      "source_field": "unknown_future_blocker"
+    }
+  },
+  "full_cg1_decisive_claims": {
+    "acquire_loop": {
+      "bounded_before": {
+        "acquisition_blocker": "mechanism_witness_required",
+        "certificate_id": "cg3_cert_f29db99276f10e54",
+        "content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+        "data_trust_cap": 0.0,
+        "data_trust_status": "open",
+        "decision": "acquire_then_decide",
+        "decisive_reason": "mechanism_witness_missing",
+        "mechanism_status": "open",
+        "open_obligations": [
+          "mechanism_witness",
+          "data_trust"
+        ],
+        "registry_patch_id": null
+      },
+      "bounded_reentry": {
+        "action_family": "acquire_data",
+        "advanced_by_gate": true,
+        "after_disposition": "admit_new_lever",
+        "after_reason": "all_obligations_closed",
+        "before_disposition": "acquire_then_decide",
+        "false_bind_or_admit": false,
+        "final_certificate_id": "cg3_cert_773c677bd3218d2a",
+        "final_content_hash": "sha256:773c677bd3218d2a3299ef618c61f4215523054a34bb26baefc487264633e9a5",
+        "reentered_gate": "CG3",
+        "result_id": "cg5.acquire.result.reference_only",
+        "trusted_claimed_resolution": false
+      },
+      "bounded_vs_full_agree": true,
+      "false_bind_rederived_by_full_gate": true,
+      "full_before": {
+        "acquisition_blocker": "mechanism_witness_required",
+        "certificate_id": "cg3_cert_bb6a3ad0ad13da92",
+        "content_hash": "sha256:bb6a3ad0ad13da92035b496a3cc9c8ffae931d68eca7dc89ed6b454b55675cd5",
+        "data_trust_cap": 0.0,
+        "data_trust_status": "open",
+        "decision": "acquire_then_decide",
+        "decisive_reason": "mechanism_witness_missing",
+        "mechanism_status": "open",
+        "open_obligations": [
+          "mechanism_witness",
+          "data_trust"
+        ],
+        "registry_patch_id": null
+      },
+      "full_gate_rederivation": {
+        "acquisition_blocker": null,
+        "certificate_id": "cg3_cert_f48134cda8a44982",
+        "content_hash": "sha256:f48134cda8a44982d5b86b21c65a2943dcc573b1f275ca0562f4ae58e97b081c",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decisive_reason": "all_obligations_closed",
+        "mechanism_status": "closed",
+        "open_obligations": [],
+        "registry_patch_id": "cg3_patch_122b0b41d45c0ff6"
+      },
+      "full_reentry": {
+        "action_family": "acquire_data",
+        "advanced_by_gate": true,
+        "after_disposition": "admit_new_lever",
+        "after_reason": "all_obligations_closed",
+        "before_disposition": "acquire_then_decide",
+        "false_bind_or_admit": false,
+        "final_certificate_id": "cg3_cert_32d948deee84160b",
+        "final_content_hash": "sha256:32d948deee84160bd51b3589f885944724ae4bddd8b53b4691946d5c94710e35",
+        "reentered_gate": "CG3",
+        "result_id": "cg5.full.acquire.result.reference_only",
+        "trusted_claimed_resolution": false
+      }
+    },
+    "bounded_auxiliary_scope_note": "Bounded replay remains for auxiliary contract probes; these headline decisive claims are re-derived on the full CG1 path.",
+    "cheap_verify": {
+      "bounded_relation": "unknown",
+      "bounded_selected_action": "abstain",
+      "bounded_vs_full_agree": true,
+      "full_relation": "unknown",
+      "full_selected_action": "abstain"
+    },
+    "full_reference_engine_reuse": "one GroundingRelationEngine(reference) reused for baseline acquire and cheap probes",
+    "low_trust_owner_corruption": {
+      "advanced": false,
+      "data_trust_cap": 0.2,
+      "data_trust_status": "open",
+      "full_decision": "acquire_then_decide",
+      "full_reason": "data_trust_below_floor"
+    },
+    "scope": "full_cg1_real_fts"
+  },
+  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_active_controller_contract.v1",
+  "lift_vs_passive_abstain": {
+    "abstained": 2,
+    "actioned_but_unresolved": 1,
+    "advanced_cases_rederived_by_real_gates": 1,
+    "closed": 1,
+    "false_binds_or_admits": 0,
+    "fixed_budget": 3,
+    "passive_abstain_closed": 0
+  },
+  "owner": "polisyos.runtime.quality.grounding_active_controller",
+  "pattern_pass": {
+    "acceptance_signal": "contract check plus corrupt-field check pass; mutations are red",
+    "missing_capability_labels": [
+      "bridge_missing"
+    ],
+    "relevant_ids": [
+      "P01",
+      "P03",
+      "P04",
+      "P05",
+      "P10",
+      "P15",
+      "P27",
+      "P28",
+      "P29",
+      "P31",
+      "P32",
+      "P33"
+    ],
+    "target_correct_pattern": "thin controller over gate-owned typed blockers; counterfactuals are planning-only and every advancement is re-derived by gates from owner data"
+  },
+  "production_api_boundary_probes": {
+    "constructor_bounded_mode": {
+      "accepted": false,
+      "error": "GroundingActiveController.__init__() got an unexpected keyword argument 'bounded_reference_replay'"
+    },
+    "constructor_force_action": {
+      "accepted": false,
+      "error": "GroundingActiveController.__init__() got an unexpected keyword argument 'force_action'"
+    },
+    "policy_bounded_mode": {
+      "accepted": false,
+      "error": "1 validation error for GroundingActiveControllerPolicy"
+    },
+    "policy_budget_inflation": {
+      "accepted": false,
+      "error": "1 validation error for GroundingActiveControllerPolicy"
+    },
+    "policy_cost_override": {
+      "accepted": false,
+      "error": "1 validation error for GroundingActiveControllerPolicy"
+    },
+    "policy_force_action": {
+      "accepted": false,
+      "error": "1 validation error for GroundingActiveControllerPolicy"
+    },
+    "policy_model_construct_authority_extras": {
+      "accepted": false,
+      "dump_keys": []
+    },
+    "policy_treat_resolved": {
+      "accepted": false,
+      "error": "1 validation error for GroundingActiveControllerPolicy"
+    },
+    "policy_voi_override": {
+      "accepted": false,
+      "error": "1 validation error for GroundingActiveControllerPolicy"
+    }
+  },
+  "reference": {
+    "component_versions": {
+      "L2": "sha256:6f013f350e95724139c79f23ea5fcac440ad759de8ea2e0416c8996533eb56bb",
+      "L3": "sha256:19ba25cd24fbd27186d7ca9144775f00bd255fb7b5fca57caf5b7277dd6ddcf0",
+      "L6": "sha256:7489e7d1a9e77b458c63bdce652fccf2d31ddeb29e25b869c89ecf3b60c218b8",
+      "WMR": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca"
+    },
+    "edge_count": 791994,
+    "reference_epoch": "kref:09b6349c4ee0bfef",
+    "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9"
+  },
+  "reuse_existing_owners": [
+    "CG0 CredalReference",
+    "CG1 GroundingRelationCertificate",
+    "CG2 GroundingDecisionCertificate",
+    "CG3 GroundingAdmissionCertificate and AcquisitionNeed",
+    "CG4 GroundingProxyGapRisk and real phrasing-defense harness"
+  ],
+  "runtime_schema_version": "policyos.runtime.grounding_action_certificate.v1",
+  "schema_version": "policyos.policy_design_case.grounding_active_controller_contract.v1",
+  "source_modules": [
+    "src/polisyos/runtime/quality/grounding_active_controller.py",
+    "src/polisyos/runtime/quality/grounding_relation.py",
+    "src/polisyos/runtime/quality/grounding_bind.py",
+    "src/polisyos/runtime/quality/grounding_admission.py",
+    "src/polisyos/runtime/quality/grounding_phrasing_defense.py",
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "tools/quality/validation/check_grounding_active_controller_contract.py"
+  ]
+}

@@ -1,0 +1,2007 @@
+{
+  "behavioral_mutations": [
+    {
+      "mutation_id": "mechanism_witness_resolution_removed",
+      "note": "Exact outcome-wish+mechanism mutation remains structurally rejected by the reject-proof firewall; reachable fabricated-proof real-shaped lever flips.",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_e60f4acb644dbf69",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:e60f4acb644dbf69504d7a6897cc3b212ed131e8ff619bbc731acb9122fef4a8",
+        "data_trust_cap": 0.85,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [],
+        "production_promotable": false,
+        "registry_patch_id": "cg3_patch_a0830c2feb647d39",
+        "registry_patch_status": "contract_testing_shadow",
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "novel_irreducible_removed",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_ddbae282e6b1b446",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:ddbae282e6b1b4464542fd6d9bce06807f8db49704dd1e279eb6f8bc4b6bd06f",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false,
+          "path": [
+            {
+              "direction": "positive",
+              "dst": "government.balance",
+              "src": "global.tax_rate"
+            }
+          ],
+          "path_length": 1,
+          "path_trust_cap": 0.93,
+          "source_modalities": [
+            "L2_CAUSAL_CLAIM"
+          ]
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "mutation": "disabled"
+        },
+        "open_obligations": [],
+        "production_promotable": false,
+        "registry_patch_id": "cg3_patch_995cdc768d0db639",
+        "registry_patch_status": "contract_testing_shadow",
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "denotation_comparison_removed",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_31bcde4e888b19e1",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:31bcde4e888b19e1843ddd05fb2ff1c8400618b390d63b9cf9b9c33c166515ff",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false,
+          "path": [
+            {
+              "direction": "positive",
+              "dst": "government.balance",
+              "src": "global.tax_rate"
+            }
+          ],
+          "path_length": 1,
+          "path_trust_cap": 0.93,
+          "source_modalities": [
+            "L2_CAUSAL_CLAIM"
+          ]
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [],
+        "production_promotable": false,
+        "registry_patch_id": "cg3_patch_995cdc768d0db639",
+        "registry_patch_status": "contract_testing_shadow",
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "full_universe_denotation_removed",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_895859fb9dd99fbb",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:895859fb9dd99fbbbf89e895b367f2c9c903e2e4bc71e6139371b93c984f403b",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false,
+          "mutation": "do_path_resolution_disabled"
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [],
+        "production_promotable": false,
+        "registry_patch_id": "cg3_patch_7a7b7d2ec08f9596",
+        "registry_patch_status": "contract_testing_shadow",
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "stable_unique_removed",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_0dbbee0b9bdb4436",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:0dbbee0b9bdb4436f40f94e153ede754d40cafff252ae7db55f28f65cbf6e7d8",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false,
+          "path": [
+            {
+              "direction": "positive",
+              "dst": "cells.output",
+              "src": "cells.distress_score"
+            }
+          ],
+          "path_length": 1,
+          "path_trust_cap": 0.93,
+          "source_modalities": [
+            "L2_CAUSAL_CLAIM"
+          ]
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [],
+        "production_promotable": false,
+        "registry_patch_id": "cg3_patch_0718b89e4243b5be",
+        "registry_patch_status": "contract_testing_shadow",
+        "stable_unique": true,
+        "stable_unique_reason": "stable_unique_disabled_contract_testing"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "reject_only_on_proven_removed",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_ee044505fd930089",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "estimand",
+          "admissibility",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:ee044505fd930089bcd595976583153d8b15e7ac471d2783dbe534f1575c0d3b",
+        "data_trust_cap": 0.0,
+        "data_trust_status": "open",
+        "decision": "reject_hallucination",
+        "decision_front_created": null,
+        "decisive_reason": "impossible_type",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false,
+          "contested_count": 0,
+          "outcome": "cells.output",
+          "target": "cells.distress_score"
+        },
+        "mechanism_status": "open",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [
+          "mechanism_witness",
+          "data_trust"
+        ],
+        "production_promotable": false,
+        "registry_patch_id": null,
+        "registry_patch_status": null,
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "registry_patch_reresolution_removed",
+      "probe": {
+        "applied": true,
+        "reason": "registry_patch_re_resolution_disabled_contract_testing"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "do_path_actuatability_resolution_removed",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_4fd6fb00c3e3cc46",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:4fd6fb00c3e3cc46b05d935af6443a47ec76d8278285bcef68ffcb8997fd129d",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false,
+          "mutation": "do_path_resolution_disabled"
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [],
+        "production_promotable": false,
+        "registry_patch_id": "cg3_patch_28cfe1e157f38340",
+        "registry_patch_status": "contract_testing_shadow",
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "substrate_registry_authority_restored",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_6857063c2c3be4a4",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:6857063c2c3be4a4c7a6e28e6dbe951b5edf7bed881cdef1a2e84aaff5feff42",
+        "data_trust_cap": 0.99,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [],
+        "production_promotable": false,
+        "registry_patch_id": "cg3_patch_eacacfc452657b15",
+        "registry_patch_status": "contract_testing_shadow",
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "direct_mechanism_witness_removed",
+      "probe": {
+        "best_edge_low_trust_hop": {
+          "acquisition_blocker": null,
+          "authority_scope": "contract_testing",
+          "certificate_id": "cg3_cert_48d167564a7cf028",
+          "closed_obligations": [
+            "parse",
+            "novel_irreducible",
+            "type",
+            "world_bindable_or_acquirable",
+            "do_semantics",
+            "mechanism_witness",
+            "estimand",
+            "admissibility",
+            "data_trust",
+            "ambiguity",
+            "cg2_novel_handoff",
+            "cg1_content_bound"
+          ],
+          "content_hash": "sha256:48d167564a7cf0289e947d62ab7324b4767d577b9d1f52e1ba7513437d60bd1f",
+          "data_trust_cap": 0.95,
+          "data_trust_status": "closed",
+          "decision": "admit_new_lever",
+          "decision_front_created": false,
+          "decisive_reason": "all_obligations_closed",
+          "delta_budget": 0.01,
+          "delta_spend": 0.0065,
+          "delta_within_budget": true,
+          "mechanism_evidence": {
+            "caller_claims_ignored": false,
+            "path": [
+              {
+                "direction": "positive",
+                "dst": "audit.low_trust_bridge",
+                "src": "cells.distress_score"
+              },
+              {
+                "direction": "positive",
+                "dst": "cells.output",
+                "src": "audit.low_trust_bridge"
+              }
+            ],
+            "path_length": 2,
+            "path_trust_cap": 0.95,
+            "source_modalities": [
+              "L2_CAUSAL_CLAIM"
+            ]
+          },
+          "mechanism_status": "closed",
+          "n11_composition_status": "not_wired",
+          "novel_irreducible_evidence": {
+            "existing_atom_id": null,
+            "existing_atom_match_basis": null,
+            "existing_atom_match_kind": null,
+            "existing_atom_operator": null,
+            "operator_denotation_proof": null
+          },
+          "open_obligations": [],
+          "production_promotable": false,
+          "registry_patch_id": "cg3_patch_f951eee1a5cc6b28",
+          "registry_patch_status": "contract_testing_shadow",
+          "stable_unique": true,
+          "stable_unique_reason": "single_existing_world_slot_completion"
+        },
+        "composed_two_hop": {
+          "acquisition_blocker": null,
+          "authority_scope": "contract_testing",
+          "certificate_id": "cg3_cert_7756d7aed7485fbf",
+          "closed_obligations": [
+            "parse",
+            "novel_irreducible",
+            "type",
+            "world_bindable_or_acquirable",
+            "do_semantics",
+            "mechanism_witness",
+            "estimand",
+            "admissibility",
+            "data_trust",
+            "ambiguity",
+            "cg2_novel_handoff",
+            "cg1_content_bound"
+          ],
+          "content_hash": "sha256:7756d7aed7485fbf89f0cb9d8de8a6a131599943348b51a39a93b1d5cc2d9308",
+          "data_trust_cap": 0.93,
+          "data_trust_status": "closed",
+          "decision": "admit_new_lever",
+          "decision_front_created": false,
+          "decisive_reason": "all_obligations_closed",
+          "delta_budget": 0.01,
+          "delta_spend": 0.0065,
+          "delta_within_budget": true,
+          "mechanism_evidence": {
+            "caller_claims_ignored": false,
+            "path": [
+              {
+                "direction": "positive",
+                "dst": "audit.bridge",
+                "src": "cells.distress_score"
+              },
+              {
+                "direction": "positive",
+                "dst": "cells.output",
+                "src": "audit.bridge"
+              }
+            ],
+            "path_length": 2,
+            "path_trust_cap": 0.93,
+            "source_modalities": [
+              "L2_CAUSAL_CLAIM"
+            ]
+          },
+          "mechanism_status": "closed",
+          "n11_composition_status": "not_wired",
+          "novel_irreducible_evidence": {
+            "existing_atom_id": null,
+            "existing_atom_match_basis": null,
+            "existing_atom_match_kind": null,
+            "existing_atom_operator": null,
+            "operator_denotation_proof": null
+          },
+          "open_obligations": [],
+          "production_promotable": false,
+          "registry_patch_id": "cg3_patch_4235eb33629334e6",
+          "registry_patch_status": "contract_testing_shadow",
+          "stable_unique": true,
+          "stable_unique_reason": "single_existing_world_slot_completion"
+        }
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "positive_writability_removed",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_cac9a5f1f0eb3824",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "estimand",
+          "admissibility",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:cac9a5f1f0eb38246d0d48238a52642bc4685cd0229efa82be6b98ae124707b2",
+        "data_trust_cap": 0.93,
+        "data_trust_status": "closed",
+        "decision": "admit_new_lever",
+        "decision_front_created": false,
+        "decisive_reason": "all_obligations_closed",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "caller_claims_ignored": false,
+          "path": [
+            {
+              "direction": "positive",
+              "dst": "government.balance",
+              "src": "household_cells.disposable_income"
+            }
+          ],
+          "path_length": 1,
+          "path_trust_cap": 0.93,
+          "source_modalities": [
+            "L2_CAUSAL_CLAIM"
+          ]
+        },
+        "mechanism_status": "closed",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [],
+        "production_promotable": false,
+        "registry_patch_id": "cg3_patch_144b04a167b944b7",
+        "registry_patch_status": "contract_testing_shadow",
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    },
+    {
+      "mutation_id": "keyword_proxy_reject_restored",
+      "probe": {
+        "acquisition_blocker": null,
+        "authority_scope": "contract_testing",
+        "certificate_id": "cg3_cert_ce0991693e442524",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "estimand",
+          "admissibility",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:ce0991693e4425246cca6783bf8352f6ed192dba07532a8b768d4dc4396264c5",
+        "data_trust_cap": 0.0,
+        "data_trust_status": "open",
+        "decision": "reject_hallucination",
+        "decision_front_created": null,
+        "decisive_reason": "proxy_manipulation",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "actuatability": {
+            "actuatable": false,
+            "reason": "no_positive_writability_proof",
+            "target": "household_cells.transfer_intensity"
+          },
+          "caller_claims_ignored": false,
+          "outcome": "household_cells.disposable_income",
+          "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+          "target": "household_cells.transfer_intensity"
+        },
+        "mechanism_status": "open",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [
+          "do_semantics",
+          "mechanism_witness",
+          "data_trust"
+        ],
+        "production_promotable": false,
+        "registry_patch_id": null,
+        "registry_patch_status": null,
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      },
+      "status": "red"
+    }
+  ],
+  "capability_reality": {
+    "consumer": "GY-S0 registry patch resolver in shadow scope; future CG1 can replay ledger",
+    "orchestration_bridge": "CG3 consumes CG2 novel handoff plus content-bound CG1 proposal certificate and live CG0/L5 owners",
+    "persisted_artifact_event": "architecture/policy_design_case/grounding_admission_contract.json",
+    "producer": "GroundingAdmissionEngine.decide",
+    "semantic_test": "admit/acquire/reject/non-new/fail-closed probes and mutation-red checks over live owner-built reference",
+    "surface": "generated Policy Design Case CG3 contract artifact",
+    "typed_contract_artifact": "GroundingAdmissionCertificate + StableUniqueResolution + GroundingLeverRegistryPatch + DeltaAdmissionLedger",
+    "verification": "this recomputing validator plus unit probes and mutations"
+  },
+  "contract_id": "policyos.runtime.grounding_admission_rt3",
+  "gy_lifecycle_marker": "policyos.policy_design_case.grounding_admission_contract.v1",
+  "no_parallel_reference_or_registry": true,
+  "owner": "polisyos.runtime.quality.grounding_admission",
+  "pattern_pass": {
+    "acceptance_signal": "contract check plus corrupt-field check pass; mutations are red",
+    "missing_capability_labels": [],
+    "relevant_ids": [
+      "P01",
+      "P03",
+      "P04",
+      "P05",
+      "P10",
+      "P15",
+      "P27",
+      "P28",
+      "P29",
+      "P31",
+      "P32",
+      "P33"
+    ],
+    "target_correct_pattern": "certificate-as-claim envelope; admission and patching re-resolve mechanism, WMR, L5 trust, StableUnique, and registry effects from owners"
+  },
+  "probes": {
+    "acquire_missing_mechanism_unknown_never_reject": {
+      "acquisition_blocker": "mechanism_witness_required",
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_f29db99276f10e54",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:f29db99276f10e54273af806a60958a07aeb1c6c9852fd2218cabf0456ca0c12",
+      "data_trust_cap": 0.0,
+      "data_trust_status": "open",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "mechanism_witness_missing",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "contested_count": 0,
+        "outcome": "cells.output",
+        "target": "cells.distress_score"
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "admit_real_novel_data_only_free_grow": {
+      "acquisition_blocker": null,
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_05f9ee741eed7db0",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "mechanism_witness",
+        "estimand",
+        "admissibility",
+        "data_trust",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:05f9ee741eed7db000ce5b80b8b4ffb51c35a5d62fb125cc2a0a0070643c707a",
+      "data_trust_cap": 0.93,
+      "data_trust_status": "closed",
+      "decision": "admit_new_lever",
+      "decision_front_created": false,
+      "decisive_reason": "all_obligations_closed",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "cells.output",
+            "src": "cells.distress_score"
+          }
+        ],
+        "path_length": 1,
+        "path_trust_cap": 0.93,
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ]
+      },
+      "mechanism_status": "closed",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [],
+      "production_promotable": true,
+      "registry_patch_id": "cg3_patch_32155c73f0f634eb",
+      "registry_patch_status": "shadow_applied",
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "admit_second_generic_data_only_free_grow": {
+      "acquisition_blocker": null,
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_62704b9654cbda09",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "mechanism_witness",
+        "estimand",
+        "admissibility",
+        "data_trust",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:62704b9654cbda093d226a0cdfbe471ed386496195125d942526502d1e2bb8ae",
+      "data_trust_cap": 0.93,
+      "data_trust_status": "closed",
+      "decision": "admit_new_lever",
+      "decision_front_created": false,
+      "decisive_reason": "all_obligations_closed",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "government.balance",
+            "src": "global.tax_rate"
+          }
+        ],
+        "path_length": 1,
+        "path_trust_cap": 0.93,
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ]
+      },
+      "mechanism_status": "closed",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [],
+      "production_promotable": true,
+      "registry_patch_id": "cg3_patch_a1adb7c16c89698d",
+      "registry_patch_status": "shadow_applied",
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "compatibility_derived_alias_no_patch": {
+      "acquisition_blocker": null,
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_81754e5afe5b4ee2",
+      "closed_obligations": [
+        "parse",
+        "type",
+        "world_bindable_or_acquirable",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:81754e5afe5b4ee265bffb2a54795a3166f6875740d1ab99115dbc24c92cf3c0",
+      "data_trust_cap": 0.0,
+      "data_trust_status": "open",
+      "decision": "non_new",
+      "decision_front_created": null,
+      "decisive_reason": "novel_irreducible_failed_existing_atom",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "actuatability": {
+          "actuatable": false,
+          "reason": "no_positive_writability_proof",
+          "target": "cells.output"
+        },
+        "caller_claims_ignored": false,
+        "outcome": "cells.output",
+        "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+        "target": "cells.output"
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": "cg0_atom_9808aa7bda80c304",
+        "existing_atom_match_basis": "compatibility_derived",
+        "existing_atom_match_kind": "signature_only",
+        "existing_atom_operator": "procurement_shock_intensity",
+        "operator_denotation_proof": "unresolved"
+      },
+      "open_obligations": [
+        "novel_irreducible",
+        "do_semantics",
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "contract_testing_scope": {
+      "acquisition_blocker": null,
+      "authority_scope": "contract_testing",
+      "certificate_id": "cg3_cert_b2b80d2836449817",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "mechanism_witness",
+        "estimand",
+        "admissibility",
+        "data_trust",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:b2b80d2836449817bed111c3eb39d89fbdd9676eae394c9082697c1356948667",
+      "data_trust_cap": 0.93,
+      "data_trust_status": "closed",
+      "decision": "admit_new_lever",
+      "decision_front_created": false,
+      "decisive_reason": "all_obligations_closed",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "cells.output",
+            "src": "cells.distress_score"
+          }
+        ],
+        "path_length": 1,
+        "path_trust_cap": 0.93,
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ]
+      },
+      "mechanism_status": "closed",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [],
+      "production_promotable": false,
+      "registry_patch_id": "cg3_patch_64c3f24928cb4b77",
+      "registry_patch_status": "contract_testing_shadow",
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "deterministic_admission": {
+      "first_content_hash": "sha256:05f9ee741eed7db000ce5b80b8b4ffb51c35a5d62fb125cc2a0a0070643c707a",
+      "same_content_hash": true,
+      "second_content_hash": "sha256:05f9ee741eed7db000ce5b80b8b4ffb51c35a5d62fb125cc2a0a0070643c707a"
+    },
+    "fabricated_mechanism_proof_fail_closed": {
+      "acquisition_blocker": "mechanism_witness_required",
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_898c9ef9165965ce",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:898c9ef9165965cef5c203b9cc15489a70f4ef6bcac697665bc95cf5f4d9a808",
+      "data_trust_cap": 0.0,
+      "data_trust_status": "open",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "mechanism_witness_missing",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": true,
+        "contested_count": 0,
+        "outcome": "cells.output",
+        "target": "cells.distress_score"
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "live_actuatability_denominator": {
+      "accepted_count": 2,
+      "accepted_targets": [
+        "cells.distress_score",
+        "global.tax_rate"
+      ],
+      "reason_counts": {
+        "cg1_explicit_non_identity_write_target": 2,
+        "no_positive_writability_proof": 12,
+        "slot_missing": 2,
+        "wmr_measurement_or_reporting_slot": 2
+      },
+      "rejected_count": 16,
+      "rejected_targets": [
+        "agents.employer_id",
+        "agents.income",
+        "agents.is_employed",
+        "agents.reported_income",
+        "agents.risk_aversion",
+        "agents.skill_level",
+        "cells.employment",
+        "cells.output",
+        "firms.labor_count",
+        "firms.wage_offer",
+        "government.balance",
+        "government_balance",
+        "household_cells.disposable_income",
+        "household_cells.transfer_intensity",
+        "household_cells.value_outer_set",
+        "tax_rate"
+      ],
+      "targets": {
+        "agents.employer_id": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "agents.income": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "wmr_measurement_or_reporting_slot"
+        },
+        "agents.is_employed": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "agents.reported_income": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "wmr_measurement_or_reporting_slot"
+        },
+        "agents.risk_aversion": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "agents.skill_level": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "cells.distress_score": {
+          "actuatable": true,
+          "field": "slot_id",
+          "reason": "cg1_explicit_non_identity_write_target"
+        },
+        "cells.employment": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "cells.output": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "firms.labor_count": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "firms.wage_offer": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "global.tax_rate": {
+          "actuatable": true,
+          "field": "slot_id",
+          "reason": "cg1_explicit_non_identity_write_target"
+        },
+        "government.balance": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "government_balance": {
+          "actuatable": false,
+          "field": "state_path",
+          "reason": "slot_missing"
+        },
+        "household_cells.disposable_income": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "household_cells.transfer_intensity": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "household_cells.value_outer_set": {
+          "actuatable": false,
+          "field": "slot_id",
+          "reason": "no_positive_writability_proof"
+        },
+        "tax_rate": {
+          "actuatable": false,
+          "field": "state_path",
+          "reason": "slot_missing"
+        }
+      },
+      "total_policy_map_targets": 18
+    },
+    "low_trust_hop_chain": {
+      "acquisition_blocker": "mechanism_composition_unverified",
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_1ed340b751a179f3",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:1ed340b751a179f3a0bb86337e8f5f865bb93c26d07a81ed13424bda7c097c37",
+      "data_trust_cap": 0.2,
+      "data_trust_status": "open",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "mechanism_composition_unverified",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "audit.low_trust_bridge",
+            "src": "cells.distress_score"
+          },
+          {
+            "direction": "positive",
+            "dst": "cells.output",
+            "src": "audit.low_trust_bridge"
+          }
+        ],
+        "path_length": 2,
+        "path_trust_cap": 0.2,
+        "reason": "mechanism_composition_unverified",
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ],
+        "trust_floor": 0.5
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "non_new_paraphrase_no_registry_patch": {
+      "acquisition_blocker": null,
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_01f51f3e1438730d",
+      "closed_obligations": [
+        "parse",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "mechanism_witness",
+        "estimand",
+        "admissibility",
+        "data_trust",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:01f51f3e1438730d247706d72b83bb6e5609d105cf91a5fd7a3b8361ca1979ee",
+      "data_trust_cap": 0.93,
+      "data_trust_status": "closed",
+      "decision": "non_new",
+      "decision_front_created": null,
+      "decisive_reason": "novel_irreducible_failed_existing_atom",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "government.balance",
+            "src": "global.tax_rate"
+          }
+        ],
+        "path_length": 1,
+        "path_trust_cap": 0.93,
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ]
+      },
+      "mechanism_status": "closed",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": "cg0_atom_49ebedb62a306a73",
+        "existing_atom_match_basis": "explicit_binding",
+        "existing_atom_match_kind": "signature_only",
+        "existing_atom_operator": "tax_relief_rate",
+        "operator_denotation_proof": "unresolved"
+      },
+      "open_obligations": [
+        "novel_irreducible"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "outcome_like_map_mentioned_slot": {
+      "acquisition_blocker": "mechanism_witness_required",
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_e51302f7ed513086",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:e51302f7ed513086a7916ade0ecfe6f96303ea7f960fb08b23ef0cd7e0f5ba99",
+      "data_trust_cap": 0.0,
+      "data_trust_status": "open",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "mechanism_witness_missing",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "actuatability": {
+          "actuatable": false,
+          "reason": "no_positive_writability_proof",
+          "target": "household_cells.disposable_income"
+        },
+        "caller_claims_ignored": false,
+        "outcome": "government.balance",
+        "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+        "target": "household_cells.disposable_income"
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "do_semantics",
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "outcome_wish_with_crafted_self_loop_edge": {
+      "acquisition_blocker": null,
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_e39d19571de5ad58",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:e39d19571de5ad583f09b015944028504297572b210d8d3b8f6cdce278b99b9c",
+      "data_trust_cap": 0.0,
+      "data_trust_status": "open",
+      "decision": "reject_hallucination",
+      "decision_front_created": null,
+      "decisive_reason": "outcome_wish",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "actuatability": {
+          "actuatable": false,
+          "reason": "no_positive_writability_proof",
+          "target": "household_cells.disposable_income"
+        },
+        "caller_claims_ignored": false,
+        "outcome": "household_cells.disposable_income",
+        "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+        "target": "household_cells.disposable_income"
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "do_semantics",
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "proxy_named_real_unproven_boundary": {
+      "acquisition_blocker": "mechanism_witness_required",
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_af3da099c1711e96",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:af3da099c1711e965f3f07dda4cac6b449cb4f809efdd6eeaebce8982ac791d2",
+      "data_trust_cap": 0.0,
+      "data_trust_status": "open",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "mechanism_witness_missing",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "actuatability": {
+          "actuatable": false,
+          "reason": "no_positive_writability_proof",
+          "target": "household_cells.transfer_intensity"
+        },
+        "caller_claims_ignored": false,
+        "outcome": "household_cells.disposable_income",
+        "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+        "target": "household_cells.transfer_intensity"
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "do_semantics",
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "proxy_slot_with_crafted_edge": {
+      "acquisition_blocker": null,
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_ff93f6ce71d54785",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:ff93f6ce71d547859026fb3965face8f0b3c4fc38a65f6cd3de7860b95bd4473",
+      "data_trust_cap": 0.0,
+      "data_trust_status": "open",
+      "decision": "reject_hallucination",
+      "decision_front_created": null,
+      "decisive_reason": "proxy_manipulation",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "actuatability": {
+          "actuatable": false,
+          "reason": "wmr_measurement_or_reporting_slot",
+          "target": "agents.reported_income"
+        },
+        "caller_claims_ignored": false,
+        "outcome": "household_cells.disposable_income",
+        "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+        "target": "agents.reported_income"
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "do_semantics",
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "real_n4_recorded_handoff": {
+      "acquisition_blocker": "mechanism_witness_missing",
+      "authority_scope": "shadow_only",
+      "certificate_id": "cg3_cert_6b504e80dee3bc9a",
+      "cg1_certificate_id": "cg1_cert_639e0083021f03c0",
+      "cg1_selected_relation": "novel-candidate",
+      "cg2_certificate_id": "cg2_cert_db8d606b0658702c",
+      "cg2_decision": "novel_candidate",
+      "cg2_reason": "novel_candidate_handoff",
+      "closed_obligations": [],
+      "content_hash": "sha256:6b504e80dee3bc9ab3e09c4f5fd87b8859483fa4892a98290f22993ddadc1249",
+      "data_trust_cap": null,
+      "data_trust_status": "frozen_receipt",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "mechanism_witness_missing",
+      "delta_budget": 0.0,
+      "delta_spend": 0.0,
+      "delta_within_budget": true,
+      "frozen_receipt": true,
+      "mechanism_evidence": {},
+      "mechanism_status": "mechanism_witness_missing",
+      "n11_composition_status": "frozen_receipt",
+      "novel_irreducible_evidence": {},
+      "open_obligations": [],
+      "production_promotable": false,
+      "proposal_id": "gy_n4.payroll_tax_credit",
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": null,
+      "stable_unique_reason": "frozen_real_output_payoff_receipt"
+    },
+    "registry_patch_application_reresolved": {
+      "applied": true,
+      "patch_id": "cg3_patch_32155c73f0f634eb",
+      "reason": "owner_re_resolution_passed_shadow_patch_applied"
+    },
+    "reject_hallucination_subtypes": {
+      "impossible_type": {
+        "acquisition_blocker": null,
+        "authority_scope": "production",
+        "certificate_id": "cg3_cert_fa11fe469acfef05",
+        "cg2_decision": "abstain",
+        "cg2_reason": "relation_not_bind_eligible",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "estimand",
+          "admissibility",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:fa11fe469acfef056b67c304a18c1815de9c416652f5fdfe7a5353eef5724da6",
+        "data_trust_cap": 0.0,
+        "data_trust_status": "open",
+        "decision": "reject_hallucination",
+        "decision_front_created": null,
+        "decisive_reason": "impossible_type",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "actuatability": {
+            "actuatable": false,
+            "reason": "slot_missing"
+          },
+          "caller_claims_ignored": false,
+          "outcome": "household_cells.disposable_income",
+          "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+          "target": "not-a-world-slot"
+        },
+        "mechanism_status": "open",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff"
+        ],
+        "production_promotable": false,
+        "registry_patch_id": null,
+        "registry_patch_status": null,
+        "stable_unique": false,
+        "stable_unique_reason": "no_admissible_completion"
+      },
+      "outcome_wish": {
+        "acquisition_blocker": null,
+        "authority_scope": "production",
+        "certificate_id": "cg3_cert_511be251afcc099a",
+        "cg2_decision": "abstain",
+        "cg2_reason": "false_analog_hard_abstain",
+        "closed_obligations": [
+          "novel_irreducible",
+          "estimand",
+          "admissibility",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:511be251afcc099ad9c091f345a20bdcaf171b8ae164df1d39d224e79827ec71",
+        "data_trust_cap": 0.0,
+        "data_trust_status": "open",
+        "decision": "reject_hallucination",
+        "decision_front_created": null,
+        "decisive_reason": "outcome_wish",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "actuatability": {
+            "actuatable": false,
+            "reason": "target_missing"
+          },
+          "caller_claims_ignored": false,
+          "outcome": "cells.output",
+          "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+          "target": ""
+        },
+        "mechanism_status": "open",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [
+          "parse",
+          "type",
+          "world_bindable_or_acquirable",
+          "do_semantics",
+          "mechanism_witness",
+          "data_trust",
+          "ambiguity",
+          "cg2_novel_handoff"
+        ],
+        "production_promotable": false,
+        "registry_patch_id": null,
+        "registry_patch_status": null,
+        "stable_unique": false,
+        "stable_unique_reason": "no_admissible_completion"
+      },
+      "proxy_manipulation": {
+        "acquisition_blocker": null,
+        "authority_scope": "production",
+        "certificate_id": "cg3_cert_31956b5282ce4a7e",
+        "cg2_decision": "novel_candidate",
+        "cg2_reason": "novel_candidate_handoff",
+        "closed_obligations": [
+          "parse",
+          "novel_irreducible",
+          "type",
+          "world_bindable_or_acquirable",
+          "estimand",
+          "admissibility",
+          "ambiguity",
+          "cg2_novel_handoff",
+          "cg1_content_bound"
+        ],
+        "content_hash": "sha256:31956b5282ce4a7ebf38c69424277380132f65fb8abc8d6cad4f141476785c27",
+        "data_trust_cap": 0.0,
+        "data_trust_status": "open",
+        "decision": "reject_hallucination",
+        "decision_front_created": null,
+        "decisive_reason": "proxy_manipulation",
+        "delta_budget": 0.01,
+        "delta_spend": 0.0065,
+        "delta_within_budget": true,
+        "mechanism_evidence": {
+          "actuatability": {
+            "actuatable": false,
+            "reason": "wmr_measurement_or_reporting_slot",
+            "target": "agents.reported_income"
+          },
+          "caller_claims_ignored": false,
+          "outcome": "household_cells.disposable_income",
+          "reason": "do_target_not_actuatable_or_no_mediated_outcome_path",
+          "target": "agents.reported_income"
+        },
+        "mechanism_status": "open",
+        "n11_composition_status": "not_wired",
+        "novel_irreducible_evidence": {
+          "existing_atom_id": null,
+          "existing_atom_match_basis": null,
+          "existing_atom_match_kind": null,
+          "existing_atom_operator": null,
+          "operator_denotation_proof": null
+        },
+        "open_obligations": [
+          "do_semantics",
+          "mechanism_witness",
+          "data_trust"
+        ],
+        "production_promotable": false,
+        "registry_patch_id": null,
+        "registry_patch_status": null,
+        "stable_unique": true,
+        "stable_unique_reason": "single_existing_world_slot_completion"
+      }
+    },
+    "spoofed_substrate_registry_production_boundary": {
+      "acquisition_blocker": "l5_data_trust_floor_required",
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_827dca20fde48b4b",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "estimand",
+        "admissibility",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:827dca20fde48b4b791cc9cebea62f7f8f672acc8ff1bbcc5e49bb6b716a3d27",
+      "data_trust_cap": 0.2,
+      "data_trust_status": "open",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "data_trust_below_floor",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "cells.output",
+            "src": "cells.distress_score"
+          }
+        ],
+        "path_length": 1,
+        "path_trust_cap": 0.2,
+        "reason": "mechanism_trust_below_floor",
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ],
+        "trust_floor": 0.5
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "mechanism_witness",
+        "data_trust"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "spoof_constructor_accepted": false,
+      "spoof_constructor_error": "GroundingAdmissionEngine.__init__() got an unexpected keyword argument 'substrate_registry'",
+      "spoof_mutation_decision": "acquire_then_decide",
+      "spoof_mutation_reason": "data_trust_below_floor",
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "three_hop_unrelated_chain": {
+      "acquisition_blocker": "mechanism_composition_unverified",
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_2ff2ea87f7a2ebaf",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "estimand",
+        "admissibility",
+        "data_trust",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:2ff2ea87f7a2ebaf7e2b9043b372ca936459fcab539da2dce4b2446d33b4de85",
+      "data_trust_cap": 0.93,
+      "data_trust_status": "closed",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "mechanism_composition_unverified",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "audit.bridge_one",
+            "src": "cells.distress_score"
+          },
+          {
+            "direction": "positive",
+            "dst": "audit.bridge_two",
+            "src": "audit.bridge_one"
+          },
+          {
+            "direction": "positive",
+            "dst": "cells.output",
+            "src": "audit.bridge_two"
+          }
+        ],
+        "path_length": 3,
+        "path_trust_cap": 0.93,
+        "reason": "mechanism_composition_unverified",
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ],
+        "trust_floor": 0.5
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "mechanism_witness"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    },
+    "two_hop_unrelated_chain": {
+      "acquisition_blocker": "mechanism_composition_unverified",
+      "authority_scope": "production",
+      "certificate_id": "cg3_cert_060110ec5725aca7",
+      "closed_obligations": [
+        "parse",
+        "novel_irreducible",
+        "type",
+        "world_bindable_or_acquirable",
+        "do_semantics",
+        "estimand",
+        "admissibility",
+        "data_trust",
+        "ambiguity",
+        "cg2_novel_handoff",
+        "cg1_content_bound"
+      ],
+      "content_hash": "sha256:060110ec5725aca76e09aaecdf5911ebf81b9c80439c73b2dd690a4459bf5b3e",
+      "data_trust_cap": 0.93,
+      "data_trust_status": "closed",
+      "decision": "acquire_then_decide",
+      "decision_front_created": null,
+      "decisive_reason": "mechanism_composition_unverified",
+      "delta_budget": 0.01,
+      "delta_spend": 0.0065,
+      "delta_within_budget": true,
+      "mechanism_evidence": {
+        "caller_claims_ignored": false,
+        "path": [
+          {
+            "direction": "positive",
+            "dst": "audit.bridge",
+            "src": "cells.distress_score"
+          },
+          {
+            "direction": "positive",
+            "dst": "cells.output",
+            "src": "audit.bridge"
+          }
+        ],
+        "path_length": 2,
+        "path_trust_cap": 0.93,
+        "reason": "mechanism_composition_unverified",
+        "source_modalities": [
+          "L2_CAUSAL_CLAIM"
+        ],
+        "trust_floor": 0.5
+      },
+      "mechanism_status": "open",
+      "n11_composition_status": "not_wired",
+      "novel_irreducible_evidence": {
+        "existing_atom_id": null,
+        "existing_atom_match_basis": null,
+        "existing_atom_match_kind": null,
+        "existing_atom_operator": null,
+        "operator_denotation_proof": null
+      },
+      "open_obligations": [
+        "mechanism_witness"
+      ],
+      "production_promotable": false,
+      "registry_patch_id": null,
+      "registry_patch_status": null,
+      "stable_unique": true,
+      "stable_unique_reason": "single_existing_world_slot_completion"
+    }
+  },
+  "production_api_boundary_probes": {
+    "engine_substrate_registry_argument": {
+      "accepted": false,
+      "error": "GroundingAdmissionEngine.__init__() got an unexpected keyword argument 'substrate_registry'"
+    },
+    "policy_delta_override": {
+      "accepted": false,
+      "error": "1 validation error for GroundingAdmissionPolicy"
+    },
+    "policy_disable_mechanism": {
+      "accepted": false,
+      "error": "1 validation error for GroundingAdmissionPolicy"
+    },
+    "policy_force_admit": {
+      "accepted": false,
+      "error": "1 validation error for GroundingAdmissionPolicy"
+    },
+    "policy_mechanism_inject": {
+      "accepted": false,
+      "error": "1 validation error for GroundingAdmissionPolicy"
+    }
+  },
+  "reference": {
+    "component_versions": {
+      "L2": "sha256:6f013f350e95724139c79f23ea5fcac440ad759de8ea2e0416c8996533eb56bb",
+      "L3": "sha256:19ba25cd24fbd27186d7ca9144775f00bd255fb7b5fca57caf5b7277dd6ddcf0",
+      "L6": "sha256:7489e7d1a9e77b458c63bdce652fccf2d31ddeb29e25b869c89ecf3b60c218b8",
+      "WMR": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca"
+    },
+    "edge_count": 791994,
+    "reference_epoch": "kref:09b6349c4ee0bfef",
+    "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+    "substrate_registry_hash": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1",
+    "substrate_registry_id": "substrate_version_f94770b220aa9b6a"
+  },
+  "reuse_existing_owners": [
+    "CG2 GroundingDecisionCertificate novel_candidate handoff",
+    "CG1 GroundingRelationCertificate as content-bound proposal replay carrier",
+    "CG0 CredalReference built from real L2/L3/L6/WMR owners",
+    "WMR_WORLD_SLOT and WMR_POLICY_SLOT_MAP edges for world bindability",
+    "L2 SKG causal evidence edges for mechanism witness resolution",
+    "CG0/L2 owner-lifted L5 trust signals on mechanism evidence edges for data_trust",
+    "GY-S0/L6 intervention substrate named as registry patch owner; live write remains shadow"
+  ],
+  "runtime_schema_version": "policyos.runtime.grounding_admission_certificate.v1",
+  "schema_version": "policyos.policy_design_case.grounding_admission_contract.v1",
+  "source_modules": [
+    "src/polisyos/runtime/quality/grounding_admission.py",
+    "src/polisyos/runtime/quality/grounding_bind.py",
+    "src/polisyos/runtime/quality/grounding_relation.py",
+    "src/polisyos/runtime/quality/credal_reference.py",
+    "src/polisyos/runtime/quality/substrate_registry.py",
+    "tools/quality/validation/check_grounding_admission_contract.py"
+  ]
+}

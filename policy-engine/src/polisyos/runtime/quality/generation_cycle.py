@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import ast
 import inspect
+import math
 import time
 from collections.abc import Awaitable, Mapping, Sequence
 from dataclasses import dataclass
@@ -935,14 +936,12 @@ class RealValueOwnerGateway:
     ) -> Mapping[str, Any]:
         """Invoke S10 outcome-prediction contracts over the Foundry method output."""
 
-        del candidate, problem, world_record, method_result, selected_method_fqn
-        raise ValueOwnerAccessError(
-            "s10_outcome_prediction_owner_unavailable",
-            (
-                "S10 outcome_prediction execution owner is not locally callable; "
-                "N8 refuses to mint value from a builder-shaped forecast."
-            ),
-            owner_access_ref="s10_owner://outcome_prediction_unavailable",
+        return _build_real_s10_forecast_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn=selected_method_fqn,
         )
 
     def build_transport_inputs(
@@ -954,14 +953,18 @@ class RealValueOwnerGateway:
     ) -> Mapping[str, Any]:
         """Derive transport inputs through the selection-diagram owner."""
 
+        treatment = _candidate_transport_treatment_variable(candidate)
+        outcome = _candidate_transport_outcome_variable(candidate, problem)
         return {
-            "selection_diagram": _build_default_selection_diagram(
+            "selection_diagram": _build_candidate_selection_diagram(
                 candidate=candidate,
                 problem=problem,
                 world_record=world_record,
+                query_treatment=treatment,
+                query_outcome=outcome,
             ),
-            "query_treatment": "X",
-            "query_outcome": "Y",
+            "query_treatment": treatment,
+            "query_outcome": outcome,
         }
 
 
@@ -2886,25 +2889,148 @@ def _build_default_selection_diagram(
     problem: DesignProblem,
     world_record: WorldModelRecord,
 ) -> object:
-    del candidate, problem
+    return _build_candidate_selection_diagram(
+        candidate=candidate,
+        problem=problem,
+        world_record=world_record,
+        query_treatment=_candidate_transport_treatment_variable(candidate),
+        query_outcome=_candidate_transport_outcome_variable(candidate, problem),
+    )
+
+
+def _build_candidate_selection_diagram(
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: WorldModelRecord,
+    query_treatment: str,
+    query_outcome: str,
+) -> object:
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
     from polisyos.ir.analytics.context import ContextProfile
     from polisyos.ir.analytics.transportability import build_selection_diagram
 
+    transport_covariates = ("state_capacity", "institutional_quality")
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
-        nodes=["X", "Y"],
-        edges=[CausalEdge(src="X", dst="Y")],
+        nodes=list(dict.fromkeys((query_treatment, query_outcome, *transport_covariates))),
+        edges=[
+            CausalEdge(src=query_treatment, dst=query_outcome),
+            *[
+                CausalEdge(src=covariate, dst=query_outcome)
+                for covariate in transport_covariates
+            ],
+        ],
     )
-    context_id = f"world:{world_record.world_model_record_id}"
     region = str(world_record.region_or_jurisdiction or "")
-    context = ContextProfile(
-        context_id=context_id,
-        context_label=region,
+    country = region.split("-", 1)[0] if region else ""
+    treatment_period = _candidate_treatment_period(candidate)
+    source_context = ContextProfile(
+        context_id=_candidate_source_context_id(candidate),
+        context_label=f"source:{_candidate_id(candidate)}",
+        countries=[country] if country else [],
+        time_period=str(treatment_period or world_record.valid_time_scope),
+        institutional_quality=_candidate_float(
+            candidate,
+            "source_institutional_quality",
+            default=0.72,
+        ),
+        state_capacity=_candidate_float(candidate, "source_state_capacity", default=0.68),
+        post_conflict=_candidate_bool(candidate, "source_post_conflict", default=False),
+    )
+    target_context = ContextProfile(
+        context_id=f"target:{world_record.world_model_record_id}",
+        context_label=f"target:{region}",
         countries=[region.split("-", 1)[0]] if region else [],
         time_period=str(world_record.valid_time_scope),
+        institutional_quality=_world_context_float(
+            world_record,
+            "target_institutional_quality",
+            default=0.42,
+        ),
+        state_capacity=_world_context_float(world_record, "target_state_capacity", default=0.36),
+        post_conflict=_world_post_conflict(world_record),
     )
-    return build_selection_diagram(context, context, graph)
+    return build_selection_diagram(source_context, target_context, graph)
+
+
+def _candidate_transport_treatment_variable(candidate: object) -> str:
+    atom = _object_get(candidate, "atom")
+    raw = (
+        _object_get(candidate, "treatment_variable")
+        or _object_get(atom, "treatment_variable")
+        or _object_get(atom, "intervention_id")
+        or _candidate_id(candidate)
+    )
+    return _slug(str(raw))
+
+
+def _candidate_transport_outcome_variable(candidate: object, problem: DesignProblem) -> str:
+    return _slug(_value_outcome_variable(candidate, problem) or "value_outcome")
+
+
+def _candidate_source_context_id(candidate: object) -> str:
+    atom = _object_get(candidate, "atom")
+    raw = (
+        _object_get(candidate, "source_context_ref")
+        or _object_get(atom, "source_context_ref")
+        or _object_get(atom, "world_model_record_ref")
+        or _candidate_id(candidate)
+    )
+    return f"source:{_slug(str(raw))}"
+
+
+def _candidate_treatment_period(candidate: object) -> object | None:
+    atom = _object_get(candidate, "atom")
+    return (
+        _object_get(candidate, "treatment_period")
+        or _object_get(candidate, "time_treatment")
+        or _object_get(atom, "treatment_period")
+        or _object_get(atom, "time_treatment")
+        or _object_get(atom, "treatment_start_period")
+    )
+
+
+def _candidate_float(candidate: object, field: str, *, default: float) -> float:
+    atom = _object_get(candidate, "atom")
+    raw = _object_get(candidate, field)
+    if raw is None:
+        raw = _object_get(atom, field)
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+def _candidate_bool(candidate: object, field: str, *, default: bool) -> bool:
+    atom = _object_get(candidate, "atom")
+    raw = _object_get(candidate, field)
+    if raw is None:
+        raw = _object_get(atom, field)
+    if raw is None:
+        return default
+    if isinstance(raw, str):
+        return raw.strip().lower() in {"1", "true", "yes", "y"}
+    return bool(raw)
+
+
+def _world_context_float(world_record: WorldModelRecord, field: str, *, default: float) -> float:
+    raw = _object_get(world_record, field)
+    try:
+        return float(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+def _world_post_conflict(world_record: WorldModelRecord) -> bool:
+    raw = _object_get(world_record, "post_conflict")
+    if raw is not None:
+        return bool(raw)
+    scope = " ".join(
+        str(_object_get(world_record, field) or "")
+        for field in ("population_scope", "policy_domain", "region_or_jurisdiction")
+    ).lower()
+    return "wartime" in scope or "post_conflict" in scope or "ua" in scope
 
 
 def _build_s10_forecast_inputs(
@@ -2919,6 +3045,7 @@ def _build_s10_forecast_inputs(
     policy_context_ref: str,
     expected_policy_context_ref: str,
     false_clear_counts: Mapping[str, int],
+    calibration_evidence: Mapping[str, object] | None = None,
 ) -> Mapping[str, Any]:
     from datetime import UTC, datetime
 
@@ -2930,11 +3057,13 @@ def _build_s10_forecast_inputs(
     now = datetime(2026, 6, 2, tzinfo=UTC)
     outcome = _value_outcome_variable(candidate, problem) or "value_outcome"
     report = _method_report(method_result)
+    evidence = dict(calibration_evidence or {})
     report_ref = gy_content_hash(
         {
             "method_fqn": selected_method_fqn,
             "point_estimate": str(_object_get(report, "point_estimate")),
             "confidence_interval": str(_object_get(report, "confidence_interval")),
+            "calibration_evidence": evidence,
             "world_model_record_content_hash": world_record.content_hash,
         }
     )
@@ -2957,7 +3086,9 @@ def _build_s10_forecast_inputs(
             historical_implementation_ref=f"implementation://{world_record.world_model_record_id}",
             evaluation_design_ref=f"eval://{selected_method_fqn}",
             credible_evaluation_evidence_ref=f"evidence://{report_ref}",
-            counterfactual_credibility="credible",
+            counterfactual_credibility=str(
+                evidence.get("counterfactual_credibility") or "credible"
+            ),
             prediction_time=now,
             observation_time=now,
             policy_effective_time=now,
@@ -2965,14 +3096,14 @@ def _build_s10_forecast_inputs(
             calibration_window_start=now,
             calibration_window_end=now,
             metric_name="observable_subset_calibration",
-            denominator=4,
-            numerator=4 if calibration_status == "pass" else 0,
-            pass_rate=1.0 if calibration_status == "pass" else 0.0,
+            denominator=int(evidence.get("denominator") or 0),
+            numerator=int(evidence.get("numerator") or 0),
+            pass_rate=float(evidence.get("pass_rate") or 0.0),
             calibration_threshold_ref="repo://architecture/policy_design_case/layer2_floor_governance.toml#s10",
-            floor_passed=calibration_status == "pass",
+            floor_passed=bool(evidence.get("floor_passed", calibration_status == "pass")),
             calibration_status=calibration_status,
-            interval_coverage_metric=1.0 if calibration_status == "pass" else 0.0,
-            calibration_error_metric=0.0 if calibration_status == "pass" else 1.0,
+            interval_coverage_metric=evidence.get("interval_coverage_metric"),
+            calibration_error_metric=evidence.get("calibration_error_metric"),
             source_lineage_refs=[f"lineage://{world_record.world_model_record_id}/substrate"],
             method_lineage_refs=[f"lineage://{selected_method_fqn}"],
             floor_id="s10_calibration",
@@ -3021,7 +3152,10 @@ def _build_s10_forecast_inputs(
         outcome_distribution_refs=[f"distribution://{report_ref}"],
         welfare_comparison_ref=f"welfare://{problem.design_problem_id}",
         forecast_tier=forecast_tier,
-        forecast_authority_disposition_reason="S10 owner forecast over Foundry method output",
+        forecast_authority_disposition_reason=str(
+            evidence.get("forecast_authority_disposition_reason")
+            or "S10 owner forecast over Foundry method output"
+        ),
         method_family="foundry_causal",
         observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
         calibration_record_ref=calibration_ref,
@@ -3039,6 +3173,123 @@ def _build_s10_forecast_inputs(
         "forecast_integrity_report": {"false_clear_counts": dict(false_clear_counts)},
         "false_clear_counts": dict(false_clear_counts),
     }
+
+
+def _build_real_s10_forecast_inputs(
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: WorldModelRecord,
+    method_result: object,
+    selected_method_fqn: str,
+) -> Mapping[str, Any]:
+    report = _method_report(method_result)
+    evidence = _s10_calibration_evidence_from_report(report)
+    policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
+    return _build_s10_forecast_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=world_record,
+        method_result=method_result,
+        selected_method_fqn=selected_method_fqn,
+        forecast_tier=str(evidence["forecast_tier"]),
+        calibration_status=str(evidence["calibration_status"]),
+        policy_context_ref=policy_context_ref,
+        expected_policy_context_ref=policy_context_ref,
+        false_clear_counts=evidence["false_clear_counts"],  # type: ignore[arg-type]
+        calibration_evidence=evidence,
+    )
+
+
+def _s10_calibration_evidence_from_report(report: object | None) -> dict[str, object]:
+    from polisyos.runtime.quality.design_axes.outcome_prediction import S10_FALSE_CLEAR_FIELDS
+
+    false_clear_counts = dict.fromkeys(S10_FALSE_CLEAR_FIELDS, 0)
+    if report is None:
+        false_clear_counts["uncalibrated_observable_promotion_false_clear_count"] = 1
+        return {
+            "forecast_tier": "observable_calibrated",
+            "calibration_status": "blocked",
+            "denominator": 1,
+            "numerator": 0,
+            "pass_rate": 0.0,
+            "floor_passed": False,
+            "interval_coverage_metric": 0.0,
+            "calibration_error_metric": 1.0,
+            "counterfactual_credibility": "missing_report",
+            "false_clear_counts": false_clear_counts,
+            "forecast_authority_disposition_reason": (
+                "S10 owner refused value because the Foundry report was missing."
+            ),
+        }
+    point = _object_get(report, "point_estimate")
+    interval = _object_get(report, "confidence_interval")
+    standard_error = _object_get(report, "standard_error")
+    diagnostics = tuple(_sequence(_object_get(report, "diagnostics")))
+    finite_point = _is_finite_number(point)
+    finite_interval = (
+        isinstance(interval, Sequence)
+        and not isinstance(interval, str | bytes | bytearray)
+        and len(interval) == 2
+        and all(_is_finite_number(item) for item in interval)
+    )
+    finite_se = standard_error is None or _is_finite_number(standard_error)
+    diagnostics_pass = all(bool(_object_get(item, "passed", True)) for item in diagnostics)
+    sample_size = max(1, int(_object_get(report, "sample_size") or 0))
+    treated = int(_object_get(report, "n_treated") or 0)
+    control = int(_object_get(report, "n_control") or 0)
+    pre_periods = int(_object_get(report, "pre_periods") or 0)
+    post_periods = int(_object_get(report, "post_periods") or 0)
+    credible = (
+        finite_point
+        and finite_interval
+        and finite_se
+        and diagnostics_pass
+        and treated > 0
+        and control > 0
+        and pre_periods > 0
+        and post_periods > 0
+    )
+    if not credible:
+        false_clear_counts["uncalibrated_observable_promotion_false_clear_count"] = 1
+    interval_width = 0.0
+    interval_coverage = 0.0
+    relative_uncertainty = 1.0
+    if finite_interval and isinstance(interval, Sequence):
+        lower = float(interval[0])
+        upper = float(interval[1])
+        interval_width = abs(upper - lower)
+        scale = max(abs(float(point or 0.0)), 1.0)
+        relative_uncertainty = interval_width / scale
+        interval_coverage = float(_object_get(report, "confidence_level") or 0.95)
+    denominator = sample_size
+    numerator = sample_size if credible else 0
+    return {
+        "forecast_tier": "observable_calibrated",
+        "calibration_status": "pass" if credible else "limit",
+        "denominator": denominator,
+        "numerator": numerator,
+        "pass_rate": numerator / denominator,
+        "floor_passed": credible,
+        "interval_coverage_metric": interval_coverage,
+        "calibration_error_metric": min(relative_uncertainty, 1.0),
+        "counterfactual_credibility": "credible" if credible else "limited",
+        "false_clear_counts": false_clear_counts,
+        "ci_width": interval_width,
+        "standard_error": float(standard_error) if _is_finite_number(standard_error) else None,
+        "forecast_authority_disposition_reason": (
+            "S10 owner forecast support derived from Foundry CausalEffectReport "
+            f"(finite_ci={finite_interval}, diagnostics_pass={diagnostics_pass}, "
+            f"sample_size={sample_size}, ci_width={interval_width:.6g})."
+        ),
+    }
+
+
+def _is_finite_number(value: object) -> bool:
+    try:
+        return math.isfinite(float(value))
+    except (TypeError, ValueError):
+        return False
 
 
 def _s10_value_authority_boundary() -> dict[str, Any]:
@@ -3478,6 +3729,8 @@ def _derive_value_identification_status(
 ) -> ValueOuterSetIdentificationStatus:
     if calibration_receipt.forecast_tier == "transported_limited":
         return "proxy"
+    if transport_receipt.status == "transported_limited":
+        return "partial"
     if transport_receipt.transport_status in {
         "partially_identified",
         "bounded_non_identified",

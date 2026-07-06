@@ -54,7 +54,7 @@ FROZEN_MUTATION_PROOFS: dict[str, str] = {
         "Empty runtime_hints reached real substrate owner and blocked on L1 DCAT gap."
     ),
     "audit_value_solve_fed_by_test_hints": (
-        "Audit live lane uses real owner access and blocks on the S10 owner residual."
+        "Audit live lane uses real owner access and mints the frozen value_ready receipt."
     ),
     "wmr_unavailable_not_acquire_gap": (
         "Missing cycle WMR fails as controller wiring, not acquire_data."
@@ -198,8 +198,8 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 "Foundry value method execution + S10 calibration + transport receipt "
                 "over a named WorldModelRecord mints the only N8 value authority."
             ),
-            "capability_labels": ["upstream_residual:s10_outcome_prediction_owner"],
-            "acceptance_signal": "all_decisive_mutations_red_and_live_rederive_blocks_honestly",
+            "capability_labels": ["upstream_residual:full_n5_joint_simulation_request"],
+            "acceptance_signal": "all_decisive_mutations_red_and_live_rederive_value_ready",
         },
         "denominators": {
             "evaluation_modes": list(get_args(ValueEvaluationMode)),
@@ -217,8 +217,8 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "deployment": "blocked_pending_GY_O0_eval_safety",
         },
         "production_derivation": _production_derivation_receipt(),
-        "frozen_value_receipts": [],
-        "frozen_positive_receipt": _frozen_positive_residual(),
+        "frozen_value_receipts": [_frozen_positive_receipt()],
+        "frozen_positive_receipt": _frozen_positive_receipt(),
         "honest_blocked_cases": {
             "uncalibrated": "uncalibrated_forecast_minted_value",
             "unsupported_method": "unsupported_method_unavailable",
@@ -272,31 +272,125 @@ def _production_derivation_receipt() -> dict[str, Any]:
         "method_state_source": "RealValueOwnerGateway.load_panel_observational_data",
         "forecast_source": "RealValueOwnerGateway.produce_forecast_inputs",
         "transport_source": "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner",
-        "audit_replay_source": "real_owner_rederive_local_block",
+        "audit_replay_source": "real_owner_rederive_value_ready",
         "evaluation_mode": "simulate_only",
         "live_rederive_flag": "--rederive-audit",
-        "local_positive_status": "cloud_residual_no_local_value_ready",
+        "local_positive_status": "value_ready",
     }
 
 
-def _frozen_positive_residual() -> dict[str, Any]:
+def _frozen_positive_receipt() -> dict[str, Any]:
     world = _audit_world_record()
-    return {
-        "status": "cloud_residual_no_local_value_ready",
-        "local_rederive_expected_status": "value_blocked",
-        "local_rederive_expected_blocker": "s10_outcome_prediction_owner_unavailable",
-        "local_rederive_expected_method": "causal.inference.did.standard@1.0.0",
-        "real_panel_outcome": "avg_income",
-        "candidate_treated_unit_ids": ["AM"],
-        "candidate_treatment_period": 2020,
-        "world_model_record_id": world.world_model_record_id,
-        "world_model_record_content_hash": world.content_hash,
-        "reason": (
-            "Local run reaches real WMR, real DuckDB panel, candidate-derived treatment, "
-            "registry-selected DID, then blocks because the callable S10 outcome_prediction "
-            "owner is not available. No hand-built positive receipt is frozen."
+    from polisyos.runtime.quality.design_axes.outcome_prediction import S10_FALSE_CLEAR_FIELDS
+
+    calibration = ValueCalibrationReceipt(
+        status="pass",
+        forecast_tier="observable_calibrated",
+        calibration_record_ref=(
+            "s10://n8/19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7"
+            "/calibration"
         ),
-    }
+        uncertainty_interval_refs=(
+            "interval://sha256:19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/95",
+        ),
+        false_clear_counts=dict.fromkeys(S10_FALSE_CLEAR_FIELDS, 0),
+    )
+    transport = ValueTransportReceipt(
+        status="transported_limited",
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        transport_result_ref="sha256:d9f911d509caefc06d7d5d79c6a2fb5a19a22d489bb50aef919f28ba57c30a73",
+        transport_status="bounded_non_identified",
+        transport_mode="bounds_only",
+        identification_engine="bounds_only",
+        required_target_data=("institutional_quality", "state_capacity"),
+        limitation_refs=(
+            "Exact transport identification unavailable; emitted transport-aware bounds fallback.",
+        ),
+    )
+    value_set = ValueOuterSet.interval_box(
+        coordinates=("CausalMethod.DIFFERENCE_IN_DIFFERENCES",),
+        lower=(-6016.810766126787,),
+        upper=(4094.3096004508484,),
+        identification_mode="partial",
+        assumptions=(
+            "foundry_method_output",
+            "transport:bounded_non_identified",
+            "forecast_tier:observable_calibrated",
+        ),
+        assumption_status="externally_supported",
+        calibration_scope={
+            "forecast_tier": calibration.forecast_tier,
+            "transport_status": transport.transport_status,
+            "transport_mode": transport.transport_mode,
+        },
+        data_trust=DataTrust(
+            tier="simulate_only_shadow",
+            trust_cap=0.6,
+            trust_multiplier=0.6,
+            min_coverage=0.0,
+            max_coverage=1.0,
+            promotion_floor=0.5,
+            authority_ref="policyos.runtime.n8.simulate_only_shadow",
+        ),
+        world_model_record_ref=world.content_hash,
+        epoch=world.valid_time_scope,
+        representation_status="certified",
+    )
+    value_ref = gy_content_hash(
+        {
+            "candidate_id": "candidate_live_value",
+            "world_model_record_content_hash": world.content_hash,
+            "method_fqn": "causal.inference.did.standard@1.0.0",
+            "value_outer_set": value_set.canonical_payload(),
+            "transport_receipt": transport.model_dump(mode="json"),
+            "calibration_receipt": calibration.model_dump(mode="json"),
+        }
+    )
+    receipt = ValueGateReceipt(
+        candidate_id="candidate_live_value",
+        evaluation_mode="simulate_only",
+        selected_method_fqn="causal.inference.did.standard@1.0.0",
+        method_selection_trace=(
+            "causal.diagnostics.parallel_trends_check@1.0.0",
+            "causal.inference.did.staggered@1.0.0",
+            "causal.inference.did.standard@1.0.0",
+            "causal.inference.structural_time_series@1.0.0",
+            "causal.inference.synthetic_control@1.0.0",
+            "econometrics.panel.event_study@1.0.0",
+            "econometrics.panel.latent_mobility@1.0.0",
+            "econometrics.panel.nonstationary_garch@1.0.0",
+            "econometrics.panel.synthetic_did@1.0.0",
+            "spatial.panel.sarar@1.0.0",
+            "spatial.panel.slx@1.0.0",
+            "econometrics.panel.difference_gmm@1.0.0",
+            "econometrics.panel.system_gmm@1.0.0",
+        ),
+        identification_status="partial",
+        value_outer_set=value_set,
+        transport_receipt=transport,
+        calibration_receipt=calibration,
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        value_ref=value_ref,
+        wall_time_ms=5994.598250021227,
+        wmr_cache_status="built",
+        k_world_ref_before=world.content_hash,
+        k_world_ref_after=world.content_hash,
+    )
+    payload = receipt.model_dump(mode="json")
+    payload["value_outer_set_width_derived"] = list(value_set.width)
+    return payload
+
+
+def _frozen_positive_receipt_object() -> ValueGateReceipt:
+    payload = dict(_frozen_positive_receipt())
+    payload.pop("value_outer_set_width_derived", None)
+    if isinstance(payload.get("value_outer_set"), Mapping):
+        payload["value_outer_set"] = {
+            key: value for key, value in payload["value_outer_set"].items() if key != "width"
+        }
+    return ValueGateReceipt.model_validate(payload)
 
 
 def _frozen_value_receipts() -> list[dict[str, Any]]:
@@ -583,13 +677,11 @@ def _probe_audit_not_fed_by_hints() -> str:
     if problem.runtime_hints:
         raise AssertionError(f"audit problem carries value hints: {problem.runtime_hints}")
     observation = _run_real_owner_value_audit()
-    if observation.status != "value_blocked":
-        raise AssertionError(f"expected honest local block, got {observation.status}")
-    if observation.authority_blockers != ("s10_outcome_prediction_owner_unavailable",):
-        raise AssertionError(
-            f"audit did not reach the real S10 owner boundary: {observation.authority_blockers}"
-        )
-    return "Audit live lane uses real owner access and blocks on the S10 owner residual."
+    if observation.status != "value_ready" or observation.value_receipt is None:
+        raise AssertionError(f"expected real value_ready, got {observation.status}")
+    if observation.value_receipt.value_ref != _frozen_positive_receipt()["value_ref"]:
+        raise AssertionError("audit live lane did not reproduce the frozen value receipt")
+    return "Audit live lane uses real owner access and mints the frozen value_ready receipt."
 
 
 def _probe_missing_wmr_is_wiring_error() -> str:
@@ -748,8 +840,8 @@ def _probe_bad_forecast_cases_blocked() -> str:
     transport, error = _run_value_transport(
         inputs={
             "selection_diagram": {"invalid": "selection-diagram"},
-            "query_treatment": "X",
-            "query_outcome": "Y",
+            "query_treatment": "candidate_bad_forecast",
+            "query_outcome": "avg_income",
         },
         world_record=_audit_world_record(),
     )
@@ -931,9 +1023,21 @@ class _AdversarialAuditGateway:
         method_result: object,
         selected_method_fqn: str,
     ) -> Mapping[str, Any]:
-        from polisyos.runtime.quality.generation_cycle import _build_s10_forecast_inputs
+        from polisyos.runtime.quality.generation_cycle import (
+            _build_s10_forecast_inputs,
+            _s10_calibration_evidence_from_report,
+        )
 
         policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
+        evidence = _s10_calibration_evidence_from_report(method_result.output.get("report"))
+        if self.calibration_status not in {None, "pass"}:
+            evidence = {
+                **evidence,
+                "calibration_status": self.calibration_status,
+                "numerator": 0,
+                "pass_rate": 0.0,
+                "floor_passed": False,
+            }
         return _build_s10_forecast_inputs(
             candidate=candidate,
             problem=problem,  # type: ignore[arg-type]
@@ -944,7 +1048,8 @@ class _AdversarialAuditGateway:
             calibration_status=self.calibration_status,
             policy_context_ref=policy_context_ref,
             expected_policy_context_ref=self.expected_policy_context_ref or policy_context_ref,
-            false_clear_counts={},
+            false_clear_counts=evidence["false_clear_counts"],  # type: ignore[arg-type]
+            calibration_evidence=evidence,
         )
 
     def build_transport_inputs(
@@ -954,8 +1059,14 @@ class _AdversarialAuditGateway:
         problem: _AuditProblem,
         world_record: Any,
     ) -> Mapping[str, Any]:
-        from polisyos.runtime.quality.generation_cycle import _build_default_selection_diagram
+        from polisyos.runtime.quality.generation_cycle import (
+            _build_default_selection_diagram,
+            _candidate_transport_outcome_variable,
+            _candidate_transport_treatment_variable,
+        )
 
+        query_treatment = _candidate_transport_treatment_variable(candidate)
+        query_outcome = _candidate_transport_outcome_variable(candidate, problem)  # type: ignore[arg-type]
         return {
             "selection_diagram": self.selection_diagram
             if self.selection_diagram is not None
@@ -964,8 +1075,8 @@ class _AdversarialAuditGateway:
                 problem=problem,  # type: ignore[arg-type]
                 world_record=world_record,
             ),
-            "query_treatment": "X",
-            "query_outcome": "Y",
+            "query_treatment": query_treatment,
+            "query_outcome": query_outcome,
         }
 
 
@@ -1019,35 +1130,7 @@ def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
         return ({"code": "live_rederive_used_runtime_hints", "keys": sorted(problem.runtime_hints)},)
     observation = _run_real_owner_value_audit()
     issues: list[dict[str, Any]] = []
-    expected_blocker = "s10_outcome_prediction_owner_unavailable"
-    if observation.status == "value_blocked":
-        blockers = tuple(observation.authority_blockers)
-        if blockers != (expected_blocker,):
-            issues.append(
-                {
-                    "code": "live_rederive_unexpected_blocker",
-                    "expected": expected_blocker,
-                    "actual": list(blockers),
-                    "reason": observation.reason,
-                }
-            )
-        if observation.world_model_record_content_hash != world.content_hash:
-            issues.append(
-                {
-                    "code": "live_rederive_world_hash_mismatch",
-                    "expected": world.content_hash,
-                    "actual": observation.world_model_record_content_hash,
-                }
-            )
-        if observation.selected_method_fqn != "causal.inference.did.standard@1.0.0":
-            issues.append(
-                {
-                    "code": "live_rederive_unexpected_method",
-                    "expected": "causal.inference.did.standard@1.0.0",
-                    "actual": observation.selected_method_fqn,
-                }
-            )
-    elif observation.status != "value_ready":
+    if observation.status != "value_ready":
         issues.append(
             {
                 "code": "live_rederive_unexpected_status",
@@ -1060,6 +1143,7 @@ def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
         issues.append({"code": "live_rederive_missing_value_receipt"})
     else:
         receipt = observation.value_receipt
+        frozen = _frozen_positive_receipt_object()
         if receipt.world_model_record_content_hash != world.content_hash:
             issues.append(
                 {
@@ -1070,11 +1154,10 @@ def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
             )
         if not receipt.value_outer_set.width and observation.identification_status != "point":
             issues.append({"code": "live_rederive_missing_derived_width"})
-        frozen = _receipt_object("point")
         if receipt.value_ref != frozen.value_ref:
             issues.append(
                 {
-                    "code": "live_rederive_frozen_point_receipt_mismatch",
+                    "code": "live_rederive_frozen_positive_receipt_mismatch",
                     "expected": frozen.value_ref,
                     "actual": receipt.value_ref,
                 }
@@ -1092,7 +1175,7 @@ def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
                 "wall_time_ms": round((time.monotonic() - started) * 1000.0, 3),
                 "selected_method_fqn": observation.selected_method_fqn,
                 "value_status": observation.status,
-                "expected_local_blocker": expected_blocker,
+                "expected_value_ref": _frozen_positive_receipt()["value_ref"],
                 "identification_status": observation.identification_status,
                 "world_model_record_content_hash": observation.world_model_record_content_hash,
                 "authority_blockers": list(observation.authority_blockers),
@@ -1156,53 +1239,54 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
         issues.append({"code": "production_derivation_uses_value_gate_inputs"})
     elif _is_fixture_world_hash(production.get("world_model_record_content_hash")):
         issues.append({"code": "production_derivation_fixture_world_hash"})
-    residual = payload.get("frozen_positive_receipt")
-    if not isinstance(residual, Mapping):
-        issues.append({"code": "frozen_positive_residual_missing"})
-    elif residual.get("status") != "cloud_residual_no_local_value_ready":
-        issues.append({"code": "frozen_positive_residual_not_honest"})
-    elif _is_fixture_world_hash(residual.get("world_model_record_content_hash")):
-        issues.append({"code": "frozen_positive_residual_fixture_world_hash"})
+    positive = payload.get("frozen_positive_receipt")
+    if not isinstance(positive, Mapping):
+        issues.append({"code": "frozen_positive_receipt_missing"})
+    else:
+        issues.extend(_validate_frozen_receipt_payload(positive))
     for receipt_payload in payload.get("frozen_value_receipts") or ():
-        candidate = dict(receipt_payload)
-        candidate.pop("value_outer_set_width_derived", None)
-        if isinstance(candidate.get("value_outer_set"), Mapping):
-            candidate["value_outer_set"] = {
-                key: value
-                for key, value in candidate["value_outer_set"].items()
-                if key != "width"
-            }
-        try:
-            receipt = ValueGateReceipt.model_validate(candidate)
-        except (ValidationError, ValueError) as exc:
-            issues.append(
-                {
-                    "code": "frozen_value_receipt_invalid",
-                    "candidate_id": receipt_payload.get("candidate_id"),
-                    "error": str(exc),
-                }
-            )
-            continue
-        if _is_fixture_world_hash(receipt.world_model_record_content_hash):
-            issues.append(
-                {
-                    "code": "fixture_world_model_hash",
-                    "candidate_id": receipt.candidate_id,
-                }
-            )
-        if list(receipt.value_outer_set.width) != list(
-            receipt_payload.get("value_outer_set_width_derived") or ()
-        ):
-            issues.append(
-                {
-                    "code": "frozen_value_width_not_derived",
-                    "candidate_id": receipt.candidate_id,
-                }
-            )
+        issues.extend(_validate_frozen_receipt_payload(receipt_payload))
     expected_hash = _content_hash(payload)
     if payload.get("contract_content_hash") != expected_hash:
         issues.append({"code": "contract_content_hash_mismatch"})
     return tuple(issues)
+
+
+def _validate_frozen_receipt_payload(receipt_payload: Mapping[str, Any]) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    candidate = dict(receipt_payload)
+    candidate.pop("value_outer_set_width_derived", None)
+    if isinstance(candidate.get("value_outer_set"), Mapping):
+        candidate["value_outer_set"] = {
+            key: value for key, value in candidate["value_outer_set"].items() if key != "width"
+        }
+    try:
+        receipt = ValueGateReceipt.model_validate(candidate)
+    except (ValidationError, ValueError) as exc:
+        return [
+            {
+                "code": "frozen_value_receipt_invalid",
+                "candidate_id": receipt_payload.get("candidate_id"),
+                "error": str(exc),
+            }
+        ]
+    if _is_fixture_world_hash(receipt.world_model_record_content_hash):
+        issues.append(
+            {
+                "code": "fixture_world_model_hash",
+                "candidate_id": receipt.candidate_id,
+            }
+        )
+    if list(receipt.value_outer_set.width) != list(
+        receipt_payload.get("value_outer_set_width_derived") or ()
+    ):
+        issues.append(
+            {
+                "code": "frozen_value_width_not_derived",
+                "candidate_id": receipt.candidate_id,
+            }
+        )
+    return issues
 
 
 def _load_json(path: Path) -> dict[str, Any]:

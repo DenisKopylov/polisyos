@@ -6,7 +6,7 @@
     "wall_time_reported_outside_byte_stable_artifact": true,
     "wmr_cache_rule": "build_once_per_world_model_record_content_hash"
   },
-  "contract_content_hash": "sha256:898a4ea18e053ce0a06f41f6681c3ea368c95270496fe53a99bc00ca8244b2e5",
+  "contract_content_hash": "sha256:9ce886e5bd621123276c38786aa950522f5906c5796699878179bf228b0a84a8",
   "decisive_mutations": [
     {
       "mutation_id": "value_input_read_from_runtime_hint",
@@ -20,7 +20,7 @@
     },
     {
       "mutation_id": "audit_value_solve_fed_by_test_hints",
-      "proof": "Audit live lane uses real owner access and blocks on the S10 owner residual.",
+      "proof": "Audit live lane uses real owner access and mints the frozen value_ready receipt.",
       "result": "RED"
     },
     {
@@ -401,20 +401,235 @@
     "task": "GY-N8"
   },
   "frozen_positive_receipt": {
-    "candidate_treated_unit_ids": [
-      "AM"
+    "calibration_receipt": {
+      "calibration_record_ref": "s10://n8/19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/calibration",
+      "false_clear_counts": {
+        "equilibrium_contested_single_forecast_false_clear_count": 0,
+        "fail_closed_axis_prediction_promotion_false_clear_count": 0,
+        "hidden_uncertainty_interval_false_clear_count": 0,
+        "missing_design_graph_context_false_clear_count": 0,
+        "non_observable_claim_as_calibrated_false_clear_count": 0,
+        "observed_outcome_without_credible_evaluation_false_clear_count": 0,
+        "production_authority_from_forecast_false_clear_count": 0,
+        "regime_forecast_tier_laundering_false_clear_count": 0,
+        "scalar_welfare_hides_pareto_tradeoff_false_clear_count": 0,
+        "simulation_only_evidence_laundering_false_clear_count": 0,
+        "transported_estimate_without_limitation_false_clear_count": 0,
+        "uncalibrated_observable_promotion_false_clear_count": 0,
+        "validated_local_model_without_method_validity_false_clear_count": 0,
+        "weakest_boundary_ignored_false_clear_count": 0,
+        "welfare_without_value_provenance_false_clear_count": 0
+      },
+      "forecast_tier": "observable_calibrated",
+      "issue_codes": [],
+      "status": "pass",
+      "uncertainty_interval_refs": [
+        "interval://sha256:19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/95"
+      ]
+    },
+    "candidate_id": "candidate_live_value",
+    "evaluation_mode": "simulate_only",
+    "identification_status": "partial",
+    "k_world_ref_after": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+    "k_world_ref_before": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+    "method_selection_trace": [
+      "causal.diagnostics.parallel_trends_check@1.0.0",
+      "causal.inference.did.staggered@1.0.0",
+      "causal.inference.did.standard@1.0.0",
+      "causal.inference.structural_time_series@1.0.0",
+      "causal.inference.synthetic_control@1.0.0",
+      "econometrics.panel.event_study@1.0.0",
+      "econometrics.panel.latent_mobility@1.0.0",
+      "econometrics.panel.nonstationary_garch@1.0.0",
+      "econometrics.panel.synthetic_did@1.0.0",
+      "spatial.panel.sarar@1.0.0",
+      "spatial.panel.slx@1.0.0",
+      "econometrics.panel.difference_gmm@1.0.0",
+      "econometrics.panel.system_gmm@1.0.0"
     ],
-    "candidate_treatment_period": 2020,
-    "local_rederive_expected_blocker": "s10_outcome_prediction_owner_unavailable",
-    "local_rederive_expected_method": "causal.inference.did.standard@1.0.0",
-    "local_rederive_expected_status": "value_blocked",
-    "real_panel_outcome": "avg_income",
-    "reason": "Local run reaches real WMR, real DuckDB panel, candidate-derived treatment, registry-selected DID, then blocks because the callable S10 outcome_prediction owner is not available. No hand-built positive receipt is frozen.",
-    "status": "cloud_residual_no_local_value_ready",
+    "schema_version": "policyos.runtime.generation_cycle.value_gate_receipt.v1",
+    "selected_method_fqn": "causal.inference.did.standard@1.0.0",
+    "transport_receipt": {
+      "identification_engine": "bounds_only",
+      "limitation_refs": [
+        "Exact transport identification unavailable; emitted transport-aware bounds fallback."
+      ],
+      "required_target_data": [
+        "institutional_quality",
+        "state_capacity"
+      ],
+      "status": "transported_limited",
+      "transport_mode": "bounds_only",
+      "transport_result_ref": "sha256:d9f911d509caefc06d7d5d79c6a2fb5a19a22d489bb50aef919f28ba57c30a73",
+      "transport_status": "bounded_non_identified",
+      "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+      "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
+    },
+    "value_outer_set": {
+      "assumption_status": "externally_supported",
+      "assumptions": [
+        "forecast_tier:observable_calibrated",
+        "foundry_method_output",
+        "transport:bounded_non_identified"
+      ],
+      "calibration_scope": {
+        "forecast_tier": "observable_calibrated",
+        "transport_mode": "bounds_only",
+        "transport_status": "bounded_non_identified"
+      },
+      "coordinates": [
+        "CausalMethod.DIFFERENCE_IN_DIFFERENCES"
+      ],
+      "data_trust": {
+        "authority_ref": "policyos.runtime.n8.simulate_only_shadow",
+        "max_coverage": 1.0,
+        "min_coverage": 0.0,
+        "promotion_floor": 0.5,
+        "tier": "simulate_only_shadow",
+        "trust_cap": 0.6,
+        "trust_multiplier": 0.6
+      },
+      "epoch": "2018/2023",
+      "identification_status": "partial",
+      "lower": [
+        -6016.810766126787
+      ],
+      "representation": "interval_box",
+      "representation_status": "certified",
+      "solver_time_budget_ms": null,
+      "upper": [
+        4094.3096004508484
+      ],
+      "width": [
+        10111.120366577636
+      ],
+      "world_model_record_ref": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd"
+    },
+    "value_outer_set_width_derived": [
+      10111.120366577636
+    ],
+    "value_ref": "sha256:118acbcc7c3b936a01dbece75267618954b964b6e1cbcbe98eee43719e33096a",
+    "wall_time_ms": 5994.598250021227,
+    "wmr_cache_status": "built",
     "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
     "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
   },
-  "frozen_value_receipts": [],
+  "frozen_value_receipts": [
+    {
+      "calibration_receipt": {
+        "calibration_record_ref": "s10://n8/19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/calibration",
+        "false_clear_counts": {
+          "equilibrium_contested_single_forecast_false_clear_count": 0,
+          "fail_closed_axis_prediction_promotion_false_clear_count": 0,
+          "hidden_uncertainty_interval_false_clear_count": 0,
+          "missing_design_graph_context_false_clear_count": 0,
+          "non_observable_claim_as_calibrated_false_clear_count": 0,
+          "observed_outcome_without_credible_evaluation_false_clear_count": 0,
+          "production_authority_from_forecast_false_clear_count": 0,
+          "regime_forecast_tier_laundering_false_clear_count": 0,
+          "scalar_welfare_hides_pareto_tradeoff_false_clear_count": 0,
+          "simulation_only_evidence_laundering_false_clear_count": 0,
+          "transported_estimate_without_limitation_false_clear_count": 0,
+          "uncalibrated_observable_promotion_false_clear_count": 0,
+          "validated_local_model_without_method_validity_false_clear_count": 0,
+          "weakest_boundary_ignored_false_clear_count": 0,
+          "welfare_without_value_provenance_false_clear_count": 0
+        },
+        "forecast_tier": "observable_calibrated",
+        "issue_codes": [],
+        "status": "pass",
+        "uncertainty_interval_refs": [
+          "interval://sha256:19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/95"
+        ]
+      },
+      "candidate_id": "candidate_live_value",
+      "evaluation_mode": "simulate_only",
+      "identification_status": "partial",
+      "k_world_ref_after": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+      "k_world_ref_before": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+      "method_selection_trace": [
+        "causal.diagnostics.parallel_trends_check@1.0.0",
+        "causal.inference.did.staggered@1.0.0",
+        "causal.inference.did.standard@1.0.0",
+        "causal.inference.structural_time_series@1.0.0",
+        "causal.inference.synthetic_control@1.0.0",
+        "econometrics.panel.event_study@1.0.0",
+        "econometrics.panel.latent_mobility@1.0.0",
+        "econometrics.panel.nonstationary_garch@1.0.0",
+        "econometrics.panel.synthetic_did@1.0.0",
+        "spatial.panel.sarar@1.0.0",
+        "spatial.panel.slx@1.0.0",
+        "econometrics.panel.difference_gmm@1.0.0",
+        "econometrics.panel.system_gmm@1.0.0"
+      ],
+      "schema_version": "policyos.runtime.generation_cycle.value_gate_receipt.v1",
+      "selected_method_fqn": "causal.inference.did.standard@1.0.0",
+      "transport_receipt": {
+        "identification_engine": "bounds_only",
+        "limitation_refs": [
+          "Exact transport identification unavailable; emitted transport-aware bounds fallback."
+        ],
+        "required_target_data": [
+          "institutional_quality",
+          "state_capacity"
+        ],
+        "status": "transported_limited",
+        "transport_mode": "bounds_only",
+        "transport_result_ref": "sha256:d9f911d509caefc06d7d5d79c6a2fb5a19a22d489bb50aef919f28ba57c30a73",
+        "transport_status": "bounded_non_identified",
+        "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+        "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
+      },
+      "value_outer_set": {
+        "assumption_status": "externally_supported",
+        "assumptions": [
+          "forecast_tier:observable_calibrated",
+          "foundry_method_output",
+          "transport:bounded_non_identified"
+        ],
+        "calibration_scope": {
+          "forecast_tier": "observable_calibrated",
+          "transport_mode": "bounds_only",
+          "transport_status": "bounded_non_identified"
+        },
+        "coordinates": [
+          "CausalMethod.DIFFERENCE_IN_DIFFERENCES"
+        ],
+        "data_trust": {
+          "authority_ref": "policyos.runtime.n8.simulate_only_shadow",
+          "max_coverage": 1.0,
+          "min_coverage": 0.0,
+          "promotion_floor": 0.5,
+          "tier": "simulate_only_shadow",
+          "trust_cap": 0.6,
+          "trust_multiplier": 0.6
+        },
+        "epoch": "2018/2023",
+        "identification_status": "partial",
+        "lower": [
+          -6016.810766126787
+        ],
+        "representation": "interval_box",
+        "representation_status": "certified",
+        "solver_time_budget_ms": null,
+        "upper": [
+          4094.3096004508484
+        ],
+        "width": [
+          10111.120366577636
+        ],
+        "world_model_record_ref": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd"
+      },
+      "value_outer_set_width_derived": [
+        10111.120366577636
+      ],
+      "value_ref": "sha256:118acbcc7c3b936a01dbece75267618954b964b6e1cbcbe98eee43719e33096a",
+      "wall_time_ms": 5994.598250021227,
+      "wmr_cache_status": "built",
+      "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+      "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
+    }
+  ],
   "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1",
   "honest_blocked_cases": {
     "pilot_or_deployment_mode": "eval_safety_gate_unavailable",
@@ -432,9 +647,9 @@
     "simulate_only": "runs_value_gate_without_narrowing_k_world"
   },
   "pattern_pass": {
-    "acceptance_signal": "all_decisive_mutations_red_and_live_rederive_blocks_honestly",
+    "acceptance_signal": "all_decisive_mutations_red_and_live_rederive_value_ready",
     "capability_labels": [
-      "upstream_residual:s10_outcome_prediction_owner"
+      "upstream_residual:full_n5_joint_simulation_request"
     ],
     "relevant_ids": [
       "P10",
@@ -447,13 +662,13 @@
   },
   "produced_by": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
   "production_derivation": {
-    "audit_replay_source": "real_owner_rederive_local_block",
+    "audit_replay_source": "real_owner_rederive_value_ready",
     "candidate_source": "cycle_selected_candidate",
     "evaluation_mode": "simulate_only",
     "forecast_source": "RealValueOwnerGateway.produce_forecast_inputs",
     "input_source": "production_owner_access_no_runtime_hints",
     "live_rederive_flag": "--rederive-audit",
-    "local_positive_status": "cloud_residual_no_local_value_ready",
+    "local_positive_status": "value_ready",
     "method_state_source": "RealValueOwnerGateway.load_panel_observational_data",
     "transport_source": "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner",
     "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",

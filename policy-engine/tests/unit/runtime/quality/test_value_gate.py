@@ -22,6 +22,9 @@ from polisyos.runtime.quality.generation_cycle import (
     ValueTransportReceipt,
     _build_default_selection_diagram,
     _build_s10_forecast_inputs,
+    _candidate_transport_outcome_variable,
+    _candidate_transport_treatment_variable,
+    _s10_calibration_evidence_from_report,
 )
 from polisyos.runtime.quality.world_model_record import (
     BranchMode,
@@ -214,6 +217,15 @@ class _AdversarialRealPanelGateway:
         selected_method_fqn: str,
     ) -> dict[str, Any]:
         policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
+        evidence = _s10_calibration_evidence_from_report(method_result.output.get("report"))
+        if self.calibration_status not in {None, "pass"}:
+            evidence = {
+                **evidence,
+                "calibration_status": self.calibration_status,
+                "numerator": 0,
+                "pass_rate": 0.0,
+                "floor_passed": False,
+            }
         return dict(
             _build_s10_forecast_inputs(
                 candidate=candidate,
@@ -227,7 +239,8 @@ class _AdversarialRealPanelGateway:
                 expected_policy_context_ref=(
                     self.expected_policy_context_ref or policy_context_ref
                 ),
-                false_clear_counts={},
+                false_clear_counts=evidence["false_clear_counts"],
+                calibration_evidence=evidence,
             )
         )
 
@@ -238,6 +251,8 @@ class _AdversarialRealPanelGateway:
         problem: Any,
         world_record: WorldModelRecord,
     ) -> dict[str, Any]:
+        query_treatment = _candidate_transport_treatment_variable(candidate)
+        query_outcome = _candidate_transport_outcome_variable(candidate, problem)
         return {
             "selection_diagram": self.selection_diagram
             if self.selection_diagram is not None
@@ -246,8 +261,8 @@ class _AdversarialRealPanelGateway:
                 problem=problem,
                 world_record=world_record,
             ),
-            "query_treatment": "X",
-            "query_outcome": "Y",
+            "query_treatment": query_treatment,
+            "query_outcome": query_outcome,
         }
 
 
@@ -368,11 +383,22 @@ def test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr() -> None:
 
     assert simulation.world_model_record is not None
     assert simulation.diagnostics["world_model_source"] == "real_substrate_registry_boundary"
-    assert observation.status == "value_blocked"
+    assert observation.status == "value_ready"
     assert observation.world_model_record_content_hash == simulation.world_model_record.content_hash
     assert observation.selected_method_fqn == "causal.inference.did.standard@1.0.0"
-    assert observation.authority_blockers == ("s10_outcome_prediction_owner_unavailable",)
-    assert observation.value_receipt is None
+    assert observation.authority_blockers == ()
+    assert observation.calibration_receipt is not None
+    assert observation.calibration_receipt.status == "pass"
+    assert observation.transport_receipt is not None
+    assert observation.transport_receipt.status == "transported_limited"
+    assert observation.transport_receipt.world_model_record_content_hash == (
+        simulation.world_model_record.content_hash
+    )
+    assert observation.value_receipt is not None
+    assert observation.identification_status == "partial"
+    assert observation.value_receipt.value_outer_set.lower == (-6016.810766126787,)
+    assert observation.value_receipt.value_outer_set.upper == (4094.3096004508484,)
+    assert observation.value_receipt.value_outer_set.width == (10111.120366577636,)
 
 
 def test_candidate_treatment_is_loaded_from_candidate_binding() -> None:

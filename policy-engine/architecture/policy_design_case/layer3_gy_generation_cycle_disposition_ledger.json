@@ -10,10 +10,10 @@
       "status": "disclosed"
     },
     {
-      "code": "gy_n8_local_positive_blocked_on_s10_owner",
-      "detail": "The N8 local vertical slice reaches a real boundary WorldModelRecord, real L1 DCAT avg_income panel data, candidate-derived treatment, registry-selected DID, and then blocks on the callable S10 outcome_prediction owner being unavailable. No hand-built positive value receipt is frozen locally.",
+      "code": "gy_n8_real_local_positive_value_ready",
+      "detail": "The N8 local vertical slice reaches a real boundary WorldModelRecord, real L1 DCAT avg_income panel data, candidate-derived treatment, registry-selected DID, real S10 outcome_prediction support/calibration, real transport solve, and freezes the resulting value_ready ValueGateReceipt.",
       "owner": "GY-N8",
-      "status": "disclosed"
+      "status": "landed"
     },
     {
       "code": "gy_n5_full_world_model_request_unwired",

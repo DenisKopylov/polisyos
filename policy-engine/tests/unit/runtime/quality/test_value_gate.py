@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -10,6 +11,11 @@ from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.foundry.methods.selection import (
     reachable_value_method_fqns,
     select_value_method_for_problem,
+)
+from polisyos.ir.analytics.causal import (
+    CausalEffectReport,
+    CausalMethod,
+    DiagnosticTest,
 )
 from polisyos.runtime.quality.design_problem import OutcomeOfInterest
 from polisyos.runtime.quality.generation_cycle import (
@@ -25,6 +31,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _candidate_transport_outcome_variable,
     _candidate_transport_treatment_variable,
     _s10_calibration_evidence_from_report,
+    _value_calibration_receipt,
 )
 from polisyos.runtime.quality.world_model_record import (
     BranchMode,
@@ -415,6 +422,91 @@ def test_candidate_treatment_is_loaded_from_candidate_binding() -> None:
     assert panel.outcome.shape == (16, 4)
     assert panel.treatment.tolist() == [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     assert panel.time_treatment == 2
+
+
+def test_missing_candidate_treatment_binding_blocks_without_fallback() -> None:
+    @dataclass(frozen=True)
+    class MissingTreatmentAtom:
+        intervention_id: str
+        content_hash: str
+        status: str = "candidate_unverified"
+        world_model_record_ref: str = "world_model_record_test"
+        target_world_slots: tuple[str, ...] = ("avg_income",)
+
+    candidate = _Candidate(
+        candidate_id="candidate_avg_income_missing_treatment",
+        atom=MissingTreatmentAtom("candidate_avg_income_missing_treatment", _hash("8")),
+        diversity_key=("grant", "country", "avg_income", "missing_treatment"),
+    )
+    world = _world_record()
+
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=candidate,
+        simulation=_simulation(world),
+        problem=_avg_income_problem(),
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.value_receipt is None
+    assert observation.authority_blockers == ("treatment_binding_underdetermined",)
+    assert "treated substrate units" in observation.reason
+
+
+def test_s10_refusal_is_report_driven_by_bad_did_report() -> None:
+    world = _world_record()
+    problem = _avg_income_problem()
+    candidate = _avg_income_candidate()
+    bad_report = CausalEffectReport(
+        method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+        estimand="ATT",
+        point_estimate=10.0,
+        standard_error=1.0,
+        confidence_interval=(8.0, 12.0),
+        inference_method="did",
+        diagnostics=[
+            DiagnosticTest(
+                test_name="parallel_trends",
+                statistic=12.0,
+                p_value=0.99,
+                passed=False,
+                details={"source": "report-driven-refusal-test"},
+            )
+        ],
+        sample_size=64,
+        n_treated=1,
+        n_control=15,
+        pre_periods=2,
+        post_periods=1,
+    )
+    evidence = _s10_calibration_evidence_from_report(bad_report)
+    assert evidence["calibration_status"] == "limit"
+    assert evidence["floor_passed"] is False
+    assert evidence["false_clear_counts"][
+        "uncalibrated_observable_promotion_false_clear_count"
+    ] == 1
+
+    policy_context_ref = f"policy-context://{world.world_model_record_id}"
+    inputs = _build_s10_forecast_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
+        method_result=SimpleNamespace(output={"report": bad_report}),
+        selected_method_fqn="causal.inference.did.standard@1.0.0",
+        forecast_tier=str(evidence["forecast_tier"]),
+        calibration_status=str(evidence["calibration_status"]),
+        policy_context_ref=policy_context_ref,
+        expected_policy_context_ref=policy_context_ref,
+        false_clear_counts=evidence["false_clear_counts"],
+        calibration_evidence=evidence,
+    )
+    receipt = _value_calibration_receipt(inputs=inputs, world_record=world)
+
+    assert receipt.status == "blocked"
+    assert receipt.issue_codes == ("uncalibrated_forecast_minted_value",)
+    assert receipt.false_clear_counts[
+        "uncalibrated_observable_promotion_false_clear_count"
+    ] == 1
 
 
 def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:

@@ -8,6 +8,7 @@ import contextlib
 import io
 import json
 import re
+import subprocess
 import sys
 import time
 from collections.abc import Callable, Mapping
@@ -45,6 +46,27 @@ EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "pilot_mode_ran_without_eval_safety",
     "value_method_selection_fixed_default",
     "value_blocked_candidate_promoted_to_decision_front",
+)
+SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
+    "source_flip_value_input_read_from_runtime_hint",
+    "source_flip_empty_hints_production_owner_access",
+    "source_flip_audit_value_solve_fed_by_test_hints",
+    "source_flip_wmr_unavailable_not_acquire_gap",
+    "source_flip_s10_owner_invocation_required",
+    "source_flip_calibration_report_driven_refusal",
+    "source_flip_width_tracks_real_did_ci",
+    "source_flip_transport_real_solver_required",
+    "source_flip_treatment_candidate_atom_binding_required",
+    "source_flip_value_outer_set_width_supplied_not_derived",
+    "source_flip_proxy_forecast_narrow_set_rejected",
+    "source_flip_fixture_world_model_hash_rejected",
+    "source_flip_value_world_version_laundered",
+    "source_flip_dominance_timeout_forced_not_unknown",
+    "source_flip_simulate_only_shrank_k_world",
+    "source_flip_bad_forecast_minted_value",
+    "source_flip_pilot_mode_ran_without_eval_safety",
+    "source_flip_value_method_selection_fixed_default",
+    "source_flip_value_blocked_candidate_promoted_to_decision_front",
 )
 FROZEN_MUTATION_PROOFS: dict[str, str] = {
     "value_input_read_from_runtime_hint": (
@@ -227,6 +249,12 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "pilot_or_deployment_mode": "eval_safety_gate_unavailable",
         },
         "decisive_mutations": _mutation_results(repo_root),
+        "source_flip_mutation_harness": {
+            "mode": "--source-flip-mutations",
+            "routine_check_live_solve": False,
+            "mutation_ids": list(SOURCE_FLIP_MUTATION_IDS),
+            "property": "remove_runtime_guard_then_probe_must_go_red_then_restore",
+        },
         "compute_economics": {
             "routine_check_live_solve": False,
             "live_resolve_flag": "--rederive-audit",
@@ -622,6 +650,485 @@ def _live_mutation_results(repo_root: Path) -> list[dict[str, Any]]:
                 }
             )
     return results
+
+
+@dataclass(frozen=True)
+class _SourceFlipReplacement:
+    relative_path: str
+    old: str
+    new: str
+
+
+@dataclass(frozen=True)
+class _SourceFlipCase:
+    mutation_id: str
+    guard: str
+    replacements: tuple[_SourceFlipReplacement, ...]
+    probe_command: tuple[str, ...]
+
+
+def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Temporarily remove runtime guards and require the targeted probe to go RED."""
+
+    _ensure_src_path(repo_root)
+    cases = _source_flip_cases()
+    observed_ids = tuple(case.mutation_id for case in cases)
+    results: list[dict[str, Any]] = []
+    if observed_ids != SOURCE_FLIP_MUTATION_IDS:
+        results.append(
+            {
+                "mutation_id": "source_flip_harness_denominator",
+                "result": "HARNESS_ERROR",
+                "proof": {
+                    "expected": list(SOURCE_FLIP_MUTATION_IDS),
+                    "observed": list(observed_ids),
+                },
+            }
+        )
+        return tuple(results)
+    for case in cases:
+        results.append(_run_source_flip_case(repo_root, case))
+    return tuple(results)
+
+
+def _run_source_flip_case(repo_root: Path, case: _SourceFlipCase) -> dict[str, Any]:
+    originals: dict[Path, str] = {}
+    try:
+        for replacement in case.replacements:
+            path = repo_root / replacement.relative_path
+            if path not in originals:
+                originals[path] = path.read_text(encoding="utf-8")
+            text = path.read_text(encoding="utf-8")
+            if replacement.old not in text:
+                return {
+                    "mutation_id": case.mutation_id,
+                    "result": "HARNESS_ERROR",
+                    "guard": case.guard,
+                    "proof": f"source guard not found in {replacement.relative_path}",
+                }
+            path.write_text(
+                text.replace(replacement.old, replacement.new, 1),
+                encoding="utf-8",
+            )
+        completed = subprocess.run(
+            case.probe_command,
+            cwd=repo_root,
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+        if completed.returncode != 0:
+            return {
+                "mutation_id": case.mutation_id,
+                "result": "RED",
+                "guard": case.guard,
+                "proof": {
+                    "command": list(case.probe_command),
+                    "exit_code": completed.returncode,
+                    "stdout_tail": _output_tail(completed.stdout),
+                    "stderr_tail": _output_tail(completed.stderr),
+                },
+            }
+        return {
+            "mutation_id": case.mutation_id,
+            "result": "GREEN_MUTATION_SURVIVED",
+            "guard": case.guard,
+            "proof": {
+                "command": list(case.probe_command),
+                "stdout_tail": _output_tail(completed.stdout),
+                "stderr_tail": _output_tail(completed.stderr),
+            },
+        }
+    except Exception as exc:  # pragma: no cover - reported as harness data.
+        return {
+            "mutation_id": case.mutation_id,
+            "result": "HARNESS_ERROR",
+            "guard": case.guard,
+            "proof": str(exc),
+        }
+    finally:
+        for path, text in originals.items():
+            path.write_text(text, encoding="utf-8")
+
+
+def _output_tail(output: str, *, max_lines: int = 20) -> str:
+    lines = [line for line in output.splitlines() if line.strip()]
+    return "\n".join(lines[-max_lines:])
+
+
+def _pytest_probe(*node_ids: str) -> tuple[str, ...]:
+    return (sys.executable, "-m", "pytest", *node_ids, "-q")
+
+
+def _python_probe(script: str) -> tuple[str, ...]:
+    return (sys.executable, "-c", script)
+
+
+def _validator_probe(*args: str) -> tuple[str, ...]:
+    return (
+        sys.executable,
+        "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+        *args,
+    )
+
+
+def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
+    generation_cycle = "src/polisyos/runtime/quality/generation_cycle.py"
+    value_outer_set = "src/polisyos/core/contracts/value_outer_set.py"
+    validator = "tools/quality/validation/check_layer3_gy_value_gate_contract.py"
+    advisor = "src/polisyos/foundry/methods/selection/advisor.py"
+    test_value_gate = "tests/unit/runtime/quality/test_value_gate.py"
+    test_generation_cycle = "tests/unit/runtime/quality/test_generation_cycle.py"
+    return (
+        _SourceFlipCase(
+            mutation_id="source_flip_value_input_read_from_runtime_hint",
+            guard="production source contains zero value-input runtime_hints reads",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    (
+                        "class FoundryValuePort:\n"
+                        "    \"\"\"Default N8 port delegating value authority to Foundry and S10 owners.\"\"\"\n"
+                    ),
+                    (
+                        "class FoundryValuePort:\n"
+                        "    _source_flip_forbidden_value_hint = 'runtime_hints.get(\"value_fake\")'\n"
+                        "    \"\"\"Default N8 port delegating value authority to Foundry and S10 owners.\"\"\"\n"
+                    ),
+                ),
+            ),
+            probe_command=_python_probe(
+                "from pathlib import Path\n"
+                "from tools.quality.validation import check_layer3_gy_value_gate_contract as c\n"
+                "print(c._probe_no_value_runtime_hint_reads(Path.cwd()))\n"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_empty_hints_production_owner_access",
+            guard="empty-hints production path reaches the real substrate owner",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    (
+                        "            method_state = self._owner_gateway.load_panel_observational_data(\n"
+                    ),
+                    (
+                        "            raise ValueOwnerAccessError(\n"
+                        "                \"value_method_state_missing\",\n"
+                        "                \"source flip bypassed real owner access\",\n"
+                        "            )\n"
+                        "            method_state = self._owner_gateway.load_panel_observational_data(\n"
+                    ),
+                ),
+            ),
+            probe_command=_python_probe(
+                "from tools.quality.validation import check_layer3_gy_value_gate_contract as c\n"
+                "print(c._probe_empty_hints_owner_access())\n"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_audit_value_solve_fed_by_test_hints",
+            guard="audit rederive uses real owner access and an empty runtime_hints problem",
+            replacements=(
+                _SourceFlipReplacement(
+                    validator,
+                    "        runtime_hints={},\n",
+                    "        runtime_hints={\"value_gate_inputs\": {}},\n",
+                ),
+            ),
+            probe_command=_validator_probe("--rederive-audit"),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_wmr_unavailable_not_acquire_gap",
+            guard="missing cycle WMR is controller wiring, not acquire_data",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    '                code=world_error or "value_world_model_record_unwired",\n',
+                    '                code="acquire_data:value_world_model_record_missing",\n',
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_missing_cycle_wmr_is_wiring_error_not_acquire_gap"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_s10_owner_invocation_required",
+            guard="real S10 build_forecast_support invocation must run before value mints",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "    return _build_s10_forecast_inputs(\n",
+                    (
+                        "    raise ValueOwnerAccessError(\n"
+                        "        \"source_flip_s10_not_invoked\",\n"
+                        "        \"source flip disabled real S10 owner invocation\",\n"
+                        "        owner_access_ref=\"source_flip://s10\",\n"
+                        "    )\n"
+                        "    return _build_s10_forecast_inputs(\n"
+                    ),
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_calibration_report_driven_refusal",
+            guard="S10 evidence is derived from report diagnostics and can refuse",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "        and diagnostics_pass\n        and treated > 0\n",
+                    "        and treated > 0\n",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_s10_refusal_is_report_driven_by_bad_did_report"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_width_tracks_real_did_ci",
+            guard="partial ValueOuterSet lower/upper come from the real DID confidence interval",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "        lower = lower_ci\n        upper = upper_ci\n",
+                    "        lower = upper = point_value\n",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_transport_real_solver_required",
+            guard="transport receipt is produced by solve_transportability over the candidate diagram",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "        result = solve_transportability(\n",
+                    (
+                        "        raise RuntimeError(\"source_flip_transport_disabled\")\n"
+                        "        result = solve_transportability(\n"
+                    ),
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_treatment_candidate_atom_binding_required",
+            guard="panel treatment is derived from candidate atom fields with no fallback",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    (
+                        "    if not treated_units:\n"
+                        "        raise ValueOwnerAccessError(\n"
+                        "            \"treatment_binding_underdetermined\",\n"
+                        "            \"candidate intervention does not identify treated substrate units\",\n"
+                        "            owner_access_ref=\"candidate_owner://treated_units_missing\",\n"
+                        "        )\n"
+                    ),
+                    (
+                        "    if not treated_units:\n"
+                        "        treated_units = (str(units[0]),)\n"
+                    ),
+                ),
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    (
+                        "    if period_raw is None:\n"
+                        "        raise ValueOwnerAccessError(\n"
+                        "            \"treatment_binding_underdetermined\",\n"
+                        "            \"candidate intervention does not identify a treatment start period\",\n"
+                        "            owner_access_ref=\"candidate_owner://treatment_period_missing\",\n"
+                        "        )\n"
+                    ),
+                    (
+                        "    if period_raw is None:\n"
+                        "        period_raw = periods[min(2, max(0, len(periods) - 2))]\n"
+                    ),
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_missing_candidate_treatment_binding_blocks_without_fallback"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_value_outer_set_width_supplied_not_derived",
+            guard="ValueOuterSet rejects caller-supplied width",
+            replacements=(
+                _SourceFlipReplacement(
+                    value_outer_set,
+                    "        if supplied_width:\n",
+                    "        if False and supplied_width:\n",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_hand_set_value_outer_set_width_is_rejected"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_proxy_forecast_narrow_set_rejected",
+            guard="proxy identification cannot emit a narrow interval",
+            replacements=(
+                _SourceFlipReplacement(
+                    value_outer_set,
+                    "        if self.identification_status == \"proxy\" and not any(\n",
+                    "        if False and self.identification_status == \"proxy\" and not any(\n",
+                ),
+            ),
+            probe_command=_python_probe(
+                "from tools.quality.validation import check_layer3_gy_value_gate_contract as c\n"
+                "print(c._probe_proxy_narrow_rejected())\n"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_fixture_world_model_hash_rejected",
+            guard="fixture/placeholder world hashes are rejected by corrupt-field drift",
+            replacements=(
+                _SourceFlipReplacement(
+                    validator,
+                    "    return bool(\n",
+                    "    return False and bool(\n",
+                ),
+            ),
+            probe_command=_python_probe(
+                "import subprocess, sys\n"
+                "cmd = [sys.executable, "
+                "'tools/quality/validation/check_layer3_gy_value_gate_contract.py', "
+                "'--corrupt-field-drift-check']\n"
+                "result = subprocess.run(cmd, text=True)\n"
+                "raise SystemExit(0 if result.returncode == 1 else 1)\n"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_value_world_version_laundered",
+            guard="ValueGateReceipt binds value and transport receipts to the WMR hash",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "        if self.transport_receipt.world_model_record_content_hash != (\n",
+                    "        if False and self.transport_receipt.world_model_record_content_hash != (\n",
+                ),
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    (
+                        "        if self.value_outer_set.world_model_record_ref "
+                        "!= self.world_model_record_content_hash:\n"
+                    ),
+                    (
+                        "        if False and self.value_outer_set.world_model_record_ref "
+                        "!= self.world_model_record_content_hash:\n"
+                    ),
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_value_receipt_rejects_world_version_laundering"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_dominance_timeout_forced_not_unknown",
+            guard="timeout/approximation dominance returns unknown",
+            replacements=(
+                _SourceFlipReplacement(
+                    value_outer_set,
+                    "        if force_timeout or timeout_ms == 0:\n            return \"unknown\"\n",
+                    "        if force_timeout or timeout_ms == 0:\n            return \"dominates\"\n",
+                ),
+            ),
+            probe_command=_pytest_probe(f"{test_value_gate}::test_dominance_timeout_returns_unknown"),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_simulate_only_shrank_k_world",
+            guard="simulate_only receipts may not narrow K_world",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "        if self.evaluation_mode == \"simulate_only\" and (\n",
+                    "        if False and self.evaluation_mode == \"simulate_only\" and (\n",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_simulate_only_receipt_cannot_shrink_k_world"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_bad_forecast_minted_value",
+            guard="real calibration refusals cannot mint value authority",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "    if any(count > 0 for count in false_clear_counts.values()):\n",
+                    "    if False and any(count > 0 for count in false_clear_counts.values()):\n",
+                ),
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "    if support.forecast_tier == \"observable_calibrated\":\n",
+                    "    if False and support.forecast_tier == \"observable_calibrated\":\n",
+                ),
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "    elif support.forecast_tier != \"transported_limited\":\n",
+                    "    elif False and support.forecast_tier != \"transported_limited\":\n",
+                ),
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "    if envelope.envelope_status != \"pass\":\n",
+                    "    if False and envelope.envelope_status != \"pass\":\n",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_s10_refusal_is_report_driven_by_bad_did_report"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_pilot_mode_ran_without_eval_safety",
+            guard="pilot/deployment modes block pending EvalSafety",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "        if mode in {\"sandbox_pilot\", \"field_pilot\", \"deployment\"}:\n",
+                    "        if False and mode in {\"sandbox_pilot\", \"field_pilot\", \"deployment\"}:\n",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_pilot_and_deployment_modes_block_pending_eval_safety"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_value_method_selection_fixed_default",
+            guard="method selection routes through the registry advisor",
+            replacements=(
+                _SourceFlipReplacement(
+                    advisor,
+                    '        "selection_source": "foundry_registry_advisor",\n',
+                    '        "selection_source": "fixed_synthetic_control_source_flip",\n',
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_candidate_problem_selection_uses_registry_denominator"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_value_blocked_candidate_promoted_to_decision_front",
+            guard="N6 promotion reducer refuses value_blocked candidates",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "            and not _summary_value_blocks_promotion(summary)\n",
+                    "",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_generation_cycle}::test_blocked_value_candidate_cannot_be_promoted_to_decision_front"
+            ),
+        ),
+    )
 
 
 def _probe_no_value_runtime_hint_reads(repo_root: Path) -> str:
@@ -1332,6 +1839,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--rederive-audit", action="store_true")
+    parser.add_argument("--source-flip-mutations", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
     repo_root = _repo_root()
@@ -1344,6 +1852,11 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps({"issues": list(issues)}, sort_keys=True))
             return 1
         return 0
+    if args.source_flip_mutations:
+        results = run_source_flip_mutations(repo_root)
+        failures = tuple(row for row in results if row.get("result") != "RED")
+        print(json.dumps({"results": list(results)}, sort_keys=True))
+        return 1 if failures else 0
     if args.write:
         payload = build_payload(repo_root)
         _write_json(repo_root / OUTPUT_PATH, payload)

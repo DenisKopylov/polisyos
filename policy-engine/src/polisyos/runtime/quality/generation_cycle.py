@@ -2653,7 +2653,7 @@ def _candidate_treatment_assignment(
     )
     if not treated_units:
         raise ValueOwnerAccessError(
-            "acquire_data:value_treatment_assignment_missing",
+            "treatment_binding_underdetermined",
             "candidate intervention does not identify treated substrate units",
             owner_access_ref="candidate_owner://treated_units_missing",
         )
@@ -2677,7 +2677,7 @@ def _candidate_treatment_assignment(
     )
     if period_raw is None:
         raise ValueOwnerAccessError(
-            "acquire_data:value_treatment_assignment_missing",
+            "treatment_binding_underdetermined",
             "candidate intervention does not identify a treatment start period",
             owner_access_ref="candidate_owner://treatment_period_missing",
         )

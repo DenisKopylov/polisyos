@@ -1,26 +1,27 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 import pytest
 
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
-from polisyos.foundry.methods.causal import PanelObservationalData
 from polisyos.foundry.methods.selection import (
     reachable_value_method_fqns,
     select_value_method_for_problem,
 )
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
-from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.transportability import SelectionDiagram
+from polisyos.runtime.quality.design_problem import OutcomeOfInterest
 from polisyos.runtime.quality.generation_cycle import (
     FoundryValuePort,
+    JointSimulationPort,
     RealValueOwnerGateway,
-    RecordedValueOwnerGateway,
     SimulationPortObservation,
+    ValueCalibrationReceipt,
     ValueGateReceipt,
+    ValueTransportReceipt,
+    _build_default_selection_diagram,
+    _build_s10_forecast_inputs,
 )
 from polisyos.runtime.quality.world_model_record import (
     BranchMode,
@@ -152,6 +153,104 @@ def _candidate() -> _Candidate:
     )
 
 
+@dataclass(frozen=True)
+class _TreatmentAtom:
+    intervention_id: str
+    content_hash: str
+    status: str = "candidate_unverified"
+    world_model_record_ref: str = "world_model_record_test"
+    target_world_slots: tuple[str, ...] = ("avg_income",)
+    treated_unit_ids: tuple[str, ...] = ("AM",)
+    treatment_period: int = 2020
+
+
+def _avg_income_problem() -> Any:
+    return _problem("value_gate_avg_income_problem").model_copy(
+        update={
+            "outcome_of_interest": OutcomeOfInterest(
+                target_variable="avg_income",
+                metric_id="avg_income",
+                estimand="average_treatment_effect",
+            )
+        }
+    )
+
+
+def _avg_income_candidate() -> _Candidate:
+    return _Candidate(
+        candidate_id="candidate_avg_income_real",
+        atom=_TreatmentAtom("candidate_avg_income_real", _hash("8")),
+        diversity_key=("grant", "country", "avg_income", "real_panel"),
+    )
+
+
+@dataclass(frozen=True)
+class _AdversarialRealPanelGateway:
+    forecast_tier: str = "observable_calibrated"
+    calibration_status: str | None = "pass"
+    expected_policy_context_ref: str | None = None
+    selection_diagram: object | None = None
+
+    def load_panel_observational_data(
+        self,
+        *,
+        candidate: object,
+        problem: Any,
+        world_record: WorldModelRecord,
+    ) -> object:
+        return RealValueOwnerGateway(repo_root=Path.cwd()).load_panel_observational_data(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+        )
+
+    def produce_forecast_inputs(
+        self,
+        *,
+        candidate: object,
+        problem: Any,
+        world_record: WorldModelRecord,
+        method_result: object,
+        selected_method_fqn: str,
+    ) -> dict[str, Any]:
+        policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
+        return dict(
+            _build_s10_forecast_inputs(
+                candidate=candidate,
+                problem=problem,
+                world_record=world_record,
+                method_result=method_result,
+                selected_method_fqn=selected_method_fqn,
+                forecast_tier=self.forecast_tier,
+                calibration_status=self.calibration_status,
+                policy_context_ref=policy_context_ref,
+                expected_policy_context_ref=(
+                    self.expected_policy_context_ref or policy_context_ref
+                ),
+                false_clear_counts={},
+            )
+        )
+
+    def build_transport_inputs(
+        self,
+        *,
+        candidate: object,
+        problem: Any,
+        world_record: WorldModelRecord,
+    ) -> dict[str, Any]:
+        return {
+            "selection_diagram": self.selection_diagram
+            if self.selection_diagram is not None
+            else _build_default_selection_diagram(
+                candidate=candidate,
+                problem=problem,
+                world_record=world_record,
+            ),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        }
+
+
 def _simulation(world: WorldModelRecord) -> SimulationPortObservation:
     return SimulationPortObservation(
         candidate_id="candidate_value_gate",
@@ -161,45 +260,6 @@ def _simulation(world: WorldModelRecord) -> SimulationPortObservation:
         k_world_ref_after=world.content_hash,
         world_model_record=world,
     )
-
-
-def _panel() -> PanelObservationalData:
-    return PanelObservationalData(
-        outcome=np.array(
-            [
-                [10.0, 11.0, 12.0, 13.0, 18.0, 19.0, 20.0, 21.0],
-                [8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0],
-                [9.0, 9.0, 10.0, 10.0, 10.0, 11.0, 11.0, 12.0],
-            ]
-        ),
-        treatment=np.array([1, 0, 0]),
-        time_treatment=4,
-    )
-
-
-def _selection_diagram() -> SelectionDiagram:
-    graph = CausalGraphModel(
-        graph_type=GraphType.DAG,
-        nodes=["X", "Y"],
-        edges=[CausalEdge(src="X", dst="Y")],
-    )
-    return SelectionDiagram(
-        base_graph=graph,
-        s_nodes=[],
-        source_context=ContextProfile(context_id="source"),
-        target_context=ContextProfile(context_id="target"),
-    )
-
-
-def _recorded_owner(**overrides: object) -> RecordedValueOwnerGateway:
-    payload: dict[str, object] = {
-        "method_state": _panel(),
-        "selection_diagram": _selection_diagram(),
-        "policy_context_ref": "policy-context://layer3/gy/n8",
-        "expected_policy_context_ref": "policy-context://layer3/gy/n8",
-    }
-    payload.update(overrides)
-    return RecordedValueOwnerGateway(**payload)  # type: ignore[arg-type]
 
 
 def _unit_value_set(
@@ -228,6 +288,59 @@ def _unit_value_set(
     )
 
 
+def _receipt(world: WorldModelRecord) -> ValueGateReceipt:
+    value_set = ValueOuterSet.interval_box(
+        coordinates=("difference_in_differences",),
+        lower=(1.25,),
+        upper=(1.25,),
+        identification_mode="point",
+        assumptions=("unit_test_receipt",),
+        assumption_status="externally_supported",
+        calibration_scope={"scope": "unit"},
+        data_trust=DataTrust(
+            tier="unit",
+            trust_cap=1.0,
+            trust_multiplier=1.0,
+            authority_ref="test",
+        ),
+        world_model_record_ref=world.content_hash,
+        epoch="2026",
+        representation_status="certified",
+    )
+    transport = ValueTransportReceipt(
+        status="direct",
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        transport_result_ref=_hash("9"),
+        transport_status="identified",
+        transport_mode="direct",
+        identification_engine="unit",
+    )
+    calibration = ValueCalibrationReceipt(
+        status="pass",
+        forecast_tier="observable_calibrated",
+        calibration_record_ref="s10://unit",
+    )
+    value_ref = _hash("a")
+    return ValueGateReceipt(
+        candidate_id="candidate_value_gate",
+        evaluation_mode="simulate_only",
+        selected_method_fqn="causal.inference.did.standard@1.0.0",
+        method_selection_trace=("causal.inference.did.standard@1.0.0",),
+        identification_status=value_set.identification_status,
+        value_outer_set=value_set,
+        transport_receipt=transport,
+        calibration_receipt=calibration,
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        value_ref=value_ref,
+        wall_time_ms=1.0,
+        wmr_cache_status="built",
+        k_world_ref_before=world.content_hash,
+        k_world_ref_after=world.content_hash,
+    )
+
+
 def test_hand_set_value_outer_set_width_is_rejected() -> None:
     value_set = _unit_value_set(lower=(1.0,), upper=(1.0,), identification_mode="point")
     payload = value_set.model_dump(mode="json")
@@ -236,32 +349,46 @@ def test_hand_set_value_outer_set_width_is_rejected() -> None:
         ValueOuterSet.model_validate(payload)
 
 
-def test_production_value_port_without_value_gate_hints_mints_value() -> None:
-    world = _world_record()
-    problem = _problem("value_gate_problem")
+def test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr() -> None:
+    problem = _avg_income_problem()
     assert problem.runtime_hints == {}
+    candidate = _avg_income_candidate()
 
-    observation = FoundryValuePort(
-        owner_gateway=_recorded_owner(),
-        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
-    )(
-        candidate=_candidate(),
-        simulation=_simulation(world),
+    simulation = JointSimulationPort(repo_root=Path.cwd())(
+        candidate=candidate,
+        problem=problem,
+        cycle_index=0,
+    )
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=candidate,
+        simulation=simulation,
         problem=problem,
         cycle_index=0,
     )
 
-    assert observation.status == "value_ready"
-    assert observation.selected_method_fqn == "causal.inference.synthetic_control@1.0.0"
-    assert observation.identification_status == "point"
-    assert observation.value_receipt is not None
-    assert observation.value_receipt.world_model_record_content_hash == world.content_hash
-    assert observation.value_receipt.transport_receipt.world_model_record_content_hash == (
-        world.content_hash
+    assert simulation.world_model_record is not None
+    assert simulation.diagnostics["world_model_source"] == "real_substrate_registry_boundary"
+    assert observation.status == "value_blocked"
+    assert observation.world_model_record_content_hash == simulation.world_model_record.content_hash
+    assert observation.selected_method_fqn == "causal.inference.did.standard@1.0.0"
+    assert observation.authority_blockers == ("s10_outcome_prediction_owner_unavailable",)
+    assert observation.value_receipt is None
+
+
+def test_candidate_treatment_is_loaded_from_candidate_binding() -> None:
+    problem = _avg_income_problem()
+    candidate = _avg_income_candidate()
+    world = _world_record()
+
+    panel = RealValueOwnerGateway(repo_root=Path.cwd()).load_panel_observational_data(
+        candidate=candidate,
+        problem=problem,
+        world_record=world,
     )
-    assert observation.value_receipt.value_outer_set.width == (0.0,)
-    assert observation.value_receipt.k_world_ref_before == world.content_hash
-    assert observation.value_receipt.k_world_ref_after == world.content_hash
+
+    assert panel.outcome.shape == (16, 4)
+    assert panel.treatment.tolist() == [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    assert panel.time_treatment == 2
 
 
 def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:
@@ -292,7 +419,7 @@ def test_missing_cycle_wmr_is_wiring_error_not_acquire_gap() -> None:
     simulation = _simulation(world).model_copy(update={"world_model_record": None})
 
     observation = FoundryValuePort(
-        owner_gateway=_recorded_owner(),
+        owner_gateway=RealValueOwnerGateway(repo_root=Path.cwd()),
         requested_method_fqn="causal.inference.synthetic_control@1.0.0",
     )(
         candidate=_candidate(),
@@ -327,21 +454,12 @@ def test_value_port_reuses_cached_world_model_record() -> None:
 
 def test_value_receipt_rejects_world_version_laundering() -> None:
     world = _world_record("1")
-    observation = FoundryValuePort(
-        owner_gateway=_recorded_owner(),
-        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
-    )(
-        candidate=_candidate(),
-        simulation=_simulation(world),
-        problem=_problem("value_gate_problem"),
-        cycle_index=0,
-    )
-    assert observation.value_receipt is not None
+    receipt = _receipt(world)
 
-    payload = observation.value_receipt.model_dump(mode="python")
-    payload["value_outer_set"] = observation.value_receipt.value_outer_set
-    payload["transport_receipt"] = observation.value_receipt.transport_receipt
-    payload["calibration_receipt"] = observation.value_receipt.calibration_receipt
+    payload = receipt.model_dump(mode="python")
+    payload["value_outer_set"] = receipt.value_outer_set
+    payload["transport_receipt"] = receipt.transport_receipt
+    payload["calibration_receipt"] = receipt.calibration_receipt
     payload["world_model_record_content_hash"] = _hash("4")
     with pytest.raises(ValueError, match="value_world_version_laundered"):
         ValueGateReceipt.model_validate(payload)
@@ -357,21 +475,12 @@ def test_dominance_timeout_returns_unknown() -> None:
 
 def test_simulate_only_receipt_cannot_shrink_k_world() -> None:
     world = _world_record()
-    observation = FoundryValuePort(
-        owner_gateway=_recorded_owner(),
-        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
-    )(
-        candidate=_candidate(),
-        simulation=_simulation(world),
-        problem=_problem("value_gate_problem"),
-        cycle_index=0,
-    )
-    assert observation.value_receipt is not None
+    receipt = _receipt(world)
 
-    payload = observation.value_receipt.model_dump(mode="python")
-    payload["value_outer_set"] = observation.value_receipt.value_outer_set
-    payload["transport_receipt"] = observation.value_receipt.transport_receipt
-    payload["calibration_receipt"] = observation.value_receipt.calibration_receipt
+    payload = receipt.model_dump(mode="python")
+    payload["value_outer_set"] = receipt.value_outer_set
+    payload["transport_receipt"] = receipt.transport_receipt
+    payload["calibration_receipt"] = receipt.calibration_receipt
     payload["k_world_ref_after"] = _hash("5")
     with pytest.raises(ValueError, match="simulate_only_shrank_k_world"):
         ValueGateReceipt.model_validate(payload)
@@ -403,28 +512,28 @@ def test_bad_forecasts_and_unavailable_methods_fail_closed(
     blocker: str,
 ) -> None:
     world = _world_record()
-    owner_overrides: dict[str, object] = {}
-    requested_method_fqn = "causal.inference.synthetic_control@1.0.0"
+    owner = _AdversarialRealPanelGateway()
+    requested_method_fqn = "causal.inference.did.standard@1.0.0"
     if case_name == "uncalibrated":
-        owner_overrides = {
-            "forecast_tier": "simulation_only_advisory",
-            "calibration_status": None,
-        }
+        owner = _AdversarialRealPanelGateway(
+            forecast_tier="simulation_only_advisory",
+            calibration_status=None,
+        )
     elif case_name == "unsupported":
         requested_method_fqn = "causal.inference.no_such_method@9.9.9"
     elif case_name == "regime_laundered":
-        owner_overrides = {
-            "expected_policy_context_ref": "policy-context://other-regime"
-        }
+        owner = _AdversarialRealPanelGateway(
+            expected_policy_context_ref="policy-context://other-regime"
+        )
     else:
-        owner_overrides = {"selection_diagram": {"invalid": "selection-diagram"}}
+        owner = _AdversarialRealPanelGateway(selection_diagram={"invalid": "selection-diagram"})
     observation = FoundryValuePort(
-        owner_gateway=_recorded_owner(**owner_overrides),
+        owner_gateway=owner,
         requested_method_fqn=requested_method_fqn,
     )(
-        candidate=_candidate(),
+        candidate=_avg_income_candidate(),
         simulation=_simulation(world),
-        problem=_problem("value_gate_problem"),
+        problem=_avg_income_problem(),
         cycle_index=0,
     )
 
@@ -440,7 +549,7 @@ def test_bad_forecasts_and_unavailable_methods_fail_closed(
 def test_pilot_and_deployment_modes_block_pending_eval_safety(mode: str) -> None:
     world = _world_record()
     observation = FoundryValuePort(
-        owner_gateway=_recorded_owner(),
+        owner_gateway=RealValueOwnerGateway(repo_root=Path.cwd()),
         evaluation_mode=mode,  # type: ignore[arg-type]
         requested_method_fqn="causal.inference.synthetic_control@1.0.0",
     )(

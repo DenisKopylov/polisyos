@@ -8,6 +8,18 @@
       "detail": "Direct GY-S3 contract validation currently reports intervention_substrate_contract_drift; N6 ledger keeps a warm behavior/registry check and records the stale frozen receipt.",
       "owner": "GY-S3",
       "status": "disclosed"
+    },
+    {
+      "code": "gy_n8_local_positive_blocked_on_s10_owner",
+      "detail": "The N8 local vertical slice reaches a real boundary WorldModelRecord, real L1 DCAT avg_income panel data, candidate-derived treatment, registry-selected DID, and then blocks on the callable S10 outcome_prediction owner being unavailable. No hand-built positive value receipt is frozen locally.",
+      "owner": "GY-N8",
+      "status": "disclosed"
+    },
+    {
+      "code": "gy_n5_full_world_model_request_unwired",
+      "detail": "Default N5 now carries a content-bound boundary WorldModelRecord from the real substrate registry when no JointSimulationRequest is available, but full production JointSimulationRequest construction remains an upstream N5/N3 wiring residual.",
+      "owner": "GY-N5",
+      "status": "disclosed"
     }
   ],
   "source_investigation": {

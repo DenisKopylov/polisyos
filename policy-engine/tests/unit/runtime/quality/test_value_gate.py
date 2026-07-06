@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from pathlib import Path
+from typing import Any
+
 import numpy as np
 import pytest
 
@@ -12,21 +15,27 @@ from polisyos.foundry.methods.selection import (
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.context import ContextProfile
 from polisyos.ir.analytics.transportability import SelectionDiagram
-from polisyos.runtime.quality.design_axes.outcome_prediction import (
-    build_forecast_calibration_record,
-    build_forecast_support,
-)
 from polisyos.runtime.quality.generation_cycle import (
     FoundryValuePort,
+    RealValueOwnerGateway,
+    RecordedValueOwnerGateway,
     SimulationPortObservation,
     ValueGateReceipt,
 )
-from polisyos.runtime.quality.world_model_record import WorldModelRecord
-
-from .test_design_axes_outcome_prediction import (
-    _calibration_payload,
-    _forecast_support_payload,
+from polisyos.runtime.quality.world_model_record import (
+    BranchMode,
+    DataForgeBindingRef,
+    FabricWorldRef,
+    FoundryBindingRef,
+    PolicySlotBinding,
+    ResolvedSubstrateEntryRef,
+    SimulationModelRef,
+    SkgCausalPriorRef,
+    SubstrateRegistryRef,
+    WorldModelRecord,
+    world_model_record_content_hash,
 )
+
 from .test_generation_cycle import _Atom, _Candidate, _problem
 
 
@@ -35,11 +44,103 @@ def _hash(char: str) -> str:
 
 
 def _world_record(char: str = "1") -> WorldModelRecord:
-    return WorldModelRecord.model_construct(
-        world_model_record_id=f"world_model_record_{char * 16}",
-        content_hash=_hash(char),
-        valid_time_scope="2026",
-        producer_ref="tests.unit.runtime.quality.test_value_gate",
+    fields: dict[str, Any] = {
+        "schema_version": "policyos.runtime.world_model_record.v1",
+        "authority_status": "bound",
+        "producer_ref": f"tests.unit.runtime.quality.test_value_gate.{char}",
+        "region_or_jurisdiction": "UA-30",
+        "population_scope": "wartime_msme",
+        "policy_domain": "fiscal_credit",
+        "valid_time_scope": "2026-05-24/2026-12-31",
+        "tx_time_scope": "2026-05-24T12:00:00+00:00",
+        "resolution": "firm_month",
+        "branch_mode": BranchMode.OBSERVED,
+        "fabric_world_ref": FabricWorldRef(
+            snapshot_root="/tmp/policyos-value-gate-world",
+            snapshot_id=f"snapshot-2026-05-24-{char}",
+            branch="main",
+            world_query_policy="as_of_valid_and_tx_time",
+            provenance_manifest_ref=f"manifest://value-gate/{char}",
+            content_query_digest=_hash(char),
+            content_query_row_count=3,
+        ),
+        "data_forge_binding_ref": DataForgeBindingRef(
+            snapshot_id=f"snapshot-2026-05-24-{char}",
+            release_id=f"release-{char}",
+            role="academic",
+            read_api_identity="data_forge.read_api.value_gate",
+            snapshot_ref=f"snapshot://data-forge/value-gate/{char}",
+            merkle_root=f"merkle:value-gate:{char}",
+            data_hash=_hash("a"),
+            provenance_manifest_ref=f"manifest://data-forge/value-gate/{char}",
+        ),
+        "simulation_model_ref": SimulationModelRef(
+            model_spec_ref=_hash("b"),
+            model_spec_hash=_hash("c"),
+            model_id="model_ua_msme_value_gate",
+            data_snapshot_ref=_hash("d"),
+            registry_bundle_ref=_hash("e"),
+            ncm_refs=("ncm://fixture/value-gate",),
+            fidelity_level="high",
+            calibrated=True,
+            calibration_ref=_hash("f"),
+        ),
+        "foundry_binding_ref": FoundryBindingRef(
+            input_bindings_ref=_hash("0"),
+            bound_state_snapshot_ref=_hash("2"),
+            mapping_rules_ref=_hash("3"),
+            state_slot_digest=_hash("4"),
+        ),
+        "skg_causal_prior_ref": SkgCausalPriorRef(
+            skg_snapshot_ref=f"skg://value-gate/{char}",
+            skg_version_id=f"skg-v{char}",
+            source_data_snapshot_id=f"snapshot-2026-05-24-{char}",
+        ),
+        "substrate_registry_ref": SubstrateRegistryRef(
+            substrate_version_id="substrate_version_1111111111111111",
+            content_hash=_hash("5"),
+            resolved_entries=(
+                ResolvedSubstrateEntryRef(
+                    source_id="l5_measurement_registry",
+                    family_id="firm_fundamentals",
+                    layer="L5",
+                    coverage_score=0.8,
+                    trust_tier="authoritative_partial_coverage",
+                    trust_cap=0.85,
+                    identification_mode="point_identified",
+                    schema_regime_id="ukraine_schema_v2",
+                    data_version="l5-calibration-d2",
+                    snapshot_id=f"snapshot-2026-05-24-{char}",
+                    source_snapshot_id=f"snapshot-2026-05-24-{char}",
+                    entry_content_hash=_hash("6"),
+                ),
+            ),
+        ),
+        "policy_slot_map": (
+            PolicySlotBinding(
+                slot_id="firm_survival",
+                state_path="firms.survival",
+                entity_scope="firm",
+                temporal_granularity="month",
+            ),
+            PolicySlotBinding(
+                slot_id="government_balance",
+                state_path="government.balance",
+                entity_scope="government",
+                temporal_granularity="month",
+            ),
+        ),
+    }
+    candidate = WorldModelRecord.model_construct(
+        world_model_record_id="world_model_record_0000000000000000",
+        content_hash=_hash("0"),
+        **fields,
+    )
+    content_hash = world_model_record_content_hash(candidate)
+    return WorldModelRecord(
+        world_model_record_id=f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}",
+        content_hash=content_hash,
+        **fields,
     )
 
 
@@ -58,6 +159,7 @@ def _simulation(world: WorldModelRecord) -> SimulationPortObservation:
         simulation_ref=_hash("3"),
         k_world_ref_before=world.content_hash,
         k_world_ref_after=world.content_hash,
+        world_model_record=world,
     )
 
 
@@ -89,29 +191,15 @@ def _selection_diagram() -> SelectionDiagram:
     )
 
 
-def _forecast_support(**overrides: object):
-    return build_forecast_support(**_forecast_support_payload(**overrides))
-
-
-def _calibration_record(**overrides: object):
-    return build_forecast_calibration_record(**_calibration_payload(**overrides))
-
-
-def _value_inputs(world: WorldModelRecord, **overrides: object) -> dict[str, object]:
-    inputs: dict[str, object] = {
-        "evaluation_mode": "simulate_only",
-        "world_model_record": world,
-        "forecast_support": _forecast_support(),
-        "forecast_calibration_record": _calibration_record(),
-        "policy_context_ref": "policy-context://ua-msme/2022",
+def _recorded_owner(**overrides: object) -> RecordedValueOwnerGateway:
+    payload: dict[str, object] = {
         "method_state": _panel(),
-        "method_fqn": "causal.inference.synthetic_control@1.0.0",
         "selection_diagram": _selection_diagram(),
-        "query_treatment": "X",
-        "query_outcome": "Y",
+        "policy_context_ref": "policy-context://layer3/gy/n8",
+        "expected_policy_context_ref": "policy-context://layer3/gy/n8",
     }
-    inputs.update(overrides)
-    return inputs
+    payload.update(overrides)
+    return RecordedValueOwnerGateway(**payload)  # type: ignore[arg-type]
 
 
 def _unit_value_set(
@@ -140,12 +228,6 @@ def _unit_value_set(
     )
 
 
-def _problem_with_value_inputs(inputs: dict[str, object]):
-    return _problem("value_gate_problem").model_copy(
-        update={"runtime_hints": {"value_gate_inputs": inputs}}
-    )
-
-
 def test_hand_set_value_outer_set_width_is_rejected() -> None:
     value_set = _unit_value_set(lower=(1.0,), upper=(1.0,), identification_mode="point")
     payload = value_set.model_dump(mode="json")
@@ -154,12 +236,18 @@ def test_hand_set_value_outer_set_width_is_rejected() -> None:
         ValueOuterSet.model_validate(payload)
 
 
-def test_foundry_value_port_mints_value_over_named_world_record() -> None:
+def test_production_value_port_without_value_gate_hints_mints_value() -> None:
     world = _world_record()
-    observation = FoundryValuePort()(
+    problem = _problem("value_gate_problem")
+    assert problem.runtime_hints == {}
+
+    observation = FoundryValuePort(
+        owner_gateway=_recorded_owner(),
+        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+    )(
         candidate=_candidate(),
         simulation=_simulation(world),
-        problem=_problem_with_value_inputs(_value_inputs(world)),
+        problem=problem,
         cycle_index=0,
     )
 
@@ -176,14 +264,58 @@ def test_foundry_value_port_mints_value_over_named_world_record() -> None:
     assert observation.value_receipt.k_world_ref_after == world.content_hash
 
 
+def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:
+    world = _world_record()
+    problem = _problem("value_gate_problem")
+
+    observation = FoundryValuePort(
+        owner_gateway=RealValueOwnerGateway(repo_root=Path.cwd()),
+        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+    )(
+        candidate=_candidate(),
+        simulation=_simulation(world),
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.value_receipt is None
+    assert observation.authority_blockers == ("acquire_data:value_panel_data_missing",)
+    assert "substrate owner" in str(observation.reason)
+    assert "dataset_catalog.duckdb#variable/firm_survival" in str(observation.reason)
+    assert "value_method_state_missing" not in observation.authority_blockers
+    assert "world_model_record_missing" not in observation.authority_blockers
+
+
+def test_missing_cycle_wmr_is_wiring_error_not_acquire_gap() -> None:
+    world = _world_record()
+    simulation = _simulation(world).model_copy(update={"world_model_record": None})
+
+    observation = FoundryValuePort(
+        owner_gateway=_recorded_owner(),
+        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+    )(
+        candidate=_candidate(),
+        simulation=simulation,
+        problem=_problem("value_gate_problem"),
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("value_world_model_record_unwired",)
+    assert not observation.authority_blockers[0].startswith("acquire_data:")
+
+
 def test_value_port_reuses_cached_world_model_record() -> None:
     world = _world_record()
-    inputs = _value_inputs(world)
-    problem = _problem_with_value_inputs(inputs)
     port = FoundryValuePort()
 
-    first_record, first_status, first_error = port._world_record(problem, inputs=inputs)
-    second_record, second_status, second_error = port._world_record(problem, inputs=inputs)
+    first_record, first_status, first_error = port._world_record_from_simulation(
+        _simulation(world)
+    )
+    second_record, second_status, second_error = port._world_record_from_simulation(
+        _simulation(world)
+    )
 
     assert first_record is world
     assert second_record is first_record
@@ -195,10 +327,13 @@ def test_value_port_reuses_cached_world_model_record() -> None:
 
 def test_value_receipt_rejects_world_version_laundering() -> None:
     world = _world_record("1")
-    observation = FoundryValuePort()(
+    observation = FoundryValuePort(
+        owner_gateway=_recorded_owner(),
+        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+    )(
         candidate=_candidate(),
         simulation=_simulation(world),
-        problem=_problem_with_value_inputs(_value_inputs(world)),
+        problem=_problem("value_gate_problem"),
         cycle_index=0,
     )
     assert observation.value_receipt is not None
@@ -222,10 +357,13 @@ def test_dominance_timeout_returns_unknown() -> None:
 
 def test_simulate_only_receipt_cannot_shrink_k_world() -> None:
     world = _world_record()
-    observation = FoundryValuePort()(
+    observation = FoundryValuePort(
+        owner_gateway=_recorded_owner(),
+        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+    )(
         candidate=_candidate(),
         simulation=_simulation(world),
-        problem=_problem_with_value_inputs(_value_inputs(world)),
+        problem=_problem("value_gate_problem"),
         cycle_index=0,
     )
     assert observation.value_receipt is not None
@@ -265,26 +403,28 @@ def test_bad_forecasts_and_unavailable_methods_fail_closed(
     blocker: str,
 ) -> None:
     world = _world_record()
-    case_inputs: dict[str, object]
+    owner_overrides: dict[str, object] = {}
+    requested_method_fqn = "causal.inference.synthetic_control@1.0.0"
     if case_name == "uncalibrated":
-        case_inputs = {
-            "forecast_support": _forecast_support(
-                s5_base_origin="simulation_only",
-                s5_support_label="simulation_only_system_effect",
-                forecast_tier="simulation_only_advisory",
-                calibration_record_ref=None,
-            )
+        owner_overrides = {
+            "forecast_tier": "simulation_only_advisory",
+            "calibration_status": None,
         }
     elif case_name == "unsupported":
-        case_inputs = {"method_fqn": "causal.inference.no_such_method@9.9.9"}
+        requested_method_fqn = "causal.inference.no_such_method@9.9.9"
     elif case_name == "regime_laundered":
-        case_inputs = {"policy_context_ref": "policy-context://other-regime"}
+        owner_overrides = {
+            "expected_policy_context_ref": "policy-context://other-regime"
+        }
     else:
-        case_inputs = {"selection_diagram": {"invalid": "selection-diagram"}}
-    observation = FoundryValuePort()(
+        owner_overrides = {"selection_diagram": {"invalid": "selection-diagram"}}
+    observation = FoundryValuePort(
+        owner_gateway=_recorded_owner(**owner_overrides),
+        requested_method_fqn=requested_method_fqn,
+    )(
         candidate=_candidate(),
         simulation=_simulation(world),
-        problem=_problem_with_value_inputs(_value_inputs(world, **case_inputs)),
+        problem=_problem("value_gate_problem"),
         cycle_index=0,
     )
 
@@ -299,10 +439,14 @@ def test_bad_forecasts_and_unavailable_methods_fail_closed(
 )
 def test_pilot_and_deployment_modes_block_pending_eval_safety(mode: str) -> None:
     world = _world_record()
-    observation = FoundryValuePort()(
+    observation = FoundryValuePort(
+        owner_gateway=_recorded_owner(),
+        evaluation_mode=mode,  # type: ignore[arg-type]
+        requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+    )(
         candidate=_candidate(),
         simulation=_simulation(world),
-        problem=_problem_with_value_inputs(_value_inputs(world, evaluation_mode=mode)),
+        problem=_problem("value_gate_problem"),
         cycle_index=0,
     )
 

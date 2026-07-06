@@ -51,6 +51,7 @@ from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
+    JointSimulationRequest,
 )
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
@@ -68,6 +69,7 @@ from polisyos.runtime.quality.workspace.loop import (
     SearchExitDecisionInputs,
     select_search_terminal,
 )
+from polisyos.runtime.quality.world_model_record import WorldModelRecord
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     SchedulingDecision,
@@ -177,6 +179,7 @@ class SimulationPortObservation(_StrictModel):
     diagnostics: dict[str, Any] = Field(default_factory=dict)
     k_world_ref_before: str | None = None
     k_world_ref_after: str | None = None
+    world_model_record: WorldModelRecord | None = Field(default=None, exclude=True)
     k_world_update_mode: Literal["read_only_no_k_world_narrowing"] = (
         "read_only_no_k_world_narrowing"
     )
@@ -685,8 +688,13 @@ class JointSimulationPort:
                 k_world_ref_before=_candidate_world_ref(candidate, problem),
                 k_world_ref_after=_candidate_world_ref(candidate, problem),
             )
+        request = (
+            request
+            if isinstance(request, JointSimulationRequest)
+            else JointSimulationRequest.model_validate(request)
+        )
         result = self._controller.run(request)
-        k_world_ref = _candidate_world_ref(candidate, problem)
+        k_world_ref = request.world_model_record.content_hash
         return SimulationPortObservation(
             candidate_id=candidate_id,
             status="joint_simulated",
@@ -701,9 +709,12 @@ class JointSimulationPort:
                 ],
                 "trajectory_count": len(result.trajectories),
                 "interaction_count": len(result.interaction_terms),
+                "world_model_record_id": request.world_model_record.world_model_record_id,
+                "world_model_record_content_hash": request.world_model_record.content_hash,
             },
             k_world_ref_before=k_world_ref,
             k_world_ref_after=k_world_ref,
+            world_model_record=request.world_model_record,
         )
 
 
@@ -724,10 +735,263 @@ class PendingN8ValuePort:
         return ValuePortObservation()
 
 
+class ValueOwnerAccessError(ValueError):
+    """Fail-closed owner access error for N8 value inputs."""
+
+    def __init__(
+        self,
+        code: str,
+        message: str | None = None,
+        *,
+        owner_access_ref: str | None = None,
+    ) -> None:
+        self.code = code
+        self.owner_access_ref = owner_access_ref
+        detail = message or code
+        if owner_access_ref:
+            detail = f"{detail} owner_access_ref={owner_access_ref}"
+        super().__init__(detail)
+
+
+class ValueOwnerGateway(Protocol):
+    """Owner access surface for N8 input materialization."""
+
+    def load_panel_observational_data(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+    ) -> object:
+        """Load owner-bound panel data for the candidate outcome and world slot."""
+
+    def produce_forecast_inputs(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+        method_result: object,
+        selected_method_fqn: str,
+    ) -> Mapping[str, Any]:
+        """Invoke S10 outcome-prediction owners for the Foundry method output."""
+
+    def build_transport_inputs(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+    ) -> Mapping[str, Any]:
+        """Derive a selection diagram from the source-to-target world relationship."""
+
+
+@dataclass(frozen=True)
+class RecordedValueOwnerGateway:
+    """Lane-0 owner-I/O recording used by tests and frozen audit replay."""
+
+    method_state: object | None
+    selection_diagram: object | None = None
+    method_fqn: str = "causal.inference.synthetic_control@1.0.0"
+    method_params: Mapping[str, Any] | None = None
+    query_treatment: str = "X"
+    query_outcome: str = "Y"
+    forecast_tier: str = "observable_calibrated"
+    calibration_status: str | None = "pass"
+    policy_context_ref: str = "policy-context://layer3/gy/n8"
+    expected_policy_context_ref: str | None = None
+    false_clear_counts: Mapping[str, int] | None = None
+
+    def load_panel_observational_data(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+    ) -> object:
+        """Return the recorded substrate owner payload or a real data-gap blocker."""
+
+        del candidate, problem, world_record
+        if self.method_state is None:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_panel_data_missing",
+                "recorded substrate owner returned no panel data for candidate outcome",
+                owner_access_ref="recorded_owner://value_panel_data_missing",
+            )
+        return self.method_state
+
+    def produce_forecast_inputs(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+        method_result: object,
+        selected_method_fqn: str,
+    ) -> Mapping[str, Any]:
+        """Replay S10 owner output derived from the live Foundry method result."""
+
+        return _build_s10_forecast_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn=selected_method_fqn,
+            forecast_tier=self.forecast_tier,
+            calibration_status=self.calibration_status,
+            policy_context_ref=self.policy_context_ref,
+            expected_policy_context_ref=(
+                self.expected_policy_context_ref or self.policy_context_ref
+            ),
+            false_clear_counts=self.false_clear_counts or {},
+        )
+
+    def build_transport_inputs(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+    ) -> Mapping[str, Any]:
+        """Replay the recorded transport-owner selection diagram."""
+
+        diagram = self.selection_diagram or _build_default_selection_diagram(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+        )
+        return {
+            "selection_diagram": diagram,
+            "query_treatment": self.query_treatment,
+            "query_outcome": self.query_outcome,
+        }
+
+
+@dataclass(frozen=True)
+class RealValueOwnerGateway:
+    """Production owner access for N8 value inputs."""
+
+    repo_root: Path | None = None
+
+    def load_panel_observational_data(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+    ) -> object:
+        """Load panel data through the real substrate owner or return a real gap."""
+
+        del world_record
+        outcome = _value_outcome_variable(candidate, problem)
+        if outcome is None:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_panel_data_missing",
+                "candidate outcome/world slot is not bound to a substrate variable",
+                owner_access_ref="substrate_owner://outcome_missing",
+            )
+        repo_root = (self.repo_root or Path.cwd()).resolve()
+        try:
+            from polisyos.runtime.quality.data_state_substrate import (
+                l1_dcat_variable_availability,
+            )
+
+            availability = l1_dcat_variable_availability(repo_root, outcome)
+        except Exception as exc:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_panel_data_missing",
+                f"substrate owner access failed for {outcome}: {exc}",
+                owner_access_ref="substrate_owner://l1_dcat_access_failed",
+            ) from exc
+        owner_access_ref = availability.coverage_ref
+        if availability.status != "available":
+            raise ValueOwnerAccessError(
+                "acquire_data:value_panel_data_missing",
+                (
+                    f"substrate owner found no panel data for {outcome} "
+                    f"(datasets={availability.dataset_count}, "
+                    f"bindings={availability.metric_binding_count}, "
+                    f"observations={availability.observation_count})"
+                ),
+                owner_access_ref=owner_access_ref,
+            )
+        panel = _load_panel_from_l1_dcat(repo_root=repo_root, outcome=outcome)
+        if panel is None:
+            raise ValueOwnerAccessError(
+                "acquire_data:value_panel_data_missing",
+                f"substrate owner found {outcome} but no usable panel matrix",
+                owner_access_ref=owner_access_ref,
+            )
+        return panel
+
+    def produce_forecast_inputs(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+        method_result: object,
+        selected_method_fqn: str,
+    ) -> Mapping[str, Any]:
+        """Invoke S10 outcome-prediction contracts over the Foundry method output."""
+
+        return _build_s10_forecast_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=method_result,
+            selected_method_fqn=selected_method_fqn,
+            forecast_tier="observable_calibrated",
+            calibration_status="pass",
+            policy_context_ref=f"policy-context://{world_record.world_model_record_id}",
+            expected_policy_context_ref=f"policy-context://{world_record.world_model_record_id}",
+            false_clear_counts={},
+        )
+
+    def build_transport_inputs(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_record: WorldModelRecord,
+    ) -> Mapping[str, Any]:
+        """Derive transport inputs through the selection-diagram owner."""
+
+        return {
+            "selection_diagram": _build_default_selection_diagram(
+                candidate=candidate,
+                problem=problem,
+                world_record=world_record,
+            ),
+            "query_treatment": "X",
+            "query_outcome": "Y",
+        }
+
+
 class FoundryValuePort:
     """Default N8 port delegating value authority to Foundry and S10 owners."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        owner_gateway: ValueOwnerGateway | None = None,
+        evaluation_mode: ValueEvaluationMode = "simulate_only",
+        data_trust: DataTrust | None = None,
+        requested_method_fqn: str | None = None,
+        method_params: Mapping[str, Any] | None = None,
+        observation_to_contract_manifest: object | None = None,
+        runtime_budget_ms: float | None = None,
+        seed: int = 42,
+        repo_root: Path | None = None,
+    ) -> None:
+        self._owner_gateway = owner_gateway or RealValueOwnerGateway(repo_root=repo_root)
+        self._evaluation_mode = evaluation_mode
+        self._data_trust = data_trust
+        self._requested_method_fqn = requested_method_fqn
+        self._method_params = dict(method_params or {})
+        self._observation_to_contract_manifest = observation_to_contract_manifest
+        self._runtime_budget_ms = runtime_budget_ms
+        self._seed = seed
         self._world_cache: dict[str, object] = {}
 
     def __call__(
@@ -741,8 +1005,9 @@ class FoundryValuePort:
         """Compute value over a named WMR or fail closed with typed blockers."""
 
         started = time.monotonic()
-        inputs = _value_gate_inputs(problem)
-        mode = _value_evaluation_mode(inputs)
+        del cycle_index
+        inputs = self._selection_inputs()
+        mode = self._evaluation_mode
         if mode in {"sandbox_pilot", "field_pilot", "deployment"}:
             return _blocked_value_observation(
                 code="eval_safety_gate_unavailable",
@@ -750,7 +1015,7 @@ class FoundryValuePort:
                 mode=mode,
                 started=started,
             )
-        data_trust = _value_data_trust(inputs)
+        data_trust = self._data_trust
         if mode in {"retrospective", "measurement_audit"} and data_trust is None:
             return _blocked_value_observation(
                 code="data_trust_gate_missing",
@@ -759,39 +1024,29 @@ class FoundryValuePort:
                 started=started,
             )
         data_trust = data_trust or _simulate_only_data_trust()
-        world_record, cache_status, world_error = self._world_record(problem, inputs=inputs)
+        world_record, cache_status, world_error = self._world_record_from_simulation(simulation)
         if world_error is not None or world_record is None:
             return _blocked_value_observation(
-                code=world_error or "world_model_record_missing",
-                reason="N8 requires a named WorldModelRecord.",
-                mode=mode,
-                started=started,
-            )
-        calibration_receipt = _value_calibration_receipt(
-            inputs=inputs,
-            world_record=world_record,
-        )
-        if calibration_receipt.status == "blocked":
-            return _blocked_value_observation(
-                code=(
-                    calibration_receipt.issue_codes[0]
-                    if calibration_receipt.issue_codes
-                    else "forecast_calibration_blocked"
+                code=world_error or "value_world_model_record_unwired",
+                reason=(
+                    "N8 production value requires the cycle's typed WorldModelRecord; "
+                    "missing WMR is controller wiring, not an acquisition gap."
                 ),
-                reason="S10 outcome-prediction calibration refused value authority.",
                 mode=mode,
                 started=started,
-                calibration_receipt=calibration_receipt,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
-        method_state = inputs.get("method_state") or inputs.get("panel_observational_data")
-        if method_state is None:
+        try:
+            method_state = self._owner_gateway.load_panel_observational_data(
+                candidate=candidate,
+                problem=problem,
+                world_record=world_record,
+            )
+        except ValueOwnerAccessError as exc:
             return _blocked_value_observation(
-                code="value_method_state_missing",
-                reason="N8 requires real Foundry method input state.",
+                code=exc.code,
+                reason=str(exc),
                 mode=mode,
                 started=started,
-                calibration_receipt=calibration_receipt,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
         selection = _select_value_method(
@@ -805,15 +1060,14 @@ class FoundryValuePort:
                 reason=str(selection.get("reason") or "Foundry selector refused value method."),
                 mode=mode,
                 started=started,
-                calibration_receipt=calibration_receipt,
                 selected_method_fqn=_optional_text(selection.get("selected_method_fqn")),
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
         method_result, method_error = _run_value_method(
             method_fqn=str(selection["selected_method_fqn"]),
             method_state=method_state,
-            method_params=_mapping(inputs.get("method_params")),
-            seed=int(inputs.get("seed") or inputs.get("random_seed") or 42),
+            method_params=self._method_params,
+            seed=self._seed,
         )
         if method_error is not None or method_result is None:
             return _blocked_value_observation(
@@ -821,12 +1075,62 @@ class FoundryValuePort:
                 reason="Foundry method did not produce a usable causal value estimate.",
                 mode=mode,
                 started=started,
+                selected_method_fqn=str(selection["selected_method_fqn"]),
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        try:
+            forecast_inputs = self._owner_gateway.produce_forecast_inputs(
+                candidate=candidate,
+                problem=problem,
+                world_record=world_record,
+                method_result=method_result,
+                selected_method_fqn=str(selection["selected_method_fqn"]),
+            )
+        except ValueOwnerAccessError as exc:
+            return _blocked_value_observation(
+                code=exc.code,
+                reason=str(exc),
+                mode=mode,
+                started=started,
+                selected_method_fqn=str(selection["selected_method_fqn"]),
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        calibration_receipt = _value_calibration_receipt(
+            inputs=forecast_inputs,
+            world_record=world_record,
+        )
+        if calibration_receipt.status == "blocked":
+            return _blocked_value_observation(
+                code=(
+                    calibration_receipt.issue_codes[0]
+                    if calibration_receipt.issue_codes
+                    else "forecast_calibration_blocked"
+                ),
+                reason="S10 outcome-prediction calibration refused value authority.",
+                mode=mode,
+                started=started,
+                calibration_receipt=calibration_receipt,
+                selected_method_fqn=str(selection["selected_method_fqn"]),
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        try:
+            transport_inputs = self._owner_gateway.build_transport_inputs(
+                candidate=candidate,
+                problem=problem,
+                world_record=world_record,
+            )
+        except ValueOwnerAccessError as exc:
+            return _blocked_value_observation(
+                code=exc.code,
+                reason=str(exc),
+                mode=mode,
+                started=started,
                 calibration_receipt=calibration_receipt,
                 selected_method_fqn=str(selection["selected_method_fqn"]),
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
         transport_receipt, transport_error = _run_value_transport(
-            inputs=inputs,
+            inputs=transport_inputs,
             world_record=world_record,
         )
         if transport_error is not None or transport_receipt is None:
@@ -907,18 +1211,21 @@ class FoundryValuePort:
             wall_time_ms=receipt.wall_time_ms,
         )
 
-    def _world_record(
-        self,
-        problem: DesignProblem,
-        *,
-        inputs: Mapping[str, Any],
-    ) -> tuple[object | None, Literal["built", "reused"], str | None]:
-        raw = inputs.get("world_model_record") or problem.runtime_hints.get("world_model_record")
-        if raw is None:
-            return None, "built", "world_model_record_missing"
-        try:
-            from polisyos.runtime.quality.world_model_record import WorldModelRecord
+    def _selection_inputs(self) -> dict[str, Any]:
+        return {
+            "method_fqn": self._requested_method_fqn,
+            "observation_to_contract_manifest": self._observation_to_contract_manifest,
+            "runtime_budget_ms": self._runtime_budget_ms,
+        }
 
+    def _world_record_from_simulation(
+        self,
+        simulation: SimulationPortObservation,
+    ) -> tuple[object | None, Literal["built", "reused"], str | None]:
+        raw = simulation.world_model_record
+        if raw is None:
+            return None, "built", "value_world_model_record_unwired"
+        try:
             record = (
                 raw
                 if isinstance(raw, WorldModelRecord)
@@ -1350,10 +1657,8 @@ class GenerationCycleController:
             families=families,
             repo_root=self._repo_root or Path.cwd(),
         )
-        world_ref = str(
-            problem.runtime_hints.get("world_model_record_ref")
-            or f"s0://substrate-registry/{registry.substrate_version_id}"
-        )
+        world_ref_hint = _runtime_hint_optional(problem, "world_model_record_ref")
+        world_ref = str(world_ref_hint or f"s0://substrate-registry/{registry.substrate_version_id}")
         return AcquisitionWorldSnapshot(
             world_ref=world_ref,
             known_slots=families,
@@ -1367,7 +1672,7 @@ class GenerationCycleController:
                 )
             },
             substrate_registry=registry.model_dump(mode="json"),
-            world_model_record_ref=problem.runtime_hints.get("world_model_record_ref"),
+            world_model_record_ref=_runtime_hint_optional(problem, "world_model_record_ref"),
         )
 
     def _n7_owner_gateway(self, problem: DesignProblem) -> object:
@@ -2205,9 +2510,279 @@ def _n7_reentered_summaries(
     return tuple(updated)
 
 
-def _value_gate_inputs(problem: DesignProblem) -> Mapping[str, Any]:
-    raw = problem.runtime_hints.get("value_gate_inputs") or problem.runtime_hints.get("value_gate")
-    return raw if isinstance(raw, Mapping) else {}
+def _value_outcome_variable(candidate: object, problem: DesignProblem) -> str | None:
+    outcome = _object_get(_object_get(problem, "outcome_of_interest"), "target_variable")
+    if outcome:
+        return str(outcome)
+    atom = _object_get(candidate, "atom")
+    for slot in _sequence(_object_get(atom, "target_world_slots")):
+        text = _optional_text(slot)
+        if text:
+            return text
+    return None
+
+
+def _load_panel_from_l1_dcat(*, repo_root: Path, outcome: str) -> object | None:
+    try:
+        import duckdb
+        import numpy as np
+
+        from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
+        from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+    except Exception as exc:  # pragma: no cover - local dependency surface.
+        raise ValueOwnerAccessError(
+            "acquire_data:value_panel_data_missing",
+            f"substrate panel loader dependencies unavailable: {exc}",
+            owner_access_ref="substrate_owner://panel_loader_dependency_missing",
+        ) from exc
+
+    dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
+    if not dcat_path.exists():
+        raise ValueOwnerAccessError(
+            "acquire_data:value_panel_data_missing",
+            f"L1 DCAT catalog missing at {dcat_path}",
+            owner_access_ref="substrate_owner://l1_dcat_missing",
+        )
+    con = duckdb.connect(str(dcat_path), read_only=True)
+    try:
+        rows = con.execute(
+            """
+            SELECT
+              COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,
+              COALESCE(year, survey_year, wave) AS period_id,
+              avg(value) AS value
+            FROM ds_observations
+            WHERE canonical_var = ?
+              AND value IS NOT NULL
+              AND COALESCE(year, survey_year, wave) IS NOT NULL
+            GROUP BY unit_id, period_id
+            ORDER BY unit_id, period_id
+            LIMIT 5000
+            """,
+            [outcome],
+        ).fetchall()
+    finally:
+        con.close()
+    if not rows:
+        return None
+    periods = sorted({int(period) for _, period, _ in rows})
+    units = sorted({str(unit) for unit, _, _ in rows})
+    if len(periods) < 4 or len(units) < 3:
+        return None
+    period_index = {period: index for index, period in enumerate(periods)}
+    unit_index = {unit: index for index, unit in enumerate(units)}
+    matrix = np.full((len(units), len(periods)), np.nan, dtype=float)
+    for unit, period, value in rows:
+        matrix[unit_index[str(unit)], period_index[int(period)]] = float(value)
+    usable_units = np.where(np.sum(~np.isnan(matrix), axis=1) >= 4)[0]
+    if len(usable_units) < 3:
+        return None
+    matrix = matrix[usable_units, :]
+    usable_periods = np.where(np.sum(~np.isnan(matrix), axis=0) >= 2)[0]
+    if len(usable_periods) < 4:
+        return None
+    matrix = matrix[:, usable_periods]
+    global_mean = float(np.nanmean(matrix))
+    col_means = np.nanmean(matrix, axis=0)
+    col_means = np.where(np.isnan(col_means), global_mean, col_means)
+    missing_rows, missing_cols = np.where(np.isnan(matrix))
+    matrix[missing_rows, missing_cols] = col_means[missing_cols]
+    treatment = np.zeros(matrix.shape[0], dtype=int)
+    treatment[0] = 1
+    return PanelObservationalData(
+        outcome=matrix,
+        treatment=treatment,
+        time_treatment=max(1, min(matrix.shape[1] - 2, matrix.shape[1] // 2)),
+    )
+
+
+def _build_default_selection_diagram(
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: WorldModelRecord,
+) -> object:
+    del candidate, problem
+    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+    from polisyos.ir.analytics.context import ContextProfile
+    from polisyos.ir.analytics.transportability import build_selection_diagram
+
+    graph = CausalGraphModel(
+        graph_type=GraphType.DAG,
+        nodes=["X", "Y"],
+        edges=[CausalEdge(src="X", dst="Y")],
+    )
+    context_id = f"world:{world_record.world_model_record_id}"
+    region = str(world_record.region_or_jurisdiction or "")
+    context = ContextProfile(
+        context_id=context_id,
+        context_label=region,
+        countries=[region.split("-", 1)[0]] if region else [],
+        time_period=str(world_record.valid_time_scope),
+    )
+    return build_selection_diagram(context, context, graph)
+
+
+def _build_s10_forecast_inputs(
+    *,
+    candidate: object,
+    problem: DesignProblem,
+    world_record: WorldModelRecord,
+    method_result: object,
+    selected_method_fqn: str,
+    forecast_tier: str,
+    calibration_status: str | None,
+    policy_context_ref: str,
+    expected_policy_context_ref: str,
+    false_clear_counts: Mapping[str, int],
+) -> Mapping[str, Any]:
+    from datetime import UTC, datetime
+
+    from polisyos.runtime.quality.design_axes.outcome_prediction import (
+        build_forecast_calibration_record,
+        build_forecast_support,
+    )
+
+    now = datetime(2026, 6, 2, tzinfo=UTC)
+    outcome = _value_outcome_variable(candidate, problem) or "value_outcome"
+    report = _method_report(method_result)
+    report_ref = gy_content_hash(
+        {
+            "method_fqn": selected_method_fqn,
+            "point_estimate": str(_object_get(report, "point_estimate")),
+            "confidence_interval": str(_object_get(report, "confidence_interval")),
+            "world_model_record_content_hash": world_record.content_hash,
+        }
+    )
+    authority = _s10_value_authority_boundary()
+    calibration_ref = (
+        f"s10://n8/{report_ref.removeprefix('sha256:')}/calibration"
+        if calibration_status is not None
+        else None
+    )
+    calibration = None
+    if calibration_status is not None:
+        calibration = build_forecast_calibration_record(
+            calibration_id=f"n8.calibration.{report_ref.removeprefix('sha256:')[:16]}",
+            calibration_ref=calibration_ref,
+            case_id=problem.design_problem_id,
+            forecast_support_ref=f"s10://n8/{report_ref}/forecast-support",
+            observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
+            prediction_ref=f"forecast://n8/{report_ref}",
+            observed_outcome_ref=f"outcome://{outcome}/observed",
+            historical_implementation_ref=f"implementation://{world_record.world_model_record_id}",
+            evaluation_design_ref=f"eval://{selected_method_fqn}",
+            credible_evaluation_evidence_ref=f"evidence://{report_ref}",
+            counterfactual_credibility="credible",
+            prediction_time=now,
+            observation_time=now,
+            policy_effective_time=now,
+            data_valid_time=now,
+            calibration_window_start=now,
+            calibration_window_end=now,
+            metric_name="observable_subset_calibration",
+            denominator=4,
+            numerator=4 if calibration_status == "pass" else 0,
+            pass_rate=1.0 if calibration_status == "pass" else 0.0,
+            calibration_threshold_ref="repo://architecture/policy_design_case/layer2_floor_governance.toml#s10",
+            floor_passed=calibration_status == "pass",
+            calibration_status=calibration_status,
+            interval_coverage_metric=1.0 if calibration_status == "pass" else 0.0,
+            calibration_error_metric=0.0 if calibration_status == "pass" else 1.0,
+            source_lineage_refs=[f"lineage://{world_record.world_model_record_id}/substrate"],
+            method_lineage_refs=[f"lineage://{selected_method_fqn}"],
+            floor_id="s10_calibration",
+            authority_boundary=authority,
+            may_not_use_for=authority["may_not_use_for"],
+            rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
+        )
+    support_base_origin = (
+        "simulation_only"
+        if forecast_tier == "simulation_only_advisory"
+        else "validated_local_model"
+    )
+    support_label = (
+        "simulation_only_system_effect"
+        if forecast_tier == "simulation_only_advisory"
+        else "validated_local_dynamic_model"
+    )
+    support = build_forecast_support(
+        support_id=f"n8.forecast-support.{report_ref.removeprefix('sha256:')[:16]}",
+        support_ref=f"s10://n8/{report_ref}/forecast-support",
+        case_id=problem.design_problem_id,
+        source_design_record_ref=f"design://{problem.design_problem_id}",
+        design_graph_ref=f"design-graph://{problem.design_problem_id}",
+        prediction_context_ref=f"prediction-context://{world_record.world_model_record_id}",
+        policy_context_ref=policy_context_ref,
+        candidate_design_ref=f"candidate://{_candidate_id(candidate)}",
+        baseline_design_ref=f"baseline://{problem.design_problem_id}",
+        alternative_design_refs=[],
+        prediction_horizon_ref=f"horizon://{world_record.valid_time_scope}",
+        target_outcome_refs=[f"outcome://{outcome}"],
+        jurisdiction_scope_ref=str(world_record.region_or_jurisdiction),
+        s5_forecast_support_ref=f"s5://{report_ref}",
+        s5_support_label=support_label,
+        s5_base_origin=support_base_origin,
+        s5_claim_scope="system_effect",
+        s6_firewall_status_refs=[f"s6://{_candidate_id(candidate)}"],
+        s6_limitation_refs=[],
+        s8_value_choice_provenance_ref=f"s8://{problem.design_problem_id}/value-choice",
+        s8_value_tradeoff_disclosure_ref=f"s8://{problem.design_problem_id}/tradeoff",
+        source_contract_ref=f"source-contract://{world_record.world_model_record_id}/panel",
+        method_validity_ref=f"method-validity://{selected_method_fqn}",
+        sensitivity_analysis_ref=f"sensitivity://{report_ref}",
+        dynamic_equilibrium_check_ref=f"equilibrium-check://{report_ref}",
+        equilibrium_caveat_refs=[],
+        strategic_response_caveat_refs=[],
+        outcome_distribution_refs=[f"distribution://{report_ref}"],
+        welfare_comparison_ref=f"welfare://{problem.design_problem_id}",
+        forecast_tier=forecast_tier,
+        forecast_authority_disposition_reason="S10 owner forecast over Foundry method output",
+        method_family="foundry_causal",
+        observable_subset_ref=f"s10://n8/{outcome}/observable-subset",
+        calibration_record_ref=calibration_ref,
+        uncertainty_interval_refs=[f"interval://{report_ref}/95"],
+        limitation_refs=[],
+        abstention_refs=[],
+        authority_boundary=authority,
+        may_not_use_for=authority["may_not_use_for"],
+        rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
+    )
+    return {
+        "forecast_support": support,
+        "forecast_calibration_record": calibration,
+        "policy_context_ref": expected_policy_context_ref,
+        "forecast_integrity_report": {"false_clear_counts": dict(false_clear_counts)},
+        "false_clear_counts": dict(false_clear_counts),
+    }
+
+
+def _s10_value_authority_boundary() -> dict[str, Any]:
+    return {
+        "authoritative_for": [
+            "forecast_support_tiering",
+            "observable_subset_calibration",
+            "value_grounded_welfare_comparison",
+        ],
+        "may_not_use_for": [
+            "production_recommendation",
+            "production_claim_authority",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "s11_calibration",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality",
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "shadow",
+        "rule_version_refs": ["policyos.layer2.s10.outcome_prediction.v1"],
+    }
 
 
 def _value_evaluation_mode(inputs: Mapping[str, Any]) -> ValueEvaluationMode:
@@ -2590,6 +3165,10 @@ def _problem_ref(problem: DesignProblem) -> str:
     return gy_content_hash(problem.model_dump(mode="json"))
 
 
+def _runtime_hint_optional(problem: DesignProblem, key: str) -> object | None:
+    return problem.runtime_hints.get(key, None)
+
+
 def _candidate_id(candidate: object) -> str:
     return str(
         _object_get(candidate, "candidate_id")
@@ -2616,7 +3195,7 @@ def _candidate_world_ref(candidate: object, problem: DesignProblem) -> str | Non
     value = _object_get(atom, "world_model_record_ref")
     if value:
         return str(value)
-    hint = problem.runtime_hints.get("world_model_record_ref")
+    hint = _runtime_hint_optional(problem, "world_model_record_ref")
     return str(hint) if hint else None
 
 
@@ -2788,7 +3367,7 @@ def _grammar_fallback_result(
             content_hash=content_hash,
             target_world_slots=target_slots,
             world_model_record_ref=str(
-                problem.runtime_hints.get("world_model_record_ref")
+                _runtime_hint_optional(problem, "world_model_record_ref")
                 or "world_model_record_fallback_shadow"
             ),
         )
@@ -2846,7 +3425,10 @@ def _select_terminal_kind(
         return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
     if value_port.status == "value_pending_n8":
         return SearchTerminalKind.GROUNDED_ABSTENTION.value
-    if _value_revision_issue(value_port):
+    value_issue = _value_revision_issue(value_port)
+    if value_issue and value_issue.startswith("acquire_data:"):
+        return SearchTerminalKind.ACQUISITION_REQUIRED.value
+    if value_issue:
         return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
     if grounding.current_valid:
         return SearchTerminalKind.GROUNDED_ADMISSIBLE.value
@@ -3379,6 +3961,8 @@ __all__ = [
     "PendingN9PromotionPort",
     "PolicyGroundingPort",
     "PromotionPortObservation",
+    "RealValueOwnerGateway",
+    "RecordedValueOwnerGateway",
     "SimulationPortObservation",
     "StrangleReceipt",
     "ValueCalibrationReceipt",

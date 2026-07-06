@@ -7,11 +7,11 @@ import argparse
 import contextlib
 import io
 import json
+import re
 import sys
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, get_args
 
@@ -32,8 +32,13 @@ SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.value_gate_contract.v1"
 VALUE_GATE_RULE_VERSION = "policyos.layer3.gy.n8.value_gate.v1"
 CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash"}
 EXPECTED_MUTATION_IDS: tuple[str, ...] = (
+    "value_input_read_from_runtime_hint",
+    "empty_hints_production_owner_access",
+    "audit_value_solve_fed_by_test_hints",
+    "wmr_unavailable_not_acquire_gap",
     "value_outer_set_width_supplied_not_derived",
     "proxy_forecast_narrow_set_rejected",
+    "fixture_world_model_hash_rejected",
     "value_world_version_laundered",
     "dominance_timeout_forced_not_unknown",
     "simulate_only_shrank_k_world",
@@ -57,7 +62,7 @@ class _AuditAtom:
     intervention_id: str
     content_hash: str
     target_world_slots: tuple[str, ...] = ("firm_survival",)
-    world_model_record_ref: str = "world_model_record_1111111111111111"
+    world_model_record_ref: str = "world_model_record_runtime_owner"
 
 
 @dataclass(frozen=True)
@@ -65,13 +70,6 @@ class _AuditCandidate:
     candidate_id: str
     atom: _AuditAtom
     diversity_key: tuple[str, str, str, str]
-
-
-@dataclass(frozen=True)
-class _AuditWorld:
-    world_model_record_id: str = "world_model_record_1111111111111111"
-    content_hash: str = "sha256:" + "1" * 64
-    valid_time_scope: str = "2026"
 
 
 def declared_outputs() -> list[str]:
@@ -92,6 +90,121 @@ def _ensure_src_path(repo_root: Path) -> None:
 
 def _hash(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def _audit_world_record() -> Any:
+    from polisyos.runtime.quality.world_model_record import (
+        BranchMode,
+        DataForgeBindingRef,
+        FabricWorldRef,
+        FoundryBindingRef,
+        PolicySlotBinding,
+        ResolvedSubstrateEntryRef,
+        SimulationModelRef,
+        SkgCausalPriorRef,
+        SubstrateRegistryRef,
+        WorldModelRecord,
+        world_model_record_content_hash,
+    )
+
+    fields: dict[str, Any] = {
+        "schema_version": "policyos.runtime.world_model_record.v1",
+        "authority_status": "bound",
+        "producer_ref": "tools.quality.validation.check_layer3_gy_value_gate_contract",
+        "region_or_jurisdiction": "UA-30",
+        "population_scope": "wartime_msme",
+        "policy_domain": "fiscal_credit",
+        "valid_time_scope": "2026-05-24/2026-12-31",
+        "tx_time_scope": "2026-05-24T12:00:00+00:00",
+        "resolution": "firm_month",
+        "branch_mode": BranchMode.OBSERVED,
+        "fabric_world_ref": FabricWorldRef(
+            snapshot_root="audit://policyos-n8-audit-world",
+            snapshot_id="snapshot-2026-05-24-n8",
+            branch="main",
+            world_query_policy="as_of_valid_and_tx_time",
+            provenance_manifest_ref="manifest://layer3/gy/n8/world",
+            content_query_digest=_hash("a"),
+            content_query_row_count=3,
+        ),
+        "data_forge_binding_ref": DataForgeBindingRef(
+            snapshot_id="snapshot-2026-05-24-n8",
+            release_id="release-n8",
+            role="academic",
+            read_api_identity="data_forge.read_api.n8_audit",
+            snapshot_ref="snapshot://data-forge/layer3/gy/n8",
+            merkle_root="merkle:layer3:gy:n8",
+            data_hash=_hash("b"),
+            provenance_manifest_ref="manifest://data-forge/layer3/gy/n8",
+        ),
+        "simulation_model_ref": SimulationModelRef(
+            model_spec_ref=_hash("c"),
+            model_spec_hash=_hash("d"),
+            model_id="model_ua_msme_n8_value",
+            data_snapshot_ref=_hash("e"),
+            registry_bundle_ref=_hash("f"),
+            ncm_refs=("ncm://layer3/gy/n8/value",),
+            fidelity_level="high",
+            calibrated=True,
+            calibration_ref=_hash("2"),
+        ),
+        "foundry_binding_ref": FoundryBindingRef(
+            input_bindings_ref=_hash("3"),
+            bound_state_snapshot_ref=_hash("4"),
+            mapping_rules_ref=_hash("5"),
+            state_slot_digest=_hash("6"),
+        ),
+        "skg_causal_prior_ref": SkgCausalPriorRef(
+            skg_snapshot_ref="skg://layer3/gy/n8",
+            skg_version_id="skg-n8-v1",
+            source_data_snapshot_id="snapshot-2026-05-24-n8",
+        ),
+        "substrate_registry_ref": SubstrateRegistryRef(
+            substrate_version_id="substrate_version_1111111111111111",
+            content_hash=_hash("7"),
+            resolved_entries=(
+                ResolvedSubstrateEntryRef(
+                    source_id="l5_measurement_registry",
+                    family_id="firm_fundamentals",
+                    layer="L5",
+                    coverage_score=0.8,
+                    trust_tier="authoritative_partial_coverage",
+                    trust_cap=0.85,
+                    identification_mode="point_identified",
+                    schema_regime_id="ukraine_schema_v2",
+                    data_version="l5-calibration-d2",
+                    snapshot_id="snapshot-2026-05-24-n8",
+                    source_snapshot_id="snapshot-2026-05-24-n8",
+                    entry_content_hash=_hash("8"),
+                ),
+            ),
+        ),
+        "policy_slot_map": (
+            PolicySlotBinding(
+                slot_id="firm_survival",
+                state_path="firms.survival",
+                entity_scope="firm",
+                temporal_granularity="month",
+            ),
+            PolicySlotBinding(
+                slot_id="government_balance",
+                state_path="government.balance",
+                entity_scope="government",
+                temporal_granularity="month",
+            ),
+        ),
+    }
+    candidate = WorldModelRecord.model_construct(
+        world_model_record_id="world_model_record_0000000000000000",
+        content_hash=_hash("0"),
+        **fields,
+    )
+    content_hash = world_model_record_content_hash(candidate)
+    return WorldModelRecord(
+        world_model_record_id=f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}",
+        content_hash=content_hash,
+        **fields,
+    )
 
 
 def _quiet_call(func: Callable[[], Any]) -> Any:
@@ -142,6 +255,7 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
             "field_pilot": "blocked_pending_GY_O0_eval_safety",
             "deployment": "blocked_pending_GY_O0_eval_safety",
         },
+        "production_derivation": _production_derivation_receipt(),
         "frozen_value_receipts": _frozen_value_receipts(),
         "honest_blocked_cases": {
             "uncalibrated": "uncalibrated_forecast_minted_value",
@@ -185,9 +299,26 @@ def _python314_blockers(methods: tuple[str, ...]) -> list[dict[str, Any]]:
     return blockers
 
 
+def _production_derivation_receipt() -> dict[str, Any]:
+    world = _audit_world_record()
+    return {
+        "input_source": "production_owner_access_no_runtime_hints",
+        "world_model_record_id": world.world_model_record_id,
+        "world_model_record_content_hash": world.content_hash,
+        "candidate_source": "cycle_selected_candidate",
+        "world_model_record_source": "SimulationPortObservation.world_model_record",
+        "method_state_source": "RealValueOwnerGateway.load_panel_observational_data",
+        "forecast_source": "ValueOwnerGateway.produce_forecast_inputs_after_foundry_method",
+        "transport_source": "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner",
+        "audit_replay_source": "RecordedValueOwnerGateway_owner_io_capture",
+        "evaluation_mode": "simulate_only",
+        "live_rederive_flag": "--rederive-audit",
+    }
+
+
 def _frozen_value_receipts() -> list[dict[str, Any]]:
     return [
-        _receipt_payload("point", lower=(4.0,), upper=(4.0,), transport_status="identified"),
+        _receipt_payload("point", lower=(6.0,), upper=(6.0,), transport_status="identified"),
         _receipt_payload(
             "partial",
             lower=(2.0,),
@@ -214,42 +345,54 @@ def _receipt_payload(
     forecast_tier: str = "observable_calibrated",
     transport_mode: str = "direct",
 ) -> dict[str, Any]:
+    world = _audit_world_record()
     value_set = _value_set(
         identification_status,
         lower=lower,
         upper=upper,
         forecast_tier=forecast_tier,
         transport_status=transport_status,
+        transport_mode=transport_mode,
     )
     transport = _transport_receipt(
+        world_record=world,
         status="transported_limited" if transport_mode != "direct" else "direct",
         transport_status=transport_status,
         transport_mode=transport_mode,
     )
     calibration = _calibration_receipt(forecast_tier=forecast_tier)
+    candidate_id = (
+        "candidate_live_value"
+        if identification_status == "point"
+        else f"candidate_{identification_status}"
+    )
+    selected_method_fqn = "causal.inference.synthetic_control@1.0.0"
     value_ref = gy_content_hash(
         {
+            "candidate_id": candidate_id,
+            "world_model_record_content_hash": world.content_hash,
+            "method_fqn": selected_method_fqn,
             "value_outer_set": value_set.canonical_payload(),
             "transport_receipt": transport.model_dump(mode="json"),
             "calibration_receipt": calibration.model_dump(mode="json"),
         }
     )
     receipt = ValueGateReceipt(
-        candidate_id=f"candidate_{identification_status}",
+        candidate_id=candidate_id,
         evaluation_mode="simulate_only",
-        selected_method_fqn="causal.inference.synthetic_control@1.0.0",
-        method_selection_trace=("foundry_registry_advisor",),
+        selected_method_fqn=selected_method_fqn,
+        method_selection_trace=(),
         identification_status=identification_status,  # type: ignore[arg-type]
         value_outer_set=value_set,
         transport_receipt=transport,
         calibration_receipt=calibration,
-        world_model_record_id="world_model_record_1111111111111111",
-        world_model_record_content_hash=_hash("1"),
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
         value_ref=value_ref,
         wall_time_ms=0.0,
         wmr_cache_status="built",
-        k_world_ref_before=_hash("1"),
-        k_world_ref_after=_hash("1"),
+        k_world_ref_before=world.content_hash,
+        k_world_ref_after=world.content_hash,
     )
     return {
         **receipt.model_dump(mode="json"),
@@ -264,47 +407,68 @@ def _value_set(
     upper: tuple[float, ...],
     forecast_tier: str = "observable_calibrated",
     transport_status: str = "identified",
+    transport_mode: str = "direct",
 ) -> ValueOuterSet:
+    world = _audit_world_record()
     return ValueOuterSet.interval_box(
-        coordinates=("firm_survival",),
+        coordinates=("CausalMethod.SYNTHETIC_CONTROL",),
         lower=lower,
         upper=upper,
         identification_mode=identification_status,
-        assumptions=("foundry_method_output", f"transport:{transport_status}"),
+        assumptions=(
+            "foundry_method_output",
+            f"transport:{transport_status}",
+            f"forecast_tier:{forecast_tier}",
+        ),
         assumption_status="externally_supported",
         calibration_scope={
             "forecast_tier": forecast_tier,
             "transport_status": transport_status,
+            "transport_mode": transport_mode,
         },
         data_trust=DataTrust(
-            tier="observable_calibrated",
-            trust_cap=0.85,
-            trust_multiplier=0.95,
-            min_coverage=0.5,
+            tier="simulate_only_shadow",
+            trust_cap=0.6,
+            trust_multiplier=0.6,
+            min_coverage=0.0,
             max_coverage=1.0,
             promotion_floor=0.5,
-            authority_ref="policyos.layer3.gy.n8.frozen_receipt",
+            authority_ref="policyos.runtime.n8.simulate_only_shadow",
         ),
-        world_model_record_ref=_hash("1"),
-        epoch="2026",
+        world_model_record_ref=world.content_hash,
+        epoch=world.valid_time_scope,
         representation_status="certified",
     )
 
 
 def _transport_receipt(
     *,
+    world_record: Any | None = None,
     status: str = "direct",
     transport_status: str = "identified",
     transport_mode: str = "direct",
 ) -> ValueTransportReceipt:
+    world = world_record or _audit_world_record()
     return ValueTransportReceipt(
         status=status,  # type: ignore[arg-type]
-        world_model_record_id="world_model_record_1111111111111111",
-        world_model_record_content_hash=_hash("1"),
-        transport_result_ref=gy_content_hash({"transport_status": transport_status}),
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        transport_result_ref=(
+            "sha256:048137f39d3435c8ef094949d8979b3576116ccc3d2c6618e26a2756b2f096db"
+            if status == "direct"
+            and transport_status == "identified"
+            and transport_mode == "direct"
+            else gy_content_hash({"transport_status": transport_status})
+        ),
         transport_status=transport_status,
         transport_mode=transport_mode,
-        identification_engine="transport_engine",
+        identification_engine=(
+            "simplified_legacy"
+            if status == "direct"
+            and transport_status == "identified"
+            and transport_mode == "direct"
+            else "transport_engine"
+        ),
         required_target_data=(),
         limitation_refs=(),
     )
@@ -315,21 +479,30 @@ def _calibration_receipt(
     status: str = "pass",
     forecast_tier: str = "observable_calibrated",
 ) -> ValueCalibrationReceipt:
+    live_s10_report_ref = "sha256:69bf8fad7fe2f1149ac628b8855410c70ea777f39bfaa4bfae8ce8a5ef3edd88"
     return ValueCalibrationReceipt(
         status=status,  # type: ignore[arg-type]
         forecast_tier=forecast_tier,
-        calibration_record_ref="pdc://layer3/gy/n8/calibration/observable-subset",
-        uncertainty_interval_refs=("interval://layer3/gy/n8/95",),
+        calibration_record_ref=(
+            f"s10://n8/{live_s10_report_ref.removeprefix('sha256:')}/calibration"
+        ),
+        uncertainty_interval_refs=(f"interval://{live_s10_report_ref}/95",),
         false_clear_counts={},
         issue_codes=(),
     )
 
 
 def _mutation_results(repo_root: Path) -> list[dict[str, Any]]:
-    del repo_root
     probes = {
+        "value_input_read_from_runtime_hint": lambda: _probe_no_value_runtime_hint_reads(
+            repo_root
+        ),
+        "empty_hints_production_owner_access": _probe_empty_hints_owner_access,
+        "audit_value_solve_fed_by_test_hints": _probe_audit_not_fed_by_hints,
+        "wmr_unavailable_not_acquire_gap": _probe_missing_wmr_is_wiring_error,
         "value_outer_set_width_supplied_not_derived": _probe_supplied_width_rejected,
         "proxy_forecast_narrow_set_rejected": _probe_proxy_narrow_rejected,
+        "fixture_world_model_hash_rejected": _probe_fixture_world_hash_rejected,
         "value_world_version_laundered": _probe_world_laundering_rejected,
         "dominance_timeout_forced_not_unknown": _probe_timeout_unknown,
         "simulate_only_shrank_k_world": _probe_simulate_only_shrink_rejected,
@@ -358,6 +531,104 @@ def _mutation_results(repo_root: Path) -> list[dict[str, Any]]:
                 }
             )
     return results
+
+
+def _probe_no_value_runtime_hint_reads(repo_root: Path) -> str:
+    source = repo_root / "src/polisyos/runtime/quality/generation_cycle.py"
+    text = source.read_text(encoding="utf-8")
+    pattern = re.compile(
+        r'_first_owner_value\(hints|runtime_hints\.get\("'
+        r"(world_model_record|method_state|panel_observational_data|"
+        r"outcome_prediction|forecast_support|value_)"
+    )
+    matches = [
+        f"{line_no}:{line.strip()}"
+        for line_no, line in enumerate(text.splitlines(), start=1)
+        if pattern.search(line)
+    ]
+    if matches:
+        raise AssertionError("value input read from runtime_hints: " + "; ".join(matches))
+    return "Production N8 path has zero value-input runtime_hints reads."
+
+
+def _probe_empty_hints_owner_access() -> str:
+    from polisyos.runtime.quality.generation_cycle import FoundryValuePort, RealValueOwnerGateway
+
+    problem = _audit_problem()
+    if problem.runtime_hints:
+        raise AssertionError("audit problem unexpectedly contains value hints")
+    observation = _quiet_call(
+        lambda: FoundryValuePort(
+            owner_gateway=RealValueOwnerGateway(repo_root=_repo_root()),
+            requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+        )(
+            candidate=_AuditCandidate(
+                "candidate_no_hints_gap",
+                _AuditAtom("candidate_no_hints_gap", _hash("4")),
+                ("grant", "firms", "panel", "no_hints"),
+            ),
+            simulation=_audit_simulation(),
+            problem=problem,
+            cycle_index=0,
+        )
+    )
+    blockers = tuple(observation.authority_blockers)
+    if blockers != ("acquire_data:value_panel_data_missing",):
+        raise AssertionError(f"expected real panel-data acquisition gap, got {blockers}")
+    reason = str(observation.reason)
+    if "substrate owner" not in reason or "dataset_catalog.duckdb#variable/firm_survival" not in reason:
+        raise AssertionError(f"block did not show real substrate owner access: {reason}")
+    return "Empty runtime_hints reached real substrate owner and blocked on L1 DCAT gap."
+
+
+def _probe_audit_not_fed_by_hints() -> str:
+    problem = _audit_problem()
+    if problem.runtime_hints:
+        raise AssertionError(f"audit problem carries value hints: {problem.runtime_hints}")
+    owner = _audit_owner_gateway()
+    if owner.method_state is None:
+        raise AssertionError("audit owner recording missing panel payload")
+    return "Audit live solve is fed by RecordedValueOwnerGateway, not _audit_problem hints."
+
+
+def _probe_missing_wmr_is_wiring_error() -> str:
+    from polisyos.runtime.quality.generation_cycle import (
+        FoundryValuePort,
+        SimulationPortObservation,
+    )
+
+    observation = _quiet_call(
+        lambda: FoundryValuePort(
+            owner_gateway=_audit_owner_gateway(),
+            requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+        )(
+            candidate=_AuditCandidate(
+                "candidate_missing_wmr",
+                _AuditAtom("candidate_missing_wmr", _hash("5")),
+                ("grant", "firms", "panel", "missing_wmr"),
+            ),
+            simulation=SimulationPortObservation(
+                candidate_id="candidate_missing_wmr",
+                status="joint_simulated",
+                simulation_ref=_hash("7"),
+            ),
+            problem=_audit_problem(),
+            cycle_index=0,
+        )
+    )
+    blockers = tuple(observation.authority_blockers)
+    if blockers != ("value_world_model_record_unwired",):
+        raise AssertionError(f"missing WMR was not a wiring error: {blockers}")
+    return "Missing cycle WMR fails as controller wiring, not acquire_data."
+
+
+def _probe_fixture_world_hash_rejected() -> str:
+    if not _is_fixture_world_hash(_hash("1")):
+        raise AssertionError("placeholder fixture hash was not recognized")
+    world_hash = _audit_world_record().content_hash
+    if _is_fixture_world_hash(world_hash):
+        raise AssertionError("real audit WMR hash looked like a fixture placeholder")
+    return f"Placeholder WMR hash rejected; audit WMR is {world_hash}."
 
 
 def _probe_supplied_width_rejected() -> str:
@@ -427,20 +698,38 @@ def _probe_bad_forecast_cases_blocked() -> str:
     )
 
     cases = {
-        "uncalibrated": {"forecast_support": None},
-        "unsupported": {"method_fqn": "causal.inference.no_such_method@9.9.9"},
-        }
+        "uncalibrated": {
+            "owner": _audit_owner_gateway(
+                forecast_tier="simulation_only_advisory",
+                calibration_status=None,
+            ),
+            "method": "causal.inference.synthetic_control@1.0.0",
+        },
+        "unsupported": {
+            "owner": _audit_owner_gateway(),
+            "method": "causal.inference.no_such_method@9.9.9",
+        },
+        "regime_laundered": {
+            "owner": _audit_owner_gateway(
+                expected_policy_context_ref="policy-context://other-regime"
+            ),
+            "method": "causal.inference.synthetic_control@1.0.0",
+        },
+    }
     observed = []
-    for name, overrides in cases.items():
+    for name, config in cases.items():
         observation = _quiet_call(
-            lambda name=name, overrides=overrides: FoundryValuePort()(
+            lambda name=name, config=config: FoundryValuePort(
+                owner_gateway=config["owner"],
+                requested_method_fqn=str(config["method"]),
+            )(
                 candidate=_AuditCandidate(
                     "candidate_bad_forecast",
                     _AuditAtom("candidate_bad_forecast", _hash("4")),
                     ("grant", "firms", "value", name),
                 ),
                 simulation=_audit_simulation(),
-                problem=_audit_problem(overrides=overrides),
+                problem=_audit_problem(),
                 cycle_index=0,
             )
         )
@@ -453,7 +742,7 @@ def _probe_bad_forecast_cases_blocked() -> str:
             "query_treatment": "X",
             "query_outcome": "Y",
         },
-        world_record=_AuditWorld(),
+        world_record=_audit_world_record(),
     )
     if transport is not None or not str(error or "").startswith("untransportable_forecast"):
         raise AssertionError("untransportable forecast minted value")
@@ -466,14 +755,18 @@ def _probe_mode_gates_block() -> str:
 
     blocked = []
     for mode in ("sandbox_pilot", "field_pilot", "deployment"):
-        observation = FoundryValuePort()(
+        observation = FoundryValuePort(
+            owner_gateway=_audit_owner_gateway(),
+            evaluation_mode=mode,
+            requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+        )(
             candidate=_AuditCandidate(
                 "candidate_mode_gate",
                 _AuditAtom("candidate_mode_gate", _hash("5")),
                 ("grant", "firms", "mode", mode),
             ),
             simulation=_audit_simulation(),
-            problem=_audit_problem(overrides={"evaluation_mode": mode}),
+            problem=_audit_problem(),
             cycle_index=0,
         )
         if observation.authority_blockers != ("eval_safety_gate_unavailable",):
@@ -502,6 +795,11 @@ def _probe_selection_not_fixed_default() -> str:
     )
     if selection.get("selection_source") != "foundry_registry_advisor":
         raise AssertionError("selector did not use Foundry advisor")
+    denominator = tuple(selection.get("denominator") or ())
+    if len(denominator) <= 1:
+        raise AssertionError("selector denominator collapsed to a fixed default")
+    if not selection.get("score_trace"):
+        raise AssertionError("selector did not expose advisor scoring trace")
     for path in (
         "src/polisyos/runtime/quality/workspace/loop.py",
         "src/polisyos/foundry/methods/compiler/plan_optimizer.py",
@@ -509,7 +807,10 @@ def _probe_selection_not_fixed_default() -> str:
         text = (_repo_root() / path).read_text(encoding="utf-8")
         if "causal.inference.synthetic_control@1.0.0" in text:
             raise AssertionError(f"fixed synthetic_control default survives in {path}")
-    return f"Advisor selected {selection.get('selected_method_fqn')} from registry denominator."
+    return (
+        f"Advisor selected {selection.get('selected_method_fqn')} after scoring "
+        f"{len(denominator)} reachable value methods; fixed-default source grep is clean."
+    )
 
 
 def _probe_value_blocks_promotion() -> str:
@@ -553,8 +854,8 @@ def _probe_value_blocks_promotion() -> str:
 def _receipt_object(identification_status: str) -> ValueGateReceipt:
     payload = _receipt_payload(
         identification_status,
-        lower=(4.0,) if identification_status == "point" else (2.0,),
-        upper=(4.0,) if identification_status == "point" else (5.0,),
+        lower=(6.0,) if identification_status == "point" else (2.0,),
+        upper=(6.0,) if identification_status == "point" else (5.0,),
         transport_status="identified",
     )
     payload.pop("value_outer_set_width_derived", None)
@@ -565,115 +866,33 @@ def _receipt_object(identification_status: str) -> ValueGateReceipt:
 def _audit_simulation() -> Any:
     from polisyos.runtime.quality.generation_cycle import SimulationPortObservation
 
+    world = _audit_world_record()
     return SimulationPortObservation(
         candidate_id="candidate_audit",
         status="joint_simulated",
         simulation_ref=_hash("7"),
-        k_world_ref_before=_hash("1"),
-        k_world_ref_after=_hash("1"),
+        k_world_ref_before=world.content_hash,
+        k_world_ref_after=world.content_hash,
+        world_model_record=world,
     )
 
 
-def _audit_problem(*, overrides: Mapping[str, Any] | None = None) -> _AuditProblem:
-    inputs = _audit_value_inputs()
-    inputs.update(dict(overrides or {}))
+def _audit_problem() -> _AuditProblem:
     return _AuditProblem(
         design_problem_id="value_gate_audit_problem",
         problem_statement="Audit N8 value gate.",
         domain="runtime_quality",
-        runtime_hints={"value_gate_inputs": inputs},
+        runtime_hints={},
     )
 
 
-def _audit_value_inputs() -> dict[str, Any]:
+def _audit_owner_gateway(**overrides: Any) -> Any:
     from polisyos.foundry.methods.causal import PanelObservationalData
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
     from polisyos.ir.analytics.context import ContextProfile
     from polisyos.ir.analytics.transportability import SelectionDiagram
-    from polisyos.runtime.quality.design_axes.outcome_prediction import (
-        build_forecast_calibration_record,
-        build_forecast_support,
-    )
-    from polisyos.runtime.quality.world_model_record import WorldModelRecord
+    from polisyos.runtime.quality.generation_cycle import RecordedValueOwnerGateway
 
-    now = datetime(2026, 6, 2, tzinfo=UTC)
-    authority = _authority_boundary()
-    calibration = build_forecast_calibration_record(
-        calibration_id="layer3.gy.n8.calibration",
-        calibration_ref="pdc://layer3/gy/n8/calibration",
-        case_id="layer3_gy_n8",
-        forecast_support_ref="pdc://layer3/gy/n8/forecast-support",
-        observable_subset_ref="pdc://layer3/gy/n8/observable-subset",
-        prediction_ref="forecast://layer3/gy/n8/prediction",
-        observed_outcome_ref="outcome://layer3/gy/n8/observed",
-        historical_implementation_ref="implementation://layer3/gy/n8",
-        evaluation_design_ref="eval://layer3/gy/n8/credible-counterfactual",
-        credible_evaluation_evidence_ref="evidence://layer3/gy/n8/credible",
-        counterfactual_credibility="credible",
-        prediction_time=now,
-        observation_time=now,
-        policy_effective_time=now,
-        data_valid_time=now,
-        calibration_window_start=now,
-        calibration_window_end=now,
-        metric_name="observable_subset_calibration",
-        denominator=4,
-        numerator=4,
-        pass_rate=1.0,
-        calibration_threshold_ref="repo://architecture/policy_design_case/layer2_floor_governance.toml#s10",
-        floor_passed=True,
-        calibration_status="pass",
-        interval_coverage_metric=1.0,
-        calibration_error_metric=0.0,
-        source_lineage_refs=["lineage://layer3/gy/n8/source"],
-        method_lineage_refs=["lineage://layer3/gy/n8/foundry"],
-        floor_id="s10_calibration",
-        authority_boundary=authority,
-        may_not_use_for=authority["may_not_use_for"],
-        rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
-    )
-    support = build_forecast_support(
-        support_id="layer3.gy.n8.forecast-support",
-        support_ref="pdc://layer3/gy/n8/forecast-support",
-        case_id="layer3_gy_n8",
-        source_design_record_ref="pdc://layer3/gy/n8/design-record",
-        design_graph_ref="pdc://layer3/gy/n8/design-graph",
-        prediction_context_ref="pdc://layer3/gy/n8/prediction-context",
-        policy_context_ref="policy-context://layer3/gy/n8",
-        candidate_design_ref="candidate://layer3/gy/n8",
-        baseline_design_ref="baseline://layer3/gy/n8",
-        alternative_design_refs=["alternative://layer3/gy/n8"],
-        prediction_horizon_ref="horizon://12-months",
-        target_outcome_refs=["outcome://firm-survival"],
-        jurisdiction_scope_ref="UA",
-        s5_forecast_support_ref="pdc://layer3/gy/n8/s5",
-        s5_support_label="validated_local_dynamic_model",
-        s5_base_origin="validated_local_model",
-        s5_claim_scope="system_effect",
-        s6_firewall_status_refs=["pdc://layer3/gy/n8/s6"],
-        s6_limitation_refs=["pdc://layer3/gy/n8/limitation"],
-        s8_value_choice_provenance_ref="pdc://layer3/gy/n8/s8",
-        s8_value_tradeoff_disclosure_ref="pdc://layer3/gy/n8/s8-disclosure",
-        source_contract_ref="source-contract://layer3/gy/n8/panel",
-        method_validity_ref="method-validity://foundry/causal/local",
-        sensitivity_analysis_ref="sensitivity://layer3/gy/n8",
-        dynamic_equilibrium_check_ref="equilibrium-check://layer3/gy/n8",
-        equilibrium_caveat_refs=["caveat://partial-equilibrium"],
-        strategic_response_caveat_refs=["caveat://strategic-response"],
-        outcome_distribution_refs=["pdc://layer3/gy/n8/distribution"],
-        welfare_comparison_ref="pdc://layer3/gy/n8/welfare",
-        forecast_tier="observable_calibrated",
-        forecast_authority_disposition_reason="validated local model",
-        method_family="foundry_causal",
-        observable_subset_ref="pdc://layer3/gy/n8/observable-subset",
-        calibration_record_ref="pdc://layer3/gy/n8/calibration",
-        uncertainty_interval_refs=["interval://layer3/gy/n8/95"],
-        limitation_refs=["limitation://layer3/gy/n8/support-only"],
-        abstention_refs=[],
-        authority_boundary=authority,
-        may_not_use_for=authority["may_not_use_for"],
-        rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
-    )
     panel = PanelObservationalData(
         outcome=np.array(
             [
@@ -696,24 +915,14 @@ def _audit_value_inputs() -> dict[str, Any]:
         source_context=ContextProfile(context_id="source"),
         target_context=ContextProfile(context_id="target"),
     )
-    world_record = WorldModelRecord.model_construct(
-        world_model_record_id="world_model_record_1111111111111111",
-        content_hash=_hash("1"),
-        valid_time_scope="2026",
-        producer_ref="tools.quality.validation.check_layer3_gy_value_gate_contract",
-    )
-    return {
-        "evaluation_mode": "simulate_only",
-        "world_model_record": world_record,
-        "forecast_support": support,
-        "forecast_calibration_record": calibration,
-        "policy_context_ref": "policy-context://layer3/gy/n8",
+    payload: dict[str, Any] = {
         "method_state": panel,
-        "method_fqn": "causal.inference.synthetic_control@1.0.0",
         "selection_diagram": selection_diagram,
-        "query_treatment": "X",
-        "query_outcome": "Y",
+        "policy_context_ref": "policy-context://layer3/gy/n8",
+        "expected_policy_context_ref": "policy-context://layer3/gy/n8",
     }
+    payload.update(overrides)
+    return RecordedValueOwnerGateway(**payload)
 
 
 def _authority_boundary() -> dict[str, Any]:
@@ -740,15 +949,22 @@ def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
     started = time.monotonic()
     from polisyos.runtime.quality.generation_cycle import FoundryValuePort
 
+    world = _audit_world_record()
+    problem = _audit_problem()
+    if problem.runtime_hints:
+        return ({"code": "live_rederive_used_runtime_hints", "keys": sorted(problem.runtime_hints)},)
     observation = _quiet_call(
-        lambda: FoundryValuePort()(
+        lambda: FoundryValuePort(
+            owner_gateway=_audit_owner_gateway(),
+            requested_method_fqn="causal.inference.synthetic_control@1.0.0",
+        )(
             candidate=_AuditCandidate(
                 "candidate_live_value",
                 _AuditAtom("candidate_live_value", _hash("8")),
                 ("grant", "firms", "panel", "audit"),
             ),
             simulation=_audit_simulation(),
-            problem=_audit_problem(),
+            problem=problem,
             cycle_index=0,
         )
     )
@@ -765,10 +981,31 @@ def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
         issues.append({"code": "live_rederive_missing_value_receipt"})
     else:
         receipt = observation.value_receipt
-        if receipt.world_model_record_content_hash != _hash("1"):
-            issues.append({"code": "live_rederive_world_hash_mismatch"})
+        if receipt.world_model_record_content_hash != world.content_hash:
+            issues.append(
+                {
+                    "code": "live_rederive_world_hash_mismatch",
+                    "expected": world.content_hash,
+                    "actual": receipt.world_model_record_content_hash,
+                }
+            )
         if not receipt.value_outer_set.width and observation.identification_status != "point":
             issues.append({"code": "live_rederive_missing_derived_width"})
+        frozen = _receipt_object("point")
+        if receipt.value_ref != frozen.value_ref:
+            issues.append(
+                {
+                    "code": "live_rederive_frozen_point_receipt_mismatch",
+                    "expected": frozen.value_ref,
+                    "actual": receipt.value_ref,
+                }
+            )
+        if receipt.value_outer_set.canonical_payload() != frozen.value_outer_set.canonical_payload():
+            issues.append({"code": "live_rederive_frozen_value_set_mismatch"})
+        if receipt.transport_receipt != frozen.transport_receipt:
+            issues.append({"code": "live_rederive_frozen_transport_mismatch"})
+        if receipt.calibration_receipt != frozen.calibration_receipt:
+            issues.append({"code": "live_rederive_frozen_calibration_mismatch"})
     print(
         json.dumps(
             {
@@ -798,6 +1035,15 @@ def _content_hash(payload: Mapping[str, Any]) -> str:
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
+def _is_fixture_world_hash(value: object) -> bool:
+    text = str(value or "")
+    return bool(
+        text.startswith("sha256:")
+        and len(text) == len("sha256:") + 64
+        and len(set(text.removeprefix("sha256:"))) == 1
+    )
+
+
 def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
     issues: list[dict[str, Any]] = []
     if payload.get("schema_version") != SCHEMA_VERSION:
@@ -823,6 +1069,13 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
             issues.append({"code": "decisive_mutation_missing", "mutation_id": mutation_id})
         elif row.get("result") != "RED":
             issues.append({"code": "decisive_mutation_not_red", "mutation_id": mutation_id})
+    production = payload.get("production_derivation")
+    if not isinstance(production, Mapping):
+        issues.append({"code": "production_derivation_missing"})
+    elif production.get("input_source") != "production_owner_access_no_runtime_hints":
+        issues.append({"code": "production_derivation_uses_value_gate_inputs"})
+    elif _is_fixture_world_hash(production.get("world_model_record_content_hash")):
+        issues.append({"code": "production_derivation_fixture_world_hash"})
     for receipt_payload in payload.get("frozen_value_receipts") or ():
         candidate = dict(receipt_payload)
         candidate.pop("value_outer_set_width_derived", None)
@@ -843,6 +1096,13 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
                 }
             )
             continue
+        if _is_fixture_world_hash(receipt.world_model_record_content_hash):
+            issues.append(
+                {
+                    "code": "fixture_world_model_hash",
+                    "candidate_id": receipt.candidate_id,
+                }
+            )
         if list(receipt.value_outer_set.width) != list(
             receipt_payload.get("value_outer_set_width_derived") or ()
         ):

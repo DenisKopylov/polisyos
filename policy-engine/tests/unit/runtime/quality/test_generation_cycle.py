@@ -1174,6 +1174,17 @@ class _BlockedValuePort:
         )
 
 
+class _DataGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        del kwargs
+        return ValuePortObservation(
+            status="value_blocked",
+            authority_blockers=("acquire_data:value_panel_data_missing",),
+            reason="Owner-bound panel observations are missing.",
+            decision_grade="blocked",
+        )
+
+
 @pytest.mark.asyncio
 async def test_value_block_feeds_revision_before_promotion() -> None:
     controller = GenerationCycleController(
@@ -1188,6 +1199,27 @@ async def test_value_block_feeds_revision_before_promotion() -> None:
     assert run.cycles[0].counterexample.counterexample_class == "value_gap"
     assert run.cycles[0].counterexample.diagnostic.code.endswith(
         "uncalibrated_forecast_minted_value"
+    )
+    assert run.fronts.decision.candidate_ids == ()
+
+
+@pytest.mark.asyncio
+async def test_value_data_gap_routes_to_n7_acquisition_terminal() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    assert run.value_port.status == "value_blocked"
+    assert run.cycles[0].terminal_kind == "acquisition_required"
+    assert run.cycles[0].revision_request.revision_strategy == "acquire_or_elicit"
+    assert run.cycles[0].refinement_decision.decision == "acquire"
+    assert run.cycles[0].search_iteration.status == "acquisition_required"
+    assert (
+        run.cycles[0].revision_request.strategy_payload["acquisition_request"]["driver"]
+        == "acquire_data:value_panel_data_missing"
     )
     assert run.fronts.decision.candidate_ids == ()
 

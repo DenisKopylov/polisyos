@@ -4,8 +4,8 @@ title: "GY — Universal Execution Topology + Engine Subordination (blackboard c
 type: slice-plan
 status: draft
 created: 2026-06-13
-revised: 2026-06-28
-revision: 12
+revised: 2026-07-08
+revision: 15
 slice: GY
 scope: cross-slice
 depends_on:
@@ -214,6 +214,40 @@ trust), **(3)** data-only free-grow (generic, not enumerated), **(4)** the contr
 `Done when` for any lift/resolve/bind task (the GY-S block + the cycle tasks N2/N4/N7/N8/N9). They
 exist so the implementer builds to them on the first pass rather than rediscovering them through
 rounds.
+
+**Revision 13 (2026-06-30; restored 2026-07-08 — the original entry was lost from the working tree
+before commit).** Adopted the **Causal Grounding Firewall (CGF)** as the third external target spec
+(grounding layer; data = GY-S, grounding = CGF, search = RACE-HOG-PODS) after N6 production wiring
+exposed N4's exact-name-match grounding. Added the **GY-CG block** (CG0 reference audit + credal
+reference, CG1 JTCG+CRG relation engine — keystone, CG2 CAAB conservative bind gate, CG3 free-grow
+admission, CG4 phrasing-invariant defense, CG5 active grounding, CG6 benchmark) with CGF hooks on
+N2/N4/N6/N7/N8/N9/N11/N12. Decision doc:
+`docs/system-design-decisions/policy-design-causal-grounding-firewall.md`; archived spec in
+`docs/reference/`. **Status: the entire CG block executed and closed honest (2026-07-03).**
+
+**Revision 14 (2026-07-04; restored 2026-07-08 — same loss).** Codified the **compute-economics
+gates** (new §3.5.7, E1–E10) distilled from the GY-N4 saga (a correct closure cost ~4h because the
+full world was rebuilt in every validator/probe/unit run), plus the **GY-INFRA-1** build task
+(content-hash world cache proven byte-identical cold≡warm + one-process sweep-runner + heartbeats)
+and compute-economics riders on N5–N10. **Status: GY-INFRA-1 executed and closed (warm closeout
+sweep ~21min vs historical ~4h).** §3.5.7 binds every remaining task with expensive shared state or
+a live provider (N9–N12, N10a, O0–O3, V-battery closeouts).
+
+**Revision 15 (2026-07-08).** The universality audit after GY-N8 closed. N8 landed honest but as a
+**panel/DID + governance-domain vertical** (six fix rounds tunneled it to one scenario); its two
+hardcodes (governance transport covariates; panel-only S10 calibration credibility) are recorded as
+**universality debt inside GY-N10** (see the N10 body). This revision adds the systemic guard so the
+remaining tasks do not repeat the pattern: (a) new **§3.5.8 domain/method-family genericity gates
+(U1–U4)**, front-loaded into every task downstream of the first vertical; (b) **universality riders**
+on N9 (obligations compiler total over the typed taxonomy; unseen-shape probe so N9 built against
+today's panel receipt does not need rework at N10), N11 (ledger generic over obligation class ×
+certificate instrument), N12 (epoch boundaries derived from the FULL schema-regime/amendment data,
+never the enumerated ukraine changepoint), O0/O1 (typed domain-pack-extensible vocabularies), and V3
+(per-domain terminal distributions + a non-panel case + an unseen-third-domain smoke); (c) a new
+**GY-N10a — second-domain substrate pack** (data-only free-grow proof) before N10, because the
+second domain's levers/writability/covariates do not exist in the Ukraine-centric L6 substrate and
+must arrive via data + N7 acquisition, not code; (d) N10's "≥2 distinct domains" sharpened with an
+explicit **distinctness criterion** (two Ukraine-economics variants do not count).
 
 ## 1. Binding rules (for every GY task)
 
@@ -585,6 +619,64 @@ Every impl/audit prompt and every `Done when` for a lift/resolution/binding task
 four — so the implementer builds to them on the first pass instead of rediscovering them through
 rounds. Verification stays **targeted** (§Commands; blast-radius + recomputing validators + ruff +
 guardrails), never full pytest.
+
+### 3.5.7 Compute-economics gates (the GY-N4 lesson — binding for every task with expensive shared state or a live provider; restored Rev 15)
+
+Distilled from the GY-N4 saga: a **correct** closure cost ~4 hours because the full world
+(CredalReference + 792k-edge FTS index + composed WMR) was rebuilt in every validator/probe/unit
+run. Strictness was never the cost — redundant rebuilds were. Ten gates, binding on N9–N12, N10a,
+O0–O3, and every closeout sweep:
+
+1. **E1 Content-hash-keyed shared-state cache.** Build reference/index/WMR/engines once; reuse by
+   owner content hash. A cache hit is **identical to a rebuild by construction**; owner change →
+   miss; **fail-closed on staleness** (a stale cache hit is exactly a §3.5.6-gate-2 "trusted JSON"
+   hole). Built by GY-INFRA-1 (closed; cold≡warm proven byte-identical).
+2. **E2 One-process sweep-runner** — the closeout sweep runs in ONE process over ONE build.
+3. **E3 Three-lane pyramid** — Lane 0 (logic, synthetic mini-fixtures, <10s, zero owner I/O) /
+   Lane 1 (real owners via the E1 cache) / Lane 2 (cold full, **once at closeout**).
+4. **E4 Min-sufficient mutations** — one cached baseline + payload/policy flips; **≥1 real
+   behavioral flip per property class preserved**; never a full recompute per mutation.
+5. **E5 Validators record their own wall-time** — overrun (≈5min warm / ≈25min cold) is itself a
+   finding (usually a missed cache reuse).
+6. **E6 Journal-first for live tasks** — raw evidence persists at the earliest boundary;
+   set-accumulation; archive without raw payload forbidden (built in N4 — reuse, never reinvent).
+7. **E7 Pre-live gauntlet** — before any provider call: fuzz the parse/validate boundary with
+   near-valid variants; replay existing recordings through the changed pipeline; scripted e2e smoke.
+8. **E8 One variable per expensive attempt** — effective config into the run record.
+9. **E9 Stage-heartbeats + objective progress rule** — CPU-active + advancing → wait; wall > 2×
+   recorded historical → stop + profile. Never kill a progressing cold build.
+10. **E10 Diagnose from already-paid evidence first** — build the failure table from data on disk
+    before any fresh run.
+
+**Never loosen a §3.5.6 correctness gate to satisfy an economics one** — a warm/cached run is
+legitimate only because it is content-identical to the cold rebuild, and the cold closeout still
+runs.
+
+### 3.5.8 Domain/method-family genericity gates (the GY-N8 lesson — binding for every task downstream of the first vertical; NEW, Rev 15)
+
+The first real vertical (Ukraine/governance world; panel/DID value over `avg_income`; 2/32 writable
+levers) is the **scaffold, not the product**. The N8 saga proved that landing one real vertical
+under adversarial pressure leaves hardcodes behind (governance transport covariates; panel-only
+calibration credibility) — honest refusals today, silent universality loss tomorrow. Four gates,
+front-loaded into every impl/audit prompt for N9–N12, N10a, O0–O3, and the V battery:
+
+1. **U1 Typed-contract consumption.** A downstream consumer (promotion, confidence ledger, epochs,
+   learning loop) consumes only the **typed contracts** (`ValueOuterSet`, `ValueGateReceipt`,
+   transport/calibration receipts, the obligation taxonomy, `WorldModelRecord`) — never fields
+   specific to the first vertical's method family or domain. The consumer must not need rework when
+   N10 generalizes the producers.
+2. **U2 Unseen-shape probe (P29 at domain scale).** Every consumer ships a contract mutation: a
+   contract-valid artifact from an **unseen method family / domain** flows through with zero code
+   change, or fail-closes typed. A consumer whose contract would not catch a hardcode to the first
+   vertical is **not done**.
+3. **U3 Vocabulary-from-data (Rule 12 at domain scale).** Domain vocabularies — transport
+   covariates, schema regimes, epoch boundaries, lever spaces, eval-safety mode requirements —
+   derive from substrate / domain-pack **data**, never enumerated in engine code. A new domain's
+   vocabulary lifts via data alone (S0 free-grow + N7 acquisition), zero code.
+4. **U4 Honest refusal over fake generality.** Where a capability is genuinely first-vertical-only,
+   it must refuse **typed** (`scope_insufficient` / `unsupported` → routes to acquisition/N7) —
+   never auto-pass, never fabricate. An honest typed refusal is a pass; fabricated generality is a
+   fail. (The dual of the N8 lesson: no fabricated pass AND no fabricated block.)
 
 ### 3.6 Anti-simplification audit — preserve capability, close findings substantively
 
@@ -1543,7 +1635,39 @@ re-architecting.
   ungrounded / uncalibrated / un-transportable candidate stays shadow; a `proof_timeout` /
   `unknown` obligation never promotes; a forced / optimistic promotion is rejected and the lower
   boundary wins; no LLM output, surrogate score, or evidence-count upgrades itself.
+  **Universality rider (Rev 15, §3.5.8):** the obligations compiler is **total over the typed
+  `O(x)` taxonomy** — every one of the 15 classes carries either a real satisfaction semantics or an
+  honest typed `scope_insufficient` refusal; a class the current vertical cannot exercise
+  (equilibrium / normative / measurement / implementation / eval-safety) must **never** become a
+  vacuous auto-pass (that spends no δ while insuring nothing — the exact vacuity that makes
+  δ-accounting theater). N9 lands **before** N10, so it will be built against today's panel-shaped
+  N8 receipt: the sequence consumes **only the typed contracts** (U1 — `ValueOuterSet` +
+  receipt interfaces, never `n_treated`/`pre_periods`-style fields) and ships the **unseen-shape
+  probe** (U2 — a contract-valid non-panel value receipt flows through promotion unchanged or
+  fail-closes typed), so N10's generalization does not rework N9. **Compute economics (§3.5.7):**
+  promotion is replayed every cycle — Lane-0 the sequence logic on synthetic certificates; obligation
+  solves reuse cached certificates (E1); the cold end-to-end promotion lane runs once at closeout;
+  the P29 source-flip harness (the N8 pattern: patch source → probe RED → restore) is required for
+  the decisive obligations, not probe-only mutations.
   `P05`/`P14`/`P15`/`P29`.
+- **GY-N10a — Second-domain substrate pack (data-only free-grow proof; NEW, Rev 15).** data +
+  acquisition task, **zero engine code** — lands before GY-N10 because the second domain's substrate
+  does not exist yet: L6 (lever/intervention vocabulary) is Ukraine-only, CG3 owner-writability
+  covers 2/32 targets on the Ukraine sim, and the N8 transport contexts assume the governance domain.
+  Assemble the full substrate pack for N10's second domain via the free-grow path alone: (a) outcome
+  variables present in L1 DCAT (or acquired via a real N7 run); (b) a **lever/intervention
+  vocabulary for the domain** entering via the S0 free-grow registry / N7 acquisition — never a code
+  table; (c) owner-writability / actuatability evidence for at least a minimal lever set; (d)
+  transport covariates + source/target context profiles from the domain pack (what replaces the
+  hardcoded governance tuple when N10 de-hardcodes N8); (e) grounding-reference coverage verified
+  for the domain (L2 scholar KG is domain-broad — verify real coverage, don't assume). The chosen
+  domain must satisfy N10's distinctness criterion. Done when: the pack exists as **data/registry
+  entries with zero engine-code changes** (§3.5.6-gate-3 + U3 at domain scale); every missing piece
+  routes through a real N7 acquisition receipt or an honest costed gap; a smoke `DesignProblem` for
+  the domain parses and enters the cycle (terminals may be honest blocks — Rule 5); the pack's
+  provenance is owner-derived, not hand-authored (the N7 capture discipline). **Compute economics
+  (§3.5.7):** acquisition runs are journal-first (E6); the pack is content-addressed so N10 reuses it
+  via E1. `P31`/Rule 12.
 - **GY-N10 — Depth-N universality (arbitrary `DesignProblem`; ≥2 distinct domains).**
   rework + thin depth-N controller. Drive the whole cycle from **arbitrary** `DesignProblem`s
   (not committed fixtures; reuse GY-M2 case-parameterization) with a depth-N controller that
@@ -1551,10 +1675,36 @@ re-architecting.
   generalizes the cycle over depth and candidate families. Run the full `DesignProblem` →
   generate → ground → joint-value → revise → promote cycle end-to-end on **≥2 distinct
   domains** from plain language. **Replace GY-G's hardcoded depth-2 independent fixture** with
-  observed coupling + real joint simulation. Done when: the full cycle runs on ≥2 distinct
-  domains, each reaching an **honest** terminal (promotion / costed abstention / ceiling), with
-  no domain pinned / hardcoded; the GY-G fixture is strangled; the GY-N0 ledger shows no
-  parallel world reopened. `P27`/`P31`.
+  observed coupling + real joint simulation. **N8 value-gate universality debt (Rev 15):** the
+  GY-N8 value gate landed honestly but is currently a **panel/DID + governance-domain vertical** —
+  its second domain must remove two simplifications introduced while landing the first real value:
+  (1) **de-hardcode the transport covariates** — `_build_candidate_selection_diagram` pins
+  `("state_capacity", "institutional_quality")` + `post_conflict` governance defaults; the
+  selection-diagram S-nodes / source-target contexts must be **derived from the candidate's real
+  world relationship / the domain pack**, not a fixed governance tuple; (2) **generalize the value
+  vertical across all foundry method families** in `src/polisyos/foundry/methods/catalog/`
+  (bayesian, causal, dependence, distributional, econometrics, forecasting, mechanism, microsim,
+  ml, network, optimization, policy, sensitivity, simulation, spatial, survey, validation) — the
+  S10 calibration credibility (`_s10_calibration_evidence_from_report`) currently requires
+  panel/DID report fields (`n_treated`/`n_control`/`pre_periods`/`post_periods`), so any non-panel
+  method family refuses; credibility + the value-set width must derive **generically from whatever
+  uncertainty / diagnostics the selected method's report provides**, so a Bayesian / synthetic-
+  control / transport-only estimate can mint value too. These stay **honest refusals** until N10
+  (they abstain, never fabricate), and the free-grow-over-data path (generic `canonical_var`
+  loader + registry selection) is already intact; N10 restores free-grow **over domains and method
+  families**. **Distinctness criterion (Rev 15):** the second domain must differ from the first in
+  ALL of — outcome family / substrate slice (different L1 `canonical_var`s), method family
+  (non-panel, per the debt above), transport covariate set (not the governance tuple), and lever
+  space (a different S0/L6 intervention vocabulary, arriving via GY-N10a's data-only pack). Two
+  Ukraine-economics variants (msme-credit vs tourism vs pl-household-energy) do **not** count as
+  distinct domains. Add an **unseen-third-domain smoke** (U2 at cycle scale): a third domain's
+  `DesignProblem` — for which no pack was prepared — must reach an **honest typed terminal** (costed
+  abstention / acquisition / ceiling), never a crash or a first-vertical mismatch; universality
+  means honest degradation on the unseen. Done when: the full cycle runs on ≥2 distinct domains, each reaching an **honest**
+  terminal (promotion / costed abstention / ceiling), with no domain pinned / hardcoded; the GY-G
+  fixture is strangled; **the two N8 value-gate hardcodes are removed (transport covariates
+  domain-derived; value/calibration generic across the foundry method-family catalog, proven on a
+  non-panel method family)**; the GY-N0 ledger shows no parallel world reopened. `P27`/`P31`.
 - **GY-N11 — Honest confidence ledger (anytime-valid promotion risk; NEW, Rev 11).** build-new
   ledger + recomputing validator. The promotion gate (N9) is queried **adaptively** (candidates
   depend on prior outcomes, the validator is queried on demand, the user may stop anytime), so
@@ -1569,7 +1719,12 @@ re-architecting.
   draws every probabilistic certificate from the ledger; a run records a total risk-spend `≤ δ`
   with a recomputing validator that fails on over-spend or on a non-anytime-valid certificate used
   for promotion; a Bayesian credible interval **without** a coverage argument cannot be used as a
-  promotion certificate. `P29`/`P14`.
+  promotion certificate. **Universality rider (Rev 15, §3.5.8):** the ledger schema is generic over
+  **obligation class × certificate instrument** (typed), free-grow over new instruments — a new
+  method family's certificate type (post-N10) is accounted with **zero ledger code** (U3); an
+  unknown instrument fail-closes `unknown_instrument` and never silently bypasses risk accounting
+  (U4); the δ-split is keyed to the typed obligation taxonomy, never to the certificate types that
+  happen to exist in the first vertical (U1, with the U2 unseen-instrument probe). `P29`/`P14`.
 - **GY-N12 — Model-revision epochs + stale certificates + OpenWorldRisk (NEW, Rev 11).**
   build-new epoch manager + bridge over existing temporal authority. A certificate is valid only
   within an **epoch** of fixed semantics (model class, obligation language, calibration scope,
@@ -1586,7 +1741,14 @@ re-architecting.
   model / obligation / calibration scope) that freezes promotion for the affected scope. Done when:
   crossing an L3 amendment or an L5 schema-regime changepoint marks dependent certificates stale and
   forces revalidation before they can stay on the decision front; a high OpenWorldRisk scope freezes
-  promotion; a stale certificate cannot appear in a public result. `P07`/`P08`/`P29`.
+  promotion; a stale certificate cannot appear in a public result. **Universality rider (Rev 15,
+  §3.5.8):** epoch boundaries are **derived from the full substrate data** — every L5 `schema_regime`
+  entry and every L3 amendment window in the registry (U3): a new domain's regime added via data
+  alone creates epoch semantics with **zero engine code**; the ukraine v1-prewar/v2-wartime
+  changepoint is the **first test case, never an enum in engine code**; the revision-trigger
+  vocabulary stays the typed generic list (it already is — keep it that way); a scope with no
+  regime/amendment data gets honest `epoch_scope_unresolved`, not an assumed epoch (U4).
+  `P07`/`P08`/`P29`.
 
 **Phase-5 deferred (adopt the contract now, implement when a certified frontier exists).** With
 `useful_design_rate ≈ 0` and depth-1 integration, the mature-frontier machinery is not yet
@@ -1646,7 +1808,11 @@ scoped to a roughly comparable amount of work.)
   and independent of the promotion gate (a promoted design still cannot be piloted without it). Done
   when: a non-simulation evaluation cannot execute without a passing `EvalSafety` certificate for
   its mode; an attempt to pilot a promotion-safe-but-pilot-unsafe design is **blocked** with a typed
-  reason; the gate records `unsafe_attempt_blocked_count` / `near_miss_count` honestly. `P05`/`P09`.
+  reason; the gate records `unsafe_attempt_blocked_count` / `near_miss_count` honestly.
+  **Universality rider (Rev 15, §3.5.8):** the mode-requirement vocabulary (containment / harm-bound
+  / stop-rules / approvals / population protections) is **typed and domain-pack-extensible** (U3),
+  never enumerated per fixture; an unknown domain's pilot request fail-closes typed (U4) — a gate
+  calibrated only for the governance fixture must refuse, not improvise. `P05`/`P09`.
 - **GY-O1 — Confirmatory deployed-effect updater (Bayesian; high authority).** build-new
   updater over reusable primitives. For the variables a deployed design **pre-declared** it
   would change, compare realized vs predicted and produce a **Bayesian posterior effect
@@ -1656,7 +1822,10 @@ scoped to a roughly comparable amount of work.)
   on the `WorldModelRecord`. Done when: a deployed design's pre-declared effect is Bayesian-
   updated from real realized metrics with an uncertainty envelope, persisted to `fabric/world`
   with attribution; an un-pre-registered or unpowered claim **cannot** mint a confirmatory
-  effect update. `P14`.
+  effect update. **Universality rider (Rev 15, §3.5.8):** the realized-vs-predicted comparison is
+  generic over the **typed effect/outcome carriers** the (N10-generalized) value gate produces (U1)
+  — never panel-scalar-specific; an effect type the updater cannot yet compare gets an honest typed
+  refusal (U4), not a coerced scalar. `P14`.
 - **GY-O2 — Exploratory anomaly→hypothesis controller (low authority).** build-new controller
   over reusable detectors. Monitor the broader variable space for anomalies the model did
   **not** predict — reuse the DDM drift / performance / readiness detectors + the
@@ -1723,6 +1892,11 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
   actually composes via a
   `CompositionCertificate`. Done when: the distribution is recorded; the recursive case
   produces a certificate or an honest typed terminal; no case is forced to useful.
+  **Universality rider (Rev 15, §3.5.8):** the labelled set MUST extend beyond the
+  governance/Europe-economics cluster — include the GY-N10 second domain, at least one case
+  exercising a **non-panel method family** through the value gate, and the **unseen-third-domain
+  smoke** (honest typed terminal, no first-vertical mismatch); record the terminal / evidence-kind /
+  decision-grade distributions **per domain**, so domain-invariance is measured, not asserted.
 - **GY-V4 — Adversarial-against-A battery (laundering firewalls live).** The
   constitution mandates this once real grounding happens. Executed **negative** probes,
   each with recorded evidence: (a) agent attempts to write a Ring-2 field → rejected;
@@ -1809,8 +1983,12 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
    the real propose→ground→value→revise cycle (+ four stratified fronts), GY-N7 closed acquisition
    (+ ID/CERT/COV families + affected-region revalidation), GY-N8 value-as-gate (+ value-outer-set
    + honest dominance + six modes), GY-N9 in-cycle promotion (+ obligations compiler), **GY-N11
-   honest confidence ledger (δ-budget)**, **GY-N12 epochs + stale certs + OpenWorldRisk**, GY-N10
-   depth-N universality. The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
+   honest confidence ledger (δ-budget)**, **GY-N12 epochs + stale certs + OpenWorldRisk**,
+   **GY-N10a second-domain substrate pack (data-only, before N10)**, GY-N10
+   depth-N universality. *(Rev 15 status note: the GY-CG grounding block CG0–CG6 — target spec
+   `policy-design-causal-grounding-firewall.md` — plus GY-INFRA-1 and GY-N4–N8 are executed and
+   closed; the remaining Phase-5 tasks are N9, N11, N12, N10a, N10, all bound by
+   §3.5.6 + §3.5.7 + §3.5.8.)* The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
    VOI / EXP3 / MCTS) carries contracts now, implementation later. Runs before the learning loop
    and the V-battery so verification audits the **cycle**, not the single-pass harness.
 9. **GY-O0..GY-O3 — Deployed-Policy Learning Loop (greenfield horizon).** After the cycle:

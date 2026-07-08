@@ -58,6 +58,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Policy Design Case Layer 3 GY knowledge substrate contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json` |
 | `Policy Design Case Layer 3 GY intervention substrate contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json` |
 | `Policy Design Case Layer 3 GY ValueOuterSet household bounds strangle receipt` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_value_outer_set_strangle_receipt.json` |
+| `Policy Design Case Layer 3 GY-N9 canonical promotion contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_promotion_contract.json` |
 | `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
@@ -1608,6 +1609,30 @@ Canonical regeneration commands:
 
 ```bash
 uv run python tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY-N9 canonical promotion contract`
+
+- Family id: `policy-design-case-layer3-gy-n9-promotion-contract`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py
+- Generator: Layer 3 GY-N9 canonical promotion validator generated from the live N6/N9 sequence
+- Verifier: Layer 3 GY-N9 promotion contract validator, frozen-receipt check, rederive audit, corrupt-field drift, and source-flip mutations
+- Promotion target: registered canonical in-cycle promotion sequence over Ring-2, CGF/CG2, N8, S6/S7/S8, and G4 owners
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, CG2 promotability enforcement, S6/S7/S8 gate wrappers, or champion-path strangle scan changes.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_promotion_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_promotion_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+python3 tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json
 ```
 
 ## `Policy Design Case Layer 3 GY generation-cycle disposition ledger`

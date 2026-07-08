@@ -21,6 +21,7 @@ from .layer2_readiness import (
 )
 
 GY_WAIST_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_waist.v1"
+GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
 GY_ARTIFACT_ID_PATTERN = r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
 
 _VOLATILE_KEYS = {
@@ -200,6 +201,121 @@ class SearchTerminalKind(StrEnum):
     GROUNDED_ADMISSIBLE = "grounded_admissible"
     GROUNDED_PARTIAL_ADMISSIBLE = "grounded_partial_admissible"
     GROUNDED_ABSTENTION = "grounded_abstention"
+
+
+class PromotionObligationClass(StrEnum):
+    """Universal N9 obligation-class denominator."""
+
+    SYNTAX = "syntax"
+    TYPE = "type"
+    SLOT = "slot"
+    PARAM = "param"
+    COUPLING = "coupling"
+    EFFECT = "effect"
+    IDENTIFICATION = "identification"
+    CALIBRATION = "calibration"
+    MEASUREMENT = "measurement"
+    DATA = "data"
+    IMPLEMENTATION = "implementation"
+    EQUILIBRIUM = "equilibrium"
+    NORMATIVE = "normative"
+    EVAL_SAFETY = "eval_safety"
+    VALUE = "value"
+
+
+class PromotionFailClosedReason(StrEnum):
+    """Typed N9 fail-closed reasons."""
+
+    SINGLE_OBLIGATION_FAIL = "single_obligation_fail"
+    JOINT_OBLIGATION_INCONSISTENCY = "joint_obligation_inconsistency"
+    PROOF_TIMEOUT = "proof_timeout"
+    SCOPE_INSUFFICIENT = "scope_insufficient"
+    UNKNOWN = "unknown"
+
+
+class PromotionObligationStatus(StrEnum):
+    """Status lattice for one compiled N9 obligation."""
+
+    SATISFIED = "satisfied"
+    FAILED = "failed"
+    UNKNOWN = "unknown"
+    SCOPE_INSUFFICIENT = "scope_insufficient"
+    NOT_APPLICABLE_DATA_ONLY = "not_applicable_data_only"
+
+
+class PromotionGateId(StrEnum):
+    """Real gate owners consumed by the canonical N9 sequence."""
+
+    GY_WAIST = "gy_waist"
+    RING2_WAIST = "ring2_waist"
+    CGF_GROUNDING = "cgf_grounding"
+    CG2_BIND_PROMOTABILITY = "cg2_bind_promotability"
+    GYK_ENTAILMENT = "gyk_entailment"
+    N5_COUPLING = "n5_coupling"
+    N8_VALUE = "n8_value"
+    N8_CALIBRATION = "n8_calibration"
+    N8_TRANSPORT = "n8_transport"
+    S6_BLIND_SPOT = "s6_blind_spot"
+    S7_MANDATE_DELEGATION = "s7_mandate_delegation"
+    S8_VALUE_POSTURE = "s8_value_posture"
+    G4_GOVERNED_PROMOTION = "g4_governed_promotion"
+    GY_O0_EVAL_SAFETY = "gy_o0_eval_safety"
+
+
+class PromotionRiskSpendRecord(GyWaistModel):
+    """Declared pre-N11 risk spend consumed by one N9 obligation."""
+
+    obligation_class: PromotionObligationClass
+    certificate_ref: str = Field(..., min_length=1, max_length=300)
+    instrument: str = Field(..., min_length=1, max_length=120)
+    declared_delta_spend: float = Field(ge=0.0)
+    deterministic_proof: bool = False
+    n11_confidence_ledger_ref: str | None = Field(default=None, max_length=300)
+
+
+class PromotionRiskSpendSummary(GyWaistModel):
+    """Total declared N9 risk spend with the honest pre-N11 caveat."""
+
+    total_declared_delta: float = Field(ge=0.0)
+    budget_delta: float = Field(ge=0.0)
+    within_budget: bool
+    spend_records: list[PromotionRiskSpendRecord] = Field(default_factory=list, max_length=80)
+    caveat: str = (
+        "The delta claim is conditional on obligation completeness and validator soundness; "
+        "pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. "
+        "Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs."
+    )
+
+
+class PromotionObligationRecord(GyWaistModel):
+    """One compiled N9 obligation result bound to its real owner or honest scope gap."""
+
+    obligation_class: PromotionObligationClass
+    gate_id: PromotionGateId
+    status: PromotionObligationStatus
+    reason: PromotionFailClosedReason | None = None
+    owner_ref: str = Field(..., min_length=1, max_length=300)
+    detail: str = Field(..., min_length=1, max_length=1000)
+    evidence_refs: list[str] = Field(default_factory=list, max_length=40)
+    risk_spend: PromotionRiskSpendRecord | None = None
+    semantic_scope: Literal["real_semantics", "scope_insufficient", "data_only_not_required"] = (
+        "real_semantics"
+    )
+
+    @model_validator(mode="after")
+    def _fail_closed_reason_matches_status(self) -> PromotionObligationRecord:
+        if self.status in {
+            PromotionObligationStatus.FAILED,
+            PromotionObligationStatus.UNKNOWN,
+            PromotionObligationStatus.SCOPE_INSUFFICIENT,
+        } and self.reason is None:
+            raise ValueError("unsatisfied_promotion_obligation_requires_reason")
+        if (
+            self.status == PromotionObligationStatus.SATISFIED
+            and self.semantic_scope == "scope_insufficient"
+        ):
+            raise ValueError("obligation_class_vacuously_passed")
+        return self
 
 
 def _jsonish(value: object) -> object:
@@ -465,6 +581,11 @@ class AuthorityDerivationTrace(Layer2ReadinessModel):
     unresolved_blockers: list[str] = Field(default_factory=list)
     resulting_authority_boundary_ref: str
     transform_mismatch_disposition: Literal["matched", "downgraded", "rejected", "upgraded"]
+    promotion_sequence_ref: str | None = Field(default=None, max_length=300)
+    gate_outcome_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    risk_spend_total: float = Field(default=0.0, ge=0.0)
+    risk_budget_delta: float | None = Field(default=None, ge=0.0)
+    trace_content_hash: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
     def _reject_self_promotion(self) -> AuthorityDerivationTrace:

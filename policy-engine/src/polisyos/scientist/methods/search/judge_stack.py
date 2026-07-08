@@ -29,6 +29,10 @@ from polisyos.ir.analytics.distributional import DistributionalReport
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope as IRUncertaintyEnvelope
 from polisyos.ir.trinity import TrinityBundle
+
+# Governance pass implementations are lazy-imported via judge_passes to keep
+# module-level cold-start time below the 15 s CI threshold.
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import (
     BenchmarkEvaluation,
     ChampionPointer,
@@ -36,18 +40,6 @@ from polisyos.scientist.methods.autotune.models import (
     PromotionPolicy,
 )
 from polisyos.scientist.methods.discovery.priors import PriorKnowledgeBundle
-from polisyos.scientist.orchestration.engine.budget import BudgetState
-
-# Governance pass implementations are lazy-imported via judge_passes to keep
-# module-level cold-start time below the 15 s CI threshold.
-from polisyos.scientist.governance.report import GovernanceReport
-from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
-from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
-from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
-from polisyos.scientist.replay.verification import (
-    ReplayVerificationReport,
-    load_replay_verification_report,
-)
 from polisyos.scientist.methods.search.adversarial import PlatformMetaEvaluationReport
 from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
@@ -82,6 +74,14 @@ from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
     UncertaintyType,
+)
+from polisyos.scientist.orchestration.engine.budget import BudgetState
+from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
+from polisyos.scientist.policy_design.phase3 import Phase3CertificateStatus
+from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+from polisyos.scientist.replay.verification import (
+    ReplayVerificationReport,
+    load_replay_verification_report,
 )
 
 _STRICT_PROFILE = ValidationProfile.strict()
@@ -1645,31 +1645,15 @@ class PolicyPromotionCoordinator:
                 promotion_decision=promotion_decision,
             )
 
-        decision = self._champion_registry.consider_promotion(
-            loop_id,
-            candidate_ref,
-            evaluation_ref,
-            promotion_policy,
+        decision = PromotionDecision(
+            loop_id=loop_id,
+            promoted=False,
+            reason="canonical_n9_promotion_sequence_required",
+            champion=current,
+            previous_champion=current,
         )
-        if decision.champion is not None:
-            updated = _attach_policy_metadata(
-                registry=self._champion_registry,
-                loop_id=loop_id,
-                champion=decision.champion,
-                judge_verdict=judge_verdict,
-                judge_verdict_ref=judge_verdict_ref,
-                readiness=readiness,
-                readiness_ref=readiness_ref,
-            )
-            decision = PromotionDecision(
-                loop_id=decision.loop_id,
-                promoted=decision.promoted,
-                reason=decision.reason,
-                champion=updated,
-                previous_champion=decision.previous_champion,
-            )
 
-        self._notify_voi_scheduler(judge_input, promoted=decision.promoted)
+        self._notify_voi_scheduler(judge_input, promoted=False)
         return PolicyPromotionResult(
             judge_verdict=judge_verdict,
             judge_verdict_ref=judge_verdict_ref,

@@ -5,7 +5,7 @@
 Prove or falsify data-only free growth for a second, non-Ukraine-economics
 domain. The deliverable is owner-derived evidence, not an asserted capability:
 all committed pack facts must be re-derived from DCAT, the scholar KG, the
-existing S0 builder, or a real N6 run.
+existing S0 builder, a real journal-first N7 receipt, or a real N6 run.
 
 ## Measured decision
 
@@ -23,17 +23,20 @@ concepts. Environment/energy-transition remains a measured runner-up.
 One data-only builder/validator owns five generated artifacts: a census, pack
 manifest, strict `DesignProblem`, N6 terminal trace, and free-grow-gap report.
 It reads L1 and L2 in read-only mode through the existing substrate-path owner,
-calls the existing S0 registry builder, and runs the existing N6 controller.
-All generated JSON is canonically serialized and content-addressed. Runtime
-timings are reported by the command result rather than frozen into artifacts,
-preserving byte stability.
+calls the existing S0 registry builder, runs one real N7 owner attempt, and
+runs the existing N6 controller. All generated JSON is canonically serialized
+and content-addressed. E5 timing metrics are retained as explicitly
+non-content-bound operational metadata and preserved on byte-stable rewrites.
 
 The pack contains L1 outcome and context facts plus L2 grounding and candidate
 lever facts. It deliberately does not create a second registry or hand-write
-an S0/L6 lever row. Existing N7 only synthesizes in-memory registrations and
-does not persist raw evidence or rederive a registration from L2/L3; CG3 is
-shadow-only; and default N4/N5 ignore persisted free-grown inputs. These are
-typed gaps, not implementation targets in GY-N10a.
+an S0/L6 lever row. The real N7 Fabric attempt journals a raw-response hash but
+ends `completed_no_results`; if it ever projects a `fabric.*` registration,
+that projection remains ineligible because it does not rederive its fields from
+owner measurements. N7 still lacks a durable receipt/journal surface and an
+L2/L3-to-S0/L6 registration bridge; CG3 is shadow-only; and default N4/N5
+ignore persisted free-grown inputs. These are typed gaps, not implementation
+targets in GY-N10a.
 
 ## Failure-pattern pass
 

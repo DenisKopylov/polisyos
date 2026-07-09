@@ -101,4 +101,4 @@
 - [x] Register the generated/committed lifecycle family and synchronize the reference documentation.
 - [x] Make `--check` frozen-only and cheap; make `--rederive-audit` run owners and N6.
 - [x] Make mutation mode detect hand-authored provenance, distinctness smuggling, smoke dishonesty, and engine-diff scope violations.
-- [ ] Run the scoped commands, inspect their exit codes, commit the data/artifact/validator/test scope, and re-run the durable no-engine-diff check from the recorded base revision.
+- [x] Run the scoped commands, inspect their exit codes, commit the data/artifact/validator/test scope, and re-run the durable no-engine-diff check from the recorded base revision.

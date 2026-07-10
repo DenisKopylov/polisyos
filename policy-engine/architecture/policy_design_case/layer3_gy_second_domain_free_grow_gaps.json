@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:6c6c661bbfd29b3c768f614a4855c67283c8ea8849e973721bb00d2e7cc5b71f",
+  "gap_report_content_hash": "sha256:1f0d753d50a725b1074365cb02b2fa41b7e6c62cd4a8c75dcc5a1727500b766d",
   "gaps": [
     {
       "acquisition_required": {
@@ -10,10 +10,10 @@
       },
       "blocking_seam": "L2 candidate intervention concepts do not resolve through the real L6 knob owner.",
       "capability_label": "bridge_missing",
-      "gap_content_hash": "sha256:17deefba376023a7c16c1892c98fae6b03dae5db585a1ae4895bc7b0e723271e",
+      "gap_content_hash": "sha256:b051e5b2c5163ced1f33416d97b37abae8860bc8a045cd902a4317729e4b0fe2",
       "gap_id": "s0_to_l6_world_slot_bridge_missing",
       "owner_evidence": {
-        "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+        "l6_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
         "positive_writable_count": 0,
         "seam_witness": {
           "observed_call_names": [
@@ -38,30 +38,30 @@
         },
         "writability_attempts": [
           {
-            "attempt_content_hash": "sha256:8eae3fb38c3df394b9d8638a87ef6814e452cd92508113bb506335a3e765601f",
+            "attempt_content_hash": "sha256:82934a0e3847712c2820c434b77a4a5323add95e7c609d4e6f387f725bd92d5b",
             "instrument": "education.blended_learning",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:a2e510b0e67c16cef333f5538db7d00644429c8a23f39c80ebfde773a1bdadfa",
+            "attempt_content_hash": "sha256:db4f77072e0d5da71e6a1ab7abfaf851b743735e5398136ac5916af30d4593d7",
             "instrument": "education.stem_education",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:0ec138e5e61ae445298560b9af637575a974f1af3d3a0a9d0ee7afeb379df085",
+            "attempt_content_hash": "sha256:b501f58a97a34dc2b01eb71035c45cac21d830bb59941264198b08f391a5e2e4",
             "instrument": "education.teaching_method",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:9f9bdf7ad09ca0cf7232e50e0eab5d71743408dac8c270cae3012f15e107e771",
+            "attempt_content_hash": "sha256:2a834e04106a20744f38728827af9e20d3aa3618cebe6d24fc5647992171f133",
             "instrument": "education.dialogic_reading_modality",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           }
@@ -76,7 +76,7 @@
       },
       "blocking_seam": "N7's real owner receipt is journaled, but its projected registration is not rederived from the captured domain-owner measurements.",
       "capability_label": "artifact_missing",
-      "gap_content_hash": "sha256:16c3f26d17d71b2cddf56deee67c8741a5c32205315e393914055740a1fb5b76",
+      "gap_content_hash": "sha256:0dc7d7fd5efaaf8884c85c66cffa618643554ec2bb4ebf8858d89e51556ae8f2",
       "gap_id": "owner_registration_derivation_missing",
       "owner_evidence": {
         "direct_persist_acquisition_receipt_call": false,
@@ -87,11 +87,11 @@
           {
             "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
             "matches": true,
-            "raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a",
-            "recomputed_raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
+            "raw_response_hash": "sha256:b36d1f8a52982b7a33befc286ec3e84abe96018c7d9d0ae706c7d478cc8a1dfb",
+            "recomputed_raw_response_hash": "sha256:b36d1f8a52982b7a33befc286ec3e84abe96018c7d9d0ae706c7d478cc8a1dfb"
           }
         ],
-        "live_n7_receipt_content_hash": "sha256:222158e4a545288f5b3e6fbd12005ec7bae3813a218601d12239a2e403fa36f0",
+        "live_n7_receipt_content_hash": "sha256:6b523c44caaa2894a8447d9e4bba9f6c115b200fca727151a59bbfb6011b2da2",
         "seam_witness": {
           "observed_call_names": [
             "<dynamic>.join",
@@ -126,13 +126,13 @@
     {
       "blocking_seam": "The live N7 receipt carries a journal-first entry and raw-response hash, but the existing owner exposes no durable journal/CAS artifact for later S0/L6 use.",
       "capability_label": "artifact_missing",
-      "gap_content_hash": "sha256:96fab3a49a929e394b168efd4d447d045fc97e880b98628fb56715ab51b482a1",
+      "gap_content_hash": "sha256:472c097cd5b956bb1dacdb74cf17edaec6a03780fc2ff436fb3c0ab4dbd9432e",
       "gap_id": "journal_raw_evidence_persistence_missing",
       "owner_evidence": {
         "journal_entries": [
           {
             "action": "acquire_evidence",
-            "artifact_content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
+            "artifact_content_hash": "sha256:72f8d69a29ddedb11ed3b1dab99324d61d01a3aac2f915b28b58b2828a53f8a2",
             "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
             "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
             "message": "owner artifact journaled before receipt validation",
@@ -143,7 +143,7 @@
           }
         ],
         "journal_persistence_status": "receipt_embedded_in_content_addressed_pack_manifest",
-        "receipt_content_hash": "sha256:222158e4a545288f5b3e6fbd12005ec7bae3813a218601d12239a2e403fa36f0",
+        "receipt_content_hash": "sha256:6b523c44caaa2894a8447d9e4bba9f6c115b200fca727151a59bbfb6011b2da2",
         "seam_witness": {
           "observed_call_names": [
             "AcquisitionJournalEntry",
@@ -307,7 +307,7 @@
     {
       "blocking_seam": "A typed one-cycle terminal reaches N6 but its validator requires a positive two-cycle denominator.",
       "capability_label": "semantic_test_missing",
-      "gap_content_hash": "sha256:f6099e6f353ac80c41ce1ce61471c7d6bd7a55b26a58a6319672111fd6232a99",
+      "gap_content_hash": "sha256:4277e3e974f2b07bab6042bbd9ea5c47869274ed74e6c699bc74aee6da73d4b8",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [
@@ -340,7 +340,7 @@
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "validate_generation_cycle_run"
         },
-        "trace_content_hash": "sha256:c5ae655cf207629a7013c6fad0d12a8623fc68ca4246ecedddd98c65a50b5148"
+        "trace_content_hash": "sha256:ef3aa900e6b8f2b5c1785cf92813ce21dfef00ddc8b0a6835cecfeea822ff246"
       }
     }
   ],

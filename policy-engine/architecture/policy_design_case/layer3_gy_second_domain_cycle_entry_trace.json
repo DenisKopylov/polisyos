@@ -64,7 +64,7 @@
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
         },
         "cycle_index": 0,
-        "design_problem_ref": "sha256:6154e3b4110ae60ee5243f5f6082d8bae778deb445a527b2e69f434ac19350a7",
+        "design_problem_ref": "sha256:9fed901ed9021ce3fe9aa6a8cb7371917d704e075783adef3d23d87e7a6baf30",
         "driven_by_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
         "grammar_elements": [
           "seed"
@@ -195,7 +195,7 @@
             "nl_provenance": {
               "raw_request": "Improve education outcomes through evidence-backed interventions.",
               "source_context": {
-                "census_content_hash": "sha256:cbe2f54ad7266c295a3567df7f0aa31ffa4f5d6413b2d12d4e2eaec9a3c1ddbd"
+                "census_content_hash": "sha256:9d7e3b74ed90dc3052fa9ac908610910c4d819a513f60066a43c35763263dd23"
               },
               "source_surface": "gy_n10a_second_domain_pack"
             },
@@ -324,7 +324,7 @@
         }
       }
     ],
-    "design_problem_ref": "sha256:6154e3b4110ae60ee5243f5f6082d8bae778deb445a527b2e69f434ac19350a7",
+    "design_problem_ref": "sha256:9fed901ed9021ce3fe9aa6a8cb7371917d704e075783adef3d23d87e7a6baf30",
     "engine_owner_ref": "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine",
     "fronts": {
       "decision": {
@@ -357,6 +357,7 @@
         {
           "authority_derivation_trace": null,
           "candidate_id": "candidate_fallback_c74862da171a05cb",
+          "cg2_resolution_reason": null,
           "computed_authority_boundary": {
             "authoritative_for": [
               "grounded_partial_admissible_policy_design"
@@ -383,7 +384,9 @@
             ],
             "source_authority": "deterministic_producer"
           },
-          "gate_outcome_hash": "sha256:cb7e805e4739d68f16edacd493ca55304a8b35e84c468b38f9d2eddfad9755ba",
+          "consumer_promotable": false,
+          "gate_outcome_hash": "sha256:0a49d2ee3cbf076e19b81091bccb4e050863fd78a8a043bc349fa2c2a064e87e",
+          "non_promotable_reason": null,
           "obligations": [
             {
               "detail": "Strict N9 input model validated with extra fields forbidden.",
@@ -419,9 +422,9 @@
               "status": "failed"
             },
             {
-              "detail": "G4 governed-promotion record is present for the sequence.",
+              "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
               "evidence_refs": [
-                "pdc://layer3/g4/governed-promotion"
+                "g4-promotion-record:g4-request:ua-msme-source-only-valid"
               ],
               "gate_id": "g4_governed_promotion",
               "obligation_class": "param",
@@ -443,17 +446,15 @@
               "status": "satisfied"
             },
             {
-              "detail": "Entailment/grounding witness is present as a witness, not the decider.",
-              "evidence_refs": [
-                "gyk://entailment-witness/current"
-              ],
+              "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+              "evidence_refs": [],
               "gate_id": "gyk_entailment",
               "obligation_class": "effect",
-              "owner_ref": "GY-K entailment witness",
-              "reason": null,
+              "owner_ref": "GY-K entailment witness owner",
+              "reason": "scope_insufficient",
               "risk_spend": null,
-              "semantic_scope": "real_semantics",
-              "status": "satisfied"
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
             },
             {
               "detail": "CGF grounding did not produce current_valid (status=grounding_unavailable).",
@@ -478,15 +479,15 @@
               "status": "failed"
             },
             {
-              "detail": "Value outer set is missing.",
+              "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
               "evidence_refs": [],
               "gate_id": "n8_value",
               "obligation_class": "measurement",
-              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
-              "reason": "single_obligation_fail",
+              "owner_ref": "measurement-rooted producer owner",
+              "reason": "scope_insufficient",
               "risk_spend": null,
-              "semantic_scope": "real_semantics",
-              "status": "failed"
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
             },
             {
               "detail": "Data-trust record is missing.",
@@ -556,12 +557,14 @@
             }
           ],
           "promoted": false,
+          "promotion_lane": "unresolved",
           "refusal_reasons": [
             "type:single_obligation_fail",
             "slot:single_obligation_fail",
+            "effect:scope_insufficient",
             "identification:single_obligation_fail",
             "calibration:single_obligation_fail",
-            "measurement:single_obligation_fail",
+            "measurement:scope_insufficient",
             "data:single_obligation_fail",
             "implementation:scope_insufficient",
             "normative:scope_insufficient",
@@ -595,7 +598,7 @@
         "verified_by": "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
       }
     },
-    "run_id": "generation_cycle_6154e3b4110ae60e",
+    "run_id": "generation_cycle_9fed901ed9021ce3",
     "schema_version": "policyos.runtime.generation_cycle_controller.v1",
     "strangle_receipt": {
       "allowed_fixture_callers": [
@@ -654,16 +657,16 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
-    "aggregate_value_port_wall_time_ms": 44.669916969724,
+    "aggregate_value_port_wall_time_ms": 91.62316599395126,
     "cycle_value_port_wall_time_ms": [
       {
         "cycle_index": 0,
-        "value_port_wall_time_ms": 44.669916969724
+        "value_port_wall_time_ms": 91.62316599395126
       }
     ]
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
-  "smoke_problem_content_hash": "sha256:c2e3857b91f8e69dcc867f1e01f84533669a2fc2373feae6bd5063f0f83b34e5",
+  "smoke_problem_content_hash": "sha256:3c2b5b02c46a571ef425f9ae4ec95fbc510146e48b1e1de18fd5cd0cb00ba500",
   "smoke_status": "typed_terminal_with_known_n6_validation_gap",
-  "trace_content_hash": "sha256:c5ae655cf207629a7013c6fad0d12a8623fc68ca4246ecedddd98c65a50b5148"
+  "trace_content_hash": "sha256:ef3aa900e6b8f2b5c1785cf92813ce21dfef00ddc8b0a6835cecfeea822ff246"
 }

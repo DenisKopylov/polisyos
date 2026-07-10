@@ -16,6 +16,8 @@
 - Use no domain-name branch or engine enum for covariates, levers, contexts, regimes, outcomes, or method-family vocabulary.
 - Education writability remains `0`; CG2 production binds remain frozen; education promotion is not expected.
 - The frozen proof requires both a real non-panel `value_ready` positive and education's separate real typed non-panel refusal.
+- A concrete Bayesian FQN may be pinned in this plan as a deterministic expectation, but runtime code must use the existing registry/advisor selection from candidate/problem/data modality and persist the ranked selection trace; a fixed method default is forbidden.
+- Every treatment feature is derived by joining the candidate atom's real treated units/periods to owner-resolved observations; an arbitrary or synthetic treatment indicator is forbidden.
 - Do not create a second registry, world, generation cycle, value surface, coupling algebra, or recursion authority.
 - Fence fixed-UA WMR creation, shaped-string WMR trust, `n6.bootstrap.*`, and the GY-G fixture structurally; do not patch one caller.
 - Preserve every existing N5/N6/N8/N9 decisive mutation. Add coverage; never delete or weaken a gate.
@@ -785,16 +787,33 @@ git commit -m "feat: project typed Foundry value evidence"
 - `_s10_calibration_evidence_from_report` consumes `MethodValueEvidence`, not panel/DID fields.
 - `_value_outer_set_from_foundry_result` consumes the native envelope and never invents width.
 
-- [ ] **Step 1: Establish the real non-panel positive feasibility test before integration.**
+- [ ] **Step 1: Write the Stage-2-exit real non-panel positive RED test before integration.**
 
-The positive lane is fixed early: run `bayesian.regression.linear_regression@1.0.0` over the 64 owner-resolved L1 `avg_income` country/year rows already used by N8. Feature zero is the exact binary treatment derived from the first vertical's real candidate binding (`treated_unit_ids=("AM",)`, `treatment_period=2020`); its metadata name is `candidate_credit_guarantee:treatment`. The explicit `EstimandSpec` binds that feature to `coefficients_0`, the `avg_income` outcome, population/time/context, and the candidate atom. The posterior contract supplies the native credible interval. The resulting runtime observation may remain `identification_status="partial"` and low-grade, but it must be `value_ready`. If the real posterior diagnostics/calibration verifier refuses this exact lane, Stage 2 is NO-GO until the underlying owner semantics are repaired; do not substitute a hand-built report or defer method choice to closeout.
+The plan's expected advisor outcome is `bayesian.regression.linear_regression@1.0.0` over the 64 owner-resolved L1 `avg_income` country/year rows already used by N8. Runtime code must not name or default to that FQN: derive `DataCharacteristics` from the real candidate/problem/owner rows, invoke the existing registry/advisor, and persist its full ranked selection trace, including the panel alternatives and why they lost on this shape. Feature zero is the exact binary treatment derived by joining the first vertical candidate atom's real binding (`treated_unit_ids=("AM",)`, `treatment_period=2020`) against those rows; its metadata name is `candidate_credit_guarantee:treatment`. The explicit `EstimandSpec` binds that candidate-derived feature to `coefficients_0`, the `avg_income` outcome, population/time/context, and the same atom. The posterior contract supplies the native credible interval. The resulting runtime observation may remain `identification_status="partial"` and low-grade, but it must be `value_ready` at Stage 2 exit. If the real advisor selects a different semantically valid non-panel method, the receipt records that real choice; if real posterior diagnostics/calibration refuse every bound lane, Stage 2 is NO-GO until the underlying owner semantics are repaired. Do not substitute a hand-built report, force the expected FQN, or defer method choice to closeout.
 
 ```python
 def test_real_bound_non_panel_method_mints_native_width() -> None:
     observation = _run_real_bound_non_panel_value(credible_mass=0.80)
     widened = _run_real_bound_non_panel_value(credible_mass=0.95)
     assert observation.status == "value_ready"
+    assert observation.method_selection_receipt.selection_authority == "foundry_advisor"
+    assert observation.method_selection_receipt.selected_method_fqn == (
+        observation.selected_method_fqn
+    )
+    assert observation.method_selection_receipt.ranked_alternatives
+    assert any(
+        row.method_family == "panel" and row.loss_reasons
+        for row in observation.method_selection_receipt.ranked_alternatives
+    )
     assert observation.selected_method_fqn != "causal.inference.did.standard@1.0.0"
+    assert observation.treatment_provenance.source == "candidate_atom_binding"
+    assert observation.treatment_provenance.treated_unit_ids == ("AM",)
+    assert observation.treatment_provenance.treatment_period == 2020
+    assert observation.treatment_provenance.joined_owner_row_count > 0
+    assert observation.estimand.parameter == "coefficients_0"
+    assert observation.estimand.treatment_ref == (
+        observation.treatment_provenance.candidate_atom_ref
+    )
     assert observation.value_receipt.value_outer_set.width[0] > 0.0
     assert widened.value_receipt.value_outer_set.width[0] > (
         observation.value_receipt.value_outer_set.width[0]
@@ -833,7 +852,11 @@ The N8 validator loads the live catalog snapshot, derives every family, and requ
 - native uncertainty projection removed -> non-panel positive vanishes -> RED;
 - generic auto-pass of an uncalibratable report -> RED;
 - estimand binding removed while interval remains -> RED;
-- native interval replaced by hand-set width -> RED.
+- native interval replaced by hand-set width -> RED;
+- advisor selection replaced by a hardwired method FQN -> RED with
+  `value_method_selection_fixed_default`; and
+- candidate-derived treatment join replaced by an arbitrary/synthetic feature
+  -> RED with `candidate_treatment_provenance_missing`.
 
 - [ ] **Step 6: Run Stage-2 gate.**
 
@@ -1294,7 +1317,8 @@ If verification required a repair, repeat its RED/GREEN test and commit the scop
 ## Plan self-review checklist
 
 - Every approved correction has an implementation task and stage gate.
-- The non-panel positive is an early Stage-2 prerequisite; education refusal is separate.
+- The non-panel positive is the Stage-2 exit gate (not its entry); education refusal is separate.
+- The expected Bayesian FQN is plan-pinned only; advisor selection trace and candidate-real treatment provenance are decisive RED/GREEN properties.
 - N4 wrappers and `GroundingDispositionKind` reconciliation are bounded to Task 1.
 - N6 loosening is Stage 3, additive-only, with an unreachable one-cycle RED mutation.
 - N7 tests/checker are in Stage 1 and final blast radius before/after the bootstrap fence.

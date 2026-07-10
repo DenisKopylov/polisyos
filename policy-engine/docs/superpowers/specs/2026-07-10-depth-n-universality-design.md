@@ -266,8 +266,14 @@ The frozen artifact must contain both:
    is a Bayesian/posterior method over owner-resolved first-vertical
    `avg_income` observations and the real credit treatment binding. The solve
    must produce `value_ready`, and changing the native posterior interval must
-   change `ValueOuterSet.width`. If that candidate is not semantically valid,
-   another real bound treatment must be chosen before Stage 2 proceeds.
+   change `ValueOuterSet.width`. The Bayesian FQN is a planning expectation,
+   never a runtime default: the existing registry/advisor must select it from
+   the candidate, problem, and owner-data modality, with a receipt recording
+   the ranked alternatives and why panel methods lost. The regression treatment
+   feature must be joined from the candidate atom's real treated units and
+   periods; an arbitrary or synthetic indicator is not admissible evidence. If
+   that candidate is not semantically valid, another real bound treatment must
+   be chosen before the Stage 2 exit gate can pass.
 2. **Education honesty negative.** Run a real registry-selected non-panel method
    over education observations. If a `candidate_unbound` teaching-method lever
    cannot bind to the method's estimand, or calibration/transport evidence is
@@ -406,12 +412,17 @@ coherent bridge slice. The stage gate requires:
 
 ### Stage 2 — transport and generic value
 
-Commit A1 and A2 as owner-focused slices. Before completing A2, establish a
-real bound non-panel positive; do not defer estimand feasibility to closeout.
+Commit A1 and A2 as owner-focused slices. The non-panel positive is the Stage 2
+exit gate, not an entry prerequisite; establish it during the stage and do not
+defer estimand feasibility to closeout.
 The gate requires:
 
 - N8 frozen contract and extended source-flip harness green;
 - a real non-panel `value_ready` receipt with native width lineage;
+- an advisor selection trace proving the non-panel method was selected rather
+  than code-pinned, including ranked panel alternatives and loss reasons;
+- treatment-feature provenance proving feature zero was derived by joining the
+  candidate atom's treated units/periods to the owner-resolved observations;
 - education's real typed non-panel refusal;
 - first-/education-/third-pack transport vocabulary tests; and
 - no domain-name branches in engine code.

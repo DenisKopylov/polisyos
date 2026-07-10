@@ -130,3 +130,6 @@ policy-engine/packages/*/node_modules/
 # Local audit bundles and accidental shell redirection artifacts
 *.polisyos-audit.tar.gz
 /=*
+
+# Local isolated implementation workspaces
+.worktrees/

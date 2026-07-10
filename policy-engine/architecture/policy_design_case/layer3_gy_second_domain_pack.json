@@ -5,7 +5,7 @@
     "surface": "pack_manifest_and_gap_report",
     "surface_out_of_scope": false
   },
-  "census_content_hash": "sha256:b622b1654f2489346039e13c62d93659b42b3011fd81138847b41cca8f072635",
+  "census_content_hash": "sha256:cbe2f54ad7266c295a3567df7f0aa31ffa4f5d6413b2d12d4e2eaec9a3c1ddbd",
   "components": {
     "grounding_reference_coverage": {
       "coverage": {
@@ -331,7 +331,10 @@
     "journal_semantics": "E6 gaps are explicit because existing N7 has no durable L2/L3 journal artifact",
     "live_attempt_semantics": "E8 one candidate lever per N6 grammar-fallback attempt"
   },
-  "cycle_trace_content_hash": "sha256:fcc373e0135eb5f8d516eb74aa1b674971b1189710badba2c4a012701cd42e01",
+  "content_hash_excluded_fields": [
+    "runtime_metrics"
+  ],
+  "cycle_trace_content_hash": "sha256:c5ae655cf207629a7013c6fad0d12a8623fc68ca4246ecedddd98c65a50b5148",
   "distinctness": {
     "computed_status": "must_pass_validator",
     "first_vertical_comparator": {
@@ -345,9 +348,9 @@
         "survival"
       ],
       "source_hashes": {
-        "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:d474467793659d13c40be4009d18f23a93db582ee88d7aa5cdf8f616cd3d1a26",
-        "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:6a5aa352eaa5b8ee6924015fdddcc0e57710412cddd106aa614b8924a3854725",
-        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:8f434b62cca10aa1f9db0345a7cdc84ceaa965b7dde39b76f83a47a8d655e220"
+        "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
+        "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
+        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:0bf9d00398bbe40668a688b0486618b0a596ddc9726f45de0955239743784047"
       },
       "transport_covariates": [
         "institutional_quality",
@@ -356,8 +359,8 @@
     },
     "selected_method_family": "non_panel_short_series"
   },
-  "gap_report_content_hash": "sha256:bf57c638ef34ef5f1c47bb3df285cdbfc5db93d43376c67705e88995c6cbb430",
-  "manifest_content_hash": "sha256:1d72b819507bd00a795af7c878f4ec48d2b7f7dde92149f1ec3acc1661544878",
+  "gap_report_content_hash": "sha256:6c6c661bbfd29b3c768f614a4855c67283c8ea8849e973721bb00d2e7cc5b71f",
+  "manifest_content_hash": "sha256:673cd981f80e814c6faa6c9651a4dae3fecd9d9292a427afe9aeefb0dce34840",
   "n7_acquisition": {
     "attempt_source_l2_row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
     "attempt_status": "completed_no_results",
@@ -380,7 +383,7 @@
         "recomputed_raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
       }
     ],
-    "receipt": {
+    "receipt_content": {
       "acquisition_family_scores": [
         {
           "affected_design_count": 0,
@@ -556,7 +559,6 @@
         "journal_entry_count": 1,
         "routine_check_network_calls": 0
       },
-      "content_hash": "sha256:0eef74759568eaa4bfdf82daae4f70c727dfd53d628f528180478f4fb2b737fc",
       "cost_summary_usd": 0.0,
       "fail_closed_reasons": [],
       "fallback_strangle_receipt": {
@@ -567,7 +569,6 @@
         "surviving_callers": [],
         "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
       },
-      "generated_at": "2026-07-09T00:00:00Z",
       "grounding_rederivations": [],
       "grown_world_added_slots": [],
       "grown_world_after_ref": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
@@ -596,7 +597,6 @@
           ],
           "capture_provenance": {
             "capture_mode": "local_substrate_owner",
-            "captured_at": "2026-07-09T00:00:00Z",
             "journal_first": true,
             "network_call": false,
             "owner_component": "fabric.retrieval",
@@ -914,7 +914,6 @@
           ]
         },
         "capability_reality_status": "implemented",
-        "generated_at": "2026-07-09T00:00:00Z",
         "pattern_refs": [
           "P01",
           "P09",
@@ -960,7 +959,7 @@
         }
       ]
     },
-    "receipt_content_hash": "sha256:0eef74759568eaa4bfdf82daae4f70c727dfd53d628f528180478f4fb2b737fc",
+    "receipt_content_hash": "sha256:222158e4a545288f5b3e6fbd12005ec7bae3813a218601d12239a2e403fa36f0",
     "receipt_count": 1,
     "receipt_validation_issues": []
   },
@@ -1449,9 +1448,597 @@
   },
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
+  "runtime_metrics": {
+    "n7_acquisition": {
+      "owner_capture_times": [
+        "2026-07-10T06:09:12.367963Z"
+      ],
+      "planner_report_generated_at": "2026-07-10T06:09:12.367963Z",
+      "receipt": {
+        "acquisition_family_scores": [
+          {
+            "affected_design_count": 0,
+            "basis": "near_frontier_width_sum",
+            "family": "ID",
+            "frontier_width_shrinkage": 0.25,
+            "score": 0.25,
+            "scored": true,
+            "status": "scored"
+          },
+          {
+            "affected_design_count": 0,
+            "basis": "compiled_gap_family_presence",
+            "family": "CERT",
+            "frontier_width_shrinkage": 0.0,
+            "score": 0.0,
+            "scored": true,
+            "status": "scored"
+          },
+          {
+            "affected_design_count": 0,
+            "basis": "compiled_gap_family_presence",
+            "family": "COV",
+            "frontier_width_shrinkage": 0.0,
+            "score": 0.0,
+            "scored": true,
+            "status": "scored"
+          },
+          {
+            "affected_design_count": 0,
+            "basis": "hook_adopted_scoring_deferred",
+            "family": "HV",
+            "frontier_width_shrinkage": 0.0,
+            "score": null,
+            "scored": false,
+            "status": "hook_unscored"
+          },
+          {
+            "affected_design_count": 0,
+            "basis": "hook_adopted_scoring_deferred",
+            "family": "HKG",
+            "frontier_width_shrinkage": 0.0,
+            "score": null,
+            "scored": false,
+            "status": "hook_unscored"
+          },
+          {
+            "affected_design_count": 0,
+            "basis": "hook_adopted_scoring_deferred",
+            "family": "ADV",
+            "frontier_width_shrinkage": 0.0,
+            "score": null,
+            "scored": false,
+            "status": "hook_unscored"
+          },
+          {
+            "affected_design_count": 0,
+            "basis": "hook_adopted_scoring_deferred",
+            "family": "AUD",
+            "frontier_width_shrinkage": 0.0,
+            "score": null,
+            "scored": false,
+            "status": "hook_unscored"
+          },
+          {
+            "affected_design_count": 0,
+            "basis": "hook_adopted_scoring_deferred",
+            "family": "SAFE",
+            "frontier_width_shrinkage": 0.0,
+            "score": null,
+            "scored": false,
+            "status": "hook_unscored"
+          }
+        ],
+        "acquisition_request": {
+          "consumer_owner": "tools.quality.validation.check_layer3_gy_second_domain_pack",
+          "counterexample_ref": "l2:sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
+          "cycle_index": 0,
+          "driver": "gy_n10a_free_grow_probe",
+          "reentry": "same_generation_cycle_index",
+          "request_kind": "owner_grounding_evidence"
+        },
+        "affected_region": {
+          "dependency_index": {
+            "education.teaching_method": [
+              "design:gy-n10a-education-acquisition"
+            ]
+          },
+          "design_ids": [],
+          "neighborhood_slots": [],
+          "over_approximation_basis": "Dep_out(x)_intersects_N_h_S_u_superset",
+          "rederived_design_ids": [],
+          "revalidation_stages": {},
+          "source_slots": []
+        },
+        "authority_boundary": {
+          "authoritative_for": [
+            "compiled_gap_denominator",
+            "owner_artifact_content_hashes",
+            "cost_quality_rights_binding_receipt",
+            "same_cycle_reentry",
+            "affected_region_revalidation"
+          ],
+          "may_not_use_for": [
+            "forced_useful_design_rate",
+            "domain_evidence_without_ingested_artifact",
+            "family_hook_scoring_for_HV_HKG_ADV_AUD_SAFE"
+          ]
+        },
+        "compiled_requirement_specs": [
+          {
+            "admissibility_predicates": [
+              "source_family_matches_compiled_requirement"
+            ],
+            "authority_profile_refs": [
+              "authority_profile.research"
+            ],
+            "claim_family": "education_intervention",
+            "claim_id": "claim:gy-n10a:education_teaching_method",
+            "claim_type": "causal_intervention",
+            "claim_use": "grounding_acquisition_probe",
+            "concept_spine_refs": [
+              "skg:sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784"
+            ],
+            "facet_refs": [],
+            "lineage_strictness": "strict",
+            "mandatory_facets": [
+              "source_contract_ref",
+              "lineage_refs"
+            ],
+            "metadata": {
+              "attempt_kind": "gy_n10a_one_live_variable_probe",
+              "owner_l2_cause": "education.teaching_method",
+              "owner_l2_effect": "education.learning_outcomes"
+            },
+            "missingness_tolerance": 0.02,
+            "obligation_refs": [],
+            "producer": "polisyos.data_requirement.compiler.DataRequirementCompiler",
+            "quality_minima": {
+              "min_completeness": 0.95,
+              "min_quality_score": 0.8,
+              "required_quality_refs": []
+            },
+            "recency_horizon": "P90D",
+            "required_data_families": [
+              "education.teaching_method"
+            ],
+            "requirement_id": "data-requirement:gy-n10a:education_teaching_method",
+            "rule_version_ref": "policyos.data_requirement.compiler.v1",
+            "schema_version": "policyos.data_requirement_spec.v1",
+            "scope": {
+              "geography": "cross_country",
+              "jurisdiction": null,
+              "population": "learners",
+              "time": "2018-2022",
+              "time_role": "observation_time"
+            },
+            "source_requirement_refs": [
+              "l2:sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784"
+            ],
+            "transformation_tolerance": "none"
+          }
+        ],
+        "compiled_spec_count": 1,
+        "compute_economics": {
+          "bundle_complementarity": "single_step_greedy_is_heuristic; adaptive_submodularity_unverified",
+          "cached_world_ref_reused": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
+          "e1_reentry_scope": "affected_region_only",
+          "e6_journal_first": true,
+          "e7_pre_live_gauntlet": "recorded_owner_responses_replayed_before_live_calls",
+          "e8_live_attempt_variable_count": 1,
+          "full_world_rebuild": false,
+          "journal_entry_count": 1,
+          "routine_check_network_calls": 0
+        },
+        "cost_summary_usd": 0.0,
+        "fail_closed_reasons": [],
+        "fallback_strangle_receipt": {
+          "default_after": "all_required_data_gaps_compile_or_fail_closed",
+          "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+          "predecessor_ref": "runtime.quality.acquisition_planner.required_data_single_item_fabrication",
+          "status": "strangled",
+          "surviving_callers": [],
+          "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
+        },
+        "generated_at": "2026-07-10T06:09:12.367963Z",
+        "grounding_rederivations": [],
+        "grown_world_added_slots": [],
+        "grown_world_after_ref": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
+        "grown_world_before_ref": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
+        "grown_world_delta_hash": "sha256:26478eb8c46a77911eeaae71879f18dd6967540a7929a88bdc6fe623989a9667",
+        "journal_entries": [
+          {
+            "action": "acquire_evidence",
+            "artifact_content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
+            "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+            "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+            "message": "owner artifact journaled before receipt validation",
+            "owner_component": "fabric.retrieval",
+            "requirement_ref": "data-requirement:gy-n10a:education_teaching_method",
+            "sequence": 1,
+            "status": "journaled"
+          }
+        ],
+        "network_call_count": 0,
+        "no_result_costed_gap": true,
+        "owner_artifacts": [
+          {
+            "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+            "binding_refs": [
+              "data-requirement:gy-n10a:education_teaching_method"
+            ],
+            "capture_provenance": {
+              "capture_mode": "local_substrate_owner",
+              "captured_at": "2026-07-10T06:09:12.367963Z",
+              "journal_first": true,
+              "network_call": false,
+              "owner_component": "fabric.retrieval",
+              "owner_endpoint": "RetrievalService.resolve",
+              "owner_request_hash": "sha256:f682b9a97a4496607c279dc5ed5e2f8dc00a00e22a962c56944767bbd72181aa",
+              "owner_response_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c"
+            },
+            "content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
+            "cost_usd": 0.0,
+            "ingested": true,
+            "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+            "owner_component": "fabric.retrieval",
+            "payload": {
+              "acquired_substrate_registrations": [],
+              "candidate_bindings": [],
+              "owner_response": {
+                "candidate_count": 0,
+                "families": [
+                  "education.teaching_method"
+                ],
+                "fetch_plan_count": 0,
+                "mode": "hybrid",
+                "warnings": [
+                  "No FastLane candidates for metric 'education.teaching_method'",
+                  "discover_failed:ckan.catalog:[ckan.catalog] Connector response blocked by secret/PII scan: email",
+                  "no_fetch_plans_resolved"
+                ]
+              },
+              "owner_response_kind": "real_owner_capture",
+              "raw_owner_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
+            },
+            "quality": {
+              "owner_endpoint": "RetrievalService.resolve"
+            },
+            "requirement_ref": "data-requirement:gy-n10a:education_teaching_method",
+            "rights": {
+              "recording": "owner_response_replay_only"
+            }
+          }
+        ],
+        "planner_report": {
+          "acquisition_records": [
+            {
+              "accepted_deficit_ref": null,
+              "acquisition_id": "acquisition:gy-n10a-education-one-variable-n7:requirement-gap:data_requirement:data-requirement:gy-n10a:education_teaching_method",
+              "authority_boundary": {
+                "authoritative_for": [
+                  "gap_detected",
+                  "eligible_strategies",
+                  "ineligible_strategies",
+                  "voi_ranking_considered",
+                  "decision_owner",
+                  "terminal_disposition",
+                  "producer_expected",
+                  "calibration_feedback_target"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "source_family_satisfaction",
+                  "data_quality",
+                  "method_validity",
+                  "participation_representativeness",
+                  "claim_support",
+                  "closeout_pass"
+                ]
+              },
+              "authority_level": "research",
+              "blocker_ref": null,
+              "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:data-requirement:gy-n10a:education_teaching_method",
+              "claim_ref": "claim:gy-n10a:education_teaching_method",
+              "commit_authority": "advisory_recommendation_only",
+              "compiled_requirement_ref": "data-requirement:gy-n10a:education_teaching_method",
+              "decision_owner": "runtime_planner",
+              "decision_owner_ref": null,
+              "eligible_strategies": [
+                "public_registry",
+                "academic_retrieval",
+                "proxy_with_degraded_authority",
+                "accepted_deficit"
+              ],
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-gy-n10a-education-teaching-method.json",
+              "gap_id": "requirement-gap:data_requirement:data-requirement:gy-n10a:education_teaching_method",
+              "gap_type": "scenario_source_family",
+              "ineligible_strategies": [
+                "agency_request",
+                "closeout_block",
+                "consultation",
+                "legal_corpus_expansion",
+                "method_remediation",
+                "production_snapshot_build",
+                "publish_with_limitation",
+                "rerun",
+                "source_contract_remediation",
+                "survey"
+              ],
+              "ineligible_strategy_records": [
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "agency_request",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "closeout_block",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "consultation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "legal_corpus_expansion",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "method_remediation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "production_snapshot_build",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "authority_profile_does_not_permit_public_limitation",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "publish_with_limitation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "rerun",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "source_contract_remediation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "survey",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                }
+              ],
+              "limitation_ref": null,
+              "mandatory_gate_refs": [],
+              "mandatory_gate_state": "none",
+              "missing_requirement_fields": [
+                "required_data_family:education.teaching_method",
+                "mandatory_facet:source_contract_ref",
+                "mandatory_facet:lineage_refs"
+              ],
+              "next_actions": [
+                {
+                  "action": "acquire_evidence",
+                  "blocks_closeout": false,
+                  "commit_required": false,
+                  "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-gy-n10a-education-teaching-method.json",
+                  "message": "Acquire or remediate evidence via public_registry for claim:gy-n10a:education_teaching_method.",
+                  "owner": "runtime_planner",
+                  "producer_expected": "fabric.public_registry",
+                  "strategy": "public_registry"
+                }
+              ],
+              "planner_posture": "advisory",
+              "producer_expected": "fabric.public_registry",
+              "producer_output_ref": null,
+              "public_projection_effect": "no_public_effect_until_producer_output",
+              "recommended_strategy": "public_registry",
+              "requirement_family": "data_requirement",
+              "requirement_gap_ref": "requirement-gap:data_requirement:data-requirement:gy-n10a:education_teaching_method",
+              "requirement_schema_version": "policyos.data_requirement_spec.v1",
+              "runtime_event_ref": "event://runtime/acquisition/gy-n10a-education-one-variable-n7/requirement-gap-data-requirement-data-requirement-gy-n10a-education-teaching-method",
+              "scenario_requirement_refs": [
+                "data-requirement:gy-n10a:education_teaching_method",
+                "education.teaching_method"
+              ],
+              "schema_version": "policyos.runtime.acquisition_planner.v1",
+              "status": "ready",
+              "strategy_records": [
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "acquire_evidence",
+                  "strategy": "public_registry",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "acquire_evidence",
+                  "strategy": "academic_retrieval",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "proxy_with_limitation",
+                  "strategy": "proxy_with_degraded_authority",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "accept_deficit",
+                  "strategy": "accepted_deficit",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                }
+              ],
+              "terminal_disposition": "acquire",
+              "voi_ranking_ref": null
+            }
+          ],
+          "adr_refs": [
+            "ADR-0166"
+          ],
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "capability_reality_status": "implemented",
+          "generated_at": "2026-07-10T06:09:12.367963Z",
+          "pattern_refs": [
+            "P01",
+            "P09",
+            "P10"
+          ],
+          "run_id": "gy-n10a-education-one-variable-n7",
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "pass",
+          "summary": {
+            "accepted_deficit": 0,
+            "acquire": 1,
+            "blocked": 0,
+            "eligible_strategy_count": 4,
+            "ineligible_strategy_count": 10,
+            "limited": 0,
+            "record_count": 1,
+            "rerun": 0
+          }
+        },
+        "real_grounding_result_count": 0,
+        "receipt_id": "acquisition-receipt:gy-n10a-education-one-variable-n7:0",
+        "reentry_cycle_index": 0,
+        "run_id": "gy-n10a-education-one-variable-n7",
+        "schema_version": "policyos.runtime.quality.acquisition_receipt.v1",
+        "source_cycle_index": 0,
+        "status": "completed_no_results",
+        "useful_design_rate_after": 0.0,
+        "useful_design_rate_before": 0.0,
+        "world_write_outcomes": [
+          {
+            "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+            "family_id": null,
+            "owner_component": "fabric.retrieval",
+            "reason": "owner_response_no_substrate_registrations",
+            "registry_content_hash_after": null,
+            "registry_content_hash_before": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1",
+            "requirement_ref": "data-requirement:gy-n10a:education_teaching_method",
+            "source_id": null,
+            "status": "no_result",
+            "substrate_version_after": null,
+            "substrate_version_before": "substrate_version_f94770b220aa9b6a",
+            "world_ref_after": null
+          }
+        ]
+      },
+      "receipt_generated_at": "2026-07-10T06:09:12.367963Z"
+    }
+  },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
   "selected_domain": "education",
-  "smoke_problem_content_hash": "sha256:969a1e4670a734f6d97d705d6a1d2fda4e919d64f5e5363769054422a6c584be",
+  "smoke_problem_content_hash": "sha256:c2e3857b91f8e69dcc867f1e01f84533669a2fc2373feae6bd5063f0f83b34e5",
   "zero_engine_code": {
     "changed_engine_paths": [],
     "changed_paths": [
@@ -1464,7 +2051,9 @@
       "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json",
       "docs/reference/generated-artifacts.md",
       "docs/superpowers/plans/2026-07-09-second-domain-pack.md",
+      "docs/superpowers/plans/2026-07-10-second-domain-pack-provenance-repair.md",
       "docs/superpowers/specs/2026-07-09-second-domain-pack-design.md",
+      "docs/superpowers/specs/2026-07-10-second-domain-pack-provenance-repair-design.md",
       "tests/unit/runtime/quality/test_second_domain_pack.py",
       "tools/quality/validation/check_layer3_gy_second_domain_pack.py"
     ],

@@ -20,6 +20,7 @@ import sys
 import time
 from collections import defaultdict
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -80,8 +81,6 @@ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetSt
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"
 RULE_VERSION = "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1"
 PRODUCER = "tools.quality.validation.check_layer3_gy_second_domain_pack"
-N7_CAPTURED_AT = datetime(2026, 7, 9, tzinfo=UTC)
-
 CENSUS_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_census.json"
 PACK_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_pack.json"
 SMOKE_PROBLEM_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json"
@@ -98,6 +97,7 @@ ARTIFACT_OUTPUTS = (
 
 _CONTENT_HASH_ALLOWED_EXCLUSIONS: dict[str, frozenset[str]] = {
     "census_content_hash": frozenset({"runtime_metrics"}),
+    "manifest_content_hash": frozenset({"runtime_metrics"}),
     "trace_content_hash": frozenset({"runtime_metrics"}),
 }
 
@@ -107,7 +107,9 @@ _TASK_SCOPE_ALLOWED_EXACT = frozenset(
         "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
         "docs/reference/generated-artifacts.md",
         "docs/superpowers/plans/2026-07-09-second-domain-pack.md",
+        "docs/superpowers/plans/2026-07-10-second-domain-pack-provenance-repair.md",
         "docs/superpowers/specs/2026-07-09-second-domain-pack-design.md",
+        "docs/superpowers/specs/2026-07-10-second-domain-pack-provenance-repair-design.md",
         "tests/unit/runtime/quality/test_second_domain_pack.py",
         "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
     }
@@ -166,6 +168,54 @@ _CANDIDATE_SPECS: dict[str, dict[str, tuple[str, ...]]] = {
 
 class OwnerDataUnavailableError(RuntimeError):
     """Raised when an owner database is absent from the caller's data mount."""
+
+
+class GapWitnessTargetMissingError(RuntimeError):
+    """Raised when a recorded free-grow seam no longer resolves in its owner."""
+
+
+class SourceHashCheckoutPathError(ValueError):
+    """Raised when evidence would bind a checkout-specific source path."""
+
+
+@dataclass(frozen=True)
+class GapWitnessSpec:
+    """Canonical, segment-scoped source witness for one typed free-grow gap."""
+
+    source_path: str
+    symbol: str
+
+
+GAP_WITNESS_SPECS: dict[str, GapWitnessSpec] = {
+    "s0_to_l6_world_slot_bridge_missing": GapWitnessSpec(
+        source_path="src/polisyos/runtime/quality/intervention_substrate.py",
+        symbol="resolve_intervention_lever",
+    ),
+    "owner_registration_derivation_missing": GapWitnessSpec(
+        source_path="src/polisyos/runtime/quality/acquisition_planner.py",
+        symbol="_project_owner_artifacts_into_world",
+    ),
+    "journal_raw_evidence_persistence_missing": GapWitnessSpec(
+        source_path="src/polisyos/runtime/quality/acquisition_planner.py",
+        symbol="run_acquisition_closed_loop",
+    ),
+    "s0_to_n4_l6_bridge_missing": GapWitnessSpec(
+        source_path="src/polisyos/runtime/quality/design_generation.py",
+        symbol="derive_lever_space_prompt_slice",
+    ),
+    "s0_to_n5_wmr_bridge_missing": GapWitnessSpec(
+        source_path="src/polisyos/runtime/quality/generation_cycle.py",
+        symbol="_build_boundary_world_model_record",
+    ),
+    "n8_transport_tuple_hardcode": GapWitnessSpec(
+        source_path="src/polisyos/runtime/quality/generation_cycle.py",
+        symbol="_build_candidate_selection_diagram",
+    ),
+    "n6_single_terminal_validation_gap": GapWitnessSpec(
+        source_path="src/polisyos/runtime/quality/generation_cycle.py",
+        symbol="validate_generation_cycle_run",
+    ),
+}
 
 
 class _UnavailableOwnerGenerationPort:
@@ -246,6 +296,7 @@ def validate_bundle_payloads(bundle: Mapping[str, Any], repo_root: Path) -> list
     _validate_n7_attempt(pack, issues)
     _validate_distinctness(root, pack, issues)
     _validate_coverage_denominators(census, pack, gaps, issues)
+    _validate_gap_witnesses(root, gaps, issues)
     _validate_smoke_terminal(smoke_problem, cycle_trace, issues)
     _validate_zero_engine_code(root, pack, issues)
     return issues
@@ -295,11 +346,21 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
         ):
             issues.append({"code": "owner_rederive_drift", "artifact": name})
     metrics = _mapping(live.get("runtime_metrics"))
+    n7_metrics = _mapping(_mapping(live.get("pack")).get("runtime_metrics")).get(
+        "n7_acquisition"
+    )
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         "query_timings_seconds": _mapping(metrics.get("query_timings_seconds")),
+        "n7_capture_operational_metadata": {
+            "receipt_generated_at": _mapping(n7_metrics).get("receipt_generated_at"),
+            "planner_report_generated_at": _mapping(n7_metrics).get(
+                "planner_report_generated_at"
+            ),
+            "owner_capture_times": _mapping(n7_metrics).get("owner_capture_times"),
+        },
     }
 
 
@@ -359,6 +420,39 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     ]
     code_scope["out_of_scope_paths"] = ["README.md"]
     corrupted["pack"]["zero_engine_code"] = code_scope
+    n7_attempt = _mapping(corrupted["pack"].get("n7_acquisition"))
+    receipt_content = _mapping(n7_attempt.get("receipt_content"))
+    receipt_content["generated_at"] = "2026-07-10T00:00:00Z"
+    n7_attempt["receipt_content"] = receipt_content
+    n7_attempt["receipt_content_hash"] = _hash(receipt_content)
+    corrupted["pack"]["n7_acquisition"] = n7_attempt
+    gap_records = _list_of_mappings(corrupted["gaps"].get("gaps"))
+    if gap_records:
+        first_witness = _mapping(_mapping(gap_records[0].get("owner_evidence")).get("seam_witness"))
+        if first_witness.get("source_path"):
+            first_witness["source_path"] = str(root / str(first_witness["source_path"]))
+        first_evidence = _mapping(gap_records[0].get("owner_evidence"))
+        first_evidence["seam_witness"] = first_witness
+        gap_records[0]["owner_evidence"] = first_evidence
+    if len(gap_records) > 1:
+        second_witness = _mapping(_mapping(gap_records[1].get("owner_evidence")).get("seam_witness"))
+        second_witness["symbol"] = "__gy_n10a_missing_target__"
+        second_evidence = _mapping(gap_records[1].get("owner_evidence"))
+        second_evidence["seam_witness"] = second_witness
+        gap_records[1]["owner_evidence"] = second_evidence
+    mutated_gaps = _mapping(corrupted["gaps"])
+    mutated_gaps["gaps"] = [
+        _with_content_hash(gap, "gap_content_hash") for gap in gap_records
+    ]
+    corrupted["gaps"] = _with_content_hash(mutated_gaps, "gap_report_content_hash")
+    corrupted["pack"]["gap_report_content_hash"] = corrupted["gaps"][
+        "gap_report_content_hash"
+    ]
+    corrupted["pack"] = _with_content_hash(
+        corrupted["pack"],
+        "manifest_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
     issues = validate_bundle_payloads(corrupted, root)
     codes = sorted({str(issue.get("code")) for issue in issues if issue.get("code")})
     expected = {
@@ -370,6 +464,9 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "smoke_terminal_not_honest",
         "free_grow_violated_by_code_change",
         "free_grow_violated_by_scope_change",
+        "capture_time_content_bound",
+        "source_hash_checkout_path_dependent",
+        "gap_witness_target_missing",
     }
     missing = sorted(expected.difference(codes))
     if missing:
@@ -1251,6 +1348,12 @@ def _preferred_lever(levers: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     )
 
 
+def _n7_capture_now() -> datetime:
+    """Return the actual UTC capture time for one live N7 owner call."""
+
+    return datetime.now(UTC)
+
+
 def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]:
     """Run one real-owner N7 attempt and retain its journal-first receipt.
 
@@ -1305,6 +1408,7 @@ def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]
         substrate_registry=_mapping(_mapping(facts.get("s0_registry")).get("registry_payload")),
         world_model_record_ref="world-model:gy-n10a-education-acquisition",
     )
+    capture_time = _n7_capture_now()
     receipt = run_acquisition_closed_loop(
         run_id="gy-n10a-education-one-variable-n7",
         acquisition_request={
@@ -1317,11 +1421,12 @@ def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]
         },
         data_requirement_specs=(spec,),
         world_snapshot=world,
-        owner_gateway=RealAcquisitionOwnerGateway(repo_root=root, captured_at=N7_CAPTURED_AT),
+        owner_gateway=RealAcquisitionOwnerGateway(repo_root=root, captured_at=capture_time),
         useful_design_rate_before=0.0,
-        generated_at=N7_CAPTURED_AT,
+        generated_at=capture_time,
     )
     receipt_payload = receipt.model_dump(mode="json")
+    receipt_content = _n7_owner_evidence_projection(receipt_payload)
     owner_artifacts = _list_of_mappings(receipt_payload.get("owner_artifacts"))
     raw_response_checks = [
         {
@@ -1352,14 +1457,15 @@ def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]
         "attempted_variable": instrument,
         "attempt_source_l2_row_content_hash": selected["row_content_hash"],
         "one_live_variable_per_attempt": True,
-        "receipt": receipt_payload,
-        "receipt_content_hash": receipt.content_hash,
+        "receipt_content": receipt_content,
+        "receipt_content_hash": _n7_owner_evidence_hash(receipt_payload),
         "owner_rederive_status": "pass" if receipt_is_rederivable else "fail",
         "receipt_validation_issues": receipt_issues,
         "raw_response_hash_checks": raw_response_checks,
         "pack_entry_eligible": False,
         "pack_entry_rejection_reason": rejection_reason,
         "journal_persistence_status": "receipt_embedded_in_content_addressed_pack_manifest",
+        "runtime_metrics": _n7_operational_metadata(receipt_payload),
     }
 
 
@@ -1370,6 +1476,92 @@ def _n7_owner_response_hash(response: Mapping[str, Any]) -> str:
         dict(response), sort_keys=True, separators=(",", ":"), default=str
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _n7_owner_evidence_projection(receipt_payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Project an N7 receipt into content-bound owner facts without run timing."""
+
+    projection = copy.deepcopy(_json_value(dict(receipt_payload)))
+    projection.pop("content_hash", None)
+    projection.pop("generated_at", None)
+    planner_report = _mapping(projection.get("planner_report"))
+    planner_report.pop("generated_at", None)
+    projection["planner_report"] = planner_report
+    owner_artifacts = _list_of_mappings(projection.get("owner_artifacts"))
+    for artifact in owner_artifacts:
+        capture_provenance = _mapping(artifact.get("capture_provenance"))
+        capture_provenance.pop("captured_at", None)
+        artifact["capture_provenance"] = capture_provenance
+    projection["owner_artifacts"] = owner_artifacts
+    return projection
+
+
+def _n7_owner_evidence_hash(receipt_payload: Mapping[str, Any]) -> str:
+    """Hash the time-free N7 owner-evidence projection used by the pack."""
+
+    return _hash(_n7_owner_evidence_projection(receipt_payload))
+
+
+def _n7_content_time_paths(value: Mapping[str, Any]) -> list[str]:
+    """Return known N7 operational receipt paths that leaked into content evidence."""
+
+    paths: list[str] = []
+    if "generated_at" in value:
+        paths.append("generated_at")
+    planner_report = _mapping(value.get("planner_report"))
+    if "generated_at" in planner_report:
+        paths.append("planner_report.generated_at")
+    for index, artifact in enumerate(_list_of_mappings(value.get("owner_artifacts"))):
+        capture_provenance = _mapping(artifact.get("capture_provenance"))
+        if "captured_at" in capture_provenance:
+            paths.append(f"owner_artifacts[{index}].capture_provenance.captured_at")
+    return paths
+
+
+def _n7_operational_metadata(receipt_payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Retain operational N7 fields without persisting the engine's time-bound hash."""
+
+    artifacts = _list_of_mappings(receipt_payload.get("owner_artifacts"))
+    operational_receipt = _json_value(dict(receipt_payload))
+    operational_receipt.pop("content_hash", None)
+    return {
+        "receipt": operational_receipt,
+        "receipt_generated_at": receipt_payload.get("generated_at"),
+        "planner_report_generated_at": _mapping(receipt_payload.get("planner_report")).get(
+            "generated_at"
+        ),
+        "owner_capture_times": [
+            _mapping(artifact.get("capture_provenance")).get("captured_at")
+            for artifact in artifacts
+        ],
+    }
+
+
+def _reconstruct_n7_receipt_payload(
+    receipt_content: Mapping[str, Any], operational: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Rejoin static owner evidence and run timing for transient engine validation."""
+
+    payload = copy.deepcopy(_json_value(dict(receipt_content)))
+    generated_at = operational.get("receipt_generated_at")
+    planner_generated_at = operational.get("planner_report_generated_at")
+    capture_times = operational.get("owner_capture_times")
+    if not generated_at or not planner_generated_at or not isinstance(capture_times, list):
+        raise ValueError("n7_operational_capture_metadata_missing")
+    artifacts = _list_of_mappings(payload.get("owner_artifacts"))
+    if len(capture_times) != len(artifacts) or any(not value for value in capture_times):
+        raise ValueError("n7_operational_capture_metadata_missing")
+    payload["generated_at"] = generated_at
+    planner_report = _mapping(payload.get("planner_report"))
+    planner_report["generated_at"] = planner_generated_at
+    payload["planner_report"] = planner_report
+    for artifact, captured_at in zip(artifacts, capture_times, strict=True):
+        capture_provenance = _mapping(artifact.get("capture_provenance"))
+        capture_provenance["captured_at"] = captured_at
+        artifact["capture_provenance"] = capture_provenance
+    payload["owner_artifacts"] = artifacts
+    payload.pop("content_hash", None)
+    return payload
 
 
 def _n7_pack_entry_rejection_reason(owner_artifacts: Sequence[Mapping[str, Any]]) -> str:
@@ -1572,24 +1764,18 @@ def _build_gap_report(
     facts: Mapping[str, Any],
     cycle_trace: Mapping[str, Any],
 ) -> dict[str, Any]:
-    n7_calls = _function_call_names(
-        root / "src/polisyos/runtime/quality/acquisition_planner.py",
-        "run_acquisition_closed_loop",
-    )
-    n4_calls = _function_call_names(
-        root / "src/polisyos/runtime/quality/design_generation.py",
-        "derive_lever_space_prompt_slice",
-    )
-    n6_calls = _function_call_names(
-        root / "src/polisyos/runtime/quality/generation_cycle.py",
-        "_build_default_boundary_world_model_record",
-    )
+    seam_witnesses = {
+        gap_id: _resolve_gap_witness(root, spec)
+        for gap_id, spec in GAP_WITNESS_SPECS.items()
+    }
     positive_writable = [
         row
         for row in _list_of_mappings(_mapping(facts.get("l6_owner")).get("writability_attempts"))
         if row.get("status") == "owner_writable"
     ]
     n7_attempt = _mapping(facts.get("n7_attempt"))
+    registration_witness = seam_witnesses["owner_registration_derivation_missing"]
+    n8_comparator = _first_vertical_comparator(root)
     gaps = [
         {
             "gap_id": "s0_to_l6_world_slot_bridge_missing",
@@ -1599,6 +1785,7 @@ def _build_gap_report(
                 "l6_bundle_content_hash": _mapping(facts.get("l6_owner")).get("bundle_content_hash"),
                 "writability_attempts": _mapping(facts.get("l6_owner")).get("writability_attempts"),
                 "positive_writable_count": len(positive_writable),
+                "seam_witness": seam_witnesses["s0_to_l6_world_slot_bridge_missing"],
             },
             "acquisition_required": {
                 "status": "unrunnable_without_engine_bridge",
@@ -1614,13 +1801,15 @@ def _build_gap_report(
                 "rederived from the captured domain-owner measurements."
             ),
             "owner_evidence": {
-                "source_path": "src/polisyos/runtime/quality/acquisition_planner.py",
-                "source_content_hash": _source_content_hash(
-                    root / "src/polisyos/runtime/quality/acquisition_planner.py"
+                "seam_witness": registration_witness,
+                "direct_persist_substrate_registry_call": (
+                    "persist_substrate_registry"
+                    in registration_witness["observed_call_names"]
                 ),
-                "run_acquisition_closed_loop_calls": n7_calls,
-                "direct_persist_substrate_registry_call": "persist_substrate_registry" in n7_calls,
-                "direct_persist_acquisition_receipt_call": "persist_acquisition_receipt" in n7_calls,
+                "direct_persist_acquisition_receipt_call": (
+                    "persist_acquisition_receipt"
+                    in registration_witness["observed_call_names"]
+                ),
                 "live_n7_receipt_content_hash": n7_attempt.get("receipt_content_hash"),
                 "live_n7_attempt_status": n7_attempt.get("attempt_status"),
                 "live_n7_pack_entry_rejection_reason": n7_attempt.get(
@@ -1646,7 +1835,10 @@ def _build_gap_report(
             "owner_evidence": {
                 "receipt_content_hash": n7_attempt.get("receipt_content_hash"),
                 "journal_persistence_status": n7_attempt.get("journal_persistence_status"),
-                "journal_entries": _mapping(n7_attempt.get("receipt")).get("journal_entries"),
+                "journal_entries": _mapping(n7_attempt.get("receipt_content")).get(
+                    "journal_entries"
+                ),
+                "seam_witness": seam_witnesses["journal_raw_evidence_persistence_missing"],
             },
         },
         {
@@ -1654,11 +1846,7 @@ def _build_gap_report(
             "capability_label": "consumer_missing",
             "blocking_seam": "N4 loads its fixed L6 substrate instead of a persisted second-domain S0 entry.",
             "owner_evidence": {
-                "source_path": "src/polisyos/runtime/quality/design_generation.py",
-                "source_content_hash": _source_content_hash(
-                    root / "src/polisyos/runtime/quality/design_generation.py"
-                ),
-                "derive_lever_space_prompt_slice_calls": n4_calls,
+                "seam_witness": seam_witnesses["s0_to_n4_l6_bridge_missing"],
             },
         },
         {
@@ -1666,18 +1854,18 @@ def _build_gap_report(
             "capability_label": "consumer_missing",
             "blocking_seam": "Default N6/N5 rebuilds the boundary registry and remains first-vertical scoped.",
             "owner_evidence": {
-                "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
-                "source_content_hash": _source_content_hash(
-                    root / "src/polisyos/runtime/quality/generation_cycle.py"
-                ),
-                "default_boundary_world_builder_calls": n6_calls,
+                "seam_witness": seam_witnesses["s0_to_n5_wmr_bridge_missing"],
             },
         },
         {
             "gap_id": "n8_transport_tuple_hardcode",
             "capability_label": "consumer_missing",
             "blocking_seam": "N8 still consumes first-vertical transport covariates rather than pack data.",
-            "owner_evidence": _first_vertical_comparator(root),
+            "owner_evidence": {
+                "first_vertical_transport_covariates": n8_comparator["transport_covariates"],
+                "first_vertical_method_family": n8_comparator["method_family"],
+                "seam_witness": seam_witnesses["n8_transport_tuple_hardcode"],
+            },
         },
         {
             "gap_id": "n6_single_terminal_validation_gap",
@@ -1686,6 +1874,7 @@ def _build_gap_report(
             "owner_evidence": {
                 "trace_content_hash": cycle_trace["trace_content_hash"],
                 "n6_validation_issues": cycle_trace["n6_validation_issues"],
+                "seam_witness": seam_witnesses["n6_single_terminal_validation_gap"],
             },
         },
     ]
@@ -1731,6 +1920,11 @@ def _build_pack(
     changed_paths = _task_changed_paths(root, base_commit)
     engine_paths = [path for path in changed_paths if path.startswith("src/polisyos/")]
     out_of_scope_paths = [path for path in changed_paths if not _task_scope_path_allowed(path)]
+    n7_attempt = _mapping(facts.get("n7_attempt"))
+    n7_runtime_metrics = _mapping(n7_attempt.get("runtime_metrics"))
+    n7_content = {
+        key: value for key, value in n7_attempt.items() if key != "runtime_metrics"
+    }
     payload = {
         "schema_version": SCHEMA_VERSION,
         "artifact_kind": "policy_design_case.gy_n10a.second_domain_pack",
@@ -1746,6 +1940,7 @@ def _build_pack(
         "smoke_problem_content_hash": smoke_problem["smoke_problem_content_hash"],
         "cycle_trace_content_hash": cycle_trace["trace_content_hash"],
         "gap_report_content_hash": gaps["gap_report_content_hash"],
+        "content_hash_excluded_fields": ["runtime_metrics"],
         "components": {
             "outcomes": {
                 "owner": "L1 DCAT ds_observations",
@@ -1813,13 +2008,14 @@ def _build_pack(
             "computed_status": "must_pass_validator",
         },
         "n7_acquisition": {
-            **_mapping(facts.get("n7_attempt")),
+            **n7_content,
             "gap_refs": [
                 "owner_registration_derivation_missing",
                 "journal_raw_evidence_persistence_missing",
                 "s0_to_l6_world_slot_bridge_missing",
             ],
         },
+        "runtime_metrics": {"n7_acquisition": n7_runtime_metrics},
         "zero_engine_code": {
             "task_base_commit": base_commit,
             "changed_paths": changed_paths,
@@ -1833,7 +2029,11 @@ def _build_pack(
             "surface_out_of_scope": False,
         },
     }
-    return _with_content_hash(payload, "manifest_content_hash")
+    return _with_content_hash(
+        payload,
+        "manifest_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
 
 
 def _pack_l1_entry(row: Mapping[str, Any], role: str, query: Mapping[str, Any]) -> dict[str, Any]:
@@ -2040,14 +2240,47 @@ def _validate_n7_attempt(pack: Mapping[str, Any], issues: list[dict[str, Any]]) 
     if int(attempt.get("receipt_count", 0)) != 1 or not attempt.get("one_live_variable_per_attempt"):
         issues.append({"code": "n7_live_attempt_denominator_invalid"})
         return
-    receipt_payload = _mapping(attempt.get("receipt"))
-    try:
-        receipt = AcquisitionReceipt.model_validate(receipt_payload)
-    except ValueError as exc:
-        issues.append({"code": "n7_receipt_invalid", "error": str(exc)})
+    runtime_metrics = _mapping(pack.get("runtime_metrics"))
+    operational = _mapping(runtime_metrics.get("n7_acquisition"))
+    receipt_payload = _mapping(operational.get("receipt"))
+    receipt_content = _mapping(attempt.get("receipt_content"))
+    time_paths = _n7_content_time_paths(receipt_content)
+    if "receipt" in attempt or time_paths:
+        issues.append({"code": "capture_time_content_bound", "paths": time_paths})
+    if not receipt_payload:
+        issues.append({"code": "n7_operational_receipt_missing"})
         return
-    if attempt.get("receipt_content_hash") != receipt.content_hash:
+    if "content_hash" in receipt_payload:
+        issues.append(
+            {
+                "code": "capture_time_content_bound",
+                "paths": ["runtime_metrics.n7_acquisition.receipt.content_hash"],
+            }
+        )
+    try:
+        reconstructed_payload = _reconstruct_n7_receipt_payload(receipt_content, operational)
+        receipt = AcquisitionReceipt.model_validate(reconstructed_payload)
+    except ValueError as exc:
+        code = (
+            "n7_operational_capture_metadata_missing"
+            if "n7_operational_capture_metadata_missing" in str(exc)
+            else "n7_receipt_invalid"
+        )
+        issues.append({"code": code, "error": str(exc)})
+        return
+    expected_content = _n7_owner_evidence_projection(receipt_payload)
+    if receipt_content != expected_content:
+        issues.append({"code": "n7_receipt_content_projection_drift"})
+    if attempt.get("receipt_content_hash") != _hash(expected_content):
         issues.append({"code": "n7_receipt_content_hash_drift"})
+    expected_operational = _n7_operational_metadata(receipt_payload)
+    if (
+        operational.get("receipt_generated_at") != expected_operational.get("receipt_generated_at")
+        or operational.get("planner_report_generated_at")
+        != expected_operational.get("planner_report_generated_at")
+        or operational.get("owner_capture_times") != expected_operational.get("owner_capture_times")
+    ):
+        issues.append({"code": "n7_operational_capture_metadata_drift"})
     receipt_issues = list(validate_acquisition_receipt(receipt))
     if receipt_issues:
         issues.append({"code": "n7_receipt_owner_validation_failed", "issues": receipt_issues})
@@ -2189,6 +2422,83 @@ def _validate_coverage_denominators(
         issues.append({"code": "free_grow_gap_report_empty_without_proof"})
 
 
+def _validate_gap_witnesses(
+    root: Path,
+    gaps: Mapping[str, Any],
+    issues: list[dict[str, Any]],
+) -> None:
+    """Re-resolve every recorded seam and reject absent or checkout-bound witnesses."""
+
+    records = {
+        str(gap.get("gap_id")): gap for gap in _list_of_mappings(gaps.get("gaps"))
+    }
+    expected_ids = set(GAP_WITNESS_SPECS)
+    if set(records) != expected_ids:
+        issues.append(
+            {
+                "code": "gap_witness_coverage_drift",
+                "expected_gap_ids": sorted(expected_ids),
+                "recorded_gap_ids": sorted(records),
+            }
+        )
+    for gap_id, expected_spec in GAP_WITNESS_SPECS.items():
+        record = records.get(gap_id)
+        if record is None:
+            continue
+        owner_evidence = _mapping(record.get("owner_evidence"))
+        witness = _mapping(owner_evidence.get("seam_witness"))
+        source_path = witness.get("source_path")
+        symbol = witness.get("symbol")
+        if not isinstance(source_path, str) or not isinstance(symbol, str) or not symbol:
+            issues.append({"code": "gap_witness_target_missing", "gap_id": gap_id})
+            continue
+        if Path(source_path).is_absolute():
+            issues.append(
+                {
+                    "code": "source_hash_checkout_path_dependent",
+                    "gap_id": gap_id,
+                    "source_path": source_path,
+                }
+            )
+            continue
+        observed_spec = GapWitnessSpec(source_path=source_path, symbol=symbol)
+        try:
+            actual = _resolve_gap_witness(root, observed_spec)
+        except SourceHashCheckoutPathError as exc:
+            issues.append(
+                {
+                    "code": "source_hash_checkout_path_dependent",
+                    "gap_id": gap_id,
+                    "error": str(exc),
+                }
+            )
+            continue
+        except (FileNotFoundError, SyntaxError, GapWitnessTargetMissingError) as exc:
+            issues.append(
+                {
+                    "code": "gap_witness_target_missing",
+                    "gap_id": gap_id,
+                    "error": str(exc),
+                }
+            )
+            continue
+        if observed_spec != expected_spec:
+            issues.append(
+                {
+                    "code": "gap_witness_catalog_drift",
+                    "gap_id": gap_id,
+                    "expected_source_path": expected_spec.source_path,
+                    "expected_symbol": expected_spec.symbol,
+                    "recorded_source_path": source_path,
+                    "recorded_symbol": symbol,
+                }
+            )
+        if witness != actual:
+            issues.append(
+                {"code": "gap_witness_drift", "gap_id": gap_id}
+            )
+
+
 def _validate_smoke_terminal(
     smoke_problem: Mapping[str, Any],
     cycle_trace: Mapping[str, Any],
@@ -2326,9 +2636,9 @@ def _first_vertical_comparator(root: Path) -> dict[str, Any]:
     return {
         "case_id": pinned.get("case_id"),
         "source_hashes": {
-            _repo_relative(pinned_path, root): _source_content_hash(pinned_path),
-            _repo_relative(value_path, root): _source_content_hash(value_path),
-            _repo_relative(data_path, root): _source_content_hash(data_path),
+            _repo_relative(pinned_path, root): _source_content_hash(root, pinned_path),
+            _repo_relative(value_path, root): _source_content_hash(root, value_path),
+            _repo_relative(data_path, root): _source_content_hash(root, data_path),
         },
         "outcome_canonical_vars": sorted(item for item in outcomes if item),
         "method_family": str(g2.get("data_modality")),
@@ -2413,13 +2723,50 @@ def _git(root: Path, *args: str) -> str:
     return result.stdout.strip()
 
 
-def _function_call_names(path: Path, function_name: str) -> list[str]:
-    tree = ast.parse(path.read_text(encoding="utf-8"))
-    functions = [node for node in ast.walk(tree) if isinstance(node, ast.FunctionDef)]
-    target = next((node for node in functions if node.name == function_name), None)
-    if target is None:
-        return []
-    return sorted({_call_name(node.func) for node in ast.walk(target) if isinstance(node, ast.Call)})
+def _resolve_gap_witness(root: Path, spec: GapWitnessSpec) -> dict[str, Any]:
+    """Recompute one exact source seam without binding its checkout location."""
+
+    source_path = _source_path_from_repo_relative(root, spec.source_path)
+    if not source_path.is_file():
+        raise GapWitnessTargetMissingError(
+            f"gap witness source is absent: {spec.source_path}::{spec.symbol}"
+        )
+    source_text = source_path.read_text(encoding="utf-8")
+    tree = ast.parse(source_text)
+    targets = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == spec.symbol
+    ]
+    if len(targets) != 1:
+        raise GapWitnessTargetMissingError(
+            f"gap witness target must resolve exactly once: {spec.source_path}::{spec.symbol}"
+        )
+    target = targets[0]
+    segment = ast.get_source_segment(source_text, target)
+    if not segment:
+        raise GapWitnessTargetMissingError(
+            f"gap witness target has no source segment: {spec.source_path}::{spec.symbol}"
+        )
+    canonical_path = _canonical_repo_relative_path(root, source_path)
+    return {
+        "source_path": canonical_path,
+        "symbol": spec.symbol,
+        "segment_content_hash": _hash(
+            {
+                "repo_relative_path": canonical_path,
+                "symbol": spec.symbol,
+                "source": segment,
+            }
+        ),
+        "observed_call_names": sorted(
+            {
+                _call_name(node.func)
+                for node in ast.walk(target)
+                if isinstance(node, ast.Call)
+            }
+        ),
+    }
 
 
 def _call_name(node: ast.expr) -> str:
@@ -2444,8 +2791,16 @@ def _read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def _source_content_hash(path: Path) -> str:
-    return _hash({"path": path.as_posix(), "text": path.read_text(encoding="utf-8")})
+def _source_content_hash(repo_root: Path, source_path: Path) -> str:
+    """Hash source text with its canonical repo-relative identity only."""
+
+    canonical_path = _canonical_repo_relative_path(repo_root, source_path)
+    return _hash(
+        {
+            "repo_relative_path": canonical_path,
+            "source": source_path.resolve().read_text(encoding="utf-8"),
+        }
+    )
 
 
 def _with_content_hash(
@@ -2479,6 +2834,7 @@ def _preserve_frozen_operational_metrics(bundle: dict[str, Any], root: Path) -> 
 
     artifacts = (
         ("census", CENSUS_OUTPUT, "census_content_hash"),
+        ("pack", PACK_OUTPUT, "manifest_content_hash"),
         ("cycle_trace", CYCLE_TRACE_OUTPUT, "trace_content_hash"),
     )
     for bundle_key, relative_path, hash_field in artifacts:
@@ -2490,6 +2846,10 @@ def _preserve_frozen_operational_metrics(bundle: dict[str, Any], root: Path) -> 
         if frozen.get(hash_field) != artifact.get(hash_field):
             continue
         frozen_metrics = _mapping(frozen.get("runtime_metrics"))
+        if bundle_key == "pack" and "content_hash" in _mapping(
+            _mapping(frozen_metrics.get("n7_acquisition")).get("receipt")
+        ):
+            continue
         if frozen_metrics:
             artifact["runtime_metrics"] = frozen_metrics
             bundle[bundle_key] = artifact
@@ -2576,6 +2936,31 @@ def _repo_relative(path: Path, root: Path) -> str:
         return path.as_posix()
 
 
+def _canonical_repo_relative_path(repo_root: Path, source_path: Path) -> str:
+    """Return a resolved source path relative to its checkout root, or fail closed."""
+
+    root = repo_root.resolve()
+    try:
+        return source_path.resolve().relative_to(root).as_posix()
+    except ValueError as exc:
+        raise SourceHashCheckoutPathError(
+            f"source path is outside repo root: {source_path}"
+        ) from exc
+
+
+def _source_path_from_repo_relative(repo_root: Path, source_path: str) -> Path:
+    """Resolve a recorded repo-relative source path while rejecting checkout paths."""
+
+    raw_path = Path(source_path)
+    if raw_path.is_absolute():
+        raise SourceHashCheckoutPathError(
+            f"source witness path must be repo-relative: {source_path}"
+        )
+    resolved = (repo_root.resolve() / raw_path).resolve()
+    _canonical_repo_relative_path(repo_root, resolved)
+    return resolved
+
+
 def _render_report(report: Mapping[str, Any], output_format: str) -> None:
     if output_format == "json":
         print(_canonical_json(report))
@@ -2618,6 +3003,13 @@ def main(argv: list[str] | None = None) -> int:
             report = corrupt_field_drift_check(root)
         else:
             report = validate(root)
+    except GapWitnessTargetMissingError as exc:
+        report = {"status": "fail", "issues": [{"code": "gap_witness_target_missing", "error": str(exc)}]}
+    except SourceHashCheckoutPathError as exc:
+        report = {
+            "status": "fail",
+            "issues": [{"code": "source_hash_checkout_path_dependent", "error": str(exc)}],
+        }
     except (OwnerDataUnavailableError, RuntimeError, ValueError) as exc:
         report = {"status": "fail", "issues": [{"code": "second_domain_pack_execution_failed", "error": str(exc)}]}
     _render_report(report, args.output_format)

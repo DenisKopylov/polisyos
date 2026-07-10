@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:bf57c638ef34ef5f1c47bb3df285cdbfc5db93d43376c67705e88995c6cbb430",
+  "gap_report_content_hash": "sha256:6c6c661bbfd29b3c768f614a4855c67283c8ea8849e973721bb00d2e7cc5b71f",
   "gaps": [
     {
       "acquisition_required": {
@@ -10,11 +10,32 @@
       },
       "blocking_seam": "L2 candidate intervention concepts do not resolve through the real L6 knob owner.",
       "capability_label": "bridge_missing",
-      "gap_content_hash": "sha256:b3989fd7a71381e1530ef1419a934b312f319c7b5df290aab84619b7a158ad2e",
+      "gap_content_hash": "sha256:17deefba376023a7c16c1892c98fae6b03dae5db585a1ae4895bc7b0e723271e",
       "gap_id": "s0_to_l6_world_slot_bridge_missing",
       "owner_evidence": {
         "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
         "positive_writable_count": 0,
+        "seam_witness": {
+          "observed_call_names": [
+            "<dynamic>.strip",
+            "InterventionLeverResolution",
+            "InterventionSubstrateError",
+            "_knob_domain",
+            "_mapping_or_none",
+            "_resolve_owner_atom_world_binding",
+            "_validate_value_in_domain",
+            "binding.model_dump",
+            "bundle.knob_dictionary.get",
+            "bundle.source_refs.get",
+            "domain.model_dump",
+            "gy_content_hash",
+            "str",
+            "tuple"
+          ],
+          "segment_content_hash": "sha256:f63620ce99cf392e2805b33f91a552159ec630df600bb453925202754c829737",
+          "source_path": "src/polisyos/runtime/quality/intervention_substrate.py",
+          "symbol": "resolve_intervention_lever"
+        },
         "writability_attempts": [
           {
             "attempt_content_hash": "sha256:8eae3fb38c3df394b9d8638a87ef6814e452cd92508113bb506335a3e765601f",
@@ -55,7 +76,7 @@
       },
       "blocking_seam": "N7's real owner receipt is journaled, but its projected registration is not rederived from the captured domain-owner measurements.",
       "capability_label": "artifact_missing",
-      "gap_content_hash": "sha256:ba0b1690b8c20c1f6a4bba190034abadf276713af01f3df7dcb03e49a2540c7f",
+      "gap_content_hash": "sha256:16c3f26d17d71b2cddf56deee67c8741a5c32205315e393914055740a1fb5b76",
       "gap_id": "owner_registration_derivation_missing",
       "owner_evidence": {
         "direct_persist_acquisition_receipt_call": false,
@@ -70,53 +91,42 @@
             "recomputed_raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
           }
         ],
-        "live_n7_receipt_content_hash": "sha256:0eef74759568eaa4bfdf82daae4f70c727dfd53d628f528180478f4fb2b737fc",
-        "run_acquisition_closed_loop_calls": [
-          "AcquisitionJournalEntry",
-          "AcquisitionNetworkCallCounter",
-          "AcquisitionReceipt",
-          "AcquisitionWorldSnapshot.model_validate",
-          "RecordedAcquisitionOwnerGateway",
-          "_acquisition_family_scores",
-          "_cycle_index_from_request",
-          "_failed_closed_journal_entry",
-          "_project_owner_artifacts_into_world",
-          "_slug",
-          "_spec_payload",
-          "_utc",
-          "acquisition_strangle_receipt",
-          "any",
-          "bool",
-          "dict",
-          "enumerate",
-          "fail_closed.append",
-          "fail_closed.extend",
-          "gateway.acquire",
-          "getattr",
-          "isinstance",
-          "journal_entries.append",
-          "len",
-          "max",
-          "min",
-          "owner_artifacts.append",
-          "plan_requirement_gap_acquisition",
-          "reason.startswith",
-          "requirement_gaps_from_compiled_specs",
-          "round",
-          "spec.get",
-          "spec_by_ref.get",
-          "str",
-          "sum",
-          "tuple"
-        ],
-        "source_content_hash": "sha256:39df9ede7f261906001e55e1163fdf9b598982672b524a41381bce4bf9feb568",
-        "source_path": "src/polisyos/runtime/quality/acquisition_planner.py"
+        "live_n7_receipt_content_hash": "sha256:222158e4a545288f5b3e6fbd12005ec7bae3813a218601d12239a2e403fa36f0",
+        "seam_witness": {
+          "observed_call_names": [
+            "<dynamic>.join",
+            "AcquisitionWorldWriteOutcome",
+            "_WorldProjectionResult",
+            "_affected_region_for_slots",
+            "_dedupe_text",
+            "_owner_artifact_validation_issues",
+            "_rederive_grounding_for_affected_region",
+            "_registrations_from_owner_artifact",
+            "_required_families_by_requirement_ref",
+            "_stable_content_hash",
+            "_substrate_registry_from_world",
+            "_world_ref_for_registry",
+            "fail_closed.append",
+            "getattr",
+            "outcomes.append",
+            "register_substrate_entry",
+            "required_by_ref.get",
+            "str",
+            "sum",
+            "tuple",
+            "written_artifacts.append",
+            "written_slots.append"
+          ],
+          "segment_content_hash": "sha256:716ad358cc7c443a3cf3068a7770da95a1c7ce9b346fd49cda42a74f3e1368ed",
+          "source_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+          "symbol": "_project_owner_artifacts_into_world"
+        }
       }
     },
     {
       "blocking_seam": "The live N7 receipt carries a journal-first entry and raw-response hash, but the existing owner exposes no durable journal/CAS artifact for later S0/L6 use.",
       "capability_label": "artifact_missing",
-      "gap_content_hash": "sha256:4c02ea61ff6ca48df41c24f9b48dd8af05bbae79239c2f4b31c1687e1eb4e79b",
+      "gap_content_hash": "sha256:96fab3a49a929e394b168efd4d447d045fc97e880b98628fb56715ab51b482a1",
       "gap_id": "journal_raw_evidence_persistence_missing",
       "owner_evidence": {
         "journal_entries": [
@@ -133,91 +143,171 @@
           }
         ],
         "journal_persistence_status": "receipt_embedded_in_content_addressed_pack_manifest",
-        "receipt_content_hash": "sha256:0eef74759568eaa4bfdf82daae4f70c727dfd53d628f528180478f4fb2b737fc"
+        "receipt_content_hash": "sha256:222158e4a545288f5b3e6fbd12005ec7bae3813a218601d12239a2e403fa36f0",
+        "seam_witness": {
+          "observed_call_names": [
+            "AcquisitionJournalEntry",
+            "AcquisitionNetworkCallCounter",
+            "AcquisitionReceipt",
+            "AcquisitionWorldSnapshot.model_validate",
+            "RecordedAcquisitionOwnerGateway",
+            "_acquisition_family_scores",
+            "_cycle_index_from_request",
+            "_failed_closed_journal_entry",
+            "_project_owner_artifacts_into_world",
+            "_slug",
+            "_spec_payload",
+            "_utc",
+            "acquisition_strangle_receipt",
+            "any",
+            "bool",
+            "dict",
+            "enumerate",
+            "fail_closed.append",
+            "fail_closed.extend",
+            "gateway.acquire",
+            "getattr",
+            "isinstance",
+            "journal_entries.append",
+            "len",
+            "max",
+            "min",
+            "owner_artifacts.append",
+            "plan_requirement_gap_acquisition",
+            "reason.startswith",
+            "requirement_gaps_from_compiled_specs",
+            "round",
+            "spec.get",
+            "spec_by_ref.get",
+            "str",
+            "sum",
+            "tuple"
+          ],
+          "segment_content_hash": "sha256:1508da6de3e4388eaf876de66aef444b936da6b9659cd3c4b55489d993da4b5a",
+          "source_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+          "symbol": "run_acquisition_closed_loop"
+        }
       }
     },
     {
       "blocking_seam": "N4 loads its fixed L6 substrate instead of a persisted second-domain S0 entry.",
       "capability_label": "consumer_missing",
-      "gap_content_hash": "sha256:7a641a54f3c8eec5f5af59c509d56f41b5732f76a59ac94bb8250b373d053ab3",
+      "gap_content_hash": "sha256:277c1e4f96c78886b2f398ad8efc9e3d4822880cc8acb282af76cb1fb0e781be",
       "gap_id": "s0_to_n4_l6_bridge_missing",
       "owner_evidence": {
-        "derive_lever_space_prompt_slice_calls": [
-          "<dynamic>.strip",
-          "LeverSpacePromptSlice",
-          "LeverSpaceSliceEntry",
-          "LeverSpaceSliceEntry.model_validate",
-          "_cap_lever_space_entries",
-          "_compact_parameter_facts",
-          "_design_problem_filter_tokens",
-          "_id_token",
-          "_mapping",
-          "_operator_in_prompt_slice",
-          "_owner_aliases_for_operator",
-          "_owner_mechanism_entry",
-          "_reference_atom_prompt_facts",
-          "_string_values",
-          "atom_facts.get",
-          "bundle.knob_dictionary.items",
-          "bundle.source_content_hashes.get",
-          "bundle.source_refs.get",
-          "entries.append",
-          "entry.model_dump",
-          "gy_content_hash",
-          "load_l6_intervention_substrate",
-          "mechanism.get",
-          "owner_fact.get",
-          "repo_root.resolve",
-          "sorted",
-          "str",
-          "tuple",
-          "type"
-        ],
-        "source_content_hash": "sha256:0d3a36d15f1e685218c7a68a95fba2f9a2af59f3e84cd9fea35bfdc36c105da3",
-        "source_path": "src/polisyos/runtime/quality/design_generation.py"
+        "seam_witness": {
+          "observed_call_names": [
+            "<dynamic>.strip",
+            "LeverSpacePromptSlice",
+            "LeverSpaceSliceEntry",
+            "LeverSpaceSliceEntry.model_validate",
+            "_cap_lever_space_entries",
+            "_compact_parameter_facts",
+            "_design_problem_filter_tokens",
+            "_id_token",
+            "_mapping",
+            "_operator_in_prompt_slice",
+            "_owner_aliases_for_operator",
+            "_owner_mechanism_entry",
+            "_reference_atom_prompt_facts",
+            "_string_values",
+            "atom_facts.get",
+            "bundle.knob_dictionary.items",
+            "bundle.source_content_hashes.get",
+            "bundle.source_refs.get",
+            "entries.append",
+            "entry.model_dump",
+            "gy_content_hash",
+            "load_l6_intervention_substrate",
+            "mechanism.get",
+            "owner_fact.get",
+            "repo_root.resolve",
+            "sorted",
+            "str",
+            "tuple",
+            "type"
+          ],
+          "segment_content_hash": "sha256:27d9fe91b92a99a738bf18bbf643ec1be74b4492d7e073f04f50ec619815e105",
+          "source_path": "src/polisyos/runtime/quality/design_generation.py",
+          "symbol": "derive_lever_space_prompt_slice"
+        }
       }
     },
     {
       "blocking_seam": "Default N6/N5 rebuilds the boundary registry and remains first-vertical scoped.",
       "capability_label": "consumer_missing",
-      "gap_content_hash": "sha256:27ec6c703df58f978c2c9d8f3de390bb76736831cf8a832db9127acb79eaab4a",
+      "gap_content_hash": "sha256:15e4e374edfe0580e1722c4887e35feac0e2ec8b39a37513e40f429042bc778f",
       "gap_id": "s0_to_n5_wmr_bridge_missing",
       "owner_evidence": {
-        "default_boundary_world_builder_calls": [],
-        "source_content_hash": "sha256:f6cd51ff6570fb0e15428d23465b53654c9e023b9f165c3b3d65ec87c2243fd0",
-        "source_path": "src/polisyos/runtime/quality/generation_cycle.py"
+        "seam_witness": {
+          "observed_call_names": [
+            "<dynamic>.strip",
+            "DataForgeBindingRef",
+            "FabricWorldRef",
+            "FoundryBindingRef",
+            "PolicySlotBinding",
+            "ResolvedSubstrateEntryRef",
+            "SimulationModelRef",
+            "SkgCausalPriorRef",
+            "SubstrateRegistryRef",
+            "WorldModelRecord",
+            "WorldModelRecord.model_construct",
+            "binding.model_dump",
+            "build_substrate_registry_from_existing_catalogs",
+            "content_hash.removeprefix",
+            "dict.fromkeys",
+            "gy_content_hash",
+            "len",
+            "sorted",
+            "str",
+            "tuple",
+            "world_model_record_content_hash"
+          ],
+          "segment_content_hash": "sha256:d7e960f83b773cc5ba10960488e1c4d7dd4082d44de1c6b4f22ee97f36b23c1b",
+          "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
+          "symbol": "_build_boundary_world_model_record"
+        }
       }
     },
     {
       "blocking_seam": "N8 still consumes first-vertical transport covariates rather than pack data.",
       "capability_label": "consumer_missing",
-      "gap_content_hash": "sha256:f561f6de74e6846fa0593b82ae233a50dcc6b90824579954a7d6ac2011cb4446",
+      "gap_content_hash": "sha256:04121f56d9d4e69b195ba1160b3cfe97f04a4356c6b5f7624a9734ff431c4355",
       "gap_id": "n8_transport_tuple_hardcode",
       "owner_evidence": {
-        "case_id": "ua-msme-affordable-loans-2022",
-        "lever_vocabulary": [
-          "policy.credit_access"
-        ],
-        "method_family": "panel",
-        "outcome_canonical_vars": [
-          "avg_income",
-          "survival"
-        ],
-        "source_hashes": {
-          "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:d474467793659d13c40be4009d18f23a93db582ee88d7aa5cdf8f616cd3d1a26",
-          "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:6a5aa352eaa5b8ee6924015fdddcc0e57710412cddd106aa614b8924a3854725",
-          "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:8f434b62cca10aa1f9db0345a7cdc84ceaa965b7dde39b76f83a47a8d655e220"
-        },
-        "transport_covariates": [
+        "first_vertical_method_family": "panel",
+        "first_vertical_transport_covariates": [
           "institutional_quality",
           "state_capacity"
-        ]
+        ],
+        "seam_witness": {
+          "observed_call_names": [
+            "CausalEdge",
+            "CausalGraphModel",
+            "ContextProfile",
+            "_candidate_bool",
+            "_candidate_float",
+            "_candidate_id",
+            "_candidate_source_context_id",
+            "_candidate_treatment_period",
+            "_world_context_float",
+            "_world_post_conflict",
+            "build_selection_diagram",
+            "dict.fromkeys",
+            "list",
+            "region.split",
+            "str"
+          ],
+          "segment_content_hash": "sha256:6afafa3939d219b69f5f975d88646c7748bff2a3b7a020899d7dc551de43de63",
+          "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
+          "symbol": "_build_candidate_selection_diagram"
+        }
       }
     },
     {
       "blocking_seam": "A typed one-cycle terminal reaches N6 but its validator requires a positive two-cycle denominator.",
       "capability_label": "semantic_test_missing",
-      "gap_content_hash": "sha256:7960515ab310aed23d3d76d969e240fc2ecf9214b54d8bc26040d90d9ef6f7bb",
+      "gap_content_hash": "sha256:f6099e6f353ac80c41ce1ce61471c7d6bd7a55b26a58a6319672111fd6232a99",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [
@@ -225,7 +315,32 @@
             "code": "positive_cycle_denominator_missing"
           }
         ],
-        "trace_content_hash": "sha256:fcc373e0135eb5f8d516eb74aa1b674971b1189710badba2c4a012701cd42e01"
+        "seam_witness": {
+          "observed_call_names": [
+            "GenerationCycleRun.model_validate",
+            "_revision_strategy_for_terminal_kind",
+            "_scheduling_action_denominator",
+            "_summary_value_blocks_promotion",
+            "_terminal_denominator",
+            "_validate_owned_grammar_elements",
+            "cycle.revision_request.strategy_payload.get",
+            "enumerate",
+            "front_map.values",
+            "isinstance",
+            "issues.append",
+            "len",
+            "run.fronts.candidate_ids_by_front",
+            "set",
+            "sorted",
+            "str",
+            "summary_by_id.get",
+            "tuple"
+          ],
+          "segment_content_hash": "sha256:933baf21689144ef6d41c5efd194f3aef639fd986cc7fd646e4de956a028c7ef",
+          "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
+          "symbol": "validate_generation_cycle_run"
+        },
+        "trace_content_hash": "sha256:c5ae655cf207629a7013c6fad0d12a8623fc68ca4246ecedddd98c65a50b5148"
       }
     }
   ],

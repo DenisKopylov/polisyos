@@ -11,7 +11,9 @@ the single N6/N9 sequence over those owners, not a second champion or G4 engine.
 from __future__ import annotations
 
 import ast
+import json
 from collections.abc import Callable, Mapping, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
@@ -41,14 +43,18 @@ from polisyos.pdc._impl.layer2_design_search import (  # noqa: TC001
     Layer2S7DelegationPostureInput,
     Layer2S8ValuePostureInput,
 )
+from polisyos.runtime.quality.credal_reference import CredalReference  # noqa: TC001
 from polisyos.runtime.quality.generation_cycle import (
     CandidateSummary,
     DesignProblem,
     PromotionPortObservation,
     ValueGateReceipt,
 )
-from polisyos.runtime.quality.grounding_bind import (  # noqa: TC001
+from polisyos.runtime.quality.grounding_bind import (
+    GroundingDecisionCertificate,
     GroundingPromotabilityResolution,
+    resolve_grounding_decision_promotability,
+    resolve_grounding_decision_promotability_for_contract_testing,
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecord  # noqa: TC001
 
@@ -58,13 +64,6 @@ PROMOTION_SEQUENCE_REF = (
 PROMOTION_STRANGLE_REF = (
     "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
 )
-_DECISION_GRADE_RANK: dict[str | None, int] = {
-    None: 0,
-    "unsupported": 0,
-    "descriptive_only": 1,
-    "advisory_admissible": 2,
-    "decision_admissible": 3,
-}
 _SELF_PROMOTION_ROOTS = frozenset(
     {
         "llm_candidate",
@@ -80,6 +79,16 @@ _ALLOWED_POLICY_PROMOTION_CALLERS = frozenset(
         "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
     }
 )
+_G4_PROMOTION_RECORDS_PATH = Path(
+    "architecture/policy_design_case/layer3_g4_promotion_records.json"
+)
+
+
+@dataclass(frozen=True)
+class _CG2OwnerPromotabilityAttempt:
+    resolution: GroundingPromotabilityResolution | None
+    owner_ref: str
+    error: str | None = None
 
 
 class _StrictModel(BaseModel):
@@ -97,31 +106,28 @@ class CanonicalPromotionInput(_StrictModel):
     candidate_summary: CandidateSummary
     value_receipt: ValueGateReceipt | None = None
     world_model_record: WorldModelRecord | None = None
-    grounding_promotability: GroundingPromotabilityResolution | None = None
+    grounding_decision_certificate: GroundingDecisionCertificate | None = Field(
+        default=None,
+        exclude=True,
+    )
+    credal_reference: CredalReference | None = Field(default=None, exclude=True)
     s6_blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
     s7_delegation_posture: Layer2S7DelegationPostureInput | None = None
     s8_value_posture: Layer2S8ValuePostureInput | None = None
+    repo_root: Path | None = Field(default=None, exclude=True)
     operation_invocation_id: str = Field(default="n9.promotion.sequence", min_length=1)
     declared_authority_transform: dict[str, Any] = Field(default_factory=dict)
     producer_root_classes: tuple[str, ...] = ("deterministic_producer",)
     producer_root_refs: tuple[ArtifactRef, ...] = ()
     verifier_refs: tuple[str, ...] = ("verifier://n9/canonical-sequence",)
-    entailment_witness_ref: str | None = "gyk://entailment-witness/current"
-    g4_governed_promotion_ref: str | None = "pdc://layer3/g4/governed-promotion"
+    g4_governed_promotion_ref: str | None = (
+        "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+    )
     effective_independence: bool = True
     admissibility: bool = True
     force_proof_timeout: bool = False
     risk_budget_delta: float = Field(default=0.01, ge=0.0)
     risk_spends: tuple[PromotionRiskSpendRecord, ...] = ()
-    promotion_mode: Literal["production", "contract_testing"] = "production"
-
-    @model_validator(mode="after")
-    def _contract_testing_cannot_claim_production(self) -> CanonicalPromotionInput:
-        if self.promotion_mode == "contract_testing":
-            return self
-        if self.declared_authority_transform.get("for_contract_testing") is True:
-            raise ValueError("contract_testing_transform_not_allowed_in_production")
-        return self
 
 
 class CanonicalPromotionReceipt(_StrictModel):
@@ -143,6 +149,10 @@ class CanonicalPromotionReceipt(_StrictModel):
     refusal_reasons: tuple[str, ...] = ()
     value_receipt_ref: str | None = None
     value_method_family: str | None = None
+    promotion_lane: Literal["production", "contract_testing", "unresolved"] = "unresolved"
+    consumer_promotable: bool = False
+    non_promotable_reason: str | None = None
+    cg2_resolution_reason: str | None = None
     sequence_ref: str = PROMOTION_SEQUENCE_REF
 
     @model_validator(mode="after")
@@ -151,6 +161,21 @@ class CanonicalPromotionReceipt(_StrictModel):
             raise ValueError("promoted_receipt_requires_authority_derivation_trace")
         if self.promoted and self.status != "grounded_partial_admissible":
             raise ValueError("promoted_receipt_status_mismatch")
+        if self.consumer_promotable and not self.promoted:
+            raise ValueError("consumer_promotable_requires_promoted_receipt")
+        if self.consumer_promotable and self.promotion_lane != "production":
+            raise ValueError("consumer_promotable_requires_production_lane")
+        if self.promotion_lane == "contract_testing" and not self.non_promotable_reason:
+            raise ValueError("contract_lane_receipt_requires_non_promotable_reason")
+        scope_gaps = [
+            obligation
+            for obligation in self.obligations
+            if obligation.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+        ]
+        if self.promoted and scope_gaps and (
+            self.promotion_lane != "contract_testing" or self.consumer_promotable
+        ):
+            raise ValueError("scope_insufficient_cannot_mint_authoritative_promotion")
         return self
 
 
@@ -220,10 +245,12 @@ class CanonicalN9PromotionPort:
                 candidate_summary=summary,
                 value_receipt=value_receipt,
                 world_model_record=context.get("world_model_record"),
-                grounding_promotability=context.get("grounding_promotability"),
+                grounding_decision_certificate=context.get("grounding_decision_certificate"),
+                credal_reference=context.get("credal_reference"),
                 s6_blind_spot_posture=context.get("s6_blind_spot_posture"),
                 s7_delegation_posture=context.get("s7_delegation_posture"),
                 s8_value_posture=context.get("s8_value_posture"),
+                repo_root=self._repo_root,
                 operation_invocation_id=str(
                     context.get("operation_invocation_id")
                     or f"n9.{problem.design_problem_id}.{summary.candidate_id}"
@@ -240,23 +267,22 @@ class CanonicalN9PromotionPort:
                 ),
                 producer_root_refs=tuple(context.get("producer_root_refs") or ()),
                 verifier_refs=tuple(context.get("verifier_refs") or ()),
-                entailment_witness_ref=context.get(
-                    "entailment_witness_ref",
-                    "gyk://entailment-witness/current",
-                ),
                 g4_governed_promotion_ref=context.get(
                     "g4_governed_promotion_ref",
-                    "pdc://layer3/g4/governed-promotion",
+                    "g4-promotion-record:g4-request:ua-msme-source-only-valid",
                 ),
                 effective_independence=bool(context.get("effective_independence", True)),
                 admissibility=bool(context.get("admissibility", True)),
                 risk_budget_delta=float(context.get("risk_budget_delta", 0.01)),
                 risk_spends=tuple(context.get("risk_spends") or ()),
                 force_proof_timeout=bool(context.get("force_proof_timeout", False)),
-                promotion_mode="production",
             )
             receipts.append(run_canonical_promotion_sequence(promotion_input))
-        certified = tuple(receipt.candidate_id for receipt in receipts if receipt.promoted)
+        certified = tuple(
+            receipt.candidate_id
+            for receipt in receipts
+            if receipt.promoted and receipt.consumer_promotable
+        )
         return PromotionPortObservation(
             status="certified_current_valid" if certified else "not_promoted",
             certified_candidate_ids=certified,
@@ -277,7 +303,8 @@ def run_canonical_promotion_sequence(
 ) -> CanonicalPromotionReceipt:
     """Run the single canonical N9 sequence over the real owner contracts."""
 
-    obligations = _compile_obligations(promotion_input)
+    cg2_attempt = _resolve_cg2_owner_promotability(promotion_input)
+    obligations = _compile_obligations(promotion_input, cg2_attempt=cg2_attempt)
     risk_spend = _risk_spend_summary(promotion_input)
     if not risk_spend.within_budget:
         obligations = _replace_obligation(
@@ -294,10 +321,17 @@ def run_canonical_promotion_sequence(
                 reason=PromotionFailClosedReason.JOINT_OBLIGATION_INCONSISTENCY,
             ),
         )
+    promotion_lane = _promotion_lane(cg2_attempt)
     gate_hash = _gate_outcome_hash(obligations)
     boundary = _computed_authority_boundary(promotion_input)
-    refusal_reasons = _refusal_reasons(obligations, risk_spend=risk_spend)
+    refusal_reasons = _refusal_reasons(
+        obligations,
+        risk_spend=risk_spend,
+        allow_non_authoritative_contract_scope_gaps=promotion_lane == "contract_testing",
+    )
     promoted = not refusal_reasons
+    consumer_promotable = promoted and _cg2_resolution_is_production_promotable(cg2_attempt)
+    non_promotable_reason = _non_promotable_reason(cg2_attempt, promoted=promoted)
     trace = None
     trace_hash = None
     if promoted:
@@ -336,6 +370,12 @@ def run_canonical_promotion_sequence(
             if promotion_input.value_receipt is not None
             else None
         ),
+        promotion_lane=promotion_lane,
+        consumer_promotable=consumer_promotable,
+        non_promotable_reason=non_promotable_reason,
+        cg2_resolution_reason=(
+            cg2_attempt.resolution.reason if cg2_attempt.resolution is not None else None
+        ),
     )
 
 
@@ -371,6 +411,30 @@ def validate_canonical_promotion_receipt(
                     "obligation_class": obligation.obligation_class.value,
                 }
             )
+        if (
+            obligation.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+            and obligation.semantic_scope != "scope_insufficient"
+        ):
+            issues.append(
+                {
+                    "code": "scope_insufficient_semantic_scope_mismatch",
+                    "obligation_class": obligation.obligation_class.value,
+                }
+            )
+    scope_gaps = [
+        obligation
+        for obligation in receipt.obligations
+        if obligation.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+    ]
+    if receipt.promoted and scope_gaps and (
+        receipt.promotion_lane != "contract_testing" or receipt.consumer_promotable
+    ):
+        issues.append(
+            {
+                "code": "scope_insufficient_authority_laundering",
+                "obligation_classes": [item.obligation_class.value for item in scope_gaps],
+            }
+        )
     expected_gate_hash = _gate_outcome_hash(receipt.obligations)
     if receipt.gate_outcome_hash != expected_gate_hash:
         issues.append(
@@ -404,8 +468,90 @@ def recompute_authority_trace_hash(trace: AuthorityDerivationTrace) -> str:
     return gy_content_hash(trace.model_dump(mode="json", exclude={"trace_content_hash"}))
 
 
+def _resolve_cg2_owner_promotability(
+    promotion_input: CanonicalPromotionInput,
+) -> _CG2OwnerPromotabilityAttempt:
+    owner_ref = (
+        "polisyos.runtime.quality.grounding_bind."
+        "resolve_grounding_decision_promotability"
+    )
+    certificate = promotion_input.grounding_decision_certificate
+    reference = promotion_input.credal_reference
+    if certificate is None or reference is None:
+        return _CG2OwnerPromotabilityAttempt(resolution=None, owner_ref=owner_ref)
+    resolver = resolve_grounding_decision_promotability
+    if certificate.authority_scope == "contract_testing":
+        resolver = resolve_grounding_decision_promotability_for_contract_testing
+        owner_ref = (
+            "polisyos.runtime.quality.grounding_bind."
+            "resolve_grounding_decision_promotability_for_contract_testing"
+        )
+    try:
+        resolution = resolver(certificate, reference)
+    except Exception as exc:  # pragma: no cover - reported as typed refusal.
+        return _CG2OwnerPromotabilityAttempt(
+            resolution=None,
+            owner_ref=owner_ref,
+            error=repr(exc),
+        )
+    return _CG2OwnerPromotabilityAttempt(resolution=resolution, owner_ref=owner_ref)
+
+
+def _cg2_resolution_is_contract_lane_bind(
+    resolution: GroundingPromotabilityResolution,
+) -> bool:
+    return (
+        resolution.decision == "bind"
+        and resolution.authority_scope == "contract_testing"
+        and resolution.store_authority_scope == "contract_testing"
+        and resolution.reason == "non_production_anchor_scope"
+        and resolution.content_hash_valid
+        and resolution.reference_epoch_match
+    )
+
+
+def _cg2_resolution_is_production_promotable(
+    attempt: _CG2OwnerPromotabilityAttempt,
+) -> bool:
+    resolution = attempt.resolution
+    return bool(
+        resolution is not None
+        and resolution.promotable
+        and resolution.authority_scope == "production"
+        and resolution.store_authority_scope == "production"
+    )
+
+
+def _promotion_lane(
+    attempt: _CG2OwnerPromotabilityAttempt,
+) -> Literal["production", "contract_testing", "unresolved"]:
+    resolution = attempt.resolution
+    if resolution is None:
+        return "unresolved"
+    if (
+        resolution.authority_scope == "contract_testing"
+        or resolution.store_authority_scope == "contract_testing"
+    ):
+        return "contract_testing"
+    return "production"
+
+
+def _non_promotable_reason(
+    attempt: _CG2OwnerPromotabilityAttempt,
+    *,
+    promoted: bool,
+) -> str | None:
+    resolution = attempt.resolution
+    del promoted
+    if resolution is None or _cg2_resolution_is_production_promotable(attempt):
+        return None
+    return resolution.reason
+
+
 def _compile_obligations(
     promotion_input: CanonicalPromotionInput,
+    *,
+    cg2_attempt: _CG2OwnerPromotabilityAttempt,
 ) -> tuple[PromotionObligationRecord, ...]:
     receipt = promotion_input.value_receipt
     summary = promotion_input.candidate_summary
@@ -416,11 +562,11 @@ def _compile_obligations(
         _param_obligation(promotion_input),
         _coupling_obligation(summary),
         _effect_obligation(promotion_input),
-        _identification_obligation(promotion_input),
+        _identification_obligation(promotion_input, cg2_attempt=cg2_attempt),
         _calibration_obligation(receipt),
         _measurement_obligation(receipt),
         _data_obligation(receipt),
-        evaluate_s6_blind_spot_promotion_gate(promotion_input.s6_blind_spot_posture),
+        _implementation_obligation(promotion_input.s6_blind_spot_posture),
         _equilibrium_obligation(receipt),
         evaluate_s7_mandate_delegation_promotion_gate(
             promotion_input.s7_delegation_posture,
@@ -513,19 +659,34 @@ def _param_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObli
             owner_ref="polisyos.pdc._impl.gy_waist.AuthorityDerivationTrace",
             detail="Forced promotion knob was declared by the caller.",
         )
-    if not promotion_input.g4_governed_promotion_ref:
+    record_ref = promotion_input.g4_governed_promotion_ref
+    if not record_ref:
         return _scope_insufficient_obligation(
             obligation_class=PromotionObligationClass.PARAM,
             gate_id=PromotionGateId.G4_GOVERNED_PROMOTION,
-            owner_ref="architecture/policy_design_case/layer3_g4_promotion_records.json",
+            owner_ref=_G4_PROMOTION_RECORDS_PATH.as_posix(),
             detail="G4 governed-promotion record is not resolved for this candidate.",
+        )
+    record, issue = _resolve_g4_governed_promotion_record(
+        record_ref,
+        repo_root=promotion_input.repo_root,
+    )
+    if record is None:
+        return _failed_obligation(
+            obligation_class=PromotionObligationClass.PARAM,
+            gate_id=PromotionGateId.G4_GOVERNED_PROMOTION,
+            owner_ref=_G4_PROMOTION_RECORDS_PATH.as_posix(),
+            detail=f"G4 owner refused governed-promotion record resolution: {issue}.",
         )
     return _satisfied_obligation(
         obligation_class=PromotionObligationClass.PARAM,
         gate_id=PromotionGateId.G4_GOVERNED_PROMOTION,
-        owner_ref="architecture/policy_design_case/layer3_g4_promotion_records.json",
-        detail="G4 governed-promotion record is present for the sequence.",
-        evidence_refs=[promotion_input.g4_governed_promotion_ref],
+        owner_ref=_G4_PROMOTION_RECORDS_PATH.as_posix(),
+        detail=(
+            "G4 owner record resolved through the persisted artifact; G4 minting is "
+            f"not authoritative for N9 (state={record.get('promotion_state') or 'unknown'})."
+        ),
+        evidence_refs=[str(record["promotion_record_id"])],
     )
 
 
@@ -547,7 +708,9 @@ def _coupling_obligation(summary: CandidateSummary) -> PromotionObligationRecord
     )
 
 
-def _effect_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationRecord:
+def _effect_obligation(
+    promotion_input: CanonicalPromotionInput,
+) -> PromotionObligationRecord:
     if promotion_input.force_proof_timeout:
         return PromotionObligationRecord(
             obligation_class=PromotionObligationClass.EFFECT,
@@ -557,29 +720,23 @@ def _effect_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObl
             owner_ref="GY-K entailment witness",
             detail="Entailment proof timed out; N9 carries unknown and keeps the candidate shadow.",
         )
-    if not promotion_input.entailment_witness_ref:
-        return PromotionObligationRecord(
-            obligation_class=PromotionObligationClass.EFFECT,
-            gate_id=PromotionGateId.GYK_ENTAILMENT,
-            status=PromotionObligationStatus.UNKNOWN,
-            reason=PromotionFailClosedReason.UNKNOWN,
-            owner_ref="GY-K entailment witness",
-            detail="Entailment witness is absent; N9 cannot derive effect authority.",
-        )
-    return _satisfied_obligation(
+    return _scope_insufficient_obligation(
         obligation_class=PromotionObligationClass.EFFECT,
         gate_id=PromotionGateId.GYK_ENTAILMENT,
-        owner_ref="GY-K entailment witness",
-        detail="Entailment/grounding witness is present as a witness, not the decider.",
-        evidence_refs=[promotion_input.entailment_witness_ref],
+        owner_ref="GY-K entailment witness owner",
+        detail=(
+            "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined "
+            "to the identification obligation."
+        ),
     )
 
 
 def _identification_obligation(
     promotion_input: CanonicalPromotionInput,
+    *,
+    cg2_attempt: _CG2OwnerPromotabilityAttempt,
 ) -> PromotionObligationRecord:
     summary = promotion_input.candidate_summary
-    resolution = promotion_input.grounding_promotability
     if not summary.current_valid or summary.grounding_status != "current_valid":
         return _failed_obligation(
             obligation_class=PromotionObligationClass.IDENTIFICATION,
@@ -590,25 +747,41 @@ def _identification_obligation(
                 f"(status={summary.grounding_status})."
             ),
         )
+    if cg2_attempt.error is not None:
+        return _failed_obligation(
+            obligation_class=PromotionObligationClass.IDENTIFICATION,
+            gate_id=PromotionGateId.CG2_BIND_PROMOTABILITY,
+            owner_ref=cg2_attempt.owner_ref,
+            detail=f"CG2 owner resolution raised: {cg2_attempt.error}.",
+        )
+    resolution = cg2_attempt.resolution
     if resolution is None:
         return _failed_obligation(
             obligation_class=PromotionObligationClass.IDENTIFICATION,
             gate_id=PromotionGateId.CG2_BIND_PROMOTABILITY,
-            owner_ref="polisyos.runtime.quality.grounding_bind.resolve_grounding_decision_promotability",
-            detail="CG2 owner-store promotability resolution is missing.",
+            owner_ref=cg2_attempt.owner_ref,
+            detail=(
+                "CG2 owner-store resolution could not run because the CG2 decision "
+                "certificate or credal reference is missing."
+            ),
         )
-    if resolution is not None and not resolution.promotable:
+    if not resolution.promotable and not _cg2_resolution_is_contract_lane_bind(resolution):
         return _failed_obligation(
             obligation_class=PromotionObligationClass.IDENTIFICATION,
             gate_id=PromotionGateId.CG2_BIND_PROMOTABILITY,
-            owner_ref="polisyos.runtime.quality.grounding_bind.resolve_grounding_decision_promotability",
+            owner_ref=cg2_attempt.owner_ref,
             detail=f"CG2 owner-store refused bind promotability: {resolution.reason}.",
         )
+    detail = (
+        "CGF current_valid and CG2 production owner-store promotability both resolved."
+        if resolution.promotable
+        else "CGF current_valid and CG2 contract-test bind resolved with a non-promotable stamp."
+    )
     return _satisfied_obligation(
         obligation_class=PromotionObligationClass.IDENTIFICATION,
         gate_id=PromotionGateId.CG2_BIND_PROMOTABILITY,
-        owner_ref="polisyos.runtime.quality.grounding_bind.resolve_grounding_decision_promotability",
-        detail="CGF current_valid and CG2 owner-store promotability both resolved.",
+        owner_ref=cg2_attempt.owner_ref,
+        detail=detail,
         evidence_refs=[resolution.certificate_id],
     )
 
@@ -645,27 +818,15 @@ def _calibration_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
 
 
 def _measurement_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRecord:
-    if receipt is None:
-        return _failed_obligation(
-            obligation_class=PromotionObligationClass.MEASUREMENT,
-            gate_id=PromotionGateId.N8_VALUE,
-            owner_ref="polisyos.core.contracts.value_outer_set.ValueOuterSet",
-            detail="Value outer set is missing.",
-        )
-    decision = receipt.value_outer_set.promotion_decision()
-    if not decision.promotable:
-        return _failed_obligation(
-            obligation_class=PromotionObligationClass.MEASUREMENT,
-            gate_id=PromotionGateId.N8_VALUE,
-            owner_ref="polisyos.core.contracts.value_outer_set.ValueOuterSet.promotion_decision",
-            detail="Value outer set refused promotion: " + ",".join(decision.reasons),
-        )
-    return _satisfied_obligation(
+    del receipt
+    return _scope_insufficient_obligation(
         obligation_class=PromotionObligationClass.MEASUREMENT,
         gate_id=PromotionGateId.N8_VALUE,
-        owner_ref="polisyos.core.contracts.value_outer_set.ValueOuterSet.promotion_decision",
-        detail="Value outer set promotion decision is content-derived and promotable.",
-        evidence_refs=[receipt.value_ref],
+        owner_ref="measurement-rooted producer owner",
+        detail=(
+            "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision "
+            "remains value-class semantics only."
+        ),
     )
 
 
@@ -692,6 +853,37 @@ def _data_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRec
         detail="Data trust meets the value promotion floor.",
         evidence_refs=[trust.authority_ref],
     )
+
+
+def _implementation_obligation(
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
+) -> PromotionObligationRecord:
+    return evaluate_s6_blind_spot_promotion_gate(blind_spot_posture)
+
+
+def _resolve_g4_governed_promotion_record(
+    record_ref: str,
+    *,
+    repo_root: Path | None,
+) -> tuple[Mapping[str, Any] | None, str | None]:
+    path = (repo_root or Path.cwd()) / _G4_PROMOTION_RECORDS_PATH
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return None, f"owner_artifact_missing:{_G4_PROMOTION_RECORDS_PATH.as_posix()}"
+    except json.JSONDecodeError as exc:
+        return None, f"owner_artifact_invalid_json:{exc}"
+    records = payload.get("promotion_records") if isinstance(payload, Mapping) else None
+    if not isinstance(records, Sequence) or isinstance(records, (str, bytes)):
+        return None, "owner_artifact_records_missing"
+    wanted = record_ref.rsplit("#", 1)[-1]
+    for item in records:
+        if not isinstance(item, Mapping):
+            continue
+        record_id = str(item.get("promotion_record_id") or "")
+        if record_ref == record_id or wanted == record_id:
+            return item, None
+    return None, "governed_promotion_record_not_found"
 
 
 def _equilibrium_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRecord:
@@ -886,14 +1078,17 @@ def _refusal_reasons(
     obligations: Sequence[PromotionObligationRecord],
     *,
     risk_spend: PromotionRiskSpendSummary,
+    allow_non_authoritative_contract_scope_gaps: bool = False,
 ) -> list[str]:
     reasons: list[str] = []
     for obligation in obligations:
         if obligation.status in {
             PromotionObligationStatus.FAILED,
             PromotionObligationStatus.UNKNOWN,
-            PromotionObligationStatus.SCOPE_INSUFFICIENT,
-        }:
+        } or (
+            obligation.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
+            and not allow_non_authoritative_contract_scope_gaps
+        ):
             reason = obligation.reason.value if obligation.reason else "unknown"
             reasons.append(
                 f"{obligation.obligation_class.value}:{reason}"
@@ -915,10 +1110,9 @@ def _authority_derivation_trace(
     requested_grade = declared.get("requested_decision_grade")
     computed_grade = boundary.decision_grade or "unsupported"
     disposition: Literal["matched", "downgraded", "rejected", "upgraded"] = "matched"
-    if (
-        isinstance(requested_grade, str)
-        and _DECISION_GRADE_RANK.get(requested_grade, 0)
-        > _DECISION_GRADE_RANK.get(computed_grade, 0)
+    if isinstance(requested_grade, str) and _requested_grade_exceeds_boundary(
+        requested_grade,
+        boundary,
     ):
         disposition = "downgraded"
     output_ref = ArtifactRef(
@@ -959,6 +1153,21 @@ def _authority_derivation_trace(
     )
 
 
+def _requested_grade_exceeds_boundary(
+    requested_grade: str,
+    boundary: AuthorityBoundary,
+) -> bool:
+    try:
+        requested_boundary = boundary.model_copy(
+            update={"decision_grade": requested_grade}
+        )
+    except ValueError:
+        return False
+    return boundary.permits_at_most(requested_boundary) and not requested_boundary.permits_at_most(
+        boundary
+    )
+
+
 def _assert_generic_value_receipt(receipt: ValueGateReceipt) -> None:
     if not receipt.selected_method_fqn:
         raise ValueError("value_receipt_method_family_missing")
@@ -970,21 +1179,31 @@ def _assert_panel_specific_value_receipt(receipt: ValueGateReceipt) -> None:
 
 
 def _legacy_policy_promotion_callers(repo_root: Path) -> tuple[str, ...]:
-    roots = [repo_root / "src" / "polisyos" / "scientist"]
+    roots = [repo_root / "src" / "polisyos"]
     callers: list[str] = []
     for root in roots:
         if not root.is_dir():
             continue
         for path in root.rglob("*.py"):
             relative = path.relative_to(repo_root).as_posix()
-            if "autotune" in relative or "tests/" in relative:
+            if (
+                "autotune" in relative
+                or "tests/" in relative
+                or relative == "src/polisyos/runtime/quality/promotion_sequence.py"
+                or relative.endswith("/proving_ground/governed_promotion_gate.py")
+            ):
                 continue
             try:
                 tree = ast.parse(path.read_text(encoding="utf-8"))
             except SyntaxError:
                 continue
             for node in ast.walk(tree):
-                if isinstance(node, ast.Call) and _call_name(node.func) == "consider_promotion":
+                if not isinstance(node, ast.Call):
+                    continue
+                if _call_name(node.func) in {
+                    "consider_promotion",
+                    "build_g4_promotion_records",
+                }:
                     callers.append(f"{relative}:{node.lineno}")
     return tuple(sorted(dict.fromkeys(callers)))
 

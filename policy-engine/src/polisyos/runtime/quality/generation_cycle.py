@@ -4427,6 +4427,7 @@ def _apply_promotion_to_summaries(
         can_promote = (
             summary.candidate_id in certified
             and promotion.status == "certified_current_valid"
+            and _promotion_receipt_allows_decision_front(promotion, summary.candidate_id)
             and summary.current_valid
             and not _summary_value_blocks_promotion(summary)
             and (
@@ -4446,6 +4447,22 @@ def _apply_promotion_to_summaries(
         else:
             result.append(summary)
     return result
+
+
+def _promotion_receipt_allows_decision_front(
+    promotion: PromotionPortObservation,
+    candidate_id: str,
+) -> bool:
+    for receipt in promotion.receipts:
+        if str(receipt.get("candidate_id") or "") != candidate_id:
+            continue
+        return (
+            receipt.get("promoted") is True
+            and receipt.get("consumer_promotable") is True
+            and receipt.get("promotion_lane") == "production"
+            and not receipt.get("non_promotable_reason")
+        )
+    return False
 
 
 def _run_fixture_callers(repo_root: Path) -> tuple[str, ...]:

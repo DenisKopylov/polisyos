@@ -37,6 +37,7 @@ G4_READINESS_CHECK_ID = "layer3_g4_shadow_to_governed_promotion_gate"
 G4_GENERATED_ARTIFACT_FAMILY_ID = "policy-design-case-layer3-g4-promotion-gate-artifacts"
 REPO_ROOT = Path(__file__).resolve().parents[5]
 G4_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
+CANONICAL_N9_PROMOTION_REQUIRED = "canonical_n9_promotion_sequence_required"
 
 PROMOTION_STATE_VALUES: tuple[str, ...] = (
     "shadow",
@@ -2620,7 +2621,11 @@ def build_g4_promotion_records(
     weakest_boundary_composition: Layer3G4WeakestBoundaryComposition | None = None,
     human_decision_integrity_gate: Layer3G4HumanDecisionIntegrityGate | None = None,
 ) -> tuple[Layer3G4PromotionRecord, ...]:
-    """Build promotion records from G4 promotion inputs and gate outputs."""
+    """Return G4 evaluation records fenced from promotion minting by N9.
+
+    G4 remains an evaluation/provenance owner for N9 prerequisites. It no longer
+    mints governed promotion; the default is flipped to the canonical N9 refusal.
+    """
 
     if not isinstance(promotion_input_set, Layer3G4PromotionInputSet):
         records: list[Layer3G4PromotionRecord] = []
@@ -2652,7 +2657,10 @@ def build_g4_promotion_records(
                     human_decision_integrity_gate_ref=_g4_artifact_ref(
                         "layer3_g4_human_decision_integrity_gate.json"
                     ),
-                    blocker_refs=("layer3_g4_weakest_boundary_missing",),
+                    blocker_refs=(
+                        "layer3_g4_weakest_boundary_missing",
+                        CANONICAL_N9_PROMOTION_REQUIRED,
+                    ),
                     closeout_consumer_gate_ref=_g4_artifact_ref(
                         "layer3_g4_closeout_consumer_gate.json"
                     ),
@@ -2713,7 +2721,7 @@ def build_g4_promotion_records(
         records.append(
             Layer3G4PromotionRecord(
                 promotion_record_id=f"g4-promotion-record:{request_id}",
-                promotion_state=decision.status,  # type: ignore[arg-type]
+                promotion_state="promotion_blocked",
                 promotion_scope=dict(promotion_input.promotion_scope),
                 case_id=promotion_input.case_id,
                 candidate_ref=promotion_input.candidate_ref,
@@ -2731,7 +2739,9 @@ def build_g4_promotion_records(
                 human_decision_integrity_gate_ref=_g4_artifact_ref(
                     "layer3_g4_human_decision_integrity_gate.json"
                 ),
-                blocker_refs=sorted_blockers,
+                blocker_refs=tuple(
+                    dict.fromkeys((*sorted_blockers, CANONICAL_N9_PROMOTION_REQUIRED))
+                ),
                 limitation_refs=sorted_limitations,
                 upstream_contract_refs=upstream_refs,
                 closeout_consumer_gate_ref=_g4_artifact_ref(

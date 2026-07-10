@@ -14626,6 +14626,13 @@
       "target_root": "core"
     },
     {
+      "source_module": "polisyos.runtime.quality.promotion_sequence",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/promotion_sequence.py",
+      "target_module": "polisyos.pdc._impl.layer2_design_search",
+      "target_root": "pdc"
+    },
+    {
       "source_module": "polisyos.runtime.quality.prompt_tool_ledger",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/prompt_tool_ledger.py",

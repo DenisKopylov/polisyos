@@ -384,6 +384,10 @@ class _FabricatedPromotionPort:
         return PromotionPortObservation(
             status="certified_current_valid",
             certified_candidate_ids=tuple(summary.candidate_id for summary in summaries),
+            receipts=tuple(
+                _n9_receipt(summary.candidate_id, consumer_promotable=True)
+                for summary in summaries
+            ),
         )
 
 
@@ -542,6 +546,22 @@ def _n7_owner_payload(
 def _n7_stable_json_hash(value: dict[str, object]) -> str:
     encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), default=str).encode()
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def _n9_receipt(
+    candidate_id: str,
+    *,
+    consumer_promotable: bool,
+    promotion_lane: str = "production",
+    non_promotable_reason: str | None = None,
+) -> dict[str, object]:
+    return {
+        "candidate_id": candidate_id,
+        "promoted": True,
+        "promotion_lane": promotion_lane,
+        "consumer_promotable": consumer_promotable,
+        "non_promotable_reason": non_promotable_reason,
+    }
 
 
 def _n7_substrate_registry() -> SubstrateRegistry:
@@ -1122,6 +1142,10 @@ def test_decision_front_positive_and_proxy_conflict_paths_stay_live() -> None:
         PromotionPortObservation(
             status="certified_current_valid",
             certified_candidate_ids=("candidate_current_valid", "candidate_conflict"),
+            receipts=(
+                _n9_receipt("candidate_current_valid", consumer_promotable=True),
+                _n9_receipt("candidate_conflict", consumer_promotable=True),
+            ),
         ),
     )
     fronts = _derive_fronts(tuple(promoted))
@@ -1155,12 +1179,51 @@ def test_blocked_value_candidate_cannot_be_promoted_to_decision_front() -> None:
         PromotionPortObservation(
             status="certified_current_valid",
             certified_candidate_ids=("candidate_value_blocked",),
+            receipts=(_n9_receipt("candidate_value_blocked", consumer_promotable=True),),
         ),
     )
     fronts = _derive_fronts(tuple(promoted))
 
     assert fronts.decision.candidate_ids == ()
     assert fronts.research.candidate_ids == ("candidate_value_blocked",)
+
+
+def test_contract_lane_n9_receipt_cannot_enter_decision_front() -> None:
+    current_valid = CandidateSummary(
+        candidate_id="candidate_contract_lane",
+        content_hash="sha256:" + "2" * 64,
+        cycle_index=0,
+        generation_channel="n4_owner",
+        proxy_score=0.2,
+        voi_estimate=0.1,
+        grounding_status="current_valid",
+        grounding_source="cgf_firewall",
+        grounding_disposition="shadow_bound",
+        grounding_score=0.9,
+        current_valid=True,
+        front="research",
+        high_proxy=False,
+        low_grounding=False,
+    )
+    promoted = _apply_promotion_to_summaries(
+        (current_valid,),
+        PromotionPortObservation(
+            status="certified_current_valid",
+            certified_candidate_ids=("candidate_contract_lane",),
+            receipts=(
+                _n9_receipt(
+                    "candidate_contract_lane",
+                    consumer_promotable=False,
+                    promotion_lane="contract_testing",
+                    non_promotable_reason="non_production_anchor_scope",
+                ),
+            ),
+        ),
+    )
+    fronts = _derive_fronts(tuple(promoted))
+
+    assert fronts.decision.candidate_ids == ()
+    assert fronts.research.candidate_ids == ("candidate_contract_lane",)
 
 
 class _BlockedValuePort:

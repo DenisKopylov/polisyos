@@ -1,0 +1,1065 @@
+{
+  "behavioral_mutations": [
+    {
+      "issue_codes": [
+        "authority_derivation_trace_hash_drift"
+      ],
+      "mutation_id": "trace_hand_edit",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "gate_outcome_hash_drift",
+        "authority_trace_gate_hash_mismatch"
+      ],
+      "mutation_id": "gate_outcome_drift",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "contract_lane_positive_not_promoted"
+      ],
+      "mutation_id": "positive_not_promoted",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "contract_lane_positive_invalid"
+      ],
+      "mutation_id": "vacuous_scope_pass",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "contract_lane_risk_spend_over_budget"
+      ],
+      "mutation_id": "risk_budget_ignored",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "parallel_champion_path_not_strangled"
+      ],
+      "mutation_id": "strangle_drift",
+      "status": "red"
+    }
+  ],
+  "compute_economics": {
+    "cold_rederive_lane": "--rederive-audit",
+    "e1_cached_obligation_solves": true,
+    "lane0_sequence_logic": "synthetic_contract_certificates",
+    "routine_check": "frozen_receipt_only_no_live_rederivation",
+    "wall_time_recorded_by_validator": true
+  },
+  "contract_content_hash": "sha256:5125d8df60325f1ea8a2191026610d973edc6427126af89738851a740350236c",
+  "contract_id": "policyos.runtime.quality.canonical_n9_promotion_sequence",
+  "contract_lane_positive": {
+    "authority_derivation_trace": {
+      "applicability_result_ref": "n9://obligations/59bc1ad643bd6fd4",
+      "calibration_refs": [
+        "s10://unit"
+      ],
+      "certified_envelope_ref": null,
+      "computed_decision_grade": "advisory_admissible",
+      "computed_evidence_kind": "transport",
+      "counterexamples_closed": [],
+      "declared_authority_transform": {
+        "requested_decision_grade": "advisory_admissible",
+        "requested_evidence_kind": "transport"
+      },
+      "gate_outcome_hash": "sha256:59bc1ad643bd6fd422973aa9e614d3f4fe26fdc77ffe7245ea825b8b408f49fc",
+      "method_classification": "canonical_n9_owner_sequence",
+      "operation_invocation_id": "n9.promotion.sequence",
+      "output_artifact_ref": {
+        "artifact_id": "n9.candidate.n9",
+        "artifact_type": "runtime.quality.n9_promotion_receipt",
+        "content_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "schema_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+        "uri": "pdc://n9/candidate_n9",
+        "version": "v1"
+      },
+      "producer_root_classes": [
+        "deterministic_producer"
+      ],
+      "promotion_sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+      "resulting_authority_boundary_ref": "n9.candidate.n9.meet",
+      "risk_budget_delta": 0.01,
+      "risk_spend_total": 0.001,
+      "trace_content_hash": "sha256:a4ce661220a46273854dfe7035502e60df5cf7e2563abcc792091a87ebb82d2b",
+      "transform_mismatch_disposition": "matched",
+      "unresolved_blockers": []
+    },
+    "candidate_id": "candidate_n9",
+    "cg2_resolution_reason": "non_production_anchor_scope",
+    "computed_authority_boundary": {
+      "authoritative_for": [
+        "grounded_partial_admissible_policy_design"
+      ],
+      "boundary_id": "n9.candidate.n9.meet",
+      "decision_grade": "advisory_admissible",
+      "evidence_basis": {
+        "calibration_refs": [
+          "s10://unit"
+        ],
+        "counterexamples_closed": [],
+        "method_refs": [
+          "causal.inference.did.standard@1"
+        ],
+        "producer_roots": []
+      },
+      "evidence_kind": "transport",
+      "known_limits": [],
+      "may_not_use_for": [
+        "production_deployment",
+        "unguarded_champion_promotion"
+      ],
+      "posture": "governed",
+      "rule_version_refs": [
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+      ],
+      "source_authority": "deterministic_producer"
+    },
+    "consumer_promotable": false,
+    "gate_outcome_hash": "sha256:59bc1ad643bd6fd422973aa9e614d3f4fe26fdc77ffe7245ea825b8b408f49fc",
+    "non_promotable_reason": "non_production_anchor_scope",
+    "obligations": [
+      {
+        "detail": "Strict N9 input model validated with extra fields forbidden.",
+        "evidence_refs": [],
+        "gate_id": "gy_waist",
+        "obligation_class": "syntax",
+        "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "N8 value receipt validated as its typed contract.",
+        "evidence_refs": [
+          "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        ],
+        "gate_id": "n8_value",
+        "obligation_class": "type",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "Value receipt, transport receipt, and WMR content hash agree.",
+        "evidence_refs": [
+          "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        ],
+        "gate_id": "n8_transport",
+        "obligation_class": "slot",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+        "evidence_refs": [
+          "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+        ],
+        "gate_id": "g4_governed_promotion",
+        "obligation_class": "param",
+        "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No N5 coupling blocker is present on the candidate summary.",
+        "evidence_refs": [],
+        "gate_id": "n5_coupling",
+        "obligation_class": "coupling",
+        "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+        "evidence_refs": [],
+        "gate_id": "gyk_entailment",
+        "obligation_class": "effect",
+        "owner_ref": "GY-K entailment witness owner",
+        "reason": "scope_insufficient",
+        "risk_spend": null,
+        "semantic_scope": "scope_insufficient",
+        "status": "scope_insufficient"
+      },
+      {
+        "detail": "CGF current_valid and CG2 contract-test bind resolved with a non-promotable stamp.",
+        "evidence_refs": [
+          "cg2_cert_67e42fdf0b7b5373"
+        ],
+        "gate_id": "cg2_bind_promotability",
+        "obligation_class": "identification",
+        "owner_ref": "polisyos.runtime.quality.grounding_bind.resolve_grounding_decision_promotability_for_contract_testing",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "N8/S10 calibration receipt passed.",
+        "evidence_refs": [
+          "s10://unit"
+        ],
+        "gate_id": "n8_calibration",
+        "obligation_class": "calibration",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+        "evidence_refs": [],
+        "gate_id": "n8_value",
+        "obligation_class": "measurement",
+        "owner_ref": "measurement-rooted producer owner",
+        "reason": "scope_insufficient",
+        "risk_spend": null,
+        "semantic_scope": "scope_insufficient",
+        "status": "scope_insufficient"
+      },
+      {
+        "detail": "Data trust meets the value promotion floor.",
+        "evidence_refs": [
+          "data-trust://unit"
+        ],
+        "gate_id": "n8_value",
+        "obligation_class": "data",
+        "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "S6 posture accepted: clear_fail_closed.",
+        "evidence_refs": [
+          "s6://measure",
+          "s6://aggregation",
+          "s6://capacity",
+          "s6://mandate",
+          "s6://strategic"
+        ],
+        "gate_id": "s6_blind_spot",
+        "obligation_class": "implementation",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No violated equilibrium or strategic-response assumption is present.",
+        "evidence_refs": [],
+        "gate_id": "n5_coupling",
+        "obligation_class": "equilibrium",
+        "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "S7 mandate/delegation owner accepted governed-pilot eligibility.",
+        "evidence_refs": [
+          "s7://delegation",
+          "s7://rights",
+          "s7://request",
+          "s7://decision",
+          "s6://mandate"
+        ],
+        "gate_id": "s7_mandate_delegation",
+        "obligation_class": "normative",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search._s7_governed_pilot_eligible",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+        "evidence_refs": [],
+        "gate_id": "gy_o0_eval_safety",
+        "obligation_class": "eval_safety",
+        "owner_ref": "GY-O0 eval-safety gate",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "data_only_not_required",
+        "status": "not_applicable_data_only"
+      },
+      {
+        "detail": "N8 value receipt and S8 value-posture owner both accepted.",
+        "evidence_refs": [
+          "s8://value-choice",
+          "s8://schedule",
+          "s8://objective",
+          "s8://pareto",
+          "s8://tradeoff",
+          "s6://mandate",
+          "s8://decision",
+          "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        ],
+        "gate_id": "s8_value_posture",
+        "obligation_class": "value",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search._s8_blocks_ranked_selection",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      }
+    ],
+    "promoted": true,
+    "promotion_lane": "contract_testing",
+    "refusal_reasons": [],
+    "risk_spend": {
+      "budget_delta": 0.01,
+      "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
+      "spend_records": [
+        {
+          "certificate_ref": "n8://calibration",
+          "declared_delta_spend": 0.001,
+          "deterministic_proof": false,
+          "instrument": "s10_calibration",
+          "n11_confidence_ledger_ref": null,
+          "obligation_class": "calibration"
+        }
+      ],
+      "total_declared_delta": 0.001,
+      "within_budget": true
+    },
+    "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+    "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+    "status": "grounded_partial_admissible",
+    "terminal_kind": "grounded_partial_admissible",
+    "trace_content_hash": "sha256:a4ce661220a46273854dfe7035502e60df5cf7e2563abcc792091a87ebb82d2b",
+    "value_method_family": "causal.inference.did.standard@1",
+    "value_receipt_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "delta_caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
+  "non_promotable_contract_stamp": {
+    "authority_derivation_trace": {
+      "applicability_result_ref": "n9://obligations/59bc1ad643bd6fd4",
+      "calibration_refs": [
+        "s10://unit"
+      ],
+      "certified_envelope_ref": null,
+      "computed_decision_grade": "advisory_admissible",
+      "computed_evidence_kind": "transport",
+      "counterexamples_closed": [],
+      "declared_authority_transform": {
+        "requested_decision_grade": "advisory_admissible",
+        "requested_evidence_kind": "transport"
+      },
+      "gate_outcome_hash": "sha256:59bc1ad643bd6fd422973aa9e614d3f4fe26fdc77ffe7245ea825b8b408f49fc",
+      "method_classification": "canonical_n9_owner_sequence",
+      "operation_invocation_id": "n9.promotion.sequence",
+      "output_artifact_ref": {
+        "artifact_id": "n9.candidate.n9",
+        "artifact_type": "runtime.quality.n9_promotion_receipt",
+        "content_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "schema_ref": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+        "uri": "pdc://n9/candidate_n9",
+        "version": "v1"
+      },
+      "producer_root_classes": [
+        "deterministic_producer"
+      ],
+      "promotion_sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+      "resulting_authority_boundary_ref": "n9.candidate.n9.meet",
+      "risk_budget_delta": 0.01,
+      "risk_spend_total": 0.001,
+      "trace_content_hash": "sha256:a4ce661220a46273854dfe7035502e60df5cf7e2563abcc792091a87ebb82d2b",
+      "transform_mismatch_disposition": "matched",
+      "unresolved_blockers": []
+    },
+    "candidate_id": "candidate_n9",
+    "cg2_resolution_reason": "non_production_anchor_scope",
+    "computed_authority_boundary": {
+      "authoritative_for": [
+        "grounded_partial_admissible_policy_design"
+      ],
+      "boundary_id": "n9.candidate.n9.meet",
+      "decision_grade": "advisory_admissible",
+      "evidence_basis": {
+        "calibration_refs": [
+          "s10://unit"
+        ],
+        "counterexamples_closed": [],
+        "method_refs": [
+          "causal.inference.did.standard@1"
+        ],
+        "producer_roots": []
+      },
+      "evidence_kind": "transport",
+      "known_limits": [],
+      "may_not_use_for": [
+        "production_deployment",
+        "unguarded_champion_promotion"
+      ],
+      "posture": "governed",
+      "rule_version_refs": [
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+      ],
+      "source_authority": "deterministic_producer"
+    },
+    "consumer_promotable": false,
+    "gate_outcome_hash": "sha256:59bc1ad643bd6fd422973aa9e614d3f4fe26fdc77ffe7245ea825b8b408f49fc",
+    "non_promotable_reason": "non_production_anchor_scope",
+    "obligations": [
+      {
+        "detail": "Strict N9 input model validated with extra fields forbidden.",
+        "evidence_refs": [],
+        "gate_id": "gy_waist",
+        "obligation_class": "syntax",
+        "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "N8 value receipt validated as its typed contract.",
+        "evidence_refs": [
+          "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        ],
+        "gate_id": "n8_value",
+        "obligation_class": "type",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "Value receipt, transport receipt, and WMR content hash agree.",
+        "evidence_refs": [
+          "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        ],
+        "gate_id": "n8_transport",
+        "obligation_class": "slot",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+        "evidence_refs": [
+          "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+        ],
+        "gate_id": "g4_governed_promotion",
+        "obligation_class": "param",
+        "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No N5 coupling blocker is present on the candidate summary.",
+        "evidence_refs": [],
+        "gate_id": "n5_coupling",
+        "obligation_class": "coupling",
+        "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+        "evidence_refs": [],
+        "gate_id": "gyk_entailment",
+        "obligation_class": "effect",
+        "owner_ref": "GY-K entailment witness owner",
+        "reason": "scope_insufficient",
+        "risk_spend": null,
+        "semantic_scope": "scope_insufficient",
+        "status": "scope_insufficient"
+      },
+      {
+        "detail": "CGF current_valid and CG2 contract-test bind resolved with a non-promotable stamp.",
+        "evidence_refs": [
+          "cg2_cert_67e42fdf0b7b5373"
+        ],
+        "gate_id": "cg2_bind_promotability",
+        "obligation_class": "identification",
+        "owner_ref": "polisyos.runtime.quality.grounding_bind.resolve_grounding_decision_promotability_for_contract_testing",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "N8/S10 calibration receipt passed.",
+        "evidence_refs": [
+          "s10://unit"
+        ],
+        "gate_id": "n8_calibration",
+        "obligation_class": "calibration",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+        "evidence_refs": [],
+        "gate_id": "n8_value",
+        "obligation_class": "measurement",
+        "owner_ref": "measurement-rooted producer owner",
+        "reason": "scope_insufficient",
+        "risk_spend": null,
+        "semantic_scope": "scope_insufficient",
+        "status": "scope_insufficient"
+      },
+      {
+        "detail": "Data trust meets the value promotion floor.",
+        "evidence_refs": [
+          "data-trust://unit"
+        ],
+        "gate_id": "n8_value",
+        "obligation_class": "data",
+        "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "S6 posture accepted: clear_fail_closed.",
+        "evidence_refs": [
+          "s6://measure",
+          "s6://aggregation",
+          "s6://capacity",
+          "s6://mandate",
+          "s6://strategic"
+        ],
+        "gate_id": "s6_blind_spot",
+        "obligation_class": "implementation",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No violated equilibrium or strategic-response assumption is present.",
+        "evidence_refs": [],
+        "gate_id": "n5_coupling",
+        "obligation_class": "equilibrium",
+        "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "S7 mandate/delegation owner accepted governed-pilot eligibility.",
+        "evidence_refs": [
+          "s7://delegation",
+          "s7://rights",
+          "s7://request",
+          "s7://decision",
+          "s6://mandate"
+        ],
+        "gate_id": "s7_mandate_delegation",
+        "obligation_class": "normative",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search._s7_governed_pilot_eligible",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+        "evidence_refs": [],
+        "gate_id": "gy_o0_eval_safety",
+        "obligation_class": "eval_safety",
+        "owner_ref": "GY-O0 eval-safety gate",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "data_only_not_required",
+        "status": "not_applicable_data_only"
+      },
+      {
+        "detail": "N8 value receipt and S8 value-posture owner both accepted.",
+        "evidence_refs": [
+          "s8://value-choice",
+          "s8://schedule",
+          "s8://objective",
+          "s8://pareto",
+          "s8://tradeoff",
+          "s6://mandate",
+          "s8://decision",
+          "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        ],
+        "gate_id": "s8_value_posture",
+        "obligation_class": "value",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search._s8_blocks_ranked_selection",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      }
+    ],
+    "promoted": true,
+    "promotion_lane": "contract_testing",
+    "refusal_reasons": [],
+    "risk_spend": {
+      "budget_delta": 0.01,
+      "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
+      "spend_records": [
+        {
+          "certificate_ref": "n8://calibration",
+          "declared_delta_spend": 0.001,
+          "deterministic_proof": false,
+          "instrument": "s10_calibration",
+          "n11_confidence_ledger_ref": null,
+          "obligation_class": "calibration"
+        }
+      ],
+      "total_declared_delta": 0.001,
+      "within_budget": true
+    },
+    "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+    "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+    "status": "grounded_partial_admissible",
+    "terminal_kind": "grounded_partial_admissible",
+    "trace_content_hash": "sha256:a4ce661220a46273854dfe7035502e60df5cf7e2563abcc792091a87ebb82d2b",
+    "value_method_family": "causal.inference.did.standard@1",
+    "value_receipt_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "obligation_denominator": [
+    {
+      "obligation_class": "syntax",
+      "owner": "gy_waist",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "type",
+      "owner": "n8_value_receipt",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "slot",
+      "owner": "n8_transport_receipt",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "param",
+      "owner": "g4_persisted_owner_record_resolution",
+      "semantic_scope": "real_semantics_record_resolution_only_g4_minting_strangled"
+    },
+    {
+      "obligation_class": "coupling",
+      "owner": "n5_coupling_gate",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "effect",
+      "owner": "gyk_entailment_owner_unwired",
+      "semantic_scope": "scope_insufficient"
+    },
+    {
+      "obligation_class": "identification",
+      "owner": "cgf_plus_cg2_promotability",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "calibration",
+      "owner": "n8_s10_calibration_receipt",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "measurement",
+      "owner": "measurement_rooted_owner_unwired",
+      "semantic_scope": "scope_insufficient"
+    },
+    {
+      "obligation_class": "data",
+      "owner": "l5_data_trust_typed_fields",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "implementation",
+      "owner": "s6_typed_blind_spot_posture",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "equilibrium",
+      "owner": "n5_value_assumption_gate",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "normative",
+      "owner": "s7_mandate_delegation_gate",
+      "semantic_scope": "real_semantics"
+    },
+    {
+      "obligation_class": "eval_safety",
+      "owner": "gy_o0_eval_safety",
+      "semantic_scope": "data_only_not_required_scope_insufficient_for_pilot_deployment"
+    },
+    {
+      "obligation_class": "value",
+      "owner": "n8_value_plus_s8_value_posture",
+      "semantic_scope": "real_semantics"
+    }
+  ],
+  "owner_inventory": {
+    "cg2_promotability": "src/polisyos/runtime/quality/grounding_bind.py",
+    "n6_port": "src/polisyos/runtime/quality/generation_cycle.py",
+    "n8_value_receipt": "src/polisyos/runtime/quality/generation_cycle.py",
+    "s6_s7_s8": "src/polisyos/pdc/_impl/layer2_design_search.py",
+    "scientist_champion_strangled": "src/polisyos/scientist/methods/search/judge_stack.py",
+    "waist_trace": "src/polisyos/pdc/_impl/gy_waist.py"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "frozen_receipt_validates_rederive_audit_and_source_flips_red",
+    "existing_anti_patterns_found": [
+      "Scientist champion registry could previously write promoted pointers beside PDC gates",
+      "G4 governed-promotion artifacts existed as a parallel promotion surface"
+    ],
+    "missing_capability_labels": [
+      "surface_out_of_scope"
+    ],
+    "relevant_ids": [
+      "P05",
+      "P10",
+      "P14",
+      "P15",
+      "P27",
+      "P28",
+      "P29",
+      "P32"
+    ],
+    "target_correct_pattern": "single N6/N9 sequence over Ring-2 waist, CGF/CG2, N8 value/calibration/transport, authority meet, S6/S7/S8, and G4 record refs"
+  },
+  "produced_by": "tools/quality/validation/check_layer3_gy_promotion_contract.py",
+  "production_honest_shadow": {
+    "authority_derivation_trace": null,
+    "candidate_id": "candidate_n9",
+    "cg2_resolution_reason": null,
+    "computed_authority_boundary": {
+      "authoritative_for": [
+        "grounded_partial_admissible_policy_design"
+      ],
+      "boundary_id": "n9.candidate.n9.meet",
+      "decision_grade": "advisory_admissible",
+      "evidence_basis": {
+        "calibration_refs": [
+          "s10://unit"
+        ],
+        "counterexamples_closed": [],
+        "method_refs": [
+          "causal.inference.did.standard@1"
+        ],
+        "producer_roots": []
+      },
+      "evidence_kind": "transport",
+      "known_limits": [],
+      "may_not_use_for": [
+        "production_deployment",
+        "unguarded_champion_promotion"
+      ],
+      "posture": "governed",
+      "rule_version_refs": [
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+      ],
+      "source_authority": "deterministic_producer"
+    },
+    "consumer_promotable": false,
+    "gate_outcome_hash": "sha256:c5a4fad8a22296c779f1b82d9bec0ecbc0e6425383ea23063691d037a741d1ee",
+    "non_promotable_reason": null,
+    "obligations": [
+      {
+        "detail": "Strict N9 input model validated with extra fields forbidden.",
+        "evidence_refs": [],
+        "gate_id": "gy_waist",
+        "obligation_class": "syntax",
+        "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "N8 value receipt validated as its typed contract.",
+        "evidence_refs": [
+          "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        ],
+        "gate_id": "n8_value",
+        "obligation_class": "type",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "Value receipt, transport receipt, and WMR content hash agree.",
+        "evidence_refs": [
+          "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+        ],
+        "gate_id": "n8_transport",
+        "obligation_class": "slot",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+        "evidence_refs": [
+          "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+        ],
+        "gate_id": "g4_governed_promotion",
+        "obligation_class": "param",
+        "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No N5 coupling blocker is present on the candidate summary.",
+        "evidence_refs": [],
+        "gate_id": "n5_coupling",
+        "obligation_class": "coupling",
+        "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+        "evidence_refs": [],
+        "gate_id": "gyk_entailment",
+        "obligation_class": "effect",
+        "owner_ref": "GY-K entailment witness owner",
+        "reason": "scope_insufficient",
+        "risk_spend": null,
+        "semantic_scope": "scope_insufficient",
+        "status": "scope_insufficient"
+      },
+      {
+        "detail": "CGF grounding did not produce current_valid (status=grounded_shadow).",
+        "evidence_refs": [],
+        "gate_id": "cgf_grounding",
+        "obligation_class": "identification",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+        "reason": "single_obligation_fail",
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "failed"
+      },
+      {
+        "detail": "N8/S10 calibration receipt passed.",
+        "evidence_refs": [
+          "s10://unit"
+        ],
+        "gate_id": "n8_calibration",
+        "obligation_class": "calibration",
+        "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+        "evidence_refs": [],
+        "gate_id": "n8_value",
+        "obligation_class": "measurement",
+        "owner_ref": "measurement-rooted producer owner",
+        "reason": "scope_insufficient",
+        "risk_spend": null,
+        "semantic_scope": "scope_insufficient",
+        "status": "scope_insufficient"
+      },
+      {
+        "detail": "Data trust meets the value promotion floor.",
+        "evidence_refs": [
+          "data-trust://unit"
+        ],
+        "gate_id": "n8_value",
+        "obligation_class": "data",
+        "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "S6 posture accepted: clear_fail_closed.",
+        "evidence_refs": [
+          "s6://measure",
+          "s6://aggregation",
+          "s6://capacity",
+          "s6://mandate",
+          "s6://strategic"
+        ],
+        "gate_id": "s6_blind_spot",
+        "obligation_class": "implementation",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No violated equilibrium or strategic-response assumption is present.",
+        "evidence_refs": [],
+        "gate_id": "n5_coupling",
+        "obligation_class": "equilibrium",
+        "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "S7 mandate/delegation owner accepted governed-pilot eligibility.",
+        "evidence_refs": [
+          "s7://delegation",
+          "s7://rights",
+          "s7://request",
+          "s7://decision",
+          "s6://mandate"
+        ],
+        "gate_id": "s7_mandate_delegation",
+        "obligation_class": "normative",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search._s7_governed_pilot_eligible",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      },
+      {
+        "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+        "evidence_refs": [],
+        "gate_id": "gy_o0_eval_safety",
+        "obligation_class": "eval_safety",
+        "owner_ref": "GY-O0 eval-safety gate",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "data_only_not_required",
+        "status": "not_applicable_data_only"
+      },
+      {
+        "detail": "N8 value receipt and S8 value-posture owner both accepted.",
+        "evidence_refs": [
+          "s8://value-choice",
+          "s8://schedule",
+          "s8://objective",
+          "s8://pareto",
+          "s8://tradeoff",
+          "s6://mandate",
+          "s8://decision",
+          "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        ],
+        "gate_id": "s8_value_posture",
+        "obligation_class": "value",
+        "owner_ref": "polisyos.pdc._impl.layer2_design_search._s8_blocks_ranked_selection",
+        "reason": null,
+        "risk_spend": null,
+        "semantic_scope": "real_semantics",
+        "status": "satisfied"
+      }
+    ],
+    "promoted": false,
+    "promotion_lane": "unresolved",
+    "refusal_reasons": [
+      "effect:scope_insufficient",
+      "identification:single_obligation_fail",
+      "measurement:scope_insufficient"
+    ],
+    "risk_spend": {
+      "budget_delta": 0.01,
+      "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
+      "spend_records": [
+        {
+          "certificate_ref": "n8://calibration",
+          "declared_delta_spend": 0.001,
+          "deterministic_proof": false,
+          "instrument": "s10_calibration",
+          "n11_confidence_ledger_ref": null,
+          "obligation_class": "calibration"
+        }
+      ],
+      "total_declared_delta": 0.001,
+      "within_budget": true
+    },
+    "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+    "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+    "status": "shadow",
+    "terminal_kind": "grounded_abstention",
+    "trace_content_hash": null,
+    "value_method_family": "causal.inference.did.standard@1",
+    "value_receipt_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+  "scope_insufficient_promotion_policy": {
+    "contract_testing": "A CG2-derived contract-testing lane may retain scope_insufficient obligations only as unsatisfied, non-authoritative sequence coverage; consumer_promotable remains false and no production authority is minted.",
+    "production": "Every scope_insufficient obligation is a typed refusal and prevents authoritative promotion."
+  },
+  "source_flip_mutation_harness": {
+    "mode": "--source-flip-mutations",
+    "mutation_ids": [
+      "source_flip_no_self_promotion_guard",
+      "source_flip_real_calibration_refusal",
+      "source_flip_real_transport_refusal",
+      "source_flip_cg2_owner_call_removed",
+      "source_flip_g4_owner_resolution_removed",
+      "source_flip_timeout_to_favorable",
+      "source_flip_lower_boundary_meet",
+      "source_flip_non_promotable_bind_stamp",
+      "source_flip_n6_contract_lane_consumer",
+      "source_flip_vacuous_scope_autopass",
+      "source_flip_scope_insufficient_authority_guard",
+      "source_flip_invented_measurement_marker_reintroduced",
+      "source_flip_unseen_shape_panel_coupling",
+      "source_flip_live_champion_path",
+      "source_flip_trace_recompute_guard",
+      "source_flip_delta_budget_guard"
+    ]
+  },
+  "source_modules": [
+    "src/polisyos/pdc/_impl/gy_waist.py",
+    "src/polisyos/pdc/_impl/layer2_design_search.py",
+    "src/polisyos/runtime/quality/promotion_sequence.py",
+    "src/polisyos/runtime/quality/generation_cycle.py",
+    "src/polisyos/runtime/quality/grounding_bind.py",
+    "src/polisyos/core/contracts/value_outer_set.py",
+    "src/polisyos/scientist/methods/search/judge_stack.py"
+  ],
+  "strangle_receipt": {
+    "allowed_legacy_helpers": [
+      "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py"
+    ],
+    "default_sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+    "live_policy_champion_callers": [],
+    "predecessor_ref": "polisyos.scientist.methods.search.judge_stack.PolicyPromotionCoordinator",
+    "status": "strangled",
+    "verified_by": "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
+  }
+}

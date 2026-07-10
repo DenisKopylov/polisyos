@@ -98,7 +98,7 @@
     },
     "GY-N9": {
       "status": "pending",
-      "focus": "In-cycle B to A promotion sequence"
+      "focus": "Canonical in-cycle B to A promotion sequence wired; production promotion remains pending CG2 unfreeze, GY-O0 EvalSafety, and N11 anytime-valid confidence ledger."
     },
     "GY-N10": {
       "status": "pending",
@@ -1120,22 +1120,21 @@
         "disposition": "fenced_default_flipped",
         "required_disposition": "fenced_default_flipped",
         "default_before": "G4 promotion exists as a parallel validation/tool surface.",
-        "default_after": "GY-N9 is the single persisted in-cycle promotion sequence.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "default_after": "runtime.quality.promotion_sequence is the single persisted in-cycle promotion sequence; G4 semantics are consumed as governed-promotion obligations rather than invoked as a second promotion path.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_promotion_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending sequence bridge",
+        "remaining_callers_disposition": "strangled by CanonicalN9PromotionPort default plus frozen N9 contract/strangle receipt",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_promotion_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_promotion_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
         "consuming_task": "GY-N9",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
-          "pattern": "governed_promoted"
+          "kind": "n9_promotion_contract_landed"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1192,22 +1191,21 @@
         "disposition": "fenced_default_flipped",
         "required_disposition": "fenced_default_flipped",
         "default_before": "Scientist champion and G4 PDC promotion remain parallel.",
-        "default_after": "One persisted GY-N9 sequence owns B to A promotion.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "default_after": "One persisted GY-N9 sequence owns B to A promotion; the Scientist policy coordinator records canonical_n9_promotion_sequence_required instead of writing ChampionRegistry promotion.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_promotion_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending sequence decision",
+        "remaining_callers_disposition": "strangled; policy champion writes are replaced by the CanonicalN9PromotionPort sequence and live-source scan reports zero policy champion promotion callers",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_promotion_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_promotion_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
         "consuming_task": "GY-N9",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
-          "pattern": "RunPolicyPromotionNode"
+          "kind": "n9_promotion_contract_landed"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1969,22 +1967,21 @@
         "disposition": "fenced_default_flipped",
         "required_disposition": "fenced_default_flipped",
         "default_before": "Direct policy promotion node can appear as a parallel policy-mode promotion path.",
-        "default_after": "GY-N9 owns in-cycle promotion or node remains non-policy-only.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "default_after": "GY-N9 owns in-cycle promotion through runtime.quality.promotion_sequence; direct node policy mode remains fail-closed/non-default.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_promotion_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending caller search",
+        "remaining_callers_disposition": "strangled by CanonicalN9PromotionPort default and live-source strangle receipt",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_promotion_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_promotion_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
         "consuming_task": "GY-N9",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
-          "pattern": "policy mode"
+          "kind": "n9_promotion_contract_landed"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {

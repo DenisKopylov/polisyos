@@ -11,6 +11,13 @@ from pydantic import AwareDatetime, Field, model_validator
 
 from polisyos.core import artifacts, canon
 
+from .gy_waist import (
+    PromotionFailClosedReason,
+    PromotionGateId,
+    PromotionObligationClass,
+    PromotionObligationRecord,
+    PromotionObligationStatus,
+)
 from .layer2_readiness import (
     AuthorityBoundary,
     AxisFirewallStatus,
@@ -3356,6 +3363,121 @@ def _s8_blocks_ranked_selection(value_posture: Layer2S8ValuePostureInput) -> boo
             value_posture.disposition == "shadow_scenario_only"
             and value_posture.ranking_mode != "unranked_frontier_only"
         )
+    )
+
+
+def evaluate_s6_blind_spot_promotion_gate(
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
+) -> PromotionObligationRecord:
+    """Return N9's S6 obligation by delegating to the Layer-2 blind-spot owner.
+
+    Owner breadcrumb: the S6 posture contract and firewall status semantics live
+    in this module. N9 consumes this wrapper so promotion does not re-implement
+    S6 in a parallel runtime gate.
+    """
+
+    if blind_spot_posture is None:
+        return PromotionObligationRecord(
+            obligation_class=PromotionObligationClass.IMPLEMENTATION,
+            gate_id=PromotionGateId.S6_BLIND_SPOT,
+            status=PromotionObligationStatus.SCOPE_INSUFFICIENT,
+            reason=PromotionFailClosedReason.SCOPE_INSUFFICIENT,
+            owner_ref="polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+            detail="S6 blind-spot posture is absent.",
+            semantic_scope="scope_insufficient",
+        )
+    if blind_spot_posture.overall_posture == "blocked":
+        return PromotionObligationRecord(
+            obligation_class=PromotionObligationClass.IMPLEMENTATION,
+            gate_id=PromotionGateId.S6_BLIND_SPOT,
+            status=PromotionObligationStatus.FAILED,
+            reason=PromotionFailClosedReason.SINGLE_OBLIGATION_FAIL,
+            owner_ref="polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+            detail=blind_spot_posture.limitation_summary,
+            evidence_refs=_s6_ledger_refs(blind_spot_posture),
+        )
+    return PromotionObligationRecord(
+        obligation_class=PromotionObligationClass.IMPLEMENTATION,
+        gate_id=PromotionGateId.S6_BLIND_SPOT,
+        status=PromotionObligationStatus.SATISFIED,
+        owner_ref="polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+        detail=f"S6 posture accepted: {blind_spot_posture.overall_posture}.",
+        evidence_refs=_s6_ledger_refs(blind_spot_posture),
+    )
+
+
+def evaluate_s7_mandate_delegation_promotion_gate(
+    delegation_posture: Layer2S7DelegationPostureInput | None,
+    *,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
+) -> PromotionObligationRecord:
+    """Return N9's S7 obligation through the Layer-2 delegation owner."""
+
+    if delegation_posture is None:
+        return PromotionObligationRecord(
+            obligation_class=PromotionObligationClass.NORMATIVE,
+            gate_id=PromotionGateId.S7_MANDATE_DELEGATION,
+            status=PromotionObligationStatus.SCOPE_INSUFFICIENT,
+            reason=PromotionFailClosedReason.SCOPE_INSUFFICIENT,
+            owner_ref="polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+            detail="S7 mandate/delegation posture is absent.",
+            semantic_scope="scope_insufficient",
+        )
+    if not _s7_governed_pilot_eligible(
+        delegation_posture,
+        blind_spot_posture=blind_spot_posture,
+    ):
+        return PromotionObligationRecord(
+            obligation_class=PromotionObligationClass.NORMATIVE,
+            gate_id=PromotionGateId.S7_MANDATE_DELEGATION,
+            status=PromotionObligationStatus.FAILED,
+            reason=PromotionFailClosedReason.SINGLE_OBLIGATION_FAIL,
+            owner_ref="polisyos.pdc._impl.layer2_design_search._s7_governed_pilot_eligible",
+            detail="S7 owner did not mark the candidate governed-pilot eligible.",
+            evidence_refs=_s7_ledger_refs(delegation_posture),
+        )
+    return PromotionObligationRecord(
+        obligation_class=PromotionObligationClass.NORMATIVE,
+        gate_id=PromotionGateId.S7_MANDATE_DELEGATION,
+        status=PromotionObligationStatus.SATISFIED,
+        owner_ref="polisyos.pdc._impl.layer2_design_search._s7_governed_pilot_eligible",
+        detail="S7 mandate/delegation owner accepted governed-pilot eligibility.",
+        evidence_refs=_s7_ledger_refs(delegation_posture),
+    )
+
+
+def evaluate_s8_value_posture_promotion_gate(
+    value_posture: Layer2S8ValuePostureInput | None,
+) -> PromotionObligationRecord:
+    """Return N9's S8 obligation through the Layer-2 value-posture owner."""
+
+    if value_posture is None:
+        return PromotionObligationRecord(
+            obligation_class=PromotionObligationClass.VALUE,
+            gate_id=PromotionGateId.S8_VALUE_POSTURE,
+            status=PromotionObligationStatus.SCOPE_INSUFFICIENT,
+            reason=PromotionFailClosedReason.SCOPE_INSUFFICIENT,
+            owner_ref="polisyos.pdc._impl.layer2_design_search.Layer2S8ValuePostureInput",
+            detail="S8 value posture is absent.",
+            semantic_scope="scope_insufficient",
+        )
+    if _s8_blocks_ranked_selection(value_posture):
+        return PromotionObligationRecord(
+            obligation_class=PromotionObligationClass.VALUE,
+            gate_id=PromotionGateId.S8_VALUE_POSTURE,
+            status=PromotionObligationStatus.FAILED,
+            reason=PromotionFailClosedReason.SINGLE_OBLIGATION_FAIL,
+            owner_ref="polisyos.pdc._impl.layer2_design_search._s8_blocks_ranked_selection",
+            detail=f"S8 value owner blocked ranked selection: {value_posture.disposition}.",
+            evidence_refs=_s8_ledger_refs(value_posture),
+        )
+    return PromotionObligationRecord(
+        obligation_class=PromotionObligationClass.VALUE,
+        gate_id=PromotionGateId.S8_VALUE_POSTURE,
+        status=PromotionObligationStatus.SATISFIED,
+        owner_ref="polisyos.pdc._impl.layer2_design_search._s8_blocks_ranked_selection",
+        detail=f"S8 value owner accepted value posture: {value_posture.disposition}.",
+        evidence_refs=_s8_ledger_refs(value_posture),
     )
 
 

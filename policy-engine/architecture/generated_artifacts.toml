@@ -1716,6 +1716,37 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-gy-n9-promotion-contract"
+label = "Policy Design Case Layer 3 GY-N9 canonical promotion contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Layer 3 GY-N9 canonical promotion validator generated from the live N6/N9 sequence"
+verifier = "Layer 3 GY-N9 promotion contract validator, frozen-receipt check, rederive audit, corrupt-field drift, and source-flip mutations"
+promotion_target = "registered canonical in-cycle promotion sequence over Ring-2, CGF/CG2, N8, S6/S7/S8, and G4 owners"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/pdc/_impl/gy_waist.py, src/polisyos/pdc/_impl/layer2_design_search.py, src/polisyos/runtime/quality/generation_cycle.py, src/polisyos/runtime/quality/promotion_sequence.py, src/polisyos/runtime/quality/grounding_bind.py, src/polisyos/core/contracts/value_outer_set.py, src/polisyos/scientist/methods/search/judge_stack.py, and tools/quality/validation/check_layer3_gy_promotion_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_promotion_contract.json",
+]
+regenerate_commands = [
+  "python3 tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever the canonical N9 promotion sequence, obligation compiler, Ring-2 trace contract, N8 receipt consumption, CG2 promotability enforcement, S6/S7/S8 gate wrappers, or champion-path strangle scan changes."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_promotion_contract.py"
+check_cwd = "."
+check_command = [
+  "python3",
+  "tools/quality/validation/check_layer3_gy_promotion_contract.py",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
 id = "policy-design-case-layer3-gy-generation-cycle-disposition-ledger"
 label = "Policy Design Case Layer 3 GY generation-cycle disposition ledger"
 owner = "team-runtime-quality"
@@ -1732,7 +1763,7 @@ outputs = [
   "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
   "architecture/policy_design_case/layer3_gy_n0_investigation.md",
 ]
-source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:2a3ddf2646ca803060a3462796e3acf85627e40baac8fe5104e9524e667002c0"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:ea4f9c25d8eead83976c1c3712663cec309b2d2c6cc5fd939707a47f1dfa4064"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_n0_investigation.md" = "sha256:7aea27e40644f7b786219767810041cb0d3c302ab4435757faaa6bf959ce3b53"
 regenerate_commands = [
   "uv run python tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --repo-root . --check --output-format json",

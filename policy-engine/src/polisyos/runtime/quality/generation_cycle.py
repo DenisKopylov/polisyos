@@ -280,6 +280,8 @@ class PromotionPortObservation(_StrictModel):
     status: PromotionPortStatus = "promotion_pending_n9"
     certified_candidate_ids: tuple[str, ...] = ()
     reason: str = "N9 promotion gate is not present; N6 emits no certification."
+    receipts: tuple[dict[str, Any], ...] = ()
+    strangle_receipt: dict[str, Any] | None = None
 
 
 class CandidateFront(_StrictModel):
@@ -329,6 +331,7 @@ class CandidateSummary(_StrictModel):
     value_decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
     value_ref: str | None = None
     value_blockers: tuple[str, ...] = ()
+    value_receipt: ValueGateReceipt | None = Field(default=None, exclude=True)
     certified_by_n9: bool = False
     front: FrontKind
     high_proxy: bool
@@ -1375,7 +1378,11 @@ class GenerationCycleController:
         self._grounding_port = grounding_port or PolicyGroundingPort()
         self._simulation_port = simulation_port or JointSimulationPort()
         self._value_port = value_port or FoundryValuePort()
-        self._promotion_port = promotion_port or PendingN9PromotionPort()
+        if promotion_port is None:
+            from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
+
+            promotion_port = CanonicalN9PromotionPort(repo_root=repo_root)
+        self._promotion_port = promotion_port
         self._revision_policy = revision_policy or CounterexampleDrivenRevisionPolicy()
         self._acquisition_owner_gateway = acquisition_owner_gateway
         self._voi_scheduler = voi_scheduler or SimpleVOIScheduler(
@@ -4111,6 +4118,7 @@ def _summary_with_value_observation(
         "value_decision_grade": value_port.decision_grade,
         "value_ref": value_port.value_ref,
         "value_blockers": tuple(value_port.authority_blockers),
+        "value_receipt": value_port.value_receipt,
     }
     if value_issue:
         update["counterexample_ref"] = counterexample_ref
@@ -4419,6 +4427,7 @@ def _apply_promotion_to_summaries(
         can_promote = (
             summary.candidate_id in certified
             and promotion.status == "certified_current_valid"
+            and _promotion_receipt_allows_decision_front(promotion, summary.candidate_id)
             and summary.current_valid
             and not _summary_value_blocks_promotion(summary)
             and (
@@ -4438,6 +4447,22 @@ def _apply_promotion_to_summaries(
         else:
             result.append(summary)
     return result
+
+
+def _promotion_receipt_allows_decision_front(
+    promotion: PromotionPortObservation,
+    candidate_id: str,
+) -> bool:
+    for receipt in promotion.receipts:
+        if str(receipt.get("candidate_id") or "") != candidate_id:
+            continue
+        return (
+            receipt.get("promoted") is True
+            and receipt.get("consumer_promotable") is True
+            and receipt.get("promotion_lane") == "production"
+            and not receipt.get("non_promotable_reason")
+        )
+    return False
 
 
 def _run_fixture_callers(repo_root: Path) -> tuple[str, ...]:

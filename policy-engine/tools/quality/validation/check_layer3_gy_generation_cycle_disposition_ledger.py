@@ -538,6 +538,8 @@ def _evaluate_strangle_condition(repo_root: Path, condition: object) -> bool:
         return _design_generation_mutation_red(repo_root, "unsupported_model_not_rejected")
     if kind == "generation_cycle_contract_landed":
         return _generation_cycle_contract_landed(repo_root)
+    if kind == "n9_promotion_contract_landed":
+        return _n9_promotion_contract_landed(repo_root)
     return False
 
 
@@ -1561,6 +1563,15 @@ def _generation_cycle_contract_landed(repo_root: Path) -> bool:
         from tools.quality.validation.check_layer3_gy_generation_cycle_contract import (
             validate,
         )
+
+        return validate(repo_root)["status"] == "pass"
+    except Exception:
+        return False
+
+
+def _n9_promotion_contract_landed(repo_root: Path) -> bool:
+    try:
+        from tools.quality.validation.check_layer3_gy_promotion_contract import validate
 
         return validate(repo_root)["status"] == "pass"
     except Exception:

@@ -59,6 +59,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Policy Design Case Layer 3 GY intervention substrate contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json` |
 | `Policy Design Case Layer 3 GY ValueOuterSet household bounds strangle receipt` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_value_outer_set_strangle_receipt.json` |
 | `Policy Design Case Layer 3 GY-N9 canonical promotion contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_promotion_contract.json` |
+| `Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_second_domain_census.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_pack.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json` |
 | `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
@@ -1633,6 +1634,34 @@ Canonical regeneration commands:
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_promotion_contract.py --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack`
+
+- Family id: `policy-design-case-layer3-gy-second-domain-pack`
+- Lifecycle: `generated_committed`
+- Source of truth: production_data owners resolved through default_substrate_catalog_paths, the existing S0/L6/N6/N7 owners, first-vertical artifacts, and tools/quality/validation/check_layer3_gy_second_domain_pack.py
+- Generator: GY-N10a owner-derived census, pack, journal-first N7 receipt, smoke trace, and free-grow-gap validator generated from L1/L2/S0/L6/N6/N7 owners
+- Verifier: GY-N10a frozen checker, owner rederive audit, corrupt-field drift probe, distinctness computation, N7 raw-response verification, smoke-terminal check, and zero-engine-code scope check
+- Promotion target: evidence-backed input to GY-N10 domain and method-family generalization; never a promotion authority
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever the candidate-domain owner queries, S0/L6/N7 bridge semantics, N6 terminal contract, first-vertical comparator, or owner-data snapshots change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_second_domain_pack.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_second_domain_census.json`
+  - `architecture/policy_design_case/layer3_gy_second_domain_pack.json`
+  - `architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json`
+  - `architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json`
+  - `architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json`
+
+Canonical regeneration commands:
+
+```bash
+python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --write --output-format json
 ```
 
 ## `Policy Design Case Layer 3 GY generation-cycle disposition ledger`

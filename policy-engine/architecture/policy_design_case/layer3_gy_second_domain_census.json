@@ -1,0 +1,1768 @@
+{
+  "artifact_kind": "policy_design_case.gy_n10a.domain_selection_census",
+  "candidates": {
+    "education": {
+      "candidate_id": "education",
+      "distinctness_preflight": {
+        "lever_overlap": [],
+        "method_family": "non_panel",
+        "not_ua_single_unit": true,
+        "outcome_overlap": [],
+        "transport_covariate_check": {
+          "first_vertical_overlap": [],
+          "jointly_measured_transport_canonical_vars": [
+            "education_spending",
+            "school_quality",
+            "years_of_schooling"
+          ]
+        }
+      },
+      "l1_dcat": {
+        "missing_canonical_vars": [],
+        "nonpanel_variable_count": 3,
+        "panel_variable_count": 5,
+        "query_content_hash": "sha256:328baf5c028e84e0b2fe5d99b35a8bd16e2a928410a0f0e1f5d0b6735b35d116",
+        "query_id": "l1_candidate_aggregate",
+        "response_content_hash": "sha256:1447660d802498f0b009c23d72c156f4a6b1eb1597ded6ec80cdc3beb611fef9",
+        "rows": [
+          {
+            "canonical_var": "education_outcomes",
+            "datasets": 3237,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 1,
+            "min_period": 1989,
+            "no_period_rows": 25,
+            "no_unit_rows": 0,
+            "observations": 1164742,
+            "panel_shape": true,
+            "periods": 30,
+            "row_content_hash": "sha256:58ff27d6120d43e36c69a9793e0218bde096203ce0ba30d0adfcc558e50b691f"
+          },
+          {
+            "canonical_var": "tertiary_enrollment",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 79,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:287b005613bac53771efe01931b07772410f9ec96d134b5cd2016b7bafd526d9"
+          },
+          {
+            "canonical_var": "preschool_enrollment",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2021,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 51,
+            "panel_shape": true,
+            "periods": 4,
+            "row_content_hash": "sha256:5634d0396f02a566bc17b1519d06ba270b6cdd3569c19261cfa4e9f1414b3cad"
+          },
+          {
+            "canonical_var": "school_quality",
+            "datasets": 1,
+            "geographic_units": 12,
+            "max_period": 2021,
+            "measurement_unit_values": 0,
+            "min_period": 2019,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 12,
+            "panel_shape": false,
+            "periods": 2,
+            "row_content_hash": "sha256:2ba7b47450130596b362748cf706ea95b8ef37bc614eb6c2760118e4d76799e9"
+          },
+          {
+            "canonical_var": "years_of_schooling",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2020,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 32,
+            "panel_shape": false,
+            "periods": 2,
+            "row_content_hash": "sha256:7a1c8b829915e43d18ee8856a966282e06f6835c03be3c1f205bf05beb951638"
+          },
+          {
+            "canonical_var": "stem_graduates",
+            "datasets": 1,
+            "geographic_units": 7,
+            "max_period": 2019,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 9,
+            "panel_shape": false,
+            "periods": 2,
+            "row_content_hash": "sha256:83d67c4c83c9f1ec6484b70828fec3dfea32853d6d8af4dc2f195045de5a1a04"
+          },
+          {
+            "canonical_var": "education_spending",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 79,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:dbd12ecfebddd0fe7c4aeff6edc81d8803f0543f3281117bdddbeb4e31ebf5c6"
+          },
+          {
+            "canonical_var": "gender_parity_index",
+            "datasets": 1,
+            "geographic_units": 15,
+            "max_period": 2021,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 50,
+            "panel_shape": true,
+            "periods": 4,
+            "row_content_hash": "sha256:7815fc3687eb30ac6847ccbebeba5f3d27ff7c22bc2dcb1f327478c1aacee198"
+          }
+        ],
+        "total_datasets": 3244,
+        "total_observations": 1165054
+      },
+      "l2_scholar_kg": {
+        "candidate_id": "education",
+        "causal_claim_count": 438,
+        "edge_count": 422,
+        "lever_cause_count": 330,
+        "parameter_estimate_count": 1962,
+        "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+        "query_id": "l2_candidate_aggregate",
+        "response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+        "row_content_hash": "sha256:b43134eab2d1ce90d6ff4515969df3defdbcf08c741b3765b60e4ac86bc35f1c",
+        "top_levers": [
+          {
+            "cause": "education.blended_learning",
+            "claim_count": 3,
+            "claim_ids": [
+              "02db6858c242b3f29a662f97",
+              "0362646258768a6c5c3742e0",
+              "eeb01ed005fea027a6ee0b6a"
+            ],
+            "effect": "education.motivation",
+            "lever_rank": 1,
+            "row_content_hash": "sha256:32c0db09cc5060c05a0d5f5439755ff660c62a026557fbb365989c427eb7eb93"
+          },
+          {
+            "cause": "education.stem_education",
+            "claim_count": 3,
+            "claim_ids": [
+              "435d6d1768d620ac8c390195",
+              "4aaff677809e1190db11d21d",
+              "fb404fd635f282040c52a414"
+            ],
+            "effect": "education.academic_success",
+            "lever_rank": 2,
+            "row_content_hash": "sha256:6caad3e8b72110d53026411551391ea58d2c8896468f16ab951b0216b043c364"
+          },
+          {
+            "cause": "education.teaching_method",
+            "claim_count": 3,
+            "claim_ids": [
+              "6f1205b0c3b642873c699c6f",
+              "b99985e9429c744a35391d8b",
+              "ea861792d04094615ffb240b"
+            ],
+            "effect": "education.learning_outcomes",
+            "lever_rank": 3,
+            "row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784"
+          },
+          {
+            "cause": "education.dialogic_reading_modality",
+            "claim_count": 2,
+            "claim_ids": [
+              "2761cc0e9d8884c1e491f6b9",
+              "cdd305aa2edec7b0ea47e358"
+            ],
+            "effect": "education.story_comprehension",
+            "lever_rank": 4,
+            "row_content_hash": "sha256:3319373c42c1a830fdbe130cc6986ee82c62f142b9f8e2952875085b194f3904"
+          }
+        ],
+        "transport_score_count": 422,
+        "variable_count": 2104
+      },
+      "lever_feasibility": {
+        "cg3_application_scope": "shadow_until_live_gy_s0_writer_is_declared_safe",
+        "durable_registration_reason": "cg3_shadow_only_and_no_live_second_domain_s0_writer",
+        "durable_s0_registration_available": false,
+        "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+        "l6_positive_writable_count": 0,
+        "l6_writability_attempts": [
+          {
+            "attempt_content_hash": "sha256:8eae3fb38c3df394b9d8638a87ef6814e452cd92508113bb506335a3e765601f",
+            "instrument": "education.blended_learning",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:a2e510b0e67c16cef333f5538db7d00644429c8a23f39c80ebfde773a1bdadfa",
+            "instrument": "education.stem_education",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:0ec138e5e61ae445298560b9af637575a974f1af3d3a0a9d0ee7afeb379df085",
+            "instrument": "education.teaching_method",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:9f9bdf7ad09ca0cf7232e50e0eab5d71743408dac8c270cae3012f15e107e771",
+            "instrument": "education.dialogic_reading_modality",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          }
+        ],
+        "s0_matching_entries": [
+          {
+            "entry_content_hash": "sha256:ed9d2533dfdc4028758798e2c63758aaa6a2ec9136ff76072a09fe3d7c292f60",
+            "family_id": "education_human_capital_supply",
+            "layer": "L5",
+            "source_id": "l5_measurement_registry"
+          }
+        ],
+        "s0_matching_entry_count": 1,
+        "s0_registry_content_hash": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1"
+      },
+      "selection_input": {
+        "kind": "task_supplied_domain_query_selectors",
+        "l1_canonical_vars": [
+          "education_outcomes",
+          "tertiary_enrollment",
+          "preschool_enrollment",
+          "school_quality",
+          "years_of_schooling",
+          "stem_graduates",
+          "education_spending",
+          "gender_parity_index"
+        ],
+        "l2_prefixes": [
+          "education."
+        ],
+        "not_pack_entries": true
+      },
+      "transport_feasibility": {
+        "jointly_measured_transport_canonical_vars": [
+          "education_spending",
+          "school_quality",
+          "years_of_schooling"
+        ],
+        "jointly_measured_transport_count": 3,
+        "l2_exact_measure_names": [
+          "education_outcomes",
+          "education_spending",
+          "gender_parity_index",
+          "preschool_enrollment",
+          "school_quality",
+          "years_of_schooling"
+        ],
+        "owner": "L1 DCAT plus L2 scholar-KG exact variable query"
+      }
+    },
+    "environment_energy_transition": {
+      "candidate_id": "environment_energy_transition",
+      "distinctness_preflight": {
+        "lever_overlap": [],
+        "method_family": "non_panel",
+        "not_ua_single_unit": true,
+        "outcome_overlap": [],
+        "transport_covariate_check": {
+          "first_vertical_overlap": [],
+          "jointly_measured_transport_canonical_vars": [
+            "air_quality_index",
+            "energy_intensity"
+          ]
+        }
+      },
+      "l1_dcat": {
+        "missing_canonical_vars": [],
+        "nonpanel_variable_count": 1,
+        "panel_variable_count": 7,
+        "query_content_hash": "sha256:328baf5c028e84e0b2fe5d99b35a8bd16e2a928410a0f0e1f5d0b6735b35d116",
+        "query_id": "l1_candidate_aggregate",
+        "response_content_hash": "sha256:1447660d802498f0b009c23d72c156f4a6b1eb1597ded6ec80cdc3beb611fef9",
+        "rows": [
+          {
+            "canonical_var": "emissions",
+            "datasets": 204,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 7154,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:ffce3a0c05e4beb3d24d59a96038c55e36ee972e1f80196fbbef5f501a2b24ab"
+          },
+          {
+            "canonical_var": "energy_mix",
+            "datasets": 39,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 1990,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 3878,
+            "panel_shape": true,
+            "periods": 31,
+            "row_content_hash": "sha256:f9aa93f1b67b79b059271ed8f35b55b4b762494fe14660dae778c2489aff6844"
+          },
+          {
+            "canonical_var": "energy_price",
+            "datasets": 38,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 1990,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 3798,
+            "panel_shape": true,
+            "periods": 31,
+            "row_content_hash": "sha256:e6b64bce1e6092b7e4563d32acd6e5b9a7f8aedd86ba78571fee6ac8ae8b9f39"
+          },
+          {
+            "canonical_var": "energy_intensity",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 76,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:66718d081cf67ac3afd89c22551d7290d98d99ec2b4760be86c8d83d2ac55861"
+          },
+          {
+            "canonical_var": "air_quality_index",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2020,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 48,
+            "panel_shape": false,
+            "periods": 3,
+            "row_content_hash": "sha256:083a3eee85791aabfbdbbddb32eaebf8f3caffbf0cd553562c8bdc865c22429b"
+          },
+          {
+            "canonical_var": "electricity_access",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 80,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:2e59ee91e7d9ec44b1a6e595cc3823b6ce63e2ab5aaa358fe7622e5b034a5f7e"
+          },
+          {
+            "canonical_var": "forest_cover",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 80,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:44bc3b5d26f2a69bd602a4d58d0ed0a374625e991d0d44265d44d65888e77d1a"
+          },
+          {
+            "canonical_var": "water_stress",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 80,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:8f3acf8ebb033149a69ee233e6974ba0d6a57149846ece54274422f87f0332b7"
+          }
+        ],
+        "total_datasets": 286,
+        "total_observations": 15194
+      },
+      "l2_scholar_kg": {
+        "candidate_id": "environment_energy_transition",
+        "causal_claim_count": 1585,
+        "edge_count": 1521,
+        "lever_cause_count": 1041,
+        "parameter_estimate_count": 9225,
+        "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+        "query_id": "l2_candidate_aggregate",
+        "response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+        "row_content_hash": "sha256:69775f6af73163ce820652104f60a15dc90c9d45b4f708131d49d4f9a9851621",
+        "top_levers": [
+          {
+            "cause": "climate.climate_change",
+            "claim_count": 4,
+            "claim_ids": [
+              "5a221b268ec4b7d0f90b9eb6",
+              "8d206ac7b01b29bbd84d57a2",
+              "92f18a07a77f7009b40d21d3",
+              "9db6de7d65fb9582c7b08b89"
+            ],
+            "effect": "climate.sea_level_rise",
+            "lever_rank": 1,
+            "row_content_hash": "sha256:acb3340780d32de697a246f97a9c916025c59ccd1848a0eabe6c9b39b2ad2228"
+          },
+          {
+            "cause": "climate.renewable_energy_share",
+            "claim_count": 3,
+            "claim_ids": [
+              "3b8698aec065ebf655950274",
+              "52fb7c2cc3752774d9e2ffcc",
+              "85459802d2f0788a8eeb9625"
+            ],
+            "effect": "climate.carbon_emissions",
+            "lever_rank": 2,
+            "row_content_hash": "sha256:178fd6ec19f2048aed7b40b27701af36406d7b7f9ada3c640e25165224cdad26"
+          },
+          {
+            "cause": "climate.aridity_rise",
+            "claim_count": 2,
+            "claim_ids": [
+              "04c42b8fc517855548b085e9",
+              "87a6bcbce40721f1770cf50d"
+            ],
+            "effect": "climate.soil_organic_carbon",
+            "lever_rank": 3,
+            "row_content_hash": "sha256:cbf570dc7864d0658a07ca80a5132bf83d3fcdfac1088699514e5fdf72592261"
+          },
+          {
+            "cause": "climate.carbon_emissions",
+            "claim_count": 2,
+            "claim_ids": [
+              "117d72da96e825f41bb97a8a",
+              "db533814322120d0b5b52422"
+            ],
+            "effect": "climate.air_temperature",
+            "lever_rank": 4,
+            "row_content_hash": "sha256:c53fd7dc9eda003f19913feb4025d6489070be24823b63c04d3019fa0622b8d3"
+          }
+        ],
+        "transport_score_count": 1521,
+        "variable_count": 8533
+      },
+      "lever_feasibility": {
+        "cg3_application_scope": "shadow_until_live_gy_s0_writer_is_declared_safe",
+        "durable_registration_reason": "cg3_shadow_only_and_no_live_second_domain_s0_writer",
+        "durable_s0_registration_available": false,
+        "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+        "l6_positive_writable_count": 0,
+        "l6_writability_attempts": [
+          {
+            "attempt_content_hash": "sha256:2bc814498fc6e5b99b66a6035cd19540931c31710c5ed5b5d704e45faf5c182b",
+            "instrument": "climate.climate_change",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:a01d83ddd98d87e28973432ada839e49ef3ee78c8fa5baa5ab1ee57918501bf5",
+            "instrument": "climate.renewable_energy_share",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:4feb867d92bac34f6919ea3525ae4c8c66fed12dd8e727cf4fa756d7fa0199c0",
+            "instrument": "climate.aridity_rise",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:09350b5b9ce1f97f473c448c7c89bcd5bcf80659e33b923cb3a7018754b6a8d4",
+            "instrument": "climate.carbon_emissions",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          }
+        ],
+        "s0_matching_entries": [],
+        "s0_matching_entry_count": 0,
+        "s0_registry_content_hash": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1"
+      },
+      "selection_input": {
+        "kind": "task_supplied_domain_query_selectors",
+        "l1_canonical_vars": [
+          "emissions",
+          "energy_mix",
+          "energy_price",
+          "energy_intensity",
+          "air_quality_index",
+          "electricity_access",
+          "forest_cover",
+          "water_stress"
+        ],
+        "l2_prefixes": [
+          "climate.",
+          "energy.",
+          "environmental."
+        ],
+        "not_pack_entries": true
+      },
+      "transport_feasibility": {
+        "jointly_measured_transport_canonical_vars": [
+          "air_quality_index",
+          "energy_intensity"
+        ],
+        "jointly_measured_transport_count": 2,
+        "l2_exact_measure_names": [
+          "air_quality_index",
+          "emissions",
+          "energy_intensity",
+          "forest_cover",
+          "water_stress"
+        ],
+        "owner": "L1 DCAT plus L2 scholar-KG exact variable query"
+      }
+    },
+    "health": {
+      "candidate_id": "health",
+      "distinctness_preflight": {
+        "lever_overlap": [],
+        "method_family": "panel_only",
+        "not_ua_single_unit": true,
+        "outcome_overlap": [],
+        "transport_covariate_check": {
+          "first_vertical_overlap": [],
+          "jointly_measured_transport_canonical_vars": [
+            "infant_mortality",
+            "malaria_incidence",
+            "neonatal_mortality",
+            "noncommunicable_disease_mortality",
+            "tuberculosis_incidence",
+            "vaccination_coverage"
+          ]
+        }
+      },
+      "l1_dcat": {
+        "missing_canonical_vars": [],
+        "nonpanel_variable_count": 0,
+        "panel_variable_count": 10,
+        "query_content_hash": "sha256:328baf5c028e84e0b2fe5d99b35a8bd16e2a928410a0f0e1f5d0b6735b35d116",
+        "query_id": "l1_candidate_aggregate",
+        "response_content_hash": "sha256:1447660d802498f0b009c23d72c156f4a6b1eb1597ded6ec80cdc3beb611fef9",
+        "rows": [
+          {
+            "canonical_var": "health_outcomes",
+            "datasets": 501,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 1,
+            "min_period": 1982,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 113871,
+            "panel_shape": true,
+            "periods": 30,
+            "row_content_hash": "sha256:b0f8dcb6f3b95d915c109dd8eecaede0dd2bafc59fc19d3ed46ed26a403daec5"
+          },
+          {
+            "canonical_var": "vaccination_coverage",
+            "datasets": 3,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 238,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:aefd02e845fbddf19d746967233f7b6a897830a1f59e6c37b55ff50afbbdf28b"
+          },
+          {
+            "canonical_var": "life_expectancy",
+            "datasets": 4,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 479,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:4399b4e51906e321862df2d42bf514d7727ed0ccdce54e4d9c7c2465716c0308"
+          },
+          {
+            "canonical_var": "neonatal_mortality",
+            "datasets": 2,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 236,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:73ab558be534abf228eab390677207f3c54bbc28750549de74841657bad59ebc"
+          },
+          {
+            "canonical_var": "noncommunicable_disease_mortality",
+            "datasets": 1,
+            "geographic_units": 16,
+            "max_period": 2021,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 192,
+            "panel_shape": true,
+            "periods": 4,
+            "row_content_hash": "sha256:15b72605e92073225a84b8442f76127772c08c871785ee7e29f3126e87341df3"
+          },
+          {
+            "canonical_var": "tuberculosis_incidence",
+            "datasets": 2,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 160,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:f2429118baea6ca1d4d8c6aae84089db80eb0e32f8f8fac2c9d283233b895fd6"
+          },
+          {
+            "canonical_var": "infant_mortality",
+            "datasets": 3,
+            "geographic_units": 16,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 110,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:cb920340287720776acecede8a9177c8af054401e9bfc2e5ec45280d63db4142"
+          },
+          {
+            "canonical_var": "hiv_prevalence",
+            "datasets": 3,
+            "geographic_units": 11,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 115,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:e695e6ce21479e338ae418fef033df8961e22b7c332aef8e777535fd0ffb890b"
+          },
+          {
+            "canonical_var": "malaria_incidence",
+            "datasets": 1,
+            "geographic_units": 5,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 18,
+            "panel_shape": true,
+            "periods": 5,
+            "row_content_hash": "sha256:4d030b6c97d83b75e99888429432b7ac2aba4a866cd41458c681bcd9fec3701c"
+          },
+          {
+            "canonical_var": "child_stunting",
+            "datasets": 1,
+            "geographic_units": 5,
+            "max_period": 2022,
+            "measurement_unit_values": 0,
+            "min_period": 2018,
+            "no_period_rows": 0,
+            "no_unit_rows": 0,
+            "observations": 6,
+            "panel_shape": true,
+            "periods": 4,
+            "row_content_hash": "sha256:a682fe7df3c7b556fb238157d29177c7a805103a0eb57746c96d9d11129f0edb"
+          }
+        ],
+        "total_datasets": 521,
+        "total_observations": 115425
+      },
+      "l2_scholar_kg": {
+        "candidate_id": "health",
+        "causal_claim_count": 2373,
+        "edge_count": 2304,
+        "lever_cause_count": 1686,
+        "parameter_estimate_count": 12252,
+        "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+        "query_id": "l2_candidate_aggregate",
+        "response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+        "row_content_hash": "sha256:6aafd03598e64c87b98866b76d5d6403e2ae3456fec4337eaf1037c41e92bacd",
+        "top_levers": [
+          {
+            "cause": "health.insecticide_treated_materials",
+            "claim_count": 4,
+            "claim_ids": [
+              "40c2667025c62ca9c2200203",
+              "50ba35a5826563f462ab3964",
+              "78199b1a3085c4b71ab7e6bb",
+              "c461d2936808246bfee3c64f"
+            ],
+            "effect": "health.dengue_vector_density",
+            "lever_rank": 1,
+            "row_content_hash": "sha256:7f34dfdac33a9ff1ae7d8144dfceddc3c661f89bd85ebe5d7db96808c7db292a"
+          },
+          {
+            "cause": "health.lactagogue_supplementation",
+            "claim_count": 4,
+            "claim_ids": [
+              "023da8a6cce4c62da2faf252",
+              "9ffb2fe6e3436e3435015f44",
+              "d9a48a04c75746cbeff5ca46",
+              "f8723124e4fa0cbe104178ff"
+            ],
+            "effect": "health.breast_milk_volume",
+            "lever_rank": 2,
+            "row_content_hash": "sha256:7e04b1363c2cd51d4b51de8e069eb18171cc63e2a08b7cee80c2e38bb77c3909"
+          },
+          {
+            "cause": "health.tobacco_use",
+            "claim_count": 4,
+            "claim_ids": [
+              "c5d83280a0248a861658a827",
+              "e937d3e26a06bfd064242c53",
+              "f6afd4803429dfa65dd2fb6e",
+              "fe50ef92a7000cb21141b691"
+            ],
+            "effect": "health.mortality",
+            "lever_rank": 3,
+            "row_content_hash": "sha256:67a15de1e8dc70a9973a592ee0bf3d30d25fa24b046d6ead38ef389aa14eedae"
+          },
+          {
+            "cause": "health.handwashing_campaign",
+            "claim_count": 3,
+            "claim_ids": [
+              "1d54dface2045a8eb04d1d35",
+              "23d123060b48e1ea9b81e8a1",
+              "875488a433cd07928da91363"
+            ],
+            "effect": "health.diarrhea_incidence",
+            "lever_rank": 4,
+            "row_content_hash": "sha256:b4c2e7baa9a6f32e46701dc09a4797f041a6946725837e80d0a27c015c4beb9f"
+          }
+        ],
+        "transport_score_count": 2304,
+        "variable_count": 12043
+      },
+      "lever_feasibility": {
+        "cg3_application_scope": "shadow_until_live_gy_s0_writer_is_declared_safe",
+        "durable_registration_reason": "cg3_shadow_only_and_no_live_second_domain_s0_writer",
+        "durable_s0_registration_available": false,
+        "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+        "l6_positive_writable_count": 0,
+        "l6_writability_attempts": [
+          {
+            "attempt_content_hash": "sha256:89e7f0191638e4ae39e1efada51e9e07181a3e32e3c7642eb8b5a1f5112546fe",
+            "instrument": "health.insecticide_treated_materials",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:ae40d7673b76fc9bf6636dd199b9ea1a99faec5adb705364ccdc5b0a97643c33",
+            "instrument": "health.lactagogue_supplementation",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:0ed4c1aee589d661a7fe1e7e1b23e45d14e377df68840167e5f9d9e063f6a78c",
+            "instrument": "health.tobacco_use",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          },
+          {
+            "attempt_content_hash": "sha256:0d10442ae37056fd4349c2ebe9d577d3e9264deed4d85a67f78d22008d57b53a",
+            "instrument": "health.handwashing_campaign",
+            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "reason_code": "knob_operator_unresolved",
+            "status": "not_owner_writable"
+          }
+        ],
+        "s0_matching_entries": [],
+        "s0_matching_entry_count": 0,
+        "s0_registry_content_hash": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1"
+      },
+      "selection_input": {
+        "kind": "task_supplied_domain_query_selectors",
+        "l1_canonical_vars": [
+          "health_outcomes",
+          "vaccination_coverage",
+          "life_expectancy",
+          "neonatal_mortality",
+          "noncommunicable_disease_mortality",
+          "tuberculosis_incidence",
+          "infant_mortality",
+          "hiv_prevalence",
+          "malaria_incidence",
+          "child_stunting"
+        ],
+        "l2_prefixes": [
+          "health."
+        ],
+        "not_pack_entries": true
+      },
+      "transport_feasibility": {
+        "jointly_measured_transport_canonical_vars": [
+          "infant_mortality",
+          "malaria_incidence",
+          "neonatal_mortality",
+          "noncommunicable_disease_mortality",
+          "tuberculosis_incidence",
+          "vaccination_coverage"
+        ],
+        "jointly_measured_transport_count": 6,
+        "l2_exact_measure_names": [
+          "child_stunting",
+          "health_outcomes",
+          "hiv_prevalence",
+          "infant_mortality",
+          "life_expectancy",
+          "malaria_incidence",
+          "neonatal_mortality",
+          "noncommunicable_disease_mortality",
+          "tuberculosis_incidence",
+          "vaccination_coverage"
+        ],
+        "owner": "L1 DCAT plus L2 scholar-KG exact variable query"
+      }
+    }
+  },
+  "census_content_hash": "sha256:cbe2f54ad7266c295a3567df7f0aa31ffa4f5d6413b2d12d4e2eaec9a3c1ddbd",
+  "content_hash_excluded_fields": [
+    "runtime_metrics"
+  ],
+  "decision": {
+    "all_candidates_ineligible": false,
+    "chosen_candidate": "education",
+    "ineligible_candidate_gaps": {
+      "health": [
+        "nonpanel_method_family_absent"
+      ]
+    },
+    "ranking": [
+      {
+        "candidate_id": "education",
+        "eligible": true,
+        "ineligible_reasons": [],
+        "score": 0.856006,
+        "score_components": {
+          "distinctness_preflight": 1.0,
+          "l1_outcome_coverage": 1.0,
+          "l2_grounding_coverage": 0.789777,
+          "lever_vocabulary": 0.390415,
+          "transport_measurement": 1.0
+        }
+      },
+      {
+        "candidate_id": "environment_energy_transition",
+        "eligible": true,
+        "ineligible_reasons": [],
+        "score": 0.757367,
+        "score_components": {
+          "distinctness_preflight": 1.0,
+          "l1_outcome_coverage": 0.621333,
+          "l2_grounding_coverage": 0.954785,
+          "lever_vocabulary": 0.46758,
+          "transport_measurement": 1.0
+        }
+      },
+      {
+        "candidate_id": "health",
+        "eligible": false,
+        "ineligible_reasons": [
+          "nonpanel_method_family_absent"
+        ],
+        "score": 0.784778,
+        "score_components": {
+          "distinctness_preflight": 1.0,
+          "l1_outcome_coverage": 0.649444,
+          "l2_grounding_coverage": 1.0,
+          "lever_vocabulary": 0.5,
+          "transport_measurement": 1.0
+        }
+      }
+    ],
+    "selection_rationale": "education is the highest-scoring eligible candidate under the measured L1/L2/lever/distinctness census."
+  },
+  "first_vertical_comparator": {
+    "case_id": "ua-msme-affordable-loans-2022",
+    "lever_vocabulary": [
+      "policy.credit_access"
+    ],
+    "method_family": "panel",
+    "outcome_canonical_vars": [
+      "avg_income",
+      "survival"
+    ],
+    "source_hashes": {
+      "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
+      "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
+      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:0bf9d00398bbe40668a688b0486618b0a596ddc9726f45de0955239743784047"
+    },
+    "transport_covariates": [
+      "institutional_quality",
+      "state_capacity"
+    ]
+  },
+  "owner_paths": {
+    "l1_dcat": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "l2_scholar_kg": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb"
+  },
+  "owner_queries": {
+    "l1_candidate_aggregate": {
+      "owner": "duckdb_read_only",
+      "parameters": [
+        [
+          "air_quality_index",
+          "child_stunting",
+          "education_outcomes",
+          "education_spending",
+          "electricity_access",
+          "emissions",
+          "energy_intensity",
+          "energy_mix",
+          "energy_price",
+          "forest_cover",
+          "gender_parity_index",
+          "health_outcomes",
+          "hiv_prevalence",
+          "infant_mortality",
+          "life_expectancy",
+          "malaria_incidence",
+          "neonatal_mortality",
+          "noncommunicable_disease_mortality",
+          "preschool_enrollment",
+          "school_quality",
+          "stem_graduates",
+          "tertiary_enrollment",
+          "tuberculosis_incidence",
+          "vaccination_coverage",
+          "water_stress",
+          "years_of_schooling"
+        ]
+      ],
+      "query_content_hash": "sha256:328baf5c028e84e0b2fe5d99b35a8bd16e2a928410a0f0e1f5d0b6735b35d116",
+      "query_id": "l1_candidate_aggregate",
+      "response_content_hash": "sha256:1447660d802498f0b009c23d72c156f4a6b1eb1597ded6ec80cdc3beb611fef9",
+      "rows": [
+        {
+          "canonical_var": "air_quality_index",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2020,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 48,
+          "panel_shape": false,
+          "periods": 3,
+          "row_content_hash": "sha256:083a3eee85791aabfbdbbddb32eaebf8f3caffbf0cd553562c8bdc865c22429b"
+        },
+        {
+          "canonical_var": "child_stunting",
+          "datasets": 1,
+          "geographic_units": 5,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 6,
+          "panel_shape": true,
+          "periods": 4,
+          "row_content_hash": "sha256:a682fe7df3c7b556fb238157d29177c7a805103a0eb57746c96d9d11129f0edb"
+        },
+        {
+          "canonical_var": "education_outcomes",
+          "datasets": 3237,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 1,
+          "min_period": 1989,
+          "no_period_rows": 25,
+          "no_unit_rows": 0,
+          "observations": 1164742,
+          "panel_shape": true,
+          "periods": 30,
+          "row_content_hash": "sha256:58ff27d6120d43e36c69a9793e0218bde096203ce0ba30d0adfcc558e50b691f"
+        },
+        {
+          "canonical_var": "education_spending",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 79,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:dbd12ecfebddd0fe7c4aeff6edc81d8803f0543f3281117bdddbeb4e31ebf5c6"
+        },
+        {
+          "canonical_var": "electricity_access",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 80,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:2e59ee91e7d9ec44b1a6e595cc3823b6ce63e2ab5aaa358fe7622e5b034a5f7e"
+        },
+        {
+          "canonical_var": "emissions",
+          "datasets": 204,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 7154,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:ffce3a0c05e4beb3d24d59a96038c55e36ee972e1f80196fbbef5f501a2b24ab"
+        },
+        {
+          "canonical_var": "energy_intensity",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 76,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:66718d081cf67ac3afd89c22551d7290d98d99ec2b4760be86c8d83d2ac55861"
+        },
+        {
+          "canonical_var": "energy_mix",
+          "datasets": 39,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 1990,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 3878,
+          "panel_shape": true,
+          "periods": 31,
+          "row_content_hash": "sha256:f9aa93f1b67b79b059271ed8f35b55b4b762494fe14660dae778c2489aff6844"
+        },
+        {
+          "canonical_var": "energy_price",
+          "datasets": 38,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 1990,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 3798,
+          "panel_shape": true,
+          "periods": 31,
+          "row_content_hash": "sha256:e6b64bce1e6092b7e4563d32acd6e5b9a7f8aedd86ba78571fee6ac8ae8b9f39"
+        },
+        {
+          "canonical_var": "forest_cover",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 80,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:44bc3b5d26f2a69bd602a4d58d0ed0a374625e991d0d44265d44d65888e77d1a"
+        },
+        {
+          "canonical_var": "gender_parity_index",
+          "datasets": 1,
+          "geographic_units": 15,
+          "max_period": 2021,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 50,
+          "panel_shape": true,
+          "periods": 4,
+          "row_content_hash": "sha256:7815fc3687eb30ac6847ccbebeba5f3d27ff7c22bc2dcb1f327478c1aacee198"
+        },
+        {
+          "canonical_var": "health_outcomes",
+          "datasets": 501,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 1,
+          "min_period": 1982,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 113871,
+          "panel_shape": true,
+          "periods": 30,
+          "row_content_hash": "sha256:b0f8dcb6f3b95d915c109dd8eecaede0dd2bafc59fc19d3ed46ed26a403daec5"
+        },
+        {
+          "canonical_var": "hiv_prevalence",
+          "datasets": 3,
+          "geographic_units": 11,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 115,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:e695e6ce21479e338ae418fef033df8961e22b7c332aef8e777535fd0ffb890b"
+        },
+        {
+          "canonical_var": "infant_mortality",
+          "datasets": 3,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 110,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:cb920340287720776acecede8a9177c8af054401e9bfc2e5ec45280d63db4142"
+        },
+        {
+          "canonical_var": "life_expectancy",
+          "datasets": 4,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 479,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:4399b4e51906e321862df2d42bf514d7727ed0ccdce54e4d9c7c2465716c0308"
+        },
+        {
+          "canonical_var": "malaria_incidence",
+          "datasets": 1,
+          "geographic_units": 5,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 18,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:4d030b6c97d83b75e99888429432b7ac2aba4a866cd41458c681bcd9fec3701c"
+        },
+        {
+          "canonical_var": "neonatal_mortality",
+          "datasets": 2,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 236,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:73ab558be534abf228eab390677207f3c54bbc28750549de74841657bad59ebc"
+        },
+        {
+          "canonical_var": "noncommunicable_disease_mortality",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2021,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 192,
+          "panel_shape": true,
+          "periods": 4,
+          "row_content_hash": "sha256:15b72605e92073225a84b8442f76127772c08c871785ee7e29f3126e87341df3"
+        },
+        {
+          "canonical_var": "preschool_enrollment",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2021,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 51,
+          "panel_shape": true,
+          "periods": 4,
+          "row_content_hash": "sha256:5634d0396f02a566bc17b1519d06ba270b6cdd3569c19261cfa4e9f1414b3cad"
+        },
+        {
+          "canonical_var": "school_quality",
+          "datasets": 1,
+          "geographic_units": 12,
+          "max_period": 2021,
+          "measurement_unit_values": 0,
+          "min_period": 2019,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 12,
+          "panel_shape": false,
+          "periods": 2,
+          "row_content_hash": "sha256:2ba7b47450130596b362748cf706ea95b8ef37bc614eb6c2760118e4d76799e9"
+        },
+        {
+          "canonical_var": "stem_graduates",
+          "datasets": 1,
+          "geographic_units": 7,
+          "max_period": 2019,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 9,
+          "panel_shape": false,
+          "periods": 2,
+          "row_content_hash": "sha256:83d67c4c83c9f1ec6484b70828fec3dfea32853d6d8af4dc2f195045de5a1a04"
+        },
+        {
+          "canonical_var": "tertiary_enrollment",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 79,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:287b005613bac53771efe01931b07772410f9ec96d134b5cd2016b7bafd526d9"
+        },
+        {
+          "canonical_var": "tuberculosis_incidence",
+          "datasets": 2,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 160,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:f2429118baea6ca1d4d8c6aae84089db80eb0e32f8f8fac2c9d283233b895fd6"
+        },
+        {
+          "canonical_var": "vaccination_coverage",
+          "datasets": 3,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 238,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:aefd02e845fbddf19d746967233f7b6a897830a1f59e6c37b55ff50afbbdf28b"
+        },
+        {
+          "canonical_var": "water_stress",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 80,
+          "panel_shape": true,
+          "periods": 5,
+          "row_content_hash": "sha256:8f3acf8ebb033149a69ee233e6974ba0d6a57149846ece54274422f87f0332b7"
+        },
+        {
+          "canonical_var": "years_of_schooling",
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2020,
+          "measurement_unit_values": 0,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 32,
+          "panel_shape": false,
+          "periods": 2,
+          "row_content_hash": "sha256:7a1c8b829915e43d18ee8856a966282e06f6835c03be3c1f205bf05beb951638"
+        }
+      ],
+      "sql": "SELECT\n  canonical_var,\n  COUNT(*) AS observations,\n  COUNT(DISTINCT dataset_id) AS datasets,\n  COUNT(DISTINCT country_code)\n    FILTER (WHERE country_code IS NOT NULL AND country_code <> '') AS geographic_units,\n  COUNT(DISTINCT COALESCE(year, survey_year))\n    FILTER (WHERE COALESCE(year, survey_year) IS NOT NULL) AS periods,\n  MIN(COALESCE(year, survey_year)) AS min_period,\n  MAX(COALESCE(year, survey_year)) AS max_period,\n  COUNT(*) FILTER (WHERE country_code IS NULL OR country_code = '') AS no_unit_rows,\n  COUNT(*) FILTER (WHERE COALESCE(year, survey_year) IS NULL) AS no_period_rows,\n  COUNT(DISTINCT json_extract_string(condition_json, '$.unit'))\n    FILTER (WHERE json_extract_string(condition_json, '$.unit') IS NOT NULL) AS measurement_unit_values\nFROM ds_observations\nWHERE canonical_var = ANY(?)\nGROUP BY canonical_var\nORDER BY canonical_var"
+    },
+    "l2_candidate_aggregate": {
+      "owner": "duckdb_read_only",
+      "parameters": [
+        [
+          "health",
+          "education",
+          "environment_energy_transition",
+          "environment_energy_transition",
+          "environment_energy_transition"
+        ],
+        [
+          "health.",
+          "education.",
+          "climate.",
+          "energy.",
+          "environmental."
+        ]
+      ],
+      "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+      "query_id": "l2_candidate_aggregate",
+      "response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+      "rows": [
+        {
+          "candidate_id": "education",
+          "causal_claim_count": 438,
+          "edge_count": 422,
+          "lever_cause_count": 330,
+          "parameter_estimate_count": 1962,
+          "row_content_hash": "sha256:b43134eab2d1ce90d6ff4515969df3defdbcf08c741b3765b60e4ac86bc35f1c",
+          "top_levers": [
+            {
+              "cause": "education.blended_learning",
+              "claim_count": 3,
+              "claim_ids": [
+                "02db6858c242b3f29a662f97",
+                "0362646258768a6c5c3742e0",
+                "eeb01ed005fea027a6ee0b6a"
+              ],
+              "effect": "education.motivation",
+              "lever_rank": 1,
+              "row_content_hash": "sha256:32c0db09cc5060c05a0d5f5439755ff660c62a026557fbb365989c427eb7eb93"
+            },
+            {
+              "cause": "education.stem_education",
+              "claim_count": 3,
+              "claim_ids": [
+                "435d6d1768d620ac8c390195",
+                "4aaff677809e1190db11d21d",
+                "fb404fd635f282040c52a414"
+              ],
+              "effect": "education.academic_success",
+              "lever_rank": 2,
+              "row_content_hash": "sha256:6caad3e8b72110d53026411551391ea58d2c8896468f16ab951b0216b043c364"
+            },
+            {
+              "cause": "education.teaching_method",
+              "claim_count": 3,
+              "claim_ids": [
+                "6f1205b0c3b642873c699c6f",
+                "b99985e9429c744a35391d8b",
+                "ea861792d04094615ffb240b"
+              ],
+              "effect": "education.learning_outcomes",
+              "lever_rank": 3,
+              "row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784"
+            },
+            {
+              "cause": "education.dialogic_reading_modality",
+              "claim_count": 2,
+              "claim_ids": [
+                "2761cc0e9d8884c1e491f6b9",
+                "cdd305aa2edec7b0ea47e358"
+              ],
+              "effect": "education.story_comprehension",
+              "lever_rank": 4,
+              "row_content_hash": "sha256:3319373c42c1a830fdbe130cc6986ee82c62f142b9f8e2952875085b194f3904"
+            }
+          ],
+          "transport_score_count": 422,
+          "variable_count": 2104
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "causal_claim_count": 1585,
+          "edge_count": 1521,
+          "lever_cause_count": 1041,
+          "parameter_estimate_count": 9225,
+          "row_content_hash": "sha256:69775f6af73163ce820652104f60a15dc90c9d45b4f708131d49d4f9a9851621",
+          "top_levers": [
+            {
+              "cause": "climate.climate_change",
+              "claim_count": 4,
+              "claim_ids": [
+                "5a221b268ec4b7d0f90b9eb6",
+                "8d206ac7b01b29bbd84d57a2",
+                "92f18a07a77f7009b40d21d3",
+                "9db6de7d65fb9582c7b08b89"
+              ],
+              "effect": "climate.sea_level_rise",
+              "lever_rank": 1,
+              "row_content_hash": "sha256:acb3340780d32de697a246f97a9c916025c59ccd1848a0eabe6c9b39b2ad2228"
+            },
+            {
+              "cause": "climate.renewable_energy_share",
+              "claim_count": 3,
+              "claim_ids": [
+                "3b8698aec065ebf655950274",
+                "52fb7c2cc3752774d9e2ffcc",
+                "85459802d2f0788a8eeb9625"
+              ],
+              "effect": "climate.carbon_emissions",
+              "lever_rank": 2,
+              "row_content_hash": "sha256:178fd6ec19f2048aed7b40b27701af36406d7b7f9ada3c640e25165224cdad26"
+            },
+            {
+              "cause": "climate.aridity_rise",
+              "claim_count": 2,
+              "claim_ids": [
+                "04c42b8fc517855548b085e9",
+                "87a6bcbce40721f1770cf50d"
+              ],
+              "effect": "climate.soil_organic_carbon",
+              "lever_rank": 3,
+              "row_content_hash": "sha256:cbf570dc7864d0658a07ca80a5132bf83d3fcdfac1088699514e5fdf72592261"
+            },
+            {
+              "cause": "climate.carbon_emissions",
+              "claim_count": 2,
+              "claim_ids": [
+                "117d72da96e825f41bb97a8a",
+                "db533814322120d0b5b52422"
+              ],
+              "effect": "climate.air_temperature",
+              "lever_rank": 4,
+              "row_content_hash": "sha256:c53fd7dc9eda003f19913feb4025d6489070be24823b63c04d3019fa0622b8d3"
+            }
+          ],
+          "transport_score_count": 1521,
+          "variable_count": 8533
+        },
+        {
+          "candidate_id": "health",
+          "causal_claim_count": 2373,
+          "edge_count": 2304,
+          "lever_cause_count": 1686,
+          "parameter_estimate_count": 12252,
+          "row_content_hash": "sha256:6aafd03598e64c87b98866b76d5d6403e2ae3456fec4337eaf1037c41e92bacd",
+          "top_levers": [
+            {
+              "cause": "health.insecticide_treated_materials",
+              "claim_count": 4,
+              "claim_ids": [
+                "40c2667025c62ca9c2200203",
+                "50ba35a5826563f462ab3964",
+                "78199b1a3085c4b71ab7e6bb",
+                "c461d2936808246bfee3c64f"
+              ],
+              "effect": "health.dengue_vector_density",
+              "lever_rank": 1,
+              "row_content_hash": "sha256:7f34dfdac33a9ff1ae7d8144dfceddc3c661f89bd85ebe5d7db96808c7db292a"
+            },
+            {
+              "cause": "health.lactagogue_supplementation",
+              "claim_count": 4,
+              "claim_ids": [
+                "023da8a6cce4c62da2faf252",
+                "9ffb2fe6e3436e3435015f44",
+                "d9a48a04c75746cbeff5ca46",
+                "f8723124e4fa0cbe104178ff"
+              ],
+              "effect": "health.breast_milk_volume",
+              "lever_rank": 2,
+              "row_content_hash": "sha256:7e04b1363c2cd51d4b51de8e069eb18171cc63e2a08b7cee80c2e38bb77c3909"
+            },
+            {
+              "cause": "health.tobacco_use",
+              "claim_count": 4,
+              "claim_ids": [
+                "c5d83280a0248a861658a827",
+                "e937d3e26a06bfd064242c53",
+                "f6afd4803429dfa65dd2fb6e",
+                "fe50ef92a7000cb21141b691"
+              ],
+              "effect": "health.mortality",
+              "lever_rank": 3,
+              "row_content_hash": "sha256:67a15de1e8dc70a9973a592ee0bf3d30d25fa24b046d6ead38ef389aa14eedae"
+            },
+            {
+              "cause": "health.handwashing_campaign",
+              "claim_count": 3,
+              "claim_ids": [
+                "1d54dface2045a8eb04d1d35",
+                "23d123060b48e1ea9b81e8a1",
+                "875488a433cd07928da91363"
+              ],
+              "effect": "health.diarrhea_incidence",
+              "lever_rank": 4,
+              "row_content_hash": "sha256:b4c2e7baa9a6f32e46701dc09a4797f041a6946725837e80d0a27c015c4beb9f"
+            }
+          ],
+          "transport_score_count": 2304,
+          "variable_count": 12043
+        }
+      ],
+      "sql": "WITH candidate_prefixes AS (\n  SELECT\n    unnest(?::VARCHAR[]) AS candidate_id,\n    unnest(?::VARCHAR[]) AS prefix\n),\ncandidate_ids AS (SELECT DISTINCT candidate_id FROM candidate_prefixes),\nmatched_variables AS (\n  SELECT prefix.candidate_id, variable.canonical_name\n  FROM candidate_prefixes AS prefix\n  JOIN ac_skg_variables AS variable\n    ON lower(COALESCE(variable.canonical_name, '')) LIKE prefix.prefix || '%'\n),\nmatched_claims AS (\n  SELECT prefix.candidate_id, claim.id, claim.cause, claim.effect\n  FROM candidate_prefixes AS prefix\n  JOIN ac_causal_claims AS claim\n    ON lower(COALESCE(claim.cause, '')) LIKE prefix.prefix || '%'\n    OR lower(COALESCE(claim.effect, '')) LIKE prefix.prefix || '%'\n),\nmatched_parameters AS (\n  SELECT prefix.candidate_id, parameter.id\n  FROM candidate_prefixes AS prefix\n  JOIN ac_parameter_estimates AS parameter\n    ON lower(COALESCE(parameter.variable_name, '')) LIKE prefix.prefix || '%'\n),\nmatched_edges AS (\n  SELECT prefix.candidate_id, edge.edge_id\n  FROM candidate_prefixes AS prefix\n  JOIN ac_skg_edges AS edge\n    ON lower(COALESCE(edge.src, '')) LIKE prefix.prefix || '%'\n    OR lower(COALESCE(edge.dst, '')) LIKE prefix.prefix || '%'\n),\nvariable_counts AS (\n  SELECT candidate_id, COUNT(DISTINCT canonical_name) AS variable_count\n  FROM matched_variables\n  GROUP BY candidate_id\n),\nclaim_counts AS (\n  SELECT candidate_id, COUNT(DISTINCT id) AS causal_claim_count,\n         COUNT(DISTINCT cause) AS lever_cause_count\n  FROM matched_claims\n  GROUP BY candidate_id\n),\nparameter_counts AS (\n  SELECT candidate_id, COUNT(DISTINCT id) AS parameter_estimate_count\n  FROM matched_parameters\n  GROUP BY candidate_id\n),\nedge_counts AS (\n  SELECT candidate_id, COUNT(DISTINCT edge_id) AS edge_count\n  FROM matched_edges\n  GROUP BY candidate_id\n),\ntransport_counts AS (\n  SELECT edge.candidate_id, COUNT(DISTINCT score.transport_id) AS transport_score_count\n  FROM matched_edges AS edge\n  JOIN ac_skg_transport_scores AS score ON score.edge_id = edge.edge_id\n  GROUP BY edge.candidate_id\n),\nlever_groups AS (\n  SELECT prefix.candidate_id, claim.cause, claim.effect,\n         COUNT(DISTINCT claim.id) AS claim_count,\n         list_sort(list(DISTINCT claim.id)) AS claim_ids\n  FROM candidate_prefixes AS prefix\n  JOIN ac_causal_claims AS claim\n    ON lower(COALESCE(claim.cause, '')) LIKE prefix.prefix || '%'\n   AND lower(COALESCE(claim.effect, '')) LIKE prefix.prefix || '%'\n  WHERE lower(COALESCE(claim.cause, '')) <> lower(COALESCE(claim.effect, ''))\n  GROUP BY prefix.candidate_id, claim.cause, claim.effect\n),\nranked_levers AS (\n  SELECT *, ROW_NUMBER() OVER (\n    PARTITION BY candidate_id ORDER BY claim_count DESC, cause, effect\n  ) AS lever_rank\n  FROM lever_groups\n)\nSELECT\n  candidate.candidate_id,\n  COALESCE(variable_count, 0) AS variable_count,\n  COALESCE(causal_claim_count, 0) AS causal_claim_count,\n  COALESCE(lever_cause_count, 0) AS lever_cause_count,\n  COALESCE(parameter_estimate_count, 0) AS parameter_estimate_count,\n  COALESCE(edge_count, 0) AS edge_count,\n  COALESCE(transport_score_count, 0) AS transport_score_count,\n  lever_rank,\n  cause,\n  effect,\n  claim_count,\n  claim_ids\nFROM candidate_ids AS candidate\nLEFT JOIN variable_counts USING(candidate_id)\nLEFT JOIN claim_counts USING(candidate_id)\nLEFT JOIN parameter_counts USING(candidate_id)\nLEFT JOIN edge_counts USING(candidate_id)\nLEFT JOIN transport_counts USING(candidate_id)\nLEFT JOIN ranked_levers USING(candidate_id)\nWHERE lever_rank <= 4 OR lever_rank IS NULL\nORDER BY candidate.candidate_id, lever_rank"
+    },
+    "l2_candidate_exact_measure_names": {
+      "owner": "duckdb_read_only",
+      "parameters": [
+        [
+          "climate.air_quality_index",
+          "climate.electricity_access",
+          "climate.emissions",
+          "climate.energy_intensity",
+          "climate.energy_mix",
+          "climate.energy_price",
+          "climate.forest_cover",
+          "climate.water_stress",
+          "education.education_outcomes",
+          "education.education_spending",
+          "education.gender_parity_index",
+          "education.preschool_enrollment",
+          "education.school_quality",
+          "education.stem_graduates",
+          "education.tertiary_enrollment",
+          "education.years_of_schooling",
+          "energy.air_quality_index",
+          "energy.electricity_access",
+          "energy.emissions",
+          "energy.energy_intensity",
+          "energy.energy_mix",
+          "energy.energy_price",
+          "energy.forest_cover",
+          "energy.water_stress",
+          "environmental.air_quality_index",
+          "environmental.electricity_access",
+          "environmental.emissions",
+          "environmental.energy_intensity",
+          "environmental.energy_mix",
+          "environmental.energy_price",
+          "environmental.forest_cover",
+          "environmental.water_stress",
+          "health.child_stunting",
+          "health.health_outcomes",
+          "health.hiv_prevalence",
+          "health.infant_mortality",
+          "health.life_expectancy",
+          "health.malaria_incidence",
+          "health.neonatal_mortality",
+          "health.noncommunicable_disease_mortality",
+          "health.tuberculosis_incidence",
+          "health.vaccination_coverage"
+        ]
+      ],
+      "query_content_hash": "sha256:1cfb6a45bd6e5e7afe5f4411dd2f71808bdcbbb755fdd33d381d7de6a76791b9",
+      "query_id": "l2_candidate_exact_measure_names",
+      "response_content_hash": "sha256:a39f5a35d880558b391075dcd0eeef41d926bad2bac52717cb834615a21eb2d3",
+      "rows": [
+        {
+          "candidate_id": "education",
+          "canonical_name": "education.education_outcomes",
+          "canonical_var": "education_outcomes"
+        },
+        {
+          "candidate_id": "education",
+          "canonical_name": "education.preschool_enrollment",
+          "canonical_var": "preschool_enrollment"
+        },
+        {
+          "candidate_id": "education",
+          "canonical_name": "education.school_quality",
+          "canonical_var": "school_quality"
+        },
+        {
+          "candidate_id": "education",
+          "canonical_name": "education.years_of_schooling",
+          "canonical_var": "years_of_schooling"
+        },
+        {
+          "candidate_id": "education",
+          "canonical_name": "education.education_spending",
+          "canonical_var": "education_spending"
+        },
+        {
+          "candidate_id": "education",
+          "canonical_name": "education.gender_parity_index",
+          "canonical_var": "gender_parity_index"
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "canonical_name": "environmental.emissions",
+          "canonical_var": "emissions"
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "canonical_name": "energy.energy_intensity",
+          "canonical_var": "energy_intensity"
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "canonical_name": "climate.air_quality_index",
+          "canonical_var": "air_quality_index"
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "canonical_name": "environmental.air_quality_index",
+          "canonical_var": "air_quality_index"
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "canonical_name": "climate.forest_cover",
+          "canonical_var": "forest_cover"
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "canonical_name": "environmental.forest_cover",
+          "canonical_var": "forest_cover"
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "canonical_name": "climate.water_stress",
+          "canonical_var": "water_stress"
+        },
+        {
+          "candidate_id": "environment_energy_transition",
+          "canonical_name": "environmental.water_stress",
+          "canonical_var": "water_stress"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.health_outcomes",
+          "canonical_var": "health_outcomes"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.vaccination_coverage",
+          "canonical_var": "vaccination_coverage"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.life_expectancy",
+          "canonical_var": "life_expectancy"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.neonatal_mortality",
+          "canonical_var": "neonatal_mortality"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.noncommunicable_disease_mortality",
+          "canonical_var": "noncommunicable_disease_mortality"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.tuberculosis_incidence",
+          "canonical_var": "tuberculosis_incidence"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.infant_mortality",
+          "canonical_var": "infant_mortality"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.hiv_prevalence",
+          "canonical_var": "hiv_prevalence"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.malaria_incidence",
+          "canonical_var": "malaria_incidence"
+        },
+        {
+          "candidate_id": "health",
+          "canonical_name": "health.child_stunting",
+          "canonical_var": "child_stunting"
+        }
+      ],
+      "sql": "SELECT canonical_name\nFROM ac_skg_variables\nWHERE canonical_name = ANY(?)\nORDER BY canonical_name"
+    }
+  },
+  "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
+  "query_discipline": {
+    "l1": "read_only single aggregate over all candidate canonical vars; parameterized ANY lookup",
+    "l2": "read_only single multi-candidate aggregate over canonical owner prefix rows",
+    "timing_policy": "E5 timings are retained as operational census metadata, excluded from the content hash, and preserved by byte-stable rewrites once recorded."
+  },
+  "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
+  "runtime_metrics": {
+    "query_timings_seconds": {
+      "l1_candidate_aggregate": 0.135962,
+      "l2_candidate_aggregate": 0.200306,
+      "l2_candidate_exact_measure_names": 0.044533
+    }
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"
+}

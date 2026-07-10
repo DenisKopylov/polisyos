@@ -1,0 +1,105 @@
+{
+  "artifact_kind": "policy_design_case.gy_n10a.smoke_design_problem",
+  "design_problem": {
+    "authority_profile": {
+      "authority_refs": [
+        "architecture/policy_design_case/layer3_gy_second_domain_pack.json"
+      ],
+      "mandate": "GY-N10a cycle-entry smoke only; no promotion authority.",
+      "requested_authority_level": "research",
+      "requester_authority": "research_lab"
+    },
+    "candidate_lever_space": {
+      "allowed_operator_kinds": [
+        "candidate_intervention"
+      ],
+      "candidate_levers": [
+        {
+          "instrument": "education.teaching_method",
+          "lever_id": "education_teaching_method",
+          "operator_kind": "candidate_intervention",
+          "target_slot": "education_learning_outcomes"
+        }
+      ]
+    },
+    "constraints": [
+      {
+        "admissibility_basis": "request_text",
+        "constraint_id": "no_unverified_promotion",
+        "description": "No candidate may promote without verified grounding and value evidence.",
+        "evidence_ref": null,
+        "hard": true,
+        "source_text": "Do not promote unverified candidates."
+      }
+    ],
+    "design_problem_id": "education_second_domain_smoke",
+    "domain": "education",
+    "evidence_acquisition_needs": {
+      "needs": [
+        {
+          "artifact_ref": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
+          "need_id": "education_grounding",
+          "question": "Which owner-derived evidence binds this education intervention?",
+          "required_for": "A-side grounding",
+          "source_hint": "L2 scholar knowledge graph",
+          "status": "required"
+        }
+      ]
+    },
+    "ir_problem_frame_ref": null,
+    "jurisdiction_time": {
+      "as_of": "2026-07-09",
+      "data_time": "2022",
+      "policy_time": "2022",
+      "region": "cross_country",
+      "time_semantics": null,
+      "valid_time": "2022"
+    },
+    "model_spec_ref": null,
+    "nl_provenance": {
+      "raw_request": "Improve education outcomes through evidence-backed interventions.",
+      "source_context": {
+        "census_content_hash": "sha256:b622b1654f2489346039e13c62d93659b42b3011fd81138847b41cca8f072635"
+      },
+      "source_surface": "gy_n10a_second_domain_pack"
+    },
+    "objectives": [
+      {
+        "description": "Improve measured education outcomes.",
+        "direction": "maximize",
+        "metric_id": "years_of_schooling",
+        "objective_id": "improve_education_outcomes"
+      }
+    ],
+    "outcome_of_interest": {
+      "direction": "maximize",
+      "estimand": "average_treatment_effect",
+      "metric_id": "years_of_schooling",
+      "target_variable": "years_of_schooling"
+    },
+    "policy_request_frame_ref": null,
+    "problem_statement": "Improve education outcomes through owner-derived intervention concepts without claiming unsupported world-slot writability or promotion authority.",
+    "runtime_hints": {
+      "generation_cycle_grammar": [
+        "seed"
+      ]
+    },
+    "schema_version": "policyos.runtime.design_problem.v1",
+    "stakeholders": [
+      {
+        "name": "Learners",
+        "role": "affected_population",
+        "stakeholder_id": "learners"
+      }
+    ]
+  },
+  "lever_owner_evidence": {
+    "l2_query_id": "l2_candidate_aggregate",
+    "lever_row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
+    "target_slot_status": "candidate_unbound_world_slot"
+  },
+  "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
+  "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
+  "smoke_problem_content_hash": "sha256:969a1e4670a734f6d97d705d6a1d2fda4e919d64f5e5363769054422a6c584be"
+}

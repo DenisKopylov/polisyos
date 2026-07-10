@@ -1,0 +1,669 @@
+{
+  "artifact_kind": "policy_design_case.gy_n10a.cycle_entry_trace",
+  "content_hash_excluded_fields": [
+    "runtime_metrics"
+  ],
+  "execution_status": "completed",
+  "generation_cycle_run": {
+    "acquisition_receipts": [],
+    "blocked_reason": null,
+    "candidate_summaries": [
+      {
+        "adversarial_validation_status": "not_required",
+        "candidate_id": "candidate_fallback_c74862da171a05cb",
+        "certified_by_n9": false,
+        "content_hash": "sha256:c74862da171a05cb5d8596f7bd71ac5ff9c7c314995c14fc2f683f9b5f141b57",
+        "counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+        "current_valid": false,
+        "cycle_index": 0,
+        "front": "research",
+        "generation_channel": "grammar_fallback",
+        "grounding_disposition": null,
+        "grounding_score": 0.0,
+        "grounding_source": "grounding_unavailable",
+        "grounding_status": "grounding_unavailable",
+        "high_proxy": false,
+        "low_grounding": true,
+        "proxy_score": 0.35,
+        "quarantine_action": "none",
+        "value_blockers": [
+          "acquire_data:value_panel_data_missing"
+        ],
+        "value_decision_grade": "blocked",
+        "value_ref": null,
+        "value_status": "value_blocked",
+        "voi_estimate": 0.3
+      }
+    ],
+    "controller_ref": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+    "cycles": [
+      {
+        "acquisition_receipt": null,
+        "candidate_ids": [
+          "candidate_fallback_c74862da171a05cb"
+        ],
+        "counterexample": {
+          "candidate_ref": "candidate_fallback_c74862da171a05cb",
+          "case_id": "education_second_domain_smoke",
+          "counterexample_class": "value_gap",
+          "counterexample_id": "gy.n6.counterexample.education_second_domain_smoke.001",
+          "counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+          "diagnostic": {
+            "authority_purpose": "shadow_search_refinement_only",
+            "code": "n6.value.acquire_data:value_panel_data_missing",
+            "diagnostic_id": "gy.n6.diagnostic.education_second_domain_smoke.001",
+            "message": "Candidate candidate_fallback_c74862da171a05cb requires revision for acquire_data:value_panel_data_missing.",
+            "owner": "team-policyos-runtime",
+            "rule_version_ref": "policyos.layer3.gy.n6.generation_cycle.v1",
+            "severity": "block"
+          },
+          "evidence_refs": [
+            "grounding://missing"
+          ],
+          "routed_to": "refinement_policy",
+          "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
+        },
+        "cycle_index": 0,
+        "design_problem_ref": "sha256:18f8ef3ba562388aca9343819d740bd12401c9430400e38af198b85736e28b0f",
+        "driven_by_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+        "grammar_elements": [
+          "seed"
+        ],
+        "grounding": {
+          "adversarial_validation_ref": null,
+          "candidate_id": "candidate_fallback_c74862da171a05cb",
+          "cgf_certificate_refs": [],
+          "current_valid": false,
+          "evidence_refs": [],
+          "grounding_disposition": null,
+          "grounding_score": 0.0,
+          "grounding_source": "grounding_unavailable",
+          "issue_codes": [
+            "cgf_disposition_missing"
+          ],
+          "quarantine_action": "none",
+          "report_ref": null,
+          "status": "grounding_unavailable"
+        },
+        "introduced_grammar_elements": [],
+        "refinement_decision": {
+          "budget_refs": [
+            "budget://gy/n6/shadow-loop"
+          ],
+          "candidate_ref": "candidate_fallback_c74862da171a05cb",
+          "case_id": "education_second_domain_smoke",
+          "consumed_counterexample_refs": [
+            "pdc://gy/n6/education_second_domain_smoke/counterexample/001"
+          ],
+          "decision": "human_decision",
+          "decision_id": "gy.n6.refinement.education_second_domain_smoke.001",
+          "decision_ref": "pdc://gy/n6/education_second_domain_smoke/refinement/001",
+          "governance_decision_class": null,
+          "governance_decision_class_ref": "governance://gy/n6/education_second_domain_smoke/terminal/001",
+          "governance_refs": [
+            "governance://gy/n6/education_second_domain_smoke/terminal/001"
+          ],
+          "next_candidate_ref": null,
+          "reason": "terminal_requires_escalation:a_spec_gap; terminal=a_spec_gap",
+          "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
+          "stakes_band": "moderate",
+          "value_of_information": {
+            "budget_dimensions": [
+              "compute",
+              "acquisition",
+              "human_attention"
+            ],
+            "estimate_id": "gy_n6_voi_001",
+            "owner": "team-policyos-runtime",
+            "purpose": "Schedule N6 shadow revision only; does not grant authority.",
+            "rule_version_ref": "policyos.layer3.gy.n6.generation_cycle.v1",
+            "used_by_sites": [
+              "runtime.quality.generation_cycle"
+            ]
+          }
+        },
+        "revision_driver": "counterexample",
+        "revision_request": {
+          "new_grammar_elements": [
+            "lever:education_teaching_method:spec_gap_reframe:acquire_data_value_panel_data_missing"
+          ],
+          "next_candidate_ref": "candidate://pending/86394b65dbad916c",
+          "next_grammar_elements": [
+            "seed",
+            "lever:education_teaching_method:spec_gap_reframe:acquire_data_value_panel_data_missing"
+          ],
+          "previous_candidate_ref": "candidate_fallback_c74862da171a05cb",
+          "previous_grammar_elements": [
+            "seed"
+          ],
+          "revised_problem": {
+            "authority_profile": {
+              "authority_refs": [
+                "architecture/policy_design_case/layer3_gy_second_domain_pack.json"
+              ],
+              "mandate": "GY-N10a cycle-entry smoke only; no promotion authority.",
+              "requested_authority_level": "research",
+              "requester_authority": "research_lab"
+            },
+            "candidate_lever_space": {
+              "allowed_operator_kinds": [
+                "candidate_intervention"
+              ],
+              "candidate_levers": [
+                {
+                  "instrument": "education.teaching_method",
+                  "lever_id": "education_teaching_method",
+                  "operator_kind": "candidate_intervention",
+                  "target_slot": "education_learning_outcomes"
+                }
+              ]
+            },
+            "constraints": [
+              {
+                "admissibility_basis": "request_text",
+                "constraint_id": "no_unverified_promotion",
+                "description": "No candidate may promote without verified grounding and value evidence.",
+                "evidence_ref": null,
+                "hard": true,
+                "source_text": "Do not promote unverified candidates."
+              }
+            ],
+            "design_problem_id": "education_second_domain_smoke",
+            "domain": "education",
+            "evidence_acquisition_needs": {
+              "needs": [
+                {
+                  "artifact_ref": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
+                  "need_id": "education_grounding",
+                  "question": "Which owner-derived evidence binds this education intervention?",
+                  "required_for": "A-side grounding",
+                  "source_hint": "L2 scholar knowledge graph",
+                  "status": "required"
+                }
+              ]
+            },
+            "ir_problem_frame_ref": null,
+            "jurisdiction_time": {
+              "as_of": "2026-07-09",
+              "data_time": "2022",
+              "policy_time": "2022",
+              "region": "cross_country",
+              "time_semantics": null,
+              "valid_time": "2022"
+            },
+            "model_spec_ref": null,
+            "nl_provenance": {
+              "raw_request": "Improve education outcomes through evidence-backed interventions.",
+              "source_context": {
+                "census_content_hash": "sha256:b622b1654f2489346039e13c62d93659b42b3011fd81138847b41cca8f072635"
+              },
+              "source_surface": "gy_n10a_second_domain_pack"
+            },
+            "objectives": [
+              {
+                "description": "Improve measured education outcomes.",
+                "direction": "maximize",
+                "metric_id": "years_of_schooling",
+                "objective_id": "improve_education_outcomes"
+              }
+            ],
+            "outcome_of_interest": {
+              "direction": "maximize",
+              "estimand": "average_treatment_effect",
+              "metric_id": "years_of_schooling",
+              "target_variable": "years_of_schooling"
+            },
+            "policy_request_frame_ref": null,
+            "problem_statement": "Improve education outcomes through owner-derived intervention concepts without claiming unsupported world-slot writability or promotion authority.",
+            "runtime_hints": {
+              "generation_cycle_grammar": [
+                "seed",
+                "lever:education_teaching_method:spec_gap_reframe:acquire_data_value_panel_data_missing"
+              ],
+              "generation_cycle_revision": {
+                "new_grammar_elements": [
+                  "lever:education_teaching_method:spec_gap_reframe:acquire_data_value_panel_data_missing"
+                ],
+                "previous_candidate_ref": "candidate_fallback_c74862da171a05cb",
+                "revision_strategy": "spec_gap_reframe",
+                "source_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+                "strategy_payload": {
+                  "issue": "acquire_data:value_panel_data_missing",
+                  "source_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+                  "spec_gap": {
+                    "counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+                    "missing_owner_signal": "acquire_data:value_panel_data_missing"
+                  },
+                  "strategy": "spec_gap_reframe",
+                  "terminal_kind": "a_spec_gap"
+                }
+              }
+            },
+            "schema_version": "policyos.runtime.design_problem.v1",
+            "stakeholders": [
+              {
+                "name": "Learners",
+                "role": "affected_population",
+                "stakeholder_id": "learners"
+              }
+            ]
+          },
+          "revision_driver": "counterexample",
+          "revision_id": "gy.n6.revision.education_second_domain_smoke.001",
+          "revision_strategy": "spec_gap_reframe",
+          "source_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+          "source_terminal_kind": "a_spec_gap",
+          "strategy_payload": {
+            "issue": "acquire_data:value_panel_data_missing",
+            "source_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+            "spec_gap": {
+              "counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
+              "missing_owner_signal": "acquire_data:value_panel_data_missing"
+            },
+            "strategy": "spec_gap_reframe",
+            "terminal_kind": "a_spec_gap"
+          }
+        },
+        "search_iteration": {
+          "candidate_ref": "candidate_fallback_c74862da171a05cb",
+          "counterexample_refs": [
+            "pdc://gy/n6/education_second_domain_smoke/counterexample/001"
+          ],
+          "iteration_id": "gy.n6.iteration.education_second_domain_smoke.001",
+          "refinement_decision_ref": "pdc://gy/n6/education_second_domain_smoke/refinement/001",
+          "status": "governance_required"
+        },
+        "selected_candidate_content_hash": "sha256:c74862da171a05cb5d8596f7bd71ac5ff9c7c314995c14fc2f683f9b5f141b57",
+        "selected_candidate_ref": "candidate_fallback_c74862da171a05cb",
+        "simulation": {
+          "authority_blockers": [
+            "joint_simulation_request_missing"
+          ],
+          "candidate_id": "candidate_fallback_c74862da171a05cb",
+          "diagnostics": {
+            "port": "N5",
+            "reason": "joint_simulation_request_missing",
+            "simulation_status": "pending_full_joint_request",
+            "world_model_record_content_hash": "sha256:b8f1aff5bf27ce193c238746a38714eeb9ff662af1bd6bd947d024f32a172310",
+            "world_model_record_id": "world_model_record_b8f1aff5bf27ce19",
+            "world_model_source": "real_substrate_registry_boundary"
+          },
+          "k_world_ref_after": "sha256:b8f1aff5bf27ce193c238746a38714eeb9ff662af1bd6bd947d024f32a172310",
+          "k_world_ref_before": "sha256:b8f1aff5bf27ce193c238746a38714eeb9ff662af1bd6bd947d024f32a172310",
+          "k_world_update_mode": "read_only_no_k_world_narrowing",
+          "simulation_ref": null,
+          "status": "simulation_pending_n5",
+          "uncertainty_kind": null
+        },
+        "terminal_kind": "a_spec_gap",
+        "value_port": {
+          "authority_blockers": [
+            "acquire_data:value_panel_data_missing"
+          ],
+          "calibration_receipt": null,
+          "decision_grade": "blocked",
+          "evaluation_mode": "simulate_only",
+          "identification_status": null,
+          "reason": "substrate owner found years_of_schooling but no usable panel matrix owner_access_ref=repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/years_of_schooling",
+          "selected_method_fqn": null,
+          "status": "value_blocked",
+          "transport_receipt": null,
+          "value_receipt": null,
+          "value_ref": null,
+          "wall_time_ms": 0.0,
+          "world_model_record_content_hash": "sha256:b8f1aff5bf27ce193c238746a38714eeb9ff662af1bd6bd947d024f32a172310"
+        },
+        "voi_decision": {
+          "candidate_id": "candidate_fallback_c74862da171a05cb",
+          "next_action": "escalate",
+          "priority": 0.54,
+          "reason": "terminal_requires_escalation:a_spec_gap",
+          "scheduler_action": "reject",
+          "scheduler_reason": "roi_below_threshold",
+          "terminal_kind": "a_spec_gap"
+        }
+      }
+    ],
+    "design_problem_ref": "sha256:18f8ef3ba562388aca9343819d740bd12401c9430400e38af198b85736e28b0f",
+    "engine_owner_ref": "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine",
+    "fronts": {
+      "decision": {
+        "candidate_ids": [],
+        "front_kind": "decision",
+        "reason": "N9-certified current_valid candidates only; N6 does not promote."
+      },
+      "portfolio": {
+        "candidate_ids": [],
+        "front_kind": "portfolio",
+        "reason": "Portfolio synthesis is Phase-5 deferred."
+      },
+      "quarantine": {
+        "candidate_ids": [],
+        "front_kind": "quarantine",
+        "reason": "High-proxy or high-gap candidates require adversarial validation first."
+      },
+      "research": {
+        "candidate_ids": [
+          "candidate_fallback_c74862da171a05cb"
+        ],
+        "front_kind": "research",
+        "reason": "Promising shadow candidates below decision authority."
+      }
+    },
+    "promotion_port": {
+      "certified_candidate_ids": [],
+      "reason": "canonical_n9_sequence_returned_shadow",
+      "receipts": [
+        {
+          "authority_derivation_trace": null,
+          "candidate_id": "candidate_fallback_c74862da171a05cb",
+          "computed_authority_boundary": {
+            "authoritative_for": [
+              "grounded_partial_admissible_policy_design"
+            ],
+            "boundary_id": "n9.candidate.fallback.c74862da171a05cb.base",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "n8_value_receipt_missing"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "transport",
+            "known_limits": [],
+            "may_not_use_for": [
+              "production_deployment",
+              "unguarded_champion_promotion"
+            ],
+            "posture": "governed",
+            "rule_version_refs": [
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "gate_outcome_hash": "sha256:cb7e805e4739d68f16edacd493ca55304a8b35e84c468b38f9d2eddfad9755ba",
+          "obligations": [
+            {
+              "detail": "Strict N9 input model validated with extra fields forbidden.",
+              "evidence_refs": [],
+              "gate_id": "gy_waist",
+              "obligation_class": "syntax",
+              "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "type",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Slot/world binding cannot be checked without the N8 receipt.",
+              "evidence_refs": [],
+              "gate_id": "n8_transport",
+              "obligation_class": "slot",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "G4 governed-promotion record is present for the sequence.",
+              "evidence_refs": [
+                "pdc://layer3/g4/governed-promotion"
+              ],
+              "gate_id": "g4_governed_promotion",
+              "obligation_class": "param",
+              "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "No N5 coupling blocker is present on the candidate summary.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "coupling",
+              "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "Entailment/grounding witness is present as a witness, not the decider.",
+              "evidence_refs": [
+                "gyk://entailment-witness/current"
+              ],
+              "gate_id": "gyk_entailment",
+              "obligation_class": "effect",
+              "owner_ref": "GY-K entailment witness",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "CGF grounding did not produce current_valid (status=grounding_unavailable).",
+              "evidence_refs": [],
+              "gate_id": "cgf_grounding",
+              "obligation_class": "identification",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "N8 calibration receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_calibration",
+              "obligation_class": "calibration",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Value outer set is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "measurement",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Data-trust record is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "data",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "S6 blind-spot posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s6_blind_spot",
+              "obligation_class": "implementation",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No violated equilibrium or strategic-response assumption is present.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "equilibrium",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "S7 mandate/delegation posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s7_mandate_delegation",
+              "obligation_class": "normative",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+              "evidence_refs": [],
+              "gate_id": "gy_o0_eval_safety",
+              "obligation_class": "eval_safety",
+              "owner_ref": "GY-O0 eval-safety gate",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "data_only_not_required",
+              "status": "not_applicable_data_only"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "value",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            }
+          ],
+          "promoted": false,
+          "refusal_reasons": [
+            "type:single_obligation_fail",
+            "slot:single_obligation_fail",
+            "identification:single_obligation_fail",
+            "calibration:single_obligation_fail",
+            "measurement:single_obligation_fail",
+            "data:single_obligation_fail",
+            "implementation:scope_insufficient",
+            "normative:scope_insufficient",
+            "value:single_obligation_fail"
+          ],
+          "risk_spend": {
+            "budget_delta": 0.01,
+            "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
+            "spend_records": [],
+            "total_declared_delta": 0.0,
+            "within_budget": true
+          },
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+          "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+          "status": "shadow",
+          "terminal_kind": "grounded_abstention",
+          "trace_content_hash": null,
+          "value_method_family": null,
+          "value_receipt_ref": null
+        }
+      ],
+      "status": "not_promoted",
+      "strangle_receipt": {
+        "allowed_legacy_helpers": [
+          "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py"
+        ],
+        "default_sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+        "live_policy_champion_callers": [],
+        "predecessor_ref": "polisyos.scientist.methods.search.judge_stack.PolicyPromotionCoordinator",
+        "status": "strangled",
+        "verified_by": "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
+      }
+    },
+    "run_id": "generation_cycle_18f8ef3ba562388a",
+    "schema_version": "policyos.runtime.generation_cycle_controller.v1",
+    "strangle_receipt": {
+      "allowed_fixture_callers": [
+        "src/polisyos/runtime/quality/workspace/loop.py:1006",
+        "src/polisyos/runtime/quality/workspace/loop.py:920"
+      ],
+      "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+      "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",
+      "production_single_pass_callers": [],
+      "status": "strangled",
+      "verified_by": "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
+    },
+    "terminal_denominator": [
+      "a_spec_gap",
+      "tool_failure",
+      "composition_invalid",
+      "recursive_blocked",
+      "search_ceiling_repair_required",
+      "human_decision_required",
+      "acquisition_required",
+      "budget_exhausted",
+      "frontier_stable",
+      "grounded_admissible",
+      "grounded_partial_admissible",
+      "grounded_abstention"
+    ],
+    "terminal_status": "completed",
+    "value_port": {
+      "authority_blockers": [
+        "acquire_data:value_panel_data_missing"
+      ],
+      "calibration_receipt": null,
+      "decision_grade": "blocked",
+      "evaluation_mode": "simulate_only",
+      "identification_status": null,
+      "reason": "substrate owner found years_of_schooling but no usable panel matrix owner_access_ref=repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/years_of_schooling",
+      "selected_method_fqn": null,
+      "status": "value_blocked",
+      "transport_receipt": null,
+      "value_receipt": null,
+      "value_ref": null,
+      "wall_time_ms": 0.0,
+      "world_model_record_content_hash": "sha256:b8f1aff5bf27ce193c238746a38714eeb9ff662af1bd6bd947d024f32a172310"
+    }
+  },
+  "generation_owner_status": "unavailable_then_real_n6_grammar_fallback",
+  "known_runtime_gap": {
+    "code": "n6_single_terminal_validation_gap",
+    "present": true
+  },
+  "n6_validation_issues": [
+    {
+      "code": "positive_cycle_denominator_missing"
+    }
+  ],
+  "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
+  "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
+  "runtime_metrics": {
+    "aggregate_value_port_wall_time_ms": 42.173583060503006,
+    "cycle_value_port_wall_time_ms": [
+      {
+        "cycle_index": 0,
+        "value_port_wall_time_ms": 42.173583060503006
+      }
+    ]
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
+  "smoke_problem_content_hash": "sha256:969a1e4670a734f6d97d705d6a1d2fda4e919d64f5e5363769054422a6c584be",
+  "smoke_status": "typed_terminal_with_known_n6_validation_gap",
+  "trace_content_hash": "sha256:fcc373e0135eb5f8d516eb74aa1b674971b1189710badba2c4a012701cd42e01"
+}

@@ -1747,6 +1747,41 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-gy-second-domain-pack"
+label = "Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "GY-N10a owner-derived census, pack, journal-first N7 receipt, smoke trace, and free-grow-gap validator generated from L1/L2/S0/L6/N6/N7 owners"
+verifier = "GY-N10a frozen checker, owner rederive audit, corrupt-field drift probe, distinctness computation, N7 raw-response verification, smoke-terminal check, and zero-engine-code scope check"
+promotion_target = "evidence-backed input to GY-N10 domain and method-family generalization; never a promotion authority"
+stale_output_behavior = "fail"
+source_of_truth = "production_data owners resolved through default_substrate_catalog_paths, the existing S0/L6/N6/N7 owners, first-vertical artifacts, and tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_second_domain_census.json",
+  "architecture/policy_design_case/layer3_gy_second_domain_pack.json",
+  "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json",
+  "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json",
+  "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json",
+]
+regenerate_commands = [
+  "python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever the candidate-domain owner queries, S0/L6/N7 bridge semantics, N6 terminal contract, first-vertical comparator, or owner-data snapshots change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+check_cwd = "."
+check_command = [
+  "python3",
+  "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
 id = "policy-design-case-layer3-gy-generation-cycle-disposition-ledger"
 label = "Policy Design Case Layer 3 GY generation-cycle disposition ledger"
 owner = "team-runtime-quality"
@@ -1763,7 +1798,7 @@ outputs = [
   "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
   "architecture/policy_design_case/layer3_gy_n0_investigation.md",
 ]
-source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:ea4f9c25d8eead83976c1c3712663cec309b2d2c6cc5fd939707a47f1dfa4064"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:3bfcb8eeb5c2f410b4ea208d1aeedec42733e134278647827d46b2fb614c07bb"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_n0_investigation.md" = "sha256:7aea27e40644f7b786219767810041cb0d3c302ab4435757faaa6bf959ce3b53"
 regenerate_commands = [
   "uv run python tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --repo-root . --check --output-format json",

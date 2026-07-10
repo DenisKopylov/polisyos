@@ -1,0 +1,1475 @@
+{
+  "artifact_kind": "policy_design_case.gy_n10a.second_domain_pack",
+  "capability_reality": {
+    "state": "artifact_missing_and_bridge_missing_for_durable_lever_registration",
+    "surface": "pack_manifest_and_gap_report",
+    "surface_out_of_scope": false
+  },
+  "census_content_hash": "sha256:b622b1654f2489346039e13c62d93659b42b3011fd81138847b41cca8f072635",
+  "components": {
+    "grounding_reference_coverage": {
+      "coverage": {
+        "causal_claim_count": 438,
+        "edge_count": 422,
+        "parameter_estimate_count": 1962,
+        "transport_score_count": 422,
+        "variable_count": 2104
+      },
+      "owner": "L2 scholar knowledge graph",
+      "owner_query": {
+        "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+        "query_id": "l2_candidate_aggregate",
+        "response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357"
+      }
+    },
+    "lever_vocabulary": {
+      "entries": [
+        {
+          "entry_content_hash": "sha256:2348f8d9a670a98fd9ec5f5a9b1dda12a94a6d0172eef41d713ae599e22d476c",
+          "instrument": "education.blended_learning",
+          "lever_id": "education_blended_learning",
+          "owner_evidence": {
+            "claim_ids": [
+              "02db6858c242b3f29a662f97",
+              "0362646258768a6c5c3742e0",
+              "eeb01ed005fea027a6ee0b6a"
+            ],
+            "owner": "L2 scholar knowledge graph ac_causal_claims",
+            "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+            "query_id": "l2_candidate_aggregate",
+            "query_response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+            "source_row_content_hash": "sha256:32c0db09cc5060c05a0d5f5439755ff660c62a026557fbb365989c427eb7eb93"
+          },
+          "status": "candidate_unbound",
+          "target_concept": "education.motivation"
+        },
+        {
+          "entry_content_hash": "sha256:ef5b59f104665d3d601b3d9358dec6d2f9fa71dad7ca185c4548c2a7d90f753f",
+          "instrument": "education.stem_education",
+          "lever_id": "education_stem_education",
+          "owner_evidence": {
+            "claim_ids": [
+              "435d6d1768d620ac8c390195",
+              "4aaff677809e1190db11d21d",
+              "fb404fd635f282040c52a414"
+            ],
+            "owner": "L2 scholar knowledge graph ac_causal_claims",
+            "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+            "query_id": "l2_candidate_aggregate",
+            "query_response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+            "source_row_content_hash": "sha256:6caad3e8b72110d53026411551391ea58d2c8896468f16ab951b0216b043c364"
+          },
+          "status": "candidate_unbound",
+          "target_concept": "education.academic_success"
+        },
+        {
+          "entry_content_hash": "sha256:2504ea72c6075ed5e51585cb3c6b584286464cff77636a16b9e5e39e65461e43",
+          "instrument": "education.teaching_method",
+          "lever_id": "education_teaching_method",
+          "owner_evidence": {
+            "claim_ids": [
+              "6f1205b0c3b642873c699c6f",
+              "b99985e9429c744a35391d8b",
+              "ea861792d04094615ffb240b"
+            ],
+            "owner": "L2 scholar knowledge graph ac_causal_claims",
+            "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+            "query_id": "l2_candidate_aggregate",
+            "query_response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+            "source_row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784"
+          },
+          "status": "candidate_unbound",
+          "target_concept": "education.learning_outcomes"
+        },
+        {
+          "entry_content_hash": "sha256:811f87df9819d0d13116ca7ee71a2fe9d54744a1a55eb7991362e06ff4c6ddfa",
+          "instrument": "education.dialogic_reading_modality",
+          "lever_id": "education_dialogic_reading_modality",
+          "owner_evidence": {
+            "claim_ids": [
+              "2761cc0e9d8884c1e491f6b9",
+              "cdd305aa2edec7b0ea47e358"
+            ],
+            "owner": "L2 scholar knowledge graph ac_causal_claims",
+            "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+            "query_id": "l2_candidate_aggregate",
+            "query_response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+            "source_row_content_hash": "sha256:3319373c42c1a830fdbe130cc6986ee82c62f142b9f8e2952875085b194f3904"
+          },
+          "status": "candidate_unbound",
+          "target_concept": "education.story_comprehension"
+        }
+      ],
+      "gap_ref": "s0_to_l6_world_slot_bridge_missing",
+      "owner": "L2 scholar knowledge graph ac_causal_claims",
+      "s0_registration_status": "bridge_missing_no_new_registry_format",
+      "selection_rule": "top owner causal cause/effect groups ranked by claim count"
+    },
+    "outcomes": {
+      "entries": [
+        {
+          "canonical_var": "tertiary_enrollment",
+          "dataset_ids": [
+            "c3ad52563b9b15814e11"
+          ],
+          "datasets": 1,
+          "entry_content_hash": "sha256:6427df078ec4eec7e097af34beedd1438c04696c375021e86bf0b539681c18d1",
+          "geographic_units": 16,
+          "max_period": 2022,
+          "min_period": 2018,
+          "observations": 79,
+          "owner_evidence": {
+            "owner": "L1 DCAT ds_observations",
+            "query_content_hash": "sha256:4db78ed5d0d161db0798c307255637b0ecdc024d95831e2bfcc5b7beffaf8786",
+            "query_id": "l1_selected_entry_details",
+            "query_response_content_hash": "sha256:732523511db9bb304d531ec793c1d1b59b9203f9b92bfa01de36d477bdc50fa8",
+            "source_row_content_hash": "sha256:cd584cbb76f744c7c4e8ab75f871d1cefd4666862cf1a9650ee3ec5e0cba56c2"
+          },
+          "periods": 5,
+          "role": "outcome"
+        },
+        {
+          "canonical_var": "preschool_enrollment",
+          "dataset_ids": [
+            "24efed31d64c00c64ec4"
+          ],
+          "datasets": 1,
+          "entry_content_hash": "sha256:198ef1a7e07b7cef7a9437b6c1bcdad70a71bbe8ec704e9e0743ee816d052e4d",
+          "geographic_units": 16,
+          "max_period": 2021,
+          "min_period": 2018,
+          "observations": 51,
+          "owner_evidence": {
+            "owner": "L1 DCAT ds_observations",
+            "query_content_hash": "sha256:4db78ed5d0d161db0798c307255637b0ecdc024d95831e2bfcc5b7beffaf8786",
+            "query_id": "l1_selected_entry_details",
+            "query_response_content_hash": "sha256:732523511db9bb304d531ec793c1d1b59b9203f9b92bfa01de36d477bdc50fa8",
+            "source_row_content_hash": "sha256:d214ec79dee2c4bcd0af034513b99fc18d986b38bbc10214e4bf27ddea2a5f69"
+          },
+          "periods": 4,
+          "role": "outcome"
+        },
+        {
+          "canonical_var": "years_of_schooling",
+          "dataset_ids": [
+            "8e3c68515bb045a74a38"
+          ],
+          "datasets": 1,
+          "entry_content_hash": "sha256:3ff07efae15a189bbe6d8244e86ff7f3978ff3383363abbeef505a31f734d97d",
+          "geographic_units": 16,
+          "max_period": 2020,
+          "min_period": 2018,
+          "observations": 32,
+          "owner_evidence": {
+            "owner": "L1 DCAT ds_observations",
+            "query_content_hash": "sha256:4db78ed5d0d161db0798c307255637b0ecdc024d95831e2bfcc5b7beffaf8786",
+            "query_id": "l1_selected_entry_details",
+            "query_response_content_hash": "sha256:732523511db9bb304d531ec793c1d1b59b9203f9b92bfa01de36d477bdc50fa8",
+            "source_row_content_hash": "sha256:e24972feff252f039df5f9dba2b81b80d39edbf92e407468070c17ded3edc91b"
+          },
+          "periods": 2,
+          "role": "outcome"
+        }
+      ],
+      "owner": "L1 DCAT ds_observations",
+      "selection_rule": "two highest-observation specific panel outcomes plus one highest-observation non-panel outcome"
+    },
+    "owner_writability": {
+      "attempts": [
+        {
+          "attempt_content_hash": "sha256:8eae3fb38c3df394b9d8638a87ef6814e452cd92508113bb506335a3e765601f",
+          "instrument": "education.blended_learning",
+          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+          "reason_code": "knob_operator_unresolved",
+          "status": "not_owner_writable"
+        },
+        {
+          "attempt_content_hash": "sha256:a2e510b0e67c16cef333f5538db7d00644429c8a23f39c80ebfde773a1bdadfa",
+          "instrument": "education.stem_education",
+          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+          "reason_code": "knob_operator_unresolved",
+          "status": "not_owner_writable"
+        },
+        {
+          "attempt_content_hash": "sha256:0ec138e5e61ae445298560b9af637575a974f1af3d3a0a9d0ee7afeb379df085",
+          "instrument": "education.teaching_method",
+          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+          "reason_code": "knob_operator_unresolved",
+          "status": "not_owner_writable"
+        },
+        {
+          "attempt_content_hash": "sha256:9f9bdf7ad09ca0cf7232e50e0eab5d71743408dac8c270cae3012f15e107e771",
+          "instrument": "education.dialogic_reading_modality",
+          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+          "reason_code": "knob_operator_unresolved",
+          "status": "not_owner_writable"
+        }
+      ],
+      "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+      "owner": "L6 intervention substrate resolver",
+      "positive_writable_count": 0,
+      "s0_education_entries": [
+        {
+          "entry_content_hash": "sha256:ed9d2533dfdc4028758798e2c63758aaa6a2ec9136ff76072a09fe3d7c292f60",
+          "family_id": "education_human_capital_supply",
+          "layer": "L5",
+          "source_id": "l5_measurement_registry"
+        }
+      ],
+      "s0_registry_content_hash": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1",
+      "status": "thin_or_zero_is_honest"
+    },
+    "transport_context": {
+      "covariates": [
+        {
+          "canonical_var": "education_spending",
+          "dataset_ids": [
+            "db37daddc4368a2bff37"
+          ],
+          "datasets": 1,
+          "entry_content_hash": "sha256:c1f914ed4a3a45aef28476a4c5c489ffaecd30f19ed977a2af582d02bd2cb10e",
+          "geographic_units": 16,
+          "max_period": 2022,
+          "min_period": 2018,
+          "observations": 79,
+          "owner_evidence": {
+            "owner": "L1 DCAT ds_observations",
+            "query_content_hash": "sha256:4db78ed5d0d161db0798c307255637b0ecdc024d95831e2bfcc5b7beffaf8786",
+            "query_id": "l1_selected_entry_details",
+            "query_response_content_hash": "sha256:732523511db9bb304d531ec793c1d1b59b9203f9b92bfa01de36d477bdc50fa8",
+            "source_row_content_hash": "sha256:6c8d7fe4d8ac3dbdab57c9e71d47d267a5ccce0eb0669d090f82b4a8733cebeb"
+          },
+          "periods": 5,
+          "role": "transport_covariate"
+        },
+        {
+          "canonical_var": "school_quality",
+          "dataset_ids": [
+            "e448e9a89ceaa07ec6f3"
+          ],
+          "datasets": 1,
+          "entry_content_hash": "sha256:2414131746e2e7f26ab3d2f8d9db1f09619ae0314458c2b4521b65affe0e49ab",
+          "geographic_units": 12,
+          "max_period": 2021,
+          "min_period": 2019,
+          "observations": 12,
+          "owner_evidence": {
+            "owner": "L1 DCAT ds_observations",
+            "query_content_hash": "sha256:4db78ed5d0d161db0798c307255637b0ecdc024d95831e2bfcc5b7beffaf8786",
+            "query_id": "l1_selected_entry_details",
+            "query_response_content_hash": "sha256:732523511db9bb304d531ec793c1d1b59b9203f9b92bfa01de36d477bdc50fa8",
+            "source_row_content_hash": "sha256:3271bceda2aa7a2f0ea603685b35a81cc6b658673fccf02f0e89ab776e531ea9"
+          },
+          "periods": 2,
+          "role": "transport_covariate"
+        }
+      ],
+      "owner": "L1 DCAT plus L2 exact concept presence",
+      "source_context": {
+        "country_code": "AM",
+        "covariates": [
+          {
+            "canonical_var": "education_spending",
+            "country_code": "AM",
+            "max_period": 2022,
+            "mean_value": 2.447692812368548,
+            "min_period": 2018,
+            "observations": 5,
+            "periods": 5,
+            "row_content_hash": "sha256:26a6e2afe7bcc67531236a8c1090bd136a5f5c08ff6cf272954a1fdd2fa6ce11"
+          },
+          {
+            "canonical_var": "school_quality",
+            "country_code": "AM",
+            "max_period": 2019,
+            "mean_value": 27.2411460876464,
+            "min_period": 2019,
+            "observations": 1,
+            "periods": 1,
+            "row_content_hash": "sha256:5ac11e54c1ec902815684c7800233f4a82050468ec74e25e4fa0a41b5e2fb1e0"
+          }
+        ],
+        "coverage_count": 2,
+        "observation_count": 6,
+        "profile_content_hash": "sha256:0bb1a903d03b6e1d40ad93e493623d7db82164da3deaaf5e0d2cc19a597bceac",
+        "role": "source_candidate"
+      },
+      "status": "candidate_context_only_not_transport_authority",
+      "target_context": {
+        "country_code": "AZ",
+        "covariates": [
+          {
+            "canonical_var": "education_spending",
+            "country_code": "AZ",
+            "max_period": 2022,
+            "mean_value": 3.342583990097046,
+            "min_period": 2018,
+            "observations": 5,
+            "periods": 5,
+            "row_content_hash": "sha256:fb2ba8a1de2c6fde0bf6d3df5c91f3787a94281ba20bf772d1fba25332fe64e4"
+          },
+          {
+            "canonical_var": "school_quality",
+            "country_code": "AZ",
+            "max_period": 2021,
+            "mean_value": 37.5467720031738,
+            "min_period": 2021,
+            "observations": 1,
+            "periods": 1,
+            "row_content_hash": "sha256:89506cf17e9fedf090abdcdcb0d66015050bfd218615f1c6efa9999842a8ded8"
+          }
+        ],
+        "coverage_count": 2,
+        "observation_count": 6,
+        "profile_content_hash": "sha256:3d1bd18a6d4267dddff23c47d5361f25d18ecd98dd13f7ff5cfec1b040108769",
+        "role": "target_candidate"
+      }
+    }
+  },
+  "content_addressing": {
+    "cache_semantics": "E1 content-addressed frozen manifest",
+    "journal_semantics": "E6 gaps are explicit because existing N7 has no durable L2/L3 journal artifact",
+    "live_attempt_semantics": "E8 one candidate lever per N6 grammar-fallback attempt"
+  },
+  "cycle_trace_content_hash": "sha256:fcc373e0135eb5f8d516eb74aa1b674971b1189710badba2c4a012701cd42e01",
+  "distinctness": {
+    "computed_status": "must_pass_validator",
+    "first_vertical_comparator": {
+      "case_id": "ua-msme-affordable-loans-2022",
+      "lever_vocabulary": [
+        "policy.credit_access"
+      ],
+      "method_family": "panel",
+      "outcome_canonical_vars": [
+        "avg_income",
+        "survival"
+      ],
+      "source_hashes": {
+        "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:d474467793659d13c40be4009d18f23a93db582ee88d7aa5cdf8f616cd3d1a26",
+        "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:6a5aa352eaa5b8ee6924015fdddcc0e57710412cddd106aa614b8924a3854725",
+        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:8f434b62cca10aa1f9db0345a7cdc84ceaa965b7dde39b76f83a47a8d655e220"
+      },
+      "transport_covariates": [
+        "institutional_quality",
+        "state_capacity"
+      ]
+    },
+    "selected_method_family": "non_panel_short_series"
+  },
+  "gap_report_content_hash": "sha256:bf57c638ef34ef5f1c47bb3df285cdbfc5db93d43376c67705e88995c6cbb430",
+  "manifest_content_hash": "sha256:1d72b819507bd00a795af7c878f4ec48d2b7f7dde92149f1ec3acc1661544878",
+  "n7_acquisition": {
+    "attempt_source_l2_row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
+    "attempt_status": "completed_no_results",
+    "attempted_variable": "education.teaching_method",
+    "gap_refs": [
+      "owner_registration_derivation_missing",
+      "journal_raw_evidence_persistence_missing",
+      "s0_to_l6_world_slot_bridge_missing"
+    ],
+    "journal_persistence_status": "receipt_embedded_in_content_addressed_pack_manifest",
+    "one_live_variable_per_attempt": true,
+    "owner_rederive_status": "pass",
+    "pack_entry_eligible": false,
+    "pack_entry_rejection_reason": "n7_owner_response_has_no_owner_derived_registration",
+    "raw_response_hash_checks": [
+      {
+        "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+        "matches": true,
+        "raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a",
+        "recomputed_raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
+      }
+    ],
+    "receipt": {
+      "acquisition_family_scores": [
+        {
+          "affected_design_count": 0,
+          "basis": "near_frontier_width_sum",
+          "family": "ID",
+          "frontier_width_shrinkage": 0.25,
+          "score": 0.25,
+          "scored": true,
+          "status": "scored"
+        },
+        {
+          "affected_design_count": 0,
+          "basis": "compiled_gap_family_presence",
+          "family": "CERT",
+          "frontier_width_shrinkage": 0.0,
+          "score": 0.0,
+          "scored": true,
+          "status": "scored"
+        },
+        {
+          "affected_design_count": 0,
+          "basis": "compiled_gap_family_presence",
+          "family": "COV",
+          "frontier_width_shrinkage": 0.0,
+          "score": 0.0,
+          "scored": true,
+          "status": "scored"
+        },
+        {
+          "affected_design_count": 0,
+          "basis": "hook_adopted_scoring_deferred",
+          "family": "HV",
+          "frontier_width_shrinkage": 0.0,
+          "score": null,
+          "scored": false,
+          "status": "hook_unscored"
+        },
+        {
+          "affected_design_count": 0,
+          "basis": "hook_adopted_scoring_deferred",
+          "family": "HKG",
+          "frontier_width_shrinkage": 0.0,
+          "score": null,
+          "scored": false,
+          "status": "hook_unscored"
+        },
+        {
+          "affected_design_count": 0,
+          "basis": "hook_adopted_scoring_deferred",
+          "family": "ADV",
+          "frontier_width_shrinkage": 0.0,
+          "score": null,
+          "scored": false,
+          "status": "hook_unscored"
+        },
+        {
+          "affected_design_count": 0,
+          "basis": "hook_adopted_scoring_deferred",
+          "family": "AUD",
+          "frontier_width_shrinkage": 0.0,
+          "score": null,
+          "scored": false,
+          "status": "hook_unscored"
+        },
+        {
+          "affected_design_count": 0,
+          "basis": "hook_adopted_scoring_deferred",
+          "family": "SAFE",
+          "frontier_width_shrinkage": 0.0,
+          "score": null,
+          "scored": false,
+          "status": "hook_unscored"
+        }
+      ],
+      "acquisition_request": {
+        "consumer_owner": "tools.quality.validation.check_layer3_gy_second_domain_pack",
+        "counterexample_ref": "l2:sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
+        "cycle_index": 0,
+        "driver": "gy_n10a_free_grow_probe",
+        "reentry": "same_generation_cycle_index",
+        "request_kind": "owner_grounding_evidence"
+      },
+      "affected_region": {
+        "dependency_index": {
+          "education.teaching_method": [
+            "design:gy-n10a-education-acquisition"
+          ]
+        },
+        "design_ids": [],
+        "neighborhood_slots": [],
+        "over_approximation_basis": "Dep_out(x)_intersects_N_h_S_u_superset",
+        "rederived_design_ids": [],
+        "revalidation_stages": {},
+        "source_slots": []
+      },
+      "authority_boundary": {
+        "authoritative_for": [
+          "compiled_gap_denominator",
+          "owner_artifact_content_hashes",
+          "cost_quality_rights_binding_receipt",
+          "same_cycle_reentry",
+          "affected_region_revalidation"
+        ],
+        "may_not_use_for": [
+          "forced_useful_design_rate",
+          "domain_evidence_without_ingested_artifact",
+          "family_hook_scoring_for_HV_HKG_ADV_AUD_SAFE"
+        ]
+      },
+      "compiled_requirement_specs": [
+        {
+          "admissibility_predicates": [
+            "source_family_matches_compiled_requirement"
+          ],
+          "authority_profile_refs": [
+            "authority_profile.research"
+          ],
+          "claim_family": "education_intervention",
+          "claim_id": "claim:gy-n10a:education_teaching_method",
+          "claim_type": "causal_intervention",
+          "claim_use": "grounding_acquisition_probe",
+          "concept_spine_refs": [
+            "skg:sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784"
+          ],
+          "facet_refs": [],
+          "lineage_strictness": "strict",
+          "mandatory_facets": [
+            "source_contract_ref",
+            "lineage_refs"
+          ],
+          "metadata": {
+            "attempt_kind": "gy_n10a_one_live_variable_probe",
+            "owner_l2_cause": "education.teaching_method",
+            "owner_l2_effect": "education.learning_outcomes"
+          },
+          "missingness_tolerance": 0.02,
+          "obligation_refs": [],
+          "producer": "polisyos.data_requirement.compiler.DataRequirementCompiler",
+          "quality_minima": {
+            "min_completeness": 0.95,
+            "min_quality_score": 0.8,
+            "required_quality_refs": []
+          },
+          "recency_horizon": "P90D",
+          "required_data_families": [
+            "education.teaching_method"
+          ],
+          "requirement_id": "data-requirement:gy-n10a:education_teaching_method",
+          "rule_version_ref": "policyos.data_requirement.compiler.v1",
+          "schema_version": "policyos.data_requirement_spec.v1",
+          "scope": {
+            "geography": "cross_country",
+            "jurisdiction": null,
+            "population": "learners",
+            "time": "2018-2022",
+            "time_role": "observation_time"
+          },
+          "source_requirement_refs": [
+            "l2:sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784"
+          ],
+          "transformation_tolerance": "none"
+        }
+      ],
+      "compiled_spec_count": 1,
+      "compute_economics": {
+        "bundle_complementarity": "single_step_greedy_is_heuristic; adaptive_submodularity_unverified",
+        "cached_world_ref_reused": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
+        "e1_reentry_scope": "affected_region_only",
+        "e6_journal_first": true,
+        "e7_pre_live_gauntlet": "recorded_owner_responses_replayed_before_live_calls",
+        "e8_live_attempt_variable_count": 1,
+        "full_world_rebuild": false,
+        "journal_entry_count": 1,
+        "routine_check_network_calls": 0
+      },
+      "content_hash": "sha256:0eef74759568eaa4bfdf82daae4f70c727dfd53d628f528180478f4fb2b737fc",
+      "cost_summary_usd": 0.0,
+      "fail_closed_reasons": [],
+      "fallback_strangle_receipt": {
+        "default_after": "all_required_data_gaps_compile_or_fail_closed",
+        "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+        "predecessor_ref": "runtime.quality.acquisition_planner.required_data_single_item_fabrication",
+        "status": "strangled",
+        "surviving_callers": [],
+        "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
+      },
+      "generated_at": "2026-07-09T00:00:00Z",
+      "grounding_rederivations": [],
+      "grown_world_added_slots": [],
+      "grown_world_after_ref": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
+      "grown_world_before_ref": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
+      "grown_world_delta_hash": "sha256:26478eb8c46a77911eeaae71879f18dd6967540a7929a88bdc6fe623989a9667",
+      "journal_entries": [
+        {
+          "action": "acquire_evidence",
+          "artifact_content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
+          "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+          "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+          "message": "owner artifact journaled before receipt validation",
+          "owner_component": "fabric.retrieval",
+          "requirement_ref": "data-requirement:gy-n10a:education_teaching_method",
+          "sequence": 1,
+          "status": "journaled"
+        }
+      ],
+      "network_call_count": 0,
+      "no_result_costed_gap": true,
+      "owner_artifacts": [
+        {
+          "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+          "binding_refs": [
+            "data-requirement:gy-n10a:education_teaching_method"
+          ],
+          "capture_provenance": {
+            "capture_mode": "local_substrate_owner",
+            "captured_at": "2026-07-09T00:00:00Z",
+            "journal_first": true,
+            "network_call": false,
+            "owner_component": "fabric.retrieval",
+            "owner_endpoint": "RetrievalService.resolve",
+            "owner_request_hash": "sha256:f682b9a97a4496607c279dc5ed5e2f8dc00a00e22a962c56944767bbd72181aa",
+            "owner_response_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c"
+          },
+          "content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
+          "cost_usd": 0.0,
+          "ingested": true,
+          "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+          "owner_component": "fabric.retrieval",
+          "payload": {
+            "acquired_substrate_registrations": [],
+            "candidate_bindings": [],
+            "owner_response": {
+              "candidate_count": 0,
+              "families": [
+                "education.teaching_method"
+              ],
+              "fetch_plan_count": 0,
+              "mode": "hybrid",
+              "warnings": [
+                "No FastLane candidates for metric 'education.teaching_method'",
+                "discover_failed:ckan.catalog:[ckan.catalog] Connector response blocked by secret/PII scan: email",
+                "no_fetch_plans_resolved"
+              ]
+            },
+            "owner_response_kind": "real_owner_capture",
+            "raw_owner_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
+          },
+          "quality": {
+            "owner_endpoint": "RetrievalService.resolve"
+          },
+          "requirement_ref": "data-requirement:gy-n10a:education_teaching_method",
+          "rights": {
+            "recording": "owner_response_replay_only"
+          }
+        }
+      ],
+      "planner_report": {
+        "acquisition_records": [
+          {
+            "accepted_deficit_ref": null,
+            "acquisition_id": "acquisition:gy-n10a-education-one-variable-n7:requirement-gap:data_requirement:data-requirement:gy-n10a:education_teaching_method",
+            "authority_boundary": {
+              "authoritative_for": [
+                "gap_detected",
+                "eligible_strategies",
+                "ineligible_strategies",
+                "voi_ranking_considered",
+                "decision_owner",
+                "terminal_disposition",
+                "producer_expected",
+                "calibration_feedback_target"
+              ],
+              "may_not_use_for": [
+                "legal_authority",
+                "source_family_satisfaction",
+                "data_quality",
+                "method_validity",
+                "participation_representativeness",
+                "claim_support",
+                "closeout_pass"
+              ]
+            },
+            "authority_level": "research",
+            "blocker_ref": null,
+            "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:data-requirement:gy-n10a:education_teaching_method",
+            "claim_ref": "claim:gy-n10a:education_teaching_method",
+            "commit_authority": "advisory_recommendation_only",
+            "compiled_requirement_ref": "data-requirement:gy-n10a:education_teaching_method",
+            "decision_owner": "runtime_planner",
+            "decision_owner_ref": null,
+            "eligible_strategies": [
+              "public_registry",
+              "academic_retrieval",
+              "proxy_with_degraded_authority",
+              "accepted_deficit"
+            ],
+            "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-gy-n10a-education-teaching-method.json",
+            "gap_id": "requirement-gap:data_requirement:data-requirement:gy-n10a:education_teaching_method",
+            "gap_type": "scenario_source_family",
+            "ineligible_strategies": [
+              "agency_request",
+              "closeout_block",
+              "consultation",
+              "legal_corpus_expansion",
+              "method_remediation",
+              "production_snapshot_build",
+              "publish_with_limitation",
+              "rerun",
+              "source_contract_remediation",
+              "survey"
+            ],
+            "ineligible_strategy_records": [
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "agency_request",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "closeout_block",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "consultation",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "legal_corpus_expansion",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "method_remediation",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "production_snapshot_build",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "authority_profile_does_not_permit_public_limitation",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "publish_with_limitation",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "rerun",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "source_contract_remediation",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                "eligible": false,
+                "mandatory_gate_state": "none",
+                "next_action": null,
+                "strategy": "survey",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              }
+            ],
+            "limitation_ref": null,
+            "mandatory_gate_refs": [],
+            "mandatory_gate_state": "none",
+            "missing_requirement_fields": [
+              "required_data_family:education.teaching_method",
+              "mandatory_facet:source_contract_ref",
+              "mandatory_facet:lineage_refs"
+            ],
+            "next_actions": [
+              {
+                "action": "acquire_evidence",
+                "blocks_closeout": false,
+                "commit_required": false,
+                "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-data-requirement-gy-n10a-education-teaching-method.json",
+                "message": "Acquire or remediate evidence via public_registry for claim:gy-n10a:education_teaching_method.",
+                "owner": "runtime_planner",
+                "producer_expected": "fabric.public_registry",
+                "strategy": "public_registry"
+              }
+            ],
+            "planner_posture": "advisory",
+            "producer_expected": "fabric.public_registry",
+            "producer_output_ref": null,
+            "public_projection_effect": "no_public_effect_until_producer_output",
+            "recommended_strategy": "public_registry",
+            "requirement_family": "data_requirement",
+            "requirement_gap_ref": "requirement-gap:data_requirement:data-requirement:gy-n10a:education_teaching_method",
+            "requirement_schema_version": "policyos.data_requirement_spec.v1",
+            "runtime_event_ref": "event://runtime/acquisition/gy-n10a-education-one-variable-n7/requirement-gap-data-requirement-data-requirement-gy-n10a-education-teaching-method",
+            "scenario_requirement_refs": [
+              "data-requirement:gy-n10a:education_teaching_method",
+              "education.teaching_method"
+            ],
+            "schema_version": "policyos.runtime.acquisition_planner.v1",
+            "status": "ready",
+            "strategy_records": [
+              {
+                "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                "eligible": true,
+                "mandatory_gate_state": "none",
+                "next_action": "acquire_evidence",
+                "strategy": "public_registry",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                "eligible": true,
+                "mandatory_gate_state": "none",
+                "next_action": "acquire_evidence",
+                "strategy": "academic_retrieval",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                "eligible": true,
+                "mandatory_gate_state": "none",
+                "next_action": "proxy_with_limitation",
+                "strategy": "proxy_with_degraded_authority",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              },
+              {
+                "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                "eligible": true,
+                "mandatory_gate_state": "none",
+                "next_action": "accept_deficit",
+                "strategy": "accepted_deficit",
+                "voi_decision_ref": null,
+                "voi_expected_cost": null,
+                "voi_expected_value": null,
+                "voi_rank": null
+              }
+            ],
+            "terminal_disposition": "acquire",
+            "voi_ranking_ref": null
+          }
+        ],
+        "adr_refs": [
+          "ADR-0166"
+        ],
+        "authority_boundary": {
+          "authoritative_for": [
+            "gap_detected",
+            "eligible_strategies",
+            "ineligible_strategies",
+            "voi_ranking_considered",
+            "decision_owner",
+            "terminal_disposition",
+            "producer_expected",
+            "calibration_feedback_target"
+          ],
+          "may_not_use_for": [
+            "legal_authority",
+            "source_family_satisfaction",
+            "data_quality",
+            "method_validity",
+            "participation_representativeness",
+            "claim_support",
+            "closeout_pass"
+          ]
+        },
+        "capability_reality_status": "implemented",
+        "generated_at": "2026-07-09T00:00:00Z",
+        "pattern_refs": [
+          "P01",
+          "P09",
+          "P10"
+        ],
+        "run_id": "gy-n10a-education-one-variable-n7",
+        "schema_version": "policyos.runtime.acquisition_planner.v1",
+        "status": "pass",
+        "summary": {
+          "accepted_deficit": 0,
+          "acquire": 1,
+          "blocked": 0,
+          "eligible_strategy_count": 4,
+          "ineligible_strategy_count": 10,
+          "limited": 0,
+          "record_count": 1,
+          "rerun": 0
+        }
+      },
+      "real_grounding_result_count": 0,
+      "receipt_id": "acquisition-receipt:gy-n10a-education-one-variable-n7:0",
+      "reentry_cycle_index": 0,
+      "run_id": "gy-n10a-education-one-variable-n7",
+      "schema_version": "policyos.runtime.quality.acquisition_receipt.v1",
+      "source_cycle_index": 0,
+      "status": "completed_no_results",
+      "useful_design_rate_after": 0.0,
+      "useful_design_rate_before": 0.0,
+      "world_write_outcomes": [
+        {
+          "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
+          "family_id": null,
+          "owner_component": "fabric.retrieval",
+          "reason": "owner_response_no_substrate_registrations",
+          "registry_content_hash_after": null,
+          "registry_content_hash_before": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1",
+          "requirement_ref": "data-requirement:gy-n10a:education_teaching_method",
+          "source_id": null,
+          "status": "no_result",
+          "substrate_version_after": null,
+          "substrate_version_before": "substrate_version_f94770b220aa9b6a",
+          "world_ref_after": null
+        }
+      ]
+    },
+    "receipt_content_hash": "sha256:0eef74759568eaa4bfdf82daae4f70c727dfd53d628f528180478f4fb2b737fc",
+    "receipt_count": 1,
+    "receipt_validation_issues": []
+  },
+  "owner_query_results": {
+    "l1_selected_context_profiles": {
+      "owner": "duckdb_read_only",
+      "parameters": [
+        [
+          "education_spending",
+          "school_quality"
+        ]
+      ],
+      "query_content_hash": "sha256:330083db49be72449c0c8246a5d063dad4113ebd5f9d24803e7d350b583984f2",
+      "query_id": "l1_selected_context_profiles",
+      "response_content_hash": "sha256:40299559570c7064806f3c7a3318b0cbd415bb62250acb8acd2ed16027ff0379",
+      "rows": [
+        {
+          "canonical_var": "education_spending",
+          "country_code": "AM",
+          "max_period": 2022,
+          "mean_value": 2.447692812368548,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:26a6e2afe7bcc67531236a8c1090bd136a5f5c08ff6cf272954a1fdd2fa6ce11"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "AM",
+          "max_period": 2019,
+          "mean_value": 27.2411460876464,
+          "min_period": 2019,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:5ac11e54c1ec902815684c7800233f4a82050468ec74e25e4fa0a41b5e2fb1e0"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "AZ",
+          "max_period": 2022,
+          "mean_value": 3.342583990097046,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:fb2ba8a1de2c6fde0bf6d3df5c91f3787a94281ba20bf772d1fba25332fe64e4"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "AZ",
+          "max_period": 2021,
+          "mean_value": 37.5467720031738,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:89506cf17e9fedf090abdcdcb0d66015050bfd218615f1c6efa9999842a8ded8"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "CZ",
+          "max_period": 2022,
+          "mean_value": 4.4524740219116214,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:94f1a575b230e5f884f7587ae02c11ce1ab0bd44a7917e720a8aa69e5821bf79"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "CZ",
+          "max_period": 2021,
+          "mean_value": 14.2066078186035,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:c4cedb41917e4c04441fdbd8ececa0f41e7e9d09b364c656345fce687797869c"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "DE",
+          "max_period": 2022,
+          "mean_value": 5.206819915771485,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:66cff48b5a7fe031ae9878e7ba96d0146e5c3403e93b1d443c362cfd3e1177fa"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "DE",
+          "max_period": 2021,
+          "mean_value": 15.439902305603,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:e4e1abb4be682b027317f47954ac21072326fb9838102d06f295c0cdbc6d0336"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "EE",
+          "max_period": 2022,
+          "mean_value": 5.23361396789551,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:1a51394d35d459179f487241ad16874809b6c9915451a989c0cb49efd11674e3"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "GE",
+          "max_period": 2022,
+          "mean_value": 3.6899442440670045,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:580ea17289b55b4f8fa637d632dd5ee94e8dc2b814161e700fc6e21c29a52354"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "GE",
+          "max_period": 2021,
+          "mean_value": 13.5263748168945,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:2426622e77e58ab812a33700ab4c1d482a8f13d852f054088544a3047463b7f0"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "HU",
+          "max_period": 2022,
+          "mean_value": 4.299708032608033,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:133d34eff5a7f8069b8ecacc621cdd6b3e52f0c599ff3ea52600e4921fdfc3c3"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "HU",
+          "max_period": 2021,
+          "mean_value": 9.15569114685058,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:45302dfeb05adb3c48bf8eeeaaf2067419b1171f797a4c5f8f8585c225dceb2f"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "KZ",
+          "max_period": 2022,
+          "mean_value": 3.73333431305839,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:2aa7232aa097171fcd2f0d6effe7ffe60f63ee503670ba7227f6e3a8430c1ad0"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "KZ",
+          "max_period": 2021,
+          "mean_value": 10.4149551391601,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:c590fc4c59c80ea123a89c98c1d9e3148b1367f69e2deacc553026e205fcfc71"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "LT",
+          "max_period": 2022,
+          "mean_value": 4.152788066864014,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:44f2e583b51d9851743276536e9eaaaaaa887409038a7cb4b17b06148af967c1"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "LT",
+          "max_period": 2021,
+          "mean_value": 3.27572441101074,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:8ba28b2af5de9fe1fbe212f44c0b78dbbcd9a9d9624f3b1245bb15e3271848fa"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "LV",
+          "max_period": 2022,
+          "mean_value": 4.613057994842529,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:2f0abb2689748733ca88345e2c1dc43e2717f46753b072d398a2c878153481b9"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "LV",
+          "max_period": 2021,
+          "mean_value": 8.4379014968872,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:5e1691d9b449a8b879e1677a50d20a00e45741d63290bf4b2692f796fb8e5674"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "MD",
+          "max_period": 2022,
+          "mean_value": 6.060101985931398,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:8636b536f7872e02ce9a657141bb24d5c65745a32c53c9bf2d3f2dea0aed0768"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "PL",
+          "max_period": 2022,
+          "mean_value": 4.584351921081543,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:5be33dafcbe1fe627b9e7fd8a8ff673944af86fc8cdafb12ad1a91769db4bd7f"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "PL",
+          "max_period": 2021,
+          "mean_value": 5.55067777633667,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:9f3ace44cf17ba64b1431fd187457f2c5cd110600c8f6b691d91a98cea4632f2"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "RO",
+          "max_period": 2022,
+          "mean_value": 3.4097700119018564,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:6eea8f330808e6b3605dabe322f1f5749d64028b15d11f8f6bc4600d6dac568c"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "SK",
+          "max_period": 2022,
+          "mean_value": 4.458999919891356,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:9b8262c4a9ff4be3c744701ff3690427a422fdcc9846fe16d82a4a67707f31af"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "SK",
+          "max_period": 2021,
+          "mean_value": 22.1248226165771,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:c86c165508c032cb573fb5e7841bc741c013951f5b0a695bb4f48088aaeb68bf"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "UA",
+          "max_period": 2021,
+          "mean_value": 5.32091248035431,
+          "min_period": 2018,
+          "observations": 4,
+          "periods": 4,
+          "row_content_hash": "sha256:2c0acabc9db1e1b7124a9527f3d7f316a91630703bc1e5c65671cf1aab856d4e"
+        },
+        {
+          "canonical_var": "education_spending",
+          "country_code": "UZ",
+          "max_period": 2022,
+          "mean_value": 4.98840825098866,
+          "min_period": 2018,
+          "observations": 5,
+          "periods": 5,
+          "row_content_hash": "sha256:13a12d87884237ba48185aebc0b4bfba18e710249f97d90bf3575ecced4813b7"
+        },
+        {
+          "canonical_var": "school_quality",
+          "country_code": "UZ",
+          "max_period": 2021,
+          "mean_value": 32.3652610778808,
+          "min_period": 2021,
+          "observations": 1,
+          "periods": 1,
+          "row_content_hash": "sha256:844dcaf6701d4f71604f183c46b5e2ec11fa0f469e5bf6fb3f5173e72bcfa4aa"
+        }
+      ],
+      "sql": "SELECT\n  country_code,\n  canonical_var,\n  COUNT(*) AS observations,\n  COUNT(DISTINCT COALESCE(year, survey_year)) AS periods,\n  MIN(COALESCE(year, survey_year)) AS min_period,\n  MAX(COALESCE(year, survey_year)) AS max_period,\n  AVG(value) AS mean_value\nFROM ds_observations\nWHERE canonical_var = ANY(?)\n  AND country_code IS NOT NULL\n  AND country_code <> ''\nGROUP BY country_code, canonical_var\nORDER BY country_code, canonical_var"
+    },
+    "l1_selected_entry_details": {
+      "owner": "duckdb_read_only",
+      "parameters": [
+        [
+          "education_spending",
+          "preschool_enrollment",
+          "school_quality",
+          "tertiary_enrollment",
+          "years_of_schooling"
+        ]
+      ],
+      "query_content_hash": "sha256:4db78ed5d0d161db0798c307255637b0ecdc024d95831e2bfcc5b7beffaf8786",
+      "query_id": "l1_selected_entry_details",
+      "response_content_hash": "sha256:732523511db9bb304d531ec793c1d1b59b9203f9b92bfa01de36d477bdc50fa8",
+      "rows": [
+        {
+          "canonical_var": "education_spending",
+          "dataset_ids": [
+            "db37daddc4368a2bff37"
+          ],
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 79,
+          "periods": 5,
+          "row_content_hash": "sha256:6c8d7fe4d8ac3dbdab57c9e71d47d267a5ccce0eb0669d090f82b4a8733cebeb"
+        },
+        {
+          "canonical_var": "preschool_enrollment",
+          "dataset_ids": [
+            "24efed31d64c00c64ec4"
+          ],
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2021,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 51,
+          "periods": 4,
+          "row_content_hash": "sha256:d214ec79dee2c4bcd0af034513b99fc18d986b38bbc10214e4bf27ddea2a5f69"
+        },
+        {
+          "canonical_var": "school_quality",
+          "dataset_ids": [
+            "e448e9a89ceaa07ec6f3"
+          ],
+          "datasets": 1,
+          "geographic_units": 12,
+          "max_period": 2021,
+          "min_period": 2019,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 12,
+          "periods": 2,
+          "row_content_hash": "sha256:3271bceda2aa7a2f0ea603685b35a81cc6b658673fccf02f0e89ab776e531ea9"
+        },
+        {
+          "canonical_var": "tertiary_enrollment",
+          "dataset_ids": [
+            "c3ad52563b9b15814e11"
+          ],
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2022,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 79,
+          "periods": 5,
+          "row_content_hash": "sha256:cd584cbb76f744c7c4e8ab75f871d1cefd4666862cf1a9650ee3ec5e0cba56c2"
+        },
+        {
+          "canonical_var": "years_of_schooling",
+          "dataset_ids": [
+            "8e3c68515bb045a74a38"
+          ],
+          "datasets": 1,
+          "geographic_units": 16,
+          "max_period": 2020,
+          "min_period": 2018,
+          "no_period_rows": 0,
+          "no_unit_rows": 0,
+          "observations": 32,
+          "periods": 2,
+          "row_content_hash": "sha256:e24972feff252f039df5f9dba2b81b80d39edbf92e407468070c17ded3edc91b"
+        }
+      ],
+      "sql": "SELECT\n  canonical_var,\n  COUNT(*) AS observations,\n  COUNT(DISTINCT dataset_id) AS datasets,\n  list_sort(list(DISTINCT dataset_id)) AS dataset_ids,\n  COUNT(DISTINCT country_code)\n    FILTER (WHERE country_code IS NOT NULL AND country_code <> '') AS geographic_units,\n  COUNT(DISTINCT COALESCE(year, survey_year))\n    FILTER (WHERE COALESCE(year, survey_year) IS NOT NULL) AS periods,\n  MIN(COALESCE(year, survey_year)) AS min_period,\n  MAX(COALESCE(year, survey_year)) AS max_period,\n  COUNT(*) FILTER (WHERE country_code IS NULL OR country_code = '') AS no_unit_rows,\n  COUNT(*) FILTER (WHERE COALESCE(year, survey_year) IS NULL) AS no_period_rows\nFROM ds_observations\nWHERE canonical_var = ANY(?)\nGROUP BY canonical_var\nORDER BY canonical_var"
+    },
+    "l2_exact_domain_measure_names": {
+      "owner": "duckdb_read_only",
+      "parameters": [
+        [
+          "education.education_outcomes",
+          "education.education_spending",
+          "education.gender_parity_index",
+          "education.preschool_enrollment",
+          "education.school_quality",
+          "education.stem_graduates",
+          "education.tertiary_enrollment",
+          "education.years_of_schooling"
+        ]
+      ],
+      "query_content_hash": "sha256:ad9f8f1c32fccc9082cec58b3b3760d1745479f4b627561b3f5bbe6889b9dd2f",
+      "query_id": "l2_exact_domain_measure_names",
+      "response_content_hash": "sha256:e008ca982683f0f008a3815b5ede135798f1e602e92a91357f623059e50da718",
+      "rows": [
+        {
+          "canonical_name": "education.education_outcomes"
+        },
+        {
+          "canonical_name": "education.education_spending"
+        },
+        {
+          "canonical_name": "education.gender_parity_index"
+        },
+        {
+          "canonical_name": "education.preschool_enrollment"
+        },
+        {
+          "canonical_name": "education.school_quality"
+        },
+        {
+          "canonical_name": "education.years_of_schooling"
+        }
+      ],
+      "sql": "SELECT canonical_name\nFROM ac_skg_variables\nWHERE canonical_name = ANY(?)\nORDER BY canonical_name"
+    },
+    "l2_selected_levers": {
+      "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
+      "query_id": "l2_candidate_aggregate",
+      "response_content_hash": "sha256:1059779414b265022067362bf1dfcf11beabcfcbf93c452cec9c97b68f770357",
+      "rows": [
+        {
+          "cause": "education.blended_learning",
+          "claim_count": 3,
+          "claim_ids": [
+            "02db6858c242b3f29a662f97",
+            "0362646258768a6c5c3742e0",
+            "eeb01ed005fea027a6ee0b6a"
+          ],
+          "effect": "education.motivation",
+          "lever_rank": 1,
+          "row_content_hash": "sha256:32c0db09cc5060c05a0d5f5439755ff660c62a026557fbb365989c427eb7eb93"
+        },
+        {
+          "cause": "education.stem_education",
+          "claim_count": 3,
+          "claim_ids": [
+            "435d6d1768d620ac8c390195",
+            "4aaff677809e1190db11d21d",
+            "fb404fd635f282040c52a414"
+          ],
+          "effect": "education.academic_success",
+          "lever_rank": 2,
+          "row_content_hash": "sha256:6caad3e8b72110d53026411551391ea58d2c8896468f16ab951b0216b043c364"
+        },
+        {
+          "cause": "education.teaching_method",
+          "claim_count": 3,
+          "claim_ids": [
+            "6f1205b0c3b642873c699c6f",
+            "b99985e9429c744a35391d8b",
+            "ea861792d04094615ffb240b"
+          ],
+          "effect": "education.learning_outcomes",
+          "lever_rank": 3,
+          "row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784"
+        },
+        {
+          "cause": "education.dialogic_reading_modality",
+          "claim_count": 2,
+          "claim_ids": [
+            "2761cc0e9d8884c1e491f6b9",
+            "cdd305aa2edec7b0ea47e358"
+          ],
+          "effect": "education.story_comprehension",
+          "lever_rank": 4,
+          "row_content_hash": "sha256:3319373c42c1a830fdbe130cc6986ee82c62f142b9f8e2952875085b194f3904"
+        }
+      ]
+    }
+  },
+  "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
+  "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
+  "selected_domain": "education",
+  "smoke_problem_content_hash": "sha256:969a1e4670a734f6d97d705d6a1d2fda4e919d64f5e5363769054422a6c584be",
+  "zero_engine_code": {
+    "changed_engine_paths": [],
+    "changed_paths": [
+      "architecture/generated_artifacts.toml",
+      "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
+      "architecture/policy_design_case/layer3_gy_second_domain_census.json",
+      "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json",
+      "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json",
+      "architecture/policy_design_case/layer3_gy_second_domain_pack.json",
+      "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json",
+      "docs/reference/generated-artifacts.md",
+      "docs/superpowers/plans/2026-07-09-second-domain-pack.md",
+      "docs/superpowers/specs/2026-07-09-second-domain-pack-design.md",
+      "tests/unit/runtime/quality/test_second_domain_pack.py",
+      "tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+    ],
+    "out_of_scope_paths": [],
+    "status": "pass",
+    "task_base_commit": "e3fbedff9d74e182bb9c73215e843c16ecd4571f"
+  }
+}

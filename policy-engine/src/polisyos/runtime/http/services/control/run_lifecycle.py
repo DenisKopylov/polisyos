@@ -124,15 +124,15 @@ logger = get_logger(__name__)
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 
 
-def _default_runtime_metrics() -> Any:
+def _default_runtime_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
-def _default_runtime_tracer() -> Any:
+def _default_runtime_tracer() -> PolicyOSTracer:
     return get_tracer()
 
 
-def _clean_runtime_text(value: Any) -> str | None:
+def _clean_runtime_text(value: object) -> str | None:
     if value is None:
         return None
     text = str(value).strip()
@@ -140,11 +140,13 @@ def _clean_runtime_text(value: Any) -> str | None:
 
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Iterator
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
 
     from ..control_registry_providers import ControlRegistryProviders
 
@@ -165,12 +167,12 @@ class ControlPlaneService(
         *,
         cas_root: Path,
         core_runs_root: Path,
-        metrics: Any | None = None,
-        tracer: Any | None = None,
+        metrics: MetricsRegistry | None = None,
+        tracer: PolicyOSTracer | None = None,
         artifact_store: ArtifactStore | None = None,
         async_artifact_store: AsyncArtifactStore | None = None,
         control_store: ControlPlaneStore | None = None,
-        retrieval_service: Any | None = None,
+        retrieval_service: RetrievalService | None = None,
         policy_resolver: RuntimeExecutionPolicyResolver | None = None,
         registry_providers: ControlRegistryProviders | None = None,
     ) -> None:
@@ -259,7 +261,7 @@ class ControlPlaneService(
             return path
         return self._cas_root.parent / path
 
-    def _build_retrieval_providers(self) -> Any:
+    def _build_retrieval_providers(self) -> RetrievalProviders:
         from polisyos.fabric.retrieval import RetrievalProviders
 
         return RetrievalProviders(
@@ -318,7 +320,7 @@ class ControlPlaneService(
                 ),
             )
 
-    def _put_json_artifact(self, payload: Any, *, kind: str, schema_name: str) -> str:
+    def _put_json_artifact(self, payload: object, *, kind: str, schema_name: str) -> str:
         ref = self._artifact_store.put_json(
             payload,
             ArtifactWriteOptions(
@@ -493,7 +495,7 @@ class ControlPlaneService(
         return scoped_payload
 
     @contextmanager
-    def _job_tenant_scope(self, payload: dict[str, Any]) -> Any:
+    def _job_tenant_scope(self, payload: dict[str, Any]) -> Iterator[None]:
         tenant_id = payload.get("tenant_id")
         cell_id = payload.get("cell_id")
         if not isinstance(tenant_id, str) or not tenant_id:
@@ -513,7 +515,7 @@ class ControlPlaneService(
         *,
         job: ControlJobRecord,
         payload: dict[str, Any],
-    ) -> Any:
+    ) -> Iterator[None]:
         telemetry = payload.get("_telemetry") if isinstance(payload, dict) else None
         request_id = None
         token = None
@@ -1434,14 +1436,10 @@ class ControlPlaneService(
             requested_models.insert(0, request.llm_model)
         if not _is_multimodel_enabled() and len(requested_models) > 1:
             requested_models = requested_models[:1]
-        if (
-            not requested_models
-            and policy.effective_profile != "dev"
-            and not policy.mock_fallback_allowed
-        ):
+        if not requested_models:
             raise unprocessable_entity(
-                "Mock-only NL runs require allow_mock_fallback outside the dev profile.",
-                code="mock_fallback_disallowed",
+                "Natural-language production runs require a configured LLM model.",
+                code="llm_model_unconfigured",
             )
         provider_preflight_payload: dict[str, Any] | None = None
         if requested_models and policy.effective_profile in {"research", "governed", "production"}:
@@ -1539,7 +1537,7 @@ class ControlPlaneService(
             request_id=request_id,
         )
 
-        models_label = ", ".join(requested_models) if requested_models else "mock agents"
+        models_label = ", ".join(requested_models)
         if len(requested_models) > 1:
             mode_label = (
                 f"{len(requested_models)} model variants "
@@ -1547,8 +1545,8 @@ class ControlPlaneService(
             )
         elif requested_models:
             mode_label = "single model"
-        else:
-            mode_label = "mock mode"
+        else:  # pragma: no cover - guarded by llm_model_unconfigured above.
+            raise AssertionError("llm_model_unconfigured")
 
         return RunLaunchResponse(
             meta=_build_api_meta(request_id),

@@ -676,9 +676,8 @@ class TestProductionApproval:
             None,
             tenant_id=runtime_api_env["tenant_a"],
             cell_id=runtime_api_env["cell_a"],
-        ):
-            with pytest.raises(ArtifactOwnershipError):
-                runtime_store.get_bytes(tenant_b_ref.artifact_id)
+        ), pytest.raises(ArtifactOwnershipError):
+            runtime_store.get_bytes(tenant_b_ref.artifact_id)
 
         with tenant_scope(
             None,
@@ -1101,7 +1100,7 @@ class TestDecisionValidity:
 
 
 class TestLaunchNlRun:
-    def test_launch_nl_run_accepted(self, runtime_api_env):
+    def test_launch_nl_run_without_model_is_typed_refusal(self, runtime_api_env):
         client = runtime_api_env["client"]
         resp = client.post(
             "/api/v1/control/runs/nl",
@@ -1111,13 +1110,9 @@ class TestLaunchNlRun:
                 "max_iterations": 2,
             },
         )
-        assert resp.status_code == 200
+        assert resp.status_code == 422
         body = resp.json()
-        assert body["status"] == "accepted"
-        assert body["run_id"].startswith("R_")
-        assert body["job_id"]
-        assert body["effective_execution_profile"] == "dev"
-        assert "mock agents" in body["message"]
+        assert body["code"] == "llm_model_unconfigured"
 
     def test_launch_nl_run_with_llm_model(self, runtime_api_env):
         client = runtime_api_env["client"]
@@ -1158,6 +1153,7 @@ class TestLaunchNlRun:
             "/api/v1/control/runs/nl",
             json={
                 "request": "Plan-first NL cycle",
+                "llm_model": "simulated-qwen",
                 "execution_plan": {
                     "plan_id": "plan_contract_test",
                     "schema_version": "1.0",

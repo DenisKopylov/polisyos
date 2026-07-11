@@ -188,7 +188,8 @@ uvicorn 'polisyos.runtime.http.app:create_runtime_api_app' --factory --reload
 - тяжёлые модули импортируются достаточно лениво для быстрого bootstrap
 - runtime security middleware включается только если этого требует deployment profile
 - `ControlPlaneService` использует `TaskRunner`, а `TaskRunner` использует `ThreadPoolExecutor`
-- NL endpoint control plane переключается на mock agents, когда `llm_model=None`
+- NL endpoint возвращает typed refusal `llm_model_unconfigured`, когда модель не указана;
+  mock agents доступны только через непубликуемый contract-testing owner
 
 ## 4. Frontend dashboard
 

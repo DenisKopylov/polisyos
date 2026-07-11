@@ -15,10 +15,15 @@ from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, Method
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control.nl_pipeline import (
+    NaturalLanguagePipelineRefusalError,
+    NaturalLanguageRunMixin,
     _build_scientist_context_params,
     _preflight_design_problem_model,
     _production_materialization_failure,
     build_design_problem_from_nl_request,
+)
+from polisyos.runtime.http.services.control.nl_pipeline_testing import (
+    NLContractTestingAuthorityStamp,
 )
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityError
@@ -31,6 +36,68 @@ from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 
 if TYPE_CHECKING:
     from pathlib import Path
+
+
+def test_production_nl_pipeline_refuses_empty_model_set_before_work() -> None:
+    with pytest.raises(NaturalLanguagePipelineRefusalError) as exc_info:
+        NaturalLanguageRunMixin()._execute_nl_pipeline(
+            run_id="R_no_model",
+            nl_request="Design a policy.",
+            context={},
+            domain_hint=None,
+            data_source=None,
+            max_iterations=1,
+            llm_models=[],
+            max_parallel_models=1,
+            run_budget_usd=None,
+            per_model_budget_usd=None,
+            checkpoint_policy="strict",
+            execution_plan_ref=None,
+            execution_plan_payload=None,
+            stop_criteria_payload=None,
+            governance_constraints_payload=None,
+            expected_outputs_payload=None,
+        )
+
+    assert exc_info.value.code == "llm_model_unconfigured"
+
+
+def test_production_nl_pipeline_never_injects_contract_agents(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    mixin = NaturalLanguageRunMixin()
+
+    def _capture_router(**kwargs: Any) -> dict[str, Any]:
+        assert kwargs["contract_testing_agent_factory"] is None
+        return {"run_id": kwargs["run_id"]}
+
+    monkeypatch.setattr(mixin, "_execute_nl_pipeline_impl", _capture_router)
+    result = mixin._execute_nl_pipeline(
+        run_id="R_production_router",
+        nl_request="Design a policy.",
+        context={},
+        domain_hint=None,
+        data_source=None,
+        max_iterations=1,
+        llm_models=["configured-model"],
+        max_parallel_models=1,
+        run_budget_usd=None,
+        per_model_budget_usd=None,
+        checkpoint_policy="strict",
+        execution_plan_ref=None,
+        execution_plan_payload=None,
+        stop_criteria_payload=None,
+        governance_constraints_payload=None,
+        expected_outputs_payload=None,
+    )
+
+    assert result["nl_authority"]["authority_scope"] == "production"
+    assert result["nl_authority"]["production_promotable"] is True
+
+
+def test_contract_testing_nl_stamp_cannot_be_promotable() -> None:
+    with pytest.raises(ValueError):
+        NLContractTestingAuthorityStamp(production_promotable=True)  # type: ignore[arg-type]
 
 
 class _FakeMetric:
@@ -665,7 +732,7 @@ def test_nl_pipeline_fails_unknown_serious_metric_before_workflow(
 
     try:
         with pytest.raises(RuntimeError) as exc_info:
-            service._execute_nl_pipeline(
+            service._execute_nl_pipeline_for_contract_testing(
                 run_id="R_nl_unknown_metric",
                 nl_request="Evaluate a serious MSME policy.",
                 context=_intent_context(
@@ -687,7 +754,6 @@ def test_nl_pipeline_fails_unknown_serious_metric_before_workflow(
                 expected_outputs_payload=[],
                 control_job_id=job_id,
                 execution_profile="research",
-                allow_mock_fallback=True,
             )
         record = service._control_store.get_job(job_id)
     finally:
@@ -945,7 +1011,7 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
     )
 
     try:
-        service._execute_nl_pipeline(
+        result = service._execute_nl_pipeline_for_contract_testing(
             run_id="R_nl_materialize",
             nl_request="test request",
             context=_intent_context(requested_authority_level="dev"),
@@ -967,6 +1033,11 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
         service.close()
 
     payload = captured["payload"]
+    assert result["contract_testing_authority"] == {
+        "authority_scope": "contract_testing",
+        "production_promotable": False,
+        "non_promotable_reason": "nl_mock_agents_contract_testing_only",
+    }
     assert captured["kwargs"]["store"] is service._artifact_store
     inputs = payload["inputs"]
     assert "data_snapshot_ref" in inputs

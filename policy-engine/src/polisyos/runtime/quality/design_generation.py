@@ -1650,9 +1650,10 @@ _STRANGLE_RECEIPT_SPECS: tuple[dict[str, Any], ...] = (
             "formalizer = MockFormalizerAgent()",
             "critic = MockCriticAgent()",
             "selected_variant = await _run_variant(None",
-            "trinity_bundle = fabric_result.trinity_bundle",
         ),
         "required": (
+            "NaturalLanguagePipelineRefusalError",
+            "_execute_nl_pipeline_for_contract_testing",
             "generate_design_candidate_bundle_under_a",
             "generation_unavailable",
             "n4_generation_terminal",
@@ -1660,9 +1661,9 @@ _STRANGLE_RECEIPT_SPECS: tuple[dict[str, Any], ...] = (
         ),
         "default_before": "llm_client None selected MockDrafter/MockFormalizer/MockCritic.",
         "default_after": (
-            "llm_client None or gateway unavailable returns N4 generation_unavailable."
+            "missing model refuses; unavailable gateway returns N4 generation_unavailable."
         ),
-        "disposition": "degraded_fixture_only",
+        "disposition": "contract_testing_only",
         "removed_loc": "nl_pipeline.py:llm_client_none_mock_generator_fork",
     },
     {
@@ -1747,6 +1748,8 @@ def _build_strangle_receipt(root: Path, spec: Mapping[str, Any]) -> dict[str, An
         "pdc._impl.layer2_design_search.fixed_credit_guarantee_candidate"
     ):
         ast_callers = _s2_forbidden_candidate_callers(source)
+    elif spec["predecessor_ref"] == "runtime.http.nl_pipeline.none_to_mock_generator_fork":
+        ast_callers = _nl_pipeline_fixture_callers(root)
     elif spec["predecessor_ref"] == (
         "scientist.validation.policy_verified.mock_formalizer_tax_subsidy"
     ):
@@ -1915,6 +1918,165 @@ def _policy_verified_fixture_callers(root: Path) -> list[dict[str, str]]:
                 "pattern": "formalize_policy_option_set_for_contract_testing",
             }
         )
+    return issues
+
+
+def _nl_pipeline_fixture_callers(root: Path) -> list[dict[str, str]]:
+    """Census NL mock reachability and require the production refusal/default flip."""
+
+    source_root = root / "src"
+    pipeline_path = (
+        source_root / "polisyos/runtime/http/services/control/nl_pipeline.py"
+    ).resolve()
+    testing_path = (
+        source_root / "polisyos/runtime/http/services/control/nl_pipeline_testing.py"
+    ).resolve()
+    lifecycle_path = (
+        source_root / "polisyos/runtime/http/services/control/run_lifecycle.py"
+    ).resolve()
+    issues: list[dict[str, str]] = []
+    parsed: dict[Path, ast.Module] = {}
+    for path in (pipeline_path, testing_path, lifecycle_path):
+        if not path.is_file():
+            issues.append(
+                {
+                    "path": path.relative_to(root).as_posix(),
+                    "reason": "required_owner_missing",
+                    "pattern": path.name,
+                }
+            )
+            continue
+        try:
+            parsed[path] = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError as exc:
+            issues.append(
+                {
+                    "path": path.relative_to(root).as_posix(),
+                    "reason": "source_not_parseable",
+                    "pattern": str(exc),
+                }
+            )
+    pipeline_tree = parsed.get(pipeline_path)
+    if pipeline_tree is not None:
+        functions = {
+            node.name: node
+            for node in ast.walk(pipeline_tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        production = functions.get("_execute_nl_pipeline")
+        contract = functions.get("_execute_nl_pipeline_for_contract_testing")
+        implementation = functions.get("_execute_nl_pipeline_impl")
+        for name, function in (
+            ("_execute_nl_pipeline", production),
+            ("_execute_nl_pipeline_for_contract_testing", contract),
+            ("_execute_nl_pipeline_impl", implementation),
+        ):
+            if function is None:
+                issues.append(
+                    {
+                        "path": pipeline_path.relative_to(root).as_posix(),
+                        "reason": "required_router_missing",
+                        "pattern": name,
+                    }
+                )
+        if production is not None:
+            constants = {
+                node.value
+                for node in ast.walk(production)
+                if isinstance(node, ast.Constant) and isinstance(node.value, str)
+            }
+            calls = {
+                _ast_call_name(call)
+                for call in ast.walk(production)
+                if isinstance(call, ast.Call)
+            }
+            if "llm_model_unconfigured" not in constants:
+                issues.append(
+                    {
+                        "path": pipeline_path.relative_to(root).as_posix(),
+                        "reason": "production_empty_model_refusal_missing",
+                        "pattern": "llm_model_unconfigured",
+                    }
+                )
+            if "build_nl_contract_testing_agents" in calls:
+                issues.append(
+                    {
+                        "path": pipeline_path.relative_to(root).as_posix(),
+                        "reason": "contract_fixture_reachable_from_production_router",
+                        "pattern": "build_nl_contract_testing_agents",
+                    }
+                )
+        if implementation is not None:
+            calls = {
+                _ast_call_name(call)
+                for call in ast.walk(implementation)
+                if isinstance(call, ast.Call)
+            }
+            for mock_name in (
+                "MockPIAgent",
+                "MockDataNeedExtractorAgent",
+                "MockDrafterAgent",
+                "MockFormalizerAgent",
+                "MockCriticAgent",
+            ):
+                if mock_name in calls:
+                    issues.append(
+                        {
+                            "path": pipeline_path.relative_to(root).as_posix(),
+                            "reason": "mock_constructor_in_shared_pipeline",
+                            "pattern": mock_name,
+                        }
+                    )
+    lifecycle_tree = parsed.get(lifecycle_path)
+    if lifecycle_tree is not None:
+        launch = next(
+            (
+                node
+                for node in ast.walk(lifecycle_tree)
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == "launch_nl_run"
+            ),
+            None,
+        )
+        constants = (
+            {
+                node.value
+                for node in ast.walk(launch)
+                if isinstance(node, ast.Constant) and isinstance(node.value, str)
+            }
+            if launch is not None
+            else set()
+        )
+        if "llm_model_unconfigured" not in constants:
+            issues.append(
+                {
+                    "path": lifecycle_path.relative_to(root).as_posix(),
+                    "reason": "launch_default_not_flipped",
+                    "pattern": "llm_model_unconfigured",
+                }
+            )
+    for path in source_root.rglob("*.py"):
+        if path.resolve() == pipeline_path:
+            continue
+        source = path.read_text(encoding="utf-8")
+        if "_execute_nl_pipeline_for_contract_testing" not in source:
+            continue
+        try:
+            tree = ast.parse(source)
+        except SyntaxError:
+            continue
+        if any(
+            _ast_call_name(call) == "_execute_nl_pipeline_for_contract_testing"
+            for call in ast.walk(tree)
+            if isinstance(call, ast.Call)
+        ):
+            issues.append(
+                {
+                    "path": path.relative_to(root).as_posix(),
+                    "reason": "contract_testing_lane_called_from_source",
+                    "pattern": "_execute_nl_pipeline_for_contract_testing",
+                }
+            )
     return issues
 
 

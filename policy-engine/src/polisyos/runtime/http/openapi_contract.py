@@ -2159,7 +2159,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "effective_execution_profile": "dev",
         "message": (
             "Natural-language run R_nl_abcdef02 accepted. "
-            "Agent circuit was queued in mock mode: mock agents."
+            "Agent circuit was queued in single model: qwen-policy-runtime."
         ),
     },
     "reissue_run": {

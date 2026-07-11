@@ -1091,6 +1091,18 @@ def test_policy_verified_fixture_strangle_has_zero_live_callers() -> None:
     assert receipt["disposition"] == "supplied_real_or_typed_refusal"
 
 
+def test_nl_mock_generator_strangle_has_zero_live_callers() -> None:
+    receipt = next(
+        item
+        for item in dg.design_generation_strangle_receipts(REPO_ROOT)
+        if item["predecessor_ref"] == "runtime.http.nl_pipeline.none_to_mock_generator_fork"
+    )
+
+    assert receipt["status"] == "strangled", receipt["remaining_callers"]
+    assert receipt["remaining_callers"] == []
+    assert receipt["disposition"] == "contract_testing_only"
+
+
 def test_recording_fixture_is_problem_variant_not_authored_constant() -> None:
     recordings = _recordings()
     first = str(recordings[0]["response"]["raw_response"])

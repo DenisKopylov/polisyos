@@ -108,7 +108,10 @@ async def test_launch_nl_run_persists_tenant_scope_in_queued_payload(tmp_path) -
     service = _build_control_service(tmp_path)
     try:
         launch = await service.launch_nl_run(
-            NaturalLanguageRunRequest(request="Check tenant propagation"),
+            NaturalLanguageRunRequest(
+                request="Check tenant propagation",
+                llm_model="simulated-qwen",
+            ),
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
         )
         record = service._control_store.get_job(launch.job_id)
@@ -130,7 +133,10 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
     service = _build_control_service(tmp_path)
     try:
         launch = await service.launch_nl_run(
-            NaturalLanguageRunRequest(request="Check worker scope propagation"),
+            NaturalLanguageRunRequest(
+                request="Check worker scope propagation",
+                llm_model="simulated-qwen",
+            ),
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
         )
         record = service._control_store.get_job(launch.job_id)

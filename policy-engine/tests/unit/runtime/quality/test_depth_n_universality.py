@@ -39,6 +39,8 @@ def _run_universality_preflight_with_pythonpath(
     block_ortools: bool = False,
     python_executable: str = sys.executable,
     force_base_prefixes: bool = False,
+    force_base_exec_prefix: bool = False,
+    force_repository_base_prefix: bool = False,
 ) -> subprocess.CompletedProcess[str]:
     """Run the universality preflight before a sentinel validator producer."""
 
@@ -46,14 +48,18 @@ def _run_universality_preflight_with_pythonpath(
 import sys
 from pathlib import Path
 
+repo_root = Path({REPO_ROOT.as_posix()!r})
+producer_sentinel = Path({producer_sentinel.as_posix()!r})
+
 if {force_base_prefixes!r}:
     sys.prefix = sys.base_prefix
     sys.exec_prefix = sys.base_exec_prefix
+if {force_base_exec_prefix!r}:
+    sys.exec_prefix = sys.base_exec_prefix
+if {force_repository_base_prefix!r}:
+    sys.base_prefix = str((repo_root / ".venv").resolve())
 
 from tools.quality.validation.universality_preflight import assert_universality_preflight
-
-repo_root = Path({REPO_ROOT.as_posix()!r})
-producer_sentinel = Path({producer_sentinel.as_posix()!r})
 
 if {block_ortools!r}:
     class BlockOrtools:
@@ -171,6 +177,48 @@ def test_deterministic_wrong_prefix_is_rejected_before_proof_execution(
     assert "wrong_interpreter_resolved:" in result.stderr
     assert f"observed_prefix={Path(sys.base_prefix).resolve()}" in result.stderr
     assert f"expected_prefix={(REPO_ROOT / '.venv').resolve()}" in result.stderr
+    assert not producer_sentinel.exists()
+
+
+def test_wrong_exec_prefix_alone_is_rejected_before_proof_execution(
+    tmp_path: Path,
+) -> None:
+    """Reject a base exec prefix while the ordinary prefix remains repository-owned."""
+
+    producer_sentinel = tmp_path / "producer-reached"
+    result = _run_universality_preflight_with_pythonpath(
+        REPO_ROOT / "src",
+        producer_sentinel=producer_sentinel,
+        force_base_exec_prefix=True,
+    )
+    expected_prefix = (REPO_ROOT / ".venv").resolve()
+
+    assert result.returncode == 1
+    assert "WrongInterpreterResolvedError: wrong_interpreter_resolved:" in result.stderr
+    assert f"observed_prefix={expected_prefix}" in result.stderr
+    assert f"observed_exec_prefix={Path(sys.base_exec_prefix).resolve()}" in result.stderr
+    assert f"expected_prefix={expected_prefix}" in result.stderr
+    assert not producer_sentinel.exists()
+
+
+def test_repository_base_prefix_is_rejected_before_proof_execution(
+    tmp_path: Path,
+) -> None:
+    """Reject a base prefix equal to the repository while both runtime prefixes remain valid."""
+
+    producer_sentinel = tmp_path / "producer-reached"
+    result = _run_universality_preflight_with_pythonpath(
+        REPO_ROOT / "src",
+        producer_sentinel=producer_sentinel,
+        force_repository_base_prefix=True,
+    )
+    expected_prefix = (REPO_ROOT / ".venv").resolve()
+
+    assert result.returncode == 1
+    assert "WrongInterpreterResolvedError: wrong_interpreter_resolved:" in result.stderr
+    assert f"observed_prefix={expected_prefix}" in result.stderr
+    assert f"observed_exec_prefix={expected_prefix}" in result.stderr
+    assert f"base_prefix={expected_prefix}" in result.stderr
     assert not producer_sentinel.exists()
 
 

@@ -7,13 +7,15 @@ import subprocess
 import sys
 from pathlib import Path
 
-from tools.quality.validation.checkout_guard import assert_current_checkout
+from tools.quality.validation.universality_preflight import (
+    assert_universality_preflight,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 
 # This preserves local import ordering only. Fresh child processes below provide the authority proof
 # because pytest startup plugins may already have imported ``polisyos.*`` in this parent process.
-assert_current_checkout(REPO_ROOT)
+assert_universality_preflight(REPO_ROOT)
 
 
 def _create_wrong_checkout_package(tmp_path: Path) -> Path:
@@ -29,27 +31,38 @@ def _create_wrong_checkout_package(tmp_path: Path) -> Path:
     return wrong_src
 
 
-def _run_checkout_guard_with_pythonpath(
+def _run_universality_preflight_with_pythonpath(
     pythonpath: Path,
     *,
     producer_sentinel: Path,
+    block_ortools: bool = False,
 ) -> subprocess.CompletedProcess[str]:
-    """Run the current checkout guard before a sentinel validator producer."""
+    """Run the universality preflight before a sentinel validator producer."""
 
     script = f"""
 import sys
 from pathlib import Path
-from tools.quality.validation.checkout_guard import assert_current_checkout
+from tools.quality.validation.universality_preflight import assert_universality_preflight
 
 repo_root = Path({REPO_ROOT.as_posix()!r})
 producer_sentinel = Path({producer_sentinel.as_posix()!r})
 
-resolved_package_path = assert_current_checkout(repo_root)
+if {block_ortools!r}:
+    class BlockOrtools:
+        def find_spec(self, fullname, path=None, target=None):
+            if fullname == "ortools" or fullname.startswith("ortools."):
+                raise ModuleNotFoundError("blocked_by_n10_preflight_test")
+            return None
+
+    sys.meta_path.insert(0, BlockOrtools())
+
+resolved_package_path, backend = assert_universality_preflight(repo_root)
 
 def sentinel_validator_producer() -> None:
     producer_sentinel.write_text("producer_reached", encoding="utf-8")
 
 sys.stdout.write(f"checkout_resolved:{{resolved_package_path}}\\n")
+sys.stdout.write(f"cg_backend:{{backend.required_backend_status}}\\n")
 sentinel_validator_producer()
 """
     env = os.environ.copy()
@@ -65,18 +78,41 @@ sentinel_validator_producer()
 
 
 def test_fresh_checkout_harness_resolves_current_checkout(tmp_path: Path) -> None:
-    """Prove current-checkout resolution in a fresh, owner-free child process."""
+    """Prove checkout and required CG backend resolution in a fresh process."""
 
     producer_sentinel = tmp_path / "producer-reached"
-    result = _run_checkout_guard_with_pythonpath(
+    result = _run_universality_preflight_with_pythonpath(
         REPO_ROOT / "src",
         producer_sentinel=producer_sentinel,
     )
     expected_package_path = (REPO_ROOT / "src/polisyos/__init__.py").resolve()
 
     assert result.returncode == 0
-    assert result.stdout == f"checkout_resolved:{expected_package_path}\n"
+    assert result.stdout == (
+        f"checkout_resolved:{expected_package_path}\n"
+        "cg_backend:available\n"
+    )
     assert producer_sentinel.read_text(encoding="utf-8") == "producer_reached"
+
+
+def test_cg_substrate_unavailable_is_rejected_before_proof_execution(
+    tmp_path: Path,
+) -> None:
+    """Reject a missing owner-required CG backend before proof production."""
+
+    producer_sentinel = tmp_path / "producer-reached"
+    result = _run_universality_preflight_with_pythonpath(
+        REPO_ROOT / "src",
+        producer_sentinel=producer_sentinel,
+        block_ortools=True,
+    )
+
+    assert result.returncode == 1
+    assert (
+        "cg_substrate_unavailable:ortools_cp_sat:ModuleNotFoundError"
+        in result.stderr
+    )
+    assert not producer_sentinel.exists()
 
 
 def test_adversarial_checkout_package_is_independent_of_repository_ancestry(
@@ -97,7 +133,7 @@ def test_wrong_checkout_is_rejected_before_proof_execution(tmp_path: Path) -> No
 
     producer_sentinel = tmp_path / "producer-reached"
     wrong_src = _create_wrong_checkout_package(tmp_path)
-    result = _run_checkout_guard_with_pythonpath(
+    result = _run_universality_preflight_with_pythonpath(
         wrong_src,
         producer_sentinel=producer_sentinel,
     )

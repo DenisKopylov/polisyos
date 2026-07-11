@@ -10,6 +10,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.ir.analytics.causal_discovery import DataCharacteristics
 from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceMatrix
 from polisyos.scientist.methods.discovery.priors import GraphPriorBundle, PriorKnowledgeBundle
@@ -761,7 +762,7 @@ def _parse_json_object(raw: Any) -> dict[str, Any]:
     if isinstance(raw, dict):
         return raw
     if isinstance(raw, str):
-        return json.loads(raw)
+        return dict(extract_llm_json_object(raw))
     if hasattr(raw, "model_dump"):
         dumped = raw.model_dump(mode="json")
         if isinstance(dumped, dict):

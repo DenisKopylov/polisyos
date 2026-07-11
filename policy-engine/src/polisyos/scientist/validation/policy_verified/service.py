@@ -11,6 +11,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -1051,21 +1052,10 @@ def _parse_json_object(text: str) -> dict[str, Any] | None:
     raw = str(text or "").strip()
     if not raw:
         return None
-    if raw.startswith("```"):
-        raw = raw.strip("`")
-        raw = raw.split("\n", 1)[-1]
     try:
-        payload = json.loads(raw)
+        return dict(extract_llm_json_object(raw))
     except _POLICY_VERIFIED_JSON_ERRORS:
-        start = raw.find("{")
-        end = raw.rfind("}")
-        if start < 0 or end <= start:
-            return None
-        try:
-            payload = json.loads(raw[start : end + 1])
-        except _POLICY_VERIFIED_JSON_ERRORS:
-            return None
-    return payload if isinstance(payload, dict) else None
+        return None
 
 
 __all__ = [

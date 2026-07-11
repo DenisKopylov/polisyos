@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import json
 from decimal import Decimal
+from types import SimpleNamespace
+
+import pytest
 
 from polisyos.scientist.methods.autotune.models import BenchmarkSplitManifest
 from polisyos.scientist.methods.doe.designs import ParameterSpec as DOEParameterSpec
+from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.policy_design.adversary import (
     ScenarioAdversaryConfig,
@@ -21,12 +27,11 @@ from polisyos.scientist.policy_design.output import (
     UncertaintyReport,
 )
 from polisyos.scientist.policy_design.translator import (
+    DeterministicPolicyTranslator,
     PolicyTranslatorWorker,
     TranslatorCompliancePass,
     TranslatorInputBundle,
 )
-from polisyos.scientist.methods.search.objective import CompositeObjective, GDPGrowthObjective
-from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 
 from .test_phase_b_output import _candidate, _evaluation_vector
 
@@ -106,6 +111,32 @@ def test_translator_falls_back_deterministically_without_gateway() -> None:
     assert bundle.readiness_contract.assumptions_must_be_surfaced == brief.surfaced_assumptions
     assert "Low income" in brief.subgroup_harms
     assert "policy_budget_constraint" in brief.hard_constraint_notes
+
+
+@pytest.mark.asyncio
+async def test_translator_gateway_parses_think_prefixed_json(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = _translator_bundle().model_copy(update={"budget_state": None})
+    payload = DeterministicPolicyTranslator().translate(bundle).model_dump(mode="json")
+    payload["title"] = "Think-prefixed real translation"
+
+    class _Client:
+        async def generate(self, **kwargs: object) -> SimpleNamespace:
+            del kwargs
+            return SimpleNamespace(
+                content="<think>translation reasoning</think>" + json.dumps(payload)
+            )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_design.translator.create_traced_gateway_client",
+        lambda **kwargs: _Client(),
+    )
+
+    brief = await PolicyTranslatorWorker().translate_async(bundle)
+
+    assert brief.title == "Think-prefixed real translation"
+    assert brief.metadata.get("translator_mode") == "deterministic"
 
 
 def test_translator_surfaces_degraded_evidence_channels() -> None:
@@ -236,3 +267,45 @@ def test_scenario_adversary_fallback_and_execution(tmp_path) -> None:
     assert result.compiled_plan.parameter_specs
     assert result.stress_test_report.total_scenarios_evaluated >= 1
     assert result.stress_test_report.vulnerabilities
+
+
+@pytest.mark.asyncio
+async def test_scenario_adversary_gateway_parses_think_prefixed_json(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    surface = ScenarioAttackSurface(
+        candidate_id="candidate_think_prefixed",
+        parameter_specs=[
+            DOEParameterSpec(name="shock", lower_bound=0.0, upper_bound=1.0)
+        ],
+    )
+    payload = {
+        "scenarios": [
+            {
+                "scenario_id": "adv_think_prefixed",
+                "scenario_type": "shift",
+                "parameter_name": "shock",
+                "intensity": 0.25,
+                "rationale": "Real model scenario.",
+            }
+        ]
+    }
+
+    class _Client:
+        async def generate(self, **kwargs: object) -> SimpleNamespace:
+            del kwargs
+            return SimpleNamespace(
+                content="<think>adversary reasoning</think>" + json.dumps(payload)
+            )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.policy_design.adversary.create_traced_gateway_client",
+        lambda **kwargs: _Client(),
+    )
+
+    bundle = await ScenarioAdversaryWorker().propose_async(surface)
+
+    assert bundle.fallback_used is False
+    assert [scenario.scenario_id for scenario in bundle.scenarios] == [
+        "adv_think_prefixed"
+    ]

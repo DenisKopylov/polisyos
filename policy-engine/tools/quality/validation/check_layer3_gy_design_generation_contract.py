@@ -11,6 +11,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from collections import Counter
 from collections.abc import Mapping
 from decimal import Decimal
@@ -69,6 +70,16 @@ POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID = (
 )
 NL_SOURCE_FLIP_MUTATION_ID = "source_flip_nl_contract_agents_reconnected_to_production"
 S2_SOURCE_FLIP_MUTATION_ID = "source_flip_s2_fixed_candidate_body_restored"
+DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID = (
+    "source_flip_drafter_naive_json_parser_restored"
+)
+N4_SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
+    SOURCE_FLIP_MUTATION_ID,
+    DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+    POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+    NL_SOURCE_FLIP_MUTATION_ID,
+    S2_SOURCE_FLIP_MUTATION_ID,
+)
 
 
 def declared_outputs() -> list[str]:
@@ -274,6 +285,11 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
             ),
         },
         "not_certificate_denominator": list(NOT_CERTIFICATE_KINDS),
+        "source_flip_mutation_harness": {
+            "mode": "--source-flip-mutations",
+            "mutation_ids": list(N4_SOURCE_FLIP_MUTATION_IDS),
+            "property": "patch_source_then_causal_red_then_restore_exact_bytes",
+        },
         "generation_result": result_payload,
         "generation_results": result_payloads,
         "recording_set_coverage": set_coverage,
@@ -787,6 +803,12 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
     denominator = payload.get("not_certificate_denominator")
     if denominator != list(NOT_CERTIFICATE_KINDS):
         issues.append({"code": "not_certificate_denominator_drift"})
+    if payload.get("source_flip_mutation_harness") != {
+        "mode": "--source-flip-mutations",
+        "mutation_ids": list(N4_SOURCE_FLIP_MUTATION_IDS),
+        "property": "patch_source_then_causal_red_then_restore_exact_bytes",
+    }:
+        issues.append({"code": "source_flip_mutation_denominator_drift"})
     payoff = payload.get("grounding_payoff")
     if not isinstance(payoff, dict):
         issues.append({"code": "grounding_payoff_missing"})
@@ -988,10 +1010,24 @@ def validate_rederive_audit(repo_root: Path) -> dict[str, Any]:
                 "mutations": mutation_failures,
             }
         )
+    generation_terminal_evidence = [
+        {
+            "index": index,
+            "status": result.get("status"),
+            "degraded_reasons": [
+                item.get("reason")
+                for item in result.get("degraded_artifacts", [])
+                if isinstance(item, Mapping) and item.get("reason")
+            ],
+        }
+        for index, result in enumerate(live.get("generation_results", []))
+        if isinstance(result, Mapping)
+    ]
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "outputs": declared_outputs(),
+        "generation_terminal_evidence": generation_terminal_evidence,
     }
 
 
@@ -2244,6 +2280,175 @@ def _run_formalizer_source_flip(repo_root: Path) -> tuple[dict[str, Any], ...]:
     )
 
 
+def _run_drafter_parser_source_flip(repo_root: Path) -> dict[str, Any]:
+    """Restore naive drafter parsing and require the real N4 replay to go RED."""
+
+    relative_path = Path("src/polisyos/scientist/agent/drafter_clients.py")
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = "data = extract_llm_json_object(content)"
+    new = "data = json.loads(content)"
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": f"source guard count was {text.count(old)}, expected 1",
+        }
+
+    rederive: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        env = {
+            **os.environ,
+            "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            "JAX_PLATFORMS": "cpu",
+            "JAX_PLATFORM_NAME": "cpu",
+        }
+        rederive = subprocess.run(
+            (
+                sys.executable,
+                str(
+                    repo_root
+                    / "tools/quality/validation/"
+                    "check_layer3_gy_design_generation_contract.py"
+                ),
+                "--repo-root",
+                str(repo_root),
+                "--rederive-audit",
+                "--output-format",
+                "json",
+            ),
+            cwd=repo_root,
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=1200,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or rederive is None:
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+
+    try:
+        rederive_report = json.loads(rederive.stdout)
+    except json.JSONDecodeError as exc:
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "rederive_output_not_json",
+                "detail": str(exc),
+                "exit_code": rederive.returncode,
+                "source_restored_sha256": restored_hash,
+                "stdout_tail": "\n".join(rederive.stdout.splitlines()[-20:]),
+                "stderr_tail": "\n".join(rederive.stderr.splitlines()[-20:]),
+            },
+        }
+    if rederive.returncode not in {0, 1} or not isinstance(rederive_report, Mapping):
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "rederive_probe_invalid_exit_or_shape",
+                "exit_code": rederive.returncode,
+                "source_restored_sha256": restored_hash,
+                "stdout_tail": "\n".join(rederive.stdout.splitlines()[-20:]),
+                "stderr_tail": "\n".join(rederive.stderr.splitlines()[-20:]),
+            },
+        }
+    issues = rederive_report.get("issues")
+    issue_rows = issues if isinstance(issues, list) else []
+    issue_fingerprint = Counter(
+        (
+            str(item.get("code")),
+            item.get("index") if isinstance(item.get("index"), int) else None,
+        )
+        for item in issue_rows
+        if isinstance(item, Mapping) and item.get("code")
+    )
+    issue_code_counts = dict(
+        sorted(
+            Counter(
+                str(item.get("code"))
+                for item in issue_rows
+                if isinstance(item, Mapping) and item.get("code")
+            ).items()
+        )
+    )
+    positive_index_zero = any(
+        isinstance(item, Mapping)
+        and item.get("code") == "positive_generation_not_generated"
+        and item.get("index") == 0
+        for item in issue_rows
+    )
+    terminal_evidence = rederive_report.get("generation_terminal_evidence")
+    terminal_rows = terminal_evidence if isinstance(terminal_evidence, list) else []
+    terminal_reason_observed = any(
+        isinstance(item, Mapping)
+        and item.get("index") == 0
+        and "drafter_degraded_mock_fallback" in (item.get("degraded_reasons") or [])
+        for item in terminal_rows
+    )
+    mutation_red = (
+        rederive.returncode == 1
+        and rederive_report.get("status") == "fail"
+        and positive_index_zero
+        and terminal_reason_observed
+    )
+    return {
+        "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "drafter semantic model output uses the shared embedded-object parser, "
+            "with degraded fallback only when no object exists"
+        ),
+        "proof": {
+            "rederive_command": [str(item) for item in rederive.args],
+            "rederive_exit_code": rederive.returncode,
+            "positive_generation_index_zero_observed": positive_index_zero,
+            "terminal_reason": "drafter_degraded_mock_fallback",
+            "terminal_reason_observed": terminal_reason_observed,
+            "issue_code_counts": issue_code_counts,
+            "issue_fingerprint": [
+                {"code": code, "index": index, "count": count}
+                for (code, index), count in sorted(
+                    issue_fingerprint.items(),
+                    key=lambda item: (item[0][0], -1 if item[0][1] is None else item[0][1]),
+                )
+            ],
+            "generation_terminal_evidence": terminal_rows,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "rederive_stdout_tail": "\n".join(rederive.stdout.splitlines()[-20:]),
+            "rederive_stderr_tail": "\n".join(rederive.stderr.splitlines()[-20:]),
+        },
+    }
+
+
 def _run_policy_verified_source_flip(repo_root: Path) -> dict[str, Any]:
     source_path = repo_root / "src/polisyos/scientist/validation/policy_verified/service.py"
     original = source_path.read_bytes()
@@ -2504,12 +2709,26 @@ def _run_s2_source_flip(repo_root: Path) -> dict[str, Any]:
 def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
     """Run every restoring N4 source mutation sequentially."""
 
-    return (
+    results = (
         *_run_formalizer_source_flip(repo_root),
+        _run_drafter_parser_source_flip(repo_root),
         _run_policy_verified_source_flip(repo_root),
         _run_nl_source_flip(repo_root),
         _run_s2_source_flip(repo_root),
     )
+    observed_ids = tuple(str(item.get("mutation_id")) for item in results)
+    if observed_ids != N4_SOURCE_FLIP_MUTATION_IDS:
+        return (
+            {
+                "mutation_id": "source_flip_harness_denominator",
+                "result": "HARNESS_ERROR",
+                "proof": {
+                    "expected": list(N4_SOURCE_FLIP_MUTATION_IDS),
+                    "observed": list(observed_ids),
+                },
+            },
+        )
+    return results
 
 
 def main(argv: list[str] | None = None) -> int:

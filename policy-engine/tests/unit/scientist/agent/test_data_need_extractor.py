@@ -41,7 +41,7 @@ def test_extract_data_needs_json_parse_assertion_is_not_swallowed(
         raise AssertionError("json parser invariant failed")
 
     monkeypatch.setattr(
-        "polisyos.scientist.agent.data_need_extractor.json.loads",
+        "polisyos.scientist.agent.data_need_extractor.extract_llm_json_object",
         _boom,
     )
 
@@ -85,6 +85,26 @@ def test_extract_data_needs_parse_error_raises_when_fallback_disallowed() -> Non
 
     with pytest.raises(ValueError, match="llm_data_need_extraction_failed"):
         _run(agent.extract_data_needs(_problem_frame()))
+
+
+def test_extract_data_needs_parses_think_prefixed_json() -> None:
+    class _FakeLLM:
+        async def generate(self, **kwargs):
+            del kwargs
+            return SimpleNamespace(
+                content=(
+                    '<think>data-need reasoning</think>{"data_needs":['
+                    '{"metric":"tertiary_enrollment","quality_min":0.7}]}'
+                )
+            )
+
+    needs = _run(
+        LLMDataNeedExtractorAgent(_FakeLLM(), allow_fallback=False).extract_data_needs(
+            _problem_frame()
+        )
+    )
+
+    assert [need.metric for need in needs] == ["tertiary_enrollment"]
 
 
 def test_extract_data_needs_empty_result_raises_when_fallback_disallowed() -> None:

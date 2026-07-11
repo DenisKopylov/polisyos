@@ -15,6 +15,7 @@ from typing import Any, Literal
 
 from pydantic import ValidationError
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import truncated_hash
 from polisyos.ir.governance.policy_spec import InterventionSpec as TrinityInterventionSpec
@@ -1662,14 +1663,9 @@ Generate a valid TrinityBundle v{schema_version} JSON.
                 continue
 
             content = response.content if hasattr(response, "content") else str(response)
-            content = content.strip()
-            if content.startswith("```"):
-                content = content.split("```")[1]
-                if content.startswith("json"):
-                    content = content[4:]
 
             try:
-                data = json.loads(content)
+                data = extract_llm_json_object(content)
                 schema_healing_events = [
                     *_normalize_problem_frame_metric_aliases_for_validation(
                         data,

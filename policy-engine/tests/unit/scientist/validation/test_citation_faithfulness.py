@@ -9,6 +9,7 @@ import pytest
 from polisyos.scientist.validation.citation_faithfulness import (
     BLOCKING_CITATION_LABELS,
     SCHEMA_VERSION,
+    _tool_call_arguments,
     build_citation_faithfulness_report,
     build_policy_context_citation_faithfulness_report,
     build_span_support_replay_manifest,
@@ -86,6 +87,38 @@ class _SimulatedSpanSupportClient(_DeterministicSpanSupportClient):
 
 class _RecordedSpanSupportClient(_DeterministicSpanSupportClient):
     provider = "recorded-replay"
+
+
+class _ContentSpanSupportClient:
+    def __init__(self, content: str) -> None:
+        self.content = content
+
+    async def generate(self, **kwargs: object) -> SimpleNamespace:
+        del kwargs
+        return SimpleNamespace(
+            content=self.content,
+            model="content-judge",
+            provider="test",
+            request_id="content-request",
+            tool_calls=[],
+            usage=SimpleNamespace(total_tokens=4),
+            raw={},
+        )
+
+
+def test_span_support_tool_arguments_remain_strict() -> None:
+    arguments = _tool_call_arguments(
+        {
+            "function": {
+                "arguments": (
+                    '<think>judge reasoning</think>{"decision":"supported",'
+                    '"confidence":0.9}'
+                )
+            }
+        }
+    )
+
+    assert arguments == {}
 
 
 def _causal_claim(text: str, *, direction: str = "positive") -> dict[str, object]:
@@ -268,6 +301,36 @@ def test_span_claim_support_uses_injected_agent_judge_not_lexical_containment() 
     assert accepted["label"] == "supports"
     assert accepted["score"] == pytest.approx(0.91)
     assert "span_support_agent_entails_claim" in accepted["reason_codes"]
+
+
+def test_span_claim_support_content_judge_parses_think_prefixed_json() -> None:
+    content = "<think>entailment reasoning</think>" + json.dumps(
+        {
+            "decision": "entails",
+            "confidence": 0.93,
+            "rationale": "The span supports the claim.",
+        }
+    )
+
+    result = evaluate_span_claim_entailment(
+        claim=_causal_claim("School attendance improved after the stipend program."),
+        evidence=_span("The stipend program increased school attendance."),
+        client=_ContentSpanSupportClient(content),
+    )
+
+    assert result["status"] == "pass"
+    assert result["score"] == pytest.approx(0.93)
+
+
+def test_span_claim_support_content_judge_abstains_on_invalid_response() -> None:
+    result = evaluate_span_claim_entailment(
+        claim=_causal_claim("School attendance improved after the stipend program."),
+        evidence=_span("The stipend program increased school attendance."),
+        client=_ContentSpanSupportClient("no judgment object"),
+    )
+
+    assert result["status"] == "fail"
+    assert "span_support_agent_abstained" in result["reason_codes"]
 
 
 def test_span_claim_support_fails_closed_without_real_agent(monkeypatch: pytest.MonkeyPatch) -> None:

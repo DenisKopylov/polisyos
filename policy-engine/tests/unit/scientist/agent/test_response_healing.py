@@ -6,7 +6,6 @@ import json
 
 import jax
 import pytest
-from polisyos.ir.registry.registry_fragments import RegistryBundle
 
 from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
 from polisyos.foundry.agent_sim.state import GlobalState
@@ -20,6 +19,7 @@ from polisyos.ir.kernel import (
     DEFAULT_UNITS_REGISTRY,
 )
 from polisyos.ir.linker import LinkSeverity, link_trinity
+from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.scientist.agent.formalizer import (
     FormalizerSchemaValidationError,
     LLMFormalizerAgent,
@@ -44,14 +44,14 @@ def _default_registries() -> RegistryBundle:
 
 
 class _FakeJSONLLMClient:
-    def __init__(self, payload: dict[str, object]) -> None:
+    def __init__(self, payload: dict[str, object] | str) -> None:
         self.payload = payload
         self.calls: list[dict[str, object]] = []
 
     async def generate(self, **kwargs):
         self.calls.append(dict(kwargs))
         return GatewayLLMResponse(
-            content=json.dumps(self.payload),
+            content=(self.payload if isinstance(self.payload, str) else json.dumps(self.payload)),
             usage=GatewayUsage(),
             raw={},
         )
@@ -93,6 +93,44 @@ async def test_pi_agent_can_attach_response_healing_plugin():
 
 
 @pytest.mark.asyncio
+async def test_pi_agent_parses_think_prefixed_problem_frame() -> None:
+    payload = {
+        "problem_frame": {
+            "frame_id": "pf_think_prefixed",
+            "domain": "education",
+            "problem_statement": "Improve school completion.",
+            "actors": ["students"],
+            "goals": ["Increase completion"],
+        }
+    }
+    client = _FakeJSONLLMClient("<think>frame reasoning</think>" + json.dumps(payload))
+
+    frame = await LLMPIAgent(client).create_problem_frame("Improve school completion")
+
+    assert frame.frame_id == "pf_think_prefixed"
+    assert frame.domain == "education"
+
+
+@pytest.mark.asyncio
+async def test_pi_agent_parses_think_prefixed_subtasks() -> None:
+    payload = {
+        "sub_tasks": [
+            {
+                "task_id": "task_real",
+                "description": "Draft a candidate intervention.",
+                "target_agent": "DRAFTER",
+                "priority": "high",
+            }
+        ]
+    }
+    client = _FakeJSONLLMClient("<think>task reasoning</think>" + json.dumps(payload))
+
+    tasks = await LLMPIAgent(client).decompose_task("Improve school completion")
+
+    assert [task.task_id for task in tasks] == ["task_real"]
+
+
+@pytest.mark.asyncio
 async def test_formalizer_agent_can_attach_response_healing_plugin():
     draft = create_mock_draft(draft_id="draft_test")
     bundle = await MockFormalizerAgent().formalize(draft)
@@ -105,6 +143,27 @@ async def test_formalizer_agent_can_attach_response_healing_plugin():
     assert client.calls[0]["plugins"] == [{"id": "response-healing"}]
     assert client.calls[0]["response_format"] == {"type": "json_object"}
     assert "tools" not in client.calls[0]
+
+
+@pytest.mark.asyncio
+async def test_llm_formalizer_parses_think_prefixed_bundle_without_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    draft = create_mock_draft(draft_id="draft_think_prefixed_formalizer")
+    expected = await MockFormalizerAgent().formalize(draft)
+    raw = "<think>formalizer reasoning</think>" + json.dumps(
+        expected.model_dump(mode="json")
+    )
+
+    async def _unexpected_fallback(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        raise AssertionError("think-prefixed formalizer output entered mock fallback")
+
+    monkeypatch.setattr(MockFormalizerAgent, "formalize", _unexpected_fallback)
+
+    formalized = await LLMFormalizerAgent(_FakeJSONLLMClient(raw)).formalize(draft)
+
+    assert formalized == expected
 
 
 @pytest.mark.asyncio
@@ -551,14 +610,14 @@ async def test_llm_formalizer_drops_unresolved_and_non_numeric_tunable_parameter
     assert formalized.policy_spec.parameters[0].param_path == "learning_rate"
     assert "weights_artifact" not in formalized.policy_spec.interventions[0].params
     assert any(
-        "dropped_non_numeric_parameter_spec:guarantee_coverage_rate:utility" == note
+        note == "dropped_non_numeric_parameter_spec:guarantee_coverage_rate:utility"
         for note in formalized.policy_spec.notes
     )
     assert any(
-        "dropped_unresolved_parameter_spec:missing_rate:params.coverage_rate" == note
+        note == "dropped_unresolved_parameter_spec:missing_rate:params.coverage_rate"
         for note in formalized.policy_spec.notes
     )
     assert any(
-        "dropped_invalid_runtime_artifact_ref:state_loan_guarantee:weights_artifact" == note
+        note == "dropped_invalid_runtime_artifact_ref:state_loan_guarantee:weights_artifact"
         for note in formalized.policy_spec.notes
     )

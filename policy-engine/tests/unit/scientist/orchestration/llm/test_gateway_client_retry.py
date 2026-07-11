@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import json
-import asyncio
 from unittest.mock import AsyncMock, patch
 
 import pytest
+
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMClient,
     _HTTPError,
@@ -55,7 +55,7 @@ class TestSessionLifecycle:
             close_called = False
 
             def post(self, *args, **kwargs):
-                raise asyncio.TimeoutError()
+                raise TimeoutError()
 
             async def close(self):
                 self.close_called = True
@@ -464,6 +464,44 @@ class TestUsageParsing:
                                     "function": {
                                         "name": "search",
                                         "arguments": '{"broken": ',
+                                    },
+                                }
+                            ],
+                        }
+                    }
+                ],
+            },
+        ):
+            response = await client.generate(user="hi")
+
+        assert response.tool_calls is not None
+        assert response.tool_calls[0].arguments == {}
+        assert response.tool_calls[0].error_envelope is not None
+        assert response.tool_calls[0].error_envelope["reason"] == "tool_call_arguments_parse_error"
+
+    @pytest.mark.asyncio
+    async def test_wrapped_tool_call_arguments_remain_strict(self):
+        client = GatewayLLMClient(
+            base_url="http://test.local",
+            api_key="key",
+            model="m",
+        )
+        with patch.object(
+            client,
+            "_post_json",
+            new_callable=AsyncMock,
+            return_value={
+                "model": "m",
+                "choices": [
+                    {
+                        "message": {
+                            "content": "ok",
+                            "tool_calls": [
+                                {
+                                    "id": "tc_wrapped",
+                                    "function": {
+                                        "name": "search",
+                                        "arguments": '<think>x</think>{"query":"policy"}',
                                     },
                                 }
                             ],

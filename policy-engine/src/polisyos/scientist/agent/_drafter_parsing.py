@@ -6,11 +6,12 @@ These are mixed into ``MultiPassLLMDrafter`` via the
 
 from __future__ import annotations
 
-import json
 from datetime import UTC, datetime
+from json import JSONDecodeError
 
 from pydantic import ValidationError
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.scientist.agent.protocols import DraftResult
 
 from .drafter_models import (
@@ -52,16 +53,11 @@ class _DrafterParsingMixin:
         pass_name: str,
     ) -> tuple[list[PassFinding], float | None, bool, str | None]:
         try:
-            payload = _CritiquePayload.model_validate_json(raw_response)
-        except ValidationError:
-            try:
-                decoded = json.loads(raw_response)
-            except json.JSONDecodeError:
-                return [], None, False, None
-            try:
-                payload = _CritiquePayload.model_validate(decoded)
-            except ValidationError:
-                return [], None, False, None
+            payload = _CritiquePayload.model_validate(
+                extract_llm_json_object(raw_response)
+            )
+        except (JSONDecodeError, ValidationError):
+            return [], None, False, None
 
         findings: list[PassFinding] = []
         for idx, item in enumerate(payload.findings):
@@ -95,12 +91,11 @@ class _DrafterParsingMixin:
         original: DraftResult,
     ) -> tuple[DraftResult, bool]:
         try:
-            payload = _ConsolidationPayload.model_validate_json(raw_response)
-        except ValidationError:
-            try:
-                payload = _ConsolidationPayload.model_validate(json.loads(raw_response))
-            except (ValidationError, json.JSONDecodeError):
-                return original, False
+            payload = _ConsolidationPayload.model_validate(
+                extract_llm_json_object(raw_response)
+            )
+        except (JSONDecodeError, ValidationError):
+            return original, False
 
         return (
             DraftResult(

@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import copy
 import json
+import subprocess
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -26,7 +27,7 @@ from polisyos.runtime.quality.design_generation import (
     generate_design_candidates_under_a,
     validate_design_generation_strangle_receipts,
 )
-from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent
+from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from polisyos.scientist.agent.formalizer import (
     LLMFormalizerAgent,
     trinity_bundle_formalizer_generator_path,
@@ -656,6 +657,244 @@ async def test_drafter_prompt_assembly_carries_slice_and_axis_ontology_nudge() -
     assert slice_payload.content_hash in call["user"]
     assert "tax_relief_rate" in call["user"]
     assert "target_world_slots" in call["user"]
+
+
+@pytest.mark.asyncio
+async def test_drafter_shared_parser_accepts_recorded_think_prefixed_json() -> None:
+    payload = {
+        "draft_id": "draft_think_prefixed_real",
+        "problem_frame_ref": "gy_n4_test_problem",
+        "narrative": "A real model-authored candidate draft.",
+        "interventions": [
+            {
+                "name": "Candidate tax relief",
+                "mechanism_type": "tax_relief_rate",
+                "parameters": {"rate": 0.08},
+            }
+        ],
+        "rationale": "Exercise the canonical embedded-JSON parser.",
+        "alternatives_considered": ["No intervention"],
+        "confidence": 0.72,
+    }
+    raw_response = "<think>provider-visible reasoning</think>" + json.dumps(payload)
+
+    draft = await LLMDrafterAgent(StaticLLMClient(raw_response)).draft_policy(
+        _test_design_problem().to_scientist_problem_frame()
+    )
+
+    assert draft.draft_id == "draft_think_prefixed_real"
+    assert draft.interventions == payload["interventions"]
+    assert draft.raw_llm_response == raw_response
+
+
+@pytest.mark.asyncio
+async def test_drafter_semantically_invalid_object_does_not_use_parse_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    payload = {
+        "draft_id": "draft_semantically_invalid",
+        "problem_frame_ref": "gy_n4_test_problem",
+        "narrative": "The extractor can parse this object.",
+        "interventions": [],
+        "rationale": "Confidence is deliberately invalid.",
+        "confidence": "not-a-float",
+    }
+
+    async def _unexpected_fallback(*args: object, **kwargs: object) -> DraftResult:
+        del args, kwargs
+        raise AssertionError("semantic validation was laundered into mock fallback")
+
+    monkeypatch.setattr(
+        "polisyos.scientist.agent.drafter_clients.MockDrafterAgent.draft_policy",
+        _unexpected_fallback,
+    )
+
+    with pytest.raises(ValueError, match="could not convert string to float"):
+        await LLMDrafterAgent(StaticLLMClient(json.dumps(payload))).draft_policy(
+            _test_design_problem().to_scientist_problem_frame()
+        )
+
+
+@pytest.mark.asyncio
+async def test_drafter_uses_mock_fallback_only_when_no_json_object_exists(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fallback_calls = 0
+    original_fallback = MockDrafterAgent.draft_policy
+
+    async def _record_fallback(*args: object, **kwargs: object) -> DraftResult:
+        nonlocal fallback_calls
+        fallback_calls += 1
+        return await original_fallback(*args, **kwargs)
+
+    monkeypatch.setattr(MockDrafterAgent, "draft_policy", _record_fallback)
+
+    draft = await LLMDrafterAgent(StaticLLMClient("no object is present")).draft_policy(
+        _test_design_problem().to_scientist_problem_frame()
+    )
+
+    assert fallback_calls == 1
+    assert draft.raw_llm_response is None
+    assert draft.draft_id != "draft_semantically_invalid"
+
+
+def test_drafter_parser_source_flip_runs_rederive_and_restores_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    source_path = tmp_path / "src/polisyos/scientist/agent/drafter_clients.py"
+    source_path.parent.mkdir(parents=True)
+    original = (
+        b"def probe(content):\n"
+        b"    try:\n"
+        b"        data = extract_llm_json_object(content)\n"
+        b"    except json.JSONDecodeError:\n"
+        b"        return None\n"
+        b"    return data\n"
+    )
+    source_path.write_bytes(original)
+    calls: list[tuple[str, ...]] = []
+
+    def _completed(args: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        del kwargs
+        calls.append(args)
+        return subprocess.CompletedProcess(
+            args=args,
+            returncode=1,
+            stdout=json.dumps(
+                {
+                    "status": "fail",
+                    "issues": [
+                        {"code": "positive_generation_not_generated", "index": 0},
+                        {"code": "positive_grounding_denominator_missing"},
+                    ],
+                    "generation_terminal_evidence": [
+                        {
+                            "index": 0,
+                            "status": "generation_unavailable",
+                            "degraded_reasons": ["drafter_degraded_mock_fallback"],
+                        }
+                    ],
+                }
+            ),
+            stderr="",
+        )
+
+    monkeypatch.setattr(contract.subprocess, "run", _completed)
+
+    result = contract._run_drafter_parser_source_flip(tmp_path)
+
+    assert result["result"] == "RED"
+    assert result["proof"]["issue_code_counts"] == {
+        "positive_generation_not_generated": 1,
+        "positive_grounding_denominator_missing": 1,
+    }
+    assert result["proof"]["terminal_reason_observed"] is True
+    assert any("--rederive-audit" in args for args in calls)
+    assert len(calls) == 1
+    assert source_path.read_bytes() == original
+
+
+def test_n4_rederive_exposes_typed_generation_terminal_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    live = {
+        "behavioral_mutations": [],
+        "generation_results": [
+            {
+                "status": "generation_unavailable",
+                "degraded_artifacts": [
+                    {"reason": "drafter_degraded_mock_fallback"},
+                ],
+            }
+        ],
+    }
+    monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload: {"status": "fail", "issues": [], "outputs": []},
+    )
+
+    report = contract.validate_rederive_audit(REPO_ROOT)
+
+    assert report["generation_terminal_evidence"] == [
+        {
+            "index": 0,
+            "status": "generation_unavailable",
+            "degraded_reasons": ["drafter_degraded_mock_fallback"],
+        }
+    ]
+
+
+def test_n4_payload_rejects_source_flip_denominator_drift() -> None:
+    payload: dict[str, Any] = {}
+
+    missing = contract.validate_payload(payload)
+    payload["source_flip_mutation_harness"] = {
+        "mode": "--source-flip-mutations",
+        "mutation_ids": list(contract.N4_SOURCE_FLIP_MUTATION_IDS),
+        "property": "patch_source_then_causal_red_then_restore_exact_bytes",
+    }
+    present = contract.validate_payload(payload)
+
+    assert "source_flip_mutation_denominator_drift" in {
+        issue["code"] for issue in missing["issues"]
+    }
+    assert "source_flip_mutation_denominator_drift" not in {
+        issue["code"] for issue in present["issues"]
+    }
+
+
+def test_n4_source_flip_denominator_rejects_missing_parser_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def red(mutation_id: str) -> dict[str, str]:
+        return {"mutation_id": mutation_id, "result": "RED"}
+    monkeypatch.setattr(
+        contract,
+        "_run_formalizer_source_flip",
+        lambda _repo_root: (red(contract.SOURCE_FLIP_MUTATION_ID),),
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_drafter_parser_source_flip",
+        lambda _repo_root: red("source_flip_wrong_parser_mutation"),
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_policy_verified_source_flip",
+        lambda _repo_root: red(contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID),
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_nl_source_flip",
+        lambda _repo_root: red(contract.NL_SOURCE_FLIP_MUTATION_ID),
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_s2_source_flip",
+        lambda _repo_root: red(contract.S2_SOURCE_FLIP_MUTATION_ID),
+    )
+
+    results = contract.run_source_flip_mutations(REPO_ROOT)
+
+    assert results == (
+        {
+            "mutation_id": "source_flip_harness_denominator",
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "expected": list(contract.N4_SOURCE_FLIP_MUTATION_IDS),
+                "observed": [
+                    contract.SOURCE_FLIP_MUTATION_ID,
+                    "source_flip_wrong_parser_mutation",
+                    contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+                    contract.NL_SOURCE_FLIP_MUTATION_ID,
+                    contract.S2_SOURCE_FLIP_MUTATION_ID,
+                ],
+            },
+        },
+    )
 
 
 @pytest.mark.asyncio

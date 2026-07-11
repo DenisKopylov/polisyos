@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-import json
 from collections.abc import Callable
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -23,6 +23,8 @@ from polisyos.scientist.methods.doe.designs import (
     ParameterSpec as DOEParameterSpec,
 )
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.search.adversarial import run_stress_test
+from polisyos.scientist.methods.search.objective import CompositeObjective
 from polisyos.scientist.orchestration.engine.budget import BudgetState
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
@@ -30,8 +32,6 @@ from polisyos.scientist.policy_design.prompts import (
     build_policy_adversary_user_payload,
     get_policy_adversary_prompt,
 )
-from polisyos.scientist.methods.search.adversarial import run_stress_test
-from polisyos.scientist.methods.search.objective import CompositeObjective
 
 
 class ScenarioAttackSurface(BaseModel):
@@ -378,10 +378,7 @@ def load_adversarial_scenario_bundle(
 def _parse_json_object(raw: Any) -> dict[str, Any]:
     if isinstance(raw, dict):
         return raw
-    payload = json.loads(str(raw).strip())
-    if not isinstance(payload, dict):
-        raise ValueError("Expected a JSON object from adversary worker")
-    return payload
+    return dict(extract_llm_json_object(str(raw)))
 
 
 __all__ = [

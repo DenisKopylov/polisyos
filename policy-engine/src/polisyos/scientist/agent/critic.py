@@ -9,6 +9,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash, truncated_hash
 from polisyos.ir.trinity import TrinityBundle
@@ -494,7 +495,7 @@ Provide your critique as a JSON object.
 
         content = response.content if hasattr(response, "content") else str(response)
         try:
-            data = json.loads(content)
+            data = extract_llm_json_object(content)
             issues = []
             for idx, issue in enumerate(data.get("issues", [])):
                 category = issue.get("category", "SCHEMA")

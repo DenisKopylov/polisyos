@@ -95,6 +95,22 @@ def _valid_prompt_size_estimate() -> dict[str, int]:
     }
 
 
+def _lane0_prompt_slice() -> dg.LeverSpacePromptSlice:
+    return dg.LeverSpacePromptSlice(
+        status="derived",
+        content_hash="sha256:" + "a" * 64,
+        entries=(
+            dg.LeverSpaceSliceEntry(
+                operator_kind="lane0_test_lever",
+                aliases=("lane0 test lever",),
+                target_world_slots=("lane0_target_slot",),
+                source_refs=("lane0.prompt_size.actual_frame_probe",),
+            ),
+        ),
+        owner_refs=("lane0.prompt_size.actual_frame_probe",),
+    )
+
+
 def _alternate_honest_frozen_receipt_payload() -> dict[str, Any]:
     chain = {
         "cg1_certificate_id": "cg1_cert_" + "1" * 16,
@@ -1479,10 +1495,7 @@ def test_n4_prompt_size_frozen_projection_rejects_python_equality_aliases(
 
 def test_n4_prompt_size_measurement_is_bound_to_actual_frames() -> None:
     problem = _test_design_problem()
-    lever_slice = dg.LeverSpacePromptSlice(
-        status="unavailable",
-        failure_reason="lane0_no_reference_required",
-    )
+    lever_slice = _lane0_prompt_slice()
     base_frame = dg._with_generation_cycle_revision_context(
         problem.to_scientist_problem_frame(),
         design_problem=problem,
@@ -1507,6 +1520,48 @@ def test_n4_prompt_size_measurement_is_bound_to_actual_frames() -> None:
     assert issue["code"] == "prompt_size_measurement_not_actual_frames"
 
 
+def test_n4_prompt_size_actual_frame_binding_ignores_only_absolute_timestamp_width() -> None:
+    problem = _test_design_problem()
+    lever_slice = _lane0_prompt_slice()
+    base_frame = dg._with_generation_cycle_revision_context(
+        problem.to_scientist_problem_frame(),
+        design_problem=problem,
+    )
+    sliced_frame = dg._with_lever_space_prompt_slice(
+        base_frame,
+        lever_space_prompt_slice=lever_slice,
+    )
+    measured = dg._prompt_size_estimate(base_frame, sliced_frame)
+    shifted_without = measured.frame_without_slice_chars + 1
+    shifted_with = measured.frame_with_slice_chars + 1
+    timestamp_width_shift = measured.model_copy(
+        update={
+            "frame_without_slice_chars": shifted_without,
+            "frame_with_slice_chars": shifted_with,
+            "frame_without_slice_estimated_tokens": (shifted_without + 3) // 4,
+            "frame_with_slice_estimated_tokens": (shifted_with + 3) // 4,
+        }
+    )
+
+    assert contract._prompt_size_actual_frame_issue(
+        design_problem=problem,
+        lever_space_prompt_slice=lever_slice,
+        emitted=timestamp_width_shift,
+    ) is None
+    slice_lie = timestamp_width_shift.model_copy(
+        update={
+            "slice_added_chars": timestamp_width_shift.slice_added_chars - 1,
+        }
+    )
+    issue = contract._prompt_size_actual_frame_issue(
+        design_problem=problem,
+        lever_space_prompt_slice=lever_slice,
+        emitted=slice_lie,
+    )
+    assert issue is not None
+    assert issue["code"] == "prompt_size_measurement_not_actual_frames"
+
+
 def test_n4_build_live_payload_binds_prompt_size_to_actual_frames(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1520,10 +1575,7 @@ def test_n4_build_live_payload_binds_prompt_size_to_actual_frames(
     async def _measured_result(*args: object, **kwargs: object) -> object:
         del args, kwargs
         problem = contract._design_problem(recording)
-        lever_slice = dg.LeverSpacePromptSlice(
-            status="unavailable",
-            failure_reason="lane0_no_reference_required",
-        )
+        lever_slice = _lane0_prompt_slice()
         base_frame = dg._with_generation_cycle_revision_context(
             problem.to_scientist_problem_frame(),
             design_problem=problem,

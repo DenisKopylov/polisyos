@@ -85,7 +85,7 @@ _PROMPT_SLICE_LIMIT_CHARS = 5000
 _FROZEN_DIAGNOSTIC_PROJECTION = {
     "schema_version": "policyos.gy.n4.diagnostic_projection.v1",
     "elapsed_measurements": "journal_only_not_committed",
-    "prompt_size_measurement": "verified_live_then_omitted",
+    "prompt_size_measurement": "slice_delta_verified_live_then_raw_measurement_omitted",
     "prompt_slice_limit_chars": _PROMPT_SLICE_LIMIT_CHARS,
 }
 N4_SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
@@ -819,7 +819,7 @@ def _prompt_size_actual_frame_issue(
     lever_space_prompt_slice: object,
     emitted: object,
 ) -> dict[str, Any] | None:
-    """Independently bind an emitted prompt-size receipt to the actual prompt frames."""
+    """Bind the lever-slice delta while excluding replay-local frame timestamps."""
 
     base_frame = _with_generation_cycle_revision_context(
         design_problem.to_scientist_problem_frame(),
@@ -844,26 +844,26 @@ def _prompt_size_actual_frame_issue(
     without_chars = _frame_chars(base_frame)
     with_chars = _frame_chars(sliced_frame)
     slice_chars = max(0, with_chars - without_chars)
-    expected = {
-        "frame_without_slice_chars": without_chars,
-        "frame_with_slice_chars": with_chars,
-        "slice_added_chars": slice_chars,
-        "frame_without_slice_estimated_tokens": (without_chars + 3) // 4,
-        "frame_with_slice_estimated_tokens": (with_chars + 3) // 4,
-        "slice_added_estimated_tokens": (slice_chars + 3) // 4,
-    }
     if isinstance(emitted, Mapping):
         observed: object = dict(emitted)
     elif hasattr(emitted, "model_dump"):
         observed = emitted.model_dump(mode="json")
     else:
         observed = emitted
-    if _json_exact_equal(observed, expected):
+    consistent, observed_slice = _prompt_size_measurement(observed)
+    if consistent and observed_slice == slice_chars:
         return None
     return {
         "code": "prompt_size_measurement_not_actual_frames",
         "observed": observed,
-        "expected": expected,
+        "expected_slice_added_chars": slice_chars,
+        "expected_slice_added_estimated_tokens": (slice_chars + 3) // 4,
+        "excluded_replay_local_fields": [
+            "frame_without_slice_chars",
+            "frame_with_slice_chars",
+            "frame_without_slice_estimated_tokens",
+            "frame_with_slice_estimated_tokens",
+        ],
     }
 
 

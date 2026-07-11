@@ -84,6 +84,17 @@ def _bundle(interventions: list[InterventionSpec]) -> TrinityBundle:
     )
 
 
+def _valid_prompt_size_estimate() -> dict[str, int]:
+    return {
+        "frame_without_slice_chars": 1000,
+        "frame_with_slice_chars": 1200,
+        "slice_added_chars": 200,
+        "frame_without_slice_estimated_tokens": 250,
+        "frame_with_slice_estimated_tokens": 300,
+        "slice_added_estimated_tokens": 50,
+    }
+
+
 def _alternate_honest_frozen_receipt_payload() -> dict[str, Any]:
     chain = {
         "cg1_certificate_id": "cg1_cert_" + "1" * 16,
@@ -124,10 +135,13 @@ def _alternate_honest_frozen_receipt_payload() -> dict[str, Any]:
     ]
     payload: dict[str, Any] = {
         "schema_version": contract.DESIGN_GENERATION_CONTRACT_SCHEMA_VERSION,
+        "behavioral_mutations": [],
         "recording_fixture_hash": "sha256:" + "4" * 64,
+        "diagnostic_projection": dict(contract._FROZEN_DIAGNOSTIC_PROJECTION),
         "generation_results": [
             {
                 "status": "generated",
+                "effective_runtime_config": {},
                 "diversity_report": {"candidate_count": 3},
                 "grounding_disposition_summary": {
                     "total_candidates": 3,
@@ -213,8 +227,24 @@ def _alternate_honest_frozen_receipt_payload() -> dict[str, Any]:
         "problem_variation_probe": {},
         "synthetic_cg3_handoff_probe": {},
     }
+    live_for_gate = copy.deepcopy(payload["generation_results"])
+    live_for_gate[0]["effective_runtime_config"][
+        "prompt_size_estimate"
+    ] = _valid_prompt_size_estimate()
+    payload["prompt_size_gate"] = contract._prompt_size_gate(live_for_gate)
     payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
     return payload
+
+
+def _live_payload_for_frozen(payload: dict[str, Any]) -> dict[str, Any]:
+    live = copy.deepcopy(payload)
+    live.pop("frozen_payoff_receipt", None)
+    for result in live["generation_results"]:
+        result.setdefault("effective_runtime_config", {})[
+            "prompt_size_estimate"
+        ] = _valid_prompt_size_estimate()
+    live["prompt_size_gate"] = contract._prompt_size_gate(live["generation_results"])
+    return live
 
 
 def _intervention(intervention_id: str) -> InterventionSpec:
@@ -1245,12 +1275,17 @@ def test_generation_result_rejects_independent_producer_denominator_drift() -> N
 
 def test_n4_producer_denominator_mutation_is_causal_on_green_base() -> None:
     payload = json.loads((REPO_ROOT / contract.OUTPUT_PATH).read_text(encoding="utf-8"))
-    payload.pop("generation_result")
+    payload.pop("generation_result", None)
     payload["source_flip_mutation_harness"] = {
         "mode": "--source-flip-mutations",
         "mutation_ids": list(contract.N4_SOURCE_FLIP_MUTATION_IDS),
         "property": "patch_source_then_causal_red_then_restore_exact_bytes",
     }
+    if "prompt_size_gate" not in payload:
+        payload["diagnostic_projection"] = contract._FROZEN_DIAGNOSTIC_PROJECTION
+        payload["prompt_size_gate"] = contract._prompt_size_gate(
+            payload["generation_results"]
+        )
     assert contract.validate_payload(payload)["status"] == "pass"
 
     contract._mutate_producer_candidate_denominator(payload)
@@ -1273,9 +1308,15 @@ def test_n4_write_adds_receipt_and_excludes_wall_time_from_bytes(
     payload["generation_results"][0]["llm_calls"] = [{"wall_seconds": 1.25}]
     payload["generation_results"][0]["effective_runtime_config"] = {
         "cg1_index_prewarm_wall_seconds": 2.5,
+        "prompt_size_estimate": _valid_prompt_size_estimate(),
     }
     payload["generation_results"][0]["candidates"][0]["provenance"] = {
-        "parsed_candidate": {"params": {"wall_seconds": 17.0}}
+        "parsed_candidate": {
+            "params": {
+                "wall_seconds": 17.0,
+                "prompt_size_estimate": "semantic-domain-parameter",
+            }
+        }
     }
     payload["wall_time_seconds"] = 3.75
     monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: copy.deepcopy(payload))
@@ -1291,17 +1332,25 @@ def test_n4_write_adds_receipt_and_excludes_wall_time_from_bytes(
     assert "cg1_index_prewarm_wall_seconds" not in (
         written["generation_results"][0]["effective_runtime_config"]
     )
+    assert "prompt_size_estimate" not in (
+        written["generation_results"][0]["effective_runtime_config"]
+    )
     assert "wall_time_seconds" not in written
     assert (
         written["generation_results"][0]["candidates"][0]["provenance"]
         ["parsed_candidate"]["params"]["wall_seconds"]
         == 17.0
     )
+    assert (
+        written["generation_results"][0]["candidates"][0]["provenance"]
+        ["parsed_candidate"]["params"]["prompt_size_estimate"]
+        == "semantic-domain-parameter"
+    )
 
     payload["generation_results"][0]["llm_calls"][0]["wall_seconds"] = 99.75
-    payload["generation_results"][0]["effective_runtime_config"] = {
-        "cg1_index_prewarm_wall_seconds": 88.5,
-    }
+    payload["generation_results"][0]["effective_runtime_config"][
+        "cg1_index_prewarm_wall_seconds"
+    ] = 88.5
     payload["wall_time_seconds"] = 77.25
     contract.write(tmp_path)
 
@@ -1318,6 +1367,263 @@ def test_n4_write_adds_receipt_and_excludes_wall_time_from_bytes(
     assert semantic_change["frozen_payoff_receipt"]["content_hash"] != first_receipt_hash
 
 
+def test_n4_prompt_size_gate_accepts_live_and_frozen_diagnostic_shapes() -> None:
+    results = [
+        {
+            "effective_runtime_config": {
+                "prompt_size_estimate": {
+                    "frame_without_slice_chars": 1000,
+                    "frame_with_slice_chars": 1200,
+                    "slice_added_chars": 200,
+                    "frame_without_slice_estimated_tokens": 250,
+                    "frame_with_slice_estimated_tokens": 300,
+                    "slice_added_estimated_tokens": 50,
+                }
+            }
+        }
+    ]
+    live = {
+        "diagnostic_projection": contract._FROZEN_DIAGNOSTIC_PROJECTION,
+        "generation_results": results,
+        "prompt_size_gate": contract._prompt_size_gate(results),
+    }
+
+    assert contract._prompt_size_projection_issues(live, results) == []
+    frozen = contract._artifact_stable_payload(live)
+    assert contract._prompt_size_projection_issues(
+        frozen,
+        frozen["generation_results"],
+    ) == []
+
+
+def test_n4_prompt_size_gate_rejects_live_oversize_slice() -> None:
+    results = [
+        {
+            "effective_runtime_config": {
+                "prompt_size_estimate": {
+                    "frame_without_slice_chars": 1000,
+                    "frame_with_slice_chars": 6200,
+                    "slice_added_chars": 5200,
+                    "frame_without_slice_estimated_tokens": 250,
+                    "frame_with_slice_estimated_tokens": 1550,
+                    "slice_added_estimated_tokens": 1300,
+                }
+            }
+        }
+    ]
+    payload = {
+        "diagnostic_projection": contract._FROZEN_DIAGNOSTIC_PROJECTION,
+        "generation_results": results,
+        "prompt_size_gate": contract._prompt_size_gate(results),
+    }
+
+    assert "prompt_size_gate_not_pass" in {
+        item["code"] for item in contract._prompt_size_projection_issues(payload, results)
+    }
+
+
+def test_n4_prompt_size_gate_rejects_inconsistent_self_attested_slice() -> None:
+    results = [
+        {
+            "effective_runtime_config": {
+                "prompt_size_estimate": {
+                    "frame_without_slice_chars": 1000,
+                    "frame_with_slice_chars": 6200,
+                    "slice_added_chars": 200,
+                    "frame_without_slice_estimated_tokens": 250,
+                    "frame_with_slice_estimated_tokens": 1550,
+                    "slice_added_estimated_tokens": 50,
+                }
+            }
+        }
+    ]
+    payload = {
+        "diagnostic_projection": contract._FROZEN_DIAGNOSTIC_PROJECTION,
+        "generation_results": results,
+        "prompt_size_gate": contract._prompt_size_gate(results),
+    }
+
+    assert "prompt_size_measurement_inconsistent" in {
+        item["code"] for item in contract._prompt_size_projection_issues(payload, results)
+    }
+
+
+@pytest.mark.parametrize(
+    ("target", "replacement"),
+    [
+        ("gate_limit", 5000.0),
+        ("gate_boolean", 1),
+        ("projection_limit", 5000.0),
+    ],
+)
+def test_n4_prompt_size_frozen_projection_rejects_python_equality_aliases(
+    target: str,
+    replacement: object,
+) -> None:
+    live = _live_payload_for_frozen(_alternate_honest_frozen_receipt_payload())
+    frozen = contract._artifact_stable_payload(live)
+    if target == "gate_limit":
+        frozen["prompt_size_gate"]["limit_slice_added_chars"] = replacement
+    elif target == "gate_boolean":
+        frozen["prompt_size_gate"]["within_limit_by_index"][0] = replacement
+    else:
+        frozen["diagnostic_projection"]["prompt_slice_limit_chars"] = replacement
+
+    issues = contract._prompt_size_projection_issues(
+        frozen,
+        frozen["generation_results"],
+    )
+
+    assert issues
+
+
+def test_n4_prompt_size_measurement_is_bound_to_actual_frames() -> None:
+    problem = _test_design_problem()
+    lever_slice = dg.LeverSpacePromptSlice(
+        status="unavailable",
+        failure_reason="lane0_no_reference_required",
+    )
+    base_frame = dg._with_generation_cycle_revision_context(
+        problem.to_scientist_problem_frame(),
+        design_problem=problem,
+    )
+    sliced_frame = dg._with_lever_space_prompt_slice(
+        base_frame,
+        lever_space_prompt_slice=lever_slice,
+    )
+    real_measurement = dg._prompt_size_estimate(base_frame, sliced_frame)
+
+    assert contract._prompt_size_actual_frame_issue(
+        design_problem=problem,
+        lever_space_prompt_slice=lever_slice,
+        emitted=real_measurement,
+    ) is None, "prompt_size_measurement_not_actual_frames"
+    issue = contract._prompt_size_actual_frame_issue(
+        design_problem=problem,
+        lever_space_prompt_slice=lever_slice,
+        emitted=dg.PromptSizeEstimate(),
+    )
+    assert issue is not None
+    assert issue["code"] == "prompt_size_measurement_not_actual_frames"
+
+
+def test_n4_build_live_payload_binds_prompt_size_to_actual_frames(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    recording = {
+        "design_problem_id": "gy_n4_prompt_size_emission_probe",
+        "domain": "prompt_size_emission_probe",
+    }
+    monkeypatch.setattr(contract, "_load_recordings", lambda _repo_root: [recording])
+
+    async def _measured_result(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        problem = contract._design_problem(recording)
+        lever_slice = dg.LeverSpacePromptSlice(
+            status="unavailable",
+            failure_reason="lane0_no_reference_required",
+        )
+        base_frame = dg._with_generation_cycle_revision_context(
+            problem.to_scientist_problem_frame(),
+            design_problem=problem,
+        )
+        sliced_frame = dg._with_lever_space_prompt_slice(
+            base_frame,
+            lever_space_prompt_slice=lever_slice,
+        )
+        return SimpleNamespace(
+            lever_space_prompt_slice=lever_slice,
+            effective_runtime_config=SimpleNamespace(
+                prompt_size_estimate=dg._prompt_size_estimate(base_frame, sliced_frame),
+            ),
+        )
+
+    monkeypatch.setattr(contract, "_run_live_generation", _measured_result)
+
+    def _emission_path_reached(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        raise RuntimeError("prompt_size_emission_path_reached")
+
+    monkeypatch.setattr(
+        contract,
+        "_synthetic_cg3_handoff_probe",
+        _emission_path_reached,
+    )
+
+    with pytest.raises(RuntimeError, match="prompt_size_emission_path_reached"):
+        contract.build_live_payload(tmp_path)
+
+
+def test_n4_prompt_size_gate_mutation_is_causal() -> None:
+    payload = json.loads((REPO_ROOT / contract.OUTPUT_PATH).read_text(encoding="utf-8"))
+    payload.pop("generation_result", None)
+    payload["source_flip_mutation_harness"] = {
+        "mode": "--source-flip-mutations",
+        "mutation_ids": list(contract.N4_SOURCE_FLIP_MUTATION_IDS),
+        "property": "patch_source_then_causal_red_then_restore_exact_bytes",
+    }
+    if "prompt_size_gate" not in payload:
+        payload["diagnostic_projection"] = contract._FROZEN_DIAGNOSTIC_PROJECTION
+        payload["prompt_size_gate"] = contract._prompt_size_gate(
+            payload["generation_results"]
+        )
+    assert contract.validate_payload(payload)["status"] == "pass"
+
+    contract._mutate_prompt_size_gate(payload)
+    mutated = contract.validate_payload(payload)
+
+    assert mutated["status"] == "fail"
+    assert "prompt_size_gate_drift" in {
+        item["code"] for item in mutated["issues"]
+    } or "prompt_size_gate_frozen_drift" in {
+        item["code"] for item in mutated["issues"]
+    }
+
+
+def test_n4_frozen_builder_refuses_forged_pass_over_oversize_live_measurement() -> None:
+    results = [
+        {
+            "effective_runtime_config": {
+                "prompt_size_estimate": {
+                    "frame_without_slice_chars": 1000,
+                    "frame_with_slice_chars": 6200,
+                    "slice_added_chars": 5200,
+                    "frame_without_slice_estimated_tokens": 250,
+                    "frame_with_slice_estimated_tokens": 1550,
+                    "slice_added_estimated_tokens": 1300,
+                }
+            }
+        }
+    ]
+    forged_gate = contract._prompt_size_gate(results)
+    forged_gate["within_limit_by_index"] = [True]
+    forged_gate["status"] = "pass"
+    live = {
+        "diagnostic_projection": contract._FROZEN_DIAGNOSTIC_PROJECTION,
+        "generation_results": results,
+        "prompt_size_gate": forged_gate,
+    }
+
+    with pytest.raises(RuntimeError, match="gy_n4_prompt_size_projection_invalid"):
+        contract._build_frozen_artifact_payload(live)
+
+
+def test_n4_frozen_builder_refuses_already_frozen_input_without_measurement() -> None:
+    frozen = _alternate_honest_frozen_receipt_payload()
+
+    with pytest.raises(RuntimeError, match="gy_n4_prompt_size_live_measurement_missing"):
+        contract._build_frozen_artifact_payload(frozen)
+
+
+def test_n4_frozen_builder_rejects_malformed_result_sibling() -> None:
+    live = _live_payload_for_frozen(_alternate_honest_frozen_receipt_payload())
+    live["generation_results"].append("malformed-sibling")
+
+    with pytest.raises(RuntimeError, match="gy_n4_generation_result_denominator_invalid"):
+        contract._build_frozen_artifact_payload(live)
+
+
 def test_n4_rederive_rejects_live_semantic_receipt_drift(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1326,7 +1632,7 @@ def test_n4_rederive_rejects_live_semantic_receipt_drift(
     output_path = tmp_path / contract.OUTPUT_PATH
     output_path.parent.mkdir(parents=True)
     output_path.write_text(json.dumps(committed), encoding="utf-8")
-    live = copy.deepcopy(committed)
+    live = _live_payload_for_frozen(committed)
     live["generation_results"][0]["grounding_dispositions"][0][
         "selected_relation"
     ] = "certified-specialization"
@@ -1345,6 +1651,57 @@ def test_n4_rederive_rejects_live_semantic_receipt_drift(
     }
 
 
+def test_n4_rederive_rejects_live_artifact_drift_outside_receipt_projection(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    committed = _alternate_honest_frozen_receipt_payload()
+    output_path = tmp_path / contract.OUTPUT_PATH
+    output_path.parent.mkdir(parents=True)
+    output_path.write_text(json.dumps(committed), encoding="utf-8")
+    live = _live_payload_for_frozen(committed)
+    live["producer"] = "tampered_producer_outside_receipt_projection"
+    live["behavioral_mutations"] = []
+    monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload: {"status": "pass", "issues": [], "outputs": []},
+    )
+
+    report = contract.validate_rederive_audit(tmp_path)
+
+    assert "frozen_artifact_live_drift" in {
+        item["code"] for item in report["issues"]
+    }
+
+
+def test_n4_rederive_rejects_python_equality_alias_outside_receipt_projection(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    committed = _alternate_honest_frozen_receipt_payload()
+    committed["exact_json_type_probe"] = True
+    output_path = tmp_path / contract.OUTPUT_PATH
+    output_path.parent.mkdir(parents=True)
+    output_path.write_text(json.dumps(committed), encoding="utf-8")
+    live = _live_payload_for_frozen(_alternate_honest_frozen_receipt_payload())
+    live["exact_json_type_probe"] = 1
+    live["behavioral_mutations"] = []
+    monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload: {"status": "pass", "issues": [], "outputs": []},
+    )
+
+    report = contract.validate_rederive_audit(tmp_path)
+
+    assert "frozen_artifact_live_drift" in {
+        item["code"] for item in report["issues"]
+    }
+
+
 def test_n4_rederive_accepts_matching_semantic_receipt(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1353,7 +1710,7 @@ def test_n4_rederive_accepts_matching_semantic_receipt(
     output_path = tmp_path / contract.OUTPUT_PATH
     output_path.parent.mkdir(parents=True)
     output_path.write_text(json.dumps(committed), encoding="utf-8")
-    live = copy.deepcopy(committed)
+    live = _live_payload_for_frozen(committed)
     live["behavioral_mutations"] = []
     monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
     monkeypatch.setattr(
@@ -1378,7 +1735,7 @@ def test_n4_rederive_rejects_decorative_committed_receipt_mode(
     output_path = tmp_path / contract.OUTPUT_PATH
     output_path.parent.mkdir(parents=True)
     output_path.write_text(json.dumps(committed), encoding="utf-8")
-    live = _alternate_honest_frozen_receipt_payload()
+    live = _live_payload_for_frozen(_alternate_honest_frozen_receipt_payload())
     live["behavioral_mutations"] = []
     monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
     monkeypatch.setattr(
@@ -1398,9 +1755,10 @@ def test_n4_rederive_does_not_trust_repointed_committed_receipt(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
 ) -> None:
-    live = _alternate_honest_frozen_receipt_payload()
+    frozen = _alternate_honest_frozen_receipt_payload()
+    live = _live_payload_for_frozen(frozen)
     live["behavioral_mutations"] = []
-    committed = copy.deepcopy(live)
+    committed = copy.deepcopy(frozen)
     committed["generation_results"][0]["grounding_dispositions"][0][
         "selected_relation"
     ] = "certified-specialization"
@@ -1460,6 +1818,49 @@ def test_recorded_effective_config_source_flip_runs_behavior_and_restores_bytes(
     assert source_path.read_bytes() == original
 
 
+def test_prompt_size_source_flip_runs_behavior_and_restores_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    runner = getattr(contract, "_run_prompt_size_source_flip", None)
+    assert callable(runner), "prompt-size source-flip runner is missing"
+    source_path = tmp_path / "src/polisyos/runtime/quality/design_generation.py"
+    source_path.parent.mkdir(parents=True)
+    original = (
+        b"def _prompt_size_estimate(base_frame: object, sliced_frame: object) -> PromptSizeEstimate:\n"
+        b"    base_chars = len(_json_for_prompt_size(base_frame))\n"
+        b"    sliced_chars = len(_json_for_prompt_size(sliced_frame))\n"
+        b"    added = max(0, sliced_chars - base_chars)\n"
+        b"    return PromptSizeEstimate(\n"
+        b"        frame_without_slice_chars=base_chars,\n"
+        b"        frame_with_slice_chars=sliced_chars,\n"
+        b"        slice_added_chars=added,\n"
+        b"        frame_without_slice_estimated_tokens=_estimated_tokens(base_chars),\n"
+        b"        frame_with_slice_estimated_tokens=_estimated_tokens(sliced_chars),\n"
+        b"        slice_added_estimated_tokens=_estimated_tokens(added),\n"
+        b"    )\n"
+    )
+    source_path.write_bytes(original)
+
+    def _completed(args: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        del kwargs
+        return subprocess.CompletedProcess(
+            args=args,
+            returncode=1,
+            stdout="AssertionError: prompt_size_measurement_not_actual_frames",
+            stderr="",
+        )
+
+    monkeypatch.setattr(contract.subprocess, "run", _completed)
+
+    result = runner(tmp_path)
+
+    assert result["mutation_id"] == "source_flip_prompt_size_estimate_fixed_default"
+    assert result["result"] == "RED"
+    assert result["proof"]["drift_reason_observed"] is True
+    assert source_path.read_bytes() == original
+
+
 def test_n4_source_flip_denominator_includes_recorded_effective_config(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1486,6 +1887,12 @@ def test_n4_source_flip_denominator_includes_recorded_effective_config(
     )
     monkeypatch.setattr(
         contract,
+        "_run_prompt_size_source_flip",
+        lambda _repo_root: red(contract.PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        contract,
         "_run_policy_verified_source_flip",
         lambda _repo_root: red(contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID),
     )
@@ -1506,6 +1913,7 @@ def test_n4_source_flip_denominator_includes_recorded_effective_config(
         contract.SOURCE_FLIP_MUTATION_ID,
         contract.DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
         recorded_config_id,
+        contract.PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
         contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
         contract.NL_SOURCE_FLIP_MUTATION_ID,
         contract.S2_SOURCE_FLIP_MUTATION_ID,
@@ -1585,6 +1993,11 @@ def test_n4_source_flip_denominator_rejects_missing_parser_mutation(
     )
     monkeypatch.setattr(
         contract,
+        "_run_prompt_size_source_flip",
+        lambda _repo_root: red(contract.PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID),
+    )
+    monkeypatch.setattr(
+        contract,
         "_run_policy_verified_source_flip",
         lambda _repo_root: red(contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID),
     )
@@ -1611,6 +2024,7 @@ def test_n4_source_flip_denominator_rejects_missing_parser_mutation(
                     contract.SOURCE_FLIP_MUTATION_ID,
                     "source_flip_wrong_parser_mutation",
                     contract.RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+                    contract.PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
                     contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
                     contract.NL_SOURCE_FLIP_MUTATION_ID,
                     contract.S2_SOURCE_FLIP_MUTATION_ID,

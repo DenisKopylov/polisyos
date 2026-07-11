@@ -1878,14 +1878,13 @@ def _value_outer_set_contract_importable() -> bool:
         )
         non_certified = ValueOuterSet.model_validate(
             {
-                **value_set.model_dump(mode="json"),
+                **value_set.model_dump(mode="json", exclude={"width"}),
                 "representation_status": "search_only",
-                "width": (),
             }
         )
         zero_trust = ValueOuterSet.model_validate(
             {
-                **value_set.model_dump(mode="json"),
+                **value_set.model_dump(mode="json", exclude={"width"}),
                 "data_trust": {
                     "tier": "synthetic_zero_trust",
                     "trust_cap": 0.0,
@@ -1895,7 +1894,6 @@ def _value_outer_set_contract_importable() -> bool:
                     "promotion_floor": 0.5,
                     "authority_ref": "ledger://l5/trust_tier/synthetic_zero_trust",
                 },
-                "width": (),
             }
         )
         return (

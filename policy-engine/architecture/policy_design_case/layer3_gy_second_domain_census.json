@@ -883,7 +883,7 @@
       }
     }
   },
-  "census_content_hash": "sha256:cbe2f54ad7266c295a3567df7f0aa31ffa4f5d6413b2d12d4e2eaec9a3c1ddbd",
+  "census_content_hash": "sha256:b967e9a49df2d86c2256faafd902aa7b7f7301cccb8b36ac9d933b402cd8a6b8",
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
@@ -953,7 +953,7 @@
     "source_hashes": {
       "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
       "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
-      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:0bf9d00398bbe40668a688b0486618b0a596ddc9726f45de0955239743784047"
+      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:d581811041da30ce8d2ae29c4a30d3a958bbe3400b133f9ba23cebd7e005fc62"
     },
     "transport_covariates": [
       "institutional_quality",
@@ -1759,9 +1759,9 @@
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
     "query_timings_seconds": {
-      "l1_candidate_aggregate": 0.097854,
-      "l2_candidate_aggregate": 0.171006,
-      "l2_candidate_exact_measure_names": 0.033507
+      "l1_candidate_aggregate": 0.059892,
+      "l2_candidate_aggregate": 0.031873,
+      "l2_candidate_exact_measure_names": 0.009855
     }
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"

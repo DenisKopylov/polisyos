@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import hashlib
 import io
 import json
 import re
@@ -37,6 +38,7 @@ EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "audit_value_solve_fed_by_test_hints",
     "wmr_unavailable_not_acquire_gap",
     "value_outer_set_width_supplied_not_derived",
+    "persisted_width_verification_removed",
     "proxy_forecast_narrow_set_rejected",
     "fixture_world_model_hash_rejected",
     "value_world_version_laundered",
@@ -58,6 +60,7 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_transport_real_solver_required",
     "source_flip_treatment_candidate_atom_binding_required",
     "source_flip_value_outer_set_width_supplied_not_derived",
+    "source_flip_persisted_width_verification_removed",
     "source_flip_proxy_forecast_narrow_set_rejected",
     "source_flip_fixture_world_model_hash_rejected",
     "source_flip_value_world_version_laundered",
@@ -83,6 +86,10 @@ FROZEN_MUTATION_PROOFS: dict[str, str] = {
     ),
     "value_outer_set_width_supplied_not_derived": (
         "ValueOuterSet.model_validate rejects non-empty supplied width."
+    ),
+    "persisted_width_verification_removed": (
+        "ValueOuterSet persisted intake rejects a width checksum that differs "
+        "from deterministic lower/upper derivation."
     ),
     "proxy_forecast_narrow_set_rejected": "Proxy identification cannot emit a narrow/point set.",
     "fixture_world_model_hash_rejected": (
@@ -415,9 +422,9 @@ def _frozen_positive_receipt_object() -> ValueGateReceipt:
     payload = dict(_frozen_positive_receipt())
     payload.pop("value_outer_set_width_derived", None)
     if isinstance(payload.get("value_outer_set"), Mapping):
-        payload["value_outer_set"] = {
-            key: value for key, value in payload["value_outer_set"].items() if key != "width"
-        }
+        payload["value_outer_set"] = ValueOuterSet.from_persisted_payload(
+            payload["value_outer_set"]
+        )
     return ValueGateReceipt.model_validate(payload)
 
 
@@ -620,6 +627,7 @@ def _live_mutation_results(repo_root: Path) -> list[dict[str, Any]]:
         "audit_value_solve_fed_by_test_hints": _probe_audit_not_fed_by_hints,
         "wmr_unavailable_not_acquire_gap": _probe_missing_wmr_is_wiring_error,
         "value_outer_set_width_supplied_not_derived": _probe_supplied_width_rejected,
+        "persisted_width_verification_removed": _probe_persisted_width_tamper_rejected,
         "proxy_forecast_narrow_set_rejected": _probe_proxy_narrow_rejected,
         "fixture_world_model_hash_rejected": _probe_fixture_world_hash_rejected,
         "value_world_version_laundered": _probe_world_laundering_rejected,
@@ -692,64 +700,92 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
 
 
 def _run_source_flip_case(repo_root: Path, case: _SourceFlipCase) -> dict[str, Any]:
-    originals: dict[Path, str] = {}
+    originals: dict[Path, bytes] = {}
+    original_hashes: dict[Path, str] = {}
+    result: dict[str, Any]
     try:
         for replacement in case.replacements:
             path = repo_root / replacement.relative_path
             if path not in originals:
-                originals[path] = path.read_text(encoding="utf-8")
+                original = path.read_bytes()
+                originals[path] = original
+                original_hashes[path] = hashlib.sha256(original).hexdigest()
             text = path.read_text(encoding="utf-8")
             if replacement.old not in text:
-                return {
+                result = {
                     "mutation_id": case.mutation_id,
                     "result": "HARNESS_ERROR",
                     "guard": case.guard,
                     "proof": f"source guard not found in {replacement.relative_path}",
                 }
+                break
             path.write_text(
                 text.replace(replacement.old, replacement.new, 1),
                 encoding="utf-8",
             )
-        completed = subprocess.run(
-            case.probe_command,
-            cwd=repo_root,
-            text=True,
-            capture_output=True,
-            timeout=240,
-            check=False,
-        )
-        if completed.returncode != 0:
-            return {
-                "mutation_id": case.mutation_id,
-                "result": "RED",
-                "guard": case.guard,
-                "proof": {
-                    "command": list(case.probe_command),
-                    "exit_code": completed.returncode,
-                    "stdout_tail": _output_tail(completed.stdout),
-                    "stderr_tail": _output_tail(completed.stderr),
-                },
-            }
-        return {
-            "mutation_id": case.mutation_id,
-            "result": "GREEN_MUTATION_SURVIVED",
-            "guard": case.guard,
-            "proof": {
-                "command": list(case.probe_command),
-                "stdout_tail": _output_tail(completed.stdout),
-                "stderr_tail": _output_tail(completed.stderr),
-            },
-        }
+        else:
+            completed = subprocess.run(
+                case.probe_command,
+                cwd=repo_root,
+                text=True,
+                capture_output=True,
+                timeout=240,
+                check=False,
+            )
+            if completed.returncode != 0:
+                result = {
+                    "mutation_id": case.mutation_id,
+                    "result": "RED",
+                    "guard": case.guard,
+                    "proof": {
+                        "command": list(case.probe_command),
+                        "exit_code": completed.returncode,
+                        "stdout_tail": _output_tail(completed.stdout),
+                        "stderr_tail": _output_tail(completed.stderr),
+                    },
+                }
+            else:
+                result = {
+                    "mutation_id": case.mutation_id,
+                    "result": "GREEN_MUTATION_SURVIVED",
+                    "guard": case.guard,
+                    "proof": {
+                        "command": list(case.probe_command),
+                        "stdout_tail": _output_tail(completed.stdout),
+                        "stderr_tail": _output_tail(completed.stderr),
+                    },
+                }
     except Exception as exc:  # pragma: no cover - reported as harness data.
-        return {
+        result = {
             "mutation_id": case.mutation_id,
             "result": "HARNESS_ERROR",
             "guard": case.guard,
             "proof": str(exc),
         }
     finally:
-        for path, text in originals.items():
-            path.write_text(text, encoding="utf-8")
+        for path, original in originals.items():
+            path.write_bytes(original)
+
+    restoration_errors = []
+    restored_hashes = {}
+    for path, original in originals.items():
+        restored = path.read_bytes()
+        restored_hash = hashlib.sha256(restored).hexdigest()
+        restored_hashes[str(path.relative_to(repo_root))] = restored_hash
+        if restored != original or restored_hash != original_hashes[path]:
+            restoration_errors.append(str(path.relative_to(repo_root)))
+    if restoration_errors:
+        return {
+            "mutation_id": case.mutation_id,
+            "result": "HARNESS_ERROR",
+            "guard": case.guard,
+            "proof": {
+                "restoration_mismatch": restoration_errors,
+                "source_restored_sha256": restored_hashes,
+            },
+        }
+    result["source_restored_sha256"] = restored_hashes
+    return result
 
 
 def _output_tail(output: str, *, max_lines: int = 20) -> str:
@@ -964,12 +1000,31 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             replacements=(
                 _SourceFlipReplacement(
                     value_outer_set,
-                    "        if supplied_width:\n",
-                    "        if False and supplied_width:\n",
+                    '        raise ValueError("value_outer_set_width_supplied_not_derived")\n',
+                    (
+                        "        payload = dict(data)\n"
+                        '        payload.pop("width", None)\n'
+                        "        return payload\n"
+                    ),
                 ),
             ),
             probe_command=_pytest_probe(
                 f"{test_value_gate}::test_hand_set_value_outer_set_width_is_rejected"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_persisted_width_verification_removed",
+            guard="persisted ValueOuterSet width checksum is verified before re-derivation",
+            replacements=(
+                _SourceFlipReplacement(
+                    value_outer_set,
+                    "        if persisted_width != expected_width:\n",
+                    "        if False and persisted_width != expected_width:\n",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                "tests/unit/core/contracts/test_value_outer_set.py::"
+                "test_value_outer_set_persisted_payload_rejects_tampered_width"
             ),
         ),
         _SourceFlipCase(
@@ -1243,6 +1298,18 @@ def _probe_supplied_width_rejected() -> str:
     raise AssertionError("supplied width accepted")
 
 
+def _probe_persisted_width_tamper_rejected() -> str:
+    value_set = _value_set("partial", lower=(1.0,), upper=(2.0,))
+    payload = value_set.model_dump(mode="json")
+    payload["width"] = [0.5]
+    try:
+        ValueOuterSet.from_persisted_payload(payload)
+    except ValueError as exc:
+        if "value_outer_set_width_tampered" in str(exc):
+            return "Persisted ValueOuterSet rejects a tampered derived-width checksum."
+    raise AssertionError("tampered persisted width accepted")
+
+
 def _probe_proxy_narrow_rejected() -> str:
     try:
         _value_set("proxy", lower=(1.0,), upper=(1.0,), forecast_tier="transported_limited")
@@ -1467,7 +1534,9 @@ def _receipt_object(identification_status: str) -> ValueGateReceipt:
         transport_status="identified",
     )
     payload.pop("value_outer_set_width_derived", None)
-    payload["value_outer_set"].pop("width", None)
+    payload["value_outer_set"] = ValueOuterSet.from_persisted_payload(
+        payload["value_outer_set"]
+    )
     return ValueGateReceipt.model_validate(payload)
 
 
@@ -1764,9 +1833,9 @@ def _validate_frozen_receipt_payload(receipt_payload: Mapping[str, Any]) -> list
     candidate = dict(receipt_payload)
     candidate.pop("value_outer_set_width_derived", None)
     if isinstance(candidate.get("value_outer_set"), Mapping):
-        candidate["value_outer_set"] = {
-            key: value for key, value in candidate["value_outer_set"].items() if key != "width"
-        }
+        candidate["value_outer_set"] = ValueOuterSet.from_persisted_payload(
+            candidate["value_outer_set"]
+        )
     try:
         receipt = ValueGateReceipt.model_validate(candidate)
     except (ValidationError, ValueError) as exc:

@@ -6,7 +6,7 @@
     "wall_time_reported_outside_byte_stable_artifact": true,
     "wmr_cache_rule": "build_once_per_world_model_record_content_hash"
   },
-  "contract_content_hash": "sha256:65441c2c84eed6455ae20411ad29a5ea836b847bb2c2c74181059d45f6358141",
+  "contract_content_hash": "sha256:bee8df3815a1bbaf2aeaf2e75df3f50c999962ae6084c97fd34574867f1b7bb8",
   "decisive_mutations": [
     {
       "mutation_id": "value_input_read_from_runtime_hint",
@@ -31,6 +31,11 @@
     {
       "mutation_id": "value_outer_set_width_supplied_not_derived",
       "proof": "ValueOuterSet.model_validate rejects non-empty supplied width.",
+      "result": "RED"
+    },
+    {
+      "mutation_id": "persisted_width_verification_removed",
+      "proof": "ValueOuterSet persisted intake rejects a width checksum that differs from deterministic lower/upper derivation.",
       "result": "RED"
     },
     {
@@ -689,6 +694,7 @@
       "source_flip_transport_real_solver_required",
       "source_flip_treatment_candidate_atom_binding_required",
       "source_flip_value_outer_set_width_supplied_not_derived",
+      "source_flip_persisted_width_verification_removed",
       "source_flip_proxy_forecast_narrow_set_rejected",
       "source_flip_fixture_world_model_hash_rejected",
       "source_flip_value_world_version_laundered",

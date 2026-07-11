@@ -170,7 +170,7 @@ def _project_household_value_outer_set(
     payload = value_set.model_dump(mode="json")
     payload["lower"] = tuple(lower)
     payload["upper"] = tuple(upper)
-    payload["width"] = ()
+    payload.pop("width", None)
     return ValueOuterSet.model_validate(payload)
 
 

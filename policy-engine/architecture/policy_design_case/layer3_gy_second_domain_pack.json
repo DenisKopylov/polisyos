@@ -5,7 +5,7 @@
     "surface": "pack_manifest_and_gap_report",
     "surface_out_of_scope": false
   },
-  "census_content_hash": "sha256:cbe2f54ad7266c295a3567df7f0aa31ffa4f5d6413b2d12d4e2eaec9a3c1ddbd",
+  "census_content_hash": "sha256:b967e9a49df2d86c2256faafd902aa7b7f7301cccb8b36ac9d933b402cd8a6b8",
   "components": {
     "grounding_reference_coverage": {
       "coverage": {
@@ -334,7 +334,7 @@
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
-  "cycle_trace_content_hash": "sha256:1430176e0be86df6de2434cbffa0df80562b2ff230a2cf75ee9b66ab31db6eef",
+  "cycle_trace_content_hash": "sha256:2c5ed6df7c9a4d497bf3662e7727e01ec9f884c1e0ef358cebed8e6a96a58c07",
   "distinctness": {
     "computed_status": "must_pass_validator",
     "first_vertical_comparator": {
@@ -350,7 +350,7 @@
       "source_hashes": {
         "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
         "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
-        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:0bf9d00398bbe40668a688b0486618b0a596ddc9726f45de0955239743784047"
+        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:d581811041da30ce8d2ae29c4a30d3a958bbe3400b133f9ba23cebd7e005fc62"
       },
       "transport_covariates": [
         "institutional_quality",
@@ -359,8 +359,8 @@
     },
     "selected_method_family": "non_panel_short_series"
   },
-  "gap_report_content_hash": "sha256:8f242a3296e3d3ad6f8f704902f53a0811649eaa03e186b113b8da22099bb251",
-  "manifest_content_hash": "sha256:f60f2117ac65921af5dea416073fcd9af5297fb7c3406a06760ff26e5c5ef7d5",
+  "gap_report_content_hash": "sha256:c2448312b3ac9e8ed38de590cdc1ebe423bbcab7f91c568bfa78631962893689",
+  "manifest_content_hash": "sha256:6ac6af34383f8d0d2fb63a355e7a48c564afb18e80bcdbaa6a7cc57c7a0a1e32",
   "n7_acquisition": {
     "attempt_source_l2_row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
     "attempt_status": "completed_no_results",
@@ -1451,9 +1451,9 @@
   "runtime_metrics": {
     "n7_acquisition": {
       "owner_capture_times": [
-        "2026-07-11T03:02:06.315369Z"
+        "2026-07-11T08:41:33.183578Z"
       ],
-      "planner_report_generated_at": "2026-07-11T03:02:06.315369Z",
+      "planner_report_generated_at": "2026-07-11T08:41:33.183578Z",
       "receipt": {
         "acquisition_family_scores": [
           {
@@ -1640,7 +1640,7 @@
           "surviving_callers": [],
           "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
         },
-        "generated_at": "2026-07-11T03:02:06.315369Z",
+        "generated_at": "2026-07-11T08:41:33.183578Z",
         "grounding_rederivations": [],
         "grown_world_added_slots": [],
         "grown_world_after_ref": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
@@ -1669,7 +1669,7 @@
             ],
             "capture_provenance": {
               "capture_mode": "local_substrate_owner",
-              "captured_at": "2026-07-11T03:02:06.315369Z",
+              "captured_at": "2026-07-11T08:41:33.183578Z",
               "journal_first": true,
               "network_call": false,
               "owner_component": "fabric.retrieval",
@@ -1987,7 +1987,7 @@
             ]
           },
           "capability_reality_status": "implemented",
-          "generated_at": "2026-07-11T03:02:06.315369Z",
+          "generated_at": "2026-07-11T08:41:33.183578Z",
           "pattern_refs": [
             "P01",
             "P09",
@@ -2033,12 +2033,12 @@
           }
         ]
       },
-      "receipt_generated_at": "2026-07-11T03:02:06.315369Z"
+      "receipt_generated_at": "2026-07-11T08:41:33.183578Z"
     }
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
   "selected_domain": "education",
-  "smoke_problem_content_hash": "sha256:c2e3857b91f8e69dcc867f1e01f84533669a2fc2373feae6bd5063f0f83b34e5",
+  "smoke_problem_content_hash": "sha256:81a983b1827b58d0d5e3f6654499fffad5d861f63654153738bfc580c6ab117f",
   "zero_engine_code": {
     "changed_engine_paths": [],
     "changed_paths": [

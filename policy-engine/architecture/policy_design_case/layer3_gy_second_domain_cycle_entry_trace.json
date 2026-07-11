@@ -64,7 +64,7 @@
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
         },
         "cycle_index": 0,
-        "design_problem_ref": "sha256:6154e3b4110ae60ee5243f5f6082d8bae778deb445a527b2e69f434ac19350a7",
+        "design_problem_ref": "sha256:9dada4bcfb2b2c392c56c0f754fa44b31ac518d2571cf4d351d9499dffcc2d29",
         "driven_by_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
         "grammar_elements": [
           "seed"
@@ -195,7 +195,7 @@
             "nl_provenance": {
               "raw_request": "Improve education outcomes through evidence-backed interventions.",
               "source_context": {
-                "census_content_hash": "sha256:cbe2f54ad7266c295a3567df7f0aa31ffa4f5d6413b2d12d4e2eaec9a3c1ddbd"
+                "census_content_hash": "sha256:b967e9a49df2d86c2256faafd902aa7b7f7301cccb8b36ac9d933b402cd8a6b8"
               },
               "source_surface": "gy_n10a_second_domain_pack"
             },
@@ -324,7 +324,7 @@
         }
       }
     ],
-    "design_problem_ref": "sha256:6154e3b4110ae60ee5243f5f6082d8bae778deb445a527b2e69f434ac19350a7",
+    "design_problem_ref": "sha256:9dada4bcfb2b2c392c56c0f754fa44b31ac518d2571cf4d351d9499dffcc2d29",
     "engine_owner_ref": "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine",
     "fronts": {
       "decision": {
@@ -598,7 +598,7 @@
         "verified_by": "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
       }
     },
-    "run_id": "generation_cycle_6154e3b4110ae60e",
+    "run_id": "generation_cycle_9dada4bcfb2b2c39",
     "schema_version": "policyos.runtime.generation_cycle_controller.v1",
     "strangle_receipt": {
       "allowed_fixture_callers": [
@@ -657,16 +657,16 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
-    "aggregate_value_port_wall_time_ms": 44.15008299974943,
+    "aggregate_value_port_wall_time_ms": 24.64420899923425,
     "cycle_value_port_wall_time_ms": [
       {
         "cycle_index": 0,
-        "value_port_wall_time_ms": 44.15008299974943
+        "value_port_wall_time_ms": 24.64420899923425
       }
     ]
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
-  "smoke_problem_content_hash": "sha256:c2e3857b91f8e69dcc867f1e01f84533669a2fc2373feae6bd5063f0f83b34e5",
+  "smoke_problem_content_hash": "sha256:81a983b1827b58d0d5e3f6654499fffad5d861f63654153738bfc580c6ab117f",
   "smoke_status": "typed_terminal_with_known_n6_validation_gap",
-  "trace_content_hash": "sha256:1430176e0be86df6de2434cbffa0df80562b2ff230a2cf75ee9b66ab31db6eef"
+  "trace_content_hash": "sha256:2c5ed6df7c9a4d497bf3662e7727e01ec9f884c1e0ef358cebed8e6a96a58c07"
 }

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
+from collections.abc import Mapping
 from typing import Any, ClassVar, Literal
 
 from pydantic import (
@@ -55,6 +57,31 @@ def _float_tuple_close(
     return all(
         abs(float(left) - float(right)) <= atol
         for left, right in zip(actual, expected, strict=True)
+    )
+
+
+def _coerce_interval_values(value: Any) -> tuple[float, ...]:
+    if value is None:
+        items: tuple[Any, ...] = ()
+    elif isinstance(value, tuple):
+        items = value
+    elif isinstance(value, list):
+        items = tuple(value)
+    else:
+        items = (value,)
+    values = tuple(float(item) for item in items)
+    if any(not math.isfinite(item) for item in values):
+        raise ValueError("value_outer_set_bounds_non_finite")
+    return values
+
+
+def _derive_interval_widths(
+    lower: tuple[float, ...],
+    upper: tuple[float, ...],
+) -> tuple[float, ...]:
+    return tuple(
+        max(0.0, round(hi - lo, 12))
+        for lo, hi in zip(lower, upper, strict=True)
     )
 
 
@@ -170,7 +197,7 @@ class ValueOuterSet(BaseModel):
         else:
             items = (value,)
         if info.field_name in {"lower", "upper"}:
-            return tuple(float(item) for item in items)
+            return _coerce_interval_values(items)
         return tuple(str(item) for item in items)
 
     @field_validator("assumptions")
@@ -181,14 +208,58 @@ class ValueOuterSet(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _accept_only_derived_width(cls, data: Any) -> Any:
-        if not isinstance(data, dict) or "width" not in data:
+        if not isinstance(data, Mapping) or "width" not in data:
             return data
-        payload = dict(data)
-        supplied_width = tuple(float(value) for value in payload.get("width") or ())
-        if supplied_width:
-            raise ValueError("value_outer_set_width_supplied_not_derived")
-        payload.pop("width", None)
-        return payload
+        raise ValueError("value_outer_set_width_supplied_not_derived")
+
+    @classmethod
+    def from_persisted_payload(
+        cls,
+        payload: Mapping[str, Any] | str | bytes | bytearray,
+    ) -> ValueOuterSet:
+        """Verify and load a persisted value set through the canonical boundary.
+
+        Persisted serializers include the derived ``width`` as an integrity
+        checksum. This boundary verifies that checksum exactly, discards it,
+        and returns the model constructed through the ordinary derivation path.
+        Live callers remain unable to supply ``width`` to normal validation.
+        """
+
+        decoded: Any = payload
+        if isinstance(decoded, (bytes, bytearray)):
+            decoded = bytes(decoded).decode("utf-8")
+        if isinstance(decoded, str):
+            decoded = json.loads(decoded)
+        if not isinstance(decoded, Mapping):
+            raise ValueError("value_outer_set_persisted_payload_not_mapping")
+        if "width" not in decoded:
+            raise ValueError("value_outer_set_persisted_width_missing")
+
+        persisted_width_raw = decoded["width"]
+        if not isinstance(persisted_width_raw, (list, tuple)):
+            raise ValueError("value_outer_set_width_tampered")
+        persisted_width_items = tuple(persisted_width_raw)
+        try:
+            if any(isinstance(value, bool) for value in persisted_width_items):
+                raise ValueError
+            persisted_width = tuple(float(value) for value in persisted_width_items)
+            if any(not math.isfinite(value) for value in persisted_width):
+                raise ValueError
+        except (TypeError, ValueError) as exc:
+            raise ValueError("value_outer_set_width_tampered") from exc
+
+        try:
+            persisted_lower = _coerce_interval_values(decoded.get("lower"))
+            persisted_upper = _coerce_interval_values(decoded.get("upper"))
+            expected_width = _derive_interval_widths(persisted_lower, persisted_upper)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("value_outer_set_persisted_bounds_invalid") from exc
+        if persisted_width != expected_width:
+            raise ValueError("value_outer_set_width_tampered")
+
+        model_payload = dict(decoded)
+        model_payload.pop("width")
+        return cls.model_validate(model_payload)
 
     @classmethod
     def identification_status_for_l5_mode(
@@ -266,10 +337,7 @@ class ValueOuterSet(BaseModel):
     def width(self) -> tuple[float, ...]:
         """Return derived interval widths per coordinate."""
 
-        return tuple(
-            max(0.0, round(hi - lo, 12))
-            for lo, hi in zip(self.lower, self.upper, strict=True)
-        )
+        return _derive_interval_widths(self.lower, self.upper)
 
     def promotion_decision(self) -> ValuePromotionDecision:
         """Return the single content-bound promotion decision for this value set.
@@ -400,7 +468,7 @@ class ValueOuterSet(BaseModel):
         """Rebuild a static JAX pytree node."""
 
         _ = children
-        return cls.model_validate_json(aux_data[0])
+        return cls.from_persisted_payload(aux_data[0])
 
 
 try:  # pragma: no cover - optional when JAX is unavailable in doc tooling.

@@ -19,6 +19,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import ArtifactIntegrityError, FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import StateSnapshot
+from polisyos.core.contracts.value_outer_set import ValueOuterSet
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute._internal.models import load_model
 
@@ -301,6 +302,8 @@ def _decode_model_leaf(
         scalar = scalar.decode("utf-8")
     if not isinstance(scalar, str):
         raise ValueError(f"Snapshot model leaf must be a JSON string, got {type(scalar).__name__}")
+    if model_cls is ValueOuterSet:
+        return ValueOuterSet.from_persisted_payload(scalar)
     return model_cls.model_validate_json(scalar)
 
 

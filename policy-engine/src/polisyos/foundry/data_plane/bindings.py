@@ -861,9 +861,9 @@ def _coerce_value_outer_set(value: Any) -> ValueOuterSet:
     if isinstance(value, ValueOuterSet):
         return value
     if isinstance(value, str):
-        return ValueOuterSet.model_validate_json(value)
+        return ValueOuterSet.from_persisted_payload(value)
     if isinstance(value, Mapping):
-        return ValueOuterSet.model_validate(value)
+        return ValueOuterSet.from_persisted_payload(value)
     raise ValueError(f"Cannot cast '{type(value).__name__}' to ValueOuterSet")
 
 

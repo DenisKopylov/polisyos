@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:8f242a3296e3d3ad6f8f704902f53a0811649eaa03e186b113b8da22099bb251",
+  "gap_report_content_hash": "sha256:c2448312b3ac9e8ed38de590cdc1ebe423bbcab7f91c568bfa78631962893689",
   "gaps": [
     {
       "acquisition_required": {
@@ -307,7 +307,7 @@
     {
       "blocking_seam": "A typed one-cycle terminal reaches N6 but its validator requires a positive two-cycle denominator.",
       "capability_label": "semantic_test_missing",
-      "gap_content_hash": "sha256:a8c5977a99b74f05f030e09a684fbbf4c7f99ad09b9b4a8de73fdb318f46c591",
+      "gap_content_hash": "sha256:a6032a2209ffad3cac129a7ed00bf2fbe9e79e697ccc16e23cc410ef8a289da5",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [
@@ -340,7 +340,7 @@
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "validate_generation_cycle_run"
         },
-        "trace_content_hash": "sha256:1430176e0be86df6de2434cbffa0df80562b2ff230a2cf75ee9b66ab31db6eef"
+        "trace_content_hash": "sha256:2c5ed6df7c9a4d497bf3662e7727e01ec9f884c1e0ef358cebed8e6a96a58c07"
       }
     }
   ],

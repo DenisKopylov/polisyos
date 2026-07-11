@@ -47,6 +47,109 @@ def test_value_outer_set_interval_box_derives_width_and_l5_identification_status
     assert value_set.promotion_decision().promotable is True
 
 
+def test_value_outer_set_persisted_payload_round_trips_derived_width_checksum() -> None:
+    value_set = ValueOuterSet.interval_box(
+        coordinates=("disposable_income", "poverty_rate"),
+        lower=(10.0, 0.1),
+        upper=(25.0, 0.4),
+        identification_mode="proxy_identified",
+        assumptions=("d3_bias_corrected_bounds",),
+        assumption_status="externally_supported",
+        calibration_scope={"measurement": "household_distribution"},
+        data_trust=_trust(),
+        world_model_record_ref="world_model_record_test",
+        epoch="ukraine_schema_v2",
+        representation_status="certified",
+    )
+
+    restored = ValueOuterSet.from_persisted_payload(value_set.model_dump_json())
+
+    assert restored == value_set
+    assert restored.width == (15.0, 0.3)
+    children, aux_data = value_set.tree_flatten()
+    assert ValueOuterSet.tree_unflatten(aux_data, children) == value_set
+
+
+def test_value_outer_set_persisted_payload_rejects_tampered_width() -> None:
+    value_set = ValueOuterSet.interval_box(
+        coordinates=("disposable_income",),
+        lower=(10.0,),
+        upper=(25.0,),
+        identification_mode="proxy_identified",
+        assumptions=("d3_bias_corrected_bounds",),
+        assumption_status="externally_supported",
+        calibration_scope={"measurement": "household_distribution"},
+        data_trust=_trust(),
+        world_model_record_ref="world_model_record_test",
+        epoch="ukraine_schema_v2",
+        representation_status="certified",
+    )
+    payload = value_set.model_dump(mode="json")
+    payload["width"] = [14.0]
+    payload["representation_status"] = "bogus"
+
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueOuterSet.from_persisted_payload(payload)
+
+    payload["representation_status"] = "certified"
+    payload["width"] = 15.0
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueOuterSet.from_persisted_payload(payload)
+
+    payload.pop("width")
+    with pytest.raises(ValueError, match="value_outer_set_persisted_width_missing"):
+        ValueOuterSet.from_persisted_payload(payload)
+
+
+@pytest.mark.parametrize(
+    ("lower", "upper"),
+    [
+        ((float("nan"),), (1.0,)),
+        ((0.0,), (float("inf"),)),
+        ((float("-inf"),), (1.0,)),
+    ],
+)
+def test_value_outer_set_rejects_non_finite_bounds_before_persistence(
+    lower: tuple[float, ...],
+    upper: tuple[float, ...],
+) -> None:
+    with pytest.raises(ValueError, match="value_outer_set_bounds_non_finite"):
+        ValueOuterSet.interval_box(
+            coordinates=("disposable_income",),
+            lower=lower,
+            upper=upper,
+            identification_mode="proxy_identified",
+            assumptions=("d3_bias_corrected_bounds",),
+            assumption_status="externally_supported",
+            calibration_scope={"measurement": "household_distribution"},
+            data_trust=_trust(),
+            world_model_record_ref="world_model_record_test",
+            epoch="ukraine_schema_v2",
+            representation_status="certified",
+        )
+
+
+def test_value_outer_set_live_boundary_rejects_even_empty_supplied_width() -> None:
+    value_set = ValueOuterSet.interval_box(
+        coordinates=("disposable_income",),
+        lower=(10.0,),
+        upper=(25.0,),
+        identification_mode="proxy_identified",
+        assumptions=("d3_bias_corrected_bounds",),
+        assumption_status="externally_supported",
+        calibration_scope={"measurement": "household_distribution"},
+        data_trust=_trust(),
+        world_model_record_ref="world_model_record_test",
+        epoch="ukraine_schema_v2",
+        representation_status="certified",
+    )
+    payload = value_set.model_dump(mode="json")
+    payload["width"] = []
+
+    with pytest.raises(ValueError, match="value_outer_set_width_supplied_not_derived"):
+        ValueOuterSet.model_validate(payload)
+
+
 def test_value_outer_set_point_mode_requires_tight_interval_generically() -> None:
     value_set = ValueOuterSet.interval_box(
         coordinates=("disposable_income",),
@@ -111,7 +214,12 @@ def test_value_outer_set_non_certified_cannot_mint_promotion_value() -> None:
     assert "representation_not_certified" in decision.reasons
 
     with pytest.raises(ValidationError):
-        ValueOuterSet.model_validate({**search_only.model_dump(mode="json"), "representation_status": "maybe"})
+        ValueOuterSet.model_validate(
+            {
+                **search_only.model_dump(mode="json", exclude={"width"}),
+                "representation_status": "maybe",
+            }
+        )
 
 
 def test_value_outer_set_data_trust_gates_promotion_value_generically() -> None:

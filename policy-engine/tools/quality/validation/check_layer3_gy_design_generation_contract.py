@@ -13,7 +13,8 @@ import subprocess
 import sys
 import time
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -31,6 +32,7 @@ from polisyos.runtime.quality.design_generation import (
     DESIGN_GENERATION_SCHEMA_VERSION,
     NOT_CERTIFICATE_KINDS,
     SUPPORTED_GENERATION_MODEL_IDS,
+    EffectiveGenerationRuntimeConfig,
     GenerationUnderAResult,
     GroundingDispositionRecord,
     _content_bound_candidates,
@@ -73,9 +75,13 @@ S2_SOURCE_FLIP_MUTATION_ID = "source_flip_s2_fixed_candidate_body_restored"
 DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID = (
     "source_flip_drafter_naive_json_parser_restored"
 )
+RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID = (
+    "source_flip_recorded_effective_runtime_config_ignored"
+)
 N4_SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     SOURCE_FLIP_MUTATION_ID,
     DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+    RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
     POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
     NL_SOURCE_FLIP_MUTATION_ID,
     S2_SOURCE_FLIP_MUTATION_ID,
@@ -190,6 +196,105 @@ def _recorded_response_label(recorded: dict[str, Any], index: int) -> str:
     return f"{index}:{role if isinstance(role, str) and role else 'unknown'}"
 
 
+def _recorded_effective_runtime_config(
+    recording: Mapping[str, Any],
+) -> EffectiveGenerationRuntimeConfig:
+    capture_summary = recording.get("capture_summary")
+    if not isinstance(capture_summary, Mapping):
+        raise RuntimeError("recorded_effective_runtime_config_missing:capture_summary")
+    payload = capture_summary.get("effective_runtime_config")
+    if not isinstance(payload, Mapping):
+        raise RuntimeError("recorded_effective_runtime_config_missing")
+    try:
+        config = EffectiveGenerationRuntimeConfig.model_validate(payload)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("recorded_effective_runtime_config_invalid") from exc
+    if not config.formalizer_schema_healing_events:
+        raise RuntimeError("recorded_effective_runtime_config_healing_mode_unrecorded")
+    return config
+
+
+def _recorded_runtime_input_projection(
+    config: EffectiveGenerationRuntimeConfig,
+) -> dict[str, float | int | bool]:
+    optional_inputs = {
+        "gateway_timeout_s": config.gateway_timeout_s,
+        "gateway_max_retries": config.gateway_max_retries,
+        "prompt_cache_ttl_s": config.prompt_cache_ttl_s,
+        "prompt_cache_maxsize": config.prompt_cache_maxsize,
+    }
+    missing = sorted(key for key, value in optional_inputs.items() if value is None)
+    if missing:
+        raise RuntimeError(
+            "recorded_effective_runtime_config_input_missing:" + ",".join(missing)
+        )
+    return {
+        "drafter_pass_timeout_s": config.drafter_pass_timeout_s,
+        "drafter_pass_retry_count": config.drafter_pass_retry_count,
+        "formalizer_timeout_s": config.formalizer_timeout_s,
+        "formalizer_retry_count": config.formalizer_retry_count,
+        "critic_timeout_s": config.critic_timeout_s,
+        "terminal_salvage_retry_count": config.terminal_salvage_retry_count,
+        "terminal_salvage_backoff_base_s": config.terminal_salvage_backoff_base_s,
+        "gateway_timeout_s": float(config.gateway_timeout_s),
+        "gateway_max_retries": int(config.gateway_max_retries),
+        "prompt_cache_ttl_s": float(config.prompt_cache_ttl_s),
+        "prompt_cache_maxsize": int(config.prompt_cache_maxsize),
+        "cg1_index_prewarm_enabled": config.cg1_index_prewarm_enabled,
+    }
+
+
+def _recorded_runtime_environment_values(
+    config: EffectiveGenerationRuntimeConfig,
+) -> dict[str, str]:
+    inputs = _recorded_runtime_input_projection(config)
+    return {
+        "POLISYOS_DRAFTER_PASS_TIMEOUT_S": str(inputs["drafter_pass_timeout_s"]),
+        "POLISYOS_DRAFTER_PASS_RETRY_COUNT": str(inputs["drafter_pass_retry_count"]),
+        "POLISYOS_FORMALIZER_LLM_TIMEOUT_S": str(inputs["formalizer_timeout_s"]),
+        "POLISYOS_FORMALIZER_LLM_RETRIES": str(inputs["formalizer_retry_count"]),
+        "POLISYOS_CRITIC_LLM_TIMEOUT_S": str(inputs["critic_timeout_s"]),
+        "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": str(
+            inputs["terminal_salvage_retry_count"]
+        ),
+        "POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S": str(
+            inputs["terminal_salvage_backoff_base_s"]
+        ),
+        "POLISYOS_LLM_GATEWAY_TIMEOUT_S": str(inputs["gateway_timeout_s"]),
+        "POLISYOS_LLM_GATEWAY_MAX_RETRIES": str(inputs["gateway_max_retries"]),
+        "POLISYOS_LLM_CACHE_TTL_S": str(inputs["prompt_cache_ttl_s"]),
+        "POLISYOS_LLM_CACHE_MAXSIZE": str(inputs["prompt_cache_maxsize"]),
+        "POLISYOS_N4_PREWARM_CG1_INDEX": (
+            "1" if inputs["cg1_index_prewarm_enabled"] else "0"
+        ),
+        # Historical v1 receipts did not persist the mode field itself. Their
+        # non-empty healing-event denominator proves audit mode: strict mode
+        # would have refused before emitting the captured result.
+        "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
+    }
+
+
+@contextmanager
+def _recorded_runtime_environment(
+    recording: Mapping[str, Any],
+) -> Iterator[EffectiveGenerationRuntimeConfig]:
+    expected = _recorded_effective_runtime_config(recording)
+    runtime_environment = _recorded_runtime_environment_values(expected)
+    missing = object()
+    previous: dict[str, object] = {
+        key: os.environ.get(key, missing) for key in runtime_environment
+    }
+    try:
+        os.environ.update(runtime_environment)
+        yield expected
+    finally:
+        for key, value in previous.items():
+            if value is missing:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = str(value)
+
+
 async def _run_live_generation(
     repo_root: Path,
     *,
@@ -197,13 +302,32 @@ async def _run_live_generation(
 ) -> GenerationUnderAResult:
     client = RecordedGenerationReplayClient(recording)
     world_model_record_ref = recording.get("world_model_record_ref")
-    result = await generate_design_candidates_under_a(
-        _design_problem(recording),
-        model_id=str(recording["model_id"]),
-        llm_client=client,
-        repo_root=repo_root,
-        world_model_record_ref=str(world_model_record_ref) if world_model_record_ref else None,
-    )
+    with _recorded_runtime_environment(recording) as expected_config:
+        result = await generate_design_candidates_under_a(
+            _design_problem(recording),
+            model_id=str(recording["model_id"]),
+            llm_client=client,
+            repo_root=repo_root,
+            world_model_record_ref=(
+                str(world_model_record_ref) if world_model_record_ref else None
+            ),
+        )
+        emitted_config = getattr(result, "effective_runtime_config", None)
+        try:
+            emitted = EffectiveGenerationRuntimeConfig.model_validate(emitted_config)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError("recorded_effective_runtime_config_emission_missing") from exc
+        expected_inputs = _recorded_runtime_input_projection(expected_config)
+        emitted_inputs = _recorded_runtime_input_projection(emitted)
+        if emitted_inputs != expected_inputs:
+            raise RuntimeError(
+                "recorded_effective_runtime_config_drift:"
+                + json.dumps(
+                    {"expected": expected_inputs, "emitted": emitted_inputs},
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            )
     # Historical fixtures can include retry/repair tail calls that current live
     # assembly no longer reaches. The fixture loader still validates every
     # recorded raw_response_hash; replay only gates the outputs actually served
@@ -2449,6 +2573,98 @@ def _run_drafter_parser_source_flip(repo_root: Path) -> dict[str, Any]:
     }
 
 
+def _run_recorded_config_source_flip(repo_root: Path) -> dict[str, Any]:
+    """Ignore recorded replay config and require the behavioral lane to go RED."""
+
+    relative_path = Path(
+        "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+    )
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = "    runtime_environment = _recorded_runtime_environment_values(expected)\n"
+    new = "    runtime_environment: dict[str, str] = {}\n"
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return {
+            "mutation_id": RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": f"source guard count was {text.count(old)}, expected 1",
+        }
+
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/runtime/quality/test_design_generation.py::"
+                    "test_n4_replay_applies_recorded_effective_config_and_restores_host"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            },
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+
+    output = f"{completed.stdout}\n{completed.stderr}"
+    drift_reason_observed = "recorded_effective_runtime_config_drift" in output
+    mutation_red = completed.returncode != 0 and drift_reason_observed
+    return {
+        "mutation_id": RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "N4 deterministic replay applies each recording's content-bound effective "
+            "runtime config and verifies the owner-emitted input projection"
+        ),
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "drift_reason": "recorded_effective_runtime_config_drift",
+            "drift_reason_observed": drift_reason_observed,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
 def _run_policy_verified_source_flip(repo_root: Path) -> dict[str, Any]:
     source_path = repo_root / "src/polisyos/scientist/validation/policy_verified/service.py"
     original = source_path.read_bytes()
@@ -2712,6 +2928,7 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
     results = (
         *_run_formalizer_source_flip(repo_root),
         _run_drafter_parser_source_flip(repo_root),
+        _run_recorded_config_source_flip(repo_root),
         _run_policy_verified_source_flip(repo_root),
         _run_nl_source_flip(repo_root),
         _run_s2_source_flip(repo_root),

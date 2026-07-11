@@ -3,9 +3,11 @@ from __future__ import annotations
 import ast
 import copy
 import json
+import os
 import subprocess
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -739,6 +741,157 @@ async def test_drafter_uses_mock_fallback_only_when_no_json_object_exists(
     assert draft.draft_id != "draft_semantically_invalid"
 
 
+@pytest.mark.asyncio
+async def test_n4_replay_applies_recorded_effective_config_and_restores_host(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recording = copy.deepcopy(_recordings()[0])
+    expected = dg.EffectiveGenerationRuntimeConfig.model_validate(
+        recording["capture_summary"]["effective_runtime_config"]
+    )
+    environment_fields = {
+        "POLISYOS_DRAFTER_PASS_TIMEOUT_S": "17",
+        "POLISYOS_DRAFTER_PASS_RETRY_COUNT": "17",
+        "POLISYOS_FORMALIZER_LLM_TIMEOUT_S": "17",
+        "POLISYOS_FORMALIZER_LLM_RETRIES": "17",
+        "POLISYOS_CRITIC_LLM_TIMEOUT_S": "17",
+        "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": "17",
+        "POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S": "17",
+        "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "17",
+        "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "17",
+        "POLISYOS_LLM_CACHE_TTL_S": "17",
+        "POLISYOS_LLM_CACHE_MAXSIZE": "17",
+        "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "strict",
+    }
+    for key, value in environment_fields.items():
+        monkeypatch.setenv(key, value)
+    monkeypatch.delenv("POLISYOS_N4_PREWARM_CG1_INDEX", raising=False)
+    observed: dict[str, str | None] = {}
+
+    async def _capture_runtime_config(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        keys = (*environment_fields, "POLISYOS_N4_PREWARM_CG1_INDEX")
+        observed.update({key: os.environ.get(key) for key in keys})
+        emitted = expected.model_copy(
+            update={
+                "drafter_pass_timeout_s": float(
+                    os.environ["POLISYOS_DRAFTER_PASS_TIMEOUT_S"]
+                ),
+                "drafter_pass_retry_count": int(
+                    os.environ["POLISYOS_DRAFTER_PASS_RETRY_COUNT"]
+                ),
+                "formalizer_timeout_s": float(
+                    os.environ["POLISYOS_FORMALIZER_LLM_TIMEOUT_S"]
+                ),
+                "formalizer_retry_count": int(
+                    os.environ["POLISYOS_FORMALIZER_LLM_RETRIES"]
+                ),
+                "critic_timeout_s": float(
+                    os.environ["POLISYOS_CRITIC_LLM_TIMEOUT_S"]
+                ),
+                "terminal_salvage_retry_count": int(
+                    os.environ["POLISYOS_N4_TERMINAL_SALVAGE_RETRIES"]
+                ),
+                "terminal_salvage_backoff_base_s": float(
+                    os.environ["POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S"]
+                ),
+                "gateway_timeout_s": float(os.environ["POLISYOS_LLM_GATEWAY_TIMEOUT_S"]),
+                "gateway_max_retries": int(
+                    os.environ["POLISYOS_LLM_GATEWAY_MAX_RETRIES"]
+                ),
+                "prompt_cache_ttl_s": float(os.environ["POLISYOS_LLM_CACHE_TTL_S"]),
+                "prompt_cache_maxsize": int(
+                    os.environ["POLISYOS_LLM_CACHE_MAXSIZE"]
+                ),
+                "cg1_index_prewarm_enabled": (
+                    os.environ.get("POLISYOS_N4_PREWARM_CG1_INDEX", "0") == "1"
+                ),
+            }
+        )
+        return SimpleNamespace(effective_runtime_config=emitted)
+
+    monkeypatch.setattr(
+        contract,
+        "generate_design_candidates_under_a",
+        _capture_runtime_config,
+    )
+
+    result = await contract._run_live_generation(REPO_ROOT, recording=recording)
+
+    assert result.effective_runtime_config == expected
+    assert observed == {
+        "POLISYOS_DRAFTER_PASS_TIMEOUT_S": "300.0",
+        "POLISYOS_DRAFTER_PASS_RETRY_COUNT": "3",
+        "POLISYOS_FORMALIZER_LLM_TIMEOUT_S": "300.0",
+        "POLISYOS_FORMALIZER_LLM_RETRIES": "5",
+        "POLISYOS_CRITIC_LLM_TIMEOUT_S": "300.0",
+        "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": "2",
+        "POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S": "10.0",
+        "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "300.0",
+        "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "3",
+        "POLISYOS_LLM_CACHE_TTL_S": "300.0",
+        "POLISYOS_LLM_CACHE_MAXSIZE": "128",
+        "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
+        "POLISYOS_N4_PREWARM_CG1_INDEX": "1",
+    }
+    assert {
+        key: os.environ.get(key) for key in environment_fields
+    } == environment_fields
+    assert "POLISYOS_N4_PREWARM_CG1_INDEX" not in os.environ
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("corruption", ["missing", "invalid"])
+async def test_n4_replay_refuses_missing_or_invalid_recorded_effective_config(
+    monkeypatch: pytest.MonkeyPatch,
+    corruption: str,
+) -> None:
+    recording = copy.deepcopy(_recordings()[0])
+    if corruption == "missing":
+        recording["capture_summary"].pop("effective_runtime_config")
+    else:
+        recording["capture_summary"]["effective_runtime_config"][
+            "formalizer_retry_count"
+        ] = "not-an-integer"
+    called = False
+
+    async def _must_not_run(*args: object, **kwargs: object) -> object:
+        nonlocal called
+        del args, kwargs
+        called = True
+        return object()
+
+    monkeypatch.setattr(contract, "generate_design_candidates_under_a", _must_not_run)
+
+    with pytest.raises(RuntimeError, match="recorded_effective_runtime_config"):
+        await contract._run_live_generation(REPO_ROOT, recording=recording)
+
+    assert called is False
+
+
+@pytest.mark.asyncio
+async def test_n4_replay_refuses_owner_emitted_effective_config_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recording = copy.deepcopy(_recordings()[0])
+    expected = dg.EffectiveGenerationRuntimeConfig.model_validate(
+        recording["capture_summary"]["effective_runtime_config"]
+    )
+
+    async def _emit_drift(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        return SimpleNamespace(
+            effective_runtime_config=expected.model_copy(
+                update={"formalizer_retry_count": expected.formalizer_retry_count - 1}
+            )
+        )
+
+    monkeypatch.setattr(contract, "generate_design_candidates_under_a", _emit_drift)
+
+    with pytest.raises(RuntimeError, match="recorded_effective_runtime_config_drift"):
+        await contract._run_live_generation(REPO_ROOT, recording=recording)
+
+
 def test_drafter_parser_source_flip_runs_rederive_and_restores_bytes(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -794,6 +947,97 @@ def test_drafter_parser_source_flip_runs_rederive_and_restores_bytes(
     assert any("--rederive-audit" in args for args in calls)
     assert len(calls) == 1
     assert source_path.read_bytes() == original
+
+
+def test_recorded_effective_config_source_flip_runs_behavior_and_restores_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    runner = getattr(contract, "_run_recorded_config_source_flip", None)
+    assert callable(runner), "recorded-config source-flip runner is missing"
+    source_path = (
+        tmp_path
+        / "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+    )
+    source_path.parent.mkdir(parents=True)
+    original = (
+        b"def probe(expected):\n"
+        b"    runtime_environment = _recorded_runtime_environment_values(expected)\n"
+        b"    return runtime_environment\n"
+    )
+    source_path.write_bytes(original)
+
+    def _completed(args: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        del kwargs
+        return subprocess.CompletedProcess(
+            args=args,
+            returncode=1,
+            stdout="RuntimeError: recorded_effective_runtime_config_drift",
+            stderr="",
+        )
+
+    monkeypatch.setattr(contract.subprocess, "run", _completed)
+
+    result = runner(tmp_path)
+
+    assert result["mutation_id"] == (
+        "source_flip_recorded_effective_runtime_config_ignored"
+    )
+    assert result["result"] == "RED"
+    assert result["proof"]["drift_reason_observed"] is True
+    assert source_path.read_bytes() == original
+
+
+def test_n4_source_flip_denominator_includes_recorded_effective_config(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recorded_config_id = "source_flip_recorded_effective_runtime_config_ignored"
+
+    def red(mutation_id: str) -> dict[str, str]:
+        return {"mutation_id": mutation_id, "result": "RED"}
+
+    monkeypatch.setattr(
+        contract,
+        "_run_formalizer_source_flip",
+        lambda _repo_root: (red(contract.SOURCE_FLIP_MUTATION_ID),),
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_drafter_parser_source_flip",
+        lambda _repo_root: red(contract.DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID),
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_recorded_config_source_flip",
+        lambda _repo_root: red(recorded_config_id),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_policy_verified_source_flip",
+        lambda _repo_root: red(contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID),
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_nl_source_flip",
+        lambda _repo_root: red(contract.NL_SOURCE_FLIP_MUTATION_ID),
+    )
+    monkeypatch.setattr(
+        contract,
+        "_run_s2_source_flip",
+        lambda _repo_root: red(contract.S2_SOURCE_FLIP_MUTATION_ID),
+    )
+
+    results = contract.run_source_flip_mutations(REPO_ROOT)
+
+    assert tuple(item["mutation_id"] for item in results) == (
+        contract.SOURCE_FLIP_MUTATION_ID,
+        contract.DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+        recorded_config_id,
+        contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+        contract.NL_SOURCE_FLIP_MUTATION_ID,
+        contract.S2_SOURCE_FLIP_MUTATION_ID,
+    )
 
 
 def test_n4_rederive_exposes_typed_generation_terminal_evidence(
@@ -864,6 +1108,11 @@ def test_n4_source_flip_denominator_rejects_missing_parser_mutation(
     )
     monkeypatch.setattr(
         contract,
+        "_run_recorded_config_source_flip",
+        lambda _repo_root: red(contract.RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID),
+    )
+    monkeypatch.setattr(
+        contract,
         "_run_policy_verified_source_flip",
         lambda _repo_root: red(contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID),
     )
@@ -889,6 +1138,7 @@ def test_n4_source_flip_denominator_rejects_missing_parser_mutation(
                 "observed": [
                     contract.SOURCE_FLIP_MUTATION_ID,
                     "source_flip_wrong_parser_mutation",
+                    contract.RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
                     contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
                     contract.NL_SOURCE_FLIP_MUTATION_ID,
                     contract.S2_SOURCE_FLIP_MUTATION_ID,

@@ -33,13 +33,13 @@
   },
   "source_reconciliation": {
     "reuse_rework_delete_source": "architecture/policy_design_case/layer3_gy_n0_investigation.md:2490",
-    "task_mapping_source": "architecture/policy_design_case/layer3_gy_n0_investigation.md:2571",
+    "task_mapping_source": "architecture/policy_design_case/layer3_gy_n0_investigation.md:2581",
     "disposition_counts": {
       "DELETE": 10,
-      "REWORK_TO_FIT": 29,
+      "REWORK_TO_FIT": 31,
       "USE_AS_IS": 29
     },
-    "total_owner_entries": 68,
+    "total_owner_entries": 70,
     "parallel_worlds_reconciled": 3,
     "notes": "Owner entries are candidate-owner rows from the notebook's reuse/rework/delete synthesis, not per-file source inventory rows."
   },
@@ -93,8 +93,8 @@
       "focus": "Closed acquisition and same-cycle re-entry"
     },
     "GY-N8": {
-      "status": "wired_with_residuals",
-      "focus": "Value as live Foundry/S10/transport gate over a named WorldModelRecord; pilot/deployment EvalSafety and N9 promotion remain downstream"
+      "status": "landed",
+      "focus": "Value is landed as the canonical Foundry/S10/transport gate over a named WorldModelRecord; EvalSafety, upstream full-N5 WMR construction, and universality remain typed outside N8"
     },
     "GY-N9": {
       "status": "pending",
@@ -149,7 +149,7 @@
     },
     "FoundryValuePort": {
       "consuming_task": "GY-N8",
-      "disposition": "REWORK_EXISTING_WIRE",
+      "disposition": "REWORK_TO_FIT",
       "source": "src/polisyos/runtime/quality/generation_cycle.py"
     }
   },
@@ -210,7 +210,7 @@
         "scientist_champion_vs_g4_promotion",
         "verified_policy_fixed_option_defaults"
       ],
-      "status": "pending_strangle_under_GY-N4_GY-N6_GY-N9"
+      "status": "pending_strangle_under_GY-N6_GY-N9"
     },
     {
       "parallel_world": "Workspace loop",
@@ -220,7 +220,7 @@
         "workspace_run_intent_cycle_adapter",
         "workspace_method_selection_default"
       ],
-      "status": "pending_strangle_under_GY-N6_GY-N8"
+      "status": "pending_strangle_under_GY-N6"
     },
     {
       "parallel_world": "S2 shadow design search",
@@ -948,24 +948,22 @@
         "required_disposition": "fenced_default_flipped",
         "default_before": "Optional method families may be assumed available by task text or fixed defaults.",
         "default_after": "Method selection checks live availability and surfaces blockers.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending method policy",
+        "remaining_callers_disposition": "strangled; live availability and advisor selection decide or return a typed blocker",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --rederive-audit",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
         "consuming_task": "GY-N8",
         "strangle_condition": {
-          "kind": "text_absent_under",
-          "root": "src/polisyos/runtime/quality/workspace",
-          "pattern": "synthetic_control",
-          "suffixes": [
-            ".py"
-          ]
+          "kind": "n8_value_gate_property_landed",
+          "property": "reachable_method_policy"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1059,22 +1057,23 @@
         "disposition": "fenced_default_flipped",
         "required_disposition": "fenced_default_flipped",
         "default_before": "Stage-B nodes exist beside the workspace loop without GY candidate/world integration.",
-        "default_after": "GY-N8 invokes them with candidate/world bindings or records blockers.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "default_after": "GY-N8 uses the canonical FoundryValuePort for cycle value authority; Scientist Stage-B nodes remain separate workflow consumers and are not a parallel cycle value engine.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending value bridge",
+        "remaining_callers_disposition": "strangled from the cycle; Stage-B remains a non-cycle Scientist workflow surface",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --rederive-audit",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
         "consuming_task": "GY-N8",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
-          "pattern": "CompileFoundry"
+          "kind": "n8_value_gate_property_landed",
+          "property": "stage_b_nonparallel"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1097,21 +1096,22 @@
         "required_disposition": "fenced_default_flipped",
         "default_before": "Synthetic backend can compute research-only values beside authority path.",
         "default_after": "Authority value packets require evidence-driven inputs and governance evidence.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending authority fence",
+        "remaining_callers_disposition": "strangled from N8 authority; the cycle consumes real owner evidence through FoundryValuePort",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --rederive-audit",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
         "consuming_task": "GY-N8",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
-          "pattern": "research_only"
+          "kind": "n8_value_gate_property_landed",
+          "property": "evidence_driven_backend"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1353,21 +1353,21 @@
         "required_disposition": "fenced_default_flipped",
         "default_before": "Value path defaults to synthetic_control regardless of DesignProblem.",
         "default_after": "Method policy selects reachable methods by candidate/problem/world or emits blocker.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending method-policy cutover",
+        "remaining_callers_disposition": "strangled; workspace and cycle selection route through the Foundry registry advisor",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/runtime/quality/workspace/loop.py",
         "consuming_task": "GY-N8",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/runtime/quality/workspace/loop.py",
-          "pattern": "causal.inference.synthetic_control@1.0.0"
+          "kind": "n8_value_gate_property_landed",
+          "property": "advisor_method_selection"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -1680,24 +1680,22 @@
         "required_disposition": "fenced_default_flipped",
         "default_before": "Transport/predictive diagnostics can remain side information.",
         "default_after": "Value packets carry content-bound transport and posterior/calibration receipts.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending receipt bridge",
+        "remaining_callers_disposition": "strangled; the ValueGateReceipt content-binds the real transport result and WMR version",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --rederive-audit",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/ir/analytics/transportability.py",
         "consuming_task": "GY-N8",
         "strangle_condition": {
-          "kind": "text_absent_under",
-          "root": "src/polisyos",
-          "pattern": "transported_limited",
-          "suffixes": [
-            ".py"
-          ]
+          "kind": "n8_value_gate_property_landed",
+          "property": "content_bound_transport_receipts"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -2017,25 +2015,30 @@
         "pattern_id": "P28",
         "predecessor_ref": "scientist.policy_runtime_support.synthetic_backend_authority",
         "replacement_ref": "GY-N8.evidence_driven_value_backend",
-        "disposition": "deleted",
-        "required_disposition": "deleted",
+        "disposition": "compatibility_only_authority_fenced",
+        "required_disposition": "compatibility_only_authority_fenced",
         "default_before": "Synthetic backend can stand in for value/promotability authority.",
         "default_after": "Synthetic backend is research-only and cannot mint authority.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
-        "remaining_callers": [],
-        "remaining_callers_disposition": "pending authority fence",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+        "remaining_callers": [
+          "scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+          "scientist.nodes.builtins.planning.run_hierarchical_policy_search",
+          "scientist.nodes.builtins.simulate.run_simulation"
+        ],
+        "remaining_callers_disposition": "compatibility/research workflows only; provenance is non-promotable research_only and the N8 cycle has zero callers",
         "removed_loc": [],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --rederive-audit",
+          "tools/quality/validation/check_layer3_gy_value_gate_contract.py --source-flip-mutations"
         ],
         "superseded_path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
         "consuming_task": "GY-N8",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
-          "pattern": "synthetic"
+          "kind": "n8_value_gate_property_landed",
+          "property": "synthetic_backend_authority_fenced"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {
@@ -2232,14 +2235,14 @@
     },
     {
       "owner_id": "generation_cycle_foundry_value_port",
-      "owner_path": "src/polisyos/runtime/quality/generation_cycle.py:727",
+      "owner_path": "src/polisyos/runtime/quality/generation_cycle.py:974",
       "focus": "N6 value_pending_n8 seam and fixed workspace value-method default.",
-      "disposition": "REWORK_EXISTING_WIRE",
+      "disposition": "REWORK_TO_FIT",
       "rationale": "The production value port now delegates value authority to Foundry method execution, S10 calibration, transportability, and ValueOuterSet receipt binding over a named WorldModelRecord; no parallel value engine is introduced.",
       "consuming_task": "GY-N8",
       "build_new_bridge_ref": "FoundryValuePort",
       "source_notebook_refs": [
-        "docs/plans/active/layer3-slices/GY-engine-subordination.md:1309"
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2579"
       ],
       "strangle_receipt": {
         "receipt_id": "layer3-gy-value-gate-foundry-wire",
@@ -2265,7 +2268,7 @@
         "strangle_condition": {
           "kind": "value_gate_contract_landed"
         },
-        "status": "wired_with_residuals"
+        "status": "strangled"
       }
     }
   ]

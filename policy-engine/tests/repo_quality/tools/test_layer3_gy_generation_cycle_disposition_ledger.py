@@ -104,6 +104,111 @@ def test_layer3_gy_generation_cycle_disposition_ledger_is_recomputed_green() -> 
     ]
 
 
+def test_layer3_gy_post_n6_rows_are_inside_frozen_denominators() -> None:
+    assert "GY-N10a" in check_layer3_gy_generation_cycle_disposition_ledger.REQUIRED_TASKS
+    assert (
+        "FoundryValuePort"
+        in check_layer3_gy_generation_cycle_disposition_ledger.REQUIRED_BRIDGES
+    )
+
+
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_noncanonical_bridge_disposition() -> None:
+    ledger = _loaded_ledger()
+    mutated = copy.deepcopy(ledger)
+    bridges = mutated["bridge_artifacts"]
+    assert isinstance(bridges, dict)
+    bridge = bridges["FoundryValuePort"]
+    assert isinstance(bridge, dict)
+    bridge["disposition"] = "REWORK_EXISTING_WIRE"
+
+    report = check_layer3_gy_generation_cycle_disposition_ledger.validate_ledger(
+        REPO_ROOT,
+        mutated,
+    )
+
+    assert report["status"] == "fail"
+    assert "bridge_artifact_disposition_invalid" in _issue_codes(report)
+
+
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_n10a_invented_status() -> None:
+    ledger = _loaded_ledger()
+    mutated = copy.deepcopy(ledger)
+    tasks = mutated["tasks"]
+    assert isinstance(tasks, dict)
+    task = tasks["GY-N10a"]
+    assert isinstance(task, dict)
+    task["status"] = "landed_with_residuals"
+
+    report = check_layer3_gy_generation_cycle_disposition_ledger.validate_ledger(
+        REPO_ROOT,
+        mutated,
+    )
+
+    assert report["status"] == "fail"
+    assert "task_status_invalid" in _issue_codes(report)
+
+
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_landed_parallel_task() -> None:
+    ledger = _loaded_ledger()
+    mutated = copy.deepcopy(ledger)
+    rows = mutated["parallel_world_reconciliation"]
+    assert isinstance(rows, list)
+    workspace = next(
+        row
+        for row in rows
+        if isinstance(row, dict) and row.get("parallel_world") == "Workspace loop"
+    )
+    workspace["status"] = "pending_strangle_under_GY-N6_GY-N8"
+
+    report = check_layer3_gy_generation_cycle_disposition_ledger.validate_ledger(
+        REPO_ROOT,
+        mutated,
+    )
+
+    assert report["status"] == "fail"
+    assert "parallel_world_pending_task_already_landed" in _issue_codes(report)
+
+
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_stale_source_counts() -> None:
+    ledger = _loaded_ledger()
+    mutated = copy.deepcopy(ledger)
+    reconciliation = mutated["source_reconciliation"]
+    assert isinstance(reconciliation, dict)
+    reconciliation["total_owner_entries"] = 68
+
+    report = check_layer3_gy_generation_cycle_disposition_ledger.validate_ledger(
+        REPO_ROOT,
+        mutated,
+    )
+
+    assert report["status"] == "fail"
+    assert "source_reconciliation_owner_total_drift" in _issue_codes(report)
+
+
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_unknown_n8_property() -> None:
+    ledger = _loaded_ledger()
+    mutated = copy.deepcopy(ledger)
+    owner = _owner_by_id(mutated, "transport_value_receipts")
+    receipt = owner["strangle_receipt"]
+    assert isinstance(receipt, dict)
+    condition = receipt["strangle_condition"]
+    assert isinstance(condition, dict)
+    condition["property"] = "decorative_unknown_property"
+
+    report = check_layer3_gy_generation_cycle_disposition_ledger.validate_ledger(
+        REPO_ROOT,
+        mutated,
+    )
+
+    assert report["status"] == "fail"
+    assert any(
+        issue.get("code") == "landed_owner_not_strangled"
+        and issue.get("owner_id") == "transport_value_receipts"
+        for issue in report["issues"]
+        if isinstance(issue, dict)
+    )
+
+
 def test_layer3_gy_generation_cycle_disposition_ledger_rejects_fabricated_owner_anchor() -> None:
     ledger = _loaded_ledger()
     mutated = copy.deepcopy(ledger)

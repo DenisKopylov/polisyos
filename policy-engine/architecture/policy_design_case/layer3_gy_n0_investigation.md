@@ -2576,6 +2576,7 @@ USE_AS_IS:
 REWORK_TO_FIT:
 
 - owner_id: `generation_cycle_controller_scaffold`; owner_path: `src/polisyos/runtime/quality/generation_cycle.py:1` - Existing GY-N6 controller scaffold: rework in place as the canonical thin controller over N4 CGF dispositions, N5 horizon observations, S2 refinement discipline, and Scientist VOI scheduling; do not create a parallel controller.
+- owner_id: `generation_cycle_foundry_value_port`; owner_path: `src/polisyos/runtime/quality/generation_cycle.py:974` - GY-N8 reworks the existing generation-cycle value seam in place: `FoundryValuePort` delegates to the Foundry registry/advisor, real owner data, S10 calibration, and content-bound transport receipts; the pending port and Scientist research backends remain non-default/non-authoritative rather than parallel value engines.
 
 ## GY-N1..N7 -> Owners Mapping
 

@@ -354,11 +354,12 @@ git commit -m "fix: restore N4 generation owner surface"
   the base interpreter as `wrong_interpreter_resolved`.
 - `assert_universality_preflight` orders checkout -> interpreter -> canonical
   grounding-backend availability and keeps its current return shape.
-- `InterventionNormalizationProvenance` is a strict immutable metadata model.
+- `AtomNormalizationRecord` is the strict immutable metadata model recovered
+  from the never-landed July owner blob; no alias/shim is added.
 - `InterventionAtomBinding.normalized_from` is optional, content-hashed,
   persisted provenance.
 - `build_intervention_atom_binding(..., normalized_from: Mapping[str, Any] |
-  InterventionNormalizationProvenance | None = None)` validates it through the
+  AtomNormalizationRecord | None = None)` validates it through the
   canonical model and never uses it in a bind/admission predicate.
 
 - [ ] **Step 1: Write and observe interpreter-preflight REDs.**
@@ -409,6 +410,9 @@ python3 -m pytest tests/unit/runtime/quality/test_intervention_atom_binding.py \
 authority. Existing callers may omit it. The builder verifies any normalized
 operator/slot values against the already-authoritative intervention/linker
 halves but never uses provenance to repair or widen those halves.
+When absent, `normalized_from` is omitted from semantic content hashing so the
+two persisted July null rows retain their historical hashes; a non-null record
+is content-hashed normally.
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py --write

@@ -465,7 +465,8 @@ hashes, swapped contexts, a sibling no-hints consumer, a third pack vocabulary,
 and an unseen no-pack domain.
 
 N2 owns optional, strict `normalized_from` provenance on
-`InterventionAtomBinding`. It records the original operator/slot surface and
+`InterventionAtomBinding` through the recovered canonical
+`AtomNormalizationRecord`. It records the original operator/slot surface and
 the CG1 certificate that justified normalization, participates in the atom's
 content hash, and round-trips through persistence. It is supporting provenance
 only: `consume_intervention_atom_for_cycle`, CG1, CG2, CG3, value, and promotion
@@ -473,6 +474,9 @@ may not consult it to widen or replace canonical atom fields. The
 `normalized_from_used_as_authority` source flip deliberately makes the cycle
 consumer read the original pre-normalization slots and must turn the N2
 behavioral contract RED while markers remain present.
+An absent record is omitted from semantic content hashing to preserve the
+historical hashes of persisted July rows whose serialization carries
+`normalized_from: null`; a non-null record remains content-bound.
 
 Existing N5, N6, N8, and N9 harnesses are additive-only. The N7 checker and
 acquisition tests join the blast-radius set because the bootstrap fence affects

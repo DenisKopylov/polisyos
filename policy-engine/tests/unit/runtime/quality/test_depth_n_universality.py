@@ -10,10 +10,23 @@ from pathlib import Path
 from tools.quality.validation.checkout_guard import assert_current_checkout
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-MAIN_CHECKOUT = REPO_ROOT.parents[2]
 
-# Keep this bootstrap guard above every ``polisyos.*`` owner import added to this harness.
-RESOLVED_POLISYOS_PACKAGE = assert_current_checkout(REPO_ROOT)
+# This preserves local import ordering only. Fresh child processes below provide the authority proof
+# because pytest startup plugins may already have imported ``polisyos.*`` in this parent process.
+assert_current_checkout(REPO_ROOT)
+
+
+def _create_wrong_checkout_package(tmp_path: Path) -> Path:
+    """Create a standalone adversarial ``polisyos`` package and return its source root."""
+
+    wrong_src = (tmp_path / "wrong-checkout" / "policy-engine" / "src").resolve()
+    package_root = wrong_src / "polisyos"
+    package_root.mkdir(parents=True)
+    (package_root / "__init__.py").write_text(
+        '"""Standalone wrong-checkout sentinel package."""\n',
+        encoding="utf-8",
+    )
+    return wrong_src
 
 
 def _run_checkout_guard_with_pythonpath(
@@ -21,19 +34,22 @@ def _run_checkout_guard_with_pythonpath(
     *,
     producer_sentinel: Path,
 ) -> subprocess.CompletedProcess[str]:
-    """Run the worktree guard before a sentinel validator producer."""
+    """Run the current checkout guard before a sentinel validator producer."""
 
     script = f"""
+import sys
 from pathlib import Path
 from tools.quality.validation.checkout_guard import assert_current_checkout
 
 repo_root = Path({REPO_ROOT.as_posix()!r})
 producer_sentinel = Path({producer_sentinel.as_posix()!r})
 
+resolved_package_path = assert_current_checkout(repo_root)
+
 def sentinel_validator_producer() -> None:
     producer_sentinel.write_text("producer_reached", encoding="utf-8")
 
-assert_current_checkout(repo_root)
+sys.stdout.write(f"checkout_resolved:{{resolved_package_path}}\\n")
 sentinel_validator_producer()
 """
     env = os.environ.copy()
@@ -48,24 +64,44 @@ sentinel_validator_producer()
     )
 
 
-def test_universality_harness_resolves_current_checkout() -> None:
-    """Resolve the package only from this worktree's source root."""
-
-    resolved = assert_current_checkout(REPO_ROOT)
-
-    assert resolved == RESOLVED_POLISYOS_PACKAGE
-    assert resolved.is_relative_to((REPO_ROOT / "src").resolve())
-
-
-def test_wrong_checkout_is_rejected_before_proof_execution(tmp_path: Path) -> None:
-    """Reject the main checkout before its sentinel producer can execute."""
+def test_fresh_checkout_harness_resolves_current_checkout(tmp_path: Path) -> None:
+    """Prove current-checkout resolution in a fresh, owner-free child process."""
 
     producer_sentinel = tmp_path / "producer-reached"
     result = _run_checkout_guard_with_pythonpath(
-        MAIN_CHECKOUT / "policy-engine/src",
+        REPO_ROOT / "src",
+        producer_sentinel=producer_sentinel,
+    )
+    expected_package_path = (REPO_ROOT / "src/polisyos/__init__.py").resolve()
+
+    assert result.returncode == 0
+    assert result.stdout == f"checkout_resolved:{expected_package_path}\n"
+    assert producer_sentinel.read_text(encoding="utf-8") == "producer_reached"
+
+
+def test_adversarial_checkout_package_is_independent_of_repository_ancestry(
+    tmp_path: Path,
+) -> None:
+    """Create the adversarial package without deriving a checkout from repository parents."""
+
+    simulated_repo_root = tmp_path / "normal-checkout/policy-engine"
+    wrong_src = _create_wrong_checkout_package(tmp_path)
+
+    assert wrong_src == (tmp_path / "wrong-checkout/policy-engine/src").resolve()
+    assert not wrong_src.is_relative_to(simulated_repo_root)
+    assert not wrong_src.is_relative_to(REPO_ROOT)
+
+
+def test_wrong_checkout_is_rejected_before_proof_execution(tmp_path: Path) -> None:
+    """Reject a standalone wrong checkout before its sentinel producer can execute."""
+
+    producer_sentinel = tmp_path / "producer-reached"
+    wrong_src = _create_wrong_checkout_package(tmp_path)
+    result = _run_checkout_guard_with_pythonpath(
+        wrong_src,
         producer_sentinel=producer_sentinel,
     )
 
     assert result.returncode == 1
-    assert "wrong_checkout_resolved" in result.stderr
+    assert f"wrong_checkout_resolved:{wrong_src / 'polisyos/__init__.py'}" in result.stderr
     assert not producer_sentinel.exists()

@@ -11,6 +11,9 @@ historical N10a receipt, extends the bounded N4 import reconciliation through
 recorded formalizer evidence, cross-binds candidate levers to their complete
 cycle context, routes disposition-only N4 output, and rejects wrong-checkout
 proof execution structurally.
+The integration-debt resumption revision additionally requires repository-runtime
+interpreter identity at bootstrap and restores N2-owned normalization provenance
+without allowing provenance to influence grounding authority.
 
 ## Goal
 
@@ -76,6 +79,13 @@ The proof must include:
    in content hashes.
 8. **One mutating process.** Tests, validators, source flips, writes, and cold
    proof runs execute serially. Long owner lanes receive their full budget.
+9. **Repository runtime is proof input.** Checkout identity is verified first;
+   then the resolved virtual-environment prefix must equal the checkout's
+   resolved `.venv` target; only then may the canonical CG backend owner run.
+   A bare interpreter fails `wrong_interpreter_resolved` at bootstrap. Because
+   a venv's Python executable resolves to its base binary, membership is proven
+   by `sys.prefix`/`sys.exec_prefix`, not by trusting `VIRTUAL_ENV` or the final
+   executable symlink target.
 
 ## Pattern pass and capability state
 
@@ -454,6 +464,16 @@ P33 variants include synonyms, malformed and present-but-fake contracts, stale
 hashes, swapped contexts, a sibling no-hints consumer, a third pack vocabulary,
 and an unseen no-pack domain.
 
+N2 owns optional, strict `normalized_from` provenance on
+`InterventionAtomBinding`. It records the original operator/slot surface and
+the CG1 certificate that justified normalization, participates in the atom's
+content hash, and round-trips through persistence. It is supporting provenance
+only: `consume_intervention_atom_for_cycle`, CG1, CG2, CG3, value, and promotion
+may not consult it to widen or replace canonical atom fields. The
+`normalized_from_used_as_authority` source flip deliberately makes the cycle
+consumer read the original pre-normalization slots and must turn the N2
+behavioral contract RED while markers remain present.
+
 Existing N5, N6, N8, and N9 harnesses are additive-only. The N7 checker and
 acquisition tests join the blast-radius set because the bootstrap fence affects
 their historical fallback path.
@@ -464,6 +484,11 @@ Every GY-N10 validator and focused universality harness begins, before any
 `src/` root. A mismatch fails `wrong_checkout_resolved` before any proof runs.
 The source-flip points resolution at the main checkout and must be rejected;
 testing a different checkout can never count as green evidence.
+The next preamble assertion proves the active `sys.prefix` and `sys.exec_prefix`
+equal the resolved repository `.venv`; failure is
+`wrong_interpreter_resolved` and occurs before the CG substrate probe or any
+producer. The final preamble assertion calls the canonical grounding-backend
+availability owner and fails `cg_substrate_unavailable` when CP-SAT is absent.
 
 ## 9. Four-stage execution and commit gates
 
@@ -573,3 +598,9 @@ The final journal must explicitly report:
 - verbatim verification with exit codes;
 - the two infrastructure residuals; and
 - any genuinely cloud-only residual.
+
+It also includes a dedicated integration-debt ledger: every
+never-landed-state symbol reconciled under the bounded metadata/mechanics
+class, its July evidence and owner-first disposition; the wrong-checkout,
+wrong-interpreter, and CG-substrate environmental tripwires; and the two typed
+infrastructure residuals.

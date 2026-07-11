@@ -26,7 +26,13 @@
 - Use E1 content-addressed pack/world/engine caches, Lane-0 mini-worlds, cached Lane-1 owners, one cold two-domain closeout, E5 wall times, and E6 journal-first live capture.
 - Runtime timestamps and wall time never participate in artifact content hashes. `--write` must be byte-stable.
 - N10a's zero-engine receipt is replayed only over immutable commits `26cc7cc03efc9da44362dc2914a5bde8ac8f7e73..d8a8cf076da6233c66b0a90010647c0d437e81c4`; live owner rederive remains current, and moving-HEAD rebasing is a decisive failure.
-- Every GY-N10 validator and focused universality harness fails `wrong_checkout_resolved` unless `polisyos.__file__` is under the current checkout's `src/`; every local command also sets `PYTHONPATH="$PWD/src:$PWD"`.
+- Every GY-N10 validator and focused universality harness checks, in order:
+  current checkout, repository `.venv` identity, then canonical CG backend
+  availability. Failures are typed `wrong_checkout_resolved`,
+  `wrong_interpreter_resolved`, and `cg_substrate_unavailable`. Every displayed
+  `python3` command is executed as
+  `env PATH="$PWD/.venv/bin:$PATH" PYTHONPATH="$PWD/src:$PWD" python3 ...`;
+  the command bodies below omit only that repeated envelope.
 - The two infrastructure gaps `owner_registration_derivation_missing` and `journal_raw_evidence_persistence_missing` remain typed residuals unless existing owners close them without scope expansion.
 - Every task follows RED -> observe expected failure -> minimal GREEN -> focused regression -> scoped commit.
 - A later stage does not begin while the preceding stage gate is red.
@@ -330,6 +336,103 @@ Expected: all exit `0`. Record this as closure of the long-standing N4 cloud-def
 git add src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/design_generation.py src/polisyos/scientist/agent/formalizer.py tools/quality/validation/check_layer3_gy_design_generation_contract.py tests/unit/runtime/quality/test_design_generation.py docs/superpowers/journals/2026-07-11-gy-n10-stage-1.md
 git commit -m "fix: restore N4 generation owner surface"
 ```
+
+## Task 1R: Reconcile repository-runtime identity and N2 normalization provenance
+
+**Files:**
+- Modify: `tools/quality/validation/universality_preflight.py`
+- Modify: `tests/unit/runtime/quality/test_depth_n_universality.py`
+- Modify: `src/polisyos/runtime/quality/intervention_atom_binding.py`
+- Modify: `tests/unit/runtime/quality/test_intervention_atom_binding.py`
+- Modify: `tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py`
+- Regenerate: `architecture/policy_design_case/layer3_gy_intervention_atom_binding_contract.json`
+- Modify: `docs/superpowers/journals/2026-07-11-gy-n10-stage-1.md`
+
+**Interfaces:**
+- `assert_repository_interpreter(repo_root: Path) -> Path` requires resolved
+  `sys.prefix == sys.exec_prefix == (repo_root / ".venv").resolve()` and rejects
+  the base interpreter as `wrong_interpreter_resolved`.
+- `assert_universality_preflight` orders checkout -> interpreter -> canonical
+  grounding-backend availability and keeps its current return shape.
+- `InterventionNormalizationProvenance` is a strict immutable metadata model.
+- `InterventionAtomBinding.normalized_from` is optional, content-hashed,
+  persisted provenance.
+- `build_intervention_atom_binding(..., normalized_from: Mapping[str, Any] |
+  InterventionNormalizationProvenance | None = None)` validates it through the
+  canonical model and never uses it in a bind/admission predicate.
+
+- [ ] **Step 1: Write and observe interpreter-preflight REDs.**
+
+Use fresh subprocesses. The repository venv passes; `sys._base_executable`
+with the current `PYTHONPATH` fails before a producer sentinel; a deterministic
+child with `sys.prefix`/`sys.exec_prefix` changed to base values fails the same
+way; wrong checkout wins before wrong interpreter. Removing the interpreter
+assertion while retaining its markers must let the deterministic child reach
+the producer and turn `wrong_interpreter_preflight_removed` RED.
+
+```bash
+python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py \
+  -k 'interpreter or checkout or cg_substrate' -q
+```
+
+- [ ] **Step 2: Implement the minimal preflight composition and verify GREEN.**
+
+Use `sys.prefix`/`sys.exec_prefix`, not `VIRTUAL_ENV` and not the fully resolved
+Python binary (which correctly resolves through the venv symlink to Homebrew's
+base executable). Preserve the existing checkout-first and backend-owner tests.
+
+- [ ] **Step 3: Complete archaeology and constructor/consumer census before N2 edits.**
+
+Record every `build_intervention_atom_binding` caller and every atom authority
+consumer. The bounded class authorization applies only where July artifact,
+recovered blob, or closure-test evidence proves the symbol and the field is
+metadata/mechanics. Anything affecting what a gate accepts stops.
+
+- [ ] **Step 4: Write N2 RED round-trip and authority-isolation tests.**
+
+Require strict validation of the July normalization payload, atom/CAS
+round-trip, and identical `consume_intervention_atom_for_cycle` output with and
+without provenance. The existing live N4 payoff test is the cross-owner RED.
+The `normalized_from_used_as_authority` mutation makes the cycle consumer read
+original pre-normalization slots; the N2 contract must go RED and restore the
+exact source hash.
+
+```bash
+python3 -m pytest tests/unit/runtime/quality/test_intervention_atom_binding.py \
+  tests/unit/runtime/quality/test_design_generation.py \
+  -k 'normalized_from or legacy_exact_match' -q
+```
+
+- [ ] **Step 5: Extend only the N2 owner, regenerate through its writer, and run blast radius.**
+
+`normalized_from` is supporting provenance, not action/outcome or grounding
+authority. Existing callers may omit it. The builder verifies any normalized
+operator/slot values against the already-authoritative intervention/linker
+halves but never uses provenance to repair or widen those halves.
+
+```bash
+python3 tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py --write
+python3 tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py --check
+python3 tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py --source-flip-mutations
+python3 -m pytest tests/unit/runtime/quality/test_intervention_atom_binding.py \
+  tests/unit/runtime/quality/test_design_generation.py \
+  tests/unit/runtime/quality/test_intervention_substrate.py \
+  tests/unit/runtime/quality/test_joint_simulation_horizon.py \
+  tests/unit/runtime/quality/test_world_model_record.py \
+  -k 'atom or normalized_from or legacy_exact_match' -q
+.venv/bin/ruff check tools/quality/validation/universality_preflight.py \
+  src/polisyos/runtime/quality/intervention_atom_binding.py \
+  tools/quality/validation/check_layer3_gy_intervention_atom_binding_contract.py \
+  tests/unit/runtime/quality/test_depth_n_universality.py \
+  tests/unit/runtime/quality/test_intervention_atom_binding.py
+```
+
+- [ ] **Step 6: Commit interpreter and N2 slices with the integration-debt journal table.**
+
+Use separate scoped commits when practical. The journal table records symbol,
+July evidence, metadata/mechanics disposition, owner, RED/GREEN evidence, and
+source-flip restoration. Same-family stragglers may follow this exact loop; an
+authority-affecting or ambiguous mismatch stops.
 
 ## Task 2: Add the content-bound cycle substrate envelope
 
@@ -1474,6 +1577,10 @@ git commit -m "test: freeze depth-N universality proof"
 - [ ] **Step 1: Write RED reconciliation tests.**
 
 Require exact seam evidence for the five closed gaps, typed reasons for the two residuals, the GY-G fixture disposition, zero production callers, and the education no-promotion reason.
+Require the dedicated integration-debt ledger to enumerate every bounded
+never-landed-state reconciliation, its historical evidence and owner-first
+disposition, plus the wrong-checkout, wrong-interpreter, and CG-substrate
+tripwires.
 
 - [ ] **Step 2: Run focused reconciliation tests and observe RED on stale N10a/ledger rows.**
 
@@ -1567,6 +1674,8 @@ If verification required a repair, repeat its RED/GREEN test and commit the scop
 ## Plan self-review checklist
 
 - Every approved correction has an implementation task and stage gate.
+- Task 1R binds the repository interpreter explicitly and restores N2
+  `normalized_from` as non-authoritative provenance with a decisive source flip.
 - The non-panel positive is the Stage-2 exit gate (not its entry); education refusal is separate.
 - The expected Bayesian FQN is plan-pinned only; advisor selection trace and candidate-real treatment provenance are decisive RED/GREEN properties.
 - Task 0 pins N10a's historical receipt without weakening live owner rederive; Task 0B structurally rejects a wrong checkout.
@@ -1577,4 +1686,6 @@ If verification required a repair, repeat its RED/GREEN test and commit the scop
 - The original Section-8 commands are present; N4/N7 and full N6 modes are additive.
 - No task authorizes education promotion, a fabricated pass/block, a domain branch, a parallel owner, or a weakened harness.
 - The two infrastructure gaps remain typed residuals.
+- The final artifact/report carries the integration-debt ledger for the full
+  convergence cascade.
 - Every stage ends at a fresh verification gate and scoped commit.

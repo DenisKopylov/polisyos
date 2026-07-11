@@ -84,6 +84,139 @@ def _bundle(interventions: list[InterventionSpec]) -> TrinityBundle:
     )
 
 
+def _alternate_honest_frozen_receipt_payload() -> dict[str, Any]:
+    chain = {
+        "cg1_certificate_id": "cg1_cert_" + "1" * 16,
+        "cg1_content_hash": "sha256:" + "1" * 64,
+        "cg2_certificate_id": "cg2_cert_" + "2" * 16,
+        "cg2_content_hash": "sha256:" + "2" * 64,
+        "cg3_certificate_id": "cg3_cert_" + "3" * 16,
+        "cg3_content_hash": "sha256:" + "3" * 64,
+    }
+    dispositions = [
+        {
+            "proposal_id": "proposal_shadow",
+            "candidate_id": "candidate_shadow",
+            "disposition": "shadow_bound",
+            "selected_relation": "exact",
+            "identified_atom_id": "atom_shadow",
+            "legacy_exact_match": "would_reject",
+            "certificate_chain": copy.deepcopy(chain),
+        },
+        {
+            "proposal_id": "proposal_existing",
+            "candidate_id": "candidate_existing",
+            "disposition": "shadow_bound",
+            "selected_relation": "exact",
+            "identified_atom_id": "atom_existing",
+            "legacy_exact_match": "would_bind",
+            "certificate_chain": copy.deepcopy(chain),
+        },
+        {
+            "proposal_id": "proposal_unknown_b",
+            "candidate_id": None,
+            "disposition": "unknown_blocked",
+            "selected_relation": "unknown",
+            "identified_atom_id": None,
+            "legacy_exact_match": "would_reject",
+            "certificate_chain": copy.deepcopy(chain),
+        },
+    ]
+    payload: dict[str, Any] = {
+        "schema_version": contract.DESIGN_GENERATION_CONTRACT_SCHEMA_VERSION,
+        "recording_fixture_hash": "sha256:" + "4" * 64,
+        "generation_results": [
+            {
+                "status": "generated",
+                "diversity_report": {"candidate_count": 3},
+                "grounding_disposition_summary": {
+                    "total_candidates": 3,
+                    "shadow_bound": 2,
+                    "novel_cg3": 0,
+                    "veto_false_analog": 0,
+                    "abstain_or_blocked": 1,
+                    "legacy_exact_match_would_bind": 1,
+                    "legacy_exact_match_would_reject": 2,
+                },
+                "candidates": [
+                    {
+                        "candidate_id": "candidate_shadow",
+                        "diversity_key": ["tax_relief", "all", "income", "rate"],
+                    },
+                    {
+                        "candidate_id": "candidate_existing",
+                        "diversity_key": ["income_tax", "all", "income", "rate"],
+                    },
+                ],
+                "grounding_dispositions": dispositions,
+            }
+        ],
+        "recording_set_coverage": {
+            "recording_count": 1,
+            "all_recordings_generated": True,
+            "candidate_count": 3,
+            "grounding_disposition_count": 3,
+            "unique_diversity_key_count": 3,
+            "has_legacy_rejected_shadow_binding": True,
+            "has_novel_cg3_route": False,
+            "coverage_status": "covered",
+            "grounding_summary": {
+                "total_candidates": 3,
+                "shadow_bound": 2,
+                "novel_cg3": 0,
+                "veto_false_analog": 0,
+                "abstain_or_blocked": 1,
+                "legacy_exact_match_would_bind": 1,
+                "legacy_exact_match_would_reject": 2,
+            },
+        },
+        "grounding_payoff": {
+            "recording_count": 1,
+            "recorded_candidate_count": 3,
+            "before_legacy_exact_match": {"would_bind": 1, "would_reject": 2},
+            "after_cgf": {
+                "shadow_bound": 2,
+                "novel_cg3": 0,
+                "veto_false_analog": 0,
+                "abstain_or_blocked": 1,
+            },
+            "payoff_shadow_bindings_legacy_rejected": [
+                {
+                    "proposal_id": "proposal_shadow",
+                    "candidate_id": "candidate_shadow",
+                    "selected_relation": "exact",
+                    "identified_atom_id": "atom_shadow",
+                    "cg1_certificate_id": chain["cg1_certificate_id"],
+                    "cg1_content_hash": chain["cg1_content_hash"],
+                    "legacy_exact_match": "would_reject",
+                }
+            ],
+            "novel_routes": [],
+            "recorded_vetoes": [],
+            "synthetic_cg3_handoff": {},
+        },
+        "positive_gate": {
+            "candidate_count": 3,
+            "grounding_disposition_count": 3,
+            "grounding_summary": {
+                "total_candidates": 3,
+                "shadow_bound": 2,
+                "novel_cg3": 0,
+                "veto_false_analog": 0,
+                "abstain_or_blocked": 1,
+                "legacy_exact_match_would_bind": 1,
+                "legacy_exact_match_would_reject": 2,
+            },
+            "unique_diversity_key_count": 3,
+        },
+        "recording_set_gate": {},
+        "problem_variation_probe": {},
+        "synthetic_cg3_handoff_probe": {},
+    }
+    payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
+    return payload
+
+
 def _intervention(intervention_id: str) -> InterventionSpec:
     return InterventionSpec(
         intervention_id=intervention_id,
@@ -970,9 +1103,10 @@ def test_drafter_parser_source_flip_runs_rederive_and_restores_bytes(
     )
     source_path.write_bytes(original)
     calls: list[tuple[str, ...]] = []
+    timeouts: list[object] = []
 
     def _completed(args: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
-        del kwargs
+        timeouts.append(kwargs.get("timeout"))
         calls.append(args)
         return subprocess.CompletedProcess(
             args=args,
@@ -1008,7 +1142,283 @@ def test_drafter_parser_source_flip_runs_rederive_and_restores_bytes(
     assert result["proof"]["terminal_reason_observed"] is True
     assert any("--rederive-audit" in args for args in calls)
     assert len(calls) == 1
+    assert timeouts == [3600]
     assert source_path.read_bytes() == original
+
+
+def test_n4_recording_leaf_hash_classifies_before_envelope_hash() -> None:
+    recording = copy.deepcopy(_recordings()[0])
+    recording["responses"][0]["raw_response"] += "\n"
+
+    with pytest.raises(RuntimeError, match="gy_n4_recording_raw_response_hash_mismatch"):
+        contract._validate_recording_fixture(recording)
+
+
+def test_n4_recording_envelope_still_rejects_rehashed_leaf_tamper() -> None:
+    recording = copy.deepcopy(_recordings()[0])
+    response = recording["responses"][0]
+    response["raw_response"] += "\n"
+    response["raw_response_hash"] = contract.gy_content_hash(response["raw_response"])
+
+    with pytest.raises(RuntimeError, match="gy_n4_recording_content_hash_mismatch"):
+        contract._validate_recording_fixture(recording)
+
+
+def test_n4_recorded_response_mutation_report_is_precisely_red() -> None:
+    [report] = contract._recording_fixture_mutation_reports(_recordings())
+
+    assert report == {
+        "mutation_id": "recorded_raw_response_hash_mismatch",
+        "status": "red",
+        "issue_codes": ["gy_n4_recording_raw_response_hash_mismatch"],
+    }
+
+
+def test_n4_frozen_receipt_accepts_coherent_non_july_disposition_split() -> None:
+    payload = _alternate_honest_frozen_receipt_payload()
+
+    assert contract._frozen_payoff_receipt_issues(payload) == []
+
+
+def test_n4_frozen_receipt_rejects_incoherent_full_denominator() -> None:
+    payload = _alternate_honest_frozen_receipt_payload()
+    payload["recording_set_coverage"]["grounding_summary"]["total_candidates"] = 4
+    payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
+
+    issue_codes = {
+        item["code"] for item in contract._frozen_payoff_receipt_issues(payload)
+    }
+
+    assert "frozen_receipt_payoff_summary_drift" in issue_codes
+
+
+def test_n4_frozen_receipt_static_claims_are_verified() -> None:
+    payload = _alternate_honest_frozen_receipt_payload()
+    payload["frozen_payoff_receipt"]["mode"] = "decorative"
+
+    assert "frozen_payoff_receipt_mode_drift" in {
+        item["code"] for item in contract._frozen_payoff_receipt_issues(payload)
+    }
+
+
+def test_n4_frozen_receipt_rejects_same_id_payoff_tamper() -> None:
+    payload = _alternate_honest_frozen_receipt_payload()
+    payload["grounding_payoff"]["payoff_shadow_bindings_legacy_rejected"][0][
+        "cg1_content_hash"
+    ] = "sha256:" + "f" * 64
+    payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
+
+    assert "frozen_receipt_shadow_binding_payoff_drift" in {
+        item["code"] for item in contract._frozen_payoff_receipt_issues(payload)
+    }
+
+
+def test_n4_frozen_receipt_rejects_extra_payoff_authority_field() -> None:
+    payload = _alternate_honest_frozen_receipt_payload()
+    payload["grounding_payoff"]["promotion_allowed"] = True
+    payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
+
+    assert "frozen_receipt_payoff_envelope_drift" in {
+        item["code"] for item in contract._frozen_payoff_receipt_issues(payload)
+    }
+
+
+def test_n4_frozen_receipt_rejects_legacy_singular_result_sibling() -> None:
+    payload = _alternate_honest_frozen_receipt_payload()
+    payload["generation_result"] = copy.deepcopy(payload["generation_results"][0])
+    payload["frozen_payoff_receipt"] = contract._build_frozen_payoff_receipt(payload)
+
+    assert "legacy_singular_generation_result_present" in {
+        item["code"] for item in contract.validate_payload(payload)["issues"]
+    }
+
+
+def test_generation_result_rejects_independent_producer_denominator_drift() -> None:
+    payload = json.loads((REPO_ROOT / contract.OUTPUT_PATH).read_text(encoding="utf-8"))[
+        "generation_results"
+    ][0]
+    payload["diversity_report"]["candidate_count"] += 1
+
+    with pytest.raises(ValueError, match="producer_candidate_denominator_drift"):
+        dg.GenerationUnderAResult.model_validate(payload)
+
+
+def test_n4_producer_denominator_mutation_is_causal_on_green_base() -> None:
+    payload = json.loads((REPO_ROOT / contract.OUTPUT_PATH).read_text(encoding="utf-8"))
+    payload.pop("generation_result")
+    payload["source_flip_mutation_harness"] = {
+        "mode": "--source-flip-mutations",
+        "mutation_ids": list(contract.N4_SOURCE_FLIP_MUTATION_IDS),
+        "property": "patch_source_then_causal_red_then_restore_exact_bytes",
+    }
+    assert contract.validate_payload(payload)["status"] == "pass"
+
+    contract._mutate_producer_candidate_denominator(payload)
+    mutated = contract.validate_payload(payload)
+
+    assert mutated["status"] == "fail"
+    assert any(
+        item["code"] == "generation_result_invalid"
+        and "producer_candidate_denominator_drift" in str(item.get("error"))
+        for item in mutated["issues"]
+    )
+
+
+def test_n4_write_adds_receipt_and_excludes_wall_time_from_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    payload = _alternate_honest_frozen_receipt_payload()
+    payload.pop("frozen_payoff_receipt")
+    payload["generation_results"][0]["llm_calls"] = [{"wall_seconds": 1.25}]
+    payload["generation_results"][0]["effective_runtime_config"] = {
+        "cg1_index_prewarm_wall_seconds": 2.5,
+    }
+    payload["generation_results"][0]["candidates"][0]["provenance"] = {
+        "parsed_candidate": {"params": {"wall_seconds": 17.0}}
+    }
+    payload["wall_time_seconds"] = 3.75
+    monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: copy.deepcopy(payload))
+
+    contract.write(tmp_path)
+    output_path = tmp_path / contract.OUTPUT_PATH
+    first = output_path.read_bytes()
+    written = json.loads(first)
+    assert written["frozen_payoff_receipt"]["content_hash"] == contract._frozen_receipt_hash(
+        written
+    )
+    assert "wall_seconds" not in written["generation_results"][0]["llm_calls"][0]
+    assert "cg1_index_prewarm_wall_seconds" not in (
+        written["generation_results"][0]["effective_runtime_config"]
+    )
+    assert "wall_time_seconds" not in written
+    assert (
+        written["generation_results"][0]["candidates"][0]["provenance"]
+        ["parsed_candidate"]["params"]["wall_seconds"]
+        == 17.0
+    )
+
+    payload["generation_results"][0]["llm_calls"][0]["wall_seconds"] = 99.75
+    payload["generation_results"][0]["effective_runtime_config"] = {
+        "cg1_index_prewarm_wall_seconds": 88.5,
+    }
+    payload["wall_time_seconds"] = 77.25
+    contract.write(tmp_path)
+
+    assert output_path.read_bytes() == first
+
+    first_receipt_hash = written["frozen_payoff_receipt"]["content_hash"]
+    payload["generation_results"][0]["candidates"][0]["provenance"][
+        "parsed_candidate"
+    ]["params"]["wall_seconds"] = 18.0
+    contract.write(tmp_path)
+    semantic_change = json.loads(output_path.read_bytes())
+
+    assert output_path.read_bytes() != first
+    assert semantic_change["frozen_payoff_receipt"]["content_hash"] != first_receipt_hash
+
+
+def test_n4_rederive_rejects_live_semantic_receipt_drift(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    committed = _alternate_honest_frozen_receipt_payload()
+    output_path = tmp_path / contract.OUTPUT_PATH
+    output_path.parent.mkdir(parents=True)
+    output_path.write_text(json.dumps(committed), encoding="utf-8")
+    live = copy.deepcopy(committed)
+    live["generation_results"][0]["grounding_dispositions"][0][
+        "selected_relation"
+    ] = "certified-specialization"
+    live["behavioral_mutations"] = []
+    monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload: {"status": "pass", "issues": [], "outputs": []},
+    )
+
+    report = contract.validate_rederive_audit(tmp_path)
+
+    assert "frozen_payoff_live_receipt_drift" in {
+        item["code"] for item in report["issues"]
+    }
+
+
+def test_n4_rederive_accepts_matching_semantic_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    committed = _alternate_honest_frozen_receipt_payload()
+    output_path = tmp_path / contract.OUTPUT_PATH
+    output_path.parent.mkdir(parents=True)
+    output_path.write_text(json.dumps(committed), encoding="utf-8")
+    live = copy.deepcopy(committed)
+    live["behavioral_mutations"] = []
+    monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload: {"status": "pass", "issues": [], "outputs": []},
+    )
+
+    report = contract.validate_rederive_audit(tmp_path)
+
+    assert "frozen_payoff_live_receipt_drift" not in {
+        item["code"] for item in report["issues"]
+    }
+
+
+def test_n4_rederive_rejects_decorative_committed_receipt_mode(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    committed = _alternate_honest_frozen_receipt_payload()
+    committed["frozen_payoff_receipt"]["mode"] = "decorative"
+    output_path = tmp_path / contract.OUTPUT_PATH
+    output_path.parent.mkdir(parents=True)
+    output_path.write_text(json.dumps(committed), encoding="utf-8")
+    live = _alternate_honest_frozen_receipt_payload()
+    live["behavioral_mutations"] = []
+    monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload: {"status": "pass", "issues": [], "outputs": []},
+    )
+
+    report = contract.validate_rederive_audit(tmp_path)
+
+    assert "frozen_payoff_receipt_mode_drift" in {
+        item["code"] for item in report["issues"]
+    }
+
+
+def test_n4_rederive_does_not_trust_repointed_committed_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    live = _alternate_honest_frozen_receipt_payload()
+    live["behavioral_mutations"] = []
+    committed = copy.deepcopy(live)
+    committed["generation_results"][0]["grounding_dispositions"][0][
+        "selected_relation"
+    ] = "certified-specialization"
+    output_path = tmp_path / contract.OUTPUT_PATH
+    output_path.parent.mkdir(parents=True)
+    output_path.write_text(json.dumps(committed), encoding="utf-8")
+    monkeypatch.setattr(contract, "build_live_payload", lambda _repo_root: live)
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda _payload: {"status": "pass", "issues": [], "outputs": []},
+    )
+
+    report = contract.validate_rederive_audit(tmp_path)
+
+    assert "frozen_payoff_receipt_hash_drift" in {
+        item["code"] for item in report["issues"]
+    }
 
 
 def test_recorded_effective_config_source_flip_runs_behavior_and_restores_bytes(

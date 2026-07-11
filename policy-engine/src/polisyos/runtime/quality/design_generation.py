@@ -482,6 +482,8 @@ class GenerationUnderAResult(_StrictModel):
                 != len(self.grounding_dispositions)
             ):
                 raise ValueError("grounding_disposition_summary_denominator_mismatch")
+            if self.diversity_report.candidate_count != len(self.grounding_dispositions):
+                raise ValueError("producer_candidate_denominator_drift")
             bound_ids = {candidate.candidate_id for candidate in self.candidates}
             disposition_ids = {
                 item.candidate_id

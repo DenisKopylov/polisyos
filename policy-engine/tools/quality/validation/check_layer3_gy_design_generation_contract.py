@@ -456,7 +456,6 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
             "mutation_ids": list(N4_SOURCE_FLIP_MUTATION_IDS),
             "property": "patch_source_then_causal_red_then_restore_exact_bytes",
         },
-        "generation_result": result_payload,
         "generation_results": result_payloads,
         "recording_set_coverage": set_coverage,
         "grounding_payoff": grounding_payoff,
@@ -554,51 +553,77 @@ def _grounding_payoff_report(
     *,
     cg3_handoff_probe: dict[str, Any],
 ) -> dict[str, Any]:
-    dispositions = tuple(
-        disposition for result in results for disposition in result.grounding_dispositions
-    )
-    counts = Counter(item.disposition for item in dispositions)
-    legacy = Counter(item.legacy_exact_match for item in dispositions)
-    payoff_bindings = [
-        {
-            "proposal_id": item.proposal_id,
-            "candidate_id": item.candidate_id,
-            "selected_relation": item.selected_relation,
-            "identified_atom_id": item.identified_atom_id,
-            "cg1_certificate_id": item.certificate_chain.cg1_certificate_id,
-            "cg1_content_hash": item.certificate_chain.cg1_content_hash,
-            "legacy_exact_match": item.legacy_exact_match,
-        }
-        for item in dispositions
-        if item.disposition == "shadow_bound" and item.legacy_exact_match == "would_reject"
-    ]
-    novel_routes = [
-        {
-            "proposal_id": item.proposal_id,
-            "selected_relation": item.selected_relation,
-            "cg2_decision": item.cg2_decision,
-            "cg3_decision": item.cg3_decision,
-            "cg3_reason": item.cg3_reason,
-            "certificate_chain": item.certificate_chain.model_dump(mode="json"),
-            "bridge_missing_records": list(item.bridge_missing_records),
-        }
-        for item in dispositions
-        if item.disposition == "novel_cg3"
-    ]
-    vetoes = [
-        {
-            "proposal_id": item.proposal_id,
-            "selected_relation": item.selected_relation,
-            "identified_atom_id": item.identified_atom_id,
-            "rejected_cause": item.rejected_cause,
-            "certificate_chain": item.certificate_chain.model_dump(mode="json"),
-        }
-        for item in dispositions
-        if item.disposition == "veto_false_analog"
+    disposition_payloads = [
+        disposition.model_dump(mode="json")
+        for result in results
+        for disposition in result.grounding_dispositions
     ]
     return {
         "recording_count": len(results),
-        "recorded_candidate_count": len(dispositions),
+        "recorded_candidate_count": len(disposition_payloads),
+        **_grounding_payoff_projection(disposition_payloads),
+        "synthetic_cg3_handoff": cg3_handoff_probe,
+    }
+
+
+def _grounding_payoff_projection(
+    dispositions: list[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Project full payoff evidence from canonical disposition rows."""
+
+    counts = Counter(str(item.get("disposition") or "") for item in dispositions)
+    legacy = Counter(str(item.get("legacy_exact_match") or "") for item in dispositions)
+    payoff_bindings: list[dict[str, Any]] = []
+    novel_routes: list[dict[str, Any]] = []
+    vetoes: list[dict[str, Any]] = []
+    for item in dispositions:
+        chain = item.get("certificate_chain")
+        chain_payload = dict(chain) if isinstance(chain, Mapping) else {}
+        if (
+            item.get("disposition") == "shadow_bound"
+            and item.get("legacy_exact_match") == "would_reject"
+        ):
+            payoff_bindings.append(
+                {
+                    "proposal_id": item.get("proposal_id"),
+                    "candidate_id": item.get("candidate_id"),
+                    "selected_relation": item.get("selected_relation"),
+                    "identified_atom_id": item.get("identified_atom_id"),
+                    "cg1_certificate_id": chain_payload.get("cg1_certificate_id"),
+                    "cg1_content_hash": chain_payload.get("cg1_content_hash"),
+                    "legacy_exact_match": item.get("legacy_exact_match"),
+                }
+            )
+        if item.get("disposition") == "novel_cg3":
+            novel_routes.append(
+                {
+                    "proposal_id": item.get("proposal_id"),
+                    "selected_relation": item.get("selected_relation"),
+                    "cg2_decision": item.get("cg2_decision"),
+                    "cg3_decision": item.get("cg3_decision"),
+                    "cg3_reason": item.get("cg3_reason"),
+                    "certificate_chain": chain_payload,
+                    "bridge_missing_records": list(
+                        item.get("bridge_missing_records") or []
+                    ),
+                }
+            )
+        if item.get("disposition") == "veto_false_analog":
+            rejected_cause = item.get("rejected_cause")
+            vetoes.append(
+                {
+                    "proposal_id": item.get("proposal_id"),
+                    "selected_relation": item.get("selected_relation"),
+                    "identified_atom_id": item.get("identified_atom_id"),
+                    "rejected_cause": (
+                        dict(rejected_cause)
+                        if isinstance(rejected_cause, Mapping)
+                        else rejected_cause
+                    ),
+                    "certificate_chain": chain_payload,
+                }
+            )
+    return {
         "before_legacy_exact_match": {
             "would_bind": legacy["would_bind"],
             "would_reject": legacy["would_reject"],
@@ -612,42 +637,67 @@ def _grounding_payoff_report(
         "payoff_shadow_bindings_legacy_rejected": payoff_bindings,
         "novel_routes": novel_routes,
         "recorded_vetoes": vetoes,
-        "synthetic_cg3_handoff": cg3_handoff_probe,
     }
 
 
 def _recording_set_coverage(results: list[GenerationUnderAResult]) -> dict[str, Any]:
-    dispositions = tuple(
-        disposition for result in results for disposition in result.grounding_dispositions
+    """Project typed live results through the canonical coverage owner."""
+
+    return _recording_set_coverage_from_payloads(
+        [item.model_dump(mode="json") for item in results]
     )
-    candidates = tuple(candidate for result in results for candidate in result.candidates)
-    counts = Counter(item.disposition for item in dispositions)
-    legacy = Counter(item.legacy_exact_match for item in dispositions)
+
+
+def _recording_set_coverage_from_payloads(
+    results: list[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Compute one full-denominator coverage projection from result payloads."""
+
+    dispositions = tuple(
+        disposition
+        for result in results
+        for disposition in result.get("grounding_dispositions") or []
+        if isinstance(disposition, Mapping)
+    )
+    candidates = tuple(
+        candidate
+        for result in results
+        for candidate in result.get("candidates") or []
+        if isinstance(candidate, Mapping)
+    )
+    counts = Counter(str(item.get("disposition") or "") for item in dispositions)
+    legacy = Counter(str(item.get("legacy_exact_match") or "") for item in dispositions)
     diversity_keys: set[tuple[str, ...]] = {
-        tuple(str(part) for part in candidate.diversity_key) for candidate in candidates
+        tuple(str(part) for part in candidate.get("diversity_key") or ())
+        for candidate in candidates
+        if isinstance(candidate.get("diversity_key"), list | tuple)
     }
     diversity_keys.update(
         (
-            disposition.proposal_id,
-            disposition.disposition,
-            disposition.selected_relation,
-            disposition.identified_atom_id
-            or disposition.cg3_decision
-            or disposition.cg2_decision
-            or disposition.raw_candidate_hash,
+            str(disposition.get("proposal_id") or ""),
+            str(disposition.get("disposition") or ""),
+            str(disposition.get("selected_relation") or ""),
+            str(
+                disposition.get("identified_atom_id")
+                or disposition.get("cg3_decision")
+                or disposition.get("cg2_decision")
+                or disposition.get("raw_candidate_hash")
+                or ""
+            ),
         )
         for disposition in dispositions
-        if disposition.candidate_id is None
+        if disposition.get("candidate_id") is None
     )
     has_recovered = any(
-        item.disposition == "shadow_bound" and item.legacy_exact_match == "would_reject"
+        item.get("disposition") == "shadow_bound"
+        and item.get("legacy_exact_match") == "would_reject"
         for item in dispositions
     )
-    has_novel = any(item.disposition == "novel_cg3" for item in dispositions)
+    has_novel = any(item.get("disposition") == "novel_cg3" for item in dispositions)
     candidate_count = len(dispositions)
     return {
         "recording_count": len(results),
-        "all_recordings_generated": all(item.status == "generated" for item in results),
+        "all_recordings_generated": all(item.get("status") == "generated" for item in results),
         "candidate_count": candidate_count,
         "grounding_disposition_count": len(dispositions),
         "unique_diversity_key_count": len(diversity_keys),
@@ -898,6 +948,8 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
     """Validate one contract payload, including behavioral firewall properties."""
 
     issues: list[dict[str, Any]] = []
+    if "generation_result" in payload:
+        issues.append({"code": "legacy_singular_generation_result_present"})
     if payload.get("schema_version") != DESIGN_GENERATION_CONTRACT_SCHEMA_VERSION:
         issues.append({"code": "design_generation_contract_schema_mismatch"})
     result_payloads = payload.get("generation_results")
@@ -1169,6 +1221,25 @@ def validate_rederive_audit(repo_root: Path) -> dict[str, Any]:
         if not isinstance(item, dict) or item.get("status") != "red"
     ]
     issues = list(report["issues"])
+    path = repo_root / OUTPUT_PATH
+    if not path.is_file():
+        issues.append({"code": "design_generation_contract_missing", "path": OUTPUT_PATH})
+    else:
+        try:
+            committed = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            issues.append(
+                {
+                    "code": "design_generation_contract_invalid_json",
+                    "path": OUTPUT_PATH,
+                    "error": str(exc),
+                }
+            )
+        else:
+            committed_report = validate_payload(dict(committed))
+            issues.extend(committed_report["issues"])
+            issues.extend(_frozen_payoff_receipt_issues(dict(committed)))
+            issues.extend(_frozen_payoff_live_receipt_issues(committed, live))
     if mutation_failures:
         issues.append(
             {
@@ -1233,6 +1304,8 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
     if not isinstance(receipt, dict):
         issues.append({"code": "frozen_payoff_receipt_missing"})
     else:
+        if receipt.get("mode") != "frozen_real_output_payoff_receipt":
+            issues.append({"code": "frozen_payoff_receipt_mode_drift"})
         if (
             receipt.get("follow_up")
             != "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING"
@@ -1241,6 +1314,11 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
             issues.append({"code": "frozen_payoff_followup_not_closed"})
         if receipt.get("routine_check_mode") != "verify_frozen_receipt_without_live_rederive":
             issues.append({"code": "frozen_payoff_receipt_check_mode_drift"})
+        if receipt.get("live_grounding_guarantee") != (
+            "test_cgf_binding_recovers_legacy_exact_match_rejection plus "
+            "recomputing CG0-CG6 contracts"
+        ):
+            issues.append({"code": "frozen_payoff_receipt_live_guarantee_drift"})
         expected_hash = _frozen_receipt_hash(payload)
         if receipt.get("content_hash") != expected_hash:
             issues.append(
@@ -1255,16 +1333,9 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
     if not isinstance(coverage, dict):
         issues.append({"code": "recording_set_coverage_missing"})
         coverage = {}
+    expected_coverage = _recomputed_frozen_coverage(payload)
     summary = coverage.get("grounding_summary")
-    expected_summary = {
-        "abstain_or_blocked": 1,
-        "legacy_exact_match_would_bind": 0,
-        "legacy_exact_match_would_reject": 6,
-        "novel_cg3": 3,
-        "shadow_bound": 2,
-        "total_candidates": 6,
-        "veto_false_analog": 0,
-    }
+    expected_summary = expected_coverage["grounding_summary"]
     if coverage.get("coverage_status") != "covered":
         issues.append({"code": "frozen_receipt_coverage_not_covered"})
     if int(coverage.get("candidate_count") or 0) < 3:
@@ -1273,8 +1344,6 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
         issues.append({"code": "frozen_receipt_diversity_missing"})
     if coverage.get("has_legacy_rejected_shadow_binding") is not True:
         issues.append({"code": "frozen_receipt_shadow_recovery_missing"})
-    if coverage.get("has_novel_cg3_route") is not True:
-        issues.append({"code": "frozen_receipt_novel_route_missing"})
     if summary != expected_summary:
         issues.append(
             {
@@ -1283,42 +1352,107 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
                 "expected": expected_summary,
             }
         )
+    coverage_projection = {key: value for key, value in coverage.items() if key != "grounding_summary"}
+    expected_coverage_projection = {
+        key: value for key, value in expected_coverage.items() if key != "grounding_summary"
+    }
+    if coverage_projection != expected_coverage_projection:
+        issues.append(
+            {
+                "code": "frozen_receipt_coverage_drift",
+                "recorded": coverage_projection,
+                "expected": expected_coverage_projection,
+            }
+        )
+    for index, result in enumerate(_mutable_generation_results(payload)):
+        dispositions = [
+            item
+            for item in result.get("grounding_dispositions") or []
+            if isinstance(item, dict)
+        ]
+        diversity = result.get("diversity_report")
+        grounding_summary = result.get("grounding_disposition_summary")
+        if not isinstance(diversity, dict) or not isinstance(grounding_summary, dict):
+            issues.append(
+                {
+                    "code": "frozen_receipt_producer_denominator_missing",
+                    "index": index,
+                }
+            )
+            continue
+        owner_count = diversity.get("candidate_count")
+        summary_count = grounding_summary.get("total_candidates")
+        if owner_count != len(dispositions) or summary_count != len(dispositions):
+            issues.append(
+                {
+                    "code": "producer_candidate_denominator_drift",
+                    "index": index,
+                    "owner_candidate_count": owner_count,
+                    "grounding_summary_count": summary_count,
+                    "disposition_count": len(dispositions),
+                }
+            )
+    positive = payload.get("positive_gate")
+    if not isinstance(positive, dict):
+        issues.append({"code": "frozen_receipt_positive_gate_missing"})
+    elif (
+        positive.get("candidate_count") != expected_coverage["candidate_count"]
+        or positive.get("grounding_disposition_count")
+        != expected_coverage["grounding_disposition_count"]
+        or positive.get("grounding_summary") != expected_summary
+        or positive.get("unique_diversity_key_count")
+        != expected_coverage["unique_diversity_key_count"]
+    ):
+        issues.append({"code": "frozen_receipt_positive_denominator_drift"})
 
+    disposition_rows = _frozen_disposition_rows(payload)
+    expected_payoff = _grounding_payoff_projection(disposition_rows)
     payoff = payload.get("grounding_payoff")
     if not isinstance(payoff, dict):
         issues.append({"code": "grounding_payoff_missing"})
         payoff = {}
-    if payoff.get("before_legacy_exact_match") != {"would_bind": 0, "would_reject": 6}:
+    expected_payoff_keys = {
+        "recording_count",
+        "recorded_candidate_count",
+        "synthetic_cg3_handoff",
+        *expected_payoff,
+    }
+    if set(payoff) != expected_payoff_keys:
+        issues.append(
+            {
+                "code": "frozen_receipt_payoff_envelope_drift",
+                "recorded": sorted(payoff),
+                "expected": sorted(expected_payoff_keys),
+            }
+        )
+    if payoff.get("recording_count") != expected_coverage["recording_count"]:
+        issues.append({"code": "frozen_receipt_payoff_recording_denominator_drift"})
+    if payoff.get("recorded_candidate_count") != expected_coverage["candidate_count"]:
+        issues.append({"code": "frozen_receipt_payoff_candidate_denominator_drift"})
+    expected_before = expected_payoff["before_legacy_exact_match"]
+    if payoff.get("before_legacy_exact_match") != expected_before:
         issues.append({"code": "frozen_receipt_before_table_drift"})
-    if payoff.get("after_cgf") != {
-        "abstain_or_blocked": 1,
-        "novel_cg3": 3,
-        "shadow_bound": 2,
-        "veto_false_analog": 0,
-    }:
+    expected_after = expected_payoff["after_cgf"]
+    if payoff.get("after_cgf") != expected_after:
         issues.append({"code": "frozen_receipt_after_table_drift"})
     shadow_payoff = payoff.get("payoff_shadow_bindings_legacy_rejected")
-    if not isinstance(shadow_payoff, list) or len(shadow_payoff) != 2:
+    if shadow_payoff != expected_payoff["payoff_shadow_bindings_legacy_rejected"]:
         issues.append({"code": "frozen_receipt_shadow_binding_payoff_drift"})
     novel_routes = payoff.get("novel_routes")
-    if not isinstance(novel_routes, list) or len(novel_routes) != 3:
+    if novel_routes != expected_payoff["novel_routes"]:
         issues.append({"code": "frozen_receipt_novel_route_payoff_drift"})
+    vetoes = payoff.get("recorded_vetoes")
+    if vetoes != expected_payoff["recorded_vetoes"]:
+        issues.append({"code": "frozen_receipt_veto_payoff_drift"})
+    if payoff.get("synthetic_cg3_handoff") != payload.get("synthetic_cg3_handoff_probe"):
+        issues.append({"code": "frozen_receipt_synthetic_cg3_projection_drift"})
 
-    disposition_rows = _frozen_disposition_rows(payload)
-    if len(disposition_rows) != 6:
+    if len(disposition_rows) != expected_coverage["candidate_count"]:
         issues.append({"code": "frozen_receipt_disposition_denominator_drift"})
-    shadow_dispositions = [
-        item
-        for item in disposition_rows
-        if item.get("disposition") == "shadow_bound"
-        and item.get("legacy_exact_match") == "would_reject"
-    ]
-    if len(shadow_dispositions) != 2:
-        issues.append({"code": "frozen_receipt_shadow_disposition_drift"})
     novel_dispositions = [
         item for item in disposition_rows if item.get("selected_relation") == "novel-candidate"
     ]
-    if len(novel_dispositions) != 3 or any(
+    if len(novel_dispositions) != expected_summary["novel_cg3"] or any(
         item.get("disposition") != "novel_cg3" for item in novel_dispositions
     ):
         issues.append({"code": "frozen_receipt_novel_disposition_drift"})
@@ -1361,6 +1495,12 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
     return issues
 
 
+def _recomputed_frozen_coverage(payload: dict[str, Any]) -> dict[str, Any]:
+    """Recompute the frozen receipt's complete disposition denominator."""
+
+    return _recording_set_coverage_from_payloads(_mutable_generation_results(payload))
+
+
 def _frozen_disposition_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for result in _mutable_generation_results(payload):
@@ -1388,33 +1528,103 @@ def _frozen_receipt_hash(payload: dict[str, Any]) -> str:
     return _stable_json_hash(_drift_stable_payload(_frozen_receipt_projection(payload)))
 
 
+def _build_frozen_payoff_receipt(payload: dict[str, Any]) -> dict[str, Any]:
+    """Build the content-bound routine-verification receipt for one live payload."""
+
+    return {
+        "content_hash": _frozen_receipt_hash(payload),
+        "follow_up": "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING",
+        "live_grounding_guarantee": (
+            "test_cgf_binding_recovers_legacy_exact_match_rejection plus "
+            "recomputing CG0-CG6 contracts"
+        ),
+        "mode": "frozen_real_output_payoff_receipt",
+        "routine_check_mode": "verify_frozen_receipt_without_live_rederive",
+        "status": "closed",
+    }
+
+
+def _frozen_payoff_live_receipt_issues(
+    committed: Mapping[str, Any],
+    live: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Compare current live semantics with the committed frozen receipt."""
+
+    receipt = committed.get("frozen_payoff_receipt")
+    if not isinstance(receipt, Mapping):
+        return [{"code": "frozen_payoff_receipt_missing"}]
+    recorded = receipt.get("content_hash")
+    committed_computed = _frozen_receipt_hash(dict(committed))
+    live_computed = _frozen_receipt_hash(dict(live))
+    issues: list[dict[str, Any]] = []
+    if "generation_result" in committed:
+        issues.append({"code": "legacy_singular_generation_result_present"})
+    if recorded != committed_computed:
+        issues.append(
+            {
+                "code": "frozen_payoff_receipt_hash_drift",
+                "recorded": recorded,
+                "computed": committed_computed,
+            }
+        )
+    if recorded != live_computed:
+        issues.append(
+            {
+                "code": "frozen_payoff_live_receipt_drift",
+                "recorded": recorded,
+                "computed": live_computed,
+            }
+        )
+    return issues
+
+
 def write(repo_root: Path) -> None:
     """Write the live GY-N4 design-generation contract artifact."""
 
     path = repo_root / OUTPUT_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
+    payload = _artifact_stable_payload(build_live_payload(repo_root))
+    if not isinstance(payload, dict):  # pragma: no cover - build_live_payload is typed.
+        raise RuntimeError("gy_n4_artifact_payload_invalid")
+    payload["frozen_payoff_receipt"] = _build_frozen_payoff_receipt(payload)
     path.write_text(
-        json.dumps(build_live_payload(repo_root), indent=2, sort_keys=True) + "\n",
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def _artifact_stable_payload(value: Any) -> Any:
+    """Remove replay-local elapsed measurements from committed artifact bytes."""
+
+    normalized = copy.deepcopy(value)
+    if not isinstance(normalized, dict):
+        return normalized
+    normalized.pop("wall_time_seconds", None)
+    for result in normalized.get("generation_results") or []:
+        if not isinstance(result, dict):
+            continue
+        config = result.get("effective_runtime_config")
+        if isinstance(config, dict):
+            config.pop("cg1_index_prewarm_wall_seconds", None)
+        for call in result.get("llm_calls") or []:
+            if isinstance(call, dict):
+                call.pop("wall_seconds", None)
+    return normalized
 
 
 def _drift_stable_payload(value: Any) -> Any:
     """Normalize replay-local timing measurements before artifact drift comparison."""
 
-    if isinstance(value, dict):
-        normalized: dict[str, Any] = {}
-        for key, item in value.items():
-            if key == "prompt_size_estimate":
-                normalized[key] = "<measured-prompt-size>"
-            elif key in {"wall_seconds", "cg1_index_prewarm_wall_seconds"}:
-                normalized[key] = "<measured-runtime>"
-            else:
-                normalized[key] = _drift_stable_payload(item)
+    normalized = _artifact_stable_payload(value)
+    if not isinstance(normalized, dict):
         return normalized
-    if isinstance(value, list):
-        return [_drift_stable_payload(item) for item in value]
-    return value
+    for result in normalized.get("generation_results") or []:
+        if not isinstance(result, dict):
+            continue
+        config = result.get("effective_runtime_config")
+        if isinstance(config, dict) and "prompt_size_estimate" in config:
+            config["prompt_size_estimate"] = "<measured-prompt-size>"
+    return normalized
 
 
 def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1436,6 +1646,7 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
             _mutate_disposition_diverges_from_certificate_verdict
         ),
         "grounding_disposition_count_drift": _mutate_grounding_disposition_count,
+        "producer_candidate_denominator_drift": _mutate_producer_candidate_denominator,
         "grounding_certificate_chain_drift": _mutate_grounding_certificate_chain,
         "domain_mechanism_hardcode": _mutate_domain_hardcode,
         "recorded_replay_collapses_to_authored_fixed_set": _mutate_authored_replay_collapse,
@@ -1635,8 +1846,7 @@ def _mutable_generation_results(payload: dict[str, Any]) -> list[dict[str, Any]]
     results = payload.get("generation_results")
     if isinstance(results, list):
         return [item for item in results if isinstance(item, dict)]
-    result = payload.get("generation_result")
-    return [result] if isinstance(result, dict) else []
+    return []
 
 
 def first_shadow_bound_recorded_candidate(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1913,6 +2123,11 @@ def _mutate_grounding_disposition_count(payload: dict[str, Any]) -> None:
     summary["shadow_bound"] = int(summary.get("shadow_bound") or 0) + 1
 
 
+def _mutate_producer_candidate_denominator(payload: dict[str, Any]) -> None:
+    diversity = _mutable_generation_results(payload)[0]["diversity_report"]
+    diversity["candidate_count"] = int(diversity.get("candidate_count") or 0) + 1
+
+
 def _mutate_grounding_certificate_chain(payload: dict[str, Any]) -> None:
     for result in _mutable_generation_results(payload):
         for disposition in result.get("grounding_dispositions") or []:
@@ -1986,7 +2201,6 @@ def _recording_fixture_integrity_report(recordings: list[dict[str, Any]]) -> dic
 
 
 def _validate_recording_fixture(recording: dict[str, Any]) -> None:
-    _verify_recording_content_hash(recording)
     if not recording.get("recorded_at"):
         raise RuntimeError("gy_n4_recording_timestamp_missing")
     response = recording.get("response")
@@ -2033,6 +2247,7 @@ def _validate_recording_fixture(recording: dict[str, Any]) -> None:
             )
         if "__draft_" in raw or "__placeholder__" in raw:
             raise RuntimeError(f"gy_n4_recording_placeholder_detected:{index}")
+    _verify_recording_content_hash(recording)
 
 
 def _fixture_hash(repo_root: Path) -> str:
@@ -2493,7 +2708,7 @@ def _run_drafter_parser_source_flip(repo_root: Path) -> dict[str, Any]:
             env=env,
             text=True,
             capture_output=True,
-            timeout=1200,
+            timeout=3600,
             check=False,
         )
     except Exception as exc:  # pragma: no cover - returned as harness evidence.

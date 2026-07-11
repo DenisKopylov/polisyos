@@ -183,6 +183,8 @@ async def test_llm_critic_falls_back_when_gateway_fails(monkeypatch) -> None:
     assert llm.calls[0]["timeout"] == 1.0
     assert report.report_id.startswith("critique_")
     assert report.problem_frame_ref
+    assert report.metadata["generator_path"] == "degraded_mock_fallback"
+    assert report.metadata["degraded_reason"] == "llm_call_failed"
 
 
 @pytest.mark.asyncio
@@ -206,6 +208,8 @@ async def test_llm_critic_parses_think_prefixed_json() -> None:
 
     assert report.report_id == "critique_think_prefixed"
     assert report.verdict == "APPROVE"
+    assert report.metadata["generator_path"] == "model_generated"
+    assert report.metadata["raw_llm_response"] == raw
 
 
 @pytest.mark.asyncio
@@ -219,3 +223,15 @@ async def test_llm_critic_invalid_json_returns_conservative_parse_error() -> Non
 
     assert report.verdict == "NEEDS_REVISION"
     assert [issue.issue_id for issue in report.issues] == ["parse_error"]
+    assert report.metadata["generator_path"] == "degraded_mock_fallback"
+    assert report.metadata["degraded_reason"] == "llm_parse_failed"
+    assert report.metadata["raw_llm_response"] == "no object exists"
+
+
+@pytest.mark.asyncio
+async def test_explicit_mock_critic_is_stamped_non_promotable() -> None:
+    bundle = await MockFormalizerAgent().formalize(create_mock_draft())
+
+    report = await MockCriticAgent().critique(bundle, create_mock_problem_frame())
+
+    assert report.metadata["generator_path"] == "degraded_mock_fallback"

@@ -29,6 +29,7 @@ from polisyos.runtime.quality.design_generation import (
 )
 from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from polisyos.scientist.agent.formalizer import (
+    FormalizerSchemaValidationError,
     LLMFormalizerAgent,
     trinity_bundle_formalizer_generator_path,
 )
@@ -937,6 +938,121 @@ async def test_formalizer_records_unknown_extra_field_healing() -> None:
 
 
 @pytest.mark.asyncio
+async def test_formalizer_strict_mode_refuses_unknown_extra_field_healing() -> None:
+    payload = _bundle(
+        [
+            InterventionSpec(
+                intervention_id="strict_extra_probe",
+                kind="tax_subsidy",
+                target=_selector(),
+                schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                params={"rate": Decimal("0.08")},
+            )
+        ]
+    ).model_dump(mode="json")
+    payload["problem_frame"]["unknown_extra_for_probe"] = "must-refuse"
+    formalizer = LLMFormalizerAgent(
+        StaticLLMClient(json.dumps(payload)),
+        model_name=SUPPORTED_GENERATION_MODEL_IDS[1],
+        enable_response_healing=True,
+        schema_healing_mode="strict",
+    )
+    draft = DraftResult(
+        draft_id="draft_strict_extra_probe",
+        problem_frame_ref="problem_gy_n4_cgf",
+        narrative="Probe",
+        interventions=[],
+        rationale="Probe",
+    )
+
+    with pytest.raises(FormalizerSchemaValidationError) as exc_info:
+        await formalizer.formalize(draft)
+
+    error = exc_info.value
+    assert error.failure["phase"] == "schema_healing"
+    assert error.field_errors == [
+        {
+            "path": "problem_frame.unknown_extra_for_probe",
+            "raw": "must-refuse",
+            "normalized": "stripped_unknown_extra_field",
+            "note": (
+                "schema_healed:problem_frame.unknown_extra_for_probe:"
+                "unknown_extra_stripped"
+            ),
+        }
+    ]
+
+
+@pytest.mark.asyncio
+async def test_formalizer_strict_mode_refuses_unrecognized_bound_alias() -> None:
+    payload = _bundle([_intervention("strict_bound_probe")]).model_dump(mode="json")
+    payload["problem_frame"]["hard_constraints"] = [
+        {
+            "constraint_id": "strict_bound_constraint",
+            "constraint_type": "hard",
+            "value": "bounded",
+            "bound": "not_a_bound",
+        }
+    ]
+    formalizer = LLMFormalizerAgent(
+        StaticLLMClient(json.dumps(payload)),
+        model_name=SUPPORTED_GENERATION_MODEL_IDS[1],
+        enable_response_healing=True,
+        schema_healing_mode="strict",
+    )
+    draft = DraftResult(
+        draft_id="draft_strict_bound_probe",
+        problem_frame_ref="problem_gy_n4_cgf",
+        narrative="Probe",
+        interventions=[],
+        rationale="Probe",
+    )
+
+    with pytest.raises(FormalizerSchemaValidationError) as exc_info:
+        await formalizer.formalize(draft)
+
+    assert exc_info.value.failure["phase"] == "schema_healing"
+    assert exc_info.value.field_errors[0]["path"] == (
+        "problem_frame.hard_constraints.0.bound"
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("nullable_alias", ["description", "threshold", "scope"])
+async def test_formalizer_strict_mode_refuses_null_constraint_alias(
+    nullable_alias: str,
+) -> None:
+    payload = _bundle([_intervention("strict_null_alias_probe")]).model_dump(mode="json")
+    payload["problem_frame"]["hard_constraints"] = [
+        {
+            "constraint_id": "strict_null_alias_constraint",
+            "constraint_type": "hard",
+            "value": "bounded",
+            nullable_alias: None,
+        }
+    ]
+    formalizer = LLMFormalizerAgent(
+        StaticLLMClient(json.dumps(payload)),
+        model_name=SUPPORTED_GENERATION_MODEL_IDS[1],
+        enable_response_healing=True,
+        schema_healing_mode="strict",
+    )
+    draft = DraftResult(
+        draft_id="draft_strict_null_alias_probe",
+        problem_frame_ref="problem_gy_n4_cgf",
+        narrative="Probe",
+        interventions=[],
+        rationale="Probe",
+    )
+
+    with pytest.raises(FormalizerSchemaValidationError) as exc_info:
+        await formalizer.formalize(draft)
+
+    assert exc_info.value.failure["phase"] == "schema_healing"
+    assert exc_info.value.field_errors[0]["path"].endswith(nullable_alias)
+
+
+@pytest.mark.asyncio
 async def test_formalizer_records_trinity_root_wrapper_healing() -> None:
     payload = {
         "schema_version": "1.0",
@@ -971,6 +1087,142 @@ async def test_formalizer_records_trinity_root_wrapper_healing() -> None:
     assert any(
         item["path"] == "root" and item["normalized"] == "unwrapped_trinity_bundle_root"
         for item in formalizer.schema_healing_events
+    )
+
+
+@pytest.mark.asyncio
+async def test_formalizer_live_path_rejects_ambiguous_root_wrapper() -> None:
+    inner = _bundle([_intervention("inner_candidate")])
+    outer = _bundle([_intervention("outer_candidate")]).model_dump(mode="json")
+    outer["root"] = inner.model_dump(mode="json")
+    formalizer = LLMFormalizerAgent(
+        StaticLLMClient(json.dumps(outer)),
+        model_name=SUPPORTED_GENERATION_MODEL_IDS[1],
+        enable_response_healing=True,
+    )
+    draft = DraftResult(
+        draft_id="draft_ambiguous_root_probe",
+        problem_frame_ref="problem_gy_n4_cgf",
+        narrative="Probe",
+        interventions=[],
+        rationale="Probe",
+    )
+
+    result = await formalizer.formalize(draft)
+
+    intervention_ids = {
+        item.intervention_id for item in result.policy_spec.interventions
+    }
+    assert intervention_ids.isdisjoint({"inner_candidate", "outer_candidate"})
+    assert formalizer.schema_healing_events == ()
+
+
+def test_formalizer_path_rejects_ambiguous_root_wrapper() -> None:
+    inner = _bundle([_intervention("inner_candidate")])
+    outer = _bundle([_intervention("outer_candidate")]).model_dump(mode="json")
+    outer["root"] = inner.model_dump(mode="json")
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            inner,
+            recorded_calls=(_formalizer_call(parsed_json=outer),),
+        )
+        == "path_unrecorded"
+    )
+
+
+def test_formalizer_path_rejects_root_schema_version_disagreement() -> None:
+    inner = _bundle([_intervention("inner_candidate")])
+    payload = {
+        "schema_version": "9.9",
+        "root": inner.model_dump(mode="json"),
+    }
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            inner,
+            recorded_calls=(_formalizer_call(parsed_json=payload),),
+        )
+        == "path_unrecorded"
+    )
+
+
+def test_formalizer_path_rejects_unregistered_double_underscore_alias() -> None:
+    expected_payload = _bundle([_intervention("parameter_alias_probe")]).model_dump(
+        mode="json"
+    )
+    expected_payload["policy_spec"]["parameters"] = [
+        {
+            "param_id": "rate_parameter",
+            "intervention_id": "parameter_alias_probe",
+            "param_path": "rate",
+            "default_value": "0.08",
+        }
+    ]
+    expected = TrinityBundle.model_validate(expected_payload)
+    recorded_payload = copy.deepcopy(expected_payload)
+    parameter = recorded_payload["policy_spec"]["parameters"][0]
+    parameter["param__id"] = parameter.pop("param_id")
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            expected,
+            recorded_calls=(_formalizer_call(parsed_json=recorded_payload),),
+        )
+        == "path_unrecorded"
+    )
+
+
+def test_formalizer_path_accepts_registered_parameter_alias() -> None:
+    expected_payload = _bundle([_intervention("registered_alias_probe")]).model_dump(
+        mode="json"
+    )
+    expected_payload["policy_spec"]["parameters"] = [
+        {
+            "param_id": "rate_parameter",
+            "intervention_id": "registered_alias_probe",
+            "param_path": "rate",
+            "default_value": "0.08",
+        }
+    ]
+    expected = TrinityBundle.model_validate(expected_payload)
+    recorded_payload = copy.deepcopy(expected_payload)
+    parameter = recorded_payload["policy_spec"]["parameters"][0]
+    parameter["intervention__id"] = parameter.pop("intervention_id")
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            expected,
+            recorded_calls=(_formalizer_call(parsed_json=recorded_payload),),
+        )
+        == "model_generated"
+    )
+
+
+def test_formalizer_path_rejects_conflicting_registered_alias() -> None:
+    expected_payload = _bundle([_intervention("parameter_conflict_probe")]).model_dump(
+        mode="json"
+    )
+    expected_payload["policy_spec"]["parameters"] = [
+        {
+            "param_id": "rate_parameter",
+            "intervention_id": "parameter_conflict_probe",
+            "param_path": "rate",
+            "default_value": "0.08",
+        }
+    ]
+    expected = TrinityBundle.model_validate(expected_payload)
+    recorded_payload = copy.deepcopy(expected_payload)
+    recorded_payload["policy_spec"]["parameters"][0]["intervention__id"] = (
+        "different_intervention"
+    )
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            expected,
+            recorded_calls=(_formalizer_call(parsed_json=recorded_payload),),
+        )
+        == "path_unrecorded"
     )
 
 
@@ -1254,11 +1506,11 @@ async def test_gateway_only_model_is_accepted_from_live_catalog() -> None:
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("bad_role", "reason"),
-    [
-        ("draft", "drafter_degraded_mock_fallback"),
-        ("formalizer", "formalizer_degraded_mock_fallback"),
-        ("critic", "critic_degraded_mock_fallback"),
-    ],
+        [
+            ("draft", "drafter_degraded_mock_fallback"),
+            ("formalizer", "formalizer_path_unrecorded"),
+            ("critic", "critic_degraded_mock_fallback"),
+        ],
 )
 async def test_degraded_organs_are_labeled_and_excluded(bad_role: str, reason: str) -> None:
     recording = _recordings()[0]
@@ -1451,6 +1703,24 @@ def test_formalizer_path_replays_formalize_schema_version_override() -> None:
     bundle = _bundle([_intervention("schema_version")])
     recorded_payload = bundle.model_dump(mode="json")
     recorded_payload["schema_version"] = "1.1"
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            bundle,
+            recorded_calls=(_formalizer_call(parsed_json=recorded_payload),),
+        )
+        == "model_generated"
+    )
+
+
+def test_formalizer_path_replays_live_payload_normalization() -> None:
+    bundle = _bundle([_intervention("normalized_replay")])
+    rooted_payload = bundle.model_dump(mode="json")
+    rooted_payload["problem_frame"]["unknown_extra_for_probe"] = "strip-me"
+    recorded_payload = {
+        "schema_version": "1.0",
+        "root": rooted_payload,
+    }
 
     assert (
         trinity_bundle_formalizer_generator_path(

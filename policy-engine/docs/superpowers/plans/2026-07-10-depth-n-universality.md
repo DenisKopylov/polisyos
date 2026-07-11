@@ -25,6 +25,8 @@
 - Run exactly one mutating or validating process at a time. Give long owner lanes their full E9 budget.
 - Use E1 content-addressed pack/world/engine caches, Lane-0 mini-worlds, cached Lane-1 owners, one cold two-domain closeout, E5 wall times, and E6 journal-first live capture.
 - Runtime timestamps and wall time never participate in artifact content hashes. `--write` must be byte-stable.
+- N10a's zero-engine receipt is replayed only over immutable commits `26cc7cc03efc9da44362dc2914a5bde8ac8f7e73..d8a8cf076da6233c66b0a90010647c0d437e81c4`; live owner rederive remains current, and moving-HEAD rebasing is a decisive failure.
+- Every GY-N10 validator and focused universality harness fails `wrong_checkout_resolved` unless `polisyos.__file__` is under the current checkout's `src/`; every local command also sets `PYTHONPATH="$PWD/src:$PWD"`.
 - The two infrastructure gaps `owner_registration_derivation_missing` and `journal_raw_evidence_persistence_missing` remain typed residuals unless existing owners close them without scope expansion.
 - Every task follows RED -> observe expected failure -> minimal GREEN -> focused regression -> scoped commit.
 - A later stage does not begin while the preceding stage gate is red.
@@ -75,19 +77,139 @@
 
 # Stage 1 — N4 repair, content-bound intake, and pack bridges
 
+## Task 0: Freeze the N10a historical receipt before Stage 1
+
+**Files:**
+- Modify: `tools/quality/validation/check_layer3_gy_second_domain_pack.py`
+- Modify: `tests/unit/runtime/quality/test_second_domain_pack.py`
+- Regenerate: `architecture/policy_design_case/layer3_gy_second_domain_pack.json`
+
+**Interfaces:**
+- `zero_engine_code.scope_semantics = "historical_commit_range"`
+- `zero_engine_code.task_base_commit = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"`
+- `zero_engine_code.proof_head_commit = "d8a8cf076da6233c66b0a90010647c0d437e81c4"`
+- `_historical_task_changed_paths(root: Path, *, base: str, proof_head: str) -> list[str]` reads only `git diff --name-only base..proof_head`.
+
+- [ ] **Step 1: Write RED historical-range and moving-head mutation tests.**
+
+```python
+def test_n10a_zero_engine_receipt_is_pinned_to_historical_proof_head() -> None:
+    pack = checker.build_live_bundle(REPO_ROOT)["pack"]
+    receipt = pack["zero_engine_code"]
+    assert receipt["scope_semantics"] == "historical_commit_range"
+    assert receipt["task_base_commit"] == N10A_BASE_COMMIT
+    assert receipt["proof_head_commit"] == N10A_PROOF_HEAD_COMMIT
+    assert receipt["changed_engine_paths"] == []
+
+
+def test_n10a_receipt_rebased_to_moving_head_is_rejected() -> None:
+    for moving_head in ("HEAD", _git_head_sha(REPO_ROOT)):
+        payloads = checker._load_frozen_bundle(REPO_ROOT)
+        payloads["pack"]["zero_engine_code"]["proof_head_commit"] = moving_head
+        payloads["pack"] = checker._with_content_hash(
+            payloads["pack"],
+            "manifest_content_hash",
+            excluded_fields=("runtime_metrics",),
+        )
+        issues = checker.validate_bundle_payloads(payloads, REPO_ROOT)
+        assert "historical_receipt_rebased_to_moving_head" in {
+            issue["code"] for issue in issues
+        }
+```
+
+- [ ] **Step 2: Run the focused tests and observe RED on moving-HEAD semantics.**
+
+```bash
+PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_second_domain_pack.py -k 'historical_proof_head or moving_head' -q
+```
+
+- [ ] **Step 3: Implement the immutable range verifier without weakening live owner checks.**
+
+Require literal 40-hex commits, require `base` is ancestor of `proof_head`, require `proof_head` is ancestor of current `HEAD`, and compute changed/scope/engine paths only from that range. Working, staged, and untracked files are deliberately absent from this historical receipt. Keep every live pack-owner query, content hash, seam witness, and rederive audit unchanged. Extend corrupt drift with `historical_receipt_rebased_to_moving_head`.
+
+- [ ] **Step 4: Regenerate serially and verify.**
+
+```bash
+PYTHONPATH="$PWD/src:$PWD" python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --write --output-format json
+PYTHONPATH="$PWD/src:$PWD" python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --check
+PYTHONPATH="$PWD/src:$PWD" python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --rederive-audit
+PYTHONPATH="$PWD/src:$PWD" python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --corrupt-field-drift-check  # exit 1
+PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_second_domain_pack.py -k 'historical_proof_head or moving_head or pack' -q
+.venv/bin/ruff check tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_second_domain_pack.py
+```
+
+- [ ] **Step 5: Commit the pre-Stage-1 historical proof repair.**
+
+```bash
+git add tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_second_domain_pack.py architecture/policy_design_case/layer3_gy_second_domain_pack.json architecture/policy_design_case/layer3_gy_second_domain_census.json architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json
+git commit -m "fix: pin N10a proof to historical range"
+```
+
+## Task 0B: Install the structural wrong-checkout guard
+
+**Files:**
+- Create: `tools/quality/validation/checkout_guard.py`
+- Create: `tests/unit/runtime/quality/test_depth_n_universality.py`
+
+**Interfaces:**
+- `assert_current_checkout(repo_root: Path) -> Path` returns the resolved `polisyos` package path or raises `WrongCheckoutResolvedError("wrong_checkout_resolved:<path>")`.
+- The Stage-4 GY-N10 validator calls this guard before parsing arguments or reading proof artifacts.
+- The focused universality harness imports only standard-library/guard code, calls the guard at module bootstrap, and only then imports any `polisyos.*` owner; an autouse fixture is too late because collection imports have already occurred.
+
+- [ ] **Step 1: Write RED current/wrong checkout tests.**
+
+```python
+def test_universality_harness_resolves_current_checkout() -> None:
+    resolved = assert_current_checkout(REPO_ROOT)
+    assert resolved.is_relative_to(REPO_ROOT / "src")
+
+
+def test_wrong_checkout_is_rejected_before_proof_execution() -> None:
+    result = _run_checkout_guard_with_pythonpath(MAIN_CHECKOUT / "policy-engine/src")
+    assert result.returncode == 1
+    assert "wrong_checkout_resolved" in result.stderr
+```
+
+- [ ] **Step 2: Run and observe RED because the guard is absent.**
+
+```bash
+PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'checkout' -q
+```
+
+- [ ] **Step 3: Implement the fail-closed path comparison.**
+
+Resolve `repo_root`, import `polisyos` inside the guard, resolve `polisyos.__file__`, and require it to be below `repo_root / "src"`. Do not compare strings or accept symlink-shaped prefixes; use resolved `Path.is_relative_to`. At the top of `test_depth_n_universality.py`, call the guard before importing runtime owners. The subprocess mutation deliberately points `PYTHONPATH` at the main checkout while running the worktree guard and must refuse before a sentinel validator producer is called.
+
+- [ ] **Step 4: Verify and commit.**
+
+```bash
+PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'checkout' -q
+.venv/bin/ruff check tools/quality/validation/checkout_guard.py tests/unit/runtime/quality/test_depth_n_universality.py
+git add tools/quality/validation/checkout_guard.py tests/unit/runtime/quality/test_depth_n_universality.py
+git commit -m "test: reject wrong checkout proof runs"
+```
+
 ## Task 1: Restore the bounded N4 public owner surface
 
 **Files:**
 - Modify: `tests/unit/runtime/quality/test_design_generation.py`
 - Modify: `src/polisyos/runtime/quality/intervention_substrate.py`
 - Modify: `src/polisyos/runtime/quality/design_generation.py`
+- Modify: `src/polisyos/scientist/agent/formalizer.py`
+- Modify: `tools/quality/validation/check_layer3_gy_design_generation_contract.py`
+- Create: `docs/superpowers/journals/2026-07-11-gy-n10-stage-1.md`
 
 **Interfaces:**
 - Produces: `production_composed_world_model_record(repo_root: str | Path) -> WorldModelRecord`
 - Produces: `intervention_generation_registry_bundle(repo_root: str | Path) -> RegistryBundle`
+- Produces: `trinity_bundle_formalizer_generator_path(bundle: TrinityBundle, *, recorded_calls: Sequence[object]) -> Literal["model_generated", "degraded_mock_fallback", "path_unrecorded"]`
 - Re-exports: the exact `GroundingDispositionKind` imported from `grounding_disposition_vocab`
 
-- [ ] **Step 1: Write the failing import/owner tests.**
+- [ ] **Step 1: Audit every N4 import in one pass before editing production.**
+
+Parse every module-level import in `design_generation.py`, import each owner module independently, resolve every imported symbol, and count live name loads in the AST. Write the resulting table to the Stage-1 journal with columns `module`, `symbol`, `live_use_count`, `resolution`, `disposition`, and `evidence`. Allowed dispositions are exactly `resolved`, `dead`, `live_existing_logic_to_wrap`, and `live_no_existing_owner_logic`. Delete only a dead import; wrap only existing logic. If any row is `live_no_existing_owner_logic`, stop before implementation and report.
+
+- [ ] **Step 2: Write the failing import, vocabulary-owner, and formalizer-evidence tests.**
 
 ```python
 def test_default_n4_stack_imports_canonical_intervention_owners() -> None:
@@ -111,19 +233,52 @@ def test_design_generation_reexports_canonical_grounding_disposition_kind() -> N
     )
 
     assert design_generation.GroundingDispositionKind is GroundingDispositionKind
+
+
+def test_design_generation_has_one_grounding_disposition_owner() -> None:
+    module = ast.parse(DESIGN_GENERATION_PATH.read_text(encoding="utf-8"))
+    assert _imports_name_from(
+        module,
+        "polisyos.runtime.quality.grounding_disposition_vocab",
+        "GroundingDispositionKind",
+    )
+    assert not _assigns_module_name(module, "GroundingDispositionKind")
+
+
+def test_formalizer_path_requires_matching_recorded_response() -> None:
+    bundle = _bundle([_intervention("recorded")])
+    calls = (_formalizer_call(parsed_json=bundle.model_dump(mode="json")),)
+    assert trinity_bundle_formalizer_generator_path(
+        bundle, recorded_calls=calls
+    ) == "model_generated"
+
+
+def test_formalizer_path_without_record_is_typed_unrecorded() -> None:
+    assert trinity_bundle_formalizer_generator_path(
+        _bundle([_intervention("unrecorded")]), recorded_calls=()
+    ) == "path_unrecorded"
+
+
+def test_formalizer_path_mismatched_record_is_degraded() -> None:
+    returned = _bundle([_intervention("returned")])
+    recorded = _bundle([_intervention("different")])
+    assert trinity_bundle_formalizer_generator_path(
+        returned,
+        recorded_calls=(_formalizer_call(parsed_json=recorded.model_dump(mode="json")),),
+    ) == "degraded_mock_fallback"
 ```
 
-- [ ] **Step 2: Run the two tests and observe RED.**
+- [ ] **Step 3: Run the focused tests and observe the two sequential REDs.**
 
 Run:
 
 ```bash
-python3 -m pytest tests/unit/runtime/quality/test_design_generation.py -k 'default_n4_stack_imports or canonical_grounding_disposition' -q
+PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_design_generation.py -k 'default_n4_stack_imports or canonical_grounding_disposition or one_grounding_disposition_owner or formalizer_path' -q
 ```
 
-Expected: collection/import fails because the two public intervention owners do not exist and the local `GroundingDispositionKind` is not the canonical object.
+Expected first: collection fails on the two public intervention owners. After adding only those wrappers, rerun and observe collection fail on `trinity_bundle_formalizer_generator_path`. The AST ownership test is the decisive local-vocabulary RED because equivalent `Literal` aliases may be identity-cached on Python 3.14.
 
-- [ ] **Step 3: Add only the canonical wrappers and vocabulary import.**
+- [ ] **Step 4: Add only the canonical wrappers, recorded-evidence accessor, and vocabulary import.**
 
 Implement these signatures in `intervention_substrate.py` by delegating to the existing private loaders/registry builders:
 
@@ -149,22 +304,31 @@ from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispos
 
 Add `GroundingDispositionKind` to `design_generation.__all__` so the re-export is explicit and the canonical object is the only public vocabulary.
 
-- [ ] **Step 4: Run the focused tests, direct import, N4 contract, and Ruff.**
+In `formalizer.py`, the accessor inspects `recorded_calls` without importing runtime-quality types. It selects successful calls whose `role_hint == "formalizer"`, whose `parsed_json` validates through the same `TrinityBundle` normalization used by `LLMFormalizerAgent`, and whose normalized dump equals the returned bundle. A matching record returns `model_generated`; non-empty recorded evidence with no match returns `degraded_mock_fallback`; an empty/unreadable call slice returns `path_unrecorded`. No default argument is permitted.
+
+At both live call sites in `design_generation.py`, pass the exact formalizer call slice. Initial generation passes `recording_client.calls[formalizer_call_start:]`; each salvage retry passes `recording_client.calls[retry_start:]`. `path_unrecorded` triggers salvage and, if still unresolved, a typed `formalizer_path_unrecorded` terminal rather than a real/degraded guess.
+
+- [ ] **Step 5: Add the decisive N4 source flip.**
+
+Extend the existing restoring N4 mutation harness with `formalizer_recorded_path_derivation_removed`: patch the accessor so matching recorded evidence no longer resolves, require the live salvage/path probe to turn RED, restore the exact source hash in `finally`, and verify the restored N4 contract. Removing the derivation while retaining markers must not stay green.
+
+- [ ] **Step 6: Run the focused tests, guarded direct import, N4 contract, source flip, and Ruff.**
 
 ```bash
-python3 -m pytest tests/unit/runtime/quality/test_design_generation.py -k 'default_n4_stack_imports or canonical_grounding_disposition' -q
-python3 -c 'import polisyos.runtime.quality.design_generation'
-python3 tools/quality/validation/check_layer3_gy_design_generation_contract.py --check
-.venv/bin/ruff check src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/design_generation.py tests/unit/runtime/quality/test_design_generation.py
+PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_design_generation.py -k 'default_n4_stack_imports or canonical_grounding_disposition or one_grounding_disposition_owner or formalizer_path' -q
+PYTHONPATH="$PWD/src:$PWD" python3 -c 'from pathlib import Path; import polisyos; root=Path.cwd().resolve(); resolved=Path(polisyos.__file__).resolve(); assert resolved.is_relative_to(root / "src"), f"wrong_checkout_resolved:{resolved}"; import polisyos.runtime.quality.design_generation'
+PYTHONPATH="$PWD/src:$PWD" python3 tools/quality/validation/check_layer3_gy_design_generation_contract.py --check
+PYTHONPATH="$PWD/src:$PWD" python3 tools/quality/validation/check_layer3_gy_design_generation_contract.py --source-flip-mutations
+.venv/bin/ruff check src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/design_generation.py src/polisyos/scientist/agent/formalizer.py tools/quality/validation/check_layer3_gy_design_generation_contract.py tests/unit/runtime/quality/test_design_generation.py
 ```
 
 Expected: all exit `0`. Record this as closure of the long-standing N4 cloud-deferred import residual.
 
-- [ ] **Step 5: Commit the bounded repair.**
+- [ ] **Step 7: Commit the bounded repair and its journal discovery record.**
 
 ```bash
-git add src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/design_generation.py tests/unit/runtime/quality/test_design_generation.py
-git commit -m "fix: restore N4 intervention owner surface"
+git add src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/design_generation.py src/polisyos/scientist/agent/formalizer.py tools/quality/validation/check_layer3_gy_design_generation_contract.py tests/unit/runtime/quality/test_design_generation.py docs/superpowers/journals/2026-07-11-gy-n10-stage-1.md
+git commit -m "fix: restore N4 generation owner surface"
 ```
 
 ## Task 2: Add the content-bound cycle substrate envelope
@@ -179,7 +343,7 @@ git commit -m "fix: restore N4 intervention owner surface"
 
 **Interfaces:**
 - Produces strict `CandidateLeverEvidence`, `TransportCovariateObservation`, `TransportContextEvidence`, and `CycleSubstrateContext`.
-- Produces `build_cycle_substrate_context(*, design_problem_ref: str, domain: str, substrate_registry: SubstrateRegistry, selected_registry_entry_hashes: Sequence[str], world_model_record: WorldModelRecord, intervention_substrate: InterventionSubstrateBundle | None, candidate_levers: Sequence[CandidateLeverEvidence], transport_context: TransportContextEvidence | None, pack_content_hash: str | None) -> CycleSubstrateContext`.
+- Produces `build_cycle_substrate_context(*, design_problem_ref: str, domain: str, substrate_registry: SubstrateRegistry, selected_registry_entry_hashes: Sequence[str], world_model_record: WorldModelRecord, intervention_substrate: InterventionSubstrateBundle | None, candidate_levers: Sequence[CandidateLeverEvidence], transport_context: TransportContextEvidence | None, source_pack_content_hash: str | None, substrate_input_content_hash: str | None) -> CycleSubstrateContext`.
 - The runtime API accepts objects; only the checker projects the committed N10a JSON into those objects.
 
 - [ ] **Step 1: Write RED hash/authority/generic-shape tests.**
@@ -191,7 +355,8 @@ def test_cycle_substrate_context_binds_registry_wmr_and_pack_hashes() -> None:
     context = _cycle_substrate_context(domain="education")
     assert context.substrate_registry_content_hash == context.substrate_registry.content_hash
     assert context.world_model_record_content_hash == context.world_model_record.content_hash
-    assert context.pack_content_hash == _hash("education-pack")
+    assert context.source_pack_content_hash == _historical_pack_hash()
+    assert context.substrate_input_content_hash == _education_substrate_input_hash()
     assert all(row.status == "candidate_unbound" for row in context.candidate_levers)
 
 
@@ -200,6 +365,24 @@ def test_cycle_substrate_context_rejects_stale_registry_hash() -> None:
     payload["substrate_registry_content_hash"] = _hash("stale")
     with pytest.raises(ValueError, match="cycle_substrate_registry_hash_mismatch"):
         CycleSubstrateContext.model_validate(payload)
+
+
+def test_cycle_substrate_context_rejects_cross_context_candidate() -> None:
+    education = _cycle_substrate_context(domain="education")
+    water = _cycle_substrate_context(
+        domain="water_quality",
+        lever_id="riparian_buffer_width",
+        transport_covariate="watershed_slope",
+    )
+    payload = education.model_dump(mode="python")
+    payload["candidate_levers"] = [water.candidate_levers[0].model_dump(mode="python")]
+    with pytest.raises(ValueError, match="candidate_context_binding_mismatch"):
+        CycleSubstrateContext.model_validate(payload)
+
+
+def test_cycle_substrate_context_rejects_wmr_registry_mismatch() -> None:
+    with pytest.raises(ValueError, match="wmr_registry_content_mismatch"):
+        _cycle_substrate_context(world_model_record=_wmr_for_registry(_other_registry()))
 
 
 def test_third_pack_vocabulary_needs_no_engine_branch() -> None:
@@ -231,6 +414,9 @@ class CandidateLeverEvidence(BaseModel):
     target_concept: str
     status: Literal["candidate_unbound"] = "candidate_unbound"
     entry_content_hash: str
+    substrate_input_content_hash: str
+    selected_registry_entry_hash: str
+    context_binding_hash: str
     source_refs: tuple[str, ...]
 
 
@@ -255,7 +441,8 @@ class CycleSubstrateContext(BaseModel):
     schema_version: str
     design_problem_ref: str
     domain: str
-    pack_content_hash: str | None
+    source_pack_content_hash: str | None
+    substrate_input_content_hash: str | None
     substrate_registry: SubstrateRegistry
     substrate_registry_content_hash: str
     selected_registry_entry_hashes: tuple[str, ...]
@@ -266,17 +453,24 @@ class CycleSubstrateContext(BaseModel):
     transport_context: TransportContextEvidence | None
     authority_purpose: Literal["cycle_input_candidate_only"]
     may_not_use_for: tuple[str, ...]
+    context_binding_hash: str
     content_hash: str
 ```
 
-`build_cycle_substrate_context` must revalidate the registry/WMR, resolve every selected entry hash from the registry, and recompute `content_hash` from stable hashes and candidate evidence. It must not accept a pack path.
+`substrate_input_content_hash` excludes downstream trace/gap refs and runtime metrics, preventing a pack→trace→pack hash cycle; `source_pack_content_hash` identifies the immutable historical N10a pack. `context_binding_hash` is computed first from the DesignProblem, substrate-input, registry, WMR, and selected-entry hashes. `build_cycle_substrate_context` must revalidate the registry/WMR, require `world_model_record.substrate_registry_ref` to bind the same registry content, resolve every selected entry hash from the registry and WMR resolution, and require every candidate's substrate-input/selected-entry/context-binding hashes to match. It then recomputes `content_hash` from stable hashes and candidate evidence. It must not accept a pack path.
+
+For education lever vocabulary, `selected_registry_entry_hash` resolves the canonical L2 SKG registration (`l2_scholar_kg:scholar_knowledge.duckdb`) that owns the causal lever rows. The education-named L5 observation entry is not lever authority and cannot satisfy this membership proof.
+
+N4 intake independently verifies `CycleSubstrateContext.design_problem_ref` and `domain` against the actual `DesignProblem`; a valid context for the wrong problem/domain is a substitution failure, not a reusable hint.
+
+Add RED negatives for stale WMR, WMR/registry mismatch, selected-entry absent from either registry or WMR, and cross-context candidate substitution. A failure may not mint a refusal stamped with the unrelated context's hashes.
 
 - [ ] **Step 4: Add the checker-only pack projector.**
 
 In `check_layer3_gy_second_domain_pack.py`, add a helper that:
 
 1. validates `manifest_content_hash` using the existing pack hash routine;
-2. validates `owner_query_results.s0_registry.registry_payload` as `SubstrateRegistry`;
+2. validates `owner_query_results.s0_registry.registry_payload` as `SubstrateRegistry` (Task 0/2 regeneration must persist this already-rederived payload if the committed pack still omits it);
 3. verifies the registry content hash and selected education entry hashes;
 4. projects lever and transport rows into the strict candidate models; and
 5. receives a concrete WMR from the canonical boundary builder rather than creating runtime authority from JSON presence.
@@ -308,7 +502,8 @@ git commit -m "feat: bind cycle substrate evidence"
 **Interfaces:**
 - Add keyword-only `cycle_substrate_context: CycleSubstrateContext | None = None` through N4 public entry points and `N4GenerationPort`.
 - Extend `LeverSpaceSliceEntry` with `binding_status: Literal["world_bound", "candidate_unbound"]` and exact source hashes.
-- Produce `InterventionLeverRefusal` and return `InterventionLeverResolution | InterventionLeverRefusal` when explicit candidate evidence is supplied.
+- Produce `InterventionLeverRefusal` and return `InterventionLeverResolution | InterventionLeverRefusal` when the complete `CycleSubstrateContext` selects a candidate lever.
+- `GenerationCycleController._generate_node` preserves `generation_channel="n4_owner"` when the real result has grounding dispositions but no bound atoms; it routes immutable disposition refs, not fabricated intervention candidates.
 
 - [ ] **Step 1: Write RED tests for exact education levers and honest unbound resolution.**
 
@@ -335,8 +530,7 @@ def test_pack_lever_resolution_returns_typed_candidate_unbound() -> None:
         _owner_bundle(),
         operator_kind="education.teaching_method",
         parameter_value=0,
-        candidate_evidence=_education_candidate_lever(),
-        world_model_record=_education_world_record(),
+        cycle_substrate_context=_education_cycle_substrate_context(),
     )
     assert isinstance(result, InterventionLeverRefusal)
     assert result.status == "candidate_unbound"
@@ -344,6 +538,28 @@ def test_pack_lever_resolution_returns_typed_candidate_unbound() -> None:
 ```
 
 Add a third-pack-shaped lever test and a negative proving a candidate lever never appears in the writable knob dictionary.
+Add cross-context substitution and stale-WMR tests that reach the real resolver owner and fail before a refusal hash is emitted.
+
+Add a cycle-level RED test:
+
+```python
+def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
+    run = asyncio.run(_run_cycle_with_candidate_unbound_n4_result())
+    cycle = run.cycles[0]
+    assert cycle.generation_channel == "n4_owner"
+    assert cycle.grounding.grounding_source == "cgf_firewall"
+    assert cycle.grounding.grounding_disposition in {
+        "novel_cg3",
+        "non_binding_abstain",
+        "unknown_blocked",
+    }
+    assert cycle.terminal_kind in _terminal_denominator()
+    assert cycle.terminal_kind != "a_spec_gap"
+    assert cycle.selected_candidate_content_hash in {
+        disposition.raw_candidate_hash for disposition in _frozen_disposition_only_result().grounding_dispositions
+    }
+    assert "grammar_fallback" not in json.dumps(run.model_dump(mode="json"))
+```
 
 - [ ] **Step 2: Run the focused tests and observe RED.**
 
@@ -402,12 +618,15 @@ class InterventionLeverRefusal(_StrictModel):
     operator_kind: str
     reason_code: str
     candidate_entry_content_hash: str
+    context_binding_hash: str
     substrate_registry_content_hash: str
     world_model_record_content_hash: str
     content_hash: str
 ```
 
-Preserve existing exception behavior when no explicit candidate evidence is supplied; this bounds the change and preserves old callers.
+The resolver receives `cycle_substrate_context` and selects the candidate from that context by exact operator/entry membership. It does not accept independently supplied candidate evidence or a loose WMR on this path. Preserve existing exception behavior when no context is supplied; this bounds the change and preserves old callers.
+
+For disposition-only N4 output, derive an internal immutable reference only from `proposal_id`, `raw_candidate_hash`, and the exact `GroundingDispositionRecord`; do not construct an intervention atom. Merge every unmatched non-binding disposition into the cycle candidate denominator even when a mixed result also contains bound candidates—fixing only the all-empty case is insufficient. Extend candidate ID/hash resolution and `PolicyGroundingPort` matching by exact proposal/raw hash; atom/target-slot validation remains mandatory only for `shadow_bound`. `_joint_value_node` emits the existing typed simulation/value blocked states for an unbound candidate, and acquisition routing consumes the real grounding gaps. Grammar fallback remains available only when N4 produced neither bound candidates nor usable dispositions.
 
 - [ ] **Step 4: Run focused and frozen N4 checks.**
 
@@ -470,7 +689,7 @@ def test_n7_registry_owner_failure_never_builds_bootstrap_authority(monkeypatch)
     assert "n6.bootstrap." not in json.dumps(run.model_dump(mode="json"))
 ```
 
-Add a cache invalidation test where only `substrate_registry.content_hash` changes, and a no-hints N8 test accepting either a canonical catalog WMR or a typed `value_world_model_record_unwired` refusal—never fixed-UA contamination.
+Add a cache invalidation test using a second internally coherent registry/WMR pair: the registry content changes and the corresponding WMR is rebuilt/bound to it. Mutating only the registry hash while retaining the old WMR is an invalid-context RED, not a valid cache case. Add a no-hints N8 test accepting either a canonical catalog WMR or a typed `value_world_model_record_unwired` refusal—never fixed-UA contamination.
 
 - [ ] **Step 2: Run the new tests and observe RED.**
 
@@ -529,14 +748,34 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_grounding_term
     trace = checker.build_live_cycle_trace(REPO_ROOT)
     stage = trace["stage_attempts"]
     assert set(stage["generation"]["proposed_operator_kinds"]) == EXPECTED_EDUCATION_LEVERS
-    assert stage["generation"]["lever_source_hash"] == trace["pack_content_hash"]
+    assert stage["generation"]["lever_source_hash"] == trace["substrate_input_content_hash"]
+    assert stage["generation"]["generation_channel"] == "n4_owner"
+    assert stage["generation"]["exact_formalizer_input_hashes"]
     assert stage["grounding"]["attempted"] is True
-    assert stage["grounding"]["terminal_state"] in {
+    assert stage["grounding"]["disposition"] in {
         "novel_cg3",
         "non_binding_abstain",
-        "acquisition_required",
+        "unknown_blocked",
     }
-    assert trace["baseline_diff"]["materially_deeper"] is True
+    assert stage["grounding"]["candidate_entry_content_hash"] in {
+        row["entry_content_hash"] for row in trace["pack_levers"]
+    }
+    assert stage["cycle_terminal"]["terminal_kind"] == (
+        checker.expected_cycle_terminal_for_disposition(stage["grounding"]["disposition"])
+    )
+    assert stage["grounding"]["disposition"] == "novel_cg3"
+    assert stage["cycle_terminal"]["terminal_kind"] == "search_ceiling_repair_required"
+    assert stage["cycle_terminal"]["terminal_kind"] != "a_spec_gap"
+    assert checker.recompute_baseline_diff(trace, checker.load_committed_baseline(REPO_ROOT))[
+        "materially_deeper"
+    ] is True
+    gap_status = {gap["gap_id"]: gap["status"] for gap in trace["gap_triage"]}
+    expected_closed = {
+        "s0_to_n4_l6_bridge_missing": "closed",
+        "s0_to_n5_wmr_bridge_missing": "closed",
+        "s0_to_l6_world_slot_bridge_missing": "closed",
+    }
+    assert {gap_id: gap_status[gap_id] for gap_id in expected_closed} == expected_closed
 ```
 
 - [ ] **Step 2: Run the test and observe RED because the old trace uses grammar fallback and lacks pack context.**
@@ -547,7 +786,7 @@ python3 -m pytest tests/unit/runtime/quality/test_second_domain_pack.py -k 'exac
 
 - [ ] **Step 3: Update the checker producer to inject the strict context and record per-stage evidence.**
 
-The trace must bind the pack hash, exact lever entry hashes, concrete WMR hash, N4 prompt-slice hash, grounding attempt/disposition, and a baseline diff. It must not claim grounded/current-valid when the lever is unbound.
+The trace must bind the stable substrate-input hash plus immutable source-pack hash, exact lever entry hashes, concrete WMR hash, N4 prompt-slice hash, exact formalizer input/proposal hashes, `generation_channel="n4_owner"`, grounding attempt/disposition, the independently typed cycle terminal, and a recomputed baseline diff. It must not claim grounded/current-valid when the lever is unbound. The Stage-1 gap producer closes the three pack bridges only from live behavioral receipts: N4 proves the pack slice reached the real drafter/formalizer and a disposition binds an entry hash; N5 proves `JointSimulationPort` returned the exact context WMR with matching registry/WMR/context hashes; L6 proves `_content_bound_candidates` invoked `resolve_intervention_lever`, persisted its typed result on the disposition, and `PolicyGroundingPort` consumed it. Removing any receipt after rehashing is RED. N7 persistence, N8 transport, and N6 validation remain residuals.
 
 - [ ] **Step 4: Regenerate serially and verify Stage 1.**
 
@@ -565,7 +804,8 @@ python3 tools/quality/validation/check_layer3_gy_acquisition_contract.py --check
 
 ```bash
 git add tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_second_domain_pack.py architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json architecture/policy_design_case/layer3_gy_second_domain_pack.json
-git commit -m "test: prove education pack reaches grounding"
+git add docs/superpowers/journals/2026-07-11-gy-n10-stage-1.md
+git commit -m "test: prove education pack reaches honest terminal"
 ```
 
 ---
@@ -1098,6 +1338,10 @@ git commit -m "feat: strangle fixed recursive cycle"
 - Modify: `architecture/generated_artifacts.toml`
 - Regenerate: `docs/reference/generated-artifacts.md`
 
+**Interfaces:**
+- Calls `assert_current_checkout(REPO_ROOT)` before parsing modes, reading artifacts/caches, or invoking owners.
+- A wrong package path renders `status=fail`, issue `wrong_checkout_resolved`, and exit `1` without entering a proof producer.
+
 - [ ] **Step 1: Write RED validator schema/drift/write tests.**
 
 ```python
@@ -1120,6 +1364,12 @@ def test_universality_write_is_byte_stable(tmp_path: Path) -> None:
     first = validator.write_payload(REPO_ROOT, tmp_path / "proof.json")
     second = validator.write_payload(REPO_ROOT, tmp_path / "proof.json")
     assert first == second
+
+
+def test_universality_validator_refuses_wrong_checkout() -> None:
+    result = _run_validator_with_pythonpath(MAIN_CHECKOUT / "policy-engine/src", "--check")
+    assert result.returncode == 1
+    assert "wrong_checkout_resolved" in result.stdout + result.stderr
 ```
 
 - [ ] **Step 2: Run tests and observe RED because the validator is absent.**
@@ -1141,7 +1391,7 @@ Implement:
 --output-format {text,json}
 ```
 
-The payload includes schema/rule/producer refs, source hashes, pattern pass, NL input hashes, domain distinctness, per-stage traces, baseline diff, non-panel positive, education refusal, unseen smoke, terminal distributions, recursion/coupling/N5/composition receipts, GY-G strangle, gap triage, source flips, verification journal, runtime metrics, and `contract_content_hash`. Hash validation excludes only declared runtime metrics/times.
+The payload includes schema/rule/producer refs, source hashes, pattern pass, NL input hashes, domain distinctness, per-stage traces, baseline diff, non-panel positive, education refusal, unseen smoke, terminal distributions, recursion/coupling/N5/composition receipts, GY-G strangle, gap triage, source flips, verification journal, runtime metrics, and `contract_content_hash`. Hash validation excludes only declared runtime metrics/times. Add a restoring `wrong_checkout_resolved` source flip that points `PYTHONPATH` at the main checkout and proves the validator refuses before producer execution.
 
 - [ ] **Step 4: Register generated-artifact lifecycle and verify focused tests.**
 
@@ -1233,7 +1483,7 @@ python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py tests/
 
 - [ ] **Step 3: Update generated records from live seam evidence.**
 
-Mark `n8_transport_tuple_hardcode`, `s0_to_n4_l6_bridge_missing`, `s0_to_n5_wmr_bridge_missing`, `s0_to_l6_world_slot_bridge_missing`, and `n6_single_terminal_validation_gap` closed with function/receipt/hash evidence. Keep owner-registration derivation and raw journal persistence residual with their original capability labels and justification.
+Reverify the three bridge closures already committed at the Stage-1 gate (`s0_to_n4_l6_bridge_missing`, `s0_to_n5_wmr_bridge_missing`, and `s0_to_l6_world_slot_bridge_missing`) without changing their historical closure receipts. Mark `n8_transport_tuple_hardcode` and `n6_single_terminal_validation_gap` closed with their later-stage function/receipt/hash evidence. Keep owner-registration derivation and raw journal persistence residual with their original capability labels and justification.
 
 - [ ] **Step 4: Implement and run every decisive source flip serially.**
 
@@ -1319,7 +1569,8 @@ If verification required a repair, repeat its RED/GREEN test and commit the scop
 - Every approved correction has an implementation task and stage gate.
 - The non-panel positive is the Stage-2 exit gate (not its entry); education refusal is separate.
 - The expected Bayesian FQN is plan-pinned only; advisor selection trace and candidate-real treatment provenance are decisive RED/GREEN properties.
-- N4 wrappers and `GroundingDispositionKind` reconciliation are bounded to Task 1.
+- Task 0 pins N10a's historical receipt without weakening live owner rederive; Task 0B structurally rejects a wrong checkout.
+- N4 wrappers, the recorded-evidence formalizer accessor, the one-pass import audit, and `GroundingDispositionKind` reconciliation are bounded to Task 1.
 - N6 loosening is Stage 3, additive-only, with an unreachable one-cycle RED mutation.
 - N7 tests/checker are in Stage 1 and final blast radius before/after the bootstrap fence.
 - GY-G removal/default flip is atomic in Task 11.

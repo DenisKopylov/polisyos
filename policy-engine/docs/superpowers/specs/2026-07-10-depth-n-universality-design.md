@@ -6,7 +6,11 @@ Approved architecture: extend canonical owners and add one thin recursive
 router. This revision incorporates the five approval corrections: a mandatory
 real non-panel positive, a bounded N4 owner-surface repair, one-directional N6
 validation, an N7 consumer census before fencing bootstrap authority, and four
-commit-gated implementation stages.
+commit-gated implementation stages. The resumed revision additionally pins the
+historical N10a receipt, extends the bounded N4 import reconciliation through
+recorded formalizer evidence, cross-binds candidate levers to their complete
+cycle context, routes disposition-only N4 output, and rejects wrong-checkout
+proof execution structurally.
 
 ## Goal
 
@@ -114,6 +118,15 @@ the committed manifest content hash and projects its data into canonical
 runtime contracts. No `src/polisyos/**` module opens
 `layer3_gy_second_domain_pack.json` by filename.
 
+N10a's `zero_engine_code` receipt is historical evidence, not a moving-head
+gate. It is pinned to the immutable N9 merge base
+`26cc7cc03efc9da44362dc2914a5bde8ac8f7e73` through the N10a proof head
+`d8a8cf076da6233c66b0a90010647c0d437e81c4`. The checker replays that exact
+commit range, proves both commits are ancestors of the current checkout, and
+continues to rederive pack provenance from live owners. Repointing the receipt
+at `HEAD` fails `historical_receipt_rebased_to_moving_head`; GY-N10 scope is
+owned only by the GY-N10 contract.
+
 The projection has two authority layers:
 
 - **Canonical owner layer:** rederived `SubstrateRegistration`s, a persisted
@@ -123,12 +136,23 @@ The projection has two authority layers:
   profiles carrying their original `candidate_unbound` and
   `candidate_context_only_not_transport_authority` postures.
 
-One cycle-entry context binds the selected domain, DesignProblem hash, pack
-hash when present, S0 registry/ref, concrete WMR/ref, selected entry hashes,
+One cycle-entry context binds the selected domain, DesignProblem hash, stable
+pack substrate-input hash when present, S0 registry/ref, concrete WMR/ref, selected entry hashes,
 candidate levers, transport evidence, and any verified writable L6 bundle.
-Every downstream consumer receives that same context. A cache entry is keyed by
-these content hashes and exact requested slots, never `repo_root` or a domain
-name.
+Every candidate lever carries its parent pack/context hash and its selected S0
+entry hash. Validation proves membership in the context, presence in both the
+registry and WMR resolution, and equality of WMR/context registry hashes before
+the lever can reach a consumer. Every downstream consumer receives that same
+context. A cache entry is keyed by these content hashes and exact requested
+slots, never `repo_root` or a domain name.
+
+The context binds a stable `substrate_input_content_hash` computed only from
+the owner-derived pack inputs. The final pack manifest also names downstream
+cycle-trace and gap-report hashes, so using its final manifest hash as an input
+to that trace would be a cryptographic cycle. Trace/gap refs and runtime metrics
+are excluded from the substrate-input hash; the final manifest still binds all
+of them in the outward direction and records the immutable N10a source-pack
+hash from the historical proof head.
 
 The intake rejects stale pack hashes, stale registry hashes, unresolved S0
 entries, a WMR/ref mismatch, shaped strings without a resolved object, and
@@ -160,8 +184,15 @@ additional prerequisite, not a relabeling of the N6 seam.
 
 ### Bounded N4 import repair
 
-`design_generation.py` imports two public owners that are absent. Add only the
-canonical wrappers over existing private logic:
+Before changing an owner, audit every import in `design_generation.py` in one
+pass and record module, symbol, live-use count, resolution state, and one of
+`dead`, `live_existing_logic_to_wrap`, or `live_no_existing_owner_logic` in the
+Stage-1 journal. Dead imports are deleted, live existing logic receives a thin
+canonical wrapper, and any live symbol with no existing owner logic halts the
+stage before implementation.
+
+`design_generation.py` imports two public intervention owners that are absent.
+Add only the canonical wrappers over existing private logic:
 
 - `production_composed_world_model_record(...)` delegates to the cached
   `_production_composed_world_model_record(...)` owner;
@@ -171,6 +202,18 @@ canonical wrappers over existing private logic:
 Also remove the local `GroundingDispositionKind` literal and re-export/import
 the canonical type from `grounding_disposition_vocab`. Do not create an alias
 enum or duplicate vocabulary.
+
+The additional live import `trinity_bundle_formalizer_generator_path` is a
+thin Scientist-owner accessor over evidence already recorded around the
+formalizer call. `TrinityBundle` has no provenance field, so the accessor may
+not infer a path from bundle shape and may not default either honesty
+direction. It consumes the formalizer's exact `RecordingLLMClient` call slice
+and returns `model_generated` only when a successful recorded formalizer
+response parses and normalizes to the returned bundle. A recorded fallback is
+`degraded_mock_fallback`; no usable record is `path_unrecorded`. Both non-real
+states trigger conservative salvage and remain typed if salvage cannot produce
+matching evidence. Removing this derivation must make the salvage decision
+degrade and turn the N4 source-flip RED.
 
 The local acceptance signal is both the frozen N4 contract and a direct import
 of the default N4 generation stack. Closing this records the long-standing
@@ -204,9 +247,30 @@ hashes. Actual intervention atom construction stays with
 `build_intervention_atom_binding`; the lever resolver cannot manufacture a
 grounded fiscal atom.
 
-Stage 1 is not complete until education generation proposes over exact pack
-levers and reaches a real grounding-input attempt beyond the committed N10a
-entry baseline.
+The resolver consumes the complete `CycleSubstrateContext`, not a loose
+candidate plus independently supplied hashes. Cross-pack candidate
+substitution, selected-entry mismatch, stale WMR, or a WMR whose registry hash
+differs from the context fails closed before a refusal/resolution receipt can
+be minted.
+
+When N4 returns only `candidate_unbound` candidates, the cycle consumes their
+real grounding dispositions and routes them to the existing typed
+grounding/acquisition terminal. It may not replace the N4 result with grammar
+fallback merely because no bound atom exists. Mixed results also retain every
+unmatched non-binding disposition in the full denominator; the route is not an
+all-empty special case. Stage 1 is not complete until
+education generation proposes over exact pack levers, grounding receives the
+real disposition/content hashes, and the cycle terminal is independently
+typed and differs from `a_spec_gap`. The terminal is derived by the existing
+mapping (`novel_cg3` currently routes through a grounding gap toward
+`search_ceiling_repair_required`); the proof may not preselect
+`acquisition_required`. Grounding dispositions and cycle terminals remain
+separate vocabularies.
+
+The Stage-1 gap artifact closes `s0_to_n4_l6_bridge_missing`,
+`s0_to_n5_wmr_bridge_missing`, and `s0_to_l6_world_slot_bridge_missing` with
+live seam receipts before the gate can pass. N7 persistence, N8 transport, and
+N6 validation gaps remain typed residuals at that boundary.
 
 ## 3. A1 transport de-hardcode
 
@@ -394,6 +458,13 @@ Existing N5, N6, N8, and N9 harnesses are additive-only. The N7 checker and
 acquisition tests join the blast-radius set because the bootstrap fence affects
 their historical fallback path.
 
+Every GY-N10 validator and focused universality harness begins, before any
+`polisyos.*` import or producer execution, by resolving
+`polisyos.__file__` and proving that it lies under the current checkout's
+`src/` root. A mismatch fails `wrong_checkout_resolved` before any proof runs.
+The source-flip points resolution at the main checkout and must be rejected;
+testing a different checkout can never count as green evidence.
+
 ## 9. Four-stage execution and commit gates
 
 ### Stage 1 — N4 repair, pack intake, and pack bridges
@@ -406,9 +477,11 @@ coherent bridge slice. The stage gate requires:
 - N10a pack checker green;
 - N7 acquisition contract green after the bootstrap-consumer census/fence;
 - focused N4, substrate, WMR, generation-cycle, N7 acquisition, and education
-  smoke tests green; and
-- education generation over exact pack levers with a real grounding-input
-  attempt beyond the committed entry baseline.
+  smoke tests green;
+- the three Stage-1 bridge gaps closed in the regenerated gap artifact; and
+- education generation over exact pack levers through `generation_channel =
+  "n4_owner"`, real grounding dispositions received, and a separately typed
+  cycle terminal other than `a_spec_gap`.
 
 ### Stage 2 — transport and generic value
 

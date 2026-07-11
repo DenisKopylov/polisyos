@@ -674,6 +674,15 @@ def test_intervention_atom_round_trip_compares_complete_atom_schema(monkeypatch)
             return atom.model_copy(
                 update={"measurement_expectations_authority": "corrupt_authority"}
             )
+        if field_name == "normalized_from":
+            assert atom.normalized_from is not None
+            return atom.model_copy(
+                update={
+                    "normalized_from": atom.normalized_from.model_copy(
+                        update={"original_kind": "corrupt_original_kind"}
+                    )
+                }
+            )
         if field_name == "content_hash":
             return atom.model_copy(update={"content_hash": "sha256:" + "f" * 64})
         if field_name == "producer_ref":
@@ -778,6 +787,28 @@ def test_intervention_atom_round_trip_sample_uses_non_default_projection_values(
     assert set(sample_non_default["justified_default_fields"]) == set(
         sample_non_default["required_justified_default_fields"]
     )
+
+
+def test_intervention_atom_round_trip_recursively_exercises_normalization_record() -> None:
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        AtomNormalizationRecord,
+    )
+
+    sample = (
+        check_layer3_gy_generation_cycle_disposition_ledger
+        ._sample_intervention_atom_binding_inputs()
+    )
+    report = (
+        check_layer3_gy_generation_cycle_disposition_ledger
+        ._intervention_atom_binding_sample_non_default_report(sample)
+    )
+
+    assert sample["atom"].normalized_from is not None
+    assert "atom.normalized_from" not in report["required_justified_default_fields"]
+    assert {
+        f"atom.normalized_from.{field_name}"
+        for field_name in AtomNormalizationRecord.model_fields
+    }.issubset(set(report["visited_field_paths"]))
 
 
 def test_intervention_atom_round_trip_sample_default_meta_rejects_unjustified_default(

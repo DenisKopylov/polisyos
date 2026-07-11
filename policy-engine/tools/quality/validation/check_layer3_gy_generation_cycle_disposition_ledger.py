@@ -1145,6 +1145,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.intervention_atom_binding import (
         INTERVENTION_ATOM_BINDING_SCHEMA_VERSION,
+        AtomNormalizationRecord,
         CausalAssignmentProjection,
         CausalDoExpression,
         DirectEffectBundle,
@@ -1288,6 +1289,21 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
     linked_intervention = linked_bundle.bindings.interventions[0]
     selector_ref = intervention_atom_target_selector_ref(intervention)
     write_variables = tuple(sorted(assignment.variable for assignment in causal.assignments))
+    normalization_certificate_hash = "sha256:" + "d" * 64
+    normalization_record = AtomNormalizationRecord(
+        original_kind="tax_credit_rate",
+        original_target_world_slots=("global.tax_rate",),
+        normalized_kind=intervention.kind,
+        normalized_target_world_slots=tuple(linked_intervention.writes_slots),
+        grounding_relation="certified-specialization",
+        grounding_relation_certificate_id="cg1_cert_" + "6" * 16,
+        grounding_relation_content_hash=normalization_certificate_hash,
+    )
+    provenance_refs = (
+        "trinity_bundle:policy_ua_msme_credit",
+        "proof_kernel:node_do_income",
+        normalization_certificate_hash,
+    )
     expected_fields: dict[str, Any] = {
         "schema_version": INTERVENTION_ATOM_BINDING_SCHEMA_VERSION,
         "problem_frame_ref": "sha256:" + "a" * 64,
@@ -1346,8 +1362,9 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
         "world_model_record_ref": "world_model_record_ua_msme_v1",
         "measurement_expectations": dict(intervention.measurement_expectations),
         "measurement_expectations_authority": "supporting_metadata",
+        "normalized_from": normalization_record,
         "producer_ref": "validator:intervention_atom_binding",
-        "provenance_refs": ("trinity_bundle:policy_ua_msme_credit", "proof_kernel:node_do_income"),
+        "provenance_refs": provenance_refs,
         "status": "grounded",
     }
     content_hash = gy_content_hash(_content_payload_from_fields(expected_fields))
@@ -1367,7 +1384,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
         causal_context=context,
         world_model_record_ref="world_model_record_ua_msme_v1",
         producer_ref="validator:intervention_atom_binding",
-        provenance_refs=("trinity_bundle:policy_ua_msme_credit", "proof_kernel:node_do_income"),
+        provenance_refs=provenance_refs,
         operator_proof_type_map={"tax_subsidy": "node"},
         estimand_metric_id="msme_survival_rate",
         estimand_unit_id="ratio",
@@ -1376,6 +1393,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
         mechanism_config_overrides={"merge_policy": "sum_income_delta"},
         transform_refs=("transform:subsidy_rate_to_income_delta",),
         coerce_refs=("coerce:decimal_rate",),
+        normalized_from=normalization_record,
         status="grounded",
     )
     return {
@@ -1404,9 +1422,6 @@ def _intervention_atom_binding_sample_default_justifications() -> dict[str, str]
         "atom.measurement_expectations_authority": (
             "measurement expectations are metadata-only by contract; constrained to "
             "supporting_metadata"
-        ),
-        "atom.normalized_from": (
-            "normalization provenance is absent unless CG1/CG2 actually normalize a candidate"
         ),
         "intervention.target.kind": (
             "selector discriminator; constrained by SelectorPredicate"
@@ -1469,7 +1484,6 @@ def _sample_default_constraint_holds(field_path: str, value: Any) -> bool:
     constrained_values = {
         "atom.schema_version": INTERVENTION_ATOM_BINDING_SCHEMA_VERSION,
         "atom.measurement_expectations_authority": "supporting_metadata",
-        "atom.normalized_from": None,
         "intervention.target.kind": "predicate",
         "causal.intervention_type": "node",
         "causal_context.interaction_complex_ref.kind": "ir.interaction_complex",
@@ -1492,12 +1506,14 @@ def _intervention_atom_binding_sample_non_default_report(
     justifications = _intervention_atom_binding_sample_default_justifications()
     issues: list[dict[str, Any]] = []
     justified_default_fields: set[str] = set()
+    visited_field_paths: set[str] = set()
 
     def walk(value: Any, field_path: str) -> None:
         if isinstance(value, BaseModel):
             for field_name, field in value.__class__.model_fields.items():
                 child = getattr(value, field_name)
                 child_path = f"{field_path}.{field_name}"
+                visited_field_paths.add(child_path)
                 has_default, default = _field_default_value(field)
                 if has_default and child == default:
                     if child_path not in justifications:
@@ -1546,6 +1562,7 @@ def _intervention_atom_binding_sample_non_default_report(
         "issues": issues,
         "justified_default_fields": sorted(justified_default_fields),
         "required_justified_default_fields": sorted(justifications),
+        "visited_field_paths": sorted(visited_field_paths),
     }
 
 

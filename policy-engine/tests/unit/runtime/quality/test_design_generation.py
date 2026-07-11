@@ -853,6 +853,13 @@ async def test_n4_replay_refuses_missing_or_invalid_recorded_effective_config(
         recording["capture_summary"]["effective_runtime_config"][
             "formalizer_retry_count"
         ] = "not-an-integer"
+    recording["recording_content_hash"] = contract.gy_content_hash(
+        {
+            key: value
+            for key, value in recording.items()
+            if key != "recording_content_hash"
+        }
+    )
     called = False
 
     async def _must_not_run(*args: object, **kwargs: object) -> object:
@@ -864,6 +871,61 @@ async def test_n4_replay_refuses_missing_or_invalid_recorded_effective_config(
     monkeypatch.setattr(contract, "generate_design_candidates_under_a", _must_not_run)
 
     with pytest.raises(RuntimeError, match="recorded_effective_runtime_config"):
+        await contract._run_live_generation(REPO_ROOT, recording=recording)
+
+    assert called is False
+
+
+@pytest.mark.asyncio
+async def test_n4_replay_refuses_tampered_recorded_config_before_owner_call(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recording = copy.deepcopy(_recordings()[0])
+    recording["capture_summary"]["effective_runtime_config"][
+        "formalizer_retry_count"
+    ] -= 1
+    called = False
+
+    async def _must_not_run(*args: object, **kwargs: object) -> object:
+        nonlocal called
+        del args, kwargs
+        called = True
+        return object()
+
+    monkeypatch.setattr(contract, "generate_design_candidates_under_a", _must_not_run)
+
+    with pytest.raises(RuntimeError, match="recording_content_hash_mismatch"):
+        await contract._run_live_generation(REPO_ROOT, recording=recording)
+
+    assert called is False
+
+
+@pytest.mark.asyncio
+async def test_n4_replay_refuses_omitted_recorded_runtime_input(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recording = copy.deepcopy(_recordings()[0])
+    recording["capture_summary"]["effective_runtime_config"].pop(
+        "cg1_index_prewarm_enabled"
+    )
+    recording["recording_content_hash"] = contract.gy_content_hash(
+        {
+            key: value
+            for key, value in recording.items()
+            if key != "recording_content_hash"
+        }
+    )
+    called = False
+
+    async def _must_not_run(*args: object, **kwargs: object) -> object:
+        nonlocal called
+        del args, kwargs
+        called = True
+        return object()
+
+    monkeypatch.setattr(contract, "generate_design_candidates_under_a", _must_not_run)
+
+    with pytest.raises(RuntimeError, match="recorded_effective_runtime_config_input_missing"):
         await contract._run_live_generation(REPO_ROOT, recording=recording)
 
     assert called is False

@@ -196,15 +196,57 @@ def _recorded_response_label(recorded: dict[str, Any], index: int) -> str:
     return f"{index}:{role if isinstance(role, str) and role else 'unknown'}"
 
 
+_RECORDED_RUNTIME_INPUT_FIELDS = frozenset(
+    {
+        "drafter_pass_timeout_s",
+        "drafter_pass_retry_count",
+        "formalizer_timeout_s",
+        "formalizer_retry_count",
+        "critic_timeout_s",
+        "terminal_salvage_retry_count",
+        "terminal_salvage_backoff_base_s",
+        "gateway_timeout_s",
+        "gateway_max_retries",
+        "prompt_cache_ttl_s",
+        "prompt_cache_maxsize",
+        "cg1_index_prewarm_enabled",
+    }
+)
+
+
+def _verify_recording_content_hash(recording: Mapping[str, Any]) -> None:
+    recorded = recording.get("recording_content_hash")
+    if not isinstance(recorded, str) or not recorded:
+        raise RuntimeError("gy_n4_recording_content_hash_missing")
+    computed = gy_content_hash(
+        {
+            key: value
+            for key, value in recording.items()
+            if key != "recording_content_hash"
+        }
+    )
+    if computed != recorded:
+        raise RuntimeError(
+            f"gy_n4_recording_content_hash_mismatch:{computed}!={recorded}"
+        )
+
+
 def _recorded_effective_runtime_config(
     recording: Mapping[str, Any],
 ) -> EffectiveGenerationRuntimeConfig:
+    _verify_recording_content_hash(recording)
     capture_summary = recording.get("capture_summary")
     if not isinstance(capture_summary, Mapping):
         raise RuntimeError("recorded_effective_runtime_config_missing:capture_summary")
     payload = capture_summary.get("effective_runtime_config")
     if not isinstance(payload, Mapping):
         raise RuntimeError("recorded_effective_runtime_config_missing")
+    missing_inputs = sorted(_RECORDED_RUNTIME_INPUT_FIELDS.difference(payload))
+    if missing_inputs:
+        raise RuntimeError(
+            "recorded_effective_runtime_config_input_missing:"
+            + ",".join(missing_inputs)
+        )
     try:
         config = EffectiveGenerationRuntimeConfig.model_validate(payload)
     except (TypeError, ValueError) as exc:
@@ -1944,6 +1986,7 @@ def _recording_fixture_integrity_report(recordings: list[dict[str, Any]]) -> dic
 
 
 def _validate_recording_fixture(recording: dict[str, Any]) -> None:
+    _verify_recording_content_hash(recording)
     if not recording.get("recorded_at"):
         raise RuntimeError("gy_n4_recording_timestamp_missing")
     response = recording.get("response")

@@ -68,6 +68,7 @@ POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID = (
     "source_flip_policy_verified_fixture_reconnected_to_production"
 )
 NL_SOURCE_FLIP_MUTATION_ID = "source_flip_nl_contract_agents_reconnected_to_production"
+S2_SOURCE_FLIP_MUTATION_ID = "source_flip_s2_fixed_candidate_body_restored"
 
 
 def declared_outputs() -> list[str]:
@@ -2409,6 +2410,97 @@ def _run_nl_source_flip(repo_root: Path) -> dict[str, Any]:
     }
 
 
+def _run_s2_source_flip(repo_root: Path) -> dict[str, Any]:
+    source_path = repo_root / "src/polisyos/pdc/_impl/layer2_design_search.py"
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    text = original.decode("utf-8")
+    family_old = "    instrument_family = expansion.instrument_families[0]\n"
+    family_new = '    instrument_family = "credit_guarantee"\n'
+    parameters_old = (
+        "        parameterization={\n"
+        "            dimension: values[0] for dimension, values in expansion.parameter_space.items()\n"
+        "        },\n"
+    )
+    parameters_new = (
+        "        parameterization={\n"
+        '            "coverage": "partial_portfolio",\n'
+        '            "risk_share": "first_loss",\n'
+        '            "delivery_channel": "bank_intermediated",\n'
+        "        },\n"
+    )
+    if text.count(family_old) != 1 or text.count(parameters_old) != 1:
+        return {
+            "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "family_guard_count": text.count(family_old),
+                "parameter_guard_count": text.count(parameters_old),
+                "expected": 1,
+            },
+        }
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    try:
+        mutated = text.replace(family_old, family_new, 1).replace(
+            parameters_old,
+            parameters_new,
+            1,
+        )
+        source_path.write_text(mutated, encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/pdc/test_layer2_s2_design_search.py::"
+                    "test_s2_candidate_space_is_data_derived_for_unseen_families"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={**os.environ, "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}"},
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": "source_restore_hash_mismatch",
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+    return {
+        "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if completed.returncode != 0 else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "S2 candidate family and parameterization derive from the input-carried "
+            "candidate space"
+        ),
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "source_restored_sha256": restored_hash,
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
 def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
     """Run every restoring N4 source mutation sequentially."""
 
@@ -2416,6 +2508,7 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
         *_run_formalizer_source_flip(repo_root),
         _run_policy_verified_source_flip(repo_root),
         _run_nl_source_flip(repo_root),
+        _run_s2_source_flip(repo_root),
     )
 
 

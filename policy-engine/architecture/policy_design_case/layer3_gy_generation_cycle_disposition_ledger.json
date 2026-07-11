@@ -86,7 +86,7 @@
     },
     "GY-N6": {
       "status": "pending",
-      "focus": "Generation cycle controller reworked in place; task remains pending on legacy LangGraph/S2 fixed-body delete obligations"
+      "focus": "Generation cycle controller reworked in place; the S2 fixed body is strangled, while legacy LangGraph and S2 refinement obligations remain pending"
     },
     "GY-N7": {
       "status": "pending",
@@ -1892,9 +1892,9 @@
     {
       "owner_id": "s2_fixed_credit_guarantee_body",
       "owner_path": "src/polisyos/pdc/_impl/layer2_design_search.py:1441",
-      "focus": "S2 fixed credit-guarantee grammar/candidate/projection body.",
+      "focus": "S2 candidate-space grammar and first shadow candidate now derive from input-carried evidence.",
       "disposition": "DELETE",
-      "rationale": "The reusable S2 discipline stays, but the fixed credit-guarantee candidate body must be strangled once real generation feeds it.",
+      "rationale": "The reusable S2 discipline stays, while the fixed credit-guarantee body is deleted and the canonical S2 owner consumes a declared candidate space.",
       "consuming_task": "GY-N6",
       "build_new_bridge_ref": null,
       "source_notebook_refs": [
@@ -1904,26 +1904,30 @@
         "receipt_id": "layer3-gy-generation-cycle-s2-fixed-credit-guarantee-delete",
         "pattern_id": "P28",
         "predecessor_ref": "pdc._impl.layer2_design_search.fixed_credit_guarantee_candidate",
-        "replacement_ref": "GY-N6.generated_candidate_refinement_input",
+        "replacement_ref": "polisyos.pdc._impl.layer2_design_search.run_s2_shadow_design_loop.input_derived_candidate_space",
         "disposition": "deleted",
         "required_disposition": "deleted",
         "default_before": "S2 emits fixed credit_guarantee candidate body.",
-        "default_after": "Real generated candidates feed S2-compatible refinement; fixed body is fixture-only or gone.",
-        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "default_after": "S2 expands input-carried instrument families and parameter dimensions, then derives its shadow candidate from that expansion.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_design_generation_contract.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending GY-N6 cutover",
-        "removed_loc": [],
+        "remaining_callers_disposition": "zero; the live S2 candidate derives from input-carried evidence",
+        "removed_loc": [
+          "src/polisyos/pdc/_impl/layer2_design_search.py:_INSTRUMENT_FAMILIES",
+          "src/polisyos/pdc/_impl/layer2_design_search.py:_candidate"
+        ],
         "verified_by": [
+          "tools/quality/validation/check_layer3_gy_design_generation_contract.py --check",
+          "tools/quality/validation/check_layer3_gy_design_generation_contract.py --source-flip-mutations",
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
         ],
         "superseded_path": "src/polisyos/pdc/_impl/layer2_design_search.py",
         "consuming_task": "GY-N6",
         "strangle_condition": {
-          "kind": "text_absent",
-          "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
-          "pattern": "credit_guarantee"
+          "kind": "s2_candidate_space_data_derived",
+          "predecessor_ref": "pdc._impl.layer2_design_search.fixed_credit_guarantee_candidate"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {

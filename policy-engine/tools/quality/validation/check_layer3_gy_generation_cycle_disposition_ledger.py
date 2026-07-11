@@ -469,6 +469,22 @@ def _validate_strangle_obligations(
                 )
             else:
                 summary["strangled"] += 1
+        elif status == "strangled":
+            condition_holds = _evaluate_strangle_condition(
+                repo_root,
+                receipt.get("strangle_condition"),
+            )
+            if not condition_holds:
+                issues.append(
+                    {
+                        "code": "strangled_owner_condition_not_met",
+                        "owner_id": owner_id,
+                        "consuming_task": consuming_task,
+                        "condition_holds": condition_holds,
+                    }
+                )
+            else:
+                summary["strangled"] += 1
         elif status == "pending":
             summary["pending"] += 1
     return summary
@@ -536,11 +552,37 @@ def _evaluate_strangle_condition(repo_root: Path, condition: object) -> bool:
         )
     if kind == "design_generation_model_preflight_landed":
         return _design_generation_mutation_red(repo_root, "unsupported_model_not_rejected")
+    if kind == "s2_candidate_space_data_derived":
+        return _s2_candidate_space_data_derived(repo_root, condition)
     if kind == "generation_cycle_contract_landed":
         return _generation_cycle_contract_landed(repo_root)
     if kind == "n9_promotion_contract_landed":
         return _n9_promotion_contract_landed(repo_root)
     return False
+
+
+def _s2_candidate_space_data_derived(repo_root: Path, condition: dict[str, Any]) -> bool:
+    try:
+        from polisyos.runtime.quality.design_generation import (
+            design_generation_strangle_receipts,
+        )
+
+        predecessor_ref = str(condition.get("predecessor_ref") or "")
+        receipt = next(
+            (
+                row
+                for row in design_generation_strangle_receipts(repo_root)
+                if row.get("predecessor_ref") == predecessor_ref
+            ),
+            None,
+        )
+        return bool(
+            receipt
+            and receipt.get("status") == "strangled"
+            and receipt.get("remaining_callers") == []
+        )
+    except Exception:
+        return False
 
 
 def _plain_policy_nl_not_verified_default() -> bool:

@@ -1538,10 +1538,20 @@ def _s2_design_search_summary(
                 }
             )
         return summary
+    s2_manifest = json.loads(
+        (REPO_ROOT / "architecture/policy_design_case/layer2_s2_design_search_manifest.json")
+        .read_text(encoding="utf-8")
+    )
+    candidate_space = dict(s2_manifest["candidate_space"])
     input_row = Layer2S2DesignSearchInput(
         case_id=case_id,
         intent_ref="repo://architecture/policy_design_case/layer2_first_proving_case.json",
         grammar_ref="repo://src/polisyos/policy_grammar",
+        instrument_families=tuple(candidate_space["instrument_families"]),
+        parameter_space={
+            str(dimension): tuple(values)
+            for dimension, values in dict(candidate_space["parameter_space"]).items()
+        },
         actor_ref="actor://ua/ministry-of-economy",
         domain="ukrainian_msme_credit",
         objective_refs=tuple(

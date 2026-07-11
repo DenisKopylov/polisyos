@@ -1039,6 +1039,28 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_notebook_disposit
     assert "disposition_mismatch_with_notebook" in _issue_codes(report)
 
 
+def test_layer3_gy_generation_cycle_disposition_ledger_rechecks_strangled_pending_owner() -> None:
+    ledger = _loaded_ledger()
+    mutated = copy.deepcopy(ledger)
+    owner = _owner_by_id(mutated, "s2_fixed_credit_guarantee_body")
+    receipt = owner["strangle_receipt"]
+    assert isinstance(receipt, dict)
+    receipt["status"] = "strangled"
+    receipt["strangle_condition"] = {
+        "kind": "text_absent",
+        "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+        "pattern": "Layer2S2DesignSearchInput",
+    }
+
+    report = check_layer3_gy_generation_cycle_disposition_ledger.validate_ledger(
+        REPO_ROOT,
+        mutated,
+    )
+
+    assert report["status"] == "fail"
+    assert "strangled_owner_condition_not_met" in _issue_codes(report)
+
+
 def test_layer3_gy_generation_cycle_disposition_ledger_rejects_shifted_notebook_ref() -> None:
     ledger = _loaded_ledger()
     mutated = copy.deepcopy(ledger)

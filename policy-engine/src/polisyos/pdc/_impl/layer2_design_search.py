@@ -136,11 +136,6 @@ _COUNTEREXAMPLE_CLASS_VOCABULARY: list[str] = [
     "value_gap",
     "budget_gap",
 ]
-_INSTRUMENT_FAMILIES = [
-    "credit_guarantee",
-    "interest_rate_buydown",
-    "cash_grant",
-]
 _AUTHORITY_PURPOSE = "shadow_design_search_replay"
 _SEARCH_INCOMPLETENESS_NOTE = (
     "best_known_shadow_frontier is a replayable S2 trace only; it is not exhaustive, "
@@ -257,6 +252,8 @@ class Layer2S2DesignSearchInput(Layer2ReadinessModel):
     case_id: str = Field(..., min_length=1)
     intent_ref: str = Field(..., min_length=1)
     grammar_ref: str = Field(..., min_length=1)
+    instrument_families: tuple[str, ...] = Field(..., min_length=3)
+    parameter_space: dict[str, tuple[str, ...]] = Field(..., min_length=1)
     actor_ref: str = Field(..., min_length=1)
     domain: str = Field(..., min_length=1)
     objective_refs: tuple[str, ...] = Field(..., min_length=1)
@@ -271,6 +268,22 @@ class Layer2S2DesignSearchInput(Layer2ReadinessModel):
         "deterministic_producer"
     )
     omit_grammar_derivation: bool = False
+
+    @model_validator(mode="after")
+    def _validate_candidate_space(self) -> Layer2S2DesignSearchInput:
+        families = tuple(item.strip() for item in self.instrument_families)
+        if any(not item for item in families):
+            raise ValueError("candidate_instrument_family_empty")
+        if len(set(families)) != len(families):
+            raise ValueError("candidate_instrument_family_duplicate")
+        for dimension, values in self.parameter_space.items():
+            if not dimension.strip():
+                raise ValueError("candidate_parameter_dimension_empty_name")
+            if not values:
+                raise ValueError(f"candidate_parameter_dimension_empty:{dimension}")
+            if any(not value.strip() for value in values):
+                raise ValueError(f"candidate_parameter_value_empty:{dimension}")
+        return self
 
 
 class Layer2S5CompositionPostureInput(Layer2ReadinessModel):
@@ -645,7 +658,7 @@ class DesignGrammarExpansion(Layer2ReadinessModel):
     case_id: str
     intent_ref: str
     source_grammar_ref: str
-    instrument_families: list[str] = Field(..., min_length=2)
+    instrument_families: list[str] = Field(..., min_length=3)
     parameter_space: dict[str, list[str]]
     constraints: list[str]
     construct_demand_refs: list[str]
@@ -963,7 +976,7 @@ def run_s2_shadow_design_loop(
     boundary = _shadow_boundary(input)
     run_id = f"layer2.s2.{_slug(input.case_id)}"
     expansion = _grammar_expansion(input, boundary=boundary)
-    candidate = _candidate(
+    candidate = _candidate_from_expansion(
         input,
         expansion=expansion,
         boundary=boundary,
@@ -1457,11 +1470,9 @@ def _grammar_expansion(
         case_id=input.case_id,
         intent_ref=input.intent_ref,
         source_grammar_ref=input.grammar_ref,
-        instrument_families=list(_INSTRUMENT_FAMILIES),
+        instrument_families=list(input.instrument_families),
         parameter_space={
-            "coverage": ["partial_portfolio", "targeted_sector"],
-            "risk_share": ["first_loss", "pari_passu"],
-            "delivery_channel": ["bank_intermediated", "public_fund"],
+            dimension: list(values) for dimension, values in input.parameter_space.items()
         },
         constraints=[
             "shadow_only",
@@ -1474,7 +1485,7 @@ def _grammar_expansion(
     )
 
 
-def _candidate(
+def _candidate_from_expansion(
     input: Layer2S2DesignSearchInput,
     *,
     expansion: DesignGrammarExpansion,
@@ -1486,16 +1497,16 @@ def _candidate(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
 ) -> DesignCandidateV0:
     slug = _slug(input.case_id)
+    instrument_family = expansion.instrument_families[0]
+    family_slug = _slug(instrument_family)
     return DesignCandidateV0(
-        candidate_id=f"layer2.s2.candidate.{slug}.credit_guarantee",
-        candidate_ref=f"pdc://layer2/s2/{slug}/candidate/credit-guarantee",
+        candidate_id=f"layer2.s2.candidate.{slug}.{family_slug}",
+        candidate_ref=f"pdc://layer2/s2/{slug}/candidate/{family_slug}",
         case_id=input.case_id,
         grammar_expansion_ref=expansion.expansion_ref,
-        instrument_family="credit_guarantee",
+        instrument_family=instrument_family,
         parameterization={
-            "coverage": "partial_portfolio",
-            "risk_share": "first_loss",
-            "delivery_channel": "bank_intermediated",
+            dimension: values[0] for dimension, values in expansion.parameter_space.items()
         },
         objective_refs=list(input.objective_refs),
         construct_refs=list(input.construct_refs),
@@ -1844,8 +1855,8 @@ def _search_ledger(
         refinement_decision_refs=[decision.decision_ref],
         deterministic_replay_key=replay_key,
         counterexample_conversion_rate=1.0,
-        grammar_diversity_minimum=3,
-        instrument_family_coverage=list(_INSTRUMENT_FAMILIES),
+        grammar_diversity_minimum=len(input.instrument_families),
+        instrument_family_coverage=list(input.instrument_families),
         counterexample_class_vocabulary=list(_COUNTEREXAMPLE_CLASS_VOCABULARY),
         acquisition_branch_state="bridge_missing",
         delegation_request_refs=_s7_delegation_request_refs(delegation_posture),
@@ -4921,6 +4932,10 @@ def _deterministic_replay_key(
         "case_id": input.case_id,
         "intent_ref": input.intent_ref,
         "grammar_ref": input.grammar_ref,
+        "instrument_families": list(input.instrument_families),
+        "parameter_space": {
+            dimension: list(values) for dimension, values in input.parameter_space.items()
+        },
         "objective_refs": list(input.objective_refs),
         "construct_refs": list(input.construct_refs),
         "candidate_ref": candidate.candidate_ref,

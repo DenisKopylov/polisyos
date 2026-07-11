@@ -121,8 +121,12 @@ def validate_s2_design_search(repo_root: Path | str = REPO_ROOT) -> dict[str, An
         issues,
     )
     _expect(
-        run.search_ledger.grammar_diversity_minimum == 3
-        and len(set(run.search_ledger.instrument_family_coverage)) >= 3,
+        run.search_ledger.grammar_diversity_minimum == len(input_row.instrument_families)
+        and run.search_ledger.instrument_family_coverage == list(input_row.instrument_families)
+        and run.grammar_expansion.instrument_families == list(input_row.instrument_families)
+        and run.candidates[0].instrument_family == input_row.instrument_families[0]
+        and run.candidates[0].parameterization
+        == {dimension: values[0] for dimension, values in input_row.parameter_space.items()},
         "s2_grammar_diversity_adequacy_failed",
         issues,
     )
@@ -231,18 +235,65 @@ def validate_s2_manifest_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         "s2_required_artifacts_invalid",
         issues,
     )
+    candidate_space = payload.get("candidate_space")
+    candidate_space_payload = (
+        candidate_space if isinstance(candidate_space, Mapping) else {}
+    )
+    _expect(
+        candidate_space_payload.get("authority_purpose")
+        == "shadow_first_proving_case_evidence",
+        "s2_candidate_space_authority_purpose_invalid",
+        issues,
+    )
+    families = list(candidate_space_payload.get("instrument_families") or [])
+    parameter_space = candidate_space_payload.get("parameter_space")
+    parameter_payload = parameter_space if isinstance(parameter_space, Mapping) else {}
+    _expect(
+        len(families) >= 3
+        and len(set(families)) == len(families)
+        and all(isinstance(item, str) and item.strip() for item in families),
+        "s2_candidate_instrument_families_invalid",
+        issues,
+    )
+    _expect(
+        bool(parameter_payload)
+        and all(
+            isinstance(dimension, str)
+            and dimension.strip()
+            and isinstance(values, list)
+            and bool(values)
+            and all(isinstance(value, str) and value.strip() for value in values)
+            for dimension, values in parameter_payload.items()
+        ),
+        "s2_candidate_parameter_space_invalid",
+        issues,
+    )
     floor_ids = {str(row.get("floor_id")) for row in payload.get("floors") or []}
     _expect(
         floor_ids == {"s2_counterexample_conversion"},
         "s2_floor_set_invalid",
         issues,
     )
-    adequacy_ids = {
-        str(row.get("check_id")) for row in payload.get("shadow_adequacy_checks") or []
-    }
+    adequacy_rows = list(payload.get("shadow_adequacy_checks") or [])
+    adequacy_ids = {str(row.get("check_id")) for row in adequacy_rows}
     _expect(
         adequacy_ids == {"s2_shadow_grammar_diversity"},
         "s2_shadow_adequacy_check_set_invalid",
+        issues,
+    )
+    diversity_rows = [
+        row
+        for row in adequacy_rows
+        if row.get("check_id") == "s2_shadow_grammar_diversity"
+    ]
+    diversity_required = (
+        diversity_rows[0].get("required_value") if len(diversity_rows) == 1 else None
+    )
+    _expect(
+        isinstance(diversity_required, int)
+        and diversity_required >= 3
+        and len(families) >= diversity_required,
+        "s2_shadow_grammar_diversity_floor_invalid",
         issues,
     )
     _expect(
@@ -283,11 +334,17 @@ def validate_llm_only_candidate_negative_control() -> None:
 def _first_proving_case_input(repo_root: Path) -> Layer2S2DesignSearchInput:
     manifest = _load_json(repo_root / DEFAULT_MANIFEST_PATH)
     proving_case = _load_json(repo_root / DEFAULT_FIRST_PROVING_CASE_PATH)
+    candidate_space = dict(manifest["candidate_space"])
     constructs = tuple(str(item) for item in proving_case.get("constructs", []))
     return Layer2S2DesignSearchInput(
         case_id=str(manifest["first_proving_case_id"]),
         intent_ref="repo://architecture/policy_design_case/layer2_first_proving_case.json",
         grammar_ref="repo://src/polisyos/policy_grammar",
+        instrument_families=tuple(candidate_space["instrument_families"]),
+        parameter_space={
+            str(dimension): tuple(values)
+            for dimension, values in dict(candidate_space["parameter_space"]).items()
+        },
         actor_ref="actor://ua/ministry-of-economy",
         domain="ukrainian_msme_credit",
         objective_refs=tuple(f"objective://{item}" for item in constructs),

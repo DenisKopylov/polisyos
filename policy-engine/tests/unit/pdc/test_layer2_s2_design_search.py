@@ -31,16 +31,24 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 FIRST_PROVING_CASE_PATH = (
     REPO_ROOT / "architecture/policy_design_case/layer2_first_proving_case.json"
 )
+S2_MANIFEST_PATH = REPO_ROOT / "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
 NOW = datetime(2026, 5, 30, tzinfo=UTC)
 
 
 def _input() -> Layer2S2DesignSearchInput:
     proving_case = json.loads(FIRST_PROVING_CASE_PATH.read_text(encoding="utf-8"))
+    manifest = json.loads(S2_MANIFEST_PATH.read_text(encoding="utf-8"))
+    candidate_space = manifest["candidate_space"]
     return Layer2S2DesignSearchInput(
         schema_version=S2_DESIGN_SEARCH_SCHEMA_VERSION,
         case_id=str(proving_case["case_id"]),
         intent_ref="repo://architecture/policy_design_case/layer2_first_proving_case.json",
         grammar_ref="repo://src/polisyos/policy_grammar",
+        instrument_families=tuple(candidate_space["instrument_families"]),
+        parameter_space={
+            str(dimension): tuple(values)
+            for dimension, values in candidate_space["parameter_space"].items()
+        },
         actor_ref="actor://ua/ministry-of-economy",
         domain="ukrainian_msme_credit",
         objective_refs=tuple(f"objective://{item}" for item in proving_case["constructs"]),
@@ -862,6 +870,66 @@ def test_s2_candidate_is_derived_from_grammar_before_candidate_emission() -> Non
         "interest_rate_buydown",
     ]
     assert "cash_grant" in run.grammar_expansion.instrument_families
+
+
+def test_s2_candidate_space_is_data_derived_for_unseen_families() -> None:
+    payload = _input().model_dump(mode="python")
+    payload.update(
+        {
+            "instrument_families": (
+                "energy_storage",
+                "demand_response",
+                "grid_efficiency",
+            ),
+            "parameter_space": {
+                "dispatch": ("peak_shaving", "load_shift"),
+                "ownership": ("municipal", "cooperative"),
+            },
+        }
+    )
+    run = run_s2_shadow_design_loop(Layer2S2DesignSearchInput.model_validate(payload))
+
+    assert run.grammar_expansion.instrument_families == [
+        "energy_storage",
+        "demand_response",
+        "grid_efficiency",
+    ]
+    assert run.candidates[0].instrument_family == "energy_storage"
+    assert run.candidates[0].parameterization == {
+        "dispatch": "peak_shaving",
+        "ownership": "municipal",
+    }
+    assert run.search_ledger.instrument_family_coverage == [
+        "energy_storage",
+        "demand_response",
+        "grid_efficiency",
+    ]
+    assert "credit_guarantee" not in run.candidates[0].model_dump_json()
+
+
+def test_s2_candidate_space_rejects_empty_parameter_dimension() -> None:
+    payload = _input().model_dump(mode="python")
+    payload.update(
+        {
+            "instrument_families": (
+                "energy_storage",
+                "demand_response",
+                "grid_efficiency",
+            ),
+            "parameter_space": {"dispatch": ()},
+        }
+    )
+
+    with pytest.raises(ValueError, match="candidate_parameter_dimension_empty"):
+        Layer2S2DesignSearchInput.model_validate(payload)
+
+
+def test_s2_candidate_space_preserves_three_family_adequacy_floor() -> None:
+    payload = _input().model_dump(mode="python")
+    payload["instrument_families"] = ("energy_storage", "demand_response")
+
+    with pytest.raises(ValueError, match="at least 3 items"):
+        Layer2S2DesignSearchInput.model_validate(payload)
 
 
 def test_s2_counterexample_classes_are_governed_and_typed() -> None:

@@ -1688,7 +1688,8 @@ _STRANGLE_RECEIPT_SPECS: tuple[dict[str, Any], ...] = (
     {
         "predecessor_ref": "pdc._impl.layer2_design_search.fixed_credit_guarantee_candidate",
         "replacement_ref": (
-            f"{DESIGN_GENERATION_PRODUCER_REF}.generate_design_candidate_bundle_under_a"
+            "polisyos.pdc._impl.layer2_design_search."
+            "run_s2_shadow_design_loop.input_derived_candidate_space"
         ),
         "file": "src/polisyos/pdc/_impl/layer2_design_search.py",
         "forbidden": (
@@ -1697,13 +1698,13 @@ _STRANGLE_RECEIPT_SPECS: tuple[dict[str, Any], ...] = (
             "def fixed_credit_guarantee_candidate",
         ),
         "required": (
-            "S2_FIXED_CREDIT_GUARANTEE_FIXTURE_ONLY",
-            "s2_fixed_credit_guarantee_fixture_authorized: bool = False",
+            "instrument_families=list(input.instrument_families)",
+            "_candidate_from_expansion",
             "source_authority=input.candidate_source_authority",
         ),
         "default_before": "S2 emitted a fixed credit_guarantee candidate as its replay body.",
-        "default_after": "S2 fixed candidate is an explicitly authorized replay fixture only.",
-        "disposition": "fixture_replay_only",
+        "default_after": "S2 candidate family and parameters derive from input-carried evidence.",
+        "disposition": "input_derived_candidate_space",
         "removed_loc": "layer2_design_search.py:_candidate",
     },
 )
@@ -1792,7 +1793,7 @@ def _build_strangle_receipt(root: Path, spec: Mapping[str, Any]) -> dict[str, An
 
 
 def _s2_forbidden_candidate_callers(source: str) -> list[dict[str, str]]:
-    """Return S2 hardcoded-candidate callers outside the fixture shadow loop."""
+    """Prove S2 candidate vocabulary and parameters derive from input data."""
 
     try:
         tree = ast.parse(source)
@@ -1805,23 +1806,99 @@ def _s2_forbidden_candidate_callers(source: str) -> list[dict[str, str]]:
             }
         ]
     issues: list[dict[str, str]] = []
-    for node in ast.walk(tree):
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            continue
-        for child in ast.walk(node):
-            if not isinstance(child, ast.Call):
-                continue
-            if not isinstance(child.func, ast.Name) or child.func.id != "_candidate":
-                continue
-            if node.name == "run_s2_shadow_design_loop":
-                continue
-            issues.append(
+    assigned_names = {
+        target.id
+        for node in tree.body
+        if isinstance(node, (ast.Assign, ast.AnnAssign))
+        for target in (
+            (*node.targets,) if isinstance(node, ast.Assign) else (node.target,)
+        )
+        if isinstance(target, ast.Name)
+    }
+    if "_INSTRUMENT_FAMILIES" in assigned_names or "credit_guarantee" in source:
+        issues.append(
+            {
+                "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+                "reason": "fixed_candidate_body_in_engine",
+                "pattern": "credit_guarantee",
+            }
+        )
+    if any(
+        isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "_candidate"
+        for node in ast.walk(tree)
+    ):
+        issues.append(
+            {
+                "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+                "reason": "legacy_fixed_candidate_owner_present",
+                "pattern": "_candidate",
+            }
+        )
+    try:
+        from polisyos.pdc._impl.layer2_design_search import (
+            Layer2S2DesignSearchInput,
+            run_s2_shadow_design_loop,
+        )
+
+        shapes = (
+            (
+                ("energy_storage", "demand_response", "grid_efficiency"),
                 {
-                    "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
-                    "reason": "forbidden_live_default_present",
-                    "pattern": f"{node.name}:_candidate",
+                    "dispatch": ("peak_shaving", "load_shift"),
+                    "ownership": ("municipal", "cooperative"),
+                },
+            ),
+            (
+                ("public_transit_fare", "service_frequency", "fleet_electrification"),
+                {
+                    "coverage": ("low_income", "all_riders"),
+                    "timing": ("off_peak", "all_day"),
+                },
+            ),
+        )
+        for index, (families, parameters) in enumerate(shapes):
+            input_row = Layer2S2DesignSearchInput.model_validate(
+                {
+                    "case_id": f"n4-s2-unseen-{index}",
+                    "intent_ref": f"intent://n4-s2-unseen-{index}",
+                    "grammar_ref": f"grammar://n4-s2-unseen-{index}",
+                    "instrument_families": families,
+                    "parameter_space": parameters,
+                    "actor_ref": "actor://contract-probe",
+                    "domain": "unseen_contract_probe",
+                    "objective_refs": ("objective://outcome",),
+                    "construct_refs": ("construct://outcome",),
+                    "authority_profile_ref": "authority://shadow",
+                    "generated_at": "2026-07-11T00:00:00Z",
                 }
             )
+            run = run_s2_shadow_design_loop(input_row)
+            expected_params = {
+                dimension: values[0] for dimension, values in parameters.items()
+            }
+            if not (
+                run.grammar_expansion.instrument_families == list(families)
+                and run.grammar_expansion.parameter_space
+                == {dimension: list(values) for dimension, values in parameters.items()}
+                and run.candidates[0].instrument_family == families[0]
+                and run.candidates[0].parameterization == expected_params
+                and run.search_ledger.instrument_family_coverage == list(families)
+            ):
+                issues.append(
+                    {
+                        "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+                        "reason": "s2_fixed_candidate_derivation_not_data_driven",
+                        "pattern": f"unseen_shape_{index}",
+                    }
+                )
+    except Exception as exc:
+        issues.append(
+            {
+                "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+                "reason": "s2_candidate_derivation_probe_failed",
+                "pattern": f"{type(exc).__name__}:{exc}",
+            }
+        )
     return issues
 
 

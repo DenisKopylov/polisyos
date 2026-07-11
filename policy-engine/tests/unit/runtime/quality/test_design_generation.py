@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import copy
 import json
 from decimal import Decimal
@@ -26,7 +27,10 @@ from polisyos.runtime.quality.design_generation import (
     validate_design_generation_strangle_receipts,
 )
 from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent
-from polisyos.scientist.agent.formalizer import LLMFormalizerAgent
+from polisyos.scientist.agent.formalizer import (
+    LLMFormalizerAgent,
+    trinity_bundle_formalizer_generator_path,
+)
 from polisyos.scientist.agent.protocols import DraftResult
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
@@ -35,6 +39,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
 from tools.quality.validation import check_layer3_gy_design_generation_contract as contract
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+DESIGN_GENERATION_PATH = REPO_ROOT / "src/polisyos/runtime/quality/design_generation.py"
 _WORLD_MODEL_RECORD_REF = "world_model_record_a258fda4b7ceffd0"
 
 
@@ -73,6 +78,51 @@ def _bundle(interventions: list[InterventionSpec]) -> TrinityBundle:
         ),
         model_spec=ModelSpec(model_id="model_gy_n4_cgf", data_snapshot_ref="sha256:" + "b" * 64),
     )
+
+
+def _intervention(intervention_id: str) -> InterventionSpec:
+    return InterventionSpec(
+        intervention_id=intervention_id,
+        kind="tax_relief_rate",
+        target=_selector(),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={"rate": Decimal("0.08")},
+    )
+
+
+def _formalizer_call(*, parsed_json: object) -> dg.LLMGenerationCall:
+    return dg.LLMGenerationCall(
+        call_index=0,
+        role_hint="formalizer",
+        status="success",
+        model_id=SUPPORTED_GENERATION_MODEL_IDS[1],
+        prompt_hash="sha256:" + "c" * 64,
+        raw_llm_response=json.dumps(parsed_json, sort_keys=True, default=str),
+        parsed_json=parsed_json,
+    )
+
+
+def _imports_name_from(module: ast.Module, owner: str, symbol: str) -> bool:
+    return any(
+        isinstance(node, ast.ImportFrom)
+        and node.module == owner
+        and any(alias.name == symbol for alias in node.names)
+        for node in module.body
+    )
+
+
+def _assigns_module_name(module: ast.Module, symbol: str) -> bool:
+    for node in module.body:
+        targets: tuple[ast.expr, ...]
+        if isinstance(node, ast.Assign):
+            targets = tuple(node.targets)
+        elif isinstance(node, ast.AnnAssign):
+            targets = (node.target,)
+        else:
+            continue
+        if any(isinstance(target, ast.Name) and target.id == symbol for target in targets):
+            return True
+    return False
 
 
 def _llm_call() -> dg.LLMGenerationCall:
@@ -1037,3 +1087,136 @@ def test_recording_fixture_is_problem_variant_not_authored_constant() -> None:
     assert "__draft_interventions__" not in first
     assert "__draft_interventions__" not in second
     assert first != second
+
+
+def test_default_n4_stack_imports_canonical_intervention_owners() -> None:
+    from polisyos.runtime.quality import design_generation
+    from polisyos.runtime.quality.intervention_substrate import (
+        intervention_generation_registry_bundle,
+        production_composed_world_model_record,
+    )
+
+    assert callable(intervention_generation_registry_bundle)
+    assert callable(production_composed_world_model_record)
+    assert design_generation.intervention_generation_registry_bundle is (
+        intervention_generation_registry_bundle
+    )
+
+
+def test_design_generation_reexports_canonical_grounding_disposition_kind() -> None:
+    from polisyos.runtime.quality import design_generation
+    from polisyos.runtime.quality.grounding_disposition_vocab import (
+        GroundingDispositionKind,
+    )
+
+    assert design_generation.GroundingDispositionKind is GroundingDispositionKind
+
+
+def test_design_generation_has_one_grounding_disposition_owner() -> None:
+    module = ast.parse(DESIGN_GENERATION_PATH.read_text(encoding="utf-8"))
+
+    assert _imports_name_from(
+        module,
+        "polisyos.runtime.quality.grounding_disposition_vocab",
+        "GroundingDispositionKind",
+    )
+    assert not _assigns_module_name(module, "GroundingDispositionKind")
+
+
+def test_formalizer_path_requires_matching_recorded_response() -> None:
+    bundle = _bundle([_intervention("recorded")])
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            bundle,
+            recorded_calls=(_formalizer_call(parsed_json=bundle.model_dump(mode="json")),),
+        )
+        == "model_generated"
+    )
+
+
+def test_formalizer_path_without_record_is_typed_unrecorded() -> None:
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            _bundle([_intervention("unrecorded")]),
+            recorded_calls=(),
+        )
+        == "path_unrecorded"
+    )
+
+
+def test_formalizer_path_with_unusable_record_is_typed_unrecorded() -> None:
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            _bundle([_intervention("unusable")]),
+            recorded_calls=(_formalizer_call(parsed_json={"not": "trinity"}),),
+        )
+        == "path_unrecorded"
+    )
+
+
+def test_formalizer_path_mismatched_record_is_degraded() -> None:
+    returned = _bundle([_intervention("returned")])
+    recorded = _bundle([_intervention("different")])
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            returned,
+            recorded_calls=(
+                _formalizer_call(parsed_json=recorded.model_dump(mode="json")),
+            ),
+        )
+        == "degraded_mock_fallback"
+    )
+
+
+def test_formalizer_path_replays_formalize_schema_version_override() -> None:
+    bundle = _bundle([_intervention("schema_version")])
+    recorded_payload = bundle.model_dump(mode="json")
+    recorded_payload["schema_version"] = "1.1"
+
+    assert (
+        trinity_bundle_formalizer_generator_path(
+            bundle,
+            recorded_calls=(_formalizer_call(parsed_json=recorded_payload),),
+        )
+        == "model_generated"
+    )
+
+
+@pytest.mark.asyncio
+async def test_unrecorded_formalizer_path_salvages_only_from_matching_retry(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = _bundle([_intervention("salvaged")])
+    recording_client = dg.RecordingLLMClient(
+        object(),
+        model_id=SUPPORTED_GENERATION_MODEL_IDS[1],
+    )
+
+    class MatchingRetryFormalizer:
+        attempts = 0
+
+        async def formalize(self, draft: object) -> TrinityBundle:
+            self.attempts += 1
+            recording_client.calls.append(
+                _formalizer_call(parsed_json=bundle.model_dump(mode="json"))
+            )
+            return bundle
+
+    formalizer = MatchingRetryFormalizer()
+    monkeypatch.setenv("POLISYOS_N4_TERMINAL_SALVAGE_RETRIES", "1")
+    monkeypatch.setenv("POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S", "0")
+
+    returned, path = await dg._salvage_formalizer_terminal(
+        formalizer=formalizer,
+        draft=object(),
+        recording_client=recording_client,
+        terminal_start=0,
+        current_bundle=bundle,
+        current_path="path_unrecorded",
+    )
+
+    assert formalizer.attempts == 1
+    assert returned == bundle
+    assert path == "model_generated", f"formalizer_{path}"

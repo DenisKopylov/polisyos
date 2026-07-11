@@ -990,6 +990,21 @@ def _production_composed_world_model_record(repo_root: str) -> WorldModelRecord:
     return built.world_model.record
 
 
+def production_composed_world_model_record(repo_root: str | Path) -> WorldModelRecord:
+    """Return the cached production WMR composed by the existing owner."""
+
+    return _production_composed_world_model_record(Path(repo_root).resolve().as_posix())
+
+
+def intervention_generation_registry_bundle(repo_root: str | Path) -> RegistryBundle:
+    """Return the existing L6 slot/mechanism registries for the N4 linker."""
+
+    bundle = load_l6_intervention_substrate(Path(repo_root).resolve())
+    slots = _owner_slot_registry(bundle)
+    mechanisms = _owner_mechanism_registry(bundle, slot_registry=slots)
+    return _owner_registry_bundle(mechanism_registry=mechanisms, slot_registry=slots)
+
+
 def _resolve_owner_atom_world_binding(
     *,
     bundle: InterventionSubstrateBundle,
@@ -2601,8 +2616,10 @@ __all__ = [
     "LawLeverResolution",
     "ObservationMethodRoute",
     "default_l6_bundle_paths",
+    "intervention_generation_registry_bundle",
     "intervention_substrate_behavior_report",
     "load_l6_intervention_substrate",
+    "production_composed_world_model_record",
     "resolve_intervention_lever",
     "resolve_law_bound_lever",
     "route_observation_family_method",

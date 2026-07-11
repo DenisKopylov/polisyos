@@ -6,7 +6,10 @@ from __future__ import annotations
 import argparse
 import asyncio
 import copy
+import hashlib
 import json
+import os
+import subprocess
 import sys
 from collections import Counter
 from collections.abc import Mapping
@@ -60,6 +63,7 @@ RECORDING_FIXTURE_PATH = (
     "architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json"
 )
 MODEL_ID = SUPPORTED_GENERATION_MODEL_IDS[0]
+SOURCE_FLIP_MUTATION_ID = "source_flip_formalizer_recorded_path_derivation_removed"
 
 
 def declared_outputs() -> list[str]:
@@ -2137,6 +2141,104 @@ def _corrupt_field_drift_report(repo_root: Path) -> dict[str, Any]:
     }
 
 
+def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Remove the formalizer evidence derivation and require the live path to go RED."""
+
+    relative_path = Path("src/polisyos/scientist/agent/formalizer.py")
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = (
+        '        if candidate.model_dump(mode="json") == expected:\n'
+        '            return "model_generated"\n'
+    )
+    new = (
+        '        if candidate.model_dump(mode="json") == expected:\n'
+        '            return "path_unrecorded"\n'
+    )
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return (
+            {
+                "mutation_id": SOURCE_FLIP_MUTATION_ID,
+                "result": "HARNESS_ERROR",
+                "proof": f"source guard count was {text.count(old)}, expected 1",
+            },
+        )
+
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/runtime/quality/test_design_generation.py::"
+                    "test_unrecorded_formalizer_path_salvages_only_from_matching_retry"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            },
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return (
+            {
+                "mutation_id": SOURCE_FLIP_MUTATION_ID,
+                "result": "HARNESS_ERROR",
+                "proof": {
+                    "error": "source_restore_hash_mismatch",
+                    "before": original_hash,
+                    "after": restored_hash,
+                },
+            },
+        )
+    if harness_error is not None or completed is None:
+        return (
+            {
+                "mutation_id": SOURCE_FLIP_MUTATION_ID,
+                "result": "HARNESS_ERROR",
+                "proof": harness_error or "source_flip_probe_not_run",
+            },
+        )
+
+    output = f"{completed.stdout}\n{completed.stderr}"
+    mutation_red = completed.returncode != 0 and "formalizer_path_unrecorded" in output
+    return (
+        {
+            "mutation_id": SOURCE_FLIP_MUTATION_ID,
+            "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+            "guard": "formalizer provenance derives from matching recorded response evidence",
+            "proof": {
+                "command": [str(item) for item in completed.args],
+                "exit_code": completed.returncode,
+                "expected_terminal_reason": "formalizer_path_unrecorded",
+                "terminal_reason_observed": "formalizer_path_unrecorded" in output,
+                "source_restored_sha256": restored_hash,
+                "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+                "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+            },
+        },
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the GY-N4 contract validator."""
 
@@ -2146,6 +2248,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
+    parser.add_argument("--source-flip-mutations", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
 
@@ -2154,6 +2257,10 @@ def main(argv: list[str] | None = None) -> int:
     for item in reversed(inserted):
         if item not in sys.path:
             sys.path.insert(0, item)
+    if args.source_flip_mutations:
+        results = run_source_flip_mutations(repo_root)
+        print(json.dumps({"results": list(results)}, indent=2, sort_keys=True))
+        return 0 if all(item.get("result") == "RED" for item in results) else 1
     if args.write:
         write(repo_root)
     if args.corrupt_field_drift_check:

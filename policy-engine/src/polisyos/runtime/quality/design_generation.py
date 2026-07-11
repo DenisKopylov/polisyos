@@ -49,6 +49,7 @@ from polisyos.runtime.quality.grounding_bind import (
     GroundingBindGate,
     GroundingDecisionCertificate,
 )
+from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.grounding_phrasing_defense import (
     GroundingPhrasingDefenseEngine,
     GroundingProxyGapRisk,
@@ -134,13 +135,6 @@ AuthorityState = Literal[
     "promoted",
 ]
 LeverSpaceSliceStatus = Literal["derived", "unavailable"]
-GroundingDispositionKind = Literal[
-    "shadow_bound",
-    "veto_false_analog",
-    "novel_cg3",
-    "non_binding_abstain",
-    "unknown_blocked",
-]
 LegacyLinkerDisposition = Literal["would_bind", "would_reject"]
 
 
@@ -1046,7 +1040,10 @@ async def generate_design_candidate_bundle_under_a(
             lever_space_prompt_slice=lever_space_prompt_slice,
             effective_runtime_config=effective_runtime_config,
         ).as_organ_run(draft=draft)
-    formalizer_path = trinity_bundle_formalizer_generator_path(bundle)
+    formalizer_path = trinity_bundle_formalizer_generator_path(
+        bundle,
+        recorded_calls=recording_client.calls[formalizer_call_start:],
+    )
     if formalizer_path != _REAL_GENERATOR_PATH:
         bundle, formalizer_path = await _salvage_formalizer_terminal(
             formalizer=formalizer,
@@ -1069,7 +1066,11 @@ async def generate_design_candidate_bundle_under_a(
             model_id=model_id,
             preflight=preflight,
             status="generation_unavailable",
-            reason="formalizer_degraded_mock_fallback",
+            reason=(
+                "formalizer_path_unrecorded"
+                if formalizer_path == "path_unrecorded"
+                else "formalizer_degraded_mock_fallback"
+            ),
             organ="formalizer",
             min_diverse_candidates=min_diverse_candidates,
             llm_calls=tuple(recording_client.calls),
@@ -1267,7 +1268,9 @@ async def _salvage_formalizer_terminal(
     current_bundle: TrinityBundle,
     current_path: str,
 ) -> tuple[TrinityBundle, str]:
-    if not _terminal_window_is_transient(recording_client.calls[terminal_start:]):
+    if current_path != "path_unrecorded" and not _terminal_window_is_transient(
+        recording_client.calls[terminal_start:]
+    ):
         return current_bundle, current_path
     first_prompt_hash = _first_prompt_hash(recording_client.calls[terminal_start:])
     bundle = current_bundle
@@ -1280,7 +1283,10 @@ async def _salvage_formalizer_terminal(
             recording_client.calls[retry_start:],
             first_prompt_hash=first_prompt_hash,
         )
-        path = trinity_bundle_formalizer_generator_path(bundle)
+        path = trinity_bundle_formalizer_generator_path(
+            bundle,
+            recorded_calls=recording_client.calls[retry_start:],
+        )
         if path == _REAL_GENERATOR_PATH:
             return bundle, path
         if not _terminal_window_is_transient(recording_client.calls[retry_start:]):
@@ -3316,6 +3322,7 @@ __all__ = [
     "GenerationCandidateProvenance",
     "GenerationDiversityReport",
     "GenerationUnderAResult",
+    "GroundingDispositionKind",
     "LLMGenerationCall",
     "ModelProfilePreflight",
     "RecordingLLMClient",

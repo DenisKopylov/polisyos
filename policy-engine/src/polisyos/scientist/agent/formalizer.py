@@ -7,9 +7,11 @@ import json
 import math
 import os
 import re
+from collections.abc import Mapping, Sequence
+from copy import deepcopy
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import ValidationError
 
@@ -1272,6 +1274,59 @@ def _normalize_trinity_bundle_for_linker(bundle: TrinityBundle) -> TrinityBundle
     _normalize_parameter_specs(policy_data, interventions)
     _ensure_budget_feasibility_constraint(bundle_data)
     return TrinityBundle.model_validate(bundle_data)
+
+
+def _recorded_call_value(call: object, field: str) -> object | None:
+    if isinstance(call, Mapping):
+        return call.get(field)
+    return getattr(call, field, None)
+
+
+def trinity_bundle_formalizer_generator_path(
+    bundle: TrinityBundle,
+    *,
+    recorded_calls: Sequence[object],
+) -> Literal["model_generated", "degraded_mock_fallback", "path_unrecorded"]:
+    """Derive formalizer provenance from the actual recorded response window.
+
+    A returned bundle is model-generated only when a successful formalizer call
+    in the supplied window contains Trinity JSON that normalizes to that exact
+    bundle. Readable but non-matching Trinity evidence is degraded; an empty or
+    unusable window leaves provenance explicitly unrecorded.
+    """
+
+    expected = _normalize_trinity_bundle_for_linker(bundle).model_dump(mode="json")
+    readable_response_seen = False
+    for call in recorded_calls:
+        if _recorded_call_value(call, "role_hint") != "formalizer":
+            continue
+        if _recorded_call_value(call, "status") != "success":
+            continue
+        parsed = _recorded_call_value(call, "parsed_json")
+        if not isinstance(parsed, Mapping):
+            continue
+        candidate_data = deepcopy(dict(parsed))
+        try:
+            _normalize_problem_frame_metric_aliases_for_validation(
+                candidate_data,
+                taxonomy=build_production_metric_taxonomy(),
+                fail_unknown=False,
+            )
+            _normalize_model_spec_aliases_for_validation(candidate_data)
+            candidate = TrinityBundle.model_validate(candidate_data)
+        except (ValidationError, ValueError, TypeError):
+            continue
+        if candidate.schema_version != bundle.schema_version:
+            candidate = candidate.model_copy(
+                update={"schema_version": bundle.schema_version}
+            )
+        candidate = _normalize_trinity_bundle_for_linker(candidate)
+        readable_response_seen = True
+        if candidate.model_dump(mode="json") == expected:
+            return "model_generated"
+    if readable_response_seen:
+        return "degraded_mock_fallback"
+    return "path_unrecorded"
 
 
 def _draft_interventions_to_policy_spec(

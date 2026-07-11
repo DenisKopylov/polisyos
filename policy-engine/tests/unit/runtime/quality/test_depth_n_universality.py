@@ -7,6 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import tools.quality.validation.universality_preflight as universality_preflight_module
 from tools.quality.validation.universality_preflight import (
     assert_universality_preflight,
 )
@@ -36,12 +37,19 @@ def _run_universality_preflight_with_pythonpath(
     *,
     producer_sentinel: Path,
     block_ortools: bool = False,
+    python_executable: str = sys.executable,
+    force_base_prefixes: bool = False,
 ) -> subprocess.CompletedProcess[str]:
     """Run the universality preflight before a sentinel validator producer."""
 
     script = f"""
 import sys
 from pathlib import Path
+
+if {force_base_prefixes!r}:
+    sys.prefix = sys.base_prefix
+    sys.exec_prefix = sys.base_exec_prefix
+
 from tools.quality.validation.universality_preflight import assert_universality_preflight
 
 repo_root = Path({REPO_ROOT.as_posix()!r})
@@ -68,12 +76,23 @@ sentinel_validator_producer()
     env = os.environ.copy()
     env["PYTHONPATH"] = pythonpath.as_posix()
     return subprocess.run(
-        [sys.executable, "-c", script],
+        [python_executable, "-c", script],
         cwd=REPO_ROOT,
         env=env,
         check=False,
         capture_output=True,
         text=True,
+    )
+
+
+def test_repository_interpreter_accepts_current_repository_venv() -> None:
+    """Accept the repository venv even when its interpreter binary resolves to the base."""
+
+    expected_prefix = (REPO_ROOT / ".venv").resolve()
+
+    assert (
+        universality_preflight_module.assert_repository_interpreter(REPO_ROOT)
+        == expected_prefix
     )
 
 
@@ -115,6 +134,46 @@ def test_cg_substrate_unavailable_is_rejected_before_proof_execution(
     assert not producer_sentinel.exists()
 
 
+def test_bare_base_interpreter_is_rejected_before_proof_execution(
+    tmp_path: Path,
+) -> None:
+    """Reject the real base interpreter selected by ``sys._base_executable``."""
+
+    producer_sentinel = tmp_path / "producer-reached"
+    result = _run_universality_preflight_with_pythonpath(
+        REPO_ROOT / "src",
+        producer_sentinel=producer_sentinel,
+        python_executable=sys._base_executable,
+    )
+
+    assert result.returncode == 1
+    assert "wrong_interpreter_resolved:" in result.stderr
+    assert f"expected_prefix={(REPO_ROOT / '.venv').resolve()}" in result.stderr
+    assert "observed_prefix=" in result.stderr
+    assert "sys_executable=" in result.stderr
+    assert "base_prefix=" in result.stderr
+    assert not producer_sentinel.exists()
+
+
+def test_deterministic_wrong_prefix_is_rejected_before_proof_execution(
+    tmp_path: Path,
+) -> None:
+    """Reject base prefixes injected into an otherwise valid repository-venv child."""
+
+    producer_sentinel = tmp_path / "producer-reached"
+    result = _run_universality_preflight_with_pythonpath(
+        REPO_ROOT / "src",
+        producer_sentinel=producer_sentinel,
+        force_base_prefixes=True,
+    )
+
+    assert result.returncode == 1
+    assert "wrong_interpreter_resolved:" in result.stderr
+    assert f"observed_prefix={Path(sys.base_prefix).resolve()}" in result.stderr
+    assert f"expected_prefix={(REPO_ROOT / '.venv').resolve()}" in result.stderr
+    assert not producer_sentinel.exists()
+
+
 def test_adversarial_checkout_package_is_independent_of_repository_ancestry(
     tmp_path: Path,
 ) -> None:
@@ -140,4 +199,21 @@ def test_wrong_checkout_is_rejected_before_proof_execution(tmp_path: Path) -> No
 
     assert result.returncode == 1
     assert f"wrong_checkout_resolved:{wrong_src / 'polisyos/__init__.py'}" in result.stderr
+    assert not producer_sentinel.exists()
+
+
+def test_wrong_checkout_precedes_wrong_interpreter_prefix(tmp_path: Path) -> None:
+    """Report checkout failure before inspecting an invalid interpreter prefix."""
+
+    producer_sentinel = tmp_path / "producer-reached"
+    wrong_src = _create_wrong_checkout_package(tmp_path)
+    result = _run_universality_preflight_with_pythonpath(
+        wrong_src,
+        producer_sentinel=producer_sentinel,
+        force_base_prefixes=True,
+    )
+
+    assert result.returncode == 1
+    assert f"wrong_checkout_resolved:{wrong_src / 'polisyos/__init__.py'}" in result.stderr
+    assert "wrong_interpreter_resolved:" not in result.stderr
     assert not producer_sentinel.exists()

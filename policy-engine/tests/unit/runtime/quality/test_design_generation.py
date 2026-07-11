@@ -1078,6 +1078,19 @@ def test_strangle_receipts_recompute_as_strangled() -> None:
     assert validate_design_generation_strangle_receipts(REPO_ROOT) == ()
 
 
+def test_policy_verified_fixture_strangle_has_zero_live_callers() -> None:
+    receipt = next(
+        item
+        for item in dg.design_generation_strangle_receipts(REPO_ROOT)
+        if item["predecessor_ref"]
+        == "scientist.validation.policy_verified.mock_formalizer_tax_subsidy"
+    )
+
+    assert receipt["status"] == "strangled", receipt["remaining_callers"]
+    assert receipt["remaining_callers"] == []
+    assert receipt["disposition"] == "supplied_real_or_typed_refusal"
+
+
 def test_recording_fixture_is_problem_variant_not_authored_constant() -> None:
     recordings = _recordings()
     first = str(recordings[0]["response"]["raw_response"])

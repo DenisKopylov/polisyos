@@ -64,6 +64,9 @@ RECORDING_FIXTURE_PATH = (
 )
 MODEL_ID = SUPPORTED_GENERATION_MODEL_IDS[0]
 SOURCE_FLIP_MUTATION_ID = "source_flip_formalizer_recorded_path_derivation_removed"
+POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID = (
+    "source_flip_policy_verified_fixture_reconnected_to_production"
+)
 
 
 def declared_outputs() -> list[str]:
@@ -2141,7 +2144,7 @@ def _corrupt_field_drift_report(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
+def _run_formalizer_source_flip(repo_root: Path) -> tuple[dict[str, Any], ...]:
     """Remove the formalizer evidence derivation and require the live path to go RED."""
 
     relative_path = Path("src/polisyos/scientist/agent/formalizer.py")
@@ -2236,6 +2239,107 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
                 "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
             },
         },
+    )
+
+
+def _run_policy_verified_source_flip(repo_root: Path) -> dict[str, Any]:
+    source_path = repo_root / "src/polisyos/scientist/validation/policy_verified/service.py"
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    text = original.decode("utf-8")
+    replacements = (
+        (
+            "    del ctx, frame, option_set\n",
+            (
+                "    from polisyos.scientist.validation.policy_verified.testing import (\n"
+                "        formalize_policy_option_set_for_contract_testing,\n"
+                "    )\n"
+            ),
+        ),
+        (
+            "    if existing_ref is None:\n        return None\n",
+            (
+                "    if existing_ref is None:\n"
+                "        fixture = formalize_policy_option_set_for_contract_testing(\n"
+                "            ctx, frame, option_set\n"
+                "        )\n"
+                "        return TrinityBundleRef.model_validate(\n"
+                "            fixture.artifact_ref.model_dump()\n"
+                "        )\n"
+            ),
+        ),
+    )
+    for old, _new in replacements:
+        if text.count(old) != 1:
+            return {
+                "mutation_id": POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+                "result": "HARNESS_ERROR",
+                "proof": f"source guard count was {text.count(old)}, expected 1",
+            }
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    try:
+        mutated = text
+        for old, new in replacements:
+            mutated = mutated.replace(old, new, 1)
+        source_path.write_text(mutated, encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/scientist/nodes/builtins/compile/"
+                    "test_formalize_verified_policy.py::"
+                    "test_production_formalizer_only_resolves_supplied_trinity"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={**os.environ, "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}"},
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": "source_restore_hash_mismatch",
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+    return {
+        "mutation_id": POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if completed.returncode != 0 else "GREEN_MUTATION_SURVIVED",
+        "guard": "policy-verified production accepts supplied real Trinity only",
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "source_restored_sha256": restored_hash,
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Run every restoring N4 source mutation sequentially."""
+
+    return (
+        *_run_formalizer_source_flip(repo_root),
+        _run_policy_verified_source_flip(repo_root),
     )
 
 

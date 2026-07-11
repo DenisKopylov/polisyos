@@ -1668,22 +1668,20 @@ _STRANGLE_RECEIPT_SPECS: tuple[dict[str, Any], ...] = (
     {
         "predecessor_ref": "scientist.validation.policy_verified.mock_formalizer_tax_subsidy",
         "replacement_ref": (
-            f"{DESIGN_GENERATION_PRODUCER_REF}.generate_design_candidate_bundle_under_a"
+            "polisyos.scientist.nodes.builtins.compile.formalize_verified_policy."
+            "FormalizeVerifiedPolicyNode"
         ),
         "file": "src/polisyos/scientist/validation/policy_verified/service.py",
-        "forbidden": (
-            "mechanism_type\": \"tax_subsidy",
-            "MockFormalizerAgent().formalize",
-        ),
+        "forbidden": (),
         "required": (
-            "allow_policy_verified_fixture_formalizer",
-            "policy_verified_hardcoded_formalizer_strangled",
+            "POLICY_VERIFIED_HARDCODED_FORMALIZER_STRANGLED",
+            "INPUT_TRINITY_BUNDLE_REF",
         ),
         "default_before": (
             "verified-policy formalized a hardcoded tax_subsidy draft with MockFormalizer."
         ),
         "default_after": "verified-policy consumes a supplied real TrinityBundleRef by default.",
-        "disposition": "explicit_fixture_only",
+        "disposition": "supplied_real_or_typed_refusal",
         "removed_loc": "policy_verified/service.py:formalize_policy_option_set",
     },
     {
@@ -1749,6 +1747,10 @@ def _build_strangle_receipt(root: Path, spec: Mapping[str, Any]) -> dict[str, An
         "pdc._impl.layer2_design_search.fixed_credit_guarantee_candidate"
     ):
         ast_callers = _s2_forbidden_candidate_callers(source)
+    elif spec["predecessor_ref"] == (
+        "scientist.validation.policy_verified.mock_formalizer_tax_subsidy"
+    ):
+        ast_callers = _policy_verified_fixture_callers(root)
     status = "strangled" if not forbidden_hits and not missing_required else "drift"
     if ast_callers:
         status = "drift"
@@ -1818,6 +1820,110 @@ def _s2_forbidden_candidate_callers(source: str) -> list[dict[str, str]]:
                 }
             )
     return issues
+
+
+def _policy_verified_fixture_callers(root: Path) -> list[dict[str, str]]:
+    """Census production calls and authority-shaped remnants of the verified-policy fixture."""
+
+    source_root = root / "src"
+    fixture_path = (
+        source_root / "polisyos/scientist/validation/policy_verified/testing.py"
+    ).resolve()
+    service_path = (
+        source_root / "polisyos/scientist/validation/policy_verified/service.py"
+    ).resolve()
+    node_path = (
+        source_root
+        / "polisyos/scientist/nodes/builtins/compile/formalize_verified_policy.py"
+    ).resolve()
+    issues: list[dict[str, str]] = []
+    for path in source_root.rglob("*.py"):
+        resolved = path.resolve()
+        source = path.read_text(encoding="utf-8")
+        if (
+            resolved not in {service_path, node_path, fixture_path}
+            and "formalize_policy_option_set_for_contract_testing" not in source
+        ):
+            continue
+        try:
+            tree = ast.parse(source)
+        except SyntaxError as exc:
+            if resolved in {service_path, node_path, fixture_path}:
+                issues.append(
+                    {
+                        "path": path.relative_to(root).as_posix(),
+                        "reason": "source_not_parseable",
+                        "pattern": str(exc),
+                    }
+                )
+            continue
+        relative = path.relative_to(root).as_posix()
+        if resolved != fixture_path:
+            for call in (node for node in ast.walk(tree) if isinstance(node, ast.Call)):
+                name = _ast_call_name(call)
+                if name == "formalize_policy_option_set_for_contract_testing":
+                    issues.append(
+                        {
+                            "path": relative,
+                            "reason": "forbidden_contract_fixture_caller",
+                            "pattern": name,
+                        }
+                    )
+        if resolved == service_path:
+            for function in (
+                node
+                for node in tree.body
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == "formalize_policy_option_set"
+            ):
+                call_names = {
+                    _ast_call_name(call)
+                    for call in ast.walk(function)
+                    if isinstance(call, ast.Call)
+                }
+                constants = {
+                    node.value
+                    for node in ast.walk(function)
+                    if isinstance(node, ast.Constant) and isinstance(node.value, str)
+                }
+                for forbidden in (
+                    "MockFormalizerAgent",
+                    "formalize_policy_option_set_for_contract_testing",
+                    "put_json",
+                ):
+                    if forbidden in call_names:
+                        issues.append(
+                            {
+                                "path": relative,
+                                "reason": "authority_shaped_fixture_in_production_owner",
+                                "pattern": forbidden,
+                            }
+                        )
+                if "tax_subsidy" in constants:
+                    issues.append(
+                        {
+                            "path": relative,
+                            "reason": "fixed_fixture_body_in_production_owner",
+                            "pattern": "tax_subsidy",
+                        }
+                    )
+    if not fixture_path.is_file():
+        issues.append(
+            {
+                "path": fixture_path.relative_to(root).as_posix(),
+                "reason": "explicit_contract_fixture_missing",
+                "pattern": "formalize_policy_option_set_for_contract_testing",
+            }
+        )
+    return issues
+
+
+def _ast_call_name(call: ast.Call) -> str:
+    if isinstance(call.func, ast.Name):
+        return call.func.id
+    if isinstance(call.func, ast.Attribute):
+        return call.func.attr
+    return ""
 
 
 def firewall_issues_for_result(result: GenerationUnderAResult) -> tuple[dict[str, Any], ...]:

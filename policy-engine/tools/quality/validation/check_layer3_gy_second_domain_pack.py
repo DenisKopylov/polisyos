@@ -86,6 +86,8 @@ PACK_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_pack.json
 SMOKE_PROBLEM_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json"
 CYCLE_TRACE_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json"
 GAP_REPORT_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json"
+N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
+N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
 
 ARTIFACT_OUTPUTS = (
     CENSUS_OUTPUT,
@@ -415,6 +417,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     cycle_run["cycles"] = trace_cycles
     corrupted["cycle_trace"]["generation_cycle_run"] = cycle_run
     code_scope = _mapping(corrupted["pack"].get("zero_engine_code"))
+    code_scope["proof_head_commit"] = "HEAD"
     code_scope["changed_engine_paths"] = [
         "src/polisyos/runtime/quality/fabricated.py"
     ]
@@ -462,6 +465,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "distinctness_outcome_overlap",
         "distinctness_covariate_overlap",
         "smoke_terminal_not_honest",
+        "historical_receipt_rebased_to_moving_head",
         "free_grow_violated_by_code_change",
         "free_grow_violated_by_scope_change",
         "capture_time_content_bound",
@@ -1916,8 +1920,13 @@ def _build_pack(
     ]
     attempts = _list_of_mappings(_mapping(facts.get("l6_owner")).get("writability_attempts"))
     writable = [item for item in attempts if item.get("status") == "owner_writable"]
-    base_commit = _task_base_commit(root)
-    changed_paths = _task_changed_paths(root, base_commit)
+    base_commit = N10A_BASE_COMMIT
+    proof_head_commit = N10A_PROOF_HEAD_COMMIT
+    changed_paths = _historical_task_changed_paths(
+        root,
+        base=base_commit,
+        proof_head=proof_head_commit,
+    )
     engine_paths = [path for path in changed_paths if path.startswith("src/polisyos/")]
     out_of_scope_paths = [path for path in changed_paths if not _task_scope_path_allowed(path)]
     n7_attempt = _mapping(facts.get("n7_attempt"))
@@ -2017,7 +2026,9 @@ def _build_pack(
         },
         "runtime_metrics": {"n7_acquisition": n7_runtime_metrics},
         "zero_engine_code": {
+            "scope_semantics": "historical_commit_range",
             "task_base_commit": base_commit,
+            "proof_head_commit": proof_head_commit,
             "changed_paths": changed_paths,
             "changed_engine_paths": engine_paths,
             "out_of_scope_paths": out_of_scope_paths,
@@ -2555,15 +2566,66 @@ def _validate_smoke_terminal(
 
 def _validate_zero_engine_code(root: Path, pack: Mapping[str, Any], issues: list[dict[str, Any]]) -> None:
     scope = _mapping(pack.get("zero_engine_code"))
+    scope_semantics = scope.get("scope_semantics")
     base = scope.get("task_base_commit")
+    proof_head = scope.get("proof_head_commit")
     recorded_paths = _list_of_strings(scope.get("changed_paths"))
     recorded = _list_of_strings(scope.get("changed_engine_paths"))
     recorded_out_of_scope = _list_of_strings(scope.get("out_of_scope_paths"))
-    if not isinstance(base, str) or not base:
-        issues.append({"code": "diff_scope_unverifiable"})
-        return
+    if proof_head != N10A_PROOF_HEAD_COMMIT:
+        issues.append(
+            {
+                "code": "historical_receipt_rebased_to_moving_head",
+                "recorded_proof_head": proof_head,
+                "expected_proof_head": N10A_PROOF_HEAD_COMMIT,
+            }
+        )
+    if base != N10A_BASE_COMMIT:
+        issues.append(
+            {
+                "code": "historical_receipt_base_commit_drift",
+                "recorded_base": base,
+                "expected_base": N10A_BASE_COMMIT,
+            }
+        )
+    literal_commits = all(
+        isinstance(value, str)
+        and len(value) == 40
+        and all(character in "0123456789abcdef" for character in value)
+        for value in (base, proof_head)
+    )
+    if (
+        scope_semantics != "historical_commit_range"
+        or not literal_commits
+        or base != N10A_BASE_COMMIT
+        or proof_head != N10A_PROOF_HEAD_COMMIT
+    ):
+        issues.append(
+            {
+                "code": "diff_scope_unverifiable",
+                "scope_semantics": scope_semantics,
+                "task_base_commit": base,
+                "proof_head_commit": proof_head,
+            }
+        )
     try:
-        actual_paths = _task_changed_paths(root, base)
+        if (
+            _git(root, "merge-base", N10A_BASE_COMMIT, N10A_PROOF_HEAD_COMMIT)
+            != N10A_BASE_COMMIT
+        ):
+            issues.append({"code": "historical_receipt_base_not_ancestor"})
+            return
+        if (
+            _git(root, "merge-base", N10A_PROOF_HEAD_COMMIT, "HEAD")
+            != N10A_PROOF_HEAD_COMMIT
+        ):
+            issues.append({"code": "historical_receipt_proof_head_not_ancestor"})
+            return
+        actual_paths = _historical_task_changed_paths(
+            root,
+            base=N10A_BASE_COMMIT,
+            proof_head=N10A_PROOF_HEAD_COMMIT,
+        )
     except RuntimeError as exc:
         issues.append({"code": "diff_scope_unverifiable", "error": str(exc)})
         return
@@ -2674,25 +2736,19 @@ def _run_query(
     }
 
 
-def _task_base_commit(root: Path) -> str:
-    result = _git(root, "merge-base", "HEAD", "codex/gy-n9-promotion-sequence")
-    if not result:
-        raise RuntimeError("cannot derive task base from codex/gy-n9-promotion-sequence")
-    return result
-
-
-def _task_changed_paths(root: Path, base: str) -> list[str]:
-    """Return every committed, staged, working, or untracked task path from its base."""
+def _historical_task_changed_paths(
+    root: Path,
+    *,
+    base: str,
+    proof_head: str,
+) -> list[str]:
+    """Return only paths committed in the immutable historical proof range."""
 
     git_prefix = _git(root, "rev-parse", "--show-prefix")
-    committed = _git(root, "diff", "--name-only", f"{base}..HEAD")
-    working = _git(root, "diff", "--name-only", base)
-    staged = _git(root, "diff", "--cached", "--name-only", base)
-    untracked = _git(root, "ls-files", "--others", "--exclude-standard")
+    committed = _git(root, "diff", "--name-only", f"{base}..{proof_head}")
     paths = {
         _project_relative_git_path(path, git_prefix)
-        for output in (committed, working, staged, untracked)
-        for path in output.splitlines()
+        for path in committed.splitlines()
         if path.strip()
     }
     return sorted(paths)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -11,6 +12,21 @@ import pytest
 from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
+N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
+
+
+def _git_head_sha(repo_root: Path) -> str:
+    """Resolve the checkout head for the moving-range adversarial probe."""
+
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
 
 
 def _rehash_pack_manifest(bundle: dict[str, object]) -> None:
@@ -54,6 +70,38 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
     assert bundle["census"]["decision"]["chosen_candidate"] == "education"
     assert bundle["pack"]["manifest_content_hash"].startswith("sha256:")
     assert not second_domain_pack.validate_bundle_payloads(bundle, REPO_ROOT)
+
+
+def test_n10a_zero_engine_receipt_is_pinned_to_historical_proof_head(
+    live_bundle: dict[str, object],
+) -> None:
+    """Keep the N10a code-scope receipt immutable after later commits land."""
+
+    receipt = live_bundle["pack"]["zero_engine_code"]
+
+    assert receipt["scope_semantics"] == "historical_commit_range"
+    assert receipt["task_base_commit"] == N10A_BASE_COMMIT
+    assert receipt["proof_head_commit"] == N10A_PROOF_HEAD_COMMIT
+    assert receipt["changed_engine_paths"] == []
+
+
+@pytest.mark.parametrize(
+    "moving_head",
+    ["HEAD", _git_head_sha(REPO_ROOT)],
+    ids=["symbolic-head", "resolved-current-head"],
+)
+def test_n10a_receipt_rebased_to_moving_head_is_rejected(moving_head: str) -> None:
+    """Reject symbolic and resolved attempts to make the frozen range move."""
+
+    payloads = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    payloads["pack"]["zero_engine_code"]["proof_head_commit"] = moving_head
+    _rehash_pack_manifest(payloads)
+
+    issues = second_domain_pack.validate_bundle_payloads(payloads, REPO_ROOT)
+
+    assert "historical_receipt_rebased_to_moving_head" in {
+        issue["code"] for issue in issues
+    }
 
 
 def test_census_records_operational_query_timings(live_bundle: dict[str, object]) -> None:

@@ -5,7 +5,7 @@
     "surface": "pack_manifest_and_gap_report",
     "surface_out_of_scope": false
   },
-  "census_content_hash": "sha256:9d7e3b74ed90dc3052fa9ac908610910c4d819a513f60066a43c35763263dd23",
+  "census_content_hash": "sha256:cbe2f54ad7266c295a3567df7f0aa31ffa4f5d6413b2d12d4e2eaec9a3c1ddbd",
   "components": {
     "grounding_reference_coverage": {
       "coverage": {
@@ -177,35 +177,35 @@
     "owner_writability": {
       "attempts": [
         {
-          "attempt_content_hash": "sha256:82934a0e3847712c2820c434b77a4a5323add95e7c609d4e6f387f725bd92d5b",
+          "attempt_content_hash": "sha256:8eae3fb38c3df394b9d8638a87ef6814e452cd92508113bb506335a3e765601f",
           "instrument": "education.blended_learning",
-          "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
+          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
           "reason_code": "knob_operator_unresolved",
           "status": "not_owner_writable"
         },
         {
-          "attempt_content_hash": "sha256:db4f77072e0d5da71e6a1ab7abfaf851b743735e5398136ac5916af30d4593d7",
+          "attempt_content_hash": "sha256:a2e510b0e67c16cef333f5538db7d00644429c8a23f39c80ebfde773a1bdadfa",
           "instrument": "education.stem_education",
-          "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
+          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
           "reason_code": "knob_operator_unresolved",
           "status": "not_owner_writable"
         },
         {
-          "attempt_content_hash": "sha256:b501f58a97a34dc2b01eb71035c45cac21d830bb59941264198b08f391a5e2e4",
+          "attempt_content_hash": "sha256:0ec138e5e61ae445298560b9af637575a974f1af3d3a0a9d0ee7afeb379df085",
           "instrument": "education.teaching_method",
-          "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
+          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
           "reason_code": "knob_operator_unresolved",
           "status": "not_owner_writable"
         },
         {
-          "attempt_content_hash": "sha256:2a834e04106a20744f38728827af9e20d3aa3618cebe6d24fc5647992171f133",
+          "attempt_content_hash": "sha256:9f9bdf7ad09ca0cf7232e50e0eab5d71743408dac8c270cae3012f15e107e771",
           "instrument": "education.dialogic_reading_modality",
-          "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
+          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
           "reason_code": "knob_operator_unresolved",
           "status": "not_owner_writable"
         }
       ],
-      "l6_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
+      "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
       "owner": "L6 intervention substrate resolver",
       "positive_writable_count": 0,
       "s0_education_entries": [
@@ -334,7 +334,7 @@
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
-  "cycle_trace_content_hash": "sha256:ef3aa900e6b8f2b5c1785cf92813ce21dfef00ddc8b0a6835cecfeea822ff246",
+  "cycle_trace_content_hash": "sha256:1430176e0be86df6de2434cbffa0df80562b2ff230a2cf75ee9b66ab31db6eef",
   "distinctness": {
     "computed_status": "must_pass_validator",
     "first_vertical_comparator": {
@@ -359,8 +359,8 @@
     },
     "selected_method_family": "non_panel_short_series"
   },
-  "gap_report_content_hash": "sha256:1f0d753d50a725b1074365cb02b2fa41b7e6c62cd4a8c75dcc5a1727500b766d",
-  "manifest_content_hash": "sha256:078ab1b32f5f634855f8e8694a22c7a864a3d66650c386ab05c87ebe90ddc664",
+  "gap_report_content_hash": "sha256:8f242a3296e3d3ad6f8f704902f53a0811649eaa03e186b113b8da22099bb251",
+  "manifest_content_hash": "sha256:f60f2117ac65921af5dea416073fcd9af5297fb7c3406a06760ff26e5c5ef7d5",
   "n7_acquisition": {
     "attempt_source_l2_row_content_hash": "sha256:0230b0649ee4e5df69d5d1d1603784e5b844ffbe7ff356b609bf5a537f5a6784",
     "attempt_status": "completed_no_results",
@@ -379,8 +379,8 @@
       {
         "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
         "matches": true,
-        "raw_response_hash": "sha256:b36d1f8a52982b7a33befc286ec3e84abe96018c7d9d0ae706c7d478cc8a1dfb",
-        "recomputed_raw_response_hash": "sha256:b36d1f8a52982b7a33befc286ec3e84abe96018c7d9d0ae706c7d478cc8a1dfb"
+        "raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a",
+        "recomputed_raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
       }
     ],
     "receipt_content": {
@@ -577,7 +577,7 @@
       "journal_entries": [
         {
           "action": "acquire_evidence",
-          "artifact_content_hash": "sha256:72f8d69a29ddedb11ed3b1dab99324d61d01a3aac2f915b28b58b2828a53f8a2",
+          "artifact_content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
           "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
           "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
           "message": "owner artifact journaled before receipt validation",
@@ -602,9 +602,9 @@
             "owner_component": "fabric.retrieval",
             "owner_endpoint": "RetrievalService.resolve",
             "owner_request_hash": "sha256:f682b9a97a4496607c279dc5ed5e2f8dc00a00e22a962c56944767bbd72181aa",
-            "owner_response_hash": "sha256:72f8d69a29ddedb11ed3b1dab99324d61d01a3aac2f915b28b58b2828a53f8a2"
+            "owner_response_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c"
           },
-          "content_hash": "sha256:72f8d69a29ddedb11ed3b1dab99324d61d01a3aac2f915b28b58b2828a53f8a2",
+          "content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
           "cost_usd": 0.0,
           "ingested": true,
           "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
@@ -622,12 +622,11 @@
               "warnings": [
                 "No FastLane candidates for metric 'education.teaching_method'",
                 "discover_failed:ckan.catalog:[ckan.catalog] Connector response blocked by secret/PII scan: email",
-                "time_budget_reached",
                 "no_fetch_plans_resolved"
               ]
             },
             "owner_response_kind": "real_owner_capture",
-            "raw_owner_response_hash": "sha256:b36d1f8a52982b7a33befc286ec3e84abe96018c7d9d0ae706c7d478cc8a1dfb"
+            "raw_owner_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
           },
           "quality": {
             "owner_endpoint": "RetrievalService.resolve"
@@ -960,7 +959,7 @@
         }
       ]
     },
-    "receipt_content_hash": "sha256:6b523c44caaa2894a8447d9e4bba9f6c115b200fca727151a59bbfb6011b2da2",
+    "receipt_content_hash": "sha256:222158e4a545288f5b3e6fbd12005ec7bae3813a218601d12239a2e403fa36f0",
     "receipt_count": 1,
     "receipt_validation_issues": []
   },
@@ -1452,9 +1451,9 @@
   "runtime_metrics": {
     "n7_acquisition": {
       "owner_capture_times": [
-        "2026-07-10T18:24:12.358485Z"
+        "2026-07-11T03:02:06.315369Z"
       ],
-      "planner_report_generated_at": "2026-07-10T18:24:12.358485Z",
+      "planner_report_generated_at": "2026-07-11T03:02:06.315369Z",
       "receipt": {
         "acquisition_family_scores": [
           {
@@ -1641,7 +1640,7 @@
           "surviving_callers": [],
           "verified_by": "polisyos.runtime.quality.acquisition_planner.acquisition_strangle_receipt"
         },
-        "generated_at": "2026-07-10T18:24:12.358485Z",
+        "generated_at": "2026-07-11T03:02:06.315369Z",
         "grounding_rederivations": [],
         "grown_world_added_slots": [],
         "grown_world_after_ref": "s0://substrate-registry/substrate_version_f94770b220aa9b6a",
@@ -1650,7 +1649,7 @@
         "journal_entries": [
           {
             "action": "acquire_evidence",
-            "artifact_content_hash": "sha256:72f8d69a29ddedb11ed3b1dab99324d61d01a3aac2f915b28b58b2828a53f8a2",
+            "artifact_content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
             "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
             "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
             "message": "owner artifact journaled before receipt validation",
@@ -1670,15 +1669,15 @@
             ],
             "capture_provenance": {
               "capture_mode": "local_substrate_owner",
-              "captured_at": "2026-07-10T18:24:12.358485Z",
+              "captured_at": "2026-07-11T03:02:06.315369Z",
               "journal_first": true,
               "network_call": false,
               "owner_component": "fabric.retrieval",
               "owner_endpoint": "RetrievalService.resolve",
               "owner_request_hash": "sha256:f682b9a97a4496607c279dc5ed5e2f8dc00a00e22a962c56944767bbd72181aa",
-              "owner_response_hash": "sha256:72f8d69a29ddedb11ed3b1dab99324d61d01a3aac2f915b28b58b2828a53f8a2"
+              "owner_response_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c"
             },
-            "content_hash": "sha256:72f8d69a29ddedb11ed3b1dab99324d61d01a3aac2f915b28b58b2828a53f8a2",
+            "content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
             "cost_usd": 0.0,
             "ingested": true,
             "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
@@ -1696,12 +1695,11 @@
                 "warnings": [
                   "No FastLane candidates for metric 'education.teaching_method'",
                   "discover_failed:ckan.catalog:[ckan.catalog] Connector response blocked by secret/PII scan: email",
-                  "time_budget_reached",
                   "no_fetch_plans_resolved"
                 ]
               },
               "owner_response_kind": "real_owner_capture",
-              "raw_owner_response_hash": "sha256:b36d1f8a52982b7a33befc286ec3e84abe96018c7d9d0ae706c7d478cc8a1dfb"
+              "raw_owner_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
             },
             "quality": {
               "owner_endpoint": "RetrievalService.resolve"
@@ -1989,7 +1987,7 @@
             ]
           },
           "capability_reality_status": "implemented",
-          "generated_at": "2026-07-10T18:24:12.358485Z",
+          "generated_at": "2026-07-11T03:02:06.315369Z",
           "pattern_refs": [
             "P01",
             "P09",
@@ -2035,12 +2033,12 @@
           }
         ]
       },
-      "receipt_generated_at": "2026-07-10T18:24:12.358485Z"
+      "receipt_generated_at": "2026-07-11T03:02:06.315369Z"
     }
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
   "selected_domain": "education",
-  "smoke_problem_content_hash": "sha256:3c2b5b02c46a571ef425f9ae4ec95fbc510146e48b1e1de18fd5cd0cb00ba500",
+  "smoke_problem_content_hash": "sha256:c2e3857b91f8e69dcc867f1e01f84533669a2fc2373feae6bd5063f0f83b34e5",
   "zero_engine_code": {
     "changed_engine_paths": [],
     "changed_paths": [
@@ -2060,6 +2058,8 @@
       "tools/quality/validation/check_layer3_gy_second_domain_pack.py"
     ],
     "out_of_scope_paths": [],
+    "proof_head_commit": "d8a8cf076da6233c66b0a90010647c0d437e81c4",
+    "scope_semantics": "historical_commit_range",
     "status": "pass",
     "task_base_commit": "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
   }

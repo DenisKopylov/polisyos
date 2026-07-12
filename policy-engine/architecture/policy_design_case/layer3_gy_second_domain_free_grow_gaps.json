@@ -1,23 +1,21 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:07d5a5c5d3a48100dba4332d139da1aceddbb3cfd5d8ed361667fe8d16700c58",
+  "gap_report_content_hash": "sha256:58644d5522647cac05e72f20c8bcd8493ca3d379fe7a4d7eed0c1cc5e75ed7e9",
   "gaps": [
     {
-      "acquisition_required": {
-        "cost_basis": "N7 has no owner-derived L2/L3-to-L6 world-slot capture route.",
-        "cost_usd": null,
-        "status": "unrunnable_without_engine_bridge"
-      },
-      "blocking_seam": "L2 candidate intervention concepts do not resolve through the real L6 knob owner.",
-      "capability_label": "bridge_missing",
-      "gap_content_hash": "sha256:2bb259d2666ce5bd2b920dd1f2451e3ac80acf8f0e331751b15fa32548d6c520",
+      "blocking_seam": "Closed by the Stage-1 live behavioral receipt.",
+      "capability_label": "closed",
+      "disposition": "closed_by_live_behavioral_receipt",
+      "gap_content_hash": "sha256:91f936d9b2549fc05e15a4bd79c244c8f70dbfd6fd56f1d12dcabe4c9205a2cb",
       "gap_id": "s0_to_l6_world_slot_bridge_missing",
       "owner_evidence": {
         "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
         "positive_writable_count": 0,
         "seam_witness": {
           "observed_call_names": [
+            "<dynamic>.intersection",
             "<dynamic>.strip",
+            "InterventionLeverRefusal",
             "InterventionLeverResolution",
             "InterventionSubstrateError",
             "_knob_domain",
@@ -29,13 +27,31 @@
             "bundle.source_refs.get",
             "domain.model_dump",
             "gy_content_hash",
+            "len",
+            "revalidate_cycle_substrate_context",
             "str",
             "tuple",
             "verify_intervention_substrate_bundle_content_hash"
           ],
-          "segment_content_hash": "sha256:176e23c1909dbae661eacec2efd1a2c449ee85a5585029fb3bea7c91e08d9bda",
+          "segment_content_hash": "sha256:06b7ab316a192b10cc2291be34c3a9f2ffb9154b70d034b149cb7905be66962f",
           "source_path": "src/polisyos/runtime/quality/intervention_substrate.py",
           "symbol": "resolve_intervention_lever"
+        },
+        "stage_1_behavioral_receipt": {
+          "attempted": true,
+          "candidate_entry_content_hash": "sha256:57bb9c8d74b0871c254a2e5cbce19ef8d04ef8af6f5769ed18f4450be883ffa6",
+          "context_binding_hash": "sha256:9569ec0d777cd5a1c61b4faa29de1227fb9c1a675ec98fce05c86cd64b674483",
+          "disposition": "unknown_blocked",
+          "grounding_source": "cgf_firewall",
+          "grounding_status": "grounding_failed",
+          "lever_resolution_content_hash": "sha256:49093172abfa75022a4a20daca16a7075e739a3a9634629889c84b1162940f32",
+          "lever_resolution_reason_code": "knob_operator_unresolved",
+          "owner": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+          "proposal_id": "gy_n4.evidence_based_teaching_reform",
+          "raw_candidate_hash": "sha256:72e84a2102e3096f1cba05b1598556e9f96179046c32ffb609a3b271b5e120f0",
+          "selected_registry_entry_hash": "sha256:0b083d7e6784d2750ca4e933e754bbfc936ccdd8f70b825d5a3c46caf17e6aa8",
+          "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
+          "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
         },
         "writability_attempts": [
           {
@@ -67,7 +83,8 @@
             "status": "not_owner_writable"
           }
         ]
-      }
+      },
+      "status": "closed"
     },
     {
       "acquisition_required": {
@@ -77,7 +94,8 @@
       },
       "blocking_seam": "N7's real owner receipt is journaled, but its projected registration is not rederived from the captured domain-owner measurements.",
       "capability_label": "artifact_missing",
-      "gap_content_hash": "sha256:0dc7d7fd5efaaf8884c85c66cffa618643554ec2bb4ebf8858d89e51556ae8f2",
+      "disposition": "N7 owner-registration derivation is acquisition infrastructure.",
+      "gap_content_hash": "sha256:49f6d60f513f8e5e39e8491a68ee45b29d52cb8f6df4b3a1e53250f3830f8fa7",
       "gap_id": "owner_registration_derivation_missing",
       "owner_evidence": {
         "direct_persist_acquisition_receipt_call": false,
@@ -122,12 +140,14 @@
           "source_path": "src/polisyos/runtime/quality/acquisition_planner.py",
           "symbol": "_project_owner_artifacts_into_world"
         }
-      }
+      },
+      "status": "typed_residual"
     },
     {
       "blocking_seam": "The live N7 receipt carries a journal-first entry and raw-response hash, but the existing owner exposes no durable journal/CAS artifact for later S0/L6 use.",
       "capability_label": "artifact_missing",
-      "gap_content_hash": "sha256:472c097cd5b956bb1dacdb74cf17edaec6a03780fc2ff436fb3c0ab4dbd9432e",
+      "disposition": "N7 durable raw-evidence persistence is acquisition infrastructure.",
+      "gap_content_hash": "sha256:52e84012695818cf9a6a07d8ef2c7b6e1ee9201ab49f8f4d8fcc16435771fff4",
       "gap_id": "journal_raw_evidence_persistence_missing",
       "owner_evidence": {
         "journal_entries": [
@@ -188,12 +208,14 @@
           "source_path": "src/polisyos/runtime/quality/acquisition_planner.py",
           "symbol": "run_acquisition_closed_loop"
         }
-      }
+      },
+      "status": "typed_residual"
     },
     {
-      "blocking_seam": "N4 loads its fixed L6 substrate instead of a persisted second-domain S0 entry.",
-      "capability_label": "consumer_missing",
-      "gap_content_hash": "sha256:277c1e4f96c78886b2f398ad8efc9e3d4822880cc8acb282af76cb1fb0e781be",
+      "blocking_seam": "Closed by the Stage-1 live behavioral receipt.",
+      "capability_label": "closed",
+      "disposition": "closed_by_live_behavioral_receipt",
+      "gap_content_hash": "sha256:cc9e4e752f48e1b86b6dd4042339b691771bc3836bb974f5a078b5e6ae013fcd",
       "gap_id": "s0_to_n4_l6_bridge_missing",
       "owner_evidence": {
         "seam_witness": {
@@ -204,6 +226,7 @@
             "LeverSpaceSliceEntry.model_validate",
             "_cap_lever_space_entries",
             "_compact_parameter_facts",
+            "_cycle_substrate_context_for_problem",
             "_design_problem_filter_tokens",
             "_id_token",
             "_mapping",
@@ -216,9 +239,11 @@
             "bundle.knob_dictionary.items",
             "bundle.source_content_hashes.get",
             "bundle.source_refs.get",
+            "dict.fromkeys",
             "entries.append",
             "entry.model_dump",
             "gy_content_hash",
+            "list",
             "load_l6_intervention_substrate",
             "mechanism.get",
             "owner_fact.get",
@@ -228,20 +253,52 @@
             "tuple",
             "type"
           ],
-          "segment_content_hash": "sha256:27d9fe91b92a99a738bf18bbf643ec1be74b4492d7e073f04f50ec619815e105",
+          "segment_content_hash": "sha256:f394c95ca0e60115d7faf8ce2ef19880a5410b9dbea4fc9f7392d513436045f2",
           "source_path": "src/polisyos/runtime/quality/design_generation.py",
           "symbol": "derive_lever_space_prompt_slice"
+        },
+        "stage_1_behavioral_receipt": {
+          "attempted": true,
+          "exact_formalizer_input_hashes": [
+            "sha256:da2b9da3bbc9a60339052521205c39131dc4e39c0e2d664cc104f01238dd18c8"
+          ],
+          "generation_channel": "n4_owner",
+          "lever_source_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
+          "n4_owner_capture_content_hash": "sha256:f8958fdb1ee062aceb82a12708b454f2e4fc85d4b6e261734ea4a9424144042d",
+          "owner": "polisyos.runtime.quality.design_generation.generate_design_candidate_bundle_under_a",
+          "owner_status": "generated",
+          "prompt_slice_content_hash": "sha256:7aa4265d21657bcff4001ff29cc0a6740620f4f7e7246a56e1ef559bd37ef39a",
+          "prompt_slice_operator_kinds": [
+            "education_blended_learning",
+            "education_stem_education",
+            "education_teaching_method",
+            "education_dialogic_reading_modality"
+          ],
+          "proposed_operator_kinds": [
+            "education_teaching_method",
+            "education_blended_learning",
+            "education_dialogic_reading_modality"
+          ],
+          "proposed_raw_candidate_hashes": [
+            "sha256:72e84a2102e3096f1cba05b1598556e9f96179046c32ffb609a3b271b5e120f0",
+            "sha256:31c77e1c8c7506ad1c3db8a8003fecf30683bd613149091f83f7e82587f56859",
+            "sha256:399513c8073595c8f4f8228501505e30b4b9302285edc17f145364b20da7f4f4"
+          ]
         }
-      }
+      },
+      "status": "closed"
     },
     {
-      "blocking_seam": "Default N6/N5 rebuilds the boundary registry and remains first-vertical scoped.",
-      "capability_label": "consumer_missing",
-      "gap_content_hash": "sha256:15e4e374edfe0580e1722c4887e35feac0e2ec8b39a37513e40f429042bc778f",
+      "blocking_seam": "Closed by the Stage-1 live behavioral receipt.",
+      "capability_label": "closed",
+      "disposition": "closed_by_live_behavioral_receipt",
+      "gap_content_hash": "sha256:3f891626b29642ca28e38ed20a8307d6a293b66dc8b2156c8aa9c6e236474886",
       "gap_id": "s0_to_n5_wmr_bridge_missing",
       "owner_evidence": {
         "seam_witness": {
           "observed_call_names": [
+            "<dynamic>.difference",
+            "<dynamic>.join",
             "<dynamic>.strip",
             "DataForgeBindingRef",
             "FabricWorldRef",
@@ -250,30 +307,51 @@
             "ResolvedSubstrateEntryRef",
             "SimulationModelRef",
             "SkgCausalPriorRef",
+            "SubstrateRegistry.model_validate",
             "SubstrateRegistryRef",
             "WorldModelRecord",
             "WorldModelRecord.model_construct",
+            "WorldModelRecordError",
             "binding.model_dump",
             "build_substrate_registry_from_existing_catalogs",
             "content_hash.removeprefix",
             "dict.fromkeys",
             "gy_content_hash",
             "len",
+            "next",
+            "problem.runtime_hints.get",
+            "registry.content_hash.removeprefix",
+            "set",
             "sorted",
             "str",
+            "substrate_registry.model_dump",
             "tuple",
             "world_model_record_content_hash"
           ],
-          "segment_content_hash": "sha256:d7e960f83b773cc5ba10960488e1c4d7dd4082d44de1c6b4f22ee97f36b23c1b",
+          "segment_content_hash": "sha256:e90eac660f535d1dfee1fd89e4705113089a2ffec01c91aa4f7176a66da95471",
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "_build_boundary_world_model_record"
+        },
+        "stage_1_behavioral_receipt": {
+          "attempted": true,
+          "object_identity_reused": true,
+          "owner": "polisyos.runtime.quality.generation_cycle._build_boundary_world_model_record",
+          "selected_registry_entry_hashes": [
+            "sha256:0b083d7e6784d2750ca4e933e754bbfc936ccdd8f70b825d5a3c46caf17e6aa8"
+          ],
+          "simulation_status": "simulation_pending_n5",
+          "substrate_registry_content_hash": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1",
+          "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",
+          "world_model_record_id": "world_model_record_b14cc2ae2bbe445b"
         }
-      }
+      },
+      "status": "closed"
     },
     {
       "blocking_seam": "N8 still consumes first-vertical transport covariates rather than pack data.",
       "capability_label": "consumer_missing",
-      "gap_content_hash": "sha256:04121f56d9d4e69b195ba1160b3cfe97f04a4356c6b5f7624a9734ff431c4355",
+      "disposition": "Stage 2 owns transport de-hardcoding.",
+      "gap_content_hash": "sha256:4a64f6eacfcfd89e55335580620d59b4a5bec0b642235e30b611b6ab0b637d46",
       "gap_id": "n8_transport_tuple_hardcode",
       "owner_evidence": {
         "first_vertical_method_family": "panel",
@@ -303,12 +381,14 @@
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "_build_candidate_selection_diagram"
         }
-      }
+      },
+      "status": "typed_residual"
     },
     {
       "blocking_seam": "A typed one-cycle terminal reaches N6 but its validator requires a positive two-cycle denominator.",
       "capability_label": "semantic_test_missing",
-      "gap_content_hash": "sha256:b9ebde3241429759b7d8b87da8e36c3cce2783946a36f8f4a2ce32d145ea0233",
+      "disposition": "Stage 3 owns one-terminal validator reconciliation.",
+      "gap_content_hash": "sha256:31930ca5630d9dae4e0e2c5c93826b98a18f5c315b00260ce35e92a763b0aa25",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [
@@ -341,12 +421,13 @@
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "validate_generation_cycle_run"
         },
-        "trace_content_hash": "sha256:5f7db291f7f99ca4df9e93c534c4221ef55463a221009739ec98923504a28acf"
-      }
+        "trace_content_hash": "sha256:eea2c11fb989f1805c08c967e7a2ef9090e15e8de9476111864bc3d616a996f4"
+      },
+      "status": "typed_residual"
     }
   ],
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
-  "status": "gaps_recorded_no_engine_change"
+  "status": "stage_1_bridges_closed_with_typed_residuals"
 }

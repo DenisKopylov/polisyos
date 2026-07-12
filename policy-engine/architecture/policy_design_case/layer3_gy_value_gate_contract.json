@@ -6,7 +6,7 @@
     "wall_time_reported_outside_byte_stable_artifact": true,
     "wmr_cache_rule": "build_once_per_world_model_record_content_hash"
   },
-  "contract_content_hash": "sha256:bee8df3815a1bbaf2aeaf2e75df3f50c999962ae6084c97fd34574867f1b7bb8",
+  "contract_content_hash": "sha256:5eb74d41d444270f8f1c6c828af9116d2727d9bce9c75812700f6a887d147289",
   "decisive_mutations": [
     {
       "mutation_id": "value_input_read_from_runtime_hint",
@@ -45,7 +45,7 @@
     },
     {
       "mutation_id": "fixture_world_model_hash_rejected",
-      "proof": "Placeholder WMR hash rejected; audit WMR is sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd.",
+      "proof": "Placeholder WMR hash rejected; audit WMR is sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61.",
       "result": "RED"
     },
     {
@@ -407,7 +407,7 @@
   },
   "frozen_positive_receipt": {
     "calibration_receipt": {
-      "calibration_record_ref": "s10://n8/19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/calibration",
+      "calibration_record_ref": "s10://n8/fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/calibration",
       "false_clear_counts": {
         "equilibrium_contested_single_forecast_false_clear_count": 0,
         "fail_closed_axis_prediction_promotion_false_clear_count": 0,
@@ -429,26 +429,32 @@
       "issue_codes": [],
       "status": "pass",
       "uncertainty_interval_refs": [
-        "interval://sha256:19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/95"
+        "interval://sha256:fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/95"
       ]
     },
     "candidate_id": "candidate_live_value",
     "evaluation_mode": "simulate_only",
     "identification_status": "partial",
-    "k_world_ref_after": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-    "k_world_ref_before": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+    "k_world_ref_after": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+    "k_world_ref_before": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
     "method_selection_trace": [
       "causal.diagnostics.parallel_trends_check@1.0.0",
       "causal.inference.did.staggered@1.0.0",
       "causal.inference.did.standard@1.0.0",
       "causal.inference.structural_time_series@1.0.0",
       "causal.inference.synthetic_control@1.0.0",
+      "econometrics.diagnostics.hausman_test@1.0.0",
       "econometrics.panel.event_study@1.0.0",
+      "econometrics.panel.fixed_effects@1.0.0",
       "econometrics.panel.latent_mobility@1.0.0",
       "econometrics.panel.nonstationary_garch@1.0.0",
+      "econometrics.panel.random_effects@1.0.0",
       "econometrics.panel.synthetic_did@1.0.0",
       "spatial.panel.sarar@1.0.0",
       "spatial.panel.slx@1.0.0",
+      "econometrics.iv.gmm@1.0.0",
+      "econometrics.iv.high_dimensional_post_selection@1.0.0",
+      "econometrics.iv.two_stage_least_squares@1.0.0",
       "econometrics.panel.difference_gmm@1.0.0",
       "econometrics.panel.system_gmm@1.0.0"
     ],
@@ -465,10 +471,10 @@
       ],
       "status": "transported_limited",
       "transport_mode": "bounds_only",
-      "transport_result_ref": "sha256:d9f911d509caefc06d7d5d79c6a2fb5a19a22d489bb50aef919f28ba57c30a73",
+      "transport_result_ref": "sha256:986ce6be7f4603e8211c9fecff68cd4ac351e789f46a9f263e8dd0f4bc88afd7",
       "transport_status": "bounded_non_identified",
-      "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-      "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
+      "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+      "world_model_record_id": "world_model_record_0c9fad6930cd3cd7"
     },
     "value_outer_set": {
       "assumption_status": "externally_supported",
@@ -508,21 +514,21 @@
       "width": [
         10111.120366577636
       ],
-      "world_model_record_ref": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd"
+      "world_model_record_ref": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61"
     },
     "value_outer_set_width_derived": [
       10111.120366577636
     ],
-    "value_ref": "sha256:118acbcc7c3b936a01dbece75267618954b964b6e1cbcbe98eee43719e33096a",
+    "value_ref": "sha256:cdd0ff287f31805213f5bce1c4c04bcb3ec0931a4bee0428ac98f682bcf65a7c",
     "wall_time_ms": 5994.598250021227,
     "wmr_cache_status": "built",
-    "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-    "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
+    "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+    "world_model_record_id": "world_model_record_0c9fad6930cd3cd7"
   },
   "frozen_value_receipts": [
     {
       "calibration_receipt": {
-        "calibration_record_ref": "s10://n8/19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/calibration",
+        "calibration_record_ref": "s10://n8/fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/calibration",
         "false_clear_counts": {
           "equilibrium_contested_single_forecast_false_clear_count": 0,
           "fail_closed_axis_prediction_promotion_false_clear_count": 0,
@@ -544,26 +550,32 @@
         "issue_codes": [],
         "status": "pass",
         "uncertainty_interval_refs": [
-          "interval://sha256:19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/95"
+          "interval://sha256:fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/95"
         ]
       },
       "candidate_id": "candidate_live_value",
       "evaluation_mode": "simulate_only",
       "identification_status": "partial",
-      "k_world_ref_after": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-      "k_world_ref_before": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
+      "k_world_ref_after": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+      "k_world_ref_before": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
       "method_selection_trace": [
         "causal.diagnostics.parallel_trends_check@1.0.0",
         "causal.inference.did.staggered@1.0.0",
         "causal.inference.did.standard@1.0.0",
         "causal.inference.structural_time_series@1.0.0",
         "causal.inference.synthetic_control@1.0.0",
+        "econometrics.diagnostics.hausman_test@1.0.0",
         "econometrics.panel.event_study@1.0.0",
+        "econometrics.panel.fixed_effects@1.0.0",
         "econometrics.panel.latent_mobility@1.0.0",
         "econometrics.panel.nonstationary_garch@1.0.0",
+        "econometrics.panel.random_effects@1.0.0",
         "econometrics.panel.synthetic_did@1.0.0",
         "spatial.panel.sarar@1.0.0",
         "spatial.panel.slx@1.0.0",
+        "econometrics.iv.gmm@1.0.0",
+        "econometrics.iv.high_dimensional_post_selection@1.0.0",
+        "econometrics.iv.two_stage_least_squares@1.0.0",
         "econometrics.panel.difference_gmm@1.0.0",
         "econometrics.panel.system_gmm@1.0.0"
       ],
@@ -580,10 +592,10 @@
         ],
         "status": "transported_limited",
         "transport_mode": "bounds_only",
-        "transport_result_ref": "sha256:d9f911d509caefc06d7d5d79c6a2fb5a19a22d489bb50aef919f28ba57c30a73",
+        "transport_result_ref": "sha256:986ce6be7f4603e8211c9fecff68cd4ac351e789f46a9f263e8dd0f4bc88afd7",
         "transport_status": "bounded_non_identified",
-        "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-        "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
+        "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+        "world_model_record_id": "world_model_record_0c9fad6930cd3cd7"
       },
       "value_outer_set": {
         "assumption_status": "externally_supported",
@@ -623,16 +635,16 @@
         "width": [
           10111.120366577636
         ],
-        "world_model_record_ref": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd"
+        "world_model_record_ref": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61"
       },
       "value_outer_set_width_derived": [
         10111.120366577636
       ],
-      "value_ref": "sha256:118acbcc7c3b936a01dbece75267618954b964b6e1cbcbe98eee43719e33096a",
+      "value_ref": "sha256:cdd0ff287f31805213f5bce1c4c04bcb3ec0931a4bee0428ac98f682bcf65a7c",
       "wall_time_ms": 5994.598250021227,
       "wmr_cache_status": "built",
-      "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-      "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
+      "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+      "world_model_record_id": "world_model_record_0c9fad6930cd3cd7"
     }
   ],
   "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1",
@@ -676,8 +688,8 @@
     "local_positive_status": "value_ready",
     "method_state_source": "RealValueOwnerGateway.load_panel_observational_data",
     "transport_source": "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner",
-    "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-    "world_model_record_id": "world_model_record_ac144f85a0c11f3a",
+    "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+    "world_model_record_id": "world_model_record_0c9fad6930cd3cd7",
     "world_model_record_source": "SimulationPortObservation.world_model_record"
   },
   "schema_version": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1",

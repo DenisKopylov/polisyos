@@ -17,7 +17,7 @@ from polisyos.ir.analytics.causal import (
     CausalMethod,
     DiagnosticTest,
 )
-from polisyos.runtime.quality.design_problem import OutcomeOfInterest
+from polisyos.runtime.quality.design_problem import DesignProblem, OutcomeOfInterest
 from polisyos.runtime.quality.generation_cycle import (
     FoundryValuePort,
     JointSimulationPort,
@@ -46,12 +46,24 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     world_model_record_content_hash,
 )
+from tools.quality.validation import check_layer3_gy_value_gate_contract as value_contract
 
 from .test_generation_cycle import _Atom, _Candidate, _problem
 
 
 def _hash(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def test_n8_audit_world_uses_canonical_design_problem_contract() -> None:
+    """Keep the N8 rederive lane on the same typed boundary as production."""
+
+    problem = value_contract._audit_problem()
+
+    assert isinstance(problem, DesignProblem)
+    assert problem.stakeholders
+    assert problem.jurisdiction_time.region
+    assert value_contract._audit_world_record().policy_domain == problem.domain
 
 
 def _world_record(char: str = "1") -> WorldModelRecord:

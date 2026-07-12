@@ -1,11 +1,11 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.second_domain_pack",
   "capability_reality": {
-    "state": "artifact_missing_and_bridge_missing_for_durable_lever_registration",
+    "state": "stage_1_bridges_closed_with_typed_n7_infra_residuals",
     "surface": "pack_manifest_and_gap_report",
     "surface_out_of_scope": false
   },
-  "census_content_hash": "sha256:a291c6ba96e4181f575007fd6f762a6df487daa77d289a30913da35044377db5",
+  "census_content_hash": "sha256:4dacce3dd4bf74d91de06b5f5a36877c9e8a3a1427ec4b778646df0286508e1c",
   "components": {
     "grounding_reference_coverage": {
       "coverage": {
@@ -352,13 +352,13 @@
     "cache_semantics": "E1 content-addressed frozen manifest",
     "historical_source_pack_content_hash": "sha256:078ab1b32f5f634855f8e8694a22c7a864a3d66650c386ab05c87ebe90ddc664",
     "journal_semantics": "E6 gaps are explicit because existing N7 has no durable L2/L3 journal artifact",
-    "live_attempt_semantics": "E8 one candidate lever per N6 grammar-fallback attempt",
+    "live_attempt_semantics": "E8 one journal-first N4 owner capture, then content-addressed replay",
     "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73"
   },
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
-  "cycle_trace_content_hash": "sha256:5f7db291f7f99ca4df9e93c534c4221ef55463a221009739ec98923504a28acf",
+  "cycle_trace_content_hash": "sha256:eea2c11fb989f1805c08c967e7a2ef9090e15e8de9476111864bc3d616a996f4",
   "distinctness": {
     "computed_status": "must_pass_validator",
     "first_vertical_comparator": {
@@ -374,7 +374,7 @@
       "source_hashes": {
         "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
         "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
-        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:d581811041da30ce8d2ae29c4a30d3a958bbe3400b133f9ba23cebd7e005fc62"
+        "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:605220b8cefa106549d84badb8737ea861a0025af8d91dd2e6454a9aa57af77a"
       },
       "transport_covariates": [
         "institutional_quality",
@@ -383,8 +383,8 @@
     },
     "selected_method_family": "non_panel_short_series"
   },
-  "gap_report_content_hash": "sha256:07d5a5c5d3a48100dba4332d139da1aceddbb3cfd5d8ed361667fe8d16700c58",
-  "manifest_content_hash": "sha256:2b70bff0f1f8bf985550b93a27c1d130678a62afd561bf0b1bf4db9758258edc",
+  "gap_report_content_hash": "sha256:58644d5522647cac05e72f20c8bcd8493ca3d379fe7a4d7eed0c1cc5e75ed7e9",
+  "manifest_content_hash": "sha256:ea711eeaf45e300beab8b68d4cf187a01d873f3f353b76da3f0ed7511eb4166d",
   "n7_acquisition": {
     "attempt_effective_owner_config": {
       "allow_explore_fallback": true,
@@ -4532,7 +4532,7 @@
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
   "selected_domain": "education",
-  "smoke_problem_content_hash": "sha256:df50ecfd0451700d21c11acd37daf36b34f92b235928b9c51afafea7dc4fb5df",
+  "smoke_problem_content_hash": "sha256:8f46b1e40a318b0f4d2f6265f11d35076632708f61f400e840a5e91bb016b6aa",
   "zero_engine_code": {
     "changed_engine_paths": [],
     "changed_paths": [

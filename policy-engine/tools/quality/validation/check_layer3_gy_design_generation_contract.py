@@ -38,6 +38,7 @@ from polisyos.runtime.quality.design_generation import (
     _content_bound_candidates,
     _grounding_disposition_summary,
     _grounding_proposal_for_intervention,
+    _json_for_prompt_size,
     _with_generation_cycle_revision_context,
     _with_lever_space_prompt_slice,
     firewall_issues_for_result,
@@ -81,11 +82,16 @@ RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID = (
     "source_flip_recorded_effective_runtime_config_ignored"
 )
 PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID = "source_flip_prompt_size_estimate_fixed_default"
+CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID = (
+    "source_flip_candidate_lever_provenance_removed"
+)
 _PROMPT_SLICE_LIMIT_CHARS = 5000
 _FROZEN_DIAGNOSTIC_PROJECTION = {
     "schema_version": "policyos.gy.n4.diagnostic_projection.v1",
     "elapsed_measurements": "journal_only_not_committed",
-    "prompt_size_measurement": "slice_delta_verified_live_then_raw_measurement_omitted",
+    "prompt_size_measurement": (
+        "prompt_local_created_at_excluded_full_measurement_verified_live_then_omitted"
+    ),
     "prompt_slice_limit_chars": _PROMPT_SLICE_LIMIT_CHARS,
 }
 N4_SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
@@ -93,6 +99,7 @@ N4_SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
     RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
     PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
+    CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
     POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
     NL_SOURCE_FLIP_MUTATION_ID,
     S2_SOURCE_FLIP_MUTATION_ID,
@@ -819,7 +826,7 @@ def _prompt_size_actual_frame_issue(
     lever_space_prompt_slice: object,
     emitted: object,
 ) -> dict[str, Any] | None:
-    """Bind the lever-slice delta while excluding replay-local frame timestamps."""
+    """Bind the full measurement after the owner excludes prompt-local clocks."""
 
     base_frame = _with_generation_cycle_revision_context(
         design_problem.to_scientist_problem_frame(),
@@ -831,39 +838,32 @@ def _prompt_size_actual_frame_issue(
     )
 
     def _frame_chars(frame: object) -> int:
-        payload = frame.__dict__ if hasattr(frame, "__dict__") else frame
-        return len(
-            json.dumps(
-                payload,
-                sort_keys=True,
-                default=str,
-                separators=(",", ":"),
-            )
-        )
+        return len(_json_for_prompt_size(frame))
 
     without_chars = _frame_chars(base_frame)
     with_chars = _frame_chars(sliced_frame)
     slice_chars = max(0, with_chars - without_chars)
+    expected = {
+        "frame_without_slice_chars": without_chars,
+        "frame_with_slice_chars": with_chars,
+        "slice_added_chars": slice_chars,
+        "frame_without_slice_estimated_tokens": (without_chars + 3) // 4,
+        "frame_with_slice_estimated_tokens": (with_chars + 3) // 4,
+        "slice_added_estimated_tokens": (slice_chars + 3) // 4,
+    }
     if isinstance(emitted, Mapping):
         observed: object = dict(emitted)
     elif hasattr(emitted, "model_dump"):
         observed = emitted.model_dump(mode="json")
     else:
         observed = emitted
-    consistent, observed_slice = _prompt_size_measurement(observed)
-    if consistent and observed_slice == slice_chars:
+    if _json_exact_equal(observed, expected):
         return None
     return {
         "code": "prompt_size_measurement_not_actual_frames",
         "observed": observed,
-        "expected_slice_added_chars": slice_chars,
-        "expected_slice_added_estimated_tokens": (slice_chars + 3) // 4,
-        "excluded_replay_local_fields": [
-            "frame_without_slice_chars",
-            "frame_with_slice_chars",
-            "frame_without_slice_estimated_tokens",
-            "frame_with_slice_estimated_tokens",
-        ],
+        "expected": expected,
+        "excluded_prompt_local_fields": ["created_at"],
     }
 
 
@@ -3323,6 +3323,95 @@ def _run_prompt_size_source_flip(repo_root: Path) -> dict[str, Any]:
     }
 
 
+def _run_candidate_lever_source_flip(repo_root: Path) -> dict[str, Any]:
+    """Remove candidate-lever provenance and require its owner probe to go RED."""
+
+    relative_path = Path("src/polisyos/scientist/agent/formalizer.py")
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = "            if key in executable_keys or key in _CANDIDATE_ONLY_PARAM_KEYS\n"
+    new = "            if key in executable_keys\n"
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return {
+            "mutation_id": CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": f"source guard count was {text.count(old)}, expected 1",
+        }
+
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/runtime/quality/test_design_generation.py::"
+                    "test_formalizer_preserves_a_translated_draft_lever_as_candidate_only"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            },
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+
+    output = f"{completed.stdout}\n{completed.stderr}"
+    candidate_lever_loss_observed = "candidate_lever_id" in output
+    mutation_red = completed.returncode != 0 and candidate_lever_loss_observed
+    return {
+        "mutation_id": CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "formalizer normalization retains the exact data-derived candidate lever "
+            "as non-authoritative provenance when executable Trinity kinds differ"
+        ),
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "candidate_lever_loss_observed": candidate_lever_loss_observed,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
 def _run_policy_verified_source_flip(repo_root: Path) -> dict[str, Any]:
     source_path = repo_root / "src/polisyos/scientist/validation/policy_verified/service.py"
     original = source_path.read_bytes()
@@ -3588,6 +3677,7 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
         _run_drafter_parser_source_flip(repo_root),
         _run_recorded_config_source_flip(repo_root),
         _run_prompt_size_source_flip(repo_root),
+        _run_candidate_lever_source_flip(repo_root),
         _run_policy_verified_source_flip(repo_root),
         _run_nl_source_flip(repo_root),
         _run_s2_source_flip(repo_root),

@@ -21,6 +21,18 @@ from pydantic import ValidationError
 
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.design_problem import (
+    AuthorityProfile,
+    CandidateLever,
+    CandidateLeverSpace,
+    DesignObjective,
+    DesignProblem,
+    DesignStakeholder,
+    EvidenceAcquisitionNeeds,
+    JurisdictionTimeSemantics,
+    NLProvenance,
+    OutcomeOfInterest,
+)
 from polisyos.runtime.quality.generation_cycle import (
     ValueCalibrationReceipt,
     ValueEvaluationMode,
@@ -94,7 +106,7 @@ FROZEN_MUTATION_PROOFS: dict[str, str] = {
     "proxy_forecast_narrow_set_rejected": "Proxy identification cannot emit a narrow/point set.",
     "fixture_world_model_hash_rejected": (
         "Placeholder WMR hash rejected; audit WMR is "
-        "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd."
+        "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61."
     ),
     "value_world_version_laundered": (
         "Receipt refuses V1 value as authority for V2 world hash."
@@ -137,14 +149,6 @@ FROZEN_MUTATION_PROOFS: dict[str, str] = {
         "N6 promotion reducer refuses value_blocked summary."
     ),
 }
-
-
-@dataclass(frozen=True)
-class _AuditProblem:
-    design_problem_id: str
-    problem_statement: str
-    domain: str
-    runtime_hints: dict[str, Any]
 
 
 @dataclass(frozen=True)
@@ -322,11 +326,11 @@ def _frozen_positive_receipt() -> dict[str, Any]:
         status="pass",
         forecast_tier="observable_calibrated",
         calibration_record_ref=(
-            "s10://n8/19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7"
+            "s10://n8/fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce"
             "/calibration"
         ),
         uncertainty_interval_refs=(
-            "interval://sha256:19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/95",
+            "interval://sha256:fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/95",
         ),
         false_clear_counts=dict.fromkeys(S10_FALSE_CLEAR_FIELDS, 0),
     )
@@ -334,7 +338,7 @@ def _frozen_positive_receipt() -> dict[str, Any]:
         status="transported_limited",
         world_model_record_id=world.world_model_record_id,
         world_model_record_content_hash=world.content_hash,
-        transport_result_ref="sha256:d9f911d509caefc06d7d5d79c6a2fb5a19a22d489bb50aef919f28ba57c30a73",
+        transport_result_ref="sha256:986ce6be7f4603e8211c9fecff68cd4ac351e789f46a9f263e8dd0f4bc88afd7",
         transport_status="bounded_non_identified",
         transport_mode="bounds_only",
         identification_engine="bounds_only",
@@ -392,12 +396,18 @@ def _frozen_positive_receipt() -> dict[str, Any]:
             "causal.inference.did.standard@1.0.0",
             "causal.inference.structural_time_series@1.0.0",
             "causal.inference.synthetic_control@1.0.0",
+            "econometrics.diagnostics.hausman_test@1.0.0",
             "econometrics.panel.event_study@1.0.0",
+            "econometrics.panel.fixed_effects@1.0.0",
             "econometrics.panel.latent_mobility@1.0.0",
             "econometrics.panel.nonstationary_garch@1.0.0",
+            "econometrics.panel.random_effects@1.0.0",
             "econometrics.panel.synthetic_did@1.0.0",
             "spatial.panel.sarar@1.0.0",
             "spatial.panel.slx@1.0.0",
+            "econometrics.iv.gmm@1.0.0",
+            "econometrics.iv.high_dimensional_post_selection@1.0.0",
+            "econometrics.iv.two_stage_least_squares@1.0.0",
             "econometrics.panel.difference_gmm@1.0.0",
             "econometrics.panel.system_gmm@1.0.0",
         ),
@@ -1579,7 +1589,7 @@ class _AdversarialAuditGateway:
         self,
         *,
         candidate: object,
-        problem: _AuditProblem,
+        problem: DesignProblem,
         world_record: Any,
     ) -> object:
         from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
@@ -1594,7 +1604,7 @@ class _AdversarialAuditGateway:
         self,
         *,
         candidate: object,
-        problem: _AuditProblem,
+        problem: DesignProblem,
         world_record: Any,
         method_result: object,
         selected_method_fqn: str,
@@ -1632,7 +1642,7 @@ class _AdversarialAuditGateway:
         self,
         *,
         candidate: object,
-        problem: _AuditProblem,
+        problem: DesignProblem,
         world_record: Any,
     ) -> Mapping[str, Any]:
         from polisyos.runtime.quality.generation_cycle import (
@@ -1669,11 +1679,60 @@ def _run_real_owner_value_audit() -> Any:
     )
 
 
-def _audit_problem() -> _AuditProblem:
-    return _AuditProblem(
+def _audit_problem() -> DesignProblem:
+    """Build the N8 audit problem through the canonical typed front door."""
+
+    return DesignProblem(
         design_problem_id="value_gate_audit_problem",
         problem_statement="Audit N8 value gate.",
         domain="runtime_quality",
+        nl_provenance=NLProvenance(
+            raw_request="Estimate the effect of the bound audit intervention on average income.",
+            source_surface="gy_n8_value_gate_contract",
+        ),
+        authority_profile=AuthorityProfile(
+            requester_authority="quality_audit",
+            requested_authority_level="research",
+            mandate="Recompute the non-promotable N8 value-gate receipt.",
+        ),
+        jurisdiction_time=JurisdictionTimeSemantics(
+            region="cross_country",
+            valid_time="2018/2023",
+            as_of="2026-07-06T00:00:00+00:00",
+            policy_time="2020",
+            data_time="2018/2023",
+        ),
+        objectives=[
+            DesignObjective(
+                objective_id="increase_average_income",
+                description="Estimate whether the intervention increases average income.",
+                metric_id="avg_income",
+            )
+        ],
+        stakeholders=[
+            DesignStakeholder(
+                stakeholder_id="households",
+                name="Households",
+                role="affected_population",
+            )
+        ],
+        outcome_of_interest=OutcomeOfInterest(
+            target_variable="avg_income",
+            metric_id="avg_income",
+            estimand="average_treatment_effect",
+        ),
+        candidate_lever_space=CandidateLeverSpace(
+            allowed_operator_kinds=["income_support"],
+            candidate_levers=[
+                CandidateLever(
+                    lever_id="income_support",
+                    operator_kind="income_support",
+                    instrument="audit.income_support",
+                    target_slot="avg_income",
+                )
+            ],
+        ),
+        evidence_acquisition_needs=EvidenceAcquisitionNeeds(),
         runtime_hints={},
     )
 

@@ -21,13 +21,13 @@ import subprocess
 import sys
 import time
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
-from types import SimpleNamespace
 from typing import Any
 
 import duckdb
@@ -57,6 +57,11 @@ from polisyos.runtime.quality.cycle_substrate import (
     build_cycle_substrate_context,
     cycle_substrate_context_binding_hash,
 )
+from polisyos.runtime.quality.design_generation import (
+    DesignGenerationOrganRun,
+    EffectiveGenerationRuntimeConfig,
+    generate_design_candidate_bundle_under_a,
+)
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -74,10 +79,12 @@ from polisyos.runtime.quality.design_problem import (
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleRun,
+    _build_boundary_world_model_record,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_admission import GroundingAdmissionLedger
 from polisyos.runtime.quality.intervention_substrate import (
+    InterventionLeverRefusal,
     InterventionSubstrateBundle,
     InterventionSubstrateError,
     load_l6_intervention_substrate,
@@ -92,6 +99,10 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecord
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from tools.quality.validation.check_layer3_gy_design_generation_contract import (
+    RecordedGenerationReplayClient,
+    _recorded_runtime_environment_values,
+)
 
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"
 RULE_VERSION = "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1"
@@ -101,6 +112,23 @@ PACK_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_pack.json
 SMOKE_PROBLEM_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json"
 CYCLE_TRACE_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json"
 GAP_REPORT_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json"
+N4_CAPTURE_MODEL_ID = "moonshotai/Kimi-K2.6"
+_N4_LIVE_CAPTURE_ENV = {
+    "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "300",
+    "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "3",
+    "POLISYOS_DRAFTER_PASS_TIMEOUT_S": "300",
+    "POLISYOS_DRAFTER_PASS_RETRY_COUNT": "3",
+    "POLISYOS_FORMALIZER_LLM_TIMEOUT_S": "300",
+    "POLISYOS_FORMALIZER_LLM_RETRIES": "5",
+    "POLISYOS_CRITIC_LLM_TIMEOUT_S": "300",
+    "POLISYOS_CRITIC_LLM_RETRIES": "5",
+    "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": "2",
+    "POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S": "10",
+    "POLISYOS_N4_PREWARM_CG1_INDEX": "1",
+    "POLISYOS_LLM_CACHE_TTL_S": "300",
+    "POLISYOS_LLM_CACHE_MAXSIZE": "128",
+    "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
+}
 N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
 N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
 _SUBSTRATE_REGISTRY_OWNER = "runtime.quality.substrate_registry"
@@ -260,14 +288,55 @@ GAP_WITNESS_SPECS: dict[str, GapWitnessSpec] = {
 }
 
 
-class _UnavailableOwnerGenerationPort:
-    """Return an owner-unavailable result so N6 exercises its real fallback path."""
+class _RecordedN4OwnerPort:
+    """Replay a content-bound gateway capture through the canonical N4 owner."""
 
-    async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> object:
-        """Preserve a typed N4-unavailable condition without fabricating a candidate."""
+    def __init__(
+        self,
+        *,
+        repo_root: Path,
+        cycle_substrate_context: CycleSubstrateContext,
+        capture: Mapping[str, Any],
+        cached_organ_run: DesignGenerationOrganRun | None = None,
+    ) -> None:
+        self._repo_root = repo_root
+        self._cycle_substrate_context = cycle_substrate_context
+        self._capture = copy.deepcopy(dict(capture))
+        self._cached_organ_run = cached_organ_run
+        self.last_organ_run: DesignGenerationOrganRun | None = None
 
-        del problem, cycle_index
-        return SimpleNamespace(status="generation_unavailable", candidates=(), surrogate_rankings=())
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> object:
+        """Invoke the real owner with recorded raw responses and effective config."""
+
+        del cycle_index
+        if self._cached_organ_run is not None:
+            organ_run = self._cached_organ_run
+            self._cached_organ_run = None
+            if _n4_owner_result_projection(organ_run) != _mapping(
+                self._capture.get("owner_result_projection")
+            ):
+                raise ValueError("education_n4_owner_cached_result_drift")
+            self.last_organ_run = organ_run
+            return organ_run.result
+        client = RecordedGenerationReplayClient(self._capture)
+        with _n4_recorded_runtime_environment(self._capture):
+            organ_run = await generate_design_candidate_bundle_under_a(
+                problem,
+                model_id=str(self._capture.get("model_id") or ""),
+                llm_client=client,
+                repo_root=self._repo_root,
+                cycle_substrate_context=self._cycle_substrate_context,
+            )
+        self.last_organ_run = organ_run
+        return organ_run.result
+
+
+_CYCLE_TRACE_CACHE: dict[tuple[str, str, str, str], dict[str, Any]] = {}
 
 
 @lru_cache(maxsize=4)
@@ -283,7 +352,12 @@ def declared_outputs() -> list[str]:
     return list(ARTIFACT_OUTPUTS)
 
 
-def build_live_bundle(repo_root: Path) -> dict[str, Any]:
+def build_live_bundle(
+    repo_root: Path,
+    *,
+    allow_live_n4_capture: bool = False,
+    n4_capture_journal: Path | None = None,
+) -> dict[str, Any]:
     """Re-derive the complete pack from DCAT, SKG, S0/L6, and N6 owners."""
 
     started = time.monotonic()
@@ -298,7 +372,20 @@ def build_live_bundle(repo_root: Path) -> dict[str, Any]:
     ) or _run_n7_live_attempt(root, source_facts)
     substrate_input = _build_cycle_substrate_input_projection(census, source_facts)
     smoke_problem = _build_smoke_problem(census, source_facts)
-    cycle_trace = _build_cycle_trace(root, smoke_problem)
+    problem = DesignProblem.model_validate(smoke_problem["design_problem"])
+    cycle_substrate_context = _build_live_cycle_substrate_context(
+        root,
+        census=census,
+        substrate_input=substrate_input,
+        design_problem=problem,
+    )
+    cycle_trace = _build_cycle_trace(
+        root,
+        smoke_problem,
+        cycle_substrate_context=cycle_substrate_context,
+        allow_live_n4_capture=allow_live_n4_capture,
+        n4_capture_journal=n4_capture_journal,
+    )
     gaps = _build_gap_report(root, source_facts, cycle_trace)
     pack = _build_pack(
         root,
@@ -360,6 +447,7 @@ def validate_bundle_payloads(bundle: Mapping[str, Any], repo_root: Path) -> list
     _validate_coverage_denominators(census, pack, gaps, issues)
     _validate_gap_witnesses(root, gaps, issues)
     _validate_smoke_terminal(smoke_problem, cycle_trace, issues)
+    _validate_stage_1_cycle_receipts(root, pack, cycle_trace, gaps, issues)
     _validate_zero_engine_code(root, pack, issues)
     return issues
 
@@ -491,6 +579,17 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         trace_cycles[0]["terminal_kind"] = "crash"
     cycle_run["cycles"] = trace_cycles
     corrupted["cycle_trace"]["generation_cycle_run"] = cycle_run
+    stage_attempts = _mapping(corrupted["cycle_trace"].get("stage_attempts"))
+    stage_generation = _mapping(stage_attempts.get("generation"))
+    stage_generation["generation_channel"] = "grammar_fallback"
+    stage_attempts["generation"] = stage_generation
+    stage_grounding = _mapping(stage_attempts.get("grounding"))
+    stage_grounding["lever_resolution_content_hash"] = "sha256:" + "0" * 64
+    stage_attempts["grounding"] = stage_grounding
+    stage_world = _mapping(stage_attempts.get("world_model"))
+    stage_world["object_identity_reused"] = False
+    stage_attempts["world_model"] = stage_world
+    corrupted["cycle_trace"]["stage_attempts"] = stage_attempts
     code_scope = _mapping(corrupted["pack"].get("zero_engine_code"))
     code_scope["proof_head_commit"] = "HEAD"
     code_scope["changed_engine_paths"] = [
@@ -533,6 +632,14 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     corrupted["gaps"] = _with_content_hash(mutated_gaps, "gap_report_content_hash")
     corrupted["pack"]["gap_report_content_hash"] = corrupted["gaps"][
         "gap_report_content_hash"
+    ]
+    corrupted["cycle_trace"] = _with_content_hash(
+        corrupted["cycle_trace"],
+        "trace_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    corrupted["pack"]["cycle_trace_content_hash"] = corrupted["cycle_trace"][
+        "trace_content_hash"
     ]
     corrupted["pack"] = _with_content_hash(
         corrupted["pack"],
@@ -589,6 +696,9 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "historical_source_pack_content_hash_mismatch",
         "n7_attempt_input_content_hash_mismatch",
         "n7_operational_receipt_duplicate",
+        "cycle_generation_fell_back_from_n4_owner",
+        "stage_grounding_receipt_drift",
+        "stage_world_model_identity_receipt_missing",
     }
     missing = sorted(expected.difference(codes).union(per_mutation_missing))
     if missing:
@@ -802,13 +912,33 @@ def _rehash_cycle_substrate_mutation(bundle: dict[str, Any]) -> None:
     )
 
 
-def write(repo_root: Path) -> dict[str, Any]:
+def write(
+    repo_root: Path,
+    *,
+    allow_live_n4_capture: bool = False,
+    n4_capture_journal: Path | None = None,
+) -> dict[str, Any]:
     """Write byte-stable generated artifacts after owner rederivation."""
 
     started = time.monotonic()
     root = repo_root.resolve()
-    bundle = build_live_bundle(root)
+    bundle = build_live_bundle(
+        root,
+        allow_live_n4_capture=allow_live_n4_capture,
+        n4_capture_journal=n4_capture_journal,
+    )
     _preserve_frozen_operational_metrics(bundle, root)
+    issues = validate_bundle_payloads(bundle, root)
+    if issues:
+        return {
+            "status": "fail",
+            "issues": issues,
+            "outputs": declared_outputs(),
+            "query_timings_seconds": _mapping(
+                bundle["runtime_metrics"].get("query_timings_seconds")
+            ),
+            "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
+        }
     by_path = {
         CENSUS_OUTPUT: bundle["census"],
         PACK_OUTPUT: bundle["pack"],
@@ -820,7 +950,6 @@ def write(repo_root: Path) -> dict[str, Any]:
         path = root / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
-    issues = validate_bundle_payloads(bundle, root)
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
@@ -2109,12 +2238,20 @@ def _n7_pack_entry_rejection_reason(owner_artifacts: Sequence[Mapping[str, Any]]
 
 
 def _build_smoke_problem(census: Mapping[str, Any], facts: Mapping[str, Any]) -> dict[str, Any]:
-    selected = _preferred_lever(_list_of_mappings(facts.get("l2_levers")))
+    lever_rows = _list_of_mappings(facts.get("l2_levers"))
+    selected = _preferred_lever(lever_rows)
     nonpanel_outcome = next(
         row for row in _list_of_mappings(facts.get("outcome_rows")) if not bool(row.get("panel_shape"))
     )
-    lever_id = _identifier(str(selected["cause"]))
-    target_slot = _identifier(str(selected["effect"]))
+    candidate_levers = [
+        CandidateLever(
+            lever_id=_identifier(str(row["cause"])),
+            operator_kind=_identifier(str(row["cause"])),
+            instrument=str(row["cause"]),
+            target_slot=_identifier(str(row["effect"])),
+        )
+        for row in lever_rows
+    ]
     problem = DesignProblem(
         design_problem_id="education_second_domain_smoke",
         problem_statement=(
@@ -2169,15 +2306,8 @@ def _build_smoke_problem(census: Mapping[str, Any], facts: Mapping[str, Any]) ->
             estimand="average_treatment_effect",
         ),
         candidate_lever_space=CandidateLeverSpace(
-            allowed_operator_kinds=["candidate_intervention"],
-            candidate_levers=[
-                CandidateLever(
-                    lever_id=lever_id,
-                    operator_kind="candidate_intervention",
-                    instrument=str(selected["cause"]),
-                    target_slot=target_slot,
-                )
-            ],
+            allowed_operator_kinds=[item.operator_kind for item in candidate_levers],
+            candidate_levers=candidate_levers,
         ),
         evidence_acquisition_needs=EvidenceAcquisitionNeeds(
             needs=[
@@ -2210,15 +2340,110 @@ def _build_smoke_problem(census: Mapping[str, Any], facts: Mapping[str, Any]) ->
     return _with_content_hash(payload, "smoke_problem_content_hash")
 
 
-def _build_cycle_trace(root: Path, smoke_problem: Mapping[str, Any]) -> dict[str, Any]:
-    problem = DesignProblem.model_validate(smoke_problem["design_problem"])
+def _build_cycle_trace(
+    root: Path,
+    smoke_problem: Mapping[str, Any],
+    *,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
+    n4_owner_capture: Mapping[str, Any] | None = None,
+    allow_live_n4_capture: bool = False,
+    n4_capture_journal: Path | None = None,
+) -> dict[str, Any]:
+    """Run the real N4->N6 route from one content-bound capture or live attempt."""
 
-    async def run() -> Any:
-        controller = GenerationCycleController(
-            generation_port=_UnavailableOwnerGenerationPort(),
-            repo_root=root,
+    problem = DesignProblem.model_validate(smoke_problem["design_problem"])
+    if cycle_substrate_context is None:
+        frozen = _load_frozen_bundle(root)
+        cycle_substrate_context = _build_frozen_cycle_substrate_context(
+            root,
+            bundle=frozen,
+            design_problem=problem,
         )
-        return await controller.run(
+        if n4_owner_capture is None:
+            n4_owner_capture = _mapping(
+                _mapping(frozen.get("cycle_trace")).get("n4_owner_capture")
+            )
+    if (
+        n4_owner_capture is None
+        and not allow_live_n4_capture
+        and n4_capture_journal is None
+    ):
+        frozen_trace = _read_json(root / CYCLE_TRACE_OUTPUT)
+        n4_owner_capture = _mapping(frozen_trace.get("n4_owner_capture"))
+    if cycle_substrate_context.design_problem_ref != gy_content_hash(
+        problem.model_dump(mode="json")
+    ):
+        raise ValueError("education_cycle_context_problem_mismatch")
+    if allow_live_n4_capture and n4_capture_journal is not None:
+        raise ValueError("education_n4_capture_actions_conflict")
+    if (
+        not allow_live_n4_capture
+        and n4_capture_journal is None
+        and not n4_owner_capture
+    ):
+        raise ValueError("education_n4_owner_capture_missing")
+
+    capture_hash = str(_mapping(n4_owner_capture).get("recording_content_hash") or "live")
+    cache_key = (
+        root.resolve().as_posix(),
+        str(smoke_problem.get("smoke_problem_content_hash") or ""),
+        str(cycle_substrate_context.content_hash),
+        capture_hash,
+    )
+    if (
+        not allow_live_n4_capture
+        and n4_capture_journal is None
+        and cache_key in _CYCLE_TRACE_CACHE
+    ):
+        return copy.deepcopy(_CYCLE_TRACE_CACHE[cache_key])
+
+    async def run() -> tuple[
+        GenerationCycleRun,
+        DesignGenerationOrganRun,
+        dict[str, Any],
+        dict[str, Any],
+    ]:
+        capture_metrics: dict[str, Any] = {}
+        captured_organ_run: DesignGenerationOrganRun | None = None
+        active_capture = copy.deepcopy(_mapping(n4_owner_capture))
+        if n4_capture_journal is not None:
+            (
+                active_capture,
+                capture_metrics,
+                captured_organ_run,
+            ) = await _capture_n4_owner_from_journal(
+                root,
+                problem=problem,
+                cycle_substrate_context=cycle_substrate_context,
+                journal_path=n4_capture_journal,
+            )
+        elif allow_live_n4_capture:
+            (
+                active_capture,
+                capture_metrics,
+                captured_organ_run,
+            ) = await _capture_live_n4_owner(
+                root,
+                problem=problem,
+                cycle_substrate_context=cycle_substrate_context,
+            )
+        _require_valid_n4_owner_capture(
+            active_capture,
+            problem=problem,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+        generation_port = _RecordedN4OwnerPort(
+            repo_root=root,
+            cycle_substrate_context=cycle_substrate_context,
+            capture=active_capture,
+            cached_organ_run=captured_organ_run,
+        )
+        controller = GenerationCycleController(
+            generation_port=generation_port,
+            repo_root=root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+        run_result = await controller.run(
             problem,
             budget_state=BudgetState(
                 limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
@@ -2226,21 +2451,60 @@ def _build_cycle_trace(root: Path, smoke_problem: Mapping[str, Any]) -> dict[str
             min_cycles=2,
             max_cycles=1,
         )
+        if generation_port.last_organ_run is None:
+            raise ValueError("education_n4_owner_replay_not_attempted")
+        replay_projection = _n4_owner_result_projection(
+            generation_port.last_organ_run
+        )
+        if replay_projection != _mapping(active_capture.get("owner_result_projection")):
+            raise ValueError("education_n4_owner_capture_replay_drift")
+        return (
+            run_result,
+            generation_port.last_organ_run,
+            active_capture,
+            capture_metrics,
+        )
 
-    run_result = asyncio.run(run())
+    run_result, organ_run, active_capture, capture_metrics = asyncio.run(run())
+    stage_attempts = _cycle_stage_attempts(
+        run_result=run_result,
+        organ_run=organ_run,
+        cycle_substrate_context=cycle_substrate_context,
+        n4_owner_capture=active_capture,
+    )
     raw_run_payload = run_result.model_dump(mode="json")
     run_payload, runtime_metrics = _normalize_n6_run_payload(raw_run_payload)
+    runtime_metrics.update(capture_metrics)
     normalized_run = GenerationCycleRun.model_validate(run_payload)
     validation_issues = list(validate_generation_cycle_run(normalized_run))
+    baseline_diff = recompute_baseline_diff(
+        {
+            "stage_attempts": stage_attempts,
+            "generation_cycle_run": run_payload,
+        },
+        load_committed_baseline(root),
+    )
     payload = {
         "schema_version": SCHEMA_VERSION,
         "artifact_kind": "policy_design_case.gy_n10a.cycle_entry_trace",
         "rule_version": RULE_VERSION,
         "producer": PRODUCER,
         "smoke_problem_content_hash": smoke_problem["smoke_problem_content_hash"],
-        "generation_owner_status": "unavailable_then_real_n6_grammar_fallback",
+        "substrate_input_content_hash": (
+            cycle_substrate_context.substrate_input_content_hash
+        ),
+        "source_pack_content_hash": cycle_substrate_context.source_pack_content_hash,
+        "cycle_substrate_context_content_hash": cycle_substrate_context.content_hash,
+        "world_model_record_content_hash": (
+            cycle_substrate_context.world_model_record_content_hash
+        ),
+        "n4_owner_capture": active_capture,
+        "generation_owner_status": "real_n4_owner_content_addressed_replay",
         "execution_status": "completed",
-        "smoke_status": "typed_terminal_with_known_n6_validation_gap",
+        "smoke_status": "typed_terminal_after_real_n4_and_grounding_attempt",
+        "stage_attempts": stage_attempts,
+        "baseline_diff": baseline_diff,
+        "gap_triage": _stage_1_gap_triage(stage_attempts),
         "content_hash_excluded_fields": ["runtime_metrics"],
         "runtime_metrics": runtime_metrics,
         "generation_cycle_run": run_payload,
@@ -2253,11 +2517,983 @@ def _build_cycle_trace(root: Path, smoke_problem: Mapping[str, Any]) -> dict[str
             ),
         },
     }
-    return _with_content_hash(
+    trace = _with_content_hash(
         payload,
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
+    if not allow_live_n4_capture and n4_capture_journal is None:
+        _CYCLE_TRACE_CACHE[cache_key] = copy.deepcopy(trace)
+    return trace
+
+
+def _build_live_cycle_substrate_context(
+    root: Path,
+    *,
+    census: Mapping[str, Any],
+    substrate_input: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Build one context directly from freshly derived pack-shaped evidence."""
+
+    projection = {
+        "selected_domain": substrate_input["selected_domain"],
+        "components": copy.deepcopy(substrate_input["components"]),
+        "owner_query_results": copy.deepcopy(substrate_input["owner_query_results"]),
+        "content_addressing": {
+            "historical_source_pack_content_hash": (
+                _historical_n10a_pack_content_hash(root)
+            ),
+            "substrate_input_content_hash": substrate_input[
+                "substrate_input_content_hash"
+            ],
+        },
+        "content_hash_excluded_fields": ["runtime_metrics"],
+    }
+    projection = _with_content_hash(
+        projection,
+        "manifest_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    return _build_cycle_substrate_context_from_bundle(
+        root,
+        bundle={"census": census, "pack": projection},
+        design_problem=design_problem,
+    )
+
+
+def _build_frozen_cycle_substrate_context(
+    root: Path,
+    *,
+    bundle: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Build one context after verifying the committed pack evidence."""
+
+    return _build_cycle_substrate_context_from_bundle(
+        root,
+        bundle=bundle,
+        design_problem=design_problem,
+    )
+
+
+def _build_cycle_substrate_context_from_bundle(
+    root: Path,
+    *,
+    bundle: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Reuse canonical registry/WMR/L6 owners for one verified pack projection."""
+
+    pack = _mapping(bundle.get("pack"))
+    components = _mapping(pack.get("components"))
+    registry = SubstrateRegistry.model_validate(
+        _mapping(
+            _mapping(pack.get("owner_query_results")).get("s0_registry")
+        ).get("registry_payload")
+    )
+    selected_hashes = tuple(
+        _list_of_strings(
+            _mapping(components.get("substrate_registry")).get(
+                "selected_entry_hashes"
+            )
+        )
+    )
+    outcome = design_problem.outcome_of_interest.target_variable
+    policy_slot_ids = tuple(
+        dict.fromkeys(
+            (
+                outcome,
+                *(
+                    str(row.get("target_concept") or "")
+                    for row in _list_of_mappings(
+                        _mapping(components.get("lever_vocabulary")).get("entries")
+                    )
+                    if str(row.get("target_concept") or "")
+                ),
+            )
+        )
+    )
+    world_model_record = _build_boundary_world_model_record(
+        repo_root=root,
+        problem=design_problem,
+        outcome=outcome,
+        policy_slot_ids=policy_slot_ids,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+    return project_second_domain_cycle_substrate_context(
+        bundle,
+        repo_root=root,
+        design_problem=design_problem,
+        world_model_record=world_model_record,
+        intervention_substrate=load_l6_intervention_substrate(root),
+    )
+
+
+async def _capture_live_n4_owner(
+    root: Path,
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Make one journal-first provider attempt through the canonical N4 owner."""
+
+    journal_path = (
+        root
+        / ".tmp"
+        / "gy-n10-stage1-n4"
+        / (
+            problem.design_problem_id
+            + "-"
+            + str(time.time_ns())
+            + ".jsonl"
+        )
+    )
+    live_environment = {
+        **_N4_LIVE_CAPTURE_ENV,
+        "POLISYOS_N4_CALL_JOURNAL_PATH": str(journal_path),
+    }
+    with _temporary_environment(live_environment):
+        organ_run = await generate_design_candidate_bundle_under_a(
+            problem,
+            model_id=N4_CAPTURE_MODEL_ID,
+            repo_root=root,
+            min_diverse_candidates=3,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    return _n4_owner_capture_from_organ_run(
+        organ_run,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+        journal_path=journal_path,
+        recording_source="live_gateway_real_n4_owner_journal_first",
+        capture_environment=live_environment,
+    )
+
+
+async def _capture_n4_owner_from_journal(
+    root: Path,
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+    journal_path: Path,
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Accept one paid live journal only after replay through current owners."""
+
+    resolved_journal = journal_path
+    if not resolved_journal.is_absolute():
+        resolved_journal = (root / resolved_journal).resolve()
+    try:
+        resolved_journal.relative_to((root / ".tmp").resolve())
+    except ValueError as exc:
+        raise ValueError("education_n4_capture_journal_outside_local_tmp") from exc
+    responses = _n4_capture_responses_from_journal(resolved_journal)
+    recording = {
+        "model_id": N4_CAPTURE_MODEL_ID,
+        "responses": responses,
+    }
+    with _temporary_environment(_N4_LIVE_CAPTURE_ENV):
+        organ_run = await generate_design_candidate_bundle_under_a(
+            problem,
+            model_id=N4_CAPTURE_MODEL_ID,
+            llm_client=RecordedGenerationReplayClient(recording),
+            repo_root=root,
+            min_diverse_candidates=3,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    return _n4_owner_capture_from_organ_run(
+        organ_run,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+        journal_path=resolved_journal,
+        recording_source="live_gateway_journal_replayed_through_current_n4_owner",
+        capture_environment=_N4_LIVE_CAPTURE_ENV,
+    )
+
+
+def _n4_owner_capture_from_organ_run(
+    organ_run: DesignGenerationOrganRun,
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+    journal_path: Path,
+    recording_source: str,
+    capture_environment: Mapping[str, str],
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Build one path-independent capture after the native result passes."""
+
+    projection = _n4_owner_result_projection(organ_run)
+    projection_issues = _n4_owner_projection_issues(
+        projection,
+        cycle_substrate_context=cycle_substrate_context,
+    )
+    if projection_issues:
+        raise ValueError(
+            "education_n4_live_capture_rejected:" + ",".join(projection_issues)
+        )
+    responses = _n4_capture_responses(organ_run)
+    journal_receipt = _n4_call_journal_receipt(journal_path)
+    expected_journal_rows = _n4_call_evidence_rows(organ_run)
+    if journal_receipt.get("call_evidence_rows") != expected_journal_rows:
+        raise ValueError(
+            "education_n4_live_capture_journal_denominator_mismatch:"
+            + _canonical_json(
+                {
+                    "journal_rows": journal_receipt.get("call_evidence_rows"),
+                    "owner_rows": expected_journal_rows,
+                }
+            )
+        )
+    effective_config = _mapping(projection.get("effective_runtime_config"))
+    config = EffectiveGenerationRuntimeConfig.model_validate(effective_config)
+    runtime_environment = _recorded_runtime_environment_values(config)
+    runtime_environment.update(
+        {
+            "POLISYOS_CRITIC_LLM_RETRIES": capture_environment[
+                "POLISYOS_CRITIC_LLM_RETRIES"
+            ],
+            "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": capture_environment[
+                "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE"
+            ],
+        }
+    )
+    capture = {
+        "schema_version": "policyos.policy_design_case.gy_n10.n4_owner_capture.v1",
+        "artifact_kind": "policy_design_case.gy_n10.n4_owner_capture",
+        "producer": PRODUCER,
+        "recording_source": recording_source,
+        "model_id": N4_CAPTURE_MODEL_ID,
+        "input_binding": {
+            "design_problem_ref": cycle_substrate_context.design_problem_ref,
+            "domain": cycle_substrate_context.domain,
+            "source_pack_content_hash": (
+                cycle_substrate_context.source_pack_content_hash
+            ),
+            "substrate_input_content_hash": (
+                cycle_substrate_context.substrate_input_content_hash
+            ),
+            "cycle_substrate_context_content_hash": (
+                cycle_substrate_context.content_hash
+            ),
+            "substrate_registry_content_hash": (
+                cycle_substrate_context.substrate_registry_content_hash
+            ),
+            "selected_registry_entry_hashes": list(
+                cycle_substrate_context.selected_registry_entry_hashes
+            ),
+            "world_model_record_id": (
+                cycle_substrate_context.world_model_record.world_model_record_id
+            ),
+            "world_model_record_content_hash": (
+                cycle_substrate_context.world_model_record_content_hash
+            ),
+        },
+        "response": responses[0],
+        "responses": responses,
+        "effective_runtime_environment": runtime_environment,
+        "owner_result_projection": projection,
+        "journal_receipt": journal_receipt,
+    }
+    capture["recording_content_hash"] = _hash(
+        {
+            key: value
+            for key, value in capture.items()
+            if key != "recording_content_hash"
+        }
+    )
+    _require_valid_n4_owner_capture(
+        capture,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+    )
+    return (
+        capture,
+        {
+            "n4_source_capture_call_wall_seconds": (
+                _n4_journal_call_wall_seconds(journal_path)
+            ),
+            "n4_live_capture_journal_entry_count": journal_receipt[
+                "journal_entry_count"
+            ],
+        },
+        organ_run,
+    )
+
+
+def _n4_owner_result_projection(
+    organ_run: DesignGenerationOrganRun,
+) -> dict[str, Any]:
+    """Project stable native N4 outputs without converting them into authority."""
+
+    result = organ_run.result
+    interventions = (
+        tuple(organ_run.trinity_bundle.policy_spec.interventions)
+        if organ_run.trinity_bundle is not None
+        else ()
+    )
+    config_payload = (
+        result.effective_runtime_config.model_dump(mode="json")
+        if result.effective_runtime_config is not None
+        else {}
+    )
+    if config_payload.get("cg1_index_prewarm_wall_seconds") is not None:
+        config_payload["cg1_index_prewarm_wall_seconds"] = 0.0
+    return {
+        "status": result.status,
+        "design_problem_ref": result.design_problem_ref,
+        "model_id": result.model_id,
+        "preflight_status": result.preflight.status,
+        "draft_present": organ_run.draft is not None,
+        "trinity_bundle_present": organ_run.trinity_bundle is not None,
+        "critique_present": organ_run.critique is not None,
+        "degraded_artifact_count": len(result.degraded_artifacts),
+        "lever_space_prompt_slice_content_hash": (
+            result.lever_space_prompt_slice.content_hash
+        ),
+        "prompt_slice_operator_kinds": [
+            entry.operator_kind for entry in result.lever_space_prompt_slice.entries
+        ],
+        "exact_call_prompt_hashes": [
+            call.prompt_hash for call in result.llm_calls
+        ],
+        "exact_formalizer_input_hashes": [
+            call.prompt_hash
+            for call in result.llm_calls
+            if call.role_hint == "formalizer"
+        ],
+        "raw_response_hashes": [
+            _hash(call.raw_llm_response) for call in result.llm_calls
+        ],
+        "proposed_interventions": [
+            {
+                "proposal_id": f"gy_n4.{intervention.intervention_id}",
+                "intervention_id": intervention.intervention_id,
+                "operator_kind": str(
+                    intervention.params.get("candidate_lever_id")
+                    or intervention.kind
+                ),
+                "trinity_kind": str(intervention.kind),
+                "raw_candidate_hash": _hash(
+                    intervention.model_dump(mode="json")
+                ),
+            }
+            for intervention in interventions
+        ],
+        "grounding_dispositions": [
+            disposition.model_dump(mode="json")
+            for disposition in result.grounding_dispositions
+        ],
+        "grounding_disposition_summary": (
+            result.grounding_disposition_summary.model_dump(mode="json")
+        ),
+        "effective_runtime_config": config_payload,
+    }
+
+
+def _n4_owner_projection_issues(
+    projection: Mapping[str, Any],
+    *,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> list[str]:
+    """Reject a real attempt that did not exercise every required owner bridge."""
+
+    issues: list[str] = []
+    expected_levers = {
+        candidate.lever_id for candidate in cycle_substrate_context.candidate_levers
+    }
+    prompt_levers = set(
+        _list_of_strings(projection.get("prompt_slice_operator_kinds"))
+    )
+    proposals = _list_of_mappings(projection.get("proposed_interventions"))
+    proposed_levers = {str(row.get("operator_kind") or "") for row in proposals}
+    dispositions = _list_of_mappings(projection.get("grounding_dispositions"))
+    expected_entry_hashes = {
+        candidate.entry_content_hash
+        for candidate in cycle_substrate_context.candidate_levers
+    }
+    if projection.get("status") != "generated":
+        issues.append("n4_owner_status_not_generated")
+    if not all(
+        bool(projection.get(field))
+        for field in ("draft_present", "trinity_bundle_present", "critique_present")
+    ):
+        issues.append("n4_owner_real_organ_artifact_missing")
+    if int(projection.get("degraded_artifact_count") or 0) != 0:
+        issues.append("n4_owner_degraded_artifact_present")
+    if prompt_levers != expected_levers:
+        issues.append("n4_owner_prompt_lever_denominator_mismatch")
+    if not proposed_levers or not proposed_levers.issubset(expected_levers):
+        issues.append("n4_owner_proposal_not_pack_bound")
+    if not _list_of_strings(projection.get("exact_formalizer_input_hashes")):
+        issues.append("n4_owner_formalizer_input_missing")
+    if len(dispositions) != len(proposals):
+        issues.append("n4_owner_grounding_denominator_mismatch")
+    for disposition in dispositions:
+        resolution_payload = _mapping(disposition.get("lever_resolution"))
+        try:
+            resolution = InterventionLeverRefusal.model_validate(resolution_payload)
+        except ValueError:
+            issues.append("n4_owner_lever_refusal_missing")
+            continue
+        if resolution.candidate_entry_content_hash not in expected_entry_hashes:
+            issues.append("n4_owner_lever_entry_unbound")
+        if resolution.substrate_input_content_hash != (
+            cycle_substrate_context.substrate_input_content_hash
+        ):
+            issues.append("n4_owner_lever_substrate_binding_mismatch")
+        if resolution.context_binding_hash != cycle_substrate_context.context_binding_hash:
+            issues.append("n4_owner_lever_context_binding_mismatch")
+        if resolution.world_model_record_content_hash != (
+            cycle_substrate_context.world_model_record_content_hash
+        ):
+            issues.append("n4_owner_lever_wmr_binding_mismatch")
+    return sorted(set(issues))
+
+
+def _n4_capture_responses(
+    organ_run: DesignGenerationOrganRun,
+) -> list[dict[str, Any]]:
+    """Persist exact gateway bytes needed by the existing replay client."""
+
+    rows = [
+        _n4_response_from_call_payload(call.model_dump(mode="json"))
+        for call in organ_run.result.llm_calls
+    ]
+    if not rows:
+        raise ValueError("education_n4_owner_capture_responses_missing")
+    return rows
+
+
+def _n4_capture_responses_from_journal(path: Path) -> list[dict[str, Any]]:
+    """Load exact response bytes from one ignored, journal-first capture file."""
+
+    if not path.is_file():
+        raise ValueError("education_n4_live_capture_journal_missing")
+    rows = [
+        _n4_response_from_call_payload(json.loads(line))
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    if not rows:
+        raise ValueError("education_n4_live_capture_journal_empty")
+    return rows
+
+
+def _n4_response_from_call_payload(call: Mapping[str, Any]) -> dict[str, Any]:
+    raw_response = str(call.get("raw_llm_response") or "")
+    call_index = int(call.get("call_index") or 0)
+    return {
+        "call_index": call_index,
+        "role": call.get("role_hint") or f"llm_call_{call_index}",
+        "role_hint": call.get("role_hint"),
+        "status": call.get("status") or "success",
+        "model_id": call.get("model_id"),
+        "provider": call.get("provider"),
+        "prompt_hash": call.get("prompt_hash"),
+        "raw_response": raw_response,
+        "raw_llm_response": raw_response,
+        "raw_response_hash": _hash(raw_response),
+        "parsed": call.get("parsed_json"),
+        "response_format": call.get("response_format"),
+        "usage": {
+            "prompt_tokens": int(call.get("prompt_tokens") or 0),
+            "completion_tokens": int(call.get("completion_tokens") or 0),
+            "total_tokens": int(call.get("total_tokens") or 0),
+        },
+        "error": {
+            "type": call.get("error_type"),
+            "message": call.get("error_message"),
+            "status": call.get("error_status"),
+            "code": call.get("error_code"),
+            "retry_after_s": call.get("retry_after_s"),
+        },
+    }
+
+
+def _n4_journal_call_wall_seconds(path: Path) -> float:
+    """Return source-call wall time as excluded operational metadata."""
+
+    total = 0.0
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        total += max(0.0, float(payload.get("wall_seconds") or 0.0))
+    return round(total, 6)
+
+
+def _n4_call_evidence_rows(
+    organ_run: DesignGenerationOrganRun,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "call_index": call.call_index,
+            "role_hint": call.role_hint,
+            "status": call.status,
+            "model_id": call.model_id,
+            "prompt_hash": call.prompt_hash,
+            "raw_response_hash": _hash(call.raw_llm_response),
+        }
+        for call in organ_run.result.llm_calls
+    ]
+
+
+def _n4_call_journal_receipt(path: Path) -> dict[str, Any]:
+    """Verify the local journal before projecting its stable evidence receipt."""
+
+    if not path.is_file():
+        raise ValueError("education_n4_live_capture_journal_missing")
+    rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        raw_response = str(payload.get("raw_llm_response") or "")
+        rows.append(
+            {
+                "call_index": int(payload.get("call_index") or 0),
+                "role_hint": payload.get("role_hint"),
+                "status": str(payload.get("status") or "success"),
+                "model_id": str(payload.get("model_id") or ""),
+                "prompt_hash": str(payload.get("prompt_hash") or ""),
+                "raw_response_hash": _hash(raw_response),
+            }
+        )
+    if not rows:
+        raise ValueError("education_n4_live_capture_journal_empty")
+    return {
+        "status": "journaled_before_artifact_write",
+        "journal_entry_count": len(rows),
+        "call_evidence_rows": rows,
+        "stable_journal_projection_content_hash": _hash(rows),
+        "local_raw_journal_persistence": "local_only_ignored",
+    }
+
+
+def _require_valid_n4_owner_capture(
+    capture: Mapping[str, Any],
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> None:
+    """Fail closed on tampered bytes, repointed inputs, or an unusable owner result."""
+
+    issues: list[str] = []
+    recorded_hash = str(capture.get("recording_content_hash") or "")
+    computed_hash = _hash(
+        {
+            key: value
+            for key, value in capture.items()
+            if key != "recording_content_hash"
+        }
+    )
+    if recorded_hash != computed_hash:
+        issues.append("n4_owner_capture_content_hash_mismatch")
+    binding = _mapping(capture.get("input_binding"))
+    expected_binding = {
+        "design_problem_ref": gy_content_hash(problem.model_dump(mode="json")),
+        "domain": cycle_substrate_context.domain,
+        "source_pack_content_hash": cycle_substrate_context.source_pack_content_hash,
+        "substrate_input_content_hash": (
+            cycle_substrate_context.substrate_input_content_hash
+        ),
+        "cycle_substrate_context_content_hash": (
+            cycle_substrate_context.content_hash
+        ),
+        "substrate_registry_content_hash": (
+            cycle_substrate_context.substrate_registry_content_hash
+        ),
+        "selected_registry_entry_hashes": list(
+            cycle_substrate_context.selected_registry_entry_hashes
+        ),
+        "world_model_record_id": (
+            cycle_substrate_context.world_model_record.world_model_record_id
+        ),
+        "world_model_record_content_hash": (
+            cycle_substrate_context.world_model_record_content_hash
+        ),
+    }
+    if binding != expected_binding:
+        issues.append("n4_owner_capture_input_binding_mismatch")
+    responses = _list_of_mappings(capture.get("responses"))
+    if not responses:
+        issues.append("n4_owner_capture_responses_missing")
+    for response in responses:
+        raw_response = response.get("raw_response")
+        if not isinstance(raw_response, str) or response.get(
+            "raw_response_hash"
+        ) != _hash(raw_response):
+            issues.append("n4_owner_capture_raw_response_hash_mismatch")
+    projection = _mapping(capture.get("owner_result_projection"))
+    issues.extend(
+        _n4_owner_projection_issues(
+            projection,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    )
+    response_prompt_hashes = [
+        str(response.get("prompt_hash") or "") for response in responses
+    ]
+    if response_prompt_hashes != _list_of_strings(
+        projection.get("exact_call_prompt_hashes")
+    ):
+        issues.append("n4_owner_capture_prompt_hash_denominator_mismatch")
+    response_raw_hashes = [
+        str(response.get("raw_response_hash") or "") for response in responses
+    ]
+    if response_raw_hashes != _list_of_strings(
+        projection.get("raw_response_hashes")
+    ):
+        issues.append("n4_owner_capture_response_denominator_mismatch")
+    journal = _mapping(capture.get("journal_receipt"))
+    if (
+        journal.get("status") != "journaled_before_artifact_write"
+        or int(journal.get("journal_entry_count") or 0) != len(responses)
+        or journal.get("stable_journal_projection_content_hash")
+        != _hash(_list_of_mappings(journal.get("call_evidence_rows")))
+    ):
+        issues.append("n4_owner_capture_journal_receipt_invalid")
+    try:
+        EffectiveGenerationRuntimeConfig.model_validate(
+            projection.get("effective_runtime_config")
+        )
+    except ValueError:
+        issues.append("n4_owner_capture_effective_config_invalid")
+    if issues:
+        raise ValueError("education_n4_owner_capture_invalid:" + ",".join(sorted(set(issues))))
+
+
+@contextmanager
+def _n4_recorded_runtime_environment(
+    capture: Mapping[str, Any],
+) -> Iterator[None]:
+    """Replay under the effective inputs emitted by the original owner run."""
+
+    projection = _mapping(capture.get("owner_result_projection"))
+    config = EffectiveGenerationRuntimeConfig.model_validate(
+        projection.get("effective_runtime_config")
+    )
+    expected = _recorded_runtime_environment_values(config)
+    extras = _mapping(capture.get("effective_runtime_environment"))
+    for key in (
+        "POLISYOS_CRITIC_LLM_RETRIES",
+        "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE",
+    ):
+        value = extras.get(key)
+        if not isinstance(value, str) or not value:
+            raise ValueError("education_n4_owner_capture_effective_config_missing:" + key)
+        expected[key] = value
+    with _temporary_environment(expected):
+        yield
+
+
+@contextmanager
+def _temporary_environment(values: Mapping[str, str]) -> Iterator[None]:
+    """Apply one serial runtime envelope and restore every touched key exactly."""
+
+    missing = object()
+    previous: dict[str, object] = {
+        key: os.environ.get(key, missing) for key in values
+    }
+    try:
+        os.environ.update({str(key): str(value) for key, value in values.items()})
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is missing:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = str(value)
+
+
+def _cycle_stage_attempts(
+    *,
+    run_result: GenerationCycleRun,
+    organ_run: DesignGenerationOrganRun,
+    cycle_substrate_context: CycleSubstrateContext,
+    n4_owner_capture: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Bind live N4/L6/N5 objects to the independently typed N6 terminal."""
+
+    if not run_result.cycles:
+        raise ValueError("education_cycle_terminal_missing")
+    cycle = run_result.cycles[0]
+    projection = _n4_owner_result_projection(organ_run)
+    dispositions = _list_of_mappings(projection.get("grounding_dispositions"))
+    selected = next(
+        (
+            disposition
+            for disposition in dispositions
+            if str(disposition.get("proposal_id") or "")
+            == cycle.selected_candidate_ref
+        ),
+        None,
+    )
+    if selected is None:
+        raise ValueError("education_cycle_selected_disposition_missing")
+    resolution = InterventionLeverRefusal.model_validate(
+        _mapping(selected.get("lever_resolution"))
+    )
+    summary = next(
+        (
+            item
+            for item in run_result.candidate_summaries
+            if item.candidate_id == cycle.selected_candidate_ref
+        ),
+        None,
+    )
+    if summary is None:
+        raise ValueError("education_cycle_selected_summary_missing")
+    world_model_record = cycle.simulation.world_model_record
+    identity_reused = (
+        world_model_record is cycle_substrate_context.world_model_record
+    )
+    disposition_kind = str(selected.get("disposition") or "")
+    expected_terminal = expected_cycle_terminal_for_disposition(disposition_kind)
+    if cycle.terminal_kind != expected_terminal:
+        raise ValueError("education_cycle_terminal_disposition_mismatch")
+    proposed = _list_of_mappings(projection.get("proposed_interventions"))
+    return {
+        "generation": {
+            "attempted": True,
+            "owner": (
+                "polisyos.runtime.quality.design_generation."
+                "generate_design_candidate_bundle_under_a"
+            ),
+            "generation_channel": summary.generation_channel,
+            "owner_status": projection.get("status"),
+            "prompt_slice_content_hash": projection.get(
+                "lever_space_prompt_slice_content_hash"
+            ),
+            "prompt_slice_operator_kinds": _list_of_strings(
+                projection.get("prompt_slice_operator_kinds")
+            ),
+            "proposed_operator_kinds": [
+                str(row.get("operator_kind") or "") for row in proposed
+            ],
+            "proposed_raw_candidate_hashes": [
+                str(row.get("raw_candidate_hash") or "") for row in proposed
+            ],
+            "lever_source_hash": (
+                cycle_substrate_context.substrate_input_content_hash
+            ),
+            "exact_formalizer_input_hashes": _list_of_strings(
+                projection.get("exact_formalizer_input_hashes")
+            ),
+            "n4_owner_capture_content_hash": n4_owner_capture.get(
+                "recording_content_hash"
+            ),
+        },
+        "grounding": {
+            "attempted": True,
+            "owner": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+            "proposal_id": cycle.selected_candidate_ref,
+            "raw_candidate_hash": selected.get("raw_candidate_hash"),
+            "disposition": disposition_kind,
+            "grounding_source": cycle.grounding.grounding_source,
+            "grounding_status": cycle.grounding.status,
+            "candidate_entry_content_hash": (
+                resolution.candidate_entry_content_hash
+            ),
+            "selected_registry_entry_hash": (
+                resolution.selected_registry_entry_hash
+            ),
+            "lever_resolution_content_hash": resolution.content_hash,
+            "lever_resolution_reason_code": resolution.reason_code,
+            "substrate_input_content_hash": (
+                resolution.substrate_input_content_hash
+            ),
+            "context_binding_hash": resolution.context_binding_hash,
+            "world_model_record_content_hash": (
+                resolution.world_model_record_content_hash
+            ),
+        },
+        "world_model": {
+            "attempted": True,
+            "owner": (
+                "polisyos.runtime.quality.generation_cycle."
+                "_build_boundary_world_model_record"
+            ),
+            "object_identity_reused": identity_reused,
+            "world_model_record_id": (
+                cycle_substrate_context.world_model_record.world_model_record_id
+            ),
+            "world_model_record_content_hash": (
+                cycle_substrate_context.world_model_record_content_hash
+            ),
+            "substrate_registry_content_hash": (
+                cycle_substrate_context.substrate_registry_content_hash
+            ),
+            "selected_registry_entry_hashes": list(
+                cycle_substrate_context.selected_registry_entry_hashes
+            ),
+            "simulation_status": cycle.simulation.status,
+        },
+        "cycle_terminal": {
+            "terminal_kind": cycle.terminal_kind,
+            "terminal_status": run_result.terminal_status,
+            "evidence_kind": "real_n4_cgf_disposition",
+            "decision_grade": "blocked",
+            "promotion_status": run_result.promotion_port.status,
+        },
+    }
+
+
+def expected_cycle_terminal_for_disposition(disposition: str) -> str:
+    """Return N6's typed terminal implied by one canonical N4 disposition."""
+
+    if disposition in {
+        "novel_cg3",
+        "non_binding_abstain",
+        "unknown_blocked",
+        "veto_false_analog",
+    }:
+        return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
+    if disposition == "shadow_bound":
+        return SearchTerminalKind.GROUNDED_ABSTENTION.value
+    raise ValueError("education_cycle_unknown_grounding_disposition:" + disposition)
+
+
+@lru_cache(maxsize=4)
+def _historical_n10a_cycle_trace_json(repo_root: str) -> str:
+    root = Path(repo_root)
+    git_prefix = _git(root, "rev-parse", "--show-prefix")
+    historical_path = f"{git_prefix}{CYCLE_TRACE_OUTPUT}" if git_prefix else CYCLE_TRACE_OUTPUT
+    return _git(root, "show", f"{N10A_PROOF_HEAD_COMMIT}:{historical_path}")
+
+
+def load_committed_baseline(root: Path) -> dict[str, Any]:
+    """Load and hash-verify the immutable N10a cycle-entry baseline."""
+
+    payload = json.loads(
+        _historical_n10a_cycle_trace_json(root.resolve().as_posix())
+    )
+    issues: list[dict[str, Any]] = []
+    _validate_artifact_hash(payload, "trace_content_hash", issues)
+    if issues:
+        raise ValueError("education_cycle_baseline_hash_invalid")
+    return payload
+
+
+def recompute_baseline_diff(
+    trace: Mapping[str, Any],
+    baseline: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Measure movement from the committed a_spec_gap grounding baseline."""
+
+    baseline_cycles = _list_of_mappings(
+        _mapping(baseline.get("generation_cycle_run")).get("cycles")
+    )
+    baseline_terminal = (
+        str(baseline_cycles[0].get("terminal_kind") or "")
+        if baseline_cycles
+        else "missing"
+    )
+    stages = _mapping(trace.get("stage_attempts"))
+    generation = _mapping(stages.get("generation"))
+    grounding = _mapping(stages.get("grounding"))
+    terminal = _mapping(stages.get("cycle_terminal"))
+    current_terminal = str(terminal.get("terminal_kind") or "")
+    movement = {
+        "generation_used_real_n4_owner": (
+            generation.get("generation_channel") == "n4_owner"
+            and bool(_list_of_strings(generation.get("proposed_operator_kinds")))
+        ),
+        "grounding_received_real_disposition": (
+            grounding.get("attempted") is True
+            and str(grounding.get("disposition") or "")
+            in {
+                "novel_cg3",
+                "non_binding_abstain",
+                "unknown_blocked",
+                "veto_false_analog",
+            }
+            and str(grounding.get("lever_resolution_content_hash") or "").startswith(
+                "sha256:"
+            )
+        ),
+        "world_model_reused_exact_context_object": (
+            _mapping(stages.get("world_model")).get("object_identity_reused")
+            is True
+        ),
+        "terminal_moved_beyond_spec_gap": (
+            baseline_terminal == SearchTerminalKind.A_SPEC_GAP.value
+            and current_terminal != SearchTerminalKind.A_SPEC_GAP.value
+            and bool(current_terminal)
+        ),
+    }
+    return {
+        "baseline_trace_content_hash": baseline.get("trace_content_hash"),
+        "baseline_terminal_kind": baseline_terminal,
+        "current_terminal_kind": current_terminal,
+        "movement": movement,
+        "materially_deeper": all(movement.values()),
+    }
+
+
+def _stage_1_gap_triage(stage_attempts: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Close only bridges witnessed behaviorally by this Stage-1 run."""
+
+    generation = _mapping(stage_attempts.get("generation"))
+    grounding = _mapping(stage_attempts.get("grounding"))
+    world = _mapping(stage_attempts.get("world_model"))
+    closed = {
+        "s0_to_n4_l6_bridge_missing": {
+            "closed": (
+                generation.get("generation_channel") == "n4_owner"
+                and bool(generation.get("prompt_slice_content_hash"))
+                and bool(_list_of_strings(generation.get("proposed_operator_kinds")))
+            ),
+            "receipt_ref": generation.get("n4_owner_capture_content_hash"),
+        },
+        "s0_to_n5_wmr_bridge_missing": {
+            "closed": world.get("object_identity_reused") is True,
+            "receipt_ref": world.get("world_model_record_content_hash"),
+        },
+        "s0_to_l6_world_slot_bridge_missing": {
+            "closed": bool(grounding.get("lever_resolution_content_hash")),
+            "receipt_ref": grounding.get("lever_resolution_content_hash"),
+        },
+    }
+    rows: list[dict[str, Any]] = []
+    for gap_id in GAP_WITNESS_SPECS:
+        bridge = closed.get(gap_id)
+        if bridge is not None:
+            rows.append(
+                {
+                    "gap_id": gap_id,
+                    "status": "closed" if bridge["closed"] else "residual",
+                    "disposition": (
+                        "closed_by_live_behavioral_receipt"
+                        if bridge["closed"]
+                        else "receipt_missing_fail_closed"
+                    ),
+                    "receipt_ref": bridge["receipt_ref"],
+                }
+            )
+            continue
+        residual_reason = {
+            "owner_registration_derivation_missing": (
+                "N7 owner-registration derivation is acquisition infrastructure."
+            ),
+            "journal_raw_evidence_persistence_missing": (
+                "N7 durable raw-evidence persistence is acquisition infrastructure."
+            ),
+            "n8_transport_tuple_hardcode": "Stage 2 owns transport de-hardcoding.",
+            "n6_single_terminal_validation_gap": (
+                "Stage 3 owns one-terminal validator reconciliation."
+            ),
+        }[gap_id]
+        rows.append(
+            {
+                "gap_id": gap_id,
+                "status": "typed_residual",
+                "disposition": residual_reason,
+                "receipt_ref": None,
+            }
+        )
+    return rows
 
 
 def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -2405,13 +3641,35 @@ def _build_gap_report(
             },
         },
     ]
+    trace_triage = {
+        str(item.get("gap_id") or ""): item
+        for item in _list_of_mappings(cycle_trace.get("gap_triage"))
+    }
+    stage_attempts = _mapping(cycle_trace.get("stage_attempts"))
+    stage_receipts = {
+        "s0_to_n4_l6_bridge_missing": _mapping(stage_attempts.get("generation")),
+        "s0_to_n5_wmr_bridge_missing": _mapping(stage_attempts.get("world_model")),
+        "s0_to_l6_world_slot_bridge_missing": _mapping(stage_attempts.get("grounding")),
+    }
+    for gap in gaps:
+        gap_id = str(gap.get("gap_id") or "")
+        triage = _mapping(trace_triage.get(gap_id))
+        gap["status"] = triage.get("status") or "typed_residual"
+        gap["disposition"] = triage.get("disposition") or "untriaged_fail_closed"
+        if gap["status"] == "closed":
+            gap["capability_label"] = "closed"
+            gap["blocking_seam"] = "Closed by the Stage-1 live behavioral receipt."
+            gap.pop("acquisition_required", None)
+            owner_evidence = _mapping(gap.get("owner_evidence"))
+            owner_evidence["stage_1_behavioral_receipt"] = stage_receipts[gap_id]
+            gap["owner_evidence"] = owner_evidence
     hashed = [_with_content_hash(gap, "gap_content_hash") for gap in gaps]
     payload = {
         "schema_version": SCHEMA_VERSION,
         "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
         "rule_version": RULE_VERSION,
         "producer": PRODUCER,
-        "status": "gaps_recorded_no_engine_change",
+        "status": "stage_1_bridges_closed_with_typed_residuals",
         "gaps": hashed,
     }
     return _with_content_hash(payload, "gap_report_content_hash")
@@ -2842,7 +4100,9 @@ def _build_pack(
         "content_addressing": {
             "cache_semantics": "E1 content-addressed frozen manifest",
             "journal_semantics": "E6 gaps are explicit because existing N7 has no durable L2/L3 journal artifact",
-            "live_attempt_semantics": "E8 one candidate lever per N6 grammar-fallback attempt",
+            "live_attempt_semantics": (
+                "E8 one journal-first N4 owner capture, then content-addressed replay"
+            ),
         },
         "census_content_hash": census["census_content_hash"],
         "smoke_problem_content_hash": smoke_problem["smoke_problem_content_hash"],
@@ -2875,7 +4135,7 @@ def _build_pack(
             "status": "pass" if not engine_paths and not out_of_scope_paths else "fail",
         },
         "capability_reality": {
-            "state": "artifact_missing_and_bridge_missing_for_durable_lever_registration",
+            "state": "stage_1_bridges_closed_with_typed_n7_infra_residuals",
             "surface": "pack_manifest_and_gap_report",
             "surface_out_of_scope": False,
         },
@@ -3637,6 +4897,209 @@ def _validate_smoke_terminal(
         issues.append({"code": "smoke_known_gap_not_disclosed"})
 
 
+def _validate_stage_1_cycle_receipts(
+    root: Path,
+    pack: Mapping[str, Any],
+    cycle_trace: Mapping[str, Any],
+    gaps: Mapping[str, Any],
+    issues: list[dict[str, Any]],
+) -> None:
+    """Cross-check every Stage-1 receipt against persisted native owner evidence."""
+
+    stages = _mapping(cycle_trace.get("stage_attempts"))
+    generation = _mapping(stages.get("generation"))
+    grounding = _mapping(stages.get("grounding"))
+    world = _mapping(stages.get("world_model"))
+    terminal = _mapping(stages.get("cycle_terminal"))
+    capture = _mapping(cycle_trace.get("n4_owner_capture"))
+    projection = _mapping(capture.get("owner_result_projection"))
+    computed_capture_hash = _hash(
+        {
+            key: value
+            for key, value in capture.items()
+            if key != "recording_content_hash"
+        }
+    )
+    if capture.get("recording_content_hash") != computed_capture_hash:
+        issues.append({"code": "n4_owner_capture_content_hash_mismatch"})
+    responses = _list_of_mappings(capture.get("responses"))
+    if not responses or any(
+        not isinstance(response.get("raw_response"), str)
+        or response.get("raw_response_hash")
+        != _hash(str(response.get("raw_response") or ""))
+        for response in responses
+    ):
+        issues.append({"code": "n4_owner_capture_raw_response_hash_mismatch"})
+    response_prompt_hashes = [
+        str(response.get("prompt_hash") or "") for response in responses
+    ]
+    if response_prompt_hashes != _list_of_strings(
+        projection.get("exact_call_prompt_hashes")
+    ):
+        issues.append({"code": "n4_owner_capture_prompt_hash_denominator_mismatch"})
+    response_raw_hashes = [
+        str(response.get("raw_response_hash") or "") for response in responses
+    ]
+    if response_raw_hashes != _list_of_strings(
+        projection.get("raw_response_hashes")
+    ):
+        issues.append({"code": "n4_owner_capture_response_denominator_mismatch"})
+    journal = _mapping(capture.get("journal_receipt"))
+    journal_rows = _list_of_mappings(journal.get("call_evidence_rows"))
+    if (
+        journal.get("status") != "journaled_before_artifact_write"
+        or int(journal.get("journal_entry_count") or 0) != len(responses)
+        or journal.get("stable_journal_projection_content_hash")
+        != _hash(journal_rows)
+    ):
+        issues.append({"code": "n4_owner_capture_journal_receipt_invalid"})
+
+    components = _mapping(pack.get("components"))
+    addressing = _mapping(pack.get("content_addressing"))
+    lever_entries = _list_of_mappings(
+        _mapping(components.get("lever_vocabulary")).get("entries")
+    )
+    expected_levers = {str(entry.get("lever_id") or "") for entry in lever_entries}
+    expected_entry_hashes = {
+        str(entry.get("entry_content_hash") or "") for entry in lever_entries
+    }
+    prompt_levers = set(
+        _list_of_strings(projection.get("prompt_slice_operator_kinds"))
+    )
+    proposed = _list_of_mappings(projection.get("proposed_interventions"))
+    proposed_levers = {str(row.get("operator_kind") or "") for row in proposed}
+    if (
+        projection.get("status") != "generated"
+        or not all(
+            bool(projection.get(field))
+            for field in ("draft_present", "trinity_bundle_present", "critique_present")
+        )
+        or int(projection.get("degraded_artifact_count") or 0) != 0
+    ):
+        issues.append({"code": "n4_owner_generation_not_real"})
+    if prompt_levers != expected_levers:
+        issues.append({"code": "n4_owner_prompt_lever_denominator_mismatch"})
+    if not proposed_levers or not proposed_levers.issubset(expected_levers):
+        issues.append({"code": "n4_owner_proposal_not_pack_bound"})
+    if generation.get("generation_channel") != "n4_owner":
+        issues.append({"code": "cycle_generation_fell_back_from_n4_owner"})
+    if generation.get("prompt_slice_operator_kinds") != projection.get(
+        "prompt_slice_operator_kinds"
+    ) or generation.get("exact_formalizer_input_hashes") != projection.get(
+        "exact_formalizer_input_hashes"
+    ):
+        issues.append({"code": "stage_generation_receipt_drift"})
+    if generation.get("lever_source_hash") != addressing.get(
+        "substrate_input_content_hash"
+    ):
+        issues.append({"code": "stage_generation_lever_source_drift"})
+    if generation.get("n4_owner_capture_content_hash") != capture.get(
+        "recording_content_hash"
+    ):
+        issues.append({"code": "stage_generation_capture_ref_drift"})
+
+    selected_disposition = next(
+        (
+            row
+            for row in _list_of_mappings(projection.get("grounding_dispositions"))
+            if str(row.get("proposal_id") or "")
+            == str(grounding.get("proposal_id") or "")
+        ),
+        None,
+    )
+    if selected_disposition is None:
+        issues.append({"code": "stage_grounding_disposition_unresolved"})
+    else:
+        resolution_payload = _mapping(selected_disposition.get("lever_resolution"))
+        try:
+            resolution = InterventionLeverRefusal.model_validate(resolution_payload)
+        except ValueError:
+            issues.append({"code": "stage_grounding_lever_refusal_invalid"})
+        else:
+            if (
+                grounding.get("disposition")
+                != selected_disposition.get("disposition")
+                or grounding.get("raw_candidate_hash")
+                != selected_disposition.get("raw_candidate_hash")
+                or grounding.get("candidate_entry_content_hash")
+                != resolution.candidate_entry_content_hash
+                or grounding.get("lever_resolution_content_hash")
+                != resolution.content_hash
+            ):
+                issues.append({"code": "stage_grounding_receipt_drift"})
+            if resolution.candidate_entry_content_hash not in expected_entry_hashes:
+                issues.append({"code": "stage_grounding_pack_entry_unresolved"})
+            if resolution.substrate_input_content_hash != addressing.get(
+                "substrate_input_content_hash"
+            ):
+                issues.append({"code": "stage_grounding_substrate_ref_drift"})
+            if resolution.world_model_record_content_hash != cycle_trace.get(
+                "world_model_record_content_hash"
+            ):
+                issues.append({"code": "stage_grounding_wmr_ref_drift"})
+
+    run_cycles = _list_of_mappings(
+        _mapping(cycle_trace.get("generation_cycle_run")).get("cycles")
+    )
+    if not run_cycles:
+        issues.append({"code": "stage_cycle_terminal_missing"})
+    else:
+        cycle = run_cycles[0]
+        disposition_kind = str(grounding.get("disposition") or "")
+        try:
+            expected_terminal = expected_cycle_terminal_for_disposition(
+                disposition_kind
+            )
+        except ValueError:
+            issues.append({"code": "stage_grounding_disposition_unknown"})
+        else:
+            if (
+                terminal.get("terminal_kind") != expected_terminal
+                or cycle.get("terminal_kind") != expected_terminal
+            ):
+                issues.append({"code": "stage_cycle_terminal_receipt_drift"})
+    if (
+        world.get("object_identity_reused") is not True
+        or world.get("world_model_record_content_hash")
+        != cycle_trace.get("world_model_record_content_hash")
+    ):
+        issues.append({"code": "stage_world_model_identity_receipt_missing"})
+
+    try:
+        baseline_diff = recompute_baseline_diff(
+            cycle_trace,
+            load_committed_baseline(root),
+        )
+    except (RuntimeError, ValueError, json.JSONDecodeError) as exc:
+        issues.append({"code": "stage_baseline_diff_unavailable", "error": str(exc)})
+    else:
+        if cycle_trace.get("baseline_diff") != baseline_diff:
+            issues.append({"code": "stage_baseline_diff_drift"})
+        if baseline_diff.get("materially_deeper") is not True:
+            issues.append({"code": "stage_baseline_not_materially_deeper"})
+
+    trace_triage = {
+        str(row.get("gap_id") or ""): row
+        for row in _list_of_mappings(cycle_trace.get("gap_triage"))
+    }
+    gap_records = {
+        str(row.get("gap_id") or ""): row
+        for row in _list_of_mappings(gaps.get("gaps"))
+    }
+    expected_closed = {
+        "s0_to_n4_l6_bridge_missing",
+        "s0_to_n5_wmr_bridge_missing",
+        "s0_to_l6_world_slot_bridge_missing",
+    }
+    for gap_id in GAP_WITNESS_SPECS:
+        expected_status = "closed" if gap_id in expected_closed else "typed_residual"
+        if (
+            _mapping(trace_triage.get(gap_id)).get("status") != expected_status
+            or _mapping(gap_records.get(gap_id)).get("status") != expected_status
+        ):
+            issues.append({"code": "stage_gap_triage_drift", "gap_id": gap_id})
+
+
 def _validate_zero_engine_code(root: Path, pack: Mapping[str, Any], issues: list[dict[str, Any]]) -> None:
     scope = _mapping(pack.get("zero_engine_code"))
     scope_semantics = scope.get("scope_semantics")
@@ -4257,6 +5720,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--capture-stage1-n4", action="store_true")
+    parser.add_argument("--accept-stage1-n4-journal", type=Path)
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
@@ -4266,6 +5731,8 @@ def main(argv: list[str] | None = None) -> int:
         for value in (
             args.check,
             args.write,
+            args.capture_stage1_n4,
+            args.accept_stage1_n4_journal is not None,
             args.rederive_audit,
             args.corrupt_field_drift_check,
         )
@@ -4274,7 +5741,14 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("select exactly one action")
     root = args.repo_root.resolve()
     try:
-        if args.write:
+        if args.accept_stage1_n4_journal is not None:
+            report = write(
+                root,
+                n4_capture_journal=args.accept_stage1_n4_journal,
+            )
+        elif args.capture_stage1_n4:
+            report = write(root, allow_live_n4_capture=True)
+        elif args.write:
             report = write(root)
         elif args.rederive_audit:
             report = rederive_audit(root)

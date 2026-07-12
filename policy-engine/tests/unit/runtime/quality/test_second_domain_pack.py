@@ -801,6 +801,9 @@ def test_corrupt_drift_covers_cycle_registry_and_historical_identity() -> None:
         "historical_source_pack_content_hash_mismatch",
         "n7_attempt_input_content_hash_mismatch",
         "n7_operational_receipt_duplicate",
+        "cycle_generation_fell_back_from_n4_owner",
+        "stage_grounding_receipt_drift",
+        "stage_world_model_identity_receipt_missing",
     } <= detected
 
 

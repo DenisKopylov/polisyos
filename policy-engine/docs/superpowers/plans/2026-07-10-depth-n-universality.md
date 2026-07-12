@@ -96,7 +96,7 @@
 - `zero_engine_code.proof_head_commit = "d8a8cf076da6233c66b0a90010647c0d437e81c4"`
 - `_historical_task_changed_paths(root: Path, *, base: str, proof_head: str) -> list[str]` reads only `git diff --name-only base..proof_head`.
 
-- [ ] **Step 1: Write RED historical-range and moving-head mutation tests.**
+- [x] **Step 1: Write RED historical-range and moving-head mutation tests.**
 
 ```python
 def test_n10a_zero_engine_receipt_is_pinned_to_historical_proof_head() -> None:
@@ -123,17 +123,17 @@ def test_n10a_receipt_rebased_to_moving_head_is_rejected() -> None:
         }
 ```
 
-- [ ] **Step 2: Run the focused tests and observe RED on moving-HEAD semantics.**
+- [x] **Step 2: Run the focused tests and observe RED on moving-HEAD semantics.**
 
 ```bash
 PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_second_domain_pack.py -k 'historical_proof_head or moving_head' -q
 ```
 
-- [ ] **Step 3: Implement the immutable range verifier without weakening live owner checks.**
+- [x] **Step 3: Implement the immutable range verifier without weakening live owner checks.**
 
 Require literal 40-hex commits, require `base` is ancestor of `proof_head`, require `proof_head` is ancestor of current `HEAD`, and compute changed/scope/engine paths only from that range. Working, staged, and untracked files are deliberately absent from this historical receipt. Keep every live pack-owner query, content hash, seam witness, and rederive audit unchanged. Extend corrupt drift with `historical_receipt_rebased_to_moving_head`.
 
-- [ ] **Step 4: Regenerate serially and verify.**
+- [x] **Step 4: Regenerate serially and verify.**
 
 ```bash
 PYTHONPATH="$PWD/src:$PWD" python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --write --output-format json
@@ -144,7 +144,7 @@ PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_sec
 .venv/bin/ruff check tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_second_domain_pack.py
 ```
 
-- [ ] **Step 5: Commit the pre-Stage-1 historical proof repair.**
+- [x] **Step 5: Commit the pre-Stage-1 historical proof repair.**
 
 ```bash
 git add tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_second_domain_pack.py architecture/policy_design_case/layer3_gy_second_domain_pack.json architecture/policy_design_case/layer3_gy_second_domain_census.json architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json
@@ -162,7 +162,7 @@ git commit -m "fix: pin N10a proof to historical range"
 - The Stage-4 GY-N10 validator calls this guard before parsing arguments or reading proof artifacts.
 - The focused universality harness imports only standard-library/guard code, calls the guard at module bootstrap, and only then imports any `polisyos.*` owner; an autouse fixture is too late because collection imports have already occurred.
 
-- [ ] **Step 1: Write RED current/wrong checkout tests.**
+- [x] **Step 1: Write RED current/wrong checkout tests.**
 
 ```python
 def test_universality_harness_resolves_current_checkout() -> None:
@@ -176,17 +176,17 @@ def test_wrong_checkout_is_rejected_before_proof_execution() -> None:
     assert "wrong_checkout_resolved" in result.stderr
 ```
 
-- [ ] **Step 2: Run and observe RED because the guard is absent.**
+- [x] **Step 2: Run and observe RED because the guard is absent.**
 
 ```bash
 PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'checkout' -q
 ```
 
-- [ ] **Step 3: Implement the fail-closed path comparison.**
+- [x] **Step 3: Implement the fail-closed path comparison.**
 
 Resolve `repo_root`, import `polisyos` inside the guard, resolve `polisyos.__file__`, and require it to be below `repo_root / "src"`. Do not compare strings or accept symlink-shaped prefixes; use resolved `Path.is_relative_to`. At the top of `test_depth_n_universality.py`, call the guard before importing runtime owners. The subprocess mutation deliberately points `PYTHONPATH` at the main checkout while running the worktree guard and must refuse before a sentinel validator producer is called.
 
-- [ ] **Step 4: Verify and commit.**
+- [x] **Step 4: Verify and commit.**
 
 ```bash
 PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'checkout' -q
@@ -211,11 +211,11 @@ git commit -m "test: reject wrong checkout proof runs"
 - Produces: `trinity_bundle_formalizer_generator_path(bundle: TrinityBundle, *, recorded_calls: Sequence[object]) -> Literal["model_generated", "degraded_mock_fallback", "path_unrecorded"]`
 - Re-exports: the exact `GroundingDispositionKind` imported from `grounding_disposition_vocab`
 
-- [ ] **Step 1: Audit every N4 import in one pass before editing production.**
+- [x] **Step 1: Audit every N4 import in one pass before editing production.**
 
 Parse every module-level import in `design_generation.py`, import each owner module independently, resolve every imported symbol, and count live name loads in the AST. Write the resulting table to the Stage-1 journal with columns `module`, `symbol`, `live_use_count`, `resolution`, `disposition`, and `evidence`. Allowed dispositions are exactly `resolved`, `dead`, `live_existing_logic_to_wrap`, and `live_no_existing_owner_logic`. Delete only a dead import; wrap only existing logic. If any row is `live_no_existing_owner_logic`, stop before implementation and report.
 
-- [ ] **Step 2: Write the failing import, vocabulary-owner, and formalizer-evidence tests.**
+- [x] **Step 2: Write the failing import, vocabulary-owner, and formalizer-evidence tests.**
 
 ```python
 def test_default_n4_stack_imports_canonical_intervention_owners() -> None:
@@ -274,7 +274,7 @@ def test_formalizer_path_mismatched_record_is_degraded() -> None:
     ) == "degraded_mock_fallback"
 ```
 
-- [ ] **Step 3: Run the focused tests and observe the two sequential REDs.**
+- [x] **Step 3: Run the focused tests and observe the two sequential REDs.**
 
 Run:
 
@@ -284,7 +284,7 @@ PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_des
 
 Expected first: collection fails on the two public intervention owners. After adding only those wrappers, rerun and observe collection fail on `trinity_bundle_formalizer_generator_path`. The AST ownership test is the decisive local-vocabulary RED because equivalent `Literal` aliases may be identity-cached on Python 3.14.
 
-- [ ] **Step 4: Add only the canonical wrappers, recorded-evidence accessor, and vocabulary import.**
+- [x] **Step 4: Add only the canonical wrappers, recorded-evidence accessor, and vocabulary import.**
 
 Implement these signatures in `intervention_substrate.py` by delegating to the existing private loaders/registry builders:
 
@@ -314,11 +314,11 @@ In `formalizer.py`, the accessor inspects `recorded_calls` without importing run
 
 At both live call sites in `design_generation.py`, pass the exact formalizer call slice. Initial generation passes `recording_client.calls[formalizer_call_start:]`; each salvage retry passes `recording_client.calls[retry_start:]`. `path_unrecorded` triggers salvage and, if still unresolved, a typed `formalizer_path_unrecorded` terminal rather than a real/degraded guess.
 
-- [ ] **Step 5: Add the decisive N4 source flip.**
+- [x] **Step 5: Add the decisive N4 source flip.**
 
 Extend the existing restoring N4 mutation harness with `formalizer_recorded_path_derivation_removed`: patch the accessor so matching recorded evidence no longer resolves, require the live salvage/path probe to turn RED, restore the exact source hash in `finally`, and verify the restored N4 contract. Removing the derivation while retaining markers must not stay green.
 
-- [ ] **Step 6: Run the focused tests, guarded direct import, N4 contract, source flip, and Ruff.**
+- [x] **Step 6: Run the focused tests, guarded direct import, N4 contract, source flip, and Ruff.**
 
 ```bash
 PYTHONPATH="$PWD/src:$PWD" python3 -m pytest tests/unit/runtime/quality/test_design_generation.py -k 'default_n4_stack_imports or canonical_grounding_disposition or one_grounding_disposition_owner or formalizer_path' -q
@@ -330,7 +330,7 @@ PYTHONPATH="$PWD/src:$PWD" python3 tools/quality/validation/check_layer3_gy_desi
 
 Expected: all exit `0`. Record this as closure of the long-standing N4 cloud-deferred import residual.
 
-- [ ] **Step 7: Commit the bounded repair and its journal discovery record.**
+- [x] **Step 7: Commit the bounded repair and its journal discovery record.**
 
 ```bash
 git add src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/design_generation.py src/polisyos/scientist/agent/formalizer.py tools/quality/validation/check_layer3_gy_design_generation_contract.py tests/unit/runtime/quality/test_design_generation.py docs/superpowers/journals/2026-07-11-gy-n10-stage-1.md
@@ -362,7 +362,7 @@ git commit -m "fix: restore N4 generation owner surface"
   AtomNormalizationRecord | None = None)` validates it through the
   canonical model and never uses it in a bind/admission predicate.
 
-- [ ] **Step 1: Write and observe interpreter-preflight REDs.**
+- [x] **Step 1: Write and observe interpreter-preflight REDs.**
 
 Use fresh subprocesses. The repository venv passes; `sys._base_executable`
 with the current `PYTHONPATH` fails before a producer sentinel; a deterministic
@@ -376,20 +376,20 @@ python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py \
   -k 'interpreter or checkout or cg_substrate' -q
 ```
 
-- [ ] **Step 2: Implement the minimal preflight composition and verify GREEN.**
+- [x] **Step 2: Implement the minimal preflight composition and verify GREEN.**
 
 Use `sys.prefix`/`sys.exec_prefix`, not `VIRTUAL_ENV` and not the fully resolved
 Python binary (which correctly resolves through the venv symlink to Homebrew's
 base executable). Preserve the existing checkout-first and backend-owner tests.
 
-- [ ] **Step 3: Complete archaeology and constructor/consumer census before N2 edits.**
+- [x] **Step 3: Complete archaeology and constructor/consumer census before N2 edits.**
 
 Record every `build_intervention_atom_binding` caller and every atom authority
 consumer. The bounded class authorization applies only where July artifact,
 recovered blob, or closure-test evidence proves the symbol and the field is
 metadata/mechanics. Anything affecting what a gate accepts stops.
 
-- [ ] **Step 4: Write N2 RED round-trip and authority-isolation tests.**
+- [x] **Step 4: Write N2 RED round-trip and authority-isolation tests.**
 
 Require strict validation of the July normalization payload, atom/CAS
 round-trip, and identical `consume_intervention_atom_for_cycle` output with and
@@ -404,7 +404,7 @@ python3 -m pytest tests/unit/runtime/quality/test_intervention_atom_binding.py \
   -k 'normalized_from or legacy_exact_match' -q
 ```
 
-- [ ] **Step 5: Extend only the N2 owner, regenerate through its writer, and run blast radius.**
+- [x] **Step 5: Extend only the N2 owner, regenerate through its writer, and run blast radius.**
 
 `normalized_from` is supporting provenance, not action/outcome or grounding
 authority. Existing callers may omit it. The builder verifies any normalized
@@ -431,7 +431,7 @@ python3 -m pytest tests/unit/runtime/quality/test_intervention_atom_binding.py \
   tests/unit/runtime/quality/test_intervention_atom_binding.py
 ```
 
-- [ ] **Step 6: Commit interpreter and N2 slices with the integration-debt journal table.**
+- [x] **Step 6: Commit interpreter and N2 slices with the integration-debt journal table.**
 
 Use separate scoped commits when practical. The journal table records symbol,
 July evidence, metadata/mechanics disposition, owner, RED/GREEN evidence, and
@@ -918,11 +918,11 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_grounding_term
 python3 -m pytest tests/unit/runtime/quality/test_second_domain_pack.py -k 'exact_pack_levers or grounding_terminal' -q
 ```
 
-- [ ] **Step 3: Update the checker producer to inject the strict context and record per-stage evidence.**
+- [x] **Step 3: Update the checker producer to inject the strict context and record per-stage evidence.**
 
 The trace must bind the stable substrate-input hash plus immutable source-pack hash, exact lever entry hashes, concrete WMR hash, N4 prompt-slice hash, exact formalizer input/proposal hashes, `generation_channel="n4_owner"`, grounding attempt/disposition, the independently typed cycle terminal, and a recomputed baseline diff. It must not claim grounded/current-valid when the lever is unbound. The Stage-1 gap producer closes the three pack bridges only from live behavioral receipts: N4 proves the pack slice reached the real drafter/formalizer and a disposition binds an entry hash; N5 proves `JointSimulationPort` returned the exact context WMR with matching registry/WMR/context hashes; L6 proves `_content_bound_candidates` invoked `resolve_intervention_lever`, persisted its typed result on the disposition, and `PolicyGroundingPort` consumed it. Removing any receipt after rehashing is RED. N7 persistence, N8 transport, and N6 validation remain residuals.
 
-- [ ] **Step 4: Regenerate serially and verify Stage 1.**
+- [x] **Step 4: Regenerate serially and verify Stage 1.**
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --write --output-format json
@@ -934,7 +934,7 @@ python3 tools/quality/validation/check_layer3_gy_acquisition_contract.py --check
 .venv/bin/ruff check src/polisyos/runtime/quality/cycle_substrate.py src/polisyos/runtime/quality/design_generation.py src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/generation_cycle.py tools/quality/validation/check_layer3_gy_second_domain_pack.py
 ```
 
-- [ ] **Step 5: Commit the Stage-1 proof and stop if any gate is red.**
+- [x] **Step 5: Commit the Stage-1 proof and stop if any gate is red.**
 
 ```bash
 git add tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_second_domain_pack.py architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json architecture/policy_design_case/layer3_gy_second_domain_pack.json
@@ -945,6 +945,12 @@ git commit -m "test: prove education pack reaches honest terminal"
 ---
 
 # Stage 2 — Data-driven transport and generic Foundry value
+
+Stage-1 closeout addendum (2026-07-12): the authorized N5 owner-half restoration from
+`c87687ec5`, method-owned queue/stock-flow output contracts, the 35-validator import/collection
+census, current-provenance education recapture, and full N4/N5/N6/N7/N8/N9 preservation gates are
+green and recorded in `docs/superpowers/journals/2026-07-11-gy-n10-stage-1.md`. Stage 2 begins only
+after the closeout commit containing that journal and the frozen Stage-1 artifacts.
 
 ## Task 6: Replace fixed transport dimensions with measured S-nodes
 

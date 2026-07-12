@@ -192,6 +192,7 @@ _GROUNDING_AXIS_PARAM_KEYS = frozenset(
         "wm_version",
     }
 )
+_CANDIDATE_ONLY_PARAM_KEYS = frozenset({"candidate_lever_id"})
 _EXECUTABLE_PARAM_KEYS_BY_MECHANISM = {
     "adaptive_agent": frozenset(
         {
@@ -1435,7 +1436,11 @@ def _normalize_mechanism_params(kind: str, params: dict[str, Any]) -> dict[str, 
 
     executable_keys = _EXECUTABLE_PARAM_KEYS_BY_MECHANISM.get(kind)
     if executable_keys is not None:
-        normalized = {key: value for key, value in normalized.items() if key in executable_keys}
+        normalized = {
+            key: value
+            for key, value in normalized.items()
+            if key in executable_keys or key in _CANDIDATE_ONLY_PARAM_KEYS
+        }
 
     if kind == "adaptive_agent":
         observation_space = normalized.get("observation_space")

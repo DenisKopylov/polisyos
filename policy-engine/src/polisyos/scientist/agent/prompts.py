@@ -88,6 +88,12 @@ You receive draft policy narratives from the Drafter and must produce machine-ex
 7. Runtime artifact references such as adaptive_agent.weights_artifact must be
    valid CAS ids in the form "sha256:<64 lowercase hex chars>"; omit them when
    no such artifact exists.
+8. When a draft intervention's exact `mechanism_type` is translated to a
+   different executable Trinity mechanism, copy that original string verbatim
+   to `params.candidate_lever_id`. This field is candidate-only and must not grant
+   grounding or writability authority. The runtime resolver will verify
+   it against content-bound substrate evidence; never infer, rename, or
+   normalize it.
 
 # AVAILABLE MECHANISMS
 {mechanisms_json}
@@ -214,7 +220,17 @@ If you receive hints from a previous Critic review, prioritize addressing them:
 {hints}
 
 # CONSTRAINTS
-- Use only mechanisms available in the registry (tax_subsidy, income_tax, etc.)
+- Grounding axes describe the LEVER MECHANISM, not an outcome or a generic
+  executable substitute.
+- When `success_criteria.lever_space_prompt_slice.status` is `derived`, every
+  intervention `mechanism_type` MUST exactly equal one operator_kind from that
+  slice's `entries`. Treat those values as candidate-only vocabulary, not
+  grounding authority; do not infer, rename, or replace them with aliases or
+  generic registry mechanisms. The Formalizer may translate the candidate to an
+  executable mechanism while preserving the exact candidate lever id for the
+  runtime's content-bound resolver.
+- When no derived lever-space slice is present, use only mechanisms available in
+  the registry (tax_subsidy, income_tax, etc.).
 - Parameters should be realistic (e.g., tax rates 0-0.5, not 10.0)
 - Consider equity, efficiency, and political feasibility
 """

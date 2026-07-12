@@ -1332,9 +1332,9 @@ def _n7_registration(*, source_id: str, family_id: str, snapshot_id: str) -> Sub
     )
 
 
-def _real_n4_generation_result_with_candidate(
-    candidate_id: str,
-) -> tuple[dict[str, Any], dict[str, Any]]:
+def _real_n4_generation_result_with_candidate() -> tuple[dict[str, Any], dict[str, Any]]:
+    """Select one content-matched real candidate without pinning a receipt-local id."""
+
     payload = json.loads(
         (
             REPO_ROOT
@@ -1342,10 +1342,20 @@ def _real_n4_generation_result_with_candidate(
         ).read_text(encoding="utf-8")
     )
     for result in payload["generation_results"]:
+        dispositions = {
+            item.get("candidate_id"): item
+            for item in result.get("grounding_dispositions") or ()
+            if item.get("candidate_id")
+        }
         for candidate in result.get("candidates") or ():
-            if candidate.get("candidate_id") == candidate_id:
+            disposition = dispositions.get(candidate.get("candidate_id"))
+            if (
+                disposition is not None
+                and disposition.get("shadow_atom_content_hash")
+                == candidate.get("atom", {}).get("content_hash")
+            ):
                 return result, candidate
-    raise AssertionError(f"missing real N4 candidate {candidate_id}")
+    raise AssertionError("missing content-matched real N4 candidate")
 
 
 def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
@@ -1360,11 +1370,15 @@ def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
         for item in cg4_payload["certificate"]["quarantine_handoffs"]
         if item["action"] == "adversarial_validate"
     )
-    result, candidate = _real_n4_generation_result_with_candidate(
-        "candidate_6c4c225a4ce4961a"
+    result, candidate = _real_n4_generation_result_with_candidate()
+    disposition = copy.deepcopy(
+        next(
+            item
+            for item in result["grounding_dispositions"]
+            if item.get("candidate_id") == candidate["candidate_id"]
+        )
     )
     candidate = copy.deepcopy(candidate)
-    disposition = copy.deepcopy(result["grounding_dispositions"][0])
     disposition["candidate_id"] = candidate["candidate_id"]
     disposition["shadow_atom_content_hash"] = candidate["atom"]["content_hash"]
     disposition["disposition"] = "shadow_bound"
@@ -1735,9 +1749,7 @@ async def test_default_grounding_port_rejects_legacy_matrix_without_cgf_disposit
 
 
 def test_default_grounding_port_resolves_real_serialized_n4_candidate() -> None:
-    result, candidate = _real_n4_generation_result_with_candidate(
-        "candidate_6c4c225a4ce4961a"
-    )
+    result, candidate = _real_n4_generation_result_with_candidate()
 
     grounding = PolicyGroundingPort()(
         candidate=candidate,
@@ -1746,7 +1758,7 @@ def test_default_grounding_port_resolves_real_serialized_n4_candidate() -> None:
         generation_result=result,
     )
 
-    assert grounding.candidate_id == "candidate_6c4c225a4ce4961a"
+    assert grounding.candidate_id == candidate["candidate_id"]
     assert grounding.status != "grounding_unavailable"
     assert "cgf_disposition_missing" not in grounding.issue_codes
     assert grounding.grounding_source == "cgf_firewall"

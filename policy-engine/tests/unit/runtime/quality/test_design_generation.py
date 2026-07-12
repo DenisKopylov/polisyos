@@ -5,6 +5,8 @@ import copy
 import json
 import os
 import subprocess
+from dataclasses import replace
+from datetime import UTC, datetime
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
@@ -36,12 +38,14 @@ from polisyos.runtime.quality.intervention_substrate import (
     load_l6_intervention_substrate,
 )
 from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
+from polisyos.scientist.agent import formalizer as formalizer_owner
 from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from polisyos.scientist.agent.formalizer import (
     FormalizerSchemaValidationError,
     LLMFormalizerAgent,
     trinity_bundle_formalizer_generator_path,
 )
+from polisyos.scientist.agent.prompts import get_formalizer_prompt
 from polisyos.scientist.agent.protocols import DraftResult
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
@@ -814,6 +818,105 @@ def test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition() -
     assert disposition.lever_resolution.context_binding_hash == context.context_binding_hash
 
 
+def test_formalizer_preserves_a_translated_draft_lever_as_candidate_only() -> None:
+    """Keep a draft lever exact when Trinity kind must remain universal."""
+
+    prompt = get_formalizer_prompt()
+    normalized_prompt = " ".join(prompt.split())
+
+    assert "params.candidate_lever_id" in prompt
+    assert "candidate-only" in prompt
+    assert "must not grant grounding or writability authority" in normalized_prompt
+
+    intervention = InterventionSpec(
+        intervention_id="candidate_lever_preservation_probe",
+        kind="adaptive_agent",
+        target=_selector(),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={
+            "candidate_lever_id": "third_shape_owner_lever",
+            "action_space": {"affects": ["agents.income"], "type": "continuous"},
+            "observation_space": ["agents.skill_level"],
+        },
+    )
+    normalized = formalizer_owner._normalize_trinity_bundle_for_linker(
+        _bundle([intervention])
+    )
+
+    assert normalized.policy_spec.interventions[0].params[
+        "candidate_lever_id"
+    ] == "third_shape_owner_lever"
+
+
+def test_candidate_lever_id_is_not_cg_relation_authority() -> None:
+    """Keep the content-bound resolver ref out of CG semantic evidence."""
+
+    problem = _test_design_problem()
+    intervention = InterventionSpec(
+        intervention_id="candidate_lever_authority_probe",
+        kind="adaptive_agent",
+        target=_selector(),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={
+            "candidate_lever_id": "education_teaching_method",
+            "action_space": {"affects": ["agents.income"], "type": "continuous"},
+            "observation_space": ["agents.skill_level"],
+        },
+    )
+
+    proposal = dg._grounding_proposal_for_intervention(
+        intervention,
+        design_problem=problem,
+        bundle_ref="sha256:" + "9" * 64,
+    )
+
+    assert "education_teaching_method" not in proposal["raw_text"]
+    assert "candidate_lever_id" not in proposal.get("signature", {}).get("params", {})
+
+
+def test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind() -> None:
+    """Resolve an exact candidate ref while leaving adaptive_agent as Trinity grammar."""
+
+    problem, context = _education_cycle_context()
+    intervention = InterventionSpec(
+        intervention_id="education_teaching_method_adaptive_probe",
+        kind="adaptive_agent",
+        target=_selector(),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={
+            "candidate_lever_id": "education_teaching_method",
+            "action_space": {"affects": ["agents.income"], "type": "continuous"},
+            "learning_rate": Decimal("0.01"),
+            "observation_space": ["agents.skill_level"],
+            "stochastic": False,
+            "utility": "improve_classroom_quality",
+        },
+    )
+
+    candidates, dispositions = dg._content_bound_candidates(
+        design_problem=problem,
+        design_problem_ref=context.design_problem_ref,
+        bundle=_bundle([intervention]),
+        model_id=SUPPORTED_GENERATION_MODEL_IDS[1],
+        draft_path="model_generated",
+        formalizer_path="model_generated",
+        critic_path="model_generated",
+        critique_verdict="unit_probe",
+        calls=(_llm_call(),),
+        repo_root=REPO_ROOT,
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+        reference=build_credal_reference(REPO_ROOT),
+        cycle_substrate_context=context,
+    )
+
+    assert candidates == ()
+    [disposition] = dispositions
+    assert disposition.lever_resolution is not None
+    assert disposition.lever_resolution.lever_id == "education_teaching_method"
+    assert disposition.lever_resolution.operator_kind == "education_teaching_method"
+    assert disposition.lever_resolution.context_binding_hash == context.context_binding_hash
+
+
 def test_grounding_adapter_maps_and_omits_unasserted_axes() -> None:
     problem = _test_design_problem()
     intervention = InterventionSpec(
@@ -970,6 +1073,9 @@ async def test_drafter_prompt_assembly_carries_slice_and_axis_ontology_nudge() -
 
     [call] = client.calls
     assert "Grounding axes describe the LEVER MECHANISM" in call["system"]
+    assert "`mechanism_type` MUST exactly equal one operator_kind" in call["system"]
+    assert "candidate-only vocabulary" in call["system"]
+    assert "grounding authority" in call["system"]
     assert "lever_space_prompt_slice" in call["user"]
     assert slice_payload.content_hash in call["user"]
     assert "tax_relief_rate" in call["user"]
@@ -1655,7 +1761,38 @@ def test_n4_prompt_size_measurement_is_bound_to_actual_frames() -> None:
     assert issue["code"] == "prompt_size_measurement_not_actual_frames"
 
 
-def test_n4_prompt_size_actual_frame_binding_ignores_only_absolute_timestamp_width() -> None:
+def test_n4_prompt_size_measurement_excludes_prompt_local_created_at() -> None:
+    problem = _test_design_problem()
+    lever_slice = _lane0_prompt_slice()
+    original = problem.to_scientist_problem_frame()
+    short_timestamp = replace(
+        original,
+        created_at=datetime(2026, 7, 12, 12, 0, 0, 1, tzinfo=UTC),
+    )
+    long_timestamp = replace(
+        original,
+        created_at=datetime(2026, 7, 12, 12, 0, 0, 123456, tzinfo=UTC),
+    )
+
+    short_measurement = dg._prompt_size_estimate(
+        short_timestamp,
+        dg._with_lever_space_prompt_slice(
+            short_timestamp,
+            lever_space_prompt_slice=lever_slice,
+        ),
+    )
+    long_measurement = dg._prompt_size_estimate(
+        long_timestamp,
+        dg._with_lever_space_prompt_slice(
+            long_timestamp,
+            lever_space_prompt_slice=lever_slice,
+        ),
+    )
+
+    assert short_measurement == long_measurement
+
+
+def test_n4_prompt_size_actual_frame_binding_rejects_absolute_width_shift() -> None:
     problem = _test_design_problem()
     lever_slice = _lane0_prompt_slice()
     base_frame = dg._with_generation_cycle_revision_context(
@@ -1678,11 +1815,13 @@ def test_n4_prompt_size_actual_frame_binding_ignores_only_absolute_timestamp_wid
         }
     )
 
-    assert contract._prompt_size_actual_frame_issue(
+    issue = contract._prompt_size_actual_frame_issue(
         design_problem=problem,
         lever_space_prompt_slice=lever_slice,
         emitted=timestamp_width_shift,
-    ) is None
+    )
+    assert issue is not None
+    assert issue["code"] == "prompt_size_measurement_not_actual_frames"
     slice_lie = timestamp_width_shift.model_copy(
         update={
             "slice_added_chars": timestamp_width_shift.slice_added_chars - 1,
@@ -2048,6 +2187,43 @@ def test_prompt_size_source_flip_runs_behavior_and_restores_bytes(
     assert source_path.read_bytes() == original
 
 
+def test_candidate_lever_source_flip_runs_behavior_and_restores_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    runner = getattr(contract, "_run_candidate_lever_source_flip", None)
+    assert callable(runner), "candidate-lever source-flip runner is missing"
+    source_path = tmp_path / "src/polisyos/scientist/agent/formalizer.py"
+    source_path.parent.mkdir(parents=True)
+    original = (
+        b"    if executable_keys is not None:\n"
+        b"        normalized = {\n"
+        b"            key: value\n"
+        b"            for key, value in normalized.items()\n"
+        b"            if key in executable_keys or key in _CANDIDATE_ONLY_PARAM_KEYS\n"
+        b"        }\n"
+    )
+    source_path.write_bytes(original)
+
+    def _completed(args: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        del kwargs
+        return subprocess.CompletedProcess(
+            args=args,
+            returncode=1,
+            stdout="KeyError: 'candidate_lever_id'",
+            stderr="",
+        )
+
+    monkeypatch.setattr(contract.subprocess, "run", _completed)
+
+    result = runner(tmp_path)
+
+    assert result["mutation_id"] == "source_flip_candidate_lever_provenance_removed"
+    assert result["result"] == "RED"
+    assert result["proof"]["candidate_lever_loss_observed"] is True
+    assert source_path.read_bytes() == original
+
+
 def test_n4_source_flip_denominator_includes_recorded_effective_config(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -2080,6 +2256,12 @@ def test_n4_source_flip_denominator_includes_recorded_effective_config(
     )
     monkeypatch.setattr(
         contract,
+        "_run_candidate_lever_source_flip",
+        lambda _repo_root: red(contract.CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID),
+        raising=False,
+    )
+    monkeypatch.setattr(
+        contract,
         "_run_policy_verified_source_flip",
         lambda _repo_root: red(contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID),
     )
@@ -2101,6 +2283,7 @@ def test_n4_source_flip_denominator_includes_recorded_effective_config(
         contract.DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
         recorded_config_id,
         contract.PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
+        contract.CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
         contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
         contract.NL_SOURCE_FLIP_MUTATION_ID,
         contract.S2_SOURCE_FLIP_MUTATION_ID,
@@ -2185,6 +2368,11 @@ def test_n4_source_flip_denominator_rejects_missing_parser_mutation(
     )
     monkeypatch.setattr(
         contract,
+        "_run_candidate_lever_source_flip",
+        lambda _repo_root: red(contract.CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID),
+    )
+    monkeypatch.setattr(
+        contract,
         "_run_policy_verified_source_flip",
         lambda _repo_root: red(contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID),
     )
@@ -2212,6 +2400,7 @@ def test_n4_source_flip_denominator_rejects_missing_parser_mutation(
                     "source_flip_wrong_parser_mutation",
                     contract.RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
                     contract.PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
+                    contract.CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
                     contract.POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
                     contract.NL_SOURCE_FLIP_MUTATION_ID,
                     contract.S2_SOURCE_FLIP_MUTATION_ID,

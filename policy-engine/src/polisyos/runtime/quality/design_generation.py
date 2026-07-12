@@ -18,7 +18,8 @@ import re
 import time
 from collections import Counter
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, is_dataclass, replace
+from dataclasses import fields as dataclass_fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -1502,8 +1503,39 @@ def _prompt_size_estimate(base_frame: object, sliced_frame: object) -> PromptSiz
 
 
 def _json_for_prompt_size(value: object) -> str:
-    payload = value.__dict__ if hasattr(value, "__dict__") else value
-    return json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
+    return json.dumps(
+        _prompt_size_payload(value),
+        sort_keys=True,
+        default=str,
+        separators=(",", ":"),
+    )
+
+
+def _prompt_size_payload(value: object) -> object:
+    """Project prompt content while excluding local dataclass creation clocks."""
+
+    if isinstance(value, BaseModel):
+        return _prompt_size_payload(value.model_dump(mode="json"))
+    if is_dataclass(value) and not isinstance(value, type):
+        return {
+            field.name: _prompt_size_payload(getattr(value, field.name))
+            for field in dataclass_fields(value)
+            if field.name != "created_at"
+        }
+    if isinstance(value, Mapping):
+        return {
+            str(key): _prompt_size_payload(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+        return [_prompt_size_payload(item) for item in value]
+    if isinstance(value, set | frozenset):
+        projected = [_prompt_size_payload(item) for item in value]
+        return sorted(
+            projected,
+            key=lambda item: json.dumps(item, sort_keys=True, default=str),
+        )
+    return value
 
 
 def _estimated_tokens(char_count: int) -> int:
@@ -2476,10 +2508,11 @@ def _content_bound_candidates(
         raw_candidate_hash = gy_content_hash(intervention.model_dump(mode="json"))
         lever_resolution: InterventionLeverRefusal | None = None
         if context is not None and context.candidate_levers:
+            candidate_lever_ref = _candidate_lever_reference(intervention)
             matching_context_levers = tuple(
                 candidate
                 for candidate in context.candidate_levers
-                if str(intervention.kind)
+                if candidate_lever_ref
                 in {candidate.instrument, candidate.lever_id}
             )
             if len(matching_context_levers) != 1:
@@ -2497,6 +2530,7 @@ def _content_bound_candidates(
                         rejected_cause={
                             "code": "cycle_substrate_candidate_lever_unresolved",
                             "operator_kind": str(intervention.kind),
+                            "candidate_lever_id": candidate_lever_ref or None,
                             "resolved_count": len(matching_context_levers),
                             "context_binding_hash": context.context_binding_hash,
                         },
@@ -2511,7 +2545,7 @@ def _content_bound_candidates(
                 raise DesignGenerationError("cycle_substrate_l6_bundle_missing")
             resolved_lever = resolve_intervention_lever(
                 context_l6_bundle,
-                operator_kind=str(intervention.kind),
+                operator_kind=candidate_lever_ref,
                 parameter_value=_candidate_parameter_value(intervention),
                 world_model_record=context.world_model_record,
                 cycle_substrate_context=context,
@@ -2663,6 +2697,17 @@ def _content_bound_candidates(
     return tuple(candidates), tuple(dispositions)
 
 
+def _candidate_lever_reference(intervention: InterventionSpec) -> str:
+    """Return one exact candidate-only lever ref without normalizing its value."""
+
+    explicit = intervention.params.get("candidate_lever_id")
+    if explicit is None:
+        return str(intervention.kind)
+    if not isinstance(explicit, str):
+        return ""
+    return explicit.strip()
+
+
 def _candidate_parameter_value(intervention: InterventionSpec) -> object:
     """Return one candidate-authored value for the resolver attempt."""
 
@@ -2670,6 +2715,7 @@ def _candidate_parameter_value(intervention: InterventionSpec) -> object:
         if key not in {
             "effect_path",
             "estimand",
+            "candidate_lever_id",
             "outcome_slots",
             "sign",
             "target_world_slot",
@@ -3114,6 +3160,7 @@ def _grounding_proposal_for_intervention(
     bundle_ref: str,
 ) -> dict[str, Any]:
     target_hint = _candidate_declared_target_hint(intervention)
+    grounding_params = _candidate_direct_params(intervention)
     signature = _candidate_grounding_signature(
         intervention,
         target_hint=target_hint,
@@ -3124,7 +3171,7 @@ def _grounding_proposal_for_intervention(
             f"Generated policy candidate {intervention.intervention_id}.",
             f"operator={intervention.kind}.",
             f"target={json.dumps(intervention.target.model_dump(mode='json'), sort_keys=True)}.",
-            f"params={json.dumps(intervention.params, sort_keys=True, default=str)}.",
+            f"params={json.dumps(grounding_params, sort_keys=True, default=str)}.",
             "measurement="
             f"{json.dumps(intervention.measurement_expectations, sort_keys=True, default=str)}.",
             f"do.target={target_hint}." if target_hint else "",
@@ -3203,7 +3250,11 @@ def _candidate_grounding_signature(
 
 def _candidate_direct_params(intervention: InterventionSpec) -> dict[str, Any]:
     params = dict(_mapping(intervention.params))
-    for key in _CANDIDATE_AXIS_PARAM_KEYS | _CANDIDATE_TARGET_PARAM_KEYS:
+    for key in (
+        _CANDIDATE_AXIS_PARAM_KEYS
+        | _CANDIDATE_TARGET_PARAM_KEYS
+        | _CANDIDATE_PROVENANCE_PARAM_KEYS
+    ):
         params.pop(key, None)
     return params
 
@@ -3217,6 +3268,7 @@ _CANDIDATE_TARGET_PARAM_KEYS = frozenset(
         "state_variable",
     }
 )
+_CANDIDATE_PROVENANCE_PARAM_KEYS = frozenset({"candidate_lever_id"})
 _CANDIDATE_AXIS_PARAM_KEYS = frozenset(
     {
         "sign",

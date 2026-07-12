@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
@@ -8,6 +9,8 @@ from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.selection.registry import get_registry, registry_scope
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY
 from polisyos.lex.knowledge.store import LegalKnowledgeStore
+from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
     intervention_substrate_behavior_report,
@@ -17,6 +20,8 @@ from polisyos.runtime.quality.intervention_substrate import (
     resolve_law_bound_lever,
     route_observation_family_method,
 )
+from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
+from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 L3_THRESHOLD_ID = "a5429abb6621acb11ed10b20"
@@ -39,6 +44,62 @@ L6_MECHANISM_IDS = {
 FREE_GROW_KNOB = "future_child_benefit_intensity"
 FREE_GROW_MECHANISM = "future_child_benefit_transfer"
 FREE_GROW_SLOT = "household_cells.transfer_intensity"
+
+
+@lru_cache(maxsize=1)
+def _education_cycle_context() -> tuple[DesignProblem, object]:
+    """Load the committed education evidence through the canonical WMR owner."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    pack = frozen["pack"]
+    problem = DesignProblem.model_validate(
+        frozen["smoke_problem"]["design_problem"]
+    )
+    registry = SubstrateRegistry.model_validate(
+        pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected_hashes = tuple(
+        pack["components"]["substrate_registry"]["selected_entry_hashes"]
+    )
+    world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome=problem.outcome_of_interest.target_variable,
+        policy_slot_ids=(problem.outcome_of_interest.target_variable,),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+    return problem, second_domain_pack.project_second_domain_cycle_substrate_context(
+        frozen,
+        repo_root=REPO_ROOT,
+        design_problem=problem,
+        world_model_record=world,
+    )
+
+
+def test_pack_lever_resolution_returns_typed_candidate_unbound() -> None:
+    """A pack candidate reaches the L6 owner but never enters its writable map."""
+
+    _problem, context = _education_cycle_context()
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+
+    result = resolve_intervention_lever(
+        bundle,
+        operator_kind="education.teaching_method",
+        parameter_value=0,
+        cycle_substrate_context=context,
+    )
+
+    assert type(result).__name__ == "InterventionLeverRefusal"
+    assert result.status == "candidate_unbound"
+    assert result.reason_code == "knob_operator_unresolved"
+    assert result.operator_kind == "education.teaching_method"
+    assert result.context_binding_hash == context.context_binding_hash
+    assert result.world_model_record_content_hash == context.world_model_record_content_hash
+    assert result.candidate_entry_content_hash in {
+        row.entry_content_hash for row in context.candidate_levers
+    }
+    assert result.operator_kind not in bundle.knob_dictionary
 
 
 def _lex_store() -> LegalKnowledgeStore:

@@ -380,6 +380,78 @@ class _CgfGenerationPort:
         )
 
 
+class _DispositionOnlyGenerationPort:
+    """Expose a real N4 non-binding denominator with no fabricated atom."""
+
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> _GenerationResult:
+        del problem, cycle_index
+        return _GenerationResult(
+            status="generated",
+            candidates=(),
+            surrogate_rankings=(),
+            grounding_dispositions=(
+                _GroundingDisposition(
+                    proposal_id="gy_n4.education_teaching_method",
+                    candidate_id=None,
+                    raw_candidate_hash="sha256:" + "7" * 64,
+                    disposition="novel_cg3",
+                    selected_relation="novel-candidate",
+                    identified_atom_id=None,
+                    cg2_decision="novel_candidate",
+                    cg2_reason="cg2_relation_not_bind_eligible",
+                    cg3_decision="route_to_acquisition",
+                    cg3_reason="cg3_candidate_unbound",
+                ),
+            ),
+        )
+
+
+class _NoPromotionPort:
+    def __call__(
+        self,
+        *,
+        summaries: Any,
+        problem: DesignProblem,
+    ) -> PromotionPortObservation:
+        del summaries, problem
+        return PromotionPortObservation(
+            status="not_promoted",
+            reason="candidate_unbound",
+        )
+
+
+@pytest.mark.asyncio
+async def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
+    """A usable N4 refusal is a cycle candidate denominator, not spec absence."""
+
+    run = await GenerationCycleController(
+        generation_port=_DispositionOnlyGenerationPort(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_NoPromotionPort(),
+        repo_root=REPO_ROOT,
+    ).run(
+        _problem("education_disposition_only"),
+        budget_state=_budget(),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    cycle = run.cycles[0]
+    assert run.candidate_summaries[0].generation_channel == "n4_owner"
+    assert cycle.selected_candidate_ref == "gy_n4.education_teaching_method"
+    assert cycle.selected_candidate_content_hash == "sha256:" + "7" * 64
+    assert cycle.grounding.grounding_source == "cgf_firewall"
+    assert cycle.grounding.grounding_disposition == "novel_cg3"
+    assert cycle.terminal_kind == "search_ceiling_repair_required"
+    assert cycle.terminal_kind != "a_spec_gap"
+    assert "grammar_fallback" not in json.dumps(cycle.model_dump(mode="json"))
+
+
 class _FabricatedPromotionPort:
     def __call__(self, *, summaries: Any, problem: DesignProblem) -> PromotionPortObservation:
         del problem

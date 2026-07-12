@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 from decimal import Decimal
+from functools import lru_cache
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -29,6 +30,9 @@ from polisyos.runtime.quality.design_generation import (
     generate_design_candidates_under_a,
     validate_design_generation_strangle_receipts,
 )
+from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
+from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
 from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from polisyos.scientist.agent.formalizer import (
     FormalizerSchemaValidationError,
@@ -41,6 +45,7 @@ from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayUsage,
 )
 from tools.quality.validation import check_layer3_gy_design_generation_contract as contract
+from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 DESIGN_GENERATION_PATH = REPO_ROOT / "src/polisyos/runtime/quality/design_generation.py"
@@ -57,6 +62,66 @@ def _test_design_problem() -> dg.DesignProblem:
             "design_problem_id": "gy_n4_test_problem",
             "domain": "ua_msme_cgf_decisive_capture",
         }
+    )
+
+
+@lru_cache(maxsize=1)
+def _education_cycle_context() -> tuple[DesignProblem, object]:
+    """Load the real pack and project it through the canonical WMR owner."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    pack = frozen["pack"]
+    problem = DesignProblem.model_validate(
+        frozen["smoke_problem"]["design_problem"]
+    )
+    registry = SubstrateRegistry.model_validate(
+        pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected_hashes = tuple(
+        pack["components"]["substrate_registry"]["selected_entry_hashes"]
+    )
+    world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome=problem.outcome_of_interest.target_variable,
+        policy_slot_ids=(problem.outcome_of_interest.target_variable,),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+    context = second_domain_pack.project_second_domain_cycle_substrate_context(
+        frozen,
+        repo_root=REPO_ROOT,
+        design_problem=problem,
+        world_model_record=world,
+    )
+    return problem, context
+
+
+def test_prompt_slice_uses_pack_candidate_levers_without_binding_them() -> None:
+    """N4 must prompt over all pack levers while preserving zero writability."""
+
+    problem, context = _education_cycle_context()
+
+    result = dg.derive_lever_space_prompt_slice(
+        problem,
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )
+
+    assert result.status == "derived"
+    assert {row.operator_kind for row in result.entries} == {
+        "education.blended_learning",
+        "education.stem_education",
+        "education.teaching_method",
+        "education.dialogic_reading_modality",
+    }
+    assert {row.binding_status for row in result.entries} == {"candidate_unbound"}
+    assert all(not row.target_world_slots for row in result.entries)
+    assert all(row.candidate_entry_content_hash for row in result.entries)
+    assert all(row.context_binding_hash == context.context_binding_hash for row in result.entries)
+    assert all(
+        row.world_model_record_content_hash == context.world_model_record_content_hash
+        for row in result.entries
     )
 
 

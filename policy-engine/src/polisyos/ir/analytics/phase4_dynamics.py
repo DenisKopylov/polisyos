@@ -2,13 +2,20 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from collections.abc import Mapping
 from enum import StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.contracts.foundry import SimulationResult
+from polisyos.core.contracts.foundry import (
+    ExecPlanRef,
+    IdentifiabilityDiagnosticRef,
+    MetricsRef,
+    SimulationResult,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
@@ -218,6 +225,138 @@ class ABMResult(SimulationResult):
 
     identifiability_certificate: ABMIdentifiabilityCertificate | None = None
     bifurcation_report: ABMBifurcationReport | None = None
+
+
+class StrangleReceipt(BaseModel):
+    """Content-bound receipt proving the legacy ABM stub was not used."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.ir.phase4.abm_strangle_receipt.v1"] = (
+        "policyos.ir.phase4.abm_strangle_receipt.v1"
+    )
+    receipt_id: str = Field(..., pattern=r"^abm_strangle_receipt_[a-f0-9]{16}$")
+    method_id: str = Field(..., min_length=1)
+    horizon: int = Field(ge=1)
+    payload_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    trajectory_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    metrics_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    diagnostics_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    diagnostics_attached: bool
+    legacy_stub_rejected: Literal[True] = True
+
+
+class StrangleReceiptError(ValueError):
+    """Raised when an ABM strangle receipt does not bind to live run content."""
+
+    def __init__(self, code: str, message: str | None = None) -> None:
+        self.code = code
+        super().__init__(f"{code}: {message or code}")
+
+
+def build_strangle_receipt(
+    *,
+    method_id: str,
+    horizon: int,
+    payload: Mapping[str, Any],
+    diagnostics: Mapping[str, Any],
+) -> StrangleReceipt:
+    """Build a deterministic ABM strangle receipt from actual run content."""
+
+    normalized_payload = _json_ready(payload)
+    normalized_diagnostics = _json_ready(diagnostics)
+    trajectory_hash = _stable_hash(
+        normalized_payload.get(
+            "trajectory",
+            normalized_payload.get("queue_length_trajectory", ()),
+        )
+    )
+    metrics_hash = _stable_hash(
+        normalized_payload.get(
+            "metrics",
+            normalized_payload.get("summary", normalized_payload),
+        )
+    )
+    diagnostics_hash = _stable_hash(normalized_diagnostics)
+    payload_hash = _stable_hash(
+        {
+            "method_id": method_id,
+            "horizon": int(horizon),
+            "payload": normalized_payload,
+            "diagnostics": normalized_diagnostics,
+            "trajectory_hash": trajectory_hash,
+            "metrics_hash": metrics_hash,
+            "diagnostics_hash": diagnostics_hash,
+        }
+    )
+    return StrangleReceipt(
+        receipt_id=f"abm_strangle_receipt_{payload_hash.removeprefix('sha256:')[:16]}",
+        method_id=method_id,
+        horizon=max(1, int(horizon)),
+        payload_hash=payload_hash,
+        trajectory_hash=trajectory_hash,
+        metrics_hash=metrics_hash,
+        diagnostics_hash=diagnostics_hash,
+        diagnostics_attached=bool(normalized_diagnostics),
+    )
+
+
+def verify_strangle_receipt(
+    receipt: StrangleReceipt | Mapping[str, Any] | str,
+    *,
+    method_id: str,
+    horizon: int,
+    payload: Mapping[str, Any],
+    diagnostics: Mapping[str, Any],
+) -> None:
+    """Recompute and verify an ABM strangle receipt against actual run content."""
+
+    parsed = _coerce_strangle_receipt(receipt)
+    expected = build_strangle_receipt(
+        method_id=method_id,
+        horizon=horizon,
+        payload=payload,
+        diagnostics=diagnostics,
+    )
+    if parsed != expected:
+        raise StrangleReceiptError("receipt_content_mismatch")
+    if not parsed.diagnostics_attached:
+        raise StrangleReceiptError("receipt_diagnostics_missing")
+
+
+def build_abm_result_from_content_bound_simulation(
+    *,
+    method_id: str,
+    horizon: int,
+    payload: Mapping[str, Any],
+    diagnostics: Mapping[str, Any],
+) -> ABMResult:
+    """Build an ABM result whose refs bind actual trajectory and diagnostics."""
+
+    receipt = build_strangle_receipt(
+        method_id=method_id,
+        horizon=horizon,
+        payload=payload,
+        diagnostics=diagnostics,
+    )
+    diagnostic_ref = IdentifiabilityDiagnosticRef(
+        artifact_id=receipt.diagnostics_hash
+    )
+    simulation = SimulationResult(
+        exec_plan_ref=ExecPlanRef(artifact_id=receipt.payload_hash),
+        metrics_ref=MetricsRef(artifact_id=receipt.metrics_hash),
+        identifiability_diagnostic_ref=diagnostic_ref,
+        notes=[
+            "content_bound_abm_result",
+            f"trajectory_hash:{receipt.trajectory_hash}",
+            f"diagnostics_hash:{receipt.diagnostics_hash}",
+            f"strangle_receipt:{receipt.model_dump_json()}",
+        ],
+    )
+    return build_abm_result_from_simulation(
+        simulation,
+        identifiability_diagnostic_ref=diagnostic_ref,
+    )
 
 
 def build_abm_result_from_simulation(
@@ -671,6 +810,36 @@ def _model_payload(value: Any | None) -> dict[str, Any] | None:
     raise TypeError(f"cannot serialize certificate payload of type {type(value).__name__}")
 
 
+def _coerce_strangle_receipt(
+    value: StrangleReceipt | Mapping[str, Any] | str,
+) -> StrangleReceipt:
+    if isinstance(value, StrangleReceipt):
+        return value
+    if isinstance(value, str):
+        return StrangleReceipt.model_validate(json.loads(value))
+    return StrangleReceipt.model_validate(value)
+
+
+def _stable_hash(value: Any) -> str:
+    payload = json.dumps(
+        _json_ready(value),
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _json_ready(value: Any) -> Any:
+    if isinstance(value, BaseModel):
+        return value.model_dump(mode="json")
+    if isinstance(value, Mapping):
+        return {str(key): _json_ready(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_json_ready(item) for item in value]
+    return value
+
+
 def _enum_value(value: Any) -> str | None:
     if value is None:
         return None
@@ -689,10 +858,14 @@ __all__ = [
     "Phase4GateStatus",
     "Phase4TemporalPolicyGateVerdict",
     "SpaceTimeCausalCertificate",
+    "StrangleReceipt",
+    "StrangleReceiptError",
     "TemporalGraphCausalCertificate",
+    "build_abm_result_from_content_bound_simulation",
     "build_abm_result_from_simulation",
     "build_dynamic_microsim_validation_report",
     "build_space_time_causal_certificate",
+    "build_strangle_receipt",
     "build_temporal_graph_causal_certificate",
     "enforce_dynamic_microsim_validation_report",
     "load_abm_result",
@@ -704,4 +877,5 @@ __all__ = [
     "persist_space_time_causal_certificate",
     "persist_temporal_graph_causal_certificate",
     "validate_phase4_temporal_policy_query",
+    "verify_strangle_receipt",
 ]

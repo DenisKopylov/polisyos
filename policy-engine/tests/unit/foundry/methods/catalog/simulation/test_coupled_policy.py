@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import json
+
 import numpy as np
+
+from polisyos.ir.analytics.phase4_dynamics import verify_strangle_receipt
 
 
 def test_coupled_policy_simulation_is_registered(isolated_registry) -> None:
@@ -37,8 +41,31 @@ def test_coupled_policy_simulation_runs_des_abm_feedback(isolated_registry) -> N
     assert result["completed_count"] == 1
     assert result["final_savings"] == [0.0, 50.0]
     assert result["summary"]["final_mean_savings"] == 25.0
-    assert result["abm_result"]["identifiability_certificate"]["status"] == "not_available"
+    assert result["abm_result"]["identifiability_certificate"]["status"] == (
+        "diagnostic_attached"
+    )
     assert result["abm_result"]["bifurcation_report"]["status"] == "not_available"
+    assert "phase4_abm_result_stub" not in json.dumps(result["abm_result"])
+    receipt_note = next(
+        note
+        for note in result["abm_result"]["notes"]
+        if note.startswith("strangle_receipt:")
+    )
+    payload = dict(result)
+    payload.pop("abm_result")
+    diagnostics = {
+        "method_id": "simulation.coupled_policy.des_abm",
+        "horizon": 2,
+        "diagnostic_source": "CoupledPolicySimulationEstimator.pure_step",
+        "summary_keys": sorted(str(key) for key in result["summary"]),
+    }
+    verify_strangle_receipt(
+        receipt_note.removeprefix("strangle_receipt:"),
+        method_id="simulation.coupled_policy.des_abm",
+        horizon=2,
+        payload=payload,
+        diagnostics=diagnostics,
+    )
 
 
 def test_coupled_queue_mle_method_estimates_local_rates(isolated_registry) -> None:

@@ -4,8 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import copy
+import hashlib
 import json
+import os
+import subprocess
 import sys
 import tempfile
 import time
@@ -94,6 +98,7 @@ OUTPUT_PATH = (
     "architecture/policy_design_case/layer3_gy_joint_simulation_horizon_contract.json"
 )
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.joint_simulation_horizon_contract.v1"
+ABM_STUB_SOURCE_FLIP_MUTATION_ID = "source_flip_abm_production_stub_restored"
 
 
 def declared_outputs() -> list[str]:
@@ -105,7 +110,6 @@ def declared_outputs() -> list[str]:
 def build_live_payload(repo_root: Path) -> dict[str, Any]:
     """Recompute the N5 contract by exercising the live controller."""
 
-    del repo_root
     controller = JointSimulationHorizonController()
     static_result = controller.run(_request())
     dynamic_result = controller.run(_dynamic_request())
@@ -172,7 +176,7 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
             ),
             "coupling_gate": _coupling_gate_result(coupling_blocked, coupled_supported),
             "equilibrium_resolution_gate": _equilibrium_resolution_gate(unbacked_semantics),
-            "abm_stub_strangle": _abm_stub_strangle_probe(),
+            "abm_stub_strangle": _abm_stub_strangle_probe(repo_root),
         },
     }
     payload["behavioral_mutations"] = _mutation_reports(dynamic_result, payload)
@@ -326,6 +330,12 @@ def validate(repo_root: Path) -> dict[str, Any]:
     return check(repo_root)
 
 
+def rederive_audit(repo_root: Path) -> dict[str, Any]:
+    """Run and validate the live N5 owners without reading the frozen artifact."""
+
+    return validate_payload(build_live_payload(repo_root))
+
+
 def write(repo_root: Path) -> None:
     """Write the recomputed N5 contract artifact."""
 
@@ -362,6 +372,130 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
             ],
         }
     return {"status": "pass", "issues": [{"code": "corrupt_field_drift_not_detected"}]}
+
+
+def _run_abm_stub_source_flip(repo_root: Path) -> dict[str, Any]:
+    """Reconnect coupled production to the fenced stub and require causal RED."""
+
+    source_path = (
+        repo_root / "src/polisyos/foundry/methods/catalog/simulation/coupled.py"
+    )
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    text = original.decode("utf-8")
+    old_import = (
+        "from polisyos.foundry.methods.catalog.simulation.dynamics import (\n"
+        "    build_content_bound_abm_result,\n"
+        ")\n"
+    )
+    new_import = (
+        "from polisyos.foundry.methods.catalog.simulation.dynamics import (\n"
+        "    _abm_result_stub,\n"
+        "    build_content_bound_abm_result,\n"
+        ")\n"
+    )
+    old_call = (
+        "    abm_result = build_content_bound_abm_result(\n"
+        '        method_id="simulation.coupled_policy.des_abm",\n'
+        "        horizon=horizon,\n"
+        "        payload=result,\n"
+        "        diagnostics=diagnostics,\n"
+        "    )\n"
+    )
+    new_call = (
+        "    abm_result = _abm_result_stub(\n"
+        '        method_id="simulation.coupled_policy.des_abm",\n'
+        "        horizon=horizon,\n"
+        "    )\n"
+    )
+    guards = {"import": text.count(old_import), "call": text.count(old_call)}
+    if guards != {"import": 1, "call": 1}:
+        return {
+            "mutation_id": ABM_STUB_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {"source_guard_counts": guards},
+        }
+
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        mutated = text.replace(old_import, new_import, 1).replace(
+            old_call,
+            new_call,
+            1,
+        )
+        source_path.write_text(mutated, encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/foundry/methods/catalog/simulation/"
+                    "test_coupled_policy.py::"
+                    "test_coupled_policy_simulation_runs_des_abm_feedback"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+                "JAX_PLATFORMS": "cpu",
+            },
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": ABM_STUB_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": ABM_STUB_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+
+    output = f"{completed.stdout}\n{completed.stderr}"
+    stub_fence_observed = "abm_result_stub_strangled" in output
+    mutation_red = completed.returncode != 0 and stub_fence_observed
+    return {
+        "mutation_id": ABM_STUB_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "guard": "coupled production defaults to content-bound ABM evidence",
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "stub_fence_observed": stub_fence_observed,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Run every restoring N5 source mutation serially."""
+
+    return (_run_abm_stub_source_flip(repo_root),)
 
 
 def _mutation_reports(result: Any, live_payload: Mapping[str, Any]) -> list[dict[str, Any]]:
@@ -620,7 +754,10 @@ def _equilibrium_resolution_gate(result: Any) -> dict[str, Any]:
     }
 
 
-def _abm_stub_strangle_probe() -> dict[str, Any]:
+def _abm_stub_strangle_probe(repo_root: Path | None = None) -> dict[str, Any]:
+    """Exercise the real fence and census every production simulation caller."""
+
+    root = (repo_root or Path(__file__).resolve().parents[3]).resolve()
     payload = {
         "trajectory": [{"step": 0, "final_queue_length": 1.0}],
         "metrics": {"completed_count": 2},
@@ -631,6 +768,11 @@ def _abm_stub_strangle_probe() -> dict[str, Any]:
         _abm_result_stub(method_id="simulation.coupled_policy.des_abm", horizon=3)
     except RuntimeError as exc:
         stub_rejected = "abm_result_stub_strangled" in str(exc)
+    fixture_only = _abm_result_stub(
+        method_id="simulation.coupled_policy.des_abm",
+        horizon=3,
+        fixture_only=True,
+    )
     content_bound = build_content_bound_abm_result(
         method_id="simulation.coupled_policy.des_abm",
         horizon=3,
@@ -645,7 +787,31 @@ def _abm_stub_strangle_probe() -> dict[str, Any]:
         ),
         "legacy_stub_marker_absent": "phase4_abm_result_stub"
         not in content_bound.model_dump_json(),
+        "fixture_only_is_non_authority": (
+            "phase4_abm_result_stub" in fixture_only.model_dump_json()
+            and "content_bound_abm_result" not in fixture_only.model_dump_json()
+        ),
+        "production_stub_callers": _production_abm_stub_callers(root),
     }
+
+
+def _production_abm_stub_callers(repo_root: Path) -> list[str]:
+    """Return every executable legacy-stub call under production simulation code."""
+
+    simulation_root = (
+        repo_root / "src/polisyos/foundry/methods/catalog/simulation"
+    )
+    callers: list[str] = []
+    for path in sorted(simulation_root.rglob("*.py")):
+        module = ast.parse(path.read_text(encoding="utf-8"))
+        callers.extend(
+            f"{path.relative_to(repo_root).as_posix()}:{node.lineno}"
+            for node in ast.walk(module)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "_abm_result_stub"
+        )
+    return callers
 
 
 def _result_gate(result: Any, joint_atom_ids: tuple[str, str]) -> dict[str, Any]:
@@ -857,6 +1023,15 @@ def _validate_abm_stub_strangle(probe: Mapping[str, Any]) -> list[dict[str, Any]
         issues.append({"code": "abm_content_bound_diagnostic_missing"})
     if probe.get("legacy_stub_marker_absent") is not True:
         issues.append({"code": "abm_legacy_stub_marker_present"})
+    if probe.get("fixture_only_is_non_authority") is not True:
+        issues.append({"code": "abm_fixture_only_authority_ambiguous"})
+    if probe.get("production_stub_callers") != []:
+        issues.append(
+            {
+                "code": "abm_production_stub_caller_present",
+                "callers": probe.get("production_stub_callers"),
+            }
+        )
     return issues
 
 
@@ -1565,9 +1740,28 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
+    parser.add_argument("--source-flip-mutations", action="store_true")
     args = parser.parse_args(argv)
     repo_root = args.repo_root.resolve()
+    if args.source_flip_mutations:
+        results = run_source_flip_mutations(repo_root)
+        report = {"results": list(results)}
+        report["validator_wall_time_seconds"] = round(
+            time.perf_counter() - started_at,
+            6,
+        )
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0 if all(row.get("result") == "RED" for row in results) else 1
+    if args.rederive_audit:
+        report = rederive_audit(repo_root)
+        report["validator_wall_time_seconds"] = round(
+            time.perf_counter() - started_at,
+            6,
+        )
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0 if report["status"] == "pass" else 1
     if args.write:
         write(repo_root)
     if args.corrupt_field_drift_check:

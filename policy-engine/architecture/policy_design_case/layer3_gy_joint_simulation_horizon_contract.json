@@ -69,7 +69,9 @@
   "positive_gate": {
     "abm_stub_strangle": {
       "content_bound_has_diagnostic": true,
+      "fixture_only_is_non_authority": true,
       "legacy_stub_marker_absent": true,
+      "production_stub_callers": [],
       "stub_rejected": true
     },
     "coupling_gate": {

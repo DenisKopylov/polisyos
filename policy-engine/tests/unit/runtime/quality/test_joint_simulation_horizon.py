@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import subprocess
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, ClassVar
@@ -1226,3 +1227,86 @@ def test_receipt_builder_is_deterministic_and_strangles_abm_stub_fields() -> Non
     assert first.diagnostics_attached is True
     assert "phase4_abm_result_stub" not in first.model_dump_json()
     verify_simulation_receipt(first, payload)
+
+
+def test_n5_abm_strangle_probe_censuses_every_production_stub_caller() -> None:
+    from tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract import (
+        _abm_stub_strangle_probe,
+        _validate_abm_stub_strangle,
+    )
+
+    probe = _abm_stub_strangle_probe()
+
+    assert probe["production_stub_callers"] == []
+    mutated = {**probe, "production_stub_callers": ["simulation/coupled.py:140"]}
+    assert "abm_production_stub_caller_present" in {
+        issue["code"] for issue in _validate_abm_stub_strangle(mutated)
+    }
+
+
+def test_n5_rederive_audit_validates_live_payload_without_frozen_artifact(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.quality.validation import (
+        check_layer3_gy_joint_simulation_horizon_contract as contract,
+    )
+
+    runner = getattr(contract, "rederive_audit", None)
+    assert callable(runner), "N5 live rederive lane is missing"
+    live = {"schema_version": contract.SCHEMA_VERSION, "behavioral_mutations": []}
+    monkeypatch.setattr(contract, "build_live_payload", lambda _root: live)
+    monkeypatch.setattr(
+        contract,
+        "validate_payload",
+        lambda payload: {"status": "pass", "issues": []}
+        if payload is live
+        else {"status": "fail", "issues": [{"code": "wrong_payload"}]},
+    )
+
+    assert runner(Path.cwd()) == {"status": "pass", "issues": []}
+
+
+def test_n5_abm_source_flip_runs_behavior_and_restores_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    from tools.quality.validation import (
+        check_layer3_gy_joint_simulation_horizon_contract as contract,
+    )
+
+    runner = getattr(contract, "_run_abm_stub_source_flip", None)
+    assert callable(runner), "N5 ABM source-flip runner is missing"
+    source_path = (
+        tmp_path / "src/polisyos/foundry/methods/catalog/simulation/coupled.py"
+    )
+    source_path.parent.mkdir(parents=True)
+    original = (
+        b"from polisyos.foundry.methods.catalog.simulation.dynamics import (\n"
+        b"    build_content_bound_abm_result,\n"
+        b")\n"
+        b"    abm_result = build_content_bound_abm_result(\n"
+        b"        method_id=\"simulation.coupled_policy.des_abm\",\n"
+        b"        horizon=horizon,\n"
+        b"        payload=result,\n"
+        b"        diagnostics=diagnostics,\n"
+        b"    )\n"
+    )
+    source_path.write_bytes(original)
+
+    def _completed(args: tuple[str, ...], **kwargs: object) -> subprocess.CompletedProcess[str]:
+        del kwargs
+        return subprocess.CompletedProcess(
+            args=args,
+            returncode=1,
+            stdout="RuntimeError: abm_result_stub_strangled",
+            stderr="",
+        )
+
+    monkeypatch.setattr(contract.subprocess, "run", _completed)
+
+    result = runner(tmp_path)
+
+    assert result["mutation_id"] == "source_flip_abm_production_stub_restored"
+    assert result["result"] == "RED"
+    assert result["proof"]["stub_fence_observed"] is True
+    assert source_path.read_bytes() == original

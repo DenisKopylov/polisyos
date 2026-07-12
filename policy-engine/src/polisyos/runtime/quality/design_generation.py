@@ -67,10 +67,13 @@ from polisyos.runtime.quality.intervention_atom_binding import (
     intervention_atom_target_selector_ref,
 )
 from polisyos.runtime.quality.intervention_substrate import (
+    InterventionLeverRefusal,
+    InterventionLeverResolution,
     InterventionSubstrateError,
     intervention_generation_registry_bundle,
     load_l6_intervention_substrate,
     production_composed_world_model_record,
+    resolve_intervention_lever,
 )
 from polisyos.runtime.quality.world_model_record import resolve_intervention_atom_world_binding
 from polisyos.scientist.agent.critic import create_critic_agent
@@ -83,6 +86,7 @@ from polisyos.scientist.agent.formalizer import (
 
 if TYPE_CHECKING:
     from polisyos.ir.trinity import TrinityBundle
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
 
 DESIGN_GENERATION_SCHEMA_VERSION = "policyos.runtime.design_generation_under_a.v1"
@@ -281,6 +285,7 @@ class LeverSpaceSliceEntry(_StrictModel):
     """One owner-derived lever row nudged into the generator prompt."""
 
     operator_kind: str = Field(..., min_length=1)
+    instrument: str | None = None
     aliases: tuple[str, ...] = ()
     target_world_slots: tuple[str, ...] = ()
     unit: str | None = None
@@ -290,6 +295,39 @@ class LeverSpaceSliceEntry(_StrictModel):
     expected_outcome_slots: tuple[str, ...] = ()
     effect_path: tuple[str, ...] = ()
     source_refs: tuple[str, ...] = ()
+    binding_status: Literal["world_bound", "candidate_unbound"] = "world_bound"
+    candidate_entry_content_hash: str | None = Field(
+        None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    context_binding_hash: str | None = Field(
+        None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    substrate_registry_content_hash: str | None = Field(
+        None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    world_model_record_content_hash: str | None = Field(
+        None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+
+    @model_validator(mode="after")
+    def _binding_evidence_matches_status(self) -> LeverSpaceSliceEntry:
+        if self.binding_status == "candidate_unbound":
+            if self.target_world_slots:
+                raise ValueError("candidate_unbound_prompt_entry_carried_world_slots")
+            if not all(
+                (
+                    self.candidate_entry_content_hash,
+                    self.context_binding_hash,
+                    self.substrate_registry_content_hash,
+                    self.world_model_record_content_hash,
+                )
+            ):
+                raise ValueError("candidate_unbound_prompt_entry_evidence_missing")
+        return self
 
 
 class LeverSpacePromptSlice(_StrictModel):
@@ -352,6 +390,7 @@ class GroundingDispositionRecord(_StrictModel):
     legacy_linker_issues: tuple[dict[str, Any], ...] = ()
     certificate_chain: GroundingCertificateChain
     bridge_missing_records: tuple[dict[str, Any], ...] = ()
+    lever_resolution: InterventionLeverResolution | InterventionLeverRefusal | None = None
 
     @model_validator(mode="after")
     def _binding_requires_certificate_and_atom(self) -> GroundingDispositionRecord:
@@ -744,6 +783,7 @@ async def generate_design_candidates_under_a(
     min_diverse_candidates: int = 3,
     data_context: dict[str, Any] | None = None,
     world_model_record_ref: str | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> GenerationUnderAResult:
     """Generate shadow candidates by reusing the real LLM organs and N2 atom bridge."""
 
@@ -755,6 +795,7 @@ async def generate_design_candidates_under_a(
         min_diverse_candidates=min_diverse_candidates,
         data_context=data_context,
         world_model_record_ref=world_model_record_ref,
+        cycle_substrate_context=cycle_substrate_context,
     )
     return organ_run.result
 
@@ -823,6 +864,7 @@ async def generate_design_candidate_bundle_under_a(
     min_diverse_candidates: int = 3,
     data_context: dict[str, Any] | None = None,
     world_model_record_ref: str | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> DesignGenerationOrganRun:
     """Run the canonical N4 organ path and expose real draft/bundle/critique artifacts."""
 
@@ -883,6 +925,7 @@ async def generate_design_candidate_bundle_under_a(
             design_problem,
             repo_root=repo_root,
             reference=reference,
+            cycle_substrate_context=cycle_substrate_context,
         )
     base_scientist_frame = _with_generation_cycle_revision_context(
         design_problem.to_scientist_problem_frame(),
@@ -1122,6 +1165,7 @@ async def generate_design_candidate_bundle_under_a(
             world_model_record_ref=world_model_record_ref,
             reference=reference,
             relation_engine=relation_engine,
+            cycle_substrate_context=cycle_substrate_context,
         )
     except (DesignGenerationError, InterventionSubstrateError, ValueError) as exc:
         return _terminal_result(
@@ -2340,9 +2384,30 @@ def _content_bound_candidates(
     world_model_record_ref: str | None,
     reference: CredalReference | None,
     relation_engine: GroundingRelationEngine | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> tuple[tuple[ShadowGeneratedCandidate, ...], tuple[GroundingDispositionRecord, ...]]:
-    world_record = None
-    resolved_world_model_record_ref = world_model_record_ref
+    context = None
+    context_l6_bundle = None
+    if cycle_substrate_context is not None:
+        context = _cycle_substrate_context_for_problem(
+            cycle_substrate_context,
+            design_problem=design_problem,
+        )
+        world_record = context.world_model_record
+        resolved_world_model_record_ref = world_record.world_model_record_id
+        if (
+            world_model_record_ref is not None
+            and world_model_record_ref != resolved_world_model_record_ref
+        ):
+            raise DesignGenerationError("cycle_substrate_world_model_ref_mismatch")
+        if context.candidate_levers:
+            context_l6_bundle = (
+                context.intervention_substrate
+                or load_l6_intervention_substrate(repo_root.resolve())
+            )
+    else:
+        world_record = None
+        resolved_world_model_record_ref = world_model_record_ref
     if resolved_world_model_record_ref is None:
         world_record = production_composed_world_model_record(repo_root.resolve())
         resolved_world_model_record_ref = world_record.world_model_record_id
@@ -2409,6 +2474,80 @@ def _content_bound_candidates(
             cg5=cg5,
         )
         raw_candidate_hash = gy_content_hash(intervention.model_dump(mode="json"))
+        lever_resolution: InterventionLeverRefusal | None = None
+        if context is not None and context.candidate_levers:
+            matching_context_levers = tuple(
+                candidate
+                for candidate in context.candidate_levers
+                if str(intervention.kind)
+                in {candidate.instrument, candidate.lever_id}
+            )
+            if len(matching_context_levers) != 1:
+                dispositions.append(
+                    GroundingDispositionRecord(
+                        proposal_id=proposal_id,
+                        raw_candidate_hash=raw_candidate_hash,
+                        disposition="unknown_blocked",
+                        selected_relation=cg1.selected_relation,
+                        identified_atom_id=_selected_atom_id_from_cg1(cg1),
+                        cg2_decision=cg2.decision,
+                        cg2_reason=cg2.decisive_reason,
+                        cg3_decision=cg3.decision,
+                        cg3_reason=cg3.decisive_reason,
+                        rejected_cause={
+                            "code": "cycle_substrate_candidate_lever_unresolved",
+                            "operator_kind": str(intervention.kind),
+                            "resolved_count": len(matching_context_levers),
+                            "context_binding_hash": context.context_binding_hash,
+                        },
+                        legacy_exact_match=legacy_disposition,
+                        legacy_linker_issues=legacy_issues,
+                        certificate_chain=chain,
+                        bridge_missing_records=bridge_records,
+                    )
+                )
+                continue
+            if context_l6_bundle is None:
+                raise DesignGenerationError("cycle_substrate_l6_bundle_missing")
+            resolved_lever = resolve_intervention_lever(
+                context_l6_bundle,
+                operator_kind=str(intervention.kind),
+                parameter_value=_candidate_parameter_value(intervention),
+                world_model_record=context.world_model_record,
+                cycle_substrate_context=context,
+            )
+            if not isinstance(resolved_lever, InterventionLeverRefusal):
+                raise DesignGenerationError(
+                    "candidate_unbound_lever_resolved_as_world_bound"
+                )
+            lever_resolution = resolved_lever
+        if lever_resolution is not None and cg1.selected_relation in {
+            "exact",
+            "certified-specialization",
+        }:
+            dispositions.append(
+                GroundingDispositionRecord(
+                    proposal_id=proposal_id,
+                    raw_candidate_hash=raw_candidate_hash,
+                    disposition="non_binding_abstain",
+                    selected_relation=cg1.selected_relation,
+                    identified_atom_id=_selected_atom_id_from_cg1(cg1),
+                    cg2_decision=cg2.decision,
+                    cg2_reason=cg2.decisive_reason,
+                    cg3_decision=cg3.decision,
+                    cg3_reason=cg3.decisive_reason,
+                    rejected_cause={
+                        "code": "candidate_unbound_world_slot",
+                        "lever_resolution_ref": lever_resolution.content_hash,
+                    },
+                    legacy_exact_match=legacy_disposition,
+                    legacy_linker_issues=legacy_issues,
+                    certificate_chain=chain,
+                    bridge_missing_records=bridge_records,
+                    lever_resolution=lever_resolution,
+                )
+            )
+            continue
         if cg1.selected_relation in {"exact", "certified-specialization"}:
             try:
                 candidate = _shadow_candidate_from_grounding(
@@ -2470,6 +2609,7 @@ def _content_bound_candidates(
                     legacy_linker_issues=legacy_issues,
                     certificate_chain=chain,
                     bridge_missing_records=bridge_records,
+                    lever_resolution=lever_resolution,
                 )
             )
             continue
@@ -2490,6 +2630,7 @@ def _content_bound_candidates(
                     legacy_linker_issues=legacy_issues,
                     certificate_chain=chain,
                     bridge_missing_records=bridge_records,
+                    lever_resolution=lever_resolution,
                 )
             )
             continue
@@ -2516,9 +2657,25 @@ def _content_bound_candidates(
                 legacy_linker_issues=legacy_issues,
                 certificate_chain=chain,
                 bridge_missing_records=bridge_records,
+                lever_resolution=lever_resolution,
             )
         )
     return tuple(candidates), tuple(dispositions)
+
+
+def _candidate_parameter_value(intervention: InterventionSpec) -> object:
+    """Return one candidate-authored value for the resolver attempt."""
+
+    for key, value in sorted(intervention.params.items()):
+        if key not in {
+            "effect_path",
+            "estimand",
+            "outcome_slots",
+            "sign",
+            "target_world_slot",
+        }:
+            return value
+    return 0
 
 
 def derive_lever_space_prompt_slice(
@@ -2526,9 +2683,71 @@ def derive_lever_space_prompt_slice(
     *,
     repo_root: Path,
     reference: CredalReference | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> LeverSpacePromptSlice:
     """Derive the non-authoritative RAG-in-prompt lever slice from live owners."""
 
+    if cycle_substrate_context is not None:
+        context = _cycle_substrate_context_for_problem(
+            cycle_substrate_context,
+            design_problem=design_problem,
+        )
+        if context.candidate_levers:
+            entries = tuple(
+                LeverSpaceSliceEntry(
+                    operator_kind=candidate.lever_id,
+                    instrument=candidate.instrument,
+                    aliases=(candidate.instrument, candidate.target_concept),
+                    target_world_slots=(),
+                    source_refs=tuple(
+                        dict.fromkeys(
+                            (
+                                *candidate.source_refs,
+                                candidate.entry_content_hash,
+                                candidate.selected_registry_entry_hash,
+                                context.substrate_registry_content_hash,
+                                context.world_model_record_content_hash,
+                            )
+                        )
+                    ),
+                    binding_status="candidate_unbound",
+                    candidate_entry_content_hash=candidate.entry_content_hash,
+                    context_binding_hash=context.context_binding_hash,
+                    substrate_registry_content_hash=(
+                        context.substrate_registry_content_hash
+                    ),
+                    world_model_record_content_hash=(
+                        context.world_model_record_content_hash
+                    ),
+                )
+                for candidate in context.candidate_levers
+            )
+            selected = entries
+            owner_refs = tuple(
+                str(item)
+                for item in dict.fromkeys(
+                    (
+                        context.source_pack_content_hash,
+                        context.substrate_input_content_hash,
+                        context.substrate_registry_content_hash,
+                        context.world_model_record_content_hash,
+                        context.context_binding_hash,
+                    )
+                )
+                if item
+            )
+            payload = {
+                "design_problem_id": design_problem.design_problem_id,
+                "entries": [entry.model_dump(mode="json") for entry in selected],
+                "owner_refs": list(owner_refs),
+                "non_constraining": True,
+            }
+            return LeverSpacePromptSlice(
+                status="derived",
+                content_hash=gy_content_hash(payload),
+                entries=selected,
+                owner_refs=owner_refs,
+            )
     try:
         bundle = load_l6_intervention_substrate(repo_root.resolve())
     except (InterventionSubstrateError, OSError, RuntimeError, ValueError) as exc:
@@ -2626,6 +2845,26 @@ def derive_lever_space_prompt_slice(
         entries=tuple(LeverSpaceSliceEntry.model_validate(item) for item in payload["entries"]),
         owner_refs=tuple(item for item in owner_refs if item),
     )
+
+
+def _cycle_substrate_context_for_problem(
+    cycle_substrate_context: CycleSubstrateContext,
+    *,
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Revalidate one context and reject cross-problem/domain substitution."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
+
+    context = revalidate_cycle_substrate_context(cycle_substrate_context)
+    expected_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+    if context.design_problem_ref != expected_problem_ref:
+        raise DesignGenerationError("cycle_substrate_design_problem_mismatch")
+    if context.domain != design_problem.domain:
+        raise DesignGenerationError("cycle_substrate_problem_domain_mismatch")
+    return context
 
 
 def _with_lever_space_prompt_slice(

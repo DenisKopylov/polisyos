@@ -552,6 +552,55 @@ def test_third_pack_vocabulary_needs_no_engine_branch() -> None:
     assert context.transport_context.covariates[0].canonical_var == "watershed_slope"
 
 
+def test_third_pack_lever_reaches_typed_resolver_refusal_without_code_branch() -> None:
+    """A third pack-shaped vocabulary follows the same exact resolver owner."""
+
+    bundle = _intervention_bundle()
+    context = _cycle_context(
+        domain="water_quality",
+        lever_id="riparian_buffer_width",
+        instrument="water.riparian_buffer_width",
+        target_concept="water.nutrient_load",
+        transport_covariate="watershed_slope",
+        intervention_substrate=bundle,
+    )
+
+    result = resolve_intervention_lever(
+        bundle,
+        operator_kind="water.riparian_buffer_width",
+        parameter_value=3.0,
+        cycle_substrate_context=context,
+    )
+
+    assert result.status == "candidate_unbound"
+    assert result.lever_id == "riparian_buffer_width"
+    assert result.reason_code == "knob_operator_unresolved"
+    assert result.context_binding_hash == context.context_binding_hash
+
+
+def test_candidate_resolver_requires_context_bound_l6_owner() -> None:
+    """A loose valid bundle cannot fabricate a pack-side refusal."""
+
+    bundle = _intervention_bundle()
+    context = _cycle_context(
+        domain="water_quality",
+        lever_id="riparian_buffer_width",
+        instrument="water.riparian_buffer_width",
+        target_concept="water.nutrient_load",
+        transport_covariate="watershed_slope",
+    )
+
+    with pytest.raises(InterventionSubstrateError) as error:
+        resolve_intervention_lever(
+            bundle,
+            operator_kind="water.riparian_buffer_width",
+            parameter_value=3.0,
+            cycle_substrate_context=context,
+        )
+
+    assert error.value.code == "cycle_substrate_l6_bundle_missing"
+
+
 def test_cycle_substrate_context_rejects_content_hash_tamper() -> None:
     payload = _cycle_context().model_dump(mode="python")
     payload["content_hash"] = _hash("tampered-context")

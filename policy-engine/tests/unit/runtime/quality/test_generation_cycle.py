@@ -425,6 +425,59 @@ class _NoPromotionPort:
         )
 
 
+class _MixedBindingAndDispositionPort:
+    """Return one bound candidate and one honest non-binding CGF row."""
+
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> _GenerationResult:
+        del problem, cycle_index
+        candidate = _Candidate(
+            candidate_id="candidate_mixed_bound",
+            atom=_Atom(
+                "candidate_mixed_bound",
+                "sha256:" + "8" * 64,
+            ),
+            diversity_key=("grant", "firms", "mixed", "bound"),
+        )
+        return _GenerationResult(
+            status="generated",
+            candidates=(candidate,),
+            surrogate_rankings=(
+                _Ranking(
+                    candidate_id=candidate.candidate_id,
+                    score=0.9,
+                    voi_estimate=0.2,
+                ),
+            ),
+            grounding_dispositions=(
+                _GroundingDisposition(
+                    proposal_id="gy_n4.bound",
+                    candidate_id=candidate.candidate_id,
+                    raw_candidate_hash="sha256:" + "9" * 64,
+                    disposition="shadow_bound",
+                    selected_relation="exact",
+                    shadow_atom_content_hash=candidate.atom.content_hash,
+                ),
+                _GroundingDisposition(
+                    proposal_id="gy_n4.unbound",
+                    candidate_id=None,
+                    raw_candidate_hash="sha256:" + "a" * 64,
+                    disposition="novel_cg3",
+                    selected_relation="novel-candidate",
+                    identified_atom_id=None,
+                    cg2_decision="novel_candidate",
+                    cg2_reason="cg2_relation_not_bind_eligible",
+                    cg3_decision="route_to_acquisition",
+                    cg3_reason="cg3_candidate_unbound",
+                ),
+            ),
+        )
+
+
 @pytest.mark.asyncio
 async def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
     """A usable N4 refusal is a cycle candidate denominator, not spec absence."""
@@ -450,6 +503,38 @@ async def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
     assert cycle.terminal_kind == "search_ceiling_repair_required"
     assert cycle.terminal_kind != "a_spec_gap"
     assert "grammar_fallback" not in json.dumps(cycle.model_dump(mode="json"))
+
+
+@pytest.mark.asyncio
+async def test_mixed_n4_result_keeps_non_binding_disposition_in_denominator() -> None:
+    """The bridge covers every disposition, not only the all-empty case."""
+
+    run = await GenerationCycleController(
+        generation_port=_MixedBindingAndDispositionPort(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_NoPromotionPort(),
+        repo_root=REPO_ROOT,
+    ).run(
+        _problem("mixed_disposition_denominator"),
+        budget_state=_budget(),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    assert {summary.candidate_id for summary in run.candidate_summaries} == {
+        "candidate_mixed_bound",
+        "gy_n4.unbound",
+    }
+    assert {summary.generation_channel for summary in run.candidate_summaries} == {
+        "n4_owner"
+    }
+    unbound = next(
+        summary
+        for summary in run.candidate_summaries
+        if summary.candidate_id == "gy_n4.unbound"
+    )
+    assert unbound.content_hash == "sha256:" + "a" * 64
+    assert unbound.grounding_disposition == "novel_cg3"
 
 
 class _FabricatedPromotionPort:

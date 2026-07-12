@@ -74,6 +74,7 @@ def _education_cycle_context() -> tuple[DesignProblem, object]:
         repo_root=REPO_ROOT,
         design_problem=problem,
         world_model_record=world,
+        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
     )
 
 
@@ -100,6 +101,23 @@ def test_pack_lever_resolution_returns_typed_candidate_unbound() -> None:
         row.entry_content_hash for row in context.candidate_levers
     }
     assert result.operator_kind not in bundle.knob_dictionary
+
+
+def test_pack_context_fences_first_vertical_knob_fallback() -> None:
+    """An education context cannot silently cross-bind a writable L6 knob."""
+
+    _problem, context = _education_cycle_context()
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+
+    with pytest.raises(InterventionSubstrateError) as error:
+        resolve_intervention_lever(
+            bundle,
+            operator_kind="budget_allocation_multiplier",
+            parameter_value=1.0,
+            cycle_substrate_context=context,
+        )
+
+    assert error.value.code == "cycle_substrate_candidate_lever_unresolved"
 
 
 def _lex_store() -> LegalKnowledgeStore:

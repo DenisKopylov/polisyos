@@ -18,12 +18,13 @@ from __future__ import annotations
 import ast
 import inspect
 import math
+import re
 import time
 from collections.abc import Awaitable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Literal, Protocol, get_args
+from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -81,6 +82,9 @@ from polisyos.scientist.methods.search.voi_scheduler import (
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetState  # noqa: TC001
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 
 GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v1"
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
@@ -546,10 +550,12 @@ class N4GenerationPort:
         model_id: str,
         llm_client: object | None = None,
         repo_root: Path | None = None,
+        cycle_substrate_context: CycleSubstrateContext | None = None,
     ) -> None:
         self._model_id = model_id
         self._llm_client = llm_client
         self._repo_root = repo_root
+        self._cycle_substrate_context = cycle_substrate_context
 
     async def __call__(
         self,
@@ -569,6 +575,7 @@ class N4GenerationPort:
             model_id=self._model_id,
             llm_client=self._llm_client,
             repo_root=self._repo_root,
+            cycle_substrate_context=self._cycle_substrate_context,
         )
         return organ_run.result
 
@@ -1353,6 +1360,18 @@ class _GrammarFallbackResult:
     fallback_reason: str = "llm_generation_unavailable"
 
 
+@dataclass(frozen=True)
+class _DispositionCandidate:
+    """Internal route for a CGF disposition that correctly minted no atom."""
+
+    candidate_id: str
+    content_hash: str
+    proposal_id: str
+    grounding_disposition: str
+    status: str = "candidate_unbound"
+    generator_path: str = "n4_grounding_disposition"
+
+
 class GenerationCycleController:
     """Thin N6 controller over SimpleLoopEngine and real generation organs."""
 
@@ -1369,6 +1388,7 @@ class GenerationCycleController:
         acquisition_owner_gateway: object | None = None,
         repo_root: Path | None = None,
         model_id: str | None = None,
+        cycle_substrate_context: CycleSubstrateContext | None = None,
         high_proxy_threshold: float = 0.8,
         low_grounding_threshold: float = 0.5,
     ) -> None:
@@ -1377,6 +1397,7 @@ class GenerationCycleController:
         self._generation_port = generation_port or N4GenerationPort(
             model_id=str(model_id),
             repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
         )
         self._grounding_port = grounding_port or PolicyGroundingPort()
         self._simulation_port = simulation_port or JointSimulationPort()
@@ -1393,6 +1414,7 @@ class GenerationCycleController:
             min_roi_threshold=1.0,
         )
         self._repo_root = repo_root
+        self._cycle_substrate_context = cycle_substrate_context
         self._high_proxy_threshold = high_proxy_threshold
         self._low_grounding_threshold = low_grounding_threshold
         self._engine = SimpleLoopEngine(
@@ -1812,9 +1834,17 @@ class GenerationCycleController:
         )
         if inspect.isawaitable(result):
             result = await result
-        candidates = tuple(getattr(result, "candidates", ()) or ())
+        owner_candidates = tuple(getattr(result, "candidates", ()) or ())
+        disposition_candidates = _disposition_candidates(
+            result,
+            existing_candidates=owner_candidates,
+        )
+        candidates = (*owner_candidates, *disposition_candidates)
         generation_channel: GenerationChannel = "n4_owner"
-        if getattr(result, "status", None) != "generated" or not candidates:
+        if not candidates or (
+            getattr(result, "status", None) != "generated"
+            and not disposition_candidates
+        ):
             result = _grammar_fallback_result(
                 state["problem"],
                 cycle_index=int(state["cycle_index"]),
@@ -3885,8 +3915,17 @@ def _grounding_disposition_for_candidate(
     candidate_hash = _candidate_content_hash(candidate)
     for disposition in _sequence(_object_get(generation_result, "grounding_dispositions")):
         disposition_candidate_id = _object_get(disposition, "candidate_id")
+        proposal_id = _object_get(disposition, "proposal_id")
+        raw_candidate_hash = _object_get(disposition, "raw_candidate_hash")
         shadow_hash = _object_get(disposition, "shadow_atom_content_hash")
         if disposition_candidate_id and str(disposition_candidate_id) == candidate_id:
+            return disposition
+        if (
+            proposal_id
+            and str(proposal_id) == candidate_id
+            and raw_candidate_hash
+            and str(raw_candidate_hash) == candidate_hash
+        ):
             return disposition
         if shadow_hash and str(shadow_hash) == candidate_hash:
             return disposition
@@ -3902,6 +3941,17 @@ def _candidate_owner_validation_issues(
     disposition_candidate_id = _object_get(disposition, "candidate_id")
     if disposition_candidate_id and str(disposition_candidate_id) != candidate_id:
         issues.append("candidate_cgf_id_mismatch")
+    raw_disposition = str(_object_get(disposition, "disposition") or "")
+    if raw_disposition != "shadow_bound":
+        proposal_id = str(_object_get(disposition, "proposal_id") or "")
+        raw_candidate_hash = str(
+            _object_get(disposition, "raw_candidate_hash") or ""
+        )
+        if proposal_id != candidate_id:
+            issues.append("candidate_cgf_proposal_id_mismatch")
+        if raw_candidate_hash != _candidate_content_hash(candidate):
+            issues.append("candidate_cgf_raw_hash_mismatch")
+        return tuple(_dedupe(issues))
     atom = _object_get(candidate, "atom")
     if atom is None:
         issues.append("candidate_atom_missing")
@@ -3914,13 +3964,58 @@ def _candidate_owner_validation_issues(
     world_ref = _object_get(atom, "world_model_record_ref")
     if world_ref and str(world_ref).startswith("world_model_record_pending:"):
         issues.append("candidate_world_model_ref_pending")
-    if str(_object_get(disposition, "disposition") or "") == "shadow_bound":
+    if raw_disposition == "shadow_bound":
         shadow_hash = _object_get(disposition, "shadow_atom_content_hash")
         if shadow_hash and str(shadow_hash) != _candidate_content_hash(candidate):
             issues.append("candidate_cgf_content_hash_mismatch")
         if not shadow_hash:
             issues.append("candidate_cgf_shadow_hash_missing")
     return tuple(_dedupe(issues))
+
+
+def _disposition_candidates(
+    result: object,
+    *,
+    existing_candidates: Sequence[object],
+) -> tuple[_DispositionCandidate, ...]:
+    """Project every usable non-binding N4 disposition into the N6 denominator."""
+
+    existing_ids = {_candidate_id(candidate) for candidate in existing_candidates}
+    existing_hashes = {
+        _candidate_content_hash(candidate) for candidate in existing_candidates
+    }
+    projected: list[_DispositionCandidate] = []
+    for disposition in _sequence(
+        _object_get(result, "grounding_dispositions")
+    ):
+        disposition_kind = str(_object_get(disposition, "disposition") or "")
+        if (
+            disposition_kind not in _grounding_disposition_denominator()
+            or disposition_kind == "shadow_bound"
+        ):
+            continue
+        proposal_id = str(_object_get(disposition, "proposal_id") or "")
+        raw_candidate_hash = str(
+            _object_get(disposition, "raw_candidate_hash") or ""
+        )
+        if not proposal_id or not re.fullmatch(r"sha256:[0-9a-f]{64}", raw_candidate_hash):
+            continue
+        candidate_id = str(
+            _object_get(disposition, "candidate_id") or proposal_id
+        )
+        if candidate_id in existing_ids or raw_candidate_hash in existing_hashes:
+            continue
+        projected.append(
+            _DispositionCandidate(
+                candidate_id=candidate_id,
+                content_hash=raw_candidate_hash,
+                proposal_id=proposal_id,
+                grounding_disposition=disposition_kind,
+            )
+        )
+        existing_ids.add(candidate_id)
+        existing_hashes.add(raw_candidate_hash)
+    return tuple(projected)
 
 
 def _grounding_status_and_score(

@@ -628,7 +628,7 @@ git commit -m "feat: bind cycle substrate evidence"
 - Produce `InterventionLeverRefusal` and return `InterventionLeverResolution | InterventionLeverRefusal` when the complete `CycleSubstrateContext` selects a candidate lever.
 - `GenerationCycleController._generate_node` preserves `generation_channel="n4_owner"` when the real result has grounding dispositions but no bound atoms; it routes immutable disposition refs, not fabricated intervention candidates.
 
-- [ ] **Step 1: Write RED tests for exact education levers and honest unbound resolution.**
+- [x] **Step 1: Write RED tests for exact education levers and honest unbound resolution.**
 
 ```python
 def test_prompt_slice_uses_injected_candidate_levers_without_binding_them() -> None:
@@ -639,6 +639,12 @@ def test_prompt_slice_uses_injected_candidate_levers_without_binding_them() -> N
         cycle_substrate_context=_education_cycle_substrate_context(),
     )
     assert {row.operator_kind for row in result.entries} == {
+        "education_blended_learning",
+        "education_stem_education",
+        "education_teaching_method",
+        "education_dialogic_reading_modality",
+    }
+    assert {row.instrument for row in result.entries} == {
         "education.blended_learning",
         "education.stem_education",
         "education.teaching_method",
@@ -684,13 +690,13 @@ def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
     assert "grammar_fallback" not in json.dumps(run.model_dump(mode="json"))
 ```
 
-- [ ] **Step 2: Run the focused tests and observe RED.**
+- [x] **Step 2: Run the focused tests and observe RED.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_design_generation.py tests/unit/runtime/quality/test_intervention_substrate.py tests/unit/runtime/quality/test_generation_cycle.py -k 'candidate_lever or candidate_unbound or injected_candidate' -q
 ```
 
-- [ ] **Step 3: Implement minimal typed propagation.**
+- [x] **Step 3: Implement minimal typed propagation.**
 
 Thread `cycle_substrate_context` through:
 
@@ -733,6 +739,11 @@ Add the same keyword to `generate_design_candidate_bundle_under_a`; its existing
 
 When context candidate levers are present, build prompt entries directly from their data and mark them `candidate_unbound`. Continue to derive verified `world_bound` entries from an explicitly supplied L6 bundle. Never substitute fixed L6 for a nonmatching domain.
 
+`InterventionSpec.kind` accepts canonical identifier tokens rather than dotted concept surfaces. The
+bridge therefore uses each pack row's already-persisted `lever_id` as `operator_kind` and carries the
+exact dotted `instrument` separately in the same prompt entry. This is a data-derived normalization,
+not a domain table or schema loosening.
+
 Add a strict refusal model with a recomputed hash:
 
 ```python
@@ -751,7 +762,7 @@ The resolver receives `cycle_substrate_context` and selects the candidate from t
 
 For disposition-only N4 output, derive an internal immutable reference only from `proposal_id`, `raw_candidate_hash`, and the exact `GroundingDispositionRecord`; do not construct an intervention atom. Merge every unmatched non-binding disposition into the cycle candidate denominator even when a mixed result also contains bound candidates—fixing only the all-empty case is insufficient. Extend candidate ID/hash resolution and `PolicyGroundingPort` matching by exact proposal/raw hash; atom/target-slot validation remains mandatory only for `shadow_bound`. `_joint_value_node` emits the existing typed simulation/value blocked states for an unbound candidate, and acquisition routing consumes the real grounding gaps. Grammar fallback remains available only when N4 produced neither bound candidates nor usable dispositions.
 
-- [ ] **Step 4: Run focused and frozen N4 checks.**
+- [x] **Step 4: Run focused and frozen N4 checks.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_design_generation.py tests/unit/runtime/quality/test_intervention_substrate.py tests/unit/runtime/quality/test_generation_cycle.py -k 'candidate_lever or candidate_unbound or injected_candidate' -q
@@ -760,7 +771,7 @@ python3 -c 'import polisyos.runtime.quality.design_generation'
 .venv/bin/ruff check src/polisyos/runtime/quality/design_generation.py src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/generation_cycle.py tests/unit/runtime/quality/test_design_generation.py tests/unit/runtime/quality/test_intervention_substrate.py tests/unit/runtime/quality/test_generation_cycle.py
 ```
 
-- [ ] **Step 5: Commit the N4/L6 bridge.**
+- [x] **Step 5: Commit the N4/L6 bridge.**
 
 ```bash
 git add src/polisyos/runtime/quality/design_generation.py src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/generation_cycle.py tests/unit/runtime/quality/test_design_generation.py tests/unit/runtime/quality/test_intervention_substrate.py tests/unit/runtime/quality/test_generation_cycle.py

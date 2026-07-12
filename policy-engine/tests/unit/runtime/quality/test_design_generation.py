@@ -32,6 +32,9 @@ from polisyos.runtime.quality.design_generation import (
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
+from polisyos.runtime.quality.intervention_substrate import (
+    load_l6_intervention_substrate,
+)
 from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
 from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from polisyos.scientist.agent.formalizer import (
@@ -93,6 +96,7 @@ def _education_cycle_context() -> tuple[DesignProblem, object]:
         repo_root=REPO_ROOT,
         design_problem=problem,
         world_model_record=world,
+        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
     )
     return problem, context
 
@@ -110,6 +114,12 @@ def test_prompt_slice_uses_pack_candidate_levers_without_binding_them() -> None:
 
     assert result.status == "derived"
     assert {row.operator_kind for row in result.entries} == {
+        "education_blended_learning",
+        "education_stem_education",
+        "education_teaching_method",
+        "education_dialogic_reading_modality",
+    }
+    assert {row.instrument for row in result.entries} == {
         "education.blended_learning",
         "education.stem_education",
         "education.teaching_method",
@@ -123,6 +133,24 @@ def test_prompt_slice_uses_pack_candidate_levers_without_binding_them() -> None:
         row.world_model_record_content_hash == context.world_model_record_content_hash
         for row in result.entries
     )
+
+
+def test_prompt_slice_rejects_context_for_another_design_problem() -> None:
+    """A content-valid context is not a reusable hint for a changed problem."""
+
+    problem, context = _education_cycle_context()
+    changed = problem.model_copy(
+        update={"problem_statement": problem.problem_statement + " Changed."}
+    )
+
+    with pytest.raises(dg.DesignGenerationError) as error:
+        dg.derive_lever_space_prompt_slice(
+            changed,
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=context,
+        )
+
+    assert error.value.code == "cycle_substrate_design_problem_mismatch"
 
 
 def _candidate_set(result: dg.GenerationUnderAResult) -> list[tuple[str, str, str, str]]:
@@ -742,6 +770,48 @@ def test_cgf_binding_recovers_legacy_exact_match_rejection() -> None:
         candidates[0].atom.normalized_from.grounding_relation_certificate_id
         == disposition.certificate_chain.cg1_certificate_id
     )
+
+
+def test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition() -> None:
+    """The N4 owner records both its CG attempt and the real L6 refusal."""
+
+    problem, context = _education_cycle_context()
+    intervention = InterventionSpec(
+        intervention_id="education_teaching_method_probe",
+        kind="education_teaching_method",
+        target=_selector(),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={"intensity": Decimal("0.50")},
+    )
+
+    candidates, dispositions = dg._content_bound_candidates(
+        design_problem=problem,
+        design_problem_ref=context.design_problem_ref,
+        bundle=_bundle([intervention]),
+        model_id=SUPPORTED_GENERATION_MODEL_IDS[1],
+        draft_path="model_generated",
+        formalizer_path="model_generated",
+        critic_path="model_generated",
+        critique_verdict="unit_probe",
+        calls=(_llm_call(),),
+        repo_root=REPO_ROOT,
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+        reference=build_credal_reference(REPO_ROOT),
+        cycle_substrate_context=context,
+    )
+
+    assert candidates == ()
+    [disposition] = dispositions
+    assert disposition.disposition in {
+        "novel_cg3",
+        "non_binding_abstain",
+        "veto_false_analog",
+        "unknown_blocked",
+    }
+    assert disposition.lever_resolution is not None
+    assert disposition.lever_resolution.status == "candidate_unbound"
+    assert disposition.lever_resolution.reason_code == "knob_operator_unresolved"
+    assert disposition.lever_resolution.context_binding_hash == context.context_binding_hash
 
 
 def test_grounding_adapter_maps_and_omits_unasserted_axes() -> None:

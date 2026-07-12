@@ -19,7 +19,7 @@ from decimal import Decimal
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal, Protocol, get_args, get_origin
+from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args, get_origin
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -63,6 +63,9 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecordError,
     resolve_intervention_atom_world_binding,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 
 INTERVENTION_SUBSTRATE_SCHEMA_VERSION = (
     "policyos.runtime.intervention_substrate_lift.v1"
@@ -236,6 +239,50 @@ class InterventionLeverResolution(_StrictModel):
     owner_resolution: dict[str, Any]
     source_ref: str = Field(..., min_length=1)
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class InterventionLeverRefusal(_StrictModel):
+    """Content-bound refusal for a selected candidate with no L6 binding."""
+
+    schema_version: str = INTERVENTION_SUBSTRATE_SCHEMA_VERSION
+    status: Literal["candidate_unbound", "acquisition_required"]
+    operator_kind: str = Field(..., min_length=1)
+    instrument: str = Field(..., min_length=1)
+    lever_id: str = Field(..., min_length=1)
+    reason_code: str = Field(..., min_length=1)
+    candidate_entry_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    selected_registry_entry_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    substrate_input_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    context_binding_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    substrate_registry_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    world_model_record_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    source_refs: tuple[str, ...]
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_refusal_content(self) -> InterventionLeverRefusal:
+        if not self.source_refs or any(not item.strip() for item in self.source_refs):
+            raise ValueError("intervention_lever_refusal_source_refs_missing")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        expected = gy_content_hash(payload)
+        if self.content_hash != expected:
+            raise ValueError("intervention_lever_refusal_content_hash_mismatch")
+        return self
 
 
 class LawAuthorityRef(_StrictModel):
@@ -457,13 +504,92 @@ def resolve_intervention_lever(
     operator_kind: str,
     parameter_value: object,
     world_model_record: WorldModelRecord | None = None,
-) -> InterventionLeverResolution:
+    cycle_substrate_context: CycleSubstrateContext | None = None,
+) -> InterventionLeverResolution | InterventionLeverRefusal:
     """Resolve an atom operator/value against the L6 knob dictionary."""
 
     bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     operator = str(operator_kind or "").strip()
     if not operator:
         raise InterventionSubstrateError("knob_operator_missing")
+    if cycle_substrate_context is not None:
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
+
+        context = revalidate_cycle_substrate_context(cycle_substrate_context)
+        if (
+            world_model_record is not None
+            and world_model_record.content_hash
+            != context.world_model_record_content_hash
+        ):
+            raise InterventionSubstrateError(
+                "cycle_substrate_world_model_record_mismatch"
+            )
+        if (
+            context.intervention_substrate is not None
+            and context.intervention_substrate.content_hash != bundle.content_hash
+        ):
+            raise InterventionSubstrateError(
+                "cycle_substrate_l6_bundle_content_mismatch"
+            )
+        if context.candidate_levers:
+            if context.intervention_substrate is None:
+                raise InterventionSubstrateError(
+                    "cycle_substrate_l6_bundle_missing"
+                )
+            matches = tuple(
+                candidate
+                for candidate in context.candidate_levers
+                if operator in {candidate.instrument, candidate.lever_id}
+            )
+            if not matches:
+                raise InterventionSubstrateError(
+                    "cycle_substrate_candidate_lever_unresolved",
+                    operator,
+                )
+            if len(matches) != 1:
+                raise InterventionSubstrateError(
+                    "cycle_substrate_candidate_lever_ambiguous",
+                    operator,
+                )
+            candidate = matches[0]
+            if {
+                operator,
+                candidate.instrument,
+                candidate.lever_id,
+            }.intersection(bundle.knob_dictionary):
+                raise InterventionSubstrateError(
+                    "cycle_substrate_candidate_binding_contradiction",
+                    operator,
+                )
+            fields = {
+                "schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+                "status": "candidate_unbound",
+                "operator_kind": operator,
+                "instrument": candidate.instrument,
+                "lever_id": candidate.lever_id,
+                "reason_code": "knob_operator_unresolved",
+                "candidate_entry_content_hash": candidate.entry_content_hash,
+                "selected_registry_entry_hash": (
+                    candidate.selected_registry_entry_hash
+                ),
+                "substrate_input_content_hash": (
+                    candidate.substrate_input_content_hash
+                ),
+                "context_binding_hash": context.context_binding_hash,
+                "substrate_registry_content_hash": (
+                    context.substrate_registry_content_hash
+                ),
+                "world_model_record_content_hash": (
+                    context.world_model_record_content_hash
+                ),
+                "source_refs": candidate.source_refs,
+            }
+            return InterventionLeverRefusal(
+                **fields,
+                content_hash=gy_content_hash(fields),
+            )
     raw_knob = _mapping_or_none(bundle.knob_dictionary.get(operator))
     if raw_knob is None:
         raise InterventionSubstrateError("knob_operator_unresolved", operator)
@@ -2649,6 +2775,7 @@ def _is_number(value: object) -> bool:
 __all__ = [
     "INTERVENTION_SUBSTRATE_ARTIFACT_KIND",
     "INTERVENTION_SUBSTRATE_SCHEMA_VERSION",
+    "InterventionLeverRefusal",
     "InterventionLeverResolution",
     "InterventionSubstrateBundle",
     "InterventionSubstrateError",

@@ -440,7 +440,7 @@ authority-affecting or ambiguous mismatch stops.
 
 ## Task 2: Add the content-bound cycle substrate envelope
 
-**Progress checkpoint (2026-07-12):** the strict envelope core, full-denominator WMR projection
+**Progress checkpoint (2026-07-12, boundary continuation):** the strict envelope core, full-denominator WMR projection
 checks, transport/candidate parent binding, fresh consumption revalidator, generic third-shape
 probe, and the canonical `InterventionSubstrateBundle` full-payload integrity chokepoint are green.
 The N10a pack now also persists one strict S0 registry payload, binds every lever to the data-derived
@@ -449,8 +449,12 @@ owner, and constructs one substrate-input projection before the baseline cycle f
 It does not claim the legacy N6 trace consumed that projection; that remains the WMR/context bridge.
 The N7 no-result receipt is reused only from the immutable proof-head evidence through a recomputed,
 fully revalidated E1 key that binds effective retrieval limits, so raw evidence stays intact while
-`--write` remains byte-stable. The concrete real education WMR and final pack-to-context projector
-remain; Task 2 and the Stage-1 gate are therefore still open.
+`--write` remains byte-stable. The canonical boundary owner now accepts a verified registry object
+plus selected content hashes, derives jurisdiction/time/population from the actual `DesignProblem`,
+emits repo-relative/content refs, and rejects an unresolved selection. The checker-only adapter
+validates the frozen pack and receives that real WMR before projecting all four education levers and
+both transport covariates into one context. Task 2 is complete. The context is not yet consumed by
+N4/L6/N6, so the three bridges and the Stage-1 gate remain open.
 
 **Files:**
 - Create: `src/polisyos/runtime/quality/cycle_substrate.py`
@@ -465,7 +469,7 @@ remain; Task 2 and the Stage-1 gate are therefore still open.
 - Produces `build_cycle_substrate_context(*, design_problem_ref: str, domain: str, substrate_registry: SubstrateRegistry, selected_registry_entry_hashes: Sequence[str], world_model_record: WorldModelRecord, intervention_substrate: InterventionSubstrateBundle | None, candidate_levers: Sequence[CandidateLeverEvidence], transport_context: TransportContextEvidence | None, source_pack_content_hash: str | None, substrate_input_content_hash: str | None) -> CycleSubstrateContext`.
 - The runtime API accepts objects; only the checker projects the committed N10a JSON into those objects.
 
-- [ ] **Step 1: Write RED hash/authority/generic-shape tests.**
+- [x] **Step 1: Write RED hash/authority/generic-shape tests.**
 
 The tests must prove:
 
@@ -516,13 +520,13 @@ def test_third_pack_vocabulary_needs_no_engine_branch() -> None:
 
 Also load the committed education pack through a checker helper and assert its full S0 registry payload revalidates and hash-matches `components.owner_writability.s0_registry_content_hash`; do not synthesize a registration.
 
-- [ ] **Step 2: Run the new tests and observe RED because the envelope/projector is absent.**
+- [x] **Step 2: Run the new tests and observe RED because the envelope/projector is absent.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_substrate_registry.py tests/unit/runtime/quality/test_world_model_record.py tests/unit/runtime/quality/test_second_domain_pack.py -k 'cycle_substrate or third_pack_vocabulary' -q
 ```
 
-- [ ] **Step 3: Implement the strict envelope and recomputing hash.**
+- [x] **Step 3: Implement the strict envelope and recomputing hash.**
 
 Use this public shape; all models use `ConfigDict(extra="forbid", frozen=True)`:
 
@@ -584,7 +588,7 @@ N4 intake independently verifies `CycleSubstrateContext.design_problem_ref` and 
 
 Add RED negatives for stale WMR, WMR/registry mismatch, selected-entry absent from either registry or WMR, and cross-context candidate substitution. A failure may not mint a refusal stamped with the unrelated context's hashes.
 
-- [ ] **Step 4: Add the checker-only pack projector.**
+- [x] **Step 4: Add the checker-only pack projector.**
 
 In `check_layer3_gy_second_domain_pack.py`, add a helper that:
 
@@ -594,14 +598,14 @@ In `check_layer3_gy_second_domain_pack.py`, add a helper that:
 4. projects lever and transport rows into the strict candidate models; and
 5. receives a concrete WMR from the canonical boundary builder rather than creating runtime authority from JSON presence.
 
-- [ ] **Step 5: Run focused tests and Ruff.**
+- [x] **Step 5: Run focused tests and Ruff.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_substrate_registry.py tests/unit/runtime/quality/test_world_model_record.py tests/unit/runtime/quality/test_second_domain_pack.py -k 'cycle_substrate or third_pack_vocabulary' -q
 .venv/bin/ruff check src/polisyos/runtime/quality/cycle_substrate.py src/polisyos/runtime/quality/__init__.py tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_substrate_registry.py tests/unit/runtime/quality/test_world_model_record.py tests/unit/runtime/quality/test_second_domain_pack.py
 ```
 
-- [ ] **Step 6: Commit the canonical intake envelope.**
+- [x] **Step 6: Commit the canonical intake envelope.**
 
 ```bash
 git add src/polisyos/runtime/quality/cycle_substrate.py src/polisyos/runtime/quality/__init__.py tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_substrate_registry.py tests/unit/runtime/quality/test_world_model_record.py tests/unit/runtime/quality/test_second_domain_pack.py

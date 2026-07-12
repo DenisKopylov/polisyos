@@ -49,6 +49,14 @@ from polisyos.runtime.quality.acquisition_planner import (
     run_acquisition_closed_loop,
     validate_acquisition_receipt,
 )
+from polisyos.runtime.quality.cycle_substrate import (
+    CandidateLeverEvidence,
+    CycleSubstrateContext,
+    TransportContextEvidence,
+    TransportCovariateObservation,
+    build_cycle_substrate_context,
+    cycle_substrate_context_binding_hash,
+)
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -70,6 +78,7 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.grounding_admission import GroundingAdmissionLedger
 from polisyos.runtime.quality.intervention_substrate import (
+    InterventionSubstrateBundle,
     InterventionSubstrateError,
     load_l6_intervention_substrate,
     resolve_intervention_lever,
@@ -81,6 +90,7 @@ from polisyos.runtime.quality.substrate_registry import (
     build_substrate_registry_from_existing_catalogs,
     default_substrate_catalog_paths,
 )
+from polisyos.runtime.quality.world_model_record import WorldModelRecord
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"
@@ -2457,6 +2467,177 @@ def second_domain_substrate_input_content_hash(pack: Mapping[str, Any]) -> str:
             },
             "owner_query_bindings": query_bindings,
         }
+    )
+
+
+def project_second_domain_cycle_substrate_context(
+    bundle: Mapping[str, Any],
+    *,
+    repo_root: Path,
+    design_problem: DesignProblem,
+    world_model_record: WorldModelRecord,
+    intervention_substrate: InterventionSubstrateBundle | None = None,
+) -> CycleSubstrateContext:
+    """Project a verified frozen pack into the runtime intake contract.
+
+    This checker-side adapter is deliberately object-in/object-out. It may
+    validate committed evidence, but it cannot build a world record from a pack
+    filename or treat registry-shaped JSON as runtime authority.
+    """
+
+    root = repo_root.resolve()
+    census = _mapping(bundle.get("census"))
+    pack = _mapping(bundle.get("pack"))
+    issues: list[dict[str, Any]] = []
+    _validate_artifact_hash(pack, "manifest_content_hash", issues)
+    _validate_cycle_substrate_registry(root, census, pack, issues)
+    _validate_owner_derived_entries(census, pack, issues)
+    if issues:
+        codes = sorted({str(issue.get("code") or "unknown") for issue in issues})
+        raise ValueError("cycle_substrate_pack_invalid:" + ",".join(codes))
+
+    domain = str(pack.get("selected_domain") or "")
+    if design_problem.domain != domain:
+        raise ValueError("cycle_substrate_problem_domain_mismatch")
+    WorldModelRecord.model_validate(world_model_record.model_dump(mode="python"))
+
+    components = _mapping(pack.get("components"))
+    owner_queries = _mapping(pack.get("owner_query_results"))
+    registry_owner = _mapping(owner_queries.get("s0_registry"))
+    registry = SubstrateRegistry.model_validate(registry_owner.get("registry_payload"))
+    selected_hashes = tuple(
+        _list_of_strings(
+            _mapping(components.get("substrate_registry")).get(
+                "selected_entry_hashes"
+            )
+        )
+    )
+    addressing = _mapping(pack.get("content_addressing"))
+    historical_pack_hash = str(
+        addressing.get("historical_source_pack_content_hash") or ""
+    )
+    substrate_input_hash = str(
+        addressing.get("substrate_input_content_hash") or ""
+    )
+    if substrate_input_hash != second_domain_substrate_input_content_hash(pack):
+        raise ValueError("cycle_substrate_input_content_hash_mismatch")
+    if intervention_substrate is not None:
+        expected_l6_hash = _mapping(components.get("owner_writability")).get(
+            "l6_bundle_content_hash"
+        )
+        if intervention_substrate.content_hash != expected_l6_hash:
+            raise ValueError("cycle_substrate_l6_bundle_content_mismatch")
+
+    design_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+    context_binding_hash = cycle_substrate_context_binding_hash(
+        design_problem_ref=design_problem_ref,
+        domain=domain,
+        substrate_input_content_hash=substrate_input_hash,
+        substrate_registry_content_hash=registry.content_hash,
+        world_model_record_id=world_model_record.world_model_record_id,
+        world_model_record_content_hash=world_model_record.content_hash,
+        world_model_record_authority_status=world_model_record.authority_status,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+
+    candidates: list[CandidateLeverEvidence] = []
+    for row in _list_of_mappings(
+        _mapping(components.get("lever_vocabulary")).get("entries")
+    ):
+        owner_evidence = _mapping(row.get("owner_evidence"))
+        candidates.append(
+            CandidateLeverEvidence(
+                lever_id=str(row.get("lever_id") or ""),
+                instrument=str(row.get("instrument") or ""),
+                target_concept=str(row.get("target_concept") or ""),
+                status=str(row.get("status") or ""),
+                entry_content_hash=str(row.get("entry_content_hash") or ""),
+                substrate_input_content_hash=substrate_input_hash,
+                selected_registry_entry_hash=str(
+                    row.get("selected_registry_entry_hash") or ""
+                ),
+                context_binding_hash=context_binding_hash,
+                source_refs=(
+                    str(
+                        _mapping(
+                            _mapping(components.get("substrate_registry")).get(
+                                "selection_evidence"
+                            )
+                        ).get("owner_query_source_ref")
+                        or ""
+                    ),
+                    (
+                        "owner-query://"
+                        + str(owner_evidence.get("query_id") or "unresolved")
+                        + "/"
+                        + str(
+                            owner_evidence.get("source_row_content_hash")
+                            or "unresolved"
+                        )
+                    ),
+                ),
+            )
+        )
+
+    transport_component = _mapping(components.get("transport_context"))
+    source_profile = _mapping(transport_component.get("source_context"))
+    target_profile = _mapping(transport_component.get("target_context"))
+    source_rows = {
+        str(row.get("canonical_var") or ""): row
+        for row in _list_of_mappings(source_profile.get("covariates"))
+    }
+    target_rows = {
+        str(row.get("canonical_var") or ""): row
+        for row in _list_of_mappings(target_profile.get("covariates"))
+    }
+    covariate_names = tuple(
+        str(row.get("canonical_var") or "")
+        for row in _list_of_mappings(transport_component.get("covariates"))
+    )
+    if (
+        not covariate_names
+        or set(covariate_names) != set(source_rows)
+        or set(covariate_names) != set(target_rows)
+    ):
+        raise ValueError("cycle_substrate_transport_profile_denominator_mismatch")
+    transport = TransportContextEvidence(
+        status=str(transport_component.get("status") or ""),
+        source_context_id=str(source_profile.get("country_code") or ""),
+        target_context_id=str(target_profile.get("country_code") or ""),
+        source_profile_content_hash=str(
+            source_profile.get("profile_content_hash") or ""
+        ),
+        target_profile_content_hash=str(
+            target_profile.get("profile_content_hash") or ""
+        ),
+        substrate_input_content_hash=substrate_input_hash,
+        context_binding_hash=context_binding_hash,
+        covariates=tuple(
+            TransportCovariateObservation(
+                canonical_var=name,
+                source_value=float(source_rows[name]["mean_value"]),
+                target_value=float(target_rows[name]["mean_value"]),
+                source_row_content_hash=str(
+                    source_rows[name].get("row_content_hash") or ""
+                ),
+                target_row_content_hash=str(
+                    target_rows[name].get("row_content_hash") or ""
+                ),
+            )
+            for name in covariate_names
+        ),
+    )
+    return build_cycle_substrate_context(
+        design_problem_ref=design_problem_ref,
+        domain=domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=world_model_record,
+        intervention_substrate=intervention_substrate,
+        candidate_levers=tuple(candidates),
+        transport_context=transport,
+        source_pack_content_hash=historical_pack_hash,
+        substrate_input_content_hash=substrate_input_hash,
     )
 
 

@@ -70,7 +70,10 @@ from polisyos.runtime.quality.workspace.loop import (
     SearchExitDecisionInputs,
     select_search_terminal,
 )
-from polisyos.runtime.quality.world_model_record import WorldModelRecord
+from polisyos.runtime.quality.world_model_record import (
+    WorldModelRecord,
+    WorldModelRecordError,
+)
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     SchedulingDecision,
@@ -2734,7 +2737,18 @@ def _build_boundary_world_model_record(
     problem: DesignProblem,
     outcome: str,
     policy_slot_ids: Sequence[str],
+    substrate_registry: SubstrateRegistry | None = None,
+    selected_registry_entry_hashes: Sequence[str] | None = None,
 ) -> WorldModelRecord:
+    """Build one limited WMR from canonical registry evidence.
+
+    An explicitly supplied registry has already crossed its owner's verification
+    boundary and is consumed directly. The function never selects entries by a
+    domain name; selected content hashes and ``DesignProblem`` scope determine
+    the resulting world. When no registry is supplied, the canonical catalog
+    owner is still used for existing first-vertical callers.
+    """
+
     from polisyos.runtime.quality.world_model_record import (
         BranchMode,
         DataForgeBindingRef,
@@ -2748,7 +2762,43 @@ def _build_boundary_world_model_record(
         world_model_record_content_hash,
     )
 
-    registry = build_substrate_registry_from_existing_catalogs(repo_root)
+    registry = (
+        SubstrateRegistry.model_validate(substrate_registry.model_dump(mode="python"))
+        if substrate_registry is not None
+        else build_substrate_registry_from_existing_catalogs(repo_root)
+    )
+    selected_hashes = tuple(
+        dict.fromkeys(
+            str(item)
+            for item in (
+                selected_registry_entry_hashes
+                if selected_registry_entry_hashes is not None
+                else (entry.entry_content_hash for entry in registry.entries)
+            )
+            if str(item).strip()
+        )
+    )
+    if not selected_hashes:
+        raise WorldModelRecordError("boundary_registry_entries_missing")
+    raw_selected = tuple(
+        str(item)
+        for item in (selected_registry_entry_hashes or selected_hashes)
+        if str(item).strip()
+    )
+    if len(raw_selected) != len(set(raw_selected)):
+        raise WorldModelRecordError("boundary_registry_entry_duplicate")
+    entries_by_hash = {
+        entry.entry_content_hash: entry for entry in registry.entries
+    }
+    missing_hashes = sorted(set(selected_hashes).difference(entries_by_hash))
+    if missing_hashes:
+        raise WorldModelRecordError(
+            "boundary_registry_entry_unresolved",
+            ",".join(missing_hashes),
+        )
+    selected_entries = tuple(
+        entries_by_hash[entry_hash] for entry_hash in sorted(selected_hashes)
+    )
     resolved_entries = tuple(
         ResolvedSubstrateEntryRef(
             source_id=entry.source_id,
@@ -2764,29 +2814,51 @@ def _build_boundary_world_model_record(
             source_snapshot_id=entry.source_snapshot_id,
             entry_content_hash=entry.entry_content_hash,
         )
-        for entry in sorted(
-            registry.entries,
-            key=lambda item: (item.layer.value, item.source_id, item.family_id),
-        )
+        for entry in selected_entries
+    )
+    registry_artifact_ref = (
+        f"substrate-registry://{registry.substrate_version_id}/"
+        f"{registry.content_hash.removeprefix('sha256:')}"
     )
     registry_ref = SubstrateRegistryRef(
         substrate_version_id=registry.substrate_version_id,
         content_hash=registry.content_hash,
-        registry_artifact_ref=(
-            "repo://production_data/canonical/local_data_20260501"
-            "#substrate_registry_from_existing_catalogs"
-        ),
+        registry_artifact_ref=registry_artifact_ref,
         resolved_entries=resolved_entries,
     )
     slots = tuple(dict.fromkeys(str(slot) for slot in policy_slot_ids if str(slot).strip()))
+    population_scope = "stakeholders:" + ",".join(
+        sorted(stakeholder.stakeholder_id for stakeholder in problem.stakeholders)
+    )
+    resolution = str(
+        problem.runtime_hints.get("world_resolution") or "entity_observation_period"
+    )
     slot_map = tuple(
         PolicySlotBinding(
             slot_id=slot,
-            state_path=f"substrate.l1.{slot}",
-            entity_scope="country",
-            temporal_granularity="year",
+            state_path=f"substrate.{problem.domain}.{slot}",
+            entity_scope=population_scope,
+            temporal_granularity=resolution,
         )
         for slot in (slots or (outcome,))
+    )
+    primary_entry = next(
+        (entry for entry in selected_entries if entry.layer is SubstrateLayer.L2),
+        selected_entries[0],
+    )
+    primary_source_ref = next(
+        (
+            str(ref)
+            for ref in (*primary_entry.provenance_refs, *primary_entry.authority_refs)
+            if str(ref).strip()
+        ),
+        f"substrate-source://{primary_entry.source_id}",
+    )
+    selected_query_digest = gy_content_hash(
+        {
+            "registry_content_hash": registry.content_hash,
+            "selected_registry_entry_hashes": sorted(selected_hashes),
+        }
     )
     scope_hash = gy_content_hash(
         {
@@ -2794,6 +2866,7 @@ def _build_boundary_world_model_record(
             "domain": problem.domain,
             "outcome": outcome,
             "registry": registry.content_hash,
+            "selected_registry_entry_hashes": sorted(selected_hashes),
             "slots": [binding.model_dump(mode="json") for binding in slot_map],
         }
     )
@@ -2804,41 +2877,38 @@ def _build_boundary_world_model_record(
             "polisyos.runtime.quality.generation_cycle."
             "_build_boundary_world_model_record"
         ),
-        "region_or_jurisdiction": "UA",
-        "population_scope": "real_l1_dcat_country_panel",
-        "policy_domain": problem.domain or "runtime_quality",
-        "valid_time_scope": "2018/2023",
-        "tx_time_scope": "2026-07-06T00:00:00+00:00",
-        "resolution": "country_year",
+        "region_or_jurisdiction": problem.jurisdiction_time.region,
+        "population_scope": population_scope,
+        "policy_domain": problem.domain,
+        "valid_time_scope": problem.jurisdiction_time.valid_time,
+        "tx_time_scope": problem.jurisdiction_time.as_of,
+        "resolution": resolution,
         "branch_mode": BranchMode.OBSERVED,
         "fabric_world_ref": FabricWorldRef(
-            snapshot_root=str(repo_root / "production_data"),
+            snapshot_root="repo://production_data",
             snapshot_id=registry.substrate_version_id,
             branch="observed",
-            as_of_valid_time="2026-07-06T00:00:00+00:00",
-            as_of_tx_time="2026-07-06T00:00:00+00:00",
-            world_query_policy="real_substrate_registry_boundary",
-            provenance_manifest_ref="repo://production_data/manifest.json",
-            content_query_digest=registry.content_hash,
-            content_query_row_count=len(registry.entries),
+            as_of_valid_time=problem.jurisdiction_time.valid_time,
+            as_of_tx_time=problem.jurisdiction_time.as_of,
+            world_query_policy="selected_substrate_registry_entries",
+            provenance_manifest_ref=registry_artifact_ref,
+            content_query_digest=selected_query_digest,
+            content_query_row_count=len(selected_entries),
         ),
         "data_forge_binding_ref": DataForgeBindingRef(
-            snapshot_id=registry.substrate_version_id,
-            release_id="production_data_20260327",
+            snapshot_id=primary_entry.snapshot_id,
+            release_id=primary_entry.data_version,
             role="domain",
-            read_api_identity="l1_dcat.duckdb",
-            snapshot_ref=(
-                "repo://production_data/datasets_full_phase3full_20260327_183054/"
-                "dataset_catalog.duckdb"
-            ),
+            read_api_identity=primary_entry.source_id,
+            snapshot_ref=primary_source_ref,
             merkle_root=f"registry:{registry.substrate_version_id}",
             data_hash=registry.content_hash,
-            provenance_manifest_ref="repo://production_data/manifest.json",
+            provenance_manifest_ref=registry_artifact_ref,
         ),
         "simulation_model_ref": SimulationModelRef(
             model_spec_ref=gy_content_hash({"boundary": "model_spec", "scope": scope_hash}),
             model_spec_hash=gy_content_hash({"boundary": "model_hash", "scope": scope_hash}),
-            model_id="model_real_l1_dcat_boundary",
+            model_id="model_registry_boundary",
             data_snapshot_ref=gy_content_hash({"boundary": "data_snapshot", "scope": scope_hash}),
             registry_bundle_ref=gy_content_hash(
                 {"boundary": "registry_bundle", "scope": scope_hash}
@@ -2867,12 +2937,9 @@ def _build_boundary_world_model_record(
             ),
         ),
         "skg_causal_prior_ref": SkgCausalPriorRef(
-            skg_snapshot_ref=(
-                "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/"
-                "academic/graph/scholar_knowledge.duckdb"
-            ),
-            skg_version_id="production_data_20260411_boundary",
-            source_data_snapshot_id=registry.substrate_version_id,
+            skg_snapshot_ref=primary_source_ref,
+            skg_version_id=primary_entry.data_version,
+            source_data_snapshot_id=primary_entry.source_snapshot_id,
         ),
         "substrate_registry_ref": registry_ref,
         "policy_slot_map": slot_map,

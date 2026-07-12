@@ -440,6 +440,12 @@ authority-affecting or ambiguous mismatch stops.
 
 ## Task 2: Add the content-bound cycle substrate envelope
 
+**Progress checkpoint (2026-07-12):** the strict envelope core, full-denominator WMR projection
+checks, transport/candidate parent binding, fresh consumption revalidator, generic third-shape
+probe, and the canonical `InterventionSubstrateBundle` full-payload integrity chokepoint are green.
+The checker-only committed education-pack projector and its real WMR/context construction remain;
+Task 2 and the Stage-1 gate are therefore still open.
+
 **Files:**
 - Create: `src/polisyos/runtime/quality/cycle_substrate.py`
 - Modify: `src/polisyos/runtime/quality/__init__.py`

@@ -12,6 +12,7 @@ from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
     intervention_substrate_behavior_report,
     load_l6_intervention_substrate,
+    replace_intervention_substrate_bundle,
     resolve_intervention_lever,
     resolve_law_bound_lever,
     route_observation_family_method,
@@ -164,10 +165,12 @@ def test_all_real_law_map_entries_trace_to_l3_provision_without_injected_authori
 
 
 def test_law_bound_lever_fails_closed_for_dangling_map_entries() -> None:
-    bundle = load_l6_intervention_substrate(REPO_ROOT).model_copy(
+    base_bundle = load_l6_intervention_substrate(REPO_ROOT)
+    bundle = replace_intervention_substrate_bundle(
+        base_bundle,
         update={
             "lex_intervention_map": {
-                **load_l6_intervention_substrate(REPO_ROOT).lex_intervention_map,
+                **base_bundle.lex_intervention_map,
                 DANGLING_LAW: ("not_a_real_knob",),
             }
         }
@@ -198,7 +201,8 @@ def test_family_method_routing_uses_real_manifest_registry_and_python314_blocker
     bundle = load_l6_intervention_substrate(REPO_ROOT)
     dead_contract = "foundry.dead.unregistered_contract.v1"
     unavailable_contract = "foundry.bayesian.bart_regression.v1"
-    dead_bundle = bundle.model_copy(
+    dead_bundle = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "observation_manifest": {
                 **bundle.observation_manifest,
@@ -301,7 +305,8 @@ def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_
         as_of=FREE_GROW_L3_AS_OF,
     )
     assert threshold is not None
-    grown = bundle.model_copy(
+    grown = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "knob_dictionary": {
                 **bundle.knob_dictionary,
@@ -417,7 +422,8 @@ def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_
     assert law.status == "admissible"
     assert route.status == "routed"
 
-    malformed = grown.model_copy(
+    malformed = replace_intervention_substrate_bundle(
+        grown,
         update={
             "knob_dictionary": {
                 **grown.knob_dictionary,

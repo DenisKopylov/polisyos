@@ -305,6 +305,77 @@ class InterventionSubstrateBundle(_StrictModel):
     source_content_hashes: dict[str, str]
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
 
+    @model_validator(mode="after")
+    def _validate_content_hash(self) -> InterventionSubstrateBundle:
+        _assert_intervention_substrate_bundle_content_hash(self)
+        return self
+
+
+def intervention_substrate_bundle_content_hash(
+    bundle: InterventionSubstrateBundle | Mapping[str, Any],
+) -> str:
+    """Return the canonical full-payload hash for an L6 substrate bundle."""
+
+    if isinstance(bundle, InterventionSubstrateBundle):
+        payload = bundle.model_dump(mode="json", exclude={"content_hash"})
+    else:
+        payload = {
+            str(key): value
+            for key, value in bundle.items()
+            if str(key) != "content_hash"
+        }
+    return gy_content_hash(payload)
+
+
+def verify_intervention_substrate_bundle_content_hash(
+    bundle: InterventionSubstrateBundle,
+) -> InterventionSubstrateBundle:
+    """Verify and return a fresh snapshot of one L6 substrate bundle."""
+
+    payload = bundle.model_dump(mode="python")
+    _assert_intervention_substrate_bundle_content_hash(payload)
+    return InterventionSubstrateBundle.model_validate(payload)
+
+
+def _assert_intervention_substrate_bundle_content_hash(
+    bundle: InterventionSubstrateBundle | Mapping[str, Any],
+) -> None:
+    expected = intervention_substrate_bundle_content_hash(bundle)
+    actual = (
+        bundle.content_hash
+        if isinstance(bundle, InterventionSubstrateBundle)
+        else str(bundle.get("content_hash") or "")
+    )
+    if actual != expected:
+        raise InterventionSubstrateError(
+            "intervention_substrate_bundle_content_hash_mismatch",
+            f"expected {expected}, got {actual}",
+        )
+
+
+def replace_intervention_substrate_bundle(
+    bundle: InterventionSubstrateBundle,
+    *,
+    update: Mapping[str, Any],
+) -> InterventionSubstrateBundle:
+    """Return a validated bundle after content-addressing top-level updates."""
+
+    if "content_hash" in update:
+        raise InterventionSubstrateError(
+            "intervention_substrate_content_hash_update_forbidden"
+        )
+    verified = verify_intervention_substrate_bundle_content_hash(bundle)
+    payload = verified.model_dump(mode="python", exclude={"content_hash"})
+    payload.update(
+        {
+            str(key): value
+            for key, value in update.items()
+            if str(key) != "content_hash"
+        }
+    )
+    payload["content_hash"] = intervention_substrate_bundle_content_hash(payload)
+    return InterventionSubstrateBundle.model_validate(payload)
+
 
 def default_l6_bundle_paths(repo_root: Path) -> dict[str, Path]:
     """Return canonical L6 agent-sim bundle paths under ``repo_root``."""
@@ -376,7 +447,7 @@ def load_l6_intervention_substrate(repo_root: Path) -> InterventionSubstrateBund
     }
     return InterventionSubstrateBundle(
         **fields,
-        content_hash=gy_content_hash(fields),
+        content_hash=intervention_substrate_bundle_content_hash(fields),
     )
 
 
@@ -389,6 +460,7 @@ def resolve_intervention_lever(
 ) -> InterventionLeverResolution:
     """Resolve an atom operator/value against the L6 knob dictionary."""
 
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     operator = str(operator_kind or "").strip()
     if not operator:
         raise InterventionSubstrateError("knob_operator_missing")
@@ -448,6 +520,7 @@ def resolve_law_bound_lever(
 ) -> LawLeverResolution:
     """Resolve a legal modality to a knob and evaluate L3 admissibility."""
 
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     token = str(law_token or "").strip()
     knob = str(knob_id or "").strip()
     mapped_knobs = _lex_map_knobs(bundle.lex_intervention_map, token)
@@ -529,6 +602,7 @@ def route_observation_family_method(
 ) -> ObservationMethodRoute:
     """Route an observation family to an available Foundry method."""
 
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     family_id = str(family or "").strip()
     route = _manifest_route(bundle.observation_manifest, family_id)
     contract_id, contract_fqn = _route_contract(route)
@@ -756,7 +830,8 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
         },
     )
 
-    dangling_bundle = bundle.model_copy(
+    dangling_bundle = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "lex_intervention_map": {
                 **bundle.lex_intervention_map,
@@ -1304,7 +1379,8 @@ def _free_grow_bundle(
     threshold: _ThresholdRefProtocol,
     as_of: str = _REPRESENTATIVE_L3_AS_OF,
 ) -> InterventionSubstrateBundle:
-    return bundle.model_copy(
+    return replace_intervention_substrate_bundle(
+        bundle,
         update={
             "knob_dictionary": {
                 **bundle.knob_dictionary,
@@ -1394,16 +1470,6 @@ def _free_grow_bundle(
                 ],
                 "artifacts": _mapping_list(bundle.observation_manifest.get("artifacts")),
             },
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "future_knob": _FREE_GROW_KNOB,
-                    "future_law": "future_relief_law",
-                    "future_family": "future_budget_flows",
-                    "threshold_id": threshold.threshold_id,
-                    "future_mechanism": _FREE_GROW_MECHANISM,
-                }
-            ),
         }
     )
 
@@ -1534,6 +1600,7 @@ def _coverage_report(
     lex_store: _LegalKnowledgeStoreProtocol,
     world_model_record: WorldModelRecord,
 ) -> dict[str, Any]:
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     catalog_module = importlib.import_module("polisyos.foundry.methods.catalog")
     registry_module = importlib.import_module(
         "polisyos.foundry.methods.selection.registry"
@@ -1707,12 +1774,10 @@ def _dead_route_bundle(bundle: InterventionSubstrateBundle) -> InterventionSubst
             },
         ],
     }
-    return bundle.model_copy(
+    return replace_intervention_substrate_bundle(
+        bundle,
         update={
             "observation_manifest": observation_manifest,
-            "content_hash": gy_content_hash(
-                {"source": bundle.content_hash, "dead_route_family": dead_contract}
-            ),
         }
     )
 
@@ -1744,15 +1809,10 @@ def _unavailable_route_bundle(bundle: InterventionSubstrateBundle) -> Interventi
             },
         ],
     }
-    return bundle.model_copy(
+    return replace_intervention_substrate_bundle(
+        bundle,
         update={
             "observation_manifest": observation_manifest,
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "python314_unavailable_route_family": unavailable_contract,
-                }
-            ),
         }
     )
 
@@ -1773,7 +1833,8 @@ def _owner_slot_reference_binds_without_owner_validation_signal(
             "owner_validation_probe_fake_family": {"slots": [fake_slot]},
         },
     }
-    mutated = bundle.model_copy(
+    mutated = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "knob_dictionary": {
                 **bundle.knob_dictionary,
@@ -1814,12 +1875,6 @@ def _owner_slot_reference_binds_without_owner_validation_signal(
                     },
                 },
             },
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "mutation": "owner_slot_reference_binds_without_owner_validation",
-                }
-            ),
         }
     )
     return resolve_intervention_lever(
@@ -1840,7 +1895,8 @@ def _law_provision_reference_binds_without_l3_validation_signal(
     fake_threshold_id = "ffffffffffffffffffffffff"
     knob_id = next(iter(sorted(bundle.knob_dictionary)))
     raw_knob = _mapping_or_none(bundle.knob_dictionary[knob_id]) or {}
-    mutated = bundle.model_copy(
+    mutated = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "lex_intervention_map": {
                 **bundle.lex_intervention_map,
@@ -1868,12 +1924,6 @@ def _law_provision_reference_binds_without_l3_validation_signal(
                     },
                 ],
             },
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "mutation": "law_provision_reference_binds_without_l3_validation",
-                }
-            ),
         }
     )
     return resolve_law_bound_lever(
@@ -1892,15 +1942,10 @@ def _world_slot_owner_derivation_disabled_signal(
     lex_store: _LegalKnowledgeStoreProtocol,
     world_model_record: WorldModelRecord,
 ) -> dict[str, Any]:
-    mutated = bundle.model_copy(
+    mutated = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "world_mechanism_manifest": {"schema_version": "1.0", "mechanisms": {}},
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "mutation": "world_slot_owner_derivation_disabled",
-                }
-            ),
         }
     )
     coverage = _coverage_report(
@@ -1922,16 +1967,11 @@ def _world_slot_hardcoded_bypass_signal(bundle: InterventionSubstrateBundle) -> 
             "mechanism_id": "parallel_raw_slot_only",
             "target_world_slots": ["government.balance"],
         }
-    mutated = bundle.model_copy(
+    mutated = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "knob_dictionary": raw_knobs,
             "world_mechanism_manifest": {"schema_version": "1.0", "mechanisms": {}},
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "mutation": "world_slot_hardcoded_bypass",
-                }
-            ),
         }
     )
     first_knob = next(iter(sorted(mutated.knob_dictionary)))
@@ -2618,9 +2658,12 @@ __all__ = [
     "default_l6_bundle_paths",
     "intervention_generation_registry_bundle",
     "intervention_substrate_behavior_report",
+    "intervention_substrate_bundle_content_hash",
     "load_l6_intervention_substrate",
     "production_composed_world_model_record",
+    "replace_intervention_substrate_bundle",
     "resolve_intervention_lever",
     "resolve_law_bound_lever",
     "route_observation_family_method",
+    "verify_intervention_substrate_bundle_content_hash",
 ]

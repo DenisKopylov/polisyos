@@ -875,7 +875,7 @@ git commit -m "fix: fence synthetic cycle substrate authority"
 - Regenerate: `architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json`
 - Regenerate if content-bound references change: `architecture/policy_design_case/layer3_gy_second_domain_pack.json`
 
-- [ ] **Step 1: Write a RED semantic trace assertion.**
+- [x] **Step 1: Write a RED semantic trace assertion.**
 
 ```python
 def test_education_cycle_attempts_exact_pack_levers_before_honest_grounding_terminal() -> None:
@@ -912,7 +912,7 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_grounding_term
     assert {gap_id: gap_status[gap_id] for gap_id in expected_closed} == expected_closed
 ```
 
-- [ ] **Step 2: Run the test and observe RED because the old trace uses grammar fallback and lacks pack context.**
+- [x] **Step 2: Run the test and observe RED because the old trace uses grammar fallback and lacks pack context.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_second_domain_pack.py -k 'exact_pack_levers or grounding_terminal' -q

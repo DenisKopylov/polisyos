@@ -104,6 +104,73 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
     assert not second_domain_pack.validate_bundle_payloads(bundle, REPO_ROOT)
 
 
+def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> None:
+    """The Stage-1 trace uses real N4/L6/WMR owners and beats the N10a baseline."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    trace = second_domain_pack._build_cycle_trace(
+        REPO_ROOT,
+        frozen["smoke_problem"],
+    )
+    stage = trace["stage_attempts"]
+    expected_levers = {
+        str(row["lever_id"])
+        for row in frozen["pack"]["components"]["lever_vocabulary"]["entries"]
+    }
+    proposed = set(stage["generation"]["proposed_operator_kinds"])
+
+    assert set(stage["generation"]["prompt_slice_operator_kinds"]) == expected_levers
+    assert proposed
+    assert proposed.issubset(expected_levers)
+    assert stage["generation"]["generation_channel"] == "n4_owner"
+    assert stage["generation"]["lever_source_hash"] == trace[
+        "substrate_input_content_hash"
+    ]
+    assert stage["generation"]["exact_formalizer_input_hashes"]
+    assert stage["grounding"]["attempted"] is True
+    assert stage["grounding"]["disposition"] in {
+        "novel_cg3",
+        "non_binding_abstain",
+        "unknown_blocked",
+        "veto_false_analog",
+    }
+    assert stage["grounding"]["candidate_entry_content_hash"] in {
+        str(row["entry_content_hash"])
+        for row in frozen["pack"]["components"]["lever_vocabulary"]["entries"]
+    }
+    assert stage["grounding"]["lever_resolution_content_hash"].startswith("sha256:")
+    assert stage["world_model"]["object_identity_reused"] is True
+    assert stage["world_model"]["world_model_record_content_hash"] == trace[
+        "world_model_record_content_hash"
+    ]
+    assert stage["cycle_terminal"]["terminal_kind"] == (
+        second_domain_pack.expected_cycle_terminal_for_disposition(
+            stage["grounding"]["disposition"]
+        )
+    )
+    assert stage["cycle_terminal"]["terminal_kind"] != "a_spec_gap"
+    assert second_domain_pack.recompute_baseline_diff(
+        trace,
+        second_domain_pack.load_committed_baseline(REPO_ROOT),
+    )["materially_deeper"] is True
+    gap_status = {
+        str(gap["gap_id"]): str(gap["status"])
+        for gap in trace["gap_triage"]
+    }
+    assert {
+        gap_id: gap_status[gap_id]
+        for gap_id in {
+            "s0_to_n4_l6_bridge_missing",
+            "s0_to_n5_wmr_bridge_missing",
+            "s0_to_l6_world_slot_bridge_missing",
+        }
+    } == {
+        "s0_to_n4_l6_bridge_missing": "closed",
+        "s0_to_n5_wmr_bridge_missing": "closed",
+        "s0_to_l6_world_slot_bridge_missing": "closed",
+    }
+
+
 def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:
     """Persist the canonical registry payload and derive the L2 selection by source."""
 

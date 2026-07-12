@@ -916,6 +916,85 @@ def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
     assert calls == []
 
 
+def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> None:
+    """A valid nested atom for another world is refused at the single N5 intake."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationRequest,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    base_problem, base_context = _lane0_cycle_context()
+    n4_payload = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    candidate_payload = n4_contract.first_shadow_bound_recorded_candidate(
+        n4_payload
+    )
+    atom = InterventionAtomBinding.model_validate(candidate_payload["atom"])
+    mismatched_atom = atom.model_copy(
+        update={"world_model_record_ref": "world_model_record_0123456789abcdef"}
+    )
+    mismatched_atom = mismatched_atom.model_copy(
+        update={"content_hash": intervention_atom_content_hash(mismatched_atom)}
+    )
+    mismatched_atom = InterventionAtomBinding.model_validate(
+        mismatched_atom.model_dump(mode="python")
+    )
+    request = JointSimulationRequest.model_construct(
+        world_model_record_ref=base_context.world_model_record.world_model_record_id,
+        world_model_record=base_context.world_model_record,
+        intervention_atoms=(mismatched_atom,),
+    )
+    problem, context = _lane0_cycle_context(
+        runtime_hints={"joint_simulation_request": request}
+    )
+    assert problem.domain == base_problem.domain
+    assert context.world_model_record.content_hash == base_context.world_model_record.content_hash
+    candidate = _Candidate(
+        candidate_id="candidate_water_quality_nested_atom_mismatch",
+        atom=_Atom(
+            "candidate_water_quality_nested_atom_mismatch",
+            "sha256:" + "2" * 64,
+            world_model_record_ref=context.world_model_record.content_hash,
+            target_world_slots=("nitrate_load",),
+        ),
+        diversity_key=("buffer", "watershed", "water", "nested-atom-mismatch"),
+    )
+    calls: list[object] = []
+
+    class _RecordingController:
+        def run(self, concrete_request: object) -> object:
+            calls.append(concrete_request)
+            return SimpleNamespace(
+                receipt=SimpleNamespace(payload_hash="sha256:" + "3" * 64),
+                uncertainty_kind="K_sim",
+                promotion_ready_value_packet={},
+                engine_decisions=(),
+                trajectories=(),
+                interaction_terms=(),
+            )
+
+    observation = JointSimulationPort(
+        controller=_RecordingController(),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_model_record_unresolved" in observation.authority_blockers
+    assert calls == []
+
+
 def test_joint_port_cache_key_tracks_canonical_registry_content(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

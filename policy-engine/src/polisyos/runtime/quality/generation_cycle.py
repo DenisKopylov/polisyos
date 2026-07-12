@@ -831,6 +831,18 @@ class JointSimulationPort:
     ) -> JointSimulationRequest:
         """Resolve every request/candidate ref against one concrete WMR object."""
 
+        request_refs = (
+            ("joint_simulation_request", request.world_model_record_ref),
+            *tuple(
+                (
+                    f"joint_simulation_request.intervention_atoms[{index}]",
+                    _object_get(atom, "world_model_record_ref"),
+                )
+                for index, atom in enumerate(
+                    getattr(request, "intervention_atoms", ()) or ()
+                )
+            ),
+        )
         if self._cycle_substrate_context is not None:
             context_record = self._context_world_model_record(
                 candidate=candidate,
@@ -850,6 +862,12 @@ class JointSimulationPort:
                 raise WorldModelRecordError(
                     "cycle_substrate_request_wmr_mismatch"
                 )
+            self._assert_world_model_reference_bindings(
+                candidate=candidate,
+                problem=problem,
+                world_model_record=context_record,
+                additional_refs=request_refs,
+            )
             return request.model_copy(
                 update={"world_model_record": context_record}
             )
@@ -857,7 +875,7 @@ class JointSimulationPort:
             candidate=candidate,
             problem=problem,
             world_model_record=request.world_model_record,
-            additional_refs=(("joint_simulation_request", request.world_model_record_ref),),
+            additional_refs=request_refs,
         )
         return request
 

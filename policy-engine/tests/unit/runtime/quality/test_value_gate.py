@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -168,7 +168,7 @@ class _TreatmentAtom:
     intervention_id: str
     content_hash: str
     status: str = "candidate_unverified"
-    world_model_record_ref: str = "world_model_record_test"
+    world_model_record_ref: str | None = "world_model_record_test"
     target_world_slots: tuple[str, ...] = ("avg_income",)
     treated_unit_ids: tuple[str, ...] = ("AM",)
     treatment_period: int = 2020
@@ -371,10 +371,38 @@ def test_hand_set_value_outer_set_width_is_rejected() -> None:
         ValueOuterSet.model_validate(payload)
 
 
+def test_empty_hints_with_unresolved_candidate_wmr_ref_refuses_typed() -> None:
+    problem = _avg_income_problem()
+    candidate = _avg_income_candidate()
+
+    simulation = JointSimulationPort(repo_root=Path.cwd())(
+        candidate=candidate,
+        problem=problem,
+        cycle_index=0,
+    )
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert simulation.status == "simulation_blocked"
+    assert simulation.world_model_record is None
+    assert "world_model_record_unresolved" in simulation.authority_blockers
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("value_world_model_record_unwired",)
+    assert observation.world_model_record_content_hash is None
+
+
 def test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr() -> None:
     problem = _avg_income_problem()
     assert problem.runtime_hints == {}
-    candidate = _avg_income_candidate()
+    raw_candidate = _avg_income_candidate()
+    candidate = replace(
+        raw_candidate,
+        atom=replace(raw_candidate.atom, world_model_record_ref=None),
+    )
 
     simulation = JointSimulationPort(repo_root=Path.cwd())(
         candidate=candidate,
@@ -390,6 +418,8 @@ def test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr() -> None:
 
     assert simulation.world_model_record is not None
     assert simulation.diagnostics["world_model_source"] == "real_substrate_registry_boundary"
+    assert simulation.world_model_record.policy_domain == problem.domain
+    assert simulation.world_model_record.region_or_jurisdiction == problem.jurisdiction_time.region
     assert observation.status == "value_ready"
     assert observation.world_model_record_content_hash == simulation.world_model_record.content_hash
     assert observation.selected_method_fqn == "causal.inference.did.standard@1.0.0"

@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import copy
 import hashlib
 import json
 import sys
+import tempfile
 import time
 from datetime import UTC, datetime
 from pathlib import Path
@@ -72,6 +74,139 @@ def declared_outputs() -> list[str]:
     """Return generated artifacts owned by this validator."""
 
     return [OUTPUT_PATH]
+
+
+def generation_cycle_substrate_fence(repo_root: Path) -> dict[str, Any]:
+    """Derive the N6 bootstrap caller census and canonical-owner refusal witness."""
+
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        _n7_substrate_registry,
+    )
+
+    source_path = repo_root / "src/polisyos/runtime/quality/generation_cycle.py"
+    source = source_path.read_text(encoding="utf-8")
+    tree = ast.parse(source, filename=source_path.as_posix())
+    prohibited_builders = {
+        "SubstrateRegistration",
+        "build_substrate_registry",
+        "build_substrate_registry_entry",
+    }
+    production_callers: list[str] = []
+    bootstrap_literals: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            symbol = _ast_call_symbol(node)
+            if symbol in prohibited_builders:
+                production_callers.append(f"{source_path.relative_to(repo_root)}:{node.lineno}:{symbol}")
+        if (
+            isinstance(node, ast.Constant)
+            and isinstance(node.value, str)
+            and "n6.bootstrap" in node.value
+        ):
+            bootstrap_literals.append(
+                f"{source_path.relative_to(repo_root)}:{node.lineno}:{node.value}"
+            )
+
+    problem = DesignProblem.model_validate(
+        {
+            "design_problem_id": "n7_owner_absence_probe",
+            "problem_statement": "Acquire missing evidence without synthetic registry authority.",
+            "domain": "owner_absence_probe",
+            "nl_provenance": {
+                "raw_request": "Acquire missing evidence.",
+                "source_surface": "layer3_gy_acquisition_contract",
+            },
+            "authority_profile": {
+                "requester_authority": "contract_probe",
+                "requested_authority_level": "research",
+                "mandate": "Fail closed when the canonical substrate owner is unavailable.",
+            },
+            "jurisdiction_time": {
+                "region": "probe_region",
+                "valid_time": "2026",
+                "as_of": "2026-07-12",
+                "policy_time": "2026",
+                "data_time": "2026",
+            },
+            "objectives": [
+                {
+                    "objective_id": "resolve_owner_evidence",
+                    "description": "Resolve owner evidence.",
+                    "metric_id": "owner_evidence",
+                }
+            ],
+            "constraints": [
+                {
+                    "constraint_id": "no_synthetic_authority",
+                    "description": "Synthetic registry entries cannot satisfy acquisition.",
+                    "admissibility_basis": "request_text",
+                    "source_text": "Do not fabricate missing owner evidence.",
+                }
+            ],
+            "stakeholders": [
+                {
+                    "stakeholder_id": "evidence_consumers",
+                    "name": "Evidence consumers",
+                    "role": "consumer",
+                }
+            ],
+            "outcome_of_interest": {
+                "target_variable": "owner_evidence",
+                "metric_id": "owner_evidence",
+                "estimand": "owner_measure",
+            },
+            "candidate_lever_space": {
+                "allowed_operator_kinds": ["probe"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "owner_probe",
+                        "operator_kind": "probe",
+                        "instrument": "Owner evidence probe",
+                        "target_slot": "owner_evidence",
+                    }
+                ],
+            },
+            "evidence_acquisition_needs": {"needs": []},
+        }
+    )
+    owner_absence_reason: str | None = None
+    fabricated_registry = False
+    with tempfile.TemporaryDirectory(prefix="policyos-n7-owner-absence-") as raw_root:
+        try:
+            _n7_substrate_registry(
+                problem,
+                families=("owner_evidence",),
+                repo_root=Path(raw_root),
+            )
+        except GenerationCycleError as exc:
+            owner_absence_reason = exc.code
+        else:
+            fabricated_registry = True
+    status = (
+        "strangled"
+        if not production_callers
+        and not bootstrap_literals
+        and owner_absence_reason == "n7_substrate_registry_unresolved"
+        and not fabricated_registry
+        else "drift"
+    )
+    return {
+        "status": status,
+        "production_bootstrap_callers": sorted(production_callers),
+        "bootstrap_authority_literals": sorted(bootstrap_literals),
+        "owner_absence_reason": owner_absence_reason,
+        "fabricated_registry": fabricated_registry,
+    }
+
+
+def _ast_call_symbol(node: ast.Call) -> str:
+    if isinstance(node.func, ast.Name):
+        return node.func.id
+    if isinstance(node.func, ast.Attribute):
+        return node.func.attr
+    return ""
 
 
 def build_live_payload(repo_root: Path) -> dict[str, Any]:
@@ -201,9 +336,18 @@ def validate(repo_root: Path) -> dict[str, Any]:
         issues.append({"code": "layer3_gy_acquisition_contract_missing", "path": OUTPUT_PATH})
     else:
         issues.extend(validate_payload(json.loads(path.read_text(encoding="utf-8")))["issues"])
+    substrate_fence = generation_cycle_substrate_fence(repo_root)
+    if substrate_fence["status"] != "strangled":
+        issues.append(
+            {
+                "code": "n7_generation_cycle_bootstrap_fence_drift",
+                "witness": substrate_fence,
+            }
+        )
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
+        "generation_cycle_substrate_fence": substrate_fence,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         "network_calls": network_counter.network_calls,
     }
@@ -274,9 +418,18 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
     ).model_dump(mode="json")
     report = validate_payload(rederived)
     report["issues"].extend(_rederive_mismatch_issues(payload, rederived))
+    substrate_fence = generation_cycle_substrate_fence(repo_root)
+    if substrate_fence["status"] != "strangled":
+        report["issues"].append(
+            {
+                "code": "n7_generation_cycle_bootstrap_fence_drift",
+                "witness": substrate_fence,
+            }
+        )
     return {
         "status": "pass" if not report["issues"] else "fail",
         "issues": report["issues"],
+        "generation_cycle_substrate_fence": substrate_fence,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         "network_calls": network_counter.network_calls,
         "compute_economics": payload["compute_economics"],

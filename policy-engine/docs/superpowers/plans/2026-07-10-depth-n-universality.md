@@ -792,7 +792,7 @@ git commit -m "feat: route candidate levers through N4"
 - `JointSimulationPort(controller: JointSimulationHorizonController | None = None, *, repo_root: Path | None = None, cycle_substrate_context: CycleSubstrateContext | None = None)` returns the exact context WMR.
 - `_n7_substrate_registry` resolves explicit context/hints or canonical catalogs and fails typed; it never constructs `n6.bootstrap.*` entries.
 
-- [ ] **Step 1: Write RED WMR/P32/cache tests.**
+- [x] **Step 1: Write RED WMR/P32/cache tests.**
 
 ```python
 def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
@@ -825,13 +825,13 @@ def test_n7_registry_owner_failure_never_builds_bootstrap_authority(monkeypatch)
 
 Add a cache invalidation test using a second internally coherent registry/WMR pair: the registry content changes and the corresponding WMR is rebuilt/bound to it. Mutating only the registry hash while retaining the old WMR is an invalid-context RED, not a valid cache case. Add a no-hints N8 test accepting either a canonical catalog WMR or a typed `value_world_model_record_unwired` refusal—never fixed-UA contamination.
 
-- [ ] **Step 2: Run the new tests and observe RED.**
+- [x] **Step 2: Run the new tests and observe RED.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_generation_cycle.py tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_acquisition_planner.py -k 'cycle_context_wmr or shaped_wmr or bootstrap_authority or cache_invalidation or no_hints' -q
 ```
 
-- [ ] **Step 3: Inject the context and remove the bootstrap constructor.**
+- [x] **Step 3: Inject the context and remove the bootstrap constructor.**
 
 Make the controller construct defaults as follows:
 
@@ -849,7 +849,7 @@ self._value_port = value_port or FoundryValuePort(repo_root=repo_root)
 
 Delete the `n6.bootstrap.*` registration block. Convert registry-owner failure into the existing acquisition-required terminal with an explicit `n7_substrate_registry_unresolved` limitation/counterexample reason; do not fabricate an `AcquisitionReceipt`.
 
-- [ ] **Step 4: Run the N7 blast radius and focused regressions.**
+- [x] **Step 4: Run the N7 blast radius and focused regressions.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_generation_cycle.py tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_acquisition_planner.py -k 'acquisition or registry or boundary_wmr or no_hints or bootstrap' -q
@@ -859,7 +859,7 @@ python3 tools/quality/validation/check_layer3_gy_acquisition_contract.py --reder
 .venv/bin/ruff check src/polisyos/runtime/quality/generation_cycle.py tests/unit/runtime/quality/test_generation_cycle.py tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_acquisition_planner.py
 ```
 
-- [ ] **Step 5: Commit the structural fence.**
+- [x] **Step 5: Commit the structural fence.**
 
 ```bash
 git add src/polisyos/runtime/quality/generation_cycle.py tests/unit/runtime/quality/test_generation_cycle.py tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_acquisition_planner.py tools/quality/validation/check_layer3_gy_acquisition_contract.py

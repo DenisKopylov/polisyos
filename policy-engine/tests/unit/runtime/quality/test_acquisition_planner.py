@@ -86,6 +86,21 @@ from polisyos.scientist.methods.search.voi_models import (
     acquisition_voi_metadata,
     stable_voi_decision_id,
 )
+from tools.quality.validation import check_layer3_gy_acquisition_contract as contract
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_generation_cycle_bootstrap_authority_is_strangled() -> None:
+    """The N7 checker derives both caller census and fail-closed owner refusal."""
+
+    witness = contract.generation_cycle_substrate_fence(REPO_ROOT)
+
+    assert witness["status"] == "strangled"
+    assert witness["production_bootstrap_callers"] == []
+    assert witness["bootstrap_authority_literals"] == []
+    assert witness["owner_absence_reason"] == "n7_substrate_registry_unresolved"
+    assert witness["fabricated_registry"] is False
 
 
 def _decision(

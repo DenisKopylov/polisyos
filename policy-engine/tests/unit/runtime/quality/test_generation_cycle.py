@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, get_args
 
 import pytest
@@ -90,7 +91,7 @@ class _Atom:
     intervention_id: str
     content_hash: str
     status: str = "candidate_unverified"
-    world_model_record_ref: str = "world_model_record_test"
+    world_model_record_ref: str | None = "world_model_record_test"
     target_world_slots: tuple[str, ...] = ("firm_survival",)
 
 
@@ -726,7 +727,10 @@ def _lane0_registry(*, domain: str, source_id: str) -> SubstrateRegistry:
     )
 
 
-def _lane0_cycle_context() -> tuple[DesignProblem, CycleSubstrateContext]:
+def _lane0_cycle_context(
+    *,
+    runtime_hints: dict[str, Any] | None = None,
+) -> tuple[DesignProblem, CycleSubstrateContext]:
     """Build one unseen-shape context through the canonical boundary owner."""
 
     problem = _domain_problem(
@@ -737,6 +741,8 @@ def _lane0_cycle_context() -> tuple[DesignProblem, CycleSubstrateContext]:
         outcome="nitrate_load",
         stakeholder_id="watershed_communities",
     )
+    if runtime_hints is not None:
+        problem = problem.model_copy(update={"runtime_hints": runtime_hints})
     registry = _lane0_registry(
         domain="water_quality",
         source_id="l2_watershed_graph:causal_edges.duckdb",
@@ -801,6 +807,7 @@ def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
         atom=_Atom(
             "candidate_water_quality",
             "sha256:" + "b" * 64,
+            world_model_record_ref=context.world_model_record.world_model_record_id,
             target_world_slots=("nitrate_load",),
         ),
         diversity_key=("buffer", "watershed", "water", "lane0"),
@@ -819,6 +826,157 @@ def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
     assert observation.diagnostics["world_model_source"] == "cycle_substrate_context"
     assert observation.k_world_ref_before == context.world_model_record.content_hash
     assert observation.k_world_ref_after == context.world_model_record.content_hash
+
+
+def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
+    """A candidate's shaped WMR ref cannot override the resolved context world."""
+
+    problem, context = _lane0_cycle_context()
+    candidate = _Candidate(
+        candidate_id="candidate_water_quality_wrong_world",
+        atom=_Atom(
+            "candidate_water_quality_wrong_world",
+            "sha256:" + "c" * 64,
+            world_model_record_ref="world_model_record_0123456789abcdef",
+            target_world_slots=("nitrate_load",),
+        ),
+        diversity_key=("buffer", "watershed", "water", "wrong-world"),
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_model_record_unresolved" in observation.authority_blockers
+
+
+def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
+    """An explicit N5 request with another concrete WMR is refused before simulation."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationRequest,
+    )
+
+    base_problem, _base_context = _lane0_cycle_context()
+    request_registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:explicit_request.duckdb",
+    )
+    request_world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=base_problem,
+        outcome="nitrate_load",
+        policy_slot_ids=("nitrate_load",),
+        substrate_registry=request_registry,
+        selected_registry_entry_hashes=(
+            request_registry.entries[0].entry_content_hash,
+        ),
+    )
+    request = JointSimulationRequest.model_construct(
+        world_model_record_ref=request_world.world_model_record_id,
+        world_model_record=request_world,
+    )
+    problem, context = _lane0_cycle_context(
+        runtime_hints={"joint_simulation_request": request}
+    )
+    candidate = _Candidate(
+        candidate_id="candidate_water_quality_request_mismatch",
+        atom=_Atom(
+            "candidate_water_quality_request_mismatch",
+            "sha256:" + "f" * 64,
+            world_model_record_ref=context.world_model_record.content_hash,
+            target_world_slots=("nitrate_load",),
+        ),
+        diversity_key=("buffer", "watershed", "water", "request-mismatch"),
+    )
+    calls: list[object] = []
+
+    class _RecordingController:
+        def run(self, concrete_request: object) -> object:
+            calls.append(concrete_request)
+            return SimpleNamespace(
+                receipt=SimpleNamespace(payload_hash="sha256:" + "1" * 64),
+                uncertainty_kind="K_sim",
+                promotion_ready_value_packet={},
+                engine_decisions=(),
+                trajectories=(),
+                interaction_terms=(),
+            )
+
+    observation = JointSimulationPort(
+        controller=_RecordingController(),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "cycle_substrate_request_wmr_mismatch" in observation.authority_blockers
+    assert calls == []
+
+
+def test_joint_port_cache_key_tracks_canonical_registry_content(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A changed canonical registry rebuilds the WMR instead of reusing stale world state."""
+
+    from polisyos.runtime.quality import generation_cycle
+
+    problem, _context = _lane0_cycle_context()
+    first_registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.v1.duckdb",
+    )
+    second_registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.v2.duckdb",
+    )
+    registries = iter((first_registry, second_registry))
+
+    def _next_registry(_repo_root: Path) -> SubstrateRegistry:
+        return next(registries)
+
+    monkeypatch.setattr(
+        generation_cycle,
+        "build_substrate_registry_from_existing_catalogs",
+        _next_registry,
+    )
+    candidate = _Candidate(
+        candidate_id="candidate_water_quality_cache",
+        atom=_Atom(
+            "candidate_water_quality_cache",
+            "sha256:" + "d" * 64,
+            world_model_record_ref=None,
+            target_world_slots=("nitrate_load",),
+        ),
+        diversity_key=("buffer", "watershed", "water", "cache"),
+    )
+    port = JointSimulationPort(repo_root=REPO_ROOT)
+
+    first = port(candidate=candidate, problem=problem, cycle_index=0)
+    second = port(candidate=candidate, problem=problem, cycle_index=1)
+
+    assert first.world_model_record is not None
+    assert second.world_model_record is not None
+    assert first.world_model_record.content_hash != second.world_model_record.content_hash
+    assert first.world_model_record.substrate_registry_ref.content_hash == first_registry.content_hash
+    assert second.world_model_record.substrate_registry_ref.content_hash == second_registry.content_hash
+
+
+def test_joint_port_revalidates_context_before_reusing_wmr() -> None:
+    """A stale registry checksum cannot retain an old WMR through the context route."""
+
+    _problem_value, context = _lane0_cycle_context()
+    stale_context = context.model_copy(
+        update={"substrate_registry_content_hash": "sha256:" + "e" * 64}
+    )
+
+    with pytest.raises(ValueError, match="cycle_substrate_registry_hash_mismatch"):
+        JointSimulationPort(
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=stale_context,
+        )
 
 
 def test_shaped_wmr_ref_without_resolved_object_is_rejected() -> None:
@@ -883,6 +1041,8 @@ async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.acquisition_receipt is None
     assert "n7_substrate_registry_unresolved" in cycle.counterexample.diagnostic.code
+    assert "n7_substrate_registry_unresolved" not in cycle.grounding.issue_codes
+    assert "n7_route" not in cycle.revision_request.strategy_payload
     assert "n6.bootstrap" not in json.dumps(run.model_dump(mode="json"))
 
 

@@ -56,15 +56,9 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationRequest,
 )
 from polisyos.runtime.quality.substrate_registry import (
-    SubstrateCoverage,
     SubstrateLayer,
-    SubstrateRegistration,
     SubstrateRegistry,
     SubstrateRegistryError,
-    SubstrateSchemaRegime,
-    SubstrateTrustTier,
-    build_substrate_registry,
-    build_substrate_registry_entry,
     build_substrate_registry_from_existing_catalogs,
 )
 from polisyos.runtime.quality.workspace.loop import (
@@ -96,6 +90,14 @@ GENERATION_CYCLE_CONTROLLER_REF = (
 )
 ENGINE_SIMPLE_OWNER_REF = (
     "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine"
+)
+_N7_ROUTING_FAILURE_CODES = frozenset(
+    {
+        "n7_cycle_substrate_context_invalid",
+        "n7_cycle_substrate_context_mismatch",
+        "n7_substrate_registry_invalid",
+        "n7_substrate_registry_unresolved",
+    }
 )
 
 FrontKind = Literal["decision", "research", "quarantine", "portfolio"]
@@ -679,10 +681,19 @@ class JointSimulationPort:
         controller: JointSimulationHorizonController | None = None,
         *,
         repo_root: Path | None = None,
+        cycle_substrate_context: CycleSubstrateContext | None = None,
     ) -> None:
         self._controller = controller or JointSimulationHorizonController()
         self._repo_root = repo_root
+        if cycle_substrate_context is not None:
+            from polisyos.runtime.quality.cycle_substrate import (
+                revalidate_cycle_substrate_context,
+            )
+
+            revalidate_cycle_substrate_context(cycle_substrate_context)
+        self._cycle_substrate_context = cycle_substrate_context
         self._boundary_world_cache: dict[str, WorldModelRecord] = {}
+        self._boundary_world_cache_index: dict[str, str] = {}
 
     def __call__(
         self,
@@ -702,6 +713,7 @@ class JointSimulationPort:
             request = problem.runtime_hints["joint_simulation_request"]
         if request is None:
             world_record = None
+            world_error_code: str | None = None
             diagnostics: dict[str, Any] = {
                 "port": "N5",
                 "reason": "joint_simulation_request_missing",
@@ -715,31 +727,46 @@ class JointSimulationPort:
                     {
                         "world_model_record_id": world_record.world_model_record_id,
                         "world_model_record_content_hash": world_record.content_hash,
-                        "world_model_source": "real_substrate_registry_boundary",
+                        "world_model_source": (
+                            "cycle_substrate_context"
+                            if self._cycle_substrate_context is not None
+                            else "real_substrate_registry_boundary"
+                        ),
                         "simulation_status": "pending_full_joint_request",
                     }
                 )
             except Exception as exc:
+                world_error_code = str(
+                    getattr(exc, "code", None) or "world_model_record_unavailable"
+                )
                 diagnostics.update(
                     {
                         "world_model_source": "unavailable",
+                        "world_model_error_code": world_error_code,
                         "world_model_error": str(exc),
                     }
                 )
             return SimulationPortObservation(
                 candidate_id=candidate_id,
-                status="simulation_pending_n5",
-                authority_blockers=("joint_simulation_request_missing",),
+                status=(
+                    "simulation_pending_n5"
+                    if world_record is not None
+                    else "simulation_blocked"
+                ),
+                authority_blockers=tuple(
+                    item
+                    for item in (
+                        "joint_simulation_request_missing",
+                        world_error_code,
+                    )
+                    if item is not None
+                ),
                 diagnostics=diagnostics,
                 k_world_ref_before=(
-                    world_record.content_hash
-                    if world_record is not None
-                    else _candidate_world_ref(candidate, problem)
+                    world_record.content_hash if world_record is not None else None
                 ),
                 k_world_ref_after=(
-                    world_record.content_hash
-                    if world_record is not None
-                    else _candidate_world_ref(candidate, problem)
+                    world_record.content_hash if world_record is not None else None
                 ),
                 world_model_record=world_record,
             )
@@ -748,6 +775,29 @@ class JointSimulationPort:
             if isinstance(request, JointSimulationRequest)
             else JointSimulationRequest.model_validate(request)
         )
+        try:
+            request = self._request_with_verified_world_model(
+                request=request,
+                candidate=candidate,
+                problem=problem,
+            )
+        except WorldModelRecordError as exc:
+            source = (
+                "cycle_substrate_context"
+                if self._cycle_substrate_context is not None
+                else "joint_simulation_request"
+            )
+            return SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=(exc.code,),
+                diagnostics={
+                    "port": "N5",
+                    "reason": exc.code,
+                    "world_model_source": source,
+                    "world_model_error": str(exc),
+                },
+            )
         result = self._controller.run(request)
         k_world_ref = request.world_model_record.content_hash
         return SimulationPortObservation(
@@ -772,6 +822,113 @@ class JointSimulationPort:
             world_model_record=request.world_model_record,
         )
 
+    def _request_with_verified_world_model(
+        self,
+        *,
+        request: JointSimulationRequest,
+        candidate: object,
+        problem: DesignProblem,
+    ) -> JointSimulationRequest:
+        """Resolve every request/candidate ref against one concrete WMR object."""
+
+        if self._cycle_substrate_context is not None:
+            context_record = self._context_world_model_record(
+                candidate=candidate,
+                problem=problem,
+            )
+            accepted = {
+                context_record.world_model_record_id,
+                context_record.content_hash,
+            }
+            if (
+                request.world_model_record.world_model_record_id
+                != context_record.world_model_record_id
+                or request.world_model_record.content_hash
+                != context_record.content_hash
+                or request.world_model_record_ref not in accepted
+            ):
+                raise WorldModelRecordError(
+                    "cycle_substrate_request_wmr_mismatch"
+                )
+            return request.model_copy(
+                update={"world_model_record": context_record}
+            )
+        self._assert_world_model_reference_bindings(
+            candidate=candidate,
+            problem=problem,
+            world_model_record=request.world_model_record,
+            additional_refs=(("joint_simulation_request", request.world_model_record_ref),),
+        )
+        return request
+
+    def _context_world_model_record(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+    ) -> WorldModelRecord:
+        """Return the exact verified context WMR and bind all supplied refs to it."""
+
+        if self._cycle_substrate_context is None:
+            raise WorldModelRecordError("cycle_substrate_context_missing")
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
+
+        context = revalidate_cycle_substrate_context(
+            self._cycle_substrate_context
+        )
+        if context.design_problem_ref != _problem_ref(problem):
+            raise WorldModelRecordError(
+                "cycle_substrate_design_problem_mismatch"
+            )
+        if context.domain != problem.domain:
+            raise WorldModelRecordError(
+                "cycle_substrate_problem_domain_mismatch"
+            )
+        record = self._cycle_substrate_context.world_model_record
+        self._assert_world_model_reference_bindings(
+            candidate=candidate,
+            problem=problem,
+            world_model_record=record,
+        )
+        return record
+
+    @staticmethod
+    def _assert_world_model_reference_bindings(
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_model_record: WorldModelRecord,
+        additional_refs: Sequence[tuple[str, object]] = (),
+    ) -> None:
+        """Reject every supplied loose WMR ref that does not resolve to the object."""
+
+        atom = _object_get(candidate, "atom")
+        supplied_refs = (
+            (
+                "problem.runtime_hints.world_model_record_ref",
+                _runtime_hint_optional(problem, "world_model_record_ref"),
+            ),
+            ("candidate.world_model_record_ref", _object_get(candidate, "world_model_record_ref")),
+            ("candidate.atom.world_model_record_ref", _object_get(atom, "world_model_record_ref")),
+            *additional_refs,
+        )
+        accepted = {
+            world_model_record.world_model_record_id,
+            world_model_record.content_hash,
+        }
+        mismatches = tuple(
+            f"{label}={value}"
+            for label, value in supplied_refs
+            if value is not None and str(value).strip() and str(value) not in accepted
+        )
+        if mismatches:
+            raise WorldModelRecordError(
+                "world_model_record_unresolved",
+                ";".join(mismatches),
+            )
+
     def _boundary_world_model_record(
         self,
         *,
@@ -785,27 +942,57 @@ class JointSimulationPort:
         an acquisition gap while the full joint simulation remains pending.
         """
 
+        if self._cycle_substrate_context is not None:
+            return self._context_world_model_record(
+                candidate=candidate,
+                problem=problem,
+            )
+
         repo_root = (self._repo_root or Path.cwd()).resolve()
         outcome = _value_outcome_variable(candidate, problem) or "value_outcome"
         slots = tuple(_candidate_target_world_slots(candidate)) or (outcome,)
-        cache_key = gy_content_hash(
-            {
-                "repo_root": repo_root.as_posix(),
-                "problem_id": problem.design_problem_id,
-                "domain": problem.domain,
-                "outcome": outcome,
-                "slots": slots,
-            }
+        registry = build_substrate_registry_from_existing_catalogs(repo_root)
+        selected_entry_hashes = tuple(
+            sorted(entry.entry_content_hash for entry in registry.entries)
         )
-        if cache_key in self._boundary_world_cache:
-            return self._boundary_world_cache[cache_key]
+        cache_identity = {
+            "design_problem_ref": _problem_ref(problem),
+            "substrate_registry_content_hash": registry.content_hash,
+            "selected_registry_entry_hashes": selected_entry_hashes,
+            "outcome_hash": gy_content_hash(outcome),
+            "policy_slot_hash": gy_content_hash(slots),
+        }
+        cache_index_key = gy_content_hash(cache_identity)
+        cache_key = self._boundary_world_cache_index.get(cache_index_key)
+        if cache_key is not None:
+            record = self._boundary_world_cache[cache_key]
+            self._assert_world_model_reference_bindings(
+                candidate=candidate,
+                problem=problem,
+                world_model_record=record,
+            )
+            return record
         record = _build_boundary_world_model_record(
             repo_root=repo_root,
             problem=problem,
             outcome=outcome,
             policy_slot_ids=slots,
+            substrate_registry=registry,
+            selected_registry_entry_hashes=selected_entry_hashes,
+        )
+        cache_key = gy_content_hash(
+            {
+                **cache_identity,
+                "world_model_record_content_hash": record.content_hash,
+            }
         )
         self._boundary_world_cache[cache_key] = record
+        self._boundary_world_cache_index[cache_index_key] = cache_key
+        self._assert_world_model_reference_bindings(
+            candidate=candidate,
+            problem=problem,
+            world_model_record=record,
+        )
         return record
 
 
@@ -1400,8 +1587,11 @@ class GenerationCycleController:
             cycle_substrate_context=cycle_substrate_context,
         )
         self._grounding_port = grounding_port or PolicyGroundingPort()
-        self._simulation_port = simulation_port or JointSimulationPort()
-        self._value_port = value_port or FoundryValuePort()
+        self._simulation_port = simulation_port or JointSimulationPort(
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+        self._value_port = value_port or FoundryValuePort(repo_root=repo_root)
         if promotion_port is None:
             from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
 
@@ -1467,10 +1657,16 @@ class GenerationCycleController:
                     terminal_status = "blocked"
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
-            acquisition_receipt = self._run_n7_acquisition_if_requested(
-                current_problem,
-                cycle=cycle,
-            )
+            try:
+                acquisition_receipt = self._run_n7_acquisition_if_requested(
+                    current_problem,
+                    cycle=cycle,
+                )
+            except GenerationCycleError as exc:
+                if exc.code not in _N7_ROUTING_FAILURE_CODES:
+                    raise
+                acquisition_receipt = None
+                cycle = _cycle_with_n7_route_failure(cycle, reason=exc.code)
             if acquisition_receipt is not None:
                 cycle, cycle_summaries = self._reenter_cycle_after_n7_acquisition(
                     current_problem,
@@ -1704,9 +1900,17 @@ class GenerationCycleController:
             problem,
             families=families,
             repo_root=self._repo_root or Path.cwd(),
+            cycle_substrate_context=self._cycle_substrate_context,
+        )
+        context_world_ref = (
+            self._cycle_substrate_context.world_model_record_content_hash
+            if self._cycle_substrate_context is not None
+            else None
         )
         world_ref_hint = _runtime_hint_optional(problem, "world_model_record_ref")
         world_ref = str(world_ref_hint or f"s0://substrate-registry/{registry.substrate_version_id}")
+        if context_world_ref is not None:
+            world_ref = context_world_ref
         return AcquisitionWorldSnapshot(
             world_ref=world_ref,
             known_slots=families,
@@ -1720,7 +1924,7 @@ class GenerationCycleController:
                 )
             },
             substrate_registry=registry.model_dump(mode="json"),
-            world_model_record_ref=_runtime_hint_optional(problem, "world_model_record_ref"),
+            world_model_record_ref=(context_world_ref or world_ref_hint),
         )
 
     def _n7_owner_gateway(self, problem: DesignProblem) -> object:
@@ -2462,58 +2666,50 @@ def _n7_substrate_registry(
     *,
     families: Sequence[str],
     repo_root: Path,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> SubstrateRegistry:
+    del families
+    if cycle_substrate_context is not None:
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
+
+        try:
+            context = revalidate_cycle_substrate_context(cycle_substrate_context)
+        except ValueError as exc:
+            raise GenerationCycleError(
+                "n7_cycle_substrate_context_invalid",
+                str(exc),
+            ) from exc
+        if (
+            context.design_problem_ref != _problem_ref(problem)
+            or context.domain != problem.domain
+        ):
+            raise GenerationCycleError(
+                "n7_cycle_substrate_context_mismatch"
+            )
+        return cycle_substrate_context.substrate_registry
     for key in ("substrate_registry", "s0_substrate_registry"):
         raw = problem.runtime_hints.get(key)
         if raw is not None:
-            return (
-                raw
-                if isinstance(raw, SubstrateRegistry)
-                else SubstrateRegistry.model_validate(raw)
-            )
+            try:
+                return SubstrateRegistry.model_validate(
+                    raw.model_dump(mode="python")
+                    if isinstance(raw, SubstrateRegistry)
+                    else raw
+                )
+            except ValueError as exc:
+                raise GenerationCycleError(
+                    "n7_substrate_registry_invalid",
+                    str(exc),
+                ) from exc
     try:
         return build_substrate_registry_from_existing_catalogs(repo_root)
-    except (SubstrateRegistryError, FileNotFoundError, ValueError):
-        pass
-    entries = [
-        build_substrate_registry_entry(
-            SubstrateRegistration(
-                source_id=f"n6.bootstrap.{family}",
-                family_id=family,
-                layer=SubstrateLayer.L1,
-                coverage=SubstrateCoverage(
-                    coverage_score=0.01,
-                    coverage_kind="n6_bootstrap_world_slot",
-                    coverage_rule_ref=f"n6://coverage/{family}",
-                    dataset_count=1,
-                    metric_binding_count=1,
-                    observation_count=1,
-                ),
-                trust_tier=SubstrateTrustTier(
-                    tier="bootstrap",
-                    trust_cap=0.01,
-                    trust_multiplier=0.01,
-                    authority_ref=f"n6://trust/{family}",
-                ),
-                identification_mode="bootstrap_slot",
-                schema_regime=SubstrateSchemaRegime(
-                    schema_regime_id=f"manifest:{family}",
-                    authority_ref=f"n6://schema/{family}",
-                ),
-                data_version="n6-bootstrap",
-                snapshot_id=f"n6-bootstrap:{family}",
-                source_snapshot_id=f"n6-bootstrap:{family}",
-                provenance_refs=(f"n6://provenance/{family}",),
-                authority_refs=(f"n6://authority/{family}",),
-            )
-        )
-        for family in families
-    ]
-    return build_substrate_registry(
-        entries,
-        producer_ref="polisyos.runtime.quality.generation_cycle.N6",
-        source_catalog_refs=(f"n6://{problem.design_problem_id}/bootstrap-substrate-registry",),
-    )
+    except (SubstrateRegistryError, FileNotFoundError, ValueError) as exc:
+        raise GenerationCycleError(
+            "n7_substrate_registry_unresolved",
+            str(exc),
+        ) from exc
 
 
 def _n7_rederived_grounding_for_candidate(
@@ -3897,15 +4093,6 @@ def _candidate_content_hash(candidate: object) -> str:
     return gy_content_hash(_json_ready(_candidate_id(candidate)))
 
 
-def _candidate_world_ref(candidate: object, problem: DesignProblem) -> str | None:
-    atom = _object_get(candidate, "atom")
-    value = _object_get(atom, "world_model_record_ref")
-    if value:
-        return str(value)
-    hint = _runtime_hint_optional(problem, "world_model_record_ref")
-    return str(hint) if hint else None
-
-
 def _grounding_disposition_for_candidate(
     candidate: object,
     *,
@@ -4529,6 +4716,36 @@ def _blocked_cycle(cycle: GenerationCycleRecord, *, reason: str) -> GenerationCy
             "refinement_decision": decision,
             "search_iteration": iteration,
             "voi_decision": voi,
+        }
+    )
+
+
+def _cycle_with_n7_route_failure(
+    cycle: GenerationCycleRecord,
+    *,
+    reason: str,
+) -> GenerationCycleRecord:
+    """Retain an acquisition terminal while recording a failed canonical N7 route."""
+
+    counterexample = cycle.counterexample.model_copy(
+        update={
+            "counterexample_class": "substrate_gap",
+            "diagnostic": cycle.counterexample.diagnostic.model_copy(
+                update={
+                    "code": f"n6.acquisition.{reason}",
+                    "message": (
+                        "Acquisition remains required because the canonical "
+                        f"substrate owner refused routing: {reason}."
+                    ),
+                }
+            ),
+            "routed_to": "acquisition",
+        }
+    )
+    return cycle.model_copy(
+        update={
+            "counterexample": counterexample,
+            "acquisition_receipt": None,
         }
     )
 

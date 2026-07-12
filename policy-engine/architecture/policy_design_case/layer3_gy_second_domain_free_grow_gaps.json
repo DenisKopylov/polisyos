@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:c2448312b3ac9e8ed38de590cdc1ebe423bbcab7f91c568bfa78631962893689",
+  "gap_report_content_hash": "sha256:07d5a5c5d3a48100dba4332d139da1aceddbb3cfd5d8ed361667fe8d16700c58",
   "gaps": [
     {
       "acquisition_required": {
@@ -10,7 +10,7 @@
       },
       "blocking_seam": "L2 candidate intervention concepts do not resolve through the real L6 knob owner.",
       "capability_label": "bridge_missing",
-      "gap_content_hash": "sha256:17deefba376023a7c16c1892c98fae6b03dae5db585a1ae4895bc7b0e723271e",
+      "gap_content_hash": "sha256:2bb259d2666ce5bd2b920dd1f2451e3ac80acf8f0e331751b15fa32548d6c520",
       "gap_id": "s0_to_l6_world_slot_bridge_missing",
       "owner_evidence": {
         "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
@@ -30,9 +30,10 @@
             "domain.model_dump",
             "gy_content_hash",
             "str",
-            "tuple"
+            "tuple",
+            "verify_intervention_substrate_bundle_content_hash"
           ],
-          "segment_content_hash": "sha256:f63620ce99cf392e2805b33f91a552159ec630df600bb453925202754c829737",
+          "segment_content_hash": "sha256:176e23c1909dbae661eacec2efd1a2c449ee85a5585029fb3bea7c91e08d9bda",
           "source_path": "src/polisyos/runtime/quality/intervention_substrate.py",
           "symbol": "resolve_intervention_lever"
         },
@@ -76,7 +77,7 @@
       },
       "blocking_seam": "N7's real owner receipt is journaled, but its projected registration is not rederived from the captured domain-owner measurements.",
       "capability_label": "artifact_missing",
-      "gap_content_hash": "sha256:16c3f26d17d71b2cddf56deee67c8741a5c32205315e393914055740a1fb5b76",
+      "gap_content_hash": "sha256:0dc7d7fd5efaaf8884c85c66cffa618643554ec2bb4ebf8858d89e51556ae8f2",
       "gap_id": "owner_registration_derivation_missing",
       "owner_evidence": {
         "direct_persist_acquisition_receipt_call": false,
@@ -87,11 +88,11 @@
           {
             "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
             "matches": true,
-            "raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a",
-            "recomputed_raw_response_hash": "sha256:6423844b9120862a647ae12423ade152e3676b6a4f64b172d10379bc8489ee2a"
+            "raw_response_hash": "sha256:b36d1f8a52982b7a33befc286ec3e84abe96018c7d9d0ae706c7d478cc8a1dfb",
+            "recomputed_raw_response_hash": "sha256:b36d1f8a52982b7a33befc286ec3e84abe96018c7d9d0ae706c7d478cc8a1dfb"
           }
         ],
-        "live_n7_receipt_content_hash": "sha256:222158e4a545288f5b3e6fbd12005ec7bae3813a218601d12239a2e403fa36f0",
+        "live_n7_receipt_content_hash": "sha256:6b523c44caaa2894a8447d9e4bba9f6c115b200fca727151a59bbfb6011b2da2",
         "seam_witness": {
           "observed_call_names": [
             "<dynamic>.join",
@@ -126,13 +127,13 @@
     {
       "blocking_seam": "The live N7 receipt carries a journal-first entry and raw-response hash, but the existing owner exposes no durable journal/CAS artifact for later S0/L6 use.",
       "capability_label": "artifact_missing",
-      "gap_content_hash": "sha256:96fab3a49a929e394b168efd4d447d045fc97e880b98628fb56715ab51b482a1",
+      "gap_content_hash": "sha256:472c097cd5b956bb1dacdb74cf17edaec6a03780fc2ff436fb3c0ab4dbd9432e",
       "gap_id": "journal_raw_evidence_persistence_missing",
       "owner_evidence": {
         "journal_entries": [
           {
             "action": "acquire_evidence",
-            "artifact_content_hash": "sha256:dc6c2b5665f984a5595a505247ccb26457bef13bf6345587911534a161eea19c",
+            "artifact_content_hash": "sha256:72f8d69a29ddedb11ed3b1dab99324d61d01a3aac2f915b28b58b2828a53f8a2",
             "artifact_ref": "owner-capture://fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
             "journal_ref": "journal://n7/fabric-retrieval/data-requirement-gy-n10a-education-teaching-method",
             "message": "owner artifact journaled before receipt validation",
@@ -143,7 +144,7 @@
           }
         ],
         "journal_persistence_status": "receipt_embedded_in_content_addressed_pack_manifest",
-        "receipt_content_hash": "sha256:222158e4a545288f5b3e6fbd12005ec7bae3813a218601d12239a2e403fa36f0",
+        "receipt_content_hash": "sha256:6b523c44caaa2894a8447d9e4bba9f6c115b200fca727151a59bbfb6011b2da2",
         "seam_witness": {
           "observed_call_names": [
             "AcquisitionJournalEntry",
@@ -307,7 +308,7 @@
     {
       "blocking_seam": "A typed one-cycle terminal reaches N6 but its validator requires a positive two-cycle denominator.",
       "capability_label": "semantic_test_missing",
-      "gap_content_hash": "sha256:a6032a2209ffad3cac129a7ed00bf2fbe9e79e697ccc16e23cc410ef8a289da5",
+      "gap_content_hash": "sha256:b9ebde3241429759b7d8b87da8e36c3cce2783946a36f8f4a2ce32d145ea0233",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [
@@ -340,7 +341,7 @@
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "validate_generation_cycle_run"
         },
-        "trace_content_hash": "sha256:2c5ed6df7c9a4d497bf3662e7727e01ec9f884c1e0ef358cebed8e6a96a58c07"
+        "trace_content_hash": "sha256:5f7db291f7f99ca4df9e93c534c4221ef55463a221009739ec98923504a28acf"
       }
     }
   ],

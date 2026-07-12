@@ -146,6 +146,7 @@
         "causal_claim_count": 438,
         "edge_count": 422,
         "lever_cause_count": 330,
+        "owner_query_source_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
         "parameter_estimate_count": 1962,
         "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
         "query_id": "l2_candidate_aggregate",
@@ -429,6 +430,7 @@
         "causal_claim_count": 1585,
         "edge_count": 1521,
         "lever_cause_count": 1041,
+        "owner_query_source_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
         "parameter_estimate_count": 9225,
         "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
         "query_id": "l2_candidate_aggregate",
@@ -737,6 +739,7 @@
         "causal_claim_count": 2373,
         "edge_count": 2304,
         "lever_cause_count": 1686,
+        "owner_query_source_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
         "parameter_estimate_count": 12252,
         "query_content_hash": "sha256:1abac250a1254fe522057ffda40ce29983c053274f6688e3b0990680af8175b1",
         "query_id": "l2_candidate_aggregate",
@@ -883,7 +886,7 @@
       }
     }
   },
-  "census_content_hash": "sha256:b967e9a49df2d86c2256faafd902aa7b7f7301cccb8b36ac9d933b402cd8a6b8",
+  "census_content_hash": "sha256:a291c6ba96e4181f575007fd6f762a6df487daa77d289a30913da35044377db5",
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
@@ -1370,6 +1373,7 @@
     },
     "l2_candidate_aggregate": {
       "owner": "duckdb_read_only",
+      "owner_query_source_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
       "parameters": [
         [
           "health",
@@ -1759,9 +1763,9 @@
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
     "query_timings_seconds": {
-      "l1_candidate_aggregate": 0.059892,
-      "l2_candidate_aggregate": 0.031873,
-      "l2_candidate_exact_measure_names": 0.009855
+      "l1_candidate_aggregate": 0.087672,
+      "l2_candidate_aggregate": 0.047838,
+      "l2_candidate_exact_measure_names": 0.016343
     }
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"

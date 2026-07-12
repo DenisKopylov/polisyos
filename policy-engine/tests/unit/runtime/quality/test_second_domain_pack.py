@@ -9,6 +9,10 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.runtime.quality.substrate_registry import (
+    SubstrateRegistry,
+    build_substrate_registry,
+)
 from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -53,6 +57,31 @@ def _rehash_gap_report_and_pack(bundle: dict[str, object]) -> None:
     _rehash_pack_manifest(bundle)
 
 
+def _historical_census_payload() -> dict[str, object]:
+    """Load the immutable N10a census for adversarial receipt probes."""
+
+    prefix = subprocess.run(
+        ["git", "rev-parse", "--show-prefix"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    historical_path = f"{prefix}{second_domain_pack.CENSUS_OUTPUT}"
+    raw = subprocess.run(
+        [
+            "git",
+            "show",
+            f"{N10A_PROOF_HEAD_COMMIT}:{historical_path}",
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    return json.loads(raw)
+
+
 @pytest.fixture(scope="module")
 def live_bundle() -> dict[str, object]:
     """Build the expensive owner-derived bundle once for this focused module."""
@@ -70,6 +99,592 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
     assert bundle["census"]["decision"]["chosen_candidate"] == "education"
     assert bundle["pack"]["manifest_content_hash"].startswith("sha256:")
     assert not second_domain_pack.validate_bundle_payloads(bundle, REPO_ROOT)
+
+
+def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:
+    """Persist the canonical registry payload and derive the L2 selection by source."""
+
+    pack = second_domain_pack._load_frozen_bundle(REPO_ROOT)["pack"]
+    component = pack["components"]["substrate_registry"]
+    owner_registry = pack["owner_query_results"]["s0_registry"]
+    registry = SubstrateRegistry.model_validate(owner_registry["registry_payload"])
+    selected_hashes = tuple(component["selected_entry_hashes"])
+    query_source_ref = component["selection_evidence"]["owner_query_source_ref"]
+    selected_entries = [
+        entry for entry in registry.entries if entry.entry_content_hash in selected_hashes
+    ]
+
+    assert component["content_hash"] == registry.content_hash
+    assert owner_registry["content_hash"] == registry.content_hash
+    assert component["substrate_version_id"] == registry.substrate_version_id
+    assert "registry_payload" not in component
+    assert component["content_hash"] == pack["components"]["owner_writability"][
+        "s0_registry_content_hash"
+    ]
+    assert len(selected_entries) == len(selected_hashes) == 1
+    assert selected_entries[0].layer.value == "L2"
+    assert {
+        entry["selected_registry_entry_hash"]
+        for entry in pack["components"]["lever_vocabulary"]["entries"]
+    } == set(selected_hashes)
+    assert any(
+        ref.split("#", 1)[0] == query_source_ref
+        for ref in (*selected_entries[0].provenance_refs, *selected_entries[0].authority_refs)
+    )
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_code"),
+    [
+        ("registry_payload", "cycle_substrate_registry_payload_invalid"),
+        ("registry_producer", "cycle_substrate_registry_producer_mismatch"),
+        ("registry_version", "cycle_substrate_registry_version_id_mismatch"),
+        ("selected_hash", "cycle_substrate_registry_selected_entry_unresolved"),
+        ("query_source", "cycle_substrate_registry_selection_evidence_mismatch"),
+    ],
+)
+def test_cycle_registry_intake_rejects_shaped_or_repointed_evidence(
+    mutation: str,
+    expected_code: str,
+) -> None:
+    """Resolve and verify S0 evidence instead of trusting registry-shaped JSON."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    component = corrupted["pack"]["components"]["substrate_registry"]
+    if mutation == "registry_payload":
+        corrupted["pack"]["owner_query_results"]["s0_registry"]["registry_payload"][
+            "entries"
+        ][0]["family_id"] = "shaped_family"
+    elif mutation == "registry_producer":
+        corrupted["pack"]["owner_query_results"]["s0_registry"]["registry_payload"][
+            "producer_ref"
+        ] = "shaped.parallel_registry_producer"
+    elif mutation == "registry_version":
+        shaped_version = "substrate_version_ffffffffffffffff"
+        corrupted["pack"]["owner_query_results"]["s0_registry"][
+            "substrate_version_id"
+        ] = shaped_version
+        corrupted["pack"]["owner_query_results"]["s0_registry"]["registry_payload"][
+            "substrate_version_id"
+        ] = shaped_version
+        component["substrate_version_id"] = shaped_version
+    elif mutation == "selected_hash":
+        component["selected_entry_hashes"] = ["sha256:" + "0" * 64]
+    else:
+        component["selection_evidence"]["owner_query_source_ref"] = (
+            "repo://production_data/unrelated.duckdb"
+        )
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert expected_code in codes
+
+
+def test_cycle_registry_query_evidence_is_bound_to_independent_census() -> None:
+    """Reject a coordinated pack-side query receipt rewrite."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    pack = corrupted["pack"]
+    query = pack["owner_query_results"]["l2_selected_levers"]
+    original_query_id = query["query_id"]
+    shaped_query_id = "coordinated_shaped_query"
+    owner_query = corrupted["census"]["owner_queries"].pop(original_query_id)
+    owner_query["query_id"] = shaped_query_id
+    owner_query["sql"] += "\n-- coordinated query rewrite"
+    owner_query["query_content_hash"] = second_domain_pack._hash(
+        {
+            "sql": owner_query["sql"],
+            "parameters": owner_query["parameters"],
+        }
+    )
+    corrupted["census"]["owner_queries"][shaped_query_id] = owner_query
+    query["query_id"] = shaped_query_id
+    query["query_content_hash"] = owner_query["query_content_hash"]
+    query["response_content_hash"] = owner_query["response_content_hash"]
+    chosen = pack["selected_domain"]
+    census_query = corrupted["census"]["candidates"][chosen]["l2_scholar_kg"]
+    census_query["query_id"] = query["query_id"]
+    census_query["query_content_hash"] = query["query_content_hash"]
+    census_query["response_content_hash"] = query["response_content_hash"]
+    corrupted["census"] = second_domain_pack._with_content_hash(
+        corrupted["census"],
+        "census_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    pack["census_content_hash"] = corrupted["census"]["census_content_hash"]
+    selection = pack["components"]["substrate_registry"]["selection_evidence"]
+    selection["query_id"] = query["query_id"]
+    selection["query_content_hash"] = query["query_content_hash"]
+    selection["query_response_content_hash"] = query["response_content_hash"]
+    pack["components"]["grounding_reference_coverage"]["owner_query"] = {
+        "query_id": query["query_id"],
+        "query_content_hash": query["query_content_hash"],
+        "response_content_hash": query["response_content_hash"],
+    }
+    for lever in pack["components"]["lever_vocabulary"]["entries"]:
+        evidence = lever["owner_evidence"]
+        evidence["query_id"] = query["query_id"]
+        evidence["query_content_hash"] = query["query_content_hash"]
+        evidence["query_response_content_hash"] = query["response_content_hash"]
+        rehashed = second_domain_pack._with_content_hash(
+            lever,
+            "entry_content_hash",
+        )
+        lever.clear()
+        lever.update(rehashed)
+    pack["content_addressing"]["substrate_input_content_hash"] = (
+        second_domain_pack.second_domain_substrate_input_content_hash(pack)
+    )
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "cycle_substrate_registry_query_census_mismatch" in codes
+
+
+def test_current_census_owner_query_is_recomputed_not_self_attested() -> None:
+    """Reject changed current SQL even when every recorded receipt hash is retained."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    query_id = corrupted["pack"]["owner_query_results"]["l2_selected_levers"][
+        "query_id"
+    ]
+    corrupted["census"]["owner_queries"][query_id]["sql"] += (
+        "\n-- shaped current query with stale self-attested hash"
+    )
+    corrupted["census"] = second_domain_pack._with_content_hash(
+        corrupted["census"],
+        "census_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    corrupted["pack"]["census_content_hash"] = corrupted["census"][
+        "census_content_hash"
+    ]
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "cycle_substrate_registry_query_census_mismatch" in codes
+
+
+def test_historical_l2_query_evidence_binds_immutable_owner_source() -> None:
+    """Carry the proof-head owner path into the historical query receipt."""
+
+    second_domain_pack._historical_n10a_l2_query_evidence.cache_clear()
+    evidence = second_domain_pack._historical_n10a_l2_query_evidence(
+        REPO_ROOT.resolve().as_posix()
+    )
+
+    assert evidence.owner_query_source_ref == (
+        "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/"
+        "academic/graph/scholar_knowledge.duckdb"
+    )
+
+
+def test_historical_l2_query_rejects_self_attested_owner_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Reject a re-hashed census whose owner rows no longer match its receipt."""
+
+    payload = _historical_census_payload()
+    query_id = payload["candidates"]["education"]["l2_scholar_kg"]["query_id"]
+    payload["owner_queries"][query_id]["rows"][0]["variable_count"] += 1
+    payload = second_domain_pack._with_content_hash(
+        payload,
+        "census_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    tampered_raw = json.dumps(payload)
+    real_git = second_domain_pack._git
+
+    def _tampered_git(root: Path, *args: str) -> str:
+        if args and args[0] == "show" and second_domain_pack.CENSUS_OUTPUT in args[1]:
+            return tampered_raw
+        return real_git(root, *args)
+
+    second_domain_pack._historical_n10a_l2_query_evidence.cache_clear()
+    monkeypatch.setattr(second_domain_pack, "_git", _tampered_git)
+    try:
+        with pytest.raises(RuntimeError, match="owner query receipt"):
+            second_domain_pack._historical_n10a_l2_query_evidence(
+                REPO_ROOT.resolve().as_posix()
+            )
+    finally:
+        second_domain_pack._historical_n10a_l2_query_evidence.cache_clear()
+
+
+def test_cycle_registry_intake_rederives_the_live_s0_owner() -> None:
+    """Reject a coherent, canonically hashed registry not emitted by the live owner."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    pack = corrupted["pack"]
+    registry = SubstrateRegistry.model_validate(
+        pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected = set(
+        pack["components"]["substrate_registry"]["selected_entry_hashes"]
+    )
+    removable = next(
+        entry for entry in registry.entries if entry.entry_content_hash not in selected
+    )
+    forged = build_substrate_registry(
+        (entry for entry in registry.entries if entry != removable),
+        producer_ref=registry.producer_ref,
+        source_catalog_refs=registry.source_catalog_refs,
+    )
+    owner = pack["owner_query_results"]["s0_registry"]
+    owner["registry_payload"] = forged.model_dump(mode="json")
+    owner["content_hash"] = forged.content_hash
+    owner["substrate_version_id"] = forged.substrate_version_id
+    component = pack["components"]["substrate_registry"]
+    component["content_hash"] = forged.content_hash
+    component["substrate_version_id"] = forged.substrate_version_id
+    pack["components"]["owner_writability"]["s0_registry_content_hash"] = (
+        forged.content_hash
+    )
+    pack["content_addressing"]["substrate_input_content_hash"] = (
+        second_domain_pack.second_domain_substrate_input_content_hash(pack)
+    )
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "cycle_substrate_registry_owner_rederive_mismatch" in codes
+
+
+def test_cycle_registry_intake_rejects_another_valid_l2_entry() -> None:
+    """Bind lever selection to the queried L2 owner, not merely any valid L2 row."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    pack = corrupted["pack"]
+    registry = SubstrateRegistry.model_validate(
+        pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected_hash = pack["components"]["substrate_registry"][
+        "selected_entry_hashes"
+    ][0]
+    other_l2 = next(
+        entry
+        for entry in registry.entries
+        if entry.layer.value == "L2" and entry.entry_content_hash != selected_hash
+    )
+    component = pack["components"]["substrate_registry"]
+    component["selected_entry_hashes"] = [other_l2.entry_content_hash]
+    other_source_ref = other_l2.provenance_refs[0].split("#", 1)[0]
+    component["selection_evidence"]["owner_query_source_ref"] = other_source_ref
+    pack["owner_query_results"]["l2_selected_levers"][
+        "owner_query_source_ref"
+    ] = other_source_ref
+    chosen = pack["selected_domain"]
+    corrupted["census"]["candidates"][chosen]["l2_scholar_kg"][
+        "owner_query_source_ref"
+    ] = other_source_ref
+    corrupted["census"] = second_domain_pack._with_content_hash(
+        corrupted["census"],
+        "census_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    pack["census_content_hash"] = corrupted["census"]["census_content_hash"]
+    for lever in pack["components"]["lever_vocabulary"]["entries"]:
+        lever["selected_registry_entry_hash"] = other_l2.entry_content_hash
+        rehashed = second_domain_pack._with_content_hash(
+            lever,
+            "entry_content_hash",
+        )
+        lever.clear()
+        lever.update(rehashed)
+    pack["content_addressing"]["substrate_input_content_hash"] = (
+        second_domain_pack.second_domain_substrate_input_content_hash(pack)
+    )
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "cycle_substrate_registry_selected_entry_not_query_owner" in codes
+
+
+def test_cycle_registry_intake_rejects_l5_observation_as_lever_owner() -> None:
+    """Never substitute a valid education L5 observation row for L2 lever evidence."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    pack = corrupted["pack"]
+    registry = SubstrateRegistry.model_validate(
+        pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    l5_entry = next(entry for entry in registry.entries if entry.layer.value == "L5")
+    pack["components"]["substrate_registry"]["selected_entry_hashes"] = [
+        l5_entry.entry_content_hash
+    ]
+    for lever in pack["components"]["lever_vocabulary"]["entries"]:
+        lever["selected_registry_entry_hash"] = l5_entry.entry_content_hash
+        rehashed = second_domain_pack._with_content_hash(
+            lever,
+            "entry_content_hash",
+        )
+        lever.clear()
+        lever.update(rehashed)
+    pack["content_addressing"]["substrate_input_content_hash"] = (
+        second_domain_pack.second_domain_substrate_input_content_hash(pack)
+    )
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "cycle_substrate_registry_selected_entry_not_l2" in codes
+
+
+def test_cycle_registry_intake_rejects_a_repointed_lever_binding() -> None:
+    """Require every lever to inherit the one resolved registry entry hash."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    pack = corrupted["pack"]
+    lever = pack["components"]["lever_vocabulary"]["entries"][0]
+    lever["selected_registry_entry_hash"] = "sha256:" + "0" * 64
+    rehashed = second_domain_pack._with_content_hash(lever, "entry_content_hash")
+    lever.clear()
+    lever.update(rehashed)
+    pack["content_addressing"]["substrate_input_content_hash"] = (
+        second_domain_pack.second_domain_substrate_input_content_hash(pack)
+    )
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "cycle_substrate_lever_registry_binding_mismatch" in codes
+
+
+def test_pack_binds_historical_source_and_pretrace_substrate_input() -> None:
+    """Keep historical pack identity immutable and downstream traces out of input."""
+
+    pack = second_domain_pack._load_frozen_bundle(REPO_ROOT)["pack"]
+    addressing = pack["content_addressing"]
+    historical_hash = second_domain_pack._historical_n10a_pack_content_hash(
+        REPO_ROOT
+    )
+    substrate_hash = second_domain_pack.second_domain_substrate_input_content_hash(
+        pack
+    )
+
+    assert historical_hash == "sha256:078ab1b32f5f634855f8e8694a22c7a864a3d66650c386ab05c87ebe90ddc664"
+    assert addressing["historical_source_pack_content_hash"] == historical_hash
+    assert addressing["substrate_input_content_hash"] == substrate_hash
+
+    downstream_shift = copy.deepcopy(pack)
+    downstream_shift["cycle_trace_content_hash"] = "sha256:" + "1" * 64
+    downstream_shift["gap_report_content_hash"] = "sha256:" + "2" * 64
+    downstream_shift["n7_acquisition"] = {"runtime_probe": True}
+    downstream_shift["runtime_metrics"] = {"wall_time_seconds": 999.0}
+    assert (
+        second_domain_pack.second_domain_substrate_input_content_hash(
+            downstream_shift
+        )
+        == substrate_hash
+    )
+
+    owner_shift = copy.deepcopy(pack)
+    owner_shift["components"]["lever_vocabulary"]["entries"][0]["instrument"] = (
+        "third_shape.changed_lever"
+    )
+    assert (
+        second_domain_pack.second_domain_substrate_input_content_hash(owner_shift)
+        != substrate_hash
+    )
+
+
+@pytest.mark.parametrize("mutation", ["missing", "repointed"])
+def test_cached_n7_receipt_rejects_an_invalid_input_key(mutation: str) -> None:
+    """Treat the E1 cache key as a recomputed input binding, never a marker."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    if mutation == "missing":
+        corrupted["pack"]["n7_acquisition"].pop("attempt_input_content_hash")
+    else:
+        corrupted["pack"]["n7_acquisition"]["attempt_input_content_hash"] = (
+            "sha256:" + "0" * 64
+        )
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "n7_attempt_input_content_hash_mismatch" in codes
+
+
+def test_cached_n7_receipt_binds_effective_owner_config_without_duplication() -> None:
+    """Bind the timeout-producing config and keep runtime metadata timing-only."""
+
+    pack = second_domain_pack._load_frozen_bundle(REPO_ROOT)["pack"]
+    attempt = pack["n7_acquisition"]
+    effective = attempt["attempt_effective_owner_config"]
+    operational = pack["runtime_metrics"]["n7_acquisition"]
+
+    assert effective == second_domain_pack._n7_effective_owner_config()
+    assert effective["receipt_proof_head_commit"] == N10A_PROOF_HEAD_COMMIT
+    assert effective["explore_limits"]["time_budget_ms"] == 5_000
+    assert "receipt" not in operational
+    assert set(operational) == {
+        "receipt_generated_at",
+        "planner_report_generated_at",
+        "owner_capture_times",
+    }
+
+
+def test_cached_n7_receipt_rejects_effective_owner_config_drift() -> None:
+    """Never reuse a truncated receipt under a different retrieval deadline."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    corrupted["pack"]["n7_acquisition"]["attempt_effective_owner_config"] = (
+        second_domain_pack._n7_effective_owner_config()
+    )
+    corrupted["pack"]["n7_acquisition"]["attempt_effective_owner_config"][
+        "explore_limits"
+    ]["time_budget_ms"] = 1
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert "n7_attempt_effective_owner_config_mismatch" in codes
+
+
+def test_live_bundle_never_reads_current_pack_as_n7_cache_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Derive E1 receipt reuse from immutable history, never the output under audit."""
+
+    real_read_json = second_domain_pack._read_json
+
+    def _reject_current_pack(path: Path) -> dict[str, object]:
+        if path == REPO_ROOT / second_domain_pack.PACK_OUTPUT:
+            raise AssertionError("current output pack used as N7 cache authority")
+        return real_read_json(path)
+
+    monkeypatch.setattr(second_domain_pack, "_read_json", _reject_current_pack)
+
+    bundle = second_domain_pack.build_live_bundle(REPO_ROOT)
+
+    assert bundle["pack"]["n7_acquisition"]["receipt_content_hash"] == (
+        "sha256:6b523c44caaa2894a8447d9e4bba9f6c115b200fca727151a59bbfb6011b2da2"
+    )
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "expected_code"),
+    [
+        (
+            "historical_source_pack_content_hash",
+            "current_manifest",
+            "historical_source_pack_content_hash_mismatch",
+        ),
+        (
+            "substrate_input_content_hash",
+            "sha256:" + "0" * 64,
+            "cycle_substrate_input_content_hash_mismatch",
+        ),
+    ],
+)
+def test_pack_content_addressing_rejects_moving_or_tampered_inputs(
+    field: str,
+    value: str,
+    expected_code: str,
+) -> None:
+    """Reject moving-head identity and a forged pre-trace input checksum."""
+
+    corrupted = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT))
+    if value == "current_manifest":
+        value = corrupted["pack"]["manifest_content_hash"]
+    corrupted["pack"]["content_addressing"][field] = value
+    _rehash_pack_manifest(corrupted)
+
+    codes = {
+        str(issue["code"])
+        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+    }
+
+    assert expected_code in codes
+
+
+def test_corrupt_drift_covers_cycle_registry_and_historical_identity() -> None:
+    """Keep the checker-level corruption denominator aligned with cycle intake."""
+
+    report = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    detected = set(report["issues"][0]["detected"])
+
+    assert {
+        "cycle_substrate_registry_payload_invalid",
+        "cycle_substrate_registry_owner_rederive_mismatch",
+        "cycle_substrate_registry_query_census_mismatch",
+        "cycle_substrate_registry_version_id_mismatch",
+        "cycle_substrate_lever_registry_binding_mismatch",
+        "cycle_substrate_registry_selected_entry_not_query_owner",
+        "cycle_substrate_input_content_hash_mismatch",
+        "historical_source_pack_content_hash_mismatch",
+        "n7_attempt_input_content_hash_mismatch",
+        "n7_operational_receipt_duplicate",
+    } <= detected
+
+
+def test_corrupt_drift_requires_each_mutation_to_hit_its_own_witness(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Do not let alternate-L2 collateral mask a broken query-rewrite probe."""
+
+    real_mutations = second_domain_pack._cycle_substrate_corruption_bundles
+
+    def _drop_query_witness(
+        bundle: dict[str, object],
+    ) -> list[tuple[str, dict[str, object]]]:
+        mutations = real_mutations(bundle)
+        return [
+            (mutation_id, copy.deepcopy(bundle) if mutation_id == "coordinated_query_rewrite" else payload)
+            for mutation_id, payload in mutations
+        ]
+
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_cycle_substrate_corruption_bundles",
+        _drop_query_witness,
+    )
+
+    report = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    missing = {
+        item
+        for issue in report["issues"]
+        if issue["code"] == "corrupt_field_drift_not_detected"
+        for item in issue["missing"]
+    }
+
+    assert report["status"] == "pass"
+    assert (
+        "coordinated_query_rewrite:cycle_substrate_registry_query_census_mismatch"
+        in missing
+    )
 
 
 def test_n10a_zero_engine_receipt_is_pinned_to_historical_proof_head(
@@ -162,8 +777,13 @@ def test_n7_attempt_is_journal_first_but_not_pack_authority(
 ) -> None:
     """Persist one real N7 attempt without laundering its registry projection."""
 
-    attempt = live_bundle["pack"]["n7_acquisition"]
-    receipt = live_bundle["pack"]["runtime_metrics"]["n7_acquisition"]["receipt"]
+    pack = live_bundle["pack"]
+    attempt = pack["n7_acquisition"]
+    operational = pack["runtime_metrics"]["n7_acquisition"]
+    receipt = second_domain_pack._reconstruct_n7_receipt_payload(
+        attempt["receipt_content"],
+        operational,
+    )
 
     assert attempt["receipt_count"] == 1
     assert attempt["pack_entry_eligible"] is False
@@ -183,7 +803,11 @@ def test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable(
     pack = live_bundle["pack"]
     attempt = pack["n7_acquisition"]
     operational = pack["runtime_metrics"]["n7_acquisition"]
-    first_receipt = operational["receipt"]
+    assert "receipt" not in operational
+    first_receipt = second_domain_pack._reconstruct_n7_receipt_payload(
+        attempt["receipt_content"],
+        operational,
+    )
     second_receipt = copy.deepcopy(first_receipt)
     assert "content_hash" not in first_receipt
     second_receipt["generated_at"] = "2026-07-10T00:00:00Z"
@@ -210,9 +834,6 @@ def test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable(
     shifted_bundle = copy.deepcopy(live_bundle)
     shifted_pack = shifted_bundle["pack"]
     shifted_operational = shifted_pack["runtime_metrics"]["n7_acquisition"]
-    shifted_receipt = reconstructed.model_dump(mode="json")
-    shifted_receipt.pop("content_hash")
-    shifted_operational["receipt"] = shifted_receipt
     shifted_operational["receipt_generated_at"] = second_receipt["generated_at"]
     shifted_operational["planner_report_generated_at"] = second_receipt["planner_report"][
         "generated_at"
@@ -265,6 +886,28 @@ def test_source_content_hash_is_repo_relative_and_path_invariant(tmp_path: Path)
     assert expected != second_domain_pack._source_content_hash(
         relocated_root, same_text_different_path
     )
+
+
+def test_owner_query_source_ref_preserves_repo_relative_mount_identity(
+    tmp_path: Path,
+) -> None:
+    """Allow read-only symlink mounts without leaking their target checkout path."""
+
+    root = tmp_path / "worktree"
+    target = tmp_path / "owner-store"
+    (target / "academic/graph").mkdir(parents=True)
+    owner_file = target / "academic/graph/scholar_knowledge.duckdb"
+    owner_file.write_bytes(b"owner evidence")
+    root.mkdir()
+    (root / "production_data").symlink_to(target, target_is_directory=True)
+    mounted = root / "production_data/academic/graph/scholar_knowledge.duckdb"
+
+    assert second_domain_pack._repo_relative_mounted_evidence_path(
+        mounted,
+        root,
+    ) == "production_data/academic/graph/scholar_knowledge.duckdb"
+    with pytest.raises(second_domain_pack.SourceHashCheckoutPathError):
+        second_domain_pack._repo_relative_mounted_evidence_path(owner_file, root)
 
 
 def test_all_gaps_have_resolvable_seam_witnesses(live_bundle: dict[str, object]) -> None:

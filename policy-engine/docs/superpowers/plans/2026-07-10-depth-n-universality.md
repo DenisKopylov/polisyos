@@ -443,8 +443,14 @@ authority-affecting or ambiguous mismatch stops.
 **Progress checkpoint (2026-07-12):** the strict envelope core, full-denominator WMR projection
 checks, transport/candidate parent binding, fresh consumption revalidator, generic third-shape
 probe, and the canonical `InterventionSubstrateBundle` full-payload integrity chokepoint are green.
-The checker-only committed education-pack projector and its real WMR/context construction remain;
-Task 2 and the Stage-1 gate are therefore still open.
+The N10a pack now also persists one strict S0 registry payload, binds every lever to the data-derived
+L2 selection, verifies its query against the immutable proof-head owner receipt plus the live S0
+owner, and constructs one substrate-input projection before the baseline cycle for exact pack reuse.
+It does not claim the legacy N6 trace consumed that projection; that remains the WMR/context bridge.
+The N7 no-result receipt is reused only from the immutable proof-head evidence through a recomputed,
+fully revalidated E1 key that binds effective retrieval limits, so raw evidence stays intact while
+`--write` remains byte-stable. The concrete real education WMR and final pack-to-context projector
+remain; Task 2 and the Stage-1 gate are therefore still open.
 
 **Files:**
 - Create: `src/polisyos/runtime/quality/cycle_substrate.py`

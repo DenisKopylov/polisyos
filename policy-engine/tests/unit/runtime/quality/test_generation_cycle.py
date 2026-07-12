@@ -46,6 +46,7 @@ from polisyos.runtime.quality.generation_cycle import (
     StrangleReceipt,
     ValuePortObservation,
     _apply_promotion_to_summaries,
+    _build_boundary_world_model_record,
     _derive_fronts,
     _grounding_disposition_denominator,
     enforce_no_retry_without_new_grammar,
@@ -62,6 +63,7 @@ from polisyos.runtime.quality.substrate_registry import (
     build_substrate_registry,
     build_substrate_registry_entry,
 )
+from polisyos.runtime.quality.world_model_record import WorldModelRecordError
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tools.quality.validation import check_layer3_gy_generation_cycle_contract as contract
 
@@ -479,6 +481,161 @@ def _problem(problem_id: str = "generic_cycle_problem") -> DesignProblem:
             ]
         ),
     )
+
+
+def _domain_problem(
+    *,
+    domain: str,
+    region: str,
+    valid_time: str,
+    as_of: str,
+    outcome: str,
+    stakeholder_id: str,
+) -> DesignProblem:
+    """Build a domain-shaped problem without changing the boundary owner."""
+
+    return _problem(f"{domain}_boundary_problem").model_copy(
+        update={
+            "domain": domain,
+            "jurisdiction_time": JurisdictionTimeSemantics(
+                region=region,
+                valid_time=valid_time,
+                as_of=as_of,
+                policy_time=valid_time,
+                data_time=valid_time,
+            ),
+            "stakeholders": [
+                DesignStakeholder(
+                    stakeholder_id=stakeholder_id,
+                    name=stakeholder_id.replace("_", " ").title(),
+                    role="affected_population",
+                )
+            ],
+            "outcome_of_interest": OutcomeOfInterest(
+                target_variable=outcome,
+                metric_id=outcome,
+                estimand="average_treatment_effect",
+            ),
+        }
+    )
+
+
+def _lane0_registry(*, domain: str, source_id: str) -> SubstrateRegistry:
+    """Build one content-addressed registry with domain-shaped vocabulary."""
+
+    registration = SubstrateRegistration(
+        source_id=source_id,
+        family_id=f"{domain}_causal_priors",
+        layer=SubstrateLayer.L2,
+        coverage=SubstrateCoverage(
+            coverage_score=0.74,
+            coverage_kind="lane0.causal_claim_coverage",
+            coverage_rule_ref=f"lane0://{domain}/coverage",
+            observation_count=7,
+            metric_binding_count=3,
+        ),
+        trust_tier=SubstrateTrustTier(
+            tier="derived_proxy",
+            trust_cap=0.5,
+            trust_multiplier=0.6,
+            min_coverage=0.0,
+            max_coverage=1.0,
+            authority_ref=f"lane0://{domain}/trust",
+        ),
+        identification_mode="causal_prior_candidate",
+        schema_regime=SubstrateSchemaRegime(
+            schema_regime_id=f"{domain}_schema_v1",
+            authority_ref=f"lane0://{domain}/schema",
+            source_version="1",
+        ),
+        data_version=f"{domain}-data-v1",
+        snapshot_id=f"{domain}-snapshot-v1",
+        source_snapshot_id=f"{domain}-snapshot-v1",
+        provenance_refs=(f"lane0://{domain}/causal-claims",),
+        authority_refs=(f"lane0://{domain}/registry-owner",),
+    )
+    return build_substrate_registry(
+        (build_substrate_registry_entry(registration),),
+        producer_ref="tests.unit.runtime.quality.test_generation_cycle",
+        source_catalog_refs=registration.authority_refs,
+    )
+
+
+def test_boundary_wmr_uses_injected_registry_and_problem_scope(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The canonical boundary owner must not rebuild or stamp first-vertical scope."""
+
+    from polisyos.runtime.quality import generation_cycle
+
+    registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.duckdb",
+    )
+    problem = _domain_problem(
+        domain="water_quality",
+        region="dnieper_basin",
+        valid_time="2021/2024",
+        as_of="2026-07-12",
+        outcome="nitrate_load",
+        stakeholder_id="watershed_communities",
+    )
+
+    def _unexpected_registry_rebuild(_repo_root: Path) -> SubstrateRegistry:
+        raise AssertionError("injected_registry_was_ignored")
+
+    monkeypatch.setattr(
+        generation_cycle,
+        "build_substrate_registry_from_existing_catalogs",
+        _unexpected_registry_rebuild,
+    )
+    record = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="nitrate_load",
+        policy_slot_ids=("nitrate_load",),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+    )
+
+    assert record.policy_domain == "water_quality"
+    assert record.region_or_jurisdiction == "dnieper_basin"
+    assert record.valid_time_scope == "2021/2024"
+    assert record.tx_time_scope == "2026-07-12"
+    assert "watershed_communities" in record.population_scope
+    assert record.substrate_registry_ref.content_hash == registry.content_hash
+    assert {
+        item.entry_content_hash for item in record.substrate_registry_ref.resolved_entries
+    } == {registry.entries[0].entry_content_hash}
+    assert not record.fabric_world_ref.snapshot_root.startswith("/")
+    assert "UA" not in json.dumps(record.model_dump(mode="json"))
+
+
+def test_boundary_wmr_rejects_selected_entry_absent_from_registry() -> None:
+    """A shaped selected hash cannot become a boundary-world authority receipt."""
+
+    registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.duckdb",
+    )
+    problem = _domain_problem(
+        domain="water_quality",
+        region="dnieper_basin",
+        valid_time="2021/2024",
+        as_of="2026-07-12",
+        outcome="nitrate_load",
+        stakeholder_id="watershed_communities",
+    )
+
+    with pytest.raises(WorldModelRecordError, match="boundary_registry_entry_unresolved"):
+        _build_boundary_world_model_record(
+            repo_root=REPO_ROOT,
+            problem=problem,
+            outcome="nitrate_load",
+            policy_slot_ids=("nitrate_load",),
+            substrate_registry=registry,
+            selected_registry_entry_hashes=("sha256:" + "0" * 64,),
+        )
 
 
 def _budget(max_usd: str = "5.0") -> BudgetState:

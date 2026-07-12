@@ -9,6 +9,9 @@ from pathlib import Path
 
 import pytest
 
+from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateRegistry,
     build_substrate_registry,
@@ -511,6 +514,90 @@ def test_pack_binds_historical_source_and_pretrace_substrate_input() -> None:
         second_domain_pack.second_domain_substrate_input_content_hash(owner_shift)
         != substrate_hash
     )
+
+
+def test_committed_pack_projects_into_real_cycle_substrate_context() -> None:
+    """Project the verified pack only after the canonical owner builds its WMR."""
+
+    bundle = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    pack = bundle["pack"]
+    problem = DesignProblem.model_validate(bundle["smoke_problem"]["design_problem"])
+    registry = SubstrateRegistry.model_validate(
+        pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected_hashes = tuple(
+        pack["components"]["substrate_registry"]["selected_entry_hashes"]
+    )
+    record = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome=problem.outcome_of_interest.target_variable,
+        policy_slot_ids=(problem.outcome_of_interest.target_variable,),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+
+    context = second_domain_pack.project_second_domain_cycle_substrate_context(
+        bundle,
+        repo_root=REPO_ROOT,
+        design_problem=problem,
+        world_model_record=record,
+    )
+
+    assert context.design_problem_ref == gy_content_hash(
+        problem.model_dump(mode="json")
+    )
+    assert context.domain == "education"
+    assert context.source_pack_content_hash == pack["content_addressing"][
+        "historical_source_pack_content_hash"
+    ]
+    assert context.substrate_input_content_hash == pack["content_addressing"][
+        "substrate_input_content_hash"
+    ]
+    assert context.world_model_record is record
+    assert {item.instrument for item in context.candidate_levers} == {
+        "education.blended_learning",
+        "education.stem_education",
+        "education.teaching_method",
+        "education.dialogic_reading_modality",
+    }
+    assert {item.status for item in context.candidate_levers} == {
+        "candidate_unbound"
+    }
+    assert {
+        item.canonical_var for item in context.transport_context.covariates
+    } == {"education_spending", "school_quality"}
+
+
+def test_pack_projector_rejects_wmr_for_another_problem() -> None:
+    """A valid WMR cannot be substituted across DesignProblem/domain boundaries."""
+
+    bundle = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    pack = bundle["pack"]
+    problem = DesignProblem.model_validate(bundle["smoke_problem"]["design_problem"])
+    registry = SubstrateRegistry.model_validate(
+        pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected_hashes = tuple(
+        pack["components"]["substrate_registry"]["selected_entry_hashes"]
+    )
+    mismatched_problem = problem.model_copy(update={"domain": "water_quality"})
+    record = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=mismatched_problem,
+        outcome=problem.outcome_of_interest.target_variable,
+        policy_slot_ids=(problem.outcome_of_interest.target_variable,),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+
+    with pytest.raises(ValueError, match="cycle_substrate_wmr_domain_mismatch"):
+        second_domain_pack.project_second_domain_cycle_substrate_context(
+            bundle,
+            repo_root=REPO_ROOT,
+            design_problem=problem,
+            world_model_record=record,
+        )
 
 
 @pytest.mark.parametrize("mutation", ["missing", "repointed"])

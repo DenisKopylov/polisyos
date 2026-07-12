@@ -13,11 +13,18 @@ import pytest
 
 from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
 from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
+from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCaptureProvenance,
     AcquisitionOwnerArtifact,
     AcquisitionWorldSnapshot,
     RecordedAcquisitionOwnerGateway,
+)
+from polisyos.runtime.quality.cycle_substrate import (
+    CandidateLeverEvidence,
+    CycleSubstrateContext,
+    build_cycle_substrate_context,
+    cycle_substrate_context_binding_hash,
 )
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -39,6 +46,7 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleError,
     GenerationCycleRun,
+    JointSimulationPort,
     PendingN8ValuePort,
     PolicyGroundingPort,
     PromotionPortObservation,
@@ -716,6 +724,166 @@ def _lane0_registry(*, domain: str, source_id: str) -> SubstrateRegistry:
         producer_ref="tests.unit.runtime.quality.test_generation_cycle",
         source_catalog_refs=registration.authority_refs,
     )
+
+
+def _lane0_cycle_context() -> tuple[DesignProblem, CycleSubstrateContext]:
+    """Build one unseen-shape context through the canonical boundary owner."""
+
+    problem = _domain_problem(
+        domain="water_quality",
+        region="dnieper_basin",
+        valid_time="2021/2024",
+        as_of="2026-07-12",
+        outcome="nitrate_load",
+        stakeholder_id="watershed_communities",
+    )
+    registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.duckdb",
+    )
+    selected_hash = registry.entries[0].entry_content_hash
+    world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="nitrate_load",
+        policy_slot_ids=("nitrate_load",),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    substrate_input_hash = gy_content_hash(
+        {"domain": problem.domain, "registry": registry.content_hash}
+    )
+    binding_hash = cycle_substrate_context_binding_hash(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_input_content_hash=substrate_input_hash,
+        substrate_registry_content_hash=registry.content_hash,
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        world_model_record_authority_status=world.authority_status,
+        selected_registry_entry_hashes=(selected_hash,),
+    )
+    candidate = CandidateLeverEvidence(
+        lever_id="riparian_buffer_width",
+        instrument="water.riparian_buffer_width",
+        target_concept="water.nitrate_load",
+        status="candidate_unbound",
+        entry_content_hash=gy_content_hash(
+            {"lever": "riparian_buffer_width", "domain": "water_quality"}
+        ),
+        substrate_input_content_hash=substrate_input_hash,
+        selected_registry_entry_hash=selected_hash,
+        context_binding_hash=binding_hash,
+        source_refs=("lane0://water-quality/lever",),
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(candidate,),
+        transport_context=None,
+        source_pack_content_hash=gy_content_hash("water-quality-pack"),
+        substrate_input_content_hash=substrate_input_hash,
+    )
+    return problem, context
+
+
+def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
+    """N5 receives the exact WMR object bound into the cycle context."""
+
+    problem, context = _lane0_cycle_context()
+    candidate = _Candidate(
+        candidate_id="candidate_water_quality",
+        atom=_Atom(
+            "candidate_water_quality",
+            "sha256:" + "b" * 64,
+            target_world_slots=("nitrate_load",),
+        ),
+        diversity_key=("buffer", "watershed", "water", "lane0"),
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(
+        candidate=candidate,
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.world_model_record is context.world_model_record
+    assert observation.diagnostics["world_model_source"] == "cycle_substrate_context"
+    assert observation.k_world_ref_before == context.world_model_record.content_hash
+    assert observation.k_world_ref_after == context.world_model_record.content_hash
+
+
+def test_shaped_wmr_ref_without_resolved_object_is_rejected() -> None:
+    """A WMR-looking string cannot substitute for a resolved owner object."""
+
+    problem = _problem("shaped_wmr_ref").model_copy(
+        update={
+            "runtime_hints": {
+                "world_model_record_ref": "world_model_record_0123456789abcdef"
+            }
+        }
+    )
+    candidate = _Candidate(
+        candidate_id="candidate_shaped_wmr",
+        atom=_Atom("candidate_shaped_wmr", "sha256:" + "c" * 64),
+        diversity_key=("grant", "firms", "shaped", "wmr"),
+    )
+
+    observation = JointSimulationPort(repo_root=REPO_ROOT)(
+        candidate=candidate,
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "simulation_blocked"
+    assert "world_model_record_unresolved" in observation.authority_blockers
+
+
+@pytest.mark.asyncio
+async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """N7 remains requested when S0 is unavailable; N6 mints no registry."""
+
+    from polisyos.runtime.quality import generation_cycle
+
+    def _owner_unavailable(_repo_root: Path) -> SubstrateRegistry:
+        raise FileNotFoundError("lane0 owner unavailable")
+
+    monkeypatch.setattr(
+        generation_cycle,
+        "build_substrate_registry_from_existing_catalogs",
+        _owner_unavailable,
+    )
+    run = await GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AcquisitionGrounding(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_NoPromotionPort(),
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={}
+        ),
+        repo_root=REPO_ROOT,
+    ).run(
+        _problem("missing_canonical_registry"),
+        budget_state=_budget(),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    cycle = run.cycles[0]
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.acquisition_receipt is None
+    assert "n7_substrate_registry_unresolved" in cycle.counterexample.diagnostic.code
+    assert "n6.bootstrap" not in json.dumps(run.model_dump(mode="json"))
 
 
 def test_boundary_wmr_uses_injected_registry_and_problem_scope(

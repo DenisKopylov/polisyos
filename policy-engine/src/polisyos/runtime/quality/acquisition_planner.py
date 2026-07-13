@@ -178,6 +178,84 @@ class AcquisitionFamily(StrEnum):
     SAFE = "SAFE"
 
 
+_VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION = (
+    "policyos.runtime.value_input_world_knowledge_gap.v1"
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE = "n8_value_input_world_knowledge"
+_VALUE_INPUT_WORLD_KNOWLEDGE_ALTERNATIVES = (
+    "owner_rollout_assignment",
+    "certified_skg_identity_bridge",
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF = (
+    "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_HASH = (
+    "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0"
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID = (
+    "requirement-gap:data_requirement:value-input-world-knowledge"
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF = (
+    "runtime-requirement:value-input-world-knowledge:v1"
+)
+
+
+class _ValueInputWorldKnowledgeAlternative(BaseModel):
+    """One still-missing way to satisfy the value-input knowledge gap."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    alternative_id: Literal[
+        "owner_rollout_assignment",
+        "certified_skg_identity_bridge",
+    ]
+    satisfaction_status: Literal["unsatisfied"]
+
+
+class _ValueInputWorldKnowledgeAnyOf(BaseModel):
+    """Strict disjunction of the two admissible acquisition alternatives."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    operator: Literal["any_of"]
+    alternatives: tuple[_ValueInputWorldKnowledgeAlternative, ...]
+
+    @model_validator(mode="after")
+    def _require_exact_alternative_denominator(self) -> _ValueInputWorldKnowledgeAnyOf:
+        alternative_ids = tuple(row.alternative_id for row in self.alternatives)
+        if alternative_ids != _VALUE_INPUT_WORLD_KNOWLEDGE_ALTERNATIVES:
+            raise ValueError("value_input_world_knowledge_any_of_denominator_mismatch")
+        return self
+
+
+class _ValueInputWorldKnowledgeCensusEvidence(BaseModel):
+    """Committed Fork-B census receipt used only for costing and provenance."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    artifact_ref: Literal[
+        "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
+    ]
+    content_hash: Literal[
+        "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0"
+    ]
+    authority_purpose: Literal["costing_and_provenance_only"]
+
+
+class _ValueInputWorldKnowledgeGapMetadata(BaseModel):
+    """Validated metadata carried by the canonical N8-to-N7 gap bridge."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.value_input_world_knowledge_gap.v1"]
+    source: Literal["n8_value_input_world_knowledge"]
+    acquisition_family: Literal["ID"]
+    authority_purpose: Literal["routing_only"]
+    requirement: _ValueInputWorldKnowledgeAnyOf
+    satisfaction_status: Literal["unsatisfied"]
+    census_evidence: _ValueInputWorldKnowledgeCensusEvidence
+
+
 class AcquisitionGap(BaseModel):
     """One evidence gap requiring acquisition routing."""
 
@@ -297,6 +375,32 @@ class AcquisitionRequirementGap(BaseModel):
             "scenario_requirement_refs",
             (self.compiled_requirement_ref,),
         )
+        return self
+
+    @model_validator(mode="after")
+    def _validate_value_input_world_knowledge_metadata(self) -> AcquisitionRequirementGap:
+        metadata = self.metadata
+        if not (
+            metadata.get("source") == _VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE
+            or metadata.get("schema_version") == _VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION
+            or self.requirement_gap_id == _VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID
+            or self.compiled_requirement_ref == _VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF
+        ):
+            return self
+        normalized = _ValueInputWorldKnowledgeGapMetadata.model_validate(metadata)
+        if self.requirement_gap_id != _VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID:
+            raise ValueError("value_input_world_knowledge_gap_id_mismatch")
+        if self.compiled_requirement_ref != _VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF:
+            raise ValueError("value_input_world_knowledge_compiled_ref_mismatch")
+        if self.requirement_schema_version != _VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION:
+            raise ValueError("value_input_world_knowledge_schema_version_mismatch")
+        if self.requirement_family is not RequirementGapFamily.DATA:
+            raise ValueError("value_input_world_knowledge_requires_data_gap_family")
+        if self.gap_type is not AcquisitionGapType.DATA_SNAPSHOT_RELEASE:
+            raise ValueError("value_input_world_knowledge_requires_data_snapshot_gap")
+        if self.limitation_permitted:
+            raise ValueError("value_input_world_knowledge_limitation_not_permitted")
+        object.__setattr__(self, "metadata", normalized.model_dump(mode="json"))
         return self
 
     def to_acquisition_gap(self) -> AcquisitionGap:
@@ -2527,6 +2631,72 @@ def requirement_gaps_from_compiled_specs(
     return tuple(gaps)
 
 
+def value_input_world_knowledge_requirement_gap(
+    *,
+    claim_ref: str,
+) -> AcquisitionRequirementGap:
+    """Build the unsatisfied N8 value-input world-knowledge acquisition gap.
+
+    The returned record routes one disjunctive requirement through the existing
+    N7 planner: either an owner-derived rollout assignment or a certified SKG
+    identity bridge may satisfy it later. The committed Fork-B census is bound
+    as costing and provenance evidence only; neither its presence nor this gap
+    record is evidence that either alternative has been acquired.
+
+    Args:
+        claim_ref: Claim whose value solve is blocked on missing world knowledge.
+
+    Returns:
+        One production, non-overridable ``AcquisitionRequirementGap`` in the
+        ``ID`` acquisition family, with both alternatives still unsatisfied.
+    """
+
+    metadata = _ValueInputWorldKnowledgeGapMetadata(
+        schema_version=_VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION,
+        source=_VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE,
+        acquisition_family=AcquisitionFamily.ID.value,
+        authority_purpose="routing_only",
+        requirement=_ValueInputWorldKnowledgeAnyOf(
+            operator="any_of",
+            alternatives=tuple(
+                _ValueInputWorldKnowledgeAlternative(
+                    alternative_id=alternative,
+                    satisfaction_status="unsatisfied",
+                )
+                for alternative in _VALUE_INPUT_WORLD_KNOWLEDGE_ALTERNATIVES
+            )
+        ),
+        satisfaction_status="unsatisfied",
+        census_evidence=_ValueInputWorldKnowledgeCensusEvidence(
+            artifact_ref=_VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF,
+            content_hash=_VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_HASH,
+            authority_purpose="costing_and_provenance_only",
+        ),
+    )
+    return AcquisitionRequirementGap(
+        requirement_gap_id=_VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID,
+        requirement_family=RequirementGapFamily.DATA,
+        compiled_requirement_ref=_VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF,
+        requirement_schema_version=_VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION,
+        gap_type=AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
+        claim_ref=claim_ref,
+        scenario_requirement_refs=(
+            _VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF,
+            _VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF,
+        ),
+        missing_requirement_fields=(
+            "world_knowledge:any_of("
+            "owner_rollout_assignment,certified_skg_identity_bridge)",
+        ),
+        authority_level=AuthorityLevel.PRODUCTION,
+        mandatory_gate_state=MandatoryGateState.NON_OVERRIDABLE,
+        mandatory_gate_refs=(_VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF,),
+        limitation_permitted=False,
+        decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
+        metadata=metadata.model_dump(mode="json"),
+    )
+
+
 def acquisition_gaps_from_capability_failure_modes(
     failure_modes: Sequence[BaseModel | Mapping[str, Any]],
     *,
@@ -4323,4 +4493,5 @@ __all__ = [
     "requirement_gaps_from_compiled_specs",
     "run_acquisition_closed_loop",
     "validate_acquisition_receipt",
+    "value_input_world_knowledge_requirement_gap",
 ]

@@ -62,6 +62,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     requirement_gaps_from_compiled_specs,
     run_acquisition_closed_loop,
     validate_acquisition_receipt,
+    value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.capability_index import FailureModeNode
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
@@ -89,6 +90,117 @@ from polisyos.scientist.methods.search.voi_models import (
 from tools.quality.validation import check_layer3_gy_acquisition_contract as contract
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_value_input_world_knowledge_gap_is_one_unsatisfied_any_of_requirement() -> None:
+    gap = value_input_world_knowledge_requirement_gap(
+        claim_ref="claim:value-input-world-knowledge",
+    )
+
+    assert isinstance(gap, AcquisitionRequirementGap)
+    assert gap.requirement_family is RequirementGapFamily.DATA
+    assert gap.gap_type is AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+    assert gap.missing_requirement_fields == (
+        "world_knowledge:any_of(owner_rollout_assignment,certified_skg_identity_bridge)",
+    )
+    assert gap.metadata == {
+        "schema_version": "policyos.runtime.value_input_world_knowledge_gap.v1",
+        "source": "n8_value_input_world_knowledge",
+        "acquisition_family": AcquisitionFamily.ID.value,
+        "authority_purpose": "routing_only",
+        "requirement": {
+            "operator": "any_of",
+            "alternatives": [
+                {
+                    "alternative_id": "owner_rollout_assignment",
+                    "satisfaction_status": "unsatisfied",
+                },
+                {
+                    "alternative_id": "certified_skg_identity_bridge",
+                    "satisfaction_status": "unsatisfied",
+                },
+            ],
+        },
+        "satisfaction_status": "unsatisfied",
+        "census_evidence": {
+            "artifact_ref": (
+                "architecture/policy_design_case/"
+                "layer3_gy_n10_cg1_l2_relation_census.json"
+            ),
+            "content_hash": (
+                "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0"
+            ),
+            "authority_purpose": "costing_and_provenance_only",
+        },
+    }
+
+    report = plan_requirement_gap_acquisition(
+        run_id="run-n8-value-input-acquisition",
+        requirement_gaps=(gap,),
+    )
+    assert len(report.acquisition_records) == 1
+    assert report.acquisition_records[0].terminal_disposition is AcquisitionDisposition.ACQUIRE
+    assert "source_family_satisfaction" in report.authority_boundary["may_not_use_for"]
+
+
+@pytest.mark.parametrize(
+    "mutator",
+    [
+        lambda payload: payload["metadata"]["census_evidence"].__setitem__(
+            "content_hash",
+            "sha256:" + "0" * 64,
+        ),
+        lambda payload: payload["metadata"]["requirement"].__setitem__(
+            "alternatives",
+            [
+                {
+                    "alternative_id": "owner_rollout_assignment",
+                    "satisfaction_status": "unsatisfied",
+                }
+            ],
+        ),
+        lambda payload: payload["metadata"].__setitem__(
+            "satisfaction_status",
+            "satisfied",
+        ),
+        lambda payload: payload["metadata"].__setitem__(
+            "authority_purpose",
+            "satisfaction_authority",
+        ),
+        lambda payload: payload["metadata"]["requirement"]["alternatives"][
+            0
+        ].__setitem__("satisfaction_status", "satisfied"),
+    ],
+    ids=(
+        "wrong-committed-census-hash",
+        "missing-any-of-alternative",
+        "fake-aggregate-satisfaction",
+        "fake-satisfaction-authority",
+        "fake-alternative-satisfaction",
+    ),
+)
+def test_value_input_world_knowledge_gap_rejects_untrusted_metadata(mutator: object) -> None:
+    payload = value_input_world_knowledge_requirement_gap(
+        claim_ref="claim:value-input-world-knowledge",
+    ).model_dump(mode="json")
+
+    assert callable(mutator)
+    mutator(payload)
+
+    with pytest.raises(ValueError):
+        AcquisitionRequirementGap.model_validate(payload)
+
+
+def test_value_input_world_knowledge_gap_identity_cannot_bypass_metadata_validation() -> None:
+    payload = value_input_world_knowledge_requirement_gap(
+        claim_ref="claim:value-input-world-knowledge",
+    ).model_dump(mode="json")
+    payload["metadata"].pop("source")
+    payload["metadata"].pop("schema_version")
+    payload["metadata"]["satisfaction_status"] = "satisfied"
+
+    with pytest.raises(ValueError):
+        AcquisitionRequirementGap.model_validate(payload)
 
 
 def test_generation_cycle_bootstrap_authority_is_strangled() -> None:

@@ -1466,9 +1466,31 @@ git add src/polisyos/runtime/quality/recursive_generation_cycle.py src/polisyos/
 git commit -m "feat: strangle fixed recursive cycle"
 ```
 
+- [ ] **Step 8: Land every Stage-3 rebaseline before proof capture.**
+
+Regenerate and commit every depth-N, GY-G, N6, composition, and coupling
+artifact affected by Stage 3.  Stage 4 may not begin with an upstream artifact
+or receipt left dirty or knowingly stale.  This is the provenance-ordering law:
+the census -> DesignProblem -> prompt-hash chain must have a committed base
+before any expensive proof run is captured.
+
 ---
 
 # Stage 4 — Three proof runs, frozen contract, and final gates
+
+## Stage-4 entry gate: prove upstream provenance stability
+
+Before Task 12 writes or captures any proof receipt, recompute the complete
+census -> DesignProblem -> prompt-hash provenance chain against the committed
+Stage-3 base and verify every frozen upstream artifact.  Record the resulting
+refs and hashes in the Stage-4 journal.  The entry gate fails if the worktree has
+an uncommitted upstream rebaseline, if a provenance link resolves to a stale
+artifact, or if a recomputation changes a frozen hash.
+
+If a Stage-4 discovery nevertheless requires an upstream artifact rebaseline,
+land that owner correction first and honestly recapture every affected proof
+run.  A proof receipt captured before its upstream provenance stabilized is not
+reused, even when its terminal label happens to match.
 
 ## Task 12: Build the frozen universality contract validator test-first
 
@@ -1483,6 +1505,10 @@ git commit -m "feat: strangle fixed recursive cycle"
 - A wrong package path renders `status=fail`, issue `wrong_checkout_resolved`, and exit `1` without entering a proof producer.
 
 - [ ] **Step 1: Write RED validator schema/drift/write tests.**
+
+The first RED is the provenance-stability entry gate.  It recomputes the census,
+DesignProblem, and prompt-hash refs from their canonical owners and refuses to
+enter a proof producer on any drift or dirty upstream rebaseline.
 
 ```python
 def test_universality_contract_requires_three_runs_and_two_part_a2_evidence() -> None:
@@ -1510,6 +1536,14 @@ def test_universality_validator_refuses_wrong_checkout() -> None:
     result = _run_validator_with_pythonpath(MAIN_CHECKOUT / "policy-engine/src", "--check")
     assert result.returncode == 1
     assert "wrong_checkout_resolved" in result.stdout + result.stderr
+
+
+def test_stage4_entry_refuses_upstream_provenance_drift() -> None:
+    report = validator.check_provenance_stability(REPO_ROOT)
+    assert report.status == "stable"
+    assert report.census_ref
+    assert report.design_problem_refs
+    assert report.prompt_hashes
 ```
 
 - [ ] **Step 2: Run tests and observe RED because the validator is absent.**
@@ -1530,6 +1564,10 @@ Implement:
 --write
 --output-format {text,json}
 ```
+
+Run `check_provenance_stability` before every mode that can produce or validate
+Stage-4 proof receipts.  The gate is read-only and content-addressed; wall time
+and timestamps remain outside every content hash.
 
 The payload includes schema/rule/producer refs, source hashes, pattern pass, NL input hashes, domain distinctness, per-stage traces, baseline diff, non-panel positive, education refusal, unseen smoke, terminal distributions, recursion/coupling/N5/composition receipts, GY-G strangle, gap triage, source flips, verification journal, runtime metrics, and `contract_content_hash`. Hash validation excludes only declared runtime metrics/times. Add a restoring `wrong_checkout_resolved` source flip that points `PYTHONPATH` at the main checkout and proves the validator refuses before producer execution.
 

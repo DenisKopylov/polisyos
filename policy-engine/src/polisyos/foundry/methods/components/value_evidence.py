@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.observability.truthfulness import (
     TruthfulnessReceipt,
+    TruthfulnessTier,
     extract_truthfulness_receipt,
 )
 from polisyos.foundry.methods.backends.protocol import MethodResult
@@ -118,6 +119,16 @@ def project_method_value_evidence(
             selected_output_slot=slot.name,
         )
     truthfulness = extract_truthfulness_receipt(native)
+    if (
+        truthfulness is not None
+        and truthfulness.effective_truthfulness_tier is TruthfulnessTier.UNVERIFIED
+    ):
+        return _refusal(
+            signature=method_signature,
+            reason_code="method_truthfulness_unverified",
+            resolved_contract_id=native_contract_id,
+            selected_output_slot=slot.name,
+        )
     limitation_codes = tuple(
         dict.fromkeys(
             str(item)

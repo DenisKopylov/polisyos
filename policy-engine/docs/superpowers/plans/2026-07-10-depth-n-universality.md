@@ -964,7 +964,7 @@ after the closeout commit containing that journal and the frozen Stage-1 artifac
 - Add `SelectionDiagramBuilder.add_measured_sigma_variable(variable_name: str, *, source_value: float, target_value: float, severity: Literal["low", "medium", "high"], role: SNodeRole | None, source_ref: str, target_ref: str) -> SelectionDiagramBuilder` and optional `source_ref`/`target_ref` fields on `SNode`.
 - `_build_candidate_selection_diagram(*, candidate: object, problem: DesignProblem, world_record: WorldModelRecord, query_treatment: str, query_outcome: str, cycle_substrate_context: CycleSubstrateContext) -> SelectionDiagram` consumes only context data.
 
-- [ ] **Step 1: Write RED education/third-pack/no-fallback tests.**
+- [x] **Step 1: Write RED education/third-pack/no-fallback tests.**
 
 ```python
 def test_education_selection_diagram_uses_only_pack_covariates() -> None:
@@ -995,13 +995,13 @@ def test_missing_measured_transport_context_blocks_without_defaults() -> None:
     assert observation.authority_blockers == ("transport_context_unresolved",)
 ```
 
-- [ ] **Step 2: Run focused tests and observe RED.**
+- [x] **Step 2: Run focused tests and observe RED.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_value_gate.py -k 'selection_diagram or transport_vocabulary or transport_context' -q
 ```
 
-- [ ] **Step 3: Extend the IR builder and delete runtime defaults.**
+- [x] **Step 3: Extend the IR builder and delete runtime defaults.**
 
 Use the signature:
 
@@ -1038,11 +1038,11 @@ def add_measured_sigma_variable(
 
 Remove the fixed tuple, all `.72/.68/.42/.36` defaults, `_world_post_conflict`, and jurisdiction-token inference. Missing context returns a typed owner access error; unknown causal role remains unknown rather than being labeled pre-treatment.
 
-- [ ] **Step 4: Add N8 source flips for tuple/default restoration and measured-value removal.**
+- [x] **Step 4: Add N8 source flips for tuple/default restoration and measured-value removal.**
 
 Extend the existing restoring harness; do not replace its mutation denominator. Each patch must make the N8 probe RED and restore the original file hash in `finally`.
 
-- [ ] **Step 5: Run focused tests, N8 checker/harness, and Ruff.**
+- [x] **Step 5: Run focused tests, N8 checker/harness, and Ruff.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_value_gate.py -k 'selection_diagram or transport_vocabulary or transport_context' -q
@@ -1051,7 +1051,7 @@ python3 tools/quality/validation/check_layer3_gy_value_gate_contract.py --source
 .venv/bin/ruff check src/polisyos/ir/analytics/transportability.py src/polisyos/runtime/quality/generation_cycle.py tests/unit/runtime/quality/test_value_gate.py tools/quality/validation/check_layer3_gy_value_gate_contract.py
 ```
 
-- [ ] **Step 6: Commit A1.**
+- [x] **Step 6: Commit A1.**
 
 ```bash
 git add src/polisyos/ir/analytics/transportability.py src/polisyos/runtime/quality/generation_cycle.py tests/unit/runtime/quality/test_value_gate.py tools/quality/validation/check_layer3_gy_value_gate_contract.py

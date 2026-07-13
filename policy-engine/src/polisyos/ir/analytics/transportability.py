@@ -98,6 +98,14 @@ class SNode(BaseModel):
     origin: SNodeOrigin = SNodeOrigin.CONTEXT_DELTA
     legal_constraint_id: str | None = None
     role: SNodeRole | None = None
+    source_ref: str | None = Field(None, min_length=1)
+    target_ref: str | None = Field(None, min_length=1)
+
+    @model_validator(mode="after")
+    def _measured_refs_are_paired(self) -> SNode:
+        if (self.source_ref is None) != (self.target_ref is None):
+            raise ValueError("selection_node_measured_refs_incomplete")
+        return self
 
 
 class SelectionDiagram(BaseModel):
@@ -219,6 +227,42 @@ class SelectionDiagramBuilder:
         )
         self._s_nodes.append(sn)
         self._sigma_vars.append(SigmaVariable.from_s_node(sn))
+        return self
+
+    def add_measured_sigma_variable(
+        self,
+        variable_name: str,
+        *,
+        source_value: float,
+        target_value: float,
+        severity: Literal["low", "medium", "high"],
+        role: SNodeRole | None,
+        source_ref: str,
+        target_ref: str,
+    ) -> SelectionDiagramBuilder:
+        """Add a content-referenced mechanism shift measured in both contexts.
+
+        The supplied row references are provenance only. They do not establish
+        transportability or causal role; the transport solver remains the
+        authority for those decisions.
+        """
+
+        if variable_name in self._seen:
+            return self
+        self._seen.add(variable_name)
+        s_node = SNode(
+            target_variable=variable_name,
+            context_dimension=f"measured:{variable_name}",
+            source_value=float(source_value),
+            target_value=float(target_value),
+            delta=abs(float(target_value) - float(source_value)),
+            severity=severity,
+            role=role,
+            source_ref=source_ref,
+            target_ref=target_ref,
+        )
+        self._s_nodes.append(s_node)
+        self._sigma_vars.append(SigmaVariable.from_s_node(s_node))
         return self
 
     def build(
@@ -716,6 +760,15 @@ def _severity_from_delta(delta: float) -> Literal["low", "medium", "high"]:
     return "low"
 
 
+def measured_transport_severity(
+    source_value: float,
+    target_value: float,
+) -> Literal["low", "medium", "high"]:
+    """Classify a measured source/target delta using the transport owner rule."""
+
+    return _severity_from_delta(abs(float(target_value) - float(source_value)))
+
+
 def _clamp01(value: float) -> float:
     if value < 0.0:
         return 0.0
@@ -879,5 +932,6 @@ __all__ = [
     "TransportabilityStatus",
     "build_selection_diagram",
     "load_transportability_result",
+    "measured_transport_severity",
     "persist_transportability_result",
 ]

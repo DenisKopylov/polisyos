@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -17,6 +17,14 @@ from polisyos.ir.analytics.causal import (
     CausalMethod,
     DiagnosticTest,
 )
+from polisyos.runtime.quality.cycle_substrate import (
+    CandidateLeverEvidence,
+    CycleSubstrateContext,
+    TransportContextEvidence,
+    TransportCovariateObservation,
+    build_cycle_substrate_context,
+    cycle_substrate_context_binding_hash,
+)
 from polisyos.runtime.quality.design_problem import DesignProblem, OutcomeOfInterest
 from polisyos.runtime.quality.generation_cycle import (
     FoundryValuePort,
@@ -25,7 +33,9 @@ from polisyos.runtime.quality.generation_cycle import (
     SimulationPortObservation,
     ValueCalibrationReceipt,
     ValueGateReceipt,
+    ValueOwnerAccessError,
     ValueTransportReceipt,
+    _build_candidate_selection_diagram,
     _build_default_selection_diagram,
     _build_s10_forecast_inputs,
     _candidate_transport_outcome_variable,
@@ -46,8 +56,11 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecord,
     world_model_record_content_hash,
 )
+from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
 from tools.quality.validation import check_layer3_gy_value_gate_contract as value_contract
 
+from .test_cycle_substrate import _registry as _lane0_registry
+from .test_cycle_substrate import _world_record as _lane0_world_record
 from .test_generation_cycle import _Atom, _Candidate, _problem
 
 
@@ -206,12 +219,222 @@ def _avg_income_candidate() -> _Candidate:
     )
 
 
+def _pack_shaped_transport_context(
+    *,
+    problem: DesignProblem,
+    covariates: tuple[tuple[str, float, float], ...],
+) -> CycleSubstrateContext:
+    """Build a content-bound Lane-0 context from arbitrary pack-shaped data."""
+
+    registry = _lane0_registry(problem.domain)
+    world = _lane0_world_record(problem.domain, registry)
+    selected_hash = registry.entries[0].entry_content_hash
+    problem_ref = second_domain_pack.gy_content_hash(problem.model_dump(mode="json"))
+    substrate_input_hash = second_domain_pack.gy_content_hash(
+        {
+            "domain": problem.domain,
+            "registry": registry.content_hash,
+            "covariates": covariates,
+        }
+    )
+    binding_hash = cycle_substrate_context_binding_hash(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_input_content_hash=substrate_input_hash,
+        substrate_registry_content_hash=registry.content_hash,
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        world_model_record_authority_status=world.authority_status,
+        selected_registry_entry_hashes=(selected_hash,),
+    )
+    lever = CandidateLeverEvidence(
+        lever_id=f"{problem.domain}_lever",
+        instrument=f"{problem.domain}.lever",
+        target_concept=problem.outcome_of_interest.target_variable,
+        entry_content_hash=second_domain_pack.gy_content_hash(
+            {"domain": problem.domain, "kind": "candidate_lever"}
+        ),
+        substrate_input_content_hash=substrate_input_hash,
+        selected_registry_entry_hash=selected_hash,
+        context_binding_hash=binding_hash,
+        source_refs=(f"lane0://{problem.domain}/candidate-lever",),
+    )
+    transport = None
+    if covariates:
+        transport = TransportContextEvidence(
+            status="candidate_context_only_not_transport_authority",
+            source_context_id=f"{problem.domain}:source",
+            target_context_id=f"{problem.domain}:target",
+            source_profile_content_hash=_hash("a"),
+            target_profile_content_hash=_hash("b"),
+            substrate_input_content_hash=substrate_input_hash,
+            context_binding_hash=binding_hash,
+            covariates=tuple(
+                TransportCovariateObservation(
+                    canonical_var=name,
+                    source_value=source_value,
+                    target_value=target_value,
+                    source_row_content_hash=second_domain_pack.gy_content_hash(
+                        {
+                            "domain": problem.domain,
+                            "covariate": name,
+                            "role": "source",
+                        }
+                    ),
+                    target_row_content_hash=second_domain_pack.gy_content_hash(
+                        {
+                            "domain": problem.domain,
+                            "covariate": name,
+                            "role": "target",
+                        }
+                    ),
+                )
+                for name, source_value, target_value in covariates
+            ),
+        )
+    return build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(lever,),
+        transport_context=transport,
+        source_pack_content_hash=second_domain_pack.gy_content_hash(
+            {"domain": problem.domain, "kind": "source_pack"}
+        ),
+        substrate_input_content_hash=substrate_input_hash,
+    )
+
+
+def test_education_selection_diagram_uses_only_pack_covariates() -> None:
+    """The education pack, not an engine tuple, owns the transport vocabulary."""
+
+    bundle = second_domain_pack._load_frozen_bundle(Path.cwd())
+    problem = DesignProblem.model_validate(bundle["smoke_problem"]["design_problem"])
+    context = second_domain_pack._build_frozen_cycle_substrate_context(
+        Path.cwd(),
+        bundle=bundle,
+        design_problem=problem,
+    )
+
+    diagram = _build_candidate_selection_diagram(
+        candidate=SimpleNamespace(candidate_id="education_candidate"),
+        problem=problem,
+        world_record=context.world_model_record,
+        query_treatment="education_teaching_method",
+        query_outcome="years_of_schooling",
+        cycle_substrate_context=context,
+    )
+
+    assert {node.target_variable for node in diagram.s_nodes} == {
+        "education_spending",
+        "school_quality",
+    }
+    assert "state_capacity" not in diagram.base_graph.nodes
+    assert "institutional_quality" not in diagram.base_graph.nodes
+    assert {
+        (node.source_ref, node.target_ref) for node in diagram.s_nodes
+    } == {
+        (
+            row.source_row_content_hash,
+            row.target_row_content_hash,
+        )
+        for row in context.transport_context.covariates
+    }
+
+
+def test_third_pack_transport_vocabulary_flows_without_engine_change() -> None:
+    """A structurally unrelated pack-shaped vocabulary needs no code branch."""
+
+    problem = _problem("water_transport_u2").model_copy(
+        update={
+            "domain": "water_quality",
+            "outcome_of_interest": OutcomeOfInterest(
+                target_variable="nitrate_load",
+                metric_id="nitrate_load",
+                estimand="average_treatment_effect",
+            ),
+        }
+    )
+    context = _pack_shaped_transport_context(
+        problem=problem,
+        covariates=(("watershed_slope", 0.15, 0.63),),
+    )
+
+    diagram = _build_candidate_selection_diagram(
+        candidate=SimpleNamespace(candidate_id="riparian_buffer_candidate"),
+        problem=problem,
+        world_record=context.world_model_record,
+        query_treatment="riparian_buffer_width",
+        query_outcome="nitrate_load",
+        cycle_substrate_context=context,
+    )
+
+    assert {node.target_variable for node in diagram.s_nodes} == {
+        "watershed_slope"
+    }
+    assert diagram.s_nodes[0].source_value == 0.15
+    assert diagram.s_nodes[0].target_value == 0.63
+
+
+def test_missing_measured_transport_context_blocks_without_defaults() -> None:
+    """Absent measured context is an acquisition gap, never governance defaults."""
+
+    problem = _problem("missing_transport_context").model_copy(
+        update={"domain": "unseen_domain"}
+    )
+    context = _pack_shaped_transport_context(problem=problem, covariates=())
+    gateway = RealValueOwnerGateway(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=context,
+    )
+
+    with pytest.raises(ValueOwnerAccessError) as exc_info:
+        gateway.build_transport_inputs(
+            candidate=SimpleNamespace(candidate_id="unseen_candidate"),
+            problem=problem,
+            world_record=context.world_model_record,
+        )
+
+    assert exc_info.value.code == "acquire_data:transport_context_unresolved"
+
+
+def test_transport_context_for_another_problem_is_not_authority() -> None:
+    """A valid context shape cannot cross its DesignProblem content binding."""
+
+    problem = _problem("bound_transport_problem").model_copy(
+        update={"domain": "water_quality"}
+    )
+    context = _pack_shaped_transport_context(
+        problem=problem,
+        covariates=(("watershed_slope", 0.15, 0.63),),
+    )
+    mismatched_problem = problem.model_copy(
+        update={"design_problem_id": "different_transport_problem"}
+    )
+
+    with pytest.raises(ValueOwnerAccessError) as exc_info:
+        _build_candidate_selection_diagram(
+            candidate=SimpleNamespace(candidate_id="riparian_buffer_candidate"),
+            problem=mismatched_problem,
+            world_record=context.world_model_record,
+            query_treatment="riparian_buffer_width",
+            query_outcome="nitrate_load",
+            cycle_substrate_context=context,
+        )
+
+    assert exc_info.value.code == "transport_context_problem_mismatch"
+
+
 @dataclass(frozen=True)
 class _AdversarialRealPanelGateway:
     forecast_tier: str = "observable_calibrated"
     calibration_status: str | None = "pass"
     expected_policy_context_ref: str | None = None
     selection_diagram: object | None = None
+    cycle_substrate_context: CycleSubstrateContext | None = None
 
     def load_panel_observational_data(
         self,
@@ -279,6 +502,7 @@ class _AdversarialRealPanelGateway:
                 candidate=candidate,
                 problem=problem,
                 world_record=world_record,
+                cycle_substrate_context=self.cycle_substrate_context,
             ),
             "query_treatment": query_treatment,
             "query_outcome": query_outcome,
@@ -408,20 +632,16 @@ def test_empty_hints_with_unresolved_candidate_wmr_ref_refuses_typed() -> None:
 
 
 def test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr() -> None:
-    problem = _avg_income_problem()
+    problem = value_contract._audit_problem()
     assert problem.runtime_hints == {}
-    raw_candidate = _avg_income_candidate()
-    candidate = replace(
-        raw_candidate,
-        atom=replace(raw_candidate.atom, world_model_record_ref=None),
-    )
+    candidate = value_contract._audit_value_candidate()
+    context = value_contract._audit_cycle_substrate_context()
+    simulation = value_contract._audit_simulation()
 
-    simulation = JointSimulationPort(repo_root=Path.cwd())(
-        candidate=candidate,
-        problem=problem,
-        cycle_index=0,
-    )
-    observation = FoundryValuePort(repo_root=Path.cwd())(
+    observation = FoundryValuePort(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=context,
+    )(
         candidate=candidate,
         simulation=simulation,
         problem=problem,
@@ -429,7 +649,7 @@ def test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr() -> None:
     )
 
     assert simulation.world_model_record is not None
-    assert simulation.diagnostics["world_model_source"] == "real_substrate_registry_boundary"
+    assert simulation.world_model_record is context.world_model_record
     assert simulation.world_model_record.policy_domain == problem.domain
     assert simulation.world_model_record.region_or_jurisdiction == problem.jurisdiction_time.region
     assert observation.status == "value_ready"

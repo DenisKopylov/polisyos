@@ -8,15 +8,18 @@ import contextlib
 import hashlib
 import io
 import json
+import math
 import re
 import subprocess
 import sys
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from functools import cache
 from pathlib import Path
 from typing import Any, get_args
 
+import duckdb
 from pydantic import ValidationError
 
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
@@ -70,6 +73,8 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_calibration_report_driven_refusal",
     "source_flip_width_tracks_real_did_ci",
     "source_flip_transport_real_solver_required",
+    "source_flip_transport_tuple_reintroduced",
+    "source_flip_transport_measured_values_removed",
     "source_flip_treatment_candidate_atom_binding_required",
     "source_flip_value_outer_set_width_supplied_not_derived",
     "source_flip_persisted_width_verification_removed",
@@ -106,7 +111,7 @@ FROZEN_MUTATION_PROOFS: dict[str, str] = {
     "proxy_forecast_narrow_set_rejected": "Proxy identification cannot emit a narrow/point set.",
     "fixture_world_model_hash_rejected": (
         "Placeholder WMR hash rejected; audit WMR is "
-        "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61."
+        "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7."
     ),
     "value_world_version_laundered": (
         "Receipt refuses V1 value as authority for V2 world hash."
@@ -188,16 +193,169 @@ def _hash(char: str) -> str:
     return "sha256:" + char * 64
 
 
+@cache
+def _audit_registry() -> Any:
+    from polisyos.runtime.quality.substrate_registry import (
+        build_substrate_registry_from_existing_catalogs,
+    )
+
+    return build_substrate_registry_from_existing_catalogs(_repo_root())
+
+
+@cache
 def _audit_world_record() -> Any:
     from polisyos.runtime.quality.generation_cycle import (
         _build_boundary_world_model_record,
     )
 
+    registry = _audit_registry()
     return _build_boundary_world_model_record(
         repo_root=_repo_root(),
         problem=_audit_problem(),
         outcome="avg_income",
         policy_slot_ids=("avg_income",),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=tuple(
+            entry.entry_content_hash for entry in registry.entries
+        ),
+    )
+
+
+def _audit_transport_profile(
+    *,
+    context_id: str,
+    covariates: tuple[str, ...],
+) -> tuple[dict[str, Any], ...]:
+    """Resolve one measured profile from the read-only L1 catalog owner."""
+
+    from polisyos.runtime.quality.substrate_registry import (
+        default_substrate_catalog_paths,
+    )
+
+    catalog = default_substrate_catalog_paths(_repo_root()).l1_dcat_path
+    connection = duckdb.connect(str(catalog), read_only=True)
+    try:
+        rows: list[dict[str, Any]] = []
+        for canonical_var in covariates:
+            observations = connection.execute(
+                """
+                SELECT observation_id,
+                       dataset_id,
+                       COALESCE(year, survey_year) AS period,
+                       value
+                FROM ds_observations
+                WHERE canonical_var = ? AND country_code = ? AND value IS NOT NULL
+                ORDER BY dataset_id, observation_id, period, value
+                """,
+                [canonical_var, context_id],
+            ).fetchall()
+            if not observations:
+                raise RuntimeError(
+                    f"audit_transport_covariate_unresolved:{canonical_var}:{context_id}"
+                )
+            values = tuple(float(item[3]) for item in observations)
+            periods = tuple(
+                int(item[2]) for item in observations if item[2] is not None
+            )
+            row = {
+                "canonical_var": canonical_var,
+                "context_id": context_id,
+                "observations": len(observations),
+                "datasets": len({str(item[1]) for item in observations}),
+                "min_period": min(periods) if periods else None,
+                "max_period": max(periods) if periods else None,
+                "mean_value": math.fsum(values) / len(values),
+            }
+            row["row_content_hash"] = gy_content_hash(row)
+            rows.append(row)
+        return tuple(rows)
+    finally:
+        connection.close()
+
+
+@cache
+def _audit_cycle_substrate_context() -> Any:
+    """Build the first-vertical transport intake from measured owner rows."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        TransportContextEvidence,
+        TransportCovariateObservation,
+        build_cycle_substrate_context,
+        cycle_substrate_context_binding_hash,
+    )
+
+    problem = _audit_problem()
+    world = _audit_world_record()
+    candidate = _audit_value_candidate()
+    registry = _audit_registry()
+    selected_hashes = tuple(entry.entry_content_hash for entry in registry.entries)
+    source_context_id = candidate.atom.treated_unit_ids[0]
+    target_context_id = str(world.region_or_jurisdiction).split("-", 1)[0]
+    # This case-level expectation is plan-pinned evidence, not runtime vocabulary.
+    covariates = ("institutional_quality", "state_capacity")
+    source_profile = _audit_transport_profile(
+        context_id=source_context_id,
+        covariates=covariates,
+    )
+    target_profile = _audit_transport_profile(
+        context_id=target_context_id,
+        covariates=covariates,
+    )
+    substrate_input_hash = gy_content_hash(
+        {
+            "owner": "L1 DCAT ds_observations",
+            "registry_content_hash": registry.content_hash,
+            "source_profile": source_profile,
+            "target_profile": target_profile,
+        }
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    binding_hash = cycle_substrate_context_binding_hash(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_input_content_hash=substrate_input_hash,
+        substrate_registry_content_hash=registry.content_hash,
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        world_model_record_authority_status=world.authority_status,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+    source_by_name = {row["canonical_var"]: row for row in source_profile}
+    target_by_name = {row["canonical_var"]: row for row in target_profile}
+    transport = TransportContextEvidence(
+        status="candidate_context_only_not_transport_authority",
+        source_context_id=source_context_id,
+        target_context_id=target_context_id,
+        source_profile_content_hash=gy_content_hash(source_profile),
+        target_profile_content_hash=gy_content_hash(target_profile),
+        substrate_input_content_hash=substrate_input_hash,
+        context_binding_hash=binding_hash,
+        covariates=tuple(
+            TransportCovariateObservation(
+                canonical_var=name,
+                source_value=float(source_by_name[name]["mean_value"]),
+                target_value=float(target_by_name[name]["mean_value"]),
+                source_row_content_hash=str(
+                    source_by_name[name]["row_content_hash"]
+                ),
+                target_row_content_hash=str(
+                    target_by_name[name]["row_content_hash"]
+                ),
+            )
+            for name in covariates
+        ),
+    )
+    return build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=transport,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=substrate_input_hash,
     )
 
 
@@ -302,6 +460,7 @@ def _python314_blockers(methods: tuple[str, ...]) -> list[dict[str, Any]]:
 
 def _production_derivation_receipt() -> dict[str, Any]:
     world = _audit_world_record()
+    context = _audit_cycle_substrate_context()
     return {
         "input_source": "production_owner_access_no_runtime_hints",
         "world_model_record_id": world.world_model_record_id,
@@ -310,7 +469,16 @@ def _production_derivation_receipt() -> dict[str, Any]:
         "world_model_record_source": "SimulationPortObservation.world_model_record",
         "method_state_source": "RealValueOwnerGateway.load_panel_observational_data",
         "forecast_source": "RealValueOwnerGateway.produce_forecast_inputs",
-        "transport_source": "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner",
+        "transport_source": (
+            "CycleSubstrateContext.transport_context_to_"
+            "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner"
+        ),
+        "cycle_substrate_context_content_hash": context.content_hash,
+        "transport_context_binding_hash": context.transport_context.context_binding_hash,
+        "transport_covariates": [
+            row.model_dump(mode="json")
+            for row in context.transport_context.covariates
+        ],
         "audit_replay_source": "real_owner_rederive_value_ready",
         "evaluation_mode": "simulate_only",
         "live_rederive_flag": "--rederive-audit",
@@ -326,11 +494,11 @@ def _frozen_positive_receipt() -> dict[str, Any]:
         status="pass",
         forecast_tier="observable_calibrated",
         calibration_record_ref=(
-            "s10://n8/fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce"
+            "s10://n8/e0648e1cbad2105d2e585756955988cb227378a1a15fc52c748bde0e32d0d932"
             "/calibration"
         ),
         uncertainty_interval_refs=(
-            "interval://sha256:fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/95",
+            "interval://sha256:e0648e1cbad2105d2e585756955988cb227378a1a15fc52c748bde0e32d0d932/95",
         ),
         false_clear_counts=dict.fromkeys(S10_FALSE_CLEAR_FIELDS, 0),
     )
@@ -338,7 +506,7 @@ def _frozen_positive_receipt() -> dict[str, Any]:
         status="transported_limited",
         world_model_record_id=world.world_model_record_id,
         world_model_record_content_hash=world.content_hash,
-        transport_result_ref="sha256:986ce6be7f4603e8211c9fecff68cd4ac351e789f46a9f263e8dd0f4bc88afd7",
+        transport_result_ref="sha256:3ed459178a65fef30fbbf1b0661927831a07119839c9c0e81bce292a89d96aed",
         transport_status="bounded_non_identified",
         transport_mode="bounds_only",
         identification_engine="bounds_only",
@@ -963,6 +1131,42 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             ),
             probe_command=_pytest_probe(
                 f"{test_value_gate}::test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_transport_tuple_reintroduced",
+            guard="transport vocabulary comes only from the content-bound context",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    (
+                        "    transport_covariates = tuple(\n"
+                        "        observation.canonical_var for observation in "
+                        "transport.covariates\n"
+                        "    )\n"
+                    ),
+                    (
+                        '    transport_covariates = ("state_capacity", '
+                        '"institutional_quality")\n'
+                    ),
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_education_selection_diagram_uses_only_pack_covariates"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="source_flip_transport_measured_values_removed",
+            guard="selection S-nodes retain owner-measured source and target values",
+            replacements=(
+                _SourceFlipReplacement(
+                    generation_cycle,
+                    "            source_value=observation.source_value,\n",
+                    "            source_value=0.0,\n",
+                ),
+            ),
+            probe_command=_pytest_probe(
+                f"{test_value_gate}::test_third_pack_transport_vocabulary_flows_without_engine_change"
             ),
         ),
         _SourceFlipCase(
@@ -1660,6 +1864,7 @@ class _AdversarialAuditGateway:
                 candidate=candidate,
                 problem=problem,  # type: ignore[arg-type]
                 world_record=world_record,
+                cycle_substrate_context=_audit_cycle_substrate_context(),
             ),
             "query_treatment": query_treatment,
             "query_outcome": query_outcome,
@@ -1670,7 +1875,10 @@ def _run_real_owner_value_audit() -> Any:
     from polisyos.runtime.quality.generation_cycle import FoundryValuePort
 
     return _quiet_call(
-        lambda: FoundryValuePort(repo_root=_repo_root())(
+        lambda: FoundryValuePort(
+            repo_root=_repo_root(),
+            cycle_substrate_context=_audit_cycle_substrate_context(),
+        )(
             candidate=_audit_value_candidate(),
             simulation=_audit_simulation(),
             problem=_audit_problem(),  # type: ignore[arg-type]
@@ -1696,7 +1904,7 @@ def _audit_problem() -> DesignProblem:
             mandate="Recompute the non-promotable N8 value-gate receipt.",
         ),
         jurisdiction_time=JurisdictionTimeSemantics(
-            region="cross_country",
+            region="UA",
             valid_time="2018/2023",
             as_of="2026-07-06T00:00:00+00:00",
             policy_time="2020",

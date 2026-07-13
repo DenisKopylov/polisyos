@@ -1087,6 +1087,7 @@ class RealValueOwnerGateway:
     """Production owner access for N8 value inputs."""
 
     repo_root: Path | None = None
+    cycle_substrate_context: CycleSubstrateContext | None = None
 
     def load_panel_observational_data(
         self,
@@ -1180,6 +1181,7 @@ class RealValueOwnerGateway:
                 world_record=world_record,
                 query_treatment=treatment,
                 query_outcome=outcome,
+                cycle_substrate_context=self.cycle_substrate_context,
             ),
             "query_treatment": treatment,
             "query_outcome": outcome,
@@ -1201,8 +1203,12 @@ class FoundryValuePort:
         runtime_budget_ms: float | None = None,
         seed: int = 42,
         repo_root: Path | None = None,
+        cycle_substrate_context: CycleSubstrateContext | None = None,
     ) -> None:
-        self._owner_gateway = owner_gateway or RealValueOwnerGateway(repo_root=repo_root)
+        self._owner_gateway = owner_gateway or RealValueOwnerGateway(
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
         self._evaluation_mode = evaluation_mode
         self._data_trust = data_trust
         self._requested_method_fqn = requested_method_fqn
@@ -1609,7 +1615,10 @@ class GenerationCycleController:
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
         )
-        self._value_port = value_port or FoundryValuePort(repo_root=repo_root)
+        self._value_port = value_port or FoundryValuePort(
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
         if promotion_port is None:
             from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
 
@@ -3206,6 +3215,7 @@ def _build_default_selection_diagram(
     candidate: object,
     problem: DesignProblem,
     world_record: WorldModelRecord,
+    cycle_substrate_context: CycleSubstrateContext | None,
 ) -> object:
     return _build_candidate_selection_diagram(
         candidate=candidate,
@@ -3213,6 +3223,7 @@ def _build_default_selection_diagram(
         world_record=world_record,
         query_treatment=_candidate_transport_treatment_variable(candidate),
         query_outcome=_candidate_transport_outcome_variable(candidate, problem),
+        cycle_substrate_context=cycle_substrate_context,
     )
 
 
@@ -3223,12 +3234,59 @@ def _build_candidate_selection_diagram(
     world_record: WorldModelRecord,
     query_treatment: str,
     query_outcome: str,
+    cycle_substrate_context: CycleSubstrateContext | None,
 ) -> object:
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
     from polisyos.ir.analytics.context import ContextProfile
-    from polisyos.ir.analytics.transportability import build_selection_diagram
+    from polisyos.ir.analytics.transportability import (
+        SelectionDiagramBuilder,
+        measured_transport_severity,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
 
-    transport_covariates = ("state_capacity", "institutional_quality")
+    if cycle_substrate_context is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:transport_context_unresolved",
+            "content-bound source/target transport context is absent",
+            owner_access_ref="cycle_substrate_context://transport_context_missing",
+        )
+    try:
+        context = revalidate_cycle_substrate_context(cycle_substrate_context)
+    except ValueError as exc:
+        raise ValueOwnerAccessError(
+            "transport_context_invalid",
+            str(exc),
+            owner_access_ref="cycle_substrate_context://content_validation_failed",
+        ) from exc
+    expected_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if context.design_problem_ref != expected_problem_ref or context.domain != problem.domain:
+        raise ValueOwnerAccessError(
+            "transport_context_problem_mismatch",
+            "transport context is not bound to the active DesignProblem",
+            owner_access_ref=context.content_hash,
+        )
+    if (
+        context.world_model_record_content_hash != world_record.content_hash
+        or context.world_model_record.world_model_record_id
+        != world_record.world_model_record_id
+    ):
+        raise ValueOwnerAccessError(
+            "transport_context_world_mismatch",
+            "transport context is not bound to the active WorldModelRecord",
+            owner_access_ref=context.content_hash,
+        )
+    transport = context.transport_context
+    if transport is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:transport_context_unresolved",
+            "content-bound source/target transport measurements are absent",
+            owner_access_ref=context.content_hash,
+        )
+    transport_covariates = tuple(
+        observation.canonical_var for observation in transport.covariates
+    )
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=list(dict.fromkeys((query_treatment, query_outcome, *transport_covariates))),
@@ -3240,36 +3298,40 @@ def _build_candidate_selection_diagram(
             ],
         ],
     )
-    region = str(world_record.region_or_jurisdiction or "")
-    country = region.split("-", 1)[0] if region else ""
-    treatment_period = _candidate_treatment_period(candidate)
     source_context = ContextProfile(
-        context_id=_candidate_source_context_id(candidate),
-        context_label=f"source:{_candidate_id(candidate)}",
-        countries=[country] if country else [],
-        time_period=str(treatment_period or world_record.valid_time_scope),
-        institutional_quality=_candidate_float(
-            candidate,
-            "source_institutional_quality",
-            default=0.72,
-        ),
-        state_capacity=_candidate_float(candidate, "source_state_capacity", default=0.68),
-        post_conflict=_candidate_bool(candidate, "source_post_conflict", default=False),
+        context_id=transport.source_context_id,
+        context_label=f"measured-source:{transport.source_context_id}",
+        data_sources=[
+            observation.source_row_content_hash
+            for observation in transport.covariates
+        ],
     )
     target_context = ContextProfile(
-        context_id=f"target:{world_record.world_model_record_id}",
-        context_label=f"target:{region}",
-        countries=[region.split("-", 1)[0]] if region else [],
-        time_period=str(world_record.valid_time_scope),
-        institutional_quality=_world_context_float(
-            world_record,
-            "target_institutional_quality",
-            default=0.42,
-        ),
-        state_capacity=_world_context_float(world_record, "target_state_capacity", default=0.36),
-        post_conflict=_world_post_conflict(world_record),
+        context_id=transport.target_context_id,
+        context_label=f"measured-target:{transport.target_context_id}",
+        data_sources=[
+            observation.target_row_content_hash
+            for observation in transport.covariates
+        ],
     )
-    return build_selection_diagram(source_context, target_context, graph)
+    builder = SelectionDiagramBuilder(graph)
+    for observation in transport.covariates:
+        builder.add_measured_sigma_variable(
+            observation.canonical_var,
+            source_value=observation.source_value,
+            target_value=observation.target_value,
+            severity=measured_transport_severity(
+                observation.source_value,
+                observation.target_value,
+            ),
+            role=None,
+            source_ref=observation.source_row_content_hash,
+            target_ref=observation.target_row_content_hash,
+        )
+    return builder.build(
+        source_context=source_context,
+        target_context=target_context,
+    )
 
 
 def _candidate_transport_treatment_variable(candidate: object) -> str:
@@ -3285,70 +3347,6 @@ def _candidate_transport_treatment_variable(candidate: object) -> str:
 
 def _candidate_transport_outcome_variable(candidate: object, problem: DesignProblem) -> str:
     return _slug(_value_outcome_variable(candidate, problem) or "value_outcome")
-
-
-def _candidate_source_context_id(candidate: object) -> str:
-    atom = _object_get(candidate, "atom")
-    raw = (
-        _object_get(candidate, "source_context_ref")
-        or _object_get(atom, "source_context_ref")
-        or _object_get(atom, "world_model_record_ref")
-        or _candidate_id(candidate)
-    )
-    return f"source:{_slug(str(raw))}"
-
-
-def _candidate_treatment_period(candidate: object) -> object | None:
-    atom = _object_get(candidate, "atom")
-    return (
-        _object_get(candidate, "treatment_period")
-        or _object_get(candidate, "time_treatment")
-        or _object_get(atom, "treatment_period")
-        or _object_get(atom, "time_treatment")
-        or _object_get(atom, "treatment_start_period")
-    )
-
-
-def _candidate_float(candidate: object, field: str, *, default: float) -> float:
-    atom = _object_get(candidate, "atom")
-    raw = _object_get(candidate, field)
-    if raw is None:
-        raw = _object_get(atom, field)
-    try:
-        return float(raw)
-    except (TypeError, ValueError):
-        return default
-
-
-def _candidate_bool(candidate: object, field: str, *, default: bool) -> bool:
-    atom = _object_get(candidate, "atom")
-    raw = _object_get(candidate, field)
-    if raw is None:
-        raw = _object_get(atom, field)
-    if raw is None:
-        return default
-    if isinstance(raw, str):
-        return raw.strip().lower() in {"1", "true", "yes", "y"}
-    return bool(raw)
-
-
-def _world_context_float(world_record: WorldModelRecord, field: str, *, default: float) -> float:
-    raw = _object_get(world_record, field)
-    try:
-        return float(raw)
-    except (TypeError, ValueError):
-        return default
-
-
-def _world_post_conflict(world_record: WorldModelRecord) -> bool:
-    raw = _object_get(world_record, "post_conflict")
-    if raw is not None:
-        return bool(raw)
-    scope = " ".join(
-        str(_object_get(world_record, field) or "")
-        for field in ("population_scope", "policy_domain", "region_or_jurisdiction")
-    ).lower()
-    return "wartime" in scope or "post_conflict" in scope or "ua" in scope
 
 
 def _build_s10_forecast_inputs(

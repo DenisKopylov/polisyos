@@ -6,7 +6,7 @@
     "wall_time_reported_outside_byte_stable_artifact": true,
     "wmr_cache_rule": "build_once_per_world_model_record_content_hash"
   },
-  "contract_content_hash": "sha256:5eb74d41d444270f8f1c6c828af9116d2727d9bce9c75812700f6a887d147289",
+  "contract_content_hash": "sha256:84d5c80922d8eaca63a7dbc91142cf0f289d9d39d84d5bf18b0d8698852ae38c",
   "decisive_mutations": [
     {
       "mutation_id": "value_input_read_from_runtime_hint",
@@ -45,7 +45,7 @@
     },
     {
       "mutation_id": "fixture_world_model_hash_rejected",
-      "proof": "Placeholder WMR hash rejected; audit WMR is sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61.",
+      "proof": "Placeholder WMR hash rejected; audit WMR is sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7.",
       "result": "RED"
     },
     {
@@ -407,7 +407,7 @@
   },
   "frozen_positive_receipt": {
     "calibration_receipt": {
-      "calibration_record_ref": "s10://n8/fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/calibration",
+      "calibration_record_ref": "s10://n8/e0648e1cbad2105d2e585756955988cb227378a1a15fc52c748bde0e32d0d932/calibration",
       "false_clear_counts": {
         "equilibrium_contested_single_forecast_false_clear_count": 0,
         "fail_closed_axis_prediction_promotion_false_clear_count": 0,
@@ -429,14 +429,14 @@
       "issue_codes": [],
       "status": "pass",
       "uncertainty_interval_refs": [
-        "interval://sha256:fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/95"
+        "interval://sha256:e0648e1cbad2105d2e585756955988cb227378a1a15fc52c748bde0e32d0d932/95"
       ]
     },
     "candidate_id": "candidate_live_value",
     "evaluation_mode": "simulate_only",
     "identification_status": "partial",
-    "k_world_ref_after": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
-    "k_world_ref_before": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+    "k_world_ref_after": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
+    "k_world_ref_before": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
     "method_selection_trace": [
       "causal.diagnostics.parallel_trends_check@1.0.0",
       "causal.inference.did.staggered@1.0.0",
@@ -471,10 +471,10 @@
       ],
       "status": "transported_limited",
       "transport_mode": "bounds_only",
-      "transport_result_ref": "sha256:986ce6be7f4603e8211c9fecff68cd4ac351e789f46a9f263e8dd0f4bc88afd7",
+      "transport_result_ref": "sha256:3ed459178a65fef30fbbf1b0661927831a07119839c9c0e81bce292a89d96aed",
       "transport_status": "bounded_non_identified",
-      "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
-      "world_model_record_id": "world_model_record_0c9fad6930cd3cd7"
+      "world_model_record_content_hash": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
+      "world_model_record_id": "world_model_record_5e7e40f494e94986"
     },
     "value_outer_set": {
       "assumption_status": "externally_supported",
@@ -514,21 +514,21 @@
       "width": [
         10111.120366577636
       ],
-      "world_model_record_ref": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61"
+      "world_model_record_ref": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7"
     },
     "value_outer_set_width_derived": [
       10111.120366577636
     ],
-    "value_ref": "sha256:cdd0ff287f31805213f5bce1c4c04bcb3ec0931a4bee0428ac98f682bcf65a7c",
+    "value_ref": "sha256:1912849a4ba8271ee91dba3dcb3f7951946f146dd0cba3b02ee33fc63adace31",
     "wall_time_ms": 5994.598250021227,
     "wmr_cache_status": "built",
-    "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
-    "world_model_record_id": "world_model_record_0c9fad6930cd3cd7"
+    "world_model_record_content_hash": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
+    "world_model_record_id": "world_model_record_5e7e40f494e94986"
   },
   "frozen_value_receipts": [
     {
       "calibration_receipt": {
-        "calibration_record_ref": "s10://n8/fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/calibration",
+        "calibration_record_ref": "s10://n8/e0648e1cbad2105d2e585756955988cb227378a1a15fc52c748bde0e32d0d932/calibration",
         "false_clear_counts": {
           "equilibrium_contested_single_forecast_false_clear_count": 0,
           "fail_closed_axis_prediction_promotion_false_clear_count": 0,
@@ -550,14 +550,14 @@
         "issue_codes": [],
         "status": "pass",
         "uncertainty_interval_refs": [
-          "interval://sha256:fbdd2008070afb824038f3046d38c0f917394c9038e4cf2eaa1a5e3163b354ce/95"
+          "interval://sha256:e0648e1cbad2105d2e585756955988cb227378a1a15fc52c748bde0e32d0d932/95"
         ]
       },
       "candidate_id": "candidate_live_value",
       "evaluation_mode": "simulate_only",
       "identification_status": "partial",
-      "k_world_ref_after": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
-      "k_world_ref_before": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
+      "k_world_ref_after": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
+      "k_world_ref_before": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
       "method_selection_trace": [
         "causal.diagnostics.parallel_trends_check@1.0.0",
         "causal.inference.did.staggered@1.0.0",
@@ -592,10 +592,10 @@
         ],
         "status": "transported_limited",
         "transport_mode": "bounds_only",
-        "transport_result_ref": "sha256:986ce6be7f4603e8211c9fecff68cd4ac351e789f46a9f263e8dd0f4bc88afd7",
+        "transport_result_ref": "sha256:3ed459178a65fef30fbbf1b0661927831a07119839c9c0e81bce292a89d96aed",
         "transport_status": "bounded_non_identified",
-        "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
-        "world_model_record_id": "world_model_record_0c9fad6930cd3cd7"
+        "world_model_record_content_hash": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
+        "world_model_record_id": "world_model_record_5e7e40f494e94986"
       },
       "value_outer_set": {
         "assumption_status": "externally_supported",
@@ -635,16 +635,16 @@
         "width": [
           10111.120366577636
         ],
-        "world_model_record_ref": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61"
+        "world_model_record_ref": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7"
       },
       "value_outer_set_width_derived": [
         10111.120366577636
       ],
-      "value_ref": "sha256:cdd0ff287f31805213f5bce1c4c04bcb3ec0931a4bee0428ac98f682bcf65a7c",
+      "value_ref": "sha256:1912849a4ba8271ee91dba3dcb3f7951946f146dd0cba3b02ee33fc63adace31",
       "wall_time_ms": 5994.598250021227,
       "wmr_cache_status": "built",
-      "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
-      "world_model_record_id": "world_model_record_0c9fad6930cd3cd7"
+      "world_model_record_content_hash": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
+      "world_model_record_id": "world_model_record_5e7e40f494e94986"
     }
   ],
   "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1",
@@ -681,15 +681,33 @@
   "production_derivation": {
     "audit_replay_source": "real_owner_rederive_value_ready",
     "candidate_source": "cycle_selected_candidate",
+    "cycle_substrate_context_content_hash": "sha256:34a55ed3db8357e926684e1c4a34f997d5e473cfae55fdeace2cdb3ce6f905c3",
     "evaluation_mode": "simulate_only",
     "forecast_source": "RealValueOwnerGateway.produce_forecast_inputs",
     "input_source": "production_owner_access_no_runtime_hints",
     "live_rederive_flag": "--rederive-audit",
     "local_positive_status": "value_ready",
     "method_state_source": "RealValueOwnerGateway.load_panel_observational_data",
-    "transport_source": "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner",
-    "world_model_record_content_hash": "sha256:0c9fad6930cd3cd726ccfa2b7d27360a9618c6609fc16e62b618039eef711e61",
-    "world_model_record_id": "world_model_record_0c9fad6930cd3cd7",
+    "transport_context_binding_hash": "sha256:b091a3b415adc7fb138de36c69a65d23eaff00669ab628822fcd582492fe6c51",
+    "transport_covariates": [
+      {
+        "canonical_var": "institutional_quality",
+        "source_row_content_hash": "sha256:bd20fb8f80b2f9ab8edcd9de939fb237a8799b54ea8699a76b2afc32bbf639af",
+        "source_value": 24.705279011130504,
+        "target_row_content_hash": "sha256:cecfffe1ff0be1d83122c723afb0f8daf02cec025966c57d6529ee591bdba60a",
+        "target_value": 19.146867854828017
+      },
+      {
+        "canonical_var": "state_capacity",
+        "source_row_content_hash": "sha256:4929e87f20d871c3537474e457ea622d6e22326745691864cf4f0271261769e9",
+        "source_value": -0.2596331745386122,
+        "target_row_content_hash": "sha256:259908d5ba8cf0cfa7e2128779027212878a0d29c9be1774612c9639c3e4f16c",
+        "target_value": -0.42812895178794863
+      }
+    ],
+    "transport_source": "CycleSubstrateContext.transport_context_to_ValueOwnerGateway.build_transport_inputs_selection_diagram_owner",
+    "world_model_record_content_hash": "sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7",
+    "world_model_record_id": "world_model_record_5e7e40f494e94986",
     "world_model_record_source": "SimulationPortObservation.world_model_record"
   },
   "schema_version": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1",
@@ -704,6 +722,8 @@
       "source_flip_calibration_report_driven_refusal",
       "source_flip_width_tracks_real_did_ci",
       "source_flip_transport_real_solver_required",
+      "source_flip_transport_tuple_reintroduced",
+      "source_flip_transport_measured_values_removed",
       "source_flip_treatment_candidate_atom_binding_required",
       "source_flip_value_outer_set_width_supplied_not_derived",
       "source_flip_persisted_width_verification_removed",

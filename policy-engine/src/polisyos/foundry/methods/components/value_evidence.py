@@ -28,6 +28,7 @@ from polisyos.ir.analytics.uncertainty import (
     OutputContractCapability,
     OutputContractDeclaration,
     UncertaintyEnvelope,
+    ValueUncertaintyProjectionKind,
     supports_value_uncertainty_projection_contract,
 )
 
@@ -41,6 +42,17 @@ class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
 
+class NativeValueProjectionCapability(_StrictModel):
+    """Verified catalog witness for one estimand-aware native output slot."""
+
+    output_slot: str = Field(min_length=1)
+    contract_id: str = Field(min_length=1)
+    projector: Literal["to_value_uncertainty"] = "to_value_uncertainty"
+    owner_module: str = Field(min_length=1)
+    owner_qualname: str = Field(min_length=1)
+    projection_kind: ValueUncertaintyProjectionKind
+
+
 class MethodValueEvidence(_StrictModel):
     """Non-production proof that a native method contract can project uncertainty."""
 
@@ -51,8 +63,11 @@ class MethodValueEvidence(_StrictModel):
     production_value_eligible: Literal[False] = False
     method_fqn: str = Field(min_length=1)
     method_family: str = Field(min_length=1)
+    method_signature_digest: str = Field(pattern=r"^[0-9a-f]{64}$")
     native_contract_id: str = Field(min_length=1)
     selected_output_slot: str = Field(min_length=1)
+    native_projection_capability: NativeValueProjectionCapability
+    projection_binding: NativeValueEstimandBinding
     estimand_binding_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     estimand: EstimandSpec
     envelope: UncertaintyEnvelope
@@ -63,6 +78,34 @@ class MethodValueEvidence(_StrictModel):
 
     @model_validator(mode="after")
     def _verify_content_hash(self) -> MethodValueEvidence:
+        capability = self.native_projection_capability
+        binding = self.projection_binding
+        owner = _resolve_capability_owner(capability)
+        declaration = getattr(owner, "output_contract_declaration", None)
+        if (
+            owner is None
+            or not isinstance(declaration, OutputContractDeclaration)
+            or declaration.contract_id != capability.contract_id
+            or declaration.value_uncertainty_projection_kind
+            is not capability.projection_kind
+            or self.native_contract_id != capability.contract_id
+            or self.selected_output_slot != capability.output_slot
+            or binding.native_contract_id != self.native_contract_id
+            or binding.producer_method_fqn != self.method_fqn
+            or self.estimand_binding_content_hash != binding.content_hash
+            or not binding.matches(self.estimand)
+            or self.envelope.metadata.get(
+                "value_estimand_binding_native_contract_id"
+            )
+            != self.native_contract_id
+            or self.envelope.metadata.get(
+                "value_estimand_binding_producer_method_fqn"
+            )
+            != self.method_fqn
+            or self.envelope.metadata.get("value_estimand_binding_content_hash")
+            != binding.content_hash
+        ):
+            raise ValueError("method_value_evidence_projection_owner_mismatch")
         payload = self.model_dump(mode="json", exclude={"content_hash"})
         if self.content_hash != _content_hash(payload):
             raise ValueError("method_value_evidence_content_hash_mismatch")
@@ -81,16 +124,6 @@ class MethodValueRefusal(_StrictModel):
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
-class NativeValueProjectionCapability(_StrictModel):
-    """Verified catalog witness for one estimand-aware native output slot."""
-
-    output_slot: str = Field(min_length=1)
-    contract_id: str = Field(min_length=1)
-    projector: Literal["to_value_uncertainty"] = "to_value_uncertainty"
-    owner_module: str = Field(min_length=1)
-    owner_qualname: str = Field(min_length=1)
-
-
 def resolve_method_value_projection_capabilities(
     *,
     method_cls: type[object],
@@ -107,35 +140,48 @@ def resolve_method_value_projection_capabilities(
             return ()
     resolved: list[NativeValueProjectionCapability] = []
     for slot in sorted(method_signature.output_slots, key=lambda item: item.name):
-        if (
-            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
-            not in slot.contract_capabilities
-        ):
-            continue
-        owner = _resolve_output_contract_owner(slot)
-        if owner is None:
-            continue
-        declaration = getattr(owner, "output_contract_declaration", None)
-        if not isinstance(declaration, OutputContractDeclaration):
-            continue
-        if slot.contract_id != declaration.contract_id:
-            continue
-        if (
-            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
-            not in declaration.capabilities
-        ):
-            continue
-        if not supports_value_uncertainty_projection_contract(owner):
-            continue
-        resolved.append(
-            NativeValueProjectionCapability(
-                output_slot=slot.name,
-                contract_id=declaration.contract_id,
-                owner_module=owner.__module__,
-                owner_qualname=owner.__qualname__,
-            )
+        capability = resolve_method_value_projection_capability(
+            method_signature=method_signature,
+            selected_output_slot=slot.name,
         )
+        if capability is not None:
+            resolved.append(capability)
     return tuple(resolved)
+
+
+def resolve_method_value_projection_capability(
+    *,
+    method_signature: MethodSignature,
+    selected_output_slot: str | None = None,
+) -> NativeValueProjectionCapability | None:
+    """Resolve one output slot through the native contract owner's declaration."""
+
+    slot = _resolve_output_slot(method_signature, selected_output_slot)
+    if slot is None:
+        return None
+    owner = _resolve_output_contract_owner(slot)
+    if owner is None:
+        return None
+    declaration = getattr(owner, "output_contract_declaration", None)
+    if (
+        not isinstance(declaration, OutputContractDeclaration)
+        or declaration.contract_id != slot.contract_id
+        or OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
+        not in declaration.capabilities
+        or not isinstance(
+            declaration.value_uncertainty_projection_kind,
+            ValueUncertaintyProjectionKind,
+        )
+        or not supports_value_uncertainty_projection_contract(owner)
+    ):
+        return None
+    return NativeValueProjectionCapability(
+        output_slot=slot.name,
+        contract_id=declaration.contract_id,
+        owner_module=owner.__module__,
+        owner_qualname=owner.__qualname__,
+        projection_kind=declaration.value_uncertainty_projection_kind,
+    )
 
 
 def project_method_value_evidence(
@@ -174,6 +220,17 @@ def project_method_value_evidence(
             resolved_contract_id=slot.contract_id,
             selected_output_slot=slot.name,
         )
+    capability = resolve_method_value_projection_capability(
+        method_signature=method_signature,
+        selected_output_slot=slot.name,
+    )
+    if capability is None:
+        return _refusal(
+            signature=method_signature,
+            reason_code="method_value_projection_owner_mismatch",
+            resolved_contract_id=slot.contract_id,
+            selected_output_slot=slot.name,
+        )
     native = _resolve_native_output(method_result, slot)
     native_contract_id = getattr(type(native), "contract_id", None)
     if not isinstance(native_contract_id, str) or native_contract_id != slot.contract_id:
@@ -191,6 +248,8 @@ def project_method_value_evidence(
         or native_declaration.contract_id != slot.contract_id
         or OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
         not in native_declaration.capabilities
+        or native_declaration.value_uncertainty_projection_kind
+        is not capability.projection_kind
         or type(native) is not declared_owner
     ):
         return _refusal(
@@ -240,10 +299,8 @@ def project_method_value_evidence(
         != slot.contract_id
         or envelope.metadata.get("value_estimand_binding_producer_method_fqn")
         != method_signature.fqn
-        or not isinstance(
-            envelope.metadata.get("value_estimand_binding_content_hash"),
-            str,
-        )
+        or envelope.metadata.get("value_estimand_binding_content_hash")
+        != projection_binding.content_hash
     ):
         return _refusal(
             signature=method_signature,
@@ -287,8 +344,11 @@ def project_method_value_evidence(
         "production_value_eligible": False,
         "method_fqn": method_signature.fqn,
         "method_family": method_signature.family,
+        "method_signature_digest": method_signature.stable_digest(),
         "native_contract_id": native_contract_id,
         "selected_output_slot": slot.name,
+        "native_projection_capability": capability.model_dump(mode="json"),
+        "projection_binding": projection_binding.model_dump(mode="json"),
         "estimand_binding_content_hash": projection_binding.content_hash,
         "estimand": asdict(estimand),
         "envelope": envelope.model_dump(mode="json"),
@@ -300,6 +360,8 @@ def project_method_value_evidence(
     }
     model_payload = {
         **payload,
+        "native_projection_capability": capability,
+        "projection_binding": projection_binding,
         "estimand": estimand,
         "envelope": envelope,
         "truthfulness_receipt": truthfulness,
@@ -335,6 +397,18 @@ def _resolve_output_contract_owner(slot: SlotSpec) -> type[object] | None:
     try:
         owner: object = importlib.import_module(module_name)
         for segment in qualname.split("."):
+            owner = getattr(owner, segment)
+    except (AttributeError, ImportError, ValueError):
+        return None
+    return owner if isinstance(owner, type) else None
+
+
+def _resolve_capability_owner(
+    capability: NativeValueProjectionCapability,
+) -> type[object] | None:
+    try:
+        owner: object = importlib.import_module(capability.owner_module)
+        for segment in capability.owner_qualname.split("."):
             owner = getattr(owner, segment)
     except (AttributeError, ImportError, ValueError):
         return None
@@ -400,5 +474,6 @@ __all__ = [
     "MethodValueRefusal",
     "NativeValueProjectionCapability",
     "project_method_value_evidence",
+    "resolve_method_value_projection_capability",
     "resolve_method_value_projection_capabilities",
 ]

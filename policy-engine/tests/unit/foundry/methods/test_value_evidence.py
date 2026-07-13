@@ -67,6 +67,7 @@ from polisyos.ir.analytics.transportability import (
 from polisyos.ir.analytics.uncertainty import (
     NativeValueEstimandBinding,
     OutputContractCapability,
+    ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
 
@@ -77,7 +78,10 @@ class _ForgedNativeOutputOwner:
 
 class _DeclaredNativeOutput:
     contract_id = _ForgedNativeOutputOwner.contract_id
-    output_contract_declaration = value_uncertainty_output_contract(contract_id)
+    output_contract_declaration = value_uncertainty_output_contract(
+        contract_id,
+        projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
+    )
 
     def to_value_uncertainty(
         self,
@@ -557,8 +561,43 @@ def test_verified_native_intervals_remain_projectable(
     assert evidence.authority_scope == "contract_only_nonproduction"
     assert evidence.production_value_eligible is False
     assert evidence.envelope.confidence_interval == expected_interval
+    assert evidence.method_signature_digest == signature.stable_digest()
+    assert evidence.projection_binding == binding
+    assert evidence.estimand_binding_content_hash == binding.content_hash
+    assert evidence.native_projection_capability.projection_kind.value == family
+    assert evidence.native_projection_capability.contract_id == type(report).contract_id
+    assert evidence.native_projection_capability.output_slot == "result"
 
     forged_payload = evidence.model_dump(mode="python")
     forged_payload["production_value_eligible"] = True
     with pytest.raises(ValidationError):
         MethodValueEvidence.model_validate(forged_payload)
+
+
+def test_method_value_evidence_rejects_projection_kind_not_owned_by_contract() -> None:
+    report = _posterior(verified=True)
+    estimand = _estimand()
+    signature = BayesianLinearRegressionEstimator.signature
+    binding = _projection_binding(report, estimand=estimand, signature=signature)
+    evidence = project_method_value_evidence(
+        method_signature=signature,
+        method_result=_method_result(report),
+        estimand=estimand,
+        selected_output_slot="result",
+        projection_binding=binding,
+    )
+    assert isinstance(evidence, MethodValueEvidence)
+
+    forged = evidence.model_dump(mode="python")
+    forged["native_projection_capability"]["projection_kind"] = "econometric"
+    forged_without_hash = {
+        key: value for key, value in forged.items() if key != "content_hash"
+    }
+    from polisyos.foundry.methods.components.value_evidence import _content_hash
+
+    forged["content_hash"] = _content_hash(forged_without_hash)
+    with pytest.raises(
+        ValidationError,
+        match="method_value_evidence_projection_owner_mismatch",
+    ):
+        MethodValueEvidence.model_validate(forged)

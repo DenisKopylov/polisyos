@@ -26,6 +26,7 @@ from polisyos.ir.analytics.uncertainty import (
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
 from polisyos.ir.registry.refs import DependenceStructureRef
@@ -751,7 +752,10 @@ class EconometricResult(BaseModel):
 
     contract_id: ClassVar[str] = "foundry.econometrics.result.v2"
     output_contract_declaration: ClassVar[OutputContractDeclaration] = (
-        value_uncertainty_output_contract(contract_id)
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.ECONOMETRIC,
+        )
     )
     model_config = ConfigDict(extra="forbid", frozen=True)
 

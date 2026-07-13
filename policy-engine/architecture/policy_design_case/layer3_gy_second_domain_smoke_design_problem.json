@@ -80,7 +80,7 @@
     "nl_provenance": {
       "raw_request": "Improve education outcomes through evidence-backed interventions.",
       "source_context": {
-        "census_content_hash": "sha256:4dacce3dd4bf74d91de06b5f5a36877c9e8a3a1427ec4b778646df0286508e1c"
+        "census_content_hash": "sha256:ee130557a671e51a79eb426ea78a18dc9d4704db37f2b3e0b7a13aeace6c7211"
       },
       "source_surface": "gy_n10a_second_domain_pack"
     },
@@ -122,5 +122,5 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
-  "smoke_problem_content_hash": "sha256:8f46b1e40a318b0f4d2f6265f11d35076632708f61f400e840a5e91bb016b6aa"
+  "smoke_problem_content_hash": "sha256:d8a5b389cfc80702e68bc170311d75953511f923cef17bcac51bdc4aab7520d6"
 }

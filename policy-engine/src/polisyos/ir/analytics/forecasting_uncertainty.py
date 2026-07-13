@@ -23,6 +23,7 @@ from polisyos.ir.analytics.uncertainty import (
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
@@ -382,7 +383,10 @@ class ForecastingUncertaintyBundle(BaseModel):
 
     contract_id: ClassVar[str] = "ir.forecasting_uncertainty_bundle.v1"
     output_contract_declaration: ClassVar[OutputContractDeclaration] = (
-        value_uncertainty_output_contract(contract_id)
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.FORECASTING,
+        )
     )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -649,7 +653,10 @@ class ForecastingUncertaintyBundleV2(ForecastingUncertaintyBundle):
 
     contract_id: ClassVar[str] = "ir.forecasting_uncertainty_bundle.v2"
     output_contract_declaration: ClassVar[OutputContractDeclaration] = (
-        value_uncertainty_output_contract(contract_id)
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.FORECASTING,
+        )
     )
 
     schema_version: str = Field(default="2.0", pattern=r"^\d+\.\d+$")

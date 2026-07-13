@@ -28,6 +28,7 @@ from polisyos.ir.analytics.uncertainty import (
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
@@ -1538,7 +1539,10 @@ class PosteriorResult(BaseModel):
 
     contract_id: ClassVar[str] = "foundry.bayesian.posterior_result.v2"
     output_contract_declaration: ClassVar[OutputContractDeclaration] = (
-        value_uncertainty_output_contract(contract_id)
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
+        )
     )
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 

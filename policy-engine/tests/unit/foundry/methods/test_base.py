@@ -24,6 +24,7 @@ from polisyos.foundry.methods import (
 from polisyos.foundry.methods.types.units import Units
 from polisyos.ir.analytics.uncertainty import (
     OutputContractCapability,
+    ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
 
@@ -283,7 +284,10 @@ class TestHashing:
     def test_output_contract_rejects_incomplete_projection_interface(self):
         class _IncompleteProjectionOwner:
             contract_id = "test.incomplete_projection.v1"
-            output_contract_declaration = value_uncertainty_output_contract(contract_id)
+            output_contract_declaration = value_uncertainty_output_contract(
+                contract_id,
+                projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
+            )
 
             def to_value_uncertainty(self, *, estimand: object) -> None:
                 del estimand

@@ -7,6 +7,7 @@ from polisyos.foundry.methods.components.value_evidence import (
     NativeValueProjectionCapability,
     project_method_value_evidence,
     resolve_method_value_projection_capabilities,
+    resolve_method_value_projection_capability,
 )
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     "MethodValueRefusal",
     "NativeValueProjectionCapability",
     "project_method_value_evidence",
+    "resolve_method_value_projection_capability",
     "resolve_method_value_projection_capabilities",
 ]

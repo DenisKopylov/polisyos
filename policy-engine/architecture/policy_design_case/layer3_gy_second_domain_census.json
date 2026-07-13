@@ -21,14 +21,15 @@
         "missing_canonical_vars": [],
         "nonpanel_variable_count": 3,
         "panel_variable_count": 5,
-        "query_content_hash": "sha256:328baf5c028e84e0b2fe5d99b35a8bd16e2a928410a0f0e1f5d0b6735b35d116",
+        "query_content_hash": "sha256:b151b239500a39b073cea9c2167eb5e9b5857a582d60b2e3c7099c0447807f46",
         "query_id": "l1_candidate_aggregate",
-        "response_content_hash": "sha256:1447660d802498f0b009c23d72c156f4a6b1eb1597ded6ec80cdc3beb611fef9",
+        "response_content_hash": "sha256:15d5773ad6f9b8cd465cdcae5a717b9c1dcfc9f9c96dfb7d54b831bc0a0c7c22",
         "rows": [
           {
             "canonical_var": "education_outcomes",
             "datasets": 3237,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 1,
             "min_period": 1989,
@@ -37,12 +38,13 @@
             "observations": 1164742,
             "panel_shape": true,
             "periods": 30,
-            "row_content_hash": "sha256:58ff27d6120d43e36c69a9793e0218bde096203ce0ba30d0adfcc558e50b691f"
+            "row_content_hash": "sha256:6a884bc7aee2676df10dbaaa37b32da60f03ada8f43b083f61ffe08237d4df4b"
           },
           {
             "canonical_var": "tertiary_enrollment",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -51,12 +53,13 @@
             "observations": 79,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:287b005613bac53771efe01931b07772410f9ec96d134b5cd2016b7bafd526d9"
+            "row_content_hash": "sha256:283d015bbb11964321c6c16b7fe7c35b2c989e0e5051760beecef7eec7a36a81"
           },
           {
             "canonical_var": "preschool_enrollment",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 4,
             "max_period": 2021,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -65,12 +68,13 @@
             "observations": 51,
             "panel_shape": true,
             "periods": 4,
-            "row_content_hash": "sha256:5634d0396f02a566bc17b1519d06ba270b6cdd3569c19261cfa4e9f1414b3cad"
+            "row_content_hash": "sha256:f4f230fe23d9375fa28d9ea78b07609cfe77c647192fd57e1b27e7dce9a1055e"
           },
           {
             "canonical_var": "school_quality",
             "datasets": 1,
             "geographic_units": 12,
+            "longitudinal_units": 0,
             "max_period": 2021,
             "measurement_unit_values": 0,
             "min_period": 2019,
@@ -79,12 +83,13 @@
             "observations": 12,
             "panel_shape": false,
             "periods": 2,
-            "row_content_hash": "sha256:2ba7b47450130596b362748cf706ea95b8ef37bc614eb6c2760118e4d76799e9"
+            "row_content_hash": "sha256:2ee464a7fa0228c1ad645bbc96dd4b022721dde3932109b815d89b75447b0da7"
           },
           {
             "canonical_var": "years_of_schooling",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 0,
             "max_period": 2020,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -93,12 +98,13 @@
             "observations": 32,
             "panel_shape": false,
             "periods": 2,
-            "row_content_hash": "sha256:7a1c8b829915e43d18ee8856a966282e06f6835c03be3c1f205bf05beb951638"
+            "row_content_hash": "sha256:86668dc22b08ce215ae91dbba096bb28ea27f50db2d469560a5f035e5a0bfe8d"
           },
           {
             "canonical_var": "stem_graduates",
             "datasets": 1,
             "geographic_units": 7,
+            "longitudinal_units": 0,
             "max_period": 2019,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -107,12 +113,13 @@
             "observations": 9,
             "panel_shape": false,
             "periods": 2,
-            "row_content_hash": "sha256:83d67c4c83c9f1ec6484b70828fec3dfea32853d6d8af4dc2f195045de5a1a04"
+            "row_content_hash": "sha256:c677763d66160202a4b0c16af669172f56b2a67b586344181218f6c844136695"
           },
           {
             "canonical_var": "education_spending",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -121,12 +128,13 @@
             "observations": 79,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:dbd12ecfebddd0fe7c4aeff6edc81d8803f0543f3281117bdddbeb4e31ebf5c6"
+            "row_content_hash": "sha256:c3a58b246205eee0dfce662f05078abb312f97ca073f8d5ea4bdc0d360ed7d7c"
           },
           {
             "canonical_var": "gender_parity_index",
             "datasets": 1,
             "geographic_units": 15,
+            "longitudinal_units": 5,
             "max_period": 2021,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -135,7 +143,7 @@
             "observations": 50,
             "panel_shape": true,
             "periods": 4,
-            "row_content_hash": "sha256:7815fc3687eb30ac6847ccbebeba5f3d27ff7c22bc2dcb1f327478c1aacee198"
+            "row_content_hash": "sha256:331de86f12fd4e8f4624c4b223be63e639ab636b84582d63e94aa3346060ab44"
           }
         ],
         "total_datasets": 3244,
@@ -305,14 +313,15 @@
         "missing_canonical_vars": [],
         "nonpanel_variable_count": 1,
         "panel_variable_count": 7,
-        "query_content_hash": "sha256:328baf5c028e84e0b2fe5d99b35a8bd16e2a928410a0f0e1f5d0b6735b35d116",
+        "query_content_hash": "sha256:b151b239500a39b073cea9c2167eb5e9b5857a582d60b2e3c7099c0447807f46",
         "query_id": "l1_candidate_aggregate",
-        "response_content_hash": "sha256:1447660d802498f0b009c23d72c156f4a6b1eb1597ded6ec80cdc3beb611fef9",
+        "response_content_hash": "sha256:15d5773ad6f9b8cd465cdcae5a717b9c1dcfc9f9c96dfb7d54b831bc0a0c7c22",
         "rows": [
           {
             "canonical_var": "emissions",
             "datasets": 204,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -321,12 +330,13 @@
             "observations": 7154,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:ffce3a0c05e4beb3d24d59a96038c55e36ee972e1f80196fbbef5f501a2b24ab"
+            "row_content_hash": "sha256:d6f202f72895d41e994926d5acfcf74d7702b080b7c3e7b57fb15758833deb9f"
           },
           {
             "canonical_var": "energy_mix",
             "datasets": 39,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 1990,
@@ -335,12 +345,13 @@
             "observations": 3878,
             "panel_shape": true,
             "periods": 31,
-            "row_content_hash": "sha256:f9aa93f1b67b79b059271ed8f35b55b4b762494fe14660dae778c2489aff6844"
+            "row_content_hash": "sha256:467b20ba15bc4253b7d786eb60c4d8fb376d61afd588d82ae688866b2c143457"
           },
           {
             "canonical_var": "energy_price",
             "datasets": 38,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 1990,
@@ -349,12 +360,13 @@
             "observations": 3798,
             "panel_shape": true,
             "periods": 31,
-            "row_content_hash": "sha256:e6b64bce1e6092b7e4563d32acd6e5b9a7f8aedd86ba78571fee6ac8ae8b9f39"
+            "row_content_hash": "sha256:ba273b7479ed5f0049007ebae794d743ff24290f0da4e120208725082a3da199"
           },
           {
             "canonical_var": "energy_intensity",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -363,12 +375,13 @@
             "observations": 76,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:66718d081cf67ac3afd89c22551d7290d98d99ec2b4760be86c8d83d2ac55861"
+            "row_content_hash": "sha256:0e94241610de3e89bed13d8e8246ef9f037e910ba3d8124d85f00b4832a6ba88"
           },
           {
             "canonical_var": "air_quality_index",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 0,
             "max_period": 2020,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -377,12 +390,13 @@
             "observations": 48,
             "panel_shape": false,
             "periods": 3,
-            "row_content_hash": "sha256:083a3eee85791aabfbdbbddb32eaebf8f3caffbf0cd553562c8bdc865c22429b"
+            "row_content_hash": "sha256:5f7e2dc8db8a02810e4117565a80ad9dd448d18b486a77538f8b9f6237660d5a"
           },
           {
             "canonical_var": "electricity_access",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -391,12 +405,13 @@
             "observations": 80,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:2e59ee91e7d9ec44b1a6e595cc3823b6ce63e2ab5aaa358fe7622e5b034a5f7e"
+            "row_content_hash": "sha256:a7f964777f2caf1bb4f6226f31aaf391594223625b79dd7b8aa05de155f78214"
           },
           {
             "canonical_var": "forest_cover",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -405,12 +420,13 @@
             "observations": 80,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:44bc3b5d26f2a69bd602a4d58d0ed0a374625e991d0d44265d44d65888e77d1a"
+            "row_content_hash": "sha256:c7723426d58ab38c01e30af7c7250ead3ba9ade5fc1e3ac22e43e55fad407161"
           },
           {
             "canonical_var": "water_stress",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -419,7 +435,7 @@
             "observations": 80,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:8f3acf8ebb033149a69ee233e6974ba0d6a57149846ece54274422f87f0332b7"
+            "row_content_hash": "sha256:32f58aee4930a9c842d03a8cf06eea5a18be84572f00a7da643f0edd1210d31a"
           }
         ],
         "total_datasets": 286,
@@ -567,7 +583,7 @@
       "candidate_id": "health",
       "distinctness_preflight": {
         "lever_overlap": [],
-        "method_family": "panel_only",
+        "method_family": "non_panel",
         "not_ua_single_unit": true,
         "outcome_overlap": [],
         "transport_covariate_check": {
@@ -584,16 +600,17 @@
       },
       "l1_dcat": {
         "missing_canonical_vars": [],
-        "nonpanel_variable_count": 0,
-        "panel_variable_count": 10,
-        "query_content_hash": "sha256:328baf5c028e84e0b2fe5d99b35a8bd16e2a928410a0f0e1f5d0b6735b35d116",
+        "nonpanel_variable_count": 1,
+        "panel_variable_count": 9,
+        "query_content_hash": "sha256:b151b239500a39b073cea9c2167eb5e9b5857a582d60b2e3c7099c0447807f46",
         "query_id": "l1_candidate_aggregate",
-        "response_content_hash": "sha256:1447660d802498f0b009c23d72c156f4a6b1eb1597ded6ec80cdc3beb611fef9",
+        "response_content_hash": "sha256:15d5773ad6f9b8cd465cdcae5a717b9c1dcfc9f9c96dfb7d54b831bc0a0c7c22",
         "rows": [
           {
             "canonical_var": "health_outcomes",
             "datasets": 501,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 1,
             "min_period": 1982,
@@ -602,12 +619,13 @@
             "observations": 113871,
             "panel_shape": true,
             "periods": 30,
-            "row_content_hash": "sha256:b0f8dcb6f3b95d915c109dd8eecaede0dd2bafc59fc19d3ed46ed26a403daec5"
+            "row_content_hash": "sha256:c3df7bec36a9561e79923062a52df193a01497f818e2227e80ba7bedc76c0161"
           },
           {
             "canonical_var": "vaccination_coverage",
             "datasets": 3,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -616,12 +634,13 @@
             "observations": 238,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:aefd02e845fbddf19d746967233f7b6a897830a1f59e6c37b55ff50afbbdf28b"
+            "row_content_hash": "sha256:1832eb87d92d7a88f1a918776093a2f47cb520bd79914ebd6cb718f97b545005"
           },
           {
             "canonical_var": "life_expectancy",
             "datasets": 4,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -630,12 +649,13 @@
             "observations": 479,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:4399b4e51906e321862df2d42bf514d7727ed0ccdce54e4d9c7c2465716c0308"
+            "row_content_hash": "sha256:0bf5ba55beab53aa1f517edb368ff00a2171869a1659dd9838e06d1627a3deb6"
           },
           {
             "canonical_var": "neonatal_mortality",
             "datasets": 2,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -644,12 +664,13 @@
             "observations": 236,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:73ab558be534abf228eab390677207f3c54bbc28750549de74841657bad59ebc"
+            "row_content_hash": "sha256:0737e73b30edf204beaea7645a2f3494eca4ceb5381af4d8fa503ed5c3b8c36e"
           },
           {
             "canonical_var": "noncommunicable_disease_mortality",
             "datasets": 1,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2021,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -658,12 +679,13 @@
             "observations": 192,
             "panel_shape": true,
             "periods": 4,
-            "row_content_hash": "sha256:15b72605e92073225a84b8442f76127772c08c871785ee7e29f3126e87341df3"
+            "row_content_hash": "sha256:01116e5e5461810b961483c151b5ac8366b0523bf3c80e9508324992210fa2f9"
           },
           {
             "canonical_var": "tuberculosis_incidence",
             "datasets": 2,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -672,12 +694,13 @@
             "observations": 160,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:f2429118baea6ca1d4d8c6aae84089db80eb0e32f8f8fac2c9d283233b895fd6"
+            "row_content_hash": "sha256:d6e7bc82a07cbd1dc4e142f2888b5850be0f0d1a7f9763b8135cbbdfa0444290"
           },
           {
             "canonical_var": "infant_mortality",
             "datasets": 3,
             "geographic_units": 16,
+            "longitudinal_units": 16,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -686,12 +709,13 @@
             "observations": 110,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:cb920340287720776acecede8a9177c8af054401e9bfc2e5ec45280d63db4142"
+            "row_content_hash": "sha256:c4df09c66d0147a972fc65f72e9c38fabbe4bb68c74db4d267476beaa821d633"
           },
           {
             "canonical_var": "hiv_prevalence",
             "datasets": 3,
             "geographic_units": 11,
+            "longitudinal_units": 11,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -700,12 +724,13 @@
             "observations": 115,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:e695e6ce21479e338ae418fef033df8961e22b7c332aef8e777535fd0ffb890b"
+            "row_content_hash": "sha256:4d593c39477293d038000013f3645e7e6f81f00f58034a0a67bd2151614b3070"
           },
           {
             "canonical_var": "malaria_incidence",
             "datasets": 1,
             "geographic_units": 5,
+            "longitudinal_units": 3,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
@@ -714,21 +739,22 @@
             "observations": 18,
             "panel_shape": true,
             "periods": 5,
-            "row_content_hash": "sha256:4d030b6c97d83b75e99888429432b7ac2aba4a866cd41458c681bcd9fec3701c"
+            "row_content_hash": "sha256:ae09eb0bfed5de36d0c8f769d125f8d37768191865bd69e453cf83ecee77d9c5"
           },
           {
             "canonical_var": "child_stunting",
             "datasets": 1,
             "geographic_units": 5,
+            "longitudinal_units": 0,
             "max_period": 2022,
             "measurement_unit_values": 0,
             "min_period": 2018,
             "no_period_rows": 0,
             "no_unit_rows": 0,
             "observations": 6,
-            "panel_shape": true,
+            "panel_shape": false,
             "periods": 4,
-            "row_content_hash": "sha256:a682fe7df3c7b556fb238157d29177c7a805103a0eb57746c96d9d11129f0edb"
+            "row_content_hash": "sha256:0af8840eeeeb53f1c5be7e7b460a9a219b04b5d02ead902bd2e36af3ef1d2183"
           }
         ],
         "total_datasets": 521,
@@ -886,18 +912,14 @@
       }
     }
   },
-  "census_content_hash": "sha256:4dacce3dd4bf74d91de06b5f5a36877c9e8a3a1427ec4b778646df0286508e1c",
+  "census_content_hash": "sha256:ee130557a671e51a79eb426ea78a18dc9d4704db37f2b3e0b7a13aeace6c7211",
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
   "decision": {
     "all_candidates_ineligible": false,
     "chosen_candidate": "education",
-    "ineligible_candidate_gaps": {
-      "health": [
-        "nonpanel_method_family_absent"
-      ]
-    },
+    "ineligible_candidate_gaps": {},
     "ranking": [
       {
         "candidate_id": "education",
@@ -913,6 +935,19 @@
         }
       },
       {
+        "candidate_id": "health",
+        "eligible": true,
+        "ineligible_reasons": [],
+        "score": 0.811444,
+        "score_components": {
+          "distinctness_preflight": 1.0,
+          "l1_outcome_coverage": 0.716111,
+          "l2_grounding_coverage": 1.0,
+          "lever_vocabulary": 0.5,
+          "transport_measurement": 1.0
+        }
+      },
+      {
         "candidate_id": "environment_energy_transition",
         "eligible": true,
         "ineligible_reasons": [],
@@ -922,21 +957,6 @@
           "l1_outcome_coverage": 0.621333,
           "l2_grounding_coverage": 0.954785,
           "lever_vocabulary": 0.46758,
-          "transport_measurement": 1.0
-        }
-      },
-      {
-        "candidate_id": "health",
-        "eligible": false,
-        "ineligible_reasons": [
-          "nonpanel_method_family_absent"
-        ],
-        "score": 0.784778,
-        "score_components": {
-          "distinctness_preflight": 1.0,
-          "l1_outcome_coverage": 0.649444,
-          "l2_grounding_coverage": 1.0,
-          "lever_vocabulary": 0.5,
           "transport_measurement": 1.0
         }
       }
@@ -953,10 +973,15 @@
       "avg_income",
       "survival"
     ],
+    "source_hash_kinds": {
+      "architecture/policy_design_case/layer3_gx_pinned_request.json": "full_file_content.v1",
+      "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "full_file_content.v1",
+      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "semantic_projection:n8_first_vertical_transport.v1"
+    },
     "source_hashes": {
       "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
       "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
-      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:605220b8cefa106549d84badb8737ea861a0025af8d91dd2e6454a9aa57af77a"
+      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:7b62344946f3bc8d1c2f2f6d204979ab00ca0c7fa4f715636b0a7c6d3d66b232"
     },
     "transport_covariates": [
       "institutional_quality",
@@ -1000,14 +1025,15 @@
           "years_of_schooling"
         ]
       ],
-      "query_content_hash": "sha256:328baf5c028e84e0b2fe5d99b35a8bd16e2a928410a0f0e1f5d0b6735b35d116",
+      "query_content_hash": "sha256:b151b239500a39b073cea9c2167eb5e9b5857a582d60b2e3c7099c0447807f46",
       "query_id": "l1_candidate_aggregate",
-      "response_content_hash": "sha256:1447660d802498f0b009c23d72c156f4a6b1eb1597ded6ec80cdc3beb611fef9",
+      "response_content_hash": "sha256:15d5773ad6f9b8cd465cdcae5a717b9c1dcfc9f9c96dfb7d54b831bc0a0c7c22",
       "rows": [
         {
           "canonical_var": "air_quality_index",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 0,
           "max_period": 2020,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1016,26 +1042,28 @@
           "observations": 48,
           "panel_shape": false,
           "periods": 3,
-          "row_content_hash": "sha256:083a3eee85791aabfbdbbddb32eaebf8f3caffbf0cd553562c8bdc865c22429b"
+          "row_content_hash": "sha256:5f7e2dc8db8a02810e4117565a80ad9dd448d18b486a77538f8b9f6237660d5a"
         },
         {
           "canonical_var": "child_stunting",
           "datasets": 1,
           "geographic_units": 5,
+          "longitudinal_units": 0,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
           "no_period_rows": 0,
           "no_unit_rows": 0,
           "observations": 6,
-          "panel_shape": true,
+          "panel_shape": false,
           "periods": 4,
-          "row_content_hash": "sha256:a682fe7df3c7b556fb238157d29177c7a805103a0eb57746c96d9d11129f0edb"
+          "row_content_hash": "sha256:0af8840eeeeb53f1c5be7e7b460a9a219b04b5d02ead902bd2e36af3ef1d2183"
         },
         {
           "canonical_var": "education_outcomes",
           "datasets": 3237,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 1,
           "min_period": 1989,
@@ -1044,12 +1072,13 @@
           "observations": 1164742,
           "panel_shape": true,
           "periods": 30,
-          "row_content_hash": "sha256:58ff27d6120d43e36c69a9793e0218bde096203ce0ba30d0adfcc558e50b691f"
+          "row_content_hash": "sha256:6a884bc7aee2676df10dbaaa37b32da60f03ada8f43b083f61ffe08237d4df4b"
         },
         {
           "canonical_var": "education_spending",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1058,12 +1087,13 @@
           "observations": 79,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:dbd12ecfebddd0fe7c4aeff6edc81d8803f0543f3281117bdddbeb4e31ebf5c6"
+          "row_content_hash": "sha256:c3a58b246205eee0dfce662f05078abb312f97ca073f8d5ea4bdc0d360ed7d7c"
         },
         {
           "canonical_var": "electricity_access",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1072,12 +1102,13 @@
           "observations": 80,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:2e59ee91e7d9ec44b1a6e595cc3823b6ce63e2ab5aaa358fe7622e5b034a5f7e"
+          "row_content_hash": "sha256:a7f964777f2caf1bb4f6226f31aaf391594223625b79dd7b8aa05de155f78214"
         },
         {
           "canonical_var": "emissions",
           "datasets": 204,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1086,12 +1117,13 @@
           "observations": 7154,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:ffce3a0c05e4beb3d24d59a96038c55e36ee972e1f80196fbbef5f501a2b24ab"
+          "row_content_hash": "sha256:d6f202f72895d41e994926d5acfcf74d7702b080b7c3e7b57fb15758833deb9f"
         },
         {
           "canonical_var": "energy_intensity",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1100,12 +1132,13 @@
           "observations": 76,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:66718d081cf67ac3afd89c22551d7290d98d99ec2b4760be86c8d83d2ac55861"
+          "row_content_hash": "sha256:0e94241610de3e89bed13d8e8246ef9f037e910ba3d8124d85f00b4832a6ba88"
         },
         {
           "canonical_var": "energy_mix",
           "datasets": 39,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 1990,
@@ -1114,12 +1147,13 @@
           "observations": 3878,
           "panel_shape": true,
           "periods": 31,
-          "row_content_hash": "sha256:f9aa93f1b67b79b059271ed8f35b55b4b762494fe14660dae778c2489aff6844"
+          "row_content_hash": "sha256:467b20ba15bc4253b7d786eb60c4d8fb376d61afd588d82ae688866b2c143457"
         },
         {
           "canonical_var": "energy_price",
           "datasets": 38,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 1990,
@@ -1128,12 +1162,13 @@
           "observations": 3798,
           "panel_shape": true,
           "periods": 31,
-          "row_content_hash": "sha256:e6b64bce1e6092b7e4563d32acd6e5b9a7f8aedd86ba78571fee6ac8ae8b9f39"
+          "row_content_hash": "sha256:ba273b7479ed5f0049007ebae794d743ff24290f0da4e120208725082a3da199"
         },
         {
           "canonical_var": "forest_cover",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1142,12 +1177,13 @@
           "observations": 80,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:44bc3b5d26f2a69bd602a4d58d0ed0a374625e991d0d44265d44d65888e77d1a"
+          "row_content_hash": "sha256:c7723426d58ab38c01e30af7c7250ead3ba9ade5fc1e3ac22e43e55fad407161"
         },
         {
           "canonical_var": "gender_parity_index",
           "datasets": 1,
           "geographic_units": 15,
+          "longitudinal_units": 5,
           "max_period": 2021,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1156,12 +1192,13 @@
           "observations": 50,
           "panel_shape": true,
           "periods": 4,
-          "row_content_hash": "sha256:7815fc3687eb30ac6847ccbebeba5f3d27ff7c22bc2dcb1f327478c1aacee198"
+          "row_content_hash": "sha256:331de86f12fd4e8f4624c4b223be63e639ab636b84582d63e94aa3346060ab44"
         },
         {
           "canonical_var": "health_outcomes",
           "datasets": 501,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 1,
           "min_period": 1982,
@@ -1170,12 +1207,13 @@
           "observations": 113871,
           "panel_shape": true,
           "periods": 30,
-          "row_content_hash": "sha256:b0f8dcb6f3b95d915c109dd8eecaede0dd2bafc59fc19d3ed46ed26a403daec5"
+          "row_content_hash": "sha256:c3df7bec36a9561e79923062a52df193a01497f818e2227e80ba7bedc76c0161"
         },
         {
           "canonical_var": "hiv_prevalence",
           "datasets": 3,
           "geographic_units": 11,
+          "longitudinal_units": 11,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1184,12 +1222,13 @@
           "observations": 115,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:e695e6ce21479e338ae418fef033df8961e22b7c332aef8e777535fd0ffb890b"
+          "row_content_hash": "sha256:4d593c39477293d038000013f3645e7e6f81f00f58034a0a67bd2151614b3070"
         },
         {
           "canonical_var": "infant_mortality",
           "datasets": 3,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1198,12 +1237,13 @@
           "observations": 110,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:cb920340287720776acecede8a9177c8af054401e9bfc2e5ec45280d63db4142"
+          "row_content_hash": "sha256:c4df09c66d0147a972fc65f72e9c38fabbe4bb68c74db4d267476beaa821d633"
         },
         {
           "canonical_var": "life_expectancy",
           "datasets": 4,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1212,12 +1252,13 @@
           "observations": 479,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:4399b4e51906e321862df2d42bf514d7727ed0ccdce54e4d9c7c2465716c0308"
+          "row_content_hash": "sha256:0bf5ba55beab53aa1f517edb368ff00a2171869a1659dd9838e06d1627a3deb6"
         },
         {
           "canonical_var": "malaria_incidence",
           "datasets": 1,
           "geographic_units": 5,
+          "longitudinal_units": 3,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1226,12 +1267,13 @@
           "observations": 18,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:4d030b6c97d83b75e99888429432b7ac2aba4a866cd41458c681bcd9fec3701c"
+          "row_content_hash": "sha256:ae09eb0bfed5de36d0c8f769d125f8d37768191865bd69e453cf83ecee77d9c5"
         },
         {
           "canonical_var": "neonatal_mortality",
           "datasets": 2,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1240,12 +1282,13 @@
           "observations": 236,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:73ab558be534abf228eab390677207f3c54bbc28750549de74841657bad59ebc"
+          "row_content_hash": "sha256:0737e73b30edf204beaea7645a2f3494eca4ceb5381af4d8fa503ed5c3b8c36e"
         },
         {
           "canonical_var": "noncommunicable_disease_mortality",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2021,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1254,12 +1297,13 @@
           "observations": 192,
           "panel_shape": true,
           "periods": 4,
-          "row_content_hash": "sha256:15b72605e92073225a84b8442f76127772c08c871785ee7e29f3126e87341df3"
+          "row_content_hash": "sha256:01116e5e5461810b961483c151b5ac8366b0523bf3c80e9508324992210fa2f9"
         },
         {
           "canonical_var": "preschool_enrollment",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 4,
           "max_period": 2021,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1268,12 +1312,13 @@
           "observations": 51,
           "panel_shape": true,
           "periods": 4,
-          "row_content_hash": "sha256:5634d0396f02a566bc17b1519d06ba270b6cdd3569c19261cfa4e9f1414b3cad"
+          "row_content_hash": "sha256:f4f230fe23d9375fa28d9ea78b07609cfe77c647192fd57e1b27e7dce9a1055e"
         },
         {
           "canonical_var": "school_quality",
           "datasets": 1,
           "geographic_units": 12,
+          "longitudinal_units": 0,
           "max_period": 2021,
           "measurement_unit_values": 0,
           "min_period": 2019,
@@ -1282,12 +1327,13 @@
           "observations": 12,
           "panel_shape": false,
           "periods": 2,
-          "row_content_hash": "sha256:2ba7b47450130596b362748cf706ea95b8ef37bc614eb6c2760118e4d76799e9"
+          "row_content_hash": "sha256:2ee464a7fa0228c1ad645bbc96dd4b022721dde3932109b815d89b75447b0da7"
         },
         {
           "canonical_var": "stem_graduates",
           "datasets": 1,
           "geographic_units": 7,
+          "longitudinal_units": 0,
           "max_period": 2019,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1296,12 +1342,13 @@
           "observations": 9,
           "panel_shape": false,
           "periods": 2,
-          "row_content_hash": "sha256:83d67c4c83c9f1ec6484b70828fec3dfea32853d6d8af4dc2f195045de5a1a04"
+          "row_content_hash": "sha256:c677763d66160202a4b0c16af669172f56b2a67b586344181218f6c844136695"
         },
         {
           "canonical_var": "tertiary_enrollment",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1310,12 +1357,13 @@
           "observations": 79,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:287b005613bac53771efe01931b07772410f9ec96d134b5cd2016b7bafd526d9"
+          "row_content_hash": "sha256:283d015bbb11964321c6c16b7fe7c35b2c989e0e5051760beecef7eec7a36a81"
         },
         {
           "canonical_var": "tuberculosis_incidence",
           "datasets": 2,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1324,12 +1372,13 @@
           "observations": 160,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:f2429118baea6ca1d4d8c6aae84089db80eb0e32f8f8fac2c9d283233b895fd6"
+          "row_content_hash": "sha256:d6e7bc82a07cbd1dc4e142f2888b5850be0f0d1a7f9763b8135cbbdfa0444290"
         },
         {
           "canonical_var": "vaccination_coverage",
           "datasets": 3,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1338,12 +1387,13 @@
           "observations": 238,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:aefd02e845fbddf19d746967233f7b6a897830a1f59e6c37b55ff50afbbdf28b"
+          "row_content_hash": "sha256:1832eb87d92d7a88f1a918776093a2f47cb520bd79914ebd6cb718f97b545005"
         },
         {
           "canonical_var": "water_stress",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 16,
           "max_period": 2022,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1352,12 +1402,13 @@
           "observations": 80,
           "panel_shape": true,
           "periods": 5,
-          "row_content_hash": "sha256:8f3acf8ebb033149a69ee233e6974ba0d6a57149846ece54274422f87f0332b7"
+          "row_content_hash": "sha256:32f58aee4930a9c842d03a8cf06eea5a18be84572f00a7da643f0edd1210d31a"
         },
         {
           "canonical_var": "years_of_schooling",
           "datasets": 1,
           "geographic_units": 16,
+          "longitudinal_units": 0,
           "max_period": 2020,
           "measurement_unit_values": 0,
           "min_period": 2018,
@@ -1366,10 +1417,10 @@
           "observations": 32,
           "panel_shape": false,
           "periods": 2,
-          "row_content_hash": "sha256:7a1c8b829915e43d18ee8856a966282e06f6835c03be3c1f205bf05beb951638"
+          "row_content_hash": "sha256:86668dc22b08ce215ae91dbba096bb28ea27f50db2d469560a5f035e5a0bfe8d"
         }
       ],
-      "sql": "SELECT\n  canonical_var,\n  COUNT(*) AS observations,\n  COUNT(DISTINCT dataset_id) AS datasets,\n  COUNT(DISTINCT country_code)\n    FILTER (WHERE country_code IS NOT NULL AND country_code <> '') AS geographic_units,\n  COUNT(DISTINCT COALESCE(year, survey_year))\n    FILTER (WHERE COALESCE(year, survey_year) IS NOT NULL) AS periods,\n  MIN(COALESCE(year, survey_year)) AS min_period,\n  MAX(COALESCE(year, survey_year)) AS max_period,\n  COUNT(*) FILTER (WHERE country_code IS NULL OR country_code = '') AS no_unit_rows,\n  COUNT(*) FILTER (WHERE COALESCE(year, survey_year) IS NULL) AS no_period_rows,\n  COUNT(DISTINCT json_extract_string(condition_json, '$.unit'))\n    FILTER (WHERE json_extract_string(condition_json, '$.unit') IS NOT NULL) AS measurement_unit_values\nFROM ds_observations\nWHERE canonical_var = ANY(?)\nGROUP BY canonical_var\nORDER BY canonical_var"
+      "sql": "WITH base AS (\n  SELECT\n    canonical_var,\n    dataset_id,\n    country_code,\n    COALESCE(year, survey_year) AS period_id,\n    condition_json\n  FROM ds_observations\n  WHERE canonical_var = ANY(?)\n),\naggregated AS (\n  SELECT\n  canonical_var,\n  COUNT(*) AS observations,\n  COUNT(DISTINCT dataset_id) AS datasets,\n  COUNT(DISTINCT country_code)\n    FILTER (WHERE country_code IS NOT NULL AND country_code <> '') AS geographic_units,\n  COUNT(DISTINCT period_id)\n    FILTER (WHERE period_id IS NOT NULL) AS periods,\n  MIN(period_id) AS min_period,\n  MAX(period_id) AS max_period,\n  COUNT(*) FILTER (WHERE country_code IS NULL OR country_code = '') AS no_unit_rows,\n  COUNT(*) FILTER (WHERE period_id IS NULL) AS no_period_rows,\n  COUNT(DISTINCT json_extract_string(condition_json, '$.unit'))\n    FILTER (WHERE json_extract_string(condition_json, '$.unit') IS NOT NULL) AS measurement_unit_values\nFROM base\nGROUP BY canonical_var\n),\nlongitudinal AS (\n  SELECT canonical_var, COUNT(*) AS longitudinal_units\n  FROM (\n    SELECT canonical_var, country_code\n    FROM base\n    WHERE country_code IS NOT NULL\n      AND country_code <> ''\n      AND period_id IS NOT NULL\n    GROUP BY canonical_var, country_code\n    HAVING COUNT(DISTINCT period_id) >= 4\n  )\n  GROUP BY canonical_var\n)\nSELECT aggregated.*, COALESCE(longitudinal.longitudinal_units, 0) AS longitudinal_units\nFROM aggregated\nLEFT JOIN longitudinal USING (canonical_var)\nORDER BY canonical_var"
     },
     "l2_candidate_aggregate": {
       "owner": "duckdb_read_only",
@@ -1763,9 +1814,9 @@
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
     "query_timings_seconds": {
-      "l1_candidate_aggregate": 0.119705,
-      "l2_candidate_aggregate": 0.055823,
-      "l2_candidate_exact_measure_names": 0.020556
+      "l1_candidate_aggregate": 0.096583,
+      "l2_candidate_aggregate": 0.035699,
+      "l2_candidate_exact_measure_names": 0.012959
     }
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"

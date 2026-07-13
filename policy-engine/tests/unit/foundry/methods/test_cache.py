@@ -21,6 +21,7 @@ from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.uncertainty import (
     NativeValueEstimandBinding,
     OutputContractCapability,
+    ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
 
@@ -64,7 +65,10 @@ class _LazyPersistableMethod:
 
 class _CacheValueOutput:
     contract_id = "tests.cache.value_output.v1"
-    output_contract_declaration = value_uncertainty_output_contract(contract_id)
+    output_contract_declaration = value_uncertainty_output_contract(
+        contract_id,
+        projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
+    )
 
     def to_value_uncertainty(
         self,

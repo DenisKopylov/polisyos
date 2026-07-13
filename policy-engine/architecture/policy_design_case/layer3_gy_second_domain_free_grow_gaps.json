@@ -1,12 +1,12 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:58644d5522647cac05e72f20c8bcd8493ca3d379fe7a4d7eed0c1cc5e75ed7e9",
+  "gap_report_content_hash": "sha256:3393a5e9cf88ed91cf58e5cb52fd3c8923bf7820b91b582d4cafa3fcf553f0a3",
   "gaps": [
     {
       "blocking_seam": "Closed by the Stage-1 live behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:91f936d9b2549fc05e15a4bd79c244c8f70dbfd6fd56f1d12dcabe4c9205a2cb",
+      "gap_content_hash": "sha256:3d76c6c33e9bb50984af1764c5caedf5079c3cc5519488b0bd74252f5e22352d",
       "gap_id": "s0_to_l6_world_slot_bridge_missing",
       "owner_evidence": {
         "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
@@ -39,16 +39,16 @@
         },
         "stage_1_behavioral_receipt": {
           "attempted": true,
-          "candidate_entry_content_hash": "sha256:57bb9c8d74b0871c254a2e5cbce19ef8d04ef8af6f5769ed18f4450be883ffa6",
-          "context_binding_hash": "sha256:9569ec0d777cd5a1c61b4faa29de1227fb9c1a675ec98fce05c86cd64b674483",
+          "candidate_entry_content_hash": "sha256:51c829902446e6fbc380afd29db5c1e9157e108889c78a7a5755db54309e8f5e",
+          "context_binding_hash": "sha256:de86a0d7b38552b19cd03bce6df138120cf0121cca2d10cf8f26ab485fcc3f6f",
           "disposition": "unknown_blocked",
           "grounding_source": "cgf_firewall",
           "grounding_status": "grounding_failed",
-          "lever_resolution_content_hash": "sha256:49093172abfa75022a4a20daca16a7075e739a3a9634629889c84b1162940f32",
+          "lever_resolution_content_hash": "sha256:3a54db1f9e5514ec26ffe1453df9a967478e8da40495db299a7cdcc73dd47db4",
           "lever_resolution_reason_code": "knob_operator_unresolved",
           "owner": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
-          "proposal_id": "gy_n4.evidence_based_teaching_reform",
-          "raw_candidate_hash": "sha256:72e84a2102e3096f1cba05b1598556e9f96179046c32ffb609a3b271b5e120f0",
+          "proposal_id": "gy_n4.dialogic_reading_foundation",
+          "raw_candidate_hash": "sha256:8d3a9d607ba404fcdae2fd1e4d14b584bd468d9320c7070273caf606db59bb01",
           "selected_registry_entry_hash": "sha256:0b083d7e6784d2750ca4e933e754bbfc936ccdd8f70b825d5a3c46caf17e6aa8",
           "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
           "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
@@ -215,7 +215,7 @@
       "blocking_seam": "Closed by the Stage-1 live behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:cc9e4e752f48e1b86b6dd4042339b691771bc3836bb974f5a078b5e6ae013fcd",
+      "gap_content_hash": "sha256:cd3a2f93fa77a1e4b0d2d59df121c3e5b1906ba394c6c36f14e773d78e93a43c",
       "gap_id": "s0_to_n4_l6_bridge_missing",
       "owner_evidence": {
         "seam_witness": {
@@ -260,14 +260,14 @@
         "stage_1_behavioral_receipt": {
           "attempted": true,
           "exact_formalizer_input_hashes": [
-            "sha256:da2b9da3bbc9a60339052521205c39131dc4e39c0e2d664cc104f01238dd18c8"
+            "sha256:c48fa67b81becc5b49a47624fa1e38bd615a4d270def5f255c10a9dd2634351c"
           ],
           "generation_channel": "n4_owner",
           "lever_source_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-          "n4_owner_capture_content_hash": "sha256:f8958fdb1ee062aceb82a12708b454f2e4fc85d4b6e261734ea4a9424144042d",
+          "n4_owner_capture_content_hash": "sha256:ab5e2b74ee17c133a98de49925a79af3b1370baa3807e956d58a047164955d8e",
           "owner": "polisyos.runtime.quality.design_generation.generate_design_candidate_bundle_under_a",
           "owner_status": "generated",
-          "prompt_slice_content_hash": "sha256:7aa4265d21657bcff4001ff29cc0a6740620f4f7e7246a56e1ef559bd37ef39a",
+          "prompt_slice_content_hash": "sha256:839f7c6f5dd4e48c928f5c221e74e9324116ebd7e331f36412550c3c9dd8f072",
           "prompt_slice_operator_kinds": [
             "education_blended_learning",
             "education_stem_education",
@@ -275,14 +275,16 @@
             "education_dialogic_reading_modality"
           ],
           "proposed_operator_kinds": [
+            "education_dialogic_reading_modality",
             "education_teaching_method",
             "education_blended_learning",
-            "education_dialogic_reading_modality"
+            "education_stem_education"
           ],
           "proposed_raw_candidate_hashes": [
-            "sha256:72e84a2102e3096f1cba05b1598556e9f96179046c32ffb609a3b271b5e120f0",
-            "sha256:31c77e1c8c7506ad1c3db8a8003fecf30683bd613149091f83f7e82587f56859",
-            "sha256:399513c8073595c8f4f8228501505e30b4b9302285edc17f145364b20da7f4f4"
+            "sha256:8d3a9d607ba404fcdae2fd1e4d14b584bd468d9320c7070273caf606db59bb01",
+            "sha256:7449f7d18914528aaf6e66340e3ba5363a8ed9c586e299820209d140252da2fe",
+            "sha256:c9d560a8ff495191638997029b5bbbbac5ed83ebc79bae3f16a50d543111a360",
+            "sha256:d2698ded4f355fc941fb51d372322a5863e32d86e17d359c3bb4e02f67a6da4a"
           ]
         }
       },
@@ -351,7 +353,7 @@
       "blocking_seam": "N8 still consumes first-vertical transport covariates rather than pack data.",
       "capability_label": "consumer_missing",
       "disposition": "Stage 2 owns transport de-hardcoding.",
-      "gap_content_hash": "sha256:4a64f6eacfcfd89e55335580620d59b4a5bec0b642235e30b611b6ab0b637d46",
+      "gap_content_hash": "sha256:aa335f3a7543f780cf6f88c61ec5cbac69074ebdd7096463bfa2fde88b798923",
       "gap_id": "n8_transport_tuple_hardcode",
       "owner_evidence": {
         "first_vertical_method_family": "panel",
@@ -364,20 +366,20 @@
             "CausalEdge",
             "CausalGraphModel",
             "ContextProfile",
-            "_candidate_bool",
-            "_candidate_float",
-            "_candidate_id",
-            "_candidate_source_context_id",
-            "_candidate_treatment_period",
-            "_world_context_float",
-            "_world_post_conflict",
-            "build_selection_diagram",
+            "SelectionDiagramBuilder",
+            "ValueOwnerAccessError",
+            "builder.add_measured_sigma_variable",
+            "builder.build",
             "dict.fromkeys",
+            "gy_content_hash",
             "list",
-            "region.split",
-            "str"
+            "measured_transport_severity",
+            "problem.model_dump",
+            "revalidate_cycle_substrate_context",
+            "str",
+            "tuple"
           ],
-          "segment_content_hash": "sha256:6afafa3939d219b69f5f975d88646c7748bff2a3b7a020899d7dc551de43de63",
+          "segment_content_hash": "sha256:e148a74c62a47cbcb4a9947bc86447be0c429f4b0879a857152ae549e7c006c7",
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "_build_candidate_selection_diagram"
         }
@@ -388,7 +390,7 @@
       "blocking_seam": "A typed one-cycle terminal reaches N6 but its validator requires a positive two-cycle denominator.",
       "capability_label": "semantic_test_missing",
       "disposition": "Stage 3 owns one-terminal validator reconciliation.",
-      "gap_content_hash": "sha256:31930ca5630d9dae4e0e2c5c93826b98a18f5c315b00260ce35e92a763b0aa25",
+      "gap_content_hash": "sha256:eb97b9917958ee82e092b72f61bf71e82da68305ac66f0df4e4aa97120c9d941",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [
@@ -421,7 +423,7 @@
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "validate_generation_cycle_run"
         },
-        "trace_content_hash": "sha256:eea2c11fb989f1805c08c967e7a2ef9090e15e8de9476111864bc3d616a996f4"
+        "trace_content_hash": "sha256:b6e08213434c7606de53cf11bc5325a9678bf6b128db0e058d1ffec69534d596"
       },
       "status": "typed_residual"
     }

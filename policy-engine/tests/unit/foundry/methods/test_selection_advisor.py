@@ -45,6 +45,7 @@ from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.methods.selection_history import MethodExecutionRecord, SelectionHistoryStore
 from polisyos.ir.analytics.uncertainty import (
     NativeValueEstimandBinding,
+    ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
 
@@ -68,7 +69,10 @@ class _WaterQualityNativeInterval:
     """Third-domain native interval contract used to prove owner-driven discovery."""
 
     contract_id = "test.water_quality.native_interval.v1"
-    output_contract_declaration = value_uncertainty_output_contract(contract_id)
+    output_contract_declaration = value_uncertainty_output_contract(
+        contract_id,
+        projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
+    )
 
     def to_value_uncertainty(
         self,
@@ -371,6 +375,7 @@ def test_value_denominator_rejects_catalog_capability_without_method_owner(
         contract_id=_WaterQualityNativeInterval.contract_id,
         owner_module=_WaterQualityNativeInterval.__module__,
         owner_qualname=_WaterQualityNativeInterval.__qualname__,
+        projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
     )
     forged = hausman.model_copy(
         update={
@@ -492,10 +497,18 @@ def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -
         {"contract_target": "tabular"},
     )
     ensure_all_methods_registered()
-    catalog_snapshot_id = build_method_catalog_snapshot().snapshot_id
+    registry = MethodRegistry.get_instance()
+    catalog = build_method_catalog_snapshot(registry=registry)
+    value_catalog_projection_hash = advisor_module._value_catalog_projection_hash(
+        tuple(
+            entry
+            for entry in catalog.entries
+            if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+        )
+    )
     expected_payload = {
-        "schema_version": "policyos.foundry.method_selection_context.v2",
-        "catalog_snapshot_id": catalog_snapshot_id,
+        "schema_version": "policyos.foundry.method_selection_context.v3",
+        "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": "candidate_selection_context posterior tabular effect",
         "problem_signal": (
             "problem_selection_context Estimate a bounded effect. generic_policy"
@@ -675,6 +688,53 @@ def test_value_selection_receipt_rejects_replay_across_catalog_snapshots(
                 requested_method_fqn=requested_fqn,
             )
         )
+
+
+def test_value_selection_context_ignores_unrelated_catalog_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Bind selection replay to the value denominator, not import-order noise."""
+
+    base_catalog = build_method_catalog_snapshot()
+    candidate = {"candidate_id": "candidate_value_catalog_projection"}
+    problem = {
+        "design_problem_id": "problem_value_catalog_projection",
+        "problem_statement": "Choose a registered value method.",
+        "domain": "generic_policy",
+        "runtime_hints": {
+            "value_data_profile_content_hash": "sha256:" + "9" * 64,
+        },
+    }
+    active_catalog = {"snapshot": base_catalog}
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.selection.advisor.build_method_catalog_snapshot",
+        lambda **_kwargs: active_catalog["snapshot"],
+    )
+
+    first = select_value_method_for_problem(candidate=candidate, problem=problem)
+    first_receipt = MethodSelectionReceipt.model_validate(first["selection_receipt"])
+    unrelated = next(
+        entry for entry in base_catalog.entries if entry.fqn not in first_receipt.denominator
+    )
+    changed_unrelated = unrelated.model_copy(
+        update={"description": f"{unrelated.description} unrelated_import_order_probe"}
+    )
+    active_catalog["snapshot"] = base_catalog.model_copy(
+        update={
+            "snapshot_id": f"{base_catalog.snapshot_id}-unrelated-drift",
+            "entries": [
+                changed_unrelated if entry.fqn == unrelated.fqn else entry
+                for entry in base_catalog.entries
+            ],
+        }
+    )
+
+    second = select_value_method_for_problem(candidate=candidate, problem=problem)
+    second_receipt = MethodSelectionReceipt.model_validate(second["selection_receipt"])
+
+    assert first_receipt.denominator == second_receipt.denominator
+    assert first_receipt.ranked_alternatives == second_receipt.ranked_alternatives
+    assert first_receipt.selection_context_hash == second_receipt.selection_context_hash
 
 
 def test_requested_value_method_builds_receipt_from_verified_registry_entry() -> None:

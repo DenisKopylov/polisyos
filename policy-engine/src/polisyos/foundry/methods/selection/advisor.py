@@ -851,6 +851,22 @@ def method_selection_context_hash(
     )
 
 
+def _value_catalog_projection_hash(
+    value_entries: Sequence[MethodCatalogEntry],
+) -> str:
+    """Hash only catalog rows that can participate in the value decision."""
+
+    return _method_selection_receipt_content_hash(
+        {
+            "schema_version": "policyos.foundry.value_catalog_projection.v1",
+            "entries": tuple(
+                entry.model_dump(mode="json")
+                for entry in sorted(value_entries, key=lambda item: item.fqn)
+            ),
+        }
+    )
+
+
 def _method_selection_context_hash_for_catalog(
     *,
     catalog: MethodCatalogSnapshot,
@@ -878,9 +894,10 @@ def _method_selection_context_hash_for_catalog(
     profile_hash = _problem_runtime_hints(problem).get(
         "value_data_profile_content_hash"
     )
+    value_catalog_projection_hash = _value_catalog_projection_hash(value_entries)
     payload = {
-        "schema_version": "policyos.foundry.method_selection_context.v2",
-        "catalog_snapshot_id": catalog.snapshot_id,
+        "schema_version": "policyos.foundry.method_selection_context.v3",
+        "value_catalog_projection_hash": value_catalog_projection_hash,
         "candidate_signal": _candidate_selection_signal(candidate),
         "problem_signal": _problem_selection_signal(problem),
         "value_data_profile_content_hash": (

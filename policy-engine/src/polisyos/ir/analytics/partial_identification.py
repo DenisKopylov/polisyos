@@ -16,6 +16,7 @@ from polisyos.ir.analytics.uncertainty import (
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    ValueUncertaintyProjectionKind,
     value_uncertainty_output_contract,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
@@ -319,7 +320,10 @@ class BoundsBundle(BaseModel):
 
     contract_id: ClassVar[str] = "ir.bounds_bundle.v1"
     output_contract_declaration: ClassVar[OutputContractDeclaration] = (
-        value_uncertainty_output_contract(contract_id)
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.PARTIAL_IDENTIFICATION,
+        )
     )
     model_config = ConfigDict(extra="forbid", frozen=True)
 

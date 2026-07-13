@@ -32,12 +32,24 @@ class OutputContractCapability(str, Enum):
     VALUE_UNCERTAINTY_PROJECTION = "value_uncertainty_projection"
 
 
+class ValueUncertaintyProjectionKind(str, Enum):
+    """Native interval semantics owned by an analytical output contract."""
+
+    POSTERIOR = "posterior"
+    ECONOMETRIC = "econometric"
+    FORECASTING = "forecasting"
+    DISTRIBUTIONAL = "distributional"
+    PARTIAL_IDENTIFICATION = "partial_identification"
+    TRANSPORT = "transport"
+
+
 @dataclass(frozen=True, slots=True)
 class OutputContractDeclaration:
     """Bind a native contract identifier to its owner-declared capabilities."""
 
     contract_id: str
     capabilities: frozenset[OutputContractCapability] = frozenset()
+    value_uncertainty_projection_kind: ValueUncertaintyProjectionKind | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.contract_id, str) or not self.contract_id.strip():
@@ -45,6 +57,14 @@ class OutputContractDeclaration:
         normalized = frozenset(self.capabilities)
         if not all(isinstance(item, OutputContractCapability) for item in normalized):
             raise TypeError("output_contract_declaration_capability_invalid")
+        owns_value_projection = (
+            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in normalized
+        )
+        if owns_value_projection != isinstance(
+            self.value_uncertainty_projection_kind,
+            ValueUncertaintyProjectionKind,
+        ):
+            raise ValueError("output_contract_projection_kind_capability_mismatch")
         object.__setattr__(self, "capabilities", normalized)
 
 
@@ -182,7 +202,11 @@ def _optional_estimand_tuple(value: object) -> tuple[str, ...] | None:
     return tuple(str(item) for item in value)  # type: ignore[union-attr]
 
 
-def value_uncertainty_output_contract(contract_id: str) -> OutputContractDeclaration:
+def value_uncertainty_output_contract(
+    contract_id: str,
+    *,
+    projection_kind: ValueUncertaintyProjectionKind,
+) -> OutputContractDeclaration:
     """Declare that a native output owns estimand-aware value uncertainty projection."""
 
     return OutputContractDeclaration(
@@ -190,6 +214,7 @@ def value_uncertainty_output_contract(contract_id: str) -> OutputContractDeclara
         capabilities=frozenset(
             {OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}
         ),
+        value_uncertainty_projection_kind=projection_kind,
     )
 
 
@@ -2104,6 +2129,7 @@ __all__ = [
     "UncertaintyCompatibilityError",
     "UncertaintyEnvelope",
     "UncertaintySource",
+    "ValueUncertaintyProjectionKind",
     "build_composition_provenance",
     "combine_envelopes",
     "compress_envelope",

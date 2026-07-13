@@ -10,7 +10,7 @@
 | `observation` | Observability, causal evidence, scientist workflows, measurement, confidence, and validity. | 49 |
 | `security` | Tenant isolation, signing, secrets, trust stores, and other security controls. | 4 |
 | `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 20 |
-| `schemas` | IR, API, schema, serialization, registry, metadata, and compatibility contracts. | 16 |
+| `schemas` | IR, API, schema, serialization, registry, metadata, and compatibility contracts. | 17 |
 | `testing` | Test topology, fixtures, golden data, drift checks, and reproducibility gates. | 4 |
 | `release` | Release trains, SemVer, versioning, deprecation, migration, and retraction policy. | 6 |
 | `frontend` | Frontend workspace, dashboard, UI language, themes, and authored text surfaces. | 5 |
@@ -163,6 +163,7 @@
 | [0110](0110-ir-frontier-governance-and-causal-contracts.md) | `accepted` | `polisyos.ir` | Ir Frontier Governance And Causal Contracts | - |
 | [0114](0114-schema-registry-and-evolution.md) | `proposed` | `polisyos.ir` | Schema Registry and Evolution Rules | 0005, 0108, 0118, 0122, 0123 |
 | [0151](0151-evidence-schema-compatibility-and-legacy-quarantine.md) | `accepted` | `repository` | Evidence Schema Compatibility And Legacy Quarantine | 0005, 0108, 0114, 0123, 0147, 0148, 0150 |
+| [ADR-048](ADR-048-native-value-projection-capability.md) | `approved` | `polisyos.foundry` | Native value projection is a two-sided output-contract capability | - |
 
 ### testing
 

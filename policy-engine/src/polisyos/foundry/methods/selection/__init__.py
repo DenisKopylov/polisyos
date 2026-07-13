@@ -19,6 +19,8 @@ __all__ = [
     "MethodAdvisorResult",
     "MethodLossProfile",
     "MethodScoreTraceEntry",
+    "MethodSelectionAlternative",
+    "MethodSelectionReceipt",
     "MethodSelectionCriteria",
     "_score_entry",
     "_score_entry_v2",

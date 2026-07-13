@@ -5,6 +5,7 @@ from dataclasses import replace
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry, MethodCatalogSnapshot
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
@@ -19,6 +20,7 @@ from polisyos.foundry.methods.selection import (
     DataCharacteristics,
     MethodAdvisorQuery,
     MethodSelectionCriteria,
+    MethodSelectionReceipt,
     advise_methods,
     advise_methods_for_analyst,
     build_advisor_execution_context,
@@ -239,6 +241,147 @@ def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
         row["method_fqn"] == result["selected_method_fqn"]
         for row in result["ranked_alternatives"]
     ) == 1
+
+
+def test_value_advisor_builds_content_bound_selection_receipt_from_real_trace() -> None:
+    result = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "candidate_selection_receipt",
+            "diversity_key": ("posterior", "tabular", "effect"),
+        },
+        problem={
+            "design_problem_id": "problem_selection_receipt",
+            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": False,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                }
+            },
+        },
+    )
+
+    receipt = MethodSelectionReceipt.model_validate(result["selection_receipt"])
+
+    assert receipt.selection_authority == "foundry_registry_advisor"
+    assert receipt.denominator == tuple(sorted(set(receipt.denominator)))
+    assert len(receipt.denominator) > 1
+    assert receipt.selected_method_fqn == result["selected_method_fqn"]
+    assert tuple(row.method_fqn for row in receipt.ranked_alternatives) == tuple(
+        result["score_trace"]
+    )
+    assert sum(row.selected for row in receipt.ranked_alternatives) == 1
+
+
+def test_requested_value_method_builds_receipt_from_verified_registry_entry() -> None:
+    advisor_selection = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "candidate_registry_request_source",
+            "diversity_key": ("posterior", "tabular", "effect"),
+        },
+        problem={
+            "design_problem_id": "problem_registry_request_source",
+            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+            "domain": "generic_policy",
+        },
+    )
+    requested_fqn = advisor_selection["selected_method_fqn"]
+
+    requested_selection = select_value_method_for_problem(
+        candidate={"candidate_id": "candidate_registry_request"},
+        problem={
+            "design_problem_id": "problem_registry_request",
+            "problem_statement": "Use the explicitly requested registered method.",
+            "domain": "generic_policy",
+        },
+        requested_method_fqn=requested_fqn,
+    )
+    receipt = MethodSelectionReceipt.model_validate(requested_selection["selection_receipt"])
+
+    assert receipt.selection_authority == "requested_registry_method"
+    assert receipt.selected_method_fqn == requested_fqn
+    assert receipt.denominator == tuple(sorted(set(receipt.denominator)))
+    assert len(receipt.ranked_alternatives) == 1
+    assert receipt.ranked_alternatives[0].method_fqn == requested_fqn
+    assert receipt.ranked_alternatives[0].selected is True
+    assert receipt.ranked_alternatives[0].advisor_score is None
+    assert receipt.ranked_alternatives[0].loss_reasons == ("explicit_registry_request",)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "reason"),
+    [
+        (
+            lambda payload: payload.update(selection_authority="caller_asserted_advisor"),
+            "selection_authority",
+        ),
+        (
+            lambda payload: payload.update(denominator=tuple(reversed(payload["denominator"]))),
+            "value_method_selection_denominator_not_canonical",
+        ),
+        (
+            lambda payload: payload["ranked_alternatives"][0].update(
+                method_fqn="out.of.denominator@1.0.0"
+            ),
+            "value_method_selection_trace_outside_denominator",
+        ),
+        (
+            lambda payload: payload.update(
+                ranked_alternatives=[
+                    {**row, "selected": False} for row in payload["ranked_alternatives"]
+                ]
+            ),
+            "value_method_selection_receipt_incoherent",
+        ),
+        (
+            lambda payload: payload.update(denominator=(payload["selected_method_fqn"],)),
+            "value_method_selection_fixed_default",
+        ),
+        (
+            lambda payload: payload.update(content_hash="sha256:" + "0" * 64),
+            "value_method_selection_receipt_content_hash_mismatch",
+        ),
+        (
+            lambda payload: payload.update(unexpected_authority_hint="trusted"),
+            "extra_forbidden",
+        ),
+    ],
+)
+def test_value_method_selection_receipt_rejects_self_attested_or_incoherent_payloads(
+    mutation: object,
+    reason: str,
+) -> None:
+    selection = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "candidate_selection_receipt_negative",
+            "diversity_key": ("posterior", "tabular", "effect"),
+        },
+        problem={
+            "design_problem_id": "problem_selection_receipt_negative",
+            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": False,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                }
+            },
+        },
+    )
+    payload = selection["selection_receipt"]
+    mutation(payload)  # type: ignore[operator]
+
+    with pytest.raises(ValidationError, match=reason):
+        MethodSelectionReceipt.model_validate(payload)
 
 
 def test_method_advisor_strict_phase5_blocks_missing_consensus() -> None:

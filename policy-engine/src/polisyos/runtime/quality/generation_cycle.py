@@ -53,6 +53,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
+    l1_variable_availability_requirement_gap,
     plan_requirement_gap_acquisition,
     run_acquisition_closed_loop,
     value_input_world_knowledge_requirement_gap,
@@ -87,6 +88,7 @@ from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopE
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
 
 GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v1"
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
@@ -405,15 +407,45 @@ class ValuePortObservation(_StrictModel):
         if self.acquisition_requirement is not None and self.status != "value_blocked":
             raise ValueError("value_acquisition_requirement_requires_blocked_status")
         if self.acquisition_requirement is not None:
-            if (
-                self.candidate_id is None
-                or self.authority_blockers
-                != ("treatment_assignment_not_owner_derived",)
-            ):
+            if self.candidate_id is None:
                 raise ValueError("value_acquisition_requirement_not_canonical")
-            expected = value_input_world_knowledge_requirement_gap(
-                claim_ref=f"value-claim:{self.candidate_id}"
-            )
+            if self.authority_blockers == (
+                "treatment_assignment_not_owner_derived",
+            ):
+                expected = value_input_world_knowledge_requirement_gap(
+                    claim_ref=f"value-claim:{self.candidate_id}"
+                )
+            elif self.authority_blockers == (
+                "acquire_data:value_panel_data_missing",
+            ):
+                from polisyos.runtime.quality.data_state_substrate import (
+                    L1VariableAvailability,
+                )
+
+                metadata = self.acquisition_requirement.metadata
+                binding = metadata.get("candidate_binding")
+                availability = metadata.get("availability")
+                if not isinstance(binding, Mapping) or not isinstance(
+                    availability, Mapping
+                ):
+                    raise ValueError("value_acquisition_requirement_not_canonical")
+                availability_payload = dict(availability)
+                availability_payload.pop("availability_content_hash", None)
+                expected = l1_variable_availability_requirement_gap(
+                    candidate_id=str(binding.get("candidate_id") or ""),
+                    candidate_content_hash=str(
+                        binding.get("candidate_content_hash") or ""
+                    ),
+                    design_problem_ref=str(binding.get("design_problem_ref") or ""),
+                    availability=L1VariableAvailability.model_validate(
+                        availability_payload
+                    ),
+                    authority_level=str(metadata.get("authority_level") or ""),
+                )
+                if binding.get("candidate_id") != self.candidate_id:
+                    raise ValueError("value_acquisition_requirement_not_canonical")
+            else:
+                raise ValueError("value_acquisition_requirement_not_canonical")
             if self.acquisition_requirement.model_dump(mode="json") != expected.model_dump(
                 mode="json"
             ):
@@ -557,6 +589,36 @@ class GenerationCycleRecord(_StrictModel):
     revision_driver: Literal["counterexample", "none"] = "none"
     acquisition_receipt: dict[str, Any] | None = None
     acquisition_routing_report: AcquisitionPlannerReport | None = None
+
+    @model_validator(mode="after")
+    def _bind_every_stage_to_selected_candidate(self) -> GenerationCycleRecord:
+        selected = self.selected_candidate_ref
+        if (
+            selected not in self.candidate_ids
+            or self.grounding.candidate_id != selected
+            or self.simulation.candidate_id != selected
+            or (
+                self.value_port.candidate_id is not None
+                and self.value_port.candidate_id != selected
+            )
+            or self.counterexample.candidate_ref != selected
+        ):
+            raise ValueError("cycle_stage_candidate_mismatch")
+        requirement = self.value_port.acquisition_requirement
+        if requirement is None:
+            return self
+        metadata = requirement.metadata
+        if metadata.get("source") != "l1_dcat_variable_availability":
+            return self
+        binding = metadata.get("candidate_binding")
+        if not isinstance(binding, Mapping) or (
+            binding.get("candidate_id") != selected
+            or binding.get("candidate_content_hash")
+            != self.selected_candidate_content_hash
+            or binding.get("design_problem_ref") != self.design_problem_ref
+        ):
+            raise ValueError("cycle_acquisition_candidate_binding_mismatch")
+        return self
 
     @model_validator(mode="after")
     def _routing_evidence_is_not_owner_evidence(self) -> GenerationCycleRecord:
@@ -1234,9 +1296,11 @@ class ValueOwnerAccessError(ValueError):
         message: str | None = None,
         *,
         owner_access_ref: str | None = None,
+        owner_gap_evidence: L1VariableAvailability | None = None,
     ) -> None:
         self.code = code
         self.owner_access_ref = owner_access_ref
+        self.owner_gap_evidence = owner_gap_evidence
         detail = message or code
         if owner_access_ref:
             detail = f"{detail} owner_access_ref={owner_access_ref}"
@@ -1324,6 +1388,7 @@ class RealValueOwnerGateway:
                     f"observations={availability.observation_count})"
                 ),
                 owner_access_ref=owner_access_ref,
+                owner_gap_evidence=availability,
             )
         profile = _load_value_data_profile_from_l1_dcat(
             repo_root=repo_root,
@@ -1406,6 +1471,7 @@ class FoundryValuePort:
         self._requested_method_fqn = requested_method_fqn
         self._observation_to_contract_manifest = observation_to_contract_manifest
         self._runtime_budget_ms = runtime_budget_ms
+        self._cycle_substrate_context = cycle_substrate_context
         self._world_cache: dict[str, object] = {}
 
     def __call__(
@@ -1463,6 +1529,39 @@ class FoundryValuePort:
                 started=started,
                 candidate_id=candidate_id,
             )
+        if self._cycle_substrate_context is not None:
+            from polisyos.runtime.quality.cycle_substrate import (
+                resolve_cycle_substrate_world_identity,
+            )
+
+            atom = _object_get(candidate, "atom")
+            try:
+                resolved_world = resolve_cycle_substrate_world_identity(
+                    self._cycle_substrate_context,
+                    atom=atom,
+                )
+            except (TypeError, WorldModelRecordError) as exc:
+                return _blocked_value_observation(
+                    code="world_identity_unresolved",
+                    reason=f"N8 candidate world identity refused: {exc}",
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                    world_model_record_content_hash=str(
+                        _object_get(world_record, "content_hash")
+                    ),
+                )
+            if resolved_world.world_model_record_content_hash != world_record.content_hash:
+                return _blocked_value_observation(
+                    code="world_identity_unresolved",
+                    reason="N8 simulation WMR differs from the resolved candidate world.",
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                    world_model_record_content_hash=str(
+                        _object_get(world_record, "content_hash")
+                    ),
+                )
         try:
             method_state = self._owner_gateway.load_value_data_profile(
                 candidate=candidate,
@@ -1470,12 +1569,37 @@ class FoundryValuePort:
                 world_record=world_record,
             )
         except ValueOwnerAccessError as exc:
+            acquisition_requirement = None
+            if exc.owner_gap_evidence is not None:
+                outcome = _value_outcome_variable(candidate, problem)
+                if outcome != exc.owner_gap_evidence.variable_id:
+                    return _blocked_value_observation(
+                        code="value_owner_gap_evidence_mismatch",
+                        reason=(
+                            "L1 availability evidence names another outcome; "
+                            f"expected={outcome} actual={exc.owner_gap_evidence.variable_id}."
+                        ),
+                        mode=mode,
+                        started=started,
+                        candidate_id=candidate_id,
+                        world_model_record_content_hash=str(
+                            _object_get(world_record, "content_hash")
+                        ),
+                    )
+                acquisition_requirement = l1_variable_availability_requirement_gap(
+                    candidate_id=candidate_id,
+                    candidate_content_hash=_candidate_content_hash(candidate),
+                    design_problem_ref=_problem_ref(problem),
+                    availability=exc.owner_gap_evidence,
+                    authority_level=problem.authority_profile.requested_authority_level,
+                )
             return _blocked_value_observation(
                 code=exc.code,
                 reason=str(exc),
                 mode=mode,
                 started=started,
                 candidate_id=candidate_id,
+                acquisition_requirement=acquisition_requirement,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
         if not isinstance(method_state, ValueDataProfile):

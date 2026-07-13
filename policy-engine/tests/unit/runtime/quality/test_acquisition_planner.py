@@ -54,6 +54,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     acquisition_report_deficit_records,
     acquisition_request_from_world_acquirable,
     acquisition_strangle_receipt,
+    l1_variable_availability_requirement_gap,
     load_acquisition_planner_report,
     persist_acquisition_planner_report,
     plan_evidence_acquisition,
@@ -65,6 +66,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.capability_index import FailureModeNode
+from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
@@ -201,6 +203,103 @@ def test_value_input_world_knowledge_gap_identity_cannot_bypass_metadata_validat
 
     with pytest.raises(ValueError):
         AcquisitionRequirementGap.model_validate(payload)
+
+
+def _unavailable_l1_variable(
+    variable_id: str = "employment_retention",
+) -> L1VariableAvailability:
+    return L1VariableAvailability(
+        variable_id=variable_id,
+        status="unavailable",
+        dataset_count=0,
+        metric_binding_count=0,
+        observation_count=0,
+        coverage_ref=(
+            "repo://production_data/dataset_catalog.duckdb#variable/"
+            f"{variable_id}"
+        ),
+    )
+
+
+def test_l1_variable_availability_gap_routes_exact_owner_absence() -> None:
+    availability = _unavailable_l1_variable()
+    gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_employment_retention",
+        candidate_content_hash="sha256:" + "3" * 64,
+        design_problem_ref="sha256:" + "4" * 64,
+        availability=availability,
+        authority_level=AuthorityLevel.PRODUCTION,
+    )
+
+    assert gap.requirement_family is RequirementGapFamily.DATA
+    assert gap.gap_type is AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+    assert gap.claim_ref == "value-claim:candidate_employment_retention"
+    assert gap.producer_output_ref == availability.coverage_ref
+    assert gap.missing_requirement_fields == (
+        "canonical_variable_observations:employment_retention",
+    )
+    assert gap.metadata["source"] == "l1_dcat_variable_availability"
+    assert gap.metadata["satisfaction_status"] == "unsatisfied"
+    assert gap.metadata["availability"]["observation_count"] == 0
+
+    report = plan_requirement_gap_acquisition(
+        run_id="run-first-vertical-data-gap",
+        requirement_gaps=(gap,),
+    )
+    assert report.status == "pass"
+    assert len(report.acquisition_records) == 1
+    record = report.acquisition_records[0]
+    assert record.recommended_strategy is AcquisitionStrategy.PRODUCTION_SNAPSHOT_BUILD
+    assert record.terminal_disposition is AcquisitionDisposition.ACQUIRE
+    assert record.producer_output_ref == availability.coverage_ref
+
+
+def test_l1_variable_availability_gap_rejects_available_or_tampered_evidence() -> None:
+    available = L1VariableAvailability(
+        variable_id="avg_income",
+        status="available",
+        dataset_count=1,
+        metric_binding_count=1,
+        observation_count=4,
+        coverage_ref="repo://production_data/dataset_catalog.duckdb#variable/avg_income",
+    )
+    with pytest.raises(ValueError, match="l1_variable_is_not_an_acquisition_gap"):
+        l1_variable_availability_requirement_gap(
+            candidate_id="candidate_avg_income",
+            candidate_content_hash="sha256:" + "5" * 64,
+            design_problem_ref="sha256:" + "6" * 64,
+            availability=available,
+            authority_level=AuthorityLevel.PRODUCTION,
+        )
+
+    payload = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_employment_retention",
+        candidate_content_hash="sha256:" + "3" * 64,
+        design_problem_ref="sha256:" + "4" * 64,
+        availability=_unavailable_l1_variable(),
+        authority_level=AuthorityLevel.PRODUCTION,
+    ).model_dump(mode="json")
+    payload["metadata"]["availability"]["availability_content_hash"] = (
+        "sha256:" + "0" * 64
+    )
+
+    with pytest.raises(ValueError, match="l1_variable_availability_hash_mismatch"):
+        AcquisitionRequirementGap.model_validate(payload)
+
+
+def test_l1_variable_availability_rejects_incoherent_unavailable_counts() -> None:
+    with pytest.raises(ValueError, match="l1_unavailable_counts_nonzero"):
+        L1VariableAvailability(
+            variable_id="employment_retention",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=1,
+            coverage_ref=(
+                "repo://production_data/dataset_catalog.duckdb#variable/"
+                "employment_retention"
+            ),
+        )
 
 
 def test_generation_cycle_bootstrap_authority_is_strangled() -> None:

@@ -256,6 +256,60 @@ class _ValueInputWorldKnowledgeGapMetadata(BaseModel):
     census_evidence: _ValueInputWorldKnowledgeCensusEvidence
 
 
+class _L1VariableCandidateBinding(BaseModel):
+    """Candidate and DesignProblem identity bound into an L1 data gap."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class _L1VariableAvailabilityEvidence(BaseModel):
+    """Exact unavailable L1 owner result used only for acquisition routing."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    variable_id: str = Field(min_length=1)
+    status: Literal["unavailable"]
+    dataset_count: Literal[0]
+    metric_binding_count: Literal[0]
+    observation_count: Literal[0]
+    coverage_ref: str = Field(min_length=1)
+    availability_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_content_hash(self) -> _L1VariableAvailabilityEvidence:
+        expected = _stable_content_hash(
+            {
+                "variable_id": self.variable_id,
+                "status": self.status,
+                "dataset_count": self.dataset_count,
+                "metric_binding_count": self.metric_binding_count,
+                "observation_count": self.observation_count,
+                "coverage_ref": self.coverage_ref,
+            }
+        )
+        if self.availability_content_hash != expected:
+            raise ValueError("l1_variable_availability_hash_mismatch")
+        return self
+
+
+class _L1VariableAvailabilityGapMetadata(BaseModel):
+    """Strict owner-evidence bridge from L1 availability into N7 routing."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.l1_variable_availability_gap.v1"]
+    source: Literal["l1_dcat_variable_availability"]
+    authority_purpose: Literal["routing_only"]
+    satisfaction_status: Literal["unsatisfied"]
+    authority_level: AuthorityLevel
+    candidate_binding: _L1VariableCandidateBinding
+    availability: _L1VariableAvailabilityEvidence
+
+
 class AcquisitionGap(BaseModel):
     """One evidence gap requiring acquisition routing."""
 
@@ -400,6 +454,67 @@ class AcquisitionRequirementGap(BaseModel):
             raise ValueError("value_input_world_knowledge_requires_data_snapshot_gap")
         if self.limitation_permitted:
             raise ValueError("value_input_world_knowledge_limitation_not_permitted")
+        object.__setattr__(self, "metadata", normalized.model_dump(mode="json"))
+        return self
+
+    @model_validator(mode="after")
+    def _validate_l1_variable_availability_metadata(self) -> AcquisitionRequirementGap:
+        metadata = self.metadata
+        if not (
+            metadata.get("source") == "l1_dcat_variable_availability"
+            or metadata.get("schema_version")
+            == "policyos.runtime.l1_variable_availability_gap.v1"
+            or self.requirement_gap_id.startswith(
+                "requirement-gap:data_requirement:l1-variable-availability:"
+            )
+        ):
+            return self
+        normalized = _L1VariableAvailabilityGapMetadata.model_validate(metadata)
+        binding = normalized.candidate_binding
+        availability = normalized.availability
+        identity = _stable_content_hash(
+            {
+                "candidate_id": binding.candidate_id,
+                "candidate_content_hash": binding.candidate_content_hash,
+                "design_problem_ref": binding.design_problem_ref,
+                "variable_id": availability.variable_id,
+            }
+        ).removeprefix("sha256:")[:16]
+        expected_gap_id = (
+            "requirement-gap:data_requirement:l1-variable-availability:"
+            f"{identity}"
+        )
+        expected_compiled_ref = (
+            "runtime-requirement:l1-variable-availability:"
+            f"{identity}:v1"
+        )
+        expected_gate = (
+            MandatoryGateState.NONE
+            if normalized.authority_level is AuthorityLevel.RESEARCH
+            else MandatoryGateState.NON_OVERRIDABLE
+        )
+        expected_claim = f"value-claim:{binding.candidate_id}"
+        if (
+            self.requirement_gap_id != expected_gap_id
+            or self.compiled_requirement_ref != expected_compiled_ref
+            or self.requirement_schema_version
+            != "policyos.runtime.l1_variable_availability_gap.v1"
+            or self.requirement_family is not RequirementGapFamily.DATA
+            or self.gap_type is not AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+            or self.claim_ref != expected_claim
+            or self.scenario_requirement_refs
+            != (binding.design_problem_ref, availability.coverage_ref)
+            or self.missing_requirement_fields
+            != (f"canonical_variable_observations:{availability.variable_id}",)
+            or self.authority_level is not normalized.authority_level
+            or self.mandatory_gate_state is not expected_gate
+            or self.mandatory_gate_refs != (expected_compiled_ref,)
+            or self.limitation_permitted
+            or self.decision_owner_ref
+            != "polisyos.runtime.quality.acquisition_planner"
+            or self.producer_output_ref != availability.coverage_ref
+        ):
+            raise ValueError("l1_variable_availability_gap_binding_mismatch")
         object.__setattr__(self, "metadata", normalized.model_dump(mode="json"))
         return self
 
@@ -2631,6 +2746,99 @@ def requirement_gaps_from_compiled_specs(
     return tuple(gaps)
 
 
+def l1_variable_availability_requirement_gap(
+    *,
+    candidate_id: str,
+    candidate_content_hash: str,
+    design_problem_ref: str,
+    availability: object,
+    authority_level: AuthorityLevel | str,
+) -> AcquisitionRequirementGap:
+    """Route one exact unavailable L1 canonical variable through N7.
+
+    The L1 availability owner remains authoritative for the measured absence;
+    this bridge is authoritative only for routing that absence. It cannot
+    satisfy the requirement or mint a producer artifact.
+    """
+
+    from polisyos.runtime.quality.data_state_substrate import (
+        L1VariableAvailability,
+    )
+
+    verified = (
+        availability
+        if isinstance(availability, L1VariableAvailability)
+        else L1VariableAvailability.model_validate(availability)
+    )
+    verified = L1VariableAvailability.model_validate(
+        verified.model_dump(mode="python")
+    )
+    if verified.status != "unavailable":
+        raise ValueError("l1_variable_is_not_an_acquisition_gap")
+    level = (
+        authority_level
+        if isinstance(authority_level, AuthorityLevel)
+        else AuthorityLevel(str(authority_level))
+    )
+    availability_payload = verified.model_dump(mode="json")
+    availability_content_hash = _stable_content_hash(availability_payload)
+    binding = _L1VariableCandidateBinding(
+        candidate_id=candidate_id,
+        candidate_content_hash=candidate_content_hash,
+        design_problem_ref=design_problem_ref,
+    )
+    identity = _stable_content_hash(
+        {
+            **binding.model_dump(mode="json"),
+            "variable_id": verified.variable_id,
+        }
+    ).removeprefix("sha256:")[:16]
+    compiled_ref = f"runtime-requirement:l1-variable-availability:{identity}:v1"
+    metadata = _L1VariableAvailabilityGapMetadata(
+        schema_version="policyos.runtime.l1_variable_availability_gap.v1",
+        source="l1_dcat_variable_availability",
+        authority_purpose="routing_only",
+        satisfaction_status="unsatisfied",
+        authority_level=level,
+        candidate_binding=binding,
+        availability=_L1VariableAvailabilityEvidence(
+            **availability_payload,
+            availability_content_hash=availability_content_hash,
+        ),
+    )
+    return AcquisitionRequirementGap(
+        requirement_gap_id=(
+            "requirement-gap:data_requirement:l1-variable-availability:"
+            f"{identity}"
+        ),
+        requirement_family=RequirementGapFamily.DATA,
+        compiled_requirement_ref=compiled_ref,
+        requirement_schema_version=(
+            "policyos.runtime.l1_variable_availability_gap.v1"
+        ),
+        gap_type=AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
+        claim_ref=f"value-claim:{candidate_id}",
+        scenario_requirement_refs=(
+            design_problem_ref,
+            verified.coverage_ref,
+        ),
+        missing_requirement_fields=(
+            f"canonical_variable_observations:{verified.variable_id}",
+        ),
+        authority_level=level,
+        mandatory_gate_state=(
+            MandatoryGateState.NONE
+            if level is AuthorityLevel.RESEARCH
+            else MandatoryGateState.NON_OVERRIDABLE
+        ),
+        mandatory_gate_refs=(compiled_ref,),
+        limitation_permitted=False,
+        decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
+        producer_output_ref=verified.coverage_ref,
+        metadata=metadata.model_dump(mode="json"),
+    )
+
+
 def value_input_world_knowledge_requirement_gap(
     *,
     claim_ref: str,
@@ -4485,6 +4693,7 @@ __all__ = [
     "acquisition_request_from_world_acquirable",
     "acquisition_strangle_receipt",
     "data_need_spec_payload",
+    "l1_variable_availability_requirement_gap",
     "load_acquisition_planner_report",
     "persist_acquisition_planner_report",
     "plan_evidence_acquisition",

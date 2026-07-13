@@ -21,6 +21,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionOwnerArtifact,
     AcquisitionWorldSnapshot,
     RecordedAcquisitionOwnerGateway,
+    l1_variable_availability_requirement_gap,
     value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.cycle_substrate import (
@@ -30,6 +31,7 @@ from polisyos.runtime.quality.cycle_substrate import (
     cycle_substrate_context_binding_hash,
     resolve_cycle_substrate_world_identity,
 )
+from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -2204,12 +2206,31 @@ class _BlockedValuePort:
 
 class _DataGapValuePort:
     def __call__(self, **kwargs: Any) -> ValuePortObservation:
-        del kwargs
+        candidate = kwargs["candidate"]
+        problem = kwargs["problem"]
         return ValuePortObservation(
             status="value_blocked",
+            candidate_id=candidate.candidate_id,
             authority_blockers=("acquire_data:value_panel_data_missing",),
             reason="Owner-bound panel observations are missing.",
             decision_grade="blocked",
+            acquisition_requirement=l1_variable_availability_requirement_gap(
+                candidate_id=candidate.candidate_id,
+                candidate_content_hash=candidate.atom.content_hash,
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                availability=L1VariableAvailability(
+                    variable_id="firm_survival",
+                    status="unavailable",
+                    dataset_count=0,
+                    metric_binding_count=0,
+                    observation_count=0,
+                    coverage_ref=(
+                        "repo://production_data/dataset_catalog.duckdb#variable/"
+                        "firm_survival"
+                    ),
+                ),
+                authority_level=problem.authority_profile.requested_authority_level,
+            ),
         )
 
 
@@ -2218,12 +2239,57 @@ class _WorldKnowledgeGapValuePort:
         del kwargs
         return ValuePortObservation(
             status="value_blocked",
-            candidate_id="candidate_cycle_1",
+            candidate_id="candidate_cgf_shadow",
             authority_blockers=("treatment_assignment_not_owner_derived",),
             reason="Owner treatment assignment is missing.",
             decision_grade="blocked",
             acquisition_requirement=value_input_world_knowledge_requirement_gap(
-                claim_ref="value-claim:candidate_cycle_1"
+                claim_ref="value-claim:candidate_cgf_shadow"
+            ),
+        )
+
+
+class _TransplantedWorldKnowledgeGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        del kwargs
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id="candidate_from_another_cycle",
+            authority_blockers=("treatment_assignment_not_owner_derived",),
+            reason="Transplanted owner-treatment gap.",
+            decision_grade="blocked",
+            acquisition_requirement=value_input_world_knowledge_requirement_gap(
+                claim_ref="value-claim:candidate_from_another_cycle"
+            ),
+        )
+
+
+class _RepointedDataGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        candidate = kwargs["candidate"]
+        problem = kwargs["problem"]
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id=candidate.candidate_id,
+            authority_blockers=("acquire_data:value_panel_data_missing",),
+            reason="Owner data gap repointed to another candidate payload.",
+            decision_grade="blocked",
+            acquisition_requirement=l1_variable_availability_requirement_gap(
+                candidate_id=candidate.candidate_id,
+                candidate_content_hash="sha256:" + "0" * 64,
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                availability=L1VariableAvailability(
+                    variable_id="firm_survival",
+                    status="unavailable",
+                    dataset_count=0,
+                    metric_binding_count=0,
+                    observation_count=0,
+                    coverage_ref=(
+                        "repo://production_data/dataset_catalog.duckdb#variable/"
+                        "firm_survival"
+                    ),
+                ),
+                authority_level=problem.authority_profile.requested_authority_level,
             ),
         )
 
@@ -2264,7 +2330,38 @@ async def test_value_data_gap_routes_to_n7_acquisition_terminal() -> None:
         run.cycles[0].revision_request.strategy_payload["acquisition_request"]["driver"]
         == "acquire_data:value_panel_data_missing"
     )
+    assert run.cycles[0].acquisition_routing_report is not None
+    assert run.cycles[0].acquisition_receipt is None
+    record = run.cycles[0].acquisition_routing_report.acquisition_records[0]
+    assert record.recommended_strategy.value == "production_snapshot_build"
+    assert record.terminal_disposition.value == "acquire"
+    assert record.claim_ref == "value-claim:candidate_cgf_shadow"
     assert run.fronts.decision.candidate_ids == ()
+
+
+@pytest.mark.asyncio
+async def test_value_gap_for_another_candidate_cannot_be_routed() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_TransplantedWorldKnowledgeGapValuePort(),
+    )
+
+    with pytest.raises(ValueError, match="cycle_stage_candidate_mismatch"):
+        await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+
+@pytest.mark.asyncio
+async def test_value_data_gap_cannot_repoint_same_candidate_content() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_RepointedDataGapValuePort(),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="cycle_acquisition_candidate_binding_mismatch",
+    ):
+        await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
 
 
 @pytest.mark.asyncio
@@ -2297,7 +2394,7 @@ async def test_typed_value_world_knowledge_gap_routes_without_renaming_blocker()
     assert record.compiled_requirement_ref == (
         "runtime-requirement:value-input-world-knowledge:v1"
     )
-    assert record.claim_ref == "value-claim:candidate_cycle_1"
+    assert record.claim_ref == "value-claim:candidate_cgf_shadow"
     assert record.terminal_disposition.value == "acquire"
 
 

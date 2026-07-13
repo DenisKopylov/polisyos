@@ -714,7 +714,7 @@ class RegimeShiftForecastEstimator:
         input_slots=frozenset(
             {SlotSpec("series", SlotType.VECTOR, Unit("timeseries", "value"), shape=("n_obs",))}
         ),
-        output_slots=forecasting_output_slots(contract_id=RegimeShiftForecastBundle.contract_id),
+        output_slots=forecasting_output_slots(output_contract=RegimeShiftForecastBundle),
         parameters=(
             ParameterSpec(name="horizon", default=6),
             ParameterSpec(name="nominal_coverage", default=0.9),

@@ -23,9 +23,12 @@ from polisyos.core.observability.truthfulness import (
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    NativeValueEstimandBinding,
+    OutputContractDeclaration,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    value_uncertainty_output_contract,
 )
 from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 
@@ -1534,6 +1537,9 @@ class PosteriorResult(BaseModel):
     """Store posterior draws, intervals, diagnostics, and model metadata."""
 
     contract_id: ClassVar[str] = "foundry.bayesian.posterior_result.v2"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(contract_id)
+    )
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
 
     method_name: str
@@ -1687,6 +1693,42 @@ class PosteriorResult(BaseModel):
                 "truthfulness_basis": self.truthfulness.basis,
                 "simulator_diagnostic_ref": self.simulator_diagnostic_ref,
             },
+        )
+
+    def to_value_uncertainty(
+        self,
+        *,
+        estimand: object,
+        projection_binding: NativeValueEstimandBinding,
+    ) -> UncertaintyEnvelope | None:
+        """Project only the exact parameter named by the requested value estimand."""
+
+        estimand_id = getattr(estimand, "estimand_id", None)
+        if not isinstance(estimand_id, str) or not estimand_id:
+            return None
+        if (
+            projection_binding.native_contract_id != self.contract_id
+            or not projection_binding.matches(estimand)
+        ):
+            return None
+        envelope = self.to_uncertainty_envelope(param_name=estimand_id)
+        if envelope is None:
+            return None
+        return envelope.model_copy(
+            update={
+                "metadata": {
+                    **envelope.metadata,
+                    "value_estimand_binding_content_hash": (
+                        projection_binding.content_hash
+                    ),
+                    "value_estimand_binding_native_contract_id": (
+                        projection_binding.native_contract_id
+                    ),
+                    "value_estimand_binding_producer_method_fqn": (
+                        projection_binding.producer_method_fqn
+                    ),
+                }
+            }
         )
 
     def to_consensus_target(self, query: Any) -> Any:

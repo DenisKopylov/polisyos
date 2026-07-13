@@ -11,9 +11,12 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    NativeValueEstimandBinding,
+    OutputContractDeclaration,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    value_uncertainty_output_contract,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -315,6 +318,9 @@ class BoundsBundle(BaseModel):
     """Canonical public bounds contract for non-point-identified queries."""
 
     contract_id: ClassVar[str] = "ir.bounds_bundle.v1"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(contract_id)
+    )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -335,11 +341,21 @@ class BoundsBundle(BaseModel):
     warnings: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    def to_value_uncertainty(self, *, estimand: object) -> UncertaintyEnvelope | None:
+    def to_value_uncertainty(
+        self,
+        *,
+        estimand: object,
+        projection_binding: NativeValueEstimandBinding,
+    ) -> UncertaintyEnvelope | None:
         """Project certified outer bounds for the explicitly named estimand."""
 
         estimand_id = str(getattr(estimand, "estimand_id", "") or "")
         if estimand_id != self.estimand_type:
+            return None
+        if (
+            projection_binding.native_contract_id != self.contract_id
+            or not projection_binding.matches(estimand)
+        ):
             return None
         lower = self.consensus_lower if self.consensus_lower is not None else self.lower_bound
         upper = self.consensus_upper if self.consensus_upper is not None else self.upper_bound
@@ -361,6 +377,15 @@ class BoundsBundle(BaseModel):
                 "estimand_type": self.estimand_type,
                 "sharpness_status": self.sharpness_status,
                 "projection": "consensus_bounds",
+                "value_estimand_binding_content_hash": (
+                    projection_binding.content_hash
+                ),
+                "value_estimand_binding_native_contract_id": (
+                    projection_binding.native_contract_id
+                ),
+                "value_estimand_binding_producer_method_fqn": (
+                    projection_binding.producer_method_fqn
+                ),
             },
         )
 

@@ -7,12 +7,13 @@ projection.  Mapping shape is never treated as report authority.
 
 from __future__ import annotations
 
+import importlib
 import json
 from dataclasses import asdict
 from hashlib import sha256
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core.observability.truthfulness import (
     TruthfulnessReceipt,
@@ -22,9 +23,18 @@ from polisyos.core.observability.truthfulness import (
 from polisyos.foundry.methods.backends.protocol import MethodResult
 from polisyos.foundry.methods.base import MethodSignature, SlotSpec
 from polisyos.foundry.methods.components.consensus import EstimandSpec
-from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
+from polisyos.ir.analytics.uncertainty import (
+    NativeValueEstimandBinding,
+    OutputContractCapability,
+    OutputContractDeclaration,
+    UncertaintyEnvelope,
+    supports_value_uncertainty_projection_contract,
+)
 
-MethodValueEvidenceStatus = Literal["value_ready", "value_limited"]
+MethodValueEvidenceStatus = Literal[
+    "contract_projection_ready",
+    "contract_projection_limited",
+]
 
 
 class _StrictModel(BaseModel):
@@ -32,19 +42,31 @@ class _StrictModel(BaseModel):
 
 
 class MethodValueEvidence(_StrictModel):
-    """Estimand-bound uncertainty projected by a native method contract."""
+    """Non-production proof that a native method contract can project uncertainty."""
 
     status: MethodValueEvidenceStatus
+    authority_scope: Literal["contract_only_nonproduction"] = (
+        "contract_only_nonproduction"
+    )
+    production_value_eligible: Literal[False] = False
     method_fqn: str = Field(min_length=1)
     method_family: str = Field(min_length=1)
     native_contract_id: str = Field(min_length=1)
     selected_output_slot: str = Field(min_length=1)
+    estimand_binding_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     estimand: EstimandSpec
     envelope: UncertaintyEnvelope
     diagnostic_refs: tuple[str, ...] = ()
     truthfulness_receipt: TruthfulnessReceipt | None = None
     limitation_codes: tuple[str, ...] = ()
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_content_hash(self) -> MethodValueEvidence:
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != _content_hash(payload):
+            raise ValueError("method_value_evidence_content_hash_mismatch")
+        return self
 
 
 class MethodValueRefusal(_StrictModel):
@@ -59,14 +81,72 @@ class MethodValueRefusal(_StrictModel):
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class NativeValueProjectionCapability(_StrictModel):
+    """Verified catalog witness for one estimand-aware native output slot."""
+
+    output_slot: str = Field(min_length=1)
+    contract_id: str = Field(min_length=1)
+    projector: Literal["to_value_uncertainty"] = "to_value_uncertainty"
+    owner_module: str = Field(min_length=1)
+    owner_qualname: str = Field(min_length=1)
+
+
+def resolve_method_value_projection_capabilities(
+    *,
+    method_cls: type[object],
+    method_signature: MethodSignature,
+) -> tuple[NativeValueProjectionCapability, ...]:
+    """Resolve two-sided output-contract capabilities for catalog selection."""
+
+    if getattr(method_cls, "signature", None) is not method_signature:
+        method_class_signature = getattr(method_cls, "signature", None)
+        if not isinstance(method_class_signature, MethodSignature) or (
+            method_class_signature.stable_digest()
+            != method_signature.stable_digest()
+        ):
+            return ()
+    resolved: list[NativeValueProjectionCapability] = []
+    for slot in sorted(method_signature.output_slots, key=lambda item: item.name):
+        if (
+            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
+            not in slot.contract_capabilities
+        ):
+            continue
+        owner = _resolve_output_contract_owner(slot)
+        if owner is None:
+            continue
+        declaration = getattr(owner, "output_contract_declaration", None)
+        if not isinstance(declaration, OutputContractDeclaration):
+            continue
+        if slot.contract_id != declaration.contract_id:
+            continue
+        if (
+            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
+            not in declaration.capabilities
+        ):
+            continue
+        if not supports_value_uncertainty_projection_contract(owner):
+            continue
+        resolved.append(
+            NativeValueProjectionCapability(
+                output_slot=slot.name,
+                contract_id=declaration.contract_id,
+                owner_module=owner.__module__,
+                owner_qualname=owner.__qualname__,
+            )
+        )
+    return tuple(resolved)
+
+
 def project_method_value_evidence(
     *,
     method_signature: MethodSignature,
     method_result: MethodResult,
     estimand: EstimandSpec,
     selected_output_slot: str | None = None,
+    projection_binding: NativeValueEstimandBinding | None = None,
 ) -> MethodValueEvidence | MethodValueRefusal:
-    """Project a native output contract without assuming a method family shape."""
+    """Project a native output contract as a non-production capability proof."""
 
     slot = _resolve_output_slot(method_signature, selected_output_slot)
     if slot is None or slot.contract_id is None:
@@ -75,6 +155,24 @@ def project_method_value_evidence(
             reason_code="method_output_contract_unresolved",
             resolved_contract_id=None,
             selected_output_slot=selected_output_slot,
+        )
+    if (
+        OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
+        not in slot.contract_capabilities
+    ):
+        return _refusal(
+            signature=method_signature,
+            reason_code="method_value_projection_capability_undeclared",
+            resolved_contract_id=slot.contract_id,
+            selected_output_slot=slot.name,
+        )
+    declared_owner = _resolve_output_contract_owner(slot)
+    if declared_owner is None:
+        return _refusal(
+            signature=method_signature,
+            reason_code="method_value_projection_owner_unresolved",
+            resolved_contract_id=slot.contract_id,
+            selected_output_slot=slot.name,
         )
     native = _resolve_native_output(method_result, slot)
     native_contract_id = getattr(type(native), "contract_id", None)
@@ -87,24 +185,66 @@ def project_method_value_evidence(
             ),
             selected_output_slot=slot.name,
         )
+    native_declaration = getattr(type(native), "output_contract_declaration", None)
+    if (
+        not isinstance(native_declaration, OutputContractDeclaration)
+        or native_declaration.contract_id != slot.contract_id
+        or OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
+        not in native_declaration.capabilities
+        or type(native) is not declared_owner
+    ):
+        return _refusal(
+            signature=method_signature,
+            reason_code="method_value_projection_owner_mismatch",
+            resolved_contract_id=native_contract_id,
+            selected_output_slot=slot.name,
+        )
     value_projector = getattr(native, "to_value_uncertainty", None)
-    legacy_projector = getattr(native, "to_uncertainty_envelope", None)
-    if not callable(value_projector) and not callable(legacy_projector):
+    if not callable(value_projector):
         return _refusal(
             signature=method_signature,
             reason_code="method_uncertainty_projection_unsupported",
             resolved_contract_id=native_contract_id,
             selected_output_slot=slot.name,
         )
+    if (
+        projection_binding is None
+        or projection_binding.production_value_eligible is not False
+        or projection_binding.authority_scope != "contract_only_nonproduction"
+        or projection_binding.native_contract_id != slot.contract_id
+        or projection_binding.producer_method_fqn != method_signature.fqn
+        or not projection_binding.matches(estimand)
+    ):
+        return _refusal(
+            signature=method_signature,
+            reason_code="method_estimand_binding_mismatch",
+            resolved_contract_id=native_contract_id,
+            selected_output_slot=slot.name,
+        )
     try:
-        envelope = (
-            value_projector(estimand=estimand)
-            if callable(value_projector)
-            else legacy_projector(param_name=estimand.estimand_id)
+        envelope = value_projector(
+            estimand=estimand,
+            projection_binding=projection_binding,
         )
     except (TypeError, ValueError):
         envelope = None
     if not isinstance(envelope, UncertaintyEnvelope):
+        return _refusal(
+            signature=method_signature,
+            reason_code="method_estimand_binding_mismatch",
+            resolved_contract_id=native_contract_id,
+            selected_output_slot=slot.name,
+        )
+    if (
+        envelope.metadata.get("value_estimand_binding_native_contract_id")
+        != slot.contract_id
+        or envelope.metadata.get("value_estimand_binding_producer_method_fqn")
+        != method_signature.fqn
+        or not isinstance(
+            envelope.metadata.get("value_estimand_binding_content_hash"),
+            str,
+        )
+    ):
         return _refusal(
             signature=method_signature,
             reason_code="method_estimand_binding_mismatch",
@@ -140,14 +280,16 @@ def project_method_value_evidence(
         )
     )
     payload = {
-        # Projection readiness says only that the native contract supplied an
-        # estimand-bound, gate-eligible envelope.  Runtime calibration remains
-        # the authority that passes or refuses truthfulness limitations.
-        "status": "value_ready",
+        # Projection readiness is a contract proof only.  Production value
+        # authority requires an independently owner-resolved world receipt.
+        "status": "contract_projection_ready",
+        "authority_scope": "contract_only_nonproduction",
+        "production_value_eligible": False,
         "method_fqn": method_signature.fqn,
         "method_family": method_signature.family,
         "native_contract_id": native_contract_id,
         "selected_output_slot": slot.name,
+        "estimand_binding_content_hash": projection_binding.content_hash,
         "estimand": asdict(estimand),
         "envelope": envelope.model_dump(mode="json"),
         "diagnostic_refs": _diagnostic_refs(native),
@@ -173,8 +315,30 @@ def _resolve_output_slot(
     slots = tuple(sorted(signature.output_slots, key=lambda item: item.name))
     if selected_output_slot is not None:
         return next((slot for slot in slots if slot.name == selected_output_slot), None)
+    capable = tuple(
+        slot
+        for slot in slots
+        if OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
+        in slot.contract_capabilities
+    )
+    if len(capable) == 1:
+        return capable[0]
     contracted = tuple(slot for slot in slots if slot.contract_id is not None)
     return contracted[0] if len(contracted) == 1 else None
+
+
+def _resolve_output_contract_owner(slot: SlotSpec) -> type[object] | None:
+    owner_ref = slot.contract_owner
+    if not isinstance(owner_ref, str) or ":" not in owner_ref:
+        return None
+    module_name, qualname = owner_ref.split(":", 1)
+    try:
+        owner: object = importlib.import_module(module_name)
+        for segment in qualname.split("."):
+            owner = getattr(owner, segment)
+    except (AttributeError, ImportError, ValueError):
+        return None
+    return owner if isinstance(owner, type) else None
 
 
 def _resolve_native_output(method_result: MethodResult, slot: SlotSpec) -> object | None:
@@ -234,5 +398,7 @@ __all__ = [
     "MethodValueEvidence",
     "MethodValueEvidenceStatus",
     "MethodValueRefusal",
+    "NativeValueProjectionCapability",
     "project_method_value_evidence",
+    "resolve_method_value_projection_capabilities",
 ]

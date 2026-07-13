@@ -17,10 +17,13 @@ from polisyos.ir.analytics._truthfulness import (
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    NativeValueEstimandBinding,
     NumericPolicySpec,
+    OutputContractDeclaration,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    value_uncertainty_output_contract,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -378,6 +381,9 @@ class ForecastingUncertaintyBundle(BaseModel):
     """Forecasting-specific specialization of PolicyOS uncertainty artifacts."""
 
     contract_id: ClassVar[str] = "ir.forecasting_uncertainty_bundle.v1"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(contract_id)
+    )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
@@ -556,12 +562,22 @@ class ForecastingUncertaintyBundle(BaseModel):
             evidence_ref=evidence_ref,
         )
 
-    def to_value_uncertainty(self, *, estimand: object) -> UncertaintyEnvelope | None:
+    def to_value_uncertainty(
+        self,
+        *,
+        estimand: object,
+        projection_binding: NativeValueEstimandBinding,
+    ) -> UncertaintyEnvelope | None:
         """Project one explicitly requested scalar forecast horizon."""
 
         estimand_id = str(getattr(estimand, "estimand_id", "") or "")
         outcome = str(getattr(estimand, "outcome", "") or "")
         if self.target_id not in {estimand_id, outcome}:
+            return None
+        if (
+            projection_binding.native_contract_id != self.contract_id
+            or not projection_binding.matches(estimand)
+        ):
             return None
         horizon_raw = str(getattr(estimand, "time_horizon", "") or "")
         try:
@@ -615,6 +631,15 @@ class ForecastingUncertaintyBundle(BaseModel):
                 "horizon": horizon,
                 "native_interval_semantics": self.interval_semantics.value,
                 "calibration_method": self.calibration_method.value,
+                "value_estimand_binding_content_hash": (
+                    projection_binding.content_hash
+                ),
+                "value_estimand_binding_native_contract_id": (
+                    projection_binding.native_contract_id
+                ),
+                "value_estimand_binding_producer_method_fqn": (
+                    projection_binding.producer_method_fqn
+                ),
             },
         )
 
@@ -623,6 +648,9 @@ class ForecastingUncertaintyBundleV2(ForecastingUncertaintyBundle):
     """Forecasting uncertainty bundle with reconciliation certification metadata."""
 
     contract_id: ClassVar[str] = "ir.forecasting_uncertainty_bundle.v2"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(contract_id)
+    )
 
     schema_version: str = Field(default="2.0", pattern=r"^\d+\.\d+$")
     reconciliation_certificate: ReconciliationCertificate | None = None

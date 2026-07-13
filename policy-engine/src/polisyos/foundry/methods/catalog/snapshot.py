@@ -38,6 +38,9 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
 from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog.causal.capabilities import build_causal_capability_contract
+from polisyos.foundry.methods.components.value_evidence import (
+    resolve_method_value_projection_capabilities,
+)
 from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics.causal_capabilities import (
     CausalCapabilityContract,
@@ -61,6 +64,10 @@ def build_method_catalog_snapshot(
     for sig in signatures:
         entry = reg.get_entry(sig.fqn)
         method_cls = reg.get(sig.fqn)
+        value_projection_contracts = resolve_method_value_projection_capabilities(
+            method_cls=method_cls,
+            method_signature=sig,
+        )
         runtime_stack = runtime_stack_for(method_cls)
         runtime_posture = _capture_entry_runtime_posture(sig.execution_backend, method_cls)
         tags: list[str] = []
@@ -185,6 +192,10 @@ def build_method_catalog_snapshot(
             "backend_available": backend_available,
             "runnable": runnable,
         }
+        if value_projection_contracts:
+            capability_matrix["value_projection_contracts"] = [
+                item.model_dump(mode="json") for item in value_projection_contracts
+            ]
         entries.append(
             MethodCatalogEntry(
                 fqn=sig.fqn,
@@ -218,6 +229,16 @@ def build_method_catalog_snapshot(
                         "dimension": slot.unit.dimension,
                         "contract_id": slot.contract_id,
                         "shape": list(slot.shape),
+                        **(
+                            {
+                                "contract_capabilities": sorted(
+                                    item.value for item in slot.contract_capabilities
+                                ),
+                                "contract_owner": slot.contract_owner,
+                            }
+                            if slot.contract_capabilities
+                            else {}
+                        ),
                     }
                     for slot in sorted(sig.input_slots, key=lambda item: item.name)
                 ],
@@ -229,6 +250,16 @@ def build_method_catalog_snapshot(
                         "dimension": slot.unit.dimension,
                         "contract_id": slot.contract_id,
                         "shape": list(slot.shape),
+                        **(
+                            {
+                                "contract_capabilities": sorted(
+                                    item.value for item in slot.contract_capabilities
+                                ),
+                                "contract_owner": slot.contract_owner,
+                            }
+                            if slot.contract_capabilities
+                            else {}
+                        ),
                     }
                     for slot in sorted(sig.output_slots, key=lambda item: item.name)
                 ],

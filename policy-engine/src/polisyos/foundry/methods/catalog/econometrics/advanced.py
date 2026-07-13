@@ -89,11 +89,11 @@ def _panel_observational_payload(state: Any) -> dict[str, Any]:
 def _result_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 name="result",
                 slot_type=SlotType.SCALAR,
                 unit=Unit("result", "json"),
-                contract_id=EconometricResult.contract_id,
+                output_contract=EconometricResult,
             ),
             SlotSpec(
                 name="uncertainty_envelope",
@@ -107,11 +107,11 @@ def _result_output_slots() -> frozenset[SlotSpec]:
 def _volatility_output_slots() -> frozenset[SlotSpec]:
     return _result_output_slots().union(
         {
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 name="forecasting_uncertainty_bundle",
                 slot_type=SlotType.SCALAR,
                 unit=Unit("uncertainty", "json"),
-                contract_id=ForecastingUncertaintyBundle.contract_id,
+                output_contract=ForecastingUncertaintyBundle,
             ),
         }
     )

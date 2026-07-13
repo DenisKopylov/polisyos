@@ -666,11 +666,11 @@ def _pmd_hmc_assessment(
 def _prediction_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 "result",
                 SlotType.SCALAR,
                 Unit("posterior", "json"),
-                contract_id=PosteriorResult.contract_id,
+                output_contract=PosteriorResult,
             ),
             SlotSpec(
                 "prediction_result",
@@ -686,11 +686,11 @@ def _prediction_output_slots() -> frozenset[SlotSpec]:
 def _mixture_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 "result",
                 SlotType.SCALAR,
                 Unit("posterior", "json"),
-                contract_id=PosteriorResult.contract_id,
+                output_contract=PosteriorResult,
             ),
             SlotSpec(
                 "cluster_assignments",

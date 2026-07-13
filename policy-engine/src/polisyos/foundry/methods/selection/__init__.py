@@ -30,6 +30,7 @@ __all__ = [
     "authoring_catalog_payload",
     "build_advisor_execution_context",
     "compute_voi",
+    "method_selection_context_hash",
     "method_selection_payload",
     "pareto_advise_methods",
     "rank_method_catalog_entries",

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import re
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field, is_dataclass, replace
@@ -24,7 +25,7 @@ from polisyos.core.observability.truthfulness import (
     reconcile_truthfulness_tiers,
     truthfulness_depth,
 )
-from polisyos.foundry.methods.base import parse_fqn
+from polisyos.foundry.methods.base import MethodSignature, parse_fqn
 from polisyos.foundry.methods.catalog.snapshot import (
     build_method_capability_matrix,
     build_method_catalog_snapshot,
@@ -37,6 +38,11 @@ from polisyos.foundry.methods.components.consensus import (
     run_cross_method_consensus,
 )
 from polisyos.foundry.methods.components.linker import check_linkable
+from polisyos.foundry.methods.components.value_evidence import (
+    NativeValueProjectionCapability,
+    resolve_method_value_projection_capabilities,
+)
+from polisyos.foundry.methods.exceptions import FoundryMethodError
 from polisyos.foundry.methods.selection.cost_model import CostBudget, CostEstimate
 from polisyos.foundry.methods.selection.history import (
     ADVISOR_EXECUTION_CONTEXT_PARAM,
@@ -412,8 +418,8 @@ class MethodSelectionReceipt(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["policyos.foundry.method_selection_receipt.v1"] = (
-        "policyos.foundry.method_selection_receipt.v1"
+    schema_version: Literal["policyos.foundry.method_selection_receipt.v2"] = (
+        "policyos.foundry.method_selection_receipt.v2"
     )
     selection_authority: Literal[
         "foundry_registry_advisor",
@@ -422,6 +428,7 @@ class MethodSelectionReceipt(BaseModel):
     selected_method_fqn: str = Field(min_length=1)
     ranked_alternatives: tuple[MethodSelectionAlternative, ...] = Field(min_length=1)
     denominator: tuple[str, ...] = Field(min_length=1)
+    selection_context_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
@@ -456,6 +463,26 @@ class MethodSelectionReceipt(BaseModel):
         payload = self.model_dump(mode="json", exclude={"content_hash"})
         if self.content_hash != _method_selection_receipt_content_hash(payload):
             raise ValueError("value_method_selection_receipt_content_hash_mismatch")
+        return self
+
+    def verify_selection_context(
+        self,
+        expected_selection_context_hash: str,
+    ) -> MethodSelectionReceipt:
+        """Verify that this receipt belongs to a recomputed selector context.
+
+        Args:
+            expected_selection_context_hash: Canonical hash recomputed from live selector inputs.
+
+        Returns:
+            This validated receipt.
+
+        Raises:
+            ValueError: If the receipt was produced for another selector context.
+        """
+
+        if self.selection_context_hash != expected_selection_context_hash:
+            raise ValueError("value_method_selection_context_hash_mismatch")
         return self
 
 
@@ -752,26 +779,6 @@ def attach_advisor_execution_context(
     return payload
 
 
-_VALUE_METHOD_TOKENS: frozenset[str] = frozenset(
-    {
-        "bayesian",
-        "bounds",
-        "causal",
-        "diagnostic",
-        "did",
-        "forecast",
-        "gcm",
-        "posterior",
-        "qp",
-        "synthetic",
-        "transport",
-        "uncertainty",
-        "variational",
-        "welfare",
-    }
-)
-
-
 def reachable_value_method_fqns(
     *,
     registry: MethodRegistry | None = None,
@@ -784,23 +791,113 @@ def reachable_value_method_fqns(
         from polisyos.foundry.methods import ensure_all_methods_registered
 
         ensure_all_methods_registered(reg)
-    except Exception:
-        pass
+    except Exception as exc:
+        raise FoundryMethodError(
+            "The complete value-method registry could not be resolved.",
+            code="value_method_registry_unavailable",
+        ) from exc
     try:
         catalog = build_method_catalog_snapshot(registry=reg)
-    except Exception:
-        snapshot = reg.snapshot()
-        methods = tuple(
-            entry.fqn for entry in snapshot.entries() if _registry_entry_is_value_method(entry)
-        )
-        return tuple(sorted(dict.fromkeys(methods)))
+    except Exception as exc:
+        raise FoundryMethodError(
+            "The complete value-method catalog could not be resolved.",
+            code="value_method_catalog_unavailable",
+        ) from exc
     methods = tuple(
         entry.fqn
         for entry in catalog.entries
-        if _catalog_entry_is_value_method(entry)
+        if _catalog_entry_is_value_method(entry, registry=reg)
         and (include_unavailable or bool(entry.runnable))
     )
     return tuple(sorted(dict.fromkeys(methods)))
+
+
+def method_selection_context_hash(
+    *,
+    candidate: object,
+    problem: object,
+    registry: MethodRegistry | None = None,
+    requested_method_fqn: str | None = None,
+    observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
+    runtime_budget_ms: float | None = None,
+) -> str:
+    """Hash the complete canonical context used for Foundry value-method selection.
+
+    Args:
+        candidate: Candidate whose content-derived signal is ranked.
+        problem: Problem and owner-runtime hints used for ranking.
+        registry: Registry whose content-addressed catalog determines selection.
+        requested_method_fqn: Optional explicitly requested registry method.
+        observation_to_contract_manifest: Optional method-contract target manifest.
+        runtime_budget_ms: Optional runtime budget applied by the advisor.
+
+    Returns:
+        A deterministic SHA-256 digest over the canonical JSON selector context.
+    """
+
+    reg = registry or MethodRegistry.get_instance()
+    from polisyos.foundry.methods import ensure_all_methods_registered
+
+    ensure_all_methods_registered(reg)
+    catalog = build_method_catalog_snapshot(registry=reg)
+    return _method_selection_context_hash_for_catalog(
+        catalog=catalog,
+        registry=reg,
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn=requested_method_fqn,
+        observation_to_contract_manifest=observation_to_contract_manifest,
+        runtime_budget_ms=runtime_budget_ms,
+    )
+
+
+def _method_selection_context_hash_for_catalog(
+    *,
+    catalog: MethodCatalogSnapshot,
+    registry: MethodRegistry,
+    candidate: object,
+    problem: object,
+    requested_method_fqn: str | None,
+    observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
+    runtime_budget_ms: float | None,
+) -> str:
+    """Hash one effective value-advisor query and its catalog snapshot."""
+
+    value_entries = tuple(
+        entry
+        for entry in catalog.entries
+        if _catalog_entry_is_value_method(entry, registry=registry)
+    )
+    query = _value_method_advisor_query(
+        candidate=candidate,
+        problem=problem,
+        value_entries=value_entries,
+        observation_to_contract_manifest=observation_to_contract_manifest,
+        runtime_budget_ms=runtime_budget_ms,
+    )
+    profile_hash = _problem_runtime_hints(problem).get(
+        "value_data_profile_content_hash"
+    )
+    payload = {
+        "schema_version": "policyos.foundry.method_selection_context.v2",
+        "catalog_snapshot_id": catalog.snapshot_id,
+        "candidate_signal": _candidate_selection_signal(candidate),
+        "problem_signal": _problem_selection_signal(problem),
+        "value_data_profile_content_hash": (
+            None if profile_hash is None else str(profile_hash)
+        ),
+        "effective_query": asdict(query),
+        "requested_method_fqn": (
+            str(requested_method_fqn) if requested_method_fqn else None
+        ),
+        "manifest_targets": tuple(
+            sorted(set(_manifest_targets(observation_to_contract_manifest)))
+        ),
+        "runtime_budget_ms": (
+            float(runtime_budget_ms) if runtime_budget_ms is not None else None
+        ),
+    }
+    return _method_selection_receipt_content_hash(payload)
 
 
 def select_value_method_for_problem(
@@ -832,7 +929,11 @@ def select_value_method_for_problem(
             code="value_method_catalog_unavailable",
             reason=str(exc),
         )
-    value_entries = tuple(entry for entry in catalog.entries if _catalog_entry_is_value_method(entry))
+    value_entries = tuple(
+        entry
+        for entry in catalog.entries
+        if _catalog_entry_is_value_method(entry, registry=reg)
+    )
     if not value_entries:
         return _blocked_value_selection(
             code="value_method_registry_empty",
@@ -841,6 +942,15 @@ def select_value_method_for_problem(
         )
     denominator = tuple(sorted(entry.fqn for entry in value_entries))
     entry_by_fqn = {entry.fqn: entry for entry in value_entries}
+    selection_context_hash = _method_selection_context_hash_for_catalog(
+        catalog=catalog,
+        registry=reg,
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn=requested_method_fqn,
+        observation_to_contract_manifest=observation_to_contract_manifest,
+        runtime_budget_ms=runtime_budget_ms,
+    )
     if requested_method_fqn:
         requested = str(requested_method_fqn)
         entry = entry_by_fqn.get(requested)
@@ -860,7 +970,9 @@ def select_value_method_for_problem(
             )
         selection_receipt = _build_registry_requested_value_method_selection_receipt(
             catalog=catalog,
+            registry=reg,
             requested_method_fqn=requested,
+            selection_context_hash=selection_context_hash,
         )
         return {
             "status": "selected",
@@ -878,18 +990,12 @@ def select_value_method_for_problem(
             "blockers": (),
         }
 
-    query = MethodAdvisorQuery(
-        criteria=_value_selection_criteria(
-            candidate=candidate,
-            problem=problem,
-            value_entries=value_entries,
-            observation_to_contract_manifest=observation_to_contract_manifest,
-        ),
-        data=_value_data_characteristics(candidate=candidate, problem=problem),
+    query = _value_method_advisor_query(
+        candidate=candidate,
+        problem=problem,
+        value_entries=value_entries,
+        observation_to_contract_manifest=observation_to_contract_manifest,
         runtime_budget_ms=runtime_budget_ms,
-        limit=max(1, min(8, len(value_entries))),
-        runnable_only=True,
-        cost_policy="ignore",
     )
     advised = advise_methods(catalog, query)
     value_score_trace = tuple(item for item in advised.score_trace if item.fqn in denominator)
@@ -905,7 +1011,9 @@ def select_value_method_for_problem(
     try:
         selection_receipt = _build_value_method_selection_receipt(
             catalog=catalog,
+            registry=reg,
             advisor_result=advised,
+            selection_context_hash=selection_context_hash,
         )
     except ValueError as exc:
         return _blocked_value_selection(
@@ -940,31 +1048,72 @@ def select_value_method_for_problem(
     }
 
 
-def _catalog_entry_is_value_method(entry: MethodCatalogEntry) -> bool:
-    fields: list[str] = [
-        entry.fqn,
-        entry.name,
-        entry.namespace,
-        entry.family,
-        entry.variant,
-        entry.kind,
-        *entry.data_modalities,
-        *entry.required_deps,
-        *entry.optional_deps,
-    ]
-    fields.extend(_flatten_text((entry.capability_matrix,)))
-    haystack = " ".join(str(value).casefold() for value in fields)
-    return any(token in haystack for token in _VALUE_METHOD_TOKENS)
+def _catalog_entry_is_value_method(
+    entry: MethodCatalogEntry,
+    *,
+    registry: MethodRegistry,
+) -> bool:
+    """Verify catalog shape against the live method and its native output owner."""
+
+    try:
+        method_cls = registry.get(entry.fqn)
+    except Exception:
+        return False
+    method_signature = getattr(method_cls, "signature", None)
+    if not isinstance(method_signature, MethodSignature):
+        return False
+    owner_capabilities = resolve_method_value_projection_capabilities(
+        method_cls=method_cls,
+        method_signature=method_signature,
+    )
+    if not owner_capabilities:
+        return False
+    raw_capabilities = entry.capability_matrix.get("value_projection_contracts")
+    if not isinstance(raw_capabilities, list) or not raw_capabilities:
+        return False
+    try:
+        catalog_capabilities = tuple(
+            NativeValueProjectionCapability.model_validate(raw)
+            for raw in raw_capabilities
+        )
+    except Exception:
+        return False
+    if catalog_capabilities != owner_capabilities:
+        return False
+    output_slots = {
+        str(slot.get("name")): slot
+        for slot in entry.output_slots
+        if isinstance(slot, Mapping) and slot.get("name")
+    }
+    for capability in catalog_capabilities:
+        slot = output_slots.get(capability.output_slot)
+        if slot is None or slot.get("contract_id") != capability.contract_id:
+            return False
+        if "value_uncertainty_projection" not in tuple(
+            slot.get("contract_capabilities", ())
+        ):
+            return False
+        if slot.get("contract_owner") != (
+            f"{capability.owner_module}:{capability.owner_qualname}"
+        ):
+            return False
+    return True
 
 
 def _build_value_method_selection_receipt(
     *,
     catalog: MethodCatalogSnapshot,
+    registry: MethodRegistry,
     advisor_result: MethodAdvisorResult,
+    selection_context_hash: str,
 ) -> MethodSelectionReceipt:
     """Build a strict receipt from the real advisor result and registry catalog."""
 
-    value_entries = tuple(entry for entry in catalog.entries if _catalog_entry_is_value_method(entry))
+    value_entries = tuple(
+        entry
+        for entry in catalog.entries
+        if _catalog_entry_is_value_method(entry, registry=registry)
+    )
     denominator = tuple(sorted({entry.fqn for entry in value_entries}))
     entry_by_fqn = {entry.fqn: entry for entry in value_entries}
     value_score_trace = tuple(
@@ -1010,11 +1159,12 @@ def _build_value_method_selection_receipt(
         for rank, item in enumerate(value_score_trace, start=1)
     )
     payload = {
-        "schema_version": "policyos.foundry.method_selection_receipt.v1",
+        "schema_version": "policyos.foundry.method_selection_receipt.v2",
         "selection_authority": "foundry_registry_advisor",
         "selected_method_fqn": selected.fqn,
         "ranked_alternatives": tuple(row.model_dump(mode="json") for row in alternatives),
         "denominator": denominator,
+        "selection_context_hash": selection_context_hash,
     }
     return MethodSelectionReceipt.model_validate(
         {
@@ -1027,9 +1177,15 @@ def _build_value_method_selection_receipt(
 def _build_registry_requested_value_method_selection_receipt(
     *,
     catalog: MethodCatalogSnapshot,
+    registry: MethodRegistry,
     requested_method_fqn: str,
+    selection_context_hash: str,
 ) -> MethodSelectionReceipt:
-    value_entries = tuple(entry for entry in catalog.entries if _catalog_entry_is_value_method(entry))
+    value_entries = tuple(
+        entry
+        for entry in catalog.entries
+        if _catalog_entry_is_value_method(entry, registry=registry)
+    )
     denominator = tuple(sorted({entry.fqn for entry in value_entries}))
     entry = next(
         (candidate for candidate in value_entries if candidate.fqn == requested_method_fqn),
@@ -1047,11 +1203,12 @@ def _build_registry_requested_value_method_selection_receipt(
         loss_reasons=("explicit_registry_request",),
     )
     payload = {
-        "schema_version": "policyos.foundry.method_selection_receipt.v1",
+        "schema_version": "policyos.foundry.method_selection_receipt.v2",
         "selection_authority": "requested_registry_method",
         "selected_method_fqn": entry.fqn,
         "ranked_alternatives": (alternative.model_dump(mode="json"),),
         "denominator": denominator,
+        "selection_context_hash": selection_context_hash,
     }
     return MethodSelectionReceipt.model_validate(
         {
@@ -1071,24 +1228,29 @@ def _method_selection_receipt_content_hash(payload: Mapping[str, Any]) -> str:
     return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
 
 
-def _registry_entry_is_value_method(entry: object) -> bool:
-    signature = getattr(entry, "signature", None)
-    metadata = getattr(entry, "metadata", None)
-    slots = [
-        *list(getattr(signature, "input_slots", ()) or ()),
-        *list(getattr(signature, "output_slots", ()) or ()),
-    ]
-    fields = [
-        getattr(entry, "fqn", ""),
-        getattr(signature, "name", ""),
-        getattr(signature, "namespace", ""),
-        getattr(signature, "family", ""),
-        getattr(signature, "variant", ""),
-        *list(getattr(metadata, "tags", ()) or ()),
-        *[getattr(slot, "name", slot) for slot in slots],
-    ]
-    haystack = " ".join(str(value).casefold() for value in fields)
-    return any(token in haystack for token in _VALUE_METHOD_TOKENS)
+def _value_method_advisor_query(
+    *,
+    candidate: object,
+    problem: object,
+    value_entries: Sequence[MethodCatalogEntry],
+    observation_to_contract_manifest: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None,
+    runtime_budget_ms: float | None,
+) -> MethodAdvisorQuery:
+    """Build the exact effective query used by value-method selection."""
+
+    return MethodAdvisorQuery(
+        criteria=_value_selection_criteria(
+            candidate=candidate,
+            problem=problem,
+            value_entries=value_entries,
+            observation_to_contract_manifest=observation_to_contract_manifest,
+        ),
+        data=_value_data_characteristics(candidate=candidate, problem=problem),
+        runtime_budget_ms=runtime_budget_ms,
+        limit=max(1, min(8, len(value_entries))),
+        runnable_only=True,
+        cost_policy="ignore",
+    )
 
 
 def _value_selection_criteria(
@@ -1124,12 +1286,16 @@ def _value_family_prefixes(*, candidate: object, problem: object) -> tuple[str, 
             _problem_selection_signal(problem),
         )
     ).casefold()
+    tokens = set(re.findall(r"[a-z0-9]+", signal))
     prefixes: list[str] = []
-    if "posterior" in signal or "bayes" in signal:
+    if "posterior" in tokens or any(token.startswith("bayes") for token in tokens):
         prefixes.append("bayesian")
-    if "panel" in signal or "did" in signal or "causal" in signal or "transport" in signal:
+    if (
+        {"panel", "did", "causal", "transport", "transportability"} & tokens
+        or "difference in differences" in signal
+    ):
         prefixes.append("causal")
-    if "optimiz" in signal or "welfare" in signal:
+    if any(token.startswith("optimiz") for token in tokens) or "welfare" in tokens:
         prefixes.append("optimization")
     if not prefixes:
         prefixes.append("causal")
@@ -3713,6 +3879,7 @@ __all__ = [
     "authoring_catalog_payload",
     "build_advisor_execution_context",
     "compute_voi",
+    "method_selection_context_hash",
     "method_selection_payload",
     "pareto_advise_methods",
     "rank_method_catalog_entries",

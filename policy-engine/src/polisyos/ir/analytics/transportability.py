@@ -12,9 +12,12 @@ from polisyos.ir.analytics.partial_identification import PartialIdentificationRe
 from polisyos.ir.analytics.uncertainty import (
     DistributionFamily,
     IntervalSemantics,
+    NativeValueEstimandBinding,
+    OutputContractDeclaration,
     PropagationMethod,
     UncertaintyEnvelope,
     UncertaintySource,
+    value_uncertainty_output_contract,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
@@ -476,6 +479,9 @@ class TransportabilityResult(BaseModel):
     """
 
     contract_id: ClassVar[str] = "ir.transportability_result.v2"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(contract_id)
+    )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
@@ -642,11 +648,21 @@ class TransportabilityResult(BaseModel):
             TransportabilityStatus.PARTIALLY_IDENTIFIED,
         }
 
-    def to_value_uncertainty(self, *, estimand: object) -> UncertaintyEnvelope | None:
+    def to_value_uncertainty(
+        self,
+        *,
+        estimand: object,
+        projection_binding: NativeValueEstimandBinding,
+    ) -> UncertaintyEnvelope | None:
         """Project transport bounds only when the query identity is explicit."""
 
         estimand_id = str(getattr(estimand, "estimand_id", "") or "")
         if not self.query or estimand_id != self.query:
+            return None
+        if (
+            projection_binding.native_contract_id != self.contract_id
+            or not projection_binding.matches(estimand)
+        ):
             return None
         bounds = self.partial_identification_result
         if bounds is None:
@@ -667,6 +683,15 @@ class TransportabilityResult(BaseModel):
                 "transport_status": self.status.value,
                 "transport_mode": self.transport_mode.value,
                 "bounds_method": bounds.method.value,
+                "value_estimand_binding_content_hash": (
+                    projection_binding.content_hash
+                ),
+                "value_estimand_binding_native_contract_id": (
+                    projection_binding.native_contract_id
+                ),
+                "value_estimand_binding_producer_method_fqn": (
+                    projection_binding.producer_method_fqn
+                ),
             },
         )
 

@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1547`.
+- Total IR types: `1557`.
 - Public/root-or-package facade types: `422`.
 - ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
@@ -28,7 +28,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Section | Type count | Public types | Snapshot-backed |
 | ------- | ---------- | ------------ | ---------------- |
-| `analytics` | 940 | 232 | 37 |
+| `analytics` | 950 | 232 | 37 |
 | `artifacts` | 25 | 0 | 0 |
 | `governance` | 97 | 20 | 8 |
 | `kernel` | 43 | 38 | 0 |
@@ -11931,6 +11931,50 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `implicit` |
 | `unclear` |
 
+### `polisyos.ir.analytics.literature.ClaimSpanGoldRecord` { #polisyos-ir-analytics-literature-claimspangoldrecord }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Human-labeled OpenAlex claim/span gold record.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `claim_direction` | `str` | `yes` | `—` | — |
+| `claim_text` | `str` | `yes` | `—` | — |
+| `effect` | `str` | `yes` | `—` | — |
+| `expected_supported` | `bool` | `no` | `True` | — |
+| `gold_span_text` | `str` | `yes` | `—` | — |
+| `label_id` | `str` | `yes` | `—` | — |
+| `openalex_id` | `str` | `yes` | `—` | — |
+| `query` | `str` | `yes` | `—` | — |
+| `source_fixture` | `str` | `yes` | `—` | — |
+| `title` | `str` | `no` | `''` | — |
+| `treatment_or_cause` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.literature.ClaimSpanGoldSet` { #polisyos-ir-analytics-literature-claimspangoldset }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `PydanticUndefined`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: `polisyos.ir.analytics.literature.ClaimSpanGoldRecord`
+- Summary: Governed gold set for measuring OpenAlex claim/span extraction.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `gy_lifecycle_marker` | `str` | `no` | `''` | — |
+| `label_owner` | `str` | `yes` | `—` | — |
+| `provenance` | `dict[str, Any]` | `no` | `—` | — |
+| `records` | `list[polisyos.ir.analytics.literature.ClaimSpanGoldRecord]` | `no` | `—` | `polisyos.ir.analytics.literature.ClaimSpanGoldRecord` |
+| `schema_version` | `str` | `yes` | `—` | — |
+
 ### `polisyos.ir.analytics.literature.ClaimType` { #polisyos-ir-analytics-literature-claimtype }
 
 - Kind: `enum`
@@ -12084,10 +12128,14 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 | Field | Type | Required | Default | IR refs |
 | ----- | ---- | -------- | ------- | ------- |
+| `content_sha256` | `str` | `no` | `''` | — |
+| `end_char` | `int \| NoneType` | `no` | `—` | — |
 | `score` | `float` | `no` | `0.0` | — |
 | `section` | `str` | `no` | `''` | — |
 | `sentence_index` | `int \| NoneType` | `no` | `—` | — |
+| `source_ref` | `str` | `no` | `''` | — |
 | `span_id` | `str` | `no` | `''` | — |
+| `start_char` | `int \| NoneType` | `no` | `—` | — |
 | `text` | `str` | `yes` | `—` | — |
 
 ### `polisyos.ir.analytics.literature.EvidenceStrength` { #polisyos-ir-analytics-literature-evidencestrength }
@@ -12113,6 +12161,31 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `cross_sectional` |
 | `theoretical` |
 | `unknown` |
+
+### `polisyos.ir.analytics.literature.ExtractorAccuracyReport` { #polisyos-ir-analytics-literature-extractoraccuracyreport }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `policyos.policy_design_case.layer3_gy.openalex_accuracy.v1`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Measured extractor precision/recall against a governed gold set.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `false_negative_count` | `int` | `no` | `0` | — |
+| `false_positive_count` | `int` | `no` | `0` | — |
+| `gold_record_count` | `int` | `no` | `0` | — |
+| `matched_label_ids` | `list[str]` | `no` | `—` | — |
+| `measurement_basis` | `Literal[human_labeled_gold_set]` | `no` | `'human_labeled_gold_set'` | — |
+| `precision` | `float` | `no` | `0.0` | — |
+| `predicted_claim_count` | `int` | `no` | `0` | — |
+| `recall` | `float` | `no` | `0.0` | — |
+| `schema_version` | `str` | `no` | `'policyos.policy_design_case.layer3_gy.openalex_accuracy.v1'` | — |
+| `true_negative_count` | `int` | `no` | `0` | — |
+| `true_positive_count` | `int` | `no` | `0` | — |
 
 ### `polisyos.ir.analytics.literature.HeterogeneityResult` { #polisyos-ir-analytics-literature-heterogeneityresult }
 
@@ -12243,6 +12316,29 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `quantitative_interaction` | `float \| NoneType` | `no` | `—` | — |
 | `source_openalex_ids` | `list[str]` | `no` | `—` | — |
 
+### `polisyos.ir.analytics.literature.OpenAlexWorkText` { #polisyos-ir-analytics-literature-openalexworktext }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: OpenAlex work source text used for span dereference and claim extraction.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `abstract_text` | `str` | `no` | `''` | — |
+| `cited_by_count` | `int` | `no` | `0` | — |
+| `content_sha256` | `str` | `no` | `''` | — |
+| `doi` | `str` | `no` | `''` | — |
+| `openalex_id` | `str` | `yes` | `—` | — |
+| `raw_work` | `dict[str, Any]` | `no` | `—` | — |
+| `source_text` | `str` | `no` | `''` | — |
+| `title` | `str` | `no` | `''` | — |
+| `year` | `int \| NoneType` | `no` | `—` | — |
+
 ### `polisyos.ir.analytics.literature.PaperKind` { #polisyos-ir-analytics-literature-paperkind }
 
 - Kind: `enum`
@@ -12346,6 +12442,30 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | ----------- |
 | `fulltext` |
 | `abstract_only` |
+
+### `polisyos.ir.analytics.literature.SpanGroundingResult` { #polisyos-ir-analytics-literature-spangroundingresult }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Result of resolving and semantically checking a claim span.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `authority_tier` | `Literal[design_tier_l2, candidate_unverified]` | `yes` | `—` | — |
+| `claim_id` | `str` | `yes` | `—` | — |
+| `grounding_ref` | `str` | `no` | `''` | — |
+| `openalex_id` | `str` | `yes` | `—` | — |
+| `reason` | `str` | `no` | `''` | — |
+| `span_end` | `int \| NoneType` | `no` | `—` | — |
+| `span_id` | `str` | `no` | `''` | — |
+| `span_start` | `int \| NoneType` | `no` | `—` | — |
+| `status` | `Literal[validated_supporting, rejected_missing_span, rejected_source_mismatch, rejected_hash_mismatch, rejected_unresolved_span, rejected_non_supporting]` | `yes` | `—` | — |
+| `support_score` | `float` | `no` | `0.0` | — |
 
 ### `polisyos.ir.analytics.literature.SupportStatus` { #polisyos-ir-analytics-literature-supportstatus }
 
@@ -14640,6 +14760,41 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `schema_version` | `str` | `no` | `'1.0'` | — |
 | `spde_scope` | `str` | `no` | `'fem_spde_g_computation_v1'` | — |
 | `status` | `Literal[identified, model_extrapolation, blocked]` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.phase4_dynamics.StrangleReceipt` { #polisyos-ir-analytics-phase4-dynamics-stranglereceipt }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `policyos.ir.phase4.abm_strangle_receipt.v1`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Content-bound receipt proving the legacy ABM stub was not used.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `diagnostics_attached` | `bool` | `yes` | `—` | — |
+| `diagnostics_hash` | `str` | `yes` | `—` | — |
+| `horizon` | `int` | `yes` | `—` | — |
+| `legacy_stub_rejected` | `Literal[True]` | `no` | `True` | — |
+| `method_id` | `str` | `yes` | `—` | — |
+| `metrics_hash` | `str` | `yes` | `—` | — |
+| `payload_hash` | `str` | `yes` | `—` | — |
+| `receipt_id` | `str` | `yes` | `—` | — |
+| `schema_version` | `Literal[policyos.ir.phase4.abm_strangle_receipt.v1]` | `no` | `'policyos.ir.phase4.abm_strangle_receipt.v1'` | — |
+| `trajectory_hash` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.analytics.phase4_dynamics.StrangleReceiptError` { #polisyos-ir-analytics-phase4-dynamics-stranglereceipterror }
+
+- Kind: `class`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Raised when an ABM strangle receipt does not bind to live run content.
 
 ### `polisyos.ir.analytics.phase4_dynamics.TemporalGraphCausalCertificate` { #polisyos-ir-analytics-phase4-dynamics-temporalgraphcausalcertificate }
 
@@ -19005,7 +19160,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `origin` | `polisyos.ir.analytics.transportability.SNodeOrigin` | `no` | `<SNodeOrigin.CONTEXT_DELTA: 'context_delta'>` | `polisyos.ir.analytics.transportability.SNodeOrigin` |
 | `role` | `polisyos.ir.analytics.transportability.SNodeRole \| NoneType` | `no` | `—` | `polisyos.ir.analytics.transportability.SNodeRole` |
 | `severity` | `Literal[low, medium, high]` | `yes` | `—` | — |
+| `source_ref` | `str \| NoneType` | `no` | `—` | — |
 | `source_value` | `float \| str` | `yes` | `—` | — |
+| `target_ref` | `str \| NoneType` | `no` | `—` | — |
 | `target_value` | `float \| str` | `yes` | `—` | — |
 | `target_variable` | `str` | `yes` | `—` | — |
 
@@ -19498,6 +19655,43 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `carrier_type` | `Literal[mixture_distribution]` | `no` | `'mixture_distribution'` | — |
 | `components` | `tuple[polisyos.ir.analytics.uncertainty.MixtureComponent]` | `yes` | `—` | `polisyos.ir.analytics.uncertainty.MixtureComponent` |
 
+### `polisyos.ir.analytics.uncertainty.NativeValueEstimandBinding` { #polisyos-ir-analytics-uncertainty-nativevalueestimandbinding }
+
+- Kind: `pydantic_model`
+- Public status: `internal`
+- Current version: `polisyos.ir.native_value_estimand_binding.v1`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Bind one contract-only projection probe to a complete value estimand.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `adjustment_set` | `tuple[str] \| NoneType` | `no` | `—` | — |
+| `authority_scope` | `Literal[contract_only_nonproduction]` | `no` | `'contract_only_nonproduction'` | — |
+| `binding_kind` | `Literal[contract_projection_request]` | `no` | `'contract_projection_request'` | — |
+| `content_hash` | `str` | `yes` | `—` | — |
+| `covariates_or_conditioning` | `tuple[str]` | `no` | `()` | — |
+| `estimand_id` | `str` | `yes` | `—` | — |
+| `loss_or_utility_id` | `str \| NoneType` | `no` | `—` | — |
+| `native_contract_id` | `str` | `yes` | `—` | — |
+| `outcome` | `str` | `yes` | `—` | — |
+| `population` | `str` | `yes` | `—` | — |
+| `prediction_origin` | `str \| NoneType` | `no` | `—` | — |
+| `producer_method_fqn` | `str` | `yes` | `—` | — |
+| `production_value_eligible` | `Literal[False]` | `no` | `False` | — |
+| `projection_input_content_hash` | `str` | `yes` | `—` | — |
+| `query_id` | `str` | `yes` | `—` | — |
+| `sample_filter` | `str \| NoneType` | `no` | `—` | — |
+| `scale` | `str` | `yes` | `—` | — |
+| `schema_version` | `Literal[polisyos.ir.native_value_estimand_binding.v1]` | `no` | `'polisyos.ir.native_value_estimand_binding.v1'` | — |
+| `target_role` | `str` | `yes` | `—` | — |
+| `time_horizon` | `str \| NoneType` | `no` | `—` | — |
+| `transform` | `str \| NoneType` | `no` | `—` | — |
+| `treatment_or_exposure` | `str \| NoneType` | `no` | `—` | — |
+| `unit` | `str` | `yes` | `—` | — |
+
 ### `polisyos.ir.analytics.uncertainty.NumericPolicySpec` { #polisyos-ir-analytics-uncertainty-numericpolicyspec }
 
 - Kind: `pydantic_model`
@@ -19532,6 +19726,37 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `decimal_exact` |
 | `float_round_12` |
 | `hybrid` |
+
+### `polisyos.ir.analytics.uncertainty.OutputContractCapability` { #polisyos-ir-analytics-uncertainty-outputcontractcapability }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Typed semantic capabilities owned by native analytical output contracts.
+
+| Enum values |
+| ----------- |
+| `value_uncertainty_projection` |
+
+### `polisyos.ir.analytics.uncertainty.OutputContractDeclaration` { #polisyos-ir-analytics-uncertainty-outputcontractdeclaration }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Bind a native contract identifier to its owner-declared capabilities.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `contract_id` | `str` | `yes` | `—` | — |
+| `capabilities` | `frozenset[OutputContractCapability]` | `no` | `frozenset()` | — |
 
 ### `polisyos.ir.analytics.uncertainty.ParametricFitCarrier` { #polisyos-ir-analytics-uncertainty-parametricfitcarrier }
 
@@ -22923,6 +23148,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `int` |
 | `decimal` |
 | `string` |
+| `value_outer_set` |
 
 ### `polisyos.ir.kernel.time_semantics.TimeSemantics` { #polisyos-ir-kernel-time-semantics-timesemantics }
 

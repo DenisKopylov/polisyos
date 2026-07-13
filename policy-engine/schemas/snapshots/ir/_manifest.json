@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "a3c37c7fd7baae71100569e6ccb001ac9d42e8dabbc0b717d046df75be3730c6",
-  "generated_at": "2026-05-27T19:59:31+00:00",
+  "content_hash": "6436335c3e740f15f89af7a067b3a3623f45cde608c5770471762f3dd57720d3",
+  "generated_at": "2026-07-13T13:41:46+00:00",
   "generator_version": "1.0.0",
   "models": {
     "abm_alignment_report": {
@@ -42,8 +42,8 @@
       "priority": "p2",
       "schema_file": "article_extraction_result.schema.json",
       "schema_version": "1.5",
-      "sha256_full": "d59ccd375b8efdfcc90a12ac174271d04aec969ad78fe37bebc219ba4c85805d",
-      "sha256_semantic": "fd70ebf46c5d36c853be8b7fb80bcc9a5085995e95be74d9db00c4258e6566c4",
+      "sha256_full": "fded0a00b9f9bb11cd99930b84320465c272ae2b0860422e5b1dc2cc83495c3d",
+      "sha256_semantic": "e7173eb3493abd3aab8eeab7762eec5ba14d04a4cd613a9544c1aa4591b1597a",
       "version_field": "schema_version"
     },
     "backtest_plan_bundle": {
@@ -126,8 +126,8 @@
       "priority": "p1",
       "schema_file": "causal_effect_report.schema.json",
       "schema_version": "1.0",
-      "sha256_full": "7bf9b7aca60dfd7ba29a13571ce88498c8ac6a63fd279de264e3437648e7a2a4",
-      "sha256_semantic": "7d597f43eb1f138fd92eef9225df6159ff5cca289f97b6f80ee31881fb6c85a7",
+      "sha256_full": "194030c176abf384616a457089b80a832a7c5b6c6a4b548c707e0132a0e4a560",
+      "sha256_semantic": "6170ecdca3f6391e014f016046b4c9636551259146c6dd19f4153081d6b27dc3",
       "version_field": "schema_version"
     },
     "causal_graph_model": {
@@ -1146,8 +1146,8 @@
       "priority": "p1",
       "schema_file": "transportability_result.schema.json",
       "schema_version": "2.0",
-      "sha256_full": "763d76d99605cab7d0a4bf33ef64877b048666b1e6e459609ff16fe7314d33c1",
-      "sha256_semantic": "8563093107b48fa89aa18b4ae9a17a8c243bb20178ae6b91ef8935f82c2c340e",
+      "sha256_full": "efb4aeb0270af5a7f240726d03247a4dd5a68cb0fe8945f666ed55b8bcdb0b84",
+      "sha256_semantic": "364e2c79f9f5e278fbacfc1ce8692686698d9527cde62a19e668fe299e6efc1b",
       "version_field": "schema_version"
     },
     "trinity_bundle": {

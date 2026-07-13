@@ -625,6 +625,19 @@
           "title": "Severity",
           "type": "string"
         },
+        "source_ref": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Ref"
+        },
         "source_value": {
           "anyOf": [
             {
@@ -635,6 +648,19 @@
             }
           ],
           "title": "Source Value"
+        },
+        "target_ref": {
+          "anyOf": [
+            {
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Ref"
         },
         "target_value": {
           "anyOf": [

@@ -1782,6 +1782,36 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-gy-n10-cg1-l2-relation-census"
+label = "Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "GY-N10 shadow-only full-denominator CG1 relation audit over canonical N4 atoms and owner L2 estimate/edge/transport rows"
+verifier = "GY-N10 compact content/denominator/certificate/authority checker plus on-demand full owner rederive"
+promotion_target = "evidence-selected A2 Fork A/B decision and acquisition costing only; never relation, bind, or value authority"
+stale_output_behavior = "fail"
+source_of_truth = "the N4 design-generation artifact, the read-only L2 scholar graph owner, the canonical CG reference/cache, and tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json",
+]
+regenerate_commands = [
+  "python3 tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py",
+  "python3 tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py --write",
+]
+commit_policy = "committed"
+freshness_rule = "Re-derive whenever the canonical N4 atom denominator, CG reference/solver semantics, L2 estimate-edge identity rows, transport scores, or Fork-A viability rule changes."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py"
+check_cwd = "."
+check_command = [
+  "python3",
+  "tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py",
+  "--check",
+]
+
+[[family]]
 id = "policy-design-case-layer3-gy-generation-cycle-disposition-ledger"
 label = "Policy Design Case Layer 3 GY generation-cycle disposition ledger"
 owner = "team-runtime-quality"

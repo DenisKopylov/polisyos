@@ -60,6 +60,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Policy Design Case Layer 3 GY ValueOuterSet household bounds strangle receipt` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_value_outer_set_strangle_receipt.json` |
 | `Policy Design Case Layer 3 GY-N9 canonical promotion contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_promotion_contract.json` |
 | `Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_second_domain_census.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_pack.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json` |
+| `Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json` |
 | `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
@@ -1662,6 +1663,31 @@ Canonical regeneration commands:
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census`
+
+- Family id: `policy-design-case-layer3-gy-n10-cg1-l2-relation-census`
+- Lifecycle: `generated_committed`
+- Source of truth: the N4 design-generation artifact, the read-only L2 scholar graph owner, the canonical CG reference/cache, and tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py
+- Generator: GY-N10 shadow-only full-denominator CG1 relation audit over canonical N4 atoms and owner L2 estimate/edge/transport rows
+- Verifier: GY-N10 compact content/denominator/certificate/authority checker plus on-demand full owner rederive
+- Promotion target: evidence-selected A2 Fork A/B decision and acquisition costing only; never relation, bind, or value authority
+- Commit policy: `committed`
+- Freshness rule: Re-derive whenever the canonical N4 atom denominator, CG reference/solver semantics, L2 estimate-edge identity rows, transport scores, or Fork-A viability rule changes.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json`
+
+Canonical regeneration commands:
+
+```bash
+python3 tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py
+python3 tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py --write
 ```
 
 ## `Policy Design Case Layer 3 GY generation-cycle disposition ledger`

@@ -374,16 +374,19 @@ def test_cycle_substrate_context_rejects_duplicate_wmr_entry_hashes() -> None:
         _cycle_context(registry=registry, world_model_record=duplicate_world)
 
 
-def test_cycle_substrate_context_rejects_wmr_domain_substitution() -> None:
+def test_cycle_substrate_context_records_domain_label_drift_as_provenance() -> None:
     registry = _registry("education")
     water_labeled_world = _world_record("water_quality", registry)
 
-    with pytest.raises(ValueError, match="cycle_substrate_wmr_domain_mismatch"):
-        _cycle_context(
-            domain="education",
-            registry=registry,
-            world_model_record=water_labeled_world,
-        )
+    context = _cycle_context(
+        domain="education",
+        registry=registry,
+        world_model_record=water_labeled_world,
+    )
+
+    assert context.domain == "education"
+    assert context.world_model_record.policy_domain == "water_quality"
+    assert context.world_model_record_content_hash == water_labeled_world.content_hash
 
 
 def test_cycle_substrate_context_rejects_wmr_id_not_derived_from_content() -> None:

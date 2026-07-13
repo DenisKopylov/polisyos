@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
+from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, get_args
@@ -27,6 +28,7 @@ from polisyos.runtime.quality.cycle_substrate import (
     CycleSubstrateContext,
     build_cycle_substrate_context,
     cycle_substrate_context_binding_hash,
+    resolve_cycle_substrate_world_identity,
 )
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -799,20 +801,125 @@ def _lane0_cycle_context(
     return problem, context
 
 
+@cache
+def _canonical_strict_world_case() -> tuple[
+    DesignProblem,
+    CycleSubstrateContext,
+    object,
+]:
+    """Load one real N4 shadow atom and bind it to the canonical production WMR."""
+
+    from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
+    from polisyos.runtime.quality.intervention_substrate import (
+        production_composed_world_model_record,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        build_substrate_registry_from_existing_catalogs,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    assert n4_contract.validate(REPO_ROOT)["status"] == "pass"
+    payload = json.loads((REPO_ROOT / n4_contract.OUTPUT_PATH).read_text(encoding="utf-8"))
+    candidate = ShadowGeneratedCandidate.model_validate(
+        n4_contract.first_shadow_bound_recorded_candidate(payload)
+    )
+    problems = tuple(
+        n4_contract._design_problem(recording)
+        for recording in n4_contract._load_recordings(REPO_ROOT)
+    )
+    matched = tuple(
+        problem
+        for problem in problems
+        if gy_content_hash(problem.model_dump(mode="json"))
+        == candidate.atom.problem_frame_ref
+    )
+    assert len(matched) == 1
+    problem = matched[0]
+    world = production_composed_world_model_record(REPO_ROOT)
+    registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    assert registry.content_hash == world.substrate_registry_ref.content_hash
+    selected_hashes = tuple(
+        entry.entry_content_hash
+        for entry in world.substrate_registry_ref.resolved_entries
+    )
+    substrate_input_hash = gy_content_hash(
+        {
+            "design_problem_ref": candidate.atom.problem_frame_ref,
+            "substrate_registry_content_hash": registry.content_hash,
+            "world_model_record_content_hash": world.content_hash,
+            "selected_registry_entry_hashes": selected_hashes,
+        }
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=candidate.atom.problem_frame_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=substrate_input_hash,
+    )
+    return problem, context, candidate
+
+
+def _canonical_context_case_with_runtime_hints(
+    runtime_hints: dict[str, Any],
+) -> tuple[DesignProblem, CycleSubstrateContext, object]:
+    """Rebind the strict candidate/context after adding request-shaping hints."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    base_problem, base_context, base_candidate = _canonical_strict_world_case()
+    problem = base_problem.model_copy(update={"runtime_hints": runtime_hints})
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    atom_draft = base_candidate.atom.model_copy(
+        update={"problem_frame_ref": problem_ref}
+    )
+    atom = atom_draft.model_copy(
+        update={"content_hash": intervention_atom_content_hash(atom_draft)}
+    )
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = SimpleNamespace(candidate_id=base_candidate.candidate_id, atom=atom)
+    selected_hashes = tuple(base_context.selected_registry_entry_hashes)
+    substrate_input_hash = gy_content_hash(
+        {
+            "design_problem_ref": problem_ref,
+            "substrate_registry_content_hash": (
+                base_context.substrate_registry_content_hash
+            ),
+            "world_model_record_content_hash": (
+                base_context.world_model_record_content_hash
+            ),
+            "selected_registry_entry_hashes": selected_hashes,
+        }
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=base_context.substrate_registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=base_context.world_model_record,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=substrate_input_hash,
+    )
+    return problem, context, candidate
+
+
 def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
     """N5 receives the exact WMR object bound into the cycle context."""
 
-    problem, context = _lane0_cycle_context()
-    candidate = _Candidate(
-        candidate_id="candidate_water_quality",
-        atom=_Atom(
-            "candidate_water_quality",
-            "sha256:" + "b" * 64,
-            world_model_record_ref=context.world_model_record.world_model_record_id,
-            target_world_slots=("nitrate_load",),
-        ),
-        diversity_key=("buffer", "watershed", "water", "lane0"),
-    )
+    problem, context, candidate = _canonical_strict_world_case()
 
     observation = JointSimulationPort(
         repo_root=REPO_ROOT,
@@ -829,19 +936,43 @@ def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
     assert observation.k_world_ref_after == context.world_model_record.content_hash
 
 
+def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
+    """World identity follows resolved slots/content, never producer label equality."""
+
+    problem, context, candidate = _canonical_strict_world_case()
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert problem.domain == "ua_msme_cgf_decisive_capture"
+    assert context.world_model_record.policy_domain == "fiscal_credit"
+    assert observation.status == "simulation_pending_n5"
+    assert observation.world_model_record is context.world_model_record
+    assert observation.diagnostics["world_model_record_content_hash"] == (
+        context.world_model_record.content_hash
+    )
+    assert observation.k_world_ref_before == context.world_model_record.content_hash
+
+
 def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
     """A candidate's shaped WMR ref cannot override the resolved context world."""
 
-    problem, context = _lane0_cycle_context()
-    candidate = _Candidate(
-        candidate_id="candidate_water_quality_wrong_world",
-        atom=_Atom(
-            "candidate_water_quality_wrong_world",
-            "sha256:" + "c" * 64,
-            world_model_record_ref="world_model_record_0123456789abcdef",
-            target_world_slots=("nitrate_load",),
-        ),
-        diversity_key=("buffer", "watershed", "water", "wrong-world"),
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    problem, context, canonical_candidate = _canonical_strict_world_case()
+    draft = canonical_candidate.atom.model_copy(
+        update={"world_model_record_ref": "world_model_record_0123456789abcdef"}
+    )
+    atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = SimpleNamespace(
+        candidate_id="candidate_first_vertical_wrong_world",
+        atom=atom,
     )
 
     observation = JointSimulationPort(
@@ -850,7 +981,82 @@ def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
     )(candidate=candidate, problem=problem, cycle_index=0)
 
     assert observation.status == "simulation_blocked"
-    assert "world_model_record_unresolved" in observation.authority_blockers
+    assert "world_identity_unresolved" in observation.authority_blockers
+
+
+def test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match() -> None:
+    """Matching ref/slot strings are not a substitute for the strict atom owner."""
+
+    _problem_value, context, _candidate = _canonical_strict_world_case()
+    shaped = _Atom(
+        "candidate_shaped_world_identity",
+        "sha256:" + "7" * 64,
+        world_model_record_ref=context.world_model_record.content_hash,
+        target_world_slots=("global.tax_rate",),
+    )
+
+    with pytest.raises(WorldModelRecordError, match="world_identity_unresolved"):
+        resolve_cycle_substrate_world_identity(context, atom=shaped)
+
+
+def test_cycle_world_identity_rejects_atom_from_another_problem() -> None:
+    """A valid atom cannot cross a DesignProblem boundary within the same world."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    _problem_value, context, candidate = _canonical_strict_world_case()
+    draft = candidate.atom.model_copy(
+        update={"problem_frame_ref": "sha256:" + "9" * 64}
+    )
+    atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+
+    with pytest.raises(WorldModelRecordError, match="world_identity_unresolved"):
+        resolve_cycle_substrate_world_identity(context, atom=atom)
+
+
+def test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity() -> None:
+    """A world ref without at least one resolved slot is not world identity."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    problem, context, canonical_candidate = _canonical_strict_world_case()
+    draft = canonical_candidate.atom.model_copy(update={"target_world_slots": ()})
+    atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = SimpleNamespace(candidate_id="candidate_empty_slots", atom=atom)
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+
+
+def test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity() -> None:
+    """A model-constructed atom with a stale hash fails closed at the port."""
+
+    problem, context, canonical_candidate = _canonical_strict_world_case()
+    atom = canonical_candidate.atom.model_copy(
+        update={"content_hash": "sha256:" + "0" * 64}
+    )
+    candidate = SimpleNamespace(candidate_id="candidate_tampered_atom", atom=atom)
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
 
 
 def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
@@ -860,16 +1066,16 @@ def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
         JointSimulationRequest,
     )
 
-    base_problem, _base_context = _lane0_cycle_context()
+    base_problem, base_context, _base_candidate = _canonical_strict_world_case()
     request_registry = _lane0_registry(
-        domain="water_quality",
+        domain="first_vertical_request_probe",
         source_id="l2_watershed_graph:explicit_request.duckdb",
     )
     request_world = _build_boundary_world_model_record(
         repo_root=REPO_ROOT,
         problem=base_problem,
-        outcome="nitrate_load",
-        policy_slot_ids=("nitrate_load",),
+        outcome="employment_retention",
+        policy_slot_ids=("global.tax_rate",),
         substrate_registry=request_registry,
         selected_registry_entry_hashes=(
             request_registry.entries[0].entry_content_hash,
@@ -879,19 +1085,10 @@ def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
         world_model_record_ref=request_world.world_model_record_id,
         world_model_record=request_world,
     )
-    problem, context = _lane0_cycle_context(
-        runtime_hints={"joint_simulation_request": request}
+    problem, context, candidate = _canonical_context_case_with_runtime_hints(
+        {"joint_simulation_request": request}
     )
-    candidate = _Candidate(
-        candidate_id="candidate_water_quality_request_mismatch",
-        atom=_Atom(
-            "candidate_water_quality_request_mismatch",
-            "sha256:" + "f" * 64,
-            world_model_record_ref=context.world_model_record.content_hash,
-            target_world_slots=("nitrate_load",),
-        ),
-        diversity_key=("buffer", "watershed", "water", "request-mismatch"),
-    )
+    assert context.world_model_record.content_hash == base_context.world_model_record.content_hash
     calls: list[object] = []
 
     class _RecordingController:
@@ -931,7 +1128,7 @@ def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> N
         check_layer3_gy_design_generation_contract as n4_contract,
     )
 
-    base_problem, base_context = _lane0_cycle_context()
+    base_problem, base_context, _base_candidate = _canonical_strict_world_case()
     n4_payload = json.loads(
         (
             REPO_ROOT
@@ -956,21 +1153,11 @@ def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> N
         world_model_record=base_context.world_model_record,
         intervention_atoms=(mismatched_atom,),
     )
-    problem, context = _lane0_cycle_context(
-        runtime_hints={"joint_simulation_request": request}
+    problem, context, candidate = _canonical_context_case_with_runtime_hints(
+        {"joint_simulation_request": request}
     )
     assert problem.domain == base_problem.domain
     assert context.world_model_record.content_hash == base_context.world_model_record.content_hash
-    candidate = _Candidate(
-        candidate_id="candidate_water_quality_nested_atom_mismatch",
-        atom=_Atom(
-            "candidate_water_quality_nested_atom_mismatch",
-            "sha256:" + "2" * 64,
-            world_model_record_ref=context.world_model_record.content_hash,
-            target_world_slots=("nitrate_load",),
-        ),
-        diversity_key=("buffer", "watershed", "water", "nested-atom-mismatch"),
-    )
     calls: list[object] = []
 
     class _RecordingController:
@@ -992,7 +1179,51 @@ def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> N
     )(candidate=candidate, problem=problem, cycle_index=0)
 
     assert observation.status == "simulation_blocked"
-    assert "world_model_record_unresolved" in observation.authority_blockers
+    assert "world_identity_unresolved" in observation.authority_blockers
+    assert calls == []
+
+
+def test_explicit_request_nested_atom_missing_slot_fails_world_identity() -> None:
+    """Every nested request atom resolves before any N5 controller injection."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationRequest,
+    )
+
+    problem, context, candidate = _canonical_strict_world_case()
+    draft = candidate.atom.model_copy(
+        update={
+            "target_world_slots": ("missing.world_slot",),
+            "normalized_from": None,
+        }
+    )
+    nested_atom = draft.model_copy(
+        update={"content_hash": intervention_atom_content_hash(draft)}
+    )
+    nested_atom = InterventionAtomBinding.model_validate(
+        nested_atom.model_dump(mode="python")
+    )
+    request = JointSimulationRequest.model_construct(
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+        world_model_record=context.world_model_record,
+        intervention_atoms=(nested_atom,),
+    )
+    problem = problem.model_copy(
+        update={"runtime_hints": {"joint_simulation_request": request}}
+    )
+    calls: list[object] = []
+
+    observation = JointSimulationPort(
+        controller=SimpleNamespace(run=lambda concrete: calls.append(concrete)),
+        repo_root=REPO_ROOT,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert observation.authority_blockers == ("world_identity_unresolved",)
     assert calls == []
 
 

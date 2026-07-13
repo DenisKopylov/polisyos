@@ -510,6 +510,20 @@ def test_n8_audit_world_uses_canonical_design_problem_contract() -> None:
     assert value_contract._audit_world_record().policy_domain == problem.domain
 
 
+def test_n8_first_vertical_resolves_world_identity_before_value() -> None:
+    """The real N4 atom reaches N5 despite scenario/WMR label drift."""
+
+    lane = value_contract._canonical_first_vertical_lane()
+
+    assert lane["problem"].domain == "ua_msme_cgf_decisive_capture"
+    assert lane["world_model_record"].policy_domain == "fiscal_credit"
+    assert lane["world_binding"].world_model_record_content_hash == (
+        lane["world_model_record"].content_hash
+    )
+    assert lane["simulation"].status == "simulation_pending_n5"
+    assert lane["simulation"].world_model_record is lane["world_model_record"]
+
+
 def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
     payload = value_contract.build_payload(value_contract._repo_root())
 

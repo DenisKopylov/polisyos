@@ -16,7 +16,14 @@ from enum import StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, InputRef, PutOptions, SchemaInfo
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -639,18 +646,41 @@ def resolve_intervention_atom_world_binding(
         Resolved target slot bindings and Foundry state refs.
     """
 
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+    )
+
+    try:
+        if not isinstance(atom, InterventionAtomBinding):
+            raise TypeError("intervention_atom_binding_contract_required")
+        validated_atom = InterventionAtomBinding.model_validate(
+            atom.model_dump(mode="python")
+        )
+    except (AttributeError, TypeError, ValidationError) as exc:
+        raise WorldModelRecordError(
+            "intervention_atom_binding_invalid",
+            str(exc),
+        ) from exc
+    if not validated_atom.target_world_slots:
+        raise WorldModelRecordError(
+            "world_slot_binding_missing",
+            "an atom must resolve at least one target world slot",
+        )
     validated = WorldModelRecord.model_validate(record.model_dump(mode="json"))
     accepted_refs = {
         validated.world_model_record_id,
         validated.content_hash,
     }
-    if atom.world_model_record_ref not in accepted_refs:
+    if validated_atom.world_model_record_ref not in accepted_refs:
         raise WorldModelRecordError(
             "world_model_record_ref_unresolved",
-            f"{atom.world_model_record_ref} does not name {validated.world_model_record_id}",
+            (
+                f"{validated_atom.world_model_record_ref} does not name "
+                f"{validated.world_model_record_id}"
+            ),
         )
     resolved: list[PolicySlotBinding] = []
-    for slot_id in atom.target_world_slots:
+    for slot_id in validated_atom.target_world_slots:
         binding = validated.slot_binding(slot_id)
         if binding is None or not binding.state_path:
             raise WorldModelRecordError(

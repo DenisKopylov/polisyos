@@ -10,16 +10,31 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality.intervention_atom_binding import (
+    InterventionAtomBinding,
+)
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateBundle,
     InterventionSubstrateError,
     verify_intervention_substrate_bundle_content_hash,
 )
 from polisyos.runtime.quality.substrate_registry import SubstrateRegistry  # noqa: TC001
-from polisyos.runtime.quality.world_model_record import WorldModelRecord  # noqa: TC001
+from polisyos.runtime.quality.world_model_record import (
+    ResolvedWorldModelAtomBinding,
+    WorldModelRecord,
+    WorldModelRecordError,
+    resolve_intervention_atom_world_binding,
+)
 
 CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION = "policyos.runtime.cycle_substrate_context.v1"
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
@@ -144,8 +159,6 @@ class CycleSubstrateContext(_StrictModel):
             != self.substrate_registry.substrate_version_id
         ):
             raise ValueError("wmr_registry_content_mismatch")
-        if self.world_model_record.policy_domain != self.domain:
-            raise ValueError("cycle_substrate_wmr_domain_mismatch")
         selected = tuple(self.selected_registry_entry_hashes)
         if not selected:
             raise ValueError("cycle_substrate_selected_registry_entries_missing")
@@ -411,6 +424,81 @@ def revalidate_cycle_substrate_context(
     return CycleSubstrateContext.model_validate(context.model_dump(mode="python"))
 
 
+def resolve_cycle_substrate_world_identity(
+    context: CycleSubstrateContext,
+    *,
+    atom: InterventionAtomBinding,
+) -> ResolvedWorldModelAtomBinding:
+    """Resolve one candidate atom against the context's content-bound world.
+
+    Domain labels remain provenance because their producers have different
+    scopes. World identity is granted only by resolving the atom's world ref
+    and every target slot against the concrete WMR bound into this context.
+    """
+
+    verified = revalidate_cycle_substrate_context(context)
+    return resolve_world_model_atom_identity(
+        atom=atom,
+        world_model_record=verified.world_model_record,
+        design_problem_ref=verified.design_problem_ref,
+        expected_world_model_content_hash=verified.world_model_record_content_hash,
+    )
+
+
+def resolve_world_model_atom_identity(
+    *,
+    atom: InterventionAtomBinding,
+    world_model_record: WorldModelRecord,
+    design_problem_ref: str | None = None,
+    expected_world_model_content_hash: str | None = None,
+) -> ResolvedWorldModelAtomBinding:
+    """Resolve a strict atom against one concrete, content-bound world.
+
+    The optional DesignProblem ref binds a selected candidate to its producing
+    problem. Composed request atoms may omit that check while still resolving
+    their world ref and every target slot through the same owner.
+    """
+
+    if not isinstance(atom, InterventionAtomBinding):
+        raise WorldModelRecordError(
+            "world_identity_unresolved",
+            "candidate atom does not resolve through InterventionAtomBinding",
+        )
+    try:
+        verified_atom = InterventionAtomBinding.model_validate(
+            atom.model_dump(mode="python")
+        )
+        if (
+            design_problem_ref is not None
+            and verified_atom.problem_frame_ref != design_problem_ref
+        ):
+            raise WorldModelRecordError(
+                "world_identity_unresolved",
+                "candidate atom names another DesignProblem",
+            )
+        resolved = resolve_intervention_atom_world_binding(
+            verified_atom,
+            world_model_record,
+        )
+    except (AttributeError, TypeError, ValidationError, WorldModelRecordError) as exc:
+        reason = str(getattr(exc, "code", None) or type(exc).__name__)
+        raise WorldModelRecordError(
+            "world_identity_unresolved",
+            reason,
+        ) from exc
+    expected_hash = expected_world_model_content_hash or world_model_record.content_hash
+    if (
+        resolved.world_model_record_id != world_model_record.world_model_record_id
+        or resolved.world_model_record_content_hash
+        != expected_hash
+    ):
+        raise WorldModelRecordError(
+            "world_identity_unresolved",
+            "resolved atom binding does not name the context WMR",
+        )
+    return resolved
+
+
 __all__ = [
     "CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION",
     "CandidateLeverEvidence",
@@ -420,5 +508,7 @@ __all__ = [
     "build_cycle_substrate_context",
     "cycle_substrate_context_binding_hash",
     "cycle_substrate_context_content_hash",
+    "resolve_cycle_substrate_world_identity",
+    "resolve_world_model_atom_identity",
     "revalidate_cycle_substrate_context",
 ]

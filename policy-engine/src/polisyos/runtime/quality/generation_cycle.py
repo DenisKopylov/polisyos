@@ -1014,6 +1014,16 @@ class JointSimulationPort:
                 candidate=candidate,
                 problem=problem,
             )
+            from polisyos.runtime.quality.cycle_substrate import (
+                resolve_world_model_atom_identity,
+            )
+
+            for atom in getattr(request, "intervention_atoms", ()) or ():
+                resolve_world_model_atom_identity(
+                    atom=atom,
+                    world_model_record=context_record,
+                    expected_world_model_content_hash=context_record.content_hash,
+                )
             accepted = {
                 context_record.world_model_record_id,
                 context_record.content_hash,
@@ -1037,6 +1047,16 @@ class JointSimulationPort:
             return request.model_copy(
                 update={"world_model_record": context_record}
             )
+        from polisyos.runtime.quality.cycle_substrate import (
+            resolve_world_model_atom_identity,
+        )
+
+        for atom in getattr(request, "intervention_atoms", ()) or ():
+            resolve_world_model_atom_identity(
+                atom=atom,
+                world_model_record=request.world_model_record,
+                expected_world_model_content_hash=request.world_model_record.content_hash,
+            )
         self._assert_world_model_reference_bindings(
             candidate=candidate,
             problem=problem,
@@ -1056,6 +1076,7 @@ class JointSimulationPort:
         if self._cycle_substrate_context is None:
             raise WorldModelRecordError("cycle_substrate_context_missing")
         from polisyos.runtime.quality.cycle_substrate import (
+            resolve_cycle_substrate_world_identity,
             revalidate_cycle_substrate_context,
         )
 
@@ -1071,6 +1092,13 @@ class JointSimulationPort:
                 "cycle_substrate_problem_domain_mismatch"
             )
         record = self._cycle_substrate_context.world_model_record
+        atom = _object_get(candidate, "atom")
+        if atom is None:
+            raise WorldModelRecordError(
+                "world_identity_unresolved",
+                "candidate atom is absent",
+            )
+        resolve_cycle_substrate_world_identity(context, atom=atom)
         self._assert_world_model_reference_bindings(
             candidate=candidate,
             problem=problem,

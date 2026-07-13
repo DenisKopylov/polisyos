@@ -34,6 +34,10 @@ from polisyos.core.contracts.value_outer_set import (
     ValueOuterSetIdentificationStatus,
 )
 from polisyos.data_requirement.compiler import DataRequirementCompiler
+from polisyos.foundry.methods.selection import (
+    MethodSelectionReceipt,
+    method_selection_context_hash,
+)
 from polisyos.pdc import (
     CounterexampleRecord,
     RefinementDecision,
@@ -44,10 +48,14 @@ from polisyos.pdc import (
 )
 from polisyos.pdc._impl.layer2_design_search import SearchIteration
 from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionPlannerReport,
     AcquisitionReceipt,
+    AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
+    plan_requirement_gap_acquisition,
     run_acquisition_closed_loop,
+    value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
@@ -95,6 +103,7 @@ _N7_ROUTING_FAILURE_CODES = frozenset(
     {
         "n7_cycle_substrate_context_invalid",
         "n7_cycle_substrate_context_mismatch",
+        "n7_requirement_gap_invalid",
         "n7_substrate_registry_invalid",
         "n7_substrate_registry_unresolved",
     }
@@ -230,6 +239,104 @@ class ValueCalibrationReceipt(_StrictModel):
     issue_codes: tuple[str, ...] = ()
 
 
+class ValueOwnerRow(_StrictModel):
+    """One content-bound owner outcome row used only for value-data shape."""
+
+    unit_id: str = Field(min_length=1)
+    period_id: int
+    outcome_value: float
+    source_row_content_hashes: tuple[str, ...] = Field(min_length=1)
+    row_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_row_content(self) -> ValueOwnerRow:
+        expected = gy_content_hash(
+            {
+                "unit_id": self.unit_id,
+                "period_id": self.period_id,
+                "outcome_value": self.outcome_value,
+                "source_row_content_hashes": self.source_row_content_hashes,
+            }
+        )
+        if self.row_content_hash != expected:
+            raise ValueError("value_owner_row_content_hash_mismatch")
+        return self
+
+
+VALUE_DATA_SHAPE_RULE_VERSION = "polisyos.runtime.value_data_shape.v1"
+
+
+def is_value_panel_shape(
+    *,
+    longitudinal_unit_count: int,
+    period_count: int,
+) -> bool:
+    """Classify panel readiness under the canonical owner-data shape rule."""
+
+    return longitudinal_unit_count >= 3 and period_count >= 4
+
+
+def _derived_value_data_modalities(
+    rows: Sequence[ValueOwnerRow],
+) -> tuple[str, ...]:
+    """Derive conservative method-selection modalities from owner row shape."""
+
+    periods_by_unit: dict[str, set[int]] = {}
+    for row in rows:
+        periods_by_unit.setdefault(row.unit_id, set()).add(row.period_id)
+    longitudinal_units = sum(
+        1 for periods in periods_by_unit.values() if len(periods) >= 4
+    )
+    modalities = {"tabular"}
+    if is_value_panel_shape(
+        longitudinal_unit_count=longitudinal_units,
+        period_count=len({row.period_id for row in rows}),
+    ):
+        modalities.add("panel")
+    return tuple(sorted(modalities))
+
+
+class ValueDataProfile(_StrictModel):
+    """Method-neutral owner rows and their still-missing treatment knowledge."""
+
+    schema_version: Literal["policyos.runtime.value_data_profile.v1"] = (
+        "policyos.runtime.value_data_profile.v1"
+    )
+    outcome: str = Field(min_length=1)
+    rows: tuple[ValueOwnerRow, ...] = Field(min_length=4)
+    owner_row_count: int = Field(ge=4)
+    unit_count: int = Field(ge=1)
+    period_count: int = Field(ge=1)
+    available_data_modalities: tuple[str, ...]
+    treatment_assignment_status: Literal["owner_assignment_unresolved"] = (
+        "owner_assignment_unresolved"
+    )
+    owner_access_ref: str = Field(min_length=1)
+    owner_rows_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_profile_content(self) -> ValueDataProfile:
+        if self.owner_row_count != len(self.rows):
+            raise ValueError("value_data_profile_row_count_mismatch")
+        if self.unit_count != len({row.unit_id for row in self.rows}):
+            raise ValueError("value_data_profile_unit_count_mismatch")
+        if self.period_count != len({row.period_id for row in self.rows}):
+            raise ValueError("value_data_profile_period_count_mismatch")
+        modalities = tuple(sorted(set(self.available_data_modalities)))
+        if self.available_data_modalities != modalities or "tabular" not in modalities:
+            raise ValueError("value_data_profile_modalities_not_canonical")
+        if modalities != _derived_value_data_modalities(self.rows):
+            raise ValueError("value_data_profile_modalities_not_derived")
+        rows_payload = tuple(row.model_dump(mode="json") for row in self.rows)
+        if self.owner_rows_content_hash != gy_content_hash(rows_payload):
+            raise ValueError("value_data_profile_owner_rows_hash_mismatch")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_data_profile_content_hash_mismatch")
+        return self
+
+
 class ValueGateReceipt(_StrictModel):
     """Replay-visible value receipt emitted only after live owner gates pass."""
 
@@ -269,11 +376,15 @@ class ValuePortObservation(_StrictModel):
     """N8 value-port observation; pending is explicit and non-authoritative."""
 
     status: ValuePortStatus = "value_pending_n8"
+    candidate_id: str | None = Field(default=None, min_length=1)
     value_ref: str | None = None
     authority_blockers: tuple[str, ...] = ("value_gate_pending_n8",)
     reason: str = "N8 value gate is not present; N6 will not fabricate value."
     evaluation_mode: ValueEvaluationMode | None = None
     selected_method_fqn: str | None = None
+    method_selection_receipt: MethodSelectionReceipt | None = None
+    value_data_profile_content_hash: str | None = None
+    acquisition_requirement: AcquisitionRequirementGap | None = None
     identification_status: ValueOuterSetIdentificationStatus | None = None
     decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
     world_model_record_content_hash: str | None = None
@@ -281,6 +392,39 @@ class ValuePortObservation(_StrictModel):
     calibration_receipt: ValueCalibrationReceipt | None = None
     value_receipt: ValueGateReceipt | None = None
     wall_time_ms: float | None = Field(default=None, ge=0.0)
+
+    @model_validator(mode="after")
+    def _verify_value_authority_shape(self) -> ValuePortObservation:
+        if self.status == "value_ready":
+            if self.value_receipt is None or self.method_selection_receipt is None:
+                raise ValueError("value_ready_requires_owner_receipts")
+            if self.acquisition_requirement is not None:
+                raise ValueError("value_ready_cannot_carry_unsatisfied_acquisition")
+        elif self.value_receipt is not None:
+            raise ValueError("blocked_or_pending_value_cannot_carry_value_receipt")
+        if self.acquisition_requirement is not None and self.status != "value_blocked":
+            raise ValueError("value_acquisition_requirement_requires_blocked_status")
+        if self.acquisition_requirement is not None:
+            if (
+                self.candidate_id is None
+                or self.authority_blockers
+                != ("treatment_assignment_not_owner_derived",)
+            ):
+                raise ValueError("value_acquisition_requirement_not_canonical")
+            expected = value_input_world_knowledge_requirement_gap(
+                claim_ref=f"value-claim:{self.candidate_id}"
+            )
+            if self.acquisition_requirement.model_dump(mode="json") != expected.model_dump(
+                mode="json"
+            ):
+                raise ValueError("value_acquisition_requirement_not_canonical")
+        if (
+            self.method_selection_receipt is not None
+            and self.selected_method_fqn
+            != self.method_selection_receipt.selected_method_fqn
+        ):
+            raise ValueError("value_observation_selection_receipt_method_mismatch")
+        return self
 
 
 class PromotionPortObservation(_StrictModel):
@@ -412,6 +556,28 @@ class GenerationCycleRecord(_StrictModel):
     introduced_grammar_elements: tuple[str, ...] = ()
     revision_driver: Literal["counterexample", "none"] = "none"
     acquisition_receipt: dict[str, Any] | None = None
+    acquisition_routing_report: AcquisitionPlannerReport | None = None
+
+    @model_validator(mode="after")
+    def _routing_evidence_is_not_owner_evidence(self) -> GenerationCycleRecord:
+        if self.acquisition_receipt is not None and self.acquisition_routing_report is not None:
+            raise ValueError("acquisition_route_cannot_mint_owner_receipt")
+        if self.acquisition_routing_report is None:
+            return self
+        if self.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+            raise ValueError("acquisition_route_cannot_satisfy_terminal")
+        requirement = self.value_port.acquisition_requirement
+        records = self.acquisition_routing_report.acquisition_records
+        if requirement is None or len(records) != 1:
+            raise ValueError("acquisition_route_requirement_mismatch")
+        record = records[0]
+        if (
+            record.requirement_gap_ref != requirement.requirement_gap_id
+            or record.compiled_requirement_ref != requirement.compiled_requirement_ref
+            or record.claim_ref != requirement.claim_ref
+        ):
+            raise ValueError("acquisition_route_requirement_mismatch")
+        return self
 
 
 class StrangleReceipt(_StrictModel):
@@ -1052,14 +1218,14 @@ class ValueOwnerAccessError(ValueError):
 class ValueOwnerGateway(Protocol):
     """Owner access surface for N8 input materialization."""
 
-    def load_panel_observational_data(
+    def load_value_data_profile(
         self,
         *,
         candidate: object,
         problem: DesignProblem,
         world_record: WorldModelRecord,
-    ) -> object:
-        """Load owner-bound panel data for the candidate outcome and world slot."""
+    ) -> ValueDataProfile:
+        """Load content-bound outcome rows without inventing treatment knowledge."""
 
     def produce_forecast_inputs(
         self,
@@ -1089,14 +1255,14 @@ class RealValueOwnerGateway:
     repo_root: Path | None = None
     cycle_substrate_context: CycleSubstrateContext | None = None
 
-    def load_panel_observational_data(
+    def load_value_data_profile(
         self,
         *,
         candidate: object,
         problem: DesignProblem,
         world_record: WorldModelRecord,
-    ) -> object:
-        """Load panel data through the real substrate owner or return a real gap."""
+    ) -> ValueDataProfile:
+        """Load method-neutral rows through the real substrate owner."""
 
         del world_record
         outcome = _value_outcome_variable(candidate, problem)
@@ -1131,18 +1297,18 @@ class RealValueOwnerGateway:
                 ),
                 owner_access_ref=owner_access_ref,
             )
-        panel = _load_panel_from_l1_dcat(
+        profile = _load_value_data_profile_from_l1_dcat(
             repo_root=repo_root,
             outcome=outcome,
-            candidate=candidate,
+            owner_access_ref=owner_access_ref,
         )
-        if panel is None:
+        if profile is None:
             raise ValueOwnerAccessError(
-                "acquire_data:value_panel_data_missing",
-                f"substrate owner found {outcome} but no usable panel matrix",
+                "acquire_data:value_owner_rows_missing",
+                f"substrate owner found {outcome} but no usable owner rows",
                 owner_access_ref=owner_access_ref,
             )
-        return panel
+        return profile
 
     def produce_forecast_inputs(
         self,
@@ -1198,10 +1364,8 @@ class FoundryValuePort:
         evaluation_mode: ValueEvaluationMode = "simulate_only",
         data_trust: DataTrust | None = None,
         requested_method_fqn: str | None = None,
-        method_params: Mapping[str, Any] | None = None,
         observation_to_contract_manifest: object | None = None,
         runtime_budget_ms: float | None = None,
-        seed: int = 42,
         repo_root: Path | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
     ) -> None:
@@ -1212,10 +1376,8 @@ class FoundryValuePort:
         self._evaluation_mode = evaluation_mode
         self._data_trust = data_trust
         self._requested_method_fqn = requested_method_fqn
-        self._method_params = dict(method_params or {})
         self._observation_to_contract_manifest = observation_to_contract_manifest
         self._runtime_budget_ms = runtime_budget_ms
-        self._seed = seed
         self._world_cache: dict[str, object] = {}
 
     def __call__(
@@ -1230,6 +1392,7 @@ class FoundryValuePort:
 
         started = time.monotonic()
         del cycle_index
+        candidate_id = _candidate_id(candidate)
         inputs = self._selection_inputs()
         mode = self._evaluation_mode
         if mode in {"sandbox_pilot", "field_pilot", "deployment"}:
@@ -1238,6 +1401,7 @@ class FoundryValuePort:
                 reason="EvalSafety is not wired yet; pilot/deployment value execution is blocked.",
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
             )
         data_trust = self._data_trust
         if mode in {"retrospective", "measurement_audit"} and data_trust is None:
@@ -1246,9 +1410,20 @@ class FoundryValuePort:
                 reason="Retrospective and measurement-audit value modes require DataTrust.",
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
             )
-        data_trust = data_trust or _simulate_only_data_trust()
-        world_record, cache_status, world_error = self._world_record_from_simulation(simulation)
+        if simulation.candidate_id != candidate_id:
+            return _blocked_value_observation(
+                code="value_candidate_simulation_mismatch",
+                reason=(
+                    "N8 refuses value evidence produced for a different candidate; "
+                    f"candidate={candidate_id} simulation={simulation.candidate_id}."
+                ),
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        world_record, _cache_status, world_error = self._world_record_from_simulation(simulation)
         if world_error is not None or world_record is None:
             return _blocked_value_observation(
                 code=world_error or "value_world_model_record_unwired",
@@ -1258,9 +1433,10 @@ class FoundryValuePort:
                 ),
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
             )
         try:
-            method_state = self._owner_gateway.load_panel_observational_data(
+            method_state = self._owner_gateway.load_value_data_profile(
                 candidate=candidate,
                 problem=problem,
                 world_record=world_record,
@@ -1271,13 +1447,23 @@ class FoundryValuePort:
                 reason=str(exc),
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
+        if not isinstance(method_state, ValueDataProfile):
+            return _blocked_value_observation(
+                code="value_owner_data_profile_invalid",
+                reason="N8 owner returned an unverified value-data profile.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        selector_problem = _selector_problem_for_value_profile(problem, method_state)
         selection = _select_value_method(
             candidate=candidate,
-            problem=problem,
+            problem=selector_problem,
             inputs=inputs,
-            method_state=method_state,
         )
         if selection.get("status") != "selected" or not selection.get("selected_method_fqn"):
             return _blocked_value_observation(
@@ -1285,170 +1471,85 @@ class FoundryValuePort:
                 reason=str(selection.get("reason") or "Foundry selector refused value method."),
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
                 selected_method_fqn=_optional_text(selection.get("selected_method_fqn")),
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
-        method_result = None
-        method_error = None
-        selected_method_fqn = str(selection["selected_method_fqn"])
-        attempted_methods: list[str] = []
-        for method_fqn in _candidate_value_method_trace(
-            selection=selection,
-            requested_method_fqn=self._requested_method_fqn,
-        ):
-            attempted_methods.append(method_fqn)
-            method_result, method_error = _run_value_method(
-                method_fqn=method_fqn,
-                method_state=method_state,
-                method_params=self._method_params,
-                seed=self._seed,
+        try:
+            selection_receipt = MethodSelectionReceipt.model_validate(
+                selection.get("selection_receipt")
             )
-            if method_error is None and method_result is not None:
-                selected_method_fqn = method_fqn
-                break
-        if method_error is not None or method_result is None:
+        except Exception as exc:
             return _blocked_value_observation(
-                code=method_error or "foundry_method_refused_value",
-                reason=(
-                    "Foundry method did not produce a usable causal value estimate "
-                    f"(attempted_methods={attempted_methods})."
-                ),
+                code="value_method_selection_authority_unresolved",
+                reason=f"Foundry selector receipt was invalid: {exc}",
                 mode=mode,
                 started=started,
-                selected_method_fqn=selected_method_fqn,
+                candidate_id=candidate_id,
+                selected_method_fqn=_optional_text(selection.get("selected_method_fqn")),
+                value_data_profile_content_hash=method_state.content_hash,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
         try:
-            forecast_inputs = self._owner_gateway.produce_forecast_inputs(
-                candidate=candidate,
-                problem=problem,
-                world_record=world_record,
-                method_result=method_result,
-                selected_method_fqn=selected_method_fqn,
-            )
-        except ValueOwnerAccessError as exc:
-            return _blocked_value_observation(
-                code=exc.code,
-                reason=str(exc),
-                mode=mode,
-                started=started,
-                selected_method_fqn=selected_method_fqn,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-            )
-        calibration_receipt = _value_calibration_receipt(
-            inputs=forecast_inputs,
-            world_record=world_record,
-        )
-        if calibration_receipt.status == "blocked":
-            return _blocked_value_observation(
-                code=(
-                    calibration_receipt.issue_codes[0]
-                    if calibration_receipt.issue_codes
-                    else "forecast_calibration_blocked"
-                ),
-                reason="S10 outcome-prediction calibration refused value authority.",
-                mode=mode,
-                started=started,
-                calibration_receipt=calibration_receipt,
-                selected_method_fqn=selected_method_fqn,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-            )
-        try:
-            transport_inputs = self._owner_gateway.build_transport_inputs(
-                candidate=candidate,
-                problem=problem,
-                world_record=world_record,
-            )
-        except ValueOwnerAccessError as exc:
-            return _blocked_value_observation(
-                code=exc.code,
-                reason=str(exc),
-                mode=mode,
-                started=started,
-                calibration_receipt=calibration_receipt,
-                selected_method_fqn=selected_method_fqn,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-            )
-        transport_receipt, transport_error = _run_value_transport(
-            inputs=transport_inputs,
-            world_record=world_record,
-        )
-        if transport_error is not None or transport_receipt is None:
-            return _blocked_value_observation(
-                code=transport_error or "untransportable_forecast_minted_value",
-                reason="Transport owner refused to produce a transport receipt.",
-                mode=mode,
-                started=started,
-                calibration_receipt=calibration_receipt,
-                selected_method_fqn=selected_method_fqn,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-            )
-        try:
-            value_set = _value_outer_set_from_foundry_result(
-                method_result=method_result,
-                transport_receipt=transport_receipt,
-                calibration_receipt=calibration_receipt,
-                world_record=world_record,
-                data_trust=data_trust,
+            selection_receipt.verify_selection_context(
+                method_selection_context_hash(
+                    candidate=candidate,
+                    problem=selector_problem,
+                    requested_method_fqn=_optional_text(inputs.get("method_fqn")),
+                    observation_to_contract_manifest=inputs.get(
+                        "observation_to_contract_manifest"
+                    ),
+                    runtime_budget_ms=(
+                        float(inputs["runtime_budget_ms"])
+                        if inputs.get("runtime_budget_ms") is not None
+                        else None
+                    ),
+                )
             )
         except ValueError as exc:
             return _blocked_value_observation(
-                code=str(exc).split(":", 1)[0],
-                reason=str(exc),
+                code="value_method_selection_context_hash_mismatch",
+                reason=f"Foundry selector receipt context did not match owner rows: {exc}",
                 mode=mode,
                 started=started,
-                calibration_receipt=calibration_receipt,
-                selected_method_fqn=selected_method_fqn,
+                candidate_id=candidate_id,
+                selected_method_fqn=selection_receipt.selected_method_fqn,
+                value_data_profile_content_hash=method_state.content_hash,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-                transport_receipt=transport_receipt,
             )
-        decision = value_set.promotion_decision()
-        world_hash = str(_object_get(world_record, "content_hash"))
-        value_ref = gy_content_hash(
-            {
-                "candidate_id": _candidate_id(candidate),
-                "world_model_record_content_hash": world_hash,
-                "method_fqn": selected_method_fqn,
-                "value_outer_set": value_set.canonical_payload(),
-                "transport_receipt": transport_receipt.model_dump(mode="json"),
-                "calibration_receipt": calibration_receipt.model_dump(mode="json"),
-            }
-        )
-        receipt = ValueGateReceipt(
-            candidate_id=_candidate_id(candidate),
-            evaluation_mode=mode,
-            selected_method_fqn=selected_method_fqn,
-            method_selection_trace=tuple(str(item) for item in selection.get("score_trace", ())),
-            identification_status=value_set.identification_status,
-            value_outer_set=value_set,
-            transport_receipt=transport_receipt,
-            calibration_receipt=calibration_receipt,
-            world_model_record_id=str(_object_get(world_record, "world_model_record_id")),
-            world_model_record_content_hash=world_hash,
-            value_ref=value_ref,
-            wall_time_ms=(time.monotonic() - started) * 1000.0,
-            wmr_cache_status=cache_status,
-            k_world_ref_before=world_hash,
-            k_world_ref_after=world_hash,
-        )
-        blockers = tuple(reason for reason in decision.reasons if reason != "eligible")
-        return ValuePortObservation(
-            status="value_ready",
-            value_ref=value_ref,
-            authority_blockers=blockers,
+        selected_method_fqn = selection_receipt.selected_method_fqn
+        if _candidate_estimand_binding_is_unresolved(candidate):
+            return _blocked_value_observation(
+                code="method_estimand_binding_mismatch",
+                reason=(
+                    "The advisor selected a real method over owner-resolved outcome rows, "
+                    "but the candidate_unbound intervention has no estimand binding."
+                ),
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+                selected_method_fqn=selected_method_fqn,
+                method_selection_receipt=selection_receipt,
+                value_data_profile_content_hash=method_state.content_hash,
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        return _blocked_value_observation(
+            code="treatment_assignment_not_owner_derived",
             reason=(
-                "N8 value computed by Foundry method execution plus "
-                "transport/calibration gates."
+                f"substrate owner resolved outcome rows for {method_state.outcome}, but no "
+                "canonical owner-derived treatment assignment producer is registered; "
+                "candidate and intervention-atom exposure fields are not world knowledge"
             ),
-            evaluation_mode=mode,
+            mode=mode,
+            started=started,
             selected_method_fqn=selected_method_fqn,
-            identification_status=value_set.identification_status,
-            decision_grade=decision.capped_decision_grade,
-            world_model_record_content_hash=world_hash,
-            transport_receipt=transport_receipt,
-            calibration_receipt=calibration_receipt,
-            value_receipt=receipt,
-            wall_time_ms=receipt.wall_time_ms,
+            method_selection_receipt=selection_receipt,
+            value_data_profile_content_hash=method_state.content_hash,
+            candidate_id=candidate_id,
+            acquisition_requirement=value_input_world_knowledge_requirement_gap(
+                claim_ref=f"value-claim:{candidate_id}"
+            ),
+            world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
         )
 
     def _selection_inputs(self) -> dict[str, Any]:
@@ -1684,15 +1785,25 @@ class GenerationCycleController:
                     terminal_status = "blocked"
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
+            acquisition_receipt: AcquisitionReceipt | None = None
             try:
-                acquisition_receipt = self._run_n7_acquisition_if_requested(
+                routing_report = self._plan_n7_requirement_gap_if_requested(
                     current_problem,
                     cycle=cycle,
                 )
+                if routing_report is not None:
+                    cycle = _cycle_with_acquisition_routing_report(
+                        cycle,
+                        report=routing_report,
+                    )
+                else:
+                    acquisition_receipt = self._run_n7_acquisition_if_requested(
+                        current_problem,
+                        cycle=cycle,
+                    )
             except GenerationCycleError as exc:
                 if exc.code not in _N7_ROUTING_FAILURE_CODES:
                     raise
-                acquisition_receipt = None
                 cycle = _cycle_with_n7_route_failure(cycle, reason=exc.code)
             if acquisition_receipt is not None:
                 cycle, cycle_summaries = self._reenter_cycle_after_n7_acquisition(
@@ -1875,6 +1986,39 @@ class GenerationCycleController:
             ),
         )
 
+    def _plan_n7_requirement_gap_if_requested(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle: GenerationCycleRecord,
+    ) -> AcquisitionPlannerReport | None:
+        """Route one typed requirement gap without fabricating acquired evidence."""
+
+        if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+            return None
+        acquisition_request = cycle.revision_request.strategy_payload.get(
+            "acquisition_request"
+        )
+        if not isinstance(acquisition_request, Mapping):
+            return None
+        raw_gap = acquisition_request.get("requirement_gap")
+        if raw_gap is None:
+            return None
+        try:
+            gap = AcquisitionRequirementGap.model_validate(raw_gap)
+        except Exception as exc:
+            raise GenerationCycleError(
+                "n7_requirement_gap_invalid",
+                str(exc),
+            ) from exc
+        return plan_requirement_gap_acquisition(
+            run_id=(
+                f"n7-routing:{problem.design_problem_id}:"
+                f"{cycle.cycle_index}"
+            ),
+            requirement_gaps=(gap,),
+        )
+
     def _n7_data_requirement_specs(
         self,
         problem: DesignProblem,
@@ -2021,6 +2165,7 @@ class GenerationCycleController:
             candidate_id=cycle.selected_candidate_ref,
             terminal_kind=terminal_kind,
             counterexample=counterexample,
+            value_port=cycle.value_port,
         )
         voi_decision = self.decide_next_action(
             candidate_id=cycle.selected_candidate_ref,
@@ -2203,6 +2348,7 @@ class GenerationCycleController:
             candidate_id=candidate_id,
             terminal_kind=terminal_kind,
             counterexample=counterexample,
+            value_port=state["value_port"],
         )
         placeholder_cycle = _cycle_record(
             problem=problem,
@@ -2589,6 +2735,7 @@ def _revision_strategy_payload(
     counterexample: CounterexampleRecord,
     new_grammar_elements: Sequence[str],
     cycle_index: int,
+    acquisition_requirement: AcquisitionRequirementGap | None = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "strategy": strategy,
@@ -2597,7 +2744,7 @@ def _revision_strategy_payload(
         "source_counterexample_ref": counterexample.counterexample_ref,
     }
     if strategy == "acquire_or_elicit":
-        payload["acquisition_request"] = {
+        acquisition_request: dict[str, Any] = {
             "request_kind": "owner_grounding_evidence",
             "driver": issue,
             "counterexample_ref": counterexample.counterexample_ref,
@@ -2606,6 +2753,11 @@ def _revision_strategy_payload(
             "reentry": "same_generation_cycle_index",
             "network_policy": "record_replay_required_for_routine_check",
         }
+        if acquisition_requirement is not None:
+            acquisition_request["requirement_gap"] = acquisition_requirement.model_dump(
+                mode="json"
+            )
+        payload["acquisition_request"] = acquisition_request
     elif strategy == "adversarial_validate":
         payload["adversarial_validation"] = {
             "counterexample_ref": counterexample.counterexample_ref,
@@ -2809,178 +2961,136 @@ def _candidate_target_world_slots(candidate: object) -> tuple[str, ...]:
     )
 
 
-def _load_panel_from_l1_dcat(
+def _load_value_data_profile_from_l1_dcat(
     *,
     repo_root: Path,
     outcome: str,
-    candidate: object,
-) -> object | None:
+    owner_access_ref: str,
+) -> ValueDataProfile | None:
+    """Load deterministic owner rows without deriving an exposure assignment."""
+
     try:
         import duckdb
-        import numpy as np
 
-        from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
-        from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+        from polisyos.runtime.quality.substrate_registry import (
+            default_substrate_catalog_paths,
+        )
     except Exception as exc:  # pragma: no cover - local dependency surface.
         raise ValueOwnerAccessError(
-            "acquire_data:value_panel_data_missing",
-            f"substrate panel loader dependencies unavailable: {exc}",
-            owner_access_ref="substrate_owner://panel_loader_dependency_missing",
+            "acquire_data:value_owner_rows_missing",
+            f"substrate row loader dependencies unavailable: {exc}",
+            owner_access_ref="substrate_owner://row_loader_dependency_missing",
         ) from exc
 
     dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
     if not dcat_path.exists():
         raise ValueOwnerAccessError(
-            "acquire_data:value_panel_data_missing",
+            "acquire_data:value_owner_rows_missing",
             f"L1 DCAT catalog missing at {dcat_path}",
             owner_access_ref="substrate_owner://l1_dcat_missing",
         )
     con = duckdb.connect(str(dcat_path), read_only=True)
     try:
-        rows = con.execute(
+        raw_rows = con.execute(
             """
             SELECT
               COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,
               COALESCE(year, survey_year, wave) AS period_id,
-              avg(value) AS value
+              value,
+              dataset_id,
+              observation_id
             FROM ds_observations
             WHERE canonical_var = ?
               AND value IS NOT NULL
               AND COALESCE(year, survey_year, wave) IS NOT NULL
-            GROUP BY unit_id, period_id
-            ORDER BY unit_id, period_id
-            LIMIT 5000
+            ORDER BY unit_id, period_id, dataset_id, observation_id, value
+            LIMIT 20000
             """,
             [outcome],
         ).fetchall()
     finally:
         con.close()
-    if not rows:
-        return None
-    periods = sorted({int(period) for _, period, _ in rows})
-    units = sorted({str(unit) for unit, _, _ in rows})
-    if len(periods) < 4 or len(units) < 3:
-        return None
-    period_index = {period: index for index, period in enumerate(periods)}
-    unit_index = {unit: index for index, unit in enumerate(units)}
-    matrix = np.full((len(units), len(periods)), np.nan, dtype=float)
-    for unit, period, value in rows:
-        matrix[unit_index[str(unit)], period_index[int(period)]] = float(value)
-    usable_units = np.where(np.sum(~np.isnan(matrix), axis=1) >= 4)[0]
-    if len(usable_units) < 3:
-        return None
-    matrix = matrix[usable_units, :]
-    usable_periods = np.where(np.sum(~np.isnan(matrix), axis=0) >= 2)[0]
-    if len(usable_periods) < 4:
-        return None
-    matrix = matrix[:, usable_periods]
-    global_mean = float(np.nanmean(matrix))
-    col_means = np.nanmean(matrix, axis=0)
-    col_means = np.where(np.isnan(col_means), global_mean, col_means)
-    missing_rows, missing_cols = np.where(np.isnan(matrix))
-    matrix[missing_rows, missing_cols] = col_means[missing_cols]
-    units = [units[int(index)] for index in usable_units]
-    periods = [periods[int(index)] for index in usable_periods]
-    treatment, time_treatment = _candidate_treatment_assignment(
-        candidate=candidate,
-        units=units,
-        periods=periods,
+    grouped: dict[tuple[str, int], list[tuple[float, str, str]]] = {}
+    for unit, period, value, dataset_id, observation_id in raw_rows:
+        numeric_value = float(value)
+        if not math.isfinite(numeric_value):
+            continue
+        grouped.setdefault((str(unit), int(period)), []).append(
+            (numeric_value, str(dataset_id), str(observation_id))
+        )
+    owner_rows = tuple(
+        _value_owner_row(
+            outcome=outcome,
+            unit_id=unit_id,
+            period_id=period_id,
+            source_rows=tuple(values),
+        )
+        for (unit_id, period_id), values in sorted(grouped.items())
     )
-    return PanelObservationalData(
-        outcome=matrix,
-        treatment=treatment,
-        time_treatment=time_treatment,
+    if len(owner_rows) < 4:
+        return None
+    unit_count = len({row.unit_id for row in owner_rows})
+    period_count = len({row.period_id for row in owner_rows})
+    modalities = _derived_value_data_modalities(owner_rows)
+    rows_payload = tuple(row.model_dump(mode="json") for row in owner_rows)
+    payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "outcome": outcome,
+        "rows": rows_payload,
+        "owner_row_count": len(owner_rows),
+        "unit_count": unit_count,
+        "period_count": period_count,
+        "available_data_modalities": modalities,
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": owner_access_ref,
+        "owner_rows_content_hash": gy_content_hash(rows_payload),
+    }
+    return ValueDataProfile.model_validate(
+        {**payload, "content_hash": gy_content_hash(payload)}
     )
 
 
-def _candidate_treatment_assignment(
+def _value_owner_row(
     *,
-    candidate: object,
-    units: Sequence[str],
-    periods: Sequence[int],
-) -> tuple[Any, int]:
-    import numpy as np
-
-    atom = _object_get(candidate, "atom")
-    treated_units_raw = (
-        _object_get(candidate, "treated_unit_ids")
-        or _object_get(candidate, "treated_units")
-        or _object_get(atom, "treated_unit_ids")
-        or _object_get(atom, "treated_units")
-        or _object_get(atom, "treatment_unit_ids")
+    outcome: str,
+    unit_id: str,
+    period_id: int,
+    source_rows: tuple[tuple[float, str, str], ...],
+) -> ValueOwnerRow:
+    ordered = tuple(sorted(source_rows, key=lambda row: (row[1], row[2], row[0])))
+    source_hashes = tuple(
+        gy_content_hash(
+            {
+                "outcome": outcome,
+                "unit_id": unit_id,
+                "period_id": period_id,
+                "value": value,
+                "dataset_id": dataset_id,
+                "observation_id": observation_id,
+            }
+        )
+        for value, dataset_id, observation_id in ordered
     )
-    treated_units = tuple(
-        str(unit)
-        for unit in _sequence(treated_units_raw)
-        if _optional_text(unit) is not None
+    outcome_value = math.fsum(value for value, _, _ in ordered) / len(ordered)
+    row_payload = {
+        "unit_id": unit_id,
+        "period_id": period_id,
+        "outcome_value": outcome_value,
+        "source_row_content_hashes": source_hashes,
+    }
+    return ValueOwnerRow(
+        **row_payload,
+        row_content_hash=gy_content_hash(row_payload),
     )
-    if not treated_units:
-        raise ValueOwnerAccessError(
-            "treatment_binding_underdetermined",
-            "candidate intervention does not identify treated substrate units",
-            owner_access_ref="candidate_owner://treated_units_missing",
-        )
-    unit_index = {str(unit): index for index, unit in enumerate(units)}
-    treated_indices = tuple(unit_index[unit] for unit in treated_units if unit in unit_index)
-    if not treated_indices:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_treatment_assignment_missing",
-            (
-                "candidate treated units are absent from the substrate panel "
-                f"(treated_units={treated_units})"
-            ),
-            owner_access_ref="substrate_owner://treated_units_not_in_panel",
-        )
-    period_raw = (
-        _object_get(candidate, "treatment_period")
-        or _object_get(candidate, "time_treatment")
-        or _object_get(atom, "treatment_period")
-        or _object_get(atom, "time_treatment")
-        or _object_get(atom, "treatment_start_period")
-    )
-    if period_raw is None:
-        raise ValueOwnerAccessError(
-            "treatment_binding_underdetermined",
-            "candidate intervention does not identify a treatment start period",
-            owner_access_ref="candidate_owner://treatment_period_missing",
-        )
-    period_index = _resolve_treatment_period_index(period_raw, periods)
-    if period_index <= 0 or period_index >= len(periods) - 1:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_treatment_assignment_missing",
-            (
-                "candidate treatment period must leave pre/post periods in the "
-                f"substrate panel (period={period_raw})"
-            ),
-            owner_access_ref="candidate_owner://treatment_period_out_of_panel_range",
-        )
-    treatment = np.asarray([0 for _ in units], dtype=int)
-    for index in treated_indices:
-        treatment[int(index)] = 1
-    if int(np.sum(treatment)) <= 0:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_treatment_assignment_missing",
-            "candidate-derived treatment vector is empty",
-            owner_access_ref="candidate_owner://treatment_vector_empty",
-        )
-    return treatment, period_index
 
 
-def _resolve_treatment_period_index(period_raw: object, periods: Sequence[int]) -> int:
-    if isinstance(period_raw, int):
-        if period_raw in periods:
-            return list(periods).index(period_raw)
-        if 0 <= period_raw < len(periods):
-            return period_raw
-    text = str(period_raw).strip()
-    if text:
-        for index, period in enumerate(periods):
-            if text == str(period):
-                return index
-    raise ValueOwnerAccessError(
-        "acquire_data:value_treatment_assignment_missing",
-        f"candidate treatment period {period_raw!r} is absent from the substrate panel",
-        owner_access_ref="substrate_owner://treatment_period_not_in_panel",
+def _candidate_estimand_binding_is_unresolved(candidate: object) -> bool:
+    """Return only a conservative refusal signal; this can never grant authority."""
+
+    disposition = str(_object_get(candidate, "grounding_disposition") or "")
+    status = str(_object_get(candidate, "status") or "")
+    return status == "candidate_unbound" or (
+        bool(disposition) and disposition != "shadow_bound"
     )
 
 
@@ -3667,18 +3777,26 @@ def _blocked_value_observation(
     reason: str,
     mode: ValueEvaluationMode,
     started: float,
+    candidate_id: str | None = None,
     calibration_receipt: ValueCalibrationReceipt | None = None,
     selected_method_fqn: str | None = None,
+    method_selection_receipt: MethodSelectionReceipt | None = None,
+    value_data_profile_content_hash: str | None = None,
+    acquisition_requirement: AcquisitionRequirementGap | None = None,
     world_model_record_content_hash: str | None = None,
     transport_receipt: ValueTransportReceipt | None = None,
 ) -> ValuePortObservation:
     return ValuePortObservation(
         status="value_blocked",
+        candidate_id=candidate_id,
         value_ref=None,
         authority_blockers=(code,),
         reason=reason,
         evaluation_mode=mode,
         selected_method_fqn=selected_method_fqn,
+        method_selection_receipt=method_selection_receipt,
+        value_data_profile_content_hash=value_data_profile_content_hash,
+        acquisition_requirement=acquisition_requirement,
         decision_grade="blocked",
         world_model_record_content_hash=world_model_record_content_hash,
         transport_receipt=transport_receipt,
@@ -3805,9 +3923,8 @@ def _false_clear_counts(inputs: Mapping[str, Any]) -> dict[str, int]:
 def _select_value_method(
     *,
     candidate: object,
-    problem: DesignProblem,
+    problem: object,
     inputs: Mapping[str, Any],
-    method_state: object | None = None,
 ) -> dict[str, Any]:
     try:
         from polisyos.foundry.methods.selection import select_value_method_for_problem
@@ -3817,18 +3934,9 @@ def _select_value_method(
             "blockers": ("value_method_selector_unavailable",),
             "reason": str(exc),
         }
-    selector_problem: object = problem
-    if _is_panel_observational_data(method_state) and inputs.get("method_fqn") is None:
-        selector_problem = _selector_problem_with_owner_context(
-            problem,
-            {
-                "value_method_hint": "panel",
-                "value_required_data_modalities": ("panel",),
-            },
-        )
     return select_value_method_for_problem(
         candidate=candidate,
-        problem=selector_problem,
+        problem=problem,
         requested_method_fqn=_optional_text(inputs.get("method_fqn")),
         observation_to_contract_manifest=inputs.get("observation_to_contract_manifest"),
         runtime_budget_ms=(
@@ -3839,12 +3947,26 @@ def _select_value_method(
     )
 
 
-def _is_panel_observational_data(value: object | None) -> bool:
-    return (
-        value is not None
-        and hasattr(value, "outcome")
-        and hasattr(value, "treatment")
-        and hasattr(value, "time_treatment")
+def _selector_problem_for_value_profile(
+    problem: DesignProblem,
+    profile: ValueDataProfile,
+) -> Mapping[str, object]:
+    """Bind method selection to the exact owner-derived data profile."""
+
+    return _selector_problem_with_owner_context(
+        problem,
+        {
+            "value_required_data_modalities": profile.available_data_modalities,
+            "value_data_characteristics": {
+                "n_obs": profile.owner_row_count,
+                "n_units": profile.unit_count,
+                "n_periods": profile.period_count,
+                "is_panel": "panel" in profile.available_data_modalities,
+                "treatment_is_binary": None,
+                "outcome_is_continuous": None,
+            },
+            "value_data_profile_content_hash": profile.content_hash,
+        },
     )
 
 
@@ -3866,63 +3988,6 @@ def _selector_problem_with_owner_context(
         "outcome_of_interest": outcome_payload,
         "runtime_hints": dict(context),
     }
-
-
-def _run_value_method(
-    *,
-    method_fqn: str,
-    method_state: object,
-    method_params: Mapping[str, Any],
-    seed: int,
-) -> tuple[object | None, str | None]:
-    try:
-        from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-        from polisyos.foundry.methods.selection.registry import get_registry
-        from polisyos.ir.analytics.causal import EstimationStatus
-
-        registry = get_registry()
-        method_cls = registry.get(method_fqn)
-        result = MethodDispatcher.get_instance().dispatch(
-            method_class=method_cls,
-            signature=method_cls.signature,
-            state=method_state,
-            params=method_params,
-            seed=seed,
-        )
-        report = _method_report(result)
-        if report is None or getattr(report, "status", None) is not EstimationStatus.SUCCESS:
-            status = getattr(getattr(report, "status", None), "value", None) or getattr(
-                report, "status", None
-            )
-            reason = getattr(report, "status_reason", None) or getattr(
-                report, "diagnostics", None
-            )
-            detail = ":".join(str(item) for item in (status, reason) if item)
-            return None, (
-                f"foundry_method_refused_value:{detail}"
-                if detail
-                else "foundry_method_refused_value"
-            )
-        return result, None
-    except Exception as exc:
-        return None, f"foundry_method_refused_value:{exc}"
-
-
-def _candidate_value_method_trace(
-    *,
-    selection: Mapping[str, Any],
-    requested_method_fqn: str | None,
-) -> tuple[str, ...]:
-    selected = _optional_text(selection.get("selected_method_fqn"))
-    if requested_method_fqn:
-        return (str(requested_method_fqn),) if requested_method_fqn else ()
-    ordered: list[str] = []
-    for value in (selected, *_sequence(selection.get("score_trace"))):
-        method_fqn = _optional_text(value)
-        if method_fqn and method_fqn not in ordered:
-            ordered.append(method_fqn)
-    return tuple(ordered)
-
 
 def _run_value_transport(
     *,
@@ -4400,6 +4465,8 @@ def _select_terminal_kind(
         return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
     if value_port.status == "value_pending_n8":
         return SearchTerminalKind.GROUNDED_ABSTENTION.value
+    if value_port.acquisition_requirement is not None:
+        return SearchTerminalKind.ACQUISITION_REQUIRED.value
     value_issue = _value_revision_issue(value_port)
     if value_issue and value_issue.startswith("acquire_data:"):
         return SearchTerminalKind.ACQUISITION_REQUIRED.value
@@ -4506,6 +4573,7 @@ def _default_revision_request(
     candidate_id: str,
     terminal_kind: str,
     counterexample: CounterexampleRecord,
+    value_port: ValuePortObservation | None = None,
 ) -> DesignRevisionRequest:
     previous_grammar = tuple(
         str(item)
@@ -4526,6 +4594,9 @@ def _default_revision_request(
         counterexample=counterexample,
         new_grammar_elements=new_grammar_elements,
         cycle_index=cycle_index,
+        acquisition_requirement=(
+            value_port.acquisition_requirement if value_port is not None else None
+        ),
     )
     next_grammar = _dedupe((*previous_grammar, *new_grammar_elements))
     revised_problem = problem.model_copy(
@@ -4736,6 +4807,21 @@ def _blocked_cycle(cycle: GenerationCycleRecord, *, reason: str) -> GenerationCy
     )
 
 
+def _cycle_with_acquisition_routing_report(
+    cycle: GenerationCycleRecord,
+    *,
+    report: AcquisitionPlannerReport,
+) -> GenerationCycleRecord:
+    """Attach typed N7 routing evidence through full record validation."""
+
+    values = {
+        name: getattr(cycle, name)
+        for name in GenerationCycleRecord.model_fields
+    }
+    values["acquisition_routing_report"] = report
+    return GenerationCycleRecord.model_validate(values)
+
+
 def _cycle_with_n7_route_failure(
     cycle: GenerationCycleRecord,
     *,
@@ -4751,7 +4837,7 @@ def _cycle_with_n7_route_failure(
                     "code": f"n6.acquisition.{reason}",
                     "message": (
                         "Acquisition remains required because the canonical "
-                        f"substrate owner refused routing: {reason}."
+                        f"N7 route refused the request: {reason}."
                     ),
                 }
             ),
@@ -4762,6 +4848,7 @@ def _cycle_with_n7_route_failure(
         update={
             "counterexample": counterexample,
             "acquisition_receipt": None,
+            "acquisition_routing_report": None,
         }
     )
 
@@ -4966,6 +5053,7 @@ __all__ = [
     "GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION",
     "GENERATION_CYCLE_CONTROLLER_REF",
     "GENERATION_CYCLE_SCHEMA_VERSION",
+    "VALUE_DATA_SHAPE_RULE_VERSION",
     "CandidateFront",
     "CandidateGroundingObservation",
     "CandidateSummary",
@@ -4992,5 +5080,6 @@ __all__ = [
     "ValuePortObservation",
     "ValueTransportReceipt",
     "enforce_no_retry_without_new_grammar",
+    "is_value_panel_shape",
     "validate_generation_cycle_run",
 ]

@@ -20,6 +20,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionOwnerArtifact,
     AcquisitionWorldSnapshot,
     RecordedAcquisitionOwnerGateway,
+    value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
@@ -1981,6 +1982,21 @@ class _DataGapValuePort:
         )
 
 
+class _WorldKnowledgeGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        del kwargs
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id="candidate_cycle_1",
+            authority_blockers=("treatment_assignment_not_owner_derived",),
+            reason="Owner treatment assignment is missing.",
+            decision_grade="blocked",
+            acquisition_requirement=value_input_world_knowledge_requirement_gap(
+                claim_ref="value-claim:candidate_cycle_1"
+            ),
+        )
+
+
 @pytest.mark.asyncio
 async def test_value_block_feeds_revision_before_promotion() -> None:
     controller = GenerationCycleController(
@@ -2018,6 +2034,40 @@ async def test_value_data_gap_routes_to_n7_acquisition_terminal() -> None:
         == "acquire_data:value_panel_data_missing"
     )
     assert run.fronts.decision.candidate_ids == ()
+
+
+@pytest.mark.asyncio
+async def test_typed_value_world_knowledge_gap_routes_without_renaming_blocker() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_WorldKnowledgeGapValuePort(),
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+    cycle = run.cycles[0]
+
+    assert cycle.value_port.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.revision_request.revision_strategy == "acquire_or_elicit"
+    acquisition = cycle.revision_request.strategy_payload["acquisition_request"]
+    assert acquisition["requirement_gap"]["requirement_gap_id"] == (
+        "requirement-gap:data_requirement:value-input-world-knowledge"
+    )
+    assert acquisition["requirement_gap"]["metadata"]["satisfaction_status"] == (
+        "unsatisfied"
+    )
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_receipt is None
+    assert cycle.acquisition_routing_report.status == "pass"
+    assert len(cycle.acquisition_routing_report.acquisition_records) == 1
+    record = cycle.acquisition_routing_report.acquisition_records[0]
+    assert record.compiled_requirement_ref == (
+        "runtime-requirement:value-input-world-knowledge:v1"
+    )
+    assert record.claim_ref == "value-claim:candidate_cycle_1"
+    assert record.terminal_disposition.value == "acquire"
 
 
 @pytest.mark.asyncio

@@ -40,6 +40,7 @@ from polisyos.foundry.methods.components.value_evidence import (
     project_method_value_evidence,
 )
 from polisyos.foundry.methods.selection import (
+    MethodSelectionReceipt,
     reachable_value_method_fqns,
     select_value_method_for_problem,
 )
@@ -73,7 +74,13 @@ from polisyos.ir.analytics.transportability import (
     TransportabilityStatus,
     TransportMode,
 )
-from polisyos.ir.analytics.uncertainty import IntervalSemantics
+from polisyos.ir.analytics.uncertainty import (
+    IntervalSemantics,
+    NativeValueEstimandBinding,
+)
+from polisyos.runtime.quality.acquisition_planner import (
+    value_input_world_knowledge_requirement_gap,
+)
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
     CycleSubstrateContext,
@@ -89,16 +96,18 @@ from polisyos.runtime.quality.generation_cycle import (
     RealValueOwnerGateway,
     SimulationPortObservation,
     ValueCalibrationReceipt,
+    ValueDataProfile,
     ValueGateReceipt,
     ValueOwnerAccessError,
+    ValuePortObservation,
     ValueTransportReceipt,
     _build_candidate_selection_diagram,
-    _build_default_selection_diagram,
     _build_s10_forecast_inputs,
-    _candidate_transport_outcome_variable,
-    _candidate_transport_treatment_variable,
+    _derived_value_data_modalities,
+    _run_value_transport,
     _s10_calibration_evidence_from_report,
     _value_calibration_receipt,
+    _value_owner_row,
 )
 from polisyos.runtime.quality.world_model_record import (
     BranchMode,
@@ -151,7 +160,7 @@ def _posterior_estimand(parameter: str = "coefficients_0") -> EstimandSpec:
     )
 
 
-def _value_contract_signature(*, contract_id: str, family: str) -> MethodSignature:
+def _value_contract_signature(*, output_contract: type[object], family: str) -> MethodSignature:
     return MethodSignature(
         name="value_projection_probe",
         namespace=family,
@@ -159,11 +168,11 @@ def _value_contract_signature(*, contract_id: str, family: str) -> MethodSignatu
         input_slots=frozenset(),
         output_slots=frozenset(
             {
-                SlotSpec(
+                SlotSpec.for_output_contract(
                     "result",
                     SlotType.SCALAR,
                     Unit("value", "json"),
-                    contract_id=contract_id,
+                    output_contract=output_contract,
                 )
             }
         ),
@@ -174,24 +183,56 @@ def _value_contract_signature(*, contract_id: str, family: str) -> MethodSignatu
     )
 
 
+def _projection_binding(
+    report: object,
+    *,
+    estimand: EstimandSpec,
+    signature: MethodSignature,
+) -> NativeValueEstimandBinding:
+    return NativeValueEstimandBinding.from_estimand(
+        estimand=estimand,
+        native_contract_id=str(type(report).contract_id),  # type: ignore[attr-defined]
+        producer_method_fqn=signature.fqn,
+        projection_input_content_hash=_hash("a"),
+    )
+
+
 def test_posterior_contract_projects_native_interval() -> None:
+    estimand = _posterior_estimand()
     posterior = PosteriorResult(
         method_name="bayesian_linear_regression",
         posterior_means={"coefficients_0": 1.5},
         posterior_stds={"coefficients_0": 0.8},
         credible_intervals={"coefficients_0": (-2.0, 5.0)},
-        diagnostics={"credible_mass": 0.9, "num_samples": 128},
+        sampler_family="mcmc",
+        diagnostics={
+            "credible_mass": 0.9,
+            "num_samples": 128,
+            "rhat_max": 1.01,
+            "ess_bulk_min": 128.0,
+            "ess_tail_min": 64.0,
+            "quantile_mcse_relative_max": 0.05,
+            "divergences": 0.0,
+        },
+    )
+    binding = _projection_binding(
+        posterior,
+        estimand=estimand,
+        signature=BayesianLinearRegressionEstimator.signature,
     )
 
     evidence = project_method_value_evidence(
         method_signature=BayesianLinearRegressionEstimator.signature,
         method_result=_posterior_method_result(posterior),
-        estimand=_posterior_estimand(),
+        estimand=estimand,
         selected_output_slot="result",
+        projection_binding=binding,
     )
 
     assert isinstance(evidence, MethodValueEvidence)
-    assert evidence.status == "value_ready"
+    assert evidence.status == "contract_projection_ready"
+    assert evidence.authority_scope == "contract_only_nonproduction"
+    assert evidence.production_value_eligible is False
     assert evidence.envelope.confidence_interval == (-2.0, 5.0)
     assert evidence.native_contract_id == PosteriorResult.contract_id
     assert evidence.envelope.metadata["parameter"] == "coefficients_0"
@@ -236,6 +277,7 @@ def test_pretty_interval_for_wrong_estimand_refuses() -> None:
 
 
 def test_econometric_contract_projects_its_own_interval_without_family_branch() -> None:
+    estimand = _posterior_estimand()
     report = EconometricResult(
         method_name="time_series_ols",
         params={"coefficients_0": 2.0},
@@ -243,12 +285,18 @@ def test_econometric_contract_projects_its_own_interval_without_family_branch() 
         confidence_intervals={"coefficients_0": (1.1, 2.9)},
         n_obs=64,
     )
+    binding = _projection_binding(
+        report,
+        estimand=estimand,
+        signature=TimeSeriesEstimator.signature,
+    )
 
     evidence = project_method_value_evidence(
         method_signature=TimeSeriesEstimator.signature,
         method_result=_posterior_method_result(report),
-        estimand=_posterior_estimand(),
+        estimand=estimand,
         selected_output_slot="result",
+        projection_binding=binding,
     )
 
     assert isinstance(evidence, MethodValueEvidence)
@@ -291,7 +339,7 @@ def test_diagnostic_only_contract_refuses_value_projection() -> None:
     )
 
     assert isinstance(refusal, MethodValueRefusal)
-    assert refusal.reason_code == "method_uncertainty_projection_unsupported"
+    assert refusal.reason_code == "method_value_projection_capability_undeclared"
 
 
 def test_forecasting_contract_projects_requested_native_horizon() -> None:
@@ -332,15 +380,18 @@ def test_forecasting_contract_projects_requested_native_horizon() -> None:
         time_horizon="1",
         target_role="prediction",
     )
+    signature = _value_contract_signature(
+        output_contract=ForecastingUncertaintyBundle,
+        family="forecasting",
+    )
+    binding = _projection_binding(report, estimand=estimand, signature=signature)
 
     evidence = project_method_value_evidence(
-        method_signature=_value_contract_signature(
-            contract_id=ForecastingUncertaintyBundle.contract_id,
-            family="forecasting",
-        ),
+        method_signature=signature,
         method_result=_posterior_method_result(report),
         estimand=estimand,
         selected_output_slot="result",
+        projection_binding=binding,
     )
 
     assert isinstance(evidence, MethodValueEvidence)
@@ -349,6 +400,11 @@ def test_forecasting_contract_projects_requested_native_horizon() -> None:
 
 
 def test_distributional_contract_projects_outer_hull_for_bound_estimand() -> None:
+    estimand = _posterior_estimand("quantile_shift")
+    signature = _value_contract_signature(
+        output_contract=DistributionalBoundsBundle,
+        family="distributional",
+    )
     report = DistributionalBoundsBundle(
         estimand_type="quantile_shift",
         functional=DistributionalFunctional.QUANTILE_SHIFT,
@@ -356,15 +412,14 @@ def test_distributional_contract_projects_outer_hull_for_bound_estimand() -> Non
         consensus_bounds=FunctionalBounds(lower=(-2.0, -1.0), upper=(1.0, 4.0)),
         sharpness_status="outer_approx",
     )
+    binding = _projection_binding(report, estimand=estimand, signature=signature)
 
     evidence = project_method_value_evidence(
-        method_signature=_value_contract_signature(
-            contract_id=DistributionalBoundsBundle.contract_id,
-            family="distributional",
-        ),
+        method_signature=signature,
         method_result=_posterior_method_result(report),
-        estimand=_posterior_estimand("quantile_shift"),
+        estimand=estimand,
         selected_output_slot="result",
+        projection_binding=binding,
     )
 
     assert isinstance(evidence, MethodValueEvidence)
@@ -373,6 +428,11 @@ def test_distributional_contract_projects_outer_hull_for_bound_estimand() -> Non
 
 
 def test_partial_identification_contract_projects_exact_native_bounds() -> None:
+    estimand = _posterior_estimand("ate")
+    signature = _value_contract_signature(
+        output_contract=BoundsBundle,
+        family="partial_identification",
+    )
     report = BoundsBundle(
         estimand_type="ate",
         lower_bound=-0.5,
@@ -381,15 +441,14 @@ def test_partial_identification_contract_projects_exact_native_bounds() -> None:
         consensus_upper=1.25,
         sharpness_status="sharp",
     )
+    binding = _projection_binding(report, estimand=estimand, signature=signature)
 
     evidence = project_method_value_evidence(
-        method_signature=_value_contract_signature(
-            contract_id=BoundsBundle.contract_id,
-            family="partial_identification",
-        ),
+        method_signature=signature,
         method_result=_posterior_method_result(report),
-        estimand=_posterior_estimand("ate"),
+        estimand=estimand,
         selected_output_slot="result",
+        projection_binding=binding,
     )
 
     assert isinstance(evidence, MethodValueEvidence)
@@ -398,6 +457,11 @@ def test_partial_identification_contract_projects_exact_native_bounds() -> None:
 
 
 def test_transport_contract_projects_only_its_bound_native_region() -> None:
+    estimand = _posterior_estimand("transported_ate")
+    signature = _value_contract_signature(
+        output_contract=TransportabilityResult,
+        family="transport",
+    )
     bounds = PartialIdentificationResult(
         method=BoundMethod.TRANSPORT_BOUNDS,
         lower_bound=-1.0,
@@ -411,28 +475,25 @@ def test_transport_contract_projects_only_its_bound_native_region() -> None:
         transport_mode=TransportMode.BOUNDS_ONLY,
         partial_identification_result=bounds,
     )
+    binding = _projection_binding(report, estimand=estimand, signature=signature)
 
     evidence = project_method_value_evidence(
-        method_signature=_value_contract_signature(
-            contract_id=TransportabilityResult.contract_id,
-            family="transport",
-        ),
+        method_signature=signature,
         method_result=_posterior_method_result(report),
-        estimand=_posterior_estimand("transported_ate"),
+        estimand=estimand,
         selected_output_slot="result",
+        projection_binding=binding,
     )
 
     assert isinstance(evidence, MethodValueEvidence)
     assert evidence.envelope.confidence_interval == (-1.0, 2.0)
 
     mismatch = project_method_value_evidence(
-        method_signature=_value_contract_signature(
-            contract_id=TransportabilityResult.contract_id,
-            family="transport",
-        ),
+        method_signature=signature,
         method_result=_posterior_method_result(report),
         estimand=_posterior_estimand("different_estimand"),
         selected_output_slot="result",
+        projection_binding=binding,
     )
     assert isinstance(mismatch, MethodValueRefusal)
     assert mismatch.reason_code == "method_estimand_binding_mismatch"
@@ -447,6 +508,64 @@ def test_n8_audit_world_uses_canonical_design_problem_contract() -> None:
     assert problem.stakeholders
     assert problem.jurisdiction_time.region
     assert value_contract._audit_world_record().policy_domain == problem.domain
+
+
+def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
+    payload = value_contract.build_payload(value_contract._repo_root())
+
+    assert payload["schema_version"].endswith(".v2")
+    assert "frozen_positive_receipt" not in payload
+    assert "frozen_value_receipts" not in payload
+    assert payload["denominators"]["registered_method_count"] == 390
+    assert payload["denominators"]["value_capable_method_count"] == 55
+    assert len(payload["native_projector_contract_proofs"]) == 6
+    assert {
+        proof["family"] for proof in payload["native_projector_contract_proofs"]
+    } == {
+        "posterior",
+        "econometric",
+        "forecasting",
+        "distributional",
+        "partial_identification",
+        "transport",
+    }
+    assert all(
+        proof["authority_scope"] == "contract_only_nonproduction"
+        and proof["production_value_eligible"] is False
+        and proof["status"].startswith("contract_projection_")
+        and "value_outer_set" not in proof
+        and "value_gate_receipt" not in proof
+        for proof in payload["native_projector_contract_proofs"]
+    )
+    production = payload["production_refusal"]
+    assert production["status"] == "value_blocked"
+    assert production["authority_blockers"] == [
+        "treatment_assignment_not_owner_derived"
+    ]
+    assert production["value_receipt"] is None
+    assert payload["acquisition_routing"]["requirement_kind"] == "any_of"
+    assert payload["acquisition_routing"]["alternatives"] == [
+        "owner_rollout_assignment",
+        "certified_skg_identity_bridge",
+    ]
+    education = payload["education_refusal"]
+    assert education["status"] == "value_blocked"
+    assert education["authority_blockers"] == ["method_estimand_binding_mismatch"]
+    assert education["method_selection_receipt"] is not None
+    assert education["value_receipt"] is None
+
+
+def test_n8_v2_validator_rejects_fabricated_positive_and_contract_authority() -> None:
+    payload = value_contract.build_payload(value_contract._repo_root())
+    payload["production_refusal"]["status"] = "value_ready"
+    payload["production_refusal"]["value_receipt"] = {"fabricated": True}
+    payload["native_projector_contract_proofs"][0]["production_value_eligible"] = True
+    payload["contract_content_hash"] = value_contract._content_hash(payload)
+
+    codes = {issue["code"] for issue in value_contract.validate_payload(payload)}
+
+    assert "fabricated_production_value_ready" in codes
+    assert "contract_projection_claimed_production_authority" in codes
 
 
 def _world_record(char: str = "1") -> WorldModelRecord:
@@ -559,14 +678,12 @@ def _candidate() -> _Candidate:
 
 
 @dataclass(frozen=True)
-class _TreatmentAtom:
+class _ValueAtom:
     intervention_id: str
     content_hash: str
     status: str = "candidate_unverified"
     world_model_record_ref: str | None = "world_model_record_test"
     target_world_slots: tuple[str, ...] = ("avg_income",)
-    treated_unit_ids: tuple[str, ...] = ("AM",)
-    treatment_period: int = 2020
 
 
 def _avg_income_problem() -> Any:
@@ -584,7 +701,7 @@ def _avg_income_problem() -> Any:
 def _avg_income_candidate() -> _Candidate:
     return _Candidate(
         candidate_id="candidate_avg_income_real",
-        atom=_TreatmentAtom("candidate_avg_income_real", _hash("8")),
+        atom=_ValueAtom("candidate_avg_income_real", _hash("8")),
         diversity_key=("grant", "country", "avg_income", "real_panel"),
     )
 
@@ -798,90 +915,13 @@ def test_transport_context_for_another_problem_is_not_authority() -> None:
     assert exc_info.value.code == "transport_context_problem_mismatch"
 
 
-@dataclass(frozen=True)
-class _AdversarialRealPanelGateway:
-    forecast_tier: str = "observable_calibrated"
-    calibration_status: str | None = "pass"
-    expected_policy_context_ref: str | None = None
-    selection_diagram: object | None = None
-    cycle_substrate_context: CycleSubstrateContext | None = None
-
-    def load_panel_observational_data(
-        self,
-        *,
-        candidate: object,
-        problem: Any,
-        world_record: WorldModelRecord,
-    ) -> object:
-        return RealValueOwnerGateway(repo_root=Path.cwd()).load_panel_observational_data(
-            candidate=candidate,
-            problem=problem,
-            world_record=world_record,
-        )
-
-    def produce_forecast_inputs(
-        self,
-        *,
-        candidate: object,
-        problem: Any,
-        world_record: WorldModelRecord,
-        method_result: object,
-        selected_method_fqn: str,
-    ) -> dict[str, Any]:
-        policy_context_ref = f"policy-context://{world_record.world_model_record_id}"
-        evidence = _s10_calibration_evidence_from_report(method_result.output.get("report"))
-        if self.calibration_status not in {None, "pass"}:
-            evidence = {
-                **evidence,
-                "calibration_status": self.calibration_status,
-                "numerator": 0,
-                "pass_rate": 0.0,
-                "floor_passed": False,
-            }
-        return dict(
-            _build_s10_forecast_inputs(
-                candidate=candidate,
-                problem=problem,
-                world_record=world_record,
-                method_result=method_result,
-                selected_method_fqn=selected_method_fqn,
-                forecast_tier=self.forecast_tier,
-                calibration_status=self.calibration_status,
-                policy_context_ref=policy_context_ref,
-                expected_policy_context_ref=(
-                    self.expected_policy_context_ref or policy_context_ref
-                ),
-                false_clear_counts=evidence["false_clear_counts"],
-                calibration_evidence=evidence,
-            )
-        )
-
-    def build_transport_inputs(
-        self,
-        *,
-        candidate: object,
-        problem: Any,
-        world_record: WorldModelRecord,
-    ) -> dict[str, Any]:
-        query_treatment = _candidate_transport_treatment_variable(candidate)
-        query_outcome = _candidate_transport_outcome_variable(candidate, problem)
-        return {
-            "selection_diagram": self.selection_diagram
-            if self.selection_diagram is not None
-            else _build_default_selection_diagram(
-                candidate=candidate,
-                problem=problem,
-                world_record=world_record,
-                cycle_substrate_context=self.cycle_substrate_context,
-            ),
-            "query_treatment": query_treatment,
-            "query_outcome": query_outcome,
-        }
-
-
-def _simulation(world: WorldModelRecord) -> SimulationPortObservation:
+def _simulation(
+    world: WorldModelRecord,
+    *,
+    candidate_id: str = "candidate_value_gate",
+) -> SimulationPortObservation:
     return SimulationPortObservation(
-        candidate_id="candidate_value_gate",
+        candidate_id=candidate_id,
         status="joint_simulated",
         simulation_ref=_hash("3"),
         k_world_ref_before=world.content_hash,
@@ -1001,7 +1041,7 @@ def test_empty_hints_with_unresolved_candidate_wmr_ref_refuses_typed() -> None:
     assert observation.world_model_record_content_hash is None
 
 
-def test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr() -> None:
+def test_empty_hints_cycle_reaches_honest_value_acquisition_with_real_boundary_wmr() -> None:
     problem = value_contract._audit_problem()
     assert problem.runtime_hints == {}
     candidate = value_contract._audit_value_candidate()
@@ -1022,38 +1062,393 @@ def test_empty_hints_cycle_reaches_value_gate_with_real_boundary_wmr() -> None:
     assert simulation.world_model_record is context.world_model_record
     assert simulation.world_model_record.policy_domain == problem.domain
     assert simulation.world_model_record.region_or_jurisdiction == problem.jurisdiction_time.region
-    assert observation.status == "value_ready"
+    assert observation.status == "value_blocked"
     assert observation.world_model_record_content_hash == simulation.world_model_record.content_hash
-    assert observation.selected_method_fqn == "causal.inference.did.standard@1.0.0"
-    assert observation.authority_blockers == ()
-    assert observation.calibration_receipt is not None
-    assert observation.calibration_receipt.status == "pass"
-    assert observation.transport_receipt is not None
-    assert observation.transport_receipt.status == "transported_limited"
-    assert observation.transport_receipt.world_model_record_content_hash == (
-        simulation.world_model_record.content_hash
+    assert observation.selected_method_fqn is not None
+    assert observation.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
     )
-    assert observation.value_receipt is not None
-    assert observation.identification_status == "partial"
-    assert observation.value_receipt.value_outer_set.lower == (-6016.810766126787,)
-    assert observation.value_receipt.value_outer_set.upper == (4094.3096004508484,)
-    assert observation.value_receipt.value_outer_set.width == (10111.120366577636,)
+    assert observation.method_selection_receipt is not None
+    assert observation.method_selection_receipt.selection_authority == (
+        "foundry_registry_advisor"
+    )
+    assert observation.value_data_profile_content_hash is not None
+    assert observation.acquisition_requirement is not None
+    assert observation.value_receipt is None
 
 
-def test_candidate_treatment_is_loaded_from_candidate_binding() -> None:
+def test_candidate_treatment_assignment_is_not_owner_world_knowledge() -> None:
     problem = _avg_income_problem()
     candidate = _avg_income_candidate()
     world = _world_record()
 
-    panel = RealValueOwnerGateway(repo_root=Path.cwd()).load_panel_observational_data(
+    profile = RealValueOwnerGateway(repo_root=Path.cwd()).load_value_data_profile(
         candidate=candidate,
         problem=problem,
         world_record=world,
     )
 
-    assert panel.outcome.shape == (16, 4)
-    assert panel.treatment.tolist() == [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    assert panel.time_treatment == 2
+    assert isinstance(profile, ValueDataProfile)
+    assert profile.outcome == "avg_income"
+    assert profile.owner_row_count == 64
+    assert profile.unit_count == 16
+    assert profile.period_count == 4
+    assert profile.treatment_assignment_status == "owner_assignment_unresolved"
+    assert profile.content_hash.startswith("sha256:")
+
+
+def test_shaped_owner_assignment_attestation_is_not_authority() -> None:
+    base = _avg_income_candidate()
+    shaped_atom = SimpleNamespace(
+        intervention_id=base.atom.intervention_id,
+        content_hash=base.atom.content_hash,
+        status=base.atom.status,
+        world_model_record_ref=base.atom.world_model_record_ref,
+        target_world_slots=base.atom.target_world_slots,
+        treated_unit_ids=("AM",),
+        treatment_period=2020,
+    )
+    candidate = SimpleNamespace(
+        candidate_id=base.candidate_id,
+        atom=shaped_atom,
+        treated_unit_ids=("AM",),
+        treatment_period=2020,
+        treatment_assignment_authority="owner_derived",
+        treatment_assignment_owner_ref="substrate_owner://invented",
+        treatment_assignment_content_hash=_hash("9"),
+    )
+
+    gateway = RealValueOwnerGateway(repo_root=Path.cwd())
+    shaped = gateway.load_value_data_profile(
+        candidate=candidate,
+        problem=_avg_income_problem(),
+        world_record=_world_record(),
+    )
+    canonical = gateway.load_value_data_profile(
+        candidate=_avg_income_candidate(),
+        problem=_avg_income_problem(),
+        world_record=_world_record(),
+    )
+
+    assert shaped == canonical
+    assert shaped.treatment_assignment_status == "owner_assignment_unresolved"
+
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=candidate,
+        simulation=_simulation(_world_record(), candidate_id=base.candidate_id),
+        problem=_avg_income_problem(),
+        cycle_index=0,
+    )
+
+    assert observation.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
+    assert observation.acquisition_requirement is not None
+    assert observation.value_receipt is None
+
+
+def test_value_port_refuses_candidate_simulation_mismatch() -> None:
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=_avg_income_candidate(),
+        simulation=_simulation(_world_record(), candidate_id="another_candidate"),
+        problem=_avg_income_problem(),
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("value_candidate_simulation_mismatch",)
+    assert observation.method_selection_receipt is None
+    assert observation.acquisition_requirement is None
+
+
+def test_value_data_profile_rejects_content_drift() -> None:
+    profile = RealValueOwnerGateway(repo_root=Path.cwd()).load_value_data_profile(
+        candidate=_avg_income_candidate(),
+        problem=_avg_income_problem(),
+        world_record=_world_record(),
+    )
+    payload = profile.model_dump(mode="json")
+    payload["owner_row_count"] -= 1
+
+    with pytest.raises(ValueError, match="value_data_profile_row_count_mismatch"):
+        ValueDataProfile.model_validate(payload)
+
+
+def test_value_data_profile_rejects_panel_label_without_longitudinal_units() -> None:
+    rows = tuple(
+        _value_owner_row(
+            outcome="synthetic_outcome",
+            unit_id=f"unit_{index}",
+            period_id=2020 + index,
+            source_rows=((float(index), f"dataset_{index}", f"observation_{index}"),),
+        )
+        for index in range(4)
+    )
+    rows_payload = tuple(row.model_dump(mode="json") for row in rows)
+    payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "outcome": "synthetic_outcome",
+        "rows": rows_payload,
+        "owner_row_count": len(rows),
+        "unit_count": 4,
+        "period_count": 4,
+        "available_data_modalities": ("panel", "tabular"),
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": "substrate_owner://diagonal_rows",
+        "owner_rows_content_hash": second_domain_pack.gy_content_hash(rows_payload),
+    }
+
+    with pytest.raises(ValueError, match="value_data_profile_modalities_not_derived"):
+        ValueDataProfile.model_validate(
+            {**payload, "content_hash": second_domain_pack.gy_content_hash(payload)}
+        )
+
+
+@pytest.mark.parametrize(
+    ("period_count", "expected_modalities"),
+    [(3, ("tabular",)), (4, ("panel", "tabular"))],
+)
+def test_value_owner_shape_uses_canonical_four_period_panel_floor(
+    period_count: int,
+    expected_modalities: tuple[str, ...],
+) -> None:
+    rows = tuple(
+        _value_owner_row(
+            outcome="unseen_owner_outcome",
+            unit_id=f"unit_{unit_index}",
+            period_id=2020 + period_index,
+            source_rows=(
+                (
+                    float(unit_index + period_index),
+                    f"dataset_{unit_index}",
+                    f"observation_{unit_index}_{period_index}",
+                ),
+            ),
+        )
+        for unit_index in range(5)
+        for period_index in range(period_count)
+    )
+
+    assert _derived_value_data_modalities(rows) == expected_modalities
+
+
+def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition() -> None:
+    world = _world_record()
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=_avg_income_candidate(),
+        simulation=_simulation(world, candidate_id="candidate_avg_income_real"),
+        problem=_avg_income_problem(),
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.selected_method_fqn is not None
+    assert observation.value_receipt is None
+    assert observation.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
+    assert isinstance(observation.method_selection_receipt, MethodSelectionReceipt)
+    assert observation.method_selection_receipt.selection_authority == (
+        "foundry_registry_advisor"
+    )
+    assert len(observation.method_selection_receipt.denominator) > 1
+    assert observation.acquisition_requirement is not None
+    assert observation.acquisition_requirement.metadata["requirement"]["operator"] == "any_of"
+    assert observation.acquisition_requirement.metadata["satisfaction_status"] == "unsatisfied"
+
+
+def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import generation_cycle
+
+    problem = _avg_income_problem()
+    wrong_problem = {
+        "design_problem_id": problem.design_problem_id,
+        "problem_statement": problem.problem_statement,
+        "domain": problem.domain,
+        "outcome_of_interest": problem.outcome_of_interest.model_dump(mode="json"),
+        "runtime_hints": {
+            "value_required_data_modalities": ("tabular",),
+            "value_data_characteristics": {
+                "n_obs": 64,
+                "n_units": 16,
+                "n_periods": 4,
+                "is_panel": True,
+                "treatment_is_binary": None,
+                "outcome_is_continuous": None,
+            },
+            "value_data_profile_content_hash": _hash("f"),
+        },
+    }
+    replayed = select_value_method_for_problem(
+        candidate=_avg_income_candidate(),
+        problem=wrong_problem,
+    )
+    monkeypatch.setattr(generation_cycle, "_select_value_method", lambda **_kwargs: replayed)
+
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=_avg_income_candidate(),
+        simulation=_simulation(
+            _world_record(), candidate_id="candidate_avg_income_real"
+        ),
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "value_method_selection_context_hash_mismatch",
+    )
+    assert observation.acquisition_requirement is None
+
+
+def test_shaped_relation_certificate_cannot_open_missing_value_input_lane() -> None:
+    base = _avg_income_candidate()
+    candidate = SimpleNamespace(
+        candidate_id=base.candidate_id,
+        atom=base.atom,
+        skg_relation_certificate={
+            "status": "certified",
+            "relation": "exact",
+            "content_hash": _hash("7"),
+        },
+    )
+
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=candidate,
+        simulation=_simulation(_world_record(), candidate_id=base.candidate_id),
+        problem=_avg_income_problem(),
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
+    assert observation.acquisition_requirement is not None
+    assert observation.value_receipt is None
+
+
+def test_value_port_rejects_unowned_method_selection_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import generation_cycle
+
+    monkeypatch.setattr(
+        generation_cycle,
+        "_select_value_method",
+        lambda **_kwargs: {
+            "status": "selected",
+            "selected_method_fqn": "bayesian.regression.linear_regression@1.0.0",
+            "selection_source": "caller_asserted_advisor",
+            "denominator": ("bayesian.regression.linear_regression@1.0.0",),
+            "score_trace": (),
+            "blockers": (),
+        },
+    )
+
+    observation = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=_avg_income_candidate(),
+        simulation=_simulation(
+            _world_record(), candidate_id="candidate_avg_income_real"
+        ),
+        problem=_avg_income_problem(),
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "value_method_selection_authority_unresolved",
+    )
+    assert observation.value_receipt is None
+
+
+def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() -> None:
+    frozen = second_domain_pack._load_frozen_bundle(Path.cwd())
+    problem = DesignProblem.model_validate(frozen["smoke_problem"]["design_problem"])
+    context = second_domain_pack._build_frozen_cycle_substrate_context(
+        Path.cwd(),
+        bundle=frozen,
+        design_problem=problem,
+    )
+    grounding = frozen["cycle_trace"]["stage_attempts"]["grounding"]
+    candidate = SimpleNamespace(
+        candidate_id=str(grounding["proposal_id"]),
+        content_hash=str(grounding["raw_candidate_hash"]),
+        status="candidate_unbound",
+        grounding_disposition=str(grounding["disposition"]),
+    )
+    profile = RealValueOwnerGateway(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=context,
+    ).load_value_data_profile(
+        candidate=candidate,
+        problem=problem,
+        world_record=context.world_model_record,
+    )
+
+    assert (profile.owner_row_count, profile.unit_count, profile.period_count) == (
+        32,
+        16,
+        2,
+    )
+    assert profile.available_data_modalities == ("tabular",)
+
+    observation = FoundryValuePort(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=context,
+    )(
+        candidate=candidate,
+        simulation=_simulation(
+            context.world_model_record,
+            candidate_id=candidate.candidate_id,
+        ),
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("method_estimand_binding_mismatch",)
+    assert observation.selected_method_fqn is not None
+    assert observation.method_selection_receipt is not None
+    assert observation.method_selection_receipt.selection_authority == (
+        "foundry_registry_advisor"
+    )
+    assert observation.method_selection_receipt.ranked_alternatives
+    selected_alternative = next(
+        row
+        for row in observation.method_selection_receipt.ranked_alternatives
+        if row.selected
+    )
+    assert "panel" not in selected_alternative.data_modalities
+    assert observation.acquisition_requirement is None
+
+
+@pytest.mark.parametrize("mutation", ["blocker", "claim_ref"])
+def test_value_world_knowledge_gap_must_match_blocker_and_candidate(
+    mutation: str,
+) -> None:
+    canonical = FoundryValuePort(repo_root=Path.cwd())(
+        candidate=_avg_income_candidate(),
+        simulation=_simulation(
+            _world_record(), candidate_id="candidate_avg_income_real"
+        ),
+        problem=_avg_income_problem(),
+        cycle_index=0,
+    )
+    payload = canonical.model_dump(mode="python")
+    if mutation == "blocker":
+        payload["authority_blockers"] = ("unrelated_value_blocker",)
+    else:
+        payload["acquisition_requirement"] = (
+            value_input_world_knowledge_requirement_gap(
+                claim_ref="value-claim:another-candidate"
+            )
+        )
+
+    with pytest.raises(ValueError, match="value_acquisition_requirement_not_canonical"):
+        ValuePortObservation.model_validate(payload)
 
 
 def test_missing_candidate_treatment_binding_blocks_without_fallback() -> None:
@@ -1074,15 +1469,17 @@ def test_missing_candidate_treatment_binding_blocks_without_fallback() -> None:
 
     observation = FoundryValuePort(repo_root=Path.cwd())(
         candidate=candidate,
-        simulation=_simulation(world),
+        simulation=_simulation(world, candidate_id=candidate.candidate_id),
         problem=_avg_income_problem(),
         cycle_index=0,
     )
 
     assert observation.status == "value_blocked"
     assert observation.value_receipt is None
-    assert observation.authority_blockers == ("treatment_binding_underdetermined",)
-    assert "treated substrate units" in observation.reason
+    assert observation.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
+    assert "owner-derived treatment assignment" in observation.reason
 
 
 def test_s10_refusal_is_report_driven_by_bad_did_report() -> None:
@@ -1215,6 +1612,16 @@ def test_value_receipt_rejects_world_version_laundering() -> None:
         ValueGateReceipt.model_validate(payload)
 
 
+def test_value_ready_observation_requires_owner_selection_receipt() -> None:
+    with pytest.raises(ValueError, match="value_ready_requires_owner_receipts"):
+        ValuePortObservation(
+            status="value_ready",
+            selected_method_fqn="causal.inference.did.standard@1.0.0",
+            decision_grade="high",
+            value_receipt=_receipt(_world_record()),
+        )
+
+
 def test_dominance_timeout_returns_unknown() -> None:
     left = _unit_value_set(lower=(3.0,), upper=(4.0,), identification_mode="partial")
     right = _unit_value_set(lower=(1.0,), upper=(2.0,), identification_mode="partial")
@@ -1262,34 +1669,77 @@ def test_bad_forecasts_and_unavailable_methods_fail_closed(
     blocker: str,
 ) -> None:
     world = _world_record()
-    owner = _AdversarialRealPanelGateway()
-    requested_method_fqn = "causal.inference.did.standard@1.0.0"
-    if case_name == "uncalibrated":
-        owner = _AdversarialRealPanelGateway(
-            forecast_tier="simulation_only_advisory",
-            calibration_status=None,
+    candidate = _avg_income_candidate()
+    problem = _avg_income_problem()
+    method_fqn = "causal.inference.did.standard@1.0.0"
+    if case_name == "unsupported":
+        selection = select_value_method_for_problem(
+            candidate=candidate,
+            problem=problem,
+            requested_method_fqn="causal.inference.no_such_method@9.9.9",
         )
-    elif case_name == "unsupported":
-        requested_method_fqn = "causal.inference.no_such_method@9.9.9"
-    elif case_name == "regime_laundered":
-        owner = _AdversarialRealPanelGateway(
-            expected_policy_context_ref="policy-context://other-regime"
+        observed_blocker = str(selection["blockers"][0])
+    elif case_name == "untransportable":
+        receipt, error = _run_value_transport(
+            inputs={
+                "selection_diagram": {"invalid": "selection-diagram"},
+                "query_treatment": "credit_guarantee",
+                "query_outcome": "avg_income",
+            },
+            world_record=world,
         )
+        assert receipt is None
+        observed_blocker = str(error)
     else:
-        owner = _AdversarialRealPanelGateway(selection_diagram={"invalid": "selection-diagram"})
-    observation = FoundryValuePort(
-        owner_gateway=owner,
-        requested_method_fqn=requested_method_fqn,
-    )(
-        candidate=_avg_income_candidate(),
-        simulation=_simulation(world),
-        problem=_avg_income_problem(),
-        cycle_index=0,
-    )
+        report = CausalEffectReport(
+            method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+            estimand="ATT",
+            point_estimate=10.0,
+            standard_error=1.0,
+            confidence_interval=(8.0, 12.0),
+            inference_method="did",
+            diagnostics=[
+                DiagnosticTest(
+                    test_name="parallel_trends",
+                    statistic=0.1,
+                    p_value=0.8,
+                    passed=True,
+                )
+            ],
+            sample_size=64,
+            n_treated=1,
+            n_control=15,
+            pre_periods=2,
+            post_periods=1,
+        )
+        evidence = _s10_calibration_evidence_from_report(report)
+        policy_context_ref = f"policy-context://{world.world_model_record_id}"
+        inputs = _build_s10_forecast_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world,
+            method_result=SimpleNamespace(output={"report": report}),
+            selected_method_fqn=method_fqn,
+            forecast_tier=(
+                "simulation_only_advisory"
+                if case_name == "uncalibrated"
+                else "observable_calibrated"
+            ),
+            calibration_status=(None if case_name == "uncalibrated" else "pass"),
+            policy_context_ref=policy_context_ref,
+            expected_policy_context_ref=(
+                "policy-context://other-regime"
+                if case_name == "regime_laundered"
+                else policy_context_ref
+            ),
+            false_clear_counts=evidence["false_clear_counts"],
+            calibration_evidence=evidence,
+        )
+        receipt = _value_calibration_receipt(inputs=inputs, world_record=world)
+        assert receipt.status == "blocked"
+        observed_blocker = receipt.issue_codes[0]
 
-    assert observation.status == "value_blocked"
-    assert observation.value_receipt is None
-    assert observation.authority_blockers[0].startswith(blocker)
+    assert observed_blocker.startswith(blocker)
 
 
 @pytest.mark.parametrize(

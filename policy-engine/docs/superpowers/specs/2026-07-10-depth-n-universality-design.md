@@ -14,6 +14,11 @@ proof execution structurally.
 The integration-debt resumption revision additionally requires repository-runtime
 interpreter identity at bootstrap and restores N2-owned normalization provenance
 without allowing provenance to influence grounding authority.
+The Stage-2 treatment-ownership revision additionally makes exposure assignment
+world knowledge: observational methods may consume treated units and periods only
+from a canonical substrate owner, never from a caller, test DTO, candidate label,
+or ordering heuristic. The positive method lane is selected only after a committed
+read-only census of owner evidence.
 
 ## Goal
 
@@ -68,6 +73,11 @@ The proof must include:
    not branch on domain names or enumerate the Foundry family denominator.
 4. **Fail closed on substance.** A path/ref prefix, present contract-shaped
    mapping, empty coupling graph, or self-attestation is not evidence.
+5. **Treatment assignment is owner-resolved world knowledge.** A candidate atom
+   identifies the intervention whose effect is being queried, but it cannot
+   self-author who was exposed or when. Observational assignment must resolve,
+   content-bind, and verify through the canonical substrate owner. Caller-supplied
+   assignment is refused as `treatment_assignment_not_owner_derived`.
 5. **Honest terminals are success.** A real refusal is a successful execution
    outcome but cannot, by itself, prove that a positive projector path works.
 6. **No authority inflation.** Simulation receipts remain K_sim evidence and
@@ -335,19 +345,19 @@ may only stay equal or widen under grounded transport/applicability limits.
 
 The frozen artifact must contain both:
 
-1. **Real non-panel positive.** Select a non-panel catalog method whose
-   treatment and estimand genuinely bind. The preferred early feasibility lane
-   is a Bayesian/posterior method over owner-resolved first-vertical
-   `avg_income` observations and the real credit treatment binding. The solve
-   must produce `value_ready`, and changing the native posterior interval must
-   change `ValueOuterSet.width`. The Bayesian FQN is a planning expectation,
-   never a runtime default: the existing registry/advisor must select it from
-   the candidate, problem, and owner-data modality, with a receipt recording
-   the ranked alternatives and why panel methods lost. The regression treatment
-   feature must be joined from the candidate atom's real treated units and
-   periods; an arbitrary or synthetic indicator is not admissible evidence. If
-   that candidate is not semantically valid, another real bound treatment must
-   be chosen before the Stage 2 exit gate can pass.
+1. **Real non-panel positive.** First census the canonical substrate for three
+   evidence lanes: L2 study estimates with uncertainty/context suitable for
+   transport, L1/L2 owner-recorded rollout assignment, and any cheaply available
+   sibling domain with owner-recorded assignment. Choose the lane by measured
+   evidence, not by the plan's former Bayesian expectation. The advisor must
+   select the reachable method from the real candidate/problem/data-modality
+   denominator and persist its ranked trace. A transport result may honestly be
+   partial or `transported_limited`; an observational result must derive every
+   treated unit and period from a content-bound owner producer. In either case
+   the real native uncertainty contract must produce `value_ready`, and changing
+   the native interval/bounds must change `ValueOuterSet.width`. If no censused
+   lane can mint honestly, Stage 2 stops rather than manufacturing assignment or
+   forcing a method.
 2. **Education honesty negative.** Run a real registry-selected non-panel method
    over education observations. If a `candidate_unbound` teaching-method lever
    cannot bind to the method's estimand, or calibration/transport evidence is
@@ -523,8 +533,12 @@ The gate requires:
 - a real non-panel `value_ready` receipt with native width lineage;
 - an advisor selection trace proving the non-panel method was selected rather
   than code-pinned, including ranked panel alternatives and loss reasons;
-- treatment-feature provenance proving feature zero was derived by joining the
-  candidate atom's treated units/periods to the owner-resolved observations;
+- either transport-estimate provenance binding the selected study estimates,
+  uncertainty, and contexts, or treatment-assignment provenance proving every
+  treated unit/period came from a canonical owner and was joined to the
+  owner-resolved observations;
+- caller-supplied assignment refused as
+  `treatment_assignment_not_owner_derived`;
 - education's real typed non-panel refusal;
 - first-/education-/third-pack transport vocabulary tests; and
 - no domain-name branches in engine code.

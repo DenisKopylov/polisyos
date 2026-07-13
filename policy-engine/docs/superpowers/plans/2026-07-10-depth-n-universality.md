@@ -16,8 +16,8 @@
 - Use no domain-name branch or engine enum for covariates, levers, contexts, regimes, outcomes, or method-family vocabulary.
 - Education writability remains `0`; CG2 production binds remain frozen; education promotion is not expected.
 - The frozen proof requires both a real non-panel `value_ready` positive and education's separate real typed non-panel refusal.
-- A concrete Bayesian FQN may be pinned in this plan as a deterministic expectation, but runtime code must use the existing registry/advisor selection from candidate/problem/data modality and persist the ranked selection trace; a fixed method default is forbidden.
-- Every treatment feature is derived by joining the candidate atom's real treated units/periods to owner-resolved observations; an arbitrary or synthetic treatment indicator is forbidden.
+- No method FQN is pinned in runtime or proof expectations. The live registry/advisor selects from candidate/problem/owner-data modality and persists the ranked trace; a fixed method default is forbidden.
+- Treatment assignment is owner-resolved world knowledge. An observational feature may be built only by joining canonical owner-recorded treated units/periods to owner-resolved observations; caller/test/candidate-supplied assignment and arbitrary or synthetic indicators are forbidden and fail typed as `treatment_assignment_not_owner_derived`.
 - Do not create a second registry, world, generation cycle, value surface, coupling algebra, or recursion authority.
 - Fence fixed-UA WMR creation, shaped-string WMR trust, `n6.bootstrap.*`, and the GY-G fixture structurally; do not patch one caller.
 - Preserve every existing N5/N6/N8/N9 decisive mutation. Add coverage; never delete or weaken a gate.
@@ -1166,10 +1166,38 @@ git commit -m "feat: project typed Foundry value evidence"
 - Replace panel-only `load_panel_observational_data` orchestration with `resolve_method_input(*, method_signature: MethodSignature, candidate: object, problem: DesignProblem, world_record: WorldModelRecord) -> object`.
 - `_s10_calibration_evidence_from_report` consumes `MethodValueEvidence`, not panel/DID fields.
 - `_value_outer_set_from_foundry_result` consumes the native envelope and never invents width.
+- The observational intake accepts treatment assignment only from a canonical,
+  content-bound substrate owner. Missing or caller-supplied assignment returns
+  `treatment_assignment_not_owner_derived` before estimator dispatch.
 
-- [ ] **Step 1: Write the Stage-2-exit real non-panel positive RED test before integration.**
+- [ ] **Step 1: Commit the independent A2 strict seam.**
 
-The plan's expected advisor outcome is `bayesian.regression.linear_regression@1.0.0` over the 64 owner-resolved L1 `avg_income` country/year rows already used by N8. Runtime code must not name or default to that FQN: derive `DataCharacteristics` from the real candidate/problem/owner rows, invoke the existing registry/advisor, and persist its full ranked selection trace, including the panel alternatives and why they lost on this shape. Feature zero is the exact binary treatment derived by joining the first vertical candidate atom's real binding (`treated_unit_ids=("AM",)`, `treatment_period=2020`) against those rows; its metadata name is `candidate_credit_guarantee:treatment`. The explicit `EstimandSpec` binds that candidate-derived feature to `coefficients_0`, the `avg_income` outcome, population/time/context, and the same atom. The posterior contract supplies the native credible interval. The resulting runtime observation may remain `identification_status="partial"` and low-grade, but it must be `value_ready` at Stage 2 exit. If the real advisor selects a different semantically valid non-panel method, the receipt records that real choice; if real posterior diagnostics/calibration refuse every bound lane, Stage 2 is NO-GO until the underlying owner semantics are repaired. Do not substitute a hand-built report, force the expected FQN, or defer method choice to closeout.
+Land the advisor-denominator filter/model guard, explicit truthfulness refusal,
+education-refusal receipt preservation, unknown-selection-authority refusal,
+and atom-only candidate resolution with their already-observed focused tests.
+Do not include an observational positive or frozen receipt that still trusts an
+atom/test DTO for exposure assignment.
+
+- [ ] **Step 2: Commit a read-only substrate census and choose the positive lane.**
+
+Census, in order, (B) L2 causal parameter estimates with native uncertainty,
+study contexts, and transport metadata; (A) L1/L2 adoption/rollout assignment
+records joinable to an outcome; and (C) another cheap domain with canonical
+assignment. Persist table/column/count/content-ref evidence in the Stage-2
+journal or a generated census artifact. Select only a lane whose complete input
+is owner-resolved and content-bound. If no lane is viable, stop Stage 2.
+
+- [ ] **Step 3: Write the Stage-2-exit real non-panel positive RED test before integration.**
+
+The expected method family is evidence-chosen. For a transport lane, the
+advisor must reach and select the real transport signature from the measured
+study/context modality; native study uncertainty plus transport bounds must
+trace to a partial/limited `ValueOuterSet`. For an observational lane, the
+advisor must select from the real row modality and the treatment feature must
+be generated by the canonical assignment owner, then joined to owner-resolved
+outcomes. The candidate atom supplies intervention identity only, never treated
+units or periods. Do not substitute a hand-built report, force an FQN, or defer
+method/input feasibility to closeout.
 
 ```python
 def test_real_bound_non_panel_method_mints_native_width() -> None:
@@ -1186,14 +1214,9 @@ def test_real_bound_non_panel_method_mints_native_width() -> None:
         for row in observation.method_selection_receipt.ranked_alternatives
     )
     assert observation.selected_method_fqn != "causal.inference.did.standard@1.0.0"
-    assert observation.treatment_provenance.source == "candidate_atom_binding"
-    assert observation.treatment_provenance.treated_unit_ids == ("AM",)
-    assert observation.treatment_provenance.treatment_period == 2020
-    assert observation.treatment_provenance.joined_owner_row_count > 0
-    assert observation.estimand.parameter == "coefficients_0"
-    assert observation.estimand.treatment_ref == (
-        observation.treatment_provenance.candidate_atom_ref
-    )
+    assert observation.method_input_provenance.owner_content_hash
+    assert observation.method_input_provenance.authority == "owner_resolved"
+    assert observation.method_input_provenance.caller_supplied_assignment is False
     assert observation.value_receipt.value_outer_set.width[0] > 0.0
     assert widened.value_receipt.value_outer_set.width[0] > (
         observation.value_receipt.value_outer_set.width[0]
@@ -1203,7 +1226,7 @@ def test_real_bound_non_panel_method_mints_native_width() -> None:
 
 This test may not use a hand-built report or fixture DTO as the positive; it dispatches the real registered estimator over owner-resolved rows.
 
-- [ ] **Step 2: Write the separate education refusal test.**
+- [ ] **Step 4: Write the separate education refusal and caller-assignment RED tests.**
 
 ```python
 def test_real_education_non_panel_method_refuses_unbound_estimand() -> None:
@@ -1213,19 +1236,27 @@ def test_real_education_non_panel_method_refuses_unbound_estimand() -> None:
     assert observation.selected_method_fqn != "causal.inference.did.standard@1.0.0"
     assert observation.authority_blockers == ("method_estimand_binding_mismatch",)
     assert observation.value_receipt is None
+
+
+def test_caller_supplied_treatment_assignment_is_refused() -> None:
+    observation = _run_observational_value_with_caller_assignment()
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
 ```
 
-- [ ] **Step 3: Run both tests and observe RED for the expected panel-only/projector reasons.**
+- [ ] **Step 5: Run the tests and observe RED at the owner-intake boundary.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_value_gate.py -k 'real_bound_non_panel or real_education_non_panel' -q
 ```
 
-- [ ] **Step 4: Implement generic input materialization and thin runtime consumption.**
+- [ ] **Step 6: Implement generic input materialization and thin runtime consumption.**
 
-Selection derives `DataCharacteristics` from owner data, resolves a live catalog signature, and only then materializes its declared input slots. The runtime calls `project_method_value_evidence`, passes its diagnostics to the real calibration verifier, and derives `ValueOuterSet` from `evidence.envelope`. Remove report-field assumptions for `n_treated`, `n_control`, `pre_periods`, and `post_periods` from the generic path; preserve DID behavior through its own report adapter.
+Selection derives `DataCharacteristics` from owner data, resolves a live catalog signature, and only then materializes its declared input slots. Transport inputs resolve study estimates, native uncertainty, and measured contexts from their canonical owners. Observational inputs resolve assignment through the single canonical owner before joining outcomes; an atom/test DTO cannot supply assignment. The runtime calls `project_method_value_evidence`, passes its diagnostics to the real calibration verifier, and derives `ValueOuterSet` from `evidence.envelope`. Remove report-field assumptions for `n_treated`, `n_control`, `pre_periods`, and `post_periods` from the generic path; preserve DID behavior through its own report adapter.
 
-- [ ] **Step 5: Derive the family denominator and extend both-way source flips.**
+- [ ] **Step 7: Derive the family denominator and extend both-way source flips.**
 
 The N8 validator loads the live catalog snapshot, derives every family, and requires a total supported/limited/refused classification. Add restoring flips for:
 
@@ -1235,10 +1266,12 @@ The N8 validator loads the live catalog snapshot, derives every family, and requ
 - native interval replaced by hand-set width -> RED;
 - advisor selection replaced by a hardwired method FQN -> RED with
   `value_method_selection_fixed_default`; and
-- candidate-derived treatment join replaced by an arbitrary/synthetic feature
-  -> RED with `candidate_treatment_provenance_missing`.
+- caller-supplied treatment assignment admitted -> RED with
+  `treatment_assignment_not_owner_derived`;
+- owner-derived treatment/transport provenance removed -> the positive vanishes
+  -> RED.
 
-- [ ] **Step 6: Run Stage-2 gate.**
+- [ ] **Step 8: Run Stage-2 gate.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_second_domain_pack.py -k 'non_panel or value or transport' -q
@@ -1251,7 +1284,7 @@ rg -n "if .*education|if .*environment|if .*energy|if .*governance|match .*educa
 
 The `rg` output must contain no domain-name branch; comments/test labels are reviewed manually and do not excuse a branch.
 
-- [ ] **Step 7: Commit A2 only after both receipts exist.**
+- [ ] **Step 9: Commit A2 only after both receipts exist.**
 
 ```bash
 git add src/polisyos/runtime/quality/generation_cycle.py tools/quality/validation/check_layer3_gy_value_gate_contract.py tools/quality/validation/check_layer3_gy_second_domain_pack.py tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_second_domain_pack.py
@@ -1752,7 +1785,7 @@ If verification required a repair, repeat its RED/GREEN test and commit the scop
 - Task 1R binds the repository interpreter explicitly and restores N2
   `normalized_from` as non-authoritative provenance with a decisive source flip.
 - The non-panel positive is the Stage-2 exit gate (not its entry); education refusal is separate.
-- The expected Bayesian FQN is plan-pinned only; advisor selection trace and candidate-real treatment provenance are decisive RED/GREEN properties.
+- The positive lane and method are evidence-chosen, advisor-selected, and never code-pinned; transport-estimate or owner-assignment provenance plus the caller-assignment refusal are decisive RED/GREEN properties.
 - Task 0 pins N10a's historical receipt without weakening live owner rederive; Task 0B structurally rejects a wrong checkout.
 - N4 wrappers, the recorded-evidence formalizer accessor, the one-pass import audit, and `GroundingDispositionKind` reconciliation are bounded to Task 1.
 - N6 loosening is Stage 3, additive-only, with an unreachable one-cycle RED mutation.

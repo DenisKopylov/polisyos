@@ -815,6 +815,7 @@ def select_value_method_for_problem(
         cost_policy="ignore",
     )
     advised = advise_methods(catalog, query)
+    value_score_trace = tuple(item for item in advised.score_trace if item.fqn in denominator)
     recommended = tuple(entry for entry in advised.recommended if entry.fqn in denominator)
     runnable_recommended = tuple(entry for entry in recommended if entry.runnable)
     if not runnable_recommended:
@@ -822,9 +823,40 @@ def select_value_method_for_problem(
             code="value_method_selection_no_runnable_method",
             reason="The advisor found no runnable value method for the candidate/problem shape.",
             denominator=denominator,
-            score_trace=tuple(item.fqn for item in advised.score_trace),
+            score_trace=tuple(item.fqn for item in value_score_trace),
         )
     selected = runnable_recommended[0]
+    selected_trace = next(
+        (item for item in value_score_trace if item.fqn == selected.fqn),
+        None,
+    )
+    ranked_alternatives = tuple(
+        {
+            "rank": rank,
+            "method_fqn": item.fqn,
+            "method_family": item.family,
+            "data_modalities": tuple(entry_by_fqn[item.fqn].data_modalities)
+            if item.fqn in entry_by_fqn
+            else (),
+            "advisor_score": float(item.advisor_score),
+            "loss_reasons": (
+                ()
+                if item.fqn == selected.fqn
+                else (
+                    "advisor_tie_broken_by_rank_on_owner_data_shape"
+                    if selected_trace is not None
+                    and math.isclose(
+                        float(item.advisor_score),
+                        float(selected_trace.advisor_score),
+                        rel_tol=0.0,
+                        abs_tol=1.0e-12,
+                    )
+                    else "advisor_score_below_selected_on_owner_data_shape",
+                )
+            ),
+        }
+        for rank, item in enumerate(value_score_trace, start=1)
+    )
     return {
         "status": "selected",
         "selected_method_fqn": selected.fqn,
@@ -832,7 +864,16 @@ def select_value_method_for_problem(
         "candidate_signal": _candidate_selection_signal(candidate),
         "problem_signal": _problem_selection_signal(problem),
         "denominator": denominator,
-        "score_trace": tuple(item.fqn for item in advised.score_trace),
+        "score_trace": tuple(item.fqn for item in value_score_trace),
+        "ranked_alternatives": ranked_alternatives,
+        "data_characteristics": {
+            "n_obs": query.data.n_obs,
+            "n_units": query.data.n_units,
+            "n_periods": query.data.n_periods,
+            "is_panel": query.data.is_panel,
+            "treatment_is_binary": query.data.treatment_is_binary,
+            "outcome_is_continuous": query.data.outcome_is_continuous,
+        },
         "blockers": (),
     }
 

@@ -5,6 +5,7 @@ from dataclasses import replace
 
 import numpy as np
 import pytest
+
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry, MethodCatalogSnapshot
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
@@ -22,6 +23,7 @@ from polisyos.foundry.methods.selection import (
     advise_methods_for_analyst,
     build_advisor_execution_context,
     pareto_advise_methods,
+    select_value_method_for_problem,
 )
 from polisyos.foundry.methods.selection_history import MethodExecutionRecord, SelectionHistoryStore
 
@@ -199,6 +201,44 @@ def test_method_advisor_returns_ranked_payload_and_capability_matrix() -> None:
             "frontier_method_count": 0,
         },
     )
+
+
+def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
+    result = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "candidate_value_denominator",
+            "diversity_key": ("posterior", "tabular", "effect"),
+        },
+        problem={
+            "design_problem_id": "problem_value_denominator",
+            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": False,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                }
+            },
+        },
+    )
+
+    assert result["status"] == "selected"
+    denominator = set(result["denominator"])
+    assert denominator
+    assert set(result["score_trace"]) <= denominator
+    assert result["ranked_alternatives"]
+    assert all(
+        row["method_fqn"] in denominator
+        for row in result["ranked_alternatives"]
+    )
+    assert sum(
+        row["method_fqn"] == result["selected_method_fqn"]
+        for row in result["ranked_alternatives"]
+    ) == 1
 
 
 def test_method_advisor_strict_phase5_blocks_missing_consensus() -> None:

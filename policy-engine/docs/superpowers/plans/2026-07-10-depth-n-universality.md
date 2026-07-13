@@ -1069,7 +1069,7 @@ git commit -m "feat: derive value transport from domain data"
 - Produces `MethodValueEvidenceStatus`, `MethodValueRefusal`, and `MethodValueEvidence`.
 - Produces `project_method_value_evidence(*, method_signature: MethodSignature, method_result: MethodResult, estimand: EstimandSpec, selected_output_slot: str | None = None) -> MethodValueEvidence | MethodValueRefusal`.
 
-- [ ] **Step 1: Write RED output-contract/estimand/uncertainty tests.**
+- [x] **Step 1: Write RED output-contract/estimand/uncertainty tests.**
 
 ```python
 def test_posterior_contract_projects_native_interval() -> None:
@@ -1104,13 +1104,13 @@ def test_pretty_interval_for_wrong_estimand_refuses() -> None:
 
 Also cover `EconometricResult`, forecasting horizon intervals, distributional/transport bounds, diagnostic-only unsupported methods, heuristic/non-gate-eligible envelopes, and exact deterministic bounds.
 
-- [ ] **Step 2: Run tests and observe RED because the Foundry projector is absent.**
+- [x] **Step 2: Run tests and observe RED because the Foundry projector is absent.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_value_gate.py -k 'posterior_contract or output_contract_unresolved or wrong_estimand or method_value_projector' -q
 ```
 
-- [ ] **Step 3: Implement the Foundry-owned total projection.**
+- [x] **Step 3: Implement the Foundry-owned total projection.**
 
 Use strict models containing at least:
 
@@ -1139,14 +1139,14 @@ class MethodValueRefusal(BaseModel):
 
 Resolve the output slot from the live signature. Require a typed instance or explicit validation against the slot's contract ID. Reuse `SupportsConsensusTarget`, `EstimandSpec`, `to_uncertainty_envelope`, truthfulness extraction, and native report diagnostics. Do not branch on domain or duplicate the method-family denominator.
 
-- [ ] **Step 4: Run projector tests and Ruff.**
+- [x] **Step 4: Run projector tests and Ruff.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_value_gate.py -k 'posterior_contract or output_contract_unresolved or wrong_estimand or method_value_projector' -q
 .venv/bin/ruff check src/polisyos/foundry/methods/components/value_evidence.py src/polisyos/foundry/methods/components/__init__.py tests/unit/runtime/quality/test_value_gate.py
 ```
 
-- [ ] **Step 5: Commit the Foundry owner.**
+- [x] **Step 5: Commit the Foundry owner.**
 
 ```bash
 git add src/polisyos/foundry/methods/components/value_evidence.py src/polisyos/foundry/methods/components/__init__.py tests/unit/runtime/quality/test_value_gate.py

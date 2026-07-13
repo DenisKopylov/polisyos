@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -8,6 +9,36 @@ from typing import Any
 import pytest
 
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
+from polisyos.core.observability.determinism import DeterminismTier
+from polisyos.foundry.methods.backends.protocol import (
+    MethodResult,
+    MethodTiming,
+    ReproducibilityInfo,
+)
+from polisyos.foundry.methods.base import (
+    ComplexityClass,
+    ComputeBackend,
+    FidelityLevel,
+    MethodSignature,
+    SlotSpec,
+    SlotType,
+    Unit,
+)
+from polisyos.foundry.methods.catalog.bayesian.protocols import PosteriorResult
+from polisyos.foundry.methods.catalog.bayesian.regression import (
+    BayesianLinearRegressionEstimator,
+)
+from polisyos.foundry.methods.catalog.econometrics.protocols import (
+    EconometricDiagnosticResult,
+    EconometricResult,
+)
+from polisyos.foundry.methods.catalog.econometrics.timeseries import TimeSeriesEstimator
+from polisyos.foundry.methods.components.consensus import EstimandSpec
+from polisyos.foundry.methods.components.value_evidence import (
+    MethodValueEvidence,
+    MethodValueRefusal,
+    project_method_value_evidence,
+)
 from polisyos.foundry.methods.selection import (
     reachable_value_method_fqns,
     select_value_method_for_problem,
@@ -17,6 +48,32 @@ from polisyos.ir.analytics.causal import (
     CausalMethod,
     DiagnosticTest,
 )
+from polisyos.ir.analytics.distributional import (
+    DistributionalBoundsBundle,
+    DistributionalFunctional,
+    FunctionalBounds,
+    GridAxis,
+)
+from polisyos.ir.analytics.forecasting_uncertainty import (
+    FanChartSpec,
+    ForecastCalibrationMethod,
+    ForecastCoverageDiagnostic,
+    ForecastingUncertaintyBundle,
+    ForecastIntervalSemantics,
+    HorizonInterval,
+    HorizonPolicySpec,
+)
+from polisyos.ir.analytics.partial_identification import (
+    BoundMethod,
+    BoundsBundle,
+    PartialIdentificationResult,
+)
+from polisyos.ir.analytics.transportability import (
+    TransportabilityResult,
+    TransportabilityStatus,
+    TransportMode,
+)
+from polisyos.ir.analytics.uncertainty import IntervalSemantics
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
     CycleSubstrateContext,
@@ -66,6 +123,319 @@ from .test_generation_cycle import _Atom, _Candidate, _problem
 
 def _hash(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def _posterior_method_result(report: object) -> MethodResult:
+    return MethodResult(
+        output={"result": report},
+        slot_outputs={"result": report},
+        timing=MethodTiming(wall_time_ms=1.0),
+        reproducibility=ReproducibilityInfo(
+            backend=ComputeBackend.BAYESIAN,
+            determinism_tier=DeterminismTier.STATISTICAL,
+            seed=42,
+        ),
+    )
+
+
+def _posterior_estimand(parameter: str = "coefficients_0") -> EstimandSpec:
+    return EstimandSpec(
+        query_id="candidate-credit-guarantee-value",
+        estimand_id=parameter,
+        outcome="avg_income",
+        treatment_or_exposure="candidate_credit_guarantee:treatment",
+        population="owner_resolved_country_year_rows",
+        time_horizon="2017/2020",
+        unit="avg_income",
+        target_role="causal",
+    )
+
+
+def _value_contract_signature(*, contract_id: str, family: str) -> MethodSignature:
+    return MethodSignature(
+        name="value_projection_probe",
+        namespace=family,
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    "result",
+                    SlotType.SCALAR,
+                    Unit("value", "json"),
+                    contract_id=contract_id,
+                )
+            }
+        ),
+        parameters=(),
+        fidelity=FidelityLevel.MEDIUM,
+        complexity=ComplexityClass.O_1,
+        family=family,
+    )
+
+
+def test_posterior_contract_projects_native_interval() -> None:
+    posterior = PosteriorResult(
+        method_name="bayesian_linear_regression",
+        posterior_means={"coefficients_0": 1.5},
+        posterior_stds={"coefficients_0": 0.8},
+        credible_intervals={"coefficients_0": (-2.0, 5.0)},
+        diagnostics={"credible_mass": 0.9, "num_samples": 128},
+    )
+
+    evidence = project_method_value_evidence(
+        method_signature=BayesianLinearRegressionEstimator.signature,
+        method_result=_posterior_method_result(posterior),
+        estimand=_posterior_estimand(),
+        selected_output_slot="result",
+    )
+
+    assert isinstance(evidence, MethodValueEvidence)
+    assert evidence.status == "value_ready"
+    assert evidence.envelope.confidence_interval == (-2.0, 5.0)
+    assert evidence.native_contract_id == PosteriorResult.contract_id
+    assert evidence.envelope.metadata["parameter"] == "coefficients_0"
+
+
+def test_shaped_mapping_without_resolved_contract_id_refuses() -> None:
+    shaped_report = {
+        "method_name": "bayesian_linear_regression",
+        "posterior_means": {"coefficients_0": 1.5},
+        "credible_intervals": {"coefficients_0": (-2.0, 5.0)},
+    }
+
+    refusal = project_method_value_evidence(
+        method_signature=BayesianLinearRegressionEstimator.signature,
+        method_result=_posterior_method_result(shaped_report),
+        estimand=_posterior_estimand(),
+        selected_output_slot="result",
+    )
+
+    assert isinstance(refusal, MethodValueRefusal)
+    assert refusal.reason_code == "method_output_contract_unresolved"
+
+
+def test_pretty_interval_for_wrong_estimand_refuses() -> None:
+    posterior = PosteriorResult(
+        method_name="bayesian_linear_regression",
+        posterior_means={"coefficients_0": 1.5},
+        posterior_stds={"coefficients_0": 0.8},
+        credible_intervals={"coefficients_0": (-2.0, 5.0)},
+        diagnostics={"credible_mass": 0.9, "num_samples": 128},
+    )
+
+    refusal = project_method_value_evidence(
+        method_signature=BayesianLinearRegressionEstimator.signature,
+        method_result=_posterior_method_result(posterior),
+        estimand=_posterior_estimand("education_teaching_method"),
+        selected_output_slot="result",
+    )
+
+    assert isinstance(refusal, MethodValueRefusal)
+    assert refusal.reason_code == "method_estimand_binding_mismatch"
+
+
+def test_econometric_contract_projects_its_own_interval_without_family_branch() -> None:
+    report = EconometricResult(
+        method_name="time_series_ols",
+        params={"coefficients_0": 2.0},
+        std_errors={"coefficients_0": 0.4},
+        confidence_intervals={"coefficients_0": (1.1, 2.9)},
+        n_obs=64,
+    )
+
+    evidence = project_method_value_evidence(
+        method_signature=TimeSeriesEstimator.signature,
+        method_result=_posterior_method_result(report),
+        estimand=_posterior_estimand(),
+        selected_output_slot="result",
+    )
+
+    assert isinstance(evidence, MethodValueEvidence)
+    assert evidence.envelope.confidence_interval == (1.1, 2.9)
+    assert evidence.native_contract_id == EconometricResult.contract_id
+
+
+def test_diagnostic_only_contract_refuses_value_projection() -> None:
+    diagnostic = EconometricDiagnosticResult(
+        test_name="placebo",
+        statistic=0.1,
+        p_value=0.8,
+        passed=True,
+    )
+    signature = TimeSeriesEstimator.signature.__class__(
+        name="diagnostic_probe",
+        namespace="econometrics.diagnostic",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(
+            {
+                SlotSpec(
+                    "result",
+                    SlotType.SCALAR,
+                    Unit("diagnostic", "json"),
+                    contract_id=EconometricDiagnosticResult.contract_id,
+                )
+            }
+        ),
+        parameters=(),
+        fidelity=TimeSeriesEstimator.signature.fidelity,
+        complexity=TimeSeriesEstimator.signature.complexity,
+    )
+
+    refusal = project_method_value_evidence(
+        method_signature=signature,
+        method_result=_posterior_method_result(diagnostic),
+        estimand=_posterior_estimand(),
+        selected_output_slot="result",
+    )
+
+    assert isinstance(refusal, MethodValueRefusal)
+    assert refusal.reason_code == "method_uncertainty_projection_unsupported"
+
+
+def test_forecasting_contract_projects_requested_native_horizon() -> None:
+    now = datetime(2026, 7, 13, tzinfo=UTC)
+    report = ForecastingUncertaintyBundle(
+        method_fqn="forecasting.probe@1.0.0",
+        target_id="avg_income",
+        generated_at=now,
+        prediction_interval=(
+            HorizonInterval(
+                horizon=1,
+                point=10.0,
+                lower=8.0,
+                upper=13.0,
+                coverage_target=0.9,
+                constructor=ForecastCalibrationMethod.CONFORMAL,
+                sample_count=64,
+            ),
+        ),
+        fan_chart=FanChartSpec(quantile_levels=(), horizons=()),
+        coverage_diagnostic=ForecastCoverageDiagnostic(
+            nominal_coverage=0.9,
+            empirical_coverage_by_horizon={1: 0.91},
+            sample_count_by_horizon={1: 64},
+            last_recalibrated_at=now,
+        ),
+        horizon_policy=HorizonPolicySpec(
+            default_method=ForecastCalibrationMethod.CONFORMAL,
+            gate_eligible=True,
+        ),
+        interval_semantics=ForecastIntervalSemantics.CONFORMALIZED_PREDICTION_INTERVAL,
+        calibration_method=ForecastCalibrationMethod.CONFORMAL,
+        nominal_coverage=0.9,
+        sample_size_assumption="owner calibration rows",
+    )
+    estimand = replace(
+        _posterior_estimand("avg_income"),
+        time_horizon="1",
+        target_role="prediction",
+    )
+
+    evidence = project_method_value_evidence(
+        method_signature=_value_contract_signature(
+            contract_id=ForecastingUncertaintyBundle.contract_id,
+            family="forecasting",
+        ),
+        method_result=_posterior_method_result(report),
+        estimand=estimand,
+        selected_output_slot="result",
+    )
+
+    assert isinstance(evidence, MethodValueEvidence)
+    assert evidence.envelope.confidence_interval == (8.0, 13.0)
+    assert evidence.envelope.interval_semantics is IntervalSemantics.CONFIDENCE_INTERVAL
+
+
+def test_distributional_contract_projects_outer_hull_for_bound_estimand() -> None:
+    report = DistributionalBoundsBundle(
+        estimand_type="quantile_shift",
+        functional=DistributionalFunctional.QUANTILE_SHIFT,
+        axis=GridAxis(axis_name="quantile", values=(0.25, 0.75), unit="probability"),
+        consensus_bounds=FunctionalBounds(lower=(-2.0, -1.0), upper=(1.0, 4.0)),
+        sharpness_status="outer_approx",
+    )
+
+    evidence = project_method_value_evidence(
+        method_signature=_value_contract_signature(
+            contract_id=DistributionalBoundsBundle.contract_id,
+            family="distributional",
+        ),
+        method_result=_posterior_method_result(report),
+        estimand=_posterior_estimand("quantile_shift"),
+        selected_output_slot="result",
+    )
+
+    assert isinstance(evidence, MethodValueEvidence)
+    assert evidence.envelope.confidence_interval == (-2.0, 4.0)
+    assert evidence.envelope.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
+
+
+def test_partial_identification_contract_projects_exact_native_bounds() -> None:
+    report = BoundsBundle(
+        estimand_type="ate",
+        lower_bound=-0.5,
+        upper_bound=1.25,
+        consensus_lower=-0.5,
+        consensus_upper=1.25,
+        sharpness_status="sharp",
+    )
+
+    evidence = project_method_value_evidence(
+        method_signature=_value_contract_signature(
+            contract_id=BoundsBundle.contract_id,
+            family="partial_identification",
+        ),
+        method_result=_posterior_method_result(report),
+        estimand=_posterior_estimand("ate"),
+        selected_output_slot="result",
+    )
+
+    assert isinstance(evidence, MethodValueEvidence)
+    assert evidence.envelope.confidence_interval == (-0.5, 1.25)
+    assert evidence.envelope.confidence_level is None
+
+
+def test_transport_contract_projects_only_its_bound_native_region() -> None:
+    bounds = PartialIdentificationResult(
+        method=BoundMethod.TRANSPORT_BOUNDS,
+        lower_bound=-1.0,
+        upper_bound=2.0,
+        confidence=0.8,
+        informativeness_threshold=4.0,
+    )
+    report = TransportabilityResult(
+        query="transported_ate",
+        status=TransportabilityStatus.BOUNDED_NON_IDENTIFIED,
+        transport_mode=TransportMode.BOUNDS_ONLY,
+        partial_identification_result=bounds,
+    )
+
+    evidence = project_method_value_evidence(
+        method_signature=_value_contract_signature(
+            contract_id=TransportabilityResult.contract_id,
+            family="transport",
+        ),
+        method_result=_posterior_method_result(report),
+        estimand=_posterior_estimand("transported_ate"),
+        selected_output_slot="result",
+    )
+
+    assert isinstance(evidence, MethodValueEvidence)
+    assert evidence.envelope.confidence_interval == (-1.0, 2.0)
+
+    mismatch = project_method_value_evidence(
+        method_signature=_value_contract_signature(
+            contract_id=TransportabilityResult.contract_id,
+            family="transport",
+        ),
+        method_result=_posterior_method_result(report),
+        estimand=_posterior_estimand("different_estimand"),
+        selected_output_slot="result",
+    )
+    assert isinstance(mismatch, MethodValueRefusal)
+    assert mismatch.reason_code == "method_estimand_binding_mismatch"
 
 
 def test_n8_audit_world_uses_canonical_design_problem_contract() -> None:

@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    PropagationMethod,
+    UncertaintyEnvelope,
+    UncertaintySource,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import TransportabilityResultRef
@@ -468,6 +475,7 @@ class TransportabilityResult(BaseModel):
     creation so validated models no longer rewrite their own fields.
     """
 
+    contract_id: ClassVar[str] = "ir.transportability_result.v2"
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
@@ -633,6 +641,34 @@ class TransportabilityResult(BaseModel):
             TransportabilityStatus.IDENTIFIED,
             TransportabilityStatus.PARTIALLY_IDENTIFIED,
         }
+
+    def to_value_uncertainty(self, *, estimand: object) -> UncertaintyEnvelope | None:
+        """Project transport bounds only when the query identity is explicit."""
+
+        estimand_id = str(getattr(estimand, "estimand_id", "") or "")
+        if not self.query or estimand_id != self.query:
+            return None
+        bounds = self.partial_identification_result
+        if bounds is None:
+            return None
+        lower = float(bounds.lower_bound)
+        upper = float(bounds.upper_bound)
+        return UncertaintyEnvelope(
+            point_estimate=(lower + upper) / 2.0,
+            confidence_interval=(lower, upper),
+            confidence_level=None,
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.CAUSAL,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+            gate_eligible=bool(bounds.is_informative),
+            metadata={
+                "query": self.query,
+                "transport_status": self.status.value,
+                "transport_mode": self.transport_mode.value,
+                "bounds_method": bounds.method.value,
+            },
+        )
 
 
 def build_selection_diagram(

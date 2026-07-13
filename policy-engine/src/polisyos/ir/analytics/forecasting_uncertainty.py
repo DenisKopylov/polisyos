@@ -14,7 +14,14 @@ from polisyos.ir.analytics._truthfulness import (
     TruthfulnessScope,
     TruthfulnessTier,
 )
-from polisyos.ir.analytics.uncertainty import NumericPolicySpec
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    NumericPolicySpec,
+    PropagationMethod,
+    UncertaintyEnvelope,
+    UncertaintySource,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, ForecastingUncertaintyBundleRef
@@ -547,6 +554,68 @@ class ForecastingUncertaintyBundle(BaseModel):
             diagnostics=diagnostics,
             degradation_reasons=tuple(dict.fromkeys(degradation_reasons)),
             evidence_ref=evidence_ref,
+        )
+
+    def to_value_uncertainty(self, *, estimand: object) -> UncertaintyEnvelope | None:
+        """Project one explicitly requested scalar forecast horizon."""
+
+        estimand_id = str(getattr(estimand, "estimand_id", "") or "")
+        outcome = str(getattr(estimand, "outcome", "") or "")
+        if self.target_id not in {estimand_id, outcome}:
+            return None
+        horizon_raw = str(getattr(estimand, "time_horizon", "") or "")
+        try:
+            horizon = int(horizon_raw)
+        except ValueError:
+            return None
+        interval = next(
+            (item for item in self.prediction_interval if item.horizon == horizon),
+            None,
+        )
+        if interval is None:
+            return None
+        point = _flatten_numeric_payload(interval.point)
+        lower = _flatten_numeric_payload(interval.lower)
+        upper = _flatten_numeric_payload(interval.upper)
+        if len(point) != 1 or len(lower) != 1 or len(upper) != 1:
+            return None
+        heuristic = self.interval_semantics is ForecastIntervalSemantics.HEURISTIC_RANGE
+        covered_rules = tuple(
+            rule
+            for rule in self.horizon_policy.rules
+            if rule.horizon_start <= horizon <= rule.horizon_end
+        )
+        gate_eligible = (
+            self.horizon_policy.gate_eligible
+            and all(rule.gate_eligible for rule in covered_rules)
+            and not heuristic
+        )
+        return UncertaintyEnvelope(
+            point_estimate=point[0],
+            confidence_interval=(lower[0], upper[0]),
+            confidence_level=(
+                None
+                if heuristic
+                else float(interval.coverage_target or self.nominal_coverage)
+            ),
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.CALIBRATION,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=(
+                IntervalSemantics.HEURISTIC_RANGE
+                if heuristic
+                else IntervalSemantics.CONFIDENCE_INTERVAL
+            ),
+            sample_size=interval.sample_count,
+            is_heuristic_ci=heuristic,
+            gate_eligible=gate_eligible,
+            metadata={
+                "method_fqn": self.method_fqn,
+                "target_id": self.target_id,
+                "horizon": horizon,
+                "native_interval_semantics": self.interval_semantics.value,
+                "calibration_method": self.calibration_method.value,
+            },
         )
 
 

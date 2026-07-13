@@ -3,11 +3,18 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    PropagationMethod,
+    UncertaintyEnvelope,
+    UncertaintySource,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import BoundsBundleRef, BoundsTighteningLogRef, DualCertificateRef
@@ -307,6 +314,7 @@ class BoundsTighteningLog(BaseModel):
 class BoundsBundle(BaseModel):
     """Canonical public bounds contract for non-point-identified queries."""
 
+    contract_id: ClassVar[str] = "ir.bounds_bundle.v1"
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -326,6 +334,35 @@ class BoundsBundle(BaseModel):
     rescue_actions: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    def to_value_uncertainty(self, *, estimand: object) -> UncertaintyEnvelope | None:
+        """Project certified outer bounds for the explicitly named estimand."""
+
+        estimand_id = str(getattr(estimand, "estimand_id", "") or "")
+        if estimand_id != self.estimand_type:
+            return None
+        lower = self.consensus_lower if self.consensus_lower is not None else self.lower_bound
+        upper = self.consensus_upper if self.consensus_upper is not None else self.upper_bound
+        if lower is None or upper is None:
+            return None
+        lower_value = float(lower)
+        upper_value = float(upper)
+        gate_eligible = self.sharpness_status in {"sharp", "outer_approx"}
+        return UncertaintyEnvelope(
+            point_estimate=(lower_value + upper_value) / 2.0,
+            confidence_interval=(lower_value, upper_value),
+            confidence_level=None,
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.CAUSAL,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+            gate_eligible=gate_eligible,
+            metadata={
+                "estimand_type": self.estimand_type,
+                "sharpness_status": self.sharpness_status,
+                "projection": "consensus_bounds",
+            },
+        )
 
 
 def bounds_bundle_from_partial_identification_result(

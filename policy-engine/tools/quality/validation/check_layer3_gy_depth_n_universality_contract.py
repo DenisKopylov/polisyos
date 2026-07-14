@@ -165,6 +165,42 @@ class _RecordingGateway:
         return response
 
 
+class _FreshRecordingSpanGateway:
+    """Create/close one live verifier client inside each fresh-loop judgment."""
+
+    def __init__(self, *, model_id: str) -> None:
+        self.model_id = model_id
+        self.calls: list[dict[str, Any]] = []
+
+    async def generate(self, **kwargs: Any) -> object:
+        from polisyos.scientist.orchestration.llm.factory import (
+            create_traced_gateway_client,
+        )
+
+        inner = create_traced_gateway_client(
+            model_name=self.model_id,
+            run_id="gy_n10_stage4_span_support",
+            model_variant_id="gy-n10-stage4-span",
+        )
+        if inner is None:
+            raise UniversalityContractError("span_support_gateway_unavailable")
+        try:
+            response = await inner.generate(**kwargs)
+        finally:
+            close = getattr(inner, "aclose", None)
+            if callable(close):
+                await close()
+        response_payload = _normalized_gateway_response(response)
+        row = {
+            "call_index": len(self.calls),
+            "request_content_hash": _semantic_hash(kwargs),
+            "response": response_payload,
+            "response_content_hash": _semantic_hash(response_payload),
+        }
+        self.calls.append(row)
+        return response
+
+
 class _ReplayGateway:
     """Replay a content-bound real compiler response through the compiler owner."""
 
@@ -313,6 +349,7 @@ async def _capture_compiler_recording(
     role: str,
     raw_request: str,
     gateway: _RecordingGateway,
+    span_gateway: object,
 ) -> tuple[object, dict[str, Any]]:
     """Capture and immediately validate one real plain-language compiler response."""
 
@@ -322,15 +359,20 @@ async def _capture_compiler_recording(
     )
 
     start = len(gateway.calls)
+    span_calls = getattr(span_gateway, "calls", None)
+    if not isinstance(span_calls, list):
+        raise UniversalityContractError("span_support_recording_surface_missing")
+    span_start = len(span_calls)
     context = _proof_compiler_context(role)
     problem = await build_design_problem_from_nl_request(
         nl_request=raw_request,
         context=context,
         model_name=PROOF_MODEL_ID,
         gateway_client=gateway,
-        span_support_client=gateway,
+        span_support_client=span_gateway,
     )
     calls = copy.deepcopy(gateway.calls[start:])
+    recorded_span_calls = copy.deepcopy(span_calls[span_start:])
     if not calls:
         raise UniversalityContractError("compiler_recording_denominator_empty")
     recording: dict[str, Any] = {
@@ -339,11 +381,15 @@ async def _capture_compiler_recording(
         "role": role,
         "model_id": PROOF_MODEL_ID,
         "model_ids": list(gateway.model_ids),
+        "span_model_id": str(
+            getattr(span_gateway, "model_id", PROOF_MODEL_ID)
+        ),
         "raw_request": raw_request,
         "raw_request_content_hash": gy_content_hash({"raw_request": raw_request}),
         "context": context,
         "design_problem_ref": gy_content_hash(problem.model_dump(mode="json")),
         "calls": calls,
+        "span_calls": recorded_span_calls,
     }
     recording["recording_content_hash"] = _semantic_hash(recording)
     replayed = await _replay_compiler_recording(recording)
@@ -368,14 +414,21 @@ async def _replay_compiler_recording(recording: Mapping[str, Any]) -> object:
     if recording.get("recording_content_hash") != _semantic_hash(stable_recording):
         raise UniversalityContractError("compiler_recording_content_hash_mismatch")
     replay = _ReplayGateway(recording)
+    span_replay = _ReplayGateway(
+        {
+            "model_ids": [str(recording.get("span_model_id") or "")],
+            "calls": _mappings(recording.get("span_calls")),
+        }
+    )
     problem = await build_design_problem_from_nl_request(
         nl_request=str(recording.get("raw_request") or ""),
         context=_mapping(recording.get("context")),
         model_name=str(recording.get("model_id") or ""),
         gateway_client=replay,
-        span_support_client=replay,
+        span_support_client=span_replay,
     )
     replay.assert_exhausted()
+    span_replay.assert_exhausted()
     observed_ref = gy_content_hash(problem.model_dump(mode="json"))
     if observed_ref != recording.get("design_problem_ref"):
         raise UniversalityContractError("compiler_recording_problem_binding_drift")
@@ -636,6 +689,14 @@ async def _capture_domain_run(
         problem=problem,
     )
     replay = _ReplayGateway(compiler_recording)
+    span_replay = _ReplayGateway(
+        {
+            "model_ids": [
+                str(compiler_recording.get("span_model_id") or "")
+            ],
+            "calls": _mappings(compiler_recording.get("span_calls")),
+        }
+    )
     journal_path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{role}-n4.jsonl"
     journal_path.parent.mkdir(parents=True, exist_ok=True)
     journal_path.unlink(missing_ok=True)
@@ -661,7 +722,7 @@ async def _capture_domain_run(
             context=_mapping(compiler_recording.get("context")),
             model_name=PROOF_MODEL_ID,
             compiler_gateway=replay,
-            span_support_client=replay,
+            span_support_client=span_replay,
             budget_state=BudgetState(
                 limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
             ),
@@ -675,6 +736,7 @@ async def _capture_domain_run(
             repo_root=repo_root,
         )
     replay.assert_exhausted()
+    span_replay.assert_exhausted()
     n4_recording, organ_run = await _n4_recording_from_journal(
         repo_root,
         role=role,
@@ -743,6 +805,9 @@ async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
     from polisyos.scientist.orchestration.llm.factory import (
         create_traced_gateway_client,
     )
+    from polisyos.scientist.validation.citation_faithfulness import (
+        SPAN_SUPPORT_GATEWAY_MODEL_ID,
+    )
 
     _append_capture_journal(
         repo_root,
@@ -761,6 +826,9 @@ async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
     if inner is None:
         raise UniversalityContractError("proof_compiler_gateway_unavailable")
     gateway = _RecordingGateway(inner)
+    span_gateway = _FreshRecordingSpanGateway(
+        model_id=SPAN_SUPPORT_GATEWAY_MODEL_ID
+    )
     compiled: dict[str, tuple[object, dict[str, Any]]] = {}
     try:
         for role, raw_request in PLAIN_LANGUAGE_PROOF_REQUESTS.items():
@@ -768,6 +836,7 @@ async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
                 role=role,
                 raw_request=raw_request,
                 gateway=gateway,
+                span_gateway=span_gateway,
             )
     finally:
         close = getattr(inner, "aclose", None)
@@ -1742,7 +1811,18 @@ def capture_and_write_payload(repo_root: Path) -> bytes:
     stability = check_provenance_stability(root)
     if stability.get("status") != "stable":
         raise UniversalityContractError("provenance_stability_failed")
-    recordings = asyncio.run(_capture_proof_recordings(root))
+    try:
+        recordings = asyncio.run(_capture_proof_recordings(root))
+    except Exception as exc:
+        _append_capture_journal(
+            root,
+            {
+                "event": "cold_closeout_failed_before_artifact_write",
+                "error_code": str(exc).partition(":")[0],
+                "error_type": type(exc).__name__,
+            },
+        )
+        raise
     payload = asyncio.run(
         _complete_payload_from_recordings(root, recordings=recordings)
     )

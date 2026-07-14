@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import subprocess
@@ -1081,10 +1082,19 @@ async def test_compiler_recording_replays_through_canonical_owner_lane0() -> Non
         supported_model_ids=(validator.PROOF_MODEL_ID,),
     )
     gateway = validator._RecordingGateway(simulated)
+    span_gateway = validator._RecordingGateway(
+        import_module(
+            "polisyos.scientist.orchestration.llm.simulated_gateway"
+        ).SimulatedGatewayLLMClient(
+            model=validator.PROOF_MODEL_ID,
+            supported_model_ids=(validator.PROOF_MODEL_ID,),
+        )
+    )
     problem, recording = await validator._capture_compiler_recording(
         role="unseen",
         raw_request=_PLAIN_LANGUAGE_PROOF_REQUESTS["unseen"],
         gateway=gateway,
+        span_gateway=span_gateway,
     )
 
     replayed = await validator._replay_compiler_recording(recording)
@@ -1110,6 +1120,66 @@ async def test_compiler_recording_replays_through_canonical_owner_lane0() -> Non
         match="compiler_recording_request_drift",
     ):
         await validator._replay_compiler_recording(tampered)
+
+
+def test_span_capture_uses_fresh_client_inside_each_event_loop(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Prevent an aiohttp session created by the compiler loop entering verifier loops."""
+
+    validator = _universality_contract_validator()
+    gateway_module = import_module(
+        "polisyos.scientist.orchestration.llm.gateway_client"
+    )
+    factory_module = import_module(
+        "polisyos.scientist.orchestration.llm.factory"
+    )
+    clients: list[Any] = []
+
+    class _LoopBoundClient:
+        def __init__(self) -> None:
+            self.loop = asyncio.get_running_loop()
+            self.closed = False
+
+        async def generate(self, **kwargs: Any) -> Any:
+            del kwargs
+            assert asyncio.get_running_loop() is self.loop
+            return gateway_module.GatewayLLMResponse(
+                content="",
+                model="loop-bound-span-model",
+                provider="test",
+                tool_calls=[
+                    gateway_module.GatewayToolCall(
+                        id="span",
+                        name="layer3_gy_record_span_support_judgment",
+                        arguments={
+                            "decision": "entails",
+                            "confidence": 0.95,
+                            "rationale": "loop-bound test",
+                        },
+                    )
+                ],
+            )
+
+        async def aclose(self) -> None:
+            assert asyncio.get_running_loop() is self.loop
+            self.closed = True
+
+    def _factory(**kwargs: Any) -> _LoopBoundClient:
+        del kwargs
+        client = _LoopBoundClient()
+        clients.append(client)
+        return client
+
+    monkeypatch.setattr(factory_module, "create_traced_gateway_client", _factory)
+    recorder = validator._FreshRecordingSpanGateway(model_id="span-model")
+
+    asyncio.run(recorder.generate(messages=[], tools=[]))
+    asyncio.run(recorder.generate(messages=[], tools=[]))
+
+    assert len(clients) == 2
+    assert all(client.closed for client in clients)
+    assert len(recorder.calls) == 2
 
 
 def test_universality_task13_payload_is_complete_and_fork_b_honest() -> None:

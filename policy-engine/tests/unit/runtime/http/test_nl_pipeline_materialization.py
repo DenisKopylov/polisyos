@@ -521,6 +521,60 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
 
 
 @pytest.mark.asyncio
+async def test_design_problem_prompt_exposes_non_empty_collection_contract() -> None:
+    """Make the producer state strict collection invariants before model output."""
+
+    required_collections = {
+        "objectives",
+        "stakeholders",
+        "candidate_lever_space.allowed_operator_kinds",
+        "candidate_lever_space.candidate_levers",
+    }
+
+    class _PromptBoundGateway(_FakeDesignProblemGateway):
+        async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
+            self.generate_calls.append(kwargs)
+            user_payload = json.loads(str(kwargs.get("user") or "{}"))
+            required_semantics = user_payload.get("required_semantics") or {}
+            observed = set(required_semantics.get("non_empty_collections") or [])
+            arguments = _design_problem_tool_args()
+            if observed != required_collections:
+                arguments["stakeholders"] = []
+            return GatewayLLMResponse(
+                content="",
+                model="moonshotai/Kimi-K2.6",
+                provider="test-gateway",
+                tool_calls=[
+                    GatewayToolCall(
+                        id="call-prompt-bound-design-problem",
+                        name="emit_design_problem",
+                        arguments=arguments,
+                    )
+                ],
+            )
+
+    gateway = _PromptBoundGateway(
+        models=["moonshotai/Kimi-K2.6"],
+        arguments={},
+    )
+
+    problem = await build_design_problem_from_nl_request(
+        nl_request=(
+            "Design a wartime MSME credit guarantee for Ukraine within the stated "
+            "UAH 10b budget cap."
+        ),
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="moonshotai/Kimi-K2.6",
+        gateway_client=gateway,
+        span_support_client=_DeterministicSpanSupportClient(),
+    )
+
+    assert problem.stakeholders
+    assert problem.objectives
+    assert problem.candidate_lever_space.candidate_levers
+
+
+@pytest.mark.asyncio
 async def test_plain_language_front_door_calls_real_design_problem_compiler() -> None:
     raw_request = (
         "Design a wartime MSME credit guarantee for Ukraine within the stated "

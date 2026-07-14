@@ -243,17 +243,26 @@ async def build_design_problem_from_nl_request(
             system=(
                 "Extract one PolicyOS DesignProblem. Use only the provided request and "
                 "authority context. Do not invent constraints, admissibility, mandate, "
-                "jurisdiction, evidence, or value authority."
+                "jurisdiction, evidence, or value authority. Populate every "
+                "schema-required non-empty collection with request-grounded candidate "
+                "entries; never emit empty objectives, stakeholders, allowed operator "
+                "kinds, or candidate levers."
             ),
             user=json.dumps(
                 {
                     "raw_request": nl_request,
                     "context": dict(context),
-                    "required_semantics": {
-                        "llm_output": "candidate_only",
-                        "constraints": (
-                            "must cite request_text, authority_profile, or producer_evidence"
-                        ),
+                        "required_semantics": {
+                            "llm_output": "candidate_only",
+                            "non_empty_collections": [
+                                "objectives",
+                                "stakeholders",
+                                "candidate_lever_space.allowed_operator_kinds",
+                                "candidate_lever_space.candidate_levers",
+                            ],
+                            "constraints": (
+                                "must cite request_text, authority_profile, or producer_evidence"
+                            ),
                     },
                 },
                 sort_keys=True,

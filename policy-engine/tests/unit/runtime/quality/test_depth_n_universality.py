@@ -1263,6 +1263,11 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
 
     validator = _universality_contract_validator()
     monkeypatch.setattr(validator, "_PROOF_CAPTURE_JOURNAL_DIR", "capture-cache")
+    monkeypatch.setattr(
+        validator,
+        "PROOF_COMPILER_MODEL_PLAN",
+        ("compiler-model-a", "compiler-model-b"),
+    )
     created_models: list[str] = []
     attempts: list[tuple[str, str]] = []
     closed_models: list[str] = []

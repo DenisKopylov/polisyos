@@ -1774,6 +1774,15 @@ production recursive controller retains the independently configured N4 leaf mod
 domain closeout is resumed from replay-validated local recordings and cannot mint a second
 `cold_domain_closeout_started` event.
 
+Supported-model addendum (2026-07-14): the live gateway catalog contains exactly Kimi and MiniMax.
+MiniMax emitted think-prefixed function arguments, which the deliberately strict gateway boundary
+correctly refused; the earlier Qwen plan entry was absent from the live catalog. The canonical NL
+compiler now states its schema-owned non-empty collection contract generically in the structured
+request. The remaining live plan is one post-repair Kimi attempt. It is not a same-state retry: the
+compiler prompt hash changed, while the schema, gateway parser, admissibility verifier, and exact
+raw requests remain unchanged. A second refusal exhausts the supported-model denominator and is a
+hard stop.
+
 - [ ] **Step 4: Run one cold two-domain closeout serially with full budget, or record the exact cloud blocker.**
 
 Do not retry concurrently. A missing credential/provider is recorded as a cloud residual; it may not be replaced by a fixture DTO.

@@ -77,10 +77,7 @@ COMPOSITION_PATH = (
 )
 
 PROOF_MODEL_ID = "moonshotai/Kimi-K2.6"
-PROOF_COMPILER_MODEL_PLAN = (
-    "MiniMaxAI/MiniMax-M2.7",
-    "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
-)
+PROOF_COMPILER_MODEL_PLAN = ("moonshotai/Kimi-K2.6",)
 PLAIN_LANGUAGE_PROOF_REQUESTS = {
     "first_vertical": (
         "Design a policy to improve average household income and MSME survival in "

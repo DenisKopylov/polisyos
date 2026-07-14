@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from decimal import Decimal
+from pathlib import Path
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import pytest
 
@@ -14,6 +16,9 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
+from polisyos.runtime.http.services.control.generation_cycle import (
+    compile_and_run_recursive_generation_cycle,
+)
 from polisyos.runtime.http.services.control.nl_pipeline import (
     NaturalLanguagePipelineRefusalError,
     NaturalLanguageRunMixin,
@@ -28,14 +33,25 @@ from polisyos.runtime.http.services.control.nl_pipeline_testing import (
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityError
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
-from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblemAuthorityError
+from polisyos.runtime.quality.generation_cycle import (
+    CandidateGroundingObservation,
+    GenerationCycleController,
+    PendingN8ValuePort,
+    PromotionPortObservation,
+    SimulationPortObservation,
+)
+from polisyos.runtime.quality.recursive_generation_cycle import (
+    RecursiveCycleBudget,
+    RecursiveGenerationCycleController,
+)
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
 from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
 from polisyos.scientist.validation.policy_grounding import build_policy_grounding_matrix_report
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 
-if TYPE_CHECKING:
-    from pathlib import Path
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def test_production_nl_pipeline_refuses_empty_model_set_before_work() -> None:
@@ -308,6 +324,91 @@ class _FakeDesignProblemGateway:
         )
 
 
+class _PlainLanguageGenerationPort:
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> SimpleNamespace:
+        del cycle_index
+        candidate_id = f"candidate_{problem.design_problem_id}"
+        candidate = SimpleNamespace(
+            candidate_id=candidate_id,
+            atom=SimpleNamespace(
+                intervention_id=f"intervention_{problem.design_problem_id}",
+                content_hash="sha256:" + "4" * 64,
+                status="candidate_unverified",
+                world_model_record_ref="world_model_record_plain_language_lane0",
+                target_world_slots=(problem.outcome_of_interest.target_variable,),
+            ),
+            diversity_key=("plain", "language", "lane0", "candidate"),
+            status="candidate_unverified",
+        )
+        return SimpleNamespace(
+            status="generated",
+            candidates=(candidate,),
+            surrogate_rankings=(
+                SimpleNamespace(
+                    candidate_id=candidate_id,
+                    score=0.2,
+                    voi_estimate=0.1,
+                    trust_level="search_guiding",
+                    promotion_allowed=False,
+                ),
+            ),
+            grounding_dispositions=(),
+        )
+
+
+class _PlainLanguageGroundingPort:
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        **kwargs: Any,
+    ) -> CandidateGroundingObservation:
+        del kwargs
+        return CandidateGroundingObservation(
+            candidate_id=str(candidate.candidate_id),
+            status="grounding_gap",
+            grounding_score=0.2,
+            issue_codes=("plain_language_lane0_grounding_gap",),
+            current_valid=False,
+        )
+
+
+class _PlainLanguageSimulationPort:
+    def __call__(self, *, candidate: Any, **kwargs: Any) -> SimulationPortObservation:
+        del kwargs
+        return SimulationPortObservation(
+            candidate_id=str(candidate.candidate_id),
+            status="simulation_pending_n5",
+            authority_blockers=("plain_language_lane0_n5_pending",),
+        )
+
+
+class _PlainLanguagePromotionPort:
+    def __call__(self, **kwargs: Any) -> PromotionPortObservation:
+        del kwargs
+        return PromotionPortObservation()
+
+
+def _plain_language_leaf_cycle_factory(
+    node_ref: str,
+    problem: DesignProblem,
+) -> GenerationCycleController:
+    del node_ref, problem
+    return GenerationCycleController(
+        generation_port=_PlainLanguageGenerationPort(),
+        grounding_port=_PlainLanguageGroundingPort(),
+        simulation_port=_PlainLanguageSimulationPort(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_PlainLanguagePromotionPort(),
+        repo_root=REPO_ROOT,
+    )
+
+
 def _design_problem_tool_args(*, constraint_source: str = "UAH 10b budget cap") -> dict[str, Any]:
     return {
         "design_problem_id": "design_problem_ua_msme_credit",
@@ -417,6 +518,43 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     assert "$defs" not in tool_schema
     assert "$ref" not in json.dumps(tool_schema)
     assert span_support.calls
+
+
+@pytest.mark.asyncio
+async def test_plain_language_front_door_calls_real_design_problem_compiler() -> None:
+    raw_request = (
+        "Design a wartime MSME credit guarantee for Ukraine within the stated "
+        "UAH 10b budget cap."
+    )
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=_design_problem_tool_args(),
+    )
+    result = await compile_and_run_recursive_generation_cycle(
+        raw_request=raw_request,
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        compiler_gateway=gateway,
+        span_support_client=_DeterministicSpanSupportClient(),
+        controller=RecursiveGenerationCycleController.for_contract_testing(
+            cycle_controller_factory=_plain_language_leaf_cycle_factory,
+            repo_root=REPO_ROOT,
+        ),
+        budget_state=BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+        ),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=2,
+        ),
+    )
+
+    assert result.design_problem.nl_provenance.raw_request == raw_request
+    assert result.recursive_run.root_design_problem_ref == result.design_problem_ref
+    assert result.recursive_run.observed_max_depth == 0
+    assert gateway.generate_calls
 
 
 @pytest.mark.asyncio

@@ -75,6 +75,21 @@
       ],
       "mutation_id": "full_denominator_curated_subset",
       "status": "red"
+    },
+    {
+      "issue_codes": [
+        "incoherent_single_terminal_state",
+        "voi_scheduler_ignored_fixed_cycle_count"
+      ],
+      "mutation_id": "incoherent_single_terminal_run",
+      "status": "red"
+    },
+    {
+      "issue_codes": [
+        "cycle_denominator_empty"
+      ],
+      "mutation_id": "empty_cycle_run",
+      "status": "red"
     }
   ],
   "compute_economics": {
@@ -83,7 +98,7 @@
     "non_cached_run_visibility": "rederive_audit_only",
     "owner_io": "zero"
   },
-  "contract_content_hash": "sha256:6be0a29400442f00b0b3c4d5c3008c13d9c95db413b09b18d46dda24097851e5",
+  "contract_content_hash": "sha256:fee24a58ce1cb9b287427c615ef0e7ed45be79ed8242625af8c9b25d73fb8a36",
   "contract_id": "policyos.runtime.generation_cycle_controller",
   "denominators": {
     "counts": {
@@ -162,7 +177,7 @@
         "candidate_id": "candidate_lane0_cycle_001",
         "certified_by_n9": false,
         "content_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/001",
+        "counterexample_ref": null,
         "current_valid": false,
         "cycle_index": 0,
         "front": "quarantine",
@@ -175,6 +190,12 @@
         "low_grounding": true,
         "proxy_score": 0.91,
         "quarantine_action": "adversarial_validate",
+        "value_blockers": [
+          "value_gate_pending_n8"
+        ],
+        "value_decision_grade": null,
+        "value_ref": null,
+        "value_status": "value_pending_n8",
         "voi_estimate": 0.74
       },
       {
@@ -182,19 +203,25 @@
         "candidate_id": "candidate_lane0_cycle_002",
         "certified_by_n9": false,
         "content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+        "counterexample_ref": null,
         "current_valid": false,
         "cycle_index": 1,
         "front": "research",
         "generation_channel": "n4_owner",
-        "grounding_disposition": "novel_cg3",
-        "grounding_score": 0.35,
-        "grounding_source": "cgf_firewall",
-        "grounding_status": "grounding_gap",
+        "grounding_disposition": null,
+        "grounding_score": 0.0,
+        "grounding_source": "grounding_unavailable",
+        "grounding_status": "grounding_unavailable",
         "high_proxy": false,
         "low_grounding": true,
         "proxy_score": 0.31,
         "quarantine_action": "none",
+        "value_blockers": [
+          "value_gate_pending_n8"
+        ],
+        "value_decision_grade": null,
+        "value_ref": null,
+        "value_status": "value_pending_n8",
         "voi_estimate": 0.22
       }
     ],
@@ -202,6 +229,7 @@
     "cycles": [
       {
         "acquisition_receipt": null,
+        "acquisition_routing_report": null,
         "candidate_ids": [
           "candidate_lane0_cycle_001"
         ],
@@ -480,28 +508,45 @@
         "selected_candidate_ref": "candidate_lane0_cycle_001",
         "simulation": {
           "authority_blockers": [
-            "joint_simulation_request_missing"
+            "joint_simulation_request_missing",
+            "world_model_record_unresolved"
           ],
           "candidate_id": "candidate_lane0_cycle_001",
           "diagnostics": {
             "port": "N5",
-            "reason": "joint_simulation_request_missing"
+            "reason": "joint_simulation_request_missing",
+            "world_model_error": "world_model_record_unresolved: candidate.atom.world_model_record_ref=world_model_record_industrial_resilience",
+            "world_model_error_code": "world_model_record_unresolved",
+            "world_model_source": "unavailable"
           },
-          "k_world_ref_after": "world_model_record_industrial_resilience",
-          "k_world_ref_before": "world_model_record_industrial_resilience",
+          "k_world_ref_after": null,
+          "k_world_ref_before": null,
           "k_world_update_mode": "read_only_no_k_world_narrowing",
           "simulation_ref": null,
-          "status": "simulation_pending_n5",
+          "status": "simulation_blocked",
           "uncertainty_kind": null
         },
         "terminal_kind": "search_ceiling_repair_required",
         "value_port": {
+          "acquisition_requirement": null,
           "authority_blockers": [
             "value_gate_pending_n8"
           ],
+          "calibration_receipt": null,
+          "candidate_id": null,
+          "decision_grade": null,
+          "evaluation_mode": null,
+          "identification_status": null,
+          "method_selection_receipt": null,
           "reason": "N8 value gate is not present; N6 will not fabricate value.",
+          "selected_method_fqn": null,
           "status": "value_pending_n8",
-          "value_ref": null
+          "transport_receipt": null,
+          "value_data_profile_content_hash": null,
+          "value_receipt": null,
+          "value_ref": null,
+          "wall_time_ms": null,
+          "world_model_record_content_hash": null
         },
         "voi_decision": {
           "candidate_id": "candidate_lane0_cycle_001",
@@ -515,6 +560,7 @@
       },
       {
         "acquisition_receipt": null,
+        "acquisition_routing_report": null,
         "candidate_ids": [
           "candidate_lane0_cycle_002"
         ],
@@ -526,20 +572,15 @@
           "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
           "diagnostic": {
             "authority_purpose": "shadow_search_refinement_only",
-            "code": "n6.grounding_gap.novel_cg3",
+            "code": "n6.grounding_unavailable.candidate_cgf_proposal_id_mismatch",
             "diagnostic_id": "gy.n6.diagnostic.industrial_resilience_retooling.002",
-            "message": "Candidate candidate_lane0_cycle_002 requires revision for novel_cg3.",
+            "message": "Candidate candidate_lane0_cycle_002 requires revision for candidate_cgf_proposal_id_mismatch.",
             "owner": "team-policyos-runtime",
             "rule_version_ref": "policyos.layer3.gy.n6.generation_cycle.v1",
             "severity": "block"
           },
           "evidence_refs": [
-            "cg1_cert_n6_lane0",
-            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-            "cg2_cert_n6_lane0",
-            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
-            "cg3_cert_n6_lane0",
-            "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+            "grounding://missing"
           ],
           "routed_to": "refinement_policy",
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
@@ -554,33 +595,19 @@
         "grounding": {
           "adversarial_validation_ref": null,
           "candidate_id": "candidate_lane0_cycle_002",
-          "cgf_certificate_refs": [
-            "cg1_cert_n6_lane0",
-            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-            "cg2_cert_n6_lane0",
-            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
-            "cg3_cert_n6_lane0",
-            "sha256:3333333333333333333333333333333333333333333333333333333333333333"
-          ],
+          "cgf_certificate_refs": [],
           "current_valid": false,
-          "evidence_refs": [
-            "cg1_cert_n6_lane0",
-            "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-            "cg2_cert_n6_lane0",
-            "sha256:2222222222222222222222222222222222222222222222222222222222222222",
-            "cg3_cert_n6_lane0",
-            "sha256:3333333333333333333333333333333333333333333333333333333333333333"
-          ],
-          "grounding_disposition": "novel_cg3",
-          "grounding_score": 0.35,
-          "grounding_source": "cgf_firewall",
+          "evidence_refs": [],
+          "grounding_disposition": null,
+          "grounding_score": 0.0,
+          "grounding_source": "grounding_unavailable",
           "issue_codes": [
-            "novel_cg3",
-            "missing_supporting_data"
+            "candidate_cgf_proposal_id_mismatch",
+            "candidate_cgf_raw_hash_mismatch"
           ],
           "quarantine_action": "none",
-          "report_ref": "sha256:6576a5e6944aab52f3c1840e0f6b03ebea04fd43206f3ed78cb80c176d1e2560",
-          "status": "grounding_gap"
+          "report_ref": null,
+          "status": "grounding_unavailable"
         },
         "introduced_grammar_elements": [
           "lever:resilience_grant:adversarial_validate:shadow_bound"
@@ -594,14 +621,16 @@
           "consumed_counterexample_refs": [
             "pdc://gy/n6/industrial_resilience_retooling/counterexample/002"
           ],
-          "decision": "abstain",
+          "decision": "human_decision",
           "decision_id": "gy.n6.refinement.industrial_resilience_retooling.002",
           "decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/002",
           "governance_decision_class": null,
-          "governance_decision_class_ref": null,
-          "governance_refs": [],
+          "governance_decision_class_ref": "governance://gy/n6/industrial_resilience_retooling/terminal/002",
+          "governance_refs": [
+            "governance://gy/n6/industrial_resilience_retooling/terminal/002"
+          ],
           "next_candidate_ref": null,
-          "reason": "voi_scheduler_stopped:reject; terminal=search_ceiling_repair_required",
+          "reason": "terminal_requires_escalation:a_spec_gap; terminal=a_spec_gap",
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
           "stakes_band": "moderate",
           "value_of_information": {
@@ -622,13 +651,13 @@
         "revision_driver": "counterexample",
         "revision_request": {
           "new_grammar_elements": [
-            "lever:resilience_grant:adversarial_validate:novel_cg3"
+            "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
           ],
-          "next_candidate_ref": "candidate://pending/57236c7fdf919ef7",
+          "next_candidate_ref": "candidate://pending/9c596e3b9ad92bc5",
           "next_grammar_elements": [
             "seed",
             "lever:resilience_grant:adversarial_validate:shadow_bound",
-            "lever:resilience_grant:adversarial_validate:novel_cg3"
+            "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
           ],
           "previous_candidate_ref": "candidate_lane0_cycle_002",
           "previous_grammar_elements": [
@@ -715,26 +744,24 @@
               "generation_cycle_grammar": [
                 "seed",
                 "lever:resilience_grant:adversarial_validate:shadow_bound",
-                "lever:resilience_grant:adversarial_validate:novel_cg3"
+                "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
               ],
               "generation_cycle_revision": {
                 "new_grammar_elements": [
-                  "lever:resilience_grant:adversarial_validate:novel_cg3"
+                  "lever:resilience_grant:spec_gap_reframe:candidate_cgf_proposal_id_mismatch"
                 ],
                 "previous_candidate_ref": "candidate_lane0_cycle_002",
-                "revision_strategy": "adversarial_validate",
+                "revision_strategy": "spec_gap_reframe",
                 "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
                 "strategy_payload": {
-                  "adversarial_validation": {
-                    "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-                    "grammar_constraints": [
-                      "lever:resilience_grant:adversarial_validate:novel_cg3"
-                    ]
-                  },
-                  "issue": "novel_cg3",
+                  "issue": "candidate_cgf_proposal_id_mismatch",
                   "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-                  "strategy": "adversarial_validate",
-                  "terminal_kind": "search_ceiling_repair_required"
+                  "spec_gap": {
+                    "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+                    "missing_owner_signal": "candidate_cgf_proposal_id_mismatch"
+                  },
+                  "strategy": "spec_gap_reframe",
+                  "terminal_kind": "a_spec_gap"
                 }
               }
             },
@@ -749,20 +776,18 @@
           },
           "revision_driver": "counterexample",
           "revision_id": "gy.n6.revision.industrial_resilience_retooling.002",
-          "revision_strategy": "adversarial_validate",
+          "revision_strategy": "spec_gap_reframe",
           "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-          "source_terminal_kind": "search_ceiling_repair_required",
+          "source_terminal_kind": "a_spec_gap",
           "strategy_payload": {
-            "adversarial_validation": {
-              "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-              "grammar_constraints": [
-                "lever:resilience_grant:adversarial_validate:novel_cg3"
-              ]
-            },
-            "issue": "novel_cg3",
+            "issue": "candidate_cgf_proposal_id_mismatch",
             "source_counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
-            "strategy": "adversarial_validate",
-            "terminal_kind": "search_ceiling_repair_required"
+            "spec_gap": {
+              "counterexample_ref": "pdc://gy/n6/industrial_resilience_retooling/counterexample/002",
+              "missing_owner_signal": "candidate_cgf_proposal_id_mismatch"
+            },
+            "strategy": "spec_gap_reframe",
+            "terminal_kind": "a_spec_gap"
           }
         },
         "search_iteration": {
@@ -772,43 +797,60 @@
           ],
           "iteration_id": "gy.n6.iteration.industrial_resilience_retooling.002",
           "refinement_decision_ref": "pdc://gy/n6/industrial_resilience_retooling/refinement/002",
-          "status": "abstained"
+          "status": "governance_required"
         },
         "selected_candidate_content_hash": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
         "selected_candidate_ref": "candidate_lane0_cycle_002",
         "simulation": {
           "authority_blockers": [
-            "joint_simulation_request_missing"
+            "joint_simulation_request_missing",
+            "world_model_record_unresolved"
           ],
           "candidate_id": "candidate_lane0_cycle_002",
           "diagnostics": {
             "port": "N5",
-            "reason": "joint_simulation_request_missing"
+            "reason": "joint_simulation_request_missing",
+            "world_model_error": "world_model_record_unresolved: candidate.atom.world_model_record_ref=world_model_record_industrial_resilience",
+            "world_model_error_code": "world_model_record_unresolved",
+            "world_model_source": "unavailable"
           },
-          "k_world_ref_after": "world_model_record_industrial_resilience",
-          "k_world_ref_before": "world_model_record_industrial_resilience",
+          "k_world_ref_after": null,
+          "k_world_ref_before": null,
           "k_world_update_mode": "read_only_no_k_world_narrowing",
           "simulation_ref": null,
-          "status": "simulation_pending_n5",
+          "status": "simulation_blocked",
           "uncertainty_kind": null
         },
-        "terminal_kind": "search_ceiling_repair_required",
+        "terminal_kind": "a_spec_gap",
         "value_port": {
+          "acquisition_requirement": null,
           "authority_blockers": [
             "value_gate_pending_n8"
           ],
+          "calibration_receipt": null,
+          "candidate_id": null,
+          "decision_grade": null,
+          "evaluation_mode": null,
+          "identification_status": null,
+          "method_selection_receipt": null,
           "reason": "N8 value gate is not present; N6 will not fabricate value.",
+          "selected_method_fqn": null,
           "status": "value_pending_n8",
-          "value_ref": null
+          "transport_receipt": null,
+          "value_data_profile_content_hash": null,
+          "value_receipt": null,
+          "value_ref": null,
+          "wall_time_ms": null,
+          "world_model_record_content_hash": null
         },
         "voi_decision": {
           "candidate_id": "candidate_lane0_cycle_002",
-          "next_action": "stop",
+          "next_action": "escalate",
           "priority": 0.46,
-          "reason": "voi_scheduler_stopped:reject",
+          "reason": "terminal_requires_escalation:a_spec_gap",
           "scheduler_action": "reject",
           "scheduler_reason": "roi_below_threshold",
-          "terminal_kind": "search_ceiling_repair_required"
+          "terminal_kind": "a_spec_gap"
         }
       }
     ],
@@ -842,15 +884,489 @@
     },
     "promotion_port": {
       "certified_candidate_ids": [],
-      "reason": "N9 promotion gate is not present; N6 emits no certification.",
-      "status": "promotion_pending_n9"
+      "reason": "canonical_n9_sequence_returned_shadow",
+      "receipts": [
+        {
+          "authority_derivation_trace": null,
+          "candidate_id": "candidate_lane0_cycle_001",
+          "cg2_resolution_reason": null,
+          "computed_authority_boundary": {
+            "authoritative_for": [
+              "grounded_partial_admissible_policy_design"
+            ],
+            "boundary_id": "n9.candidate.lane0.cycle.001.base",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "n8_value_receipt_missing"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "transport",
+            "known_limits": [],
+            "may_not_use_for": [
+              "production_deployment",
+              "unguarded_champion_promotion"
+            ],
+            "posture": "governed",
+            "rule_version_refs": [
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "consumer_promotable": false,
+          "gate_outcome_hash": "sha256:c9d587cc9938b76d320c841ccc3307d3da3891c62f9559fbaeae2c56424db348",
+          "non_promotable_reason": null,
+          "obligations": [
+            {
+              "detail": "Strict N9 input model validated with extra fields forbidden.",
+              "evidence_refs": [],
+              "gate_id": "gy_waist",
+              "obligation_class": "syntax",
+              "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "type",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Slot/world binding cannot be checked without the N8 receipt.",
+              "evidence_refs": [],
+              "gate_id": "n8_transport",
+              "obligation_class": "slot",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+              "evidence_refs": [
+                "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+              ],
+              "gate_id": "g4_governed_promotion",
+              "obligation_class": "param",
+              "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "No N5 coupling blocker is present on the candidate summary.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "coupling",
+              "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+              "evidence_refs": [],
+              "gate_id": "gyk_entailment",
+              "obligation_class": "effect",
+              "owner_ref": "GY-K entailment witness owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "CGF grounding did not produce current_valid (status=grounded_shadow).",
+              "evidence_refs": [],
+              "gate_id": "cgf_grounding",
+              "obligation_class": "identification",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "N8 calibration receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_calibration",
+              "obligation_class": "calibration",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "measurement",
+              "owner_ref": "measurement-rooted producer owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "Data-trust record is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "data",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "S6 blind-spot posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s6_blind_spot",
+              "obligation_class": "implementation",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No violated equilibrium or strategic-response assumption is present.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "equilibrium",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "S7 mandate/delegation posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s7_mandate_delegation",
+              "obligation_class": "normative",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+              "evidence_refs": [],
+              "gate_id": "gy_o0_eval_safety",
+              "obligation_class": "eval_safety",
+              "owner_ref": "GY-O0 eval-safety gate",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "data_only_not_required",
+              "status": "not_applicable_data_only"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "value",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            }
+          ],
+          "promoted": false,
+          "promotion_lane": "unresolved",
+          "refusal_reasons": [
+            "type:single_obligation_fail",
+            "slot:single_obligation_fail",
+            "effect:scope_insufficient",
+            "identification:single_obligation_fail",
+            "calibration:single_obligation_fail",
+            "measurement:scope_insufficient",
+            "data:single_obligation_fail",
+            "implementation:scope_insufficient",
+            "normative:scope_insufficient",
+            "value:single_obligation_fail"
+          ],
+          "risk_spend": {
+            "budget_delta": 0.01,
+            "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
+            "spend_records": [],
+            "total_declared_delta": 0.0,
+            "within_budget": true
+          },
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+          "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+          "status": "shadow",
+          "terminal_kind": "grounded_abstention",
+          "trace_content_hash": null,
+          "value_method_family": null,
+          "value_receipt_ref": null
+        },
+        {
+          "authority_derivation_trace": null,
+          "candidate_id": "candidate_lane0_cycle_002",
+          "cg2_resolution_reason": null,
+          "computed_authority_boundary": {
+            "authoritative_for": [
+              "grounded_partial_admissible_policy_design"
+            ],
+            "boundary_id": "n9.candidate.lane0.cycle.002.base",
+            "decision_grade": "unsupported",
+            "evidence_basis": {
+              "calibration_refs": [],
+              "counterexamples_closed": [],
+              "method_refs": [
+                "n8_value_receipt_missing"
+              ],
+              "producer_roots": []
+            },
+            "evidence_kind": "transport",
+            "known_limits": [],
+            "may_not_use_for": [
+              "production_deployment",
+              "unguarded_champion_promotion"
+            ],
+            "posture": "governed",
+            "rule_version_refs": [
+              "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
+            ],
+            "source_authority": "deterministic_producer"
+          },
+          "consumer_promotable": false,
+          "gate_outcome_hash": "sha256:0a49d2ee3cbf076e19b81091bccb4e050863fd78a8a043bc349fa2c2a064e87e",
+          "non_promotable_reason": null,
+          "obligations": [
+            {
+              "detail": "Strict N9 input model validated with extra fields forbidden.",
+              "evidence_refs": [],
+              "gate_id": "gy_waist",
+              "obligation_class": "syntax",
+              "owner_ref": "polisyos.pdc._impl.gy_waist.PromotionObligationRecord",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "type",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Slot/world binding cannot be checked without the N8 receipt.",
+              "evidence_refs": [],
+              "gate_id": "n8_transport",
+              "obligation_class": "slot",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "G4 owner record resolved through the persisted artifact; G4 minting is not authoritative for N9 (state=promotion_blocked).",
+              "evidence_refs": [
+                "g4-promotion-record:g4-request:ua-msme-source-only-valid"
+              ],
+              "gate_id": "g4_governed_promotion",
+              "obligation_class": "param",
+              "owner_ref": "architecture/policy_design_case/layer3_g4_promotion_records.json",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "No N5 coupling blocker is present on the candidate summary.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "coupling",
+              "owner_ref": "polisyos.runtime.quality.joint_simulation_horizon",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "GY-K entailment witness owner is unwired; CG2 bind evidence remains confined to the identification obligation.",
+              "evidence_refs": [],
+              "gate_id": "gyk_entailment",
+              "obligation_class": "effect",
+              "owner_ref": "GY-K entailment witness owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "CGF grounding did not produce current_valid (status=grounding_unavailable).",
+              "evidence_refs": [],
+              "gate_id": "cgf_grounding",
+              "obligation_class": "identification",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "N8 calibration receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_calibration",
+              "obligation_class": "calibration",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueCalibrationReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "Measurement-rooted producer owner is unwired; ValueOuterSet promotion_decision remains value-class semantics only.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "measurement",
+              "owner_ref": "measurement-rooted producer owner",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "Data-trust record is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "data",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.DataTrust",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            },
+            {
+              "detail": "S6 blind-spot posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s6_blind_spot",
+              "obligation_class": "implementation",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No violated equilibrium or strategic-response assumption is present.",
+              "evidence_refs": [],
+              "gate_id": "n5_coupling",
+              "obligation_class": "equilibrium",
+              "owner_ref": "polisyos.core.contracts.value_outer_set.ValueOuterSet",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "satisfied"
+            },
+            {
+              "detail": "S7 mandate/delegation posture is absent.",
+              "evidence_refs": [],
+              "gate_id": "s7_mandate_delegation",
+              "obligation_class": "normative",
+              "owner_ref": "polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+              "reason": "scope_insufficient",
+              "risk_spend": null,
+              "semantic_scope": "scope_insufficient",
+              "status": "scope_insufficient"
+            },
+            {
+              "detail": "No pilot/deployment action is attempted; eval-safety remains scope_insufficient for future pilot/deployment verticals.",
+              "evidence_refs": [],
+              "gate_id": "gy_o0_eval_safety",
+              "obligation_class": "eval_safety",
+              "owner_ref": "GY-O0 eval-safety gate",
+              "reason": null,
+              "risk_spend": null,
+              "semantic_scope": "data_only_not_required",
+              "status": "not_applicable_data_only"
+            },
+            {
+              "detail": "N8 value receipt is missing.",
+              "evidence_refs": [],
+              "gate_id": "n8_value",
+              "obligation_class": "value",
+              "owner_ref": "polisyos.runtime.quality.generation_cycle.ValueGateReceipt",
+              "reason": "single_obligation_fail",
+              "risk_spend": null,
+              "semantic_scope": "real_semantics",
+              "status": "failed"
+            }
+          ],
+          "promoted": false,
+          "promotion_lane": "unresolved",
+          "refusal_reasons": [
+            "type:single_obligation_fail",
+            "slot:single_obligation_fail",
+            "effect:scope_insufficient",
+            "identification:single_obligation_fail",
+            "calibration:single_obligation_fail",
+            "measurement:scope_insufficient",
+            "data:single_obligation_fail",
+            "implementation:scope_insufficient",
+            "normative:scope_insufficient",
+            "value:single_obligation_fail"
+          ],
+          "risk_spend": {
+            "budget_delta": 0.01,
+            "caveat": "The delta claim is conditional on obligation completeness and validator soundness; pre-N11 N9 records declared spend only, without anytime-valid confidence accounting. Mitigation before N11 is QuarantineFront plus adversarial validation plus N12 epochs.",
+            "spend_records": [],
+            "total_declared_delta": 0.0,
+            "within_budget": true
+          },
+          "schema_version": "policyos.policy_design_case.layer3_gy.n9_promotion.v1",
+          "sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+          "status": "shadow",
+          "terminal_kind": "grounded_abstention",
+          "trace_content_hash": null,
+          "value_method_family": null,
+          "value_receipt_ref": null
+        }
+      ],
+      "status": "not_promoted",
+      "strangle_receipt": {
+        "allowed_legacy_helpers": [
+          "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py"
+        ],
+        "default_sequence_ref": "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence",
+        "live_policy_champion_callers": [],
+        "predecessor_ref": "polisyos.scientist.methods.search.judge_stack.PolicyPromotionCoordinator",
+        "status": "strangled",
+        "verified_by": "polisyos.runtime.quality.promotion_sequence.LegacyPromotionStrangleReceipt"
+      }
     },
     "run_id": "generation_cycle_9ab0c5413349a249",
     "schema_version": "policyos.runtime.generation_cycle_controller.v1",
     "strangle_receipt": {
       "allowed_fixture_callers": [
-        "src/polisyos/runtime/quality/workspace/loop.py:872",
-        "src/polisyos/runtime/quality/workspace/loop.py:958"
+        "src/polisyos/runtime/quality/workspace/loop.py:905",
+        "src/polisyos/runtime/quality/workspace/loop.py:937"
       ],
       "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
       "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",
@@ -874,12 +1390,25 @@
     ],
     "terminal_status": "completed",
     "value_port": {
+      "acquisition_requirement": null,
       "authority_blockers": [
         "value_gate_pending_n8"
       ],
+      "calibration_receipt": null,
+      "candidate_id": null,
+      "decision_grade": null,
+      "evaluation_mode": null,
+      "identification_status": null,
+      "method_selection_receipt": null,
       "reason": "N8 value gate is not present; N6 will not fabricate value.",
+      "selected_method_fqn": null,
       "status": "value_pending_n8",
-      "value_ref": null
+      "transport_receipt": null,
+      "value_data_profile_content_hash": null,
+      "value_receipt": null,
+      "value_ref": null,
+      "wall_time_ms": null,
+      "world_model_record_content_hash": null
     }
   },
   "pattern_pass": {
@@ -946,12 +1475,12 @@
       },
       {
         "candidate_id": "candidate_lane0_cycle_002",
-        "next_action": "stop",
+        "next_action": "escalate",
         "priority": 0.46,
-        "reason": "voi_scheduler_stopped:reject",
+        "reason": "terminal_requires_escalation:a_spec_gap",
         "scheduler_action": "reject",
         "scheduler_reason": "roi_below_threshold",
-        "terminal_kind": "search_ceiling_repair_required"
+        "terminal_kind": "a_spec_gap"
       }
     ]
   },
@@ -967,8 +1496,8 @@
   ],
   "strangle_receipt": {
     "allowed_fixture_callers": [
-      "src/polisyos/runtime/quality/workspace/loop.py:872",
-      "src/polisyos/runtime/quality/workspace/loop.py:958"
+      "src/polisyos/runtime/quality/workspace/loop.py:905",
+      "src/polisyos/runtime/quality/workspace/loop.py:937"
     ],
     "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
     "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",

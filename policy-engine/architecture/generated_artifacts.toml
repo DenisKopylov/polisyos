@@ -1541,6 +1541,39 @@ drift_gate = "manual_review"
 workflow = "ops/ci/templates/workflows/arch.yml"
 
 [[family]]
+id = "policy-design-case-layer3-gy-composition-artifacts"
+label = "Policy Design Case Layer 3 GY recursion and composition artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Layer 3 GY composition validator generated through the canonical coupling, decomposition, composition, joint-simulation, and recursive-cycle owners"
+verifier = "Layer 3 GY composition artifact validator, live depth-N proof, coupling default gate, and GY-G strangle receipt"
+promotion_target = "registered canonical GY-G recursion and composition proof artifacts"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/design_axes/coupling_composition.py, src/polisyos/runtime/quality/recursive_generation_cycle.py, src/polisyos/runtime/quality/joint_simulation_horizon.py, and tools/quality/validation/check_layer3_gy_composition_artifacts.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_composition_certificates.json",
+]
+regenerate_commands = [
+  ".venv/bin/python tools/quality/validation/check_layer3_gy_composition_artifacts.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever coupling evidence semantics, subdesign composition, joint-simulation authority, recursive depth routing, or the GY-G strangle changes."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_composition_artifacts.py"
+check_cwd = "."
+check_command = [
+  ".venv/bin/python",
+  "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+  "--repo-root",
+  ".",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
 id = "policy-design-case-layer3-gy-production-data-substrate-registry-contract"
 label = "Policy Design Case Layer 3 GY production-data substrate registry contract"
 owner = "team-runtime-quality"
@@ -1828,8 +1861,8 @@ outputs = [
   "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
   "architecture/policy_design_case/layer3_gy_n0_investigation.md",
 ]
-source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:3bfcb8eeb5c2f410b4ea208d1aeedec42733e134278647827d46b2fb614c07bb"
-source_integrity_sha256."architecture/policy_design_case/layer3_gy_n0_investigation.md" = "sha256:7aea27e40644f7b786219767810041cb0d3c302ab4435757faaa6bf959ce3b53"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:a9ebf0d27ef48d505d1504fb3ad703f0a98983eacb6097cb3bedcb75d04a8121"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n0_investigation.md" = "sha256:925bad2de30d87cc73a31c6d7870928076d3677f2f2e952bc9d793a4bd46adae"
 regenerate_commands = [
   "uv run python tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --repo-root . --check --output-format json",
 ]

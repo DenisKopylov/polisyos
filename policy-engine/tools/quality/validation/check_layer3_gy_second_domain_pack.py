@@ -2529,6 +2529,7 @@ def _build_cycle_trace(
     runtime_metrics.update(capture_metrics)
     normalized_run = GenerationCycleRun.model_validate(run_payload)
     validation_issues = list(validate_generation_cycle_run(normalized_run))
+    n6_validation_evidence = _n6_single_terminal_gap_closure(normalized_run)
     trace_identity = {
         "substrate_input_content_hash": (
             cycle_substrate_context.substrate_input_content_hash
@@ -2569,6 +2570,7 @@ def _build_cycle_trace(
             stage_attempts,
             cycle_trace=trace_identity,
             n8_transport_evidence=n8_transport_evidence,
+            n6_validation_evidence=n6_validation_evidence,
         ),
         "content_hash_excluded_fields": ["runtime_metrics"],
         "runtime_metrics": runtime_metrics,
@@ -3588,6 +3590,7 @@ def _stage_1_gap_triage(
     *,
     cycle_trace: Mapping[str, Any],
     n8_transport_evidence: Mapping[str, Any],
+    n6_validation_evidence: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
     """Close only bridges witnessed behaviorally by this Stage-1 run."""
 
@@ -3622,6 +3625,11 @@ def _stage_1_gap_triage(
             "receipt_ref": n8_transport_evidence.get("receipt_ref"),
             "residual_reason": n8_transport_evidence.get("reason_code"),
         },
+        "n6_single_terminal_validation_gap": {
+            "closed": n6_validation_evidence.get("closed") is True,
+            "receipt_ref": n6_validation_evidence.get("receipt_ref"),
+            "residual_reason": n6_validation_evidence.get("reason_code"),
+        },
     }
     rows: list[dict[str, Any]] = []
     for gap_id in GAP_WITNESS_SPECS:
@@ -3648,9 +3656,6 @@ def _stage_1_gap_triage(
             "journal_raw_evidence_persistence_missing": (
                 "N7 durable raw-evidence persistence is acquisition infrastructure."
             ),
-            "n6_single_terminal_validation_gap": (
-                "Stage 3 owns one-terminal validator reconciliation."
-            ),
         }[gap_id]
         rows.append(
             {
@@ -3661,6 +3666,34 @@ def _stage_1_gap_triage(
             }
         )
     return rows
+
+
+def _n6_single_terminal_gap_closure(
+    run: GenerationCycleRun,
+) -> dict[str, Any]:
+    """Prove N6 accepts one coherent terminal by invoking its live validator."""
+
+    validation_issues = list(validate_generation_cycle_run(run))
+    cycle_count = len(run.cycles)
+    terminal_kind = run.cycles[0].terminal_kind if cycle_count == 1 else None
+    run_content_hash = _hash(run.model_dump(mode="json"))
+    receipt_payload = {
+        "run_content_hash": run_content_hash,
+        "cycle_count": cycle_count,
+        "terminal_kind": terminal_kind,
+        "validation_issues": validation_issues,
+    }
+    closed = cycle_count == 1 and not validation_issues
+    return {
+        **receipt_payload,
+        "closed": closed,
+        "reason_code": (
+            "n6_coherent_single_terminal_accepted"
+            if closed
+            else "n6_single_terminal_validation_not_proven"
+        ),
+        "receipt_ref": _hash(receipt_payload),
+    }
 
 
 def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -3823,11 +3856,17 @@ def _build_gap_report(
         for item in _list_of_mappings(cycle_trace.get("gap_triage"))
     }
     stage_attempts = _mapping(cycle_trace.get("stage_attempts"))
+    n6_validation_evidence = _n6_single_terminal_gap_closure(
+        GenerationCycleRun.model_validate(
+            _mapping(cycle_trace.get("generation_cycle_run"))
+        )
+    )
     stage_receipts = {
         "s0_to_n4_l6_bridge_missing": _mapping(stage_attempts.get("generation")),
         "s0_to_n5_wmr_bridge_missing": _mapping(stage_attempts.get("world_model")),
         "s0_to_l6_world_slot_bridge_missing": _mapping(stage_attempts.get("grounding")),
         "n8_transport_tuple_hardcode": n8_transport_evidence,
+        "n6_single_terminal_validation_gap": n6_validation_evidence,
     }
     for gap in gaps:
         gap_id = str(gap.get("gap_id") or "")
@@ -3839,11 +3878,10 @@ def _build_gap_report(
             gap["blocking_seam"] = "Closed by a live content-bound behavioral receipt."
             gap.pop("acquisition_required", None)
             owner_evidence = _mapping(gap.get("owner_evidence"))
-            receipt_key = (
-                "stage_2_behavioral_receipt"
-                if gap_id == "n8_transport_tuple_hardcode"
-                else "stage_1_behavioral_receipt"
-            )
+            receipt_key = {
+                "n8_transport_tuple_hardcode": "stage_2_behavioral_receipt",
+                "n6_single_terminal_validation_gap": "stage_3_behavioral_receipt",
+            }.get(gap_id, "stage_1_behavioral_receipt")
             owner_evidence[receipt_key] = stage_receipts[gap_id]
             gap["owner_evidence"] = owner_evidence
     hashed = [_with_content_hash(gap, "gap_content_hash") for gap in gaps]
@@ -5316,6 +5354,39 @@ def _validate_stage_1_cycle_receipts(
             or recorded_n8 != n8_transport_evidence
         ):
             issues.append({"code": "n8_transport_gap_receipt_drift"})
+    try:
+        n6_validation_evidence = _n6_single_terminal_gap_closure(
+            GenerationCycleRun.model_validate(
+                _mapping(cycle_trace.get("generation_cycle_run"))
+            )
+        )
+    except (TypeError, ValueError) as exc:
+        issues.append(
+            {
+                "code": "n6_single_terminal_gap_receipt_unavailable",
+                "error": str(exc),
+            }
+        )
+    else:
+        if n6_validation_evidence.get("closed") is True:
+            expected_closed.add("n6_single_terminal_validation_gap")
+        trace_n6 = _mapping(
+            trace_triage.get("n6_single_terminal_validation_gap")
+        )
+        gap_n6 = _mapping(
+            gap_records.get("n6_single_terminal_validation_gap")
+        )
+        recorded_n6 = _mapping(
+            _mapping(gap_n6.get("owner_evidence")).get(
+                "stage_3_behavioral_receipt"
+            )
+        )
+        if (
+            trace_n6.get("receipt_ref")
+            != n6_validation_evidence.get("receipt_ref")
+            or recorded_n6 != n6_validation_evidence
+        ):
+            issues.append({"code": "n6_single_terminal_gap_receipt_drift"})
     for gap_id in GAP_WITNESS_SPECS:
         expected_status = "closed" if gap_id in expected_closed else "typed_residual"
         if (

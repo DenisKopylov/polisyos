@@ -1369,7 +1369,7 @@ git commit -m "feat: generalize value over Foundry contracts"
 - Modify: `tests/unit/runtime/quality/test_generation_cycle.py`
 - Modify: `tools/quality/validation/check_layer3_gy_generation_cycle_contract.py`
 
-- [ ] **Step 1: Write RED positive and fabricated-negative tests.**
+- [x] **Step 1: Write RED positive and fabricated-negative tests.**
 
 ```python
 def test_one_cycle_honest_terminal_validates() -> None:
@@ -1388,17 +1388,17 @@ def test_one_cycle_unreachable_terminal_combination_is_rejected() -> None:
 Add the fabricated combination to the checker's mutation denominator; retain every existing mutation ID.
 In particular, keep `fake_cycle_same_candidate_repeated`, front-routing, VOI-routing, terminal-denominator, and strangle witnesses RED-capable.
 
-- [ ] **Step 2: Run focused tests and observe RED only for the two-cycle runtime requirement/new mutation.**
+- [x] **Step 2: Run focused tests and observe RED only for the two-cycle runtime requirement/new mutation.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_generation_cycle.py -k 'one_cycle_honest or unreachable_terminal' -q
 ```
 
-- [ ] **Step 3: Remove only the runtime two-cycle check and add coherence rules.**
+- [x] **Step 3: Remove only the runtime two-cycle check and add coherence rules.**
 
 Require at least one cycle, enum-derived full denominator, no terminal `advance`, completed/blocked reason consistency, and coherent front/VOI/revision state. Keep the frozen two-cycle positive in the checker.
 
-- [ ] **Step 4: Run the full N6 battery.**
+- [x] **Step 4: Run the full N6 battery.**
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_generation_cycle_contract.py --check
@@ -1408,7 +1408,7 @@ python3 -m pytest tests/unit/runtime/quality/test_generation_cycle.py -q
 .venv/bin/ruff check src/polisyos/runtime/quality/generation_cycle.py tools/quality/validation/check_layer3_gy_generation_cycle_contract.py tests/unit/runtime/quality/test_generation_cycle.py
 ```
 
-- [ ] **Step 5: Commit the one-directional fix.**
+- [x] **Step 5: Commit the one-directional fix.**
 
 ```bash
 git add src/polisyos/runtime/quality/generation_cycle.py tools/quality/validation/check_layer3_gy_generation_cycle_contract.py tests/unit/runtime/quality/test_generation_cycle.py
@@ -1428,7 +1428,7 @@ git commit -m "fix: validate honest single cycle terminals"
 - Produces `RecursiveCycleBudget`, `RecursiveCycleNode`, `RecursiveGenerationCycleRun`, and `RecursiveGenerationCycleController`.
 - Produces service `compile_and_run_recursive_generation_cycle(*, raw_request: str, compiler_gateway: object, controller: RecursiveGenerationCycleController, budget_state: BudgetState, cycle_substrate_context: CycleSubstrateContext | None = None) -> CompiledRecursiveGenerationCycleRun` that calls the existing NL compiler and then the router.
 
-- [ ] **Step 1: Write RED Lane-0 depth and NL-front-door tests.**
+- [x] **Step 1: Write RED Lane-0 depth and NL-front-door tests.**
 
 ```python
 @pytest.mark.asyncio
@@ -1453,28 +1453,28 @@ async def test_plain_language_front_door_calls_real_design_problem_compiler() ->
     assert result.recursive_run.root_design_problem_ref == _problem_hash(result.design_problem)
 ```
 
-- [ ] **Step 2: Run tests and observe RED because the router/front door are absent.**
+- [x] **Step 2: Run tests and observe RED because the router/front door are absent.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/http/test_nl_pipeline_materialization.py -k 'recursive_router or plain_language_front_door' -q
 ```
 
-- [ ] **Step 3: Implement the thin router.**
+- [x] **Step 3: Implement the thin router.**
 
 Use strict content-bound result types. The controller accepts an existing `RecursiveDesignGraph`, validated problem-by-node mapping produced from candidate decomposition, a cycle-controller factory, and existing coupling/composition ports. It traverses depth/budget, invokes `GenerationCycleController` only at executable leaves, and delegates every coupling/decomposition/composition decision. It does not define a terminal enum or coupling rule.
 
-- [ ] **Step 4: Implement the service bridge.**
+- [x] **Step 4: Implement the service bridge.**
 
 `compile_and_run_recursive_generation_cycle` calls `build_design_problem_from_nl_request`, verifies raw-request/tool-response content binding, resolves the caller-supplied substrate context, and invokes the router. The runtime quality layer never imports HTTP.
 
-- [ ] **Step 5: Run focused tests and Ruff.**
+- [x] **Step 5: Run focused tests and Ruff.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/http/test_nl_pipeline_materialization.py -k 'recursive_router or plain_language_front_door' -q
 .venv/bin/ruff check src/polisyos/runtime/quality/recursive_generation_cycle.py src/polisyos/runtime/quality/__init__.py src/polisyos/runtime/http/services/control/generation_cycle.py tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/http/test_nl_pipeline_materialization.py
 ```
 
-- [ ] **Step 6: Commit the thin router.**
+- [x] **Step 6: Commit the thin router.**
 
 ```bash
 git add src/polisyos/runtime/quality/recursive_generation_cycle.py src/polisyos/runtime/quality/__init__.py src/polisyos/runtime/http/services/control/generation_cycle.py tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/http/test_nl_pipeline_materialization.py
@@ -1494,7 +1494,7 @@ git commit -m "feat: route generation cycles over depth"
 - Modify: `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`
 - Modify: its existing ledger validator/test if generated/recomputed
 
-- [ ] **Step 1: Write RED coupling/strangle tests.**
+- [x] **Step 1: Write RED coupling/strangle tests.**
 
 ```python
 def test_missing_coupling_evidence_defaults_toward_entanglement() -> None:
@@ -1529,25 +1529,25 @@ def test_gy_g_strangle_receipt_has_no_production_fixture_callers() -> None:
     assert receipt.default_controller.endswith("RecursiveGenerationCycleController")
 ```
 
-- [ ] **Step 2: Run tests and observe RED because GY-G callers/default remain.**
+- [x] **Step 2: Run tests and observe RED because GY-G callers/default remain.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/quality/test_workspace_loop.py -k 'coupling_evidence or coupled_parent or gy_g_strangle' -q
 ```
 
-- [ ] **Step 3: Make coupling evidence explicit and consume real N5.**
+- [x] **Step 3: Make coupling evidence explicit and consume real N5.**
 
 Remove the default `evidence_state="observed"` or require all production callers to pass it explicitly. Missing producer evidence uses `absent`. The router supplies the same graph and intervention set to `JointSimulationHorizonController`; if engine decisions are unsupported or trajectories are absent, surface `simulation_blocked` rather than `joint_simulated`.
 
-- [ ] **Step 4: Perform the P28 default flip and predecessor removal in one change.**
+- [x] **Step 4: Perform the P28 default flip and predecessor removal in one change.**
 
 Remove/fence `WorkspaceLoop.run_recursive_case`, `coupling_graph_for_subdesigns`, `_recursive_case_child_fixtures`, and the duplicate-case default. Rewrite composition artifact generation to use the recursive controller. Recompute the ledger row from a caller census and behavioral route. Explicitly list any test-only exemption.
 
-- [ ] **Step 5: Add restoring source flips.**
+- [x] **Step 5: Add restoring source flips.**
 
 Add flips that reintroduce a fixture caller, default an empty graph to observed independence, skip N5 for a coupled parent, and label unsupported N5 output `joint_simulated`. Each must turn the N10 probe RED and restore source.
 
-- [ ] **Step 6: Run Stage-3 gate.**
+- [x] **Step 6: Run Stage-3 gate.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/quality/test_workspace_loop.py -q
@@ -1559,14 +1559,14 @@ python3 tools/quality/validation/check_layer3_gy_composition_artifacts.py --chec
 .venv/bin/ruff check src/polisyos/runtime/quality/recursive_generation_cycle.py src/polisyos/runtime/quality/generation_cycle.py src/polisyos/runtime/quality/workspace/loop.py src/polisyos/runtime/quality/design_axes/coupling_composition.py tools/quality/validation/check_layer3_gy_composition_artifacts.py tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/quality/test_workspace_loop.py
 ```
 
-- [ ] **Step 7: Commit the atomic strangle/default flip.**
+- [x] **Step 7: Commit the atomic strangle/default flip.**
 
 ```bash
 git add src/polisyos/runtime/quality/recursive_generation_cycle.py src/polisyos/runtime/quality/generation_cycle.py src/polisyos/runtime/quality/workspace/loop.py src/polisyos/runtime/quality/design_axes/coupling_composition.py tools/quality/validation/check_layer3_gy_composition_artifacts.py tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/quality/test_workspace_loop.py architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json
 git commit -m "feat: strangle fixed recursive cycle"
 ```
 
-- [ ] **Step 8: Land every Stage-3 rebaseline before proof capture.**
+- [x] **Step 8: Land every Stage-3 rebaseline before proof capture.**
 
 Regenerate and commit every depth-N, GY-G, N6, composition, and coupling
 artifact affected by Stage 3.  Stage 4 may not begin with an upstream artifact

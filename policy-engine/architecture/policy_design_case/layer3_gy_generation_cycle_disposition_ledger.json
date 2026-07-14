@@ -2174,19 +2174,26 @@
         "default_after": "Real cycle observes coupling, runs joint simulation where required, and uses real acquisition receipts.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending controller/acquisition cutover",
-        "removed_loc": [],
+        "remaining_callers_disposition": "strangled; the live AST census reports zero production definitions or callers and the default route is RecursiveGenerationCycleController",
+        "removed_loc": [
+          "src/polisyos/runtime/quality/workspace/loop.py:run_recursive_case",
+          "src/polisyos/runtime/quality/workspace/loop.py:coupling_graph_for_subdesigns",
+          "src/polisyos/runtime/quality/workspace/loop.py:_recursive_case_child_fixtures"
+        ],
         "verified_by": [
-          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",
+          "tools/quality/validation/check_layer3_gy_composition_artifacts.py --source-flip-mutations",
+          "tests/unit/runtime/quality/test_depth_n_universality.py"
         ],
         "superseded_path": "src/polisyos/runtime/quality/workspace/loop.py",
         "consuming_task": "GY-N10",
         "strangle_condition": {
           "kind": "text_absent",
           "path": "src/polisyos/runtime/quality/workspace/loop.py",
-          "pattern": "run_recursive_case"
+          "pattern": "run_recursive_case|coupling_graph_for_subdesigns|_recursive_case_child_fixtures",
+          "regex": true
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {

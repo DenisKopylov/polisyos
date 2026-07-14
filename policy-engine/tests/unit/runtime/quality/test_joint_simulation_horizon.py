@@ -162,6 +162,7 @@ def _coupling_graph(kind: str):
         module_refs=("module://eligibility", "module://delivery"),
         module_discovery_ref="discovery://fixture",
         interaction_edges=edges,
+        evidence_state="observed",
         rule_version_ref="policyos.layer2.s5.coupling_composition.test",
     )
 

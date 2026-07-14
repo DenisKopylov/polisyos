@@ -53,6 +53,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Ops observability baselines` | `source_committed` | `committed` | `manual_review` | `team-observability` | `ops/observability/otel/baseline.yaml`<br/>`ops/observability/slo`<br/>`ops/observability/prometheus`<br/>`ops/observability/grafana/dashboards` |
 | `Ops security and release baselines` | `source_committed` | `committed` | `manual_review` | `team-security` | `ops/security/gitleaks.toml`<br/>`ops/security/trufflehog.yaml`<br/>`ops/security/osv-scanner.toml`<br/>`ops/security/sbom.toml`<br/>`ops/security/secrets-baseline.toml`<br/>`ops/release/release-fragment-policy.toml`<br/>`ops/release/commit-policy.toml`<br/>`ops/release/deployment-topology.toml`<br/>`ops/release/promotion-gates.toml` |
 | `Ops runtime and migration baselines` | `source_committed` | `committed` | `manual_review` | `team-platform` | `ops/runtime/runtime-contracts.toml`<br/>`ops/migrations/README.md`<br/>`ops/migrations/migration-contracts.toml`<br/>`ops/migrations/db/README.md`<br/>`ops/migrations/db/001_tenant_columns.sql`<br/>`ops/migrations/db/002_tenant_backfill.sql`<br/>`ops/migrations/db/003_rls_enable.sql`<br/>`ops/migrations/db/003_rls_disable_rollback.sql`<br/>`ops/migrations/db/004_roles_grants.sql`<br/>`ops/migrations/runtime_state/README.md`<br/>`ops/migrations/api_schemas/README.md`<br/>`ops/migrations/ir/README.md` |
+| `Policy Design Case Layer 3 GY recursion and composition artifacts` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_composition_certificates.json` |
 | `Policy Design Case Layer 3 GY production-data substrate registry contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/production_data_substrate_registry_contract.json` |
 | `Policy Design Case Layer 3 GY data-state substrate contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json` |
 | `Policy Design Case Layer 3 GY knowledge substrate contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json` |
@@ -1491,6 +1492,30 @@ Canonical regeneration commands:
 
 ```bash
 manual review: update runtime and DB/runtime-state/API/IR migration baselines alongside deployment/runtime security contract changes
+```
+
+## `Policy Design Case Layer 3 GY recursion and composition artifacts`
+
+- Family id: `policy-design-case-layer3-gy-composition-artifacts`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/design_axes/coupling_composition.py, src/polisyos/runtime/quality/recursive_generation_cycle.py, src/polisyos/runtime/quality/joint_simulation_horizon.py, and tools/quality/validation/check_layer3_gy_composition_artifacts.py
+- Generator: Layer 3 GY composition validator generated through the canonical coupling, decomposition, composition, joint-simulation, and recursive-cycle owners
+- Verifier: Layer 3 GY composition artifact validator, live depth-N proof, coupling default gate, and GY-G strangle receipt
+- Promotion target: registered canonical GY-G recursion and composition proof artifacts
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever coupling evidence semantics, subdesign composition, joint-simulation authority, recursive depth routing, or the GY-G strangle changes.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_composition_artifacts.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_composition_certificates.json`
+
+Canonical regeneration commands:
+
+```bash
+.venv/bin/python tools/quality/validation/check_layer3_gy_composition_artifacts.py --repo-root . --write --output-format json
 ```
 
 ## `Policy Design Case Layer 3 GY production-data substrate registry contract`

@@ -17,6 +17,11 @@ from polisyos.pdc import (
     SubDesignContract,
 )
 from polisyos.runtime.quality.data_forge_binding import MeasurementRootBindingError
+from polisyos.runtime.quality.design_axes.coupling_composition import (
+    CouplingEdge,
+    CouplingGraph,
+    build_coupling_graph,
+)
 from polisyos.runtime.quality.workspace import loop as workspace_loop
 from polisyos.runtime.quality.workspace.loop import (
     ACTIVE_WORKSPACE_OPERATIONS,
@@ -35,6 +40,31 @@ from polisyos.runtime.quality.workspace.loop import (
     select_search_terminal,
 )
 from polisyos.scientist.agent.protocols import DataNeedSpec
+
+
+def _observed_independent_graph(
+    *,
+    parent_workspace_id: str,
+    children: list[SubDesignContract],
+) -> CouplingGraph:
+    source, target = (child.workspace_id for child in children[:2])
+    return build_coupling_graph(
+        design_ref=f"design://{parent_workspace_id}",
+        module_refs=[child.workspace_id for child in children],
+        module_discovery_ref=f"discovery://{parent_workspace_id}",
+        interaction_edges=(
+            CouplingEdge(
+                boundary_ref=f"boundary://{parent_workspace_id}/observed-independent",
+                source_module_ref=source,
+                target_module_ref=target,
+                relation="observed_independent_measurement",
+                interaction_strength="none",
+                evidence_ref=f"evidence://{parent_workspace_id}/independence",
+            ),
+        ),
+        evidence_state="observed",
+        rule_version_ref="policyos.gy.composition.test.v1",
+    )
 
 
 def test_workspace_loop_uses_canonical_slice0_catalog_builder() -> None:
@@ -125,9 +155,9 @@ def test_workspace_loop_decomposes_children_and_composes_certificate() -> None:
             "ua_msme_credit_worldbank_measurement",
         ],
     )
-    graph = loop.coupling_graph_for_subdesigns(
+    graph = _observed_independent_graph(
         parent_workspace_id="ws-gyg-independent",
-        subdesigns=children,
+        children=children,
     )
     certificate = loop.compose_subdesigns(
         parent_workspace_id="ws-gyg-independent",
@@ -152,9 +182,9 @@ def test_child_acquisition_required_forces_parent_to_fund_cap_or_escalate() -> N
             "tourism_local_development_ceiling_probe",
         ],
     )
-    graph = loop.coupling_graph_for_subdesigns(
+    graph = _observed_independent_graph(
         parent_workspace_id="ws-recursive-parent",
-        subdesigns=children,
+        children=children,
     )
     certificate = loop.compose_subdesigns(
         parent_workspace_id="ws-recursive-parent",
@@ -168,21 +198,6 @@ def test_child_acquisition_required_forces_parent_to_fund_cap_or_escalate() -> N
     assert "child_acquisition_required" in {
         obligation.obligation_type for obligation in certificate.unresolved_obligations
     }
-
-
-def test_recursive_accession_class_case_records_certificate_or_honest_terminal() -> None:
-    result = WorkspaceLoop().run_recursive_case("pl_household_energy_accession_class")
-
-    assert result.case_id == "pl_household_energy_accession_class"
-    assert len(result.subdesign_contracts) >= 2
-    assert result.terminal_state.kind.value in {
-        "grounded_partial_admissible",
-        "composition_invalid",
-        "recursive_blocked",
-        "acquisition_required",
-    }
-    if result.composition_certificate is not None:
-        assert result.composition_certificate.composition_receipt_ref
 
 
 def test_slice0_groundable_fixture_exits_partial_without_design_candidate() -> None:

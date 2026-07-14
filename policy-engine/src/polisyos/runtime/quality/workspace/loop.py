@@ -80,7 +80,6 @@ from polisyos.runtime.quality.data_forge_binding import (
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingGraph,
-    build_coupling_graph,
 )
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     compose_subdesigns as build_composition_certificate,
@@ -313,20 +312,6 @@ class WorkspaceIntentRunResult(BaseModel):
     method_output_consumption_ref: ArtifactRef | None = None
     foundry_input_provenance: str | None = None
     open_production_findings: list[str] = Field(default_factory=list)
-
-
-class RecursiveWorkspaceRunResult(BaseModel):
-    """Recorded recursive Workspace result for DECOMPOSE/COMPOSE runs."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    schema_version: str = WORKSPACE_LOOP_SCHEMA_VERSION
-    case_id: str
-    parent_workspace_id: str
-    subdesign_contracts: list[SubDesignContract]
-    composition_certificate: CompositionCertificate | None
-    terminal_state: SearchTerminalState
-    recorded_artifact_refs: list[str] = Field(default_factory=list)
 
 
 def _slug(value: str) -> str:
@@ -928,22 +913,6 @@ class WorkspaceLoop:
             )
         return children
 
-    def coupling_graph_for_subdesigns(
-        self,
-        *,
-        parent_workspace_id: str,
-        subdesigns: list[SubDesignContract],
-    ) -> CouplingGraph:
-        """Build the observed independent coupling graph for child subdesign ports."""
-
-        return build_coupling_graph(
-            design_ref=f"pdc://gy/{_slug(parent_workspace_id)}/recursive-design",
-            module_refs=[subdesign.workspace_id for subdesign in subdesigns],
-            module_discovery_ref=f"pdc://gy/{_slug(parent_workspace_id)}/module-discovery",
-            interaction_edges=(),
-            rule_version_ref="policyos.gy.composition.v1",
-        )
-
     def compose_subdesigns(
         self,
         *,
@@ -960,44 +929,6 @@ class WorkspaceLoop:
             claims=claims,
             graph=graph,
             parent_workspace_id=parent_workspace_id,
-        )
-
-    def run_recursive_case(self, case_id: str) -> RecursiveWorkspaceRunResult:
-        """Run a recorded depth-2 recursive case to a certificate or typed terminal."""
-
-        parent_workspace_id = f"ws-recursive-{_slug(case_id)}"
-        fixture_ids = _recursive_case_child_fixtures(case_id)
-        subdesigns = self.decompose_fixture(
-            parent_workspace_id=parent_workspace_id,
-            child_fixture_ids=fixture_ids,
-        )
-        graph = self.coupling_graph_for_subdesigns(
-            parent_workspace_id=parent_workspace_id,
-            subdesigns=subdesigns,
-        )
-        certificate = self.compose_subdesigns(
-            parent_workspace_id=parent_workspace_id,
-            subdesigns=subdesigns,
-            graph=graph,
-            claims=[],
-        )
-        terminal = _recursive_terminal_from_certificate(certificate)
-        artifact_ref = self._persist_loop_payload(
-            {
-                "case_id": case_id,
-                "parent_workspace_id": parent_workspace_id,
-                "composition_certificate": certificate.model_dump(mode="json"),
-                "terminal_state": terminal.model_dump(mode="json"),
-            },
-            kind="policyos.gy.recursive_workspace_run",
-        )
-        return RecursiveWorkspaceRunResult(
-            case_id=case_id,
-            parent_workspace_id=parent_workspace_id,
-            subdesign_contracts=subdesigns,
-            composition_certificate=certificate,
-            terminal_state=terminal,
-            recorded_artifact_refs=[artifact_ref],
         )
 
     def run_control_plane_fixture(self, fixture_id: str) -> WorkspaceSearchExitContract:
@@ -2996,54 +2927,6 @@ def _producer_roots_from_exit(child_exit: WorkspaceSearchExitContract) -> list[A
     return list(by_id.values())
 
 
-def _recursive_case_child_fixtures(case_id: str) -> list[str]:
-    cases = {
-        "pl_household_energy_accession_class": [
-            "ua_msme_credit_worldbank_measurement",
-            "tourism_local_development_ceiling_probe",
-        ],
-    }
-    return cases.get(
-        case_id,
-        [
-            "ua_msme_credit_worldbank_measurement",
-            "ua_msme_credit_worldbank_measurement",
-        ],
-    )
-
-
-def _recursive_terminal_from_certificate(
-    certificate: CompositionCertificate,
-) -> SearchTerminalState:
-    obligation_types = {item.obligation_type for item in certificate.unresolved_obligations}
-    if "child_acquisition_required" in obligation_types:
-        return SearchTerminalState(
-            kind=SearchTerminalKind.ACQUISITION_REQUIRED,
-            reason=(
-                "A child workspace exited acquisition_required; parent must "
-                "fund, cap, or escalate."
-            ),
-            blocking_obligations=[
-                item.obligation_id
-                for item in certificate.unresolved_obligations
-                if item.obligation_type == "child_acquisition_required"
-            ],
-        )
-    if certificate.verdict == "not_composable":
-        return SearchTerminalState(
-            kind=SearchTerminalKind.COMPOSITION_INVALID,
-            reason="Recursive child workspaces did not compose under the D3 operator.",
-            blocking_obligations=[
-                item.obligation_id for item in certificate.unresolved_obligations
-            ],
-        )
-    return SearchTerminalState(
-        kind=SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE,
-        reason="Recursive child workspaces composed with a CompositionCertificate.",
-        blocking_obligations=[],
-    )
-
-
 __all__ = [
     "ACTIVE_WORKSPACE_OPERATIONS",
     "WORKSPACE_LOOP_SCHEMA_VERSION",
@@ -3057,7 +2940,6 @@ __all__ = [
     "MeasurementRootProducer",
     "OperationRegistration",
     "OperationRegistry",
-    "RecursiveWorkspaceRunResult",
     "SearchExitDecisionInputs",
     "SearchTerminalDecision",
     "SemanticAdequacyGate",

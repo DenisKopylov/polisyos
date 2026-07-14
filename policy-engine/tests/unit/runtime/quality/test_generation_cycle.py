@@ -63,7 +63,9 @@ from polisyos.runtime.quality.generation_cycle import (
     _build_boundary_world_model_record,
     _derive_fronts,
     _grounding_disposition_denominator,
+    _joint_simulation_port_outcome,
     enforce_no_retry_without_new_grammar,
+    generation_cycle_terminal_state,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
@@ -958,6 +960,29 @@ def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
     assert observation.k_world_ref_before == context.world_model_record.content_hash
 
 
+def test_real_unsupported_n5_result_is_serialized_as_simulation_blocked() -> None:
+    """A real gated N5 receipt cannot be relabeled as a completed simulation."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_joint_simulation_horizon_contract as n5_contract,
+    )
+
+    request = n5_contract._request().model_copy(
+        update={"coupling_graph": n5_contract._coupling_graph("feedback")}
+    )
+    result = JointSimulationHorizonController().run(request)
+
+    status, blockers = _joint_simulation_port_outcome(result)
+
+    assert result.receipt.calibration_status == "unsupported_coupling_gated"
+    assert not result.trajectories
+    assert status == "simulation_blocked", "unsupported_n5_result_must_block"
+    assert "unsupported_coupling_class:feedback" in blockers
+
+
 def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
     """A candidate's shaped WMR ref cannot override the resolved context world."""
 
@@ -1732,6 +1757,9 @@ async def test_controller_refuses_live_retry_without_new_grammar() -> None:
     assert run.blocked_reason == "no_retry_without_new_grammar"
     assert run.cycles[0].refinement_decision.decision == "block_candidate"
     assert run.cycles[0].search_iteration.status == "blocked_no_retry"
+    terminal = generation_cycle_terminal_state(run)
+    assert terminal.kind.value == "recursive_blocked"
+    assert terminal.blocking_obligations == ["no_retry_without_new_grammar"]
 
 
 @pytest.mark.asyncio
@@ -2340,6 +2368,61 @@ async def test_value_data_gap_routes_to_n7_acquisition_terminal() -> None:
 
 
 @pytest.mark.asyncio
+async def test_honest_single_cycle_acquisition_terminal_validates() -> None:
+    """A coherent one-cycle terminal is not a missing positive denominator."""
+
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    assert len(run.cycles) == 1
+    assert run.cycles[0].terminal_kind == "acquisition_required"
+    assert validate_generation_cycle_run(run) == ()
+
+
+@pytest.mark.asyncio
+async def test_fabricated_single_cycle_unreachable_terminal_combination_is_red() -> None:
+    """A supported terminal label cannot override the real stage state."""
+
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+    )
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+    fabricated_cycle = run.cycles[0].model_copy(
+        update={"terminal_kind": "frontier_stable"}
+    )
+    fabricated_run = run.model_copy(update={"cycles": (fabricated_cycle,)})
+
+    issue_codes = {
+        str(issue.get("code"))
+        for issue in validate_generation_cycle_run(fabricated_run)
+    }
+
+    assert "incoherent_single_terminal_state" in issue_codes
+
+
+@pytest.mark.asyncio
+async def test_empty_completed_cycle_run_is_red() -> None:
+    """The one-directional relaxation still requires a non-empty denominator."""
+
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+    ).run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    empty = run.model_copy(update={"cycles": ()})
+    issue_codes = {
+        str(issue.get("code")) for issue in validate_generation_cycle_run(empty)
+    }
+
+    assert "cycle_denominator_empty" in issue_codes
+
+
+@pytest.mark.asyncio
 async def test_value_gap_for_another_candidate_cannot_be_routed() -> None:
     controller = GenerationCycleController(
         generation_port=_CgfGenerationPort(),
@@ -2433,6 +2516,8 @@ async def test_generation_cycle_contract_mutations_turn_red() -> None:
         "coverage_depends_on_llm": "red",
         "k_sim_shrank_k_world": "red",
         "full_denominator_curated_subset": "red",
+        "incoherent_single_terminal_run": "red",
+        "empty_cycle_run": "red",
     }
     assert payload["denominators"]["counts"] == {
         "front_kinds": 4,

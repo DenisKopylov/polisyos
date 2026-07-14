@@ -42,6 +42,7 @@ from polisyos.pdc import (
     CounterexampleRecord,
     RefinementDecision,
     SearchTerminalKind,
+    SearchTerminalState,
     TypedDiagnosticRecord,
     ValueOfInformationEstimate,
     gy_content_hash,
@@ -63,6 +64,7 @@ from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispos
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
     JointSimulationRequest,
+    JointSimulationResult,
 )
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateLayer,
@@ -214,6 +216,29 @@ class SimulationPortObservation(_StrictModel):
         ):
             raise ValueError("k_sim_must_not_shrink_k_world")
         return self
+
+
+def _joint_simulation_port_outcome(
+    result: JointSimulationResult,
+) -> tuple[Literal["joint_simulated", "simulation_blocked"], tuple[str, ...]]:
+    """Project the real N5 outcome without relabeling an unsupported run."""
+
+    unsupported = (
+        result.receipt.calibration_status in {"unsupported_coupling_gated", "no_run"}
+        or not result.trajectories
+        or any(decision.decision != "selected" for decision in result.engine_decisions)
+    )
+    blockers = list(
+        result.promotion_ready_value_packet.get("authority_blockers", ())
+    )
+    if unsupported:
+        blockers.extend(result.feedback_classification.support_blockers)
+        for decision in result.engine_decisions:
+            blockers.extend(decision.blockers)
+        if not blockers:
+            blockers.append("joint_simulation_no_supported_trajectory")
+        return "simulation_blocked", tuple(dict.fromkeys(str(item) for item in blockers))
+    return "joint_simulated", tuple(dict.fromkeys(str(item) for item in blockers))
 
 
 class ValueTransportReceipt(_StrictModel):
@@ -1028,14 +1053,13 @@ class JointSimulationPort:
             )
         result = self._controller.run(request)
         k_world_ref = request.world_model_record.content_hash
+        status, authority_blockers = _joint_simulation_port_outcome(result)
         return SimulationPortObservation(
             candidate_id=candidate_id,
-            status="joint_simulated",
+            status=status,
             simulation_ref=result.receipt.payload_hash,
             uncertainty_kind=result.uncertainty_kind,
-            authority_blockers=tuple(
-                result.promotion_ready_value_packet.get("authority_blockers", ())
-            ),
+            authority_blockers=authority_blockers,
             diagnostics={
                 "engine_decisions": [
                     item.model_dump(mode="json") for item in result.engine_decisions
@@ -2631,8 +2655,8 @@ def validate_generation_cycle_run(
     expected_denominator = _terminal_denominator()
     if run.terminal_denominator != expected_denominator:
         issues.append({"code": "terminal_denominator_not_derived"})
-    if run.terminal_status == "completed" and len(run.cycles) < 2:
-        issues.append({"code": "positive_cycle_denominator_missing"})
+    if not run.cycles:
+        issues.append({"code": "cycle_denominator_empty"})
     for index, cycle in enumerate(run.cycles):
         if cycle.terminal_kind not in expected_denominator:
             issues.append(
@@ -2640,6 +2664,20 @@ def validate_generation_cycle_run(
                     "code": "unsupported_terminal_not_honest",
                     "cycle_index": index,
                     "terminal_kind": cycle.terminal_kind,
+                }
+            )
+        expected_terminal_kind = _select_terminal_kind(
+            grounding=cycle.grounding,
+            proxy_score=0.0,
+            value_port=cycle.value_port,
+        )
+        if cycle.terminal_kind != expected_terminal_kind:
+            issues.append(
+                {
+                    "code": "incoherent_single_terminal_state",
+                    "cycle_index": index,
+                    "expected_terminal_kind": expected_terminal_kind,
+                    "actual_terminal_kind": cycle.terminal_kind,
                 }
             )
         if cycle.voi_decision.scheduler_action not in _scheduling_action_denominator() | {
@@ -2783,6 +2821,56 @@ def validate_generation_cycle_run(
     ):
         issues.append({"code": "fabricated_promotion_without_n9"})
     return tuple(issues)
+
+
+def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalState:
+    """Project one N6 run into the existing typed search-terminal contract."""
+
+    if not run.cycles:
+        return SearchTerminalState(
+            kind=SearchTerminalKind.RECURSIVE_BLOCKED,
+            reason="The canonical generation cycle emitted no executable cycle.",
+            blocking_obligations=["cycle_denominator_empty"],
+        )
+    if run.terminal_status == "blocked":
+        reason = run.blocked_reason or "generation_cycle_blocked"
+        if reason == "voi_safety_cap_reached_without_scheduler_stop":
+            return SearchTerminalState(
+                kind=SearchTerminalKind.BUDGET_EXHAUSTED,
+                reason="The N6 cycle safety cap was reached before scheduler closure.",
+                blocking_obligations=[reason],
+                budget_kind="cycle",
+            )
+        return SearchTerminalState(
+            kind=SearchTerminalKind.RECURSIVE_BLOCKED,
+            reason="The canonical generation cycle blocked before safe closure.",
+            blocking_obligations=[reason],
+        )
+
+    last_cycle = run.cycles[-1]
+    kind = SearchTerminalKind(last_cycle.terminal_kind)
+    costed_plan: dict[str, Any] | None = None
+    data_need_spec: dict[str, Any] | None = None
+    if kind is SearchTerminalKind.ACQUISITION_REQUIRED:
+        if last_cycle.acquisition_routing_report is not None:
+            costed_plan = {
+                "canonical_planner_report": (
+                    last_cycle.acquisition_routing_report.model_dump(mode="json")
+                )
+            }
+        if last_cycle.value_port.acquisition_requirement is not None:
+            data_need_spec = last_cycle.value_port.acquisition_requirement.model_dump(
+                mode="json"
+            )
+    blockers = list(last_cycle.grounding.issue_codes)
+    blockers.extend(last_cycle.value_port.authority_blockers)
+    return SearchTerminalState(
+        kind=kind,
+        reason="Terminal emitted by the canonical generation-cycle owner.",
+        blocking_obligations=list(dict.fromkeys(blockers)),
+        costed_plan=costed_plan,
+        data_need_spec=data_need_spec,
+    )
 
 
 def _terminal_denominator() -> tuple[str, ...]:
@@ -5243,6 +5331,7 @@ __all__ = [
     "ValuePortObservation",
     "ValueTransportReceipt",
     "enforce_no_retry_without_new_grammar",
+    "generation_cycle_terminal_state",
     "is_value_panel_shape",
     "validate_generation_cycle_run",
 ]

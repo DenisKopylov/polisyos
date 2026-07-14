@@ -218,6 +218,33 @@ def test_n8_transport_gap_refuses_a_valid_but_wrong_pack_vocabulary() -> None:
     assert evidence["reason_code"] == "n8_education_transport_vocabulary_mismatch"
 
 
+def test_n6_single_terminal_gap_closes_only_from_live_coherent_run() -> None:
+    """Close the N6 gap from the real validator, never from a stage label."""
+
+    trace = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json"
+        ).read_text(encoding="utf-8")
+    )
+    run = second_domain_pack.GenerationCycleRun.model_validate(
+        trace["generation_cycle_run"]
+    )
+
+    positive = second_domain_pack._n6_single_terminal_gap_closure(run)
+    empty = second_domain_pack._n6_single_terminal_gap_closure(
+        run.model_copy(update={"cycles": ()})
+    )
+
+    assert positive["closed"] is True
+    assert positive["validation_issues"] == []
+    assert positive["receipt_ref"].startswith("sha256:")
+    assert empty["closed"] is False
+    assert {issue["code"] for issue in empty["validation_issues"]} == {
+        "cycle_denominator_empty"
+    }
+
+
 def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> None:
     """The Stage-1 trace uses real N4/L6/WMR owners and beats the N10a baseline."""
 

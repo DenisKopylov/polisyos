@@ -1712,6 +1712,7 @@ def _s5_coupling_composition_summary(
         module_refs=discovered.discovered_module_refs,
         module_discovery_ref=discovered.module_discovery_ref,
         interaction_edges=edges,
+        evidence_state="observed",
         rule_version_ref=S4_RULE_VERSION_REF,
         seed_method_refs=[
             "foundry.coupling.des_kernel",

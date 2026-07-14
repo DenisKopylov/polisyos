@@ -196,7 +196,7 @@ class CouplingGraph(Layer2ReadinessModel):
     module_refs: list[str] = Field(default_factory=list, max_length=80)
     module_discovery_ref: str | None = Field(default=None, max_length=300)
     interaction_edges: list[CouplingEdge] = Field(default_factory=list, max_length=200)
-    evidence_state: Literal["observed", "absent", "candidate"] = "observed"
+    evidence_state: Literal["observed", "absent", "candidate"] = "absent"
     seed_method_refs: list[str] = Field(default_factory=list, max_length=20)
     authority_boundary: AuthorityBoundary | None = None
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
@@ -442,7 +442,7 @@ def build_coupling_graph(
     module_discovery_ref: str | None,
     interaction_edges: Sequence[CouplingEdge],
     rule_version_ref: str,
-    evidence_state: Literal["observed", "absent", "candidate"] = "observed",
+    evidence_state: Literal["observed", "absent", "candidate"] = "absent",
     seed_method_refs: Sequence[str] | None = None,
 ) -> CouplingGraph:
     """Build the S5 graph artifact from producer-owned modules and edge evidence."""
@@ -485,14 +485,21 @@ def classify_coupling(
             rule_version_ref=rule_version_ref or "repo://unknown-rule-version",
             reason="coupling graph is absent; defaulting toward more coupling",
         )
-    elif graph.evidence_state == "absent" or graph.module_discovery_ref is None:
+    elif (
+        graph.evidence_state == "absent"
+        or graph.module_discovery_ref is None
+        or not graph.interaction_edges
+    ):
         classification = _default_entangled_classification(
             design_ref=graph.design_ref,
             module_refs=graph.module_refs,
             module_discovery_ref=graph.module_discovery_ref,
             rule_version_ref=graph.rule_version_ref,
             coupling_graph_ref=graph.graph_ref,
-            reason="coupling evidence or module discovery proof is absent",
+            reason=(
+                "coupling evidence, an observed boundary, or module discovery proof "
+                "is absent"
+            ),
         )
     else:
         classification = _classify_observed_graph(graph)
@@ -1312,7 +1319,7 @@ def compose_subdesigns(
             obligations=obligations,
             verdict="not_composable",
             receipt=None,
-            claims=(),
+            claims=claims,
             rule_version_ref=rule_ref,
         )
 
@@ -1352,7 +1359,7 @@ def compose_subdesigns(
             obligations=obligations,
             verdict="not_composable",
             receipt=None,
-            claims=(),
+            claims=claims,
             rule_version_ref=rule_ref,
         )
     has_feedback = (
@@ -1394,7 +1401,7 @@ def compose_subdesigns(
             obligations=obligations,
             verdict="not_composable",
             receipt=None,
-            claims=(),
+            claims=claims,
             rule_version_ref=rule_ref,
         )
 
@@ -1439,7 +1446,7 @@ def compose_subdesigns(
             obligations=obligations,
             verdict="not_composable",
             receipt=None,
-            claims=(),
+            claims=claims,
             rule_version_ref=rule_ref,
         )
 

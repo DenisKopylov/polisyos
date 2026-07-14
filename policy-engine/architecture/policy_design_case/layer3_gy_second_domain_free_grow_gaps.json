@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:ed079a761798802a342cc6115ede6cea2da03a819a85f9bb71457c3b0220074f",
+  "gap_report_content_hash": "sha256:feb8ec99033fcc4d612112ba2d91b3bbf61c504037b09fdd8dda3020826a4ee2",
   "gaps": [
     {
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
@@ -406,22 +406,19 @@
       "status": "closed"
     },
     {
-      "blocking_seam": "A typed one-cycle terminal reaches N6 but its validator requires a positive two-cycle denominator.",
-      "capability_label": "semantic_test_missing",
-      "disposition": "Stage 3 owns one-terminal validator reconciliation.",
-      "gap_content_hash": "sha256:e51e4798eea83a2474b37d9e8db2a3afc3a10ecb41160cf11c5aea7078336915",
+      "blocking_seam": "Closed by a live content-bound behavioral receipt.",
+      "capability_label": "closed",
+      "disposition": "closed_by_live_behavioral_receipt",
+      "gap_content_hash": "sha256:1db9017dcb3c41ddf82259774ff55b0c84cb0ab086374252a5c88ce7614c83e5",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
-        "n6_validation_issues": [
-          {
-            "code": "positive_cycle_denominator_missing"
-          }
-        ],
+        "n6_validation_issues": [],
         "seam_witness": {
           "observed_call_names": [
             "GenerationCycleRun.model_validate",
             "_revision_strategy_for_terminal_kind",
             "_scheduling_action_denominator",
+            "_select_terminal_kind",
             "_summary_value_blocks_promotion",
             "_terminal_denominator",
             "_validate_owned_grammar_elements",
@@ -438,13 +435,22 @@
             "summary_by_id.get",
             "tuple"
           ],
-          "segment_content_hash": "sha256:933baf21689144ef6d41c5efd194f3aef639fd986cc7fd646e4de956a028c7ef",
+          "segment_content_hash": "sha256:bf4ac814b9ef4f68dd8ddd00a5db1e57c10a35eaf99b6d5a440df1739085aecb",
           "source_path": "src/polisyos/runtime/quality/generation_cycle.py",
           "symbol": "validate_generation_cycle_run"
         },
-        "trace_content_hash": "sha256:8c2388c6b0d75ba043d10e8c7059a5a228bef92306595d8693f7ec818e2da4e7"
+        "stage_3_behavioral_receipt": {
+          "closed": true,
+          "cycle_count": 1,
+          "reason_code": "n6_coherent_single_terminal_accepted",
+          "receipt_ref": "sha256:28b396dae9e5a6cfcdac3ddb008645085f345c8d38f3c4dc57478b68e80b1fc8",
+          "run_content_hash": "sha256:d1442d46a87eabbf552ff5bba23e4772d81a8b49dd23b0a09d94a95c8a61afde",
+          "terminal_kind": "search_ceiling_repair_required",
+          "validation_issues": []
+        },
+        "trace_content_hash": "sha256:7939390890b499c6e6ed94e5e5772e4e3f0970550622445295c5c304e99a0be8"
       },
-      "status": "typed_residual"
+      "status": "closed"
     }
   ],
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",

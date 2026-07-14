@@ -1626,8 +1626,10 @@ Task 12 may begin, and no proof run preceded this gate.
 **Files:**
 - Create/Modify: `tests/unit/runtime/quality/test_depth_n_universality.py`
 - Create: `tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py`
-- Modify: `architecture/generated_artifacts.toml`
-- Regenerate: `docs/reference/generated-artifacts.md`
+
+Generated-artifact lifecycle registration is deliberately deferred to Task 13.  Task 12 has no
+owner-produced three-run artifact to register yet; registering a missing or scaffold proof would be
+P29 authorial proof.
 
 **Interfaces:**
 - Calls `assert_current_checkout(REPO_ROOT)` before parsing modes, reading artifacts/caches, or invoking owners.
@@ -1640,20 +1642,21 @@ DesignProblem, and prompt-hash refs from their canonical owners and refuses to
 enter a proof producer on any drift or dirty upstream rebaseline.
 
 ```python
-def test_universality_contract_requires_three_runs_and_two_part_a2_evidence() -> None:
+def test_universality_task12_payload_is_honestly_incomplete() -> None:
     payload = validator.build_live_payload(REPO_ROOT, lane="lane0")
-    assert set(payload["domain_runs"]) == {"first_vertical", "education", "unseen"}
+    assert payload["proof_status"] == "proof_runs_pending"
+    assert payload["domain_runs"] == {}
     assert payload["non_panel_evidence"]["fork"] == "B"
     assert payload["non_panel_evidence"]["status"] == "acquisition_required"
     assert payload["non_panel_evidence"]["supported_native_families"] == 6
     assert payload["non_panel_evidence"]["fork_a_candidate_count"] == 0
-    assert payload["education_refusal"]["status"] == "value_refused"
+    assert payload["education_refusal"]["status"] == "value_blocked"
     assert payload["depth_evidence"]["observed_max_depth"] > 2
 
 
 def test_universality_contract_content_hash_rejects_corruption() -> None:
     payload = validator.build_live_payload(REPO_ROOT, lane="lane0")
-    payload["domain_runs"]["education"]["terminal_kind"] = "promoted"
+    payload["proof_status"] = "complete"
     report = validator.validate_payload(payload)
     assert any(issue["code"] == "contract_content_hash_mismatch" for issue in report["issues"])
 
@@ -1701,20 +1704,27 @@ Run `check_provenance_stability` before every mode that can produce or validate
 Stage-4 proof receipts.  The gate is read-only and content-addressed; wall time
 and timestamps remain outside every content hash.
 
-The payload includes schema/rule/producer refs, source hashes, pattern pass, NL input hashes, domain distinctness, per-stage traces, baseline diff, discriminated Fork-A-positive/Fork-B-substrate-residual non-panel evidence, education refusal, unseen smoke, terminal distributions, recursion/coupling/N5/composition receipts, GY-G strangle, gap triage, source flips, verification journal, runtime metrics, and `contract_content_hash`. Hash validation excludes only declared runtime metrics/times. Add a restoring `wrong_checkout_resolved` source flip that points `PYTHONPATH` at the main checkout and proves the validator refuses before producer execution.
+Task 12's in-memory payload includes the stable upstream refs, Fork-B evidence, education's current
+`value_blocked` refusal, depth/composition/strangle receipts, explicit missing-capability labels, and
+`contract_content_hash`.  It MUST say `proof_status=proof_runs_pending`, carry an empty
+`domain_runs`, and refuse canonical `--write`/`--check` completion while the artifact is absent.
+Task 13 extends this same validator with the three real runs and remaining capstone fields.  Hash
+validation excludes only declared runtime metrics/times. Add a restoring `wrong_checkout_resolved`
+source flip that points `PYTHONPATH` at the main checkout and proves the validator refuses before
+producer execution.
 
-- [ ] **Step 4: Register generated-artifact lifecycle and verify focused tests.**
+- [ ] **Step 4: Verify the focused scaffold without registering a proof artifact.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'universality_contract or byte_stable' -q
 .venv/bin/ruff check tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py tests/unit/runtime/quality/test_depth_n_universality.py
 ```
 
-- [ ] **Step 5: Commit validator/lifecycle before live proof writes.**
+- [ ] **Step 5: Commit the validator scaffold before live proof writes.**
 
 ```bash
-git add tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py tests/unit/runtime/quality/test_depth_n_universality.py architecture/generated_artifacts.toml docs/reference/generated-artifacts.md
-git commit -m "feat: add depth-N universality contract"
+git add tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py tests/unit/runtime/quality/test_depth_n_universality.py
+git commit -m "feat: add depth-N universality validator"
 ```
 
 ## Task 13: Produce three content-bound plain-language runs
@@ -1723,6 +1733,8 @@ git commit -m "feat: add depth-N universality contract"
 - Modify: `tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py`
 - Modify: `tests/unit/runtime/quality/test_depth_n_universality.py`
 - Create/Regenerate: `architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json`
+- Modify: `architecture/generated_artifacts.toml`
+- Regenerate: `docs/reference/generated-artifacts.md`
 
 - [ ] **Step 1: Write RED semantic assertions for the three run classes.**
 

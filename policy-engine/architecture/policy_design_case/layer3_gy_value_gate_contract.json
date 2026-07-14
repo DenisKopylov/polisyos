@@ -358,7 +358,7 @@
     "wall_time_recorded_by_validator": true,
     "wall_time_reported_outside_byte_stable_artifact": true
   },
-  "contract_content_hash": "sha256:6332a13076b221d94dafb805ebd17e8164ebe3d11270157ba821794d4eda8795",
+  "contract_content_hash": "sha256:b297d32ce782abfdaa11d194ee4e9e3adaca6420cbda19ff525480b3a474c8eb",
   "decisive_mutation_expectations": [
     {
       "expected_result": "RED",
@@ -585,12 +585,12 @@
     "authority_blockers": [
       "method_estimand_binding_mismatch"
     ],
-    "candidate_id": "gy_n4.foundational_dialogic_reading",
-    "content_hash": "sha256:7eefb776d1ba75ffc0c62e084651a5a239fb9d4a597de519542aac294cc83d66",
+    "candidate_id": "gy_n4.blended_learning_expansion",
+    "content_hash": "sha256:84fd3f42c67946000b338399c199d69033dd210da7ef5cb0cd41f38ac9863a60",
     "decision_grade": "blocked",
     "evaluation_mode": "simulate_only",
     "method_selection_receipt": {
-      "content_hash": "sha256:527ae1ce5bf0cf4567430d3d399094ac713c919ff9a232799d0f3724f9e400a6",
+      "content_hash": "sha256:e8897ce030350f8d21eaef40ca2f3aa76fb598f871c56e3cab52f4259f89a060",
       "denominator": [
         "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
         "bayesian.flow.affine_normalizing_flow@1.0.0",
@@ -962,7 +962,7 @@
       "schema_version": "policyos.foundry.method_selection_receipt.v2",
       "selected_method_fqn": "bayesian.gp.gp_regression@1.0.0",
       "selection_authority": "foundry_registry_advisor",
-      "selection_context_hash": "sha256:3f508511d756c8d4e901355a0f90e75de8c3ebfd3b3aaa85e9cbcce44c27ddae"
+      "selection_context_hash": "sha256:a86e914957e87b2d381d77d10e78d7245fb4f21526f192a573fee5c7f23e039a"
     },
     "reason": "The advisor selected a real method over owner-resolved outcome rows, but the candidate_unbound intervention has no estimand binding.",
     "receipt_kind": "education_estimand_binding_refusal",
@@ -1798,29 +1798,29 @@
   },
   "transport_component_proofs": {
     "education": {
-      "candidate_content_hash": "sha256:2fba72cb162d5f5461f1fc64b59a15197c2883f9deb84570ddc3ca7db77258e2",
-      "candidate_envelope_content_hash": "sha256:cd444fe2e4c3e2c90c2acf5731157fb5bdf712812e3bf103a45d3bf3e7bd37fa",
-      "candidate_id": "gy_n4.foundational_dialogic_reading",
+      "candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
+      "candidate_envelope_content_hash": "sha256:f166f87ec043fac7a927d729880e7478b2714a540e17741c330c2deff11a04a8",
+      "candidate_id": "gy_n4.blended_learning_expansion",
       "component_scope_only": true,
-      "context_binding_hash": "sha256:20aa1968cc495b105c141c4872babe6c1aafb328e6fab3de6c567133a02fbd9c",
+      "context_binding_hash": "sha256:b28e60b02ffc9f1288903cbf67f6eda7dafd39d1728dda4031bb86694be48af4",
       "context_source": "content_bound_pack_cycle_substrate_context",
-      "cycle_substrate_context_content_hash": "sha256:6aeb4b16df57bde6bb5c8dc8fd3f23b3f1af79a836de8325a03f19e35a75cbca",
+      "cycle_substrate_context_content_hash": "sha256:4faee845079ee0881982508f73fb93a54a3a2e0ee3982444560bd288add010e7",
       "data_owner": "N10a_pack_transport_context",
-      "design_problem_ref": "sha256:72a91cbb4e3ebe74e838cc139e73a7f05834e7dc8cfe4b1bd0717881994979ed",
+      "design_problem_ref": "sha256:b0925d8eb1ef50e2c59cfbae74a42c34c427fd0c24ee999351afbe2c75b3efe7",
       "domain": "education",
       "domain_role": "education",
       "outcome_kind": "transport_receipt",
       "production_value_eligible": false,
-      "proof_content_hash": "sha256:e8f33267e9c38f38770f0fae4aade9361c97507b1bddbf7148213e84eff0e00c",
+      "proof_content_hash": "sha256:a160134c9d67fdbb769262d9ee139cf4ce3867437ddd89e15020e1d5a7651df2",
       "query_outcome": "years_of_schooling",
-      "query_treatment": "gy_n4_foundational_dialogic_reading",
+      "query_treatment": "gy_n4_blended_learning_expansion",
       "required_target_data": [
         "education_spending",
         "school_quality"
       ],
       "rule_version": "policyos.layer3.gy.n8.transport_context.v2",
       "schema_version": "policyos.layer3.gy.n8.transport_component_proof.v1",
-      "selection_diagram_content_hash": "sha256:8d5bbfa69880010adac5ac97693092b467c5ce7dc7f387a668d6deab09f21c6a",
+      "selection_diagram_content_hash": "sha256:2d86a10285f8690e9c4cd3ceaea496d8847144527de03d2a20af4d80e7bacf10",
       "selection_nodes": [
         {
           "source_ref": "sha256:26a6e2afe7bcc67531236a8c1090bd136a5f5c08ff6cf272954a1fdd2fa6ce11",
@@ -1864,12 +1864,12 @@
         ],
         "status": "transported_limited",
         "transport_mode": "bounds_only",
-        "transport_result_ref": "sha256:28da603788d171bbbb20a8e5fbf1b5f4b21f9792164e82e4766e129ba63d3641",
+        "transport_result_ref": "sha256:798bd75aaff1321ddb704bc11fcde0d6017c9edf6b7b57e1001de9b1fd11d4fe",
         "transport_status": "bounded_non_identified",
         "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",
         "world_model_record_id": "world_model_record_b14cc2ae2bbe445b"
       },
-      "transport_result_content_hash": "sha256:3d0e11fbfac312e6d491f5354517740c2754b6e8b0abf7df0c6313ede6f65bc3",
+      "transport_result_content_hash": "sha256:05df77ba8ab03ea7387f3940945174af736cf89be77454ea5769bc5d7713e952",
       "typed_refusal": null,
       "value_gate_receipt": null,
       "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",

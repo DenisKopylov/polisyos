@@ -1603,19 +1603,23 @@ moving the compact content hash to
 `sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c`
 and the raw-table hash to
 `sha256:1e87684360da9bfdd1c8db3b97581b174b1b167b93f1be4113615d36566dfdfc`.
-The N8 v2 writer then re-bound those content-addressed inputs without semantic
-terminal drift; its artifact file SHA-256 is
-`13a5f34cb67dfaf1472ccbf3fe9b99e598a42619283c62132a4103a1787e93da`.
-That N8 change correctly invalidated the downstream N10a semantic projection,
+The first N8 v2 writer re-bound those content-addressed inputs without semantic
+terminal drift. That intermediate N8 change correctly invalidated the downstream N10a semantic projection,
 domain census, DesignProblem, and education N4 capture. E7 replay proved the
 old five-row journal's prompts stale, so one journal-first current-provenance
 capture was accepted through the canonical owner. It proposed all four pack
 levers, reached content-bound `candidate_unbound` refusals, and retained the
 honest `search_ceiling_repair_required` terminal materially beyond the
 `a_spec_gap` baseline. The five N10a artifacts are now byte-stable and their
-frozen/live audits agree. The remaining entry-gate step is the single
-cross-artifact stability receipt and a clean committed base; proof capture
-remains prohibited until that step is green.
+frozen/live audits agree. The changed education candidate then reissued only
+N8's education refusal/transport sections; the N8 first-vertical semantic
+projection remained `sha256:b841113b0fa632da91963069ee02934ef89459755489e0ad318ccb5593c6fb18`,
+so N10a needed only a closure-receipt replay and no second provider capture.
+The converged N8 artifact file SHA-256 is
+`ab303f06dc5084194143e423c40b34c8617af8568707e59aca45a17b4a6666f6`;
+N8, N10a, and composition are simultaneously frozen/live green. The
+cross-artifact stability receipt and clean committed base are therefore green;
+Task 12 may begin, and no proof run preceded this gate.
 
 ## Task 12: Build the frozen universality contract validator test-first
 

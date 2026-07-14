@@ -1843,6 +1843,15 @@ MiniMax ordinary requests remained reasoning-wrapped, while Gonka explicitly rej
 valid provider-native `reasoning_split` parameter as unsupported. Those typed rows remain part of
 the denominator. Exploration rows stay shadow-only and are not proof captures.
 
+Proof-envelope correction (measured, 2026-07-14): the first post-checkpoint proof call inherited a
+shorter ambient gateway timeout than the 600-second characterization envelope and exhausted it
+before any provider response. The proof harness therefore owns an explicit serial capture envelope:
+600 seconds, three gateway retries, and local prompt caching disabled. It journals a gateway timeout
+as `proof_compiler_gateway_failed` before the existing exhausted-denominator terminal, instead of
+letting a transport `RuntimeError` escape as a stack trace. This changes neither model selection nor
+any parser/schema/entailment gate. The no-response attempt did not start the cold domain closeout;
+one changed-envelope proof attempt remains authorized under E9.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

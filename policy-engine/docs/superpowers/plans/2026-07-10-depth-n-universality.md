@@ -1736,7 +1736,7 @@ git commit -m "feat: add depth-N universality validator"
 - Modify: `architecture/generated_artifacts.toml`
 - Regenerate: `docs/reference/generated-artifacts.md`
 
-- [ ] **Step 1: Write RED semantic assertions for the three run classes.**
+- [x] **Step 1: Write RED semantic assertions for the three run classes.**
 
 Use these exact structurally distinct raw requests so the compiler recordings are replayable and not case aliases:
 
@@ -1754,13 +1754,13 @@ The tests assert:
 - all raw requests are compiled by `build_design_problem_from_nl_request`; and
 - replacing any compiler receipt with the committed N10a smoke DTO fails `cycle_driven_by_pinned_fixture`.
 
-- [ ] **Step 2: Run Lane-0/cached tests and observe missing proof fields RED.**
+- [x] **Step 2: Run Lane-0/cached tests and observe missing proof fields RED.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'first_vertical or education_run or unseen_domain or pinned_fixture' -q
 ```
 
-- [ ] **Step 3: Implement E1/E3/E5/E6 proof orchestration.**
+- [x] **Step 3: Implement E1/E3/E5/E6 proof orchestration.**
 
 Use content-addressed compiler recordings keyed by raw request, tool schema, provider/model, and raw response. Use Lane-0 mini-worlds for logic, cached owner data for Lane 1, and journal the one cold two-domain closeout before invoking live owners. Capture wall time outside content hashes.
 

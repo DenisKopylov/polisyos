@@ -696,6 +696,43 @@ async def test_recursive_router_executes_observed_depth_above_two() -> None:
         RecursiveGenerationCycleRun.model_validate(leaf_terminal_tamper)
 
 
+@pytest.mark.asyncio
+async def test_recursive_content_hash_excludes_nested_operational_clocks() -> None:
+    """Keep N7/generated-at and N8 wall times outside recursive semantic identity."""
+
+    root = "design://clock/root"
+    graph = derive_recursive_design_graph(
+        design_ref=root,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="repo://rules/gy-n10-clock",
+    )
+    problem = _recursive_problem(root)
+    controller = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=_lane0_cycle_controller_factory,
+        repo_root=REPO_ROOT,
+    )
+    result = await controller.run(
+        graph,
+        problems_by_node={root: problem},
+        budget_state=_recursive_budget_state(),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        ),
+    )
+    payload = result.model_dump(mode="json")
+    cycle_run = payload["nodes"][0]["cycle_run"]
+    cycle_run["value_port"]["wall_time_ms"] = 9876.5
+    cycle_run["cycles"][0]["value_port"]["wall_time_ms"] = 9876.5
+
+    replayed = RecursiveGenerationCycleRun.model_validate(payload)
+
+    assert replayed.content_hash == result.content_hash
+
+
 def _create_wrong_checkout_package(tmp_path: Path) -> Path:
     """Create a standalone adversarial ``polisyos`` package and return its source root."""
 
@@ -1007,18 +1044,85 @@ def test_stage4_provenance_stability_binds_current_owner_graph() -> None:
     assert report["composition_ref"]["status"] == "bound"
 
 
-def test_universality_task12_payload_is_honestly_incomplete() -> None:
-    """Expose upstream capability without claiming the not-yet-run capstone proofs."""
+def _complete_universality_payload() -> tuple[Any, dict[str, Any]]:
+    """Re-derive the completed capstone from content-addressed owner recordings."""
 
     validator = _universality_contract_validator()
-    payload = validator.build_live_payload(REPO_ROOT, lane="lane0")
+    return validator, validator.build_live_payload(REPO_ROOT, lane="cached")
 
-    assert payload["proof_status"] == "proof_runs_pending"
-    assert payload["domain_runs"] == {}
+
+_PLAIN_LANGUAGE_PROOF_REQUESTS = {
+    "first_vertical": (
+        "Design a policy to improve average household income and MSME survival in "
+        "Ukraine under wartime fiscal constraints, considering a state-backed credit "
+        "guarantee, and identify every evidence gap before recommendation."
+    ),
+    "education": (
+        "Increase years of schooling and tertiary enrollment using evidence-backed "
+        "teaching or learning interventions; do not assume that an education ministry "
+        "can write to any simulation lever."
+    ),
+    "unseen": (
+        "Reduce residential peak electricity demand and particulate emissions during "
+        "heat waves without shifting costs onto low-income renters."
+    ),
+}
+
+
+@pytest.mark.asyncio
+async def test_compiler_recording_replays_through_canonical_owner_lane0() -> None:
+    """Exercise the content-addressed compiler recorder without claiming proof authority."""
+
+    validator = _universality_contract_validator()
+    simulated = import_module(
+        "polisyos.scientist.orchestration.llm.simulated_gateway"
+    ).SimulatedGatewayLLMClient(
+        model=validator.PROOF_MODEL_ID,
+        supported_model_ids=(validator.PROOF_MODEL_ID,),
+    )
+    gateway = validator._RecordingGateway(simulated)
+    problem, recording = await validator._capture_compiler_recording(
+        role="unseen",
+        raw_request=_PLAIN_LANGUAGE_PROOF_REQUESTS["unseen"],
+        gateway=gateway,
+    )
+
+    replayed = await validator._replay_compiler_recording(recording)
+
+    assert replayed == problem
+    assert recording["recording_source"] == (
+        "live_gateway_canonical_design_problem_compiler"
+    )
+    assert recording["calls"]
+    assert recording["calls"][0]["response"]["tool_calls"][0]["name"] == (
+        "emit_design_problem"
+    )
+    tampered = json.loads(json.dumps(recording))
+    tampered["calls"][0]["request_content_hash"] = "sha256:" + "0" * 64
+    stable = {
+        key: value
+        for key, value in tampered.items()
+        if key != "recording_content_hash"
+    }
+    tampered["recording_content_hash"] = validator._semantic_hash(stable)
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="compiler_recording_request_drift",
+    ):
+        await validator._replay_compiler_recording(tampered)
+
+
+def test_universality_task13_payload_is_complete_and_fork_b_honest() -> None:
+    """Freeze three real runs without reviving the hollow non-panel positive."""
+
+    _, payload = _complete_universality_payload()
+
+    assert payload["proof_status"] == "complete"
+    assert set(payload["domain_runs"]) == set(_PLAIN_LANGUAGE_PROOF_REQUESTS)
     assert payload["capability_reality"] == {
-        "producer": "producer_missing",
-        "artifact": "artifact_missing",
-        "semantic_test": "semantic_test_missing",
+        "producer": "implemented",
+        "artifact": "implemented",
+        "semantic_test": "implemented",
     }
     assert payload["non_panel_evidence"]["fork"] == "B"
     assert payload["non_panel_evidence"]["status"] == "acquisition_required"
@@ -1031,6 +1135,144 @@ def test_universality_task12_payload_is_honestly_incomplete() -> None:
     assert payload["depth_evidence"]["observed_max_depth"] > 2
     assert payload["gy_g_strangle_receipt"]["status"] == "strangled"
     assert payload["gy_g_strangle_receipt"]["production_fixture_callers"] == []
+
+
+def test_three_runs_are_compiled_from_exact_plain_language_by_canonical_owner() -> None:
+    """Bind each run to the HTTP compiler owner rather than a committed fixture DTO."""
+
+    _, payload = _complete_universality_payload()
+
+    for role, raw_request in _PLAIN_LANGUAGE_PROOF_REQUESTS.items():
+        run = payload["domain_runs"][role]
+        receipt = run["compiler_receipt"]
+        problem = DesignProblem.model_validate(run["design_problem"])
+        assert run["raw_request"] == raw_request
+        assert problem.nl_provenance.raw_request == raw_request
+        assert receipt["owner"] == (
+            "polisyos.runtime.http.services.control.nl_pipeline."
+            "build_design_problem_from_nl_request"
+        )
+        assert receipt["tool_name"] == "emit_design_problem"
+        assert receipt["used_committed_fixture"] is False
+        assert receipt["design_problem_ref"] == gy_content_hash(
+            problem.model_dump(mode="json")
+        )
+        assert receipt["raw_request_content_hash"] == gy_content_hash(
+            {"raw_request": raw_request}
+        )
+        assert receipt["recording_content_hash"].startswith("sha256:")
+
+
+def test_first_vertical_run_reaches_owner_data_gap_and_n7_route() -> None:
+    """Require the first vertical's real Fork-B degradation, not a fabricated value pass."""
+
+    _, payload = _complete_universality_payload()
+    run = payload["domain_runs"]["first_vertical"]
+    stages = run["stage_trace"]
+
+    assert stages["generation"]["attempted"] is True
+    assert stages["grounding"]["attempted"] is True
+    assert stages["simulation"]["attempted"] is True
+    assert stages["value"]["attempted"] is True
+    assert stages["value"]["status"] == "value_blocked"
+    assert "acquire_data:value_panel_data_missing" in stages["value"][
+        "authority_blockers"
+    ]
+    assert stages["acquisition"]["attempted"] is True
+    assert stages["acquisition"]["route_kind"] == "n7_requirement_gap"
+    assert run["promotion_reached"] is False
+    assert run["terminal_distribution"]["terminal_kind"]
+    assert run["terminal_distribution"]["evidence_kind"] == "owner_data_gap"
+    assert run["terminal_distribution"]["decision_grade"] == "blocked"
+
+
+def test_education_run_uses_pack_levers_and_refuses_unwritable_estimand() -> None:
+    """Require material progress past N10a while preserving writability-zero honesty."""
+
+    _, payload = _complete_universality_payload()
+    run = payload["domain_runs"]["education"]
+    stages = run["stage_trace"]
+    pack = json.loads(
+        (REPO_ROOT / "architecture/policy_design_case/layer3_gy_second_domain_pack.json")
+        .read_text(encoding="utf-8")
+    )
+    expected_levers = {
+        row["lever_id"]
+        for row in pack["components"]["lever_vocabulary"]["entries"]
+    }
+
+    assert set(stages["generation"]["proposed_lever_ids"]) == expected_levers
+    assert stages["grounding"]["attempted"] is True
+    assert stages["grounding"]["dispositions"]
+    assert stages["value"]["attempted"] is True
+    assert stages["value"]["status"] == "value_blocked"
+    assert stages["value"]["authority_blockers"] == [
+        "method_estimand_binding_mismatch"
+    ]
+    assert stages["value"]["advisor_selection_receipt_content_hash"].startswith(
+        "sha256:"
+    )
+    assert stages["acquisition"]["attempted"] is True
+    assert run["promotion_reached"] is False
+    assert run["terminal_distribution"] == {
+        "terminal_kind": run["terminal"]["kind"],
+        "evidence_kind": "estimand_binding_refusal",
+        "decision_grade": "blocked",
+        "count": 1,
+    }
+
+
+def test_unseen_domain_reaches_typed_terminal_without_vertical_contamination() -> None:
+    """Fail closed for a no-pack energy problem without borrowing known-domain vocabulary."""
+
+    _, payload = _complete_universality_payload()
+    run = payload["domain_runs"]["unseen"]
+    serialized = json.dumps(run, sort_keys=True).casefold()
+
+    assert run["cycle_substrate_context_ref"] is None
+    assert run["terminal"]["kind"] in {
+        "acquisition_required",
+        "abstained",
+        "search_ceiling_repair_required",
+        "spec_gap",
+        "recursive_blocked",
+    }
+    assert run["terminal_distribution"]["count"] == 1
+    assert run["terminal_distribution"]["decision_grade"] in {
+        "blocked",
+        "limited",
+        "abstained",
+    }
+    for forbidden in (
+        "education_spending",
+        "school_quality",
+        "teaching_method",
+        "tax_relief_rate",
+        "ua_msme_cgf_decisive_capture",
+    ):
+        assert forbidden not in serialized
+
+
+def test_pinned_fixture_replacement_is_rejected_after_hash_recompute() -> None:
+    """Make committed-fixture substitution behaviorally RED, not merely hash-invalid."""
+
+    validator, payload = _complete_universality_payload()
+    smoke = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/"
+            "layer3_gy_second_domain_smoke_design_problem.json"
+        ).read_text(encoding="utf-8")
+    )["design_problem"]
+    payload["domain_runs"]["unseen"]["design_problem"] = smoke
+    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+
+    report = validator.validate_payload(payload)
+
+    assert any(
+        issue["code"] == "cycle_driven_by_pinned_fixture"
+        for issue in report["issues"]
+    )
 
 
 def test_universality_contract_content_hash_rejects_corruption() -> None:

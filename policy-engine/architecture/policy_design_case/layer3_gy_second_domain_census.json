@@ -915,7 +915,7 @@
       }
     }
   },
-  "census_content_hash": "sha256:0e0708618a078784605240c0386b519b6d47627140d9b4371c807a1acd282e37",
+  "census_content_hash": "sha256:7c0f7247fe34ec316d01590fd3f612f5ee932f60b1aa2d69a29c7d6c37abfa54",
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
@@ -984,7 +984,7 @@
     "source_hashes": {
       "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
       "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
-      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:62d57d5b23457af78782298302d3ecb4d9c6db3722f9491d6116b99a051a6b47"
+      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:b841113b0fa632da91963069ee02934ef89459755489e0ad318ccb5593c6fb18"
     },
     "transport_comparison_status": "not_evaluated_first_vertical_context_unresolved",
     "transport_covariates": []
@@ -1815,9 +1815,9 @@
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
     "query_timings_seconds": {
-      "l1_candidate_aggregate": 0.135944,
-      "l2_candidate_aggregate": 0.036281,
-      "l2_candidate_exact_measure_names": 0.013887
+      "l1_candidate_aggregate": 0.134839,
+      "l2_candidate_aggregate": 0.038381,
+      "l2_candidate_exact_measure_names": 0.013569
     }
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"

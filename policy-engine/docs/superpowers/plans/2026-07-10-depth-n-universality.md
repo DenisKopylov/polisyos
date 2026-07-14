@@ -1606,9 +1606,16 @@ and the raw-table hash to
 The N8 v2 writer then re-bound those content-addressed inputs without semantic
 terminal drift; its artifact file SHA-256 is
 `13a5f34cb67dfaf1472ccbf3fe9b99e598a42619283c62132a4103a1787e93da`.
-N4, N10a, the census, and N8 now rederive green. The remaining entry-gate step
-is the single cross-artifact stability receipt and a clean committed base;
-proof capture remains prohibited until that step is green.
+That N8 change correctly invalidated the downstream N10a semantic projection,
+domain census, DesignProblem, and education N4 capture. E7 replay proved the
+old five-row journal's prompts stale, so one journal-first current-provenance
+capture was accepted through the canonical owner. It proposed all four pack
+levers, reached content-bound `candidate_unbound` refusals, and retained the
+honest `search_ceiling_repair_required` terminal materially beyond the
+`a_spec_gap` baseline. The five N10a artifacts are now byte-stable and their
+frozen/live audits agree. The remaining entry-gate step is the single
+cross-artifact stability receipt and a clean committed base; proof capture
+remains prohibited until that step is green.
 
 ## Task 12: Build the frozen universality contract validator test-first
 

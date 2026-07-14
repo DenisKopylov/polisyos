@@ -78,6 +78,31 @@ COMPOSITION_PATH = (
 
 PROOF_MODEL_ID = "moonshotai/Kimi-K2.6"
 PROOF_COMPILER_MODEL_PLAN = ("moonshotai/Kimi-K2.6",)
+COMPILER_CHARACTERIZATION_MATRIX = tuple(
+    {
+        "probe_id": (
+            f"{family}-{budget}"
+            if prompt_variant == "generic_collection_invariant_v1"
+            else f"source-nonstrengthening-{family}-{budget}"
+        ),
+        "model_id": model_id,
+        "prompt_variant": prompt_variant,
+        "request_parameters": {
+            "max_tokens": budget,
+            **({"reasoning_split": True} if reasoning_split else {}),
+        },
+    }
+    for prompt_variant in (
+        "generic_collection_invariant_v1",
+        "source_semantics_non_strengthening_v1",
+    )
+    for family, model_id, reasoning_split in (
+        ("kimi-forced-tool", "moonshotai/Kimi-K2.6", False),
+        ("minimax-forced-tool", "MiniMaxAI/MiniMax-M2.7", False),
+        ("minimax-reasoning-split", "MiniMaxAI/MiniMax-M2.7", True),
+    )
+    for budget in (8192, 16384, 32768)
+)
 PLAIN_LANGUAGE_PROOF_REQUESTS = {
     "first_vertical": (
         "Design a policy to improve average household income and MSME survival in "
@@ -181,6 +206,51 @@ class _RecordingGateway:
                 },
             )
         return response
+
+
+class _CompilerCharacterizationGateway:
+    """Overlay approved request controls without inspecting or changing responses."""
+
+    _ALLOWED_REQUEST_PARAMETERS = frozenset({"max_tokens", "reasoning_split"})
+
+    def __init__(
+        self,
+        inner: object,
+        *,
+        request_parameters: Mapping[str, Any],
+        system_suffix: str | None = None,
+    ) -> None:
+        unsupported = set(request_parameters) - self._ALLOWED_REQUEST_PARAMETERS
+        if unsupported:
+            raise UniversalityContractError(
+                "compiler_characterization_parameter_unsupported:"
+                + ",".join(sorted(unsupported))
+            )
+        self._inner = inner
+        self._request_parameters = dict(request_parameters)
+        self._system_suffix = system_suffix.strip() if system_suffix else None
+
+    async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+        method = getattr(self._inner, "list_model_ids", None)
+        if not callable(method):
+            raise UniversalityContractError("compiler_gateway_models_endpoint_missing")
+        return [str(item) for item in await method(timeout=timeout)]
+
+    async def generate(self, **kwargs: Any) -> object:
+        method = getattr(self._inner, "generate", None)
+        if not callable(method):
+            raise UniversalityContractError("compiler_gateway_generate_missing")
+        effective = dict(kwargs)
+        if self._system_suffix is not None:
+            system = effective.get("system")
+            if not isinstance(system, str) or not system.strip():
+                raise UniversalityContractError(
+                    "compiler_characterization_system_prompt_missing"
+                )
+            if self._system_suffix not in system:
+                effective["system"] = f"{system}\n\n{self._system_suffix}"
+        effective.update(self._request_parameters)
+        return await method(**effective)
 
 
 class _FreshRecordingSpanGateway:
@@ -291,6 +361,7 @@ def _normalized_gateway_response(response: object) -> dict[str, Any]:
         )
     return {
         "content": str(getattr(response, "content", "") or ""),
+        "finish_reason": _gateway_finish_reason(response),
         "model": str(getattr(response, "model", "") or ""),
         "provider": str(getattr(response, "provider", "") or "") or None,
         "usage": {
@@ -321,6 +392,15 @@ def _gateway_response_from_payload(payload: Mapping[str, Any]) -> object:
         ),
         model=str(payload.get("model") or ""),
         provider=str(payload.get("provider") or "") or None,
+        raw=(
+            {
+                "choices": [
+                    {"finish_reason": str(payload.get("finish_reason"))}
+                ]
+            }
+            if payload.get("finish_reason")
+            else None
+        ),
         tool_calls=[
             GatewayToolCall(
                 id=f"replay-call-{index}",
@@ -333,6 +413,401 @@ def _gateway_response_from_payload(payload: Mapping[str, Any]) -> object:
             for index, row in enumerate(_mappings(payload.get("tool_calls")))
         ],
     )
+
+
+def _gateway_finish_reason(response: object) -> str | None:
+    """Project provider-owned stop evidence without retaining raw response bytes."""
+
+    raw = getattr(response, "raw", None)
+    if not isinstance(raw, Mapping):
+        return None
+    choices = raw.get("choices")
+    if isinstance(choices, list) and choices and isinstance(choices[0], Mapping):
+        value = choices[0].get("finish_reason") or choices[0].get("stop_reason")
+        if isinstance(value, str) and value.strip():
+            return value.strip().casefold()
+    value = raw.get("finish_reason") or raw.get("stop_reason")
+    if isinstance(value, str) and value.strip():
+        return value.strip().casefold()
+    return None
+
+
+def _classify_compiler_characterization_outcome(
+    *,
+    error_code: str | None,
+    response_payload: Mapping[str, Any],
+) -> str:
+    """Classify unchanged strict-owner evidence without repairing model output."""
+
+    if error_code is None:
+        return "clean_complete_schema_valid_entailment_pass"
+    if error_code == "design_problem_output_truncated":
+        return "truncated"
+    for call in _mappings(response_payload.get("tool_calls")):
+        envelope = _mapping(call.get("error_envelope"))
+        if envelope.get("reason") != "tool_call_arguments_parse_error":
+            continue
+        preview = str(_mapping(envelope.get("details")).get("arguments_preview") or "")
+        if preview.strip() and not preview.lstrip().startswith(("{", "[")):
+            return "reasoning_wrapped"
+    if response_payload:
+        return "schema_invalid"
+    return "provider_refused"
+
+
+async def _characterize_compiler_probe(
+    repo_root: Path,
+    *,
+    probe_id: str,
+    phase: str,
+    role: str,
+    model_id: str,
+    prompt_variant: str,
+    system_suffix: str | None,
+    request_parameters: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Run one shadow compiler probe through every unchanged admission owner."""
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        build_design_problem_from_nl_request,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+    from polisyos.scientist.orchestration.llm.factory import (
+        create_traced_gateway_client,
+    )
+    from polisyos.scientist.validation.citation_faithfulness import (
+        SPAN_SUPPORT_GATEWAY_MODEL_ID,
+    )
+
+    started = time.monotonic()
+    raw_journal_path = (
+        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "characterization_raw.jsonl"
+    )
+    result_journal_path = (
+        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "characterization.jsonl"
+    )
+    inner = create_traced_gateway_client(
+        model_name=model_id,
+        run_id=f"gy_n10_stage4_characterization_{probe_id}",
+        model_variant_id="gy-n10-stage4-characterization",
+    )
+    error_code: str | None = None
+    error_message: str | None = None
+    error_type: str | None = None
+    problem: object | None = None
+    recorder: _RecordingGateway | None = None
+    span_gateway: _FreshRecordingSpanGateway | None = None
+    if inner is None:
+        error_code = "compiler_characterization_gateway_unavailable"
+        error_message = "No configured gateway client was available."
+        error_type = "GatewayUnavailable"
+    else:
+        recorder = _RecordingGateway(
+            inner,
+            journal_path=raw_journal_path,
+            journal_context={
+                "characterization": True,
+                "phase": phase,
+                "probe_id": probe_id,
+                "role": role,
+                "model_id": model_id,
+                "prompt_variant": prompt_variant,
+                "request_parameters": dict(request_parameters),
+            },
+        )
+        gateway = _CompilerCharacterizationGateway(
+            recorder,
+            request_parameters=request_parameters,
+            system_suffix=system_suffix,
+        )
+        span_gateway = _FreshRecordingSpanGateway(
+            model_id=SPAN_SUPPORT_GATEWAY_MODEL_ID,
+            journal_path=raw_journal_path,
+            journal_context={
+                "characterization": True,
+                "phase": phase,
+                "probe_id": probe_id,
+                "role": role,
+                "compiler_model_id": model_id,
+                "prompt_variant": prompt_variant,
+            },
+        )
+        try:
+            problem = await build_design_problem_from_nl_request(
+                nl_request=PLAIN_LANGUAGE_PROOF_REQUESTS[role],
+                context=_proof_compiler_context(role),
+                model_name=model_id,
+                gateway_client=gateway,
+                span_support_client=span_gateway,
+            )
+        except DesignProblemAuthorityError as exc:
+            error_code = exc.code
+            error_message = str(exc)
+            error_type = type(exc).__name__
+        except RuntimeError as exc:  # gateway/provider refusal, not an owner admission
+            error_code = type(exc).__name__
+            error_message = str(exc)
+            error_type = type(exc).__name__
+        finally:
+            close = getattr(inner, "aclose", None)
+            if callable(close):
+                await close()
+
+    response_payload = (
+        _mapping(recorder.calls[-1].get("response"))
+        if recorder is not None and recorder.calls
+        else {}
+    )
+    usage = _mapping(response_payload.get("usage"))
+    outcome = _classify_compiler_characterization_outcome(
+        error_code=error_code,
+        response_payload=response_payload,
+    )
+    schema_status = "not_reached"
+    entailment_status = "not_reached"
+    if problem is not None:
+        schema_status = "pass"
+        entailment_status = "pass"
+    elif error_code and (
+        error_code.startswith("design_problem_admissibility_")
+        or error_code == "invented_admissibility"
+    ):
+        schema_status = "pass"
+        entailment_status = "refused"
+    elif error_code == "design_problem_validation_failed":
+        schema_status = "refused"
+    row = {
+        "schema_version": "policyos.layer3.gy.n10.compiler_characterization.v1",
+        "event": "compiler_characterization_probe_completed",
+        "phase": phase,
+        "probe_id": probe_id,
+        "role": role,
+        "model_id": model_id,
+        "prompt_variant": prompt_variant,
+        "request_parameters": dict(request_parameters),
+        "outcome": outcome,
+        "finish_reason": response_payload.get("finish_reason"),
+        "prompt_tokens": int(usage.get("prompt_tokens") or 0),
+        "completion_tokens": int(usage.get("completion_tokens") or 0),
+        "total_tokens": int(usage.get("total_tokens") or 0),
+        "response_content_hash": (
+            _semantic_hash(response_payload) if response_payload else None
+        ),
+        "error_code": error_code,
+        "error_message": error_message,
+        "error_type": error_type,
+        "schema_status": schema_status,
+        "entailment_status": entailment_status,
+        "span_call_count": len(span_gateway.calls) if span_gateway is not None else 0,
+        "design_problem_ref": (
+            gy_content_hash(problem.model_dump(mode="json"))
+            if problem is not None
+            else None
+        ),
+        "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
+    }
+    _append_jsonl(result_journal_path, row)
+    return row
+
+
+def _completed_characterization_probes(repo_root: Path) -> dict[str, dict[str, Any]]:
+    """Load restart-safe terminal probe rows without treating summaries as evidence."""
+
+    path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "characterization.jsonl"
+    if not path.is_file():
+        return {}
+    completed: dict[str, dict[str, Any]] = {}
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        if not raw_line.strip():
+            continue
+        try:
+            row = json.loads(raw_line)
+        except json.JSONDecodeError as exc:
+            raise UniversalityContractError(
+                "compiler_characterization_journal_invalid"
+            ) from exc
+        if not isinstance(row, Mapping):
+            continue
+        if row.get("event") != "compiler_characterization_probe_completed":
+            continue
+        probe_id = str(row.get("probe_id") or "")
+        if not probe_id:
+            raise UniversalityContractError(
+                "compiler_characterization_probe_id_missing"
+            )
+        completed[probe_id] = dict(row)
+    return completed
+
+
+def _reuse_characterization_probe(
+    completed: Mapping[str, Mapping[str, Any]],
+    *,
+    probe_id: str,
+    model_id: str,
+    prompt_variant: str,
+    request_parameters: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """Reuse a terminal row only when its effective request identity still matches."""
+
+    prior = completed.get(probe_id)
+    if prior is None:
+        return None
+    prior_variant = str(
+        prior.get("prompt_variant") or "generic_collection_invariant_v1"
+    )
+    if (
+        str(prior.get("model_id") or "") != model_id
+        or prior_variant != prompt_variant
+        or _mapping(prior.get("request_parameters")) != dict(request_parameters)
+    ):
+        raise UniversalityContractError(
+            f"compiler_characterization_probe_identity_drift:{probe_id}"
+        )
+    reused = dict(prior)
+    reused.setdefault("prompt_variant", prior_variant)
+    return reused
+
+
+def _characterization_system_suffix(prompt_variant: str) -> str | None:
+    """Resolve prompt variants from the compiler owner, never a validator copy."""
+
+    if prompt_variant == "generic_collection_invariant_v1":
+        return None
+    if prompt_variant == "source_semantics_non_strengthening_v1":
+        from polisyos.runtime.http.services.control.nl_pipeline import (
+            design_problem_compiler_source_semantics_invariant,
+        )
+
+        return design_problem_compiler_source_semantics_invariant()
+    raise UniversalityContractError(
+        f"compiler_characterization_prompt_variant_unknown:{prompt_variant}"
+    )
+
+
+async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
+    """Measure the finite model/request matrix, then confirm one config on all roles."""
+
+    completed = _completed_characterization_probes(repo_root)
+    rows: list[dict[str, Any]] = []
+    for spec in COMPILER_CHARACTERIZATION_MATRIX:
+        probe_id = str(spec["probe_id"])
+        model_id = str(spec["model_id"])
+        prompt_variant = str(spec["prompt_variant"])
+        request_parameters = _mapping(spec["request_parameters"])
+        reused = _reuse_characterization_probe(
+            completed,
+            probe_id=probe_id,
+            model_id=model_id,
+            prompt_variant=prompt_variant,
+            request_parameters=request_parameters,
+        )
+        if reused is not None:
+            rows.append(reused)
+            continue
+        row = await _characterize_compiler_probe(
+            repo_root,
+            probe_id=probe_id,
+            phase="matrix",
+            role="first_vertical",
+            model_id=model_id,
+            prompt_variant=prompt_variant,
+            system_suffix=_characterization_system_suffix(prompt_variant),
+            request_parameters=request_parameters,
+        )
+        rows.append(row)
+        completed[probe_id] = row
+
+    clean_rows = sorted(
+        (
+            row
+            for row in rows
+            if row["outcome"]
+            == "clean_complete_schema_valid_entailment_pass"
+        ),
+        key=lambda row: (
+            int(_mapping(row["request_parameters"]).get("max_tokens") or 0),
+            bool(_mapping(row["request_parameters"]).get("reasoning_split")),
+            str(row["model_id"]),
+        ),
+    )
+    winning_row: dict[str, Any] | None = None
+    winning_confirmations: list[dict[str, Any]] = []
+    for candidate in clean_rows:
+        confirmations: list[dict[str, Any]] = []
+        for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
+            probe_id = f"{candidate['probe_id']}-confirm-{role}"
+            model_id = str(candidate["model_id"])
+            prompt_variant = str(candidate["prompt_variant"])
+            request_parameters = _mapping(candidate["request_parameters"])
+            reused = _reuse_characterization_probe(
+                completed,
+                probe_id=probe_id,
+                model_id=model_id,
+                prompt_variant=prompt_variant,
+                request_parameters=request_parameters,
+            )
+            if reused is None:
+                reused = await _characterize_compiler_probe(
+                    repo_root,
+                    probe_id=probe_id,
+                    phase="stability_confirmation",
+                    role=role,
+                    model_id=model_id,
+                    prompt_variant=prompt_variant,
+                    system_suffix=_characterization_system_suffix(prompt_variant),
+                    request_parameters=request_parameters,
+                )
+                completed[probe_id] = reused
+            confirmations.append(reused)
+        rows.extend(confirmations)
+        if all(
+            row["outcome"]
+            == "clean_complete_schema_valid_entailment_pass"
+            for row in confirmations
+        ):
+            winning_row = candidate
+            winning_confirmations = confirmations
+            break
+
+    result_journal_path = (
+        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "characterization.jsonl"
+    )
+    if winning_row is None:
+        summary = {
+            "schema_version": "policyos.layer3.gy.n10.compiler_characterization_summary.v1",
+            "event": "compiler_characterization_completed",
+            "status": "fail",
+            "issues": [{"code": "compiler_model_conformance_exhausted"}],
+            "matrix_probe_count": len(COMPILER_CHARACTERIZATION_MATRIX),
+            "rows": rows,
+            "winning_config": None,
+        }
+        _append_jsonl(result_journal_path, summary)
+        return summary
+
+    observed_max = max(
+        int(row.get("completion_tokens") or 0)
+        for row in winning_confirmations
+    )
+    summary = {
+        "schema_version": "policyos.layer3.gy.n10.compiler_characterization_summary.v1",
+        "event": "compiler_characterization_completed",
+        "status": "pass",
+        "issues": [],
+        "matrix_probe_count": len(COMPILER_CHARACTERIZATION_MATRIX),
+        "rows": rows,
+        "winning_config": {
+            "probe_id": winning_row["probe_id"],
+            "model_id": winning_row["model_id"],
+            "prompt_variant": winning_row["prompt_variant"],
+            "request_parameters": winning_row["request_parameters"],
+            "observed_max_completion_tokens": observed_max,
+            "confirmation_roles": list(PLAIN_LANGUAGE_PROOF_REQUESTS),
+        },
+    }
+    _append_jsonl(result_journal_path, summary)
+    return summary
 
 
 @contextlib.contextmanager
@@ -2172,6 +2647,17 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     if args.rederive_audit:
         report = _rederive_audit(REPO_ROOT)
         return report, 0 if report["status"] == "pass" else 1
+    if args.characterize_compiler:
+        with _temporary_environment(
+            {
+                "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "600",
+                "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "1",
+                "POLISYOS_LLM_CACHE_TTL_S": "0",
+                "POLISYOS_LLM_CACHE_MAXSIZE": "0",
+            }
+        ):
+            report = asyncio.run(_characterize_compiler_conformance(REPO_ROOT))
+        return report, 0 if report["status"] == "pass" else 1
     if args.capture_proof_runs:
         try:
             data = capture_and_write_payload(REPO_ROOT)
@@ -2225,6 +2711,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     modes.add_argument("--rederive-audit", action="store_true")
     modes.add_argument("--source-flip-mutations", action="store_true")
+    modes.add_argument("--characterize-compiler", action="store_true")
     modes.add_argument("--capture-proof-runs", action="store_true")
     modes.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")

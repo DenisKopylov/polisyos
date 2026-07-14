@@ -11,9 +11,9 @@ from collections.abc import Awaitable, Callable, Mapping
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
@@ -115,12 +115,81 @@ class _NLProductionAuthorityStamp(BaseModel):
     authority_scope: Literal["production"] = "production"
     production_promotable: Literal[True] = True
 
+
+class _DesignProblemCompilerOutputPolicy(BaseModel):
+    """Evidence-derived completion ceiling for strict DesignProblem emission."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    observed_max_completion_tokens: int
+    max_tokens: int
+    headroom_tokens: int
+    evidence_ref: str
+
+    @classmethod
+    def from_characterization(
+        cls,
+        *,
+        observed_max_completion_tokens: int,
+        evidence_ref: str,
+    ) -> Self:
+        """Derive a power-of-two ceiling above the measured clean denominator."""
+
+        if observed_max_completion_tokens <= 0:
+            raise ValueError("output_budget_observed_max_invalid")
+        max_tokens = 1 << (observed_max_completion_tokens - 1).bit_length()
+        return cls(
+            observed_max_completion_tokens=observed_max_completion_tokens,
+            max_tokens=max_tokens,
+            headroom_tokens=max_tokens - observed_max_completion_tokens,
+            evidence_ref=evidence_ref,
+        )
+
+    @model_validator(mode="after")
+    def _verify_derivation(self) -> Self:
+        if self.observed_max_completion_tokens <= 0:
+            raise ValueError("output_budget_observed_max_invalid")
+        expected = 1 << (self.observed_max_completion_tokens - 1).bit_length()
+        if self.max_tokens != expected:
+            raise ValueError("output_budget_not_next_power_of_two")
+        if self.headroom_tokens != self.max_tokens - self.observed_max_completion_tokens:
+            raise ValueError("output_budget_headroom_drift")
+        if not self.evidence_ref.strip():
+            raise ValueError("output_budget_evidence_ref_missing")
+        return self
+
+
+_DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY = (
+    _DesignProblemCompilerOutputPolicy.from_characterization(
+        observed_max_completion_tokens=5323,
+        evidence_ref=(
+            "docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md"
+            "#characterization-matrix-2--conforming-native-output-found"
+        ),
+    )
+)
+_DESIGN_PROBLEM_SOURCE_SEMANTICS_INVARIANT = (
+    "Do not interpret, elaborate, or strengthen any cited constraint beyond the "
+    "exact semantic content of its source. When a source names a condition but "
+    "does not state its effects or consequences, record only the named condition "
+    "and leave those effects or consequences unstated."
+)
+
+
+def design_problem_compiler_source_semantics_invariant() -> str:
+    """Return the generic no-strengthening contract for candidate constraints."""
+
+    return _DESIGN_PROBLEM_SOURCE_SEMANTICS_INVARIANT
+
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _CAUSAL_VALIDITY_CASES_PATH = (
     Path(__file__).resolve().parents[6]
     / "tests/_golden/foundry/causal_validity/cases.json"
 )
 _DESIGN_PROBLEM_TOOL_NAME = "emit_design_problem"
+_DESIGN_PROBLEM_TRUNCATION_FINISH_REASONS = frozenset(
+    {"length", "max_output_tokens", "max_tokens"}
+)
 _PROMOTED_CONTEXT_PARAM_KEYS = frozenset(
     {
         "source_context",
@@ -246,7 +315,8 @@ async def build_design_problem_from_nl_request(
                 "jurisdiction, evidence, or value authority. Populate every "
                 "schema-required non-empty collection with request-grounded candidate "
                 "entries; never emit empty objectives, stakeholders, allowed operator "
-                "kinds, or candidate levers."
+                "kinds, or candidate levers. "
+                + design_problem_compiler_source_semantics_invariant()
             ),
             user=json.dumps(
                 {
@@ -284,7 +354,14 @@ async def build_design_problem_from_nl_request(
             ],
             tool_choice={"type": "function", "function": {"name": _DESIGN_PROBLEM_TOOL_NAME}},
             temperature=0.0,
+            max_tokens=_DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY.max_tokens,
         )
+        finish_reason = _design_problem_finish_reason(response)
+        if finish_reason in _DESIGN_PROBLEM_TRUNCATION_FINISH_REASONS:
+            raise DesignProblemAuthorityError(
+                "design_problem_output_truncated",
+                f"Gateway stopped DesignProblem emission at its output ceiling: {finish_reason}",
+            )
         tool_calls = list(getattr(response, "tool_calls", None) or [])
         matching_calls = [
             call
@@ -321,6 +398,23 @@ async def build_design_problem_from_nl_request(
     finally:
         if owns_client:
             await _close_llm_client(client)
+
+
+def _design_problem_finish_reason(response: object) -> str | None:
+    """Return provider-owned completion termination evidence, when available."""
+
+    raw = getattr(response, "raw", None)
+    if not isinstance(raw, Mapping):
+        return None
+    choices = raw.get("choices")
+    if isinstance(choices, list) and choices and isinstance(choices[0], Mapping):
+        value = choices[0].get("finish_reason") or choices[0].get("stop_reason")
+        if isinstance(value, str) and value.strip():
+            return value.strip().casefold()
+    value = raw.get("finish_reason") or raw.get("stop_reason")
+    if isinstance(value, str) and value.strip():
+        return value.strip().casefold()
+    return None
 
 
 async def _preflight_design_problem_model(

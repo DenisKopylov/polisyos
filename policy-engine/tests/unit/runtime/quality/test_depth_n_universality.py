@@ -1126,6 +1126,216 @@ async def test_compiler_recording_replays_through_canonical_owner_lane0() -> Non
         await validator._replay_compiler_recording(tampered)
 
 
+@pytest.mark.asyncio
+async def test_characterization_gateway_varies_only_request_parameters() -> None:
+    """Characterization may alter the request but must return provider bytes unchanged."""
+
+    validator = _universality_contract_validator()
+    sentinel = object()
+
+    class _Inner:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, Any]] = []
+
+        async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+            del timeout
+            return ["MiniMaxAI/MiniMax-M2.7"]
+
+        async def generate(self, **kwargs: Any) -> object:
+            self.calls.append(kwargs)
+            return sentinel
+
+    inner = _Inner()
+    gateway = validator._CompilerCharacterizationGateway(
+        inner,
+        request_parameters={"max_tokens": 16384, "reasoning_split": True},
+        system_suffix=(
+            "Do not strengthen cited source meaning with unstated consequences."
+        ),
+    )
+
+    assert await gateway.list_model_ids(timeout=1.0) == ["MiniMaxAI/MiniMax-M2.7"]
+    observed = await gateway.generate(
+        system="unchanged-system",
+        user="unchanged-user",
+        temperature=0.0,
+    )
+
+    assert observed is sentinel
+    assert inner.calls == [
+        {
+            "system": (
+                "unchanged-system\n\n"
+                "Do not strengthen cited source meaning with unstated consequences."
+            ),
+            "user": "unchanged-user",
+            "temperature": 0.0,
+            "max_tokens": 16384,
+            "reasoning_split": True,
+        }
+    ]
+
+
+def test_characterization_matrix_is_finite_and_domain_agnostic() -> None:
+    """The sweep spans supported models/controls without domain-keyed behavior."""
+
+    validator = _universality_contract_validator()
+    rows = list(validator.COMPILER_CHARACTERIZATION_MATRIX)
+
+    assert len(rows) == 18
+    assert {row["model_id"] for row in rows} == {
+        "moonshotai/Kimi-K2.6",
+        "MiniMaxAI/MiniMax-M2.7",
+    }
+    assert {row["request_parameters"]["max_tokens"] for row in rows} == {
+        8192,
+        16384,
+        32768,
+    }
+    assert sum(
+        row["request_parameters"].get("reasoning_split") is True for row in rows
+    ) == 6
+    assert {row["prompt_variant"] for row in rows} == {
+        "generic_collection_invariant_v1",
+        "source_semantics_non_strengthening_v1",
+    }
+    assert not any(
+        key in {"role", "domain", "jurisdiction"}
+        for row in rows
+        for key in row["request_parameters"]
+    )
+
+
+def test_compiler_recording_preserves_provider_finish_reason() -> None:
+    """Replay must retain the provider evidence used by the truncation fence."""
+
+    validator = _universality_contract_validator()
+    gateway_module = import_module(
+        "polisyos.scientist.orchestration.llm.gateway_client"
+    )
+    response = gateway_module.GatewayLLMResponse(
+        content="",
+        model="moonshotai/Kimi-K2.6",
+        provider="test",
+        raw={"choices": [{"finish_reason": "length"}]},
+        tool_calls=[],
+    )
+
+    normalized = validator._normalized_gateway_response(response)
+    replayed = validator._gateway_response_from_payload(normalized)
+
+    assert normalized["finish_reason"] == "length"
+    assert replayed.raw == {"choices": [{"finish_reason": "length"}]}
+
+
+def test_compiler_characterization_classifies_without_cleaning_output() -> None:
+    """Classification observes strict-owner evidence; it never repairs a response."""
+
+    validator = _universality_contract_validator()
+    reasoning_wrapped = {
+        "finish_reason": "tool_calls",
+        "tool_calls": [
+            {
+                "name": "emit_design_problem",
+                "arguments": {},
+                "error_envelope": {
+                    "reason": "tool_call_arguments_parse_error",
+                    "details": {"arguments_preview": "<think>derive fields first"},
+                },
+            }
+        ],
+    }
+
+    assert validator._classify_compiler_characterization_outcome(
+        error_code=None,
+        response_payload={"finish_reason": "tool_calls", "tool_calls": []},
+    ) == "clean_complete_schema_valid_entailment_pass"
+    assert validator._classify_compiler_characterization_outcome(
+        error_code="design_problem_output_truncated",
+        response_payload={"finish_reason": "length", "tool_calls": []},
+    ) == "truncated"
+    assert validator._classify_compiler_characterization_outcome(
+        error_code="design_problem_validation_failed",
+        response_payload=reasoning_wrapped,
+    ) == "reasoning_wrapped"
+    assert validator._classify_compiler_characterization_outcome(
+        error_code="design_problem_validation_failed",
+        response_payload={"finish_reason": "tool_calls", "tool_calls": []},
+    ) == "schema_invalid"
+    assert validator._classify_compiler_characterization_outcome(
+        error_code="gateway_http_error",
+        response_payload={},
+    ) == "provider_refused"
+
+
+@pytest.mark.asyncio
+async def test_characterization_reuses_completed_matrix_rows(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Restarting characterization may spend only rows absent from the local journal."""
+
+    validator = _universality_contract_validator()
+    monkeypatch.setattr(validator, "_PROOF_CAPTURE_JOURNAL_DIR", Path("capture"))
+    matrix = (
+        {
+            "probe_id": "already-measured",
+            "model_id": "model-a",
+            "prompt_variant": "generic_collection_invariant_v1",
+            "system_suffix": None,
+            "request_parameters": {"max_tokens": 8192},
+        },
+        {
+            "probe_id": "new-row",
+            "model_id": "model-b",
+            "prompt_variant": "generic_collection_invariant_v1",
+            "system_suffix": None,
+            "request_parameters": {"max_tokens": 16384},
+        },
+    )
+    monkeypatch.setattr(validator, "COMPILER_CHARACTERIZATION_MATRIX", matrix)
+    journal = tmp_path / "capture" / "characterization.jsonl"
+    journal.parent.mkdir(parents=True)
+    prior = {
+        "event": "compiler_characterization_probe_completed",
+        "phase": "matrix",
+        "probe_id": "already-measured",
+        "model_id": "model-a",
+        "prompt_variant": "generic_collection_invariant_v1",
+        "request_parameters": {"max_tokens": 8192},
+        "outcome": "schema_invalid",
+    }
+    journal.write_text(json.dumps(prior) + "\n", encoding="utf-8")
+    spent: list[str] = []
+
+    async def _probe(
+        repo_root: Path,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        assert repo_root == tmp_path
+        spent.append(str(kwargs["probe_id"]))
+        return {
+            "event": "compiler_characterization_probe_completed",
+            "phase": "matrix",
+            "probe_id": kwargs["probe_id"],
+            "model_id": kwargs["model_id"],
+            "prompt_variant": kwargs["prompt_variant"],
+            "request_parameters": kwargs["request_parameters"],
+            "outcome": "schema_invalid",
+        }
+
+    monkeypatch.setattr(validator, "_characterize_compiler_probe", _probe)
+
+    report = await validator._characterize_compiler_conformance(tmp_path)
+
+    assert report["status"] == "fail"
+    assert spent == ["new-row"]
+    assert {row["probe_id"] for row in report["rows"]} == {
+        "already-measured",
+        "new-row",
+    }
+
+
 def test_span_capture_uses_fresh_client_inside_each_event_loop(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

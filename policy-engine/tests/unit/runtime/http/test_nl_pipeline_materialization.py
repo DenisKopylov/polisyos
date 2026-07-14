@@ -20,12 +20,14 @@ from polisyos.runtime.http.services.control.generation_cycle import (
     compile_and_run_recursive_generation_cycle,
 )
 from polisyos.runtime.http.services.control.nl_pipeline import (
+    _DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY,
     NaturalLanguagePipelineRefusalError,
     NaturalLanguageRunMixin,
     _build_scientist_context_params,
     _preflight_design_problem_model,
     _production_materialization_failure,
     build_design_problem_from_nl_request,
+    design_problem_compiler_source_semantics_invariant,
 )
 from polisyos.runtime.http.services.control.nl_pipeline_testing import (
     NLContractTestingAuthorityStamp,
@@ -514,6 +516,7 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     assert gateway.generate_calls
     assert gateway.generate_calls[0]["tools"][0]["function"]["name"] == "emit_design_problem"
     assert gateway.generate_calls[0]["tool_choice"]["function"]["name"] == "emit_design_problem"
+    assert gateway.generate_calls[0]["max_tokens"] == 8192
     tool_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
     assert "$defs" not in tool_schema
     assert "$ref" not in json.dumps(tool_schema)
@@ -572,6 +575,112 @@ async def test_design_problem_prompt_exposes_non_empty_collection_contract() -> 
     assert problem.stakeholders
     assert problem.objectives
     assert problem.candidate_lever_space.candidate_levers
+    assert design_problem_compiler_source_semantics_invariant() in str(
+        gateway.generate_calls[0]["system"]
+    )
+
+
+def test_design_problem_output_budget_is_derived_from_characterization() -> None:
+    """The compiler ceiling is typed, evidence-bound, and not a silent default."""
+
+    policy = _DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY
+
+    assert policy.observed_max_completion_tokens == 5323
+    assert policy.max_tokens == 8192
+    assert policy.headroom_tokens == 2869
+    assert policy.max_tokens == 1 << (policy.observed_max_completion_tokens - 1).bit_length()
+    assert "2026-07-14-gy-n10-stage-4" in policy.evidence_ref
+    with pytest.raises(ValueError, match="output_budget_not_next_power_of_two"):
+        type(policy)(
+            observed_max_completion_tokens=policy.observed_max_completion_tokens,
+            max_tokens=9000,
+            headroom_tokens=3677,
+            evidence_ref=policy.evidence_ref,
+        )
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_types_provider_output_truncation() -> None:
+    """A provider-declared completion ceiling is not a generic JSON/schema failure."""
+
+    class _TruncatedGateway(_FakeDesignProblemGateway):
+        async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
+            self.generate_calls.append(kwargs)
+            return GatewayLLMResponse(
+                content="",
+                model="moonshotai/Kimi-K2.6",
+                provider="test-gateway",
+                raw={"choices": [{"finish_reason": "length"}]},
+                tool_calls=[
+                    GatewayToolCall(
+                        id="call-truncated-design-problem",
+                        name="emit_design_problem",
+                        arguments={},
+                        error_envelope={
+                            "reason": "tool_call_arguments_parse_error",
+                            "details": {"arguments_preview": "{\"objectives\":"},
+                        },
+                    )
+                ],
+            )
+
+    gateway = _TruncatedGateway(
+        models=["moonshotai/Kimi-K2.6"],
+        arguments={},
+    )
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await build_design_problem_from_nl_request(
+            nl_request="Design a credit guarantee for wartime MSMEs.",
+            context=_intent_context(),
+            model_name="moonshotai/Kimi-K2.6",
+            gateway_client=gateway,
+            span_support_client=_DeterministicSpanSupportClient(),
+        )
+
+    assert exc_info.value.code == "design_problem_output_truncated"
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_keeps_nontruncated_malformed_output_strict() -> None:
+    """Malformed tool arguments do not acquire truncation semantics by shape alone."""
+
+    class _MalformedGateway(_FakeDesignProblemGateway):
+        async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
+            self.generate_calls.append(kwargs)
+            return GatewayLLMResponse(
+                content="",
+                model="MiniMaxAI/MiniMax-M2.7",
+                provider="test-gateway",
+                raw={"choices": [{"finish_reason": "tool_calls"}]},
+                tool_calls=[
+                    GatewayToolCall(
+                        id="call-malformed-design-problem",
+                        name="emit_design_problem",
+                        arguments={},
+                        error_envelope={
+                            "reason": "tool_call_arguments_parse_error",
+                            "details": {"arguments_preview": "<think>reasoning"},
+                        },
+                    )
+                ],
+            )
+
+    gateway = _MalformedGateway(
+        models=["MiniMaxAI/MiniMax-M2.7"],
+        arguments={},
+    )
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await build_design_problem_from_nl_request(
+            nl_request="Design a credit guarantee for wartime MSMEs.",
+            context=_intent_context(),
+            model_name="MiniMaxAI/MiniMax-M2.7",
+            gateway_client=gateway,
+            span_support_client=_DeterministicSpanSupportClient(),
+        )
+
+    assert exc_info.value.code == "design_problem_validation_failed"
 
 
 @pytest.mark.asyncio

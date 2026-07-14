@@ -1876,6 +1876,48 @@ being appended to the production compiler request. No response sanitizer, parser
 change, proof recording, cold domain closeout, or capstone artifact follows. Tasks 13–15 remain
 incomplete at this hard stop.
 
+Structured-conformance reopening (authorized, 2026-07-14): commit `d575f86f9` remains the historical
+record of the finite free-form denominator, but its NO-GO is not the final Task-13 terminal. Read-only
+owner inspection found two distinct causes that the prior matrix did not test:
+
+1. the compiler supplies the fully inlined `DesignProblem` JSON schema as the function's
+   `parameters`, but the Gonka gateway does not enforce `function.strict`; and
+2. `TimeSemantics` enforces `step_count or end_date` in a Python `model_validator`, while that
+   conditional is absent from `DesignProblem.model_json_schema()`. The provider therefore never saw
+   the exact constraint implicated by all four deterministic unseen-role schema failures.
+
+This reopens characterization under P15/P27/P29/P31/P32/P33 without modifying the strict parser,
+Pydantic models, or span-entailment verifier. The finite investigation is:
+
+- capability micro-probes on both catalog models for loose tool calling, `function.strict`,
+  `response_format={type: json_schema}`, combined JSON-schema response format plus forced tool call,
+  and provider-native `structured_outputs` where accepted;
+- each probe uses a tiny schema with an intentionally decisive nested conditional and records the
+  actual carrier (`tool_arguments`, assistant content, refusal), degradation events, finish reason,
+  token counts, and whether the constraint was enforced;
+- any gateway fallback that removes `response_format` is a typed capability refusal and cannot count
+  as constrained generation;
+- only a mode that produces a real `emit_design_problem` tool call through the unchanged gateway
+  parser advances to a full-schema compiler variant;
+- the request-side provider constraint is an owner-derived projection of the existing strict model
+  plus its Python-only conditional. It is never an admission authority: the unchanged Pydantic and
+  entailment owners still re-validate every response. Equivalence tests cover valid omission, valid
+  `step_count`, valid `end_date`, and the currently failing half-populated object, while asserting the
+  canonical exported schema bytes remain unchanged;
+- full compiler variants use temperature zero, fresh clients, no cache, and a finite per-role
+  denominator. Per-role request configurations are allowed, but every selected role configuration
+  must conform across seeds `0`, `1`, and `42` and two independent repetitions; the complete
+  denominator is journaled, with no discarded rows;
+- if no constrained mode preserves a real tool-call carrier, the same complete provider schema is
+  tested as the ordinary tool schema as the final request-side variant. No content-to-tool adapter,
+  sanitizer, repair, or prompt field/value hint is permitted.
+
+The earned terminal is either a stable, native, schema-valid and entailment-valid per-role
+configuration or `compiler_model_conformance_exhausted` carrying provider capability evidence.
+Production configuration is not changed until that finite gate passes. If it passes, the owner lock
+and truncation fence land in a scoped checkpoint, the cheap N4/N8/N10a/composition/census ripple gate
+must show zero artifact movement, and only then does the single cold proof closeout begin.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

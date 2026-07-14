@@ -1939,8 +1939,11 @@ resolution nor an atom; N5 therefore fails closed on `world_identity_unresolved`
 selection. The first-vertical cold N4 run produced zero shadow-bound candidates, while the Stage-2
 data-gap receipt belongs to a different historical candidate and DesignProblem. Cross-candidate
 receipt reuse is forbidden by P32. Step 5 remains fenced pending an authorized owner-first identity
-bridge design and a disposition for the measured zero-shadow first-vertical denominator; the
-validator is not loosened and no second capture is spent to hunt for a favorable outcome.
+bridge design, a behavioral N6/N5/N8/N9 rederive lane, and a disposition for the measured
+zero-shadow first-vertical denominator. The current cached lane replays compiler/N4 but trusts the
+serialized downstream run after checking only its content hash and N4 candidate denominator; it
+cannot prove a downstream repair. The validator is not loosened and no second capture is spent to
+hunt for a favorable outcome.
 
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 

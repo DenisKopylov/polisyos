@@ -174,12 +174,23 @@ _DESIGN_PROBLEM_SOURCE_SEMANTICS_INVARIANT = (
     "does not state its effects or consequences, record only the named condition "
     "and leave those effects or consequences unstated."
 )
+_DESIGN_PROBLEM_OPTIONAL_STRUCTURE_INVARIANT = (
+    "Emit an optional structure only when the supplied request and context can "
+    "satisfy its entire provided tool contract. Otherwise omit the optional "
+    "structure rather than supplying null, guessed, or partial placeholders."
+)
 
 
 def design_problem_compiler_source_semantics_invariant() -> str:
     """Return the generic no-strengthening contract for candidate constraints."""
 
     return _DESIGN_PROBLEM_SOURCE_SEMANTICS_INVARIANT
+
+
+def design_problem_compiler_optional_structure_invariant() -> str:
+    """Return the generic completeness contract for optional model structures."""
+
+    return _DESIGN_PROBLEM_OPTIONAL_STRUCTURE_INVARIANT
 
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _CAUSAL_VALIDITY_CASES_PATH = (

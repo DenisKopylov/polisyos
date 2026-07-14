@@ -1148,7 +1148,11 @@ async def test_characterization_gateway_varies_only_request_parameters() -> None
     inner = _Inner()
     gateway = validator._CompilerCharacterizationGateway(
         inner,
-        request_parameters={"max_tokens": 16384, "reasoning_split": True},
+        request_parameters={
+            "max_tokens": 16384,
+            "reasoning_split": True,
+            "seed": 42,
+        },
         system_suffix=(
             "Do not strengthen cited source meaning with unstated consequences."
         ),
@@ -1172,6 +1176,7 @@ async def test_characterization_gateway_varies_only_request_parameters() -> None
             "temperature": 0.0,
             "max_tokens": 16384,
             "reasoning_split": True,
+            "seed": 42,
         }
     ]
 
@@ -1182,7 +1187,7 @@ def test_characterization_matrix_is_finite_and_domain_agnostic() -> None:
     validator = _universality_contract_validator()
     rows = list(validator.COMPILER_CHARACTERIZATION_MATRIX)
 
-    assert len(rows) == 18
+    assert len(rows) == 21
     assert {row["model_id"] for row in rows} == {
         "moonshotai/Kimi-K2.6",
         "MiniMaxAI/MiniMax-M2.7",
@@ -1198,7 +1203,15 @@ def test_characterization_matrix_is_finite_and_domain_agnostic() -> None:
     assert {row["prompt_variant"] for row in rows} == {
         "generic_collection_invariant_v1",
         "source_semantics_non_strengthening_v1",
+        "optional_structure_completeness_v1",
     }
+    seeded = [
+        row
+        for row in rows
+        if row["prompt_variant"] == "optional_structure_completeness_v1"
+    ]
+    assert {row["request_parameters"]["seed"] for row in seeded} == {0, 1, 42}
+    assert {row["confirmation_repetitions"] for row in seeded} == {2}
     assert not any(
         key in {"role", "domain", "jurisdiction"}
         for row in rows
@@ -1334,6 +1347,70 @@ async def test_characterization_reuses_completed_matrix_rows(
         "already-measured",
         "new-row",
     }
+
+
+@pytest.mark.parametrize(("stable", "expected_status"), [(True, "pass"), (False, "fail")])
+@pytest.mark.asyncio
+async def test_characterization_requires_repeated_stable_hashes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    stable: bool,
+    expected_status: str,
+) -> None:
+    """One clean response cannot select a config whose repeated carrier drifts."""
+
+    validator = _universality_contract_validator()
+    monkeypatch.setattr(validator, "_PROOF_CAPTURE_JOURNAL_DIR", Path("capture"))
+    matrix = (
+        {
+            "probe_id": "seeded-candidate",
+            "model_id": "model-a",
+            "prompt_variant": "optional_structure_completeness_v1",
+            "request_parameters": {"max_tokens": 8192, "seed": 42},
+            "confirmation_repetitions": 2,
+        },
+    )
+    monkeypatch.setattr(validator, "COMPILER_CHARACTERIZATION_MATRIX", matrix)
+    monkeypatch.setattr(validator, "_SUPERSEDED_CHARACTERIZATION_PROBE_IDS", frozenset())
+
+    async def _probe(
+        repo_root: Path,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
+        assert repo_root == tmp_path
+        probe_id = str(kwargs["probe_id"])
+        role = str(kwargs["role"])
+        repetition = probe_id.rpartition("-r")[2]
+        response_hash = f"sha256:{role}-stable"
+        if not stable and role == "unseen" and repetition == "2":
+            response_hash = "sha256:unseen-drift"
+        return {
+            "event": "compiler_characterization_probe_completed",
+            "phase": kwargs["phase"],
+            "probe_id": probe_id,
+            "role": role,
+            "model_id": kwargs["model_id"],
+            "prompt_variant": kwargs["prompt_variant"],
+            "request_parameters": kwargs["request_parameters"],
+            "outcome": "clean_complete_schema_valid_entailment_pass",
+            "completion_tokens": 5000,
+            "response_content_hash": response_hash,
+        }
+
+    monkeypatch.setattr(validator, "_characterize_compiler_probe", _probe)
+    monkeypatch.setattr(
+        validator,
+        "_characterization_system_suffix",
+        lambda _variant: "generic optional completeness",
+    )
+
+    report = await validator._characterize_compiler_conformance(tmp_path)
+
+    assert report["status"] == expected_status
+    if stable:
+        assert report["winning_config"]["confirmation_repetitions"] == 2
+    else:
+        assert report["winning_config"] is None
 
 
 def test_span_capture_uses_fresh_client_inside_each_event_loop(

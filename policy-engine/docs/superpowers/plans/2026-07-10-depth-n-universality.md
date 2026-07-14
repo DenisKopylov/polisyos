@@ -1864,6 +1864,18 @@ hashes per role. The earlier unseeded winner is marked superseded-by-fragility, 
 carrier and split-control terminals are already measured and are not re-spent. The gate remains
 unchanged; if all three seeded candidates fail stability, characterization ends in the typed NO-GO.
 
+Stability decision (measured, 2026-07-14): all three seeded candidates failed the finite gate.
+Seed `0` reached a schema-valid candidate but the unchanged admissibility owner returned
+`design_problem_admissibility_unverified`; seeds `1` and `42` were clean and hash-stable for
+first_vertical and education across two repetitions, but each emitted the same invalid optional
+`jurisdiction_time.time_semantics` shape for unseen across both repetitions (neither `step_count`
+nor `end_date`). The 21-row runner returned `compiler_model_conformance_exhausted`, exit `1`, with
+`winning_config=null` in `583.74353` seconds. This is the authorized typed NO-GO. No seed enters the
+compiler owner, and the optional-completeness sentence remains characterization-only rather than
+being appended to the production compiler request. No response sanitizer, parser/schema/verifier
+change, proof recording, cold domain closeout, or capstone artifact follows. Tasks 13–15 remain
+incomplete at this hard stop.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

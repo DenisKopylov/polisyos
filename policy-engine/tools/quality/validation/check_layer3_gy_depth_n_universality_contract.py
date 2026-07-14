@@ -78,7 +78,7 @@ COMPOSITION_PATH = (
 
 PROOF_MODEL_ID = "moonshotai/Kimi-K2.6"
 PROOF_COMPILER_MODEL_PLAN = ("moonshotai/Kimi-K2.6",)
-COMPILER_CHARACTERIZATION_MATRIX = tuple(
+_BASE_COMPILER_CHARACTERIZATION_MATRIX = tuple(
     {
         "probe_id": (
             f"{family}-{budget}"
@@ -102,6 +102,23 @@ COMPILER_CHARACTERIZATION_MATRIX = tuple(
         ("minimax-reasoning-split", "MiniMaxAI/MiniMax-M2.7", True),
     )
     for budget in (8192, 16384, 32768)
+)
+COMPILER_CHARACTERIZATION_MATRIX = _BASE_COMPILER_CHARACTERIZATION_MATRIX + tuple(
+    {
+        "probe_id": f"optional-complete-kimi-seed-{seed}",
+        "model_id": "moonshotai/Kimi-K2.6",
+        "prompt_variant": "optional_structure_completeness_v1",
+        "request_parameters": {"max_tokens": 8192, "seed": seed},
+        "confirmation_repetitions": 2,
+    }
+    for seed in (0, 1, 42)
+)
+_SUPERSEDED_CHARACTERIZATION_PROBE_IDS = frozenset(
+    {
+        "source-nonstrengthening-kimi-forced-tool-8192",
+        "source-nonstrengthening-kimi-forced-tool-16384",
+        "source-nonstrengthening-kimi-forced-tool-32768",
+    }
 )
 PLAIN_LANGUAGE_PROOF_REQUESTS = {
     "first_vertical": (
@@ -217,7 +234,9 @@ class _RecordingGateway:
 class _CompilerCharacterizationGateway:
     """Overlay approved request controls without inspecting or changing responses."""
 
-    _ALLOWED_REQUEST_PARAMETERS = frozenset({"max_tokens", "reasoning_split"})
+    _ALLOWED_REQUEST_PARAMETERS = frozenset(
+        {"max_tokens", "reasoning_split", "seed"}
+    )
 
     def __init__(
         self,
@@ -686,6 +705,12 @@ def _characterization_system_suffix(prompt_variant: str) -> str | None:
         )
 
         return design_problem_compiler_source_semantics_invariant()
+    if prompt_variant == "optional_structure_completeness_v1":
+        from polisyos.runtime.http.services.control.nl_pipeline import (
+            design_problem_compiler_optional_structure_invariant,
+        )
+
+        return design_problem_compiler_optional_structure_invariant()
     raise UniversalityContractError(
         f"compiler_characterization_prompt_variant_unknown:{prompt_variant}"
     )
@@ -695,6 +720,9 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
     """Measure the finite model/request matrix, then confirm one config on all roles."""
 
     completed = _completed_characterization_probes(repo_root)
+    matrix_by_probe_id = {
+        str(spec["probe_id"]): spec for spec in COMPILER_CHARACTERIZATION_MATRIX
+    }
     rows: list[dict[str, Any]] = []
     for spec in COMPILER_CHARACTERIZATION_MATRIX:
         probe_id = str(spec["probe_id"])
@@ -730,6 +758,7 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
             for row in rows
             if row["outcome"]
             == "clean_complete_schema_valid_entailment_pass"
+            and row["probe_id"] not in _SUPERSEDED_CHARACTERIZATION_PROBE_IDS
         ),
         key=lambda row: (
             int(_mapping(row["request_parameters"]).get("max_tokens") or 0),
@@ -741,37 +770,56 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
     winning_confirmations: list[dict[str, Any]] = []
     for candidate in clean_rows:
         confirmations: list[dict[str, Any]] = []
+        candidate_spec = matrix_by_probe_id[str(candidate["probe_id"])]
+        confirmation_repetitions = int(
+            candidate_spec.get("confirmation_repetitions") or 1
+        )
         for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
-            probe_id = f"{candidate['probe_id']}-confirm-{role}"
-            model_id = str(candidate["model_id"])
-            prompt_variant = str(candidate["prompt_variant"])
-            request_parameters = _mapping(candidate["request_parameters"])
-            reused = _reuse_characterization_probe(
-                completed,
-                probe_id=probe_id,
-                model_id=model_id,
-                prompt_variant=prompt_variant,
-                request_parameters=request_parameters,
-            )
-            if reused is None:
-                reused = await _characterize_compiler_probe(
-                    repo_root,
+            for repetition in range(1, confirmation_repetitions + 1):
+                probe_id = f"{candidate['probe_id']}-confirm-{role}"
+                if confirmation_repetitions > 1:
+                    probe_id = f"{probe_id}-r{repetition}"
+                model_id = str(candidate["model_id"])
+                prompt_variant = str(candidate["prompt_variant"])
+                request_parameters = _mapping(candidate["request_parameters"])
+                reused = _reuse_characterization_probe(
+                    completed,
                     probe_id=probe_id,
-                    phase="stability_confirmation",
-                    role=role,
                     model_id=model_id,
                     prompt_variant=prompt_variant,
-                    system_suffix=_characterization_system_suffix(prompt_variant),
                     request_parameters=request_parameters,
                 )
-                completed[probe_id] = reused
-            confirmations.append(reused)
+                if reused is None:
+                    reused = await _characterize_compiler_probe(
+                        repo_root,
+                        probe_id=probe_id,
+                        phase="stability_confirmation",
+                        role=role,
+                        model_id=model_id,
+                        prompt_variant=prompt_variant,
+                        system_suffix=_characterization_system_suffix(prompt_variant),
+                        request_parameters=request_parameters,
+                    )
+                    completed[probe_id] = reused
+                confirmations.append(reused)
         rows.extend(confirmations)
-        if all(
+        all_clean = all(
             row["outcome"]
             == "clean_complete_schema_valid_entailment_pass"
             for row in confirmations
-        ):
+        )
+        stable_hashes = all(
+            len(
+                {
+                    row.get("response_content_hash")
+                    for row in confirmations
+                    if row.get("role") == role
+                }
+            )
+            == 1
+            for role in PLAIN_LANGUAGE_PROOF_REQUESTS
+        )
+        if all_clean and stable_hashes:
             winning_row = candidate
             winning_confirmations = confirmations
             break
@@ -810,6 +858,12 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
             "request_parameters": winning_row["request_parameters"],
             "observed_max_completion_tokens": observed_max,
             "confirmation_roles": list(PLAIN_LANGUAGE_PROOF_REQUESTS),
+            "confirmation_repetitions": int(
+                matrix_by_probe_id[str(winning_row["probe_id"])].get(
+                    "confirmation_repetitions"
+                )
+                or 1
+            ),
         },
     }
     _append_jsonl(result_journal_path, summary)
@@ -1486,6 +1540,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                         "model_id": model_id,
                         "error_code": exc.code,
                         "error_type": type(exc).__name__,
+                        "error": str(exc),
                     },
                 )
             except RuntimeError as exc:

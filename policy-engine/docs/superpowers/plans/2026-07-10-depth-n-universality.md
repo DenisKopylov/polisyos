@@ -1783,9 +1783,19 @@ compiler prompt hash changed, while the schema, gateway parser, admissibility ve
 raw requests remain unchanged. A second refusal exhausts the supported-model denominator and is a
 hard stop.
 
-- [ ] **Step 4: Run one cold two-domain closeout serially with full budget, or record the exact cloud blocker.**
+- [x] **Step 4: Run one cold two-domain closeout serially with full budget, or record the exact cloud blocker.**
 
 Do not retry concurrently. A missing credential/provider is recorded as a cloud residual; it may not be replaced by a fixture DTO.
+
+Task-13 blocker note (2026-07-14): the cold domain closeout never began because the live compiler
+denominator exhausted before producing the first strict `DesignProblem`. The catalog contained only
+Kimi and MiniMax. MiniMax emitted reasoning-wrapped tool arguments and was correctly refused by the
+audited strict gateway. Post-prompt-repair Kimi emitted request-grounded non-empty collections but
+hit exactly `3072` completion tokens and ended its tool JSON mid-string (`char 6560`). No compiler
+recording, N4 call, domain cache, or canonical artifact exists. The honest redesign is a separately
+authorized canonical-compiler output-budget contract: derive/declare enough output budget for the
+strict schema and surface provider truncation as a typed `design_problem_output_truncated` refusal.
+The gateway parser and `DesignProblem` validators must remain unchanged.
 
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 

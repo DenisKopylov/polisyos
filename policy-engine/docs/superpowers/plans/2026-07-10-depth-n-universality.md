@@ -1635,7 +1635,7 @@ P29 authorial proof.
 - Calls `assert_current_checkout(REPO_ROOT)` before parsing modes, reading artifacts/caches, or invoking owners.
 - A wrong package path renders `status=fail`, issue `wrong_checkout_resolved`, and exit `1` without entering a proof producer.
 
-- [ ] **Step 1: Write RED validator schema/drift/write tests.**
+- [x] **Step 1: Write RED validator schema/drift/write tests.**
 
 The first RED is the provenance-stability entry gate.  It recomputes the census,
 DesignProblem, and prompt-hash refs from their canonical owners and refuses to
@@ -1681,13 +1681,13 @@ def test_stage4_entry_refuses_upstream_provenance_drift() -> None:
     assert report.prompt_hashes
 ```
 
-- [ ] **Step 2: Run tests and observe RED because the validator is absent.**
+- [x] **Step 2: Run tests and observe RED because the validator is absent.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'universality_contract or byte_stable' -q
 ```
 
-- [ ] **Step 3: Implement validator modes and total semantic validation.**
+- [x] **Step 3: Implement validator modes and total semantic validation.**
 
 Implement:
 
@@ -1713,14 +1713,14 @@ validation excludes only declared runtime metrics/times. Add a restoring `wrong_
 source flip that points `PYTHONPATH` at the main checkout and proves the validator refuses before
 producer execution.
 
-- [ ] **Step 4: Verify the focused scaffold without registering a proof artifact.**
+- [x] **Step 4: Verify the focused scaffold without registering a proof artifact.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'universality_contract or byte_stable' -q
 .venv/bin/ruff check tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py tests/unit/runtime/quality/test_depth_n_universality.py
 ```
 
-- [ ] **Step 5: Commit the validator scaffold before live proof writes.**
+- [x] **Step 5: Commit the validator scaffold before live proof writes.**
 
 ```bash
 git add tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py tests/unit/runtime/quality/test_depth_n_universality.py

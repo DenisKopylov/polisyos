@@ -16,30 +16,41 @@ from typing import Any, cast
 import pytest
 
 import tools.quality.validation.universality_preflight as universality_preflight_module
+from tools.quality.validation.universality_preflight import (
+    assert_universality_preflight,
+)
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
+# This assertion intentionally precedes every PolicyOS owner import. Fresh child processes below
+# prove that a foreign checkout, base interpreter, or missing CG substrate cannot enter a proof
+# producer through pytest's already-imported parent process.
+assert_universality_preflight(REPO_ROOT)
+
 from polisyos.pdc import (
     ArtifactRef,
     SearchTerminalKind,
     SearchTerminalState,
     SubDesignContract,
     gy_content_hash,
-)
+)  # noqa: E402
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     build_coupling_graph,
     classify_coupling,
     derive_recursive_design_graph,
-)
-from polisyos.runtime.quality.design_problem import DesignProblem
+)  # noqa: E402
+from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: E402
 from polisyos.runtime.quality.generation_cycle import (
     CandidateGroundingObservation,
     GenerationCycleController,
     PendingN8ValuePort,
     PromotionPortObservation,
     SimulationPortObservation,
-)
+)  # noqa: E402
 from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
     intervention_atom_content_hash,
-)
+)  # noqa: E402
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     RecursiveGenerationCycleController,
@@ -47,17 +58,11 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveGenerationCycleRun,
     build_default_recursive_generation_cycle_controller,
     recompute_depth_n_strangle_receipt,
+)  # noqa: E402
+from polisyos.scientist.orchestration.engine.budget import (  # noqa: E402
+    BudgetLimit,
+    BudgetState,
 )
-from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
-from tools.quality.validation.universality_preflight import (
-    assert_universality_preflight,
-)
-
-REPO_ROOT = Path(__file__).resolve().parents[4]
-
-# This preserves local import ordering only. Fresh child processes below provide the authority proof
-# because pytest startup plugins may already have imported ``polisyos.*`` in this parent process.
-assert_universality_preflight(REPO_ROOT)
 
 
 def _recursive_problem(node_ref: str) -> DesignProblem:
@@ -937,3 +942,158 @@ def test_wrong_checkout_precedes_wrong_interpreter_prefix(tmp_path: Path) -> Non
     assert f"wrong_checkout_resolved:{wrong_src / 'polisyos/__init__.py'}" in result.stderr
     assert "wrong_interpreter_resolved:" not in result.stderr
     assert not producer_sentinel.exists()
+
+
+def _universality_contract_validator() -> Any:
+    """Import the Task-12 validator only after the universality preflight."""
+
+    return import_module(
+        "tools.quality.validation.check_layer3_gy_depth_n_universality_contract"
+    )
+
+
+def _run_universality_validator_with_pythonpath(
+    pythonpath: Path,
+    *args: str,
+) -> subprocess.CompletedProcess[str]:
+    """Run the real validator CLI with a caller-controlled PolicyOS package root."""
+
+    validator_path = (
+        REPO_ROOT
+        / "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py"
+    )
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join((pythonpath.as_posix(), REPO_ROOT.as_posix()))
+    return subprocess.run(
+        [sys.executable, str(validator_path), *args],
+        cwd=REPO_ROOT,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_stage4_provenance_stability_binds_current_owner_graph() -> None:
+    """Bind N4, Fork-B, N8, N10a, prompt, and composition owner evidence."""
+
+    validator = _universality_contract_validator()
+    report = validator.check_provenance_stability(REPO_ROOT)
+
+    assert report["status"] == "stable"
+    assert report["issues"] == []
+    assert report["census_ref"]["n4_artifact_sha256"] == report["source_refs"][
+        "n4_artifact_sha256"
+    ]
+    assert report["census_ref"]["content_hash"] == report["n8_fork_b_ref"][
+        "content_hash"
+    ]
+    assert report["census_ref"]["raw_full_table_content_hash"] == report[
+        "n8_fork_b_ref"
+    ]["raw_full_table_content_hash"]
+    assert report["first_vertical_refs"]["n8_design_problem_ref"] in report[
+        "first_vertical_refs"
+    ]["n4_generation_design_problem_refs"]
+    assert report["first_vertical_refs"]["semantic_projection_hash"] == report[
+        "first_vertical_refs"
+    ]["n10a_comparator_hash"]
+    assert len(set(report["design_problem_refs"].values())) == 1
+    assert report["prompt_hashes"]["owner_projection"] == report["prompt_hashes"][
+        "responses"
+    ]
+    assert report["prompt_hashes"]["owner_projection"] == report["prompt_hashes"][
+        "journal"
+    ]
+    assert report["composition_ref"]["status"] == "bound"
+
+
+def test_universality_task12_payload_is_honestly_incomplete() -> None:
+    """Expose upstream capability without claiming the not-yet-run capstone proofs."""
+
+    validator = _universality_contract_validator()
+    payload = validator.build_live_payload(REPO_ROOT, lane="lane0")
+
+    assert payload["proof_status"] == "proof_runs_pending"
+    assert payload["domain_runs"] == {}
+    assert payload["capability_reality"] == {
+        "producer": "producer_missing",
+        "artifact": "artifact_missing",
+        "semantic_test": "semantic_test_missing",
+    }
+    assert payload["non_panel_evidence"]["fork"] == "B"
+    assert payload["non_panel_evidence"]["status"] == "acquisition_required"
+    assert payload["non_panel_evidence"]["supported_native_families"] == 6
+    assert payload["non_panel_evidence"]["fork_a_candidate_count"] == 0
+    assert payload["education_refusal"]["status"] == "value_blocked"
+    assert payload["education_refusal"]["authority_blockers"] == [
+        "method_estimand_binding_mismatch"
+    ]
+    assert payload["depth_evidence"]["observed_max_depth"] > 2
+    assert payload["gy_g_strangle_receipt"]["status"] == "strangled"
+    assert payload["gy_g_strangle_receipt"]["production_fixture_callers"] == []
+
+
+def test_universality_contract_content_hash_rejects_corruption() -> None:
+    """Reject a semantic mutation whose content hash was not recomputed."""
+
+    validator = _universality_contract_validator()
+    payload = validator.build_live_payload(REPO_ROOT, lane="lane0")
+    payload["proof_status"] = "complete"
+
+    report = validator.validate_payload(payload)
+
+    assert any(
+        issue["code"] == "contract_content_hash_mismatch"
+        for issue in report["issues"]
+    )
+
+
+def test_universality_write_is_byte_stable(tmp_path: Path) -> None:
+    """Write the incomplete Task-12 payload only to an explicit noncanonical path."""
+
+    validator = _universality_contract_validator()
+    output = tmp_path / "proof.json"
+
+    first = validator.write_payload(REPO_ROOT, output)
+    second = validator.write_payload(REPO_ROOT, output)
+
+    assert first == second == output.read_bytes()
+
+
+def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:
+    """Refuse a foreign PolicyOS package before parsing a proof mode or writing output."""
+
+    wrong_src = _create_wrong_checkout_package(tmp_path)
+    canonical_output = (
+        REPO_ROOT
+        / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+    )
+    assert not canonical_output.exists()
+
+    result = _run_universality_validator_with_pythonpath(wrong_src, "--write")
+
+    assert result.returncode == 1
+    assert "wrong_checkout_resolved" in result.stdout + result.stderr
+    assert not canonical_output.exists()
+
+
+def test_universality_json_cli_is_one_machine_readable_document() -> None:
+    """Keep owner import diagnostics outside the validator's JSON surface."""
+
+    result = _run_universality_validator_with_pythonpath(
+        REPO_ROOT / "src",
+        "--check",
+        "--output-format",
+        "json",
+    )
+
+    payload = json.loads(result.stdout)
+    wall_time_seconds = payload.pop("wall_time_seconds")
+    assert result.returncode == 1
+    assert isinstance(wall_time_seconds, float)
+    assert wall_time_seconds > 0.0
+    assert payload == {
+        "issues": [{"code": "universality_contract_artifact_missing"}],
+        "status": "fail",
+    }
+    assert result.stderr == ""

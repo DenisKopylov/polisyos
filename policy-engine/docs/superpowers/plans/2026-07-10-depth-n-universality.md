@@ -1852,6 +1852,18 @@ letting a transport `RuntimeError` escape as a stack trace. This changes neither
 any parser/schema/entailment gate. The no-response attempt did not start the cold domain closeout;
 one changed-envelope proof attempt remains authorized under E9.
 
+Stability extension (measured, 2026-07-14): the changed-envelope proof call returned a complete
+native Kimi tool call but failed the unchanged schema because it emitted an optional temporal object
+with neither of the contract's required completion alternatives. The prior one-repetition shadow
+confirmation was therefore insufficiently stable. Characterization adds exactly three seeded Kimi
+8K rows (`0`, `1`, `42`) under one domain-agnostic invariant: emit an optional structure only when
+the request/context can satisfy its complete provided tool contract; otherwise omit it rather than
+supplying null, guessed, or partial placeholders. A clean candidate must then pass two independent
+no-cache repetitions for each of the three exact proof requests with stable normalized response
+hashes per role. The earlier unseeded winner is marked superseded-by-fragility, not erased. MiniMax's
+carrier and split-control terminals are already measured and are not re-spent. The gate remains
+unchanged; if all three seeded candidates fail stability, characterization ends in the typed NO-GO.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

@@ -1819,6 +1819,19 @@ ceiling becomes `design_problem_output_truncated`, while malformed non-truncated
 existing strict refusal. Characterization ends at one reproducible supported configuration or at a
 typed model-conformance NO-GO; it never loops until green.
 
+Characterization extension (measured, 2026-07-14): the first nine rows found no clean admission,
+but they did not establish model exhaustion. Kimi at 16K and 32K emitted the same complete strict
+schema (`4313` completion tokens, `finish_reason=stop`) and reached the real span verifier; one
+constraint strengthened the source phrase "under wartime fiscal constraints" into an assertion
+that expenditure and borrowing capacity were limited, so the verifier correctly returned neutral.
+That is a generic candidate-authority prompt defect, not permission to change the verifier. A
+second finite nine-row matrix therefore appends this domain-agnostic request invariant: never
+interpret, elaborate, or strengthen a cited constraint beyond the exact semantic content of its
+source; a named condition with no stated effects cannot acquire inferred consequences. The same
+two models, three budgets, and MiniMax `reasoning_split` split are measured. Completed first-matrix
+rows are reused from the operational journal rather than re-spending calls. Provider exception
+messages are persisted in the extension because the first matrix recorded only their types.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

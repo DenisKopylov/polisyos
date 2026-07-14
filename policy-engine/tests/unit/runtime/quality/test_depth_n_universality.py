@@ -1478,6 +1478,13 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
         "PROOF_COMPILER_MODEL_PLAN",
         ("compiler-model-a", "compiler-model-b"),
     )
+    for key in (
+        "POLISYOS_LLM_GATEWAY_TIMEOUT_S",
+        "POLISYOS_LLM_GATEWAY_MAX_RETRIES",
+        "POLISYOS_LLM_CACHE_TTL_S",
+        "POLISYOS_LLM_CACHE_MAXSIZE",
+    ):
+        monkeypatch.delenv(key, raising=False)
     created_models: list[str] = []
     attempts: list[tuple[str, str]] = []
     closed_models: list[str] = []
@@ -1495,6 +1502,10 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
 
     def _factory(*, model_name: str, **kwargs: Any) -> _Client:
         del kwargs
+        assert os.environ["POLISYOS_LLM_GATEWAY_TIMEOUT_S"] == "600"
+        assert os.environ["POLISYOS_LLM_GATEWAY_MAX_RETRIES"] == "3"
+        assert os.environ["POLISYOS_LLM_CACHE_TTL_S"] == "0"
+        assert os.environ["POLISYOS_LLM_CACHE_MAXSIZE"] == "0"
         created_models.append(model_name)
         return _Client(model_name)
 
@@ -1511,6 +1522,8 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
         attempts.append((role, model_id))
         if role == "first_vertical" and model_id == validator.PROOF_COMPILER_MODEL_PLAN[0]:
             raise DesignProblemAuthorityError("design_problem_validation_failed")
+        if role == "education" and model_id == validator.PROOF_COMPILER_MODEL_PLAN[0]:
+            raise RuntimeError("Failed LLM gateway call after TimeoutError")
         return SimpleNamespace(role=role), {
             "role": role,
             "raw_request": raw_request,
@@ -1557,6 +1570,10 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
     assert attempts.count(
         ("first_vertical", validator.PROOF_COMPILER_MODEL_PLAN[0])
     ) == 1
+    assert attempts[2:4] == [
+        ("education", validator.PROOF_COMPILER_MODEL_PLAN[0]),
+        ("education", validator.PROOF_COMPILER_MODEL_PLAN[1]),
+    ]
     assert set(observed) == set(_PLAIN_LANGUAGE_PROOF_REQUESTS)
     assert created_models == closed_models
     journal_rows = [
@@ -1571,6 +1588,18 @@ async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
         and row.get("model_id") == validator.PROOF_COMPILER_MODEL_PLAN[0]
         for row in journal_rows
     )
+    assert any(
+        row.get("event") == "compiler_capture_attempt_refused"
+        and row.get("role") == "education"
+        and row.get("model_id") == validator.PROOF_COMPILER_MODEL_PLAN[0]
+        and row.get("error_code") == "proof_compiler_gateway_failed"
+        and "TimeoutError" in str(row.get("error"))
+        for row in journal_rows
+    )
+    assert "POLISYOS_LLM_GATEWAY_TIMEOUT_S" not in os.environ
+    assert "POLISYOS_LLM_GATEWAY_MAX_RETRIES" not in os.environ
+    assert "POLISYOS_LLM_CACHE_TTL_S" not in os.environ
+    assert "POLISYOS_LLM_CACHE_MAXSIZE" not in os.environ
 
 
 @pytest.mark.asyncio

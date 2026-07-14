@@ -120,6 +120,12 @@ PLAIN_LANGUAGE_PROOF_REQUESTS = {
     ),
 }
 _PROOF_CAPTURE_JOURNAL_DIR = Path(".tmp/gy-n10-stage4-proof")
+_PROOF_COMPILER_CAPTURE_ENV = {
+    "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "600",
+    "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "3",
+    "POLISYOS_LLM_CACHE_TTL_S": "0",
+    "POLISYOS_LLM_CACHE_MAXSIZE": "0",
+}
 _N4_CAPTURE_ENV = {
     "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "300",
     "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "3",
@@ -1368,6 +1374,13 @@ def _assert_n4_cycle_binding(compiled: object, organ_run: object) -> None:
 
 
 async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
+    """Run the serial proof lane under its explicit long-call envelope."""
+
+    with _temporary_environment(_PROOF_COMPILER_CAPTURE_ENV):
+        return await _capture_proof_recordings_configured(repo_root)
+
+
+async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any]:
     """Accumulate compiler evidence, then execute one resumable cold closeout."""
 
     from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
@@ -1473,6 +1486,18 @@ async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
                         "model_id": model_id,
                         "error_code": exc.code,
                         "error_type": type(exc).__name__,
+                    },
+                )
+            except RuntimeError as exc:
+                _append_capture_journal(
+                    repo_root,
+                    {
+                        "event": "compiler_capture_attempt_refused",
+                        "role": role,
+                        "model_id": model_id,
+                        "error_code": "proof_compiler_gateway_failed",
+                        "error_type": type(exc).__name__,
+                        "error": str(exc),
                     },
                 )
             else:

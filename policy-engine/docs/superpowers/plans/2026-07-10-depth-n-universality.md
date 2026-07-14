@@ -1930,6 +1930,18 @@ The observed completion maximum is `5628`, so the typed ceiling remains `8192` w
 N4/N8/N10a/composition/census checks showed no frozen-artifact ripple. The scoped compiler
 checkpoint lands before the single cold proof closeout.
 
+Measured closeout disposition (2026-07-14): the single cold closeout completed all three real
+compiler and domain captures, then the semantic writer fence correctly rejected the result with
+`first_vertical_honest_degradation_missing` and `education_honest_refusal_missing`. This is not a
+compiler failure. The education N4 disposition contains a content-bound `candidate_unbound` lever
+resolution and exact WMR hash, but N6's `_DispositionCandidate` projection preserves neither that
+resolution nor an atom; N5 therefore fails closed on `world_identity_unresolved` before N8 advisor
+selection. The first-vertical cold N4 run produced zero shadow-bound candidates, while the Stage-2
+data-gap receipt belongs to a different historical candidate and DesignProblem. Cross-candidate
+receipt reuse is forbidden by P32. Step 5 remains fenced pending an authorized owner-first identity
+bridge design and a disposition for the measured zero-shadow first-vertical denominator; the
+validator is not loosened and no second capture is spent to hunt for a favorable outcome.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

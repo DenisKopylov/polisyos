@@ -1739,6 +1739,9 @@ def capture_and_write_payload(repo_root: Path) -> bytes:
     output_path = root / OUTPUT_PATH
     if output_path.exists():
         raise UniversalityContractError("proof_capture_already_exists")
+    stability = check_provenance_stability(root)
+    if stability.get("status") != "stable":
+        raise UniversalityContractError("provenance_stability_failed")
     recordings = asyncio.run(_capture_proof_recordings(root))
     payload = asyncio.run(
         _complete_payload_from_recordings(root, recordings=recordings)

@@ -40,7 +40,10 @@ from polisyos.runtime.quality.design_axes.coupling_composition import (
     classify_coupling,
     derive_recursive_design_graph,
 )  # noqa: E402
-from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: E402
+from polisyos.runtime.quality.design_problem import (  # noqa: E402
+    DesignProblem,
+    DesignProblemAuthorityError,
+)
 from polisyos.runtime.quality.generation_cycle import (
     CandidateGroundingObservation,
     GenerationCycleController,
@@ -1093,6 +1096,7 @@ async def test_compiler_recording_replays_through_canonical_owner_lane0() -> Non
     problem, recording = await validator._capture_compiler_recording(
         role="unseen",
         raw_request=_PLAIN_LANGUAGE_PROOF_REQUESTS["unseen"],
+        model_id=validator.PROOF_MODEL_ID,
         gateway=gateway,
         span_gateway=span_gateway,
     )
@@ -1180,6 +1184,350 @@ def test_span_capture_uses_fresh_client_inside_each_event_loop(
     assert len(clients) == 2
     assert all(client.closed for client in clients)
     assert len(recorder.calls) == 2
+
+
+@pytest.mark.asyncio
+async def test_proof_capture_reuses_successful_local_owner_recordings(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A later lane failure must not spend an already-admitted provider result again."""
+
+    validator = _universality_contract_validator()
+    monkeypatch.setattr(validator, "_PROOF_CAPTURE_JOURNAL_DIR", "capture-cache")
+    expected: dict[str, dict[str, str]] = {}
+    for role, raw_request in _PLAIN_LANGUAGE_PROOF_REQUESTS.items():
+        compiler = {
+            "role": role,
+            "raw_request": raw_request,
+            "model_id": "owner-selected-compiler-model",
+        }
+        domain = {"role": role, "recording_content_hash": f"sha256:{role}"}
+        validator._write_local_recording(
+            validator._local_recording_path(
+                tmp_path,
+                role=role,
+                kind="compiler",
+            ),
+            compiler,
+        )
+        validator._write_local_recording(
+            validator._local_recording_path(
+                tmp_path,
+                role=role,
+                kind="domain",
+            ),
+            domain,
+        )
+        expected[role] = domain
+
+    async def _replay_compiler(recording: dict[str, str]) -> SimpleNamespace:
+        return SimpleNamespace(role=recording["role"])
+
+    async def _replay_domain(
+        repo_root: Path,
+        *,
+        role: str,
+        recording: dict[str, str],
+    ) -> dict[str, str]:
+        assert repo_root == tmp_path
+        assert recording["role"] == role
+        return {"role": role}
+
+    factory_module = import_module(
+        "polisyos.scientist.orchestration.llm.factory"
+    )
+
+    def _provider_must_not_run(**kwargs: Any) -> None:
+        raise AssertionError(f"successful local cache was ignored: {kwargs}")
+
+    monkeypatch.setattr(validator, "_replay_compiler_recording", _replay_compiler)
+    monkeypatch.setattr(validator, "_domain_run_from_recording", _replay_domain)
+    monkeypatch.setattr(
+        factory_module,
+        "create_traced_gateway_client",
+        _provider_must_not_run,
+    )
+
+    observed = await validator._capture_proof_recordings(tmp_path)
+
+    assert observed == expected
+
+
+@pytest.mark.asyncio
+async def test_proof_capture_advances_model_once_after_typed_compiler_refusal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A predetermined alternate gets one attempt; the refused model is not retried."""
+
+    validator = _universality_contract_validator()
+    monkeypatch.setattr(validator, "_PROOF_CAPTURE_JOURNAL_DIR", "capture-cache")
+    created_models: list[str] = []
+    attempts: list[tuple[str, str]] = []
+    closed_models: list[str] = []
+
+    class _Client:
+        def __init__(self, model_id: str) -> None:
+            self.model_id = model_id
+
+        async def aclose(self) -> None:
+            closed_models.append(self.model_id)
+
+    factory_module = import_module(
+        "polisyos.scientist.orchestration.llm.factory"
+    )
+
+    def _factory(*, model_name: str, **kwargs: Any) -> _Client:
+        del kwargs
+        created_models.append(model_name)
+        return _Client(model_name)
+
+    async def _capture_compiler(
+        *,
+        role: str,
+        raw_request: str,
+        model_id: str,
+        gateway: Any,
+        span_gateway: Any,
+    ) -> tuple[SimpleNamespace, dict[str, Any]]:
+        del gateway, span_gateway
+        assert raw_request == _PLAIN_LANGUAGE_PROOF_REQUESTS[role]
+        attempts.append((role, model_id))
+        if role == "first_vertical" and model_id == validator.PROOF_COMPILER_MODEL_PLAN[0]:
+            raise DesignProblemAuthorityError("design_problem_validation_failed")
+        return SimpleNamespace(role=role), {
+            "role": role,
+            "raw_request": raw_request,
+            "model_id": model_id,
+            "recording_content_hash": "sha256:" + "7" * 64,
+        }
+
+    async def _capture_domain(
+        repo_root: Path,
+        *,
+        role: str,
+        compiler_recording: dict[str, Any],
+        problem: SimpleNamespace,
+    ) -> dict[str, Any]:
+        assert repo_root == tmp_path
+        assert problem.role == role
+        return {
+            "role": role,
+            "compiler_model_id": compiler_recording["model_id"],
+            "recording_content_hash": "sha256:" + "8" * 64,
+        }
+
+    async def _replay_domain(
+        repo_root: Path,
+        *,
+        role: str,
+        recording: dict[str, Any],
+    ) -> dict[str, Any]:
+        assert repo_root == tmp_path
+        assert recording["role"] == role
+        return {"role": role}
+
+    monkeypatch.setattr(factory_module, "create_traced_gateway_client", _factory)
+    monkeypatch.setattr(validator, "_capture_compiler_recording", _capture_compiler)
+    monkeypatch.setattr(validator, "_capture_domain_run", _capture_domain)
+    monkeypatch.setattr(validator, "_domain_run_from_recording", _replay_domain)
+
+    observed = await validator._capture_proof_recordings(tmp_path)
+
+    assert attempts[:2] == [
+        ("first_vertical", validator.PROOF_COMPILER_MODEL_PLAN[0]),
+        ("first_vertical", validator.PROOF_COMPILER_MODEL_PLAN[1]),
+    ]
+    assert attempts.count(
+        ("first_vertical", validator.PROOF_COMPILER_MODEL_PLAN[0])
+    ) == 1
+    assert set(observed) == set(_PLAIN_LANGUAGE_PROOF_REQUESTS)
+    assert created_models == closed_models
+    journal_rows = [
+        json.loads(line)
+        for line in (
+            tmp_path / "capture-cache" / "capture.jsonl"
+        ).read_text(encoding="utf-8").splitlines()
+    ]
+    assert any(
+        row.get("event") == "compiler_capture_attempt_refused"
+        and row.get("role") == "first_vertical"
+        and row.get("model_id") == validator.PROOF_COMPILER_MODEL_PLAN[0]
+        for row in journal_rows
+    )
+
+
+@pytest.mark.asyncio
+async def test_proof_capture_resumes_without_second_cold_closeout_start(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A process restart continues the journaled cold run instead of minting another."""
+
+    validator = _universality_contract_validator()
+    monkeypatch.setattr(validator, "_PROOF_CAPTURE_JOURNAL_DIR", "capture-cache")
+    roles = tuple(_PLAIN_LANGUAGE_PROOF_REQUESTS)
+    for role, raw_request in _PLAIN_LANGUAGE_PROOF_REQUESTS.items():
+        validator._write_local_recording(
+            validator._local_recording_path(
+                tmp_path,
+                role=role,
+                kind="compiler",
+            ),
+            {
+                "role": role,
+                "raw_request": raw_request,
+                "model_id": "cached-compiler",
+            },
+        )
+    validator._write_local_recording(
+        validator._local_recording_path(
+            tmp_path,
+            role=roles[0],
+            kind="domain",
+        ),
+        {"role": roles[0], "recording_content_hash": "sha256:" + "4" * 64},
+    )
+    validator._append_capture_journal(
+        tmp_path,
+        {
+            "event": "cold_domain_closeout_started",
+            "roles": list(roles),
+            "artifact_write": "not_started",
+        },
+    )
+
+    async def _replay_compiler(recording: dict[str, Any]) -> SimpleNamespace:
+        return SimpleNamespace(role=recording["role"])
+
+    async def _capture_domain(
+        repo_root: Path,
+        *,
+        role: str,
+        compiler_recording: dict[str, Any],
+        problem: SimpleNamespace,
+    ) -> dict[str, Any]:
+        assert repo_root == tmp_path
+        assert compiler_recording["role"] == problem.role == role
+        return {"role": role, "recording_content_hash": "sha256:" + "5" * 64}
+
+    async def _replay_domain(
+        repo_root: Path,
+        *,
+        role: str,
+        recording: dict[str, Any],
+    ) -> dict[str, Any]:
+        assert repo_root == tmp_path
+        assert recording["role"] == role
+        return {"role": role}
+
+    factory_module = import_module(
+        "polisyos.scientist.orchestration.llm.factory"
+    )
+    monkeypatch.setattr(
+        factory_module,
+        "create_traced_gateway_client",
+        lambda **kwargs: pytest.fail(f"provider rerun on resume: {kwargs}"),
+    )
+    monkeypatch.setattr(validator, "_replay_compiler_recording", _replay_compiler)
+    monkeypatch.setattr(validator, "_capture_domain_run", _capture_domain)
+    monkeypatch.setattr(validator, "_domain_run_from_recording", _replay_domain)
+
+    await validator._capture_proof_recordings(tmp_path)
+
+    rows = [
+        json.loads(line)
+        for line in (
+            tmp_path / "capture-cache" / "capture.jsonl"
+        ).read_text(encoding="utf-8").splitlines()
+    ]
+    assert sum(
+        row.get("event") == "cold_domain_closeout_started" for row in rows
+    ) == 1
+    assert sum(
+        row.get("event") == "cold_domain_closeout_resumed" for row in rows
+    ) == 1
+
+
+@pytest.mark.asyncio
+async def test_domain_capture_separates_compiler_model_from_n4_controller(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Compiler replay uses its recorded model while N4 keeps its production model."""
+
+    validator = _universality_contract_validator()
+    monkeypatch.setattr(validator, "_PROOF_CAPTURE_JOURNAL_DIR", "capture-cache")
+    captured: dict[str, Any] = {}
+
+    class _Replay:
+        def __init__(self, recording: dict[str, Any]) -> None:
+            del recording
+
+        def assert_exhausted(self) -> None:
+            return None
+
+    class _Problem:
+        def model_dump(self, *, mode: str) -> dict[str, str]:
+            assert mode == "json"
+            return {"problem": "compiled"}
+
+    class _Compiled:
+        design_problem = _Problem()
+        content_hash = "sha256:" + "1" * 64
+
+        def model_dump(self, *, mode: str) -> dict[str, str]:
+            assert mode == "json"
+            return {"compiled": "run"}
+
+    async def _compile(**kwargs: Any) -> _Compiled:
+        captured.update(kwargs)
+        return _Compiled()
+
+    async def _n4_recording(
+        repo_root: Path,
+        **kwargs: Any,
+    ) -> tuple[dict[str, str], object]:
+        assert repo_root == tmp_path
+        del kwargs
+        return {"recording_content_hash": "sha256:" + "2" * 64}, object()
+
+    generation_cycle_module = import_module(
+        "polisyos.runtime.http.services.control.generation_cycle"
+    )
+    monkeypatch.setattr(
+        generation_cycle_module,
+        "compile_and_run_recursive_generation_cycle",
+        _compile,
+    )
+    monkeypatch.setattr(validator, "_ReplayGateway", _Replay)
+    monkeypatch.setattr(
+        validator,
+        "_cycle_context_for_problem",
+        lambda *args, **kwargs: None,
+    )
+    monkeypatch.setattr(validator, "_n4_recording_from_journal", _n4_recording)
+    monkeypatch.setattr(validator, "_assert_n4_cycle_binding", lambda *args: None)
+
+    compiler_recording = {
+        "raw_request": "plain language",
+        "context": {},
+        "model_id": "owner-selected-compiler-model",
+        "span_model_id": "span-model",
+        "span_calls": [],
+        "raw_request_content_hash": "sha256:" + "3" * 64,
+    }
+    await validator._capture_domain_run(
+        tmp_path,
+        role="unseen",
+        compiler_recording=compiler_recording,
+        problem=_Problem(),
+    )
+
+    assert captured["model_name"] == "owner-selected-compiler-model"
+    assert captured["controller"] is not None
+    assert captured["controller"]._leaf_model_id == validator.PROOF_MODEL_ID
 
 
 def test_universality_task13_payload_is_complete_and_fork_b_honest() -> None:

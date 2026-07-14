@@ -77,6 +77,10 @@ COMPOSITION_PATH = (
 )
 
 PROOF_MODEL_ID = "moonshotai/Kimi-K2.6"
+PROOF_COMPILER_MODEL_PLAN = (
+    "MiniMaxAI/MiniMax-M2.7",
+    "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+)
 PLAIN_LANGUAGE_PROOF_REQUESTS = {
     "first_vertical": (
         "Design a policy to improve average household income and MSME survival in "
@@ -135,10 +139,18 @@ class UniversalityContractError(RuntimeError):
 class _RecordingGateway:
     """Capture one real compiler response denominator for deterministic replay."""
 
-    def __init__(self, inner: object) -> None:
+    def __init__(
+        self,
+        inner: object,
+        *,
+        journal_path: Path | None = None,
+        journal_context: Mapping[str, Any] | None = None,
+    ) -> None:
         self._inner = inner
         self.calls: list[dict[str, Any]] = []
         self.model_ids: list[str] = []
+        self._journal_path = journal_path
+        self._journal_context = dict(journal_context or {})
 
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         method = getattr(self._inner, "list_model_ids", None)
@@ -162,15 +174,32 @@ class _RecordingGateway:
             "response_content_hash": _semantic_hash(response_payload),
         }
         self.calls.append(row)
+        if self._journal_path is not None:
+            _append_jsonl(
+                self._journal_path,
+                {
+                    **self._journal_context,
+                    "event": "compiler_gateway_response_captured",
+                    "call": row,
+                },
+            )
         return response
 
 
 class _FreshRecordingSpanGateway:
     """Create/close one live verifier client inside each fresh-loop judgment."""
 
-    def __init__(self, *, model_id: str) -> None:
+    def __init__(
+        self,
+        *,
+        model_id: str,
+        journal_path: Path | None = None,
+        journal_context: Mapping[str, Any] | None = None,
+    ) -> None:
         self.model_id = model_id
         self.calls: list[dict[str, Any]] = []
+        self._journal_path = journal_path
+        self._journal_context = dict(journal_context or {})
 
     async def generate(self, **kwargs: Any) -> object:
         from polisyos.scientist.orchestration.llm.factory import (
@@ -198,6 +227,15 @@ class _FreshRecordingSpanGateway:
             "response_content_hash": _semantic_hash(response_payload),
         }
         self.calls.append(row)
+        if self._journal_path is not None:
+            _append_jsonl(
+                self._journal_path,
+                {
+                    **self._journal_context,
+                    "event": "span_gateway_response_captured",
+                    "call": row,
+                },
+            )
         return response
 
 
@@ -348,6 +386,7 @@ async def _capture_compiler_recording(
     *,
     role: str,
     raw_request: str,
+    model_id: str,
     gateway: _RecordingGateway,
     span_gateway: object,
 ) -> tuple[object, dict[str, Any]]:
@@ -367,7 +406,7 @@ async def _capture_compiler_recording(
     problem = await build_design_problem_from_nl_request(
         nl_request=raw_request,
         context=context,
-        model_name=PROOF_MODEL_ID,
+        model_name=model_id,
         gateway_client=gateway,
         span_support_client=span_gateway,
     )
@@ -379,10 +418,10 @@ async def _capture_compiler_recording(
         "schema_version": "policyos.layer3.gy.n10.compiler_recording.v1",
         "recording_source": "live_gateway_canonical_design_problem_compiler",
         "role": role,
-        "model_id": PROOF_MODEL_ID,
+        "model_id": model_id,
         "model_ids": list(gateway.model_ids),
         "span_model_id": str(
-            getattr(span_gateway, "model_id", PROOF_MODEL_ID)
+            getattr(span_gateway, "model_id", model_id)
         ),
         "raw_request": raw_request,
         "raw_request_content_hash": gy_content_hash({"raw_request": raw_request}),
@@ -659,9 +698,58 @@ def _append_capture_journal(repo_root: Path, payload: Mapping[str, Any]) -> None
     """Persist operational intent/result before any authoritative artifact write."""
 
     path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "capture.jsonl"
+    _append_jsonl(path, payload)
+
+
+def _append_jsonl(path: Path, payload: Mapping[str, Any]) -> None:
+    """Append one canonical local evidence row without entering contract identity."""
+
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a", encoding="utf-8") as stream:
         stream.write(_canonical_json(payload) + "\n")
+
+
+def _capture_journal_has_event(repo_root: Path, event: str) -> bool:
+    """Return whether the ignored operational journal already records an event."""
+
+    path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "capture.jsonl"
+    if not path.is_file():
+        return False
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        try:
+            row = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise UniversalityContractError(
+                "proof_capture_journal_invalid"
+            ) from exc
+        if isinstance(row, Mapping) and row.get("event") == event:
+            return True
+    return False
+
+
+def _local_recording_path(repo_root: Path, *, role: str, kind: str) -> Path:
+    """Return the ignored set-accumulation path for one proof role/kind."""
+
+    return repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{role}-{kind}-recording.json"
+
+
+def _write_local_recording(path: Path, recording: Mapping[str, Any]) -> None:
+    """Persist a byte-stable local cache only after owner replay validation."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_suffix(path.suffix + ".tmp")
+    temporary.write_text(_canonical_json(recording) + "\n", encoding="utf-8")
+    temporary.replace(path)
+
+
+def _read_local_recording(path: Path) -> dict[str, Any] | None:
+    """Load one prior successful local recording without treating absence as evidence."""
+
+    if not path.is_file():
+        return None
+    return _read_json(path)
 
 
 async def _capture_domain_run(
@@ -677,7 +765,10 @@ async def _capture_domain_run(
     from polisyos.runtime.http.services.control.generation_cycle import (
         compile_and_run_recursive_generation_cycle,
     )
-    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCycleBudget,
+        build_default_recursive_generation_cycle_controller,
+    )
     from polisyos.scientist.orchestration.engine.budget import (
         BudgetLimit,
         BudgetState,
@@ -717,11 +808,16 @@ async def _capture_domain_run(
     with _temporary_environment(
         {**_N4_CAPTURE_ENV, "POLISYOS_N4_CALL_JOURNAL_PATH": str(journal_path)}
     ):
+        controller = build_default_recursive_generation_cycle_controller(
+            repo_root=repo_root,
+            model_id=PROOF_MODEL_ID,
+        )
         compiled = await compile_and_run_recursive_generation_cycle(
             raw_request=str(compiler_recording.get("raw_request") or ""),
             context=_mapping(compiler_recording.get("context")),
-            model_name=PROOF_MODEL_ID,
+            model_name=str(compiler_recording.get("model_id") or ""),
             compiler_gateway=replay,
+            controller=controller,
             span_support_client=span_replay,
             budget_state=BudgetState(
                 limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
@@ -800,8 +896,9 @@ def _assert_n4_cycle_binding(compiled: object, organ_run: object) -> None:
 
 
 async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
-    """Execute the single journal-first cold closeout and return replayable evidence."""
+    """Accumulate compiler evidence, then execute one resumable cold closeout."""
 
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
     from polisyos.scientist.orchestration.llm.factory import (
         create_traced_gateway_client,
     )
@@ -812,45 +909,201 @@ async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
     _append_capture_journal(
         repo_root,
         {
-            "event": "cold_closeout_started",
+            "event": "proof_capture_pipeline_started",
             "roles": list(PLAIN_LANGUAGE_PROOF_REQUESTS),
-            "model_id": PROOF_MODEL_ID,
+            "compiler_model_plan": list(PROOF_COMPILER_MODEL_PLAN),
+            "n4_model_id": PROOF_MODEL_ID,
             "artifact_write": "not_started",
         },
     )
-    inner = create_traced_gateway_client(
-        model_name=PROOF_MODEL_ID,
-        run_id="gy_n10_stage4_plain_language_compiler",
-        model_variant_id="gy-n10-stage4",
-    )
-    if inner is None:
-        raise UniversalityContractError("proof_compiler_gateway_unavailable")
-    gateway = _RecordingGateway(inner)
-    span_gateway = _FreshRecordingSpanGateway(
-        model_id=SPAN_SUPPORT_GATEWAY_MODEL_ID
-    )
     compiled: dict[str, tuple[object, dict[str, Any]]] = {}
-    try:
-        for role, raw_request in PLAIN_LANGUAGE_PROOF_REQUESTS.items():
-            compiled[role] = await _capture_compiler_recording(
-                role=role,
-                raw_request=raw_request,
-                gateway=gateway,
-                span_gateway=span_gateway,
+    journal_path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "capture.jsonl"
+    for role, raw_request in PLAIN_LANGUAGE_PROOF_REQUESTS.items():
+        cache_path = _local_recording_path(
+            repo_root,
+            role=role,
+            kind="compiler",
+        )
+        cached = _read_local_recording(cache_path)
+        if cached is not None:
+            if cached.get("role") != role or cached.get("raw_request") != raw_request:
+                raise UniversalityContractError(
+                    f"compiler_local_cache_identity_mismatch:{role}"
+                )
+            problem = await _replay_compiler_recording(cached)
+            compiled[role] = (problem, cached)
+            _append_capture_journal(
+                repo_root,
+                {
+                    "event": "compiler_local_recording_reused",
+                    "role": role,
+                    "model_id": cached.get("model_id"),
+                    "recording_content_hash": cached.get(
+                        "recording_content_hash"
+                    ),
+                },
             )
-    finally:
-        close = getattr(inner, "aclose", None)
-        if callable(close):
-            await close()
+            continue
+
+        for model_id in PROOF_COMPILER_MODEL_PLAN:
+            _append_capture_journal(
+                repo_root,
+                {
+                    "event": "compiler_capture_attempt_started",
+                    "role": role,
+                    "model_id": model_id,
+                    "artifact_write": "not_started",
+                },
+            )
+            inner = create_traced_gateway_client(
+                model_name=model_id,
+                run_id=f"gy_n10_stage4_plain_language_compiler_{role}",
+                model_variant_id="gy-n10-stage4",
+            )
+            if inner is None:
+                _append_capture_journal(
+                    repo_root,
+                    {
+                        "event": "compiler_capture_attempt_refused",
+                        "role": role,
+                        "model_id": model_id,
+                        "error_code": "proof_compiler_gateway_unavailable",
+                    },
+                )
+                continue
+            gateway = _RecordingGateway(
+                inner,
+                journal_path=journal_path,
+                journal_context={"role": role, "model_id": model_id},
+            )
+            span_gateway = _FreshRecordingSpanGateway(
+                model_id=SPAN_SUPPORT_GATEWAY_MODEL_ID,
+                journal_path=journal_path,
+                journal_context={
+                    "role": role,
+                    "compiler_model_id": model_id,
+                },
+            )
+            try:
+                problem, recording = await _capture_compiler_recording(
+                    role=role,
+                    raw_request=raw_request,
+                    model_id=model_id,
+                    gateway=gateway,
+                    span_gateway=span_gateway,
+                )
+            except DesignProblemAuthorityError as exc:
+                _append_capture_journal(
+                    repo_root,
+                    {
+                        "event": "compiler_capture_attempt_refused",
+                        "role": role,
+                        "model_id": model_id,
+                        "error_code": exc.code,
+                        "error_type": type(exc).__name__,
+                    },
+                )
+            else:
+                _write_local_recording(cache_path, recording)
+                compiled[role] = (problem, recording)
+                _append_capture_journal(
+                    repo_root,
+                    {
+                        "event": "compiler_capture_attempt_succeeded",
+                        "role": role,
+                        "model_id": model_id,
+                        "recording_content_hash": recording.get(
+                            "recording_content_hash"
+                        ),
+                    },
+                )
+                break
+            finally:
+                close = getattr(inner, "aclose", None)
+                if callable(close):
+                    await close()
+        else:
+            raise UniversalityContractError(
+                f"proof_compiler_attempts_exhausted:{role}"
+            )
 
     domain_recordings: dict[str, Any] = {}
+    missing_domain_roles = [
+        role
+        for role in PLAIN_LANGUAGE_PROOF_REQUESTS
+        if _read_local_recording(
+            _local_recording_path(repo_root, role=role, kind="domain")
+        )
+        is None
+    ]
+    if missing_domain_roles:
+        event = (
+            "cold_domain_closeout_resumed"
+            if _capture_journal_has_event(
+                repo_root,
+                "cold_domain_closeout_started",
+            )
+            else "cold_domain_closeout_started"
+        )
+        _append_capture_journal(
+            repo_root,
+            {
+                "event": event,
+                "roles": missing_domain_roles,
+                "artifact_write": "not_started",
+            },
+        )
     for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
         problem, compiler_recording = compiled[role]
-        domain_recordings[role] = await _capture_domain_run(
+        cache_path = _local_recording_path(
+            repo_root,
+            role=role,
+            kind="domain",
+        )
+        cached = _read_local_recording(cache_path)
+        if cached is not None:
+            if cached.get("role") != role:
+                raise UniversalityContractError(
+                    f"domain_local_cache_identity_mismatch:{role}"
+                )
+            await _domain_run_from_recording(
+                repo_root,
+                role=role,
+                recording=cached,
+            )
+            domain_recordings[role] = cached
+            _append_capture_journal(
+                repo_root,
+                {
+                    "event": "domain_local_recording_reused",
+                    "role": role,
+                    "recording_content_hash": cached.get(
+                        "recording_content_hash"
+                    ),
+                },
+            )
+            continue
+        recording = await _capture_domain_run(
             repo_root,
             role=role,
             compiler_recording=compiler_recording,
             problem=problem,
+        )
+        await _domain_run_from_recording(
+            repo_root,
+            role=role,
+            recording=recording,
+        )
+        _write_local_recording(cache_path, recording)
+        domain_recordings[role] = recording
+    if missing_domain_roles:
+        _append_capture_journal(
+            repo_root,
+            {
+                "event": "cold_domain_closeout_completed",
+                "roles": missing_domain_roles,
+                "artifact_write": "not_started",
+            },
         )
     return domain_recordings
 

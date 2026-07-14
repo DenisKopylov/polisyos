@@ -1764,6 +1764,16 @@ python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py -k 'fi
 
 Use content-addressed compiler recordings keyed by raw request, tool schema, provider/model, and raw response. Use Lane-0 mini-worlds for logic, cached owner data for Lane 1, and journal the one cold two-domain closeout before invoking live owners. Capture wall time outside content hashes.
 
+Capture-resilience addendum (2026-07-14): normalized compiler/span responses are appended to the
+ignored operational journal before strict `DesignProblem` admission. A response becomes a reusable
+local recording only after canonical-owner replay succeeds, and the recording is replaced
+atomically. The predetermined alternate compiler plan gives each model at most one attempt per raw
+request; typed compiler refusals advance to the next model without retrying the refused model.
+Compiler replay uses the model recorded in that receipt, while the explicitly constructed
+production recursive controller retains the independently configured N4 leaf model. A partial
+domain closeout is resumed from replay-validated local recordings and cannot mint a second
+`cold_domain_closeout_started` event.
+
 - [ ] **Step 4: Run one cold two-domain closeout serially with full budget, or record the exact cloud blocker.**
 
 Do not retry concurrently. A missing credential/provider is recorded as a cloud residual; it may not be replaced by a fixture DTO.

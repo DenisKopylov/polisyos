@@ -1529,32 +1529,19 @@ class FoundryValuePort:
                 started=started,
                 candidate_id=candidate_id,
             )
-        if self._cycle_substrate_context is not None:
-            from polisyos.runtime.quality.cycle_substrate import (
-                resolve_cycle_substrate_world_identity,
+        if (
+            self._cycle_substrate_context is not None
+            and not _candidate_estimand_binding_is_unresolved(candidate)
+        ):
+            world_identity_error = _value_candidate_world_identity_error(
+                cycle_substrate_context=self._cycle_substrate_context,
+                candidate=candidate,
+                world_record=world_record,
             )
-
-            atom = _object_get(candidate, "atom")
-            try:
-                resolved_world = resolve_cycle_substrate_world_identity(
-                    self._cycle_substrate_context,
-                    atom=atom,
-                )
-            except (TypeError, WorldModelRecordError) as exc:
+            if world_identity_error is not None:
                 return _blocked_value_observation(
                     code="world_identity_unresolved",
-                    reason=f"N8 candidate world identity refused: {exc}",
-                    mode=mode,
-                    started=started,
-                    candidate_id=candidate_id,
-                    world_model_record_content_hash=str(
-                        _object_get(world_record, "content_hash")
-                    ),
-                )
-            if resolved_world.world_model_record_content_hash != world_record.content_hash:
-                return _blocked_value_observation(
-                    code="world_identity_unresolved",
-                    reason="N8 simulation WMR differs from the resolved candidate world.",
+                    reason=world_identity_error,
                     mode=mode,
                     started=started,
                     candidate_id=candidate_id,
@@ -3244,6 +3231,30 @@ def _candidate_estimand_binding_is_unresolved(candidate: object) -> bool:
     return status == "candidate_unbound" or (
         bool(disposition) and disposition != "shadow_bound"
     )
+
+
+def _value_candidate_world_identity_error(
+    *,
+    cycle_substrate_context: CycleSubstrateContext,
+    candidate: object,
+    world_record: WorldModelRecord,
+) -> str | None:
+    """Resolve a bound candidate against the exact cycle world or explain refusal."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        resolve_cycle_substrate_world_identity,
+    )
+
+    try:
+        resolved_world = resolve_cycle_substrate_world_identity(
+            cycle_substrate_context,
+            atom=_object_get(candidate, "atom"),
+        )
+    except (TypeError, WorldModelRecordError) as exc:
+        return f"N8 candidate world identity refused: {exc}"
+    if resolved_world.world_model_record_content_hash != world_record.content_hash:
+        return "N8 simulation WMR differs from the resolved candidate world."
+    return None
 
 
 def _build_boundary_world_model_record(

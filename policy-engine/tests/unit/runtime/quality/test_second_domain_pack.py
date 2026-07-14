@@ -104,6 +104,120 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
     assert not second_domain_pack.validate_bundle_payloads(bundle, REPO_ROOT)
 
 
+def _candidate_unbound_world_identity_witness() -> tuple[dict[str, object], dict[str, object]]:
+    """Return the minimal strict Stage-1 world-resolution witness."""
+
+    trace = {
+        "substrate_input_content_hash": "sha256:" + "1" * 64,
+        "world_model_record_content_hash": "sha256:" + "2" * 64,
+    }
+    stages = {
+        "grounding": {
+            "disposition": "novel_cg3",
+            "lever_resolution_status": "candidate_unbound",
+            "lever_resolution_content_hash": "sha256:" + "3" * 64,
+            "selected_registry_entry_hash": "sha256:" + "4" * 64,
+            "substrate_input_content_hash": trace["substrate_input_content_hash"],
+            "context_binding_hash": "sha256:" + "5" * 64,
+            "world_model_record_content_hash": trace[
+                "world_model_record_content_hash"
+            ],
+        },
+        "world_model": {
+            "object_identity_reused": False,
+            "identity_evidence_kind": "grounding_candidate_unbound_resolution",
+            "context_binding_hash": "sha256:" + "5" * 64,
+            "world_model_record_content_hash": trace[
+                "world_model_record_content_hash"
+            ],
+            "selected_registry_entry_hashes": ["sha256:" + "4" * 64],
+            "simulation_status": "simulation_blocked",
+        },
+    }
+    return trace, stages
+
+
+def test_candidate_unbound_resolution_proves_exact_stage_world_identity() -> None:
+    """An honest L6 refusal may bind the WMR even when N5 cannot run."""
+
+    trace, stages = _candidate_unbound_world_identity_witness()
+
+    assert second_domain_pack._recompute_stage_world_identity_evidence(
+        stages,
+        cycle_trace=trace,
+    ) == "grounding_candidate_unbound_resolution"
+
+
+def test_candidate_unbound_world_identity_rejects_cross_world_resolution() -> None:
+    """A refusal for another WMR cannot close the boundary-world bridge."""
+
+    trace, stages = _candidate_unbound_world_identity_witness()
+    stages["grounding"]["world_model_record_content_hash"] = "sha256:" + "9" * 64
+
+    assert second_domain_pack._recompute_stage_world_identity_evidence(
+        stages,
+        cycle_trace=trace,
+    ) == "unresolved"
+
+
+def test_stage_world_identity_recomputes_instead_of_trusting_evidence_label() -> None:
+    """A self-attested evidence kind cannot repair a mismatched context."""
+
+    trace, stages = _candidate_unbound_world_identity_witness()
+    stages["world_model"]["context_binding_hash"] = "sha256:" + "8" * 64
+    assert stages["world_model"]["identity_evidence_kind"] == (
+        "grounding_candidate_unbound_resolution"
+    )
+
+    assert second_domain_pack._recompute_stage_world_identity_evidence(
+        stages,
+        cycle_trace=trace,
+    ) == "unresolved"
+
+
+def test_n8_transport_gap_closes_from_pack_and_unseen_behavioral_proofs() -> None:
+    """Close A1 only from the validated pack lane plus a generic unseen lane."""
+
+    payload = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    evidence = second_domain_pack._n8_transport_gap_closure(
+        payload,
+        expected_education_covariates=("education_spending", "school_quality"),
+    )
+
+    assert evidence["closed"] is True
+    assert evidence["education_covariates"] == [
+        "education_spending",
+        "school_quality",
+    ]
+    assert evidence["unseen_covariates"] == ["watershed_slope"]
+    assert str(evidence["receipt_ref"]).startswith("sha256:")
+
+
+def test_n8_transport_gap_refuses_a_valid_but_wrong_pack_vocabulary() -> None:
+    """An N8 receipt cannot close another pack's transport bridge by shape."""
+
+    payload = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    evidence = second_domain_pack._n8_transport_gap_closure(
+        payload,
+        expected_education_covariates=("state_capacity",),
+    )
+
+    assert evidence["closed"] is False
+    assert evidence["reason_code"] == "n8_education_transport_vocabulary_mismatch"
+
+
 def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> None:
     """The Stage-1 trace uses real N4/L6/WMR owners and beats the N10a baseline."""
 
@@ -139,10 +253,17 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> 
         for row in frozen["pack"]["components"]["lever_vocabulary"]["entries"]
     }
     assert stage["grounding"]["lever_resolution_content_hash"].startswith("sha256:")
-    assert stage["world_model"]["object_identity_reused"] is True
     assert stage["world_model"]["world_model_record_content_hash"] == trace[
         "world_model_record_content_hash"
     ]
+    world_identity_evidence = (
+        second_domain_pack._recompute_stage_world_identity_evidence(
+            stage,
+            cycle_trace=trace,
+        )
+    )
+    assert world_identity_evidence != "unresolved"
+    assert stage["world_model"]["identity_evidence_kind"] == world_identity_evidence
     assert stage["cycle_terminal"]["terminal_kind"] == (
         second_domain_pack.expected_cycle_terminal_for_disposition(
             stage["grounding"]["disposition"]
@@ -636,8 +757,8 @@ def test_committed_pack_projects_into_real_cycle_substrate_context() -> None:
     } == {"education_spending", "school_quality"}
 
 
-def test_pack_projector_rejects_wmr_for_another_problem() -> None:
-    """A valid WMR cannot be substituted across DesignProblem/domain boundaries."""
+def test_pack_projector_records_wmr_domain_label_drift_as_provenance() -> None:
+    """Producer-scoped domain labels do not override content-bound world identity."""
 
     bundle = second_domain_pack._load_frozen_bundle(REPO_ROOT)
     pack = bundle["pack"]
@@ -658,13 +779,16 @@ def test_pack_projector_rejects_wmr_for_another_problem() -> None:
         selected_registry_entry_hashes=selected_hashes,
     )
 
-    with pytest.raises(ValueError, match="cycle_substrate_wmr_domain_mismatch"):
-        second_domain_pack.project_second_domain_cycle_substrate_context(
-            bundle,
-            repo_root=REPO_ROOT,
-            design_problem=problem,
-            world_model_record=record,
-        )
+    context = second_domain_pack.project_second_domain_cycle_substrate_context(
+        bundle,
+        repo_root=REPO_ROOT,
+        design_problem=problem,
+        world_model_record=record,
+    )
+
+    assert context.domain == "education"
+    assert context.world_model_record.policy_domain == "water_quality"
+    assert context.world_model_record_content_hash == record.content_hash
 
 
 @pytest.mark.parametrize("mutation", ["missing", "repointed"])
@@ -1164,8 +1288,162 @@ def test_first_vertical_contamination_is_rejected(live_bundle: dict[str, object]
     }
 
     assert "distinctness_outcome_overlap" in codes
-    assert "distinctness_covariate_overlap" in codes
+    assert "transport_context_denominator_invalid" in codes
     assert "distinctness_lever_overlap" in codes
+
+
+def _n8_transport_projection_payload() -> dict[str, object]:
+    first_vertical = {
+        "schema_version": "policyos.layer3.gy.n8.transport_component_proof.v1",
+        "rule_version": "policyos.layer3.gy.n8.transport_context.v2",
+        "domain_role": "first_vertical",
+        "domain": "ua_msme_cgf_decisive_capture",
+        "design_problem_ref": "sha256:" + "a" * 64,
+        "candidate_id": "candidate_b5d5d03eee11c6a6",
+        "candidate_content_hash": "sha256:" + "b" * 64,
+        "component_scope_only": True,
+        "production_value_eligible": False,
+        "data_owner": "L1_DCAT_ds_observations",
+        "context_source": "canonical_first_vertical_cycle_substrate_context",
+        "cycle_substrate_context_content_hash": "sha256:" + "0" * 64,
+        "context_binding_hash": "sha256:" + "1" * 64,
+        "world_model_record_id": "world_model_record_2222222222222222",
+        "world_model_record_content_hash": "sha256:" + "2" * 64,
+        "transport_covariates": [],
+        "query_treatment": "credit_guarantee_reform",
+        "query_outcome": "employment_retention",
+        "outcome_kind": "typed_refusal",
+        "required_target_data": [],
+        "selection_diagram_content_hash": None,
+        "selection_nodes": [],
+        "transport_receipt": None,
+        "transport_result_content_hash": None,
+        "typed_refusal": {
+            "code": "acquire_data:transport_context_unresolved",
+            "reason": "content-bound source/target transport measurements are absent",
+            "owner_access_ref": "sha256:" + "0" * 64,
+        },
+        "value_gate_receipt": None,
+    }
+    first_vertical["proof_content_hash"] = gy_content_hash(first_vertical)
+    return {
+        "schema_version": "policyos.policy_design_case.layer3_gy.value_gate_contract.v2",
+        "production_refusal": {"content_hash": "sha256:" + "3" * 64},
+        "education_refusal": {"content_hash": "sha256:" + "4" * 64},
+        "transport_component_proofs": {
+            "first_vertical": first_vertical,
+            "education": {
+                "required_target_data": ["education_spending", "school_quality"]
+            },
+        },
+    }
+
+
+def test_n8_first_vertical_projection_is_acyclic_and_domain_isolated() -> None:
+    payload = _n8_transport_projection_payload()
+    baseline = second_domain_pack._n8_first_vertical_transport_projection(payload)
+
+    payload["education_refusal"] = {"content_hash": "sha256:" + "9" * 64}
+    payload["production_refusal"] = {"content_hash": "sha256:" + "8" * 64}
+    payload["transport_component_proofs"]["education"]["required_target_data"] = [
+        "changed_education_covariate"
+    ]
+
+    assert second_domain_pack._n8_first_vertical_transport_projection(payload) == baseline
+    assert baseline["required_target_data"] == []
+    assert baseline["outcome_kind"] == "typed_refusal"
+    assert baseline["typed_refusal_code"] == (
+        "acquire_data:transport_context_unresolved"
+    )
+    assert baseline["transport_comparison_status"] == (
+        "not_evaluated_first_vertical_context_unresolved"
+    )
+
+
+def test_unresolved_first_vertical_transport_does_not_award_distinctness() -> None:
+    candidate = {
+        "l1_dcat": {
+            "total_observations": 10,
+            "total_datasets": 2,
+            "nonpanel_variable_count": 1,
+        },
+        "l2_scholar_kg": {
+            "causal_claim_count": 1,
+            "parameter_estimate_count": 1,
+            "transport_score_count": 1,
+            "lever_cause_count": 1,
+        },
+        "lever_feasibility": {
+            "l6_writability_attempts": [{"status": "candidate_unbound"}],
+            "l6_positive_writable_count": 0,
+        },
+        "transport_feasibility": {"jointly_measured_transport_count": 1},
+        "distinctness_preflight": {
+            "outcome_overlap": [],
+            "lever_overlap": [],
+            "not_ua_single_unit": True,
+            "transport_covariate_check": {
+                "comparison_status": (
+                    "not_evaluated_first_vertical_context_unresolved"
+                ),
+                "first_vertical_overlap": [],
+            },
+        },
+    }
+
+    ranking = second_domain_pack._rank_candidates({"education": candidate})
+
+    assert ranking[0]["score_components"]["distinctness_preflight"] == 0.0
+
+
+def test_n8_first_vertical_projection_rejects_missing_or_forged_row() -> None:
+    missing = _n8_transport_projection_payload()
+    missing["transport_component_proofs"].pop("first_vertical")
+    missing["transport_component_proofs"]["education"] = {
+        "required_target_data": ["state_capacity"]
+    }
+    with pytest.raises(ValueError, match="n8_first_vertical_transport_proof_missing"):
+        second_domain_pack._n8_first_vertical_transport_projection(missing)
+
+    forged = _n8_transport_projection_payload()
+    forged["transport_component_proofs"]["first_vertical"][
+        "context_binding_hash"
+    ] = "sha256:" + "f" * 64
+    with pytest.raises(ValueError, match="n8_first_vertical_transport_proof_hash_mismatch"):
+        second_domain_pack._n8_first_vertical_transport_projection(forged)
+
+    incoherent = _n8_transport_projection_payload()
+    row = incoherent["transport_component_proofs"]["first_vertical"]
+    row["outcome_kind"] = "transport_receipt"
+    row["proof_content_hash"] = gy_content_hash(
+        {key: value for key, value in row.items() if key != "proof_content_hash"}
+    )
+    with pytest.raises(ValueError, match="n8_first_vertical_transport_proof_incoherent"):
+        second_domain_pack._n8_first_vertical_transport_projection(incoherent)
+
+
+def test_n8_semantic_projection_hash_is_repo_relative(tmp_path: Path) -> None:
+    projection = second_domain_pack._n8_first_vertical_transport_projection(
+        _n8_transport_projection_payload()
+    )
+    root_a = tmp_path / "checkout-a"
+    root_b = tmp_path / "checkout-b"
+    relative = Path("architecture/policy_design_case/layer3_gy_value_gate_contract.json")
+
+    hash_a = second_domain_pack._source_projection_content_hash(
+        root_a,
+        root_a / relative,
+        projection,
+    )
+    hash_b = second_domain_pack._source_projection_content_hash(
+        root_b,
+        root_b / relative,
+        projection,
+    )
+
+    assert hash_a == hash_b
+    assert str(root_a) not in hash_a
+    assert str(root_b) not in hash_b
 
 
 def test_crash_or_mismatch_trace_cannot_be_labeled_honest(

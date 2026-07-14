@@ -9,6 +9,7 @@
         "not_ua_single_unit": true,
         "outcome_overlap": [],
         "transport_covariate_check": {
+          "comparison_status": "not_evaluated_first_vertical_context_unresolved",
           "first_vertical_overlap": [],
           "jointly_measured_transport_canonical_vars": [
             "education_spending",
@@ -302,6 +303,7 @@
         "not_ua_single_unit": true,
         "outcome_overlap": [],
         "transport_covariate_check": {
+          "comparison_status": "not_evaluated_first_vertical_context_unresolved",
           "first_vertical_overlap": [],
           "jointly_measured_transport_canonical_vars": [
             "air_quality_index",
@@ -587,6 +589,7 @@
         "not_ua_single_unit": true,
         "outcome_overlap": [],
         "transport_covariate_check": {
+          "comparison_status": "not_evaluated_first_vertical_context_unresolved",
           "first_vertical_overlap": [],
           "jointly_measured_transport_canonical_vars": [
             "infant_mortality",
@@ -912,7 +915,7 @@
       }
     }
   },
-  "census_content_hash": "sha256:ee130557a671e51a79eb426ea78a18dc9d4704db37f2b3e0b7a13aeace6c7211",
+  "census_content_hash": "sha256:0e0708618a078784605240c0386b519b6d47627140d9b4371c807a1acd282e37",
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
@@ -925,9 +928,9 @@
         "candidate_id": "education",
         "eligible": true,
         "ineligible_reasons": [],
-        "score": 0.856006,
+        "score": 0.756006,
         "score_components": {
-          "distinctness_preflight": 1.0,
+          "distinctness_preflight": 0.0,
           "l1_outcome_coverage": 1.0,
           "l2_grounding_coverage": 0.789777,
           "lever_vocabulary": 0.390415,
@@ -938,9 +941,9 @@
         "candidate_id": "health",
         "eligible": true,
         "ineligible_reasons": [],
-        "score": 0.811444,
+        "score": 0.711444,
         "score_components": {
-          "distinctness_preflight": 1.0,
+          "distinctness_preflight": 0.0,
           "l1_outcome_coverage": 0.716111,
           "l2_grounding_coverage": 1.0,
           "lever_vocabulary": 0.5,
@@ -951,9 +954,9 @@
         "candidate_id": "environment_energy_transition",
         "eligible": true,
         "ineligible_reasons": [],
-        "score": 0.757367,
+        "score": 0.657367,
         "score_components": {
-          "distinctness_preflight": 1.0,
+          "distinctness_preflight": 0.0,
           "l1_outcome_coverage": 0.621333,
           "l2_grounding_coverage": 0.954785,
           "lever_vocabulary": 0.46758,
@@ -981,12 +984,10 @@
     "source_hashes": {
       "architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:71c179ec9efe2e207bd7d00f6940999bc3851927139a60d130ae4db7960dbc64",
       "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json": "sha256:afad5207c99d5ad2bcc72a4e936928dcff4875219f441e30cc0a0917f5a0cfbe",
-      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:7b62344946f3bc8d1c2f2f6d204979ab00ca0c7fa4f715636b0a7c6d3d66b232"
+      "architecture/policy_design_case/layer3_gy_value_gate_contract.json": "sha256:62d57d5b23457af78782298302d3ecb4d9c6db3722f9491d6116b99a051a6b47"
     },
-    "transport_covariates": [
-      "institutional_quality",
-      "state_capacity"
-    ]
+    "transport_comparison_status": "not_evaluated_first_vertical_context_unresolved",
+    "transport_covariates": []
   },
   "owner_paths": {
     "l1_dcat": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
@@ -1814,9 +1815,9 @@
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
     "query_timings_seconds": {
-      "l1_candidate_aggregate": 0.096583,
-      "l2_candidate_aggregate": 0.035699,
-      "l2_candidate_exact_measure_names": 0.012959
+      "l1_candidate_aggregate": 0.135944,
+      "l2_candidate_aggregate": 0.036281,
+      "l2_candidate_exact_measure_names": 0.013887
     }
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"

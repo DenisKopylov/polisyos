@@ -1175,7 +1175,7 @@ git commit -m "feat: project typed Foundry value evidence"
   content-bound substrate owner. Missing or caller-supplied assignment returns
   `treatment_assignment_not_owner_derived` before estimator dispatch.
 
-- [ ] **Step 1: Commit the independent A2 strict seam.**
+- [x] **Step 1: Commit the independent A2 strict seam.**
 
 Land the advisor-denominator filter/model guard, explicit truthfulness refusal,
 education-refusal receipt preservation, unknown-selection-authority refusal,
@@ -1242,7 +1242,7 @@ green; genuine advisor-selected education refusal retained; N8 frozen/live/mutat
 gates green. Stages 3-4 remain authorized because universality is typed terminal
 honesty, not positive-rate manufacture.
 
-- [ ] **Step 3: Write the Fork-B owner-intake and acquisition-route RED tests.**
+- [x] **Step 3: Write the Fork-B owner-intake and acquisition-route RED tests.**
 
 The observational intake rejects a candidate/test/caller-authored assignment
 before estimator dispatch. The refusal is consumed by the existing acquisition
@@ -1280,7 +1280,7 @@ The positive projector property remains covered by real native contract instance
 for all six families. Those contract tests are not promoted into a production
 receipt when the owner-input relationship is missing.
 
-- [ ] **Step 4: Write the separate education refusal and caller-assignment RED tests.**
+- [x] **Step 4: Write the separate education refusal and caller-assignment RED tests.**
 
 ```python
 def test_real_education_non_panel_method_refuses_unbound_estimand() -> None:
@@ -1301,13 +1301,13 @@ def test_caller_supplied_treatment_assignment_is_refused() -> None:
     )
 ```
 
-- [ ] **Step 5: Run the tests and observe RED at the owner-intake boundary.**
+- [x] **Step 5: Run the tests and observe RED at the owner-intake boundary.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_acquisition_planner.py -k 'treatment_assignment_not_owner_derived or skg_prior_relation_unresolved or real_education_non_panel' -q
 ```
 
-- [ ] **Step 6: Implement generic input materialization and thin runtime consumption.**
+- [x] **Step 6: Implement generic input materialization and thin runtime consumption.**
 
 Selection derives `DataCharacteristics` from owner data and resolves a live catalog
 signature only after the owner intake succeeds. Under Fork B no assignment producer
@@ -1317,7 +1317,7 @@ of `project_method_value_evidence` is total over the six-family contract denomin
 passes diagnostics to the real calibration verifier, and never reads panel-only
 fields on a non-panel report. Preserve DID behavior through its own report adapter.
 
-- [ ] **Step 7: Derive the family denominator and extend both-way source flips.**
+- [x] **Step 7: Derive the family denominator and extend both-way source flips.**
 
 The N8 validator loads the live catalog snapshot, derives every family, and requires a total supported/limited/refused classification. Add restoring flips for:
 
@@ -1333,7 +1333,7 @@ The N8 validator loads the live catalog snapshot, derives every family, and requ
 - a forged/unverified CG1 relation certificate admitted -> RED; and
 - the Fork-B acquisition residual or census provenance removed -> RED.
 
-- [ ] **Step 8: Run Stage-2 gate.**
+- [x] **Step 8: Run Stage-2 gate.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_second_domain_pack.py -k 'non_panel or value or transport' -q
@@ -1346,7 +1346,7 @@ rg -n "if .*education|if .*environment|if .*energy|if .*governance|match .*educa
 
 The `rg` output must contain no domain-name branch; comments/test labels are reviewed manually and do not excuse a branch.
 
-- [ ] **Step 9: Commit A2 only after the Fork-B dual evidence exists.**
+- [x] **Step 9: Commit A2 only after the Fork-B dual evidence exists.**
 
 The two required receipts are the production refusal/acquisition receipt and the
 genuine advisor-selected education refusal. The six-family contract denominator

@@ -209,6 +209,25 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_unknown_n8_proper
     )
 
 
+@pytest.mark.parametrize(
+    "property_id",
+    [
+        "reachable_method_policy",
+        "evidence_driven_backend",
+        "advisor_method_selection",
+        "content_bound_transport_receipts",
+        "synthetic_backend_authority_fenced",
+    ],
+)
+def test_layer3_gy_generation_cycle_disposition_ledger_accepts_n8_v2_owner_evidence(
+    property_id: str,
+) -> None:
+    assert check_layer3_gy_generation_cycle_disposition_ledger._n8_value_gate_property_landed(
+        REPO_ROOT,
+        property_id,
+    )
+
+
 def test_layer3_gy_generation_cycle_disposition_ledger_rejects_fabricated_owner_anchor() -> None:
     ledger = _loaded_ledger()
     mutated = copy.deepcopy(ledger)

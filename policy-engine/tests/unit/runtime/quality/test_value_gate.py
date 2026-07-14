@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import copy
+import hashlib
+import sys
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
@@ -107,6 +110,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _run_value_transport,
     _s10_calibration_evidence_from_report,
     _value_calibration_receipt,
+    _value_outer_set_from_foundry_result,
     _value_owner_row,
 )
 from polisyos.runtime.quality.world_model_record import (
@@ -523,6 +527,123 @@ def test_n8_first_vertical_resolves_world_identity_before_value() -> None:
     assert lane["simulation"].status == "simulation_pending_n5"
     assert lane["simulation"].world_model_record is lane["world_model_record"]
 
+    observation = FoundryValuePort(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=lane["cycle_substrate_context"],
+    )(
+        candidate=lane["candidate"],
+        simulation=lane["simulation"],
+        problem=lane["problem"],
+        cycle_index=0,
+    )
+    assert observation.authority_blockers == (
+        "acquire_data:value_panel_data_missing",
+    )
+    assert observation.acquisition_requirement is not None
+
+
+def test_n8_refuses_context_candidate_with_unresolved_world_slot() -> None:
+    """N8 re-resolves the strict atom instead of trusting an N5-shaped carrier."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    lane = value_contract._canonical_first_vertical_lane()
+    estimand = lane["candidate"].atom.intended_downstream_estimand.model_copy(
+        update={
+            "metric_id": "avg_income",
+            "outcome_variables": ("avg_income",),
+        }
+    )
+    problem = lane["problem"].model_copy(
+        update={
+            "outcome_of_interest": lane["problem"].outcome_of_interest.model_copy(
+                update={"target_variable": "avg_income", "metric_id": "avg_income"}
+            )
+        }
+    )
+    draft = lane["candidate"].atom.model_copy(
+        update={
+            "target_world_slots": ("missing.world_slot",),
+            "intended_downstream_estimand": estimand,
+        }
+    )
+    atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = lane["candidate"].model_copy(update={"atom": atom})
+
+    observation = FoundryValuePort(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=lane["cycle_substrate_context"],
+    )(
+        candidate=candidate,
+        simulation=lane["simulation"].model_copy(
+            update={"candidate_id": candidate.candidate_id}
+        ),
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("world_identity_unresolved",)
+
+
+def test_n8_resolves_bound_world_before_routing_owner_data_gap() -> None:
+    """A real owner gap cannot route a malformed bound atom into N7."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    lane = value_contract._canonical_first_vertical_lane()
+    draft = lane["candidate"].atom.model_copy(
+        update={"target_world_slots": ("missing.world_slot",)}
+    )
+    atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = lane["candidate"].model_copy(update={"atom": atom})
+
+    observation = FoundryValuePort(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=lane["cycle_substrate_context"],
+    )(
+        candidate=candidate,
+        simulation=lane["simulation"].model_copy(
+            update={"candidate_id": candidate.candidate_id}
+        ),
+        problem=lane["problem"],
+        cycle_index=0,
+    )
+
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("world_identity_unresolved",)
+    assert observation.acquisition_requirement is None
+
+
+def test_n8_first_vertical_real_cycle_routes_owner_data_gap_through_n7() -> None:
+    """The real N4 candidate reaches a typed N7 plan without simulated re-entry."""
+
+    run = value_contract._run_real_first_vertical_cycle()
+    assert len(run.cycles) == 1
+    cycle = run.cycles[0]
+
+    assert cycle.selected_candidate_ref == "candidate_b5d5d03eee11c6a6"
+    assert cycle.value_port.authority_blockers == (
+        "acquire_data:value_panel_data_missing",
+    )
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.acquisition_receipt is None
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_routing_report.status == "pass"
+    assert len(cycle.acquisition_routing_report.acquisition_records) == 1
+    record = cycle.acquisition_routing_report.acquisition_records[0]
+    assert record.recommended_strategy.value == "production_snapshot_build"
+    assert record.terminal_disposition.value == "acquire"
+    assert record.claim_ref == f"value-claim:{cycle.selected_candidate_ref}"
+
 
 def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
     payload = value_contract.build_payload(value_contract._repo_root())
@@ -530,6 +651,16 @@ def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
     assert payload["schema_version"].endswith(".v2")
     assert "frozen_positive_receipt" not in payload
     assert "frozen_value_receipts" not in payload
+    assert "decisive_mutations" not in payload
+    assert {
+        row["mutation_id"] for row in payload["decisive_mutation_expectations"]
+    } == set(value_contract.EXPECTED_MUTATION_IDS)
+    assert all(
+        row["expected_result"] == "RED"
+        and "observed_result" not in row
+        and "result" not in row
+        for row in payload["decisive_mutation_expectations"]
+    )
     assert payload["denominators"]["registered_method_count"] == 390
     assert payload["denominators"]["value_capable_method_count"] == 55
     assert len(payload["native_projector_contract_proofs"]) == 6
@@ -554,14 +685,26 @@ def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
     production = payload["production_refusal"]
     assert production["status"] == "value_blocked"
     assert production["authority_blockers"] == [
-        "treatment_assignment_not_owner_derived"
+        "acquire_data:value_panel_data_missing"
     ]
+    assert production["selection_stage"] == "not_reached_owner_data_unavailable"
+    assert production["selected_method_fqn"] is None
+    assert production["method_selection_receipt"] is None
+    assert production["owner_availability"]["variable_id"] == (
+        "employment_retention"
+    )
     assert production["value_receipt"] is None
-    assert payload["acquisition_routing"]["requirement_kind"] == "any_of"
-    assert payload["acquisition_routing"]["alternatives"] == [
-        "owner_rollout_assignment",
-        "certified_skg_identity_bridge",
-    ]
+    route = payload["acquisition_routing"]
+    assert route["terminal_kind"] == "acquisition_required"
+    assert route["simulated_reentry"] is False
+    assert route["acquisition_receipt"] is None
+    assert route["requirement_gap"]["metadata"]["source"] == (
+        "l1_dcat_variable_availability"
+    )
+    assert route["planner_report"]["status"] == "pass"
+    assert route["planner_report"]["acquisition_records"][0][
+        "recommended_strategy"
+    ] == "production_snapshot_build"
     education = payload["education_refusal"]
     assert education["status"] == "value_blocked"
     assert education["authority_blockers"] == ["method_estimand_binding_mismatch"]
@@ -569,17 +712,175 @@ def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
     assert education["value_receipt"] is None
 
 
+def test_n8_transport_component_proofs_are_live_and_data_derived() -> None:
+    """A1 freezes owner executions, including an honest missing-context terminal."""
+
+    proofs = value_contract._transport_component_proofs()
+
+    first = proofs["first_vertical"]
+    assert first["outcome_kind"] == "typed_refusal"
+    assert first["typed_refusal"]["code"] == (
+        "acquire_data:transport_context_unresolved"
+    )
+    assert first["transport_covariates"] == []
+    assert first["selection_diagram_content_hash"] is None
+    assert first["transport_receipt"] is None
+
+    for role in ("education", "unseen_pack_shape"):
+        proof = proofs[role]
+        assert proof["outcome_kind"] == "transport_receipt"
+        assert proof["typed_refusal"] is None
+        assert proof["selection_diagram_content_hash"].startswith("sha256:")
+        assert proof["transport_covariates"]
+        receipt = proof["transport_receipt"]
+        assert receipt["transport_status"]
+        assert receipt["transport_mode"]
+        assert receipt["identification_engine"]
+        assert proof["transport_result_content_hash"] == value_contract.gy_content_hash(
+            receipt
+        )
+
+    water = proofs["unseen_pack_shape"]
+    assert water["domain"] == "water_quality"
+    assert water["query_treatment"] == "riparian_buffer_width"
+    assert water["query_outcome"] == "nitrate_load"
+    assert water["transport_covariates"] == [
+        {
+            "canonical_var": "watershed_slope",
+            "source_value": 0.15,
+            "target_value": 0.63,
+            "source_row_content_hash": water["selection_nodes"][0]["source_ref"],
+            "target_row_content_hash": water["selection_nodes"][0]["target_ref"],
+        }
+    ]
+
+
+def test_n8_transport_component_validator_rejects_static_or_malformed_receipts() -> None:
+    proofs = value_contract._transport_component_proofs()
+    malformed = copy.deepcopy(proofs)
+    malformed["education"]["transport_receipt"]["transport_status"] = ""
+    malformed["education"]["proof_content_hash"] = value_contract.gy_content_hash(
+        {
+            key: value
+            for key, value in malformed["education"].items()
+            if key != "proof_content_hash"
+        }
+    )
+    static = malformed["unseen_pack_shape"]
+    static["outcome_kind"] = "behavioral_probe_in_focused_test"
+    static["proof_content_hash"] = value_contract.gy_content_hash(
+        {key: value for key, value in static.items() if key != "proof_content_hash"}
+    )
+
+    codes = {
+        issue["code"]
+        for issue in value_contract._validate_transport_component_proofs(malformed)
+    }
+
+    assert "transport_component_receipt_invalid" in codes
+    assert "transport_component_outcome_kind_invalid" in codes
+
+
+def test_n8_source_flip_runner_requires_semantic_red_and_restores_bytes(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "owner.py"
+    source.write_text("guard = True\n", encoding="utf-8")
+    original_hash = hashlib.sha256(source.read_bytes()).hexdigest()
+    case = value_contract._SourceFlipCase(
+        mutation_id="source_flip_unit_semantic_red",
+        guard="unit semantic guard",
+        replacements=(
+            value_contract._SourceFlipReplacement(
+                "owner.py",
+                "guard = True\n",
+                "guard = False\n",
+            ),
+        ),
+        probe_command=(
+            sys.executable,
+            "-c",
+            "print('MUTATION_RED:source_flip_unit_semantic_red'); raise SystemExit(1)",
+        ),
+        expected_red_patterns=("MUTATION_RED:source_flip_unit_semantic_red",),
+    )
+
+    result = value_contract._run_source_flip_case(tmp_path, case)
+
+    assert result["result"] == "RED"
+    assert source.read_text(encoding="utf-8") == "guard = True\n"
+    assert result["source_restored_sha256"]["owner.py"] == original_hash
+
+
+def test_n8_source_flip_runner_rejects_probe_errors_as_harness_failures(
+    tmp_path: Path,
+) -> None:
+    source = tmp_path / "owner.py"
+    source.write_text("guard = True\n", encoding="utf-8")
+    case = value_contract._SourceFlipCase(
+        mutation_id="source_flip_unit_probe_error",
+        guard="unit probe guard",
+        replacements=(
+            value_contract._SourceFlipReplacement(
+                "owner.py",
+                "guard = True\n",
+                "guard = False\n",
+            ),
+        ),
+        probe_command=(sys.executable, "-c", "raise SystemExit(5)"),
+        expected_red_patterns=("MUTATION_RED:source_flip_unit_probe_error",),
+    )
+
+    result = value_contract._run_source_flip_case(tmp_path, case)
+
+    assert result["result"] == "PROBE_ERROR"
+    assert source.read_text(encoding="utf-8") == "guard = True\n"
+
+
+def test_n8_source_flip_runner_rejects_ambiguous_mutation_target(tmp_path: Path) -> None:
+    source = tmp_path / "owner.py"
+    source.write_text("guard = True\nguard = True\n", encoding="utf-8")
+    case = value_contract._SourceFlipCase(
+        mutation_id="source_flip_unit_ambiguous_target",
+        guard="unit target guard",
+        replacements=(
+            value_contract._SourceFlipReplacement(
+                "owner.py",
+                "guard = True\n",
+                "guard = False\n",
+            ),
+        ),
+        probe_command=(sys.executable, "-c", "raise SystemExit(1)"),
+        expected_red_patterns=("MUTATION_RED:source_flip_unit_ambiguous_target",),
+    )
+
+    result = value_contract._run_source_flip_case(tmp_path, case)
+
+    assert result["result"] == "MUTATION_TARGET_ERROR"
+    assert source.read_text(encoding="utf-8") == "guard = True\nguard = True\n"
+
+
 def test_n8_v2_validator_rejects_fabricated_positive_and_contract_authority() -> None:
     payload = value_contract.build_payload(value_contract._repo_root())
     payload["production_refusal"]["status"] = "value_ready"
     payload["production_refusal"]["value_receipt"] = {"fabricated": True}
     payload["native_projector_contract_proofs"][0]["production_value_eligible"] = True
+    first_transport = payload["transport_component_proofs"]["first_vertical"]
+    first_transport["candidate_id"] = "candidate_transplanted"
+    first_transport["proof_content_hash"] = value_contract.gy_content_hash(
+        {
+            key: value
+            for key, value in first_transport.items()
+            if key != "proof_content_hash"
+        }
+    )
     payload["contract_content_hash"] = value_contract._content_hash(payload)
 
     codes = {issue["code"] for issue in value_contract.validate_payload(payload)}
 
     assert "fabricated_production_value_ready" in codes
     assert "contract_projection_claimed_production_authority" in codes
+    assert "first_vertical_transport_receipt_unbound" in codes
 
 
 def _world_record(char: str = "1") -> WorldModelRecord:
@@ -880,6 +1181,31 @@ def test_third_pack_transport_vocabulary_flows_without_engine_change() -> None:
     assert diagram.s_nodes[0].target_value == 0.63
 
 
+def test_unseen_transport_receipt_uses_real_solver_contract() -> None:
+    problem, candidate, context = value_contract._unseen_transport_lane()
+    inputs = RealValueOwnerGateway(
+        repo_root=Path.cwd(),
+        cycle_substrate_context=context,
+    ).build_transport_inputs(
+        candidate=candidate,
+        problem=problem,
+        world_record=context.world_model_record,
+    )
+
+    receipt, error = _run_value_transport(
+        inputs=inputs,
+        world_record=context.world_model_record,
+    )
+
+    assert error is None
+    assert receipt is not None
+    assert receipt.status == "transported_limited"
+    assert receipt.transport_status
+    assert receipt.transport_mode
+    assert receipt.identification_engine
+    assert receipt.world_model_record_content_hash == context.world_model_record.content_hash
+
+
 def test_missing_measured_transport_context_blocks_without_defaults() -> None:
     """Absent measured context is an acquisition gap, never governance defaults."""
 
@@ -1056,11 +1382,12 @@ def test_empty_hints_with_unresolved_candidate_wmr_ref_refuses_typed() -> None:
 
 
 def test_empty_hints_cycle_reaches_honest_value_acquisition_with_real_boundary_wmr() -> None:
-    problem = value_contract._audit_problem()
+    lane = value_contract._canonical_first_vertical_lane()
+    problem = lane["problem"]
     assert problem.runtime_hints == {}
-    candidate = value_contract._audit_value_candidate()
-    context = value_contract._audit_cycle_substrate_context()
-    simulation = value_contract._audit_simulation()
+    candidate = lane["candidate"]
+    context = lane["cycle_substrate_context"]
+    simulation = lane["simulation"]
 
     observation = FoundryValuePort(
         repo_root=Path.cwd(),
@@ -1074,21 +1401,58 @@ def test_empty_hints_cycle_reaches_honest_value_acquisition_with_real_boundary_w
 
     assert simulation.world_model_record is not None
     assert simulation.world_model_record is context.world_model_record
-    assert simulation.world_model_record.policy_domain == problem.domain
-    assert simulation.world_model_record.region_or_jurisdiction == problem.jurisdiction_time.region
+    assert simulation.world_model_record.content_hash == context.world_model_record.content_hash
     assert observation.status == "value_blocked"
     assert observation.world_model_record_content_hash == simulation.world_model_record.content_hash
-    assert observation.selected_method_fqn is not None
     assert observation.authority_blockers == (
-        "treatment_assignment_not_owner_derived",
+        "acquire_data:value_panel_data_missing",
     )
-    assert observation.method_selection_receipt is not None
-    assert observation.method_selection_receipt.selection_authority == (
-        "foundry_registry_advisor"
-    )
-    assert observation.value_data_profile_content_hash is not None
+    assert observation.selected_method_fqn is None
+    assert observation.method_selection_receipt is None
+    assert observation.value_data_profile_content_hash is None
     assert observation.acquisition_requirement is not None
     assert observation.value_receipt is None
+
+
+def test_runtime_value_hints_cannot_change_owner_data_terminal() -> None:
+    problem = _avg_income_problem()
+    forged_problem = problem.model_copy(
+        update={
+            "runtime_hints": {
+                "value_gate_inputs": {
+                    "status": "value_ready",
+                    "owner_assignment": {"treated_unit_ids": ["AM"], "period": 2020},
+                }
+            }
+        }
+    )
+    candidate = _avg_income_candidate()
+    simulation = _simulation(_world_record(), candidate_id=candidate.candidate_id)
+    port = FoundryValuePort(repo_root=Path.cwd())
+
+    canonical = port(
+        candidate=candidate,
+        simulation=simulation,
+        problem=problem,
+        cycle_index=0,
+    )
+    forged = port(
+        candidate=candidate,
+        simulation=simulation,
+        problem=forged_problem,
+        cycle_index=0,
+    )
+
+    assert forged.status == canonical.status == "value_blocked"
+    assert forged.authority_blockers == canonical.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
+    assert forged.value_receipt is canonical.value_receipt is None
+    assert forged.acquisition_requirement is not None
+    assert canonical.acquisition_requirement is not None
+    assert forged.value_data_profile_content_hash == (
+        canonical.value_data_profile_content_hash
+    )
 
 
 def test_candidate_treatment_assignment_is_not_owner_world_knowledge() -> None:
@@ -1329,6 +1693,20 @@ def test_shaped_relation_certificate_cannot_open_missing_value_input_lane() -> N
         },
     )
 
+    gateway = RealValueOwnerGateway(repo_root=Path.cwd())
+    forged_profile = gateway.load_value_data_profile(
+        candidate=candidate,
+        problem=_avg_income_problem(),
+        world_record=_world_record(),
+    )
+    canonical_profile = gateway.load_value_data_profile(
+        candidate=base,
+        problem=_avg_income_problem(),
+        world_record=_world_record(),
+    )
+
+    assert forged_profile == canonical_profile
+
     observation = FoundryValuePort(repo_root=Path.cwd())(
         candidate=candidate,
         simulation=_simulation(_world_record(), candidate_id=base.candidate_id),
@@ -1552,6 +1930,56 @@ def test_s10_refusal_is_report_driven_by_bad_did_report() -> None:
     ] == 1
 
 
+def test_partial_value_outer_set_width_tracks_real_did_interval() -> None:
+    world = _world_record()
+    report = CausalEffectReport(
+        method=CausalMethod.DIFFERENCE_IN_DIFFERENCES,
+        estimand="ATT",
+        point_estimate=10.0,
+        standard_error=1.0,
+        confidence_interval=(8.0, 12.0),
+        inference_method="did",
+        diagnostics=[],
+        sample_size=64,
+        n_treated=1,
+        n_control=15,
+        pre_periods=2,
+        post_periods=1,
+    )
+    transport = ValueTransportReceipt(
+        status="transported_limited",
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        transport_result_ref=_hash("9"),
+        transport_status="partially_identified",
+        transport_mode="selection_diagram",
+        identification_engine="transport_engine",
+    )
+    calibration = ValueCalibrationReceipt(
+        status="pass",
+        forecast_tier="observable_calibrated",
+        calibration_record_ref="s10://did-width",
+    )
+
+    value_set = _value_outer_set_from_foundry_result(
+        method_result=SimpleNamespace(output={"report": report}),
+        transport_receipt=transport,
+        calibration_receipt=calibration,
+        world_record=world,
+        data_trust=DataTrust(
+            tier="unit",
+            trust_cap=1.0,
+            trust_multiplier=1.0,
+            authority_ref="test",
+        ),
+    )
+
+    assert value_set.identification_status == "partial"
+    assert value_set.lower == (8.0,)
+    assert value_set.upper == (12.0,)
+    assert value_set.width == (4.0,)
+
+
 def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:
     world = _world_record()
     problem = _problem("value_gate_problem")
@@ -1569,6 +1997,19 @@ def test_production_value_block_is_real_data_gap_not_missing_inputs() -> None:
     assert observation.status == "value_blocked"
     assert observation.value_receipt is None
     assert observation.authority_blockers == ("acquire_data:value_panel_data_missing",)
+    assert observation.acquisition_requirement is not None
+    assert observation.acquisition_requirement.claim_ref == (
+        f"value-claim:{observation.candidate_id}"
+    )
+    assert observation.acquisition_requirement.metadata["source"] == (
+        "l1_dcat_variable_availability"
+    )
+    assert observation.acquisition_requirement.metadata["availability"][
+        "variable_id"
+    ] == "firm_survival"
+    assert observation.acquisition_requirement.metadata["availability"][
+        "observation_count"
+    ] == 0
     assert "substrate owner" in str(observation.reason)
     assert "dataset_catalog.duckdb#variable/firm_survival" in str(observation.reason)
     assert "value_method_state_missing" not in observation.authority_blockers
@@ -1797,3 +2238,9 @@ def test_candidate_problem_selection_uses_registry_denominator() -> None:
     assert selection["status"] == "selected"
     assert selection["selection_source"] == "foundry_registry_advisor"
     assert selection["selected_method_fqn"] in denominator
+    receipt = MethodSelectionReceipt.model_validate(selection["selection_receipt"])
+    assert tuple(selection["denominator"]) == tuple(receipt.denominator) == denominator
+    assert selection["selected_method_fqn"] == receipt.selected_method_fqn
+    assert tuple(selection["score_trace"]) == tuple(
+        row.method_fqn for row in receipt.ranked_alternatives
+    )

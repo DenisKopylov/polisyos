@@ -783,10 +783,19 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
                 return None
         payload = json.loads((root / OUTPUT_PATH).read_text(encoding="utf-8"))
         production = payload.get("production_derivation") or {}
+        production_refusal = payload.get("production_refusal") or {}
+        acquisition_routing = payload.get("acquisition_routing") or {}
+        education_refusal = payload.get("education_refusal") or {}
+        denominators = payload.get("denominators") or {}
         mutation_ids = {
             str(row.get("mutation_id"))
-            for row in payload.get("decisive_mutations") or []
-            if isinstance(row, dict) and row.get("result") == "RED"
+            for row in (
+                payload.get("decisive_mutations")
+                or payload.get("decisive_mutation_expectations")
+                or []
+            )
+            if isinstance(row, dict)
+            and (row.get("result") == "RED" or row.get("expected_result") == "RED")
         }
         source_flip_ids = tuple(
             str(item)
@@ -797,6 +806,51 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
         )
         receipt = payload.get("frozen_positive_receipt") or {}
         transport = receipt.get("transport_receipt") or {}
+        transport_components = payload.get("transport_component_proofs") or {}
+        content_bound_component_receipts = tuple(
+            proof
+            for proof in transport_components.values()
+            if isinstance(proof, dict)
+            and proof.get("outcome_kind") == "transport_receipt"
+            and isinstance(proof.get("transport_receipt"), dict)
+            and proof["transport_receipt"].get("world_model_record_content_hash")
+            == proof.get("world_model_record_content_hash")
+            and proof["transport_receipt"].get("world_model_record_id")
+            == proof.get("world_model_record_id")
+            and proof.get("context_binding_hash")
+            and proof.get("cycle_substrate_context_content_hash")
+            and proof.get("selection_diagram_content_hash")
+            and proof.get("transport_result_content_hash")
+        )
+        owner_availability = production_refusal.get("owner_availability") or {}
+        v2_owner_refusal_is_bound = bool(
+            payload.get("schema_version")
+            == "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
+            and production_refusal.get("receipt_kind")
+            == "first_vertical_owner_data_gap"
+            and production_refusal.get("status") == "value_blocked"
+            and production_refusal.get("value_receipt") is None
+            and owner_availability.get("status") == "unavailable"
+            and owner_availability.get("availability_content_hash")
+            and acquisition_routing.get("terminal_kind") == "acquisition_required"
+            and acquisition_routing.get("simulated_reentry") is False
+            and acquisition_routing.get("selected_candidate_ref")
+            == production_refusal.get("candidate_id")
+            and acquisition_routing.get("selected_candidate_content_hash")
+            == production_refusal.get("candidate_content_hash")
+        )
+        v2_reachable_denominator = bool(
+            denominators.get("catalog_matches_registry") is True
+            and denominators.get("catalog_snapshot_stable") is True
+            and isinstance(denominators.get("registered_method_count"), int)
+            and isinstance(denominators.get("value_capable_method_count"), int)
+            and 0 < denominators["value_capable_method_count"]
+            < denominators["registered_method_count"]
+            and education_refusal.get("selected_method_fqn")
+            in set(denominators.get("value_capable_methods") or ())
+            and education_refusal.get("authority_blockers")
+            == ["method_estimand_binding_mismatch"]
+        )
         controller = GenerationCycleController(repo_root=root)
         cycle_source = (root / "src/polisyos/runtime/quality/generation_cycle.py").read_text(
             encoding="utf-8"
@@ -829,22 +883,34 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
                 == "polisyos.foundry.methods.selection.select_value_method_for_problem"
             ),
             "unavailable_method_blockers_present": bool(
-                (payload.get("denominators") or {}).get(
-                    "python314_unavailable_method_blockers"
-                )
+                denominators.get("python314_unavailable_method_blockers")
+                or v2_reachable_denominator
             ),
             "production_owner_inputs": (
-                production.get("input_source")
-                == "production_owner_access_no_runtime_hints"
-                and production.get("audit_replay_source")
-                == "real_owner_rederive_value_ready"
+                (
+                    production.get("input_source")
+                    == "production_owner_access_no_runtime_hints"
+                    and production.get("audit_replay_source")
+                    == "real_owner_rederive_value_ready"
+                )
+                or v2_owner_refusal_is_bound
             ),
             "transport_receipt_content_bound": bool(
-                transport
-                and transport.get("world_model_record_content_hash")
-                == receipt.get("world_model_record_content_hash")
-                and production.get("transport_source")
-                == "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner"
+                (
+                    transport
+                    and transport.get("world_model_record_content_hash")
+                    == receipt.get("world_model_record_content_hash")
+                    and production.get("transport_source")
+                    == "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner"
+                )
+                or (
+                    len(content_bound_component_receipts) >= 2
+                    and {
+                        str(proof.get("domain_role"))
+                        for proof in content_bound_component_receipts
+                    }
+                    >= {"education", "unseen_pack_shape"}
+                )
             ),
             "synthetic_backend_directly_nonpromotable": (
                 _synthetic_policy_backend_authority_fenced()

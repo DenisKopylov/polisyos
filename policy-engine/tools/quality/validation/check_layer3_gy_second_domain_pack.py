@@ -80,6 +80,7 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleRun,
     _build_boundary_world_model_record,
+    is_value_panel_shape,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_admission import GroundingAdmissionLedger
@@ -585,6 +586,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     stage_attempts["generation"] = stage_generation
     stage_grounding = _mapping(stage_attempts.get("grounding"))
     stage_grounding["lever_resolution_content_hash"] = "sha256:" + "0" * 64
+    stage_grounding["context_binding_hash"] = "sha256:" + "7" * 64
     stage_attempts["grounding"] = stage_grounding
     stage_world = _mapping(stage_attempts.get("world_model"))
     stage_world["object_identity_reused"] = False
@@ -678,7 +680,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "pack_entry_owner_projection_drift",
         "distinctness_lever_overlap",
         "distinctness_outcome_overlap",
-        "distinctness_covariate_overlap",
+        "transport_context_denominator_invalid",
         "smoke_terminal_not_honest",
         "historical_receipt_rebased_to_moving_head",
         "free_grow_violated_by_code_change",
@@ -1065,6 +1067,9 @@ def _build_census(
                 "method_family": "non_panel" if nonpanel_count else "panel_only",
                 "not_ua_single_unit": all(int(row["geographic_units"]) > 1 for row in rows),
                 "transport_covariate_check": {
+                    "comparison_status": comparator[
+                        "transport_comparison_status"
+                    ],
                     "jointly_measured_transport_canonical_vars": transport_vars,
                     "first_vertical_overlap": sorted(
                         set(transport_vars).intersection(
@@ -1140,32 +1145,59 @@ def _l1_candidate_aggregate(
         {item for spec in _CANDIDATE_SPECS.values() for item in spec["l1_canonical_vars"]}
     )
     sql = """
-SELECT
+WITH base AS (
+  SELECT
+    canonical_var,
+    dataset_id,
+    country_code,
+    COALESCE(year, survey_year) AS period_id,
+    condition_json
+  FROM ds_observations
+  WHERE canonical_var = ANY(?)
+),
+aggregated AS (
+  SELECT
   canonical_var,
   COUNT(*) AS observations,
   COUNT(DISTINCT dataset_id) AS datasets,
   COUNT(DISTINCT country_code)
     FILTER (WHERE country_code IS NOT NULL AND country_code <> '') AS geographic_units,
-  COUNT(DISTINCT COALESCE(year, survey_year))
-    FILTER (WHERE COALESCE(year, survey_year) IS NOT NULL) AS periods,
-  MIN(COALESCE(year, survey_year)) AS min_period,
-  MAX(COALESCE(year, survey_year)) AS max_period,
+  COUNT(DISTINCT period_id)
+    FILTER (WHERE period_id IS NOT NULL) AS periods,
+  MIN(period_id) AS min_period,
+  MAX(period_id) AS max_period,
   COUNT(*) FILTER (WHERE country_code IS NULL OR country_code = '') AS no_unit_rows,
-  COUNT(*) FILTER (WHERE COALESCE(year, survey_year) IS NULL) AS no_period_rows,
+  COUNT(*) FILTER (WHERE period_id IS NULL) AS no_period_rows,
   COUNT(DISTINCT json_extract_string(condition_json, '$.unit'))
     FILTER (WHERE json_extract_string(condition_json, '$.unit') IS NOT NULL) AS measurement_unit_values
-FROM ds_observations
-WHERE canonical_var = ANY(?)
+FROM base
 GROUP BY canonical_var
+),
+longitudinal AS (
+  SELECT canonical_var, COUNT(*) AS longitudinal_units
+  FROM (
+    SELECT canonical_var, country_code
+    FROM base
+    WHERE country_code IS NOT NULL
+      AND country_code <> ''
+      AND period_id IS NOT NULL
+    GROUP BY canonical_var, country_code
+    HAVING COUNT(DISTINCT period_id) >= 4
+  )
+  GROUP BY canonical_var
+)
+SELECT aggregated.*, COALESCE(longitudinal.longitudinal_units, 0) AS longitudinal_units
+FROM aggregated
+LEFT JOIN longitudinal USING (canonical_var)
 ORDER BY canonical_var
 """.strip()
     rows = _run_query(path, "l1_candidate_aggregate", sql, [all_vars], query_timings)
     normalized: list[dict[str, Any]] = []
     for row in rows["rows"]:
         normalized_row = dict(row)
-        normalized_row["panel_shape"] = (
-            int(normalized_row["geographic_units"]) >= 3
-            and int(normalized_row["periods"]) >= 4
+        normalized_row["panel_shape"] = is_value_panel_shape(
+            longitudinal_unit_count=int(normalized_row["longitudinal_units"]),
+            period_count=int(normalized_row["periods"]),
         )
         normalized.append(_with_content_hash(normalized_row, "row_content_hash"))
     rows["rows"] = normalized
@@ -1417,11 +1449,16 @@ def _rank_candidates(candidates: Mapping[str, Mapping[str, Any]]) -> list[dict[s
         transport_score = float(
             int(transport_feasibility.get("jointly_measured_transport_count", 0)) > 0
         )
+        transport_comparison = _mapping(
+            preflight.get("transport_covariate_check")
+        )
         distinctness_score = float(
             not _list_of_strings(preflight.get("outcome_overlap"))
             and not _list_of_strings(preflight.get("lever_overlap"))
+            and transport_comparison.get("comparison_status")
+            == "evaluated_measured_first_vertical_context"
             and not _list_of_strings(
-                _mapping(preflight.get("transport_covariate_check")).get("first_vertical_overlap")
+                transport_comparison.get("first_vertical_overlap")
             )
         )
         ineligible_reasons: list[str] = []
@@ -2472,13 +2509,37 @@ def _build_cycle_trace(
         cycle_substrate_context=cycle_substrate_context,
         n4_owner_capture=active_capture,
     )
+    transport_context = cycle_substrate_context.transport_context
+    expected_transport_covariates = (
+        tuple(
+            sorted(
+                covariate.canonical_var
+                for covariate in transport_context.covariates
+            )
+        )
+        if transport_context is not None
+        else ()
+    )
+    n8_transport_evidence = _n8_transport_gap_closure_from_root(
+        root,
+        expected_education_covariates=expected_transport_covariates,
+    )
     raw_run_payload = run_result.model_dump(mode="json")
     run_payload, runtime_metrics = _normalize_n6_run_payload(raw_run_payload)
     runtime_metrics.update(capture_metrics)
     normalized_run = GenerationCycleRun.model_validate(run_payload)
     validation_issues = list(validate_generation_cycle_run(normalized_run))
+    trace_identity = {
+        "substrate_input_content_hash": (
+            cycle_substrate_context.substrate_input_content_hash
+        ),
+        "world_model_record_content_hash": (
+            cycle_substrate_context.world_model_record_content_hash
+        ),
+    }
     baseline_diff = recompute_baseline_diff(
         {
+            **trace_identity,
             "stage_attempts": stage_attempts,
             "generation_cycle_run": run_payload,
         },
@@ -2504,7 +2565,11 @@ def _build_cycle_trace(
         "smoke_status": "typed_terminal_after_real_n4_and_grounding_attempt",
         "stage_attempts": stage_attempts,
         "baseline_diff": baseline_diff,
-        "gap_triage": _stage_1_gap_triage(stage_attempts),
+        "gap_triage": _stage_1_gap_triage(
+            stage_attempts,
+            cycle_trace=trace_identity,
+            n8_transport_evidence=n8_transport_evidence,
+        ),
         "content_hash_excluded_fields": ["runtime_metrics"],
         "runtime_metrics": runtime_metrics,
         "generation_cycle_run": run_payload,
@@ -3254,7 +3319,7 @@ def _cycle_stage_attempts(
     if cycle.terminal_kind != expected_terminal:
         raise ValueError("education_cycle_terminal_disposition_mismatch")
     proposed = _list_of_mappings(projection.get("proposed_interventions"))
-    return {
+    stage_attempts = {
         "generation": {
             "attempted": True,
             "owner": (
@@ -3300,6 +3365,7 @@ def _cycle_stage_attempts(
                 resolution.selected_registry_entry_hash
             ),
             "lever_resolution_content_hash": resolution.content_hash,
+            "lever_resolution_status": resolution.status,
             "lever_resolution_reason_code": resolution.reason_code,
             "substrate_input_content_hash": (
                 resolution.substrate_input_content_hash
@@ -3322,6 +3388,7 @@ def _cycle_stage_attempts(
             "world_model_record_content_hash": (
                 cycle_substrate_context.world_model_record_content_hash
             ),
+            "context_binding_hash": cycle_substrate_context.context_binding_hash,
             "substrate_registry_content_hash": (
                 cycle_substrate_context.substrate_registry_content_hash
             ),
@@ -3338,6 +3405,20 @@ def _cycle_stage_attempts(
             "promotion_status": run_result.promotion_port.status,
         },
     }
+    stage_attempts["world_model"]["identity_evidence_kind"] = (
+        _recompute_stage_world_identity_evidence(
+            stage_attempts,
+            cycle_trace={
+                "substrate_input_content_hash": (
+                    cycle_substrate_context.substrate_input_content_hash
+                ),
+                "world_model_record_content_hash": (
+                    cycle_substrate_context.world_model_record_content_hash
+                ),
+            },
+        )
+    )
+    return stage_attempts
 
 
 def expected_cycle_terminal_for_disposition(disposition: str) -> str:
@@ -3353,6 +3434,73 @@ def expected_cycle_terminal_for_disposition(disposition: str) -> str:
     if disposition == "shadow_bound":
         return SearchTerminalKind.GROUNDED_ABSTENTION.value
     raise ValueError("education_cycle_unknown_grounding_disposition:" + disposition)
+
+
+def _recompute_stage_world_identity_evidence(
+    stage_attempts: Mapping[str, Any],
+    *,
+    cycle_trace: Mapping[str, Any],
+) -> str:
+    """Resolve the live witness that binds one Stage-1 attempt to its WMR.
+
+    A bindable candidate may prove the bridge by exact simulation-object reuse.
+    A candidate-unbound lever cannot honestly enter N5; in that case the strict
+    L6 refusal proves the same world boundary by content-binding the candidate,
+    selected registry entry, substrate input, context, and WMR.  The recorded
+    evidence-kind label is deliberately ignored and recomputed here.
+    """
+
+    grounding = _mapping(stage_attempts.get("grounding"))
+    world = _mapping(stage_attempts.get("world_model"))
+    trace_wmr_hash = cycle_trace.get("world_model_record_content_hash")
+    trace_input_hash = cycle_trace.get("substrate_input_content_hash")
+    grounding_wmr_hash = grounding.get("world_model_record_content_hash")
+    world_wmr_hash = world.get("world_model_record_content_hash")
+    grounding_context_hash = grounding.get("context_binding_hash")
+    world_context_hash = world.get("context_binding_hash")
+    selected_registry_hash = grounding.get("selected_registry_entry_hash")
+    world_selected_hashes = set(
+        _list_of_strings(world.get("selected_registry_entry_hashes"))
+    )
+    sha256_values = (
+        trace_wmr_hash,
+        trace_input_hash,
+        grounding_wmr_hash,
+        world_wmr_hash,
+        grounding_context_hash,
+        world_context_hash,
+        selected_registry_hash,
+        grounding.get("lever_resolution_content_hash"),
+    )
+    if any(
+        not isinstance(value, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", value) is None
+        for value in sha256_values
+    ):
+        return "unresolved"
+    if not (
+        trace_wmr_hash == grounding_wmr_hash == world_wmr_hash
+        and trace_input_hash == grounding.get("substrate_input_content_hash")
+        and grounding_context_hash == world_context_hash
+        and selected_registry_hash in world_selected_hashes
+    ):
+        return "unresolved"
+    if world.get("object_identity_reused") is True:
+        return "simulation_object_identity"
+    if (
+        world.get("object_identity_reused") is False
+        and grounding.get("lever_resolution_status") == "candidate_unbound"
+        and grounding.get("disposition")
+        in {
+            "novel_cg3",
+            "non_binding_abstain",
+            "unknown_blocked",
+            "veto_false_analog",
+        }
+        and world.get("simulation_status") == "simulation_blocked"
+    ):
+        return "grounding_candidate_unbound_resolution"
+    return "unresolved"
 
 
 @lru_cache(maxsize=4)
@@ -3413,9 +3561,12 @@ def recompute_baseline_diff(
                 "sha256:"
             )
         ),
-        "world_model_reused_exact_context_object": (
-            _mapping(stages.get("world_model")).get("object_identity_reused")
-            is True
+        "world_model_received_content_bound_context": (
+            _recompute_stage_world_identity_evidence(
+                stages,
+                cycle_trace=trace,
+            )
+            != "unresolved"
         ),
         "terminal_moved_beyond_spec_gap": (
             baseline_terminal == SearchTerminalKind.A_SPEC_GAP.value
@@ -3432,7 +3583,12 @@ def recompute_baseline_diff(
     }
 
 
-def _stage_1_gap_triage(stage_attempts: Mapping[str, Any]) -> list[dict[str, Any]]:
+def _stage_1_gap_triage(
+    stage_attempts: Mapping[str, Any],
+    *,
+    cycle_trace: Mapping[str, Any],
+    n8_transport_evidence: Mapping[str, Any],
+) -> list[dict[str, Any]]:
     """Close only bridges witnessed behaviorally by this Stage-1 run."""
 
     generation = _mapping(stage_attempts.get("generation"))
@@ -3448,12 +3604,23 @@ def _stage_1_gap_triage(stage_attempts: Mapping[str, Any]) -> list[dict[str, Any
             "receipt_ref": generation.get("n4_owner_capture_content_hash"),
         },
         "s0_to_n5_wmr_bridge_missing": {
-            "closed": world.get("object_identity_reused") is True,
+            "closed": (
+                _recompute_stage_world_identity_evidence(
+                    stage_attempts,
+                    cycle_trace=cycle_trace,
+                )
+                != "unresolved"
+            ),
             "receipt_ref": world.get("world_model_record_content_hash"),
         },
         "s0_to_l6_world_slot_bridge_missing": {
             "closed": bool(grounding.get("lever_resolution_content_hash")),
             "receipt_ref": grounding.get("lever_resolution_content_hash"),
+        },
+        "n8_transport_tuple_hardcode": {
+            "closed": n8_transport_evidence.get("closed") is True,
+            "receipt_ref": n8_transport_evidence.get("receipt_ref"),
+            "residual_reason": n8_transport_evidence.get("reason_code"),
         },
     }
     rows: list[dict[str, Any]] = []
@@ -3463,11 +3630,12 @@ def _stage_1_gap_triage(stage_attempts: Mapping[str, Any]) -> list[dict[str, Any
             rows.append(
                 {
                     "gap_id": gap_id,
-                    "status": "closed" if bridge["closed"] else "residual",
+                    "status": "closed" if bridge["closed"] else "typed_residual",
                     "disposition": (
                         "closed_by_live_behavioral_receipt"
                         if bridge["closed"]
-                        else "receipt_missing_fail_closed"
+                        else bridge.get("residual_reason")
+                        or "receipt_missing_fail_closed"
                     ),
                     "receipt_ref": bridge["receipt_ref"],
                 }
@@ -3480,7 +3648,6 @@ def _stage_1_gap_triage(stage_attempts: Mapping[str, Any]) -> list[dict[str, Any
             "journal_raw_evidence_persistence_missing": (
                 "N7 durable raw-evidence persistence is acquisition infrastructure."
             ),
-            "n8_transport_tuple_hardcode": "Stage 2 owns transport de-hardcoding.",
             "n6_single_terminal_validation_gap": (
                 "Stage 3 owns one-terminal validator reconciliation."
             ),
@@ -3539,6 +3706,16 @@ def _build_gap_report(
     n7_attempt = _mapping(facts.get("n7_attempt"))
     registration_witness = seam_witnesses["owner_registration_derivation_missing"]
     n8_comparator = _first_vertical_comparator(root)
+    n8_transport_evidence = _n8_transport_gap_closure_from_root(
+        root,
+        expected_education_covariates=tuple(
+            sorted(
+                str(row.get("canonical_var") or "")
+                for row in _list_of_mappings(facts.get("covariate_rows"))
+                if row.get("canonical_var")
+            )
+        ),
+    )
     gaps = [
         {
             "gap_id": "s0_to_l6_world_slot_bridge_missing",
@@ -3650,6 +3827,7 @@ def _build_gap_report(
         "s0_to_n4_l6_bridge_missing": _mapping(stage_attempts.get("generation")),
         "s0_to_n5_wmr_bridge_missing": _mapping(stage_attempts.get("world_model")),
         "s0_to_l6_world_slot_bridge_missing": _mapping(stage_attempts.get("grounding")),
+        "n8_transport_tuple_hardcode": n8_transport_evidence,
     }
     for gap in gaps:
         gap_id = str(gap.get("gap_id") or "")
@@ -3658,10 +3836,15 @@ def _build_gap_report(
         gap["disposition"] = triage.get("disposition") or "untriaged_fail_closed"
         if gap["status"] == "closed":
             gap["capability_label"] = "closed"
-            gap["blocking_seam"] = "Closed by the Stage-1 live behavioral receipt."
+            gap["blocking_seam"] = "Closed by a live content-bound behavioral receipt."
             gap.pop("acquisition_required", None)
             owner_evidence = _mapping(gap.get("owner_evidence"))
-            owner_evidence["stage_1_behavioral_receipt"] = stage_receipts[gap_id]
+            receipt_key = (
+                "stage_2_behavioral_receipt"
+                if gap_id == "n8_transport_tuple_hardcode"
+                else "stage_1_behavioral_receipt"
+            )
+            owner_evidence[receipt_key] = stage_receipts[gap_id]
             gap["owner_evidence"] = owner_evidence
     hashed = [_with_content_hash(gap, "gap_content_hash") for gap in gaps]
     payload = {
@@ -3669,7 +3852,7 @@ def _build_gap_report(
         "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
         "rule_version": RULE_VERSION,
         "producer": PRODUCER,
-        "status": "stage_1_bridges_closed_with_typed_residuals",
+        "status": "cycle_blocking_bridges_closed_with_typed_residuals",
         "gaps": hashed,
     }
     return _with_content_hash(payload, "gap_report_content_hash")
@@ -4681,8 +4864,17 @@ def _validate_distinctness(root: Path, pack: Mapping[str, Any], issues: list[dic
     }
     if outcomes.intersection(set(comparator["outcome_canonical_vars"])):
         issues.append({"code": "distinctness_outcome_overlap"})
-    if covariates.intersection(set(comparator["transport_covariates"])):
+    transport_comparison_status = comparator.get("transport_comparison_status")
+    if (
+        transport_comparison_status == "evaluated_measured_first_vertical_context"
+        and covariates.intersection(set(comparator["transport_covariates"]))
+    ):
         issues.append({"code": "distinctness_covariate_overlap"})
+    if transport_comparison_status not in {
+        "evaluated_measured_first_vertical_context",
+        "not_evaluated_first_vertical_context_unresolved",
+    }:
+        issues.append({"code": "distinctness_transport_comparison_status_invalid"})
     if levers.intersection(set(comparator["lever_vocabulary"])):
         issues.append({"code": "distinctness_lever_overlap"})
     if pack.get("distinctness", {}).get("selected_method_family") == comparator["method_family"]:
@@ -5025,6 +5217,7 @@ def _validate_stage_1_cycle_receipts(
                 != resolution.candidate_entry_content_hash
                 or grounding.get("lever_resolution_content_hash")
                 != resolution.content_hash
+                or grounding.get("lever_resolution_status") != resolution.status
             ):
                 issues.append({"code": "stage_grounding_receipt_drift"})
             if resolution.candidate_entry_content_hash not in expected_entry_hashes:
@@ -5058,10 +5251,13 @@ def _validate_stage_1_cycle_receipts(
                 or cycle.get("terminal_kind") != expected_terminal
             ):
                 issues.append({"code": "stage_cycle_terminal_receipt_drift"})
+    world_identity_evidence = _recompute_stage_world_identity_evidence(
+        stages,
+        cycle_trace=cycle_trace,
+    )
     if (
-        world.get("object_identity_reused") is not True
-        or world.get("world_model_record_content_hash")
-        != cycle_trace.get("world_model_record_content_hash")
+        world_identity_evidence == "unresolved"
+        or world.get("identity_evidence_kind") != world_identity_evidence
     ):
         issues.append({"code": "stage_world_model_identity_receipt_missing"})
 
@@ -5091,6 +5287,35 @@ def _validate_stage_1_cycle_receipts(
         "s0_to_n5_wmr_bridge_missing",
         "s0_to_l6_world_slot_bridge_missing",
     }
+    n8_transport_evidence = _n8_transport_gap_closure_from_root(
+        root,
+        expected_education_covariates=tuple(
+            sorted(
+                str(row.get("canonical_var") or "")
+                for row in _list_of_mappings(
+                    _mapping(
+                        _mapping(pack.get("components")).get("transport_context")
+                    ).get("covariates")
+                )
+                if row.get("canonical_var")
+            )
+        ),
+    )
+    if n8_transport_evidence.get("closed") is True:
+        expected_closed.add("n8_transport_tuple_hardcode")
+        trace_n8 = _mapping(trace_triage.get("n8_transport_tuple_hardcode"))
+        gap_n8 = _mapping(gap_records.get("n8_transport_tuple_hardcode"))
+        recorded_n8 = _mapping(
+            _mapping(gap_n8.get("owner_evidence")).get(
+                "stage_2_behavioral_receipt"
+            )
+        )
+        if (
+            trace_n8.get("receipt_ref")
+            != n8_transport_evidence.get("receipt_ref")
+            or recorded_n8 != n8_transport_evidence
+        ):
+            issues.append({"code": "n8_transport_gap_receipt_drift"})
     for gap_id in GAP_WITNESS_SPECS:
         expected_status = "closed" if gap_id in expected_closed else "typed_residual"
         if (
@@ -5203,6 +5428,211 @@ def _validate_zero_engine_code(root: Path, pack: Mapping[str, Any], issues: list
         )
 
 
+def _n8_first_vertical_transport_projection(
+    payload: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Resolve the acyclic N8 first-vertical transport evidence projection."""
+
+    proofs = _mapping(payload.get("transport_component_proofs"))
+    first_vertical = _mapping(proofs.get("first_vertical"))
+    if not first_vertical:
+        raise ValueError("n8_first_vertical_transport_proof_missing")
+    required = _list_of_strings(first_vertical.get("required_target_data"))
+    if required != sorted(set(required)):
+        raise ValueError("n8_first_vertical_transport_covariates_invalid")
+    required_text = (
+        "schema_version",
+        "rule_version",
+        "domain_role",
+        "domain",
+        "design_problem_ref",
+        "candidate_id",
+        "candidate_content_hash",
+        "data_owner",
+        "context_source",
+        "cycle_substrate_context_content_hash",
+        "context_binding_hash",
+        "world_model_record_id",
+        "world_model_record_content_hash",
+        "query_treatment",
+        "query_outcome",
+    )
+    if any(not str(first_vertical.get(field) or "") for field in required_text):
+        raise ValueError("n8_first_vertical_transport_proof_incomplete")
+    if first_vertical.get("domain_role") != "first_vertical":
+        raise ValueError("n8_first_vertical_transport_role_mismatch")
+    expected_hash = _hash(
+        {
+            key: value
+            for key, value in first_vertical.items()
+            if key != "proof_content_hash"
+        }
+    )
+    if first_vertical.get("proof_content_hash") != expected_hash:
+        raise ValueError("n8_first_vertical_transport_proof_hash_mismatch")
+    refusal = _mapping(first_vertical.get("typed_refusal"))
+    if (
+        first_vertical.get("component_scope_only") is not True
+        or first_vertical.get("production_value_eligible") is not False
+        or first_vertical.get("value_gate_receipt") is not None
+        or first_vertical.get("outcome_kind") != "typed_refusal"
+        or refusal.get("code") != "acquire_data:transport_context_unresolved"
+        or first_vertical.get("transport_covariates") != []
+        or required
+        or first_vertical.get("selection_diagram_content_hash") is not None
+        or first_vertical.get("selection_nodes") != []
+        or first_vertical.get("transport_receipt") is not None
+        or first_vertical.get("transport_result_content_hash") is not None
+    ):
+        raise ValueError("n8_first_vertical_transport_proof_incoherent")
+    return {
+        "schema_version": str(first_vertical["schema_version"]),
+        "rule_version": str(first_vertical["rule_version"]),
+        "domain_role": "first_vertical",
+        "domain": str(first_vertical["domain"]),
+        "design_problem_ref": str(first_vertical["design_problem_ref"]),
+        "candidate_id": str(first_vertical["candidate_id"]),
+        "candidate_content_hash": str(first_vertical["candidate_content_hash"]),
+        "data_owner": str(first_vertical["data_owner"]),
+        "context_source": str(first_vertical["context_source"]),
+        "required_target_data": required,
+        "outcome_kind": "typed_refusal",
+        "typed_refusal_code": str(refusal["code"]),
+        "transport_comparison_status": (
+            "not_evaluated_first_vertical_context_unresolved"
+        ),
+        "cycle_substrate_context_content_hash": str(
+            first_vertical["cycle_substrate_context_content_hash"]
+        ),
+        "context_binding_hash": str(first_vertical["context_binding_hash"]),
+        "world_model_record_id": str(first_vertical["world_model_record_id"]),
+        "world_model_record_content_hash": str(
+            first_vertical["world_model_record_content_hash"]
+        ),
+        "query_treatment": str(first_vertical["query_treatment"]),
+        "query_outcome": str(first_vertical["query_outcome"]),
+        "selection_diagram_content_hash": None,
+        "proof_content_hash": str(first_vertical["proof_content_hash"]),
+    }
+
+
+def _n8_transport_gap_closure(
+    payload: Mapping[str, Any],
+    *,
+    expected_education_covariates: Sequence[str],
+) -> dict[str, Any]:
+    """Recompute whether N8 closed the pack transport bridge generically."""
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    issues = n8.validate_payload(payload)
+    if issues:
+        return {
+            "closed": False,
+            "reason_code": "n8_value_contract_invalid",
+            "issue_codes": sorted(
+                {
+                    str(issue.get("code") or "")
+                    for issue in issues
+                    if issue.get("code")
+                }
+            ),
+            "receipt_ref": None,
+        }
+    proofs = _mapping(payload.get("transport_component_proofs"))
+    education = _mapping(proofs.get("education"))
+    unseen = _mapping(proofs.get("unseen_pack_shape"))
+    education_covariates = sorted(
+        str(row.get("canonical_var") or "")
+        for row in _list_of_mappings(education.get("transport_covariates"))
+    )
+    expected_covariates = sorted(
+        {str(value) for value in expected_education_covariates if str(value)}
+    )
+    unseen_covariates = sorted(
+        str(row.get("canonical_var") or "")
+        for row in _list_of_mappings(unseen.get("transport_covariates"))
+    )
+    if education_covariates != expected_covariates:
+        return {
+            "closed": False,
+            "reason_code": "n8_education_transport_vocabulary_mismatch",
+            "education_covariates": education_covariates,
+            "expected_education_covariates": expected_covariates,
+            "unseen_covariates": unseen_covariates,
+            "receipt_ref": None,
+        }
+    if (
+        education.get("outcome_kind") != "transport_receipt"
+        or unseen.get("outcome_kind") != "transport_receipt"
+        or not unseen_covariates
+    ):
+        return {
+            "closed": False,
+            "reason_code": "n8_domain_generic_transport_proof_missing",
+            "education_covariates": education_covariates,
+            "expected_education_covariates": expected_covariates,
+            "unseen_covariates": unseen_covariates,
+            "receipt_ref": None,
+        }
+    receipt_ref = _hash(
+        {
+            "value_contract_content_hash": payload.get("contract_content_hash"),
+            "education_proof_content_hash": education.get("proof_content_hash"),
+            "unseen_proof_content_hash": unseen.get("proof_content_hash"),
+            "education_covariates": education_covariates,
+            "unseen_covariates": unseen_covariates,
+        }
+    )
+    return {
+        "closed": True,
+        "reason_code": "n8_data_derived_transport_proven",
+        "education_covariates": education_covariates,
+        "expected_education_covariates": expected_covariates,
+        "unseen_covariates": unseen_covariates,
+        "value_contract_content_hash": payload.get("contract_content_hash"),
+        "education_proof_content_hash": education.get("proof_content_hash"),
+        "unseen_proof_content_hash": unseen.get("proof_content_hash"),
+        "receipt_ref": receipt_ref,
+    }
+
+
+def _n8_transport_gap_closure_from_root(
+    root: Path,
+    *,
+    expected_education_covariates: Sequence[str],
+) -> dict[str, Any]:
+    """Load the frozen N8 contract and fail closed when it is unavailable."""
+
+    path = root / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    if not path.exists():
+        return {
+            "closed": False,
+            "reason_code": "n8_value_contract_missing",
+            "receipt_ref": None,
+        }
+    return _n8_transport_gap_closure(
+        _read_json(path),
+        expected_education_covariates=expected_education_covariates,
+    )
+
+
+def _source_projection_content_hash(
+    repo_root: Path,
+    source_path: Path,
+    projection: Mapping[str, Any],
+) -> str:
+    """Bind a semantic projection to repo-relative source identity."""
+
+    return _hash(
+        {
+            "repo_relative_path": _repo_relative(source_path, repo_root),
+            "projection_kind": "n8_first_vertical_transport.v1",
+            "projection": projection,
+        }
+    )
+
+
 def _first_vertical_comparator(root: Path) -> dict[str, Any]:
     pinned_path = root / "architecture/policy_design_case/layer3_gx_pinned_request.json"
     value_path = root / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
@@ -5210,6 +5640,7 @@ def _first_vertical_comparator(root: Path) -> dict[str, Any]:
     pinned = _read_json(pinned_path)
     value = _read_json(value_path)
     data = _read_json(data_path)
+    value_projection = _n8_first_vertical_transport_projection(value)
     g2 = _mapping(pinned.get("g2_request"))
     outcomes = {
         str(g2.get("effect", "")).rsplit(".", 1)[-1],
@@ -5220,7 +5651,7 @@ def _first_vertical_comparator(root: Path) -> dict[str, Any]:
     for case_id in case_ids:
         if case_id.startswith("l1_") and case_id.endswith("_available"):
             outcomes.add(case_id.removeprefix("l1_").removesuffix("_available"))
-    covariates = sorted(_recursive_values_for_key(value, "required_target_data"))
+    covariates = list(value_projection["required_target_data"])
     levers = sorted(
         {
             str(g2.get("cause")),
@@ -5235,12 +5666,26 @@ def _first_vertical_comparator(root: Path) -> dict[str, Any]:
         "case_id": pinned.get("case_id"),
         "source_hashes": {
             _repo_relative(pinned_path, root): _source_content_hash(root, pinned_path),
-            _repo_relative(value_path, root): _source_content_hash(root, value_path),
+            _repo_relative(value_path, root): _source_projection_content_hash(
+                root,
+                value_path,
+                value_projection,
+            ),
             _repo_relative(data_path, root): _source_content_hash(root, data_path),
+        },
+        "source_hash_kinds": {
+            _repo_relative(pinned_path, root): "full_file_content.v1",
+            _repo_relative(value_path, root): (
+                "semantic_projection:n8_first_vertical_transport.v1"
+            ),
+            _repo_relative(data_path, root): "full_file_content.v1",
         },
         "outcome_canonical_vars": sorted(item for item in outcomes if item),
         "method_family": str(g2.get("data_modality")),
         "transport_covariates": covariates,
+        "transport_comparison_status": value_projection[
+            "transport_comparison_status"
+        ],
         "lever_vocabulary": [item for item in levers if item],
     }
 

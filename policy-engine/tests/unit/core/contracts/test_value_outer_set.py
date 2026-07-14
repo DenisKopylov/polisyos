@@ -193,6 +193,28 @@ def test_value_outer_set_point_mode_requires_tight_interval_generically() -> Non
         )
 
 
+def test_value_outer_set_proxy_mode_requires_nonzero_interval() -> None:
+    """Proxy identification cannot masquerade as a point estimate."""
+
+    with pytest.raises(
+        ValueError,
+        match="bounded_identification_requires_nonzero_interval",
+    ):
+        ValueOuterSet.interval_box(
+            coordinates=("disposable_income",),
+            lower=(42.0,),
+            upper=(42.0,),
+            identification_mode="proxy_identified",
+            assumptions=("proxy_width_must_remain_visible",),
+            assumption_status="declared",
+            calibration_scope={"measurement": "household_distribution"},
+            data_trust=_trust(),
+            world_model_record_ref="world_model_record_test",
+            epoch="ukraine_schema_v2",
+            representation_status="certified",
+        )
+
+
 def test_value_outer_set_non_certified_cannot_mint_promotion_value() -> None:
     search_only = ValueOuterSet.interval_box(
         coordinates=("disposable_income",),

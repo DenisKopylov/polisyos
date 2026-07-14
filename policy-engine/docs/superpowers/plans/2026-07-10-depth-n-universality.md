@@ -1832,6 +1832,17 @@ two models, three budgets, and MiniMax `reasoning_split` split are measured. Com
 rows are reused from the operational journal rather than re-spending calls. Provider exception
 messages are persisted in the extension because the first matrix recorded only their types.
 
+Characterization decision (measured, 2026-07-14): the generic non-strengthening variant made Kimi
+clean at all three ceilings. The lowest ceiling, `8192`, then passed independent shadow confirmation
+for first-vertical, education, and unseen requests through the unchanged schema and span verifier.
+Their completion counts were `5323`, `5152`, and `4187`; all ended with `finish_reason=stop`.
+Therefore the compiler owner adopts the generic non-strengthening sentence and a typed output policy
+whose observed maximum is `5323` and whose ceiling is the next power of two, `8192` (headroom `2869`,
+about 53.9%). The model remains caller/advisor selected; no model id enters the compiler owner.
+MiniMax ordinary requests remained reasoning-wrapped, while Gonka explicitly rejected the otherwise
+valid provider-native `reasoning_split` parameter as unsupported. Those typed rows remain part of
+the denominator. Exploration rows stay shadow-only and are not proof captures.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

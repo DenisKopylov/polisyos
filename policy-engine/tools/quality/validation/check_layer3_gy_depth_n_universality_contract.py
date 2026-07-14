@@ -120,6 +120,48 @@ _SUPERSEDED_CHARACTERIZATION_PROBE_IDS = frozenset(
         "source-nonstrengthening-kimi-forced-tool-32768",
     }
 )
+STRUCTURED_CAPABILITY_SCHEMA = {
+    "type": "object",
+    "additionalProperties": False,
+    "properties": {
+        "probe": {"type": "string", "enum": ["policyos"]},
+        "time_semantics": {
+            "type": "object",
+            "additionalProperties": False,
+            "properties": {
+                "frequency": {"type": "string", "enum": ["M", "Q", "Y"]},
+                "start_date": {"type": "string"},
+                "step_count": {"type": "integer", "minimum": 1},
+                "end_date": {"type": "string", "minLength": 1},
+            },
+            "required": ["frequency", "start_date"],
+            "anyOf": [
+                {"required": ["step_count"]},
+                {"required": ["end_date"]},
+            ],
+        },
+    },
+    "required": ["probe", "time_semantics"],
+}
+_STRUCTURED_CAPABILITY_MODES = (
+    "loose_tool",
+    "strict_tool",
+    "response_format_json_schema",
+    "response_format_json_schema_with_tool",
+    "structured_outputs_json_with_tool",
+)
+STRUCTURED_COMPILER_CAPABILITY_MATRIX = tuple(
+    {
+        "probe_id": f"{model_slug}-{mode}",
+        "model_id": model_id,
+        "mode": mode,
+    }
+    for model_slug, model_id in (
+        ("kimi", "moonshotai/Kimi-K2.6"),
+        ("minimax", "MiniMaxAI/MiniMax-M2.7"),
+    )
+    for mode in _STRUCTURED_CAPABILITY_MODES
+)
 PLAIN_LANGUAGE_PROOF_REQUESTS = {
     "first_vertical": (
         "Design a policy to improve average household income and MSME survival in "
@@ -244,6 +286,7 @@ class _CompilerCharacterizationGateway:
         *,
         request_parameters: Mapping[str, Any],
         system_suffix: str | None = None,
+        provider_schema_mode: str | None = None,
     ) -> None:
         unsupported = set(request_parameters) - self._ALLOWED_REQUEST_PARAMETERS
         if unsupported:
@@ -254,6 +297,15 @@ class _CompilerCharacterizationGateway:
         self._inner = inner
         self._request_parameters = dict(request_parameters)
         self._system_suffix = system_suffix.strip() if system_suffix else None
+        if provider_schema_mode not in {
+            None,
+            "provider_tool_schema",
+            "response_format_json_schema_with_tool",
+        }:
+            raise UniversalityContractError(
+                f"compiler_provider_schema_mode_unknown:{provider_schema_mode}"
+            )
+        self._provider_schema_mode = provider_schema_mode
 
     async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
         method = getattr(self._inner, "list_model_ids", None)
@@ -274,8 +326,51 @@ class _CompilerCharacterizationGateway:
                 )
             if self._system_suffix not in system:
                 effective["system"] = f"{system}\n\n{self._system_suffix}"
+        if self._provider_schema_mode is not None:
+            from polisyos.runtime.http.services.control.nl_pipeline import (
+                design_problem_provider_constraint_schema,
+            )
+
+            provider_schema = design_problem_provider_constraint_schema()
+            tools = copy.deepcopy(effective.get("tools"))
+            if not isinstance(tools, list) or len(tools) != 1:
+                raise UniversalityContractError(
+                    "compiler_provider_schema_tool_denominator_invalid"
+                )
+            function = _mapping(_mapping(tools[0]).get("function"))
+            if function.get("name") != "emit_design_problem":
+                raise UniversalityContractError(
+                    "compiler_provider_schema_tool_owner_mismatch"
+                )
+            function["parameters"] = copy.deepcopy(provider_schema)
+            tools[0]["function"] = function
+            effective["tools"] = tools
+            if self._provider_schema_mode == (
+                "response_format_json_schema_with_tool"
+            ):
+                effective["response_format"] = {
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "policyos_design_problem",
+                        "strict": True,
+                        "schema": copy.deepcopy(provider_schema),
+                    },
+                }
         effective.update(self._request_parameters)
-        return await method(**effective)
+        response = await method(**effective)
+        if self._provider_schema_mode == "response_format_json_schema_with_tool":
+            raw = getattr(response, "raw", None)
+            events = raw.get("_gateway_degraded_events") if isinstance(raw, Mapping) else None
+            if isinstance(events, list) and any(
+                isinstance(event, Mapping)
+                and event.get("reason")
+                == "response_format_unsupported_retry_plain_json"
+                for event in events
+            ):
+                raise UniversalityContractError(
+                    "compiler_structured_output_degraded"
+                )
+        return response
 
 
 class _FreshRecordingSpanGateway:
@@ -480,6 +575,319 @@ def _classify_compiler_characterization_outcome(
     return "provider_refused"
 
 
+def _structured_capability_request(mode: str) -> dict[str, Any]:
+    """Build one provider-native capability request without response adaptation."""
+
+    if mode not in _STRUCTURED_CAPABILITY_MODES:
+        raise UniversalityContractError(
+            f"structured_capability_mode_unknown:{mode}"
+        )
+    schema = copy.deepcopy(STRUCTURED_CAPABILITY_SCHEMA)
+    request: dict[str, Any] = {
+        "system": (
+            "Emit exactly one conformance probe through the requested native carrier. "
+            "Follow the supplied schema without adding fields."
+        ),
+        "user": (
+            "Return the PolicyOS conformance probe. Prefer leaving completion "
+            "alternatives absent unless the active schema requires one."
+        ),
+        "temperature": 0.0,
+        "max_tokens": 256,
+    }
+    if mode in {
+        "loose_tool",
+        "strict_tool",
+        "response_format_json_schema_with_tool",
+        "structured_outputs_json_with_tool",
+    }:
+        function: dict[str, Any] = {
+            "name": "emit_conformance_probe",
+            "description": "Emit the provider conformance probe.",
+            "parameters": copy.deepcopy(schema),
+        }
+        if mode == "strict_tool":
+            function["strict"] = True
+        request["tools"] = [{"type": "function", "function": function}]
+        request["tool_choice"] = {
+            "type": "function",
+            "function": {"name": "emit_conformance_probe"},
+        }
+    if mode in {
+        "response_format_json_schema",
+        "response_format_json_schema_with_tool",
+    }:
+        request["response_format"] = {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "policyos_conformance_probe",
+                "strict": True,
+                "schema": copy.deepcopy(schema),
+            },
+        }
+    if mode == "structured_outputs_json_with_tool":
+        request["structured_outputs"] = {"json": copy.deepcopy(schema)}
+    return request
+
+
+def _structured_capability_payload_valid(payload: object) -> bool:
+    """Validate a probe payload against the exact request schema."""
+
+    if not isinstance(payload, Mapping) or set(payload) != {
+        "probe",
+        "time_semantics",
+    }:
+        return False
+    if payload.get("probe") != "policyos":
+        return False
+    time_semantics = payload.get("time_semantics")
+    if not isinstance(time_semantics, Mapping):
+        return False
+    if not set(time_semantics).issubset(
+        {"frequency", "start_date", "step_count", "end_date"}
+    ):
+        return False
+    if time_semantics.get("frequency") not in {"M", "Q", "Y"}:
+        return False
+    if not isinstance(time_semantics.get("start_date"), str):
+        return False
+    step_count = time_semantics.get("step_count")
+    end_date = time_semantics.get("end_date")
+    valid_step = isinstance(step_count, int) and not isinstance(step_count, bool) and step_count >= 1
+    valid_end = isinstance(end_date, str) and bool(end_date)
+    return valid_step or valid_end
+
+
+def _classify_structured_capability_response(response: object) -> dict[str, Any]:
+    """Classify constrained output without promoting content into a tool call."""
+
+    raw = getattr(response, "raw", None)
+    degraded_reasons: list[str] = []
+    if isinstance(raw, Mapping):
+        events = raw.get("_gateway_degraded_events")
+        if isinstance(events, list):
+            degraded_reasons = [
+                str(event.get("reason"))
+                for event in events
+                if isinstance(event, Mapping) and event.get("reason")
+            ]
+    tool_calls = list(getattr(response, "tool_calls", None) or [])
+    carrier_kind = "missing"
+    constraint_status = "carrier_missing"
+    if tool_calls:
+        carrier_kind = "tool_arguments"
+        matching = [
+            call
+            for call in tool_calls
+            if getattr(call, "name", "") == "emit_conformance_probe"
+        ]
+        valid = (
+            len(matching) == 1
+            and getattr(matching[0], "error_envelope", None) is None
+            and _structured_capability_payload_valid(
+                getattr(matching[0], "arguments", None)
+            )
+        )
+        constraint_status = "pass" if valid else "schema_invalid"
+    else:
+        content = str(getattr(response, "content", "") or "")
+        if content.strip():
+            carrier_kind = "assistant_content"
+            try:
+                payload = json.loads(content)
+            except json.JSONDecodeError:
+                constraint_status = "json_invalid"
+            else:
+                constraint_status = (
+                    "pass"
+                    if _structured_capability_payload_valid(payload)
+                    else "schema_invalid"
+                )
+    if degraded_reasons:
+        constraint_status = "response_format_degraded"
+    return {
+        "carrier_kind": carrier_kind,
+        "constraint_status": constraint_status,
+        "usable_for_compiler": (
+            carrier_kind == "tool_arguments"
+            and constraint_status == "pass"
+            and not degraded_reasons
+        ),
+        "degraded_reasons": degraded_reasons,
+    }
+
+
+async def _probe_structured_compiler_capability(
+    repo_root: Path,
+    *,
+    probe_id: str,
+    model_id: str,
+    mode: str,
+) -> dict[str, Any]:
+    """Run one fresh-client provider capability probe and persist its denominator row."""
+
+    from polisyos.scientist.orchestration.llm.factory import (
+        create_traced_gateway_client,
+    )
+
+    started = time.monotonic()
+    journal_path = (
+        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "structured_capabilities.jsonl"
+    )
+    request = _structured_capability_request(mode)
+    client = create_traced_gateway_client(
+        model_name=model_id,
+        run_id=f"gy_n10_stage4_structured_capability_{probe_id}",
+        model_variant_id="gy-n10-stage4-structured-capability",
+    )
+    response: object | None = None
+    error_type: str | None = None
+    error_message: str | None = None
+    if client is None:
+        error_type = "GatewayUnavailable"
+        error_message = "No configured gateway client was available."
+    else:
+        try:
+            response = await client.generate(**request)
+        except RuntimeError as exc:
+            error_type = type(exc).__name__
+            error_message = str(exc)
+        finally:
+            close = getattr(client, "aclose", None)
+            if callable(close):
+                await close()
+    if response is None:
+        classification = {
+            "carrier_kind": "provider_refusal",
+            "constraint_status": "provider_refused",
+            "usable_for_compiler": False,
+            "degraded_reasons": [],
+        }
+        response_payload: dict[str, Any] = {}
+    else:
+        classification = _classify_structured_capability_response(response)
+        response_payload = _normalized_gateway_response(response)
+        _append_jsonl(
+            repo_root
+            / _PROOF_CAPTURE_JOURNAL_DIR
+            / "structured_capabilities_raw.jsonl",
+            {
+                "schema_version": (
+                    "policyos.layer3.gy.n10.structured_capability_raw.v1"
+                ),
+                "event": "compiler_structured_capability_response_captured",
+                "probe_id": probe_id,
+                "model_id": model_id,
+                "mode": mode,
+                "request_content_hash": _semantic_hash(request),
+                "response": response_payload,
+                **classification,
+            },
+        )
+    usage = _mapping(response_payload.get("usage"))
+    row = {
+        "schema_version": "policyos.layer3.gy.n10.structured_capability.v1",
+        "event": "compiler_structured_capability_probe_completed",
+        "probe_id": probe_id,
+        "model_id": model_id,
+        "mode": mode,
+        "request_content_hash": _semantic_hash(request),
+        "schema_content_hash": _semantic_hash(STRUCTURED_CAPABILITY_SCHEMA),
+        **classification,
+        "finish_reason": response_payload.get("finish_reason"),
+        "prompt_tokens": int(usage.get("prompt_tokens") or 0),
+        "completion_tokens": int(usage.get("completion_tokens") or 0),
+        "total_tokens": int(usage.get("total_tokens") or 0),
+        "response_content_hash": (
+            _semantic_hash(response_payload) if response_payload else None
+        ),
+        "error_type": error_type,
+        "error_message": error_message,
+        "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
+    }
+    _append_jsonl(journal_path, row)
+    return row
+
+
+def _completed_structured_capability_probes(
+    repo_root: Path,
+) -> dict[str, dict[str, Any]]:
+    """Load terminal capability rows for restart-safe characterization."""
+
+    path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "structured_capabilities.jsonl"
+    if not path.is_file():
+        return {}
+    rows: dict[str, dict[str, Any]] = {}
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        if not raw_line.strip():
+            continue
+        try:
+            row = json.loads(raw_line)
+        except json.JSONDecodeError as exc:
+            raise UniversalityContractError(
+                "compiler_structured_capability_journal_invalid"
+            ) from exc
+        if not isinstance(row, Mapping) or row.get("event") != (
+            "compiler_structured_capability_probe_completed"
+        ):
+            continue
+        probe_id = str(row.get("probe_id") or "")
+        if not probe_id:
+            raise UniversalityContractError(
+                "compiler_structured_capability_probe_id_missing"
+            )
+        rows[probe_id] = dict(row)
+    return rows
+
+
+async def _characterize_structured_compiler_capabilities(
+    repo_root: Path,
+) -> dict[str, Any]:
+    """Measure all supported native structured-output carriers once."""
+
+    completed = _completed_structured_capability_probes(repo_root)
+    rows: list[dict[str, Any]] = []
+    for spec in STRUCTURED_COMPILER_CAPABILITY_MATRIX:
+        probe_id = str(spec["probe_id"])
+        model_id = str(spec["model_id"])
+        mode = str(spec["mode"])
+        prior = completed.get(probe_id)
+        if prior is not None:
+            if (
+                prior.get("model_id") != model_id
+                or prior.get("mode") != mode
+                or prior.get("schema_content_hash")
+                != _semantic_hash(STRUCTURED_CAPABILITY_SCHEMA)
+            ):
+                raise UniversalityContractError(
+                    f"compiler_structured_capability_identity_drift:{probe_id}"
+                )
+            rows.append(dict(prior))
+            continue
+        row = await _probe_structured_compiler_capability(
+            repo_root,
+            probe_id=probe_id,
+            model_id=model_id,
+            mode=mode,
+        )
+        rows.append(row)
+    return {
+        "schema_version": "policyos.layer3.gy.n10.structured_capability_summary.v1",
+        "status": "pass",
+        "issues": [],
+        "probe_count": len(rows),
+        "rows": rows,
+        "usable_modes": [
+            {
+                "model_id": row["model_id"],
+                "mode": row["mode"],
+            }
+            for row in rows
+            if row.get("usable_for_compiler") is True
+        ],
+    }
+
+
 async def _characterize_compiler_probe(
     repo_root: Path,
     *,
@@ -490,6 +898,7 @@ async def _characterize_compiler_probe(
     prompt_variant: str,
     system_suffix: str | None,
     request_parameters: Mapping[str, Any],
+    provider_schema_mode: str | None = None,
 ) -> dict[str, Any]:
     """Run one shadow compiler probe through every unchanged admission owner."""
 
@@ -506,11 +915,16 @@ async def _characterize_compiler_probe(
     )
 
     started = time.monotonic()
+    journal_stem = (
+        "structured_conformance"
+        if provider_schema_mode is not None
+        else "characterization"
+    )
     raw_journal_path = (
-        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "characterization_raw.jsonl"
+        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{journal_stem}_raw.jsonl"
     )
     result_journal_path = (
-        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "characterization.jsonl"
+        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{journal_stem}.jsonl"
     )
     inner = create_traced_gateway_client(
         model_name=model_id,
@@ -539,12 +953,14 @@ async def _characterize_compiler_probe(
                 "model_id": model_id,
                 "prompt_variant": prompt_variant,
                 "request_parameters": dict(request_parameters),
+                "provider_schema_mode": provider_schema_mode,
             },
         )
         gateway = _CompilerCharacterizationGateway(
             recorder,
             request_parameters=request_parameters,
             system_suffix=system_suffix,
+            provider_schema_mode=provider_schema_mode,
         )
         span_gateway = _FreshRecordingSpanGateway(
             model_id=SPAN_SUPPORT_GATEWAY_MODEL_ID,
@@ -556,6 +972,7 @@ async def _characterize_compiler_probe(
                 "role": role,
                 "compiler_model_id": model_id,
                 "prompt_variant": prompt_variant,
+                "provider_schema_mode": provider_schema_mode,
             },
         )
         try:
@@ -568,6 +985,10 @@ async def _characterize_compiler_probe(
             )
         except DesignProblemAuthorityError as exc:
             error_code = exc.code
+            error_message = str(exc)
+            error_type = type(exc).__name__
+        except UniversalityContractError as exc:
+            error_code = str(exc).partition(":")[0]
             error_message = str(exc)
             error_type = type(exc).__name__
         except RuntimeError as exc:  # gateway/provider refusal, not an owner admission
@@ -610,6 +1031,7 @@ async def _characterize_compiler_probe(
         "role": role,
         "model_id": model_id,
         "prompt_variant": prompt_variant,
+        "provider_schema_mode": provider_schema_mode,
         "request_parameters": dict(request_parameters),
         "outcome": outcome,
         "finish_reason": response_payload.get("finish_reason"),
@@ -867,6 +1289,240 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
         },
     }
     _append_jsonl(result_journal_path, summary)
+    return summary
+
+
+def _completed_structured_conformance_probes(
+    repo_root: Path,
+) -> dict[str, dict[str, Any]]:
+    """Load restart-safe full-schema compiler probe rows."""
+
+    path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "structured_conformance.jsonl"
+    if not path.is_file():
+        return {}
+    completed: dict[str, dict[str, Any]] = {}
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        if not raw_line.strip():
+            continue
+        try:
+            row = json.loads(raw_line)
+        except json.JSONDecodeError as exc:
+            raise UniversalityContractError(
+                "compiler_structured_conformance_journal_invalid"
+            ) from exc
+        if not isinstance(row, Mapping) or row.get("event") != (
+            "compiler_characterization_probe_completed"
+        ):
+            continue
+        probe_id = str(row.get("probe_id") or "")
+        if not probe_id:
+            raise UniversalityContractError(
+                "compiler_structured_conformance_probe_id_missing"
+            )
+        completed[probe_id] = dict(row)
+    return completed
+
+
+def _structured_conformance_probe_id(
+    *,
+    mode: str,
+    role: str,
+    seed: int,
+    repetition: int,
+) -> str:
+    mode_slug = mode.replace("_", "-")
+    return f"structured-{mode_slug}-{role}-seed-{seed}-r{repetition}"
+
+
+async def _characterize_structured_compiler_conformance(
+    repo_root: Path,
+) -> dict[str, Any]:
+    """Prove full-schema compiler conformance across roles, seeds, and repetitions."""
+
+    model_id = "moonshotai/Kimi-K2.6"
+    prompt_variant = "source_semantics_non_strengthening_v1"
+    modes = (
+        "response_format_json_schema_with_tool",
+        "provider_tool_schema",
+    )
+    seeds = (0, 1, 42)
+    repetitions = (1, 2)
+    completed = _completed_structured_conformance_probes(repo_root)
+    rows: list[dict[str, Any]] = []
+    row_ids: set[str] = set()
+
+    async def _ensure(
+        *,
+        mode: str,
+        role: str,
+        seed: int,
+        repetition: int,
+    ) -> dict[str, Any]:
+        probe_id = _structured_conformance_probe_id(
+            mode=mode,
+            role=role,
+            seed=seed,
+            repetition=repetition,
+        )
+        request_parameters = {"max_tokens": 8192, "seed": seed}
+        prior = completed.get(probe_id)
+        if prior is not None:
+            if (
+                prior.get("model_id") != model_id
+                or prior.get("prompt_variant") != prompt_variant
+                or prior.get("provider_schema_mode") != mode
+                or _mapping(prior.get("request_parameters"))
+                != request_parameters
+            ):
+                raise UniversalityContractError(
+                    f"compiler_structured_conformance_identity_drift:{probe_id}"
+                )
+            row = dict(prior)
+        else:
+            row = await _characterize_compiler_probe(
+                repo_root,
+                probe_id=probe_id,
+                phase="structured_stability",
+                role=role,
+                model_id=model_id,
+                prompt_variant=prompt_variant,
+                system_suffix=_characterization_system_suffix(prompt_variant),
+                request_parameters=request_parameters,
+                provider_schema_mode=mode,
+            )
+            completed[probe_id] = row
+        if probe_id not in row_ids:
+            rows.append(row)
+            row_ids.add(probe_id)
+        return row
+
+    pruned_modes: dict[str, str] = {}
+    active_modes: list[str] = []
+    for mode in modes:
+        canary = await _ensure(
+            mode=mode,
+            role="unseen",
+            seed=1,
+            repetition=1,
+        )
+        error_message = str(canary.get("error_message") or "")
+        deterministic_refusal = canary.get("error_code") == (
+            "compiler_structured_output_degraded"
+        ) or error_message.startswith("Gateway request failed (400)")
+        if deterministic_refusal:
+            pruned_modes[mode] = str(
+                canary.get("error_code") or "provider_request_refused"
+            )
+            continue
+        active_modes.append(mode)
+        for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
+            for seed in seeds:
+                for repetition in repetitions:
+                    await _ensure(
+                        mode=mode,
+                        role=role,
+                        seed=seed,
+                        repetition=repetition,
+                    )
+
+    qualified: dict[tuple[str, str], bool] = {}
+    for mode in active_modes:
+        for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
+            denominator = [
+                row
+                for row in rows
+                if row.get("provider_schema_mode") == mode
+                and row.get("role") == role
+            ]
+            all_clean = len(denominator) == len(seeds) * len(repetitions) and all(
+                row.get("outcome")
+                == "clean_complete_schema_valid_entailment_pass"
+                for row in denominator
+            )
+            stable_per_seed = all(
+                len(
+                    {
+                        row.get("response_content_hash")
+                        for row in denominator
+                        if int(
+                            _mapping(row.get("request_parameters")).get(
+                                "seed", -1
+                            )
+                        )
+                        == seed
+                    }
+                )
+                == 1
+                for seed in seeds
+            )
+            qualified[(mode, role)] = all_clean and stable_per_seed
+
+    universal_mode = next(
+        (
+            mode
+            for mode in modes
+            if all(
+                qualified.get((mode, role)) is True
+                for role in PLAIN_LANGUAGE_PROOF_REQUESTS
+            )
+        ),
+        None,
+    )
+    if universal_mode is not None:
+        role_modes = dict.fromkeys(
+            PLAIN_LANGUAGE_PROOF_REQUESTS,
+            universal_mode,
+        )
+        selection_scope = "universal"
+    else:
+        role_modes = {}
+        for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
+            for mode in modes:
+                if qualified.get((mode, role)) is True:
+                    role_modes[role] = mode
+                    break
+        selection_scope = "per_role"
+    passed = len(role_modes) == len(PLAIN_LANGUAGE_PROOF_REQUESTS)
+    selected_rows = [
+        row
+        for row in rows
+        if role_modes.get(str(row.get("role")))
+        == row.get("provider_schema_mode")
+    ]
+    summary = {
+        "schema_version": (
+            "policyos.layer3.gy.n10.structured_conformance_summary.v1"
+        ),
+        "event": "compiler_structured_conformance_completed",
+        "status": "pass" if passed else "fail",
+        "issues": (
+            []
+            if passed
+            else [{"code": "compiler_model_conformance_exhausted"}]
+        ),
+        "rows": rows,
+        "pruned_modes": pruned_modes,
+        "winning_config": (
+            {
+                "model_id": model_id,
+                "mode": universal_mode,
+                "role_modes": role_modes,
+                "selection_scope": selection_scope,
+                "seeds": list(seeds),
+                "confirmation_repetitions": len(repetitions),
+                "observed_max_completion_tokens": max(
+                    (int(row.get("completion_tokens") or 0) for row in selected_rows),
+                    default=0,
+                ),
+            }
+            if passed
+            else None
+        ),
+    }
+    _append_jsonl(
+        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "structured_conformance.jsonl",
+        summary,
+    )
     return summary
 
 
@@ -2738,6 +3394,32 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         ):
             report = asyncio.run(_characterize_compiler_conformance(REPO_ROOT))
         return report, 0 if report["status"] == "pass" else 1
+    if args.characterize_compiler_capabilities:
+        with _temporary_environment(
+            {
+                "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "600",
+                "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "1",
+                "POLISYOS_LLM_CACHE_TTL_S": "0",
+                "POLISYOS_LLM_CACHE_MAXSIZE": "0",
+            }
+        ):
+            report = asyncio.run(
+                _characterize_structured_compiler_capabilities(REPO_ROOT)
+            )
+        return report, 0 if report["status"] == "pass" else 1
+    if args.characterize_compiler_structured:
+        with _temporary_environment(
+            {
+                "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "600",
+                "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "1",
+                "POLISYOS_LLM_CACHE_TTL_S": "0",
+                "POLISYOS_LLM_CACHE_MAXSIZE": "0",
+            }
+        ):
+            report = asyncio.run(
+                _characterize_structured_compiler_conformance(REPO_ROOT)
+            )
+        return report, 0 if report["status"] == "pass" else 1
     if args.capture_proof_runs:
         try:
             data = capture_and_write_payload(REPO_ROOT)
@@ -2792,6 +3474,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     modes.add_argument("--rederive-audit", action="store_true")
     modes.add_argument("--source-flip-mutations", action="store_true")
     modes.add_argument("--characterize-compiler", action="store_true")
+    modes.add_argument("--characterize-compiler-capabilities", action="store_true")
+    modes.add_argument("--characterize-compiler-structured", action="store_true")
     modes.add_argument("--capture-proof-runs", action="store_true")
     modes.add_argument("--write", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")

@@ -1181,6 +1181,224 @@ async def test_characterization_gateway_varies_only_request_parameters() -> None
     ]
 
 
+def test_structured_capability_matrix_is_finite_and_carrier_complete() -> None:
+    """Capability probing distinguishes constrained carriers from schema-shaped claims."""
+
+    validator = _universality_contract_validator()
+    rows = list(validator.STRUCTURED_COMPILER_CAPABILITY_MATRIX)
+
+    assert len(rows) == 10
+    assert {row["model_id"] for row in rows} == {
+        "moonshotai/Kimi-K2.6",
+        "MiniMaxAI/MiniMax-M2.7",
+    }
+    assert {row["mode"] for row in rows} == {
+        "loose_tool",
+        "strict_tool",
+        "response_format_json_schema",
+        "response_format_json_schema_with_tool",
+        "structured_outputs_json_with_tool",
+    }
+    assert len({row["probe_id"] for row in rows}) == len(rows)
+    assert not any(
+        key in {"role", "domain", "jurisdiction"}
+        for row in rows
+        for key in row
+    )
+
+
+def test_structured_capability_request_uses_provider_native_controls_only() -> None:
+    """Every variant changes the provider request and never installs a response carrier shim."""
+
+    validator = _universality_contract_validator()
+
+    strict_tool = validator._structured_capability_request("strict_tool")
+    combined = validator._structured_capability_request(
+        "response_format_json_schema_with_tool"
+    )
+    native = validator._structured_capability_request(
+        "structured_outputs_json_with_tool"
+    )
+
+    assert strict_tool["tools"][0]["function"]["strict"] is True
+    assert "response_format" not in strict_tool
+    assert combined["response_format"]["type"] == "json_schema"
+    assert combined["tools"][0]["function"]["name"] == "emit_conformance_probe"
+    assert native["structured_outputs"] == {
+        "json": validator.STRUCTURED_CAPABILITY_SCHEMA
+    }
+    assert native["tool_choice"] == {
+        "type": "function",
+        "function": {"name": "emit_conformance_probe"},
+    }
+
+
+def test_structured_capability_classifier_requires_real_tool_carrier() -> None:
+    """Content JSON and response-format fallback cannot masquerade as tool conformance."""
+
+    validator = _universality_contract_validator()
+    valid = {
+        "probe": "policyos",
+        "time_semantics": {
+            "frequency": "Q",
+            "start_date": "2026-07-14",
+            "step_count": 1,
+        },
+    }
+    tool_response = SimpleNamespace(
+        content="",
+        raw={"choices": [{"finish_reason": "tool_calls"}]},
+        tool_calls=[
+            SimpleNamespace(
+                name="emit_conformance_probe",
+                arguments=valid,
+                error_envelope=None,
+            )
+        ],
+    )
+    content_response = SimpleNamespace(
+        content=json.dumps(valid),
+        raw={"choices": [{"finish_reason": "stop"}]},
+        tool_calls=[],
+    )
+    degraded_response = SimpleNamespace(
+        content="",
+        raw={
+            "choices": [{"finish_reason": "tool_calls"}],
+            "_gateway_degraded_events": [
+                {"reason": "response_format_unsupported_retry_plain_json"}
+            ],
+        },
+        tool_calls=tool_response.tool_calls,
+    )
+
+    assert validator._classify_structured_capability_response(tool_response) == {
+        "carrier_kind": "tool_arguments",
+        "constraint_status": "pass",
+        "usable_for_compiler": True,
+        "degraded_reasons": [],
+    }
+    assert validator._classify_structured_capability_response(content_response) == {
+        "carrier_kind": "assistant_content",
+        "constraint_status": "pass",
+        "usable_for_compiler": False,
+        "degraded_reasons": [],
+    }
+    assert validator._classify_structured_capability_response(degraded_response) == {
+        "carrier_kind": "tool_arguments",
+        "constraint_status": "response_format_degraded",
+        "usable_for_compiler": False,
+        "degraded_reasons": ["response_format_unsupported_retry_plain_json"],
+    }
+
+
+@pytest.mark.asyncio
+async def test_characterization_overlay_applies_full_provider_schema_to_request() -> None:
+    """Full-schema characterization changes only request controls and preserves the response."""
+
+    validator = _universality_contract_validator()
+    sentinel = SimpleNamespace(raw={}, tool_calls=[], content="")
+
+    class _Inner:
+        def __init__(self) -> None:
+            self.calls: list[dict[str, Any]] = []
+
+        async def generate(self, **kwargs: Any) -> object:
+            self.calls.append(kwargs)
+            return sentinel
+
+    inner = _Inner()
+    gateway = validator._CompilerCharacterizationGateway(
+        inner,
+        request_parameters={"max_tokens": 8192, "seed": 1},
+        provider_schema_mode="response_format_json_schema_with_tool",
+    )
+    response = await gateway.generate(
+        system="canonical-system",
+        user="canonical-user",
+        tools=[
+            {
+                "type": "function",
+                "function": {
+                    "name": "emit_design_problem",
+                    "parameters": {"type": "object"},
+                },
+            }
+        ],
+        tool_choice={
+            "type": "function",
+            "function": {"name": "emit_design_problem"},
+        },
+        temperature=0.0,
+    )
+
+    assert response is sentinel
+    request = inner.calls[0]
+    provider_schema = request["tools"][0]["function"]["parameters"]
+    assert request["response_format"] == {
+        "type": "json_schema",
+        "json_schema": {
+            "name": "policyos_design_problem",
+            "strict": True,
+            "schema": provider_schema,
+        },
+    }
+    time_object = provider_schema["properties"]["jurisdiction_time"]["properties"][
+        "time_semantics"
+    ]["anyOf"][0]
+    assert time_object["anyOf"] == [
+        {
+            "required": ["step_count"],
+            "properties": {"step_count": {"type": "integer", "minimum": 1}},
+        },
+        {
+            "required": ["end_date"],
+            "properties": {"end_date": {"type": "string", "minLength": 1}},
+        },
+    ]
+
+
+@pytest.mark.asyncio
+async def test_characterization_overlay_refuses_response_format_fallback() -> None:
+    """A provider retry without response_format is measured as refusal, never conformance."""
+
+    validator = _universality_contract_validator()
+
+    class _Inner:
+        async def generate(self, **kwargs: Any) -> object:
+            del kwargs
+            return SimpleNamespace(
+                raw={
+                    "_gateway_degraded_events": [
+                        {"reason": "response_format_unsupported_retry_plain_json"}
+                    ]
+                }
+            )
+
+    gateway = validator._CompilerCharacterizationGateway(
+        _Inner(),
+        request_parameters={"max_tokens": 8192},
+        provider_schema_mode="response_format_json_schema_with_tool",
+    )
+
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="compiler_structured_output_degraded",
+    ):
+        await gateway.generate(
+            system="canonical-system",
+            tools=[
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "emit_design_problem",
+                        "parameters": {"type": "object"},
+                    },
+                }
+            ],
+        )
+
+
 def test_characterization_matrix_is_finite_and_domain_agnostic() -> None:
     """The sweep spans supported models/controls without domain-keyed behavior."""
 
@@ -1411,6 +1629,72 @@ async def test_characterization_requires_repeated_stable_hashes(
         assert report["winning_config"]["confirmation_repetitions"] == 2
     else:
         assert report["winning_config"] is None
+
+
+@pytest.mark.asyncio
+async def test_structured_conformance_prunes_degraded_mode_then_proves_all_roles(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A deterministic carrier refusal is measured once; a viable mode proves every seed/role."""
+
+    validator = _universality_contract_validator()
+    monkeypatch.setattr(validator, "_PROOF_CAPTURE_JOURNAL_DIR", Path("capture"))
+    calls: list[dict[str, Any]] = []
+
+    async def _probe(repo_root: Path, **kwargs: Any) -> dict[str, Any]:
+        assert repo_root == tmp_path
+        calls.append(dict(kwargs))
+        mode = str(kwargs["provider_schema_mode"])
+        role = str(kwargs["role"])
+        seed = int(kwargs["request_parameters"]["seed"])
+        if mode == "response_format_json_schema_with_tool":
+            return {
+                "event": "compiler_characterization_probe_completed",
+                "probe_id": kwargs["probe_id"],
+                "role": role,
+                "model_id": kwargs["model_id"],
+                "prompt_variant": kwargs["prompt_variant"],
+                "provider_schema_mode": mode,
+                "request_parameters": kwargs["request_parameters"],
+                "outcome": "schema_invalid",
+                "error_code": "compiler_structured_output_degraded",
+                "response_content_hash": "sha256:degraded",
+            }
+        return {
+            "event": "compiler_characterization_probe_completed",
+            "probe_id": kwargs["probe_id"],
+            "role": role,
+            "model_id": kwargs["model_id"],
+            "prompt_variant": kwargs["prompt_variant"],
+            "provider_schema_mode": mode,
+            "request_parameters": kwargs["request_parameters"],
+            "outcome": "clean_complete_schema_valid_entailment_pass",
+            "error_code": None,
+            "completion_tokens": 5000,
+            "response_content_hash": f"sha256:{mode}:{role}:{seed}",
+        }
+
+    monkeypatch.setattr(validator, "_characterize_compiler_probe", _probe)
+
+    report = await validator._characterize_structured_compiler_conformance(tmp_path)
+
+    assert report["status"] == "pass"
+    assert report["winning_config"]["role_modes"] == dict.fromkeys(
+        validator.PLAIN_LANGUAGE_PROOF_REQUESTS,
+        "provider_tool_schema",
+    )
+    assert report["winning_config"]["selection_scope"] == "universal"
+    assert report["winning_config"]["mode"] == "provider_tool_schema"
+    assert sum(
+        call["provider_schema_mode"]
+        == "response_format_json_schema_with_tool"
+        for call in calls
+    ) == 1
+    assert sum(
+        call["provider_schema_mode"] == "provider_tool_schema"
+        for call in calls
+    ) == 18
 
 
 def test_span_capture_uses_fresh_client_inside_each_event_loop(

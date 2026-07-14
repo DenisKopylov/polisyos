@@ -28,6 +28,7 @@ from polisyos.runtime.http.services.control.nl_pipeline import (
     _production_materialization_failure,
     build_design_problem_from_nl_request,
     design_problem_compiler_source_semantics_invariant,
+    design_problem_provider_constraint_schema,
 )
 from polisyos.runtime.http.services.control.nl_pipeline_testing import (
     NLContractTestingAuthorityStamp,
@@ -520,6 +521,19 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     tool_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
     assert "$defs" not in tool_schema
     assert "$ref" not in json.dumps(tool_schema)
+    time_object = tool_schema["properties"]["jurisdiction_time"]["properties"][
+        "time_semantics"
+    ]["anyOf"][0]
+    assert time_object["anyOf"] == [
+        {
+            "required": ["step_count"],
+            "properties": {"step_count": {"type": "integer", "minimum": 1}},
+        },
+        {
+            "required": ["end_date"],
+            "properties": {"end_date": {"type": "string", "minLength": 1}},
+        },
+    ]
     assert span_support.calls
 
 
@@ -585,9 +599,9 @@ def test_design_problem_output_budget_is_derived_from_characterization() -> None
 
     policy = _DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY
 
-    assert policy.observed_max_completion_tokens == 5323
+    assert policy.observed_max_completion_tokens == 5628
     assert policy.max_tokens == 8192
-    assert policy.headroom_tokens == 2869
+    assert policy.headroom_tokens == 2564
     assert policy.max_tokens == 1 << (policy.observed_max_completion_tokens - 1).bit_length()
     assert "2026-07-14-gy-n10-stage-4" in policy.evidence_ref
     with pytest.raises(ValueError, match="output_budget_not_next_power_of_two"):
@@ -596,6 +610,68 @@ def test_design_problem_output_budget_is_derived_from_characterization() -> None
             max_tokens=9000,
             headroom_tokens=3677,
             evidence_ref=policy.evidence_ref,
+        )
+
+
+def test_design_problem_provider_constraint_exposes_existing_time_rule() -> None:
+    """The request schema mirrors strict time completeness without changing its gate owner."""
+
+    from polisyos.ir.kernel.time_semantics import TimeSemantics
+
+    canonical_before = json.dumps(
+        DesignProblem.model_json_schema(),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    provider_schema = design_problem_provider_constraint_schema()
+    canonical_after = json.dumps(
+        DesignProblem.model_json_schema(),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    time_union = provider_schema["properties"]["jurisdiction_time"]["properties"][
+        "time_semantics"
+    ]["anyOf"]
+    time_schema = next(item for item in time_union if item.get("type") == "object")
+
+    assert canonical_after == canonical_before
+    assert {item.get("type") for item in time_union} == {"object", "null"}
+    assert time_schema["anyOf"] == [
+        {
+            "required": ["step_count"],
+            "properties": {
+                "step_count": {"type": "integer", "minimum": 1},
+            },
+        },
+        {
+            "required": ["end_date"],
+            "properties": {
+                "end_date": {"type": "string", "minLength": 1},
+            },
+        },
+    ]
+    TimeSemantics.model_validate(
+        {
+            "frequency": "Q",
+            "start_date": "2026-07-14",
+            "step_count": 1,
+        }
+    )
+    TimeSemantics.model_validate(
+        {
+            "frequency": "Q",
+            "start_date": "2026-07-14",
+            "end_date": "2027-07-14",
+        }
+    )
+    with pytest.raises(ValueError, match="step_count or end_date must be provided"):
+        TimeSemantics.model_validate(
+            {
+                "frequency": "Q",
+                "start_date": "2026-07-14",
+                "step_count": None,
+                "end_date": None,
+            }
         )
 
 

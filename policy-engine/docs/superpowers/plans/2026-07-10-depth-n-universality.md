@@ -1918,6 +1918,18 @@ Production configuration is not changed until that finite gate passes. If it pas
 and truncation fence land in a scoped checkpoint, the cheap N4/N8/N10a/composition/census ripple gate
 must show zero artifact movement, and only then does the single cold proof closeout begin.
 
+Measured decision (2026-07-14): Kimi's combined JSON-schema response format plus forced tool
+produced a genuine strict-gateway tool call on the microprobe, while MiniMax did not conform and
+Kimi rejected `structured_outputs` exactly as its provider contract states. The full denominator then
+ran both the combined carrier and the owner-complete tool schema over all three proof roles, seeds
+`0`, `1`, and `42`, with two repetitions. The owner-complete tool schema passed all 18 rows with zero
+same-seed hash drift; the combined carrier passed education and unseen but correctly lost four
+first-vertical rows at the unchanged entailment verifier. Production therefore selects the universal
+owner-complete tool schema: no model/domain branch, no seed pin, and no assistant-content carrier.
+The observed completion maximum is `5628`, so the typed ceiling remains `8192` with `2564` headroom.
+N4/N8/N10a/composition/census checks showed no frozen-artifact ripple. The scoped compiler
+checkpoint lands before the single cold proof closeout.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

@@ -161,10 +161,10 @@ class _DesignProblemCompilerOutputPolicy(BaseModel):
 
 _DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY = (
     _DesignProblemCompilerOutputPolicy.from_characterization(
-        observed_max_completion_tokens=5323,
+        observed_max_completion_tokens=5628,
         evidence_ref=(
             "docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md"
-            "#characterization-matrix-2--conforming-native-output-found"
+            "#structured-conformance-denominator-universal-owner-schema-selected"
         ),
     )
 )
@@ -359,7 +359,7 @@ async def build_design_problem_from_nl_request(
                             "constraint must include admissibility_basis and source_text "
                             "or evidence_ref."
                         ),
-                        "parameters": _inline_json_schema_refs(DesignProblem.model_json_schema()),
+                        "parameters": design_problem_provider_constraint_schema(),
                     },
                 }
             ],
@@ -498,6 +498,61 @@ def _inline_json_schema_refs(schema: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(inlined, dict):
         raise ValueError("json_schema_inline_result_not_object")
     return inlined
+
+
+def design_problem_provider_constraint_schema() -> dict[str, Any]:
+    """Return the request-only schema projection used for constrained generation.
+
+    Pydantic keeps cross-field ``model_validator`` rules outside its exported JSON
+    schema.  The provider projection mirrors the existing TimeSemantics completeness
+    rule so generation can see it, while the canonical model remains the sole
+    admission authority and re-validates every emitted candidate.
+    """
+
+    schema = _inline_json_schema_refs(DesignProblem.model_json_schema())
+    try:
+        time_union = schema["properties"]["jurisdiction_time"]["properties"][
+            "time_semantics"
+        ]
+        branches = time_union["anyOf"]
+    except (KeyError, TypeError) as exc:
+        raise ValueError("design_problem_provider_time_schema_missing") from exc
+    if not isinstance(branches, list):
+        raise ValueError("design_problem_provider_time_schema_invalid")
+    object_branches = [
+        branch
+        for branch in branches
+        if isinstance(branch, dict) and branch.get("type") == "object"
+    ]
+    null_branches = [
+        branch
+        for branch in branches
+        if isinstance(branch, dict) and branch.get("type") == "null"
+    ]
+    if len(object_branches) != 1 or len(null_branches) != 1:
+        raise ValueError("design_problem_provider_time_union_drift")
+    time_object = object_branches[0]
+    properties = time_object.get("properties")
+    if not isinstance(properties, dict) or not {
+        "step_count",
+        "end_date",
+    }.issubset(properties):
+        raise ValueError("design_problem_provider_time_completion_fields_missing")
+    time_object["anyOf"] = [
+        {
+            "required": ["step_count"],
+            "properties": {
+                "step_count": {"type": "integer", "minimum": 1},
+            },
+        },
+        {
+            "required": ["end_date"],
+            "properties": {
+                "end_date": {"type": "string", "minLength": 1},
+            },
+        },
+    ]
+    return schema
 
 
 def _assert_design_problem_admissibility_grounded(

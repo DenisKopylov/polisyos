@@ -1797,6 +1797,28 @@ authorized canonical-compiler output-budget contract: derive/declare enough outp
 strict schema and surface provider truncation as a typed `design_problem_output_truncated` refusal.
 The gateway parser and `DesignProblem` validators must remain unchanged.
 
+Characterization addendum (2026-07-14, authorized): before selecting that owner configuration,
+measure the full live two-model denominator by varying request controls only. The finite sweep uses
+the exact generic compiler prompt and first-vertical request with forced `emit_design_problem`,
+temperature `0`, and completion ceilings `8192`, `16384`, and `32768`. Kimi is measured at each
+ceiling. MiniMax is measured both with its ordinary OpenAI-compatible request and with the
+provider-native `reasoning_split=true` control that separates thinking from final output, at each
+ceiling the gateway accepts. Unsupported request controls are recorded as `provider_refused`, not
+silently dropped or rewritten. Every attempt records model, request controls, completion tokens,
+finish reason, response hash, strict-parser disposition, schema disposition, and span-entailment
+disposition in the ignored operational JSONL; the evidence summary is committed to the Stage-4
+journal. Exploration responses are never proof recordings.
+
+The strict gateway JSON parser, `DesignProblem(extra="forbid")`, and span-entailment verifier stay
+byte-for-byte unchanged during characterization. There is no response-side sanitizer, unwrapping,
+regex repair, prefix salvage, domain hint, schema-shape injection, or model/domain branch. A winning
+configuration must natively produce exactly one clean, complete `emit_design_problem` call and pass
+all existing owners. The selected completion budget is a typed compiler-owner policy justified by
+the largest observed conforming emission plus explicit headroom; truncation at any configured
+ceiling becomes `design_problem_output_truncated`, while malformed non-truncated output retains its
+existing strict refusal. Characterization ends at one reproducible supported configuration or at a
+typed model-conformance NO-GO; it never loops until green.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

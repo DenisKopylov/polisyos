@@ -130,7 +130,7 @@ def test_value_input_world_knowledge_gap_is_one_unsatisfied_any_of_requirement()
                 "layer3_gy_n10_cg1_l2_relation_census.json"
             ),
             "content_hash": (
-                "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0"
+                "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"
             ),
             "authority_purpose": "costing_and_provenance_only",
         },
@@ -151,6 +151,10 @@ def test_value_input_world_knowledge_gap_is_one_unsatisfied_any_of_requirement()
         lambda payload: payload["metadata"]["census_evidence"].__setitem__(
             "content_hash",
             "sha256:" + "0" * 64,
+        ),
+        lambda payload: payload["metadata"]["census_evidence"].__setitem__(
+            "content_hash",
+            "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0",
         ),
         lambda payload: payload["metadata"]["requirement"].__setitem__(
             "alternatives",
@@ -175,6 +179,7 @@ def test_value_input_world_knowledge_gap_is_one_unsatisfied_any_of_requirement()
     ],
     ids=(
         "wrong-committed-census-hash",
+        "superseded-census-hash",
         "missing-any-of-alternative",
         "fake-aggregate-satisfaction",
         "fake-satisfaction-authority",

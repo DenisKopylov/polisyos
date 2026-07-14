@@ -358,7 +358,7 @@
     "wall_time_recorded_by_validator": true,
     "wall_time_reported_outside_byte_stable_artifact": true
   },
-  "contract_content_hash": "sha256:670a09d88c84571e772d9d88c6b66cb0882decb47965e37aefa8423d9025f672",
+  "contract_content_hash": "sha256:6332a13076b221d94dafb805ebd17e8164ebe3d11270157ba821794d4eda8795",
   "decisive_mutation_expectations": [
     {
       "expected_result": "RED",
@@ -977,11 +977,11 @@
     "acquisition_disposition": "any_of(owner_rollout_assignment,certified_skg_identity_bridge)",
     "artifact_ref": "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json",
     "authority": "shadow_read_only_no_bind",
-    "content_hash": "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0",
+    "content_hash": "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c",
     "fork": "B",
     "numeric_edge_bindings": 3579,
     "numeric_identities": 5124,
-    "raw_full_table_content_hash": "sha256:4ae666db63a0a9a0fb7d4981bc716ab83b1f507494da1d2987f595af9e5049a5",
+    "raw_full_table_content_hash": "sha256:1e87684360da9bfdd1c8db3b97581b174b1b167b93f1be4113615d36566dfdfc",
     "relation_counts": {
       "SAT:false-analog": 1076,
       "UNKNOWN:unknown": 12016
@@ -1671,7 +1671,7 @@
     "candidate_atom_content_hash": "sha256:47da82854253811e2dd511a8e20e18f0693081af593996cda177dc2d8cfc81ea",
     "candidate_content_hash": "sha256:47da82854253811e2dd511a8e20e18f0693081af593996cda177dc2d8cfc81ea",
     "candidate_id": "candidate_b5d5d03eee11c6a6",
-    "content_hash": "sha256:43c4f9e9de31972ac0166793d52a3f1885bd52f9f7dc04c63200bcc2a65d4715",
+    "content_hash": "sha256:cc4be3bca42c4a1dc363ff43246ab3ebc8d37affde387200b8dc0ce8f67a9b06",
     "decision_grade": "blocked",
     "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
     "evaluation_mode": "simulate_only",
@@ -1679,7 +1679,7 @@
     "k_world_ref_before": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
     "method_selection_receipt": null,
     "n4_artifact_ref": "architecture/policy_design_case/layer3_gy_design_generation_contract.json",
-    "n4_artifact_sha256": "sha256:fdcb5f9a8c34a714dbd63534bad3e8c7e880db069214540b608f64b41968903c",
+    "n4_artifact_sha256": "sha256:a7457d8cc0f304a3fdd9c128d3567a3e715cc2446dd61547bec0bef0aa0d76ca",
     "n4_recording_id": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
     "owner_availability": {
       "availability_content_hash": "sha256:50673f0ea18e81c67a6ecf06cde994405c5ab2c00429980d8da54541acca4f25",
@@ -1877,7 +1877,7 @@
     },
     "first_vertical": {
       "candidate_content_hash": "sha256:47da82854253811e2dd511a8e20e18f0693081af593996cda177dc2d8cfc81ea",
-      "candidate_envelope_content_hash": "sha256:2e3797e187e5413f366b86da0fd667ad7c0811caec7d2eec37680d5b9e1dc645",
+      "candidate_envelope_content_hash": "sha256:31835092be65cb4562b08ac6894293e55f26d9a51e89503073905d8e7684d9c1",
       "candidate_id": "candidate_b5d5d03eee11c6a6",
       "component_scope_only": true,
       "context_binding_hash": "sha256:8b954a5527e92a01c66b0c9e01b8bbef325a7745520d627cb00bcb15b55f4bb9",
@@ -1889,7 +1889,7 @@
       "domain_role": "first_vertical",
       "outcome_kind": "typed_refusal",
       "production_value_eligible": false,
-      "proof_content_hash": "sha256:090d9594a9501ad5e51c88b8f8feb0929da3ec10396956f051c2edfc8e6bfad3",
+      "proof_content_hash": "sha256:b0d2b85421ee66e0b9bcb434e53f70784fb86e7af6900914b0f325dbcd1cd959",
       "query_outcome": "employment_retention",
       "query_treatment": "industrial_retention_tax_credit",
       "required_target_data": [],

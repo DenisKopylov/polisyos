@@ -190,7 +190,7 @@ _VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF = (
     "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
 )
 _VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_HASH = (
-    "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0"
+    "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"
 )
 _VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID = (
     "requirement-gap:data_requirement:value-input-world-knowledge"
@@ -237,7 +237,7 @@ class _ValueInputWorldKnowledgeCensusEvidence(BaseModel):
         "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
     ]
     content_hash: Literal[
-        "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0"
+        "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"
     ]
     authority_purpose: Literal["costing_and_provenance_only"]
 

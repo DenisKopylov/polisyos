@@ -1592,6 +1592,24 @@ land that owner correction first and honestly recapture every affected proof
 run.  A proof receipt captured before its upstream provenance stabilized is not
 reused, even when its terminal label happens to match.
 
+### Stage-4 provenance checkpoint (2026-07-14)
+
+The entry audit found the expected post-Stage-3 prompt-provenance ripple before
+any proof capture. The N4 writer re-froze the unchanged semantic payload at
+artifact SHA-256 `a7457d8cc0f304a3fdd9c128d3567a3e715cc2446dd61547bec0bef0aa0d76ca`.
+That required a full owner recomputation of the Fork-B CG1/L2 census, which
+preserved all 13,092 relation decisions and zero eligible positives while
+moving the compact content hash to
+`sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c`
+and the raw-table hash to
+`sha256:1e87684360da9bfdd1c8db3b97581b174b1b167b93f1be4113615d36566dfdfc`.
+The N8 v2 writer then re-bound those content-addressed inputs without semantic
+terminal drift; its artifact file SHA-256 is
+`13a5f34cb67dfaf1472ccbf3fe9b99e598a42619283c62132a4103a1787e93da`.
+N4, N10a, the census, and N8 now rederive green. The remaining entry-gate step
+is the single cross-artifact stability receipt and a clean committed base;
+proof capture remains prohibited until that step is green.
+
 ## Task 12: Build the frozen universality contract validator test-first
 
 **Files:**

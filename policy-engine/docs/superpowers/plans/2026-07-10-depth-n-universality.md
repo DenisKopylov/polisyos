@@ -2095,13 +2095,16 @@ git commit -m "docs: reconcile GY-N10 capability ledger"
 - No planned source modification; if verification exposes a real touched-scope defect, return to that owning task's RED/GREEN cycle before rerunning closeout.
 - Final journal is recorded in the frozen proof artifact/runtime-excluded verification section and the handoff response.
 
-- [ ] **Step 1: Re-run the N10a pre-flight.**
+- [x] **Step 1: Re-run the N10a pre-flight.**
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --check
 ```
 
-- [ ] **Step 2: Run the new contract gates serially.**
+Measured closeout: `status=pass`, exit `0`, validator wall time `0.944121s` (`real
+11.06s`).
+
+- [x] **Step 2: Run the new contract gates serially.**
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --check
@@ -2114,7 +2117,14 @@ git diff --exit-code -- architecture/policy_design_case/layer3_gy_depth_n_univer
 
 Expected: corrupt-field command exits `1`; all others exit `0`.
 
-- [ ] **Step 3: Run frozen N4/N5/N6/N7/N8/N9 blast radius serially.**
+Measured closeout: `--check` passed in `95.263628s`; corrupt drift exited `1` with
+`contract_content_hash_mismatch`, `pending_proof_contains_domain_runs`, and
+`pending_capability_reality_drift`; behavioral rederive passed in `1483.525841s`; all ten local
+and five delegated source flips went RED/restored in `217.557783s`; writer plus byte-diff passed
+in `721.214361s`. The semantic contract hash remained
+`sha256:8d4b2f69f35d989206cc9304d6ccb76759800b386406654085a55fcb671cbb16`.
+
+- [x] **Step 3: Run frozen N4/N5/N6/N7/N8/N9 blast radius serially.**
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_design_generation_contract.py --check
@@ -2130,23 +2140,52 @@ python3 tools/quality/validation/check_layer3_gy_generation_cycle_contract.py --
 python3 tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py --check
 ```
 
-- [ ] **Step 4: Run the exact focused pytest set plus N4/N7 additions.**
+The additive restoring lanes also ran: N4, N5, N8, and N9 source-flip harnesses; the N6 corrupt
+and behavioral-rederive lanes; the composition checker; the canonical ledger checker; the N7
+checker; architecture guardrails; and a sequential import/`--help` census of all 37 GY validators.
+All positive lanes exited `0`; the N6 corrupt lane exited `1` with
+`fake_cycle_same_candidate_repeated` and `contract_content_hash_drift`, as required. N9 consumed
+the N8 v2 receipt with zero N9 source changes.
+
+- [x] **Step 4: Run the exact focused pytest set plus N4/N7 additions.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_generation_cycle.py tests/unit/runtime/quality/test_promotion_sequence.py -q
 python3 -m pytest tests/unit/runtime/quality/test_design_generation.py tests/unit/runtime/quality/test_acquisition_planner.py -q
 ```
 
-- [ ] **Step 5: Run Ruff over every changed Python file and the domain-branch census.**
+The four-file denominator passed (`real 834.19s`). The N4/N7 denominator initially exposed one
+stale July assertion that treated three current `novel_cg3` dispositions as accepted candidates.
+A clean-tree isolation reproduced it. The test was reconciled to the canonical N4 artifact and now
+requires diverse real CG3 dispositions while requiring zero candidate/ranking authority; the
+focused repair and Ruff passed, and the exact N4/N7 denominator then passed (`real 1676.26s`) with
+one explicit cloud-gated N7 live-owner skip. The scoped repair is `6ff1e7986`.
+
+- [x] **Step 5: Run Ruff over every changed Python file and the domain-branch census.**
 
 ```bash
-.venv/bin/ruff check src/polisyos/runtime/quality/cycle_substrate.py src/polisyos/runtime/quality/design_generation.py src/polisyos/runtime/quality/intervention_substrate.py src/polisyos/runtime/quality/generation_cycle.py src/polisyos/runtime/quality/recursive_generation_cycle.py src/polisyos/runtime/quality/workspace/loop.py src/polisyos/runtime/quality/design_axes/coupling_composition.py src/polisyos/runtime/http/services/control/generation_cycle.py src/polisyos/ir/analytics/transportability.py src/polisyos/foundry/methods/components/value_evidence.py tools/quality/validation/check_layer3_gy_second_domain_pack.py tools/quality/validation/check_layer3_gy_value_gate_contract.py tools/quality/validation/check_layer3_gy_generation_cycle_contract.py tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/quality/test_value_gate.py tests/unit/runtime/quality/test_generation_cycle.py tests/unit/runtime/quality/test_design_generation.py tests/unit/runtime/quality/test_intervention_substrate.py tests/unit/runtime/quality/test_acquisition_planner.py tests/unit/runtime/quality/test_second_domain_pack.py
-rg -n "if .*education|if .*environment|if .*energy|if .*governance|match .*education|match .*environment|match .*energy|match .*governance" src/polisyos/runtime/quality src/polisyos/foundry/methods/components/value_evidence.py
+git diff --name-only main...HEAD -- '*.py' | sed 's#^policy-engine/##' | xargs .venv/bin/ruff check
+rg -n '^\s*(if|elif|match|case)\b.*(education|environment|energy|governance|fiscal_credit|microcredit)' \
+  src/polisyos/runtime/quality/generation_cycle.py \
+  src/polisyos/runtime/quality/design_generation.py \
+  src/polisyos/runtime/quality/intervention_substrate.py \
+  src/polisyos/runtime/quality/cycle_substrate.py \
+  src/polisyos/runtime/quality/recursive_generation_cycle.py \
+  src/polisyos/foundry/methods/components/value_evidence.py \
+  src/polisyos/foundry/methods/selection/advisor.py \
+  src/polisyos/runtime/http/services/control/generation_cycle.py
 ```
 
 Expected: Ruff exits `0`; the branch census returns no engine-domain branch matches.
 
-- [ ] **Step 6: Inspect status and commit only genuine verification repairs.**
+Measured closeout: Ruff checked all 138 branch-changed Python files and reported `All checks
+passed!`; the production-owner census returned no output and exit `1`, the expected `rg` no-match
+result. The earlier repository-wide draft command was classified rather than laundered: it found a
+pre-existing legacy `PolicyIntentEnvelope` text adapter and a benchmark fixture selector, plus
+proof-role assertions in the N10 validator. None is an engine method/transport/grounding selection
+branch, and the exact production authority paths above are clean.
+
+- [x] **Step 6: Inspect status and commit only genuine verification repairs.**
 
 ```bash
 git status --short
@@ -2154,6 +2193,10 @@ git diff --check
 ```
 
 If verification required a repair, repeat its RED/GREEN test and commit the scoped fix. Do not create a cosmetic closeout commit.
+
+The sole verification repair was the authority-preserving N4 test reconciliation in `6ff1e7986`.
+The final documentation commit records the completed command denominator and journals the GO; it
+does not alter runtime or frozen proof authority.
 
 ---
 

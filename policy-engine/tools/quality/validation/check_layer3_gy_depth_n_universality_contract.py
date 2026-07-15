@@ -3546,6 +3546,7 @@ def write_payload(repo_root: Path, output_path: Path) -> bytes:
 
     root = repo_root.resolve()
     canonical = output_path.resolve() == (root / OUTPUT_PATH).resolve()
+    previous = _read_json(output_path) if canonical and output_path.is_file() else None
     payload = build_live_payload(root, lane="cached" if canonical else "lane0")
     report = validate_payload(payload)
     if canonical and report["status"] != "pass":
@@ -3553,6 +3554,12 @@ def write_payload(repo_root: Path, output_path: Path) -> bytes:
             "universality_contract_write_invalid:"
             + ",".join(str(item.get("code")) for item in report["issues"])
         )
+    if (
+        previous is not None
+        and previous.get("contract_content_hash")
+        == payload.get("contract_content_hash")
+    ):
+        _preserve_operational_values(previous, payload)
     data = (_canonical_json(payload) + "\n").encode("utf-8")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_bytes(data)
@@ -3863,11 +3870,7 @@ def _volatile_content_paths(value: object, path: str = "$") -> list[str]:
             child_path = f"{path}.{key}"
             if path == "$" and key == "runtime_metrics":
                 continue
-            lowered = str(key).lower()
-            if any(
-                token in lowered
-                for token in ("timestamp", "wall_time", "elapsed", "generated_at")
-            ):
+            if _is_gy_volatile_key(str(key)):
                 paths.append(child_path)
             paths.extend(_volatile_content_paths(item, child_path))
     elif isinstance(value, list):
@@ -3883,17 +3886,54 @@ def _mutate_volatile_values(value: object, path: str = "$") -> None:
         for key, item in value.items():
             if path == "$" and key == "runtime_metrics":
                 continue
-            lowered = str(key).lower()
-            if any(
-                token in lowered
-                for token in ("timestamp", "wall_time", "elapsed", "generated_at")
-            ):
+            if _is_gy_volatile_key(str(key)):
                 value[key] = "gy-n10-operational-clock-mutation"
             else:
                 _mutate_volatile_values(item, f"{path}.{key}")
     elif isinstance(value, list):
         for index, item in enumerate(value):
             _mutate_volatile_values(item, f"{path}[{index}]")
+
+
+def _is_gy_volatile_key(key: str) -> bool:
+    """Use the canonical GY hash owner's volatility vocabulary."""
+
+    from polisyos.pdc import strip_gy_volatile_fields
+
+    return strip_gy_volatile_fields({key: None}) == {}
+
+
+def _preserve_operational_values(previous: object, current: object, path: str = "$") -> None:
+    """Retain prior non-authoritative clocks when semantic content is unchanged."""
+
+    if isinstance(previous, Mapping) and isinstance(current, dict):
+        for key, current_value in current.items():
+            if key not in previous:
+                continue
+            previous_value = previous[key]
+            if (path == "$" and key == "runtime_metrics") or _is_gy_volatile_key(
+                str(key)
+            ):
+                current[key] = copy.deepcopy(previous_value)
+            else:
+                _preserve_operational_values(
+                    previous_value,
+                    current_value,
+                    f"{path}.{key}",
+                )
+    elif (
+        isinstance(previous, list)
+        and isinstance(current, list)
+        and len(previous) == len(current)
+    ):
+        for index, (previous_item, current_item) in enumerate(
+            zip(previous, current, strict=True)
+        ):
+            _preserve_operational_values(
+                previous_item,
+                current_item,
+                f"{path}[{index}]",
+            )
 
 
 def _values_for_key(value: object, target_key: str) -> list[str]:

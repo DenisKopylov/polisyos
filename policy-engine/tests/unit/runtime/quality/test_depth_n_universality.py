@@ -2741,6 +2741,49 @@ def test_universality_write_is_byte_stable(tmp_path: Path) -> None:
     assert first == second == output.read_bytes()
 
 
+def test_canonical_writer_preserves_operational_values_on_semantic_match(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Equal semantic content retains prior clocks instead of churning bytes."""
+
+    validator = _universality_contract_validator()
+    output = tmp_path / validator.OUTPUT_PATH
+    prior = {
+        "contract_content_hash": "sha256:" + "1" * 64,
+        "domain_runs": {
+            "first_vertical": {
+                "generated_at": "2026-07-15T00:00:00Z",
+                "wall_time_ms": 1.0,
+                "terminal": "acquisition_required",
+            }
+        },
+        "runtime_metrics": {"lane": "cached", "elapsed_seconds": 2.0},
+    }
+    current = copy.deepcopy(prior)
+    current["domain_runs"]["first_vertical"]["generated_at"] = (
+        "2026-07-15T01:00:00Z"
+    )
+    current["domain_runs"]["first_vertical"]["wall_time_ms"] = 99.0
+    current["runtime_metrics"]["elapsed_seconds"] = 100.0
+    output.parent.mkdir(parents=True)
+    output.write_text(validator._canonical_json(prior) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        validator,
+        "build_live_payload",
+        lambda *args, **kwargs: copy.deepcopy(current),
+    )
+    monkeypatch.setattr(
+        validator,
+        "validate_payload",
+        lambda payload: {"status": "pass", "issues": []},
+    )
+
+    data = validator.write_payload(tmp_path, output)
+
+    assert data == (validator._canonical_json(prior) + "\n").encode()
+
+
 def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:
     """Refuse a foreign PolicyOS package before parsing a proof mode or writing output."""
 

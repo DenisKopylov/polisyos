@@ -1109,10 +1109,13 @@ def test_stage4_provenance_stability_binds_current_owner_graph() -> None:
 
 
 def _complete_universality_payload() -> tuple[Any, dict[str, Any]]:
-    """Re-derive the completed capstone from content-addressed owner recordings."""
+    """Load the frozen capstone; the validator owns the single behavioral rederive."""
 
     validator = _universality_contract_validator()
-    return validator, validator.build_live_payload(REPO_ROOT, lane="cached")
+    payload = json.loads(
+        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
+    )
+    return validator, payload
 
 
 _PLAIN_LANGUAGE_PROOF_REQUESTS = {
@@ -2664,7 +2667,10 @@ def test_unseen_domain_reaches_typed_terminal_without_vertical_contamination() -
 def test_pinned_fixture_replacement_is_rejected_after_hash_recompute() -> None:
     """Make committed-fixture substitution behaviorally RED, not merely hash-invalid."""
 
-    validator, payload = _complete_universality_payload()
+    validator = _universality_contract_validator()
+    payload = json.loads(
+        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
+    )
     smoke = json.loads(
         (
             REPO_ROOT
@@ -2681,6 +2687,136 @@ def test_pinned_fixture_replacement_is_rejected_after_hash_recompute() -> None:
         issue["code"] == "cycle_driven_by_pinned_fixture"
         for issue in report["issues"]
     )
+
+
+def test_unseen_vertical_contamination_is_rejected_after_hash_recompute() -> None:
+    """A recomputed capstone cannot dress a borrowed vertical token as unseen."""
+
+    validator = _universality_contract_validator()
+    payload = json.loads(
+        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
+    )
+    unseen = payload["domain_runs"]["unseen"]
+    unseen["fabricated_diagnostic"] = "tax_relief_rate"
+    stable_run = {key: value for key, value in unseen.items() if key != "content_hash"}
+    unseen["content_hash"] = validator._semantic_hash(stable_run)
+    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+
+    report = validator.validate_payload(payload)
+
+    assert "unseen_domain_vertical_contamination" in {
+        issue["code"] for issue in report["issues"]
+    }
+
+
+def test_n10_source_flip_denominator_covers_every_local_decisive_property() -> None:
+    """Freeze the N10-local mutation denominator; owner harnesses remain additive."""
+
+    validator = _universality_contract_validator()
+
+    assert [case.mutation_id for case in validator._n10_source_flip_cases()] == [
+        "domain_pinned_in_engine",
+        "cycle_driven_by_pinned_fixture",
+        "unseen_domain_honesty_removed",
+        "acquisition_route_verification_removed",
+        "degradation_class_relabel_accepted",
+        "fabricated_terminal_accepted",
+        "degradation_class_denominator_weakened",
+        "historical_receipt_verification_removed",
+        "operational_clock_preservation_removed",
+        "n7_design_problem_authority_removed",
+    ]
+
+
+def test_n10_gap_reconciliation_closes_five_seams_and_retains_two_residuals() -> None:
+    """Freeze the full-denominator gap triage with owner-bound seam evidence."""
+
+    report = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json"
+        ).read_text(encoding="utf-8")
+    )
+    gaps = {row["gap_id"]: row for row in report["gaps"]}
+    closed = {
+        "s0_to_n4_l6_bridge_missing",
+        "s0_to_n5_wmr_bridge_missing",
+        "s0_to_l6_world_slot_bridge_missing",
+        "n8_transport_tuple_hardcode",
+        "n6_single_terminal_validation_gap",
+    }
+    residual = {
+        "owner_registration_derivation_missing",
+        "journal_raw_evidence_persistence_missing",
+    }
+
+    assert set(gaps) == closed | residual
+    for gap_id in closed:
+        gap = gaps[gap_id]
+        assert gap["status"] == "closed"
+        assert gap["capability_label"] == "closed"
+        assert gap["disposition"] == "closed_by_live_behavioral_receipt"
+        witness = gap["owner_evidence"]["seam_witness"]
+        assert witness["segment_content_hash"].startswith("sha256:")
+        assert witness["source_path"].startswith("src/polisyos/")
+    for gap_id in residual:
+        gap = gaps[gap_id]
+        assert gap["status"] == "typed_residual"
+        assert gap["capability_label"] == "artifact_missing"
+        assert "acquisition infrastructure" in gap["disposition"]
+
+
+def test_n10_ledger_lands_only_after_s2_and_gyg_strangles() -> None:
+    """Reconcile GY-N10 only when both DELETE owners are behaviorally strangled."""
+
+    ledger = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/"
+            "layer3_gy_generation_cycle_disposition_ledger.json"
+        ).read_text(encoding="utf-8")
+    )
+    owners = {row["owner_id"]: row for row in ledger["owners"]}
+    capstone = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/"
+            "layer3_gy_depth_n_universality_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    gaps = {
+        row["gap_id"]: row
+        for row in json.loads(
+            (
+                REPO_ROOT
+                / "architecture/policy_design_case/"
+                "layer3_gy_second_domain_free_grow_gaps.json"
+            ).read_text(encoding="utf-8")
+        )["gaps"]
+    }
+
+    assert ledger["tasks"]["GY-N10"]["status"] == "landed"
+    for owner_id in (
+        "s2_fixed_candidate_as_generator",
+        "gy_g_s3_fixture_only_demonstrations",
+    ):
+        receipt = owners[owner_id]["strangle_receipt"]
+        assert receipt["status"] == "strangled"
+        assert receipt["remaining_callers"] == []
+    s2_parallel = next(
+        row
+        for row in ledger["parallel_world_reconciliation"]
+        if row["parallel_world"] == "S2 shadow design search"
+    )
+    assert s2_parallel["status"] == "pending_strangle_under_GY-N6"
+    assert capstone["gy_g_strangle_receipt"]["status"] == "strangled"
+    assert capstone["gy_g_strangle_receipt"]["production_fixture_callers"] == []
+    education = capstone["domain_runs"]["education"]
+    assert education["promotion_reached"] is False
+    assert education["stage_trace"]["promotion"]["certified_candidate_ids"] == []
+    assert gaps["s0_to_l6_world_slot_bridge_missing"]["owner_evidence"][
+        "positive_writable_count"
+    ] == 0
 
 
 def test_universality_contract_content_hash_rejects_corruption() -> None:
@@ -2837,13 +2973,13 @@ def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:
         REPO_ROOT
         / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
     )
-    assert not canonical_output.exists()
+    before = canonical_output.read_bytes()
 
     result = _run_universality_validator_with_pythonpath(wrong_src, "--write")
 
     assert result.returncode == 1
     assert "wrong_checkout_resolved" in result.stdout + result.stderr
-    assert not canonical_output.exists()
+    assert canonical_output.read_bytes() == before
 
 
 def test_universality_json_cli_is_one_machine_readable_document() -> None:
@@ -2858,11 +2994,15 @@ def test_universality_json_cli_is_one_machine_readable_document() -> None:
 
     payload = json.loads(result.stdout)
     wall_time_seconds = payload.pop("wall_time_seconds")
-    assert result.returncode == 1
+    assert result.returncode == 0
     assert isinstance(wall_time_seconds, float)
     assert wall_time_seconds > 0.0
     assert payload == {
-        "issues": [{"code": "universality_contract_artifact_missing"}],
-        "status": "fail",
+        "issues": [],
+        "outputs": [
+            "architecture/policy_design_case/"
+            "layer3_gy_depth_n_universality_contract.json"
+        ],
+        "status": "pass",
     }
     assert result.stderr == ""

@@ -20,6 +20,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -3641,6 +3642,322 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     }
 
 
+@dataclass(frozen=True)
+class _N10SourceFlipCase:
+    """One guarded N10-local behavioral source mutation."""
+
+    mutation_id: str
+    relative_path: str
+    old_source: str
+    new_source: str
+    probe_nodeid: str
+    expected_red_signal: str
+
+
+def _n10_source_flip_cases() -> tuple[_N10SourceFlipCase, ...]:
+    """Return the frozen N10-local decisive mutation denominator."""
+
+    validator_path = (
+        "tools/quality/validation/"
+        "check_layer3_gy_depth_n_universality_contract.py"
+    )
+    test_path = "tests/unit/runtime/quality/test_depth_n_universality.py::"
+    terminal_probe = (
+        test_path
+        + "test_universality_terminal_gate_measures_routes_and_rejects_relabeling"
+    )
+    return (
+        _N10SourceFlipCase(
+            mutation_id="domain_pinned_in_engine",
+            relative_path=validator_path,
+            old_source=(
+                "    if n10a.second_domain_pack_supports_design_problem(\n"
+                "        second_domain_bundle,\n"
+                "        resolved_problem,\n"
+                "    ):\n"
+            ),
+            new_source='    if resolved_problem.domain == "education":\n',
+            probe_nodeid=(
+                test_path
+                + "test_cycle_context_intake_is_world_and_owner_evidence_driven"
+            ),
+            expected_red_signal=(
+                "test_cycle_context_intake_is_world_and_owner_evidence_driven"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="cycle_driven_by_pinned_fixture",
+            relative_path=validator_path,
+            old_source=(
+                "        if pinned_fixture:\n"
+                "            issues.append({\"code\": "
+                "\"cycle_driven_by_pinned_fixture\", \"role\": role})\n"
+            ),
+            new_source=(
+                "        if False and pinned_fixture:\n"
+                "            issues.append({\"code\": "
+                "\"cycle_driven_by_pinned_fixture\", \"role\": role})\n"
+            ),
+            probe_nodeid=(
+                test_path
+                + "test_pinned_fixture_replacement_is_rejected_after_hash_recompute"
+            ),
+            expected_red_signal=(
+                "test_pinned_fixture_replacement_is_rejected_after_hash_recompute"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="unseen_domain_honesty_removed",
+            relative_path=validator_path,
+            old_source="    if contaminants:\n        issues.append(\n",
+            new_source="    if False and contaminants:\n        issues.append(\n",
+            probe_nodeid=(
+                test_path
+                + "test_unseen_vertical_contamination_is_rejected_after_hash_recompute"
+            ),
+            expected_red_signal=(
+                "test_unseen_vertical_contamination_is_rejected_after_hash_recompute"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="acquisition_route_verification_removed",
+            relative_path=validator_path,
+            old_source=(
+                "            if not route_verified:\n"
+                "                issues.append(\n"
+            ),
+            new_source=(
+                "            if False and not route_verified:\n"
+                "                issues.append(\n"
+            ),
+            probe_nodeid=terminal_probe,
+            expected_red_signal=(
+                "test_universality_terminal_gate_measures_routes_and_rejects_relabeling"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="degradation_class_relabel_accepted",
+            relative_path=validator_path,
+            old_source=(
+                "        if distribution.get(\"evidence_kind\") != expected_class:\n"
+                "            issues.append(\n"
+            ),
+            new_source=(
+                "        if False and distribution.get(\"evidence_kind\") "
+                "!= expected_class:\n"
+                "            issues.append(\n"
+            ),
+            probe_nodeid=terminal_probe,
+            expected_red_signal=(
+                "test_universality_terminal_gate_measures_routes_and_rejects_relabeling"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="fabricated_terminal_accepted",
+            relative_path=validator_path,
+            old_source=(
+                "        if terminal_kind not in typed_degradation_terminals:\n"
+                "            issues.append(\n"
+            ),
+            new_source=(
+                "        if False and terminal_kind not in "
+                "typed_degradation_terminals:\n"
+                "            issues.append(\n"
+            ),
+            probe_nodeid=terminal_probe,
+            expected_red_signal=(
+                "test_universality_terminal_gate_measures_routes_and_rejects_relabeling"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="degradation_class_denominator_weakened",
+            relative_path=validator_path,
+            old_source=(
+                "    if len(measured_classes) < minimum_classes:\n"
+                "        issues.append(\n"
+            ),
+            new_source=(
+                "    if False and len(measured_classes) < minimum_classes:\n"
+                "        issues.append(\n"
+            ),
+            probe_nodeid=terminal_probe,
+            expected_red_signal=(
+                "test_universality_terminal_gate_measures_routes_and_rejects_relabeling"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="historical_receipt_verification_removed",
+            relative_path=validator_path,
+            old_source=(
+                "    if recursive_payload.get(\"content_hash\") != "
+                "_semantic_hash(recursive_stable):\n"
+                "        raise UniversalityContractError(\n"
+            ),
+            new_source=(
+                "    if False and recursive_payload.get(\"content_hash\") != "
+                "_semantic_hash(recursive_stable):\n"
+                "        raise UniversalityContractError(\n"
+            ),
+            probe_nodeid=(
+                test_path
+                + "test_historical_compiled_envelope_rejects_tampered_recursive_payload"
+            ),
+            expected_red_signal=(
+                "test_historical_compiled_envelope_rejects_tampered_recursive_payload"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="operational_clock_preservation_removed",
+            relative_path=validator_path,
+            old_source=(
+                "    if (\n"
+                "        previous is not None\n"
+                "        and previous.get(\"contract_content_hash\")\n"
+                "        == payload.get(\"contract_content_hash\")\n"
+                "    ):\n"
+                "        _preserve_operational_values(previous, payload)\n"
+            ),
+            new_source=(
+                "    if False and (\n"
+                "        previous is not None\n"
+                "        and previous.get(\"contract_content_hash\")\n"
+                "        == payload.get(\"contract_content_hash\")\n"
+                "    ):\n"
+                "        _preserve_operational_values(previous, payload)\n"
+            ),
+            probe_nodeid=(
+                test_path
+                + "test_canonical_writer_preserves_operational_values_on_semantic_match"
+            ),
+            expected_red_signal=(
+                "test_canonical_writer_preserves_operational_values_on_semantic_match"
+            ),
+        ),
+        _N10SourceFlipCase(
+            mutation_id="n7_design_problem_authority_removed",
+            relative_path="src/polisyos/runtime/quality/generation_cycle.py",
+            old_source="            design_problem=problem,\n",
+            new_source="            design_problem=None,\n",
+            probe_nodeid=(
+                "tests/unit/runtime/quality/test_generation_cycle.py::"
+                "test_acquisition_required_invokes_n7_and_records_same_cycle_reentry"
+            ),
+            expected_red_signal=(
+                "test_acquisition_required_invokes_n7_and_records_same_cycle_reentry"
+            ),
+        ),
+    )
+
+
+def _run_n10_source_flip(
+    repo_root: Path,
+    case: _N10SourceFlipCase,
+) -> dict[str, Any]:
+    """Run one guarded source mutation and restore the exact original bytes."""
+
+    source_path = repo_root / case.relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    source_text = original.decode("utf-8")
+    guard_count = source_text.count(case.old_source)
+    if guard_count != 1:
+        return {
+            "mutation_id": case.mutation_id,
+            "result": "HARNESS_ERROR",
+            "proof": {"source_guard_count": guard_count},
+        }
+    line = source_text[: source_text.index(case.old_source)].count("\n") + 1
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(
+            source_text.replace(case.old_source, case.new_source, 1),
+            encoding="utf-8",
+        )
+        completed = subprocess.run(
+            (sys.executable, "-m", "pytest", case.probe_nodeid, "-q"),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONDONTWRITEBYTECODE": "1",
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+                "JAX_PLATFORMS": "cpu",
+            },
+            text=True,
+            capture_output=True,
+            timeout=600,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - emitted as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": case.mutation_id,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": case.mutation_id,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+    output = f"{completed.stdout}\n{completed.stderr}"
+    mutation_red = (
+        completed.returncode != 0 and case.expected_red_signal in output
+    )
+    return {
+        "mutation_id": case.mutation_id,
+        "file": case.relative_path,
+        "line": line,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "expected_red_signal": case.expected_red_signal,
+            "signal_observed": case.expected_red_signal in output,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def run_source_flip_mutations(repo_root: Path) -> dict[str, Any]:
+    """Run N10-local and canonical Stage-3 source mutations serially."""
+
+    from tools.quality.validation import check_layer3_gy_composition_artifacts
+
+    local_results = tuple(
+        _run_n10_source_flip(repo_root, case)
+        for case in _n10_source_flip_cases()
+    )
+    composition_results = (
+        check_layer3_gy_composition_artifacts.run_source_flip_mutations(repo_root)
+    )
+    all_red = all(
+        result.get("result") == "RED"
+        for result in (*local_results, *composition_results)
+    )
+    return {
+        "status": "pass" if all_red else "fail",
+        "issues": [] if all_red else [{"code": "source_flip_mutation_survived"}],
+        "local_results": list(local_results),
+        "delegated_composition_results": list(composition_results),
+    }
+
+
 def _check_canonical(repo_root: Path) -> dict[str, Any]:
     stability = check_provenance_stability(repo_root)
     if stability.get("status") != "stable":
@@ -3686,10 +4003,8 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         report = corrupt_field_drift_check(REPO_ROOT)
         return report, 1 if report["status"] == "fail" else 0
     if args.source_flip_mutations:
-        return {
-            "status": "fail",
-            "issues": [{"code": "source_flip_mutations_pending"}],
-        }, 1
+        report = run_source_flip_mutations(REPO_ROOT)
+        return report, 0 if report["status"] == "pass" else 1
     if args.rederive_audit:
         report = _rederive_audit(REPO_ROOT)
         return report, 0 if report["status"] == "pass" else 1

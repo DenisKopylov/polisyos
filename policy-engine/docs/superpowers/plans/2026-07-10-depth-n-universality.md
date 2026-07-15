@@ -2048,7 +2048,7 @@ git commit -m "test: freeze depth-N universality proof"
 - Modify: relevant existing ledger/gap validator tests
 - Modify: `tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py`
 
-- [ ] **Step 1: Write RED reconciliation tests.**
+- [x] **Step 1: Write RED reconciliation tests.**
 
 Require exact seam evidence for the five closed gaps, typed reasons for the two residuals, the GY-G fixture disposition, zero production callers, and the education no-promotion reason.
 Require the dedicated integration-debt ledger to enumerate every bounded
@@ -2056,13 +2056,18 @@ never-landed-state reconciliation, its historical evidence and owner-first
 disposition, plus the wrong-checkout, wrong-interpreter, and CG-substrate
 tripwires.
 
-- [ ] **Step 2: Run focused reconciliation tests and observe RED on stale N10a/ledger rows.**
+- [x] **Step 2: Run focused reconciliation tests and observe RED on stale generated rows.**
 
 ```bash
 python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/quality/test_second_domain_pack.py -k 'gap_triage or ledger or residual or no_promotion' -q
 ```
 
-- [ ] **Step 3: Update generated records from live seam evidence.**
+Measured result: the five closed gap rows and two residual rows were already current because the
+canonical Stage-1/2/3 writers had rebound their owner witnesses. The single RED was the canonical
+ledger's stale `GY-N10=pending` state (and its still-pending S2 DELETE receipt). The repair changed
+only that stale generated authority; it did not rewrite already-correct N10a evidence.
+
+- [x] **Step 3: Update generated records from live seam evidence.**
 
 Reverify the three bridge closures already committed at the Stage-1 gate (`s0_to_n4_l6_bridge_missing`, `s0_to_n5_wmr_bridge_missing`, and `s0_to_l6_world_slot_bridge_missing`) without changing their historical closure receipts. Mark `n8_transport_tuple_hardcode` and `n6_single_terminal_validation_gap` closed with their later-stage function/receipt/hash evidence. Keep owner-registration derivation and raw journal persistence residual with their original capability labels and justification.
 
@@ -2070,12 +2075,14 @@ Reverify the three bridge closures already committed at the Stage-1 gate (`s0_to
 
 The N10 harness records `file:line -> RED -> restored` for every Section-8 class in the specification. It extends but does not alter the N5/N8/N9 restoring harnesses and the N6 mutation battery.
 
-Measured mutation gate (2026-07-15): all nine N10-local mutations and all five delegated canonical
-composition mutations returned RED with exact source restoration (`status=pass`, exit `0`,
-174.780917 seconds). Existing owner harnesses and the N6 battery remain separate closeout gates;
-the capstone commit is still fenced on that blast radius.
+Measured final mutation gate (2026-07-15): all ten N10-local mutations and all five delegated
+canonical composition mutations returned RED with exact source restoration (`status=pass`, exit
+`0`, 313.076679 seconds). The tenth mutation removes the real `DesignProblem` authority from the
+N7 re-entry handoff and proves that a shaped surrogate cannot preserve grounding. Existing owner
+harnesses and the N6 battery remain separate Task-15 closeout gates; the capstone artifact was
+committed only after the canonical source -> N10a -> composition ripple returned stable.
 
-- [ ] **Step 5: Commit reconciliation and source flips.**
+- [x] **Step 5: Commit reconciliation and source flips.**
 
 ```bash
 git add architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json architecture/policy_design_case/layer3_gy_second_domain_pack.json tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py tests/unit/runtime/quality/test_depth_n_universality.py tests/unit/runtime/quality/test_second_domain_pack.py

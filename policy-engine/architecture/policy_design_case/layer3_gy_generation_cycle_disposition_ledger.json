@@ -101,8 +101,8 @@
       "focus": "Canonical in-cycle B to A promotion sequence wired; production promotion remains pending CG2 unfreeze, GY-O0 EvalSafety, and N11 anytime-valid confidence ledger."
     },
     "GY-N10": {
-      "status": "pending",
-      "focus": "Depth-N universality"
+      "status": "landed",
+      "focus": "Depth-N universality is frozen over three plain-language domains with typed honest terminals; two N7 infrastructure gaps remain disclosed outside the controller."
     },
     "GY-N10a": {
       "status": "landed",
@@ -230,7 +230,7 @@
         "s2_fixed_credit_guarantee_body",
         "s2_fixed_candidate_as_generator"
       ],
-      "status": "pending_strangle_under_GY-N6_GY-N10"
+      "status": "pending_strangle_under_GY-N6"
     }
   ],
   "task_owner_mapping": {
@@ -2098,8 +2098,10 @@
         "default_after": "Depth-N controller supplies generated candidate families.",
         "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
         "remaining_callers": [],
-        "remaining_callers_disposition": "pending depth-N controller",
-        "removed_loc": [],
+        "remaining_callers_disposition": "strangled; the live text-absence condition proves the fixed credit-guarantee generator body is absent and depth-N production routes through RecursiveGenerationCycleController",
+        "removed_loc": [
+          "src/polisyos/pdc/_impl/layer2_design_search.py:fixed_credit_guarantee_candidate"
+        ],
         "verified_by": [
           "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
         ],
@@ -2110,7 +2112,7 @@
           "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
           "pattern": "credit_guarantee"
         },
-        "status": "pending"
+        "status": "strangled"
       }
     },
     {

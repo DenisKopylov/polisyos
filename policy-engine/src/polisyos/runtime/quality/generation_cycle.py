@@ -91,6 +91,8 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState  # noqa: 
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
 
@@ -1924,6 +1926,7 @@ class GenerationCycleController:
         repo_root: Path | None = None,
         model_id: str | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
+        generated_at: datetime | None = None,
         high_proxy_threshold: float = 0.8,
         low_grounding_threshold: float = 0.5,
     ) -> None:
@@ -1956,6 +1959,7 @@ class GenerationCycleController:
         )
         self._repo_root = repo_root
         self._cycle_substrate_context = cycle_substrate_context
+        self._generated_at = generated_at
         self._high_proxy_threshold = high_proxy_threshold
         self._low_grounding_threshold = low_grounding_threshold
         self._engine = SimpleLoopEngine(
@@ -2203,10 +2207,12 @@ class GenerationCycleController:
             acquisition_request={**acquisition_request, "cycle_index": cycle.cycle_index},
             data_requirement_specs=tuple(specs),
             world_snapshot=world_snapshot,
+            design_problem=problem,
             owner_gateway=owner_gateway,
             useful_design_rate_before=float(
                 problem.runtime_hints.get("n7_useful_design_rate_before") or 0.0
             ),
+            generated_at=self._generated_at,
         )
 
     def _plan_n7_requirement_gap_if_requested(
@@ -2240,6 +2246,7 @@ class GenerationCycleController:
                 f"{cycle.cycle_index}"
             ),
             requirement_gaps=(gap,),
+            generated_at=self._generated_at,
         )
 
     def _n7_data_requirement_specs(

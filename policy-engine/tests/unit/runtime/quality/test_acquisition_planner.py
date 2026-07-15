@@ -68,6 +68,7 @@ from polisyos.runtime.quality.acquisition_planner import (
 )
 from polisyos.runtime.quality.capability_index import FailureModeNode
 from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
+from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
@@ -93,6 +94,73 @@ from polisyos.scientist.methods.search.voi_models import (
 from tools.quality.validation import check_layer3_gy_acquisition_contract as contract
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def _acquisition_design_problem() -> DesignProblem:
+    """Build real research authority for acquisition grounding rederivation."""
+
+    return DesignProblem.model_validate(
+        {
+            "design_problem_id": "n7_acquisition_grounding_probe",
+            "problem_statement": "Ground acquired evidence against the affected world region.",
+            "domain": "acquisition_grounding_probe",
+            "nl_provenance": {
+                "raw_request": "Acquire and ground the missing evidence.",
+                "source_surface": "test_acquisition_planner",
+            },
+            "authority_profile": {
+                "requester_authority": "research_lab",
+                "requested_authority_level": "research",
+                "mandate": "Test acquisition rederivation without promotion authority.",
+            },
+            "jurisdiction_time": {
+                "region": "probe_region",
+                "valid_time": "2026",
+                "as_of": "2026-07-15",
+                "policy_time": "2026",
+                "data_time": "2026",
+            },
+            "objectives": [
+                {
+                    "objective_id": "ground_acquired_evidence",
+                    "description": "Ground acquired evidence.",
+                    "metric_id": "grounded_evidence",
+                }
+            ],
+            "constraints": [
+                {
+                    "constraint_id": "no_fabricated_authority",
+                    "description": "Acquisition cannot fabricate grounding authority.",
+                    "admissibility_basis": "request_text",
+                    "source_text": "Do not fabricate grounding authority.",
+                }
+            ],
+            "stakeholders": [
+                {
+                    "stakeholder_id": "evidence_consumers",
+                    "name": "Evidence consumers",
+                    "role": "consumer",
+                }
+            ],
+            "outcome_of_interest": {
+                "target_variable": "grounded_evidence",
+                "metric_id": "grounded_evidence",
+                "estimand": "owner_grounding_status",
+            },
+            "candidate_lever_space": {
+                "allowed_operator_kinds": ["evidence_acquisition"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "acquire_evidence",
+                        "operator_kind": "evidence_acquisition",
+                        "instrument": "Owner evidence acquisition",
+                        "target_slot": "grounded_evidence",
+                    }
+                ],
+            },
+            "evidence_acquisition_needs": {"needs": []},
+        }
+    )
 
 
 def test_grounding_coverage_gap_is_content_bound_and_planner_routable() -> None:
@@ -883,6 +951,7 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
         },
         data_requirement_specs=(data_spec, second_spec),
         world_snapshot=world,
+        design_problem=_acquisition_design_problem(),
         owner_gateway=gateway,
         useful_design_rate_before=0.0,
     )
@@ -906,6 +975,60 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
     )
     assert {entry.sequence for entry in receipt.journal_entries} == {1, 2}
     assert validate_acquisition_receipt(receipt) == ()
+
+
+def test_n7_missing_design_problem_refuses_grounding_rederive_without_crash() -> None:
+    """World growth without real problem authority cannot mint grounding."""
+
+    data_spec = _compiled_requirement_specs()[0]
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-missing-design-problem",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n7/counterexample/missing-problem",
+            "cycle_index": 3,
+        },
+        data_requirement_specs=(data_spec,),
+        world_snapshot=AcquisitionWorldSnapshot(
+            world_ref="world://before/missing-design-problem",
+            known_slots=("production_msme_panel",),
+            dependency_index={"production_msme_panel": ("design:credit",)},
+            design_revalidation_stages={
+                "design:credit": (
+                    "identification",
+                    "calibration",
+                    "value_set",
+                    "grounding",
+                )
+            },
+            substrate_registry=_substrate_registry().model_dump(mode="json"),
+        ),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={
+                data_spec.requirement_id: _captured_owner_artifact(
+                    owner_component="fabric.ingestion",
+                    requirement_ref=data_spec.requirement_id,
+                    artifact_ref="fabric://recorded/missing-design-problem",
+                    acquired_family="production_msme_panel",
+                    source_id="fabric.production_msme_panel",
+                    candidate_id="design:credit",
+                    cost_usd=11.25,
+                )
+            }
+        ),
+        useful_design_rate_before=0.0,
+    )
+
+    assert receipt.real_grounding_result_count == 0
+    assert receipt.status == "completed_no_results"
+    assert receipt.grounding_rederivations[0].issue_codes == (
+        "design_problem_unavailable_after_world_write",
+    )
+    assert any(
+        reason.endswith(":design_problem_unavailable_after_world_write")
+        for reason in receipt.fail_closed_reasons
+    )
 
 
 def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
@@ -1366,6 +1489,7 @@ def test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle() -> No
                 family_ids=("production_msme_panel", "openalex.live_claim_support")
             ).model_dump(mode="json"),
         ),
+        design_problem=_acquisition_design_problem(),
         owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),

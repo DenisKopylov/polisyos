@@ -17,7 +17,7 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -29,6 +29,9 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateRegistryError,
     register_substrate_entry,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.design_problem import DesignProblem
 
 ACQUISITION_PLANNER_SCHEMA_VERSION = "policyos.runtime.acquisition_planner.v1"
 ACQUISITION_PLANNER_KIND = "runtime.acquisition_planner_report"
@@ -1690,6 +1693,7 @@ def run_acquisition_closed_loop(
     acquisition_request: Mapping[str, Any],
     data_requirement_specs: Sequence[BaseModel | Mapping[str, Any]],
     world_snapshot: AcquisitionWorldSnapshot | Mapping[str, Any],
+    design_problem: DesignProblem | None = None,
     owner_gateway: AcquisitionOwnerGateway | None = None,
     network_counter: AcquisitionNetworkCallCounter | None = None,
     useful_design_rate_before: float = 0.0,
@@ -1699,7 +1703,9 @@ def run_acquisition_closed_loop(
 
     The default path is record/replay-only: callers must explicitly provide a
     gateway for owner artifacts, so routine checks never discover or fetch from
-    network owners by accident.
+    network owners by accident. Grounding rederivation additionally requires the
+    real ``DesignProblem`` authority supplied by the calling cycle; its absence
+    fails closed instead of constructing a dict-shaped authority surrogate.
     """
 
     request = dict(acquisition_request)
@@ -1776,6 +1782,7 @@ def run_acquisition_closed_loop(
         world=world,
         specs=specs,
         owner_artifacts=owner_artifacts,
+        design_problem=design_problem,
     )
     fail_closed.extend(projection.fail_closed_reasons)
     real_grounding_results = projection.real_grounding_result_count
@@ -2099,6 +2106,7 @@ def _project_owner_artifacts_into_world(
     world: AcquisitionWorldSnapshot,
     specs: Sequence[Mapping[str, Any]],
     owner_artifacts: Sequence[AcquisitionOwnerArtifact],
+    design_problem: DesignProblem | None,
 ) -> _WorldProjectionResult:
     registry = _substrate_registry_from_world(world)
     registry_before = registry
@@ -2236,7 +2244,14 @@ def _project_owner_artifacts_into_world(
         world_after_ref=world_after_ref,
         affected_region=affected_region,
         owner_artifacts=written_artifacts,
+        design_problem=design_problem,
     )
+    for row in grounding:
+        if "design_problem_unavailable_after_world_write" in row.issue_codes:
+            fail_closed.append(
+                "grounding_rederivation_refused:"
+                f"{row.design_id}:design_problem_unavailable_after_world_write"
+            )
     return _WorldProjectionResult(
         added_slots=added_slots,
         world_after_ref=world_after_ref,
@@ -2330,6 +2345,7 @@ def _rederive_grounding_for_affected_region(
     world_after_ref: str,
     affected_region: AcquisitionAffectedRegion,
     owner_artifacts: Sequence[AcquisitionOwnerArtifact],
+    design_problem: DesignProblem | None,
 ) -> tuple[AcquisitionGroundingRederivation, ...]:
     if not affected_region.design_ids:
         return ()
@@ -2360,6 +2376,17 @@ def _rederive_grounding_for_affected_region(
                     status="grounding_unavailable",
                     grounding_score=0.0,
                     issue_codes=("candidate_target_not_in_written_world_region",),
+                )
+            )
+            continue
+        if design_problem is None:
+            rows.append(
+                AcquisitionGroundingRederivation(
+                    design_id=design_id,
+                    source_slots=affected_region.source_slots,
+                    status="grounding_unavailable",
+                    grounding_score=0.0,
+                    issue_codes=("design_problem_unavailable_after_world_write",),
                 )
             )
             continue
@@ -2396,7 +2423,7 @@ def _rederive_grounding_for_affected_region(
         }
         observation = port(
             candidate=candidate,
-            problem={"runtime_hints": {"world_model_record_ref": world.world_model_record_ref}},
+            problem=design_problem,
             cycle_index=0,
             generation_result={"grounding_dispositions": (disposition,)},
         )

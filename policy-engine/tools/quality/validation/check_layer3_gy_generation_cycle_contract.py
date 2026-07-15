@@ -10,6 +10,7 @@ import json
 import sys
 import time
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, get_args
@@ -46,6 +47,7 @@ from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+_FIXED_GENERATED_AT = datetime(2026, 7, 5, tzinfo=UTC)
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash", "capture_wall_time_seconds"}
 _EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "revision_not_terminal_driven",
@@ -223,6 +225,7 @@ async def build_live_payload(repo_root: Path) -> dict[str, Any]:
         grounding_port=PolicyGroundingPort(),
         value_port=PendingN8ValuePort(),
         repo_root=repo_root,
+        generated_at=_FIXED_GENERATED_AT,
     )
     run = await controller.run(
         _design_problem(),

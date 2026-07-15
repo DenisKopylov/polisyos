@@ -166,3 +166,43 @@ denominator after repairs.
 Generated-artifact registration and source-level fresh-state prerequisites passed read-only
 inspection. The actual clean-checkout rederive and final coherence gates remain pending. Owner
 repairs begin only after this classification commit.
+
+## Repair checkpoint — F2 typed DesignProblem propagation
+
+The RED-first WorkspaceLoop probe failed because `_phase2_state` could not receive the already-owned
+`DesignProblem`. The owner path now propagates that exact typed object through Phase 2 and deletes
+the reconstructed dict. The focused probe observes object identity at
+`select_value_method_for_problem`; the AST census finds no surviving `problem = { ... }` sibling in
+the production module. Landed separately as `02c606a52`.
+
+## Repair checkpoint — F1 N7 semantic receipt projection
+
+RED evidence:
+
+```text
+env ... .venv/bin/python -m pytest \
+  tests/unit/runtime/quality/test_acquisition_planner.py::test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle -q
+exit 1: clock-shifted hash d31c5988... != original 57624c6c...
+```
+
+The canonical N7 receipt owner now routes receipt hashing through the existing recursive GY
+volatile-field projection. The live boundary still validates the recorded hash, so only operational
+clocks are removed from identity. A one-dollar semantic cost change remains hash-decisive.
+
+Verification:
+
+```text
+focused receipt test: exit 0 (12.013 s)
+check_layer3_gy_acquisition_contract.py --rederive-audit:
+  exit 1 only on expected frozen content-hash drift
+check_layer3_gy_acquisition_contract.py --write: exit 0 (5.108 s)
+second --write: exit 0 (5.080 s)
+check_layer3_gy_acquisition_contract.py --check: exit 0 (0.438 s)
+artifact sha256 before/after second write:
+  23ebac67c73963be8bd64fb3052d785904d1b7a7bcbea6ee79fecea9c5539bdd
+.venv/bin/ruff check acquisition_planner.py test_acquisition_planner.py: exit 0
+```
+
+The writer emitted pre-existing unclosed-client warnings after a successful offline result; no
+network authority or semantic output depended on those warnings. Downstream N10a/capstone witness
+hashes remain intentionally pending the single canonical ripple rebaseline after all owner fixes.

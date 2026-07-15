@@ -4,7 +4,7 @@ import asyncio
 import hashlib
 import json
 import os
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -975,6 +975,23 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
     )
     assert {entry.sequence for entry in receipt.journal_entries} == {1, 2}
     assert validate_acquisition_receipt(receipt) == ()
+
+    clock_shifted_payload = receipt.model_dump(mode="json")
+    clock_shifted_payload.pop("content_hash")
+    clock_shifted_payload["generated_at"] = (
+        receipt.generated_at + timedelta(seconds=1)
+    ).isoformat()
+    clock_shifted_payload["planner_report"]["generated_at"] = (
+        receipt.planner_report.generated_at + timedelta(seconds=1)
+    ).isoformat()
+    clock_shifted = type(receipt).model_validate(clock_shifted_payload)
+    assert clock_shifted.content_hash == receipt.content_hash
+
+    semantic_change_payload = receipt.model_dump(mode="json")
+    semantic_change_payload.pop("content_hash")
+    semantic_change_payload["cost_summary_usd"] += 1.0
+    semantic_change = type(receipt).model_validate(semantic_change_payload)
+    assert semantic_change.content_hash != receipt.content_hash
 
 
 def test_n7_missing_design_problem_refuses_grounding_rederive_without_crash() -> None:

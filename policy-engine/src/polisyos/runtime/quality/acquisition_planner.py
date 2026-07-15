@@ -22,7 +22,12 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.pdc import SearchTerminalKind, SearchTerminalState, VOISelectionAudit
+from polisyos.pdc import (
+    SearchTerminalKind,
+    SearchTerminalState,
+    VOISelectionAudit,
+    strip_gy_volatile_fields,
+)
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateRegistration,
     SubstrateRegistry,
@@ -2603,7 +2608,10 @@ def _stable_content_hash(payload: Mapping[str, Any] | Sequence[Any]) -> str:
 def _receipt_content_hash(receipt: AcquisitionReceipt) -> str:
     payload = receipt.model_dump(mode="json")
     payload.pop("content_hash", None)
-    return _stable_content_hash(payload)
+    stable_payload = strip_gy_volatile_fields(payload)
+    if not isinstance(stable_payload, dict):
+        raise TypeError("acquisition_receipt_semantic_projection_not_mapping")
+    return _stable_content_hash(stable_payload)
 
 
 def _failed_closed_journal_entry(

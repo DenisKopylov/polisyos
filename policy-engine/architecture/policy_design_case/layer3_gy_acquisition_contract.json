@@ -115,7 +115,7 @@
     "routine_check_network_calls": 0,
     "wall_time_reported_by_validator": true
   },
-  "contract_content_hash": "sha256:a9b41e3998790976e62755279655f04928e452da017b90ddc2637120173fafe7",
+  "contract_content_hash": "sha256:a41ca4152b74ac650c4b0bf94025100db7cfbe795727d110c9bcf7556d7a79af",
   "contract_id": "policyos.runtime.quality.acquisition_planner.n7",
   "denominators": {
     "acquisition_families": [
@@ -328,7 +328,7 @@
       "journal_entry_count": 1,
       "routine_check_network_calls": 0
     },
-    "content_hash": "sha256:21495280679e5737ca45339175606daf96b523dfd8780858b8692e4d4b50cbf4",
+    "content_hash": "sha256:52aae3fe531ab82516d419d0d7f4d5ba5a33c35622b993bdfa7828b3f0baa18e",
     "cost_summary_usd": 0.0,
     "fail_closed_reasons": [
       "owner_artifact_missing:data-requirement:claim-source-family"
@@ -907,7 +907,7 @@
       "journal_entry_count": 1,
       "routine_check_network_calls": 0
     },
-    "content_hash": "sha256:2d1b97111bef2338c738203d1bdf7bc3023f76261166235cd25f9f0440d84230",
+    "content_hash": "sha256:baa5c48348e84860bccfb05b772803dd6115fb949d142dcda3b96a373118cda0",
     "cost_summary_usd": 0.0,
     "fail_closed_reasons": [],
     "fallback_strangle_receipt": {
@@ -1569,7 +1569,7 @@
       "journal_entry_count": 2,
       "routine_check_network_calls": 0
     },
-    "content_hash": "sha256:03ced0b31af1879e45ab1cf05a0bd4d788c9c9ba3553c628e19413c03e6111c8",
+    "content_hash": "sha256:3f21e4bab69c9d629970aedf50efe2e993ef4a418dd10062bc69320bfeb78f84",
     "cost_summary_usd": 0.0,
     "fail_closed_reasons": [],
     "fallback_strangle_receipt": {

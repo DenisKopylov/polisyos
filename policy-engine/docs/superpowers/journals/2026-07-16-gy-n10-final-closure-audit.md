@@ -119,8 +119,50 @@ must all consume it. A nested semantic mutation must change hash and perform a f
 - ordinary semantic changes do not currently enter the equal-hash carry branch;
 - the worktree remained clean throughout read-only reconnaissance.
 
+### Must-fix F1 — N7 receipt hashes include operational clocks
+
+`AcquisitionReceipt.generated_at` is operational, but `_receipt_content_hash` serializes the whole
+receipt except `content_hash`, including both the receipt clock and the nested planner-report clock.
+Recomputing real positive and no-result receipts with only a one-second clock change changed their
+hashes (`03ced0... -> 5d65e6...` and `2d1b97... -> 5b5961...`). The N6 injected-clock change
+therefore moved operational time into semantic identity.
+
+Classification: **must-fix / real defect (P07, P29)**. The N7 owner must define one semantic
+receipt projection that excludes operational clocks recursively, add a same-semantics/different-
+clock RED, and rebaseline every affected N7/N10a/capstone witness through canonical writers.
+
+### Must-fix F2 — Workspace Phase 2 sends a dict pseudo-problem to Foundry
+
+`WorkspaceLoop.run_intent` receives and validates a real `DesignProblem`, then projects it to a
+workspace-intent dict and drops the owner object before `_phase2_state`. `_phase2_value_method_selection`
+constructs a smaller shaped dict and passes it to authority-bearing
+`select_value_method_for_problem`. The N7 caller census is clean, but this sibling advisor consumer
+reopens the same P31/P32 class.
+
+Classification: **must-fix / real defect (P31, P32)**. Propagate the already-owned
+`DesignProblem` through `_phase2_state` and the selector; retain the projected intent for mechanics
+only. A caller census and focused WorkspaceLoop negative must prove no shaped pseudo-problem reaches
+the Foundry owner.
+
+### Item E — historical boundary passes read-only audit
+
+The rederive eligibility predicate accepts exactly one nested recursive content-hash validation
+error. Education and unseen embedded receipts produce that one historical drift; first vertical
+validates under the current DTO. `_verify_historical_compiled_envelope` passes all three real
+recordings. Raw compiler/N4 byte mutations fail their inner/outer hashes, and adding a non-hash
+validation error makes the predicate false and remains fatal. Classification: **pass**, pending the
+serial focused replay in the affected gate.
+
+### Item G — Task-13–15 assertion sweep
+
+The commit-by-commit assertion sweep found seven replacement groups and no weakened assertion.
+`6ff1e7986` is strictly stronger: it requires three `novel_cg3` dispositions, real organ calls, and
+zero candidates, rankings, atom hashes, or candidate-id authority. Other changes were stronger or
+neutral lifecycle/evidence rebaselines. Classification: **pass**, pending the serial focused test
+denominator after repairs.
+
 ## Pending audit items
 
-Historical-receipt boundaries, shared N7/N6 surfaces, the complete Task-13–15 test-diff sweep,
-generated-artifact registration, and fresh-state reproducibility remain under read-only audit.
-No owner repair begins until those findings are classified here.
+Generated-artifact registration and source-level fresh-state prerequisites passed read-only
+inspection. The actual clean-checkout rederive and final coherence gates remain pending. Owner
+repairs begin only after this classification commit.

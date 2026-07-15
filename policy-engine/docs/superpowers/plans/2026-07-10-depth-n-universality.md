@@ -1958,6 +1958,48 @@ rebaselined and no capstone artifact is written. A new capture, cross-candidate 
 invented atom, weakened terminal expectation, or acquisition-precedence redesign is not authorized
 by this repair and would violate P32/Rule 5.
 
+Measured first-vertical differential (2026-07-15): preserved Stage-2 and Stage-4 evidence localizes
+the zero-binding result to a Class-1 context/prompt wiring gap. The cold context carried the fiscal
+WMR (`sha256:a258fda4...`) and registry but set `intervention_substrate=None` and
+`candidate_levers=()`. `derive_lever_space_prompt_slice` therefore produced
+`owner_slice_empty_after_design_problem_filter`; the N4 receipt recorded
+`slice_added_chars=0`, and every cold first-vertical disposition had `lever_resolution=null`.
+Resolution was skipped. By contrast, the Stage-2 prompt carried the real L6 knobs
+`tax_relief_rate`, `procurement_shock_intensity`, and `budget_allocation_multiplier`, then bound
+`global.tax_rate -> tax_rate` against the same WMR. The compiler-authored
+`state_backed_credit_guarantee/msme_credit_access` lever has no L6 owner counterpart and remains an
+LLM candidate, never an alias or authority.
+
+The authorized Class-1 repair proceeds RED-first in this order:
+
+1. Add a canonical cycle-substrate resolver that selects a unique content-valid context by exact
+   DesignProblem provenance and WMR target-region/world evidence. Domain labels and proof roles are
+   provenance only. No match and ambiguity refuse typed.
+2. Refactor the Task-13 context builder to assemble available owner contexts and call that resolver.
+   The fiscal context carries `load_l6_intervention_substrate(root)`; education carries the pack's
+   candidate-unbound evidence; unseen receives no borrowed context. Remove role/domain branches.
+3. Make N4's world-bound prompt slice consume the injected L6 bundle, verify each knob against the
+   context WMR through the existing intervention owner, and content-bind the slice. The model's
+   candidate-lever vocabulary cannot filter owner levers out.
+4. Add a real N7 route for grounding/lever-vocabulary coverage gaps so
+   `world_identity_unresolved -> value_world_model_record_unwired` cannot remain an uncosted dead
+   end. Reuse `plan_requirement_gap_acquisition`; do not fabricate an owner report.
+5. Add the P32 value-authority fence: an atomless/non-binding-resolved candidate remains incapable
+   of positive value or promotion even when data are otherwise sufficient. Removing the fence is a
+   decisive Stage-4 RED mutation.
+6. Replay the paid compiler/N4 recordings. Because the correct L6 slice changes the N4 prompt hash,
+   one journal-first resumed first-vertical N4 recapture is authorized. It resumes the same cold
+   closeout and records whatever typed terminal the owners produce.
+
+RED witnesses include synonym-label/same-world selection, wrong-world and ambiguous-world refusal,
+all three fiscal knobs in the cold first-vertical prompt, no borrowed context for the unseen world,
+real N7 report provenance for an unresolved lever, and the atomless/non-binding positive-value
+blocker. Rejected shortcuts are a `first_vertical` branch, a hardcoded lever alias, an LLM prompt
+hint containing owner FQNs, an invented atom, or a transplanted Stage-2 receipt.
+
+After the repair is committed, rerun provenance in canonical order
+`owner source -> census/N4 -> N8 -> N10a -> composition`, then resume the fenced Task-13 writer.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

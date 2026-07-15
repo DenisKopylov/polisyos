@@ -451,6 +451,55 @@ The artifact content hash excludes runtime metrics, timestamps, and wall time.
 `--write` is byte-stable. `--rederive-audit` uses Lane-0 and cached Lane-1 paths;
 the one cold two-domain closeout runs once and receives the full E9 budget.
 
+### Stage-4 cold-run world-context reconciliation
+
+The cold first-vertical capture exposed a Class-1 wiring/measurement defect, not
+a genuine CG refusal. Its compiler-authored lever
+`state_backed_credit_guarantee` had no L6 owner counterpart, but the proof
+harness also constructed its `CycleSubstrateContext` with the correct fiscal
+WMR and an empty `intervention_substrate`. Consequently N4 received zero owner
+lever prompt entries and `_content_bound_candidates` skipped canonical lever
+resolution entirely. The Stage-2 run differed because its N4 prompt contained
+the three owner knobs and grounded `global.tax_rate` against the same fiscal
+world.
+
+The repair extends canonical owners rather than the proof role:
+
+- cycle-context selection resolves one context from exact DesignProblem
+  provenance plus the context WMR's target-region/world evidence; domain labels
+  and proof-role names are recorded provenance and never lookup authority;
+- no match or more than one content-valid match is a typed refusal, not a thin
+  context or arbitrary first match;
+- a world-bound context carries its real `InterventionSubstrateBundle`; a pack
+  context continues to carry its candidate-unbound lever evidence;
+- N4 derives the world-bound lever prompt slice from that exact bundle and
+  verifies every knob against the context WMR through
+  `resolve_intervention_lever`; model-authored candidate strings may propose but
+  cannot suppress, substitute, or bind owner vocabulary; and
+- an unseen world receives no first-vertical or education context and degrades
+  through the existing typed path.
+
+This is generic over any WMR/substrate pair. The RED denominator requires a
+synonym domain label to select the same content-bound world, a wrong or
+ambiguous world to refuse, the cold fiscal problem to receive all three real L6
+knobs despite its free-text lever, and an unseen target context to receive no
+borrowed vocabulary. A role/domain conditional, an alias from
+`credit_guarantee` to a fiscal knob, or prompt hints that teach the model an
+owner FQN are P31/P32/P33 violations.
+
+If the repaired prompt changes the first-vertical N4 request hash, the existing
+cold closeout is resumed once with a journal-first N4 recapture. It is not a
+second proof denominator. The downstream result is measured rather than
+preselected. Independently, any grounding terminal without a usable identity
+must compile a real N7 grounding-coverage/lever-vocabulary requirement so that
+honest refusal is actionable rather than a dead end.
+
+Finally, verified non-binding identity is refusal authority only. An atomless
+or non-binding-resolved candidate may reach refusal classification, but even
+with data-rich inputs it can never mint a positive value receipt or become
+promotion eligible. The Stage-4 mutation suite removes this fence and must turn
+RED.
+
 ## 8. Source-flip and semantic mutation contract
 
 Every decisive source flip patches source, executes the probe to RED, restores

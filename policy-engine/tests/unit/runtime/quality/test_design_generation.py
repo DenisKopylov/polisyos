@@ -2911,7 +2911,7 @@ def test_novel_candidate_with_false_analog_evidence_routes_to_cg3() -> None:
 
 
 @pytest.mark.asyncio
-async def test_recorded_llm_organs_emit_diverse_shadow_candidates() -> None:
+async def test_recorded_llm_organs_emit_diverse_cg3_dispositions_without_authority() -> None:
     recording = _recordings()[0]
     result = await generate_design_candidates_under_a(
         contract._design_problem(recording),
@@ -2924,17 +2924,27 @@ async def test_recorded_llm_organs_emit_diverse_shadow_candidates() -> None:
     assert result.preflight.status == "supported"
     assert result.diversity_report.diverse_enough is True
     assert result.diversity_report.unique_diversity_key_count == 3
-    assert len(result.candidates) == 3
-    for candidate in result.candidates:
-        assert candidate.generator_path == "model_generated"
-        assert candidate.status == "candidate_unverified"
-        assert candidate.atom.status == "candidate_unverified"
-        assert candidate.atom.content_hash == candidate.provenance.content_hash
-        assert candidate.provenance.draft_generator_path == "model_generated"
-        assert candidate.provenance.formalizer_generator_path == "model_generated"
-        assert candidate.provenance.critic_generator_path == "model_generated"
-    assert result.surrogate_rankings
-    assert all(not ranking.promotion_allowed for ranking in result.surrogate_rankings)
+    assert len(result.grounding_dispositions) == 3
+    assert result.grounding_disposition_summary.total_candidates == 3
+    assert result.grounding_disposition_summary.novel_cg3 == 3
+    assert result.candidates == ()
+    assert result.surrogate_rankings == ()
+    assert all(call.status == "success" for call in result.llm_calls)
+    assert {call.role_hint for call in result.llm_calls} >= {
+        "draft",
+        "formalizer",
+        "critic",
+    }
+    proposal_ids = set()
+    for disposition in result.grounding_dispositions:
+        assert disposition.status == "candidate_unverified"
+        assert disposition.disposition == "novel_cg3"
+        assert disposition.cg3_decision == "acquire_then_decide"
+        assert disposition.candidate_id is None
+        assert disposition.shadow_atom_content_hash is None
+        assert disposition.raw_candidate_hash.startswith("sha256:")
+        proposal_ids.add(disposition.proposal_id)
+    assert len(proposal_ids) == 3
     assert firewall_issues_for_result(result) == ()
 
 

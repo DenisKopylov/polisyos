@@ -53,6 +53,7 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleError,
     GenerationCycleRun,
     JointSimulationPort,
+    N4GenerationPort,
     PendingN8ValuePort,
     PolicyGroundingPort,
     PromotionPortObservation,
@@ -2096,6 +2097,40 @@ async def test_empty_llm_generation_uses_grammar_fallback_without_promotion() ->
         "grammar_fallback"
     }
     assert run.fronts.decision.candidate_ids == ()
+
+
+@pytest.mark.asyncio
+async def test_n4_port_without_owner_context_refuses_before_scientist_generation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A no-pack cycle cannot borrow the fixed Scientist vertical vocabulary."""
+
+    from polisyos.runtime.quality import design_generation
+
+    calls = 0
+
+    async def _forbidden_generation(*args: Any, **kwargs: Any) -> object:
+        nonlocal calls
+        del args, kwargs
+        calls += 1
+        raise AssertionError("scientist_generation_reached_without_owner_context")
+
+    monkeypatch.setattr(
+        design_generation,
+        "generate_design_candidate_bundle_under_a",
+        _forbidden_generation,
+    )
+    port = N4GenerationPort(
+        model_id="owner-selected-model",
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=None,
+    )
+
+    result = await port(_problem(), cycle_index=0)
+
+    assert calls == 0
+    assert result.status == "cycle_substrate_context_unavailable"
+    assert result.candidates == ()
 
 
 @pytest.mark.asyncio

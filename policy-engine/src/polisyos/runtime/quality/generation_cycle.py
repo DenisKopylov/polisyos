@@ -823,6 +823,16 @@ class RevisionPolicy(Protocol):
         """Return the next revision request."""
 
 
+@dataclass(frozen=True)
+class _N4OwnerContextUnavailableResult:
+    """Typed U4 refusal before a fixed Scientist vertical can become authority."""
+
+    status: str = "cycle_substrate_context_unavailable"
+    candidates: tuple[object, ...] = ()
+    surrogate_rankings: tuple[object, ...] = ()
+    grounding_dispositions: tuple[object, ...] = ()
+
+
 class N4GenerationPort:
     """Default N4 port calling the real design generation owner."""
 
@@ -848,6 +858,8 @@ class N4GenerationPort:
         """Call N4 generation for this cycle."""
 
         del cycle_index
+        if self._cycle_substrate_context is None:
+            return _N4OwnerContextUnavailableResult()
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_bundle_under_a,
         )

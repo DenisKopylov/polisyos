@@ -2153,13 +2153,9 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
         captured.update(kwargs)
         return _Compiled()
 
-    async def _n4_recording(
-        repo_root: Path,
-        **kwargs: Any,
-    ) -> tuple[dict[str, str], object]:
-        assert repo_root == tmp_path
-        del kwargs
-        return {"recording_content_hash": "sha256:" + "2" * 64}, object()
+    async def _n4_recording(*args: Any, **kwargs: Any) -> None:
+        del args, kwargs
+        raise AssertionError("no-context capture invoked the Scientist N4 replay")
 
     generation_cycle_module = import_module(
         "polisyos.runtime.http.services.control.generation_cycle"
@@ -2176,7 +2172,11 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
         lambda *args, **kwargs: None,
     )
     monkeypatch.setattr(validator, "_n4_recording_from_journal", _n4_recording)
-    monkeypatch.setattr(validator, "_assert_n4_cycle_binding", lambda *args: None)
+    monkeypatch.setattr(
+        validator,
+        "_assert_no_context_cycle_binding",
+        lambda *args: None,
+    )
 
     compiler_recording = {
         "raw_request": "plain language",
@@ -2186,7 +2186,7 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
         "span_calls": [],
         "raw_request_content_hash": "sha256:" + "3" * 64,
     }
-    await validator._capture_domain_run(
+    recording = await validator._capture_domain_run(
         tmp_path,
         role="unseen",
         compiler_recording=compiler_recording,
@@ -2196,6 +2196,12 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
     assert captured["model_name"] == "owner-selected-compiler-model"
     assert captured["controller"] is not None
     assert captured["controller"]._leaf_model_id == validator.PROOF_MODEL_ID
+    assert recording["cycle_substrate_context_content_hash"] is None
+    assert recording["n4_recording"]["status"] == (
+        "cycle_substrate_context_unavailable"
+    )
+    assert "responses" not in recording["n4_recording"]
+    assert "owner_result_projection" not in recording["n4_recording"]
 
 
 @pytest.mark.parametrize(
@@ -2381,6 +2387,128 @@ def test_historical_compiled_envelope_rejects_tampered_recursive_payload() -> No
             problem=_Problem(),
             observed_context_hash=context_hash,
         )
+
+
+def test_no_context_recording_supersedes_model_output_and_verifies_legacy_bytes() -> None:
+    """No-context proof evidence is a typed refusal; stale raw bytes remain checksummed."""
+
+    validator, payload = _complete_universality_payload()
+    problem = DesignProblem.model_validate(
+        payload["domain_runs"]["unseen"]["design_problem"]
+    )
+    canonical = validator._no_context_generation_recording(problem)
+
+    assert canonical["schema_version"] == (
+        "policyos.layer3.gy.n10.no_context_generation_recording.v1"
+    )
+    assert canonical["status"] == "cycle_substrate_context_unavailable"
+    assert canonical["cycle_substrate_context_content_hash"] is None
+    assert "responses" not in canonical
+    assert "owner_result_projection" not in canonical
+    validator._verify_superseded_no_context_n4_recording(
+        canonical,
+        problem=problem,
+    )
+
+    raw = '{"candidate":"historical-only"}'
+    legacy: dict[str, Any] = {
+        "schema_version": "policyos.layer3.gy.n10.n4_recording.v1",
+        "recording_source": "superseded_live_gateway_call_journal",
+        "role": "unseen",
+        "model_id": validator.PROOF_MODEL_ID,
+        "design_problem_ref": canonical["design_problem_ref"],
+        "cycle_substrate_context_content_hash": None,
+        "responses": [
+            {
+                "raw_response": raw,
+                "raw_llm_response": raw,
+                "raw_response_hash": gy_content_hash(raw),
+            }
+        ],
+        "owner_result_projection": {"status": "historical_only"},
+    }
+    legacy["recording_content_hash"] = validator._semantic_hash(legacy)
+    validator._verify_superseded_no_context_n4_recording(
+        legacy,
+        problem=problem,
+    )
+
+    tampered = copy.deepcopy(legacy)
+    tampered["responses"][0]["raw_response"] += " "
+    stable = {
+        key: value
+        for key, value in tampered.items()
+        if key != "recording_content_hash"
+    }
+    tampered["recording_content_hash"] = validator._semantic_hash(stable)
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="proof_n4_recorded_raw_response_hash_mismatch",
+    ):
+        validator._verify_superseded_no_context_n4_recording(
+            tampered,
+            problem=problem,
+        )
+
+
+@pytest.mark.asyncio
+async def test_complete_payload_persists_normalized_recordings(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The capstone writer cannot copy a superseded no-context recording forward."""
+
+    validator = _universality_contract_validator()
+    source = {
+        role: {"role": role, "recording_content_hash": f"legacy-{role}"}
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    }
+
+    async def _rederive(
+        repo_root: Path,
+        *,
+        role: str,
+        recording: dict[str, Any],
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        assert repo_root == tmp_path
+        assert recording is not source[role]
+        run = {
+            "terminal_distribution": {
+                "terminal_kind": "acquisition_required",
+                "evidence_kind": f"owner-{role}",
+                "decision_grade": "blocked",
+                "count": 1,
+            }
+        }
+        normalized = {
+            "role": role,
+            "recording_content_hash": f"normalized-{role}",
+        }
+        return run, normalized
+
+    monkeypatch.setattr(
+        validator,
+        "_build_pending_payload",
+        lambda *args, **kwargs: {"runtime_metrics": {"lane": "cached"}},
+    )
+    monkeypatch.setattr(
+        validator,
+        "_domain_run_and_normalized_recording",
+        _rederive,
+    )
+
+    payload = await validator._complete_payload_from_recordings(
+        tmp_path,
+        recordings=source,
+    )
+
+    assert {
+        role: recording["recording_content_hash"]
+        for role, recording in payload["proof_recordings"].items()
+    } == {
+        role: f"normalized-{role}"
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    }
 
 
 def test_universality_task13_payload_is_complete_and_fork_b_honest() -> None:
@@ -2638,7 +2766,11 @@ def test_unseen_domain_reaches_typed_terminal_without_vertical_contamination() -
 
     _, payload = _complete_universality_payload()
     run = payload["domain_runs"]["unseen"]
-    serialized = json.dumps(run, sort_keys=True).casefold()
+    recording = payload["proof_recordings"]["unseen"]
+    serialized = json.dumps(
+        {"run": run, "proof_recording": recording},
+        sort_keys=True,
+    ).casefold()
 
     assert run["cycle_substrate_context_ref"] is None
     assert run["terminal"]["kind"] in {
@@ -2654,13 +2786,26 @@ def test_unseen_domain_reaches_typed_terminal_without_vertical_contamination() -
         "limited",
         "abstained",
     }
-    for forbidden in (
-        "education_spending",
-        "school_quality",
-        "teaching_method",
-        "tax_relief_rate",
-        "ua_msme_cgf_decisive_capture",
-    ):
+    assert recording["n4_recording"]["status"] == (
+        "cycle_substrate_context_unavailable"
+    )
+    assert "responses" not in recording["n4_recording"]
+    assert "owner_result_projection" not in recording["n4_recording"]
+    owner_vocab: set[str] = set()
+    for known_role in ("first_vertical", "education"):
+        known_recording = payload["proof_recordings"][known_role]
+        projection = known_recording["n4_recording"]["owner_result_projection"]
+        for proposed in projection["proposed_interventions"]:
+            owner_vocab.update(
+                str(proposed.get(field) or "").casefold()
+                for field in ("operator_kind", "trinity_kind")
+                if proposed.get(field)
+            )
+        known_problem = payload["domain_runs"][known_role]["design_problem"]
+        owner_vocab.add(
+            str(known_problem["outcome_of_interest"]["target_variable"]).casefold()
+        )
+    for forbidden in sorted(owner_vocab):
         assert forbidden not in serialized
 
 

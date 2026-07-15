@@ -206,3 +206,37 @@ artifact sha256 before/after second write:
 The writer emitted pre-existing unclosed-client warnings after a successful offline result; no
 network authority or semantic output depended on those warnings. Downstream N10a/capstone witness
 hashes remain intentionally pending the single canonical ripple rebaseline after all owner fixes.
+
+## Repair checkpoint — H1 no-pack U4 fence and recording supersession
+
+RED evidence was the frozen no-pack proof itself: the embedded N4 recording proposed three
+`tax_subsidy` interventions and carried first-vertical outcome/constraint vocabulary even though
+the compiled DesignProblem declared only demand-reduction, emission-reduction, and renter-equity
+instruments. A focused N4-port RED also proved the Scientist owner was called when the resolved
+cycle context was absent (`scientist_generation_reached_without_owner_context`, exit 1).
+
+The production cycle port now emits `cycle_substrate_context_unavailable` before entering the
+fixed Scientist formalizer. The existing grammar fallback then derives its entire candidate
+denominator from the compiled DesignProblem. The capstone replay path no longer bypasses this port:
+it verifies every legacy raw response/hash as superseded history, replaces both the contaminated
+N4 projection and compiled run with a typed no-context recording/current recursive run, and stores
+that normalized recording. Context-present N4 replay is unchanged.
+
+Focused evidence:
+
+```text
+N4 no-context RED: exit 1, Scientist owner reached
+N4 no-context + existing grammar fallback probes after repair: 2 passed (37.7 s)
+validator no-context capture/legacy-hash/normalized-writer probes: 3 passed (12.8 s)
+real embedded unseen replay: exit 0 (~54.6 s)
+  generation_channel=grammar_fallback
+  proposed_lever_ids=[demand_reduction_instrument,
+    emission_reduction_instrument,equity_protection_instrument]
+  normalized N4 schema=policyos.layer3.gy.n10.no_context_generation_recording.v1
+  responses/owner_result_projection absent
+```
+
+The honest no-pack replay now stops on the grounding-coverage acquisition route rather than the
+previous L1-data-gap class: without an owner WMR, entering the later value-data owner would itself
+be fabricated authority. This still leaves the frozen minimum of two structurally distinct
+degradation classes once evidence classification is repaired; no terminal label is transplanted.

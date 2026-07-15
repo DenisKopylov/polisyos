@@ -211,6 +211,12 @@ _N4_CAPTURE_ENV = {
     "POLISYOS_LLM_CACHE_MAXSIZE": "128",
     "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
 }
+_NO_CONTEXT_N4_RECORDING_SCHEMA_VERSION = (
+    "policyos.layer3.gy.n10.no_context_generation_recording.v1"
+)
+_DOMAIN_RUN_RECORDING_SCHEMA_VERSION = (
+    "policyos.layer3.gy.n10.domain_run_recording.v1"
+)
 
 _UPSTREAM_PATHS = (
     N4_PATH,
@@ -1851,6 +1857,74 @@ def _n4_owner_projection(organ_run: object) -> dict[str, Any]:
     return n10a._n4_owner_result_projection(organ_run)
 
 
+def _no_context_generation_recording(problem: object) -> dict[str, Any]:
+    """Record the typed U4 refusal without retaining fixed-vertical model output."""
+
+    from polisyos.pdc import gy_content_hash
+
+    payload: dict[str, Any] = {
+        "schema_version": _NO_CONTEXT_N4_RECORDING_SCHEMA_VERSION,
+        "recording_source": "cycle_substrate_context_unavailable",
+        "owner": "polisyos.runtime.quality.generation_cycle.N4GenerationPort",
+        "status": "cycle_substrate_context_unavailable",
+        "design_problem_ref": gy_content_hash(problem.model_dump(mode="json")),
+        "cycle_substrate_context_content_hash": None,
+    }
+    payload["recording_content_hash"] = _semantic_hash(payload)
+    return payload
+
+
+def _verify_superseded_no_context_n4_recording(
+    recording: Mapping[str, Any],
+    *,
+    problem: object,
+) -> None:
+    """Verify historical bytes before discarding their non-authoritative projection."""
+
+    stable = {
+        key: value
+        for key, value in recording.items()
+        if key != "recording_content_hash"
+    }
+    if recording.get("recording_content_hash") != _semantic_hash(stable):
+        raise UniversalityContractError("proof_n4_recording_content_hash_mismatch")
+    expected = _no_context_generation_recording(problem)
+    expected_problem_ref = expected["design_problem_ref"]
+    if recording.get("design_problem_ref") != expected_problem_ref:
+        raise UniversalityContractError("proof_n4_recording_problem_binding_drift")
+    if recording.get("cycle_substrate_context_content_hash") is not None:
+        raise UniversalityContractError("proof_n4_recording_context_binding_drift")
+    if recording.get("schema_version") == _NO_CONTEXT_N4_RECORDING_SCHEMA_VERSION:
+        if dict(recording) != expected:
+            raise UniversalityContractError("proof_no_context_recording_drift")
+        return
+    if recording.get("schema_version") != "policyos.layer3.gy.n10.n4_recording.v1":
+        raise UniversalityContractError("proof_no_context_recording_schema_unknown")
+    responses = recording.get("responses")
+    if not isinstance(responses, list) or not responses:
+        raise UniversalityContractError("proof_n4_recording_response_denominator_empty")
+    for index, response in enumerate(responses):
+        if not isinstance(response, Mapping):
+            raise UniversalityContractError(
+                f"proof_n4_recorded_response_invalid:{index}"
+            )
+        raw = response.get("raw_response")
+        recorded_hash = response.get("raw_response_hash")
+        if not isinstance(raw, str) or not isinstance(recorded_hash, str):
+            raise UniversalityContractError(
+                f"proof_n4_recorded_raw_response_missing:{index}"
+            )
+        if recorded_hash != _semantic_hash(raw):
+            raise UniversalityContractError(
+                f"proof_n4_recorded_raw_response_hash_mismatch:{index}"
+            )
+        raw_alias = response.get("raw_llm_response")
+        if raw_alias is not None and raw_alias != raw:
+            raise UniversalityContractError(
+                f"proof_n4_recorded_raw_response_alias_mismatch:{index}"
+            )
+
+
 async def _n4_recording_from_journal(
     repo_root: Path,
     *,
@@ -1980,7 +2054,6 @@ async def _capture_domain_run(
 ) -> dict[str, Any]:
     """Run one compiled problem through the production recursive/cycle owners."""
 
-    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.services.control.generation_cycle import (
         compile_and_run_recursive_generation_cycle,
     )
@@ -2051,27 +2124,25 @@ async def _capture_domain_run(
         )
     replay.assert_exhausted()
     span_replay.assert_exhausted()
-    n4_recording, organ_run = await _n4_recording_from_journal(
-        repo_root,
+    if context is None:
+        _assert_no_context_cycle_binding(compiled)
+        n4_recording = _no_context_generation_recording(compiled.design_problem)
+    else:
+        n4_recording, organ_run = await _n4_recording_from_journal(
+            repo_root,
+            role=role,
+            problem=compiled.design_problem,
+            cycle_substrate_context=context,
+            journal_path=journal_path,
+        )
+        _assert_n4_cycle_binding(compiled, organ_run)
+    recording = _domain_run_recording(
         role=role,
-        problem=compiled.design_problem,
+        compiler_recording=compiler_recording,
+        n4_recording=n4_recording,
         cycle_substrate_context=context,
-        journal_path=journal_path,
+        compiled=compiled,
     )
-    _assert_n4_cycle_binding(compiled, organ_run)
-    recording: dict[str, Any] = {
-        "schema_version": "policyos.layer3.gy.n10.domain_run_recording.v1",
-        "role": role,
-        "compiler_recording": copy.deepcopy(dict(compiler_recording)),
-        "n4_recording": n4_recording,
-        "cycle_substrate_context_content_hash": getattr(context, "content_hash", None),
-        "compiled_run": compiled.model_dump(mode="json"),
-        "compiled_run_content_hash": compiled.content_hash,
-        "design_problem_ref": gy_content_hash(
-            compiled.design_problem.model_dump(mode="json")
-        ),
-    }
-    recording["recording_content_hash"] = _semantic_hash(recording)
     _append_capture_journal(
         repo_root,
         {
@@ -2111,6 +2182,109 @@ def _assert_n4_cycle_binding(compiled: object, organ_run: object) -> None:
     cycles = tuple(nodes[0].cycle_run.cycles)
     if len(cycles) != 1 or set(cycles[0].candidate_ids) != expected_ids:
         raise UniversalityContractError("proof_cycle_n4_candidate_denominator_mismatch")
+
+
+def _single_leaf_cycle_run(compiled: object) -> object:
+    """Return the single proof leaf after checking the frozen proof denominator."""
+
+    recursive_run = getattr(compiled, "recursive_run", None)
+    nodes = tuple(getattr(recursive_run, "nodes", ()) or ())
+    if len(nodes) != 1 or getattr(nodes[0], "cycle_run", None) is None:
+        raise UniversalityContractError("proof_recursive_leaf_denominator_invalid")
+    cycle_run = nodes[0].cycle_run
+    cycles = tuple(getattr(cycle_run, "cycles", ()) or ())
+    if len(cycles) != 1:
+        raise UniversalityContractError("domain_run_cycle_denominator_invalid")
+    return cycle_run
+
+
+def _assert_no_context_cycle_binding(compiled: object) -> None:
+    """Require the U4 path to use only problem grammar and remain non-authoritative."""
+
+    cycle_run = _single_leaf_cycle_run(compiled)
+    cycle = cycle_run.cycles[0]
+    levers = tuple(compiled.design_problem.candidate_lever_space.candidate_levers)
+    candidate_ids = tuple(cycle.candidate_ids)
+    summaries = tuple(cycle_run.candidate_summaries)
+    if len(candidate_ids) != len(levers) or not candidate_ids:
+        raise UniversalityContractError(
+            "proof_no_context_problem_lever_denominator_mismatch"
+        )
+    if {summary.candidate_id for summary in summaries} != set(candidate_ids):
+        raise UniversalityContractError(
+            "proof_no_context_candidate_summary_denominator_mismatch"
+        )
+    if any(summary.generation_channel != "grammar_fallback" for summary in summaries):
+        raise UniversalityContractError("proof_no_context_n4_authority_survived")
+    if tuple(cycle_run.fronts.decision.candidate_ids):
+        raise UniversalityContractError("proof_no_context_candidate_promoted")
+    if tuple(cycle_run.promotion_port.certified_candidate_ids):
+        raise UniversalityContractError("proof_no_context_candidate_certified")
+    if cycle.grounding.status != "grounding_unavailable":
+        raise UniversalityContractError("proof_no_context_grounding_authority_minted")
+
+
+def _no_context_generation_projection(compiled: object) -> dict[str, Any]:
+    """Project live grammar-fallback candidates from the compiled problem only."""
+
+    _assert_no_context_cycle_binding(compiled)
+    cycle_run = _single_leaf_cycle_run(compiled)
+    cycle = cycle_run.cycles[0]
+    summaries = {
+        summary.candidate_id: summary for summary in cycle_run.candidate_summaries
+    }
+    levers = tuple(compiled.design_problem.candidate_lever_space.candidate_levers)
+    proposed = []
+    for candidate_id, lever in zip(cycle.candidate_ids, levers, strict=True):
+        summary = summaries[candidate_id]
+        proposed.append(
+            {
+                "proposal_id": candidate_id,
+                "operator_kind": str(lever.operator_kind),
+                "raw_candidate_hash": summary.content_hash,
+            }
+        )
+    return {
+        "status": "cycle_substrate_context_unavailable",
+        "generation_owner": (
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
+        ),
+        "generation_channel": "grammar_fallback",
+        "lever_space_prompt_slice_content_hash": None,
+        "prompt_slice_operator_kinds": [],
+        "proposed_interventions": proposed,
+        "grounding_dispositions": [],
+    }
+
+
+def _domain_run_recording(
+    *,
+    role: str,
+    compiler_recording: Mapping[str, Any],
+    n4_recording: Mapping[str, Any],
+    cycle_substrate_context: object | None,
+    compiled: object,
+) -> dict[str, Any]:
+    """Bind one current compiled run to its canonical replay evidence."""
+
+    from polisyos.pdc import gy_content_hash
+
+    recording: dict[str, Any] = {
+        "schema_version": _DOMAIN_RUN_RECORDING_SCHEMA_VERSION,
+        "role": role,
+        "compiler_recording": copy.deepcopy(dict(compiler_recording)),
+        "n4_recording": copy.deepcopy(dict(n4_recording)),
+        "cycle_substrate_context_content_hash": getattr(
+            cycle_substrate_context, "content_hash", None
+        ),
+        "compiled_run": compiled.model_dump(mode="json"),
+        "compiled_run_content_hash": compiled.content_hash,
+        "design_problem_ref": gy_content_hash(
+            compiled.design_problem.model_dump(mode="json")
+        ),
+    }
+    recording["recording_content_hash"] = _semantic_hash(recording)
+    return recording
 
 
 async def _capture_proof_recordings(repo_root: Path) -> dict[str, Any]:
@@ -2354,6 +2528,22 @@ async def _domain_run_from_recording(
 ) -> dict[str, Any]:
     """Re-derive one semantic run trace from frozen owner-response evidence."""
 
+    domain_run, _ = await _domain_run_and_normalized_recording(
+        repo_root,
+        role=role,
+        recording=recording,
+    )
+    return domain_run
+
+
+async def _domain_run_and_normalized_recording(
+    repo_root: Path,
+    *,
+    role: str,
+    recording: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Re-derive current owners and supersede no-context fixed-vertical evidence."""
+
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
@@ -2419,12 +2609,19 @@ async def _domain_run_from_recording(
             raise UniversalityContractError("domain_run_design_problem_ref_drift")
 
     n4_recording = _mapping(recording.get("n4_recording"))
-    organ_run = await _replay_n4_recording(
-        repo_root,
-        problem=problem,
-        cycle_substrate_context=context,
-        recording=n4_recording,
-    )
+    organ_run: object | None = None
+    if context is None:
+        _verify_superseded_no_context_n4_recording(
+            n4_recording,
+            problem=problem,
+        )
+    else:
+        organ_run = await _replay_n4_recording(
+            repo_root,
+            problem=problem,
+            cycle_substrate_context=context,
+            recording=n4_recording,
+        )
 
     compiler_replay = _ReplayGateway(compiler_recording)
     span_replay = _ReplayGateway(
@@ -2434,8 +2631,12 @@ async def _domain_run_from_recording(
         }
     )
     n4_port = N4GenerationPort(
-        model_id=str(n4_recording.get("model_id") or ""),
-        llm_client=RecordedGenerationReplayClient(dict(n4_recording)),
+        model_id=str(n4_recording.get("model_id") or PROOF_MODEL_ID),
+        llm_client=(
+            RecordedGenerationReplayClient(dict(n4_recording))
+            if context is not None
+            else None
+        ),
         repo_root=repo_root,
         cycle_substrate_context=context,
     )
@@ -2471,22 +2672,45 @@ async def _domain_run_from_recording(
         raise UniversalityContractError("domain_run_live_context_drift")
     if compiled.design_problem_ref != recording.get("design_problem_ref"):
         raise UniversalityContractError("domain_run_live_design_problem_ref_drift")
-    _assert_n4_cycle_binding(compiled, organ_run)
-    projection = _n4_owner_projection(organ_run)
+    if context is None:
+        _assert_no_context_cycle_binding(compiled)
+        projection = _no_context_generation_projection(compiled)
+        normalized_recording = _domain_run_recording(
+            role=role,
+            compiler_recording=compiler_recording,
+            n4_recording=_no_context_generation_recording(problem),
+            cycle_substrate_context=None,
+            compiled=compiled,
+        )
+    else:
+        if organ_run is None:  # pragma: no cover - guarded by the context branch.
+            raise UniversalityContractError("proof_n4_replay_result_missing")
+        _assert_n4_cycle_binding(compiled, organ_run)
+        projection = {
+            **_n4_owner_projection(organ_run),
+            "generation_owner": (
+                "polisyos.runtime.quality.design_generation."
+                "generate_design_candidate_bundle_under_a"
+            ),
+            "generation_channel": "n4_owner",
+        }
+        normalized_recording = copy.deepcopy(dict(recording))
     domain_run = _project_domain_run(
         repo_root,
         role=role,
         raw_request=str(compiler_recording.get("raw_request") or ""),
         compiler_recording=compiler_recording,
         compiled=compiled,
-        n4_projection=projection,
+        generation_projection=projection,
         cycle_substrate_context=context,
-        recording_content_hash=str(recording.get("recording_content_hash") or ""),
+        recording_content_hash=str(
+            normalized_recording.get("recording_content_hash") or ""
+        ),
     )
     expected_ref = gy_content_hash(problem.model_dump(mode="json"))
     if domain_run["compiler_receipt"]["design_problem_ref"] != expected_ref:
         raise UniversalityContractError("domain_run_compiler_receipt_drift")
-    return domain_run
+    return domain_run, normalized_recording
 
 
 def _is_historical_recursive_hash_drift(exc: ValidationError) -> bool:
@@ -2574,11 +2798,11 @@ def _project_domain_run(
     raw_request: str,
     compiler_recording: Mapping[str, Any],
     compiled: object,
-    n4_projection: Mapping[str, Any],
+    generation_projection: Mapping[str, Any],
     cycle_substrate_context: object | None,
     recording_content_hash: str,
 ) -> dict[str, Any]:
-    """Project compiler/N4/N6-N9 evidence into one compact typed trace."""
+    """Project compiler and current cycle-owner evidence into one typed trace."""
 
     from polisyos.pdc import gy_content_hash
 
@@ -2593,7 +2817,7 @@ def _project_domain_run(
     value = cycle.value_port
     selection_receipt = value.method_selection_receipt
     acquisition_report = cycle.acquisition_routing_report
-    dispositions = _mappings(n4_projection.get("grounding_dispositions"))
+    dispositions = _mappings(generation_projection.get("grounding_dispositions"))
     selected_disposition = next(
         (
             row
@@ -2603,7 +2827,7 @@ def _project_domain_run(
         ),
         None,
     )
-    proposed = _mappings(n4_projection.get("proposed_interventions"))
+    proposed = _mappings(generation_projection.get("proposed_interventions"))
     evidence_kind = _domain_evidence_kind(
         role=role,
         value_status=value.status,
@@ -2614,17 +2838,20 @@ def _project_domain_run(
     stage_trace: dict[str, Any] = {
         "generation": {
             "attempted": True,
-            "owner": (
-                "polisyos.runtime.quality.design_generation."
+            "owner": str(
+                generation_projection.get("generation_owner")
+                or "polisyos.runtime.quality.design_generation."
                 "generate_design_candidate_bundle_under_a"
             ),
-            "status": n4_projection.get("status"),
-            "generation_channel": "n4_owner",
-            "prompt_slice_content_hash": n4_projection.get(
+            "status": generation_projection.get("status"),
+            "generation_channel": str(
+                generation_projection.get("generation_channel") or "n4_owner"
+            ),
+            "prompt_slice_content_hash": generation_projection.get(
                 "lever_space_prompt_slice_content_hash"
             ),
             "prompt_slice_operator_kinds": _strings(
-                n4_projection.get("prompt_slice_operator_kinds")
+                generation_projection.get("prompt_slice_operator_kinds")
             ),
             "proposed_lever_ids": [
                 str(row.get("operator_kind") or "") for row in proposed
@@ -2809,12 +3036,15 @@ async def _complete_payload_from_recordings(
         raise UniversalityContractError("proof_recording_domain_denominator_missing")
     base = _build_pending_payload(repo_root, lane="cached")
     domain_runs: dict[str, Any] = {}
+    normalized_recordings: dict[str, Any] = {}
     for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
-        domain_runs[role] = await _domain_run_from_recording(
+        domain_run, normalized_recording = await _domain_run_and_normalized_recording(
             repo_root,
             role=role,
             recording=_mapping(recordings.get(role)),
         )
+        domain_runs[role] = domain_run
+        normalized_recordings[role] = normalized_recording
     base.update(
         {
             "proof_status": "complete",
@@ -2823,7 +3053,7 @@ async def _complete_payload_from_recordings(
                 "artifact": "implemented",
                 "semantic_test": "implemented",
             },
-            "proof_recordings": copy.deepcopy(dict(recordings)),
+            "proof_recordings": normalized_recordings,
             "domain_runs": domain_runs,
             "terminal_distributions": {
                 role: copy.deepcopy(run["terminal_distribution"])

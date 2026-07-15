@@ -3424,7 +3424,7 @@ def _cycle_stage_attempts(
 
 
 def expected_cycle_terminal_for_disposition(disposition: str) -> str:
-    """Return N6's typed terminal implied by one canonical N4 disposition."""
+    """Return N6's routed terminal implied by one canonical N4 disposition."""
 
     if disposition in {
         "novel_cg3",
@@ -3432,7 +3432,7 @@ def expected_cycle_terminal_for_disposition(disposition: str) -> str:
         "unknown_blocked",
         "veto_false_analog",
     }:
-        return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
+        return SearchTerminalKind.ACQUISITION_REQUIRED.value
     if disposition == "shadow_bound":
         return SearchTerminalKind.GROUNDED_ABSTENTION.value
     raise ValueError("education_cycle_unknown_grounding_disposition:" + disposition)
@@ -6127,7 +6127,54 @@ def _preserve_frozen_operational_metrics(bundle: dict[str, Any], root: Path) -> 
         frozen_metrics = _mapping(frozen.get("runtime_metrics"))
         if frozen_metrics:
             artifact["runtime_metrics"] = frozen_metrics
-            bundle[bundle_key] = artifact
+        if bundle_key == "cycle_trace":
+            artifact = _preserve_cycle_routing_generated_at(
+                artifact,
+                frozen=frozen,
+            )
+        bundle[bundle_key] = artifact
+
+
+def _preserve_cycle_routing_generated_at(
+    artifact: Mapping[str, Any],
+    *,
+    frozen: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Keep routing telemetry stable only across the same semantic cycle rows."""
+
+    result = copy.deepcopy(dict(artifact))
+    live_run = _mapping(result.get("generation_cycle_run"))
+    frozen_run = _mapping(frozen.get("generation_cycle_run"))
+    live_cycles = _list_of_mappings(live_run.get("cycles"))
+    frozen_cycles = {
+        int(cycle.get("cycle_index")): cycle
+        for cycle in _list_of_mappings(frozen_run.get("cycles"))
+        if isinstance(cycle.get("cycle_index"), int)
+    }
+    for live_cycle in live_cycles:
+        cycle_index = live_cycle.get("cycle_index")
+        if not isinstance(cycle_index, int) or cycle_index not in frozen_cycles:
+            continue
+        live_report = _mapping(live_cycle.get("acquisition_routing_report"))
+        frozen_report = _mapping(
+            frozen_cycles[cycle_index].get("acquisition_routing_report")
+        )
+        if not live_report or not frozen_report:
+            continue
+        live_semantic = {
+            key: value for key, value in live_report.items() if key != "generated_at"
+        }
+        frozen_semantic = {
+            key: value for key, value in frozen_report.items() if key != "generated_at"
+        }
+        frozen_generated_at = frozen_report.get("generated_at")
+        if live_semantic != frozen_semantic or not isinstance(frozen_generated_at, str):
+            continue
+        live_report["generated_at"] = frozen_generated_at
+        live_cycle["acquisition_routing_report"] = live_report
+    live_run["cycles"] = live_cycles
+    result["generation_cycle_run"] = live_run
+    return result
 
 
 def _hash(value: Any) -> str:

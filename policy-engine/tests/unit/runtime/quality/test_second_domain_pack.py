@@ -319,6 +319,74 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> 
     }
 
 
+def test_nonbinding_dispositions_route_to_acquisition_not_repair_only() -> None:
+    """A real CGF refusal must expose the canonical N7 next-step route."""
+
+    for disposition in (
+        "novel_cg3",
+        "non_binding_abstain",
+        "unknown_blocked",
+        "veto_false_analog",
+    ):
+        assert (
+            second_domain_pack.expected_cycle_terminal_for_disposition(disposition)
+            == "acquisition_required"
+        )
+    assert (
+        second_domain_pack.expected_cycle_terminal_for_disposition("shadow_bound")
+        == "grounded_abstention"
+    )
+
+
+def test_writer_preserves_routing_time_only_for_same_semantic_trace(
+    tmp_path: Path,
+) -> None:
+    """Operational N7 timestamps cannot destabilize equal frozen trace bytes."""
+
+    path = tmp_path / second_domain_pack.CYCLE_TRACE_OUTPUT
+    path.parent.mkdir(parents=True)
+    frozen = {
+        "trace_content_hash": "sha256:" + "a" * 64,
+        "runtime_metrics": {"wall_time_seconds": 1.0},
+        "generation_cycle_run": {
+            "cycles": [
+                {
+                    "cycle_index": 0,
+                    "acquisition_routing_report": {
+                        "status": "pass",
+                        "generated_at": "2026-07-14T00:00:00Z",
+                    },
+                }
+            ]
+        },
+    }
+    path.write_text(json.dumps(frozen), encoding="utf-8")
+    live_trace = copy.deepcopy(frozen)
+    live_trace["runtime_metrics"] = {"wall_time_seconds": 9.0}
+    live_trace["generation_cycle_run"]["cycles"][0][
+        "acquisition_routing_report"
+    ]["generated_at"] = "2026-07-15T00:00:00Z"
+    bundle = {"cycle_trace": live_trace}
+
+    second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
+
+    assert bundle["cycle_trace"]["runtime_metrics"] == frozen["runtime_metrics"]
+    assert bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0][
+        "acquisition_routing_report"
+    ]["generated_at"] == "2026-07-14T00:00:00Z"
+
+    shifted = copy.deepcopy(live_trace)
+    shifted["trace_content_hash"] = "sha256:" + "b" * 64
+    shifted_bundle = {"cycle_trace": shifted}
+    second_domain_pack._preserve_frozen_operational_metrics(
+        shifted_bundle,
+        tmp_path,
+    )
+    assert shifted_bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0][
+        "acquisition_routing_report"
+    ]["generated_at"] == "2026-07-15T00:00:00Z"
+
+
 def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:
     """Persist the canonical registry payload and derive the L2 selection by source."""
 

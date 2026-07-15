@@ -3,7 +3,7 @@
   "baseline_diff": {
     "baseline_terminal_kind": "a_spec_gap",
     "baseline_trace_content_hash": "sha256:ef3aa900e6b8f2b5c1785cf92813ce21dfef00ddc8b0a6835cecfeea822ff246",
-    "current_terminal_kind": "search_ceiling_repair_required",
+    "current_terminal_kind": "acquisition_required",
     "materially_deeper": true,
     "movement": {
       "generation_used_real_n4_owner": true,
@@ -57,7 +57,7 @@
     {
       "disposition": "closed_by_live_behavioral_receipt",
       "gap_id": "n6_single_terminal_validation_gap",
-      "receipt_ref": "sha256:256f300c5845258d91684ec74c63fa09a6ddebd2f1a5ca96e5b56f7779dc9d79",
+      "receipt_ref": "sha256:a949944f6c4356745108cc11100a32e28699d200e89d3f23f816383b1dd3146f",
       "status": "closed"
     }
   ],
@@ -84,7 +84,7 @@
         "proxy_score": 0.0,
         "quarantine_action": "none",
         "value_blockers": [
-          "value_world_model_record_unwired"
+          "method_estimand_binding_mismatch"
         ],
         "value_decision_grade": "blocked",
         "value_ref": null,
@@ -168,7 +168,313 @@
     "cycles": [
       {
         "acquisition_receipt": null,
-        "acquisition_routing_report": null,
+        "acquisition_routing_report": {
+          "acquisition_records": [
+            {
+              "accepted_deficit_ref": null,
+              "acquisition_id": "acquisition:n7-routing:education_second_domain_smoke:0:requirement-gap:data_requirement:grounding-coverage:c18472e8e460c3b3",
+              "authority_boundary": {
+                "authoritative_for": [
+                  "gap_detected",
+                  "eligible_strategies",
+                  "ineligible_strategies",
+                  "voi_ranking_considered",
+                  "decision_owner",
+                  "terminal_disposition",
+                  "producer_expected",
+                  "calibration_feedback_target"
+                ],
+                "may_not_use_for": [
+                  "legal_authority",
+                  "source_family_satisfaction",
+                  "data_quality",
+                  "method_validity",
+                  "participation_representativeness",
+                  "claim_support",
+                  "closeout_pass"
+                ]
+              },
+              "authority_level": "research",
+              "blocker_ref": null,
+              "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:grounding-coverage:c18472e8e460c3b3",
+              "claim_ref": "grounding-claim:gy_n4.blended_learning_expansion",
+              "commit_authority": "advisory_recommendation_only",
+              "compiled_requirement_ref": "runtime-requirement:grounding-coverage:c18472e8e460c3b3:v1",
+              "decision_owner": "runtime_planner",
+              "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+              "eligible_strategies": [
+                "production_snapshot_build",
+                "rerun",
+                "accepted_deficit"
+              ],
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-c18472e8e460c3b3.json",
+              "gap_id": "requirement-gap:data_requirement:grounding-coverage:c18472e8e460c3b3",
+              "gap_type": "data_snapshot_release",
+              "ineligible_strategies": [
+                "academic_retrieval",
+                "agency_request",
+                "closeout_block",
+                "consultation",
+                "legal_corpus_expansion",
+                "method_remediation",
+                "proxy_with_degraded_authority",
+                "public_registry",
+                "publish_with_limitation",
+                "source_contract_remediation",
+                "survey"
+              ],
+              "ineligible_strategy_records": [
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "academic_retrieval",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "agency_request",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "closeout_block",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "consultation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "legal_corpus_expansion",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "method_remediation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "proxy_with_degraded_authority",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "public_registry",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "authority_profile_does_not_permit_public_limitation",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "publish_with_limitation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "source_contract_remediation",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+                  "eligible": false,
+                  "mandatory_gate_state": "none",
+                  "next_action": null,
+                  "strategy": "survey",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                }
+              ],
+              "limitation_ref": null,
+              "mandatory_gate_refs": [
+                "runtime-requirement:grounding-coverage:c18472e8e460c3b3:v1"
+              ],
+              "mandatory_gate_state": "none",
+              "missing_requirement_fields": [
+                "grounding_relation_or_owner_lever:gy_n4.blended_learning_expansion"
+              ],
+              "next_actions": [
+                {
+                  "action": "build_production_snapshot",
+                  "blocks_closeout": false,
+                  "commit_required": false,
+                  "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-grounding-coverage-c18472e8e460c3b3.json",
+                  "message": "Acquire or remediate evidence via production_snapshot_build for grounding-claim:gy_n4.blended_learning_expansion.",
+                  "owner": "polisyos.runtime.quality.acquisition_planner",
+                  "producer_expected": "data_forge.snapshot",
+                  "strategy": "production_snapshot_build"
+                }
+              ],
+              "planner_posture": "advisory",
+              "producer_expected": "data_forge.snapshot",
+              "producer_output_ref": "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+              "public_projection_effect": "no_public_effect_until_producer_output",
+              "recommended_strategy": "production_snapshot_build",
+              "requirement_family": "data_requirement",
+              "requirement_gap_ref": "requirement-gap:data_requirement:grounding-coverage:c18472e8e460c3b3",
+              "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+              "runtime_event_ref": "event://runtime/acquisition/n7-routing-education-second-domain-smoke-0/requirement-gap-data-requirement-grounding-coverage-c18472e8e460c3b3",
+              "scenario_requirement_refs": [
+                "sha256:b0925d8eb1ef50e2c59cfbae74a42c34c427fd0c24ee999351afbe2c75b3efe7",
+                "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+                "cg1_cert_22227d7882e35f36",
+                "sha256:22227d7882e35f36c8a7d77f32698456636257d0fc3c1e1ceefd3fe5501965fe",
+                "cg2_cert_643cb3dc165f911b",
+                "sha256:643cb3dc165f911bbef5d400a1c3d4ca0706f6fbcc6d44044e495f7f6aeec061",
+                "cg3_cert_ce6a8c44a6f95350",
+                "sha256:ce6a8c44a6f9535060a0dea8608aae6b8b40c911ef3226edb3bbeadcfb6b0e68",
+                "cg5_cert_43b7249f09828e89",
+                "sha256:43b7249f09828e899c761c9339582967e53a8281adbc39e05bfd81f4d28d4527",
+                "cg5_ticket_4365be433341af48",
+                "sha256:4365be433341af48c29bc8a168ca1a9d94fcfde921da980834cc87600daecb2e"
+              ],
+              "schema_version": "policyos.runtime.acquisition_planner.v1",
+              "status": "ready",
+              "strategy_records": [
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "build_production_snapshot",
+                  "strategy": "production_snapshot_build",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "rerun",
+                  "strategy": "rerun",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                },
+                {
+                  "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+                  "eligible": true,
+                  "mandatory_gate_state": "none",
+                  "next_action": "accept_deficit",
+                  "strategy": "accepted_deficit",
+                  "voi_decision_ref": null,
+                  "voi_expected_cost": null,
+                  "voi_expected_value": null,
+                  "voi_rank": null
+                }
+              ],
+              "terminal_disposition": "acquire",
+              "voi_ranking_ref": null
+            }
+          ],
+          "adr_refs": [
+            "ADR-0166"
+          ],
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "capability_reality_status": "implemented",
+          "generated_at": "2026-07-15T06:49:54Z",
+          "pattern_refs": [
+            "P01",
+            "P09",
+            "P10"
+          ],
+          "run_id": "n7-routing:education_second_domain_smoke:0",
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "pass",
+          "summary": {
+            "accepted_deficit": 0,
+            "acquire": 1,
+            "blocked": 0,
+            "eligible_strategy_count": 3,
+            "ineligible_strategy_count": 11,
+            "limited": 0,
+            "record_count": 1,
+            "rerun": 0
+          }
+        },
         "candidate_ids": [
           "gy_n4.blended_learning_expansion",
           "gy_n4.pedagogical_reform_initiative",
@@ -183,9 +489,9 @@
           "counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
           "diagnostic": {
             "authority_purpose": "shadow_search_refinement_only",
-            "code": "n6.value.value_world_model_record_unwired",
+            "code": "n6.value.method_estimand_binding_mismatch",
             "diagnostic_id": "gy.n6.diagnostic.education_second_domain_smoke.001",
-            "message": "Candidate gy_n4.blended_learning_expansion requires revision for value_world_model_record_unwired.",
+            "message": "Candidate gy_n4.blended_learning_expansion requires revision for method_estimand_binding_mismatch.",
             "owner": "team-policyos-runtime",
             "rule_version_ref": "policyos.layer3.gy.n6.generation_cycle.v1",
             "severity": "block"
@@ -212,6 +518,73 @@
           "seed"
         ],
         "grounding": {
+          "acquisition_requirement": {
+            "authority_level": "research",
+            "calibration_feedback_ref": null,
+            "claim_ref": "grounding-claim:gy_n4.blended_learning_expansion",
+            "compiled_requirement_ref": "runtime-requirement:grounding-coverage:c18472e8e460c3b3:v1",
+            "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+            "gap_type": "data_snapshot_release",
+            "limitation_permitted": false,
+            "mandatory_gate_refs": [
+              "runtime-requirement:grounding-coverage:c18472e8e460c3b3:v1"
+            ],
+            "mandatory_gate_state": "none",
+            "metadata": {
+              "acquisition_family": "COV",
+              "authority_level": "research",
+              "authority_purpose": "routing_only",
+              "candidate_binding": {
+                "candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
+                "candidate_id": "gy_n4.blended_learning_expansion",
+                "design_problem_ref": "sha256:b0925d8eb1ef50e2c59cfbae74a42c34c427fd0c24ee999351afbe2c75b3efe7"
+              },
+              "evidence_refs": [
+                "cg1_cert_22227d7882e35f36",
+                "sha256:22227d7882e35f36c8a7d77f32698456636257d0fc3c1e1ceefd3fe5501965fe",
+                "cg2_cert_643cb3dc165f911b",
+                "sha256:643cb3dc165f911bbef5d400a1c3d4ca0706f6fbcc6d44044e495f7f6aeec061",
+                "cg3_cert_ce6a8c44a6f95350",
+                "sha256:ce6a8c44a6f9535060a0dea8608aae6b8b40c911ef3226edb3bbeadcfb6b0e68",
+                "cg5_cert_43b7249f09828e89",
+                "sha256:43b7249f09828e899c761c9339582967e53a8281adbc39e05bfd81f4d28d4527",
+                "cg5_ticket_4365be433341af48",
+                "sha256:4365be433341af48c29bc8a168ca1a9d94fcfde921da980834cc87600daecb2e"
+              ],
+              "grounding_report_ref": "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+              "issue_codes": [
+                "unknown_blocked",
+                "false_analog_hard_abstain",
+                "outcome_wish",
+                "terminal_for_this_round"
+              ],
+              "satisfaction_status": "unsatisfied",
+              "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+              "source": "cgf_grounding_coverage"
+            },
+            "missing_requirement_fields": [
+              "grounding_relation_or_owner_lever:gy_n4.blended_learning_expansion"
+            ],
+            "producer_output_ref": "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+            "requirement_family": "data_requirement",
+            "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:c18472e8e460c3b3",
+            "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+            "scenario_requirement_refs": [
+              "sha256:b0925d8eb1ef50e2c59cfbae74a42c34c427fd0c24ee999351afbe2c75b3efe7",
+              "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+              "cg1_cert_22227d7882e35f36",
+              "sha256:22227d7882e35f36c8a7d77f32698456636257d0fc3c1e1ceefd3fe5501965fe",
+              "cg2_cert_643cb3dc165f911b",
+              "sha256:643cb3dc165f911bbef5d400a1c3d4ca0706f6fbcc6d44044e495f7f6aeec061",
+              "cg3_cert_ce6a8c44a6f95350",
+              "sha256:ce6a8c44a6f9535060a0dea8608aae6b8b40c911ef3226edb3bbeadcfb6b0e68",
+              "cg5_cert_43b7249f09828e89",
+              "sha256:43b7249f09828e899c761c9339582967e53a8281adbc39e05bfd81f4d28d4527",
+              "cg5_ticket_4365be433341af48",
+              "sha256:4365be433341af48c29bc8a168ca1a9d94fcfde921da980834cc87600daecb2e"
+            ],
+            "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+          },
           "adversarial_validation_ref": null,
           "candidate_id": "gy_n4.blended_learning_expansion",
           "cgf_certificate_refs": [
@@ -262,14 +635,14 @@
           "consumed_counterexample_refs": [
             "pdc://gy/n6/education_second_domain_smoke/counterexample/001"
           ],
-          "decision": "abstain",
+          "decision": "acquire",
           "decision_id": "gy.n6.refinement.education_second_domain_smoke.001",
           "decision_ref": "pdc://gy/n6/education_second_domain_smoke/refinement/001",
           "governance_decision_class": null,
           "governance_decision_class_ref": null,
           "governance_refs": [],
           "next_candidate_ref": null,
-          "reason": "voi_scheduler_stopped:reject; terminal=search_ceiling_repair_required",
+          "reason": "terminal_requires_escalation:acquisition_required; terminal=acquisition_required",
           "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
           "stakes_band": "moderate",
           "value_of_information": {
@@ -289,13 +662,10 @@
         },
         "revision_driver": "counterexample",
         "revision_request": {
-          "new_grammar_elements": [
-            "lever:education_blended_learning:adversarial_validate:value_world_model_record_unwired"
-          ],
-          "next_candidate_ref": "candidate://pending/b7787bd772aa0135",
+          "new_grammar_elements": [],
+          "next_candidate_ref": "candidate://pending/18afa4a071cacde8",
           "next_grammar_elements": [
-            "seed",
-            "lever:education_blended_learning:adversarial_validate:value_world_model_record_unwired"
+            "seed"
           ],
           "previous_candidate_ref": "gy_n4.blended_learning_expansion",
           "previous_grammar_elements": [
@@ -403,27 +773,94 @@
             "problem_statement": "Improve education outcomes through owner-derived intervention concepts without claiming unsupported world-slot writability or promotion authority.",
             "runtime_hints": {
               "generation_cycle_grammar": [
-                "seed",
-                "lever:education_blended_learning:adversarial_validate:value_world_model_record_unwired"
+                "seed"
               ],
               "generation_cycle_revision": {
-                "new_grammar_elements": [
-                  "lever:education_blended_learning:adversarial_validate:value_world_model_record_unwired"
-                ],
+                "new_grammar_elements": [],
                 "previous_candidate_ref": "gy_n4.blended_learning_expansion",
-                "revision_strategy": "adversarial_validate",
+                "revision_strategy": "acquire_or_elicit",
                 "source_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
                 "strategy_payload": {
-                  "adversarial_validation": {
+                  "acquisition_request": {
+                    "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
                     "counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
-                    "grammar_constraints": [
-                      "lever:education_blended_learning:adversarial_validate:value_world_model_record_unwired"
-                    ]
+                    "cycle_index": 0,
+                    "driver": "method_estimand_binding_mismatch",
+                    "network_policy": "record_replay_required_for_routine_check",
+                    "reentry": "same_generation_cycle_index",
+                    "request_kind": "owner_grounding_evidence",
+                    "requirement_gap": {
+                      "authority_level": "research",
+                      "calibration_feedback_ref": null,
+                      "claim_ref": "grounding-claim:gy_n4.blended_learning_expansion",
+                      "compiled_requirement_ref": "runtime-requirement:grounding-coverage:c18472e8e460c3b3:v1",
+                      "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+                      "gap_type": "data_snapshot_release",
+                      "limitation_permitted": false,
+                      "mandatory_gate_refs": [
+                        "runtime-requirement:grounding-coverage:c18472e8e460c3b3:v1"
+                      ],
+                      "mandatory_gate_state": "none",
+                      "metadata": {
+                        "acquisition_family": "COV",
+                        "authority_level": "research",
+                        "authority_purpose": "routing_only",
+                        "candidate_binding": {
+                          "candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
+                          "candidate_id": "gy_n4.blended_learning_expansion",
+                          "design_problem_ref": "sha256:b0925d8eb1ef50e2c59cfbae74a42c34c427fd0c24ee999351afbe2c75b3efe7"
+                        },
+                        "evidence_refs": [
+                          "cg1_cert_22227d7882e35f36",
+                          "sha256:22227d7882e35f36c8a7d77f32698456636257d0fc3c1e1ceefd3fe5501965fe",
+                          "cg2_cert_643cb3dc165f911b",
+                          "sha256:643cb3dc165f911bbef5d400a1c3d4ca0706f6fbcc6d44044e495f7f6aeec061",
+                          "cg3_cert_ce6a8c44a6f95350",
+                          "sha256:ce6a8c44a6f9535060a0dea8608aae6b8b40c911ef3226edb3bbeadcfb6b0e68",
+                          "cg5_cert_43b7249f09828e89",
+                          "sha256:43b7249f09828e899c761c9339582967e53a8281adbc39e05bfd81f4d28d4527",
+                          "cg5_ticket_4365be433341af48",
+                          "sha256:4365be433341af48c29bc8a168ca1a9d94fcfde921da980834cc87600daecb2e"
+                        ],
+                        "grounding_report_ref": "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+                        "issue_codes": [
+                          "unknown_blocked",
+                          "false_analog_hard_abstain",
+                          "outcome_wish",
+                          "terminal_for_this_round"
+                        ],
+                        "satisfaction_status": "unsatisfied",
+                        "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                        "source": "cgf_grounding_coverage"
+                      },
+                      "missing_requirement_fields": [
+                        "grounding_relation_or_owner_lever:gy_n4.blended_learning_expansion"
+                      ],
+                      "producer_output_ref": "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+                      "requirement_family": "data_requirement",
+                      "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:c18472e8e460c3b3",
+                      "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                      "scenario_requirement_refs": [
+                        "sha256:b0925d8eb1ef50e2c59cfbae74a42c34c427fd0c24ee999351afbe2c75b3efe7",
+                        "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+                        "cg1_cert_22227d7882e35f36",
+                        "sha256:22227d7882e35f36c8a7d77f32698456636257d0fc3c1e1ceefd3fe5501965fe",
+                        "cg2_cert_643cb3dc165f911b",
+                        "sha256:643cb3dc165f911bbef5d400a1c3d4ca0706f6fbcc6d44044e495f7f6aeec061",
+                        "cg3_cert_ce6a8c44a6f95350",
+                        "sha256:ce6a8c44a6f9535060a0dea8608aae6b8b40c911ef3226edb3bbeadcfb6b0e68",
+                        "cg5_cert_43b7249f09828e89",
+                        "sha256:43b7249f09828e899c761c9339582967e53a8281adbc39e05bfd81f4d28d4527",
+                        "cg5_ticket_4365be433341af48",
+                        "sha256:4365be433341af48c29bc8a168ca1a9d94fcfde921da980834cc87600daecb2e"
+                      ],
+                      "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+                    }
                   },
-                  "issue": "value_world_model_record_unwired",
+                  "issue": "method_estimand_binding_mismatch",
                   "source_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
-                  "strategy": "adversarial_validate",
-                  "terminal_kind": "search_ceiling_repair_required"
+                  "strategy": "acquire_or_elicit",
+                  "terminal_kind": "acquisition_required"
                 }
               }
             },
@@ -438,20 +875,90 @@
           },
           "revision_driver": "counterexample",
           "revision_id": "gy.n6.revision.education_second_domain_smoke.001",
-          "revision_strategy": "adversarial_validate",
+          "revision_strategy": "acquire_or_elicit",
           "source_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
-          "source_terminal_kind": "search_ceiling_repair_required",
+          "source_terminal_kind": "acquisition_required",
           "strategy_payload": {
-            "adversarial_validation": {
+            "acquisition_request": {
+              "consumer_owner": "polisyos.runtime.quality.acquisition_planner",
               "counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
-              "grammar_constraints": [
-                "lever:education_blended_learning:adversarial_validate:value_world_model_record_unwired"
-              ]
+              "cycle_index": 0,
+              "driver": "method_estimand_binding_mismatch",
+              "network_policy": "record_replay_required_for_routine_check",
+              "reentry": "same_generation_cycle_index",
+              "request_kind": "owner_grounding_evidence",
+              "requirement_gap": {
+                "authority_level": "research",
+                "calibration_feedback_ref": null,
+                "claim_ref": "grounding-claim:gy_n4.blended_learning_expansion",
+                "compiled_requirement_ref": "runtime-requirement:grounding-coverage:c18472e8e460c3b3:v1",
+                "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+                "gap_type": "data_snapshot_release",
+                "limitation_permitted": false,
+                "mandatory_gate_refs": [
+                  "runtime-requirement:grounding-coverage:c18472e8e460c3b3:v1"
+                ],
+                "mandatory_gate_state": "none",
+                "metadata": {
+                  "acquisition_family": "COV",
+                  "authority_level": "research",
+                  "authority_purpose": "routing_only",
+                  "candidate_binding": {
+                    "candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
+                    "candidate_id": "gy_n4.blended_learning_expansion",
+                    "design_problem_ref": "sha256:b0925d8eb1ef50e2c59cfbae74a42c34c427fd0c24ee999351afbe2c75b3efe7"
+                  },
+                  "evidence_refs": [
+                    "cg1_cert_22227d7882e35f36",
+                    "sha256:22227d7882e35f36c8a7d77f32698456636257d0fc3c1e1ceefd3fe5501965fe",
+                    "cg2_cert_643cb3dc165f911b",
+                    "sha256:643cb3dc165f911bbef5d400a1c3d4ca0706f6fbcc6d44044e495f7f6aeec061",
+                    "cg3_cert_ce6a8c44a6f95350",
+                    "sha256:ce6a8c44a6f9535060a0dea8608aae6b8b40c911ef3226edb3bbeadcfb6b0e68",
+                    "cg5_cert_43b7249f09828e89",
+                    "sha256:43b7249f09828e899c761c9339582967e53a8281adbc39e05bfd81f4d28d4527",
+                    "cg5_ticket_4365be433341af48",
+                    "sha256:4365be433341af48c29bc8a168ca1a9d94fcfde921da980834cc87600daecb2e"
+                  ],
+                  "grounding_report_ref": "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+                  "issue_codes": [
+                    "unknown_blocked",
+                    "false_analog_hard_abstain",
+                    "outcome_wish",
+                    "terminal_for_this_round"
+                  ],
+                  "satisfaction_status": "unsatisfied",
+                  "schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                  "source": "cgf_grounding_coverage"
+                },
+                "missing_requirement_fields": [
+                  "grounding_relation_or_owner_lever:gy_n4.blended_learning_expansion"
+                ],
+                "producer_output_ref": "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+                "requirement_family": "data_requirement",
+                "requirement_gap_id": "requirement-gap:data_requirement:grounding-coverage:c18472e8e460c3b3",
+                "requirement_schema_version": "policyos.runtime.grounding_coverage_gap.v1",
+                "scenario_requirement_refs": [
+                  "sha256:b0925d8eb1ef50e2c59cfbae74a42c34c427fd0c24ee999351afbe2c75b3efe7",
+                  "sha256:93e142f554274b606d99de1af113cb39bc1807271f3130d0831791c9f2567bde",
+                  "cg1_cert_22227d7882e35f36",
+                  "sha256:22227d7882e35f36c8a7d77f32698456636257d0fc3c1e1ceefd3fe5501965fe",
+                  "cg2_cert_643cb3dc165f911b",
+                  "sha256:643cb3dc165f911bbef5d400a1c3d4ca0706f6fbcc6d44044e495f7f6aeec061",
+                  "cg3_cert_ce6a8c44a6f95350",
+                  "sha256:ce6a8c44a6f9535060a0dea8608aae6b8b40c911ef3226edb3bbeadcfb6b0e68",
+                  "cg5_cert_43b7249f09828e89",
+                  "sha256:43b7249f09828e899c761c9339582967e53a8281adbc39e05bfd81f4d28d4527",
+                  "cg5_ticket_4365be433341af48",
+                  "sha256:4365be433341af48c29bc8a168ca1a9d94fcfde921da980834cc87600daecb2e"
+                ],
+                "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+              }
             },
-            "issue": "value_world_model_record_unwired",
+            "issue": "method_estimand_binding_mismatch",
             "source_counterexample_ref": "pdc://gy/n6/education_second_domain_smoke/counterexample/001",
-            "strategy": "adversarial_validate",
-            "terminal_kind": "search_ceiling_repair_required"
+            "strategy": "acquire_or_elicit",
+            "terminal_kind": "acquisition_required"
           }
         },
         "search_iteration": {
@@ -461,60 +968,434 @@
           ],
           "iteration_id": "gy.n6.iteration.education_second_domain_smoke.001",
           "refinement_decision_ref": "pdc://gy/n6/education_second_domain_smoke/refinement/001",
-          "status": "abstained"
+          "status": "acquisition_required"
         },
         "selected_candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
         "selected_candidate_ref": "gy_n4.blended_learning_expansion",
         "simulation": {
           "authority_blockers": [
-            "joint_simulation_request_missing",
-            "world_identity_unresolved"
+            "joint_simulation_request_missing"
           ],
           "candidate_id": "gy_n4.blended_learning_expansion",
           "diagnostics": {
             "port": "N5",
             "reason": "joint_simulation_request_missing",
-            "world_model_error": "world_identity_unresolved: candidate atom is absent",
-            "world_model_error_code": "world_identity_unresolved",
-            "world_model_source": "unavailable"
+            "simulation_status": "pending_full_joint_request",
+            "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",
+            "world_model_record_id": "world_model_record_b14cc2ae2bbe445b",
+            "world_model_source": "cycle_substrate_context"
           },
-          "k_world_ref_after": null,
-          "k_world_ref_before": null,
+          "k_world_ref_after": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",
+          "k_world_ref_before": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",
           "k_world_update_mode": "read_only_no_k_world_narrowing",
           "simulation_ref": null,
-          "status": "simulation_blocked",
+          "status": "simulation_pending_n5",
           "uncertainty_kind": null
         },
-        "terminal_kind": "search_ceiling_repair_required",
+        "terminal_kind": "acquisition_required",
         "value_port": {
           "acquisition_requirement": null,
           "authority_blockers": [
-            "value_world_model_record_unwired"
+            "method_estimand_binding_mismatch"
           ],
           "calibration_receipt": null,
           "candidate_id": "gy_n4.blended_learning_expansion",
           "decision_grade": "blocked",
           "evaluation_mode": "simulate_only",
           "identification_status": null,
-          "method_selection_receipt": null,
-          "reason": "N8 production value requires the cycle's typed WorldModelRecord; missing WMR is controller wiring, not an acquisition gap.",
-          "selected_method_fqn": null,
+          "method_selection_receipt": {
+            "content_hash": "sha256:e8897ce030350f8d21eaef40ca2f3aa76fb598f871c56e3cab52f4259f89a060",
+            "denominator": [
+              "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
+              "bayesian.flow.affine_normalizing_flow@1.0.0",
+              "bayesian.gp.gp_regression@1.0.0",
+              "bayesian.gp.sparse_gp_regression@1.0.0",
+              "bayesian.graphical.factor_graph_belief_propagation@1.0.0",
+              "bayesian.nonparametric.bart_regression@1.0.0",
+              "bayesian.nonparametric.dirichlet_process_mixture@1.0.0",
+              "bayesian.nonparametric.gaussian_mixture@1.0.0",
+              "bayesian.regression.hierarchical@1.0.0",
+              "bayesian.regression.linear_regression@1.0.0",
+              "bayesian.sampling.hmc@1.0.0",
+              "bayesian.sampling.nuts@1.0.0",
+              "bayesian.sbi.nle@1.0.0",
+              "bayesian.sbi.npe@1.0.0",
+              "bayesian.sbi.nre@1.0.0",
+              "bayesian.timeseries.autoregression@1.0.0",
+              "bayesian.variational.bbvi@1.0.0",
+              "bayesian.variational.mean_field_vi@1.0.0",
+              "bayesian.variational.svgd_regression@1.0.0",
+              "econometrics.factor.dynamic_factor_model@1.0.0",
+              "econometrics.factor.principal_components@1.0.0",
+              "econometrics.iv.gmm@1.0.0",
+              "econometrics.iv.high_dimensional_post_selection@1.0.0",
+              "econometrics.iv.two_stage_least_squares@1.0.0",
+              "econometrics.panel.difference_gmm@1.0.0",
+              "econometrics.panel.event_study@1.0.0",
+              "econometrics.panel.fixed_effects@1.0.0",
+              "econometrics.panel.latent_mobility@1.0.0",
+              "econometrics.panel.nonstationary_garch@1.0.0",
+              "econometrics.panel.random_effects@1.0.0",
+              "econometrics.panel.synthetic_did@1.0.0",
+              "econometrics.panel.system_gmm@1.0.0",
+              "econometrics.regression.quantile_regression@1.0.0",
+              "econometrics.spatial.spatial_autoregressive@1.0.0",
+              "econometrics.thresholds.state_dependent_frd@1.0.0",
+              "econometrics.thresholds.state_dependent_frkd@1.0.0",
+              "econometrics.thresholds.state_dependent_kink@1.0.0",
+              "econometrics.thresholds.state_dependent_threshold@1.0.0",
+              "econometrics.timeseries.arima@1.0.0",
+              "econometrics.timeseries.bayesian_var@1.0.0",
+              "econometrics.timeseries.change_point@1.0.0",
+              "econometrics.timeseries.garch@1.0.0",
+              "econometrics.timeseries.local_projections@1.0.0",
+              "econometrics.timeseries.var@1.0.0",
+              "econometrics.timeseries.vecm@1.0.0",
+              "forecasting.advanced.prophet@1.0.0",
+              "forecasting.decomposition.stl@1.0.0",
+              "forecasting.ensemble.simple_average@1.0.0",
+              "forecasting.hybrid.guarded_neural@1.0.0",
+              "forecasting.multivariate.vec_forecast@1.0.0",
+              "forecasting.reconciliation.bottom_up@1.0.0",
+              "forecasting.reconciliation.general_linear_projection@1.0.0",
+              "forecasting.regime_shift.hybrid@1.0.0",
+              "forecasting.univariate.exponential_smoothing@1.0.0",
+              "forecasting.univariate.theta@1.0.0"
+            ],
+            "ranked_alternatives": [
+              {
+                "advisor_score": 20.0,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [],
+                "method_family": "bayesian.gp",
+                "method_fqn": "bayesian.gp.gp_regression@1.0.0",
+                "rank": 1,
+                "selected": true
+              },
+              {
+                "advisor_score": 20.0,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_tie_broken_by_rank_on_owner_data_shape"
+                ],
+                "method_family": "bayesian.regression",
+                "method_fqn": "bayesian.regression.linear_regression@1.0.0",
+                "rank": 2,
+                "selected": false
+              },
+              {
+                "advisor_score": 20.0,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_tie_broken_by_rank_on_owner_data_shape"
+                ],
+                "method_family": "bayesian.sampling",
+                "method_fqn": "bayesian.sampling.hmc@1.0.0",
+                "rank": 3,
+                "selected": false
+              },
+              {
+                "advisor_score": 20.0,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_tie_broken_by_rank_on_owner_data_shape"
+                ],
+                "method_family": "bayesian.sampling",
+                "method_fqn": "bayesian.sampling.nuts@1.0.0",
+                "rank": 4,
+                "selected": false
+              },
+              {
+                "advisor_score": 20.0,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_tie_broken_by_rank_on_owner_data_shape"
+                ],
+                "method_family": "bayesian.regression",
+                "method_fqn": "bayesian.regression.hierarchical@1.0.0",
+                "rank": 5,
+                "selected": false
+              },
+              {
+                "advisor_score": 20.0,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_tie_broken_by_rank_on_owner_data_shape"
+                ],
+                "method_family": "bayesian.variational",
+                "method_fqn": "bayesian.variational.svgd_regression@1.0.0",
+                "rank": 6,
+                "selected": false
+              },
+              {
+                "advisor_score": 20.0,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_tie_broken_by_rank_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.factor",
+                "method_fqn": "econometrics.factor.principal_components@1.0.0",
+                "rank": 7,
+                "selected": false
+              },
+              {
+                "advisor_score": 12.8,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.panel",
+                "method_fqn": "econometrics.panel.fixed_effects@1.0.0",
+                "rank": 8,
+                "selected": false
+              },
+              {
+                "advisor_score": 12.8,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.panel",
+                "method_fqn": "econometrics.panel.random_effects@1.0.0",
+                "rank": 9,
+                "selected": false
+              },
+              {
+                "advisor_score": 12.8,
+                "data_modalities": [
+                  "spatial",
+                  "tabular",
+                  "time-series"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.spatial",
+                "method_fqn": "econometrics.spatial.spatial_autoregressive@1.0.0",
+                "rank": 10,
+                "selected": false
+              },
+              {
+                "advisor_score": 8.0,
+                "data_modalities": [
+                  "tabular",
+                  "time-series"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.timeseries",
+                "method_fqn": "econometrics.timeseries.local_projections@1.0.0",
+                "rank": 11,
+                "selected": false
+              },
+              {
+                "advisor_score": 6.400000000000002,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.factor",
+                "method_fqn": "econometrics.factor.dynamic_factor_model@1.0.0",
+                "rank": 12,
+                "selected": false
+              },
+              {
+                "advisor_score": 6.400000000000002,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.regression",
+                "method_fqn": "econometrics.regression.quantile_regression@1.0.0",
+                "rank": 13,
+                "selected": false
+              },
+              {
+                "advisor_score": 5.333333333333332,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.panel",
+                "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+                "rank": 14,
+                "selected": false
+              },
+              {
+                "advisor_score": 3.1999999999999993,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "bayesian.gp",
+                "method_fqn": "bayesian.gp.sparse_gp_regression@1.0.0",
+                "rank": 15,
+                "selected": false
+              },
+              {
+                "advisor_score": 1.2800000000000011,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "bayesian.variational",
+                "method_fqn": "bayesian.variational.bbvi@1.0.0",
+                "rank": 16,
+                "selected": false
+              },
+              {
+                "advisor_score": 1.2800000000000011,
+                "data_modalities": [
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "bayesian.variational",
+                "method_fqn": "bayesian.variational.mean_field_vi@1.0.0",
+                "rank": 17,
+                "selected": false
+              },
+              {
+                "advisor_score": 1.2800000000000011,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.panel",
+                "method_fqn": "econometrics.panel.latent_mobility@1.0.0",
+                "rank": 18,
+                "selected": false
+              },
+              {
+                "advisor_score": -4.0,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.panel",
+                "method_fqn": "econometrics.panel.difference_gmm@1.0.0",
+                "rank": 19,
+                "selected": false
+              },
+              {
+                "advisor_score": -4.0,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.panel",
+                "method_fqn": "econometrics.panel.system_gmm@1.0.0",
+                "rank": 20,
+                "selected": false
+              },
+              {
+                "advisor_score": -13.599999999999994,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.iv",
+                "method_fqn": "econometrics.iv.two_stage_least_squares@1.0.0",
+                "rank": 21,
+                "selected": false
+              },
+              {
+                "advisor_score": -15.733333333333334,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.iv",
+                "method_fqn": "econometrics.iv.gmm@1.0.0",
+                "rank": 22,
+                "selected": false
+              },
+              {
+                "advisor_score": -16.799999999999997,
+                "data_modalities": [
+                  "panel",
+                  "tabular"
+                ],
+                "loss_reasons": [
+                  "advisor_score_below_selected_on_owner_data_shape"
+                ],
+                "method_family": "econometrics.iv",
+                "method_fqn": "econometrics.iv.high_dimensional_post_selection@1.0.0",
+                "rank": 23,
+                "selected": false
+              }
+            ],
+            "schema_version": "policyos.foundry.method_selection_receipt.v2",
+            "selected_method_fqn": "bayesian.gp.gp_regression@1.0.0",
+            "selection_authority": "foundry_registry_advisor",
+            "selection_context_hash": "sha256:a86e914957e87b2d381d77d10e78d7245fb4f21526f192a573fee5c7f23e039a"
+          },
+          "reason": "The advisor selected a real method over owner-resolved outcome rows, but the candidate_unbound intervention has no estimand binding.",
+          "selected_method_fqn": "bayesian.gp.gp_regression@1.0.0",
           "status": "value_blocked",
           "transport_receipt": null,
-          "value_data_profile_content_hash": null,
+          "value_data_profile_content_hash": "sha256:eb5faeaffbb5507ba9ceed7c69ed3a892d5c106eb6a6336ed62c4d68f1db3566",
           "value_receipt": null,
           "value_ref": null,
           "wall_time_ms": 0.0,
-          "world_model_record_content_hash": null
+          "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
         },
         "voi_decision": {
           "candidate_id": "gy_n4.blended_learning_expansion",
-          "next_action": "stop",
+          "next_action": "escalate",
           "priority": 0.0,
-          "reason": "voi_scheduler_stopped:reject",
+          "reason": "terminal_requires_escalation:acquisition_required",
           "scheduler_action": "reject",
           "scheduler_reason": "roi_below_threshold",
-          "terminal_kind": "search_ceiling_repair_required"
+          "terminal_kind": "acquisition_required"
         }
       }
     ],
@@ -1519,23 +2400,397 @@
     "value_port": {
       "acquisition_requirement": null,
       "authority_blockers": [
-        "value_world_model_record_unwired"
+        "method_estimand_binding_mismatch"
       ],
       "calibration_receipt": null,
       "candidate_id": "gy_n4.blended_learning_expansion",
       "decision_grade": "blocked",
       "evaluation_mode": "simulate_only",
       "identification_status": null,
-      "method_selection_receipt": null,
-      "reason": "N8 production value requires the cycle's typed WorldModelRecord; missing WMR is controller wiring, not an acquisition gap.",
-      "selected_method_fqn": null,
+      "method_selection_receipt": {
+        "content_hash": "sha256:e8897ce030350f8d21eaef40ca2f3aa76fb598f871c56e3cab52f4259f89a060",
+        "denominator": [
+          "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
+          "bayesian.flow.affine_normalizing_flow@1.0.0",
+          "bayesian.gp.gp_regression@1.0.0",
+          "bayesian.gp.sparse_gp_regression@1.0.0",
+          "bayesian.graphical.factor_graph_belief_propagation@1.0.0",
+          "bayesian.nonparametric.bart_regression@1.0.0",
+          "bayesian.nonparametric.dirichlet_process_mixture@1.0.0",
+          "bayesian.nonparametric.gaussian_mixture@1.0.0",
+          "bayesian.regression.hierarchical@1.0.0",
+          "bayesian.regression.linear_regression@1.0.0",
+          "bayesian.sampling.hmc@1.0.0",
+          "bayesian.sampling.nuts@1.0.0",
+          "bayesian.sbi.nle@1.0.0",
+          "bayesian.sbi.npe@1.0.0",
+          "bayesian.sbi.nre@1.0.0",
+          "bayesian.timeseries.autoregression@1.0.0",
+          "bayesian.variational.bbvi@1.0.0",
+          "bayesian.variational.mean_field_vi@1.0.0",
+          "bayesian.variational.svgd_regression@1.0.0",
+          "econometrics.factor.dynamic_factor_model@1.0.0",
+          "econometrics.factor.principal_components@1.0.0",
+          "econometrics.iv.gmm@1.0.0",
+          "econometrics.iv.high_dimensional_post_selection@1.0.0",
+          "econometrics.iv.two_stage_least_squares@1.0.0",
+          "econometrics.panel.difference_gmm@1.0.0",
+          "econometrics.panel.event_study@1.0.0",
+          "econometrics.panel.fixed_effects@1.0.0",
+          "econometrics.panel.latent_mobility@1.0.0",
+          "econometrics.panel.nonstationary_garch@1.0.0",
+          "econometrics.panel.random_effects@1.0.0",
+          "econometrics.panel.synthetic_did@1.0.0",
+          "econometrics.panel.system_gmm@1.0.0",
+          "econometrics.regression.quantile_regression@1.0.0",
+          "econometrics.spatial.spatial_autoregressive@1.0.0",
+          "econometrics.thresholds.state_dependent_frd@1.0.0",
+          "econometrics.thresholds.state_dependent_frkd@1.0.0",
+          "econometrics.thresholds.state_dependent_kink@1.0.0",
+          "econometrics.thresholds.state_dependent_threshold@1.0.0",
+          "econometrics.timeseries.arima@1.0.0",
+          "econometrics.timeseries.bayesian_var@1.0.0",
+          "econometrics.timeseries.change_point@1.0.0",
+          "econometrics.timeseries.garch@1.0.0",
+          "econometrics.timeseries.local_projections@1.0.0",
+          "econometrics.timeseries.var@1.0.0",
+          "econometrics.timeseries.vecm@1.0.0",
+          "forecasting.advanced.prophet@1.0.0",
+          "forecasting.decomposition.stl@1.0.0",
+          "forecasting.ensemble.simple_average@1.0.0",
+          "forecasting.hybrid.guarded_neural@1.0.0",
+          "forecasting.multivariate.vec_forecast@1.0.0",
+          "forecasting.reconciliation.bottom_up@1.0.0",
+          "forecasting.reconciliation.general_linear_projection@1.0.0",
+          "forecasting.regime_shift.hybrid@1.0.0",
+          "forecasting.univariate.exponential_smoothing@1.0.0",
+          "forecasting.univariate.theta@1.0.0"
+        ],
+        "ranked_alternatives": [
+          {
+            "advisor_score": 20.0,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [],
+            "method_family": "bayesian.gp",
+            "method_fqn": "bayesian.gp.gp_regression@1.0.0",
+            "rank": 1,
+            "selected": true
+          },
+          {
+            "advisor_score": 20.0,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_tie_broken_by_rank_on_owner_data_shape"
+            ],
+            "method_family": "bayesian.regression",
+            "method_fqn": "bayesian.regression.linear_regression@1.0.0",
+            "rank": 2,
+            "selected": false
+          },
+          {
+            "advisor_score": 20.0,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_tie_broken_by_rank_on_owner_data_shape"
+            ],
+            "method_family": "bayesian.sampling",
+            "method_fqn": "bayesian.sampling.hmc@1.0.0",
+            "rank": 3,
+            "selected": false
+          },
+          {
+            "advisor_score": 20.0,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_tie_broken_by_rank_on_owner_data_shape"
+            ],
+            "method_family": "bayesian.sampling",
+            "method_fqn": "bayesian.sampling.nuts@1.0.0",
+            "rank": 4,
+            "selected": false
+          },
+          {
+            "advisor_score": 20.0,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_tie_broken_by_rank_on_owner_data_shape"
+            ],
+            "method_family": "bayesian.regression",
+            "method_fqn": "bayesian.regression.hierarchical@1.0.0",
+            "rank": 5,
+            "selected": false
+          },
+          {
+            "advisor_score": 20.0,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_tie_broken_by_rank_on_owner_data_shape"
+            ],
+            "method_family": "bayesian.variational",
+            "method_fqn": "bayesian.variational.svgd_regression@1.0.0",
+            "rank": 6,
+            "selected": false
+          },
+          {
+            "advisor_score": 20.0,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_tie_broken_by_rank_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.factor",
+            "method_fqn": "econometrics.factor.principal_components@1.0.0",
+            "rank": 7,
+            "selected": false
+          },
+          {
+            "advisor_score": 12.8,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.panel",
+            "method_fqn": "econometrics.panel.fixed_effects@1.0.0",
+            "rank": 8,
+            "selected": false
+          },
+          {
+            "advisor_score": 12.8,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.panel",
+            "method_fqn": "econometrics.panel.random_effects@1.0.0",
+            "rank": 9,
+            "selected": false
+          },
+          {
+            "advisor_score": 12.8,
+            "data_modalities": [
+              "spatial",
+              "tabular",
+              "time-series"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.spatial",
+            "method_fqn": "econometrics.spatial.spatial_autoregressive@1.0.0",
+            "rank": 10,
+            "selected": false
+          },
+          {
+            "advisor_score": 8.0,
+            "data_modalities": [
+              "tabular",
+              "time-series"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.timeseries",
+            "method_fqn": "econometrics.timeseries.local_projections@1.0.0",
+            "rank": 11,
+            "selected": false
+          },
+          {
+            "advisor_score": 6.400000000000002,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.factor",
+            "method_fqn": "econometrics.factor.dynamic_factor_model@1.0.0",
+            "rank": 12,
+            "selected": false
+          },
+          {
+            "advisor_score": 6.400000000000002,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.regression",
+            "method_fqn": "econometrics.regression.quantile_regression@1.0.0",
+            "rank": 13,
+            "selected": false
+          },
+          {
+            "advisor_score": 5.333333333333332,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.panel",
+            "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+            "rank": 14,
+            "selected": false
+          },
+          {
+            "advisor_score": 3.1999999999999993,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "bayesian.gp",
+            "method_fqn": "bayesian.gp.sparse_gp_regression@1.0.0",
+            "rank": 15,
+            "selected": false
+          },
+          {
+            "advisor_score": 1.2800000000000011,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "bayesian.variational",
+            "method_fqn": "bayesian.variational.bbvi@1.0.0",
+            "rank": 16,
+            "selected": false
+          },
+          {
+            "advisor_score": 1.2800000000000011,
+            "data_modalities": [
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "bayesian.variational",
+            "method_fqn": "bayesian.variational.mean_field_vi@1.0.0",
+            "rank": 17,
+            "selected": false
+          },
+          {
+            "advisor_score": 1.2800000000000011,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.panel",
+            "method_fqn": "econometrics.panel.latent_mobility@1.0.0",
+            "rank": 18,
+            "selected": false
+          },
+          {
+            "advisor_score": -4.0,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.panel",
+            "method_fqn": "econometrics.panel.difference_gmm@1.0.0",
+            "rank": 19,
+            "selected": false
+          },
+          {
+            "advisor_score": -4.0,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.panel",
+            "method_fqn": "econometrics.panel.system_gmm@1.0.0",
+            "rank": 20,
+            "selected": false
+          },
+          {
+            "advisor_score": -13.599999999999994,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.iv",
+            "method_fqn": "econometrics.iv.two_stage_least_squares@1.0.0",
+            "rank": 21,
+            "selected": false
+          },
+          {
+            "advisor_score": -15.733333333333334,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.iv",
+            "method_fqn": "econometrics.iv.gmm@1.0.0",
+            "rank": 22,
+            "selected": false
+          },
+          {
+            "advisor_score": -16.799999999999997,
+            "data_modalities": [
+              "panel",
+              "tabular"
+            ],
+            "loss_reasons": [
+              "advisor_score_below_selected_on_owner_data_shape"
+            ],
+            "method_family": "econometrics.iv",
+            "method_fqn": "econometrics.iv.high_dimensional_post_selection@1.0.0",
+            "rank": 23,
+            "selected": false
+          }
+        ],
+        "schema_version": "policyos.foundry.method_selection_receipt.v2",
+        "selected_method_fqn": "bayesian.gp.gp_regression@1.0.0",
+        "selection_authority": "foundry_registry_advisor",
+        "selection_context_hash": "sha256:a86e914957e87b2d381d77d10e78d7245fb4f21526f192a573fee5c7f23e039a"
+      },
+      "reason": "The advisor selected a real method over owner-resolved outcome rows, but the candidate_unbound intervention has no estimand binding.",
+      "selected_method_fqn": "bayesian.gp.gp_regression@1.0.0",
       "status": "value_blocked",
       "transport_receipt": null,
-      "value_data_profile_content_hash": null,
+      "value_data_profile_content_hash": "sha256:eb5faeaffbb5507ba9ceed7c69ed3a892d5c106eb6a6336ed62c4d68f1db3566",
       "value_receipt": null,
       "value_ref": null,
       "wall_time_ms": 0.0,
-      "world_model_record_content_hash": null
+      "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
     }
   },
   "generation_owner_status": "real_n4_owner_content_addressed_replay",
@@ -2865,11 +4120,11 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
-    "aggregate_value_port_wall_time_ms": 0.01087499549612403,
+    "aggregate_value_port_wall_time_ms": 10482.246625004336,
     "cycle_value_port_wall_time_ms": [
       {
         "cycle_index": 0,
-        "value_port_wall_time_ms": 0.01087499549612403
+        "value_port_wall_time_ms": 10482.246625004336
       }
     ]
   },
@@ -2882,7 +4137,7 @@
       "decision_grade": "blocked",
       "evidence_kind": "real_n4_cgf_disposition",
       "promotion_status": "not_promoted",
-      "terminal_kind": "search_ceiling_repair_required",
+      "terminal_kind": "acquisition_required",
       "terminal_status": "completed"
     },
     "generation": {
@@ -2935,19 +4190,19 @@
     "world_model": {
       "attempted": true,
       "context_binding_hash": "sha256:b28e60b02ffc9f1288903cbf67f6eda7dafd39d1728dda4031bb86694be48af4",
-      "identity_evidence_kind": "grounding_candidate_unbound_resolution",
-      "object_identity_reused": false,
+      "identity_evidence_kind": "simulation_object_identity",
+      "object_identity_reused": true,
       "owner": "polisyos.runtime.quality.generation_cycle._build_boundary_world_model_record",
       "selected_registry_entry_hashes": [
         "sha256:0b083d7e6784d2750ca4e933e754bbfc936ccdd8f70b825d5a3c46caf17e6aa8"
       ],
-      "simulation_status": "simulation_blocked",
+      "simulation_status": "simulation_pending_n5",
       "substrate_registry_content_hash": "sha256:f94770b220aa9b6a90220a66317060979ac1353f52420841da41a082c40f98d1",
       "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",
       "world_model_record_id": "world_model_record_b14cc2ae2bbe445b"
     }
   },
   "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-  "trace_content_hash": "sha256:0e54e3bc366bd9a52617960eb353111ea3d5eb8688d5a106d2a5f682b53a3283",
+  "trace_content_hash": "sha256:7002b7e347e431c4e2c740410ecff74af2e57f2e65804fc4e9afe7266eae6cae",
   "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
 }

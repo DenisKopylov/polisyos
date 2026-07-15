@@ -3672,6 +3672,10 @@ def _rederive_audit(repo_root: Path) -> dict[str, Any]:
     live = build_live_payload(repo_root, lane="cached")
     committed = _read_json(path)
     issues = list(validate_payload(committed)["issues"])
+    if committed.get("contract_content_hash") == live.get(
+        "contract_content_hash"
+    ):
+        _preserve_operational_values(committed, live)
     if committed != live:
         issues.append({"code": "universality_contract_rederive_drift"})
     return {"status": "pass" if not issues else "fail", "issues": issues}

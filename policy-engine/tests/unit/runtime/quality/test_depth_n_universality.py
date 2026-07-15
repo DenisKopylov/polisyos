@@ -2784,6 +2784,51 @@ def test_canonical_writer_preserves_operational_values_on_semantic_match(
     assert data == (validator._canonical_json(prior) + "\n").encode()
 
 
+def test_rederive_audit_compares_semantics_without_clock_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Behavioral replay ignores only canonical operational-value movement."""
+
+    validator = _universality_contract_validator()
+    output = tmp_path / validator.OUTPUT_PATH
+    committed = {
+        "contract_content_hash": "sha256:" + "1" * 64,
+        "domain_runs": {
+            "first_vertical": {
+                "generated_at": "2026-07-15T00:00:00Z",
+                "terminal": "acquisition_required",
+            }
+        },
+    }
+    live = copy.deepcopy(committed)
+    live["domain_runs"]["first_vertical"]["generated_at"] = (
+        "2026-07-15T01:00:00Z"
+    )
+    output.parent.mkdir(parents=True)
+    output.write_text(json.dumps(committed), encoding="utf-8")
+    monkeypatch.setattr(
+        validator,
+        "check_provenance_stability",
+        lambda root: {"status": "stable", "issues": []},
+    )
+    monkeypatch.setattr(
+        validator,
+        "build_live_payload",
+        lambda *args, **kwargs: copy.deepcopy(live),
+    )
+    monkeypatch.setattr(
+        validator,
+        "validate_payload",
+        lambda payload: {"status": "pass", "issues": []},
+    )
+
+    assert validator._rederive_audit(tmp_path) == {
+        "status": "pass",
+        "issues": [],
+    }
+
+
 def test_universality_validator_refuses_wrong_checkout(tmp_path: Path) -> None:
     """Refuse a foreign PolicyOS package before parsing a proof mode or writing output."""
 

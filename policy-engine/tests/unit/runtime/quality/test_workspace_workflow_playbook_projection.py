@@ -126,6 +126,35 @@ def test_workspace_loop_rejects_untyped_dict_entry() -> None:
         WorkspaceLoop().run_intent({"policy_question": "Estimate a causal policy effect."})  # type: ignore[arg-type]
 
 
+def test_phase2_value_advisor_receives_the_owner_design_problem(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Do not reconstruct a shaped problem after the typed WorkspaceLoop intake."""
+
+    problem = _design_problem(
+        causal_variables=["credit_access", "firm_survival"],
+        observational_data_ref="measurement-root-ref",
+    )
+    observed: list[object] = []
+
+    def _select(**kwargs: object) -> dict[str, object]:
+        observed.append(kwargs["problem"])
+        return {"selected_method_fqn": "econometrics.panel.fixed_effects@1.0.0"}
+
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.selection.select_value_method_for_problem",
+        _select,
+    )
+
+    WorkspaceLoop()._phase2_state(
+        workspace_id="workspace-owner-problem",
+        intent=problem.to_workspace_intent(),
+        design_problem=problem,
+    )
+
+    assert observed == [problem]
+
+
 def test_workspace_loop_phase2_playbook_can_deviate_to_refine_blocker() -> None:
     result = WorkspaceLoop().run_intent(
         _design_problem(

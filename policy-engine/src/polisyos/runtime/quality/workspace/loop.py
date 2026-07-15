@@ -646,7 +646,11 @@ def _foundry_registry_estimate_candidates() -> list[str]:
     return sorted(dict.fromkeys(matches))[:10]
 
 
-def _phase2_value_method_selection(intent: dict[str, Any]) -> dict[str, Any]:
+def _phase2_value_method_selection(
+    intent: dict[str, Any],
+    *,
+    design_problem: DesignProblem,
+) -> dict[str, Any]:
     causal_variables = intent.get("causal_variables")
     target_world_slots = (
         tuple(str(item) for item in causal_variables)
@@ -665,17 +669,6 @@ def _phase2_value_method_selection(intent: dict[str, Any]) -> dict[str, Any]:
             "workspace_phase2",
         ),
     }
-    problem = {
-        "design_problem_id": str(intent.get("workspace_id") or "workspace_phase2"),
-        "problem_statement": str(intent.get("policy_question") or ""),
-        "domain": str(intent.get("domain") or "policy_runtime"),
-        "runtime_hints": {
-            "value_method_hint": intent.get("value_method_hint"),
-            "value_method_family": intent.get("value_method_family"),
-            "value_required_data_modalities": intent.get("value_required_data_modalities"),
-            "value_data_characteristics": intent.get("value_data_characteristics"),
-        },
-    }
     try:
         from polisyos.foundry.methods.selection import select_value_method_for_problem
     except ImportError as exc:
@@ -686,7 +679,7 @@ def _phase2_value_method_selection(intent: dict[str, Any]) -> dict[str, Any]:
         }
     return select_value_method_for_problem(
         candidate=candidate,
-        problem=problem,
+        problem=design_problem,
         requested_method_fqn=(
             str(intent["causal_method_fqn"]) if intent.get("causal_method_fqn") else None
         ),
@@ -1019,8 +1012,17 @@ class WorkspaceLoop:
             ],
         }
 
-    def _phase2_state(self, *, workspace_id: str, intent: dict[str, Any]) -> ExperimentState:
-        method_selection = _phase2_value_method_selection({**intent, "workspace_id": workspace_id})
+    def _phase2_state(
+        self,
+        *,
+        workspace_id: str,
+        intent: dict[str, Any],
+        design_problem: DesignProblem,
+    ) -> ExperimentState:
+        method_selection = _phase2_value_method_selection(
+            {**intent, "workspace_id": workspace_id},
+            design_problem=design_problem,
+        )
         method_fqn = str(method_selection.get("selected_method_fqn") or "")
         causal_variables = self._phase2_causal_variables(intent=intent)
         observational_data_ref = self._phase2_observational_data_ref(intent=intent)
@@ -1293,7 +1295,11 @@ class WorkspaceLoop:
             )
 
         ctx, _bundle_ref = self._phase2_context(workspace_id=workspace_id)
-        state = self._phase2_state(workspace_id=workspace_id, intent=projected_intent)
+        state = self._phase2_state(
+            workspace_id=workspace_id,
+            intent=projected_intent,
+            design_problem=intent,
+        )
         required_inputs = ["observational_data_ref", "causal_variables", "data_causal_graph"]
         state_facts = {
             "observational_data_ref": state.observational_data_ref,

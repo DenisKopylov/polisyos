@@ -2031,7 +2031,7 @@ second canonical write preserves exact file SHA
 `801fd35570e7e62ad2b4f9bcad94c2300b73b0d2ef87acb03862eca3234f5b0b`. The artifact remains
 uncommitted until the full source-flip and blast-radius ordering gate completes.
 
-- [ ] **Step 6: Commit the proof artifact.**
+- [x] **Step 6: Commit the proof artifact.**
 
 ```bash
 git add tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py tests/unit/runtime/quality/test_depth_n_universality.py architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json

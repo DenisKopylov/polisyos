@@ -1665,67 +1665,88 @@ async def _replay_compiler_recording(recording: Mapping[str, Any]) -> object:
 def _cycle_context_for_problem(
     repo_root: Path,
     *,
-    role: str,
     problem: object,
 ) -> object | None:
-    """Bind known domains to owner evidence and leave the unseen domain packless."""
+    """Resolve owner evidence for one world without role or domain-label trust."""
 
     from polisyos.pdc import gy_content_hash
-    from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        build_cycle_substrate_context,
+        resolve_cycle_substrate_context_for_world,
+    )
     from polisyos.runtime.quality.design_problem import DesignProblem
-
-    resolved_problem = DesignProblem.model_validate(problem)
-    if role == "unseen":
-        return None
-    if role == "education":
-        from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
-
-        bundle = n10a._load_frozen_bundle(repo_root)
-        return n10a._build_frozen_cycle_substrate_context(
-            repo_root,
-            bundle=bundle,
-            design_problem=resolved_problem,
-        )
-    if role != "first_vertical":
-        raise UniversalityContractError(f"proof_domain_role_unknown:{role}")
-
     from polisyos.runtime.quality.intervention_substrate import (
+        load_l6_intervention_substrate,
         production_composed_world_model_record,
     )
     from polisyos.runtime.quality.substrate_registry import (
         build_substrate_registry_from_existing_catalogs,
     )
+    from polisyos.runtime.quality.world_model_record import WorldModelRecordError
+    from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
 
+    resolved_problem = DesignProblem.model_validate(problem)
+    problem_ref = gy_content_hash(resolved_problem.model_dump(mode="json"))
+    contexts: list[CycleSubstrateContext] = []
+    second_domain_bundle = n10a._load_frozen_bundle(repo_root)
+    if n10a.second_domain_pack_supports_design_problem(
+        second_domain_bundle,
+        resolved_problem,
+    ):
+        contexts.append(
+            n10a._build_frozen_cycle_substrate_context(
+                repo_root,
+                bundle=second_domain_bundle,
+                design_problem=resolved_problem,
+            )
+        )
     registry = build_substrate_registry_from_existing_catalogs(repo_root)
     world = production_composed_world_model_record(repo_root)
     if registry.content_hash != world.substrate_registry_ref.content_hash:
         raise UniversalityContractError("first_vertical_registry_wmr_mismatch")
-    selected_hashes = tuple(
-        entry.entry_content_hash
-        for entry in world.substrate_registry_ref.resolved_entries
-    )
-    problem_ref = gy_content_hash(resolved_problem.model_dump(mode="json"))
-    substrate_input_hash = gy_content_hash(
-        {
-            "schema_version": "policyos.layer3.gy.n10.first_vertical_context.v1",
-            "design_problem_ref": problem_ref,
-            "substrate_registry_content_hash": registry.content_hash,
-            "world_model_record_content_hash": world.content_hash,
-            "selected_registry_entry_hashes": list(selected_hashes),
-        }
-    )
-    return build_cycle_substrate_context(
-        design_problem_ref=problem_ref,
-        domain=resolved_problem.domain,
-        substrate_registry=registry,
-        selected_registry_entry_hashes=selected_hashes,
-        world_model_record=world,
-        intervention_substrate=None,
-        candidate_levers=(),
-        transport_context=None,
-        source_pack_content_hash=None,
-        substrate_input_content_hash=substrate_input_hash,
-    )
+    if world.region_or_jurisdiction == resolved_problem.jurisdiction_time.region:
+        selected_hashes = tuple(
+            entry.entry_content_hash
+            for entry in world.substrate_registry_ref.resolved_entries
+        )
+        intervention_substrate = load_l6_intervention_substrate(repo_root)
+        substrate_input_hash = gy_content_hash(
+            {
+                "schema_version": "policyos.layer3.gy.n10.world_context.v1",
+                "design_problem_ref": problem_ref,
+                "substrate_registry_content_hash": registry.content_hash,
+                "world_model_record_content_hash": world.content_hash,
+                "intervention_substrate_content_hash": (
+                    intervention_substrate.content_hash
+                ),
+                "selected_registry_entry_hashes": list(selected_hashes),
+            }
+        )
+        contexts.append(
+            build_cycle_substrate_context(
+                design_problem_ref=problem_ref,
+                domain=resolved_problem.domain,
+                substrate_registry=registry,
+                selected_registry_entry_hashes=selected_hashes,
+                world_model_record=world,
+                intervention_substrate=intervention_substrate,
+                candidate_levers=(),
+                transport_context=None,
+                source_pack_content_hash=None,
+                substrate_input_content_hash=substrate_input_hash,
+            )
+        )
+    try:
+        return resolve_cycle_substrate_context_for_world(
+            tuple(contexts),
+            design_problem_ref=problem_ref,
+            region_or_jurisdiction=resolved_problem.jurisdiction_time.region,
+        )
+    except WorldModelRecordError as exc:
+        if exc.code == "cycle_substrate_context_unresolved":
+            return None
+        raise UniversalityContractError(exc.code) from exc
 
 
 def _n4_responses_from_journal(path: Path) -> list[dict[str, Any]]:
@@ -1964,7 +1985,6 @@ async def _capture_domain_run(
 
     context = _cycle_context_for_problem(
         repo_root,
-        role=role,
         problem=problem,
     )
     replay = _ReplayGateway(compiler_recording)
@@ -2355,7 +2375,6 @@ async def _domain_run_from_recording(
     problem = await _replay_compiler_recording(compiler_recording)
     context = _cycle_context_for_problem(
         repo_root,
-        role=role,
         problem=problem,
     )
     observed_context_hash = getattr(context, "content_hash", None)

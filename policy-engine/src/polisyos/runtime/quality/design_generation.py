@@ -2835,6 +2835,11 @@ def derive_lever_space_prompt_slice(
                 entries=selected,
                 owner_refs=owner_refs,
             )
+        if context.intervention_substrate is not None:
+            return _world_bound_lever_space_prompt_slice(
+                design_problem,
+                context=context,
+            )
     try:
         bundle = load_l6_intervention_substrate(repo_root.resolve())
     except (InterventionSubstrateError, OSError, RuntimeError, ValueError) as exc:
@@ -2934,12 +2939,112 @@ def derive_lever_space_prompt_slice(
     )
 
 
+def _world_bound_lever_space_prompt_slice(
+    design_problem: DesignProblem,
+    *,
+    context: CycleSubstrateContext,
+) -> LeverSpacePromptSlice:
+    """Derive the active world's real L6 vocabulary without model filtering."""
+
+    bundle = context.intervention_substrate
+    if bundle is None:
+        return LeverSpacePromptSlice(
+            status="unavailable",
+            failure_reason="context_bound_l6_bundle_missing",
+        )
+    entries: list[LeverSpaceSliceEntry] = []
+    for operator_kind, raw in sorted(bundle.knob_dictionary.items()):
+        raw_knob = _mapping(raw)
+        if not raw_knob or "default" not in raw_knob:
+            continue
+        try:
+            resolution = resolve_intervention_lever(
+                bundle,
+                operator_kind=str(operator_kind),
+                parameter_value=raw_knob["default"],
+                world_model_record=context.world_model_record,
+                cycle_substrate_context=context,
+            )
+        except (InterventionSubstrateError, ValueError):
+            continue
+        if not isinstance(resolution, InterventionLeverResolution):
+            continue
+        mechanism = _owner_mechanism_entry(bundle, str(operator_kind))
+        parameter_key, parameter_bounds, unit = _compact_parameter_facts(
+            raw_knob,
+            mechanism,
+        )
+        entries.append(
+            LeverSpaceSliceEntry(
+                operator_kind=str(operator_kind),
+                instrument=str(operator_kind),
+                aliases=_owner_aliases_for_operator(
+                    str(operator_kind),
+                    raw_knob=raw_knob,
+                    lex_intervention_map=bundle.lex_intervention_map,
+                ),
+                target_world_slots=resolution.target_world_slots,
+                unit=unit,
+                parameter_key=parameter_key,
+                parameter_bounds=parameter_bounds,
+                source_refs=tuple(
+                    item
+                    for item in dict.fromkeys(
+                        (
+                            bundle.source_refs.get("owner_authority_bindings", ""),
+                            resolution.content_hash,
+                        )
+                    )
+                    if item
+                ),
+                binding_status="world_bound",
+                context_binding_hash=context.context_binding_hash,
+                substrate_registry_content_hash=(
+                    context.substrate_registry_content_hash
+                ),
+                world_model_record_content_hash=(
+                    context.world_model_record_content_hash
+                ),
+            )
+        )
+    selected = _cap_lever_space_entries(entries, design_problem=design_problem)
+    if not selected:
+        return LeverSpacePromptSlice(
+            status="unavailable",
+            failure_reason="context_bound_owner_slice_unresolved",
+        )
+    owner_refs = tuple(
+        item
+        for item in dict.fromkeys(
+            (
+                bundle.content_hash,
+                context.context_binding_hash,
+                context.substrate_registry_content_hash,
+                context.world_model_record_content_hash,
+            )
+        )
+        if item
+    )
+    payload = {
+        "design_problem_id": design_problem.design_problem_id,
+        "entries": [entry.model_dump(mode="json") for entry in selected],
+        "owner_refs": list(owner_refs),
+        "non_constraining": True,
+    }
+    return LeverSpacePromptSlice(
+        status="derived",
+        content_hash=gy_content_hash(payload),
+        entries=selected,
+        owner_refs=owner_refs,
+    )
+
+
 def _cycle_substrate_context_for_problem(
     cycle_substrate_context: CycleSubstrateContext,
     *,
     design_problem: DesignProblem,
 ) -> CycleSubstrateContext:
-    """Revalidate one context and reject cross-problem/domain substitution."""
+    """Revalidate one context and reject cross-problem substitution."""
 
     from polisyos.runtime.quality.cycle_substrate import (
         revalidate_cycle_substrate_context,
@@ -2949,8 +3054,6 @@ def _cycle_substrate_context_for_problem(
     expected_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
     if context.design_problem_ref != expected_problem_ref:
         raise DesignGenerationError("cycle_substrate_design_problem_mismatch")
-    if context.domain != design_problem.domain:
-        raise DesignGenerationError("cycle_substrate_problem_domain_mismatch")
     return context
 
 

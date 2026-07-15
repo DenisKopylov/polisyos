@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality import cycle_substrate as cycle_substrate_owner
 from polisyos.runtime.quality.cycle_substrate import (
     CandidateLeverEvidence,
     CycleSubstrateContext,
@@ -43,6 +44,7 @@ from polisyos.runtime.quality.world_model_record import (
     SkgCausalPriorRef,
     SubstrateRegistryRef,
     WorldModelRecord,
+    WorldModelRecordError,
     world_model_record_content_hash,
 )
 
@@ -99,6 +101,7 @@ def _world_record(
     resolved_family_id: str | None = None,
     duplicate_resolved_family_id: str | None = None,
     world_model_record_id: str | None = None,
+    region_or_jurisdiction: str | None = None,
 ) -> WorldModelRecord:
     entry = registry.entries[0]
     resolved_entry = ResolvedSubstrateEntryRef(
@@ -136,7 +139,7 @@ def _world_record(
         "authority_status": "limited",
         "created_at": "2026-07-12T00:00:00+00:00",
         "producer_ref": "tests.unit.runtime.quality.test_cycle_substrate",
-        "region_or_jurisdiction": f"lane0-{domain}",
+        "region_or_jurisdiction": region_or_jurisdiction or f"lane0-{domain}",
         "population_scope": f"{domain}_population",
         "policy_domain": domain,
         "valid_time_scope": "2020/2025",
@@ -216,11 +219,12 @@ def _cycle_context(
     registry: SubstrateRegistry | None = None,
     world_model_record: WorldModelRecord | None = None,
     intervention_substrate: InterventionSubstrateBundle | None = None,
+    design_problem_ref: str | None = None,
 ) -> CycleSubstrateContext:
     registry = registry or _registry(domain)
     world_model_record = world_model_record or _world_record(domain, registry)
     selected_hash = registry.entries[0].entry_content_hash
-    design_problem_ref = _hash(f"{domain}:design-problem")
+    design_problem_ref = design_problem_ref or _hash(f"{domain}:design-problem")
     substrate_input_hash = _hash(f"{domain}:substrate-input")
     context_binding_hash = cycle_substrate_context_binding_hash(
         design_problem_ref=design_problem_ref,
@@ -279,6 +283,73 @@ def _cycle_context(
         source_pack_content_hash=_hash(f"{domain}:source-pack"),
         substrate_input_content_hash=substrate_input_hash,
     )
+
+
+def test_world_context_resolution_uses_problem_and_wmr_evidence_not_domain_label() -> None:
+    """A producer-scoped label cannot hide an exact content-bound world match."""
+
+    registry = _registry("fiscal_credit")
+    world = _world_record(
+        "fiscal_credit",
+        registry,
+        region_or_jurisdiction="UA",
+    )
+    context = _cycle_context(
+        domain="Ukraine economic policy",
+        registry=registry,
+        world_model_record=world,
+    )
+
+    resolved = cycle_substrate_owner.resolve_cycle_substrate_context_for_world(
+        (context,),
+        design_problem_ref=context.design_problem_ref,
+        region_or_jurisdiction="UA",
+    )
+
+    assert resolved.content_hash == context.content_hash
+    assert resolved.domain == "Ukraine economic policy"
+    assert resolved.world_model_record.policy_domain == "fiscal_credit"
+
+
+def test_world_context_resolution_refuses_no_match_and_ambiguity() -> None:
+    """Missing or competing worlds must fail closed instead of selecting first."""
+
+    problem_ref = _hash("shared-design-problem")
+    contexts: list[CycleSubstrateContext] = []
+    for domain in ("fiscal_credit", "public_finance"):
+        registry = _registry(domain)
+        contexts.append(
+            _cycle_context(
+                domain=f"producer-label-{domain}",
+                registry=registry,
+                world_model_record=_world_record(
+                    domain,
+                    registry,
+                    region_or_jurisdiction="UA",
+                ),
+                design_problem_ref=problem_ref,
+            )
+        )
+
+    with pytest.raises(
+        WorldModelRecordError,
+        match="cycle_substrate_context_unresolved",
+    ):
+        cycle_substrate_owner.resolve_cycle_substrate_context_for_world(
+            tuple(contexts),
+            design_problem_ref=problem_ref,
+            region_or_jurisdiction="unseen-world",
+        )
+
+    with pytest.raises(
+        WorldModelRecordError,
+        match="cycle_substrate_context_ambiguous",
+    ):
+        cycle_substrate_owner.resolve_cycle_substrate_context_for_world(
+            tuple(contexts),
+            design_problem_ref=problem_ref,
+            region_or_jurisdiction="UA",
+        )
 
 
 def test_cycle_substrate_context_binds_registry_wmr_and_pack_hashes() -> None:

@@ -30,6 +30,7 @@ from polisyos.participation_requirement import (
     ParticipationRepresentativenessClass,
     ParticipationSourceKind,
 )
+from polisyos.runtime.quality import acquisition_planner as acquisition_owner
 from polisyos.runtime.quality.acquisition_planner import (
     ACQUISITION_FAMILY_DENOMINATOR,
     AcquisitionCaptureProvenance,
@@ -92,6 +93,37 @@ from polisyos.scientist.methods.search.voi_models import (
 from tools.quality.validation import check_layer3_gy_acquisition_contract as contract
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_grounding_coverage_gap_is_content_bound_and_planner_routable() -> None:
+    """A CG refusal must reach N7 as an unsatisfied owner-evidence need."""
+
+    gap = acquisition_owner.grounding_coverage_requirement_gap(
+        candidate_id="candidate_unresolved_lever",
+        candidate_content_hash="sha256:" + "1" * 64,
+        design_problem_ref="sha256:" + "2" * 64,
+        issue_codes=("unknown_blocked", "cg2_relation_not_bind_eligible"),
+        evidence_refs=("sha256:" + "3" * 64,),
+        authority_level="research",
+        grounding_report_ref="sha256:" + "4" * 64,
+    )
+    report = plan_requirement_gap_acquisition(
+        run_id="run-grounding-coverage-gap",
+        requirement_gaps=(gap,),
+    )
+
+    assert gap.requirement_family is RequirementGapFamily.DATA
+    assert gap.metadata["source"] == "cgf_grounding_coverage"
+    assert gap.metadata["candidate_binding"]["candidate_id"] == (
+        "candidate_unresolved_lever"
+    )
+    assert gap.metadata["satisfaction_status"] == "unsatisfied"
+    assert report.status == "pass"
+    assert len(report.acquisition_records) == 1
+    assert report.acquisition_records[0].requirement_gap_ref == (
+        gap.requirement_gap_id
+    )
+    assert report.acquisition_records[0].terminal_disposition.value == "acquire"
 
 
 def test_value_input_world_knowledge_gap_is_one_unsatisfied_any_of_requirement() -> None:

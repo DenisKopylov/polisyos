@@ -3975,10 +3975,15 @@ def project_second_domain_cycle_substrate_context(
         codes = sorted({str(issue.get("code") or "unknown") for issue in issues})
         raise ValueError("cycle_substrate_pack_invalid:" + ",".join(codes))
 
-    domain = str(pack.get("selected_domain") or "")
-    if design_problem.domain != domain:
-        raise ValueError("cycle_substrate_problem_domain_mismatch")
+    if not second_domain_pack_supports_design_problem(bundle, design_problem):
+        raise ValueError("cycle_substrate_problem_owner_evidence_unresolved")
+    domain = design_problem.domain
     WorldModelRecord.model_validate(world_model_record.model_dump(mode="python"))
+    if (
+        world_model_record.region_or_jurisdiction
+        != design_problem.jurisdiction_time.region
+    ):
+        raise ValueError("cycle_substrate_problem_world_mismatch")
 
     components = _mapping(pack.get("components"))
     owner_queries = _mapping(pack.get("owner_query_results"))
@@ -4118,6 +4123,31 @@ def project_second_domain_cycle_substrate_context(
         source_pack_content_hash=historical_pack_hash,
         substrate_input_content_hash=substrate_input_hash,
     )
+
+
+def second_domain_pack_supports_design_problem(
+    bundle: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> bool:
+    """Return whether verified pack evidence contains the requested outcome.
+
+    Domain labels are intentionally excluded. The pack can support a problem
+    only when its owner-derived outcome denominator names the exact requested
+    variable; lever and transport evidence remain candidate-only downstream.
+    """
+
+    pack = _mapping(bundle.get("pack"))
+    outcome_rows = _list_of_mappings(
+        _mapping(_mapping(pack.get("components")).get("outcomes")).get(
+            "entries"
+        )
+    )
+    owner_outcomes = {
+        str(row.get("canonical_var") or "").strip()
+        for row in outcome_rows
+        if str(row.get("canonical_var") or "").strip()
+    }
+    return design_problem.outcome_of_interest.target_variable in owner_outcomes
 
 
 def _build_cycle_substrate_input_projection(

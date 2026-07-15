@@ -24,6 +24,7 @@ from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.runtime.quality import design_generation as dg
 from polisyos.runtime.quality.credal_reference import build_credal_reference
+from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
 from polisyos.runtime.quality.design_generation import (
     SUPPORTED_GENERATION_MODEL_IDS,
     DesignGenerationError,
@@ -36,8 +37,12 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
 from polisyos.runtime.quality.intervention_substrate import (
     load_l6_intervention_substrate,
+    production_composed_world_model_record,
 )
-from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
+from polisyos.runtime.quality.substrate_registry import (
+    SubstrateRegistry,
+    build_substrate_registry_from_existing_catalogs,
+)
 from polisyos.scientist.agent import formalizer as formalizer_owner
 from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
 from polisyos.scientist.agent.formalizer import (
@@ -155,6 +160,73 @@ def test_prompt_slice_rejects_context_for_another_design_problem() -> None:
         )
 
     assert error.value.code == "cycle_substrate_design_problem_mismatch"
+
+
+def test_prompt_slice_uses_context_bound_l6_vocabulary_not_model_filter() -> None:
+    """A free-text candidate cannot suppress the active world's owner knobs."""
+
+    payload = _test_design_problem().model_dump(mode="python")
+    payload["domain"] = "Ukraine economic policy"
+    payload["candidate_lever_space"] = {
+        "allowed_operator_kinds": ["credit_guarantee"],
+        "candidate_levers": [
+            {
+                "lever_id": "state_backed_credit_guarantee",
+                "operator_kind": "credit_guarantee",
+                "instrument": "state-backed credit guarantee",
+                "target_slot": "msme_credit_access",
+            }
+        ],
+    }
+    problem = DesignProblem.model_validate(payload)
+    registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    world = production_composed_world_model_record(REPO_ROOT)
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+    selected_hashes = tuple(
+        entry.entry_content_hash
+        for entry in world.substrate_registry_ref.resolved_entries
+    )
+    problem_ref = dg.gy_content_hash(problem.model_dump(mode="json"))
+    substrate_input_hash = dg.gy_content_hash(
+        {
+            "design_problem_ref": problem_ref,
+            "registry": registry.content_hash,
+            "world": world.content_hash,
+            "bundle": bundle.content_hash,
+        }
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=world,
+        intervention_substrate=bundle,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=substrate_input_hash,
+    )
+
+    result = dg.derive_lever_space_prompt_slice(
+        problem,
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )
+
+    assert result.status == "derived"
+    assert {entry.operator_kind for entry in result.entries} == {
+        "budget_allocation_multiplier",
+        "procurement_shock_intensity",
+        "tax_relief_rate",
+    }
+    assert {entry.binding_status for entry in result.entries} == {"world_bound"}
+    assert all(entry.target_world_slots for entry in result.entries)
+    assert all(entry.context_binding_hash == context.context_binding_hash for entry in result.entries)
+    assert all(
+        entry.world_model_record_content_hash == world.content_hash
+        for entry in result.entries
+    )
 
 
 def _candidate_set(result: dg.GenerationUnderAResult) -> list[tuple[str, str, str, str]]:

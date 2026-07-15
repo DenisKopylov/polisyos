@@ -425,6 +425,59 @@ def revalidate_cycle_substrate_context(
     return CycleSubstrateContext.model_validate(context.model_dump(mode="python"))
 
 
+def resolve_cycle_substrate_context_for_world(
+    contexts: Sequence[CycleSubstrateContext],
+    *,
+    design_problem_ref: str,
+    region_or_jurisdiction: str,
+) -> CycleSubstrateContext:
+    """Resolve one content-bound cycle context without trusting domain labels.
+
+    The DesignProblem content reference and the WMR's concrete jurisdiction are
+    the selection evidence. Producer-scoped ``domain`` labels remain recorded
+    provenance and are deliberately absent from this decision.
+
+    Args:
+        contexts: Available owner-built contexts for the active request.
+        design_problem_ref: Exact content hash of the active DesignProblem.
+        region_or_jurisdiction: Concrete target world named by that problem.
+
+    Returns:
+        The unique fully revalidated matching context.
+
+    Raises:
+        WorldModelRecordError: If no unique context resolves.
+    """
+
+    target_region = str(region_or_jurisdiction or "").strip()
+    if not target_region:
+        raise WorldModelRecordError(
+            "cycle_substrate_context_unresolved",
+            "target region or jurisdiction is missing",
+        )
+    verified_by_hash: dict[str, CycleSubstrateContext] = {}
+    for context in contexts:
+        verified = revalidate_cycle_substrate_context(context)
+        verified_by_hash[verified.content_hash] = verified
+    matches = tuple(
+        context
+        for context in verified_by_hash.values()
+        if context.design_problem_ref == design_problem_ref
+        and context.world_model_record.region_or_jurisdiction == target_region
+    )
+    if not matches:
+        raise WorldModelRecordError(
+            "cycle_substrate_context_unresolved",
+            "no owner context resolves the active DesignProblem and target world",
+        )
+    if len(matches) != 1:
+        raise WorldModelRecordError(
+            "cycle_substrate_context_ambiguous",
+            "multiple owner contexts resolve the active DesignProblem and target world",
+        )
+    return matches[0]
+
+
 def resolve_cycle_substrate_world_identity(
     context: CycleSubstrateContext,
     *,
@@ -586,6 +639,7 @@ __all__ = [
     "cycle_substrate_context_binding_hash",
     "cycle_substrate_context_content_hash",
     "resolve_candidate_lever_world_identity",
+    "resolve_cycle_substrate_context_for_world",
     "resolve_cycle_substrate_world_identity",
     "resolve_world_model_atom_identity",
     "revalidate_cycle_substrate_context",

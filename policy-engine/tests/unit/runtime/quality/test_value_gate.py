@@ -113,6 +113,10 @@ from polisyos.runtime.quality.generation_cycle import (
     _value_outer_set_from_foundry_result,
     _value_owner_row,
 )
+from polisyos.runtime.quality.intervention_substrate import (
+    InterventionLeverRefusal,
+    resolve_intervention_lever,
+)
 from polisyos.runtime.quality.world_model_record import (
     BranchMode,
     DataForgeBindingRef,
@@ -1765,11 +1769,22 @@ def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() ->
         design_problem=problem,
     )
     grounding = frozen["cycle_trace"]["stage_attempts"]["grounding"]
+    candidate_lever = context.candidate_levers[0]
+    assert context.intervention_substrate is not None
+    lever_resolution = resolve_intervention_lever(
+        context.intervention_substrate,
+        operator_kind=candidate_lever.lever_id,
+        parameter_value=0,
+        world_model_record=context.world_model_record,
+        cycle_substrate_context=context,
+    )
+    assert isinstance(lever_resolution, InterventionLeverRefusal)
     candidate = SimpleNamespace(
         candidate_id=str(grounding["proposal_id"]),
         content_hash=str(grounding["raw_candidate_hash"]),
         status="candidate_unbound",
         grounding_disposition=str(grounding["disposition"]),
+        lever_resolution=lever_resolution,
     )
     profile = RealValueOwnerGateway(
         repo_root=Path.cwd(),
@@ -1802,6 +1817,7 @@ def test_real_education_owner_shape_selects_before_unbound_estimand_refusal() ->
 
     assert observation.status == "value_blocked"
     assert observation.authority_blockers == ("method_estimand_binding_mismatch",)
+    assert observation.value_receipt is None
     assert observation.selected_method_fqn is not None
     assert observation.method_selection_receipt is not None
     assert observation.method_selection_receipt.selection_authority == (

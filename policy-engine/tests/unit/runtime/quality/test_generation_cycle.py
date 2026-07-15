@@ -518,7 +518,13 @@ async def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
     assert cycle.selected_candidate_content_hash == "sha256:" + "7" * 64
     assert cycle.grounding.grounding_source == "cgf_firewall"
     assert cycle.grounding.grounding_disposition == "novel_cg3"
-    assert cycle.terminal_kind == "search_ceiling_repair_required"
+    assert cycle.grounding.acquisition_requirement is not None
+    assert cycle.grounding.acquisition_requirement.metadata["source"] == (
+        "cgf_grounding_coverage"
+    )
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_routing_report.status == "pass"
     assert cycle.terminal_kind != "a_spec_gap"
     assert "grammar_fallback" not in json.dumps(cycle.model_dump(mode="json"))
 
@@ -2278,6 +2284,44 @@ def test_blocked_value_candidate_cannot_be_promoted_to_decision_front() -> None:
 
     assert fronts.decision.candidate_ids == ()
     assert fronts.research.candidate_ids == ("candidate_value_blocked",)
+
+
+def test_nonbinding_resolution_cannot_become_promotion_eligible() -> None:
+    """World identity for refusal cannot be laundered into decision authority."""
+
+    nonbinding = CandidateSummary(
+        candidate_id="candidate_nonbinding_world_identity",
+        content_hash="sha256:" + "6" * 64,
+        cycle_index=0,
+        generation_channel="n4_owner",
+        proxy_score=0.9,
+        voi_estimate=0.8,
+        grounding_status="grounding_gap",
+        grounding_source="cgf_firewall",
+        grounding_disposition="non_binding_abstain",
+        grounding_score=0.2,
+        current_valid=False,
+        value_status="value_blocked",
+        value_decision_grade="blocked",
+        value_blockers=("method_estimand_binding_mismatch",),
+        front="research",
+        high_proxy=True,
+        low_grounding=True,
+    )
+    projected = _apply_promotion_to_summaries(
+        (nonbinding,),
+        PromotionPortObservation(
+            status="certified_current_valid",
+            certified_candidate_ids=(nonbinding.candidate_id,),
+            receipts=(
+                _n9_receipt(nonbinding.candidate_id, consumer_promotable=True),
+            ),
+        ),
+    )
+    fronts = _derive_fronts(tuple(projected))
+
+    assert fronts.decision.candidate_ids == ()
+    assert projected[0].certified_by_n9 is False
 
 
 def test_contract_lane_n9_receipt_cannot_enter_decision_front() -> None:

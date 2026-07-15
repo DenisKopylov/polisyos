@@ -54,6 +54,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
+    grounding_coverage_requirement_gap,
     l1_variable_availability_requirement_gap,
     plan_requirement_gap_acquisition,
     run_acquisition_closed_loop,
@@ -180,6 +181,7 @@ class CandidateGroundingObservation(_StrictModel):
     cgf_certificate_refs: tuple[str, ...] = ()
     quarantine_action: QuarantineAction = "none"
     adversarial_validation_ref: str | None = None
+    acquisition_requirement: AcquisitionRequirementGap | None = None
 
     @model_validator(mode="after")
     def _current_valid_requires_grounding(self) -> CandidateGroundingObservation:
@@ -189,6 +191,13 @@ class CandidateGroundingObservation(_StrictModel):
             self.grounding_source != "cgf_firewall" or not self.grounding_disposition
         ):
             raise ValueError("grounded_status_requires_cgf_firewall_disposition")
+        if self.acquisition_requirement is not None:
+            if self.status in {"current_valid", "grounded_shadow"}:
+                raise ValueError("grounded_status_cannot_require_acquisition")
+            if self.acquisition_requirement.metadata.get("source") != (
+                "cgf_grounding_coverage"
+            ):
+                raise ValueError("grounding_acquisition_requirement_not_canonical")
         return self
 
 
@@ -592,6 +601,15 @@ class DesignRevisionRequest(_StrictModel):
         return tuple(item for item in self.next_grammar_elements if item not in previous)
 
 
+def _cycle_acquisition_requirement(
+    grounding: CandidateGroundingObservation,
+    value_port: ValuePortObservation,
+) -> AcquisitionRequirementGap | None:
+    """Return the earliest-stage real acquisition requirement for one cycle."""
+
+    return grounding.acquisition_requirement or value_port.acquisition_requirement
+
+
 class GenerationCycleRecord(_StrictModel):
     """Replay-visible record for one real generate-ground-value-revise cycle."""
 
@@ -630,14 +648,17 @@ class GenerationCycleRecord(_StrictModel):
             or self.counterexample.candidate_ref != selected
         ):
             raise ValueError("cycle_stage_candidate_mismatch")
-        requirement = self.value_port.acquisition_requirement
+        requirement = _cycle_acquisition_requirement(
+            self.grounding,
+            self.value_port,
+        )
         if requirement is None:
             return self
         metadata = requirement.metadata
-        if metadata.get("source") != "l1_dcat_variable_availability":
-            return self
         binding = metadata.get("candidate_binding")
-        if not isinstance(binding, Mapping) or (
+        if not isinstance(binding, Mapping):
+            return self
+        if (
             binding.get("candidate_id") != selected
             or binding.get("candidate_content_hash")
             != self.selected_candidate_content_hash
@@ -654,7 +675,10 @@ class GenerationCycleRecord(_StrictModel):
             return self
         if self.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
             raise ValueError("acquisition_route_cannot_satisfy_terminal")
-        requirement = self.value_port.acquisition_requirement
+        requirement = _cycle_acquisition_requirement(
+            self.grounding,
+            self.value_port,
+        )
         records = self.acquisition_routing_report.acquisition_records
         if requirement is None or len(records) != 1:
             raise ValueError("acquisition_route_requirement_mismatch")
@@ -849,8 +873,11 @@ class PolicyGroundingPort:
     ) -> CandidateGroundingObservation:
         """Resolve the generated candidate through N4's CGF disposition records."""
 
-        del problem, cycle_index
+        del cycle_index
         candidate_id = _candidate_id(candidate)
+        candidate_content_hash = _candidate_content_hash(candidate)
+        design_problem_ref = _problem_ref(problem)
+        authority_level = problem.authority_profile.requested_authority_level
         disposition = _grounding_disposition_for_candidate(
             candidate,
             generation_result=generation_result,
@@ -859,15 +886,27 @@ class PolicyGroundingPort:
             return _grounding_unavailable(
                 candidate_id,
                 issue_codes=("cgf_disposition_missing",),
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
             )
         owner_issues = _candidate_owner_validation_issues(candidate, disposition)
         if owner_issues:
-            return _grounding_unavailable(candidate_id, issue_codes=owner_issues)
+            return _grounding_unavailable(
+                candidate_id,
+                issue_codes=owner_issues,
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
+            )
         raw_disposition = str(_object_get(disposition, "disposition") or "")
         if raw_disposition not in _grounding_disposition_denominator():
             return _grounding_unavailable(
                 candidate_id,
                 issue_codes=("unknown_grounding_disposition", raw_disposition),
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
             )
         chain = _object_get(disposition, "certificate_chain")
         certificate_refs = _certificate_refs(chain)
@@ -907,6 +946,17 @@ class PolicyGroundingPort:
                 "source": "cgf_firewall",
             }
         )
+        acquisition_requirement = None
+        if status not in {"current_valid", "grounded_shadow"}:
+            acquisition_requirement = grounding_coverage_requirement_gap(
+                candidate_id=candidate_id,
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                issue_codes=issue_codes,
+                evidence_refs=certificate_refs,
+                authority_level=authority_level,
+                grounding_report_ref=grounding_ref,
+            )
         return CandidateGroundingObservation(
             candidate_id=candidate_id,
             status=status,
@@ -924,6 +974,7 @@ class PolicyGroundingPort:
             adversarial_validation_ref=(
                 str(quarantine_handoff_ref) if quarantine_handoff_ref else None
             ),
+            acquisition_requirement=acquisition_requirement,
         )
 
 
@@ -2337,6 +2388,7 @@ class GenerationCycleController:
             candidate_id=cycle.selected_candidate_ref,
             terminal_kind=terminal_kind,
             counterexample=counterexample,
+            grounding=grounding,
             value_port=cycle.value_port,
         )
         voi_decision = self.decide_next_action(
@@ -2520,6 +2572,7 @@ class GenerationCycleController:
             candidate_id=candidate_id,
             terminal_kind=terminal_kind,
             counterexample=counterexample,
+            grounding=grounding,
             value_port=state["value_port"],
         )
         placeholder_cycle = _cycle_record(
@@ -2867,10 +2920,12 @@ def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalSt
                     last_cycle.acquisition_routing_report.model_dump(mode="json")
                 )
             }
-        if last_cycle.value_port.acquisition_requirement is not None:
-            data_need_spec = last_cycle.value_port.acquisition_requirement.model_dump(
-                mode="json"
-            )
+        requirement = _cycle_acquisition_requirement(
+            last_cycle.grounding,
+            last_cycle.value_port,
+        )
+        if requirement is not None:
+            data_need_spec = requirement.model_dump(mode="json")
     blockers = list(last_cycle.grounding.issue_codes)
     blockers.extend(last_cycle.value_port.authority_blockers)
     return SearchTerminalState(
@@ -4587,15 +4642,43 @@ def _grounding_unavailable(
     candidate_id: str,
     *,
     issue_codes: Sequence[str],
+    candidate_content_hash: str | None = None,
+    design_problem_ref: str | None = None,
+    authority_level: str | None = None,
 ) -> CandidateGroundingObservation:
+    normalized_issues = tuple(str(item) for item in issue_codes if str(item))
+    report_ref = gy_content_hash(
+        {
+            "candidate_id": candidate_id,
+            "issue_codes": normalized_issues,
+            "source": "grounding_unavailable",
+        }
+    )
+    acquisition_requirement = None
+    if (
+        candidate_content_hash is not None
+        and design_problem_ref is not None
+        and authority_level is not None
+    ):
+        acquisition_requirement = grounding_coverage_requirement_gap(
+            candidate_id=candidate_id,
+            candidate_content_hash=candidate_content_hash,
+            design_problem_ref=design_problem_ref,
+            issue_codes=normalized_issues,
+            evidence_refs=(),
+            authority_level=authority_level,
+            grounding_report_ref=report_ref,
+        )
     return CandidateGroundingObservation(
         candidate_id=candidate_id,
         status="grounding_unavailable",
         grounding_score=0.0,
-        issue_codes=tuple(str(item) for item in issue_codes if str(item)),
+        issue_codes=normalized_issues,
         evidence_refs=(),
         current_valid=False,
+        report_ref=report_ref,
         grounding_source="grounding_unavailable",
+        acquisition_requirement=acquisition_requirement,
     )
 
 
@@ -4736,6 +4819,8 @@ def _select_terminal_kind(
     value_port: ValuePortObservation,
 ) -> str:
     del proxy_score
+    if grounding.acquisition_requirement is not None:
+        return SearchTerminalKind.ACQUISITION_REQUIRED.value
     if any(str(code).startswith("acquire_data:") for code in grounding.issue_codes):
         return SearchTerminalKind.ACQUISITION_REQUIRED.value
     if grounding.status == "grounding_unavailable":
@@ -4854,6 +4939,7 @@ def _default_revision_request(
     candidate_id: str,
     terminal_kind: str,
     counterexample: CounterexampleRecord,
+    grounding: CandidateGroundingObservation | None = None,
     value_port: ValuePortObservation | None = None,
 ) -> DesignRevisionRequest:
     previous_grammar = tuple(
@@ -4876,7 +4962,11 @@ def _default_revision_request(
         new_grammar_elements=new_grammar_elements,
         cycle_index=cycle_index,
         acquisition_requirement=(
-            value_port.acquisition_requirement if value_port is not None else None
+            grounding.acquisition_requirement
+            if grounding is not None and grounding.acquisition_requirement is not None
+            else value_port.acquisition_requirement
+            if value_port is not None
+            else None
         ),
     )
     next_grammar = _dedupe((*previous_grammar, *new_grammar_elements))

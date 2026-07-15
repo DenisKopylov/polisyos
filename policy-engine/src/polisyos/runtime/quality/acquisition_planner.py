@@ -198,6 +198,10 @@ _VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID = (
 _VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF = (
     "runtime-requirement:value-input-world-knowledge:v1"
 )
+_GROUNDING_COVERAGE_SCHEMA_VERSION = (
+    "policyos.runtime.grounding_coverage_gap.v1"
+)
+_GROUNDING_COVERAGE_SOURCE = "cgf_grounding_coverage"
 
 
 class _ValueInputWorldKnowledgeAlternative(BaseModel):
@@ -308,6 +312,43 @@ class _L1VariableAvailabilityGapMetadata(BaseModel):
     authority_level: AuthorityLevel
     candidate_binding: _L1VariableCandidateBinding
     availability: _L1VariableAvailabilityEvidence
+
+
+class _GroundingCoverageCandidateBinding(BaseModel):
+    """Candidate and problem identity for one unresolved grounding demand."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class _GroundingCoverageGapMetadata(BaseModel):
+    """Strict CGF evidence carried into N7 for routing only."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.grounding_coverage_gap.v1"]
+    source: Literal["cgf_grounding_coverage"]
+    acquisition_family: Literal["COV"]
+    authority_purpose: Literal["routing_only"]
+    satisfaction_status: Literal["unsatisfied"]
+    authority_level: AuthorityLevel
+    candidate_binding: _GroundingCoverageCandidateBinding
+    issue_codes: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+    grounding_report_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _require_issue_denominator(self) -> _GroundingCoverageGapMetadata:
+        if not self.issue_codes or any(not item.strip() for item in self.issue_codes):
+            raise ValueError("grounding_coverage_issue_codes_missing")
+        if len(self.issue_codes) != len(set(self.issue_codes)):
+            raise ValueError("grounding_coverage_issue_codes_duplicate")
+        if len(self.evidence_refs) != len(set(self.evidence_refs)):
+            raise ValueError("grounding_coverage_evidence_refs_duplicate")
+        return self
 
 
 class AcquisitionGap(BaseModel):
@@ -515,6 +556,61 @@ class AcquisitionRequirementGap(BaseModel):
             or self.producer_output_ref != availability.coverage_ref
         ):
             raise ValueError("l1_variable_availability_gap_binding_mismatch")
+        object.__setattr__(self, "metadata", normalized.model_dump(mode="json"))
+        return self
+
+    @model_validator(mode="after")
+    def _validate_grounding_coverage_metadata(self) -> AcquisitionRequirementGap:
+        metadata = self.metadata
+        if not (
+            metadata.get("source") == _GROUNDING_COVERAGE_SOURCE
+            or metadata.get("schema_version") == _GROUNDING_COVERAGE_SCHEMA_VERSION
+            or self.requirement_gap_id.startswith(
+                "requirement-gap:data_requirement:grounding-coverage:"
+            )
+        ):
+            return self
+        normalized = _GroundingCoverageGapMetadata.model_validate(metadata)
+        binding = normalized.candidate_binding
+        identity = _stable_content_hash(
+            {
+                "candidate_binding": binding.model_dump(mode="json"),
+                "issue_codes": normalized.issue_codes,
+                "evidence_refs": normalized.evidence_refs,
+                "grounding_report_ref": normalized.grounding_report_ref,
+            }
+        ).removeprefix("sha256:")[:16]
+        compiled_ref = f"runtime-requirement:grounding-coverage:{identity}:v1"
+        expected_gate = (
+            MandatoryGateState.NONE
+            if normalized.authority_level is AuthorityLevel.RESEARCH
+            else MandatoryGateState.NON_OVERRIDABLE
+        )
+        if (
+            self.requirement_gap_id
+            != f"requirement-gap:data_requirement:grounding-coverage:{identity}"
+            or self.compiled_requirement_ref != compiled_ref
+            or self.requirement_schema_version != _GROUNDING_COVERAGE_SCHEMA_VERSION
+            or self.requirement_family is not RequirementGapFamily.DATA
+            or self.gap_type is not AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+            or self.claim_ref != f"grounding-claim:{binding.candidate_id}"
+            or self.scenario_requirement_refs
+            != (
+                binding.design_problem_ref,
+                normalized.grounding_report_ref,
+                *normalized.evidence_refs,
+            )
+            or self.missing_requirement_fields
+            != (f"grounding_relation_or_owner_lever:{binding.candidate_id}",)
+            or self.authority_level is not normalized.authority_level
+            or self.mandatory_gate_state is not expected_gate
+            or self.mandatory_gate_refs != (compiled_ref,)
+            or self.limitation_permitted
+            or self.decision_owner_ref
+            != "polisyos.runtime.quality.acquisition_planner"
+            or self.producer_output_ref != normalized.grounding_report_ref
+        ):
+            raise ValueError("grounding_coverage_gap_binding_mismatch")
         object.__setattr__(self, "metadata", normalized.model_dump(mode="json"))
         return self
 
@@ -2839,6 +2935,84 @@ def l1_variable_availability_requirement_gap(
     )
 
 
+def grounding_coverage_requirement_gap(
+    *,
+    candidate_id: str,
+    candidate_content_hash: str,
+    design_problem_ref: str,
+    issue_codes: Sequence[str],
+    evidence_refs: Sequence[str],
+    authority_level: AuthorityLevel | str,
+    grounding_report_ref: str,
+) -> AcquisitionRequirementGap:
+    """Route one unresolved CGF relation/lever demand through canonical N7."""
+
+    level = (
+        authority_level
+        if isinstance(authority_level, AuthorityLevel)
+        else AuthorityLevel(str(authority_level))
+    )
+    binding = _GroundingCoverageCandidateBinding(
+        candidate_id=candidate_id,
+        candidate_content_hash=candidate_content_hash,
+        design_problem_ref=design_problem_ref,
+    )
+    normalized_issues = tuple(dict.fromkeys(str(item) for item in issue_codes if str(item)))
+    normalized_evidence = tuple(
+        dict.fromkeys(str(item) for item in evidence_refs if str(item))
+    )
+    metadata = _GroundingCoverageGapMetadata(
+        schema_version=_GROUNDING_COVERAGE_SCHEMA_VERSION,
+        source=_GROUNDING_COVERAGE_SOURCE,
+        acquisition_family=AcquisitionFamily.COV.value,
+        authority_purpose="routing_only",
+        satisfaction_status="unsatisfied",
+        authority_level=level,
+        candidate_binding=binding,
+        issue_codes=normalized_issues,
+        evidence_refs=normalized_evidence,
+        grounding_report_ref=grounding_report_ref,
+    )
+    identity = _stable_content_hash(
+        {
+            "candidate_binding": binding.model_dump(mode="json"),
+            "issue_codes": normalized_issues,
+            "evidence_refs": normalized_evidence,
+            "grounding_report_ref": grounding_report_ref,
+        }
+    ).removeprefix("sha256:")[:16]
+    compiled_ref = f"runtime-requirement:grounding-coverage:{identity}:v1"
+    return AcquisitionRequirementGap(
+        requirement_gap_id=(
+            f"requirement-gap:data_requirement:grounding-coverage:{identity}"
+        ),
+        requirement_family=RequirementGapFamily.DATA,
+        compiled_requirement_ref=compiled_ref,
+        requirement_schema_version=_GROUNDING_COVERAGE_SCHEMA_VERSION,
+        gap_type=AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
+        claim_ref=f"grounding-claim:{candidate_id}",
+        scenario_requirement_refs=(
+            design_problem_ref,
+            grounding_report_ref,
+            *normalized_evidence,
+        ),
+        missing_requirement_fields=(
+            f"grounding_relation_or_owner_lever:{candidate_id}",
+        ),
+        authority_level=level,
+        mandatory_gate_state=(
+            MandatoryGateState.NONE
+            if level is AuthorityLevel.RESEARCH
+            else MandatoryGateState.NON_OVERRIDABLE
+        ),
+        mandatory_gate_refs=(compiled_ref,),
+        limitation_permitted=False,
+        decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
+        producer_output_ref=grounding_report_ref,
+        metadata=metadata.model_dump(mode="json"),
+    )
+
+
 def value_input_world_knowledge_requirement_gap(
     *,
     claim_ref: str,
@@ -4693,6 +4867,7 @@ __all__ = [
     "acquisition_request_from_world_acquirable",
     "acquisition_strangle_receipt",
     "data_need_spec_payload",
+    "grounding_coverage_requirement_gap",
     "l1_variable_availability_requirement_gap",
     "load_acquisition_planner_report",
     "persist_acquisition_planner_report",

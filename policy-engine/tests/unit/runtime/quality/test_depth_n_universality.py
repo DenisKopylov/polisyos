@@ -993,6 +993,64 @@ def _universality_contract_validator() -> Any:
     )
 
 
+def test_cycle_context_intake_is_world_and_owner_evidence_driven() -> None:
+    """Task 13 must not select fiscal/education evidence by role or label."""
+
+    validator = _universality_contract_validator()
+    n4_contract = import_module(
+        "tools.quality.validation.check_layer3_gy_design_generation_contract"
+    )
+    n10a = import_module(
+        "tools.quality.validation.check_layer3_gy_second_domain_pack"
+    )
+    fiscal = n4_contract._design_problem(
+        {
+            "design_problem_id": "world_context_fiscal",
+            "domain": "synonym economic-policy label",
+        }
+    )
+    fiscal_context = validator._cycle_context_for_problem(
+        REPO_ROOT,
+        problem=fiscal,
+    )
+
+    frozen = n10a._load_frozen_bundle(REPO_ROOT)
+    education = DesignProblem.model_validate(
+        frozen["smoke_problem"]["design_problem"]
+    ).model_copy(update={"domain": "learning systems synonym"})
+    education_context = validator._cycle_context_for_problem(
+        REPO_ROOT,
+        problem=education,
+    )
+    unseen = education.model_copy(
+        update={
+            "domain": "unseen energy system",
+            "jurisdiction_time": education.jurisdiction_time.model_copy(
+                update={"region": "unseen-energy-target"}
+            ),
+            "outcome_of_interest": education.outcome_of_interest.model_copy(
+                update={
+                    "target_variable": "heat_wave_environmental_equity_burden",
+                    "metric_id": "heat_wave_environmental_equity_burden",
+                }
+            ),
+        }
+    )
+    unseen_context = validator._cycle_context_for_problem(
+        REPO_ROOT,
+        problem=unseen,
+    )
+
+    assert fiscal_context is not None
+    assert fiscal_context.world_model_record.policy_domain == "fiscal_credit"
+    assert fiscal_context.intervention_substrate is not None
+    assert not fiscal_context.candidate_levers
+    assert education_context is not None
+    assert education_context.domain == "learning systems synonym"
+    assert education_context.candidate_levers
+    assert unseen_context is None
+
+
 def _run_universality_validator_with_pythonpath(
     pythonpath: Path,
     *args: str,

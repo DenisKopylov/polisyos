@@ -2327,6 +2327,19 @@ async def _domain_run_from_recording(
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
+        compile_and_run_recursive_generation_cycle,
+    )
+    from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCycleBudget,
+        build_default_recursive_generation_cycle_controller,
+    )
+    from polisyos.scientist.orchestration.engine.budget import (
+        BudgetLimit,
+        BudgetState,
+    )
+    from tools.quality.validation.check_layer3_gy_design_generation_contract import (
+        RecordedGenerationReplayClient,
     )
 
     stable = {
@@ -2357,17 +2370,67 @@ async def _domain_run_from_recording(
         cycle_substrate_context=context,
         recording=n4_recording,
     )
-    compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+    captured_compiled = CompiledRecursiveGenerationCycleRun.model_validate(
         recording.get("compiled_run")
     )
-    if compiled.design_problem != problem:
+    if captured_compiled.design_problem != problem:
         raise UniversalityContractError("domain_run_compiler_problem_drift")
-    if compiled.cycle_substrate_context_ref != observed_context_hash:
+    if captured_compiled.cycle_substrate_context_ref != observed_context_hash:
         raise UniversalityContractError("domain_run_compiled_context_drift")
-    if compiled.content_hash != recording.get("compiled_run_content_hash"):
+    if captured_compiled.content_hash != recording.get(
+        "compiled_run_content_hash"
+    ):
         raise UniversalityContractError("domain_run_compiled_receipt_drift")
-    if compiled.design_problem_ref != recording.get("design_problem_ref"):
+    if captured_compiled.design_problem_ref != recording.get(
+        "design_problem_ref"
+    ):
         raise UniversalityContractError("domain_run_design_problem_ref_drift")
+
+    compiler_replay = _ReplayGateway(compiler_recording)
+    span_replay = _ReplayGateway(
+        {
+            "model_ids": [str(compiler_recording.get("span_model_id") or "")],
+            "calls": _mappings(compiler_recording.get("span_calls")),
+        }
+    )
+    n4_port = N4GenerationPort(
+        model_id=str(n4_recording.get("model_id") or ""),
+        llm_client=RecordedGenerationReplayClient(dict(n4_recording)),
+        repo_root=repo_root,
+        cycle_substrate_context=context,
+    )
+    with _temporary_environment(_mapping(n4_recording.get("effective_environment"))):
+        compiled = await compile_and_run_recursive_generation_cycle(
+            raw_request=str(compiler_recording.get("raw_request") or ""),
+            context=_mapping(compiler_recording.get("context")),
+            model_name=str(compiler_recording.get("model_id") or ""),
+            compiler_gateway=compiler_replay,
+            controller=build_default_recursive_generation_cycle_controller(
+                repo_root=repo_root,
+                model_id=PROOF_MODEL_ID,
+            ),
+            span_support_client=span_replay,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            cycle_substrate_context=context,
+            root_n4_generation_port=n4_port,
+            repo_root=repo_root,
+        )
+    compiler_replay.assert_exhausted()
+    span_replay.assert_exhausted()
+    if compiled.design_problem != problem:
+        raise UniversalityContractError("domain_run_live_compiler_problem_drift")
+    if compiled.cycle_substrate_context_ref != observed_context_hash:
+        raise UniversalityContractError("domain_run_live_context_drift")
+    if compiled.design_problem_ref != recording.get("design_problem_ref"):
+        raise UniversalityContractError("domain_run_live_design_problem_ref_drift")
     _assert_n4_cycle_binding(compiled, organ_run)
     projection = _n4_owner_projection(organ_run)
     domain_run = _project_domain_run(

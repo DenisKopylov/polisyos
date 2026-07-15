@@ -31,6 +31,7 @@ if TYPE_CHECKING:
         _SpanSupportVerifierClient,
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.generation_cycle import N4GenerationPort
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleBudget,
         RecursiveGenerationCycleController,
@@ -89,6 +90,7 @@ async def compile_and_run_recursive_generation_cycle(
     recursive_budget: RecursiveCycleBudget,
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
+    root_n4_generation_port: N4GenerationPort | None = None,
     repo_root: Path | None = None,
 ) -> CompiledRecursiveGenerationCycleRun:
     """Compile arbitrary plain language and route it through the depth-N owner."""
@@ -141,6 +143,11 @@ async def compile_and_run_recursive_generation_cycle(
         cycle_substrate_contexts_by_node=(
             {root_ref: cycle_substrate_context}
             if cycle_substrate_context is not None
+            else None
+        ),
+        n4_generation_ports_by_node=(
+            {root_ref: root_n4_generation_port}
+            if root_n4_generation_port is not None
             else None
         ),
     )

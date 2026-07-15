@@ -2135,6 +2135,107 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
     assert captured["controller"]._leaf_model_id == validator.PROOF_MODEL_ID
 
 
+@pytest.mark.asyncio
+async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Cached proof replay runs N6/N5/N8/N9 instead of trusting the captured DTO."""
+
+    validator = _universality_contract_validator()
+    expected_problem_ref = gy_content_hash({"problem": "compiled"})
+    context_hash = "sha256:" + "1" * 64
+    captured_hash = "sha256:" + "2" * 64
+    live_hash = "sha256:" + "3" * 64
+    calls: dict[str, Any] = {}
+
+    class _Problem:
+        def model_dump(self, *, mode: str) -> dict[str, str]:
+            assert mode == "json"
+            return {"problem": "compiled"}
+
+    problem = _Problem()
+    context = SimpleNamespace(content_hash=context_hash)
+    captured_compiled = SimpleNamespace(
+        design_problem=problem,
+        cycle_substrate_context_ref=context_hash,
+        content_hash=captured_hash,
+        design_problem_ref=expected_problem_ref,
+    )
+    live_compiled = SimpleNamespace(
+        design_problem=problem,
+        cycle_substrate_context_ref=context_hash,
+        content_hash=live_hash,
+        design_problem_ref=expected_problem_ref,
+    )
+
+    async def _replay_compiler(recording: dict[str, Any]) -> _Problem:
+        del recording
+        return problem
+
+    async def _replay_n4(*args: Any, **kwargs: Any) -> object:
+        del args, kwargs
+        return object()
+
+    async def _compile_and_run(**kwargs: Any) -> object:
+        calls.update(kwargs)
+        return live_compiled
+
+    def _project(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        del args
+        assert kwargs["compiled"] is live_compiled
+        return {
+            "compiler_receipt": {"design_problem_ref": expected_problem_ref},
+        }
+
+    control = import_module(
+        "polisyos.runtime.http.services.control.generation_cycle"
+    )
+    compiled_type = control.CompiledRecursiveGenerationCycleRun
+    monkeypatch.setattr(
+        compiled_type,
+        "model_validate",
+        staticmethod(lambda payload: captured_compiled),
+    )
+    monkeypatch.setattr(
+        control,
+        "compile_and_run_recursive_generation_cycle",
+        _compile_and_run,
+    )
+    monkeypatch.setattr(validator, "_replay_compiler_recording", _replay_compiler)
+    monkeypatch.setattr(
+        validator,
+        "_cycle_context_for_problem",
+        lambda *args, **kwargs: context,
+    )
+    monkeypatch.setattr(validator, "_replay_n4_recording", _replay_n4)
+    monkeypatch.setattr(validator, "_n4_owner_projection", lambda value: {})
+    monkeypatch.setattr(validator, "_assert_n4_cycle_binding", lambda *args: None)
+    monkeypatch.setattr(validator, "_project_domain_run", _project)
+
+    recording: dict[str, Any] = {
+        "schema_version": "policyos.layer3.gy.n10.domain_run_recording.v1",
+        "role": "education",
+        "compiler_recording": {},
+        "n4_recording": {"model_id": validator.PROOF_MODEL_ID, "responses": []},
+        "cycle_substrate_context_content_hash": context_hash,
+        "compiled_run": {},
+        "compiled_run_content_hash": captured_hash,
+        "design_problem_ref": expected_problem_ref,
+    }
+    recording["recording_content_hash"] = validator._semantic_hash(recording)
+
+    await validator._domain_run_from_recording(
+        tmp_path,
+        role="education",
+        recording=recording,
+    )
+
+    assert calls["root_n4_generation_port"] is not None
+    assert calls["controller"] is not None
+    assert calls["cycle_substrate_context"] is context
+
+
 def test_universality_task13_payload_is_complete_and_fork_b_honest() -> None:
     """Freeze three real runs without reviving the hollow non-panel positive."""
 

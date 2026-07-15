@@ -24,6 +24,7 @@ from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleRun,
+    N4GenerationPort,
     generation_cycle_terminal_state,
     validate_generation_cycle_run,
 )
@@ -561,6 +562,7 @@ class RecursiveGenerationCycleController:
         cycle_substrate_contexts_by_node: Mapping[
             str, CycleSubstrateContext
         ] | None = None,
+        n4_generation_ports_by_node: Mapping[str, N4GenerationPort] | None = None,
     ) -> RecursiveGenerationCycleRun:
         """Run N6 at leaves and conservatively route terminals toward the root."""
 
@@ -607,6 +609,25 @@ class RecursiveGenerationCycleController:
         visit(recursive_graph.root_design_ref, 0)
         if set(depths) != set(node_refs):
             raise RecursiveGenerationCycleError("recursive_graph_unreachable_node")
+        leaf_refs = {
+            node_ref for node_ref, child_refs in children.items() if not child_refs
+        }
+        if n4_generation_ports_by_node is not None:
+            if self._cycle_controller_factory is not None:
+                raise RecursiveGenerationCycleError(
+                    "recursive_n4_port_and_controller_factory_conflict"
+                )
+            if set(n4_generation_ports_by_node) != leaf_refs:
+                raise RecursiveGenerationCycleError(
+                    "recursive_n4_port_denominator_mismatch"
+                )
+            if any(
+                not isinstance(port, N4GenerationPort)
+                for port in n4_generation_ports_by_node.values()
+            ):
+                raise RecursiveGenerationCycleError(
+                    "recursive_n4_port_not_canonical"
+                )
 
         node_results: dict[str, RecursiveCycleNode] = {}
 
@@ -628,6 +649,9 @@ class RecursiveGenerationCycleController:
                         )
                 if self._cycle_controller_factory is None:
                     controller = GenerationCycleController(
+                        generation_port=(n4_generation_ports_by_node or {}).get(
+                            node_ref
+                        ),
                         repo_root=self._repo_root,
                         model_id=self._leaf_model_id,
                         cycle_substrate_context=context,

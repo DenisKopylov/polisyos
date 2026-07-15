@@ -430,6 +430,18 @@ class GatewayUnavailableClient:
         raise RuntimeError("gateway down")
 
 
+class ClosableCatalogClient:
+    def __init__(self, *, model_ids: list[str]) -> None:
+        self._model_ids = list(model_ids)
+        self.closed = False
+
+    async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+        return list(self._model_ids)
+
+    async def aclose(self) -> None:
+        self.closed = True
+
+
 class RecordedClientWithCatalog(contract.RecordedGenerationReplayClient):
     def __init__(self, recording: dict[str, Any], *, model_ids: list[str]) -> None:
         super().__init__(recording)
@@ -2997,6 +3009,43 @@ async def test_unsupported_model_profile_rejects_before_generation() -> None:
     assert result.status == "preflight_rejected"
     assert result.preflight.status == "unsupported"
     assert result.candidates == ()
+
+
+@pytest.mark.asyncio
+async def test_generation_closes_factory_owned_gateway_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    recording = _recordings()[0]
+    client = ClosableCatalogClient(model_ids=list(SUPPORTED_GENERATION_MODEL_IDS))
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.llm.factory.create_traced_gateway_client",
+        lambda **_kwargs: client,
+    )
+
+    result = await dg.generate_design_candidate_bundle_under_a(
+        contract._design_problem(recording),
+        model_id="unsupported/factory-owned",
+        repo_root=REPO_ROOT,
+    )
+
+    assert result.result.status == "preflight_rejected"
+    assert client.closed is True
+
+
+@pytest.mark.asyncio
+async def test_generation_does_not_close_caller_owned_gateway_client() -> None:
+    recording = _recordings()[0]
+    client = ClosableCatalogClient(model_ids=list(SUPPORTED_GENERATION_MODEL_IDS))
+
+    result = await dg.generate_design_candidate_bundle_under_a(
+        contract._design_problem(recording),
+        model_id="unsupported/caller-owned",
+        llm_client=client,
+        repo_root=REPO_ROOT,
+    )
+
+    assert result.result.status == "preflight_rejected"
+    assert client.closed is False
 
 
 @pytest.mark.asyncio

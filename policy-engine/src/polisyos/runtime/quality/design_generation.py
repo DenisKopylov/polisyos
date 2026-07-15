@@ -867,18 +867,59 @@ async def generate_design_candidate_bundle_under_a(
     world_model_record_ref: str | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> DesignGenerationOrganRun:
-    """Run the canonical N4 organ path and expose real draft/bundle/critique artifacts."""
+    """Run the canonical N4 organ path and own any gateway client it creates."""
 
-    repo_root = (repo_root or Path.cwd()).resolve()
-    design_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+    owned_llm_client: object | None = None
     if llm_client is None:
         from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 
-        llm_client = create_traced_gateway_client(
+        owned_llm_client = create_traced_gateway_client(
             model_name=model_id,
             run_id="gy_n4_generation_under_a",
             model_variant_id=_model_variant_id(model_id),
         )
+        llm_client = owned_llm_client
+    try:
+        return await _generate_design_candidate_bundle_under_a(
+            design_problem,
+            model_id=model_id,
+            llm_client=llm_client,
+            repo_root=repo_root,
+            min_diverse_candidates=min_diverse_candidates,
+            data_context=data_context,
+            world_model_record_ref=world_model_record_ref,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    finally:
+        await _close_owned_generation_client(owned_llm_client)
+
+
+async def _close_owned_generation_client(llm_client: object | None) -> None:
+    if llm_client is None:
+        return
+    close = getattr(llm_client, "aclose", None)
+    if not callable(close):
+        return
+    result = close()
+    if inspect.isawaitable(result):
+        await result
+
+
+async def _generate_design_candidate_bundle_under_a(
+    design_problem: DesignProblem,
+    *,
+    model_id: str,
+    llm_client: object | None,
+    repo_root: Path | None,
+    min_diverse_candidates: int,
+    data_context: dict[str, Any] | None,
+    world_model_record_ref: str | None,
+    cycle_substrate_context: CycleSubstrateContext | None,
+) -> DesignGenerationOrganRun:
+    """Execute N4 with an already resolved caller- or owner-supplied client."""
+
+    repo_root = (repo_root or Path.cwd()).resolve()
+    design_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
     if llm_client is None:
         preflight = ModelProfilePreflight(
             status="gateway_unavailable",

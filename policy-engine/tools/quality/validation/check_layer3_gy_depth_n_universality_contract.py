@@ -3613,11 +3613,13 @@ def capture_and_write_payload(repo_root: Path) -> bytes:
 def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     """Corrupt one semantic field and require the hash verifier to reject it."""
 
-    lane = "cached" if (repo_root / OUTPUT_PATH).is_file() else "lane0"
-    payload = build_live_payload(repo_root, lane=lane)
-    payload["proof_status"] = (
-        "proof_runs_pending" if lane == "cached" else "complete"
-    )
+    frozen_path = repo_root / OUTPUT_PATH
+    if frozen_path.is_file():
+        payload = _read_json(frozen_path)
+        payload["proof_status"] = "proof_runs_pending"
+    else:
+        payload = build_live_payload(repo_root, lane="lane0")
+        payload["proof_status"] = "complete"
     report = validate_payload(payload)
     detected = any(
         issue.get("code") == "contract_content_hash_mismatch"

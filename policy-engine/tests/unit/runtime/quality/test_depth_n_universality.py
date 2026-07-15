@@ -2698,6 +2698,37 @@ def test_universality_contract_content_hash_rejects_corruption() -> None:
     )
 
 
+def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A static corruption probe must not enter live async owner lanes."""
+
+    validator = _universality_contract_validator()
+    output = tmp_path / validator.OUTPUT_PATH
+    payload = {
+        "schema_version": validator.SCHEMA_VERSION,
+        "rule_version": validator.RULE_VERSION,
+        "proof_status": "complete",
+        "domain_runs": {},
+    }
+    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+    output.parent.mkdir(parents=True)
+    output.write_text(json.dumps(payload), encoding="utf-8")
+    monkeypatch.setattr(
+        validator,
+        "build_live_payload",
+        lambda *args, **kwargs: pytest.fail("corrupt drift entered live rederive"),
+    )
+
+    report = validator.corrupt_field_drift_check(tmp_path)
+
+    assert report["status"] == "fail"
+    assert "contract_content_hash_mismatch" in {
+        issue["code"] for issue in report["issues"]
+    }
+
+
 def test_universality_write_is_byte_stable(tmp_path: Path) -> None:
     """Write the incomplete Task-12 payload only to an explicit noncanonical path."""
 

@@ -2013,13 +2013,23 @@ declarative expectation, while the observed terminal/evidence/grade values come 
 owner rederive. Recomputing an invalid route hash, relabeling an evidence class, fabricating an
 admissible terminal, or collapsing the denominator to one class is RED.
 
-- [ ] **Step 5: Write and immediately check the frozen artifact.**
+- [x] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --write --output-format json
 python3 tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --check
 git diff --exit-code -- architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json
 ```
+
+Measured freeze (2026-07-15): the single journal-first closeout was resumed from its admitted
+recordings and reran current downstream owners without another provider call. The frozen contract
+hash is `sha256:8d4b2f69f35d989206cc9304d6ccb76759800b386406654085a55fcb671cbb16`.
+First vertical, education, and unseen all end `acquisition_required` but carry independently
+recomputed evidence classes `owner_acquisition_route`, `estimand_binding_refusal`, and
+`owner_data_gap`. The immediate check and behavioral rederive pass; corrupt drift exits `1`; and a
+second canonical write preserves exact file SHA
+`801fd35570e7e62ad2b4f9bcad94c2300b73b0d2ef87acb03862eca3234f5b0b`. The artifact remains
+uncommitted until the full source-flip and blast-radius ordering gate completes.
 
 - [ ] **Step 6: Commit the proof artifact.**
 
@@ -2056,9 +2066,14 @@ python3 -m pytest tests/unit/runtime/quality/test_depth_n_universality.py tests/
 
 Reverify the three bridge closures already committed at the Stage-1 gate (`s0_to_n4_l6_bridge_missing`, `s0_to_n5_wmr_bridge_missing`, and `s0_to_l6_world_slot_bridge_missing`) without changing their historical closure receipts. Mark `n8_transport_tuple_hardcode` and `n6_single_terminal_validation_gap` closed with their later-stage function/receipt/hash evidence. Keep owner-registration derivation and raw journal persistence residual with their original capability labels and justification.
 
-- [ ] **Step 4: Implement and run every decisive source flip serially.**
+- [x] **Step 4: Implement and run every decisive source flip serially.**
 
 The N10 harness records `file:line -> RED -> restored` for every Section-8 class in the specification. It extends but does not alter the N5/N8/N9 restoring harnesses and the N6 mutation battery.
+
+Measured mutation gate (2026-07-15): all nine N10-local mutations and all five delegated canonical
+composition mutations returned RED with exact source restoration (`status=pass`, exit `0`,
+174.780917 seconds). Existing owner harnesses and the N6 battery remain separate closeout gates;
+the capstone commit is still fenced on that blast radius.
 
 - [ ] **Step 5: Commit reconciliation and source flips.**
 

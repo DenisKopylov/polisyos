@@ -61,6 +61,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Policy Design Case Layer 3 GY ValueOuterSet household bounds strangle receipt` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_value_outer_set_strangle_receipt.json` |
 | `Policy Design Case Layer 3 GY-N9 canonical promotion contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_promotion_contract.json` |
 | `Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_second_domain_census.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_pack.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json` |
+| `Policy Design Case Layer 3 GY-N10 depth-N universality contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json` |
 | `Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json` |
 | `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 
@@ -1688,6 +1689,30 @@ Canonical regeneration commands:
 
 ```bash
 python3 tools/quality/validation/check_layer3_gy_second_domain_pack.py --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY-N10 depth-N universality contract`
+
+- Family id: `policy-design-case-layer3-gy-depth-n-universality-contract`
+- Lifecycle: `generated_committed`
+- Source of truth: the canonical N4-N10 owner contracts, content-addressed proof recordings, architecture/policy_design_case/layer3_gy_second_domain_pack.json, architecture/policy_design_case/layer3_gy_composition_certificates.json, and tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py
+- Generator: GY-N10 canonical owner replay over three plain-language DesignProblems, depth-N composition, transport/value capability evidence, and honest typed terminal routes
+- Verifier: GY-N10 frozen checker, behavioral owner rederive, corrupt-field drift probe, restoring source-flip denominator, and byte-stable canonical writer
+- Promotion target: content-bound proof that the generation cycle is domain-generic and degrades honestly; never policy or promotion authority
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever the plain-language compiler contract, CycleSubstrateContext/world resolution, depth-N controller/composition receipts, N8 capability evidence, N7 route projection, or terminal-honesty rules change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+python3 tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --write --output-format json
 ```
 
 ## `Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census`

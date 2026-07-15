@@ -1815,6 +1815,37 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-gy-depth-n-universality-contract"
+label = "Policy Design Case Layer 3 GY-N10 depth-N universality contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "GY-N10 canonical owner replay over three plain-language DesignProblems, depth-N composition, transport/value capability evidence, and honest typed terminal routes"
+verifier = "GY-N10 frozen checker, behavioral owner rederive, corrupt-field drift probe, restoring source-flip denominator, and byte-stable canonical writer"
+promotion_target = "content-bound proof that the generation cycle is domain-generic and degrades honestly; never policy or promotion authority"
+stale_output_behavior = "fail"
+source_of_truth = "the canonical N4-N10 owner contracts, content-addressed proof recordings, architecture/policy_design_case/layer3_gy_second_domain_pack.json, architecture/policy_design_case/layer3_gy_composition_certificates.json, and tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json",
+]
+regenerate_commands = [
+  "python3 tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever the plain-language compiler contract, CycleSubstrateContext/world resolution, depth-N controller/composition receipts, N8 capability evidence, N7 route projection, or terminal-honesty rules change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py"
+check_cwd = "."
+check_command = [
+  "python3",
+  "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
 id = "policy-design-case-layer3-gy-n10-cg1-l2-relation-census"
 label = "Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census"
 owner = "team-runtime-quality"

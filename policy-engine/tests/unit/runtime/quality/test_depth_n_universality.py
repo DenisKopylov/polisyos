@@ -2979,6 +2979,20 @@ def test_universality_contract_content_hash_rejects_corruption() -> None:
     )
 
 
+def test_content_hash_exclusion_declaration_is_canonical() -> None:
+    """The artifact cannot redefine which operational fields escape identity."""
+
+    validator, payload = _complete_universality_payload()
+    payload["content_hash_excluded_fields"] = []
+    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+
+    report = validator.validate_payload(payload)
+
+    assert "content_hash_exclusion_declaration_invalid" in {
+        issue["code"] for issue in report["issues"]
+    }
+
+
 def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -3063,6 +3077,53 @@ def test_canonical_writer_preserves_operational_values_on_semantic_match(
     data = validator.write_payload(tmp_path, output)
 
     assert data == (validator._canonical_json(prior) + "\n").encode()
+
+
+def test_canonical_writer_does_not_carry_clocks_across_semantic_change(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A semantic delta takes the full rewrite branch and keeps current clocks."""
+
+    validator = _universality_contract_validator()
+    output = tmp_path / validator.OUTPUT_PATH
+    prior = {
+        "contract_content_hash": "sha256:" + "1" * 64,
+        "domain_runs": {
+            "first_vertical": {
+                "generated_at": "2026-07-15T00:00:00Z",
+                "terminal": "acquisition_required",
+            }
+        },
+    }
+    current = {
+        "contract_content_hash": "sha256:" + "2" * 64,
+        "domain_runs": {
+            "first_vertical": {
+                "generated_at": "2026-07-16T00:00:00Z",
+                "terminal": "grounded_abstention",
+            }
+        },
+    }
+    output.parent.mkdir(parents=True)
+    output.write_text(validator._canonical_json(prior) + "\n", encoding="utf-8")
+    monkeypatch.setattr(
+        validator,
+        "build_live_payload",
+        lambda *args, **kwargs: copy.deepcopy(current),
+    )
+    monkeypatch.setattr(
+        validator,
+        "validate_payload",
+        lambda payload: {"status": "pass", "issues": []},
+    )
+
+    data = validator.write_payload(tmp_path, output)
+    written = json.loads(data)
+
+    assert written["domain_runs"]["first_vertical"] == current["domain_runs"][
+        "first_vertical"
+    ]
 
 
 def test_rederive_audit_compares_semantics_without_clock_drift(

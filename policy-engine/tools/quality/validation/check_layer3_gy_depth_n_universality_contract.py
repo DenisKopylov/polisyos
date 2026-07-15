@@ -48,6 +48,12 @@ import argparse  # noqa: E402
 
 from pydantic import ValidationError  # noqa: E402
 
+from polisyos.pdc import (  # noqa: E402
+    GY_CONTENT_HASH_EXCLUDED_FIELDS,
+    gy_content_hash,
+    is_gy_content_hash_excluded_field,
+)
+
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n10.depth_n_universality.v1"
 RULE_VERSION = "policyos.layer3.gy.n10.depth_n_universality.v1"
 PRODUCER = (
@@ -232,9 +238,6 @@ _UPSTREAM_PATHS = (
     COMPOSITION_PATH,
     "architecture/generated_artifacts.toml",
 )
-_CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash", "runtime_metrics"}
-
-
 class UniversalityContractError(RuntimeError):
     """Raised when a capstone payload cannot be derived honestly."""
 
@@ -3362,7 +3365,7 @@ def _build_pending_payload(repo_root: Path, *, lane: str) -> dict[str, Any]:
             "artifact": "artifact_missing",
             "semantic_test": "semantic_test_missing",
         },
-        "content_hash_excluded_fields": ["runtime_metrics"],
+        "content_hash_excluded_fields": list(GY_CONTENT_HASH_EXCLUDED_FIELDS),
         "source_refs": stability["source_refs"],
         "provenance_stability": stability,
         "domain_runs": {},
@@ -3448,6 +3451,10 @@ def validate_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         issues.append({"code": "schema_version_mismatch"})
     if payload.get("rule_version") != RULE_VERSION:
         issues.append({"code": "rule_version_mismatch"})
+    if payload.get("content_hash_excluded_fields") != list(
+        GY_CONTENT_HASH_EXCLUDED_FIELDS
+    ):
+        issues.append({"code": "content_hash_exclusion_declaration_invalid"})
     if payload.get("contract_content_hash") != _contract_content_hash(payload):
         issues.append({"code": "contract_content_hash_mismatch"})
 
@@ -4048,10 +4055,10 @@ def _n10_source_flip_cases() -> tuple[_N10SourceFlipCase, ...]:
                 "        _preserve_operational_values(previous, payload)\n"
             ),
             new_source=(
-                "    if False and (\n"
+                "    if (\n"
                 "        previous is not None\n"
                 "        and previous.get(\"contract_content_hash\")\n"
-                "        == payload.get(\"contract_content_hash\")\n"
+                "        != payload.get(\"contract_content_hash\")\n"
                 "    ):\n"
                 "        _preserve_operational_values(previous, payload)\n"
             ),
@@ -4404,12 +4411,9 @@ def _joint_simulation_receipts(recursive_run: Mapping[str, Any]) -> list[dict[st
 
 
 def _contract_content_hash(payload: Mapping[str, Any]) -> str:
-    stable = {
-        key: value
-        for key, value in payload.items()
-        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
-    }
-    return _semantic_hash(stable)
+    stable = dict(payload)
+    stable.pop("contract_content_hash", None)
+    return gy_content_hash(stable)
 
 
 def _volatile_content_paths(value: object, path: str = "$") -> list[str]:
@@ -4417,10 +4421,9 @@ def _volatile_content_paths(value: object, path: str = "$") -> list[str]:
     if isinstance(value, Mapping):
         for key, item in value.items():
             child_path = f"{path}.{key}"
-            if path == "$" and key == "runtime_metrics":
-                continue
-            if _is_gy_volatile_key(str(key)):
+            if is_gy_content_hash_excluded_field(str(key)):
                 paths.append(child_path)
+                continue
             paths.extend(_volatile_content_paths(item, child_path))
     elif isinstance(value, list):
         for index, item in enumerate(value):
@@ -4433,23 +4436,13 @@ def _mutate_volatile_values(value: object, path: str = "$") -> None:
 
     if isinstance(value, dict):
         for key, item in value.items():
-            if path == "$" and key == "runtime_metrics":
-                continue
-            if _is_gy_volatile_key(str(key)):
+            if is_gy_content_hash_excluded_field(str(key)):
                 value[key] = "gy-n10-operational-clock-mutation"
             else:
                 _mutate_volatile_values(item, f"{path}.{key}")
     elif isinstance(value, list):
         for index, item in enumerate(value):
             _mutate_volatile_values(item, f"{path}[{index}]")
-
-
-def _is_gy_volatile_key(key: str) -> bool:
-    """Use the canonical GY hash owner's volatility vocabulary."""
-
-    from polisyos.pdc import strip_gy_volatile_fields
-
-    return strip_gy_volatile_fields({key: None}) == {}
 
 
 def _preserve_operational_values(previous: object, current: object, path: str = "$") -> None:
@@ -4460,9 +4453,7 @@ def _preserve_operational_values(previous: object, current: object, path: str = 
             if key not in previous:
                 continue
             previous_value = previous[key]
-            if (path == "$" and key == "runtime_metrics") or _is_gy_volatile_key(
-                str(key)
-            ):
+            if is_gy_content_hash_excluded_field(str(key)):
                 current[key] = copy.deepcopy(previous_value)
             else:
                 _preserve_operational_values(

@@ -18,6 +18,7 @@ from ._impl.compiler import (
 )
 from ._impl.gy_waist import (
     GY_ARTIFACT_ID_PATTERN,
+    GY_CONTENT_HASH_EXCLUDED_FIELDS,
     GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
     GY_WAIST_SCHEMA_VERSION,
     AgentDecisionRecord,
@@ -66,6 +67,7 @@ from ._impl.gy_waist import (
     WorkspaceContract,
     assert_ring2_verifier_provenance,
     gy_content_hash,
+    is_gy_content_hash_excluded_field,
     strip_gy_volatile_fields,
 )
 from ._impl.layer2_design_search import (
@@ -121,6 +123,7 @@ from ._impl.layer2_readiness import (
 
 __all__ = [
     "GY_ARTIFACT_ID_PATTERN",
+    "GY_CONTENT_HASH_EXCLUDED_FIELDS",
     "GY_PROMOTION_SEQUENCE_SCHEMA_VERSION",
     "GY_WAIST_SCHEMA_VERSION",
     "RUNTIME_POLICY_DESIGN_CASE_SCHEMA_VERSION",
@@ -221,6 +224,7 @@ __all__ = [
     "evaluate_s7_mandate_delegation_promotion_gate",
     "evaluate_s8_value_posture_promotion_gate",
     "gy_content_hash",
+    "is_gy_content_hash_excluded_field",
     "load_s2_search_ledger",
     "persist_runtime_policy_design_case_graph",
     "persist_s2_design_search_run",

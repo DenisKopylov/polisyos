@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 from enum import StrEnum
 from typing import Any, ClassVar, Literal
 
@@ -24,7 +23,7 @@ GY_WAIST_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_waist.v1"
 GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v1"
 GY_ARTIFACT_ID_PATTERN = r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
 
-_VOLATILE_KEYS = {
+GY_CONTENT_HASH_EXCLUDED_FIELDS = (
     "ms",
     "seconds",
     "secs",
@@ -46,8 +45,16 @@ _VOLATILE_KEYS = {
     "now",
     "run_at",
     "executed_at",
-}
-_VOLATILE_SUFFIX = re.compile(r".*(_ms|_secs?|_at|_ns|_us|_latency|_duration)$")
+    "runtime_metrics",
+    "*_ms",
+    "*_sec",
+    "*_secs",
+    "*_at",
+    "*_ns",
+    "*_us",
+    "*_latency",
+    "*_duration",
+)
 _VERIFIER_WRITERS = frozenset({"verifier", "governance", "a_side", "system_verifier"})
 _DECISION_GRADE_RANK: dict[str | None, int] = {
     None: 0,
@@ -58,9 +65,14 @@ _DECISION_GRADE_RANK: dict[str | None, int] = {
 }
 
 
-def _is_volatile(key: str) -> bool:
+def is_gy_content_hash_excluded_field(key: str) -> bool:
+    """Return whether ``key`` is excluded by the canonical GY hash owner."""
+
     normalized = key.lower()
-    return normalized in _VOLATILE_KEYS or bool(_VOLATILE_SUFFIX.fullmatch(normalized))
+    return any(
+        normalized.endswith(rule[1:]) if rule.startswith("*") else normalized == rule
+        for rule in GY_CONTENT_HASH_EXCLUDED_FIELDS
+    )
 
 
 def strip_gy_volatile_fields(value: object) -> object:
@@ -70,7 +82,7 @@ def strip_gy_volatile_fields(value: object) -> object:
         return {
             str(key): strip_gy_volatile_fields(item)
             for key, item in value.items()
-            if not _is_volatile(str(key))
+            if not is_gy_content_hash_excluded_field(str(key))
         }
     if isinstance(value, (list, tuple)):
         return [strip_gy_volatile_fields(item) for item in value]
@@ -1006,6 +1018,7 @@ class CompositionCertificate(GyWaistModel):
 
 __all__ = [
     "GY_ARTIFACT_ID_PATTERN",
+    "GY_CONTENT_HASH_EXCLUDED_FIELDS",
     "GY_WAIST_SCHEMA_VERSION",
     "AgentDecisionRecord",
     "ApplicabilityResult",
@@ -1045,6 +1058,7 @@ __all__ = [
     "WorkspaceContract",
     "assert_ring2_verifier_provenance",
     "gy_content_hash",
+    "is_gy_content_hash_excluded_field",
     "strip_gy_volatile_fields",
 ]
 

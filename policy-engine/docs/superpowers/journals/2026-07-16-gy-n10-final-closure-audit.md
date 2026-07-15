@@ -240,3 +240,23 @@ The honest no-pack replay now stops on the grounding-coverage acquisition route 
 previous L1-data-gap class: without an owner WMR, entering the later value-data owner would itself
 be fabricated authority. This still leaves the frozen minimum of two structurally distinct
 degradation classes once evidence classification is repaired; no terminal label is transplanted.
+
+## Repair checkpoint — C1 canonical volatile-field ownership
+
+RED: setting `content_hash_excluded_fields=[]`, recomputing the outer contract hash, and validating
+the frozen payload passed. The declaration was decorative.
+
+`polisyos.pdc` now exports one immutable GY excluded-field vocabulary and its predicate. Recursive
+hash stripping, the capstone declaration, contract hashing, volatile mutation, and writer carry all
+consume that owner. The writer source mutation now inverts the equal-hash comparison itself. A
+separate semantic-delta probe proves changed semantics take the full-rewrite branch and retain the
+new clocks.
+
+```text
+declaration RED before repair: exit 1, expected issue absent
+declaration/equal-hash/full-rewrite/nested-clock probes after repair:
+  4 passed (26.910 s)
+```
+
+The frozen capstone intentionally remains stale until the structural evidence and corrupt-drift
+repairs are complete; one writer rebaseline will update its canonical declaration and hashes.

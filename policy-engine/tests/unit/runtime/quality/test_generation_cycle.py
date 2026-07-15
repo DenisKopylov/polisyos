@@ -62,6 +62,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _apply_promotion_to_summaries,
     _build_boundary_world_model_record,
     _derive_fronts,
+    _disposition_candidates,
     _grounding_disposition_denominator,
     _joint_simulation_port_outcome,
     enforce_no_retry_without_new_grammar,
@@ -69,6 +70,7 @@ from polisyos.runtime.quality.generation_cycle import (
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
     SubstrateLayer,
@@ -803,6 +805,101 @@ def _lane0_cycle_context(
         substrate_input_content_hash=substrate_input_hash,
     )
     return problem, context
+
+
+def _candidate_unbound_refusal(
+    context: CycleSubstrateContext,
+) -> InterventionLeverRefusal:
+    """Bind one candidate-only lever refusal to the exact test context."""
+
+    candidate = context.candidate_levers[0]
+    payload = {
+        "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+        "status": "candidate_unbound",
+        "operator_kind": candidate.lever_id,
+        "instrument": candidate.instrument,
+        "lever_id": candidate.lever_id,
+        "reason_code": "knob_operator_unresolved",
+        "candidate_entry_content_hash": candidate.entry_content_hash,
+        "selected_registry_entry_hash": candidate.selected_registry_entry_hash,
+        "substrate_input_content_hash": candidate.substrate_input_content_hash,
+        "context_binding_hash": candidate.context_binding_hash,
+        "substrate_registry_content_hash": context.substrate_registry_content_hash,
+        "world_model_record_content_hash": context.world_model_record_content_hash,
+        "source_refs": candidate.source_refs,
+    }
+    return InterventionLeverRefusal.model_validate(
+        {**payload, "content_hash": gy_content_hash(payload)}
+    )
+
+
+def test_disposition_projection_preserves_verified_candidate_unbound_resolution() -> None:
+    """N6 keeps owner-verified world identity without inventing an intervention atom."""
+
+    _problem_value, context = _lane0_cycle_context()
+    refusal = _candidate_unbound_refusal(context)
+    raw_candidate_hash = gy_content_hash({"candidate": "riparian-buffer"})
+    disposition = SimpleNamespace(
+        candidate_id=None,
+        proposal_id="candidate_unbound_riparian_buffer",
+        raw_candidate_hash=raw_candidate_hash,
+        disposition="unknown_blocked",
+        lever_resolution=refusal,
+    )
+
+    projected = _disposition_candidates(
+        SimpleNamespace(grounding_dispositions=(disposition,)),
+        existing_candidates=(),
+    )
+
+    assert len(projected) == 1
+    assert projected[0].lever_resolution == refusal
+    assert not hasattr(projected[0], "atom")
+
+
+def test_joint_port_uses_verified_candidate_unbound_resolution_for_context_wmr() -> None:
+    """N5 may carry the context WMR while the intervention remains explicitly unbound."""
+
+    problem, context = _lane0_cycle_context()
+    candidate = SimpleNamespace(
+        candidate_id="candidate_unbound_riparian_buffer",
+        status="candidate_unbound",
+        lever_resolution=_candidate_unbound_refusal(context),
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_pending_n5"
+    assert observation.world_model_record is context.world_model_record
+    assert observation.diagnostics["world_model_source"] == "cycle_substrate_context"
+    assert "world_identity_unresolved" not in observation.authority_blockers
+    assert not hasattr(candidate, "atom")
+
+
+def test_joint_port_rejects_candidate_unbound_resolution_from_another_context() -> None:
+    """A valid refusal from another problem cannot act as shaped world identity."""
+
+    problem, context = _lane0_cycle_context()
+    _other_problem, other_context = _lane0_cycle_context(
+        runtime_hints={"probe": "another-context"}
+    )
+    candidate = SimpleNamespace(
+        candidate_id="candidate_unbound_cross_context",
+        status="candidate_unbound",
+        lever_resolution=_candidate_unbound_refusal(other_context),
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+    assert observation.world_model_record is None
 
 
 @cache

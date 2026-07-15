@@ -24,6 +24,7 @@ from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
 )
 from polisyos.runtime.quality.intervention_substrate import (
+    InterventionLeverRefusal,
     InterventionSubstrateBundle,
     InterventionSubstrateError,
     verify_intervention_substrate_bundle_content_hash,
@@ -445,6 +446,82 @@ def resolve_cycle_substrate_world_identity(
     )
 
 
+def resolve_candidate_lever_world_identity(
+    context: CycleSubstrateContext,
+    *,
+    refusal: InterventionLeverRefusal,
+) -> CandidateLeverEvidence:
+    """Resolve one non-binding lever refusal against its exact cycle context.
+
+    This resolver carries world identity only. It never creates an intervention
+    atom or changes the refusal's ``candidate_unbound`` authority posture.
+
+    Args:
+        context: Content-bound substrate context for the active DesignProblem.
+        refusal: N4/L6 refusal whose hashes must resolve to one candidate lever.
+
+    Returns:
+        The exact candidate-lever evidence row bound by the refusal.
+
+    Raises:
+        WorldModelRecordError: If any refusal/context identity is unresolved.
+    """
+
+    verified = revalidate_cycle_substrate_context(context)
+    try:
+        resolved_refusal = InterventionLeverRefusal.model_validate(
+            refusal.model_dump(mode="python")
+        )
+    except (AttributeError, TypeError, ValidationError, ValueError) as exc:
+        raise WorldModelRecordError(
+            "world_identity_unresolved",
+            "candidate lever refusal is not owner-valid",
+        ) from exc
+    if resolved_refusal.status != "candidate_unbound":
+        raise WorldModelRecordError(
+            "world_identity_unresolved",
+            "candidate lever refusal is not candidate_unbound",
+        )
+    matches = tuple(
+        candidate
+        for candidate in verified.candidate_levers
+        if candidate.lever_id == resolved_refusal.lever_id
+        and candidate.instrument == resolved_refusal.instrument
+        and candidate.entry_content_hash
+        == resolved_refusal.candidate_entry_content_hash
+    )
+    if len(matches) != 1:
+        raise WorldModelRecordError(
+            "world_identity_unresolved",
+            "candidate lever refusal does not resolve exactly once",
+        )
+    candidate = matches[0]
+    observed = {
+        "context_binding_hash": resolved_refusal.context_binding_hash,
+        "substrate_input_content_hash": resolved_refusal.substrate_input_content_hash,
+        "substrate_registry_content_hash": resolved_refusal.substrate_registry_content_hash,
+        "world_model_record_content_hash": (
+            resolved_refusal.world_model_record_content_hash
+        ),
+        "selected_registry_entry_hash": resolved_refusal.selected_registry_entry_hash,
+        "source_refs": resolved_refusal.source_refs,
+    }
+    expected = {
+        "context_binding_hash": verified.context_binding_hash,
+        "substrate_input_content_hash": verified.substrate_input_content_hash,
+        "substrate_registry_content_hash": verified.substrate_registry_content_hash,
+        "world_model_record_content_hash": verified.world_model_record_content_hash,
+        "selected_registry_entry_hash": candidate.selected_registry_entry_hash,
+        "source_refs": candidate.source_refs,
+    }
+    if observed != expected:
+        raise WorldModelRecordError(
+            "world_identity_unresolved",
+            "candidate lever refusal is bound to another context",
+        )
+    return candidate
+
+
 def resolve_world_model_atom_identity(
     *,
     atom: InterventionAtomBinding,
@@ -508,6 +585,7 @@ __all__ = [
     "build_cycle_substrate_context",
     "cycle_substrate_context_binding_hash",
     "cycle_substrate_context_content_hash",
+    "resolve_candidate_lever_world_identity",
     "resolve_cycle_substrate_world_identity",
     "resolve_world_model_atom_identity",
     "revalidate_cycle_substrate_context",

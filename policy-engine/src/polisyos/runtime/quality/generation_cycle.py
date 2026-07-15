@@ -61,6 +61,7 @@ from polisyos.runtime.quality.acquisition_planner import (
 )
 from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
     JointSimulationRequest,
@@ -1162,6 +1163,7 @@ class JointSimulationPort:
         if self._cycle_substrate_context is None:
             raise WorldModelRecordError("cycle_substrate_context_missing")
         from polisyos.runtime.quality.cycle_substrate import (
+            resolve_candidate_lever_world_identity,
             resolve_cycle_substrate_world_identity,
             revalidate_cycle_substrate_context,
         )
@@ -1180,11 +1182,17 @@ class JointSimulationPort:
         record = self._cycle_substrate_context.world_model_record
         atom = _object_get(candidate, "atom")
         if atom is None:
-            raise WorldModelRecordError(
-                "world_identity_unresolved",
-                "candidate atom is absent",
+            if _object_get(candidate, "status") != "candidate_unbound":
+                raise WorldModelRecordError(
+                    "world_identity_unresolved",
+                    "candidate atom is absent",
+                )
+            resolve_candidate_lever_world_identity(
+                context,
+                refusal=_object_get(candidate, "lever_resolution"),
             )
-        resolve_cycle_substrate_world_identity(context, atom=atom)
+        else:
+            resolve_cycle_substrate_world_identity(context, atom=atom)
         self._assert_world_model_reference_bindings(
             candidate=candidate,
             problem=problem,
@@ -1843,6 +1851,7 @@ class _DispositionCandidate:
     content_hash: str
     proposal_id: str
     grounding_disposition: str
+    lever_resolution: InterventionLeverRefusal | None = None
     status: str = "candidate_unbound"
     generator_path: str = "n4_grounding_disposition"
 
@@ -4530,11 +4539,32 @@ def _disposition_candidates(
                 content_hash=raw_candidate_hash,
                 proposal_id=proposal_id,
                 grounding_disposition=disposition_kind,
+                lever_resolution=_verified_candidate_lever_refusal(
+                    disposition
+                ),
             )
         )
         existing_ids.add(candidate_id)
         existing_hashes.add(raw_candidate_hash)
     return tuple(projected)
+
+
+def _verified_candidate_lever_refusal(
+    disposition: object,
+) -> InterventionLeverRefusal | None:
+    """Return a strict content-bound L6 refusal or fail closed to no witness."""
+
+    raw = _object_get(disposition, "lever_resolution")
+    if raw is None:
+        return None
+    try:
+        return InterventionLeverRefusal.model_validate(
+            raw.model_dump(mode="python")
+            if hasattr(raw, "model_dump")
+            else raw
+        )
+    except (AttributeError, TypeError, ValueError):
+        return None
 
 
 def _grounding_status_and_score(

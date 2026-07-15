@@ -1945,6 +1945,19 @@ serialized downstream run after checking only its content hash and N4 candidate 
 cannot prove a downstream repair. The validator is not loosened and no second capture is spent to
 hunt for a favorable outcome.
 
+Measured owner-repair disposition (2026-07-15): the authorized non-binding identity bridge,
+behavioral downstream replay, and N4-owned client lifecycle are implemented RED-first. Education
+now reruns through N5/N8 to a genuine advisor-selected
+`bayesian.gp.gp_regression@1.0.0 -> method_estimand_binding_mismatch` receipt while retaining no atom
+and no promotion authority. The unseen run reaches the real
+`acquire_data:value_panel_data_missing` requirement. The cold first-vertical candidate still has
+neither an atom nor a content-bound non-binding lever resolution, so it remains
+`world_identity_unresolved -> value_world_model_record_unwired` and does not enter N7. The exact
+Stage-4 predicate therefore remains red. Step 5 stays fenced; provenance receipts are not
+rebaselined and no capstone artifact is written. A new capture, cross-candidate receipt transplant,
+invented atom, weakened terminal expectation, or acquisition-precedence redesign is not authorized
+by this repair and would violate P32/Rule 5.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

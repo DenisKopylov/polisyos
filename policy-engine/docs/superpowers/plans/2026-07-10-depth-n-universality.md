@@ -2000,6 +2000,19 @@ hint containing owner FQNs, an invented atom, or a transplanted Stage-2 receipt.
 After the repair is committed, rerun provenance in canonical order
 `owner source -> census/N4 -> N8 -> N10a -> composition`, then resume the fenced Task-13 writer.
 
+Measured Class-2 closeout disposition (2026-07-15): the provenance-stable, zero-provider replay ran
+all three recordings through current owners and refused only the transplanted Stage-2 assertion
+`first_vertical_honest_degradation_missing`. The cold first vertical honestly ends
+`acquisition_required` on a content-bound grounding-coverage requirement with the real N7 planner
+report; it does not reproduce Stage 2's different candidate-specific owner-data gap. The Stage-4
+terminal law is therefore the plan-true universality predicate authorized after the differential:
+all three roles must emit a content-bound typed degradation with either a recomputed N7 route or a
+typed fail-closed terminal, and the measured denominator must contain at least two distinct
+degradation classes. Exact per-role terminal pins are forbidden. The frozen artifact carries this
+declarative expectation, while the observed terminal/evidence/grade values come only from the live
+owner rederive. Recomputing an invalid route hash, relabeling an evidence class, fabricating an
+admissible terminal, or collapsing the denominator to one class is RED.
+
 - [ ] **Step 5: Write and immediately check the frozen artifact.**
 
 ```bash

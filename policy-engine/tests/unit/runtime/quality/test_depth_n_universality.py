@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 import os
 import subprocess
@@ -2430,8 +2431,8 @@ def test_three_runs_are_compiled_from_exact_plain_language_by_canonical_owner() 
         assert receipt["recording_content_hash"].startswith("sha256:")
 
 
-def test_first_vertical_run_reaches_owner_data_gap_and_n7_route() -> None:
-    """Require the first vertical's real Fork-B degradation, not a fabricated value pass."""
+def test_first_vertical_run_reaches_measured_grounding_gap_and_n7_route() -> None:
+    """Record the cold run's real grounding gap rather than transplanting Stage 2."""
 
     _, payload = _complete_universality_payload()
     run = payload["domain_runs"]["first_vertical"]
@@ -2442,15 +2443,155 @@ def test_first_vertical_run_reaches_owner_data_gap_and_n7_route() -> None:
     assert stages["simulation"]["attempted"] is True
     assert stages["value"]["attempted"] is True
     assert stages["value"]["status"] == "value_blocked"
-    assert "acquire_data:value_panel_data_missing" in stages["value"][
-        "authority_blockers"
-    ]
     assert stages["acquisition"]["attempted"] is True
     assert stages["acquisition"]["route_kind"] == "n7_requirement_gap"
+    assert stages["acquisition"]["planner_report_content_hash"].startswith(
+        "sha256:"
+    )
     assert run["promotion_reached"] is False
-    assert run["terminal_distribution"]["terminal_kind"]
-    assert run["terminal_distribution"]["evidence_kind"] == "owner_data_gap"
+    assert run["terminal_distribution"]["terminal_kind"] == "acquisition_required"
+    assert run["terminal_distribution"]["evidence_kind"] == "owner_acquisition_route"
     assert run["terminal_distribution"]["decision_grade"] == "blocked"
+
+
+def test_universality_terminal_gate_measures_routes_and_rejects_relabeling() -> None:
+    """Accept distinct honest routes while rejecting fake hashes and label transplants."""
+
+    validator = _universality_contract_validator()
+    planner_report = {
+        "schema_version": "policyos.runtime.acquisition_planner.v1",
+        "status": "pass",
+        "summary": {"acquire": 1},
+    }
+    first = {
+        "terminal": {
+            "kind": "acquisition_required",
+            "reason": "Canonical owner routed an unresolved grounding requirement.",
+            "blocking_obligations": ["grounding_relation_or_owner_lever"],
+            "data_need_spec": {
+                "metadata": {"source": "cgf_grounding_coverage"}
+            },
+            "costed_plan": {"canonical_planner_report": planner_report},
+        },
+        "stage_trace": {
+            "value": {
+                "status": "value_blocked",
+                "authority_blockers": ["value_world_model_record_unwired"],
+            },
+            "acquisition": {
+                "attempted": True,
+                "route_kind": "n7_requirement_gap",
+                "planner_report_content_hash": gy_content_hash(planner_report),
+            },
+        },
+        "terminal_distribution": {
+            "terminal_kind": "acquisition_required",
+            "evidence_kind": "owner_acquisition_route",
+            "decision_grade": "blocked",
+            "count": 1,
+        },
+        "promotion_reached": False,
+    }
+    education = {
+        "terminal": {
+            "kind": "search_ceiling_repair_required",
+            "reason": "Canonical owner refused the unwritable estimand.",
+            "blocking_obligations": ["method_estimand_binding_mismatch"],
+        },
+        "stage_trace": {
+            "value": {
+                "status": "value_blocked",
+                "authority_blockers": ["method_estimand_binding_mismatch"],
+            },
+            "acquisition": {"attempted": False, "route_kind": None},
+        },
+        "terminal_distribution": {
+            "terminal_kind": "search_ceiling_repair_required",
+            "evidence_kind": "estimand_binding_refusal",
+            "decision_grade": "blocked",
+            "count": 1,
+        },
+        "promotion_reached": False,
+    }
+    unseen = {
+        "terminal": {
+            "kind": "search_ceiling_repair_required",
+            "reason": "Canonical owner found no observations.",
+            "blocking_obligations": ["acquire_data:value_panel_data_missing"],
+        },
+        "stage_trace": {
+            "value": {
+                "status": "value_blocked",
+                "authority_blockers": ["acquire_data:value_panel_data_missing"],
+            },
+            "acquisition": {"attempted": False, "route_kind": None},
+        },
+        "terminal_distribution": {
+            "terminal_kind": "search_ceiling_repair_required",
+            "evidence_kind": "owner_data_gap",
+            "decision_grade": "blocked",
+            "count": 1,
+        },
+        "promotion_reached": False,
+    }
+    domain_runs = {
+        "first_vertical": first,
+        "education": education,
+        "unseen": unseen,
+    }
+
+    assert validator._domain_terminal_honesty_issues(
+        domain_runs,
+        expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
+    ) == []
+
+    fabricated_route = copy.deepcopy(domain_runs)
+    fabricated_route["first_vertical"]["stage_trace"]["acquisition"][
+        "planner_report_content_hash"
+    ] = "sha256:" + "0" * 64
+    assert "domain_acquisition_route_unverified" in {
+        issue["code"]
+        for issue in validator._domain_terminal_honesty_issues(
+            fabricated_route,
+            expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
+        )
+    }
+
+    relabeled = copy.deepcopy(domain_runs)
+    relabeled["first_vertical"]["terminal_distribution"][
+        "evidence_kind"
+    ] = "owner_data_gap"
+    assert "domain_degradation_class_mismatch" in {
+        issue["code"]
+        for issue in validator._domain_terminal_honesty_issues(
+            relabeled,
+            expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
+        )
+    }
+
+    fabricated_terminal = copy.deepcopy(domain_runs)
+    fabricated_terminal["first_vertical"]["terminal"]["kind"] = (
+        "grounded_admissible"
+    )
+    fabricated_terminal["first_vertical"]["terminal_distribution"][
+        "terminal_kind"
+    ] = "grounded_admissible"
+    assert "domain_terminal_not_honest_degradation" in {
+        issue["code"]
+        for issue in validator._domain_terminal_honesty_issues(
+            fabricated_terminal,
+            expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
+        )
+    }
+
+    monoculture = {role: copy.deepcopy(first) for role in domain_runs}
+    assert "domain_degradation_class_denominator_missing" in {
+        issue["code"]
+        for issue in validator._domain_terminal_honesty_issues(
+            monoculture,
+            expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
+        )
+    }
 
 
 def test_education_run_uses_pack_levers_and_refuses_unwritable_estimand() -> None:

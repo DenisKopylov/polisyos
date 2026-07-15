@@ -180,6 +180,13 @@ PLAIN_LANGUAGE_PROOF_REQUESTS = {
         "heat waves without shifting costs onto low-income renters."
     ),
 }
+UNIVERSALITY_TERMINAL_EXPECTATION = {
+    "required_domain_roles": list(PLAIN_LANGUAGE_PROOF_REQUESTS),
+    "terminal_policy": "typed_honest_terminal_with_owner_route",
+    "minimum_distinct_degradation_classes": 2,
+    "acquisition_route_kind": "n7_requirement_gap",
+    "exact_terminal_pins": False,
+}
 _PROOF_CAPTURE_JOURNAL_DIR = Path(".tmp/gy-n10-stage4-proof")
 _PROOF_COMPILER_CAPTURE_ENV = {
     "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "600",
@@ -2781,6 +2788,8 @@ def _domain_evidence_kind(
         return "owner_data_gap"
     if "method_estimand_binding_mismatch" in blockers:
         return "estimand_binding_refusal"
+    if terminal_kind == "acquisition_required":
+        return "owner_acquisition_route"
     if role == "unseen":
         return "unseen_domain_typed_degradation"
     if value_status == "value_ready":
@@ -3114,6 +3123,9 @@ def _build_pending_payload(repo_root: Path, *, lane: str) -> dict[str, Any]:
         "rule_version": RULE_VERSION,
         "producer": PRODUCER,
         "proof_status": "proof_runs_pending",
+        "universality_terminal_expectation": copy.deepcopy(
+            UNIVERSALITY_TERMINAL_EXPECTATION
+        ),
         "capability_reality": {
             "producer": "producer_missing",
             "artifact": "artifact_missing",
@@ -3338,18 +3350,14 @@ def _completed_domain_run_issues(
         ):
             issues.append({"code": "domain_terminal_distribution_invalid", "role": role})
 
-    first = _mapping(domain_runs.get("first_vertical"))
-    first_stages = _mapping(first.get("stage_trace"))
-    first_value = _mapping(first_stages.get("value"))
-    first_acquisition = _mapping(first_stages.get("acquisition"))
-    if (
-        first_value.get("status") != "value_blocked"
-        or "acquire_data:value_panel_data_missing"
-        not in _strings(first_value.get("authority_blockers"))
-        or first_acquisition.get("attempted") is not True
-        or first_acquisition.get("route_kind") != "n7_requirement_gap"
-    ):
-        issues.append({"code": "first_vertical_honest_degradation_missing"})
+    issues.extend(
+        _domain_terminal_honesty_issues(
+            domain_runs,
+            expectation=_mapping(
+                payload.get("universality_terminal_expectation")
+            ),
+        )
+    )
 
     education = _mapping(domain_runs.get("education"))
     education_stages = _mapping(education.get("stage_trace"))
@@ -3400,6 +3408,122 @@ def _completed_domain_run_issues(
             {
                 "code": "unseen_domain_vertical_contamination",
                 "tokens": contaminants,
+            }
+        )
+    return issues
+
+
+def _domain_terminal_honesty_issues(
+    domain_runs: Mapping[str, Any],
+    *,
+    expectation: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Recompute honest terminal classes and verify their real next-step routes."""
+
+    issues: list[dict[str, Any]] = []
+    if dict(expectation) != UNIVERSALITY_TERMINAL_EXPECTATION:
+        issues.append({"code": "domain_terminal_expectation_drift"})
+    required_roles = _strings(
+        UNIVERSALITY_TERMINAL_EXPECTATION["required_domain_roles"]
+    )
+    if set(domain_runs) != set(required_roles):
+        issues.append({"code": "domain_terminal_role_denominator_missing"})
+
+    typed_degradation_terminals = {
+        "a_spec_gap",
+        "tool_failure",
+        "composition_invalid",
+        "recursive_blocked",
+        "search_ceiling_repair_required",
+        "human_decision_required",
+        "acquisition_required",
+        "budget_exhausted",
+        "grounded_abstention",
+    }
+    measured_classes: set[str] = set()
+    for role in required_roles:
+        run = _mapping(domain_runs.get(role))
+        if not run:
+            continue
+        terminal = _mapping(run.get("terminal"))
+        terminal_kind = str(terminal.get("kind") or "")
+        stages = _mapping(run.get("stage_trace"))
+        value = _mapping(stages.get("value"))
+        acquisition = _mapping(stages.get("acquisition"))
+        distribution = _mapping(run.get("terminal_distribution"))
+        expected_class = _domain_evidence_kind(
+            role=role,
+            value_status=str(value.get("status") or ""),
+            blockers=tuple(_strings(value.get("authority_blockers"))),
+            terminal_kind=terminal_kind,
+        )
+        measured_classes.add(expected_class)
+        if distribution.get("evidence_kind") != expected_class:
+            issues.append(
+                {
+                    "code": "domain_degradation_class_mismatch",
+                    "role": role,
+                    "expected": expected_class,
+                    "observed": distribution.get("evidence_kind"),
+                }
+            )
+        if terminal_kind not in typed_degradation_terminals:
+            issues.append(
+                {
+                    "code": "domain_terminal_not_honest_degradation",
+                    "role": role,
+                    "terminal_kind": terminal_kind,
+                }
+            )
+        if run.get("promotion_reached") is not False:
+            issues.append(
+                {"code": "domain_terminal_authority_incoherent", "role": role}
+            )
+
+        if terminal_kind == "acquisition_required":
+            costed_plan = _mapping(terminal.get("costed_plan"))
+            planner_report = _mapping(
+                costed_plan.get("canonical_planner_report")
+            )
+            stable_report = {
+                key: value
+                for key, value in planner_report.items()
+                if key != "generated_at"
+            }
+            route_verified = (
+                acquisition.get("attempted") is True
+                and acquisition.get("route_kind")
+                == UNIVERSALITY_TERMINAL_EXPECTATION["acquisition_route_kind"]
+                and planner_report.get("status") == "pass"
+                and acquisition.get("planner_report_content_hash")
+                == _semantic_hash(stable_report)
+            )
+            if not route_verified:
+                issues.append(
+                    {"code": "domain_acquisition_route_unverified", "role": role}
+                )
+        elif (
+            not str(terminal.get("reason") or "").strip()
+            or (
+                not _strings(terminal.get("blocking_obligations"))
+                and terminal.get("budget_kind") is None
+            )
+        ):
+            issues.append(
+                {"code": "domain_typed_terminal_route_missing", "role": role}
+            )
+
+    minimum_classes = int(
+        UNIVERSALITY_TERMINAL_EXPECTATION[
+            "minimum_distinct_degradation_classes"
+        ]
+    )
+    if len(measured_classes) < minimum_classes:
+        issues.append(
+            {
+                "code": "domain_degradation_class_denominator_missing",
+                "observed_classes": sorted(measured_classes),
+                "minimum": minimum_classes,
             }
         )
     return issues

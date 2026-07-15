@@ -45,6 +45,8 @@ except Exception as exc:  # pragma: no cover - exercised by a fresh child proces
 
 import argparse  # noqa: E402
 
+from pydantic import ValidationError  # noqa: E402
+
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n10.depth_n_universality.v1"
 RULE_VERSION = "policyos.layer3.gy.n10.depth_n_universality.v1"
 PRODUCER = (
@@ -2382,6 +2384,32 @@ async def _domain_run_from_recording(
         "cycle_substrate_context_content_hash"
     ):
         raise UniversalityContractError("domain_run_context_binding_drift")
+    try:
+        captured_compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            recording.get("compiled_run")
+        )
+    except ValidationError as exc:
+        if not _is_historical_recursive_hash_drift(exc):
+            raise
+        _verify_historical_compiled_envelope(
+            recording=recording,
+            problem=problem,
+            observed_context_hash=observed_context_hash,
+        )
+    else:
+        if captured_compiled.design_problem != problem:
+            raise UniversalityContractError("domain_run_compiler_problem_drift")
+        if captured_compiled.cycle_substrate_context_ref != observed_context_hash:
+            raise UniversalityContractError("domain_run_compiled_context_drift")
+        if captured_compiled.content_hash != recording.get(
+            "compiled_run_content_hash"
+        ):
+            raise UniversalityContractError("domain_run_compiled_receipt_drift")
+        if captured_compiled.design_problem_ref != recording.get(
+            "design_problem_ref"
+        ):
+            raise UniversalityContractError("domain_run_design_problem_ref_drift")
+
     n4_recording = _mapping(recording.get("n4_recording"))
     organ_run = await _replay_n4_recording(
         repo_root,
@@ -2389,21 +2417,6 @@ async def _domain_run_from_recording(
         cycle_substrate_context=context,
         recording=n4_recording,
     )
-    captured_compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-        recording.get("compiled_run")
-    )
-    if captured_compiled.design_problem != problem:
-        raise UniversalityContractError("domain_run_compiler_problem_drift")
-    if captured_compiled.cycle_substrate_context_ref != observed_context_hash:
-        raise UniversalityContractError("domain_run_compiled_context_drift")
-    if captured_compiled.content_hash != recording.get(
-        "compiled_run_content_hash"
-    ):
-        raise UniversalityContractError("domain_run_compiled_receipt_drift")
-    if captured_compiled.design_problem_ref != recording.get(
-        "design_problem_ref"
-    ):
-        raise UniversalityContractError("domain_run_design_problem_ref_drift")
 
     compiler_replay = _ReplayGateway(compiler_recording)
     span_replay = _ReplayGateway(
@@ -2466,6 +2479,84 @@ async def _domain_run_from_recording(
     if domain_run["compiler_receipt"]["design_problem_ref"] != expected_ref:
         raise UniversalityContractError("domain_run_compiler_receipt_drift")
     return domain_run
+
+
+def _is_historical_recursive_hash_drift(exc: ValidationError) -> bool:
+    """Return whether current validation found only the known historical hash drift."""
+
+    errors = exc.errors(
+        include_url=False,
+        include_context=False,
+        include_input=False,
+    )
+    return errors == [
+        {
+            "type": "value_error",
+            "loc": ("recursive_run",),
+            "msg": "Value error, recursive_generation_cycle_content_hash_mismatch",
+        }
+    ]
+
+
+def _verify_historical_compiled_envelope(
+    *,
+    recording: Mapping[str, Any],
+    problem: object,
+    observed_context_hash: object,
+) -> None:
+    """Verify a superseded compiled receipt before re-running current owners.
+
+    The captured DTO is historical provenance only. Its recorded hashes and
+    compiler/world bindings must still verify exactly; current authority comes
+    solely from the live N6-N9 rederive that follows this boundary.
+    """
+
+    compiled_payload = _mapping(recording.get("compiled_run"))
+    recursive_payload = _mapping(compiled_payload.get("recursive_run"))
+    if not compiled_payload or not recursive_payload:
+        raise UniversalityContractError(
+            "domain_run_historical_compiled_receipt_missing"
+        )
+
+    recursive_stable = {
+        key: value
+        for key, value in recursive_payload.items()
+        if key not in {"content_hash", "leaf_nodes"}
+    }
+    if recursive_payload.get("content_hash") != _semantic_hash(recursive_stable):
+        raise UniversalityContractError(
+            "domain_run_historical_recursive_receipt_tampered"
+        )
+
+    compiled_stable = {
+        key: value
+        for key, value in compiled_payload.items()
+        if key != "content_hash"
+    }
+    compiled_recursive = _mapping(compiled_stable.get("recursive_run"))
+    compiled_recursive.pop("leaf_nodes", None)
+    compiled_stable["recursive_run"] = compiled_recursive
+    compiled_hash = compiled_payload.get("content_hash")
+    if compiled_hash != _semantic_hash(compiled_stable):
+        raise UniversalityContractError(
+            "domain_run_historical_compiled_receipt_tampered"
+        )
+    if compiled_hash != recording.get("compiled_run_content_hash"):
+        raise UniversalityContractError("domain_run_compiled_receipt_drift")
+
+    problem_payload = problem.model_dump(mode="json")
+    expected_problem_ref = _semantic_hash(problem_payload)
+    if compiled_payload.get("design_problem") != problem_payload:
+        raise UniversalityContractError("domain_run_compiler_problem_drift")
+    if (
+        compiled_payload.get("design_problem_ref") != expected_problem_ref
+        or recording.get("design_problem_ref") != expected_problem_ref
+        or recursive_payload.get("root_design_problem_ref")
+        != expected_problem_ref
+    ):
+        raise UniversalityContractError("domain_run_design_problem_ref_drift")
+    if compiled_payload.get("cycle_substrate_context_ref") != observed_context_hash:
+        raise UniversalityContractError("domain_run_compiled_context_drift")
 
 
 def _project_domain_run(

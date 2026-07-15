@@ -15,6 +15,7 @@ from types import SimpleNamespace
 from typing import Any, cast
 
 import pytest
+from pydantic import ValidationError
 
 import tools.quality.validation.universality_preflight as universality_preflight_module
 from tools.quality.validation.universality_preflight import (
@@ -2193,17 +2194,25 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
     assert captured["controller"]._leaf_model_id == validator.PROOF_MODEL_ID
 
 
+@pytest.mark.parametrize(
+    ("validation_reason", "historical_rederive_allowed"),
+    [
+        ("recursive_generation_cycle_content_hash_mismatch", True),
+        ("recursive_run_graph_binding_mismatch", False),
+    ],
+)
 @pytest.mark.asyncio
 async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    validation_reason: str,
+    historical_rederive_allowed: bool,
 ) -> None:
     """Cached proof replay runs N6/N5/N8/N9 instead of trusting the captured DTO."""
 
     validator = _universality_contract_validator()
     expected_problem_ref = gy_content_hash({"problem": "compiled"})
     context_hash = "sha256:" + "1" * 64
-    captured_hash = "sha256:" + "2" * 64
     live_hash = "sha256:" + "3" * 64
     calls: dict[str, Any] = {}
 
@@ -2214,12 +2223,6 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
 
     problem = _Problem()
     context = SimpleNamespace(content_hash=context_hash)
-    captured_compiled = SimpleNamespace(
-        design_problem=problem,
-        cycle_substrate_context_ref=context_hash,
-        content_hash=captured_hash,
-        design_problem_ref=expected_problem_ref,
-    )
     live_compiled = SimpleNamespace(
         design_problem=problem,
         cycle_substrate_context_ref=context_hash,
@@ -2250,10 +2253,38 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         "polisyos.runtime.http.services.control.generation_cycle"
     )
     compiled_type = control.CompiledRecursiveGenerationCycleRun
+
+    recursive_payload: dict[str, Any] = {
+        "root_design_problem_ref": expected_problem_ref,
+        "nodes": [],
+    }
+    recursive_payload["content_hash"] = gy_content_hash(recursive_payload)
+    captured_payload: dict[str, Any] = {
+        "schema_version": "policyos.test.compiled.v1",
+        "design_problem_ref": expected_problem_ref,
+        "design_problem": problem.model_dump(mode="json"),
+        "cycle_substrate_context_ref": context_hash,
+        "recursive_run": recursive_payload,
+    }
+    captured_payload["content_hash"] = gy_content_hash(captured_payload)
     monkeypatch.setattr(
         compiled_type,
         "model_validate",
-        staticmethod(lambda payload: captured_compiled),
+        staticmethod(
+            lambda payload: (_ for _ in ()).throw(
+                ValidationError.from_exception_data(
+                    "CompiledRecursiveGenerationCycleRun",
+                    [
+                        {
+                            "type": "value_error",
+                            "loc": ("recursive_run",),
+                            "input": payload.get("recursive_run"),
+                            "ctx": {"error": ValueError(validation_reason)},
+                        }
+                    ],
+                )
+            )
+        ),
     )
     monkeypatch.setattr(
         control,
@@ -2277,11 +2308,21 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         "compiler_recording": {},
         "n4_recording": {"model_id": validator.PROOF_MODEL_ID, "responses": []},
         "cycle_substrate_context_content_hash": context_hash,
-        "compiled_run": {},
-        "compiled_run_content_hash": captured_hash,
+        "compiled_run": captured_payload,
+        "compiled_run_content_hash": captured_payload["content_hash"],
         "design_problem_ref": expected_problem_ref,
     }
     recording["recording_content_hash"] = validator._semantic_hash(recording)
+
+    if not historical_rederive_allowed:
+        with pytest.raises(ValidationError, match=validation_reason):
+            await validator._domain_run_from_recording(
+                tmp_path,
+                role="education",
+                recording=recording,
+            )
+        assert calls == {}
+        return
 
     await validator._domain_run_from_recording(
         tmp_path,
@@ -2292,6 +2333,50 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
     assert calls["root_n4_generation_port"] is not None
     assert calls["controller"] is not None
     assert calls["cycle_substrate_context"] is context
+
+
+def test_historical_compiled_envelope_rejects_tampered_recursive_payload() -> None:
+    """A stale receipt may be replayed only after its recorded bytes verify exactly."""
+
+    validator = _universality_contract_validator()
+    problem_payload = {"problem": "compiled"}
+    problem_ref = gy_content_hash(problem_payload)
+    context_hash = "sha256:" + "1" * 64
+
+    class _Problem:
+        def model_dump(self, *, mode: str) -> dict[str, str]:
+            assert mode == "json"
+            return problem_payload
+
+    recursive_payload: dict[str, Any] = {
+        "root_design_problem_ref": problem_ref,
+        "nodes": [],
+    }
+    recursive_payload["content_hash"] = gy_content_hash(recursive_payload)
+    compiled_payload: dict[str, Any] = {
+        "schema_version": "policyos.test.compiled.v1",
+        "design_problem_ref": problem_ref,
+        "design_problem": problem_payload,
+        "cycle_substrate_context_ref": context_hash,
+        "recursive_run": recursive_payload,
+    }
+    compiled_payload["content_hash"] = gy_content_hash(compiled_payload)
+    recording = {
+        "compiled_run": compiled_payload,
+        "compiled_run_content_hash": compiled_payload["content_hash"],
+        "design_problem_ref": problem_ref,
+    }
+    recursive_payload["nodes"].append({"forged": True})
+
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="domain_run_historical_recursive_receipt_tampered",
+    ):
+        validator._verify_historical_compiled_envelope(
+            recording=recording,
+            problem=_Problem(),
+            observed_context_hash=context_hash,
+        )
 
 
 def test_universality_task13_payload_is_complete_and_fork_b_honest() -> None:

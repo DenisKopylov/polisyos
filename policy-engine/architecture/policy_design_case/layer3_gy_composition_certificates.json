@@ -193,7 +193,7 @@
       "run_recursive_case"
     ],
     "production_default_routes": [
-      "src/polisyos/runtime/http/services/control/generation_cycle.py:124:call:build_default_recursive_generation_cycle_controller"
+      "src/polisyos/runtime/http/services/control/generation_cycle.py:126:call:build_default_recursive_generation_cycle_controller"
     ],
     "production_fixture_callers": [],
     "status": "strangled",
@@ -437,7 +437,7 @@
   "recursive_runs": [
     {
       "authority_scope": "contract_testing",
-      "content_hash": "sha256:de13437d23757800d65644841c11f1aaef9c2150dee7a686033e099b8aabe066",
+      "content_hash": "sha256:27b4c10f10d37353d59a889064fb0b6c0e1436d8be12c2f1ea1f26a51fac926f",
       "controller_ref": "polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController",
       "nodes": [
         {
@@ -1239,6 +1239,7 @@
                   "seed"
                 ],
                 "grounding": {
+                  "acquisition_requirement": null,
                   "adversarial_validation_ref": null,
                   "candidate_id": "candidate_lane0_depth_n",
                   "cgf_certificate_refs": [],
@@ -1683,6 +1684,7 @@
                   "seed"
                 ],
                 "grounding": {
+                  "acquisition_requirement": null,
                   "adversarial_validation_ref": null,
                   "candidate_id": "candidate_lane0_depth_n",
                   "cgf_certificate_refs": [],

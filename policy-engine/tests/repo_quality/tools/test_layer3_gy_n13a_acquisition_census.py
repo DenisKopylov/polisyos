@@ -9,7 +9,7 @@ import os
 from collections import Counter
 from importlib import import_module
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import duckdb
 import pytest
@@ -223,6 +223,7 @@ def test_census_boundary_models_are_strict() -> None:
         census.FetchPlanProjection,
         census.FetchPlanExecutionFence,
         census.FetchPlanGenerationProof,
+        census.ConnectorDryRunAttempt,
         census.ConnectorFamilyReceipt,
         census.FamilySamplingReceipt,
         census.ProbeCandidate,
@@ -452,17 +453,29 @@ def test_catalog_source_fails_closed_on_invalid_denominator_owner_rows(
     assert exc_info.value.code == expected_code
 
 
-def test_semantic_content_hash_excludes_only_declared_run_economics() -> None:
+def test_semantic_content_hash_recursively_excludes_declared_run_economics() -> None:
     census = _census()
     first = {
         "observed_at": "2026-07-16T10:00:00Z",
         "capture_wall_time_seconds": 12.0,
-        "evidence": {"status": "dead", "count": 3},
+        "evidence": {
+            "status": "dead",
+            "count": 3,
+            "observed_at": "2026-07-16T10:00:00Z",
+            "records": [{"attempt_wall_time_seconds": 4.0}],
+            "scorecards": [{"wall_time_seconds": 8.0}],
+        },
     }
     second = {
         "observed_at": "2026-07-16T11:00:00Z",
         "capture_wall_time_seconds": 42.0,
-        "evidence": {"status": "dead", "count": 3},
+        "evidence": {
+            "status": "dead",
+            "count": 3,
+            "observed_at": "2026-07-16T11:00:00Z",
+            "records": [{"attempt_wall_time_seconds": 14.0}],
+            "scorecards": [{"wall_time_seconds": 28.0}],
+        },
     }
 
     assert census.semantic_content_hash(first) == census.semantic_content_hash(second)
@@ -471,10 +484,10 @@ def test_semantic_content_hash_excludes_only_declared_run_economics() -> None:
     assert census.semantic_content_hash(first) != census.semantic_content_hash(second)
 
 
-def test_semantic_content_hash_keeps_nested_observation_time_decisive() -> None:
+def test_semantic_content_hash_keeps_nested_evidence_decisive() -> None:
     census = _census()
-    first = {"evidence": {"observed_at": "2026-07-16T10:00:00Z"}}
-    second = {"evidence": {"observed_at": "2026-07-16T11:00:00Z"}}
+    first = {"evidence": {"status": "dead"}}
+    second = {"evidence": {"status": "alive_conformant"}}
 
     assert census.semantic_content_hash(first) != census.semantic_content_hash(second)
 
@@ -487,6 +500,7 @@ def test_probe_request_carries_one_request_variable_with_a_one_call_budget() -> 
             timeout_seconds=5.0,
             max_response_bytes=1024,
             minimum_interval_seconds=0.1,
+            heartbeat_interval_seconds=1.0,
             call_budget=2,
         )
 
@@ -494,6 +508,7 @@ def test_probe_request_carries_one_request_variable_with_a_one_call_budget() -> 
         timeout_seconds=5.0,
         max_response_bytes=1024,
         minimum_interval_seconds=0.1,
+        heartbeat_interval_seconds=1.0,
         call_budget=1,
     )
     profile = census.SchemaProfileContract(
@@ -1827,6 +1842,10 @@ def test_real_catalog_owner_generates_fetch_plan_proofs_without_execution(
     assert plan.persist_payload is False
     assert proof.execution_fence.preview_calls == 0
     assert proof.execution_fence.execute_calls == 0
+    assert proof.execution_fence.forbidden_owners == (
+        "FetchExecutor.execute",
+        "FetchExecutor.preview",
+    )
     assert proof.execution_fence.catalog_content_before_sha256 == (
         proof.execution_fence.catalog_content_after_sha256
     )
@@ -1881,9 +1900,11 @@ def test_fetch_plan_sample_grows_from_a_new_owner_family_without_code_changes(
     )
 
 
+@pytest.mark.parametrize("entrypoint", ["execute", "preview"])
 def test_fetch_plan_execution_attempt_is_hard_red(
     catalog_path: Path,
     tmp_path: Path,
+    entrypoint: str,
 ) -> None:
     census = _census()
 
@@ -1892,7 +1913,7 @@ def test_fetch_plan_execution_attempt_is_hard_red(
             self.executor = executor
 
         def _resolve_via_catalog(self, _: list[Any]) -> tuple[list[Any], list[Any]]:
-            self.executor.preview(None)
+            getattr(self.executor, entrypoint)(None)
             raise AssertionError("the forbidden executor must raise first")
 
     with pytest.raises(census.CensusExecutionFenceError) as exc_info:
@@ -2002,6 +2023,10 @@ def test_production_fetch_plan_generation_uses_real_graph_and_w2_demands(
     assert proof.execution_fence.catalog_resolution_calls == len(proof.sample_rows)
     assert proof.execution_fence.preview_calls == 0
     assert proof.execution_fence.execute_calls == 0
+    assert proof.execution_fence.forbidden_owners == (
+        "FetchExecutor.execute",
+        "FetchExecutor.preview",
+    )
     assert all(plan.source_lane == "catalog" for plan in proof.plans)
     assert all(plan.persist_payload is False for plan in proof.plans)
 
@@ -2047,6 +2072,7 @@ def _probe_record(census: Any) -> Any:
         timeout_seconds=15.0,
         max_response_bytes=65_536,
         minimum_interval_seconds=0.1,
+        heartbeat_interval_seconds=3.0,
         call_budget=1,
     )
     request = census.ProbeRequest(
@@ -2077,10 +2103,33 @@ def _probe_record(census: Any) -> Any:
         disposition=census.ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED,
     )
     body = b"[]"
+    heartbeats = (
+        census.ProbeHeartbeat(
+            attempt_id="probe-a",
+            journal_sequence=2,
+            phase="attempt_started",
+            progress_bytes=0,
+            elapsed_seconds=0.0,
+        ),
+        census.ProbeHeartbeat(
+            attempt_id="probe-a",
+            journal_sequence=3,
+            phase="response_headers",
+            progress_bytes=0,
+            elapsed_seconds=0.005,
+        ),
+        census.ProbeHeartbeat(
+            attempt_id="probe-a",
+            journal_sequence=4,
+            phase="body_progress",
+            progress_bytes=len(body),
+            elapsed_seconds=0.009,
+        ),
+    )
     raw = census.ProbeRawResponse(
         attempt_id="probe-a",
         request_record_sha256=census.semantic_content_hash(request),
-        journal_sequence=2,
+        journal_sequence=5,
         status_code=200,
         response_headers={"content-type": "application/json"},
         bounded_body_base64=base64.b64encode(body).decode("ascii"),
@@ -2093,15 +2142,42 @@ def _probe_record(census: Any) -> Any:
         request=request,
         preflight=preflight,
         raw_response=raw,
+        heartbeat_events=heartbeats,
         derived_liveness=census.DerivedLiveness(
             attempt_id="probe-a",
             liveness_state=census.LivenessState.ALIVE_SCHEMA_UNVERIFIED,
-            decisive_evidence_refs=("journal:response:2", "schema_profile:metadata_only"),
+            decisive_evidence_refs=("journal:response:5", "schema_profile:metadata_only"),
         ),
         request_journal_sequence=1,
-        evidence_journal_sequence=2,
-        classification_journal_sequence=3,
+        evidence_journal_sequence=5,
+        classification_journal_sequence=6,
         attempt_wall_time_seconds=0.01,
+    )
+
+
+def _selection_plan_for_candidate(census: Any, candidate: Any) -> Any:
+    return census.ProbeSelectionPlan(
+        family_projection_binding=census.ProjectionBinding(
+            projection_id="catalog_connector_families",
+            source_artifact="fixture/catalog.duckdb#connector_families",
+            projection_content_sha256="sha256:" + "b" * 64,
+            projected_item_count=1,
+        ),
+        target_per_family=1,
+        sampling_receipts=(
+            census.FamilySamplingReceipt(
+                connector_id=candidate.connector_id,
+                available_distribution_count=1,
+                target_probe_count=1,
+                selected_probe_count=1,
+                stratum_population_counts={candidate.stratum_id: 1},
+                selected_stratum_counts={candidate.stratum_id: 1},
+                open_license_available_count=1,
+                auth_required_available_count=0,
+                schema_profile_available_count=1,
+            ),
+        ),
+        candidates=(candidate,),
     )
 
 
@@ -2191,8 +2267,10 @@ def test_connector_owner_dry_run_uses_registry_protocol_owner_and_simulator(
     tmp_path: Path,
 ) -> None:
     census = _census()
+    candidate = _probe_record(census).candidate
+    selection_plan = _selection_plan_for_candidate(census, candidate)
     receipts = census.derive_connector_family_receipts(
-        ("worldbank.wdi",),
+        selection_plan,
         fixture_root=tmp_path / "missing-fixtures",
     )
 
@@ -2201,10 +2279,95 @@ def test_connector_owner_dry_run_uses_registry_protocol_owner_and_simulator(
     assert receipt.connector_id == "worldbank.wdi"
     assert receipt.component_id == "worldbank.wdi@1.0.0"
     assert receipt.protocol_violations == ()
-    assert receipt.harness_passed is True
+    assert receipt.protocol_conformant is True
+    assert receipt.harness_checks_passed == (
+        "capability_gated_methods_present",
+        "connect_returns_unique_sessions",
+        "core_methods_are_async",
+        "disconnect_idempotent",
+        "protocol_compliance",
+        "required_class_attributes",
+    )
+    assert receipt.harness_check_failures == ()
+    assert receipt.safe_dry_run_passed is True
     assert receipt.simulator_intercepted is True
     assert receipt.simulator_call_count == 1
     assert receipt.simulator_network_calls == 0
+    assert receipt.network_escape_attempt_count == 0
+    assert len(receipt.dry_run_attempts) == 1
+    attempt = receipt.dry_run_attempts[0]
+    assert attempt.attempt_id == candidate.attempt_id
+    assert attempt.connector_fetch_invoked is True
+    assert attempt.fetch_completed is False
+    assert attempt.transport_intercepted is True
+    assert attempt.outcome is census.ConnectorDryRunOutcome.REPLAY_FIXTURE_MISSING
+    assert attempt.failure_type.endswith(".MissingFixtureError")
+
+
+def test_probe_preflight_uses_the_exact_carrier_dry_run_not_a_family_boolean(
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    candidate = _probe_record(census).candidate
+    selection_plan = _selection_plan_for_candidate(census, candidate)
+    receipt = census.derive_connector_family_receipts(
+        selection_plan,
+        fixture_root=tmp_path / "missing-fixtures",
+    )[0]
+    dry_run = receipt.dry_run_attempts[0].model_copy(
+        update={
+            "connector_fetch_invoked": True,
+            "outcome": census.ConnectorDryRunOutcome.PRETRANSPORT_REJECTED,
+            "finding_code": "connector_pretransport_rejected",
+            "failure_type": "builtins.ValueError",
+            "simulator_call_count": 0,
+            "transport_intercepted": False,
+        }
+    )
+    blocked_receipt = census.ConnectorFamilyReceipt(
+        **{
+            **receipt.model_dump(mode="python"),
+            "dry_run_attempts": (dry_run,),
+            "outcome_counts": {census.ConnectorDryRunOutcome.PRETRANSPORT_REJECTED: 1},
+            "safe_dry_run_passed": False,
+            "simulator_intercepted": False,
+            "simulator_call_count": 0,
+        }
+    )
+
+    prepared = census.prepare_probe_records(selection_plan, (blocked_receipt,))
+
+    assert prepared[0][2].disposition is census.ProbeDisposition.DRY_RUN_FAILED
+    assert prepared[0][1] is None
+
+
+def test_probe_preflight_requires_every_public_family_harness_check(
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    candidate = _probe_record(census).candidate
+    selection_plan = _selection_plan_for_candidate(census, candidate)
+    receipt = census.derive_connector_family_receipts(
+        selection_plan,
+        fixture_root=tmp_path / "missing-fixtures",
+    )[0]
+    failed_check = "disconnect_idempotent"
+    blocked_receipt = census.ConnectorFamilyReceipt(
+        **{
+            **receipt.model_dump(mode="python"),
+            "harness_checks_passed": tuple(
+                check for check in receipt.harness_checks_passed if check != failed_check
+            ),
+            "harness_check_failures": (failed_check,),
+            "safe_dry_run_passed": False,
+        }
+    )
+
+    prepared = census.prepare_probe_records(selection_plan, (blocked_receipt,))
+
+    assert blocked_receipt.dry_run_attempts[0].transport_intercepted is True
+    assert prepared[0][2].disposition is census.ProbeDisposition.DRY_RUN_FAILED
+    assert prepared[0][1] is None
 
 
 def test_probe_preflight_disposition_is_recomputed_from_decisive_evidence() -> None:
@@ -2234,7 +2397,7 @@ def test_live_liveness_requires_raw_journal_and_rejects_relabeling() -> None:
             **{
                 **payload,
                 "raw_response": None,
-                "evidence_journal_sequence": 2,
+                "evidence_journal_sequence": 5,
             }
         )
     relabeled = record.derived_liveness.model_copy(
@@ -2251,7 +2414,7 @@ def test_live_liveness_requires_raw_journal_and_rejects_relabeling() -> None:
             "derived_liveness": census.DerivedLiveness(
                 attempt_id="probe-a",
                 liveness_state=census.LivenessState.DEAD,
-                decisive_evidence_refs=("http_status:404", "journal:response:2"),
+                decisive_evidence_refs=("http_status:404", "journal:response:5"),
             ),
         }
     )
@@ -2267,6 +2430,101 @@ def test_live_liveness_requires_raw_journal_and_rejects_relabeling() -> None:
         )
 
 
+def test_live_attempt_requires_ordered_journaled_heartbeats() -> None:
+    census = _census()
+    record = _probe_record(census)
+    payload = record.model_dump(mode="python")
+
+    with pytest.raises(ValidationError):
+        census.ProbeJournalRecord(**{**payload, "heartbeat_events": ()})
+
+    out_of_order = record.heartbeat_events[1].model_copy(
+        update={"journal_sequence": record.heartbeat_events[0].journal_sequence}
+    )
+    with pytest.raises(ValidationError):
+        census.ProbeJournalRecord(
+            **{
+                **payload,
+                "heartbeat_events": (
+                    record.heartbeat_events[0],
+                    out_of_order,
+                    record.heartbeat_events[2],
+                ),
+            }
+        )
+
+    with pytest.raises(ValidationError):
+        census.ProbeJournalRecord(
+            **{
+                **payload,
+                "attempt_wall_time_seconds": 5.0,
+            }
+        )
+
+
+def test_live_transport_uses_inactivity_timeouts_not_a_total_progress_kill(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import aiohttp
+
+    census = _census()
+    request = _probe_record(census).request
+    timeout_kwargs: dict[str, Any] = {}
+
+    class FakeTimeout:
+        def __init__(self, **kwargs: Any) -> None:
+            timeout_kwargs.update(kwargs)
+
+    class FakeContent:
+        async def iter_chunked(self, _: int) -> Any:
+            yield b"[]"
+
+    class FakeResponse:
+        status = 200
+        headers: ClassVar[dict[str, str]] = {
+            "content-type": "application/json",
+            "content-length": "2",
+        }
+        content = FakeContent()
+
+        async def __aenter__(self) -> Any:
+            return self
+
+        async def __aexit__(self, *_: Any) -> None:
+            return None
+
+    class FakeSession:
+        def __init__(self, *, timeout: Any) -> None:
+            del timeout
+
+        async def __aenter__(self) -> Any:
+            return self
+
+        async def __aexit__(self, *_: Any) -> None:
+            return None
+
+        def get(self, *_: Any, **__: Any) -> FakeResponse:
+            return FakeResponse()
+
+    heartbeats: list[tuple[str, int]] = []
+
+    async def heartbeat(phase: str, progress_bytes: int) -> None:
+        heartbeats.append((phase, progress_bytes))
+
+    monkeypatch.setattr(aiohttp, "ClientTimeout", FakeTimeout)
+    monkeypatch.setattr(aiohttp, "ClientSession", FakeSession)
+    result = asyncio.run(census._execute_live_probe(request, heartbeat))
+
+    assert timeout_kwargs == {
+        "total": None,
+        "connect": request.budget.timeout_seconds,
+        "sock_connect": request.budget.timeout_seconds,
+        "sock_read": request.budget.timeout_seconds,
+    }
+    assert heartbeats == [("response_headers", 0), ("body_progress", 2)]
+    assert result.bytes_read == 2
+
+
 def test_capture_journals_response_before_classifier_consumes_paid_evidence(
     tmp_path: Path,
 ) -> None:
@@ -2274,7 +2532,9 @@ def test_capture_journals_response_before_classifier_consumes_paid_evidence(
     record = _probe_record(census)
     observed_event_kinds: list[list[str]] = []
 
-    async def transport(_: Any) -> Any:
+    async def transport(_: Any, heartbeat: Any) -> Any:
+        await heartbeat("response_headers", 0)
+        await heartbeat("body_progress", 2)
         return census.ProbeTransportResult(
             status_code=200,
             response_headers={"content-type": "application/json"},
@@ -2300,13 +2560,65 @@ def test_capture_journals_response_before_classifier_consumes_paid_evidence(
     )
 
     assert len(captured) == 1
-    assert observed_event_kinds == [["request", "raw_response"]]
+    assert observed_event_kinds == [
+        ["request", "heartbeat", "heartbeat", "heartbeat", "raw_response"]
+    ]
     events = [json.loads(line) for line in (tmp_path / "quarantine.jsonl").read_text().splitlines()]
     assert [event["event_kind"] for event in events] == [
         "request",
+        "heartbeat",
+        "heartbeat",
+        "heartbeat",
         "raw_response",
         "classification",
     ]
+
+
+def test_capture_emits_a_periodic_waiting_heartbeat_while_transport_progresses(
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    record = _probe_record(census)
+    release_first_tick = asyncio.Event()
+    sleep_calls = 0
+
+    async def heartbeat_sleep(_: float) -> None:
+        nonlocal sleep_calls
+        sleep_calls += 1
+        if sleep_calls == 1:
+            await release_first_tick.wait()
+            return
+        await asyncio.Event().wait()
+
+    async def transport(_: Any, heartbeat: Any) -> Any:
+        release_first_tick.set()
+        await asyncio.sleep(0)
+        await asyncio.sleep(0)
+        await heartbeat("response_headers", 0)
+        await heartbeat("body_progress", 2)
+        return census.ProbeTransportResult(
+            status_code=200,
+            response_headers={"content-type": "application/json"},
+            bounded_body_base64=base64.b64encode(b"[]").decode("ascii"),
+            body_sha256="sha256:" + hashlib.sha256(b"[]").hexdigest(),
+            bytes_read=2,
+            transport_error_code=None,
+        )
+
+    captured = asyncio.run(
+        census.capture_probe_records(
+            ((record.candidate, record.request, record.preflight),),
+            event_log_path=tmp_path / "quarantine.jsonl",
+            transport=transport,
+            sleep=lambda _: asyncio.sleep(0),
+            heartbeat_sleep=heartbeat_sleep,
+        )
+    )
+
+    phases = tuple(heartbeat.phase for heartbeat in captured[0].heartbeat_events)
+    assert phases[0] == "attempt_started"
+    assert "waiting" in phases
+    assert phases.index("waiting") < phases.index("response_headers")
 
 
 def test_scorecards_recompute_counts_and_executable_tier_decay() -> None:
@@ -2370,14 +2682,19 @@ def test_production_probe_plan_covers_every_data_family_with_twelve_rows(
         source_locator="production_data/catalog.duckdb",
     )
     receipts = census.derive_connector_family_receipts(
-        tuple(row.connector_id for row in plan.sampling_receipts),
+        plan,
         fixture_root=tmp_path / "simulator-fixtures",
     )
 
     assert len(plan.sampling_receipts) == len(receipts)
     assert all(row.selected_probe_count == 12 for row in plan.sampling_receipts)
-    assert all(receipt.harness_passed for receipt in receipts)
-    assert all(receipt.simulator_intercepted for receipt in receipts)
+    assert all(receipt.protocol_conformant for receipt in receipts)
+    assert all(not receipt.harness_check_failures for receipt in receipts)
+    assert all(receipt.carrier_denominator == 12 for receipt in receipts)
+    assert sum(receipt.carrier_attempt_count for receipt in receipts) == 144
+    assert sum(receipt.simulator_call_count for receipt in receipts) == 128
+    assert sum(receipt.network_escape_attempt_count for receipt in receipts) == 0
+    assert sum(receipt.safe_dry_run_passed for receipt in receipts) == 11
 
 
 @pytest.mark.skipif(
@@ -2401,7 +2718,7 @@ def test_frozen_live_journal_recomputes_from_production_catalog_and_raw_evidence
         ),
     )
     receipts = census.derive_connector_family_receipts(
-        tuple(row.connector_id for row in plan.sampling_receipts),
+        plan,
         fixture_root=tmp_path / "simulator-fixtures",
     )
     journal = census.read_live_probe_journal(journal_path)

@@ -1,8 +1,9 @@
 """Typed evidence and read-only catalog primitives for the GY-N13a census.
 
 This module owns the census boundary schema and the smallest read path needed to
-identify the acquisition catalog.  It does not execute fetch plans, call connectors,
-or write to the catalog.
+identify the acquisition catalog.  It never executes FetchPlans or writes to the
+catalog/canonical stores. Connector calls are limited to explicit zero-network REPLAY
+dry-runs and the separately authorized, bounded live characterization capture.
 """
 
 from __future__ import annotations
@@ -10,13 +11,12 @@ from __future__ import annotations
 import asyncio
 import base64
 import hashlib
-import importlib.util
 import json
 import os
-import sys
 import time
 from collections import Counter, defaultdict
 from collections.abc import Awaitable, Callable, Mapping, Sequence
+from contextlib import suppress
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
@@ -29,11 +29,22 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n13a.acquisition_census.v1"
 RULE_VERSION = "policyos.layer3.gy.n13a.acquisition_census.v1"
 JOURNAL_SCHEMA_VERSION = "policyos.layer3.gy.n13a.live_probe_journal.v1"
-CONTENT_HASH_EXCLUDED_FIELDS = frozenset({"capture_wall_time_seconds", "observed_at"})
+CONTENT_HASH_EXCLUDED_FIELDS = frozenset(
+    {
+        "attempt_wall_time_seconds",
+        "capture_wall_time_seconds",
+        "elapsed_seconds",
+        "event_log_content_sha256",
+        "heartbeat_events",
+        "observed_at",
+        "wall_time_seconds",
+    }
+)
 EXECUTABLE_BINDING_TIERS = frozenset({"fetchable", "transport_ready"})
 DEFAULT_PROBES_PER_FAMILY = 12
 MAX_PROBE_TIMEOUT_SECONDS = 15.0
 MAX_PROBE_RESPONSE_BYTES = 65_536
+MAX_HEARTBEAT_INTERVAL_SECONDS = 5.0
 OPEN_LICENSE_IDENTIFIERS = frozenset(
     {
         "cc-by",
@@ -50,9 +61,16 @@ _FETCH_PLAN_FORBIDDEN_OWNERS = frozenset(
     {
         "FetchExecutor.execute",
         "FetchExecutor.preview",
-        "connector.fetch",
-        "run_orchestrated_ingestion",
-        "canonical_store.write",
+    }
+)
+_REQUIRED_CONNECTOR_HARNESS_CHECKS = frozenset(
+    {
+        "capability_gated_methods_present",
+        "connect_returns_unique_sessions",
+        "core_methods_are_async",
+        "disconnect_idempotent",
+        "protocol_compliance",
+        "required_class_attributes",
     }
 )
 
@@ -186,6 +204,21 @@ class ProbeDisposition(StrEnum):
     CATALOG_ONLY = "catalog_only"
     ENDPOINT_UNUSABLE = "endpoint_unusable"
     LICENSE_UNCLEAR = "license_unclear"
+
+
+class ConnectorDryRunOutcome(StrEnum):
+    """Typed result of exercising one data-derived carrier under the simulator."""
+
+    REPLAY_FIXTURE_MISSING = "replay_fixture_missing_after_interception"
+    FETCH_RESULT_VALIDATED = "fetch_result_validated"
+    FETCH_COMPLETED_WITHOUT_INTERCEPTION = "fetch_completed_without_interception"
+    INTERCEPTED_RESPONSE_REJECTED = "intercepted_response_rejected"
+    CONNECTOR_OWNER_MISSING = "connector_owner_missing"
+    CONNECTOR_PROTOCOL_INVALID = "connector_protocol_invalid"
+    SOURCE_PROFILE_MISSING = "source_profile_missing"
+    SOURCE_PROFILE_MISMATCH = "source_profile_mismatch"
+    PRETRANSPORT_REJECTED = "pretransport_rejected"
+    NETWORK_ESCAPE_BLOCKED = "network_escape_blocked"
 
 
 class FamilyLivenessState(StrEnum):
@@ -561,8 +594,9 @@ class FetchPlanExecutionFence(_StrictBoundaryModel):
             raise ValueError("FetchPlan generation must not mutate the catalog")
         if self.scratch_tree_before_sha256 != self.scratch_tree_after_sha256:
             raise ValueError("FetchPlan generation must not persist payloads")
-        if self.forbidden_owners != tuple(sorted(set(self.forbidden_owners))):
-            raise ValueError("forbidden owners must be unique and sorted")
+        expected_owners = tuple(sorted(_FETCH_PLAN_FORBIDDEN_OWNERS))
+        if self.forbidden_owners != expected_owners:
+            raise ValueError("forbidden owners must equal the behaviorally guarded executor edge")
         return self
 
 
@@ -579,17 +613,89 @@ class SchemaProfileContract(_StrictBoundaryModel):
     parser_mode: str = Field(min_length=1)
 
 
+class ConnectorDryRunAttempt(_StrictBoundaryModel):
+    """One actual connector fetch attempt under the zero-network simulator fence."""
+
+    attempt_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    source_profile_family: str | None = None
+    request_dataset_id: str = Field(min_length=1)
+    fetch_request_key: str | None = None
+    connection_config_content_sha256: str | None = Field(
+        default=None, pattern=r"^sha256:[0-9a-f]{64}$"
+    )
+    connector_fetch_invoked: bool
+    fetch_completed: bool
+    outcome: ConnectorDryRunOutcome
+    finding_code: str | None = None
+    failure_type: str | None = None
+    simulator_mode: Literal["replay"]
+    simulator_call_count: int = Field(ge=0)
+    transport_intercepted: bool
+    network_escape_attempt_count: int = Field(ge=0)
+    actual_network_call_count: Literal[0]
+
+    @model_validator(mode="after")
+    def _outcome_is_derived_from_actual_calls(self) -> Self:
+        reached_simulator = self.simulator_call_count > 0
+        if self.transport_intercepted != reached_simulator:
+            raise ValueError("transport interception must be recomputed from simulator calls")
+        if self.outcome in {
+            ConnectorDryRunOutcome.REPLAY_FIXTURE_MISSING,
+            ConnectorDryRunOutcome.FETCH_RESULT_VALIDATED,
+            ConnectorDryRunOutcome.INTERCEPTED_RESPONSE_REJECTED,
+        }:
+            if not self.connector_fetch_invoked or not reached_simulator:
+                raise ValueError("simulator outcomes require an actual intercepted connector fetch")
+        elif reached_simulator:
+            raise ValueError("pretransport outcomes cannot claim simulator calls")
+        if self.fetch_completed != (
+            self.outcome
+            in {
+                ConnectorDryRunOutcome.FETCH_RESULT_VALIDATED,
+                ConnectorDryRunOutcome.FETCH_COMPLETED_WITHOUT_INTERCEPTION,
+            }
+        ):
+            raise ValueError("fetch completion must be derived from the dry-run outcome")
+        if self.outcome is ConnectorDryRunOutcome.NETWORK_ESCAPE_BLOCKED:
+            if self.network_escape_attempt_count < 1:
+                raise ValueError("network escape outcome requires a blocked escape attempt")
+        elif self.network_escape_attempt_count:
+            raise ValueError("blocked network escape attempts require the matching typed outcome")
+        failure_expected = not self.fetch_completed
+        if (self.failure_type is not None) != failure_expected:
+            raise ValueError("failure type presence must be derived from the dry-run outcome")
+        finding_expected = self.outcome is not ConnectorDryRunOutcome.FETCH_RESULT_VALIDATED
+        if (self.finding_code is not None) != finding_expected:
+            raise ValueError("finding presence must be derived from the dry-run outcome")
+        request_built = self.fetch_request_key is not None
+        config_built = self.connection_config_content_sha256 is not None
+        if request_built != config_built:
+            raise ValueError("request and connection config evidence must resolve together")
+        if self.connector_fetch_invoked and not request_built:
+            raise ValueError("connector fetch invocation requires request and config evidence")
+        return self
+
+
 class ConnectorFamilyReceipt(_StrictBoundaryModel):
-    """Registry, harness-owner, and simulator dry-run evidence for one family."""
+    """Actual connector, public-harness, and simulator evidence for one family."""
 
     connector_id: str = Field(min_length=1)
     component_id: str | None = None
     connector_class: str | None = None
     protocol_violations: tuple[str, ...]
-    harness_passed: bool
+    protocol_conformant: bool
+    harness_checks_passed: tuple[str, ...]
+    harness_check_failures: tuple[str, ...]
+    carrier_denominator: int = Field(ge=1)
+    carrier_attempt_count: int = Field(ge=1)
+    dry_run_attempts: tuple[ConnectorDryRunAttempt, ...]
+    outcome_counts: dict[ConnectorDryRunOutcome, int]
+    safe_dry_run_passed: bool
     simulator_mode: Literal["replay"]
     simulator_intercepted: bool
     simulator_call_count: int = Field(ge=0)
+    network_escape_attempt_count: int = Field(ge=0)
     simulator_network_calls: Literal[0]
 
     @model_validator(mode="after")
@@ -597,11 +703,60 @@ class ConnectorFamilyReceipt(_StrictBoundaryModel):
         owner_resolved = self.component_id is not None and self.connector_class is not None
         if (self.component_id is None) != (self.connector_class is None):
             raise ValueError("component ID and connector class must resolve together")
-        expected_harness = owner_resolved and not self.protocol_violations
-        if self.harness_passed != expected_harness:
-            raise ValueError("harness status must be derived from protocol-owner evidence")
-        if self.simulator_intercepted != (self.simulator_call_count == 1):
-            raise ValueError("simulator interception must be a one-call replay receipt")
+        expected_protocol = owner_resolved and not self.protocol_violations
+        if self.protocol_conformant != expected_protocol:
+            raise ValueError("protocol status must be derived from owner validation")
+        if self.harness_checks_passed != tuple(sorted(set(self.harness_checks_passed))):
+            raise ValueError("passed harness checks must be unique and sorted")
+        if self.harness_check_failures != tuple(sorted(set(self.harness_check_failures))):
+            raise ValueError("harness failures must be unique and sorted")
+        if set(self.harness_checks_passed) & set(self.harness_check_failures):
+            raise ValueError("a harness check cannot both pass and fail")
+        if owner_resolved and (
+            set(self.harness_checks_passed) | set(self.harness_check_failures)
+        ) != _REQUIRED_CONNECTOR_HARNESS_CHECKS:
+            raise ValueError("every required public harness check must have a typed result")
+        if not owner_resolved and (self.harness_checks_passed or self.harness_check_failures):
+            raise ValueError("missing connector owners cannot claim harness execution")
+        attempt_ids = tuple(attempt.attempt_id for attempt in self.dry_run_attempts)
+        if attempt_ids != tuple(sorted(set(attempt_ids))):
+            raise ValueError("dry-run carrier attempts must be unique and sorted")
+        if self.carrier_attempt_count != len(self.dry_run_attempts):
+            raise ValueError("carrier attempt count must equal the nested receipts")
+        if self.carrier_denominator != self.carrier_attempt_count:
+            raise ValueError("every selected carrier must receive an offline dry-run receipt")
+        expected_outcomes = Counter(attempt.outcome for attempt in self.dry_run_attempts)
+        if self.outcome_counts != dict(sorted(expected_outcomes.items(), key=lambda item: item[0])):
+            raise ValueError("outcome counts must be recomputed from carrier receipts")
+        expected_call_count = sum(attempt.simulator_call_count for attempt in self.dry_run_attempts)
+        if self.simulator_call_count != expected_call_count:
+            raise ValueError("family simulator calls must sum the carrier attempts")
+        expected_escape_count = sum(
+            attempt.network_escape_attempt_count for attempt in self.dry_run_attempts
+        )
+        if self.network_escape_attempt_count != expected_escape_count:
+            raise ValueError("family escape attempts must sum the carrier attempts")
+        expected_intercepted = self.simulator_call_count > 0
+        if self.simulator_intercepted != expected_intercepted:
+            raise ValueError("simulator interception must be recomputed from actual calls")
+        safe_outcome = any(
+            attempt.outcome
+            in {
+                ConnectorDryRunOutcome.REPLAY_FIXTURE_MISSING,
+                ConnectorDryRunOutcome.FETCH_RESULT_VALIDATED,
+            }
+            for attempt in self.dry_run_attempts
+        )
+        expected_safe = (
+            expected_protocol
+            and not self.harness_check_failures
+            and set(self.harness_checks_passed) == _REQUIRED_CONNECTOR_HARNESS_CHECKS
+            and safe_outcome
+            and expected_intercepted
+            and self.network_escape_attempt_count == 0
+        )
+        if self.safe_dry_run_passed != expected_safe:
+            raise ValueError("dry-run gate must be derived from actual harness and simulator evidence")
         return self
 
 
@@ -693,6 +848,7 @@ class ProbeBudget(_StrictBoundaryModel):
     timeout_seconds: float = Field(gt=0.0)
     max_response_bytes: int = Field(gt=0)
     minimum_interval_seconds: float = Field(ge=0.0)
+    heartbeat_interval_seconds: float = Field(gt=0.0)
     call_budget: Literal[1] = 1
 
     @model_validator(mode="after")
@@ -708,6 +864,12 @@ class ProbeBudget(_StrictBoundaryModel):
             intervals.append(3600.0 / self.profile_requests_per_hour)
         if intervals and abs(self.minimum_interval_seconds - max(intervals)) > 1e-9:
             raise ValueError("probe interval must be derived from owner rate limits")
+        expected_heartbeat = min(
+            MAX_HEARTBEAT_INTERVAL_SECONDS,
+            self.timeout_seconds / 5.0,
+        )
+        if abs(self.heartbeat_interval_seconds - expected_heartbeat) > 1e-9:
+            raise ValueError("heartbeat interval must be derived from the inactivity budget")
         return self
 
 
@@ -762,6 +924,16 @@ class ProbePreflight(_StrictBoundaryModel):
                 "probe disposition must be recomputed from decisive preflight evidence"
             )
         return self
+
+
+class ProbeHeartbeat(_StrictBoundaryModel):
+    """Append+fsync progress evidence emitted while one live attempt is active."""
+
+    attempt_id: str = Field(min_length=1)
+    journal_sequence: int = Field(ge=2)
+    phase: Literal["attempt_started", "waiting", "response_headers", "body_progress"]
+    progress_bytes: int = Field(ge=0)
+    elapsed_seconds: float = Field(ge=0.0)
 
 
 class ProbeRawResponse(_StrictBoundaryModel):
@@ -819,6 +991,70 @@ class ProbeTransportResult(_StrictBoundaryModel):
         return self
 
 
+class _ProbeHeartbeatJournal:
+    """Mutable per-attempt progress owner that cannot leak loop variables."""
+
+    def __init__(
+        self,
+        *,
+        attempt_id: str,
+        event_log_path: Path,
+        initial_sequence: int,
+        started: float,
+        interval_seconds: float,
+        heartbeat_sleep: Callable[[float], Awaitable[None]],
+    ) -> None:
+        self.attempt_id = attempt_id
+        self.event_log_path = event_log_path
+        self.sequence = initial_sequence
+        self.started = started
+        self.interval_seconds = interval_seconds
+        self.heartbeat_sleep = heartbeat_sleep
+        self.events: list[ProbeHeartbeat] = []
+        self.last_progress_bytes = 0
+        self.lock = asyncio.Lock()
+        self.stop_event = asyncio.Event()
+
+    async def emit(self, phase: str, progress_bytes: int) -> None:
+        """Append and fsync one monotone heartbeat event."""
+
+        async with self.lock:
+            self.last_progress_bytes = max(self.last_progress_bytes, progress_bytes)
+            self.sequence += 1
+            heartbeat = ProbeHeartbeat(
+                attempt_id=self.attempt_id,
+                journal_sequence=self.sequence,
+                phase=phase,
+                progress_bytes=self.last_progress_bytes,
+                elapsed_seconds=max(time.monotonic() - self.started, 0.0),
+            )
+            _append_fsync_jsonl(
+                self.event_log_path,
+                {
+                    "sequence": heartbeat.journal_sequence,
+                    "event_kind": "heartbeat",
+                    "heartbeat": heartbeat.model_dump(mode="json"),
+                },
+            )
+            self.events.append(heartbeat)
+
+    async def emit_waiting(self) -> None:
+        """Emit periodic progress while the carrier remains in flight."""
+
+        while not self.stop_event.is_set():
+            await self.heartbeat_sleep(self.interval_seconds)
+            if not self.stop_event.is_set():
+                await self.emit("waiting", self.last_progress_bytes)
+
+    async def stop(self, task: asyncio.Task[None]) -> None:
+        """Stop the periodic emitter without masking the transport result."""
+
+        self.stop_event.set()
+        task.cancel()
+        with suppress(asyncio.CancelledError):
+            await task
+
+
 class DerivedLiveness(_StrictBoundaryModel):
     """Liveness state recomputed from a journaled response and owner profile."""
 
@@ -834,6 +1070,7 @@ class ProbeJournalRecord(_StrictBoundaryModel):
     request: ProbeRequest | None
     preflight: ProbePreflight
     raw_response: ProbeRawResponse | None
+    heartbeat_events: tuple[ProbeHeartbeat, ...]
     derived_liveness: DerivedLiveness
     request_journal_sequence: int = Field(ge=1)
     evidence_journal_sequence: int = Field(ge=2)
@@ -851,6 +1088,7 @@ class ProbeJournalRecord(_StrictBoundaryModel):
             attempt_ids.add(self.request.attempt_id)
         if self.raw_response is not None:
             attempt_ids.add(self.raw_response.attempt_id)
+        attempt_ids.update(heartbeat.attempt_id for heartbeat in self.heartbeat_events)
         if len(attempt_ids) != 1:
             raise ValueError("all probe evidence must share one attempt ID")
         if self.request is not None:
@@ -871,6 +1109,27 @@ class ProbeJournalRecord(_StrictBoundaryModel):
         ):
             raise ValueError("request/evidence/classification journal order is load-bearing")
         live_authorized = self.preflight.disposition is ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED
+        if live_authorized and not self.heartbeat_events:
+            raise ValueError("an authorized live attempt requires journaled heartbeat evidence")
+        if not live_authorized and self.heartbeat_events:
+            raise ValueError("a no-attempt preflight result cannot claim heartbeat evidence")
+        heartbeat_sequences = tuple(
+            heartbeat.journal_sequence for heartbeat in self.heartbeat_events
+        )
+        if heartbeat_sequences != tuple(sorted(set(heartbeat_sequences))):
+            raise ValueError("heartbeat sequences must be unique and ordered")
+        if heartbeat_sequences and not all(
+            self.request_journal_sequence < sequence < self.evidence_journal_sequence
+            for sequence in heartbeat_sequences
+        ):
+            raise ValueError("heartbeats must be journaled between request and terminal evidence")
+        if self.heartbeat_events:
+            if self.heartbeat_events[0].phase != "attempt_started":
+                raise ValueError("the first heartbeat must prove the attempt started")
+            progress = tuple(heartbeat.progress_bytes for heartbeat in self.heartbeat_events)
+            elapsed = tuple(heartbeat.elapsed_seconds for heartbeat in self.heartbeat_events)
+            if progress != tuple(sorted(progress)) or elapsed != tuple(sorted(elapsed)):
+                raise ValueError("heartbeat progress and elapsed time must be monotone")
         if live_authorized and self.raw_response is None:
             raise ValueError("an authorized live result requires journaled raw response evidence")
         if live_authorized and self.request is None:
@@ -884,6 +1143,25 @@ class ProbeJournalRecord(_StrictBoundaryModel):
                 raise ValueError("raw response cannot exist without a request")
             if self.raw_response.request_record_sha256 != semantic_content_hash(self.request):
                 raise ValueError("raw response must bind the exact journaled request")
+            phases = {heartbeat.phase for heartbeat in self.heartbeat_events}
+            if self.raw_response.status_code is not None and "response_headers" not in phases:
+                raise ValueError("an HTTP response requires a journaled headers heartbeat")
+            if self.raw_response.bytes_read > 0:
+                body_progress = tuple(
+                    heartbeat.progress_bytes
+                    for heartbeat in self.heartbeat_events
+                    if heartbeat.phase == "body_progress"
+                )
+                if not body_progress or body_progress[-1] != self.raw_response.bytes_read:
+                    raise ValueError("response bytes must be covered by body-progress heartbeats")
+        if (
+            live_authorized
+            and self.request is not None
+            and self.attempt_wall_time_seconds
+            >= self.request.budget.heartbeat_interval_seconds * 1.5
+            and not any(heartbeat.phase == "waiting" for heartbeat in self.heartbeat_events)
+        ):
+            raise ValueError("a long live attempt requires a periodic waiting heartbeat")
         expected_state = _derive_probe_liveness_state(
             request=self.request,
             preflight=self.preflight,
@@ -1032,6 +1310,7 @@ class LiveProbeJournal(_StrictBoundaryModel):
             for record in self.records
             for sequence in (
                 record.request_journal_sequence,
+                *(heartbeat.journal_sequence for heartbeat in record.heartbeat_events),
                 record.evidence_journal_sequence,
                 record.classification_journal_sequence,
             )
@@ -1200,9 +1479,9 @@ def canonical_json_bytes(value: object) -> bytes:
 
 
 def semantic_content_hash(value: object) -> str:
-    """Hash semantic evidence excluding only top-level run economics."""
+    """Hash semantic evidence while recursively excluding run economics."""
 
-    stable = _without_top_level_run_economics(_json_value(value))
+    stable = _without_run_economics(_json_value(value))
     return f"sha256:{hashlib.sha256(canonical_json_bytes(stable)).hexdigest()}"
 
 
@@ -2088,21 +2367,27 @@ def validate_probe_family_denominator(
 
 
 def derive_connector_family_receipts(
-    connector_families: Sequence[str],
+    selection_plan: ProbeSelectionPlan,
     *,
     fixture_root: Path,
 ) -> tuple[ConnectorFamilyReceipt, ...]:
-    """Run registry/protocol and zero-network REPLAY interception for each family."""
+    """Run every selected carrier through its actual connector under REPLAY."""
 
-    families = tuple(connector_families)
+    families = tuple(row.connector_id for row in selection_plan.sampling_receipts)
     if families != tuple(sorted(set(families))):
         raise CatalogContractError(
             "connector_family_denominator_invalid",
             "families must be unique and sorted",
         )
+    candidate_families = tuple(sorted({row.connector_id for row in selection_plan.candidates}))
+    if candidate_families != families:
+        raise CatalogContractError(
+            "connector_carrier_denominator_invalid",
+            "selected carriers must cover every data-derived family",
+        )
     return asyncio.run(
         _derive_connector_family_receipts_async(
-            families,
+            selection_plan,
             fixture_root=fixture_root,
         )
     )
@@ -2125,8 +2410,20 @@ def prepare_probe_records(
         )
     registry = SourceProfileRegistry.get_instance()
     prepared: list[tuple[ProbeCandidate, ProbeRequest | None, ProbePreflight]] = []
+    dry_runs = {
+        attempt.attempt_id: attempt
+        for receipt in family_receipts
+        for attempt in receipt.dry_run_attempts
+    }
+    expected_attempt_ids = {candidate.attempt_id for candidate in selection_plan.candidates}
+    if set(dry_runs) != expected_attempt_ids:
+        raise CatalogContractError(
+            "probe_carrier_receipt_coverage_mismatch",
+            "dry-run receipts must cover every selected carrier exactly once",
+        )
     for candidate in selection_plan.candidates:
         receipt = receipts[candidate.connector_id]
+        dry_run = dry_runs[candidate.attempt_id]
         source_profile = registry.get(candidate.profile_id)
         source_profile_family = (
             str(source_profile.connector_family) if source_profile is not None else None
@@ -2134,11 +2431,26 @@ def prepare_probe_records(
         family_namespace = candidate.connector_id.split(".", maxsplit=1)[0]
         family_matches = source_profile_family == family_namespace
         scheme = _endpoint_scheme(candidate.endpoint_url)
+        family_harness_safe = (
+            receipt.protocol_conformant
+            and not receipt.harness_check_failures
+            and set(receipt.harness_checks_passed) == _REQUIRED_CONNECTOR_HARNESS_CHECKS
+        )
+        carrier_dry_run_safe = (
+            family_harness_safe
+            and dry_run.outcome
+            in {
+                ConnectorDryRunOutcome.REPLAY_FIXTURE_MISSING,
+                ConnectorDryRunOutcome.FETCH_RESULT_VALIDATED,
+            }
+            and dry_run.transport_intercepted
+            and dry_run.network_escape_attempt_count == 0
+        )
         preflight = ProbePreflight(
             attempt_id=candidate.attempt_id,
             connector_owner_resolved=receipt.component_id is not None,
-            protocol_conformant=receipt.harness_passed,
-            simulator_intercepted=receipt.simulator_intercepted,
+            protocol_conformant=receipt.protocol_conformant,
+            simulator_intercepted=carrier_dry_run_safe,
             schema_profile_resolved=candidate.schema_profile is not None,
             source_profile_resolved=source_profile is not None,
             source_profile_family_matches=family_matches,
@@ -2148,8 +2460,8 @@ def prepare_probe_records(
             endpoint_scheme=scheme,
             disposition=_derive_probe_disposition(
                 connector_owner_resolved=receipt.component_id is not None,
-                protocol_conformant=receipt.harness_passed,
-                simulator_intercepted=receipt.simulator_intercepted,
+                protocol_conformant=receipt.protocol_conformant,
+                simulator_intercepted=carrier_dry_run_safe,
                 schema_profile_resolved=candidate.schema_profile is not None,
                 source_profile_resolved=source_profile is not None,
                 source_profile_family_matches=family_matches,
@@ -2219,9 +2531,14 @@ async def capture_probe_records(
     prepared: Sequence[tuple[ProbeCandidate, ProbeRequest | None, ProbePreflight]],
     *,
     event_log_path: Path,
-    transport: Callable[[ProbeRequest], Awaitable[ProbeTransportResult]] | None = None,
+    transport: Callable[
+        [ProbeRequest, Callable[[str, int], Awaitable[None]]],
+        Awaitable[ProbeTransportResult],
+    ]
+    | None = None,
     classifier: Callable[..., DerivedLiveness] = derive_probe_liveness,
     sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
+    heartbeat_sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
 ) -> tuple[ProbeJournalRecord, ...]:
     """Capture one family at a time with append+fsync before classification."""
 
@@ -2246,9 +2563,8 @@ async def capture_probe_records(
             },
         )
         raw_response: ProbeRawResponse | None = None
+        heartbeat_events: list[ProbeHeartbeat] = []
         attempt_wall_time = 0.0
-        sequence += 1
-        evidence_sequence = sequence
         if preflight.disposition is ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED:
             if request is None:
                 raise CatalogContractError("probe_live_request_missing", candidate.attempt_id)
@@ -2258,9 +2574,26 @@ async def capture_probe_records(
                 if remaining > 0:
                     await sleep(remaining)
             started = time.monotonic()
-            result = await live_transport(request)
+            heartbeat_journal = _ProbeHeartbeatJournal(
+                attempt_id=candidate.attempt_id,
+                event_log_path=event_log_path,
+                initial_sequence=sequence,
+                started=started,
+                interval_seconds=request.budget.heartbeat_interval_seconds,
+                heartbeat_sleep=heartbeat_sleep,
+            )
+            await heartbeat_journal.emit("attempt_started", 0)
+            heartbeat_task = asyncio.create_task(heartbeat_journal.emit_waiting())
+            try:
+                result = await live_transport(request, heartbeat_journal.emit)
+            finally:
+                await heartbeat_journal.stop(heartbeat_task)
+            sequence = heartbeat_journal.sequence
+            heartbeat_events.extend(heartbeat_journal.events)
             attempt_wall_time = time.monotonic() - started
             previous_call_finished[candidate.connector_id] = time.monotonic()
+            sequence += 1
+            evidence_sequence = sequence
             raw_response = ProbeRawResponse(
                 attempt_id=candidate.attempt_id,
                 request_record_sha256=semantic_content_hash(request),
@@ -2276,6 +2609,8 @@ async def capture_probe_records(
                 },
             )
         else:
+            sequence += 1
+            evidence_sequence = sequence
             _append_fsync_jsonl(
                 event_log_path,
                 {
@@ -2308,6 +2643,7 @@ async def capture_probe_records(
                 request=request,
                 preflight=preflight,
                 raw_response=raw_response,
+                heartbeat_events=tuple(heartbeat_events),
                 derived_liveness=derived,
                 request_journal_sequence=request_sequence,
                 evidence_journal_sequence=evidence_sequence,
@@ -2391,6 +2727,16 @@ def probe_journal_event_bytes(records: Sequence[ProbeJournalRecord]) -> bytes:
                 }
             )
         )
+        for heartbeat in record.heartbeat_events:
+            chunks.append(
+                canonical_json_bytes(
+                    {
+                        "sequence": heartbeat.journal_sequence,
+                        "event_kind": "heartbeat",
+                        "heartbeat": heartbeat.model_dump(mode="json"),
+                    }
+                )
+            )
         if record.raw_response is not None:
             evidence = {
                 "sequence": record.evidence_journal_sequence,
@@ -2810,47 +3156,271 @@ def _validate_owner_fetch_plan(*, plan: Any, binding: Any) -> None:
 
 
 async def _derive_connector_family_receipts_async(
-    connector_families: Sequence[str],
+    selection_plan: ProbeSelectionPlan,
     *,
     fixture_root: Path,
 ) -> tuple[ConnectorFamilyReceipt, ...]:
-    import aiohttp
+    import socket
+    from unittest.mock import patch
 
-    import polisyos.fabric.connectors as connector_package
+    from polisyos.fabric.connectors.base import FetchRequest
     from polisyos.fabric.connectors.capabilities import validate_protocol_compliance
     from polisyos.fabric.connectors.components import __polisyos_components__
-
-    simulator_path = Path(connector_package.__file__).parent / "testing" / "simulator.py"
-    spec = importlib.util.spec_from_file_location(
-        "_polisyos_n13a_api_simulator_owner", simulator_path
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+    from polisyos.fabric.connectors.testing.harness import ConnectorTestHarness
+    from polisyos.fabric.connectors.testing.simulator import (
+        APISimulator,
+        MissingFixtureError,
+        SimulatorMode,
     )
-    if spec is None or spec.loader is None:
-        raise CatalogContractError("connector_simulator_owner_unreadable", str(simulator_path))
-    simulator_module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = simulator_module
-    spec.loader.exec_module(simulator_module)
-    api_simulator = simulator_module.APISimulator
-    missing_fixture_error = simulator_module.MissingFixtureError
-    simulator_mode = simulator_module.SimulatorMode
 
     components = {
         str(component.connector_class.connector_id): component
         for component in __polisyos_components__
     }
+    registry = SourceProfileRegistry.get_instance()
+    candidates_by_family: dict[str, list[ProbeCandidate]] = defaultdict(list)
+    for candidate in selection_plan.candidates:
+        candidates_by_family[candidate.connector_id].append(candidate)
+
+    def exception_type(exc: BaseException) -> str:
+        return f"{type(exc).__module__}.{type(exc).__name__}"
+
+    def unresolved_attempt(
+        candidate: ProbeCandidate,
+        *,
+        outcome: ConnectorDryRunOutcome,
+        failure_type: str,
+        finding_code: str,
+        source_profile_family: str | None = None,
+    ) -> ConnectorDryRunAttempt:
+        return ConnectorDryRunAttempt(
+            attempt_id=candidate.attempt_id,
+            profile_id=candidate.profile_id,
+            source_profile_family=source_profile_family,
+            request_dataset_id=candidate.request_dataset_id,
+            fetch_request_key=None,
+            connection_config_content_sha256=None,
+            connector_fetch_invoked=False,
+            fetch_completed=False,
+            outcome=outcome,
+            finding_code=finding_code,
+            failure_type=failure_type,
+            simulator_mode="replay",
+            simulator_call_count=0,
+            transport_intercepted=False,
+            network_escape_attempt_count=0,
+            actual_network_call_count=0,
+        )
+
+    async def run_lifecycle_check(
+        harness: ConnectorTestHarness,
+        method_name: str,
+        connector_class: type[Any],
+        candidates: Sequence[ProbeCandidate],
+    ) -> bool:
+        method = getattr(harness, f"test_{method_name}")
+        for candidate in candidates:
+            profile = registry.get(candidate.profile_id)
+            if profile is None:
+                continue
+            if str(profile.connector_family) != candidate.connector_id.split(".", 1)[0]:
+                continue
+            harness.sample_config = resolve_connection_config(profile)
+            blocked_escapes: list[str] = []
+
+            def block_network(
+                *_: Any,
+                _blocked_escapes: list[str] = blocked_escapes,
+                _method_name: str = method_name,
+                _candidate: ProbeCandidate = candidate,
+                **__: Any,
+            ) -> None:
+                _blocked_escapes.append(_method_name)
+                raise CensusExecutionFenceError(
+                    "connector_dry_run_network_escape",
+                    f"{_candidate.connector_id}:{_method_name}",
+                )
+
+            check_passed = False
+            try:
+                with (
+                    patch.object(socket.socket, "connect", new=block_network),
+                    patch.object(socket.socket, "connect_ex", new=block_network),
+                    patch.object(socket, "create_connection", new=block_network),
+                ):
+                    await method(connector_class())
+            except Exception:
+                check_passed = False
+            else:
+                check_passed = not blocked_escapes
+            if check_passed:
+                return True
+        return False
+
+    async def run_carrier(
+        candidate: ProbeCandidate,
+        *,
+        connector_class: type[Any],
+        harness: ConnectorTestHarness,
+    ) -> ConnectorDryRunAttempt:
+        profile = registry.get(candidate.profile_id)
+        if profile is None:
+            return unresolved_attempt(
+                candidate,
+                outcome=ConnectorDryRunOutcome.SOURCE_PROFILE_MISSING,
+                failure_type="SourceProfileMissing",
+                finding_code="source_profile_missing",
+            )
+        source_profile_family = str(profile.connector_family)
+        expected_family = candidate.connector_id.split(".", 1)[0]
+        if source_profile_family != expected_family:
+            return unresolved_attempt(
+                candidate,
+                outcome=ConnectorDryRunOutcome.SOURCE_PROFILE_MISMATCH,
+                failure_type="SourceProfileFamilyMismatch",
+                finding_code="source_profile_family_mismatch",
+                source_profile_family=source_profile_family,
+            )
+
+        config = resolve_connection_config(profile)
+        request = FetchRequest(
+            dataset_id=candidate.request_dataset_id,
+            filters=tuple(
+                (key, tuple(values)) for key, values in sorted(candidate.filters.items())
+            ),
+        )
+        harness.sample_config = config
+        harness.sample_request = request
+        simulator = APISimulator(
+            mode=SimulatorMode.REPLAY,
+            fixture_root=fixture_root,
+            connector_id=candidate.connector_id,
+            dataset_id=candidate.request_dataset_id,
+            max_call_log_entries=100,
+        )
+        blocked_escapes: list[str] = []
+        connector_fetch_invoked = False
+        fetch_completed = False
+        captured_exception: BaseException | None = None
+
+        def block_network(*_: Any, **__: Any) -> None:
+            blocked_escapes.append(candidate.attempt_id)
+            raise CensusExecutionFenceError(
+                "connector_dry_run_network_escape",
+                candidate.attempt_id,
+            )
+
+        connector = connector_class()
+        handle: Any | None = None
+        with (
+            patch.object(socket.socket, "connect", new=block_network),
+            patch.object(socket.socket, "connect_ex", new=block_network),
+            patch.object(socket, "create_connection", new=block_network),
+        ):
+            try:
+                handle = await connector.connect(config)
+                async with simulator:
+                    connector_fetch_invoked = True
+                    await asyncio.wait_for(
+                        harness.test_fetch_returns_fetch_result((connector, handle)),
+                        timeout=5.0,
+                    )
+                fetch_completed = True
+            except BaseException as exc:  # noqa: BLE001 - typed evidence boundary
+                captured_exception = exc
+            finally:
+                if handle is not None:
+                    try:
+                        await connector.disconnect(handle)
+                    except BaseException as exc:  # noqa: BLE001 - typed evidence boundary
+                        if captured_exception is None:
+                            captured_exception = exc
+
+        call_count = simulator.call_count
+        intercepted = call_count > 0
+        if blocked_escapes:
+            outcome = ConnectorDryRunOutcome.NETWORK_ESCAPE_BLOCKED
+            finding_code = "network_escape_blocked"
+            failure = captured_exception or CensusExecutionFenceError(
+                "connector_dry_run_network_escape", candidate.attempt_id
+            )
+        elif fetch_completed and intercepted:
+            outcome = ConnectorDryRunOutcome.FETCH_RESULT_VALIDATED
+            finding_code = None
+            failure = None
+        elif fetch_completed:
+            outcome = ConnectorDryRunOutcome.FETCH_COMPLETED_WITHOUT_INTERCEPTION
+            finding_code = "fetch_completed_without_simulator_interception"
+            failure = None
+        elif isinstance(captured_exception, MissingFixtureError) and intercepted:
+            outcome = ConnectorDryRunOutcome.REPLAY_FIXTURE_MISSING
+            finding_code = "replay_fixture_missing_after_interception"
+            failure = captured_exception
+        elif intercepted:
+            outcome = ConnectorDryRunOutcome.INTERCEPTED_RESPONSE_REJECTED
+            finding_code = "intercepted_response_rejected"
+            failure = captured_exception or RuntimeError("intercepted response rejected")
+        else:
+            outcome = ConnectorDryRunOutcome.PRETRANSPORT_REJECTED
+            finding_code = "connector_pretransport_rejected"
+            failure = captured_exception or RuntimeError("connector fetch did not reach transport")
+
+        return ConnectorDryRunAttempt(
+            attempt_id=candidate.attempt_id,
+            profile_id=candidate.profile_id,
+            source_profile_family=source_profile_family,
+            request_dataset_id=candidate.request_dataset_id,
+            fetch_request_key=request.request_key,
+            connection_config_content_sha256=semantic_content_hash(
+                config.to_dict(redact=True)
+            ),
+            connector_fetch_invoked=connector_fetch_invoked,
+            fetch_completed=fetch_completed,
+            outcome=outcome,
+            finding_code=finding_code,
+            failure_type=exception_type(failure) if failure is not None else None,
+            simulator_mode="replay",
+            simulator_call_count=call_count,
+            transport_intercepted=intercepted,
+            network_escape_attempt_count=len(blocked_escapes),
+            actual_network_call_count=0,
+        )
+
     receipts: list[ConnectorFamilyReceipt] = []
-    for connector_id in connector_families:
+    for sampling_receipt in selection_plan.sampling_receipts:
+        connector_id = sampling_receipt.connector_id
+        candidates = tuple(candidates_by_family[connector_id])
         component = components.get(connector_id)
         if component is None:
+            attempts = tuple(
+                unresolved_attempt(
+                    candidate,
+                    outcome=ConnectorDryRunOutcome.CONNECTOR_OWNER_MISSING,
+                    failure_type="ConnectorComponentMissing",
+                    finding_code="connector_component_missing",
+                )
+                for candidate in sorted(candidates, key=lambda row: row.attempt_id)
+            )
             receipts.append(
                 ConnectorFamilyReceipt(
                     connector_id=connector_id,
                     component_id=None,
                     connector_class=None,
                     protocol_violations=("connector_component_missing",),
-                    harness_passed=False,
+                    protocol_conformant=False,
+                    harness_checks_passed=(),
+                    harness_check_failures=(),
+                    carrier_denominator=len(candidates),
+                    carrier_attempt_count=len(attempts),
+                    dry_run_attempts=attempts,
+                    outcome_counts=dict(Counter(row.outcome for row in attempts)),
+                    safe_dry_run_passed=False,
                     simulator_mode="replay",
                     simulator_intercepted=False,
                     simulator_call_count=0,
+                    network_escape_attempt_count=0,
                     simulator_network_calls=0,
                 )
             )
@@ -2861,23 +3431,71 @@ async def _derive_connector_family_receipts_async(
                 for violation in validate_protocol_compliance(component.connector_class)
             )
         )
-        simulator = api_simulator(
-            mode=simulator_mode.REPLAY,
-            fixture_root=fixture_root,
-            connector_id=connector_id,
-            dataset_id="gy_n13a_dry_run",
-            max_call_log_entries=1,
-        )
-        intercepted = False
-        if not violations:
+        harness = ConnectorTestHarness()
+        harness.connector_class = component.connector_class
+        passed_checks: set[str] = set()
+        failed_checks: set[str] = set()
+        for check_name in sorted(
+            _REQUIRED_CONNECTOR_HARNESS_CHECKS
+            - {"connect_returns_unique_sessions", "disconnect_idempotent"}
+        ):
             try:
-                async with simulator, aiohttp.ClientSession() as session:
-                    await session.get(
-                        f"https://gy-n13a.invalid/{connector_id}/dry-run",
-                        allow_redirects=False,
+                getattr(harness, f"test_{check_name}")()
+            except Exception:
+                failed_checks.add(check_name)
+            else:
+                passed_checks.add(check_name)
+        for check_name in ("connect_returns_unique_sessions", "disconnect_idempotent"):
+            if await run_lifecycle_check(
+                harness,
+                check_name,
+                component.connector_class,
+                candidates,
+            ):
+                passed_checks.add(check_name)
+            else:
+                failed_checks.add(check_name)
+
+        if violations:
+            attempts = tuple(
+                unresolved_attempt(
+                    candidate,
+                    outcome=ConnectorDryRunOutcome.CONNECTOR_PROTOCOL_INVALID,
+                    failure_type="ConnectorProtocolInvalid",
+                    finding_code="connector_protocol_invalid",
+                )
+                for candidate in sorted(candidates, key=lambda row: row.attempt_id)
+            )
+        else:
+            carrier_attempts = []
+            for candidate in candidates:
+                carrier_attempts.append(
+                    await run_carrier(
+                        candidate,
+                        connector_class=component.connector_class,
+                        harness=harness,
                     )
-            except missing_fixture_error:
-                intercepted = simulator.call_count == 1
+                )
+            attempts = tuple(
+                sorted(carrier_attempts, key=lambda row: row.attempt_id)
+            )
+        simulator_call_count = sum(row.simulator_call_count for row in attempts)
+        escape_count = sum(row.network_escape_attempt_count for row in attempts)
+        safe_outcome = any(
+            row.outcome
+            in {
+                ConnectorDryRunOutcome.REPLAY_FIXTURE_MISSING,
+                ConnectorDryRunOutcome.FETCH_RESULT_VALIDATED,
+            }
+            for row in attempts
+        )
+        safe_dry_run_passed = (
+            not violations
+            and not failed_checks
+            and passed_checks == _REQUIRED_CONNECTOR_HARNESS_CHECKS
+            and safe_outcome
+            and escape_count == 0
+        )
         receipts.append(
             ConnectorFamilyReceipt(
                 connector_id=connector_id,
@@ -2886,10 +3504,18 @@ async def _derive_connector_family_receipts_async(
                     f"{component.connector_class.__module__}.{component.connector_class.__name__}"
                 ),
                 protocol_violations=violations,
-                harness_passed=not violations,
+                protocol_conformant=not violations,
+                harness_checks_passed=tuple(sorted(passed_checks)),
+                harness_check_failures=tuple(sorted(failed_checks)),
+                carrier_denominator=len(candidates),
+                carrier_attempt_count=len(attempts),
+                dry_run_attempts=attempts,
+                outcome_counts=dict(Counter(row.outcome for row in attempts)),
+                safe_dry_run_passed=safe_dry_run_passed,
                 simulator_mode="replay",
-                simulator_intercepted=intercepted,
-                simulator_call_count=simulator.call_count,
+                simulator_intercepted=simulator_call_count > 0,
+                simulator_call_count=simulator_call_count,
+                network_escape_attempt_count=escape_count,
                 simulator_network_calls=0,
             )
         )
@@ -3009,8 +3635,6 @@ def _derive_probe_disposition(
         return ProbeDisposition.CONNECTOR_OWNER_MISSING
     if not protocol_conformant:
         return ProbeDisposition.CONNECTOR_CONTRACT_INVALID
-    if not simulator_intercepted:
-        return ProbeDisposition.DRY_RUN_FAILED
     if not schema_profile_resolved:
         return ProbeDisposition.SCHEMA_PROFILE_MISSING
     if not source_profile_resolved:
@@ -3025,6 +3649,8 @@ def _derive_probe_disposition(
         return ProbeDisposition.ENDPOINT_UNUSABLE
     if not open_license_validated:
         return ProbeDisposition.LICENSE_UNCLEAR
+    if not simulator_intercepted:
+        return ProbeDisposition.DRY_RUN_FAILED
     return ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED
 
 
@@ -3039,13 +3665,18 @@ def _probe_budget_from_source_profile(profile: Any) -> ProbeBudget:
         intervals.append(1.0 / rate_limit_rps)
     if requests_per_hour is not None:
         intervals.append(3600.0 / requests_per_hour)
+    timeout_seconds = min(profile_timeout, MAX_PROBE_TIMEOUT_SECONDS)
     return ProbeBudget(
         profile_timeout_seconds=profile_timeout,
         profile_rate_limit_rps=rate_limit_rps,
         profile_requests_per_hour=requests_per_hour,
-        timeout_seconds=min(profile_timeout, MAX_PROBE_TIMEOUT_SECONDS),
+        timeout_seconds=timeout_seconds,
         max_response_bytes=MAX_PROBE_RESPONSE_BYTES,
         minimum_interval_seconds=max(intervals, default=0.0),
+        heartbeat_interval_seconds=min(
+            MAX_HEARTBEAT_INTERVAL_SECONDS,
+            timeout_seconds / 5.0,
+        ),
         call_budget=1,
     )
 
@@ -3154,13 +3785,65 @@ def _response_columns(raw_response: ProbeRawResponse, parser_mode: str) -> set[s
     return None
 
 
-async def _execute_live_probe(request: ProbeRequest) -> ProbeTransportResult:
+class _HeartbeatContentProxy:
+    """Forward response chunks while emitting monotone progress heartbeats."""
+
+    def __init__(
+        self,
+        content: Any,
+        heartbeat: Callable[[str, int], Awaitable[None]],
+    ) -> None:
+        self._content = content
+        self._heartbeat = heartbeat
+
+    async def iter_chunked(self, chunk_size: int) -> Any:
+        progress_bytes = 0
+        async for chunk in self._content.iter_chunked(chunk_size):
+            progress_bytes += len(chunk)
+            await self._heartbeat("body_progress", progress_bytes)
+            yield chunk
+
+
+class _HeartbeatResponseProxy:
+    """Minimal response proxy accepted by the shared bounded-body owner."""
+
+    def __init__(
+        self,
+        response: Any,
+        heartbeat: Callable[[str, int], Awaitable[None]],
+    ) -> None:
+        self.headers = response.headers
+        self._response = response
+        content = getattr(response, "content", None)
+        self.content = (
+            _HeartbeatContentProxy(content, heartbeat)
+            if content is not None and hasattr(content, "iter_chunked")
+            else None
+        )
+        self._heartbeat = heartbeat
+
+    async def read(self) -> bytes:
+        body = await self._response.read()
+        if body:
+            await self._heartbeat("body_progress", len(body))
+        return body
+
+
+async def _execute_live_probe(
+    request: ProbeRequest,
+    heartbeat: Callable[[str, int], Awaitable[None]],
+) -> ProbeTransportResult:
     import aiohttp
 
     from polisyos.fabric.connectors.http_limits import read_bounded_response_body
     from polisyos.fabric.connectors.types import FetchError
 
-    timeout = aiohttp.ClientTimeout(total=request.budget.timeout_seconds)
+    timeout = aiohttp.ClientTimeout(
+        total=None,
+        connect=request.budget.timeout_seconds,
+        sock_connect=request.budget.timeout_seconds,
+        sock_read=request.budget.timeout_seconds,
+    )
     headers = {
         "Accept": "*/*",
         "Range": f"bytes=0-{request.budget.max_response_bytes - 1}",
@@ -3179,9 +3862,10 @@ async def _execute_live_probe(request: ProbeRequest) -> ProbeTransportResult:
         ):
             status_code = int(response.status)
             response_headers = _safe_response_headers(response.headers)
+            await heartbeat("response_headers", 0)
             try:
                 body = await read_bounded_response_body(
-                    response,
+                    _HeartbeatResponseProxy(response, heartbeat),
                     connector_id=request.connector_id,
                     url=request.endpoint_url,
                     max_response_bytes=request.budget.max_response_bytes,
@@ -4069,9 +4753,15 @@ def _json_value(value: object) -> object:
     return value
 
 
-def _without_top_level_run_economics(value: object) -> object:
+def _without_run_economics(value: object) -> object:
     if isinstance(value, dict):
-        return {key: item for key, item in value.items() if key not in CONTENT_HASH_EXCLUDED_FIELDS}
+        return {
+            key: _without_run_economics(item)
+            for key, item in value.items()
+            if key not in CONTENT_HASH_EXCLUDED_FIELDS
+        }
+    if isinstance(value, list):
+        return [_without_run_economics(item) for item in value]
     return value
 
 

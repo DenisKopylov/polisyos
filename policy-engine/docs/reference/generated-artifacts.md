@@ -1763,7 +1763,7 @@ python3 tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py -
 Canonical regeneration commands:
 
 ```bash
-uv run python tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb
+uv run --extra test python tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb
 ```
 
 ## `Policy Design Case Layer 3 GY generation-cycle disposition ledger`

@@ -217,7 +217,7 @@ def _recompute(args: argparse.Namespace) -> _RecomputedCensus:
     validate_probe_family_denominator(source, selection_plan)
     with tempfile.TemporaryDirectory(prefix="gy-n13a-simulator-") as fixtures:
         family_receipts = derive_connector_family_receipts(
-            tuple(row.connector_id for row in selection_plan.sampling_receipts),
+            selection_plan,
             fixture_root=Path(fixtures),
         )
     prepared_probes = prepare_probe_records(selection_plan, family_receipts)
@@ -385,8 +385,10 @@ def _corrupt_field_mode(
     mutations.append(("fetch_plan_owner_edge", plan))
 
     scorecard = copy.deepcopy(payload)
-    scorecard["family_scorecards"][0]["wall_time_seconds"] += 1.0
-    mutations.append(("scorecard_economics", scorecard))
+    scorecard["family_scorecards"][0]["tier_decay_findings"].append(
+        "corrupt_decisive_tier_decay"
+    )
+    mutations.append(("scorecard_tier_decay_finding", scorecard))
 
     backlog = copy.deepcopy(payload)
     if len(backlog["growth_backlog"]) > 1:
@@ -613,6 +615,51 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
                 "test_probe_selector_grows_for_a_new_catalog_family_without_code_changes"
             ),
         ),
+        _SourceFlipCase(
+            mutation_id="connector_fetch_replaced_by_marker_only_dry_run",
+            replacements=((
+                "                    await asyncio.wait_for(\n"
+                "                        harness.test_fetch_returns_fetch_result((connector, handle)),\n"
+                "                        timeout=5.0,\n"
+                "                    )\n",
+                "                    await asyncio.wait_for(asyncio.sleep(0), timeout=5.0)\n",
+            ),),
+            probe_nodeid=(
+                test_prefix
+                + "test_connector_owner_dry_run_uses_registry_protocol_owner_and_simulator"
+            ),
+            expected_red_signal=(
+                "test_connector_owner_dry_run_uses_registry_protocol_owner_and_simulator"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="progressing_live_probe_given_total_kill_timeout",
+            replacements=((
+                "        total=None,\n",
+                "        total=request.budget.timeout_seconds,\n",
+            ),),
+            probe_nodeid=(
+                test_prefix
+                + "test_live_transport_uses_inactivity_timeouts_not_a_total_progress_kill"
+            ),
+            expected_red_signal=(
+                "test_live_transport_uses_inactivity_timeouts_not_a_total_progress_kill"
+            ),
+        ),
+        _SourceFlipCase(
+            mutation_id="nested_run_economics_left_in_semantic_hash",
+            replacements=((
+                "            key: _without_run_economics(item)\n",
+                "            key: item\n",
+            ),),
+            probe_nodeid=(
+                test_prefix
+                + "test_semantic_content_hash_recursively_excludes_declared_run_economics"
+            ),
+            expected_red_signal=(
+                "test_semantic_content_hash_recursively_excludes_declared_run_economics"
+            ),
+        ),
     )
 
 
@@ -649,7 +696,7 @@ def _run_source_flip(repo_root: Path, case: _SourceFlipCase) -> dict[str, Any]:
     try:
         source_path.write_text(mutated, encoding="utf-8")
         completed = subprocess.run(
-            ("uv", "run", "pytest", case.probe_nodeid, "-q"),
+            ("uv", "run", "--extra", "test", "pytest", case.probe_nodeid, "-q"),
             cwd=repo_root,
             env={
                 **os.environ,

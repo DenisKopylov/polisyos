@@ -426,3 +426,18 @@ The owner projection now returns a `DesignProblem` and changes only its runtime-
 context to the content-bound `ValueDataProfile` fields. No method family, domain, candidate, or
 selection default was added. The final caller census has two authority-bearing advisor calls and
 both now receive typed `DesignProblem` objects.
+
+## Continued closure audit — P29 canonical-route mutation survived
+
+The first full N10 mutation replay restored all source bytes but exited 1 after 408.729319 seconds:
+15 local/delegated properties went RED, while `canonical_route_recompute_removed` survived. The
+owner comparison is present; the negative did not isolate it. The test added a nonexistent
+`requirement_gap_id` field to `AcquisitionActionRecord`, so `extra="forbid"` rejected the report
+even when canonical regeneration was removed. That is trust in an incidental schema error, not
+proof of the route-recompute property.
+
+Classification: **must-fix / real P29 test defect**. The strengthened negative mutates the existing
+typed `requirement_gap_ref`, recomputes the planner hash, and rebinds the stored witness and all
+outer hashes. On the normal owner path the regenerated report must still reject the transplant; with
+only the `report != expected_report` comparison removed, the mutation must become an otherwise
+coherent payload and the focused probe must turn RED.

@@ -828,3 +828,41 @@ tamper and non-identity-drift negatives remain on the N10a owner.
 provenance-stability focused witness after reconciliation: 1 passed; exit 0; ~94.53 s
 Ruff (capstone validator + focused test): All checks passed
 ```
+
+The frozen capstone remained internally coherent before rewriting:
+
+```text
+capstone --check: exit 0; wall_time_seconds=103.778853
+superseded contract_content_hash:
+  sha256:38b61d274df4ff48bb6cebaf0c40907ebd2754d2477c88cef5db2cf812f95845
+superseded file SHA-256:
+  97e5ea0d39ecfb7f429b357998692861ccca13a460f40ecbc8d77ba046f65a0e
+```
+
+The canonical writer now runs against the stable committed owner graph. Its first diff is admitted
+only if terminals, structural evidence classes, dispositions, denominators, and domain roles are
+unchanged.
+
+The first canonical write refused before touching the artifact:
+
+```text
+capstone --write: exit 1; wall_time_seconds=364.102762
+  proof_n4_owner_projection_replay_drift
+```
+
+A single read-only replay localized the first-vertical delta to CG1/CG2/CG3/CG5 certificate
+IDs/content hashes and their bridge-ticket IDs/content hashes across the same three grounding
+dispositions. Candidate identities, disposition kinds/reasons, counts, prompts, raw responses,
+world binding, and every non-provenance field were unchanged. This is the direct downstream effect
+of the audited Lex evidence-reference canonicalization. The repair is a narrow, named historical
+projection-rebind receipt: it verifies the original recording hash and raw bytes, permits exactly
+those certificate/ticket paths once, retains the complete historical projection, binds the live
+projection and exact changed-path set, and rejects any non-identity field movement.
+
+```text
+historical N4 projection rebind focused battery: 2 passed; exit 0; ~12.17 s
+  certificate/ticket-only delta: accepted through content-bound receipt
+  raw-response tamper: RED
+  disposition change: RED
+Ruff (capstone validator + focused test): All checks passed
+```

@@ -2398,6 +2398,124 @@ def test_historical_compiled_envelope_rejects_tampered_recursive_payload() -> No
         )
 
 
+def _historical_projection_rebind_fixture() -> tuple[
+    Any,
+    dict[str, Any],
+    dict[str, Any],
+]:
+    """Build one certificate-only historical N4 projection delta."""
+
+    validator = _universality_contract_validator()
+    raw = '{"candidate":"owner-recorded"}'
+    raw_hash = gy_content_hash(raw)
+    prompt_hash = "sha256:" + "1" * 64
+    historical_projection = {
+        "status": "generated",
+        "exact_call_prompt_hashes": [prompt_hash],
+        "raw_response_hashes": [raw_hash],
+        "grounding_dispositions": [
+            {
+                "disposition": "novel_cg3",
+                "reason": "cg2_revalidation_failed",
+                "bridge_missing_records": [
+                    {
+                        "record_id": "cg5_ticket_" + "2" * 16,
+                        "content_hash": "sha256:" + "2" * 64,
+                    }
+                ],
+                "certificate_chain": {
+                    "cg1_certificate_id": "cg1_cert_" + "3" * 16,
+                    "cg1_content_hash": "sha256:" + "3" * 64,
+                },
+            }
+        ],
+    }
+    replayed_projection = copy.deepcopy(historical_projection)
+    bridge = replayed_projection["grounding_dispositions"][0][
+        "bridge_missing_records"
+    ][0]
+    bridge["record_id"] = "cg5_ticket_" + "4" * 16
+    bridge["content_hash"] = "sha256:" + "4" * 64
+    chain = replayed_projection["grounding_dispositions"][0][
+        "certificate_chain"
+    ]
+    chain["cg1_certificate_id"] = "cg1_cert_" + "5" * 16
+    chain["cg1_content_hash"] = "sha256:" + "5" * 64
+    recording: dict[str, Any] = {
+        "schema_version": "policyos.layer3.gy.n10.n4_recording.v1",
+        "recording_source": "live_gateway_call_journal_replayed_through_n4_owner",
+        "role": "first_vertical",
+        "model_id": validator.PROOF_MODEL_ID,
+        "effective_environment": {},
+        "responses": [
+            {
+                "prompt_hash": prompt_hash,
+                "raw_response": raw,
+                "raw_llm_response": raw,
+                "raw_response_hash": raw_hash,
+            }
+        ],
+        "owner_result_projection": historical_projection,
+    }
+    recording["recording_content_hash"] = validator._semantic_hash(recording)
+    return validator, recording, replayed_projection
+
+
+def test_historical_n4_projection_rebind_is_exact_and_content_bound() -> None:
+    """Certificate-only provenance may rebind once through a verified receipt."""
+
+    validator, recording, replayed_projection = (
+        _historical_projection_rebind_fixture()
+    )
+    normalized = validator._normalize_replayed_n4_recording(
+        recording,
+        replayed_projection=replayed_projection,
+    )
+
+    receipt = normalized["historical_projection_rebind_receipt"]
+    assert receipt["eligible_issue_set"] == [
+        "proof_n4_owner_projection_replay_drift"
+    ]
+    assert receipt["historical_owner_result_projection"] == recording[
+        "owner_result_projection"
+    ]
+    assert normalized["owner_result_projection"] == replayed_projection
+    assert (
+        validator._historical_n4_projection_rebind_receipt_issues(normalized)
+        == ()
+    )
+
+
+def test_historical_n4_projection_rebind_rejects_tamper_and_nonidentity() -> None:
+    """Raw-byte or semantic drift cannot use the historical exception."""
+
+    validator, recording, replayed_projection = (
+        _historical_projection_rebind_fixture()
+    )
+    semantic_drift = copy.deepcopy(replayed_projection)
+    semantic_drift["grounding_dispositions"][0]["disposition"] = "shadow_bound"
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="proof_n4_owner_projection_replay_drift",
+    ):
+        validator._build_historical_n4_projection_rebind_receipt(
+            recording,
+            replayed_projection=semantic_drift,
+        )
+
+    normalized = validator._normalize_replayed_n4_recording(
+        recording,
+        replayed_projection=replayed_projection,
+    )
+    normalized["responses"][0]["raw_response"] += " tampered"
+    normalized["responses"][0]["raw_llm_response"] = normalized["responses"][
+        0
+    ]["raw_response"]
+    assert "proof_n4_recording_raw_response_hash_mismatch" in (
+        validator._historical_n4_projection_rebind_receipt_issues(normalized)
+    )
+
+
 def test_no_context_recording_supersedes_model_output_and_verifies_legacy_bytes() -> None:
     """No-context proof evidence is a typed refusal; stale raw bytes remain checksummed."""
 

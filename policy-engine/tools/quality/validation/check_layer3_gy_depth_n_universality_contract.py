@@ -16,6 +16,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -1814,6 +1815,232 @@ def _n4_responses_from_journal(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
+_HISTORICAL_N4_PROJECTION_REBIND_SCHEMA_VERSION = (
+    "policyos.layer3.gy.n10.n4_projection_rebind_receipt.v1"
+)
+_HISTORICAL_N4_PROJECTION_REBIND_FIELD_PATTERN = re.compile(
+    r"^grounding_dispositions\[\d+\]\."
+    r"(?:bridge_missing_records\[\d+\]\.(?:content_hash|record_id)|"
+    r"certificate_chain\.(?:"
+    r"cg1_certificate_id|cg1_content_hash|"
+    r"cg2_certificate_id|cg2_content_hash|"
+    r"cg3_certificate_id|cg3_content_hash|"
+    r"cg5_action_certificate_id|cg5_action_content_hash|"
+    r"cg5_ticket_hash|cg5_ticket_id))$"
+)
+
+
+def _projection_diff_paths(
+    frozen: object,
+    replayed: object,
+    *,
+    path: str = "",
+) -> tuple[str, ...]:
+    """Return every leaf path that differs between two owner projections."""
+
+    if type(frozen) is not type(replayed):
+        return (path or "$",)
+    if isinstance(frozen, Mapping) and isinstance(replayed, Mapping):
+        paths: list[str] = []
+        for key in sorted(set(frozen) | set(replayed)):
+            child = f"{path}.{key}" if path else str(key)
+            if key not in frozen or key not in replayed:
+                paths.append(child)
+                continue
+            paths.extend(
+                _projection_diff_paths(
+                    frozen[key],
+                    replayed[key],
+                    path=child,
+                )
+            )
+        return tuple(paths)
+    if isinstance(frozen, list) and isinstance(replayed, list):
+        if len(frozen) != len(replayed):
+            return (f"{path}.length",)
+        paths = []
+        for index, (frozen_item, replayed_item) in enumerate(
+            zip(frozen, replayed, strict=True)
+        ):
+            paths.extend(
+                _projection_diff_paths(
+                    frozen_item,
+                    replayed_item,
+                    path=f"{path}[{index}]",
+                )
+            )
+        return tuple(paths)
+    return () if frozen == replayed else (path or "$",)
+
+
+def _n4_response_bindings(
+    recording: Mapping[str, Any],
+) -> tuple[list[str], list[str]]:
+    """Verify and return prompt/raw hashes for one frozen N4 call set."""
+
+    prompts: list[str] = []
+    raw_hashes: list[str] = []
+    responses = _mappings(recording.get("responses"))
+    if not responses:
+        raise UniversalityContractError("proof_n4_recording_responses_missing")
+    for response in responses:
+        raw = response.get("raw_response")
+        raw_hash = str(response.get("raw_response_hash") or "")
+        if (
+            not isinstance(raw, str)
+            or response.get("raw_llm_response") != raw
+            or raw_hash != _semantic_hash(raw)
+        ):
+            raise UniversalityContractError(
+                "proof_n4_recording_raw_response_hash_mismatch"
+            )
+        prompts.append(str(response.get("prompt_hash") or ""))
+        raw_hashes.append(raw_hash)
+    return prompts, raw_hashes
+
+
+def _build_historical_n4_projection_rebind_receipt(
+    recording: Mapping[str, Any],
+    *,
+    replayed_projection: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Bind one exact provenance-only N4 projection rebase."""
+
+    historical_projection = _mapping(recording.get("owner_result_projection"))
+    changed_paths = _projection_diff_paths(
+        historical_projection,
+        replayed_projection,
+    )
+    if not changed_paths or any(
+        _HISTORICAL_N4_PROJECTION_REBIND_FIELD_PATTERN.fullmatch(path) is None
+        for path in changed_paths
+    ):
+        raise UniversalityContractError("proof_n4_owner_projection_replay_drift")
+    prompts, raw_hashes = _n4_response_bindings(recording)
+    for projection in (historical_projection, replayed_projection):
+        if _strings(projection.get("exact_call_prompt_hashes")) != prompts:
+            raise UniversalityContractError(
+                "proof_n4_projection_prompt_binding_drift"
+            )
+        if _strings(projection.get("raw_response_hashes")) != raw_hashes:
+            raise UniversalityContractError(
+                "proof_n4_projection_response_binding_drift"
+            )
+    payload: dict[str, Any] = {
+        "schema_version": _HISTORICAL_N4_PROJECTION_REBIND_SCHEMA_VERSION,
+        "eligible_issue_set": ["proof_n4_owner_projection_replay_drift"],
+        "changed_paths": list(changed_paths),
+        "historical_owner_result_projection": copy.deepcopy(
+            historical_projection
+        ),
+        "historical_projection_content_hash": _semantic_hash(
+            historical_projection
+        ),
+        "replayed_projection_content_hash": _semantic_hash(
+            replayed_projection
+        ),
+        "prompt_hashes": prompts,
+        "raw_response_hashes": raw_hashes,
+    }
+    payload["receipt_content_hash"] = _semantic_hash(payload)
+    return payload
+
+
+def _historical_n4_projection_rebind_receipt_issues(
+    recording: Mapping[str, Any],
+) -> tuple[str, ...]:
+    """Recompute the narrow historical projection-rebind receipt."""
+
+    receipt = _mapping(recording.get("historical_projection_rebind_receipt"))
+    if not receipt:
+        return ("proof_n4_projection_rebind_receipt_missing",)
+    issues: list[str] = []
+    stable_receipt = {
+        key: value
+        for key, value in receipt.items()
+        if key != "receipt_content_hash"
+    }
+    if receipt.get("receipt_content_hash") != _semantic_hash(stable_receipt):
+        issues.append("proof_n4_projection_rebind_receipt_hash_mismatch")
+    if receipt.get("schema_version") != (
+        _HISTORICAL_N4_PROJECTION_REBIND_SCHEMA_VERSION
+    ):
+        issues.append("proof_n4_projection_rebind_receipt_schema_mismatch")
+    if receipt.get("eligible_issue_set") != [
+        "proof_n4_owner_projection_replay_drift"
+    ]:
+        issues.append("proof_n4_projection_rebind_issue_set_mismatch")
+
+    historical_projection = _mapping(
+        receipt.get("historical_owner_result_projection")
+    )
+    replayed_projection = _mapping(recording.get("owner_result_projection"))
+    changed_paths = _projection_diff_paths(
+        historical_projection,
+        replayed_projection,
+    )
+    if list(changed_paths) != receipt.get("changed_paths") or not changed_paths:
+        issues.append("proof_n4_projection_rebind_changed_paths_mismatch")
+    if any(
+        _HISTORICAL_N4_PROJECTION_REBIND_FIELD_PATTERN.fullmatch(path) is None
+        for path in changed_paths
+    ):
+        issues.append("proof_n4_projection_rebind_non_identity_drift")
+    if receipt.get("historical_projection_content_hash") != _semantic_hash(
+        historical_projection
+    ):
+        issues.append("proof_n4_historical_projection_hash_mismatch")
+    if receipt.get("replayed_projection_content_hash") != _semantic_hash(
+        replayed_projection
+    ):
+        issues.append("proof_n4_replayed_projection_hash_mismatch")
+    try:
+        prompts, raw_hashes = _n4_response_bindings(recording)
+    except UniversalityContractError as exc:
+        issues.append(str(exc))
+    else:
+        if receipt.get("prompt_hashes") != prompts:
+            issues.append("proof_n4_projection_rebind_prompt_hash_mismatch")
+        if receipt.get("raw_response_hashes") != raw_hashes:
+            issues.append("proof_n4_projection_rebind_raw_hash_mismatch")
+        if _strings(replayed_projection.get("exact_call_prompt_hashes")) != prompts:
+            issues.append("proof_n4_replayed_projection_prompt_drift")
+        if _strings(replayed_projection.get("raw_response_hashes")) != raw_hashes:
+            issues.append("proof_n4_replayed_projection_response_drift")
+    return tuple(sorted(set(issues)))
+
+
+def _normalize_replayed_n4_recording(
+    recording: Mapping[str, Any],
+    *,
+    replayed_projection: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Rebase one eligible historical projection through a verified receipt."""
+
+    normalized = copy.deepcopy(dict(recording))
+    historical_projection = _mapping(recording.get("owner_result_projection"))
+    if historical_projection == replayed_projection:
+        return normalized
+    if _mapping(recording.get("historical_projection_rebind_receipt")):
+        raise UniversalityContractError("proof_n4_owner_projection_replay_drift")
+    receipt = _build_historical_n4_projection_rebind_receipt(
+        recording,
+        replayed_projection=replayed_projection,
+    )
+    normalized["owner_result_projection"] = copy.deepcopy(
+        dict(replayed_projection)
+    )
+    normalized["historical_projection_rebind_receipt"] = receipt
+    normalized["recording_content_hash"] = _semantic_hash(
+        {
+            key: value
+            for key, value in normalized.items()
+            if key != "recording_content_hash"
+        }
+    )
+    return normalized
+
+
 async def _replay_n4_recording(
     repo_root: Path,
     *,
@@ -1837,6 +2064,18 @@ async def _replay_n4_recording(
     }
     if recording.get("recording_content_hash") != _semantic_hash(stable_recording):
         raise UniversalityContractError("proof_n4_recording_content_hash_mismatch")
+    historical_receipt = _mapping(
+        recording.get("historical_projection_rebind_receipt")
+    )
+    if historical_receipt:
+        receipt_issues = _historical_n4_projection_rebind_receipt_issues(
+            recording
+        )
+        if receipt_issues:
+            raise UniversalityContractError(
+                "proof_n4_projection_rebind_receipt_invalid:"
+                + ",".join(receipt_issues)
+            )
     with _temporary_environment(_mapping(recording.get("effective_environment"))):
         organ_run = await generate_design_candidate_bundle_under_a(
             problem,
@@ -1848,7 +2087,14 @@ async def _replay_n4_recording(
         )
     projection = _n4_owner_projection(organ_run)
     if projection != _mapping(recording.get("owner_result_projection")):
-        raise UniversalityContractError("proof_n4_owner_projection_replay_drift")
+        if historical_receipt:
+            raise UniversalityContractError(
+                "proof_n4_owner_projection_replay_drift"
+            )
+        _build_historical_n4_projection_rebind_receipt(
+            recording,
+            replayed_projection=projection,
+        )
     return organ_run
 
 
@@ -2689,8 +2935,9 @@ async def _domain_run_and_normalized_recording(
         if organ_run is None:  # pragma: no cover - guarded by the context branch.
             raise UniversalityContractError("proof_n4_replay_result_missing")
         _assert_n4_cycle_binding(compiled, organ_run)
+        replayed_n4_projection = _n4_owner_projection(organ_run)
         projection = {
-            **_n4_owner_projection(organ_run),
+            **replayed_n4_projection,
             "generation_owner": (
                 "polisyos.runtime.quality.design_generation."
                 "generate_design_candidate_bundle_under_a"
@@ -2698,6 +2945,19 @@ async def _domain_run_and_normalized_recording(
             "generation_channel": "n4_owner",
         }
         normalized_recording = copy.deepcopy(dict(recording))
+        normalized_recording["n4_recording"] = (
+            _normalize_replayed_n4_recording(
+                n4_recording,
+                replayed_projection=replayed_n4_projection,
+            )
+        )
+        normalized_recording["recording_content_hash"] = _semantic_hash(
+            {
+                key: value
+                for key, value in normalized_recording.items()
+                if key != "recording_content_hash"
+            }
+        )
     domain_run = _project_domain_run(
         repo_root,
         role=role,

@@ -114,3 +114,42 @@ the D2 static token-parity decision test.
 Next checkpoint: commit the human adjudication, then add the strict ledger,
 physical map, archive disposition note, and Phase-A synthesis as the machine
 twin/synthesis cluster.
+
+## 2026-07-16 - Machine twin and Phase-A synthesis checkpoint
+
+- Materialized the canonical index as
+  `architecture/atlas_surfaces/atlas-v15-adoption-ledger.json`: 233 strict DS0
+  adoption entries, each with a DS0 verdict/maturity, frozen archive
+  `file:line`, v4 counterpart/transitional winner, consuming slices, rejected
+  alternative, revisit condition, sunset condition, and authority boundary.
+- Added `atlas-v15-archive-map.json` as the exhaustive coverage proof. Its
+  1,476 path rows equal the extracted member set exactly and record one
+  primary ledger owner, byte size, SHA-256, and normalization rule per member.
+  This avoids modifying the frozen adoption schema merely to carry physical
+  inventory metadata.
+- Validated the ledger with the installed Draft-2020-12 `jsonschema` engine
+  and its referenced readiness vocabulary: canonical errors = 0. Four
+  adversarial mutations are rejected: unknown verdict (1 error), extra entry
+  property (1), wrong archive hash (1), and stable without browser/manual-AT
+  evidence (2).
+- Re-ran mechanical parity: 233 unique generated report IDs equal 233 ledger
+  IDs (empty symmetric difference); 1,476 unique map paths equal 1,476 archive
+  files (empty difference); all 233 cited archive paths and line numbers
+  resolve.
+- Updated the archive README from pre-DS2
+  `evidence_source_pending_adjudication` to post-DS2 `retained_as_material`,
+  linked the report/ledger/map, and recorded that package/mirror/Figma/
+  phantom/point-centric authority imports are rejected. The zip itself remains
+  byte-immutable and its SHA is unchanged.
+- Wrote `atlas-phase-a-synthesis.md` as the Revision-3 input package. It
+  carries D1-D6, the corrected DS1 reality table, DS2 distributions and D2
+  result, and explicit confirmed/re-scoped/invalidated outcomes for every
+  DS3-DS18 slice. A read-only independent synthesis pass confirmed the matrix
+  and highlighted zero direct v15 rows for DS10, only deferred adjuncts for
+  DS13, and no delta-ledger semantics for DS17.
+- Preserved the Revision-2 DAG and activation gates. The synthesis is not
+  Phase-B authority, and this branch neither merges itself nor begins DS3.
+
+Next checkpoint: commit this machine-twin/synthesis cluster, then execute the
+full link, schema, parity, hash, diff, fence, and clean-tree closeout and mark
+the DS2 plan/report complete.

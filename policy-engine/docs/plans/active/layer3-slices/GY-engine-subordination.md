@@ -249,6 +249,33 @@ second domain's levers/writability/covariates do not exist in the Ukraine-centri
 must arrive via data + N7 acquisition, not code; (d) N10's "≥2 distinct domains" sharpened with an
 explicit **distinctness criterion** (two Ukraine-economics variants do not count).
 
+**Revision 16 (2026-07-16).** GY-N10 closed **GO** (capstone
+`architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json`, frozen at
+ce847b9f2 on the N10 worktree branch, embedded proof recordings; final architect audit in
+flight): the cycle is contract-generic and degrades through honest typed terminals from plain
+language on three domains — but all three terminate `acquisition_required` with three distinct
+evidence classes (`owner_acquisition_route` / `estimand_binding_refusal` / `owner_data_gap`),
+and Fork B held (13,092-relation CG1 census, zero admissible positives). The binding constraint
+is now **measured, not suspected: substrate, not machinery** — and the N10 recon found the
+acquisition layer is **built but dark**: `dataset_catalog.duckdb` carries 56,846
+metric→connector bindings (41,976 executable) + 3.7M local L1 observations over 101 canonical
+vars; fabric has 20+ real connectors, `run_orchestrated_ingestion` (fetch→CAS→snapshot), and a
+RetrievalService dataset-catalog lane that is never wired; N7's `_capture_fabric` is a probe
+that never executes a fetch plan. This revision converts the measurement into the next wave +
+the process lessons N10 paid for: (a) **NEW GY-N13a (acquisition-layer reality census) +
+GY-N13b (acquisition executor — the world grows)**, closing one capstone route end-to-end and
+the two typed N7 infrastructure residuals; (b) new **§3.5.9 live-carrier conformance gates
+C1–C5** (the compiler saga generalized to every live LLM/data carrier); (c) new **§3.5.10
+recompute-not-pin** (the expectation-transplant class fired three times in N10 — now a named
+binding rule, with the earned-NO-GO stop-law refinement and batch-fix→single-ripple); (d) new
+**§3.5.11 projection-scoped provenance binding** (ripple containment for the deepening frozen
+chain); (e) riders — N11 accounts refusal/acquisition instruments as first-class ledger rows
+(kills the measured vacuity risk), N12 admits acquisition events as live epoch-boundary
+sources, O1/O3 consume the N13b executor as the world-growth spine, V3 consumes the N10
+capstone's per-domain distributions directly. Execution order after N10: **N13a → N13b → N11 →
+N12** — N13 first because world growth + cycle re-entry is the only unproven capability and N10
+just paid for all its inputs.
+
 ## 1. Binding rules (for every GY task)
 
 From the constitution and the execution-topology decision. A change that breaks one
@@ -677,6 +704,75 @@ front-loaded into every impl/audit prompt for N9–N12, N10a, O0–O3, and the V
    it must refuse **typed** (`scope_insufficient` / `unsupported` → routes to acquisition/N7) —
    never auto-pass, never fabricate. An honest typed refusal is a pass; fabricated generality is a
    fail. (The dual of the N8 lesson: no fabricated pass AND no fabricated block.)
+
+### 3.5.9 Live-carrier conformance gates (the GY-N10 compiler lesson — binding for every task with a live LLM or external-data carrier; NEW, Rev 16)
+
+The N10 plain-language compiler consumed multiple NO-GO rounds on one lesson: a free-form carrier
+described in prose will drift from the strict gate; the fix is always **constrain the request,
+never the gate**. Five gates for every surface that consumes a live model or an external data
+source (the N13 connectors, the O-block bounded LLM agent, any new N4-class prompt lane):
+
+1. **C1 Schema-constrained emission.** The full owner-derived machine schema travels WITH the
+   request (LLM: the complete tool/response JSON schema **including Python-only conditional
+   validators, which do not export automatically**; data connector: the schema-profile /
+   binding-profile contract). Free-form generation validated only after the fact is not a carrier
+   design.
+2. **C2 Typed, derived budgets.** Output/token/row/rate budgets are typed and derived from
+   measured need with journaled rationale — never an inherited silent default (the 3,072-token
+   lesson); truncation/overrun at ANY budget is a **typed disposition**, never a parse crash or a
+   partial artifact.
+3. **C3 Characterize before proof.** A finite journaled characterization matrix (params × models
+   × repetitions; sampled endpoints per connector family) precedes any proof capture; shadow rows
+   never become proof rows; the winning config is selected from the table, and conformance must be
+   a stable property (repetitions), never a seed lottery.
+4. **C4 Request-side only; no response shims.** The carrier must emit conforming output natively
+   via request parameters; stripping/unwrapping/repairing responses between the provider and the
+   gate is forbidden (router-not-carrier). A carrier that only passes because we cleaned its
+   output has not passed.
+5. **C5 Earned NO-GO.** A carrier-exhausted terminal is earned only after the highest-value
+   honest lever identified by root-cause analysis has been TESTED (structured outputs before
+   "the model can't"; the budget before "the provider is broken"). Premature NO-GOs cost N10 two
+   full rounds.
+
+### 3.5.10 Frozen-expectation discipline — recompute-not-pin (the N10 expectation-transplant lesson; NEW, Rev 16)
+
+One failure class fired three times inside N10: a frozen gate pinned a SPECIFIC downstream
+terminal (the Stage-2 data-gap receipt transplanted onto a fresh capture; pre-CGF test assertions
+demanding "all proposals become candidates"; the N10a checker demanding a superseded repair-only
+terminal) — and every honest deepening of an owner then read as a failure. Binding for every gate
+and frozen artifact from N11 on:
+
+1. **Gates assert structurally recomputed properties.** A terminal/evidence class is recognized by
+   recomputing its evidence from the owners (a real planner route report, a real advisor refusal
+   receipt, real availability evidence) and comparing recomputed-vs-recorded — never by comparing
+   a recorded label to a pinned string. The N10 capstone's `_domain_evidence_kind` pattern is the
+   reference implementation.
+2. **Distinctness/coverage bars replace per-role pinning.** Where a proof needs variety, demand
+   "≥K structurally distinct classes over the set", never "role X must show terminal Y" — honest
+   terminals legitimately move as owners deepen.
+3. **A frozen expectation is valid only while it recomputes.** When the recomputation moves
+   honestly, the artifact is rebaselined through its canonical writer (never hand-edited) and the
+   diff must be provenance-only or an honestly remeasured disposition.
+4. **Batch-fix → single ripple.** Audit to the END of the denominator first (the full findings
+   list), land all owner fixes, then run ONE provenance-rebaseline pass in canonical order —
+   never fix→ripple→fix→ripple (the N10 closure paid this cost repeatedly).
+
+### 3.5.11 Projection-scoped provenance binding (ripple containment; NEW, Rev 16)
+
+The frozen chain (census → N4 → N8 → N10a → composition → capstone) is now deep enough that a
+one-line owner fix costs hours of serialized rebaselines. N10 also proved the containment
+pattern: N8↔N10a converged as a fixed point because each consumed a **narrow projection** of the
+other (the first-vertical transport projection stayed byte-fixed while the education lane moved).
+Binding for every NEW frozen artifact (N13 acquisition receipts, the N11 ledger, N12 epochs, the
+O-block):
+
+1. A consumer binds to the **narrowest upstream projection hash** that carries its actual
+   dependency — never the producer's whole-contract hash.
+2. Projections must be **acyclic**, and each projection's scope is declared in the artifact.
+3. Operational values (clocks, wall times) live outside every content hash (existing law) and are
+   carried across rewrites only by the canonical writer's volatile-field branch under a matching
+   contract hash — the volatile classification has ONE source of truth (the canonical GY hash
+   owner's excluded-field list), never a writer-local list.
 
 ### 3.6 Anti-simplification audit — preserve capability, close findings substantively
 
@@ -1724,7 +1820,16 @@ re-architecting.
   method family's certificate type (post-N10) is accounted with **zero ledger code** (U3); an
   unknown instrument fail-closes `unknown_instrument` and never silently bypasses risk accounting
   (U4); the δ-split is keyed to the typed obligation taxonomy, never to the certificate types that
-  happen to exist in the first vertical (U1, with the U2 unseen-instrument probe). `P29`/`P14`.
+  happen to exist in the first vertical (U1, with the U2 unseen-instrument probe).
+  **Acquisition/refusal instruments rider (Rev 16):** N10 measured the cycle's live output —
+  typed refusals and acquisition routes, zero positives (Fork B). The instrument taxonomy
+  therefore covers **refusal and acquisition certificates as first-class ledger rows from day
+  one**: the three capstone evidence classes (`owner_acquisition_route` /
+  `estimand_binding_refusal` / `owner_data_gap`) and the N13b admission passports are accounted
+  instruments with their own risk-spend semantics (`P(confident-wrong refusal/admission)` is
+  accounted exactly like `P(confident-wrong bind)`); positive promotion certificates remain the
+  free-grow future — so the ledger is non-vacuous on the evidence that actually exists, and its
+  frozen artifact is §3.5.11 projection-scoped. `P29`/`P14`.
 - **GY-N12 — Model-revision epochs + stale certificates + OpenWorldRisk (NEW, Rev 11).**
   build-new epoch manager + bridge over existing temporal authority. A certificate is valid only
   within an **epoch** of fixed semantics (model class, obligation language, calibration scope,
@@ -1748,7 +1853,71 @@ re-architecting.
   changepoint is the **first test case, never an enum in engine code**; the revision-trigger
   vocabulary stays the typed generic list (it already is — keep it that way); a scope with no
   regime/amendment data gets honest `epoch_scope_unresolved`, not an assumed epoch (U4).
-  `P07`/`P08`/`P29`.
+  **Acquisition-epoch rider (Rev 16):** N13b acquisition events (a new dataset version / source
+  watermark / overlay epoch) are **live epoch-boundary sources** alongside L3 amendments and L5
+  schema regimes — the world growing IS a model-revision trigger: certificates whose evidence
+  predates an admitted acquisition in their scope become `revalidation_required` exactly like an
+  amendment crossing. The N13b overlay epoch stamps and the N12 epoch manager share ONE time
+  semantics (no fragmentation — the time-semantics anti-pattern). `P07`/`P08`/`P29`.
+- **GY-N13a — Acquisition-layer reality census (data + sampled-live probes; NEW, Rev 16).**
+  census task, GY-0-class, zero engine-behavior change. The acquisition layer exists but is dark
+  to the runtime: the DCAT catalog (`production_data/datasets_full_phase3full_20260327_183054/
+  dataset_catalog.duckdb`) carries **56,846 metric bindings** (`ds_metric_bindings`: metric →
+  dataset → distribution → `connector_id`/`profile_id`/`request_dataset_id`/default filters/
+  confidence/`execution_tier`; 34,308 `transport_ready` + 7,668 `fetchable` = **41,976
+  executable**, 14,870 catalog-only) over 124 metrics; **3.7M already-local L1 observations**
+  (`ds_observations`) over 101 canonical vars; 605K distributions with direct URLs
+  (`ds_distributions`); alignment machinery with confidence + `is_proxy`/`proxy_penalty`
+  (`ds_variable_alignments`) and 176K schema profiles. Fabric has 20+ real connector classes
+  (worldbank.wdi, eurostat, sdmx, who, unesco_uis, unpd, ukons, ckan, socrata, opendatasoft,
+  wvs, sparql, rest…), binding profiles, `run_orchestrated_ingestion` (fetch-once → CAS →
+  DataSnapshot), and `RetrievalService` (FastLane + ExploreLane + **PromotionLane**) with an
+  **unwired** `_resolve_via_catalog` lane. Census: (1) the **catalog↔runtime seam** — which of
+  the 124 bound metrics resolve to the cycle's canonical variables; classify the three N10
+  capstone acquisition routes against the catalog (**local-lift** — first-vertical
+  `employment_retention` vs the bound employment metrics + L4 firm panels; **live-fetchable** —
+  the unseen water-quality gap vs WHO/Eurostat indicators; **not-a-data-gap** — education's
+  estimand refusal needs method evidence, not rows); (2) construct `DatasetCatalogGraph` from
+  the DuckDB catalog and feed `RetrievalService._resolve_via_catalog` — FetchPlans must
+  **generate (not execute)** for a sampled metric set; (3) a **stratified live liveness
+  census**: ~10–15 journaled probes per connector family (never the full 42k) under §3.5.9
+  discipline — endpoint alive, schema-profile still matches, license/ToS metadata present —
+  producing a typed connector scorecard + liveness map (the snapshot is ~4 months old; dead
+  URLs are expected findings, not failures). Done when: a frozen census artifact (recomputing
+  validator, §3.5.10-compliant — classes recomputed, not pinned) records the metric-resolution
+  map, the three routes classified with evidence, live FetchPlan generation from the real
+  catalog, and the per-family liveness table; every live probe journal-first; zero engine
+  behavior changes. `P29`/§3.5.9.
+- **GY-N13b — Acquisition executor — the world grows (close one capstone route end-to-end;
+  NEW, Rev 16).** wire-existing + narrow build-new. Convert N7's routes from typed dead-ends
+  into executed acquisitions: (1) wire the `DatasetCatalogGraph` into the N7 `_capture_fabric`
+  path (kill the probe-only pattern that imports `run_orchestrated_ingestion` and immediately
+  `del`etes it); (2) **two execution lanes** — **local-lift** (catalog/L4 observations →
+  canonical L1 variables through the EXISTING alignment machinery, generic over
+  `ds_variable_alignments`, never per-metric hand code — §3.5.6-gate-3) and **live-fetch**
+  (`run_orchestrated_ingestion` → CAS → DataSnapshot under §3.5.9 discipline, journal-first raw
+  evidence); (3) an **epoch-stamped overlay** on the canonical observation store — the baseline
+  snapshot is epoch 0 and is **never mutated**; acquired observations land as new-epoch rows
+  with full provenance (UNIFY_EXISTING, no parallel store — the GY-N0 law), and the runtime
+  L1-availability read (`data_state_substrate` reads `dataset_catalog.duckdb#variable/…`) sees
+  them without a new adapter; (4) a **fail-closed admission passport** — schema-profile match,
+  unit coercion, alignment confidence (proxy → degraded authority), license admissibility, the
+  PII stage, checksum/watermark, L5 trust tier; a fetched row without a full passport lands in
+  **quarantine, never L1** (catalog confidence PRIORITIZES, owner validation ADMITS — the CGF
+  principle applied to data); (5) close the two typed N10 residuals
+  (`owner_registration_derivation_missing` → acquired snapshots registered in the
+  generated-artifact lifecycle; `journal_raw_evidence_persistence_missing` → journal-first raw
+  evidence persistence); (6) **close ONE N10 capstone route end-to-end** (per the N13a
+  classification: first-vertical local-lift and/or unseen live-fetch): typed requirement →
+  resolved plan → executed acquisition → admitted observations → **cycle re-entry** → a
+  measurably deeper honest terminal recorded against the same `DesignProblem`. Done when: the
+  chosen capstone route's re-entry trace shows the gap closed by acquisition (or an honest
+  typed deeper terminal); education's route remains honestly data-independent; the
+  overlay/baseline separation is proven by a source flip (mutating the baseline = RED); a
+  fabricated fetch response fails the passport closed; the acquisition receipt is a §3.5.11
+  projection-scoped frozen artifact under §3.5.10 (recomputed, not pinned). This task builds
+  the acquisition half of the Phase-6 world-growth spine — O1/O3's write-back reuses its
+  overlay store + passport, not a second write path. `P27`/`P29`/§3.5.6/§3.5.9/§3.5.10/§3.5.11.
 
 **Phase-5 deferred (adopt the contract now, implement when a certified frontier exists).** With
 `useful_design_rate ≈ 0` and depth-1 integration, the mature-frontier machinery is not yet
@@ -1792,7 +1961,10 @@ a deployed policy keeps living, its effect is updated from observation, and unpr
 consequences are discovered and folded back into the world model. This is the **one genuinely
 greenfield zone** — the posterior / calibration / drift / FDR / decision-feedback **primitives
 are real and reusable** (GY-N0 sweep), but the deployed updater, the exploratory controller,
-and the world write-back are new. It runs **two contours with different authority**, both on
+and the world write-back are new. *(Rev 16: GY-N13b builds the **acquisition half of the
+world-growth spine** — O1/O3's world write-back reuses its epoch-overlay store and admission
+passport, never a second write path; deployment updates and acquisitions are two provenance
+classes landing in ONE growing world.)* It runs **two contours with different authority**, both on
 the candidate→authority firewall. (Scope note: this phase may spin into its own follow-on
 slice; it is planned here so the Phase-5 cycle designs its deployment hooks for it. Each task is
 scoped to a roughly comparable amount of work.)
@@ -1897,6 +2069,10 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
   exercising a **non-panel method family** through the value gate, and the **unseen-third-domain
   smoke** (honest typed terminal, no first-vertical mismatch); record the terminal / evidence-kind /
   decision-grade distributions **per domain**, so domain-invariance is measured, not asserted.
+  **Rev 16:** consume the frozen N10 capstone directly — its three plain-language runs,
+  per-domain terminal distributions, and three acquisition-route evidence classes ARE labelled
+  cases (do not rebuild a parallel labelled set for those domains); add the post-N13b re-entry
+  trace as a labelled case of a gap **closed by acquisition**.
 - **GY-V4 — Adversarial-against-A battery (laundering firewalls live).** The
   constitution mandates this once real grounding happens. Executed **negative** probes,
   each with recorded evidence: (a) agent attempts to write a Ring-2 field → rejected;
@@ -1985,10 +2161,13 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
    + honest dominance + six modes), GY-N9 in-cycle promotion (+ obligations compiler), **GY-N11
    honest confidence ledger (δ-budget)**, **GY-N12 epochs + stale certs + OpenWorldRisk**,
    **GY-N10a second-domain substrate pack (data-only, before N10)**, GY-N10
-   depth-N universality. *(Rev 15 status note: the GY-CG grounding block CG0–CG6 — target spec
-   `policy-design-causal-grounding-firewall.md` — plus GY-INFRA-1 and GY-N4–N8 are executed and
-   closed; the remaining Phase-5 tasks are N9, N11, N12, N10a, N10, all bound by
-   §3.5.6 + §3.5.7 + §3.5.8.)* The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
+   depth-N universality. *(Rev 16 status note: the GY-CG grounding block CG0–CG6, GY-INFRA-1,
+   GY-N4–N9, GY-N10a, and **GY-N10 (closed GO — capstone
+   `layer3_gy_depth_n_universality_contract.json` at ce847b9f2; final architect audit in
+   flight)** are executed; the remaining Phase-5 tasks run **N13a → N13b → N11 → N12** — the
+   acquisition census and executor land FIRST because world growth + cycle re-entry is the only
+   unproven capability and N10's capstone routes are their paid-for inputs; all bound by
+   §3.5.6–§3.5.11.)* The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
    VOI / EXP3 / MCTS) carries contracts now, implementation later. Runs before the learning loop
    and the V-battery so verification audits the **cycle**, not the single-pass harness.
 9. **GY-O0..GY-O3 — Deployed-Policy Learning Loop (greenfield horizon).** After the cycle:

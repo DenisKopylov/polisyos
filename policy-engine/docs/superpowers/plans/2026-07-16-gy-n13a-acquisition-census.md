@@ -145,18 +145,18 @@ Tasks 2–5 and remain RED/GREEN work there.
 
 **Files:** extend builder/checker/tests/artifact projection/journal.
 
-- [ ] Extract the three routes from the frozen capstone by role; do not encode education,
+- [x] Extract the three routes from the frozen capstone by role; do not encode education,
   first-vertical, unseen, water quality, or expected class as classifier inputs.
-- [ ] For each route, measure local observations/L4 or pack evidence, binding counts by execution
+- [x] For each route, measure local observations/L4 or pack evidence, binding counts by execution
   tier, alignment evidence, N7 gap/strategy kind, method/estimand blocker evidence, and exact missing
   link.
-- [ ] Derive `local_lift`, `live_fetchable`, or `not_a_data_gap` by an explicit precedence algebra.
+- [x] Derive `local_lift`, `live_fetchable`, or `not_a_data_gap` by an explicit precedence algebra.
   Persist both evidence and derived label. Validate by recomputation from the narrow route projection
   and catalog—not by comparing pinned labels.
-- [ ] Add RED/GREEN mutations for label pinning, route evidence removal, local-row count change,
+- [x] Add RED/GREEN mutations for label pinning, route evidence removal, local-row count change,
   executable-tier change, and stale expected-route prose. Make the actual unseen capstone route the
   denominator even if it disproves the reconnaissance hypothesis.
-- [ ] Commit: `feat: classify N10 acquisition routes from evidence`.
+- [x] Commit: `feat: classify N10 acquisition routes from evidence`.
 
 ## Task 4 — W3 real FetchPlan generation with a hard execution fence
 

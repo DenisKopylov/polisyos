@@ -21,15 +21,11 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n13a.acquisition_census.v1"
 RULE_VERSION = "policyos.layer3.gy.n13a.acquisition_census.v1"
-CONTENT_HASH_EXCLUDED_FIELDS = frozenset(
-    {"capture_wall_time_seconds", "observed_at"}
-)
+CONTENT_HASH_EXCLUDED_FIELDS = frozenset({"capture_wall_time_seconds", "observed_at"})
 EXECUTABLE_BINDING_TIERS = frozenset({"fetchable", "transport_ready"})
 
 _REQUIRED_CATALOG_COLUMNS: dict[str, frozenset[str]] = {
-    "ds_datasets": frozenset(
-        {"id", "access_license", "access_auth_required", "execution_tier"}
-    ),
+    "ds_datasets": frozenset({"id", "access_license", "access_auth_required", "execution_tier"}),
     "ds_distributions": frozenset(
         {
             "id",
@@ -56,9 +52,7 @@ _REQUIRED_CATALOG_COLUMNS: dict[str, frozenset[str]] = {
             "source",
         }
     ),
-    "ds_observations": frozenset(
-        {"observation_id", "dataset_id", "raw_variable", "canonical_var"}
-    ),
+    "ds_observations": frozenset({"observation_id", "dataset_id", "raw_variable", "canonical_var"}),
     "ds_schema_profiles": frozenset(
         {
             "distribution_id",
@@ -119,6 +113,7 @@ class RouteClass(StrEnum):
     LOCAL_LIFT = "local_lift"
     LIVE_FETCHABLE = "live_fetchable"
     NOT_A_DATA_GAP = "not_a_data_gap"
+    UNRESOLVED = "unresolved"
 
 
 class LivenessState(StrEnum):
@@ -297,9 +292,7 @@ class DemandVariableEvidence(_StrictBoundaryModel):
         )
         if self.gap_kind is not expected_gap:
             raise ValueError("gap_kind must be recomputed from binding support")
-        if self.binding_count == 0 and (
-            self.connector_ids or self.best_binding_confidence != 0.0
-        ):
+        if self.binding_count == 0 and (self.connector_ids or self.best_binding_confidence != 0.0):
             raise ValueError("unbound demand cannot claim connector or confidence evidence")
         return self
 
@@ -324,24 +317,118 @@ class ReverseDemandResidual(_StrictBoundaryModel):
         return _validate_nonnegative_count_map(value)
 
 
-class RouteEvidence(_StrictBoundaryModel):
-    """Measured inputs and derived class for one actual N10 route."""
+class RouteRequirement(_StrictBoundaryModel):
+    """Narrow owner projection needed to classify one capstone route."""
 
     route_id: str = Field(min_length=1)
+    domain_role: str = Field(min_length=1)
     demanded_metrics: tuple[str, ...] = Field(min_length=1)
-    local_observation_count: int = Field(ge=0)
-    binding_tier_counts: dict[str, int]
-    alignment_count: int = Field(ge=0)
+    witness_kind: str = Field(min_length=1)
+    candidate_ref: str = Field(min_length=1)
+    requirement_gap_id: str = Field(min_length=1)
+    gap_source: str = Field(min_length=1)
+    row_addressable_variable: str | None
     planner_gap_kind: str = Field(min_length=1)
     planner_strategy_kind: str = Field(min_length=1)
     blocker_codes: tuple[str, ...]
+    missing_requirement_fields: tuple[str, ...] = Field(min_length=1)
     missing_link: str = Field(min_length=1)
-    route_class: RouteClass
+
+    @model_validator(mode="after")
+    def _owner_projection_is_canonical(self) -> Self:
+        if self.demanded_metrics != tuple(sorted(set(self.demanded_metrics))):
+            raise ValueError("demanded_metrics must be unique and sorted")
+        if self.blocker_codes != tuple(sorted(set(self.blocker_codes))):
+            raise ValueError("blocker_codes must be unique and sorted")
+        if self.missing_requirement_fields != tuple(sorted(set(self.missing_requirement_fields))):
+            raise ValueError("missing requirement fields must be unique and sorted")
+        if self.missing_link not in {
+            *self.blocker_codes,
+            *self.missing_requirement_fields,
+        }:
+            raise ValueError("missing_link must come from preserved owner evidence")
+        if self.witness_kind == "owner_data_gap":
+            if self.gap_source != "l1_dcat_variable_availability":
+                raise ValueError("owner_data_gap must come from the L1 availability owner")
+            if self.row_addressable_variable is None:
+                raise ValueError("owner_data_gap must identify one canonical variable")
+            expected_missing_field = (
+                f"canonical_variable_observations:{self.row_addressable_variable}"
+            )
+            if self.missing_requirement_fields != (expected_missing_field,):
+                raise ValueError("owner_data_gap must preserve its exact variable gap")
+        else:
+            if self.row_addressable_variable is not None:
+                raise ValueError("only owner_data_gap is row-addressable")
+            if self.gap_source == "l1_dcat_variable_availability":
+                raise ValueError("the L1 availability owner requires owner_data_gap")
+        return self
+
+
+class VariableSupplyEvidence(_StrictBoundaryModel):
+    """Exact local/catalog supply measured for one declared variable set."""
+
+    variable_ids: tuple[str, ...] = Field(min_length=1)
+    local_observation_count: int = Field(ge=0)
+    binding_count: int = Field(ge=0)
+    executable_binding_count: int = Field(ge=0)
+    binding_tier_counts: dict[str, int]
+    alignment_count: int = Field(ge=0)
+    nonproxy_alignment_count: int = Field(ge=0)
+    connector_ids: tuple[str, ...]
 
     @field_validator("binding_tier_counts")
     @classmethod
     def _counts_must_be_nonnegative(cls, value: dict[str, int]) -> dict[str, int]:
         return _validate_nonnegative_count_map(value)
+
+    @model_validator(mode="after")
+    def _supply_counts_are_derived(self) -> Self:
+        if self.variable_ids != tuple(sorted(set(self.variable_ids))):
+            raise ValueError("variable_ids must be unique and sorted")
+        if sum(self.binding_tier_counts.values()) != self.binding_count:
+            raise ValueError("binding tier counts must cover every binding")
+        executable_count = sum(
+            count
+            for tier, count in self.binding_tier_counts.items()
+            if tier in EXECUTABLE_BINDING_TIERS
+        )
+        if executable_count != self.executable_binding_count:
+            raise ValueError("executable binding count must be derived from tiers")
+        if self.nonproxy_alignment_count > self.alignment_count:
+            raise ValueError("nonproxy alignments cannot exceed all alignments")
+        if self.binding_count == 0 and self.connector_ids:
+            raise ValueError("unbound variables cannot claim connectors")
+        return self
+
+
+class RouteEvidence(_StrictBoundaryModel):
+    """Measured supply and recomputed class for one actual N10 route."""
+
+    route: RouteRequirement
+    declared_supply: VariableSupplyEvidence
+    row_addressable_supply: VariableSupplyEvidence | None
+    route_class: RouteClass
+
+    @model_validator(mode="after")
+    def _class_must_be_recomputed_from_owner_evidence(self) -> Self:
+        if self.declared_supply.variable_ids != self.route.demanded_metrics:
+            raise ValueError("declared supply must cover the route demand denominator")
+        variable = self.route.row_addressable_variable
+        if variable is None:
+            if self.row_addressable_supply is not None:
+                raise ValueError("structural routes cannot claim row-addressable supply")
+        elif self.row_addressable_supply is None or self.row_addressable_supply.variable_ids != (
+            variable,
+        ):
+            raise ValueError("row-addressable supply must cover the exact owner variable")
+        expected = _derive_route_class(
+            witness_kind=self.route.witness_kind,
+            row_addressable_supply=self.row_addressable_supply,
+        )
+        if self.route_class is not expected:
+            raise ValueError("route_class must be recomputed from decisive evidence")
+        return self
 
 
 class FetchPlanProjection(_StrictBoundaryModel):
@@ -458,6 +545,25 @@ class ProjectionBinding(_StrictBoundaryModel):
     projected_item_count: int = Field(ge=0)
 
 
+class RouteProjection(_StrictBoundaryModel):
+    """Narrow, content-bound acquisition-route projection from the capstone."""
+
+    projection_binding: ProjectionBinding
+    routes: tuple[RouteRequirement, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _route_denominator_is_complete_and_sorted(self) -> Self:
+        route_ids = tuple(route.route_id for route in self.routes)
+        if route_ids != tuple(sorted(set(route_ids))):
+            raise ValueError("route IDs must be unique and sorted")
+        roles = tuple(route.domain_role for route in self.routes)
+        if len(roles) != len(set(roles)):
+            raise ValueError("domain roles must identify unique capstone routes")
+        if self.projection_binding.projected_item_count != len(self.routes):
+            raise ValueError("projection count must cover every capstone route")
+        return self
+
+
 class DemandProjection(_StrictBoundaryModel):
     """Narrow, content-bound reverse denominator projected from upstream artifacts."""
 
@@ -565,9 +671,7 @@ def read_catalog_source(catalog_path: Path, *, source_locator: str) -> CatalogSo
         _validate_binding_owner_rows(connection)
         table_row_counts = {
             table: int(
-                connection.execute(
-                    "SELECT COUNT(*) FROM query_table(?)", [table]
-                ).fetchone()[0]
+                connection.execute("SELECT COUNT(*) FROM query_table(?)", [table]).fetchone()[0]
             )
             for table in sorted(_REQUIRED_CATALOG_COLUMNS)
         }
@@ -735,9 +839,7 @@ def derive_metric_resolutions(catalog_path: Path) -> tuple[MetricResolution, ...
                 best_alignment=candidates[0] if candidates else None,
                 alignment_candidates=candidates,
                 alignment_ambiguous=len(candidates) > 1,
-                proxy_only=bool(candidates) and all(
-                    candidate.is_proxy for candidate in candidates
-                ),
+                proxy_only=bool(candidates) and all(candidate.is_proxy for candidate in candidates),
                 limitations=limitations,
             )
         )
@@ -779,17 +881,13 @@ def extract_reverse_demand_projection(
     substrate_items = _extract_substrate_demand_items(intervention_substrate)
     value_gate_items = _extract_value_gate_demand_items(value_gate)
     projections = (
-        _projection_binding(
-            "capstone_cycle_demands", capstone_source, capstone_items
-        ),
+        _projection_binding("capstone_cycle_demands", capstone_source, capstone_items),
         _projection_binding(
             "intervention_substrate_world_slots",
             intervention_substrate_source,
             substrate_items,
         ),
-        _projection_binding(
-            "value_gate_target_requirements", value_gate_source, value_gate_items
-        ),
+        _projection_binding("value_gate_target_requirements", value_gate_source, value_gate_items),
     )
     demand_sources: defaultdict[str, set[str]] = defaultdict(set)
     for item in (*capstone_items, *substrate_items, *value_gate_items):
@@ -831,6 +929,140 @@ def read_reverse_demand_projection(
         intervention_substrate_source=intervention_substrate_source,
         value_gate_source=value_gate_source,
     )
+
+
+def extract_route_projection(
+    *,
+    capstone: Mapping[str, Any],
+    capstone_source: str,
+) -> RouteProjection:
+    """Project every capstone route through only its decisive owner evidence.
+
+    Route keys and domain roles remain identifiers in the evidence, but neither is
+    a classifier input. Free-form request prose and reconnaissance hypotheses are
+    intentionally outside this projection.
+    """
+
+    runs = _required_mapping(capstone, "domain_runs", "capstone.domain_runs")
+    if not runs:
+        raise CatalogContractError("route_projection_empty", "capstone.domain_runs is empty")
+    routes = tuple(
+        _extract_route_requirement(
+            route_id=_required_identifier(route_key, "capstone.domain_runs route key"),
+            run=_as_mapping(raw_run, f"capstone.domain_runs.{route_key}"),
+        )
+        for route_key, raw_run in sorted(runs.items(), key=lambda item: str(item[0]))
+    )
+    roles = tuple(route.domain_role for route in routes)
+    if len(roles) != len(set(roles)):
+        raise CatalogContractError(
+            "route_projection_duplicate_role",
+            "capstone domain_role values must identify unique routes",
+        )
+    binding = _projection_binding(
+        "capstone_acquisition_routes",
+        capstone_source,
+        tuple(route.model_dump(mode="json") for route in routes),
+    )
+    return RouteProjection(projection_binding=binding, routes=routes)
+
+
+def read_route_projection(*, capstone_path: Path, capstone_source: str) -> RouteProjection:
+    """Load the frozen capstone and return its narrow route projection."""
+
+    return extract_route_projection(
+        capstone=_load_json_mapping(capstone_path, owner="capstone"),
+        capstone_source=capstone_source,
+    )
+
+
+def measure_route_evidence(
+    catalog_path: Path,
+    projection: RouteProjection,
+) -> tuple[RouteEvidence, ...]:
+    """Measure route-declared and row-addressable supply, then derive classes."""
+
+    connection = _open_validated_catalog(catalog_path)
+    try:
+        binding_rows = connection.execute(
+            """
+            SELECT metric_id, connector_id, execution_tier
+            FROM ds_metric_bindings
+            """
+        ).fetchall()
+        observation_rows = connection.execute(
+            """
+            SELECT canonical_var, COUNT(*)
+            FROM ds_observations
+            WHERE canonical_var IS NOT NULL AND TRIM(canonical_var) <> ''
+            GROUP BY canonical_var
+            """
+        ).fetchall()
+        alignment_rows = connection.execute(
+            """
+            SELECT canonical_var,
+                   COUNT(*),
+                   COUNT(*) FILTER (WHERE is_proxy IS FALSE)
+            FROM ds_variable_alignments
+            WHERE canonical_var IS NOT NULL AND TRIM(canonical_var) <> ''
+            GROUP BY canonical_var
+            """
+        ).fetchall()
+    except duckdb.Error as exc:
+        raise CatalogContractError("catalog_route_query_failed", str(exc)) from exc
+    finally:
+        connection.close()
+
+    binding_counts: Counter[str] = Counter()
+    tier_counts: defaultdict[str, Counter[str]] = defaultdict(Counter)
+    connectors: defaultdict[str, set[str]] = defaultdict(set)
+    for metric_id, connector_id, execution_tier in binding_rows:
+        metric = str(metric_id)
+        tier = str(execution_tier)
+        binding_counts[metric] += 1
+        tier_counts[metric][tier] += 1
+        connectors[metric].add(str(connector_id))
+    observation_counts = {str(variable_id): int(count) for variable_id, count in observation_rows}
+    alignment_counts = {
+        str(variable_id): (int(count), int(nonproxy_count))
+        for variable_id, count, nonproxy_count in alignment_rows
+    }
+
+    rows: list[RouteEvidence] = []
+    for route in projection.routes:
+        declared_supply = _variable_supply_evidence(
+            route.demanded_metrics,
+            binding_counts=binding_counts,
+            tier_counts=tier_counts,
+            connectors=connectors,
+            observation_counts=observation_counts,
+            alignment_counts=alignment_counts,
+        )
+        row_supply = (
+            _variable_supply_evidence(
+                (route.row_addressable_variable,),
+                binding_counts=binding_counts,
+                tier_counts=tier_counts,
+                connectors=connectors,
+                observation_counts=observation_counts,
+                alignment_counts=alignment_counts,
+            )
+            if route.row_addressable_variable is not None
+            else None
+        )
+        route_class = _derive_route_class(
+            witness_kind=route.witness_kind,
+            row_addressable_supply=row_supply,
+        )
+        rows.append(
+            RouteEvidence(
+                route=route,
+                declared_supply=declared_supply,
+                row_addressable_supply=row_supply,
+                route_class=route_class,
+            )
+        )
+    return tuple(rows)
 
 
 def measure_reverse_demand(
@@ -890,12 +1122,8 @@ def measure_reverse_demand(
         best_confidence[metric] = max(best_confidence[metric], float(confidence))
         if tier in EXECUTABLE_BINDING_TIERS:
             executable_counts[metric] += 1
-    observation_counts = {
-        str(variable_id): int(count) for variable_id, count in observation_rows
-    }
-    alignment_counts = {
-        str(variable_id): int(count) for variable_id, count in alignment_rows
-    }
+    observation_counts = {str(variable_id): int(count) for variable_id, count in observation_rows}
+    alignment_counts = {str(variable_id): int(count) for variable_id, count in alignment_rows}
 
     rows: list[DemandVariableEvidence] = []
     for demand in demands:
@@ -979,14 +1207,293 @@ def _alignment_candidate_sort_key(candidate: AlignmentCandidate) -> tuple[object
     )
 
 
+def _derive_route_class(
+    *,
+    witness_kind: str,
+    row_addressable_supply: VariableSupplyEvidence | None,
+) -> RouteClass:
+    """Apply the route-class precedence without route-name or prose inputs."""
+
+    if witness_kind != "owner_data_gap":
+        return RouteClass.NOT_A_DATA_GAP
+    if row_addressable_supply is None:
+        raise ValueError("owner_data_gap requires measured row-addressable supply")
+    if row_addressable_supply.local_observation_count > 0:
+        return RouteClass.LOCAL_LIFT
+    if row_addressable_supply.executable_binding_count > 0:
+        return RouteClass.LIVE_FETCHABLE
+    return RouteClass.UNRESOLVED
+
+
+def _variable_supply_evidence(
+    variable_ids: Sequence[str],
+    *,
+    binding_counts: Mapping[str, int],
+    tier_counts: Mapping[str, Counter[str]],
+    connectors: Mapping[str, set[str]],
+    observation_counts: Mapping[str, int],
+    alignment_counts: Mapping[str, tuple[int, int]],
+) -> VariableSupplyEvidence:
+    variables = tuple(sorted(set(variable_ids)))
+    combined_tiers: Counter[str] = Counter()
+    combined_connectors: set[str] = set()
+    for variable in variables:
+        combined_tiers.update(tier_counts.get(variable, Counter()))
+        combined_connectors.update(connectors.get(variable, set()))
+    binding_count = sum(binding_counts.get(variable, 0) for variable in variables)
+    alignment_count = sum(alignment_counts.get(variable, (0, 0))[0] for variable in variables)
+    nonproxy_alignment_count = sum(
+        alignment_counts.get(variable, (0, 0))[1] for variable in variables
+    )
+    return VariableSupplyEvidence(
+        variable_ids=variables,
+        local_observation_count=sum(observation_counts.get(variable, 0) for variable in variables),
+        binding_count=binding_count,
+        executable_binding_count=sum(
+            count for tier, count in combined_tiers.items() if tier in EXECUTABLE_BINDING_TIERS
+        ),
+        binding_tier_counts=dict(sorted(combined_tiers.items())),
+        alignment_count=alignment_count,
+        nonproxy_alignment_count=nonproxy_alignment_count,
+        connector_ids=tuple(sorted(combined_connectors)),
+    )
+
+
+def _extract_route_requirement(*, route_id: str, run: Mapping[str, Any]) -> RouteRequirement:
+    route_path = f"capstone.domain_runs.{route_id}"
+    domain_role = _required_text(run, "domain_role", f"{route_path}.domain_role")
+    demanded_metrics = _extract_route_demanded_metrics(run, route_path=route_path)
+    witness_path = f"{route_path}.evidence_witness"
+    witness = _required_mapping(run, "evidence_witness", witness_path)
+    witness_kind = _required_text(witness, "kind", f"{witness_path}.kind")
+    candidate_ref = _required_text(witness, "candidate_ref", f"{witness_path}.candidate_ref")
+    route_owner_keys = tuple(
+        key
+        for key in ("acquisition_route", "grounding_route")
+        if key in witness and witness[key] is not None
+    )
+    if len(route_owner_keys) != 1:
+        raise CatalogContractError(
+            "route_owner_reference_invalid",
+            f"{witness_path} must carry exactly one acquisition owner reference",
+        )
+    route_owner_key = route_owner_keys[0]
+    route_owner_path = f"{witness_path}.{route_owner_key}"
+    route_owner = _as_mapping(witness[route_owner_key], route_owner_path)
+    for field in ("owner_content_hash", "owner_schema", "planner_report_content_hash"):
+        _required_text(route_owner, field, f"{route_owner_path}.{field}")
+    owner_gap_id = _required_text(
+        route_owner, "requirement_gap_id", f"{route_owner_path}.requirement_gap_id"
+    )
+
+    terminal_path = f"{route_path}.terminal"
+    terminal = _required_mapping(run, "terminal", terminal_path)
+    blocker_codes = _required_text_tuple(
+        terminal,
+        "blocking_obligations",
+        f"{terminal_path}.blocking_obligations",
+        allow_empty=True,
+    )
+    spec_path = f"{terminal_path}.data_need_spec"
+    spec = _required_mapping(terminal, "data_need_spec", spec_path)
+    spec_gap_id = _required_text(spec, "requirement_gap_id", f"{spec_path}.requirement_gap_id")
+    if spec_gap_id != owner_gap_id:
+        raise CatalogContractError(
+            "route_requirement_gap_id_mismatch",
+            f"{route_owner_path} and {spec_path} identify different gaps",
+        )
+    gap_kind = _required_text(spec, "gap_type", f"{spec_path}.gap_type")
+    requirement_family = _required_text(
+        spec, "requirement_family", f"{spec_path}.requirement_family"
+    )
+    missing_fields = _required_text_tuple(
+        spec,
+        "missing_requirement_fields",
+        f"{spec_path}.missing_requirement_fields",
+        allow_empty=False,
+    )
+    producer_output_ref = _required_text(
+        spec, "producer_output_ref", f"{spec_path}.producer_output_ref"
+    )
+    metadata_path = f"{spec_path}.metadata"
+    metadata = _required_mapping(spec, "metadata", metadata_path)
+    gap_source = _required_text(metadata, "source", f"{metadata_path}.source")
+    candidate_binding_path = f"{metadata_path}.candidate_binding"
+    candidate_binding = _required_mapping(metadata, "candidate_binding", candidate_binding_path)
+    if (
+        _required_text(
+            candidate_binding,
+            "candidate_id",
+            f"{candidate_binding_path}.candidate_id",
+        )
+        != candidate_ref
+    ):
+        raise CatalogContractError(
+            "route_candidate_owner_mismatch",
+            f"{candidate_binding_path} does not own {candidate_ref}",
+        )
+    _required_text(
+        candidate_binding,
+        "design_problem_ref",
+        f"{candidate_binding_path}.design_problem_ref",
+    )
+
+    costed_path = f"{terminal_path}.costed_plan"
+    costed = _required_mapping(terminal, "costed_plan", costed_path)
+    report_path = f"{costed_path}.canonical_planner_report"
+    report = _required_mapping(costed, "canonical_planner_report", report_path)
+    records_path = f"{report_path}.acquisition_records"
+    records = _required_sequence(report, "acquisition_records", records_path)
+    matching_records: list[Mapping[str, Any]] = []
+    for index, raw_record in enumerate(records):
+        record = _as_mapping(raw_record, f"{records_path}[{index}]")
+        if record.get("gap_id") == owner_gap_id:
+            matching_records.append(record)
+    if len(matching_records) != 1:
+        raise CatalogContractError(
+            "route_planner_gap_owner_missing",
+            f"{records_path} must have exactly one record for {owner_gap_id}",
+        )
+    record = matching_records[0]
+    if _required_text(record, "gap_type", f"{records_path}.gap_type") != gap_kind:
+        raise CatalogContractError(
+            "route_planner_gap_kind_mismatch", f"planner record for {owner_gap_id}"
+        )
+    if (
+        _required_text(record, "requirement_family", f"{records_path}.requirement_family")
+        != requirement_family
+    ):
+        raise CatalogContractError(
+            "route_planner_requirement_family_mismatch",
+            f"planner record for {owner_gap_id}",
+        )
+    record_missing_fields = _required_text_tuple(
+        record,
+        "missing_requirement_fields",
+        f"{records_path}.missing_requirement_fields",
+        allow_empty=False,
+    )
+    if record_missing_fields != missing_fields:
+        raise CatalogContractError(
+            "route_planner_missing_fields_mismatch",
+            f"planner record for {owner_gap_id}",
+        )
+    planner_strategy = _required_text(
+        record, "recommended_strategy", f"{records_path}.recommended_strategy"
+    )
+    _required_text(record, "producer_expected", f"{records_path}.producer_expected")
+
+    row_addressable_variable: str | None = None
+    if witness_kind == "owner_data_gap":
+        if route_owner_key != "acquisition_route":
+            raise CatalogContractError("route_data_gap_owner_reference_invalid", route_owner_path)
+        if gap_source != "l1_dcat_variable_availability":
+            raise CatalogContractError("route_data_gap_source_invalid", f"{metadata_path}.source")
+        prefix = "canonical_variable_observations:"
+        if len(missing_fields) != 1 or not missing_fields[0].startswith(prefix):
+            raise CatalogContractError(
+                "route_data_gap_variable_missing",
+                f"{spec_path}.missing_requirement_fields",
+            )
+        row_addressable_variable = _as_text(
+            missing_fields[0][len(prefix) :],
+            f"{spec_path}.missing_requirement_fields[0] variable",
+        )
+        availability_path = f"{metadata_path}.availability"
+        availability = _required_mapping(metadata, "availability", availability_path)
+        if (
+            _required_text(
+                availability,
+                "variable_id",
+                f"{availability_path}.variable_id",
+            )
+            != row_addressable_variable
+        ):
+            raise CatalogContractError("route_data_gap_availability_mismatch", availability_path)
+        owner_variable_suffix = f"#variable/{row_addressable_variable}"
+        coverage_ref = _required_text(
+            availability, "coverage_ref", f"{availability_path}.coverage_ref"
+        )
+        if not coverage_ref.endswith(owner_variable_suffix) or not producer_output_ref.endswith(
+            owner_variable_suffix
+        ):
+            raise CatalogContractError("route_data_gap_variable_ref_mismatch", availability_path)
+
+    if witness_kind == "estimand_binding_refusal":
+        estimand_blockers = tuple(blocker for blocker in blocker_codes if "estimand" in blocker)
+        if not estimand_blockers:
+            raise CatalogContractError(
+                "route_estimand_blocker_missing", f"{terminal_path}.blocking_obligations"
+            )
+        missing_link = estimand_blockers[0]
+    else:
+        missing_link = missing_fields[0]
+
+    return RouteRequirement(
+        route_id=route_id,
+        domain_role=domain_role,
+        demanded_metrics=demanded_metrics,
+        witness_kind=witness_kind,
+        candidate_ref=candidate_ref,
+        requirement_gap_id=owner_gap_id,
+        gap_source=gap_source,
+        row_addressable_variable=row_addressable_variable,
+        planner_gap_kind=gap_kind,
+        planner_strategy_kind=planner_strategy,
+        blocker_codes=blocker_codes,
+        missing_requirement_fields=missing_fields,
+        missing_link=missing_link,
+    )
+
+
+def _extract_route_demanded_metrics(run: Mapping[str, Any], *, route_path: str) -> tuple[str, ...]:
+    problem_path = f"{route_path}.design_problem"
+    problem = _required_mapping(run, "design_problem", problem_path)
+    outcome_path = f"{problem_path}.outcome_of_interest"
+    outcome = _required_mapping(problem, "outcome_of_interest", outcome_path)
+    metrics = {
+        _required_text(outcome, "metric_id", f"{outcome_path}.metric_id"),
+        _required_text(outcome, "target_variable", f"{outcome_path}.target_variable"),
+    }
+    objectives_path = f"{problem_path}.objectives"
+    objectives = _required_sequence(problem, "objectives", objectives_path)
+    for index, raw_objective in enumerate(objectives):
+        objective_path = f"{objectives_path}[{index}]"
+        objective = _as_mapping(raw_objective, objective_path)
+        metrics.add(_required_text(objective, "metric_id", f"{objective_path}.metric_id"))
+    lever_space_path = f"{problem_path}.candidate_lever_space"
+    lever_space = _required_mapping(problem, "candidate_lever_space", lever_space_path)
+    levers_path = f"{lever_space_path}.candidate_levers"
+    levers = _required_sequence(lever_space, "candidate_levers", levers_path)
+    for index, raw_lever in enumerate(levers):
+        lever_path = f"{levers_path}[{index}]"
+        lever = _as_mapping(raw_lever, lever_path)
+        metrics.add(_required_text(lever, "target_slot", f"{lever_path}.target_slot"))
+    return tuple(sorted(metrics))
+
+
+def _required_text_tuple(
+    owner: Mapping[str, Any],
+    key: str,
+    path: str,
+    *,
+    allow_empty: bool,
+) -> tuple[str, ...]:
+    values = _required_sequence(owner, key, path)
+    normalized = tuple(
+        sorted({_as_text(value, f"{path}[{index}]") for index, value in enumerate(values)})
+    )
+    if not normalized and not allow_empty:
+        raise CatalogContractError("demand_projection_invalid_field", f"{path} must not be empty")
+    return normalized
+
+
 def _extract_capstone_demand_items(
     capstone: Mapping[str, Any],
 ) -> tuple[dict[str, str], ...]:
     runs = _required_mapping(capstone, "domain_runs", "capstone.domain_runs")
     if not runs:
-        raise CatalogContractError(
-            "demand_projection_empty", "capstone.domain_runs is empty"
-        )
+        raise CatalogContractError("demand_projection_empty", "capstone.domain_runs is empty")
     items: list[dict[str, str]] = []
     for route_key, raw_run in sorted(runs.items(), key=lambda item: str(item[0])):
         route = _required_identifier(route_key, "capstone.domain_runs key")
@@ -1013,16 +1520,12 @@ def _extract_capstone_demand_items(
             items.append(
                 {
                     "source_path": field_path,
-                    "variable_id": _required_text(
-                        objective, "metric_id", field_path
-                    ),
+                    "variable_id": _required_text(objective, "metric_id", field_path),
                 }
             )
 
         lever_space_path = f"{problem_path}.candidate_lever_space"
-        lever_space = _required_mapping(
-            problem, "candidate_lever_space", lever_space_path
-        )
+        lever_space = _required_mapping(problem, "candidate_lever_space", lever_space_path)
         levers_path = f"{lever_space_path}.candidate_levers"
         levers = _required_sequence(lever_space, "candidate_levers", levers_path)
         for index, raw_lever in enumerate(levers):
@@ -1070,9 +1573,7 @@ def _extract_value_gate_demand_items(
     proofs_path = "value_gate.transport_component_proofs"
     proofs = _required_mapping(value_gate, "transport_component_proofs", proofs_path)
     if not proofs:
-        raise CatalogContractError(
-            "demand_projection_empty", f"{proofs_path} is empty"
-        )
+        raise CatalogContractError("demand_projection_empty", f"{proofs_path} is empty")
     items: list[dict[str, str]] = []
     for proof_key, raw_proof in sorted(proofs.items(), key=lambda item: str(item[0])):
         proof = _required_identifier(proof_key, f"{proofs_path} key")
@@ -1087,9 +1588,7 @@ def _extract_value_gate_demand_items(
             items.append(
                 {
                     "source_path": field_path,
-                    "variable_id": _required_text(
-                        node, "target_variable", field_path
-                    ),
+                    "variable_id": _required_text(node, "target_variable", field_path),
                 }
             )
     return tuple(sorted(items, key=lambda item: (item["source_path"], item["variable_id"])))
@@ -1114,44 +1613,30 @@ def _projection_binding(
     )
 
 
-def _required_mapping(
-    owner: Mapping[str, Any], key: str, path: str
-) -> Mapping[str, Any]:
+def _required_mapping(owner: Mapping[str, Any], key: str, path: str) -> Mapping[str, Any]:
     if key not in owner:
-        raise CatalogContractError(
-            "demand_projection_missing_field", f"missing {path}"
-        )
+        raise CatalogContractError("demand_projection_missing_field", f"missing {path}")
     return _as_mapping(owner[key], path)
 
 
 def _as_mapping(value: Any, path: str) -> Mapping[str, Any]:
     if not isinstance(value, Mapping):
-        raise CatalogContractError(
-            "demand_projection_invalid_field", f"{path} must be an object"
-        )
+        raise CatalogContractError("demand_projection_invalid_field", f"{path} must be an object")
     return value
 
 
-def _required_sequence(
-    owner: Mapping[str, Any], key: str, path: str
-) -> Sequence[Any]:
+def _required_sequence(owner: Mapping[str, Any], key: str, path: str) -> Sequence[Any]:
     if key not in owner:
-        raise CatalogContractError(
-            "demand_projection_missing_field", f"missing {path}"
-        )
+        raise CatalogContractError("demand_projection_missing_field", f"missing {path}")
     value = owner[key]
     if not isinstance(value, Sequence) or isinstance(value, (str, bytes, bytearray)):
-        raise CatalogContractError(
-            "demand_projection_invalid_field", f"{path} must be an array"
-        )
+        raise CatalogContractError("demand_projection_invalid_field", f"{path} must be an array")
     return value
 
 
 def _required_text(owner: Mapping[str, Any], key: str, path: str) -> str:
     if key not in owner:
-        raise CatalogContractError(
-            "demand_projection_missing_field", f"missing {path}"
-        )
+        raise CatalogContractError("demand_projection_missing_field", f"missing {path}")
     return _as_text(owner[key], path)
 
 
@@ -1171,9 +1656,7 @@ def _load_json_mapping(path: Path, *, owner: str) -> Mapping[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise CatalogContractError(
-            "demand_projection_owner_unreadable", f"{owner}: {exc}"
-        ) from exc
+        raise CatalogContractError("demand_projection_owner_unreadable", f"{owner}: {exc}") from exc
     if not isinstance(payload, Mapping):
         raise CatalogContractError(
             "demand_projection_owner_invalid", f"{owner} root must be an object"
@@ -1192,9 +1675,7 @@ def _validate_catalog_schema(connection: duckdb.DuckDBPyConnection) -> None:
     actual_tables = {str(row[0]) for row in table_rows}
     missing_tables = sorted(set(_REQUIRED_CATALOG_COLUMNS) - actual_tables)
     if missing_tables:
-        raise CatalogContractError(
-            "catalog_schema_missing_tables", ", ".join(missing_tables)
-        )
+        raise CatalogContractError("catalog_schema_missing_tables", ", ".join(missing_tables))
 
     missing_columns: list[str] = []
     for table, required_columns in sorted(_REQUIRED_CATALOG_COLUMNS.items()):
@@ -1208,13 +1689,10 @@ def _validate_catalog_schema(connection: duckdb.DuckDBPyConnection) -> None:
         ).fetchall()
         actual_columns = {str(row[0]) for row in column_rows}
         missing_columns.extend(
-            f"{table}.{column}"
-            for column in sorted(required_columns - actual_columns)
+            f"{table}.{column}" for column in sorted(required_columns - actual_columns)
         )
     if missing_columns:
-        raise CatalogContractError(
-            "catalog_schema_missing_columns", ", ".join(missing_columns)
-        )
+        raise CatalogContractError("catalog_schema_missing_columns", ", ".join(missing_columns))
 
 
 def _validate_denominator_rows(connection: duckdb.DuckDBPyConnection) -> None:
@@ -1517,11 +1995,7 @@ def _json_value(value: object) -> object:
 
 def _without_top_level_run_economics(value: object) -> object:
     if isinstance(value, dict):
-        return {
-            key: item
-            for key, item in value.items()
-            if key not in CONTENT_HASH_EXCLUDED_FIELDS
-        }
+        return {key: item for key, item in value.items() if key not in CONTENT_HASH_EXCLUDED_FIELDS}
     return value
 
 

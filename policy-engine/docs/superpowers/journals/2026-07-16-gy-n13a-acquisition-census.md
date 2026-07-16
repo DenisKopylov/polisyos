@@ -167,3 +167,85 @@ Narrow projection bindings:
 
 These are path-derived projections over mapping members and array items. No domain name, variable
 value, expected count, academic alias, or loose global name overlap is a classifier input.
+
+## Task 3 — W2 capstone route reality
+
+Status: complete.
+
+The route denominator is projected generically from every member of `capstone.domain_runs`. The
+narrow projection preserves the owner witness kind, demanded variable set, candidate/gap identity,
+N7 gap and recommended strategy, terminal blockers, missing requirement fields, and exact missing
+link. It excludes free-form request prose. The current three-route projection is content-bound as:
+
+```text
+capstone_acquisition_routes
+projected_item_count=3
+sha256:c1c2f88469bfb8d6675bf7cd7011ffbae123657cf5533d1143bcbb8c5ba8f53c
+```
+
+The owner gate cross-checks the witness route reference, terminal `data_need_spec`, and matching N7
+acquisition record. An `owner_data_gap` is row-addressable only when the owner source is
+`l1_dcat_variable_availability`, the missing field is exactly one
+`canonical_variable_observations:<variable>`, and the availability/producer references bind that
+same variable. Missing or conflicting gap IDs, availability evidence, or variable IDs fail closed.
+
+The class precedence is explicit and role-independent:
+
+1. every witness other than `owner_data_gap` is `not_a_data_gap`;
+2. a validated `owner_data_gap` with local canonical observations is `local_lift`;
+3. otherwise, an exact `fetchable`/`transport_ready` binding is `live_fetchable`;
+4. otherwise the row-addressable route is typed `unresolved` rather than forced into a live lane.
+
+The route key, `domain_role`, domain names, and expected reconnaissance class are never classifier
+inputs. Persisted labels are validated against the measured supply algebra, so pinning a label does
+not survive model validation.
+
+### Production result
+
+Read-only checker command:
+
+```text
+uv run python tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py \
+  --catalog-path /Users/deniskopylov/polisyos/policy-engine/production_data/\
+datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb
+```
+
+The recomputed distribution is `not_a_data_gap=3`; there is no current capstone-eligible data-only
+demonstration lane.
+
+| Route role | Declared variables | Bindings | Executable | Local observations | Alignments | Class | Exact missing link |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| education | 4 | 147 | 128 | 111 | 2 (2 non-proxy) | `not_a_data_gap` | `method_estimand_binding_mismatch` |
+| first_vertical | 4 | 0 | 0 | 0 | 0 | `not_a_data_gap` | `grounding_relation_or_owner_lever:gy_n4.emergency_tax_relief` |
+| unseen | 5 | 0 | 0 | 0 | 0 | `not_a_data_gap` | `grounding_relation_or_owner_lever:candidate_fallback_1950390310ca54cb` |
+
+Education's declared variables are `learning`, `teaching`, `tertiary_enrollment`, and
+`years_of_schooling`; the binding tier split is 19 catalog + 4 fetchable + 124 transport-ready. The
+rows cannot repair an estimand-shaped refusal. The first-vertical and unseen routes are structural
+world/grounding-link gaps with `value_world_model_record_unwired` preserved among their blockers.
+The actual unseen demand is the five-variable heat-wave electricity/emissions/equity route; stale
+water-quality prose does not enter or move the projection.
+
+Adjacent local evidence was measured but deliberately not promoted. The catalog has 1,164,742
+`education_outcomes` observations with no owner edge to the education estimand refusal. The frozen
+D3 build manifest records `corrected_firm_panels.parquet` at 11,574 rows
+(`sha256:f8e987dcb1e724866b8ac431dfc508b6525c6cd411ca57c57b45218e1ea194f4`) and
+`calibrated_household_cells.parquet` at 100 rows
+(`sha256:a63f3483450f05aea0180f8d3e5eb6899b8734155361060f233a7e2e4a3c59a6`). Neither
+has an owner mapping to the first-vertical missing requirement, so both remain unmapped context.
+
+### RED/GREEN and flips
+
+The initial focused route slice failed five tests because the route projection, strict nested
+evidence, measurement owner, and class algebra did not yet exist. The GREEN file collects 52 tests:
+50 pass and the two declared production witnesses skip unless the read-only catalog is supplied.
+The opt-in actual-capstone W2 witness passes.
+
+Decisive mutations cover: persisted class relabeling; witness/spec/planner gap-ID mismatch; missing
+availability owner; missing-variable mismatch; local observation deletion; executable-tier decay;
+adding both local rows and a transport-ready binding to a structural route; route-key/role rename;
+and stale water-quality request prose. The first two supply flips move a synthetic honest
+`owner_data_gap` through `local_lift` -> `live_fetchable` -> `unresolved`; adding rows to a structural
+route leaves it `not_a_data_gap`.
+
+Focused Ruff lint passes. Formatting was applied only to the three touched Python files.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 from collections import Counter
@@ -196,9 +197,7 @@ def catalog_path(tmp_path: Path) -> Path:
 
 
 def _census() -> Any:
-    return import_module(
-        "tools.quality.validation.layer3_gy_n13a_acquisition_census"
-    )
+    return import_module("tools.quality.validation.layer3_gy_n13a_acquisition_census")
 
 
 def test_census_boundary_models_are_strict() -> None:
@@ -211,6 +210,9 @@ def test_census_boundary_models_are_strict() -> None:
         census.DemandRequirement,
         census.DemandVariableEvidence,
         census.ReverseDemandResidual,
+        census.RouteRequirement,
+        census.RouteProjection,
+        census.VariableSupplyEvidence,
         census.RouteEvidence,
         census.FetchPlanProjection,
         census.ProbeBudget,
@@ -226,8 +228,7 @@ def test_census_boundary_models_are_strict() -> None:
     )
 
     assert all(
-        model.model_json_schema().get("additionalProperties") is False
-        for model in boundary_models
+        model.model_json_schema().get("additionalProperties") is False for model in boundary_models
     )
 
 
@@ -312,8 +313,7 @@ def test_catalog_source_fails_closed_on_fake_schema_profile_contract(
             "catalog_binding_distribution_missing",
         ),
         (
-            "UPDATE ds_distributions SET dataset_id = 'dataset-z' "
-            "WHERE id = 'distribution-a'",
+            "UPDATE ds_distributions SET dataset_id = 'dataset-z' WHERE id = 'distribution-a'",
             "catalog_binding_distribution_dataset_mismatch",
         ),
         (
@@ -322,8 +322,7 @@ def test_catalog_source_fails_closed_on_fake_schema_profile_contract(
             "catalog_binding_connector_mismatch",
         ),
         (
-            "UPDATE ds_distributions SET profile_id = 'profile-fake' "
-            "WHERE id = 'distribution-a'",
+            "UPDATE ds_distributions SET profile_id = 'profile-fake' WHERE id = 'distribution-a'",
             "catalog_binding_profile_mismatch",
         ),
         (
@@ -342,13 +341,11 @@ def test_catalog_source_fails_closed_on_fake_schema_profile_contract(
             "catalog_binding_execution_tier_mismatch",
         ),
         (
-            "UPDATE ds_distributions SET parser_supported = FALSE "
-            "WHERE id = 'distribution-a'",
+            "UPDATE ds_distributions SET parser_supported = FALSE WHERE id = 'distribution-a'",
             "catalog_binding_executable_parser_unsupported",
         ),
         (
-            "DELETE FROM ds_schema_profiles "
-            "WHERE distribution_id = 'distribution-a'",
+            "DELETE FROM ds_schema_profiles WHERE distribution_id = 'distribution-a'",
             "catalog_binding_executable_schema_profile_missing",
         ),
     ],
@@ -555,15 +552,32 @@ def test_other_count_maps_reject_negative_values() -> None:
 
     with pytest.raises(ValidationError):
         census.RouteEvidence(
-            route_id="route-a",
-            demanded_metrics=("metric-a",),
-            local_observation_count=0,
-            binding_tier_counts={"catalog": -1},
-            alignment_count=0,
-            planner_gap_kind="relation_gap",
-            planner_strategy_kind="acquire",
-            blocker_codes=(),
-            missing_link="missing relation",
+            route=census.RouteRequirement(
+                route_id="route-a",
+                domain_role="domain-a",
+                demanded_metrics=("metric-a",),
+                witness_kind="owner_acquisition_route",
+                candidate_ref="candidate-a",
+                requirement_gap_id="gap-a",
+                gap_source="grounding_owner",
+                row_addressable_variable=None,
+                planner_gap_kind="relation_gap",
+                planner_strategy_kind="acquire",
+                blocker_codes=("relation_missing",),
+                missing_requirement_fields=("relation:candidate-a",),
+                missing_link="relation:candidate-a",
+            ),
+            declared_supply=census.VariableSupplyEvidence(
+                variable_ids=("metric-a",),
+                local_observation_count=0,
+                binding_count=1,
+                executable_binding_count=0,
+                binding_tier_counts={"catalog": -1},
+                alignment_count=0,
+                nonproxy_alignment_count=0,
+                connector_ids=("family.alpha",),
+            ),
+            row_addressable_supply=None,
             route_class=census.RouteClass.NOT_A_DATA_GAP,
         )
 
@@ -607,9 +621,7 @@ def test_metric_resolution_enforces_status_evidence_algebra() -> None:
         binding_tier_counts={"catalog": 1},
         connector_ids=("family.alpha",),
         exact_canonical_variable="metric-a",
-        limitations=(
-            census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
-        ),
+        limitations=(census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,),
     )
     aligned = census.MetricResolution(
         metric_id="metric-b",
@@ -623,9 +635,7 @@ def test_metric_resolution_enforces_status_evidence_algebra() -> None:
         connector_ids=("family.alpha",),
         best_alignment=candidate,
         alignment_candidates=(candidate,),
-        limitations=(
-            census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
-        ),
+        limitations=(census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,),
     )
     unresolved = census.MetricResolution(
         metric_id="metric-c",
@@ -654,9 +664,7 @@ def test_metric_resolution_enforces_status_evidence_algebra() -> None:
             "alignment_candidate_count": 0,
             "binding_tier_counts": {"catalog": 1},
             "connector_ids": ("family.alpha",),
-            "limitations": (
-                census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
-            ),
+            "limitations": (census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,),
         },
         {
             "metric_id": "metric-b",
@@ -668,9 +676,7 @@ def test_metric_resolution_enforces_status_evidence_algebra() -> None:
             "alignment_candidate_count": 0,
             "binding_tier_counts": {"catalog": 1},
             "connector_ids": ("family.alpha",),
-            "limitations": (
-                census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
-            ),
+            "limitations": (census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,),
         },
         {
             "metric_id": "metric-c",
@@ -765,14 +771,10 @@ def test_resolution_scope_and_limitations_recompute_from_catalog_keys(
     by_metric = {row.metric_id: row for row in rows}
 
     assert all(
-        row.resolution_scope is census.ResolutionScope.DISTRIBUTION_FIELD_BOUND
-        for row in rows
+        row.resolution_scope is census.ResolutionScope.DISTRIBUTION_FIELD_BOUND for row in rows
     )
     assert by_metric["metric_alpha"].resolution_status is census.ResolutionStatus.EXACT
-    assert (
-        by_metric["metric_beta"].resolution_status
-        is census.ResolutionStatus.VIA_ALIGNMENT
-    )
+    assert by_metric["metric_beta"].resolution_status is census.ResolutionStatus.VIA_ALIGNMENT
     assert by_metric["metric_alpha"].limitations == ()
     assert by_metric["metric_beta"].limitations == ()
 
@@ -881,9 +883,7 @@ def test_metric_resolution_denominator_grows_without_code_changes(
     assert novel.resolution_status is census.ResolutionStatus.VIA_ALIGNMENT
     assert novel.proxy_only is True
     assert novel.best_alignment.proxy_penalty == 0.25
-    assert novel.limitations == (
-        census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
-    )
+    assert novel.limitations == (census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,)
 
 
 def test_resolution_status_is_recomputed_when_decisive_owner_edge_changes(
@@ -968,36 +968,125 @@ def test_alignment_order_and_proxy_evidence_recompute_from_owner_rows(
     assert mutated.proxy_penalty == 0.30
 
 
+def _route_run(
+    *,
+    witness_kind: str,
+    demanded_variable: str,
+    gap_variable: str | None = None,
+    route_suffix: str = "a",
+) -> dict[str, Any]:
+    gap_id = f"requirement-gap:{route_suffix}"
+    candidate_ref = f"candidate-{route_suffix}"
+    row_addressable = witness_kind == "owner_data_gap"
+    variable = gap_variable or demanded_variable
+    missing_fields = [
+        f"canonical_variable_observations:{variable}"
+        if row_addressable
+        else f"grounding_relation_or_owner_lever:{candidate_ref}"
+    ]
+    blocker = (
+        "method_estimand_binding_mismatch"
+        if witness_kind == "estimand_binding_refusal"
+        else "acquire_data:value_panel_data_missing"
+        if row_addressable
+        else "value_world_model_record_unwired"
+    )
+    source = "l1_dcat_variable_availability" if row_addressable else "cgf_grounding_coverage"
+    route_owner = {
+        "owner_content_hash": "sha256:" + "a" * 64,
+        "owner_schema": "policyos.runtime.acquisition_requirement_gap.v1",
+        "planner_report_content_hash": "sha256:" + "b" * 64,
+        "requirement_gap_id": gap_id,
+    }
+    witness = {
+        "kind": witness_kind,
+        "candidate_ref": candidate_ref,
+        (
+            "grounding_route" if witness_kind == "estimand_binding_refusal" else "acquisition_route"
+        ): route_owner,
+    }
+    metadata: dict[str, Any] = {
+        "source": source,
+        "candidate_binding": {
+            "candidate_id": candidate_ref,
+            "design_problem_ref": "sha256:" + "c" * 64,
+        },
+    }
+    if row_addressable:
+        metadata["availability"] = {
+            "variable_id": variable,
+            "observation_count": 0,
+            "metric_binding_count": 0,
+            "dataset_count": 0,
+            "status": "unavailable",
+            "coverage_ref": f"repo://catalog#variable/{variable}",
+        }
+    data_need_spec = {
+        "requirement_gap_id": gap_id,
+        "gap_type": "data_snapshot_release",
+        "requirement_family": "data_requirement",
+        "missing_requirement_fields": missing_fields,
+        "producer_output_ref": f"repo://catalog#variable/{variable}",
+        "metadata": metadata,
+    }
+    acquisition_record = {
+        "gap_id": gap_id,
+        "gap_type": "data_snapshot_release",
+        "requirement_family": "data_requirement",
+        "missing_requirement_fields": missing_fields,
+        "recommended_strategy": "production_snapshot_build",
+        "producer_expected": "data_forge.snapshot",
+    }
+    return {
+        "domain_role": f"domain-{route_suffix}",
+        "raw_request": "A neutral request with no classifier authority.",
+        "design_problem": {
+            "outcome_of_interest": {
+                "metric_id": demanded_variable,
+                "target_variable": demanded_variable,
+            },
+            "objectives": [{"metric_id": demanded_variable}],
+            "candidate_lever_space": {"candidate_levers": [{"target_slot": demanded_variable}]},
+        },
+        "evidence_witness": witness,
+        "terminal": {
+            "blocking_obligations": [blocker],
+            "data_need_spec": data_need_spec,
+            "costed_plan": {
+                "canonical_planner_report": {"acquisition_records": [acquisition_record]}
+            },
+        },
+    }
+
+
 def _upstream_demand_payloads() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    route = _route_run(
+        witness_kind="owner_acquisition_route",
+        demanded_variable="outcome_metric",
+        route_suffix="renamed",
+    )
+    route["domain_role"] = "renamed_domain"
+    route["design_problem"] = {
+        "outcome_of_interest": {
+            "metric_id": "outcome_metric",
+            "target_variable": "outcome_target",
+        },
+        "objectives": [{"metric_id": "objective_metric"}],
+        "candidate_lever_space": {"candidate_levers": [{"target_slot": "lever_target"}]},
+    }
     capstone = {
         "domain_runs": {
-            "renamed_route": {
-                "domain_role": "renamed_domain",
-                "design_problem": {
-                    "outcome_of_interest": {
-                        "metric_id": "outcome_metric",
-                        "target_variable": "outcome_target",
-                    },
-                    "objectives": [{"metric_id": "objective_metric"}],
-                    "candidate_lever_space": {
-                        "candidate_levers": [{"target_slot": "lever_target"}]
-                    },
-                },
-            }
+            "renamed_route": route,
         }
     }
     intervention_substrate = {
         "measured_coverage": {
-            "world_slot": {
-                "details": [{"target_world_slots": ["world.slot", "world.other"]}]
-            }
+            "world_slot": {"details": [{"target_world_slots": ["world.slot", "world.other"]}]}
         }
     }
     value_gate = {
         "transport_component_proofs": {
-            "renamed_proof": {
-                "selection_nodes": [{"target_variable": "transport_target"}]
-            }
+            "renamed_proof": {"selection_nodes": [{"target_variable": "transport_target"}]}
         }
     }
     return capstone, intervention_substrate, value_gate
@@ -1037,9 +1126,7 @@ def test_reverse_demand_projection_is_generic_and_content_bound() -> None:
 
     changed = dict(value_gate)
     changed["transport_component_proofs"] = {
-        "new_key": {
-            "selection_nodes": [{"target_variable": "novel_transport_target"}]
-        }
+        "new_key": {"selection_nodes": [{"target_variable": "novel_transport_target"}]}
     }
     changed_projection = census.extract_reverse_demand_projection(
         capstone=capstone,
@@ -1050,9 +1137,7 @@ def test_reverse_demand_projection_is_generic_and_content_bound() -> None:
         value_gate_source="value.json",
     )
 
-    assert "novel_transport_target" in {
-        row.variable_id for row in changed_projection.demands
-    }
+    assert "novel_transport_target" in {row.variable_id for row in changed_projection.demands}
     assert (
         projection.projection_bindings[-1].projection_content_sha256
         != changed_projection.projection_bindings[-1].projection_content_sha256
@@ -1064,9 +1149,9 @@ def test_reverse_demand_measurement_keeps_supported_rows_and_typed_residuals(
 ) -> None:
     census = _census()
     capstone, intervention_substrate, value_gate = _upstream_demand_payloads()
-    capstone["domain_runs"]["renamed_route"]["design_problem"][
-        "outcome_of_interest"
-    ]["metric_id"] = "metric_alpha"
+    capstone["domain_runs"]["renamed_route"]["design_problem"]["outcome_of_interest"][
+        "metric_id"
+    ] = "metric_alpha"
     capstone["domain_runs"]["renamed_route"]["design_problem"]["objectives"] = [
         {"metric_id": "metric_beta"}
     ]
@@ -1085,9 +1170,9 @@ def test_reverse_demand_measurement_keeps_supported_rows_and_typed_residuals(
              'profile-o', 'request-o', 0.4, 0.4, '{}', 'catalog', 'fixture')
         """
     )
-    capstone["domain_runs"]["renamed_route"]["design_problem"][
-        "outcome_of_interest"
-    ]["target_variable"] = "catalog_only_metric"
+    capstone["domain_runs"]["renamed_route"]["design_problem"]["outcome_of_interest"][
+        "target_variable"
+    ] = "catalog_only_metric"
     connection.close()
     projection = census.extract_reverse_demand_projection(
         capstone=capstone,
@@ -1117,9 +1202,9 @@ def test_reverse_demand_measurement_keeps_supported_rows_and_typed_residuals(
 def test_reverse_demand_projection_rejects_denominator_shrink() -> None:
     census = _census()
     capstone, intervention_substrate, value_gate = _upstream_demand_payloads()
-    del capstone["domain_runs"]["renamed_route"]["design_problem"][
-        "outcome_of_interest"
-    ]["metric_id"]
+    del capstone["domain_runs"]["renamed_route"]["design_problem"]["outcome_of_interest"][
+        "metric_id"
+    ]
 
     with pytest.raises(census.CatalogContractError) as exc_info:
         census.extract_reverse_demand_projection(
@@ -1139,9 +1224,7 @@ def test_checker_accepts_external_upstream_artifact_paths(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    checker = import_module(
-        "tools.quality.validation.check_layer3_gy_n13a_acquisition_census"
-    )
+    checker = import_module("tools.quality.validation.check_layer3_gy_n13a_acquisition_census")
     capstone, intervention_substrate, value_gate = _upstream_demand_payloads()
     artifact_payloads = {
         "external-capstone.json": capstone,
@@ -1167,13 +1250,18 @@ def test_checker_accepts_external_upstream_artifact_paths(
 
     assert exit_code == 0
     assert [
-        row["source_artifact"]
-        for row in payload["reverse_demand_summary"]["projection_bindings"]
+        row["source_artifact"] for row in payload["reverse_demand_summary"]["projection_bindings"]
     ] == [
         "external://external-capstone.json",
         "external://external-l6.json",
         "external://external-value.json",
     ]
+    assert payload["route_summary"]["denominator_count"] == 1
+    assert payload["route_summary"]["counts"] == {"not_a_data_gap": 1}
+    assert (
+        payload["route_summary"]["projection_binding"]["source_artifact"]
+        == "external://external-capstone.json"
+    )
 
 
 def test_production_metric_resolution_partition_when_catalog_is_declared() -> None:
@@ -1206,10 +1294,10 @@ def test_production_metric_resolution_partition_when_catalog_is_declared() -> No
                 """
             ).fetchall()
         }
-        field_bound = (
-            ("ds_metric_bindings", "raw_variable") in columns
-            and ("ds_observations", "distribution_id") in columns
-        )
+        field_bound = ("ds_metric_bindings", "raw_variable") in columns and (
+            "ds_observations",
+            "distribution_id",
+        ) in columns
         if field_bound:
             exact_query = """
                 SELECT DISTINCT binding.metric_id
@@ -1244,9 +1332,7 @@ def test_production_metric_resolution_partition_when_catalog_is_declared() -> No
                  AND aligned.canonical_var = binding.metric_id
             """
         exact_ids = {str(row[0]) for row in connection.execute(exact_query).fetchall()}
-        alignment_ids = {
-            str(row[0]) for row in connection.execute(alignment_query).fetchall()
-        }
+        alignment_ids = {str(row[0]) for row in connection.execute(alignment_query).fetchall()}
     finally:
         connection.close()
 
@@ -1276,4 +1362,303 @@ def test_production_metric_resolution_partition_when_catalog_is_declared() -> No
             else ()
         )
         for row in rows
+    )
+
+
+def _route_projection(census: Any, runs: dict[str, dict[str, Any]]) -> Any:
+    return census.extract_route_projection(
+        capstone={"domain_runs": runs},
+        capstone_source="architecture/policy_design_case/capstone.json",
+    )
+
+
+def test_route_projection_and_classes_are_generic_over_all_domain_runs(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    runs = {
+        "method_route": _route_run(
+            witness_kind="estimand_binding_refusal",
+            demanded_variable="metric_alpha",
+            route_suffix="method",
+        ),
+        "structural_route": _route_run(
+            witness_kind="owner_acquisition_route",
+            demanded_variable="metric_alpha",
+            route_suffix="structural",
+        ),
+        "row_route": _route_run(
+            witness_kind="owner_data_gap",
+            demanded_variable="metric_alpha",
+            gap_variable="metric_alpha",
+            route_suffix="row",
+        ),
+    }
+
+    projection = _route_projection(census, runs)
+    evidence = census.measure_route_evidence(catalog_path, projection)
+    by_id = {row.route.route_id: row for row in evidence}
+
+    assert tuple(row.route_id for row in projection.routes) == (
+        "method_route",
+        "row_route",
+        "structural_route",
+    )
+    assert projection.projection_binding.projected_item_count == len(runs)
+    assert by_id["method_route"].route_class is census.RouteClass.NOT_A_DATA_GAP
+    assert by_id["structural_route"].route_class is census.RouteClass.NOT_A_DATA_GAP
+    assert by_id["row_route"].route_class is census.RouteClass.LOCAL_LIFT
+    assert by_id["method_route"].declared_supply.binding_count == 2
+    assert by_id["method_route"].declared_supply.executable_binding_count == 2
+    assert by_id["method_route"].declared_supply.local_observation_count == 1
+    assert by_id["method_route"].row_addressable_supply is None
+    assert by_id["row_route"].row_addressable_supply is not None
+
+
+def test_route_classifier_ignores_role_names_and_stale_hypothesis_prose(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    original_run = _route_run(
+        witness_kind="owner_acquisition_route",
+        demanded_variable="metric_alpha",
+        route_suffix="original",
+    )
+    original = _route_projection(census, {"opaque-a": original_run})
+    original_class = census.measure_route_evidence(catalog_path, original)[0].route_class
+
+    renamed_run = copy.deepcopy(original_run)
+    renamed_run["domain_role"] = "water_quality_hypothesis_is_stale"
+    renamed_run["raw_request"] = (
+        "This prose says unseen water quality, but prose is not route evidence."
+    )
+    renamed = _route_projection(census, {"totally-renamed": renamed_run})
+    renamed_class = census.measure_route_evidence(catalog_path, renamed)[0].route_class
+
+    stale_prose_only = copy.deepcopy(original_run)
+    stale_prose_only["raw_request"] = "unseen water quality WHO Eurostat"
+    stale_projection = _route_projection(census, {"opaque-a": stale_prose_only})
+
+    assert original_class is census.RouteClass.NOT_A_DATA_GAP
+    assert renamed_class is original_class
+    assert (
+        stale_projection.projection_binding.projection_content_sha256
+        == original.projection_binding.projection_content_sha256
+    )
+
+
+def test_owner_data_gap_precedence_is_local_then_live_then_unresolved(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    _insert_owner_rows(
+        connection,
+        suffix="live",
+        connector_id="family.live",
+        execution_tier="fetchable",
+        raw_variable="raw-live",
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_metric_bindings VALUES
+            ('metric_live', 'dataset-live', 'distribution-live', 'family.live',
+             'profile-live', 'request-live', 0.8, 0.8, '{}', 'fetchable', 'fixture')
+        """
+    )
+    connection.close()
+    projection = _route_projection(
+        census,
+        {
+            "local": _route_run(
+                witness_kind="owner_data_gap",
+                demanded_variable="metric_alpha",
+                gap_variable="metric_alpha",
+                route_suffix="local",
+            ),
+            "live": _route_run(
+                witness_kind="owner_data_gap",
+                demanded_variable="metric_live",
+                gap_variable="metric_live",
+                route_suffix="live",
+            ),
+            "neither": _route_run(
+                witness_kind="owner_data_gap",
+                demanded_variable="metric_missing",
+                gap_variable="metric_missing",
+                route_suffix="neither",
+            ),
+        },
+    )
+
+    by_id = {
+        row.route.route_id: row for row in census.measure_route_evidence(catalog_path, projection)
+    }
+
+    assert by_id["local"].route_class is census.RouteClass.LOCAL_LIFT
+    assert by_id["live"].route_class is census.RouteClass.LIVE_FETCHABLE
+    assert by_id["neither"].route_class is census.RouteClass.UNRESOLVED
+
+
+def test_owner_data_gap_decisive_source_flips_change_the_recomputed_class(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    projection = _route_projection(
+        census,
+        {
+            "route": _route_run(
+                witness_kind="owner_data_gap",
+                demanded_variable="metric_alpha",
+                gap_variable="metric_alpha",
+            )
+        },
+    )
+
+    local = census.measure_route_evidence(catalog_path, projection)[0]
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute("DELETE FROM ds_observations WHERE canonical_var = 'metric_alpha'")
+    connection.close()
+    live = census.measure_route_evidence(catalog_path, projection)[0]
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute(
+        "UPDATE ds_metric_bindings SET execution_tier = 'catalog' WHERE metric_id = 'metric_alpha'"
+    )
+    connection.execute(
+        "UPDATE ds_datasets SET execution_tier = 'catalog' WHERE id IN ('dataset-a', 'dataset-b')"
+    )
+    connection.close()
+    unresolved = census.measure_route_evidence(catalog_path, projection)[0]
+
+    assert local.route_class is census.RouteClass.LOCAL_LIFT
+    assert live.route_class is census.RouteClass.LIVE_FETCHABLE
+    assert unresolved.route_class is census.RouteClass.UNRESOLVED
+
+
+def test_structural_route_does_not_become_a_data_gap_when_rows_are_added(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    projection = _route_projection(
+        census,
+        {
+            "route": _route_run(
+                witness_kind="owner_acquisition_route",
+                demanded_variable="new_structural_metric",
+            )
+        },
+    )
+    before = census.measure_route_evidence(catalog_path, projection)[0]
+    connection = duckdb.connect(str(catalog_path))
+    _insert_owner_rows(
+        connection,
+        suffix="structural",
+        connector_id="family.structural",
+        execution_tier="transport_ready",
+        raw_variable="raw-structural",
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_metric_bindings VALUES
+            ('new_structural_metric', 'dataset-structural',
+             'distribution-structural', 'family.structural', 'profile-structural',
+             'request-structural', 0.9, 0.9, '{}', 'transport_ready', 'fixture')
+        """
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_observations VALUES
+            ('observation-structural', 'dataset-structural', 'raw-structural',
+             'new_structural_metric')
+        """
+    )
+    connection.close()
+    after = census.measure_route_evidence(catalog_path, projection)[0]
+
+    assert before.route_class is census.RouteClass.NOT_A_DATA_GAP
+    assert after.route_class is census.RouteClass.NOT_A_DATA_GAP
+    assert before.declared_supply.local_observation_count == 0
+    assert after.declared_supply.local_observation_count == 1
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "gap_id_mismatch",
+        "missing_availability_owner",
+        "missing_variable_mismatch",
+    ],
+)
+def test_owner_data_gap_fails_closed_without_coherent_owner_evidence(
+    mutation: str,
+) -> None:
+    census = _census()
+    run = _route_run(
+        witness_kind="owner_data_gap",
+        demanded_variable="metric_alpha",
+        gap_variable="metric_alpha",
+    )
+    if mutation == "gap_id_mismatch":
+        run["evidence_witness"]["acquisition_route"]["requirement_gap_id"] = "requirement-gap:fake"
+    elif mutation == "missing_availability_owner":
+        del run["terminal"]["data_need_spec"]["metadata"]["availability"]
+    else:
+        run["terminal"]["data_need_spec"]["missing_requirement_fields"] = [
+            "canonical_variable_observations:some_other_metric"
+        ]
+
+    with pytest.raises(census.CatalogContractError):
+        _route_projection(census, {"route": run})
+
+
+def test_route_class_label_is_rejected_when_it_disagrees_with_evidence(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    projection = _route_projection(
+        census,
+        {
+            "route": _route_run(
+                witness_kind="owner_data_gap",
+                demanded_variable="metric_alpha",
+                gap_variable="metric_alpha",
+            )
+        },
+    )
+    evidence = census.measure_route_evidence(catalog_path, projection)[0]
+    pinned = evidence.model_dump(mode="json")
+    pinned["route_class"] = census.RouteClass.LIVE_FETCHABLE.value
+
+    with pytest.raises(ValidationError):
+        census.RouteEvidence.model_validate(pinned)
+
+
+@pytest.mark.skipif(
+    not os.environ.get("POLISYOS_N13A_PRODUCTION_CATALOG"),
+    reason="production catalog is an explicit read-only witness",
+)
+def test_actual_capstone_route_classes_recompute_from_owner_evidence() -> None:
+    census = _census()
+    catalog_path = Path(os.environ["POLISYOS_N13A_PRODUCTION_CATALOG"])
+    capstone_path = (
+        Path(__file__).resolve().parents[3]
+        / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+    )
+    capstone = json.loads(capstone_path.read_text(encoding="utf-8"))
+    projection = census.read_route_projection(
+        capstone_path=capstone_path,
+        capstone_source="architecture/policy_design_case/"
+        "layer3_gy_depth_n_universality_contract.json",
+    )
+    rows = census.measure_route_evidence(catalog_path, projection)
+
+    assert len(rows) == len(capstone["domain_runs"])
+    assert {row.route.route_id: row.route.witness_kind for row in rows} == {
+        route_id: run["evidence_witness"]["kind"]
+        for route_id, run in capstone["domain_runs"].items()
+    }
+    assert all(
+        row.route_class is census.RouteClass.NOT_A_DATA_GAP
+        for row in rows
+        if row.route.witness_kind != "owner_data_gap"
     )

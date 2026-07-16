@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Inspect the read-only W1 seam for the GY-N13a acquisition census.
+"""Inspect the read-only W1/W2 seams for the GY-N13a acquisition census.
 
-This command recomputes the complete metric and reverse-demand denominators. Later
-N13a workstreams extend it with artifact validation and explicit live capture.
+This command recomputes the complete metric/reverse-demand denominators and the
+evidence-derived capstone route classes. Later workstreams extend it with artifact
+validation and explicit live capture.
 """
 
 from __future__ import annotations
@@ -17,28 +18,25 @@ from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
     CatalogContractError,
     derive_metric_resolutions,
     measure_reverse_demand,
+    measure_route_evidence,
     read_catalog_source,
     read_reverse_demand_projection,
+    read_route_projection,
     reverse_demand_residuals,
 )
 
 DEFAULT_SOURCE_LOCATOR = (
-    "production_data/datasets_full_phase3full_20260327_183054/"
-    "dataset_catalog.duckdb"
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
 )
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
 POLICY_DESIGN_CASE_DIR = POLICY_ENGINE_ROOT / "architecture" / "policy_design_case"
-DEFAULT_CAPSTONE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_gy_depth_n_universality_contract.json"
-)
-DEFAULT_SUBSTRATE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_gy_intervention_substrate_contract.json"
-)
+DEFAULT_CAPSTONE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gy_depth_n_universality_contract.json"
+DEFAULT_SUBSTRATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gy_intervention_substrate_contract.json"
 DEFAULT_VALUE_GATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gy_value_gate_contract.json"
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build the W1 catalog seam inspection CLI."""
+    """Build the W1/W2 catalog seam inspection CLI."""
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
@@ -53,15 +51,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="Stable logical locator recorded in catalog identity",
     )
     parser.add_argument("--capstone-path", type=Path, default=DEFAULT_CAPSTONE_PATH)
-    parser.add_argument(
-        "--intervention-substrate-path", type=Path, default=DEFAULT_SUBSTRATE_PATH
-    )
+    parser.add_argument("--intervention-substrate-path", type=Path, default=DEFAULT_SUBSTRATE_PATH)
     parser.add_argument("--value-gate-path", type=Path, default=DEFAULT_VALUE_GATE_PATH)
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    """Print recomputed W1 identity and denominator summaries as JSON."""
+    """Print recomputed W1/W2 identity and denominator summaries as JSON."""
 
     args = build_parser().parse_args(argv)
     try:
@@ -81,6 +77,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             value_gate_source=_stable_artifact_locator(args.value_gate_path),
         )
         demand_rows = measure_reverse_demand(args.catalog_path, projection.demands)
+        route_projection = read_route_projection(
+            capstone_path=args.capstone_path,
+            capstone_source=_stable_artifact_locator(args.capstone_path),
+        )
+        route_rows = measure_route_evidence(args.catalog_path, route_projection)
     except CatalogContractError as exc:
         print(
             json.dumps(
@@ -95,11 +96,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "catalog_source": source.model_dump(mode="json"),
                 "metric_resolution_summary": {
                     "counts": dict(
-                        sorted(
-                            Counter(
-                                row.resolution_status.value for row in resolutions
-                            ).items()
-                        )
+                        sorted(Counter(row.resolution_status.value for row in resolutions).items())
                     ),
                     "denominator_count": len(resolutions),
                     "proxy_only_resolved_count": sum(
@@ -128,9 +125,18 @@ def main(argv: Sequence[str] | None = None) -> int:
                         for binding in projection.projection_bindings
                     ],
                     "residuals": [
-                        row.model_dump(mode="json")
-                        for row in reverse_demand_residuals(demand_rows)
+                        row.model_dump(mode="json") for row in reverse_demand_residuals(demand_rows)
                     ],
+                },
+                "route_summary": {
+                    "counts": dict(
+                        sorted(Counter(row.route_class.value for row in route_rows).items())
+                    ),
+                    "denominator_count": len(route_rows),
+                    "projection_binding": (
+                        route_projection.projection_binding.model_dump(mode="json")
+                    ),
+                    "routes": [row.model_dump(mode="json") for row in route_rows],
                 },
                 "status": "pass",
             },

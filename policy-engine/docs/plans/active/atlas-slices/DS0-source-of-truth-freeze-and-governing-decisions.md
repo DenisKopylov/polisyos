@@ -239,8 +239,8 @@ alternatives where a decision is embedded, and keep controlled vocabularies in
 The examples are self-validated without adding a validator to the repo:
 
 ```bash
-uv run python -m jsonschema -i architecture/atlas_surfaces/adoption-ledger.example.json architecture/atlas_surfaces/adoption-ledger.schema.json
-uv run python -m jsonschema -i architecture/atlas_surfaces/surface-readiness-ledger.example.json architecture/atlas_surfaces/surface-readiness-ledger.schema.json
+uv run --with check-jsonschema check-jsonschema --schemafile architecture/atlas_surfaces/adoption-ledger.schema.json architecture/atlas_surfaces/adoption-ledger.example.json
+uv run --with check-jsonschema check-jsonschema --schemafile architecture/atlas_surfaces/surface-readiness-ledger.schema.json architecture/atlas_surfaces/surface-readiness-ledger.example.json
 ```
 
 These commands establish schema/example consistency only. They do not claim

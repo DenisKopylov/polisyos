@@ -24,6 +24,9 @@ Admission posture:
   production migration.
 - The governing disposition is
   [`docs/brand/ATLAS_SOURCE_OF_TRUTH.md`](../../docs/brand/ATLAS_SOURCE_OF_TRUTH.md#atlas-d1).
+- The source-level MACHINE record is
+  [`architecture/atlas_surfaces/adoption-ledger.example.json`](../../architecture/atlas_surfaces/adoption-ledger.example.json);
+  its `defer` verdict is not an item-level DS2 decision.
 - Archive `PASS`, `stable`, release, or Figma labels do not prove repo
   consumers, browser behavior, manual assistive-technology evidence, authority
   compatibility, or package publishability.

@@ -1,0 +1,274 @@
+{
+  "schema_version": "1.0",
+  "ledger_id": "atlas-ds0-source-dispositions",
+  "as_of": "2026-07-16T00:00:00+03:00",
+  "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+  "authority": {
+    "authoritative_for": [
+      "DS0 source disposition",
+      "schema conformance example"
+    ],
+    "may_not_use_for": [
+      "DS2 token, component, or pattern admission",
+      "production readiness",
+      "runtime authority"
+    ]
+  },
+  "source_hashes": {
+    "v15_archive_sha256": "28d3e51dd452a074d30b7a0afa439302c48d4c208307a6a2d09beb935f71a969"
+  },
+  "entries": [
+    {
+      "id": "living-v4-code",
+      "title": "Living coded Atlas v4 baseline",
+      "kind": "package",
+      "source": "v4_code",
+      "source_disposition": "retained_current_production_baseline",
+      "adoption_verdict": "wrap_then_strangle",
+      "maturity": "beta",
+      "audiences": [
+        "REVIEWER",
+        "EXPERT",
+        "MACHINE"
+      ],
+      "owner": "team-frontend",
+      "decided_at": "2026-07-16",
+      "evidence_refs": [
+        {
+          "kind": "code_reference",
+          "ref": "apps/runtime-dashboard/src/shared/ui/",
+          "as_of": "2026-07-16"
+        },
+        {
+          "kind": "storybook",
+          "ref": "apps/runtime-dashboard/src/shared/ui/AtlasV4Reference.stories.tsx",
+          "as_of": "2026-07-16"
+        }
+      ],
+      "reason": "This is the real shipped baseline and must remain reachable until DS2 verdicts and DS4 consumer migrations prove each replacement.",
+      "rejected_alternatives": [
+        "Delete or bypass v4 immediately in favor of the newer archive; this would remove a verified live consumer before a replacement capability chain exists.",
+        "Keep v4 permanently canonical; this would preserve the v4/v15 ownership fork and block the governed package migration."
+      ],
+      "revisit_condition": "DS2 has item-level counterpart verdicts and DS4 has an admitted package, migrated consumers, browser/accessibility evidence, and a legacy-path strangle record.",
+      "sunset_condition": "The live v4 default path is removed or guarded only after every affected consumer resolves through an admitted DS4 replacement.",
+      "consuming_surfaces": [
+        "DS2",
+        "DS4"
+      ],
+      "next_adjudication": {
+        "owner_slices": [
+          "DS2",
+          "DS4"
+        ],
+        "scope": [
+          "live token counterparts",
+          "live component counterparts",
+          "interaction patterns and accessibility evidence",
+          "v4 migration and strangle order"
+        ],
+        "completion_signal": "Every in-scope live counterpart has a DS2 verdict and every admitted replacement has a DS4 migration disposition."
+      },
+      "not_yet": [
+        "This source-level verdict does not adjudicate an individual v4 component or token.",
+        "No package or consumer is changed by DS0."
+      ],
+      "authority": {
+        "authoritative_for": [
+          "transitional production-baseline disposition"
+        ],
+        "may_not_use_for": [
+          "claiming v4 is the future design authority",
+          "claiming all v4 components are stable"
+        ]
+      }
+    },
+    {
+      "id": "v4-brand-docs",
+      "title": "Atlas v4 design and adoption documents",
+      "kind": "doc",
+      "source": "v4_doc",
+      "source_disposition": "superseded_as_canonical",
+      "adoption_verdict": "defer",
+      "maturity": "deprecated",
+      "audiences": [
+        "EXPERT",
+        "MACHINE"
+      ],
+      "owner": "team-design",
+      "decided_at": "2026-07-16",
+      "evidence_refs": [
+        {
+          "kind": "document",
+          "ref": "docs/brand/ATLAS_DESIGN_SYSTEM.md",
+          "as_of": "2026-07-16"
+        },
+        {
+          "kind": "document",
+          "ref": "docs/brand/ATLAS_V4_ADOPTION.md",
+          "as_of": "2026-07-16"
+        }
+      ],
+      "reason": "The documents preserve dated v4 rationale and ADR-linked deltas but no longer own current Atlas law or execution.",
+      "rejected_alternatives": [
+        "Delete the v4 records; this would erase intentional delta and ADR history needed for safe DS2/DS4 migration.",
+        "Leave them canonical beside the surface constitution and DS0 record; this would retain P06 ownership ambiguity."
+      ],
+      "revisit_condition": "DS2 and DS4 have consumed every retained v4 rationale and a durable replacement reference makes the historical records archive-ready.",
+      "sunset_condition": "They may move to historical docs after DS4 closes the v4 migration, but ADR-047 remains until superseded through the ADR process.",
+      "consuming_surfaces": [
+        "DS2",
+        "DS4"
+      ],
+      "next_adjudication": {
+        "owner_slices": [
+          "DS2"
+        ],
+        "scope": [
+          "13 recorded token deltas",
+          "warm-dark and glyph constraints",
+          "non-replayable local archive provenance defect"
+        ],
+        "completion_signal": "Each retained v4 decision is preserved, replaced, or escalated through the correct ADR/adoption process."
+      },
+      "not_yet": [
+        "Supersession does not reverse accepted ADR-047.",
+        "The historical local download path is not replayable evidence."
+      ],
+      "authority": {
+        "authoritative_for": [
+          "historical v4 rationale and deliberate deltas"
+        ],
+        "may_not_use_for": [
+          "current Atlas source-of-truth claims",
+          "v15 rejection without DS2 adjudication"
+        ]
+      }
+    },
+    {
+      "id": "v7-surfaces-plan",
+      "title": "Atlas v7 product, marketing, and client surfaces plan",
+      "kind": "doc",
+      "source": "v7_doc",
+      "source_disposition": "retained_as_material",
+      "adoption_verdict": "defer",
+      "maturity": "deprecated",
+      "audiences": [
+        "EXPERT",
+        "MACHINE"
+      ],
+      "owner": "team-polisyos",
+      "decided_at": "2026-07-16",
+      "evidence_refs": [
+        {
+          "kind": "document",
+          "ref": "docs/plans/active/POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md",
+          "as_of": "2026-07-16"
+        }
+      ],
+      "reason": "The v7 plan contains useful trust, publication, and accountability material, but Revision 2 owns execution and constitutional gates.",
+      "rejected_alternatives": [
+        "Continue executing the v7 ten-wave roadmap in parallel; its topology and public gates predate the current authority program.",
+        "Archive it immediately; DS11-DS13 would lose a bounded material source before task-plan triage."
+      ],
+      "revisit_condition": "DS11, DS12, and DS13 task plans have incorporated or explicitly rejected every retained material item.",
+      "sunset_condition": "Archive the v7 plan after DS11-DS13 material triage closes; never reactivate it as an execution master.",
+      "consuming_surfaces": [
+        "DS11",
+        "DS12",
+        "DS13"
+      ],
+      "next_adjudication": {
+        "owner_slices": [
+          "DS11",
+          "DS12",
+          "DS13"
+        ],
+        "scope": [
+          "trust and documentation material",
+          "public publication material",
+          "accountability and transparency material"
+        ],
+        "completion_signal": "Each retained v7 item is linked to a current task-plan deliverable or explicitly rejected with rationale."
+      },
+      "not_yet": [
+        "Retained material is not executable scope.",
+        "No public surface is authorized by this disposition."
+      ],
+      "authority": {
+        "authoritative_for": [
+          "bounded DS11-DS13 material discovery"
+        ],
+        "may_not_use_for": [
+          "execution order",
+          "public-surface activation",
+          "runtime or design-system authority"
+        ]
+      }
+    },
+    {
+      "id": "v15-source-archive",
+      "title": "Atlas v15 best-in-class readiness archive",
+      "kind": "archive",
+      "source": "v15_archive",
+      "source_disposition": "evidence_source_pending_adjudication",
+      "adoption_verdict": "defer",
+      "maturity": "experimental",
+      "audiences": [
+        "EXPERT",
+        "MACHINE"
+      ],
+      "owner": "team-design",
+      "decided_at": "2026-07-16",
+      "evidence_refs": [
+        {
+          "kind": "document",
+          "ref": "design/atlas-v15/README.md",
+          "as_of": "2026-07-16"
+        },
+        {
+          "kind": "archive_report",
+          "ref": "design/atlas-v15/PolicyOS_Atlas_Design_System-15_Best_in_Class_Readiness.zip::manifest.json",
+          "as_of": "2026-06-09"
+        }
+      ],
+      "reason": "The sha256-pinned archive is a rich candidate source but lacks PolicyOS consumers, browser/manual-AT evidence, authority compatibility, and package admission.",
+      "rejected_alternatives": [
+        "Promote all v15 contents because archive reports say PASS or stable; those labels prove archive structure, not the PolicyOS capability chain.",
+        "Reject the archive wholesale because it is external; this would discard useful candidate substance before item-level conformance."
+      ],
+      "revisit_condition": "DS2 has an item-level verdict for every in-scope token set, component, pattern, mode, governance asset, i18n/Figma asset, and product-flow artifact.",
+      "sunset_condition": "Retain the immutable archive as provenance after adjudication; sunset only its candidate-source role when every item has a durable verdict and evidence path.",
+      "consuming_surfaces": [
+        "DS2"
+      ],
+      "next_adjudication": {
+        "owner_slices": [
+          "DS2"
+        ],
+        "scope": [
+          "token source and mode values",
+          "56 component and state-matrix claims",
+          "forms, responsive, data-viz, theming, and accessibility modes",
+          "governance, i18n, Figma, content, security/privacy UX, and product patterns"
+        ],
+        "completion_signal": "No in-scope v15 item lacks an adoption verdict, maturity, evidence, consuming surface, rejected delta, and revisit condition."
+      },
+      "not_yet": [
+        "Archive PASS reports cannot establish PolicyOS stable maturity.",
+        "No v15 code, token value, Figma mapping, or component is admitted by DS0."
+      ],
+      "authority": {
+        "authoritative_for": [
+          "identity and integrity of the DS2 candidate source"
+        ],
+        "may_not_use_for": [
+          "production readiness",
+          "stable component maturity",
+          "runtime authority",
+          "bulk adoption"
+        ]
+      }
+    }
+  ]
+}

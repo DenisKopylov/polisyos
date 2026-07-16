@@ -29,6 +29,13 @@ and future direction before DS1 audits the application or DS2 adjudicates the
 v15 archive. It does not admit a token, component, pattern, locale claim, or
 surface into production.
 
+MACHINE contracts:
+
+- [adoption-ledger schema](../../architecture/atlas_surfaces/adoption-ledger.schema.json)
+  and [source-disposition instance](../../architecture/atlas_surfaces/adoption-ledger.example.json);
+- [surface-readiness schema](../../architecture/atlas_surfaces/surface-readiness-ledger.schema.json)
+  and [19-slice example](../../architecture/atlas_surfaces/surface-readiness-ledger.example.json).
+
 The decisions derive from the
 [surface constitution](../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md)
 and execute the Phase A closure contract in the
@@ -60,8 +67,10 @@ Atlas has one authority hierarchy, with one owner per purpose:
    owns normative surface law.
 3. The [Revision 2 master plan](../plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md)
    owns Atlas execution order, slice boundaries, and GY gates.
-4. This record owns DS0 source dispositions; the adoption-ledger schema and
-   source-level instance are its MACHINE companion.
+4. This record owns DS0 source dispositions; the
+   [adoption-ledger schema](../../architecture/atlas_surfaces/adoption-ledger.schema.json)
+   and [source-level instance](../../architecture/atlas_surfaces/adoption-ledger.example.json)
+   are its MACHINE companion.
 5. The living v4 code and CSS remain the **transitional production baseline**
    for what currently ships. They are operational evidence, not a competing
    constitution, and are replaced item by item only after DS2 verdicts and a

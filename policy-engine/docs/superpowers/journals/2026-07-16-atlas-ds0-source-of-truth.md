@@ -77,3 +77,21 @@ source documents to point at the new canonical decision record.
 
 Next checkpoint: define the two strict ledger schemas and their valid example
 instances under `architecture/atlas_surfaces/`.
+
+## 2026-07-16 - Ledger schemas and examples
+
+- Added two strict Draft 2020-12 schemas: adoption ledger and surface
+  readiness ledger. Shared audience, maturity, authority, and slice
+  vocabularies are defined in the readiness schema and referenced by the
+  adoption schema.
+- Added one valid instance per schema. The adoption instance carries four
+  source dispositions and pins the v15 hash; the readiness instance contains
+  exactly `DS0`-`DS18`, all honestly `contract_only` and `fixture_only`.
+- `check-jsonschema` metaschema and instance validation pass for both files.
+- Negative probes reject an unknown adoption verdict, a UI-only readiness
+  state, and `stable` maturity backed only by archive/document evidence.
+- Recomputed the archive sha256 from the worktree and matched
+  `28d3e51dd452a074d30b7a0afa439302c48d4c208307a6a2d09beb935f71a969`.
+
+Next checkpoint: reconcile final cross-links, close the pattern pass, and prove
+the branch path fence against `main`.

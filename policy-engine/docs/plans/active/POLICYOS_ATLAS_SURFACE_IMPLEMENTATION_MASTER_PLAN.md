@@ -262,7 +262,12 @@ A deliverable that traces to none of the three generators is out of scope
 
 Authority statuses, interaction states, and surface states are defined in the
 surface constitution's Status Grammar and the Layer 3 controlled vocabulary.
-This plan adds only:
+This plan adds only the values below. DS0 encodes them in the
+[adoption-ledger schema](../../../architecture/atlas_surfaces/adoption-ledger.schema.json)
+and
+[surface-readiness schema](../../../architecture/atlas_surfaces/surface-readiness-ledger.schema.json);
+the table remains the vocabulary source and later slices reference the schemas
+rather than minting local values.
 
 | Kind | Values | Rule |
 | --- | --- | --- |

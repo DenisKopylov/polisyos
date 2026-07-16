@@ -1,8 +1,8 @@
 # Atlas DS2 - v15 Adjudication Journal
 
-Date: 2026-07-16  
-Branch: `codex/atlas-ds0-source-of-truth`  
-Worktree: `.worktrees/atlas-ds0`  
+Date: 2026-07-16
+Branch: `codex/atlas-ds0-source-of-truth`
+Worktree: `.worktrees/atlas-ds0`
 Starting HEAD: `b0f66adc0fa873a5224e6e6a8ec58b8ed7b43e5d`
 
 ## 2026-07-16 - Task-plan checkpoint
@@ -153,3 +153,46 @@ twin/synthesis cluster.
 Next checkpoint: commit this machine-twin/synthesis cluster, then execute the
 full link, schema, parity, hash, diff, fence, and clean-tree closeout and mark
 the DS2 plan/report complete.
+
+## 2026-07-16 - Closeout checkpoint
+
+- Re-ran the full read-only DS2 verifier after marking the plan/report/
+  synthesis review-ready. Frozen archive verification is exact: SHA-256
+  matches, 1,612 entries = 136 directories + 1,476 files, and uncompressed
+  member bytes total 13,371,433.
+- The strict adoption ledger validates with zero errors at 233 unique entries.
+  Fresh corruption results: unknown verdict rejected (1 error), extra entry
+  property rejected (1), wrong archive hash rejected (1), and `stable`
+  without browser/manual-AT evidence rejected (2). Distribution remains
+  120 refactor / 62 wrap-strangle / 38 defer / 13 reject / 0 as-is; maturity
+  remains 232 experimental / one beta method / zero stable.
+- Rehashed all 1,476 mapped scratch files: path-set difference, duplicate
+  ownership, size mismatch, and content-hash mismatch are all zero. All 233
+  ledger evidence members and line references resolve.
+- Recomputed the token evidence from source: six root files = 711 token paths,
+  643 CSS projections, 258 aliases; 16 mode files = 514 paths and 505 CSS
+  projections; zero missing alias targets/cycles. The live 74-variable
+  classification exactly partitions 21 exact / 40 value delta / eight missing
+  / one conflict / four runtime controls; all 119 frozen-v4 names occur in
+  v15 and 57/74 current live names are direct.
+- Report/ledger parity is exact for all 233 IDs, verdicts, and maturities.
+  Checked 41 local/frontmatter references and three anchors across the DS2
+  plan, report, synthesis, archive README, and journal: unresolved = 0. Every
+  DS3-DS18 synthesis section has explicit confirmed/re-scoped/invalidated
+  fields and the plan closure checklist is 17/17.
+- Combined branch-fence audit sees 27 changed paths, with zero outside the
+  DS0+DS1+DS2 allowance and zero in apps, packages, runtime source, GY
+  layer3-slices, policy-design-case, quality tools, or production data.
+- The first diff check correctly caught Markdown hard-break whitespace on the
+  journal's three identity lines from the initial commit. This closeout change
+  removes it; the working diff is clean under `git diff --check HEAD`. The
+  final post-commit `main...HEAD` diff check and clean-status check remain the
+  last evidence gate.
+- No pytest, application build, browser run, dependency installation,
+  generated client, token generation, component copy, route change, or flag
+  mutation was performed. D4 locale posture remains the sole
+  `pending_owner_ratification` item.
+
+DS2 is marked complete on the branch for architect review, contingent on the
+fresh post-commit diff/fence/status rerun. The branch remains unmerged and
+unpushed; Phase B has not started.

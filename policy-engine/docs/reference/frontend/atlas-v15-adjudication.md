@@ -1,6 +1,6 @@
 ---
 title: Atlas v15 Adjudication
-status: in-progress - item adjudication complete
+status: complete-on-branch - architect review pending
 owner: team-design
 created: 2026-07-16
 last_reviewed: 2026-07-16
@@ -312,6 +312,30 @@ audit is internally coherent, while `tokens/README.md:1-3,69-74`,
 | Conflicting semantic | **1** |
 | Live runtime preference/control | **4** |
 | **Total** | **74** |
+
+The denominator is the 74-variable
+[live typed registry](../../../apps/runtime-dashboard/src/shared/ui/tokens/designTokens.ts#L6).
+The 21 exact semantics are `--motion-fast`, `--motion-moderate`,
+`--motion-slow`, `--radius-panel`, `--radius-pill`, `--shadow-xs`,
+`--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-xl`, `--font-mono`,
+`--font-sans`, `--text-2xs`, `--text-xs`, `--text-sm`, `--text-base`,
+`--text-lg`, `--text-xl`, `--text-2xl`, `--text-3xl`, and `--text-4xl`.
+
+The 40 representable value deltas are `--accent`, `--canvas`, `--danger`,
+`--gold`, `--ink`, `--line`, `--muted`, `--paper`, `--success`, `--surface`,
+`--teal`, `--text`, `--warning`, `--radius-card`, `--focus-ring`,
+`--shadow-panel`, `--color-action-destructive`, `--color-action-primary`,
+`--color-evidence-verified`, `--color-governance-blocker`,
+`--color-governance-review`, `--color-severity-high`,
+`--color-severity-low`, `--color-severity-medium`,
+`--color-status-approved`, `--color-status-pending`,
+`--color-status-rejected`, `--color-uncertainty-point-estimate`,
+`--color-uncertainty-confidence-interval`,
+`--color-uncertainty-counterfactual-interval`,
+`--color-uncertainty-disputed`, `--color-bounds-fill`,
+`--color-bounds-stroke`, `--color-ci-50`, `--color-ci-80`, `--color-ci-95`,
+`--color-confidence-high`, `--color-confidence-medium`,
+`--color-confidence-low`, and `--color-transport-degraded`.
 
 The eight true misses are the live generic stack tokens `--z-base`,
 `--z-dropdown`, `--z-sticky`, `--z-overlay`, `--z-modal`, `--z-popover`,

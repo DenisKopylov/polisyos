@@ -2,11 +2,12 @@
 plan_id: atlas-ds2-atlas-v15-adjudication
 title: "DS2 - Atlas v15 Adjudication"
 type: slice-plan
-status: active
+status: complete-on-branch - architect review pending
 created: 2026-07-16
 revised: 2026-07-16
 last_verified: 2026-07-16
-stability: execution-ready
+stability: review-ready
+closed_at: 2026-07-16
 slice: DS2
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 surface_constitution: ../../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
@@ -443,44 +444,44 @@ slice supplies the missing bridge, consumer, verification, and negative test.
 
 DS2 closes only when all conditions are true:
 
-- [ ] The committed plan and unique journal predate archive extraction and
+- [x] The committed plan and unique journal predate archive extraction and
       the task-plan checkpoint is committed.
-- [ ] The immutable zip still has the frozen sha256 and no extracted member is
+- [x] The immutable zip still has the frozen sha256 and no extracted member is
       committed.
-- [ ] Every non-directory zip member maps exactly once to a logical unit;
+- [x] Every non-directory zip member maps exactly once to a logical unit;
       missing, duplicate, and extra physical-member sets are empty.
-- [ ] Every required dimension publishes a recomputed denominator,
+- [x] Every required dimension publishes a recomputed denominator,
       enumeration method, and `adjudicated N of N` or `classified N of N`
       statement.
-- [ ] The claimed component/Figma denominator is independently recomputed;
+- [x] The claimed component/Figma denominator is independently recomputed;
       discrepancies are findings rather than silently normalized.
-- [ ] Every archive verification report has a conformance-battery row stating
+- [x] Every archive verification report has a conformance-battery row stating
       what it proves, what remains missing, and DS4/DS6 ownership.
-- [ ] No archive PASS assigns `stable`; every maturity follows the
+- [x] No archive PASS assigns `stable`; every maturity follows the
       constitution's evidence bar.
-- [ ] Every logical item has exactly one DS0 verdict, maturity, evidence,
+- [x] Every logical item has exactly one DS0 verdict, maturity, evidence,
       v4-counterpart outcome, consuming slice, loser sunset, strongest
       rejected alternative, revisit condition, `not_yet`, and authority
       boundary.
-- [ ] Every no-consumer item is `defer` unless the report cites a specific
+- [x] Every no-consumer item is `defer` unless the report cites a specific
       constitutional rejection reason.
-- [ ] The D2 parity map covers every live v4 token semantic and every authored
+- [x] The D2 parity map covers every live v4 token semantic and every authored
       v15 DTCG source/mode in both directions, including themes, density,
       responsive, data-viz, contrast/high-contrast, and reduced motion.
-- [ ] The D2 verdict is one of the three specified outcomes and either
+- [x] The D2 verdict is one of the three specified outcomes and either
       confirms D2 with named DS4 gaps or explicitly fires its revisit
       condition.
-- [ ] v4-vs-v15 outcomes cover all 12 DS1 families and name the winning owner,
+- [x] v4-vs-v15 outcomes cover all 12 DS1 families and name the winning owner,
       compatibility path, and loser sunset.
-- [ ] `atlas-v15-adoption-ledger.json` validates against the unchanged DS0
+- [x] `atlas-v15-adoption-ledger.json` validates against the unchanged DS0
       schema; all four corrupt-instance probes fail validation.
-- [ ] Report and ledger IDs/decision fields have empty bidirectional
+- [x] Report and ledger IDs/decision fields have empty bidirectional
       differences and no duplicates.
-- [ ] The Phase-A synthesis covers DS3-DS18 with confirmed, re-scoped,
+- [x] The Phase-A synthesis covers DS3-DS18 with confirmed, re-scoped,
       invalidated, evidence, action, and effort fields.
-- [ ] All touched Markdown links and ledger evidence paths resolve; archive
+- [x] All touched Markdown links and ledger evidence paths resolve; archive
       member paths resolve inside the verified zip/scratch extraction.
-- [ ] `git diff --check main...HEAD` is clean, every changed path is inside the
+- [x] `git diff --check main...HEAD` is clean, every changed path is inside the
       combined DS0+DS1+DS2 fence, and `git status --porcelain` is empty.
 
 Closure does not mean a component/token is copied, a package is created, a

@@ -1,6 +1,6 @@
 ---
 title: Atlas Phase-A Synthesis
-status: review-ready
+status: complete-on-branch - architect review pending
 owner: team-design
 created: 2026-07-16
 last_reviewed: 2026-07-16
@@ -321,6 +321,27 @@ v4 temporal family until this exists.
 
 **Invalidated:** v15's phantom `DecisionTimeline`, archive mode/time prose, or
 client timestamps as runtime epoch semantics.
+
+## Per-Slice Effort Posture
+
+| Slice | Revision-3 effort posture |
+| --- | --- |
+| DS3 | re-cut required: less blanket endpoint work, more client/channel consolidation and projection provenance |
+| DS4 | increase / re-cut required: 12-family dependency severing, 47 local statuses, and token semantic adapter |
+| DS5 | increase / re-cut required: generic 29-route authorization, cache isolation/revalidation, transport lints, and flags |
+| DS6 | increase: classify and store evidence across the measured estate; derive routes and manual-AT cadence |
+| DS7 | broadly unchanged build size, higher semantic-integration risk |
+| DS8 | decrease greenfield UI, increase strangler/integration work; re-cut required |
+| DS9 | increase: principal/mandate/exposure/step-up and replay integrity across all decision classes |
+| DS10 | decrease UI build, increase producer/DTO/frontier contract work |
+| DS11 | increase for public-route evidence, claims ownership, and telemetry posture |
+| DS12 | increase / re-cut required: replace a live decorative chain across three builders, privacy, signing, revocation, and telemetry |
+| DS13 | unchanged gate; add explicit deletion of false local substrate |
+| DS14 | decrease visual build, increase candidate-bound semantic integration and storage/route strangle |
+| DS15 | decrease read-surface build, increase execution permission/passport/quarantine/re-entry gates |
+| DS16 | unchanged overall size but integration-heavy; point-collapse and provenance negatives are load-bearing |
+| DS17 | unchanged and producer-gated; generic confidence UI contributes no authority progress |
+| DS18 | increase: epoch validity becomes a cross-cache/cross-surface invariant, not chrome alone |
 
 ## Cross-Slice Revision-3 Actions
 

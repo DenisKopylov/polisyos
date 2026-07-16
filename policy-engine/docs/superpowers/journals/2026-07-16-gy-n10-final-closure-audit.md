@@ -776,3 +776,30 @@ first --write:  exit 0; ~109.92 s
 second --write: exit 0; ~115.15 s
 --check:         exit 0; ~114.12 s
 ```
+
+On committed N8 base `bae0dbb1c`, N10a then reported the single expected downstream binding:
+
+```text
+N10a --check: exit 1; wall_time_seconds=1.0703
+  n8_transport_gap_receipt_drift
+```
+
+No smoke-problem, pack, registry, lever, WMR, or cycle-trace issue was reported. The N10a writer is
+therefore restricted to the gap receipt's N8 provenance and its enclosing hashes.
+
+The writer diff preserved that boundary. The census and smoke DesignProblem did not move. The gap
+receipt records the new N8 contract/proof hashes; the trace and pack carry the resulting gap/trace
+hashes. The full-rewrite-only `generated_at` and `runtime_metrics` values changed but remain
+excluded operational fields, and the second writer preserved their bytes exactly.
+
+```text
+first --write:  exit 0; wall_time_seconds=386.019850
+second --write: exit 0; wall_time_seconds=387.509877
+--check:         exit 0; wall_time_seconds=1.047132
+stable file SHA-256:
+  census       82ae8c00ca45ab910d5f4547f8965dd142768f06aeca5e44fd2d7096e67fa347
+  pack         dbec9d3513e7f7fd53724a36c8a747e07233affc03cc371ff6c26a1777c3ea28
+  smoke        46e9b2dc0813bfa69ce43fef5ebf7bb8ea823b73bc2c301511bec8b3d4cc8911
+  cycle trace  eae69c1f4d04c608b8f566d3f2a4dc3e983e29352dc29e02aa49abff281c9a3e
+  gaps         3282aebafd21747863bc566c3ca742d6cfa30d94ee33877630c97adf697ab930
+```

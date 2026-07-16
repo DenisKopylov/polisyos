@@ -97,3 +97,27 @@ flags, transports, authorization matrix, and adjacent/evidence estates.
 
 Next checkpoint: close the task-plan checklist, run independent ledger/content
 checks, final link/fence/diff/clean-tree verification, and commit DS1 closeout.
+
+## 2026-07-16 - Closeout verification checkpoint
+
+- Revalidated the 261-entry instance against the unchanged DS0 JSON Schema:
+  `ok -- validation done`.
+- Independently parsed the delimited report index and ledger: 261/261 unique
+  IDs, no duplicates, and empty report-minus-ledger / ledger-minus-report sets.
+- Resolved all 261 ledger evidence refs to existing files and verified every
+  cited line is in bounds. Resolved 437 links across the report, DS1 task plan,
+  master plan, DS0 record, constitution, and this journal, including all
+  source `#L` anchors.
+- Independently recomputed the high-value denominators: OpenAPI 89, features
+  17, shared/UI implementations 89, stories 44, a11y files 67, browser e2e
+  specs 17, and committed visual PNGs 16.
+- `git diff --check` and `git diff --check main...HEAD` were clean. The
+  triple-dot branch diff contains 21 files, all within the combined DS0+DS1
+  fence: `architecture/atlas_surfaces`, `design/atlas-v15/README.md`, Atlas
+  brand/frontend-family/atlas-slice plans, lifecycle archive moves,
+  `docs/reference/frontend`, and the two uniquely named Atlas journals.
+  No app, package, source, e2e, GY blast-zone, quality-tool, or production-data
+  file is changed by the branch.
+- Marked the DS1 report and task plan review-ready. The architect handoff will
+  repeat schema, parity, links, diff, fence, and clean-tree checks after the
+  closeout commit; no merge or push is performed.

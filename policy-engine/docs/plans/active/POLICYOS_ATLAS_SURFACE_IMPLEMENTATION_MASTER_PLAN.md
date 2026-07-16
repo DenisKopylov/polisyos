@@ -182,7 +182,8 @@ Three consequences are folded into the slices below:
    evidence-bearing primitives largely exist; what they lack is binding to the
    authority lattice and the retirement of UI-local vocabularies.
 2. **DS2 adjudicates two living systems, not one archive.** The repo already
-   runs a coded v4 (tokens + ~40 components with a11y evidence); v15 admission
+   runs a coded v4 (tokens + 89 implementation TSX in 12 families with uneven
+   a11y/story evidence); v15 admission
    is a migration between two real systems, not an import into a void.
 3. **DS12 replaces a decorative mechanism, not a missing one.** Client-side
    "signing" is a useful UX prototype and a live overclaim risk at once; the

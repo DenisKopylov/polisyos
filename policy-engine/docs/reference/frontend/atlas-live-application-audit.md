@@ -1,6 +1,6 @@
 ---
 title: Atlas Live Application Audit
-status: active - inventory checkpoint
+status: complete-on-branch - architect review pending
 owner: team-design
 as_of: 2026-07-16
 slice: DS1
@@ -317,7 +317,7 @@ set, so the union remains 45. A no-call row is not automatically product debt.
 | `api-op-get-run-workflow` | GET `/api/v1/runs/{run_id}/workflow` | SC; DS8 | [call](../../../apps/runtime-dashboard/src/api/hooks/useRunWorkflow.ts#L13) |
 | `api-op-get-scenario-manifest` | GET `/api/v1/scenarios/{scenario_id}` | HC; DS8 | [unused hook](../../../apps/runtime-dashboard/src/api/hooks/useScenarioManifest.ts#L28) |
 | `api-op-get-scenario-capabilities` | GET `/api/v1/scenarios/{scenario_id}/capabilities` | HC; DS8 | [unused hook](../../../apps/runtime-dashboard/src/api/hooks/useScenarioCapabilities.ts#L62) |
-| `api-op-get-temporal-capabilities` | GET `/api/v1/temporal/capabilities` | SC; DS18 | [call](../../../apps/runtime-dashboard/src/shared/ui/temporal/useTemporalRange.ts#L25) |
+| `api-op-get-temporal-capabilities` | GET `/api/v1/temporal/capabilities` | SC; DS18 | [call](../../../apps/runtime-dashboard/src/api/hooks/useTemporalRange.ts#L25) |
 | `api-op-health` | GET `/health` | NC; DS6 | [operation](../../../schemas/runtime_api_v1.openapi.json#L48156) |
 | `api-op-ready` | GET `/ready` | NC; DS6 | [operation](../../../schemas/runtime_api_v1.openapi.json#L48369) |
 

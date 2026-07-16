@@ -2,11 +2,12 @@
 plan_id: atlas-ds1-live-application-audit
 title: "DS1 - Live Application Audit"
 type: slice-plan
-status: active - audit not yet executed
+status: complete-on-branch - architect review pending
 created: 2026-07-16
 revised: 2026-07-16
 last_verified: 2026-07-16
-stability: executable
+stability: review-ready
+closed_at: 2026-07-16
 slice: DS1
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 surface_constitution: ../../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
@@ -414,45 +415,45 @@ reconciliation and evidence refs are DS1's proportionate P29 control.
 
 DS1 closes only when all of the following are true:
 
-- [ ] The June snapshot reconciliation table contains every required
+- [x] The June snapshot reconciliation table contains every required
       dimension, exact measured denominators, reproducible methods, and
       `audited N of N` coverage.
-- [ ] Every runtime-dashboard route and every reference-shell route/view has
+- [x] Every runtime-dashboard route and every reference-shell route/view has
       a report and ledger row.
-- [ ] Every `features/*` module has a report and ledger row.
-- [ ] Every shared/UI public component family has a membership-complete report
+- [x] Every `features/*` module has a report and ledger row.
+- [x] Every shared/UI public component family has a membership-complete report
       and ledger row; maturity follows the constitution rather than story/axe
       presence.
-- [ ] Every checked-in OpenAPI operation is classified as UI-consumed or
+- [x] Every checked-in OpenAPI operation is classified as UI-consumed or
       consumer-missing; every UI network call is matched to a server route or
       reported as off-contract/phantom.
-- [ ] Every hand-written fetch/transport call outside sanctioned owners is
+- [x] Every hand-written fetch/transport call outside sanctioned owners is
       listed at exact file:line.
-- [ ] Every UI-local status vocabulary definition and its consumers are
+- [x] Every UI-local status vocabulary definition and its consumers are
       inventoried; all `DisputeStatus` definitions and divergences are shown.
-- [ ] All feature flags and override/source paths are reconciled against D5,
+- [x] All feature flags and override/source paths are reconciled against D5,
       including a current verdict for the four `consumer_missing` claims.
-- [ ] Generated client, SSE, WS, workers, offline queue, service worker/cache,
+- [x] Generated client, SSE, WS, workers, offline queue, service worker/cache,
       storage, and retry/revalidation paths are fully inventoried.
-- [ ] CLI and print/export existence checks are complete without changing D6.
-- [ ] The entire test/story/a11y/e2e/snapshot estate is counted and mapped to
+- [x] CLI and print/export existence checks are complete without changing D6.
+- [x] The entire test/story/a11y/e2e/snapshot estate is counted and mapped to
       what it actually proves; any sampling is declared under the uniform
       family rule.
-- [ ] Each named hotspot has its own evidence-bearing section and exact
+- [x] Each named hotspot has its own evidence-bearing section and exact
       file:line references.
-- [ ] Every P04/P05/P15/P26 finding has a red-first negative spec with target,
+- [x] Every P04/P05/P15/P26 finding has a red-first negative spec with target,
       setup, expected current failure, passing behavior, and sibling variant.
-- [ ] The Plan-Impact Appendix covers all DS3-DS18 scope effects, features with
+- [x] The Plan-Impact Appendix covers all DS3-DS18 scope effects, features with
       no slice, contradicted assumptions, strangle candidates, and effort
       changes; affected master snapshot rows are corrected.
-- [ ] `architecture/atlas_surfaces/live-application-readiness-ledger.json`
+- [x] `architecture/atlas_surfaces/live-application-readiness-ledger.json`
       validates against the unchanged DS0 schema and contains exactly the
       report's stable unit-ID set.
-- [ ] All touched Markdown file links resolve; no report claim lacks evidence
+- [x] All touched Markdown file links resolve; no report claim lacks evidence
       or a reproducible method.
-- [ ] Existing tools, if run, left the tree unchanged or were isolated and
+- [x] Existing tools, if run, left the tree unchanged or were isolated and
       reverted with the result recorded.
-- [ ] `git diff --check main...HEAD` is clean; every changed path is inside
+- [x] `git diff --check main...HEAD` is clean; every changed path is inside
       the DS0+DS1 fence; `git status --porcelain` is empty.
 
 Closure does not mean any finding is repaired, any flag is governed in code,
@@ -480,3 +481,21 @@ Closeout also checks:
 
 No pytest, application build, browser run, or dependency install is required
 for closure. Existing targeted tools may run only under the read-only law.
+
+## Closure Evidence
+
+Closed 2026-07-16 with:
+
+- 261/261 unique report/ledger IDs and empty bidirectional set differences;
+- unchanged DS0 schema validation: `ok -- validation done`;
+- 261 ledger evidence references resolving to existing files with valid line
+  bounds;
+- 437 governing/touched-document links resolving, including source line
+  bounds;
+- exact source denominators recorded in the report and corrected master-plan
+  rows;
+- no application/runtime edits, dependency install, pytest, app build, or
+  browser run; the one isolated a11y-test attempt could not start because
+  Vitest dependencies were unavailable and left the tree unchanged;
+- final `git diff --check main...HEAD`, fence, and clean-tree proofs recorded
+  in the DS1 journal and architect handoff.

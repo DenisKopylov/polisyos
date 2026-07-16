@@ -866,3 +866,76 @@ historical N4 projection rebind focused battery: 2 passed; exit 0; ~12.17 s
   disposition change: RED
 Ruff (capstone validator + focused test): All checks passed
 ```
+
+The committed-base provenance witness remained green (`1 passed`, ~90.68 s). The retried writer
+then completed:
+
+```text
+capstone first --write: exit 0; wall_time_seconds=1265.261875
+contract_content_hash:
+  sha256:fb1194882178801f0d08835e7c6683433ace055bcbd3ea44e6ecd6ba99a742a6
+file SHA-256:
+  29bb35048575ccc4fd61124875569d90c4cf843f5dac4f42b6f1ad768b22e9c6
+```
+
+The old/new semantic audit observed 752 status/kind/reason/method/candidate leaves on each side and
+found exact equality. All three role names, terminal distributions, terminal kinds, structural
+evidence kinds, decision grades, candidate IDs, proposal IDs, selected-candidate refs, N4
+dispositions, depth semantics, non-panel semantics, capability reality, and the universality
+expectation were unchanged. The first-vertical and education domain-run hashes moved only because
+their certificate/ticket provenance and content-bound historical receipts moved; unseen semantic
+bytes remained unchanged. Excluded operational clocks were rewritten once with the new contract
+identity and must be carried byte-for-byte by the second writer.
+
+The second writer preserved every byte:
+
+```text
+capstone second --write: exit 0; wall_time_seconds=1354.788064
+contract_content_hash:
+  sha256:fb1194882178801f0d08835e7c6683433ace055bcbd3ea44e6ecd6ba99a742a6
+file SHA-256:
+  29bb35048575ccc4fd61124875569d90c4cf843f5dac4f42b6f1ad768b22e9c6
+byte-stable: true
+```
+
+The complete final-byte gate battery then passed against those exact bytes:
+
+```text
+capstone --check: exit 0; validator_wall_time_seconds=111.365562
+capstone --corrupt-field-drift-check: expected exit 1; wall_time_seconds=77.320249
+capstone --rederive-audit: exit 0; wall_time_seconds=1468.433073; issues=[]
+```
+
+The static corrupt lane rejected all 11 decisive nested mutations:
+`stale_contract_hash`, `evidence_kind_relabel`, `evidence_witness_forgery`,
+`planner_report_semantic_drift`, `forged_route_hash`, `compiler_response_bytes`,
+`n4_response_bytes`, `compiled_recursive_bytes`, `compiled_schema_rehashed`,
+`terminal_distribution_projection`, and `fabricated_terminal`.
+
+The source-flip lane was rerun with a retained transcript after the desktop session dropped the
+first oversized terminal payload. Both executions restored the same source base; the retained run
+is the auditable denominator:
+
+```text
+capstone --source-flip-mutations: exit 0; wall_time_seconds=527.351959
+status=pass; issues=[]
+local mutations: 17/17 RED with signal_observed=true and source restoration receipts
+delegated composition mutations: 5/5 RED with signal_observed=true and source restoration receipts
+non-RED results: 0
+missing restoration receipts: 0
+```
+
+The 17 local mutation IDs were `domain_pinned_in_engine`,
+`cycle_driven_by_pinned_fixture`, `unseen_domain_honesty_removed`,
+`no_context_generation_authority_fence_removed`, `acquisition_route_verification_removed`,
+`canonical_route_recompute_removed`, `degradation_class_relabel_accepted`,
+`fabricated_terminal_accepted`, `degradation_class_denominator_weakened`,
+`education_refusal_precedence_removed`, `live_advisor_denominator_verification_removed`,
+`value_owner_candidate_binding_removed`, `historical_receipt_verification_removed`,
+`operational_clock_preservation_removed`, `unbound_estimand_authority_fence_removed`,
+`n7_design_problem_authority_removed`, and `lex_reference_mount_path_independence_removed`.
+The five delegated IDs were `gy_g_fixture_caller_reintroduced`,
+`empty_coupling_assumed_independent`, `n5_joint_simulation_owner_bypassed`,
+`unsupported_n5_relabelled_joint_simulated`, and `gy_g_production_default_route_removed`.
+Every probe exited 1 on its expected RED signal. Post-harness `git status --short` showed no source
+movement: only this journal and the canonical capstone artifact remained modified.

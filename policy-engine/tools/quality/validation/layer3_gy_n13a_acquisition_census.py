@@ -7,22 +7,45 @@ or write to the catalog.
 
 from __future__ import annotations
 
+import asyncio
+import base64
 import hashlib
+import importlib.util
 import json
+import os
+import sys
+import time
 from collections import Counter, defaultdict
-from collections.abc import Callable, Mapping, Sequence
-from datetime import datetime
+from collections.abc import Awaitable, Callable, Mapping, Sequence
+from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, Literal, Self
+from urllib.parse import urlsplit
 
 import duckdb
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n13a.acquisition_census.v1"
 RULE_VERSION = "policyos.layer3.gy.n13a.acquisition_census.v1"
+JOURNAL_SCHEMA_VERSION = "policyos.layer3.gy.n13a.live_probe_journal.v1"
 CONTENT_HASH_EXCLUDED_FIELDS = frozenset({"capture_wall_time_seconds", "observed_at"})
 EXECUTABLE_BINDING_TIERS = frozenset({"fetchable", "transport_ready"})
+DEFAULT_PROBES_PER_FAMILY = 12
+MAX_PROBE_TIMEOUT_SECONDS = 15.0
+MAX_PROBE_RESPONSE_BYTES = 65_536
+OPEN_LICENSE_IDENTIFIERS = frozenset(
+    {
+        "cc-by",
+        "cc-by-4.0",
+        "cc-by-sa",
+        "gfdl",
+        "odc-by",
+        "odc-odbl",
+        "other-pd",
+        "uk-ogl",
+    }
+)
 _FETCH_PLAN_FORBIDDEN_OWNERS = frozenset(
     {
         "FetchExecutor.execute",
@@ -41,6 +64,7 @@ _REQUIRED_CATALOG_COLUMNS: dict[str, frozenset[str]] = {
             "dataset_id",
             "url",
             "connector_type",
+            "connector_params",
             "profile_id",
             "quality_score",
             "parser_supported",
@@ -135,8 +159,43 @@ class LivenessState(StrEnum):
     AUTH_REQUIRED = "auth_required"
     RATE_LIMITED = "rate_limited"
     LICENSE_UNCLEAR = "license_unclear"
+    CATALOG_ONLY = "catalog_only"
+    ENDPOINT_UNUSABLE = "endpoint_unusable"
+    CONNECTOR_OWNER_MISSING = "connector_owner_missing"
+    CONNECTOR_CONTRACT_INVALID = "connector_contract_invalid"
+    DRY_RUN_FAILED = "dry_run_failed"
+    SCHEMA_PROFILE_MISSING = "schema_profile_missing"
+    SOURCE_PROFILE_MISSING = "source_profile_missing"
+    SOURCE_PROFILE_MISMATCH = "source_profile_mismatch"
     RESPONSE_BUDGET_EXCEEDED = "response_budget_exceeded"
+    RESPONSE_SAFETY_BLOCKED = "response_safety_blocked"
     TRANSPORT_ERROR = "transport_error"
+
+
+class ProbeDisposition(StrEnum):
+    """Pre-network result derived from owner, safety, and catalog evidence."""
+
+    LIVE_ATTEMPT_AUTHORIZED = "live_attempt_authorized"
+    CONNECTOR_OWNER_MISSING = "connector_owner_missing"
+    CONNECTOR_CONTRACT_INVALID = "connector_contract_invalid"
+    DRY_RUN_FAILED = "dry_run_failed"
+    SCHEMA_PROFILE_MISSING = "schema_profile_missing"
+    SOURCE_PROFILE_MISSING = "source_profile_missing"
+    SOURCE_PROFILE_MISMATCH = "source_profile_mismatch"
+    AUTH_REQUIRED = "auth_required"
+    CATALOG_ONLY = "catalog_only"
+    ENDPOINT_UNUSABLE = "endpoint_unusable"
+    LICENSE_UNCLEAR = "license_unclear"
+
+
+class FamilyLivenessState(StrEnum):
+    """Aggregate state that never calls a partial sample a dead family."""
+
+    LIVE_CHARACTERIZED = "live_characterized"
+    MIXED_LIVE_AND_FINDINGS = "mixed_live_and_findings"
+    NO_SAFE_LIVE_ATTEMPT = "no_safe_live_attempt"
+    SAMPLE_DEAD_AFTER_HONEST_LEVERS = "sample_dead_after_honest_levers"
+    CHARACTERIZATION_FAILED = "characterization_failed"
 
 
 class _StrictBoundaryModel(BaseModel):
@@ -507,15 +566,6 @@ class FetchPlanExecutionFence(_StrictBoundaryModel):
         return self
 
 
-class ProbeBudget(_StrictBoundaryModel):
-    """Derived HTTP limits carried by one live characterization request."""
-
-    timeout_seconds: float = Field(gt=0.0)
-    max_response_bytes: int = Field(gt=0)
-    minimum_interval_seconds: float = Field(ge=0.0)
-    call_budget: Literal[1] = 1
-
-
 class SchemaProfileContract(_StrictBoundaryModel):
     """Owner profile projected into a live probe request."""
 
@@ -527,6 +577,138 @@ class SchemaProfileContract(_StrictBoundaryModel):
     preview_sample_hash: str | None = None
     inference_mode: str = Field(min_length=1)
     parser_mode: str = Field(min_length=1)
+
+
+class ConnectorFamilyReceipt(_StrictBoundaryModel):
+    """Registry, harness-owner, and simulator dry-run evidence for one family."""
+
+    connector_id: str = Field(min_length=1)
+    component_id: str | None = None
+    connector_class: str | None = None
+    protocol_violations: tuple[str, ...]
+    harness_passed: bool
+    simulator_mode: Literal["replay"]
+    simulator_intercepted: bool
+    simulator_call_count: int = Field(ge=0)
+    simulator_network_calls: Literal[0]
+
+    @model_validator(mode="after")
+    def _receipt_status_is_derived(self) -> Self:
+        owner_resolved = self.component_id is not None and self.connector_class is not None
+        if (self.component_id is None) != (self.connector_class is None):
+            raise ValueError("component ID and connector class must resolve together")
+        expected_harness = owner_resolved and not self.protocol_violations
+        if self.harness_passed != expected_harness:
+            raise ValueError("harness status must be derived from protocol-owner evidence")
+        if self.simulator_intercepted != (self.simulator_call_count == 1):
+            raise ValueError("simulator interception must be a one-call replay receipt")
+        return self
+
+
+class FamilySamplingReceipt(_StrictBoundaryModel):
+    """Full-population and selected-strata counts for one data-derived family."""
+
+    connector_id: str = Field(min_length=1)
+    available_distribution_count: int = Field(ge=1)
+    target_probe_count: int = Field(ge=1, le=15)
+    selected_probe_count: int = Field(ge=1, le=15)
+    stratum_population_counts: dict[str, int]
+    selected_stratum_counts: dict[str, int]
+    open_license_available_count: int = Field(ge=0)
+    auth_required_available_count: int = Field(ge=0)
+    schema_profile_available_count: int = Field(ge=0)
+
+    @field_validator("stratum_population_counts", "selected_stratum_counts")
+    @classmethod
+    def _stratum_counts_are_nonnegative(cls, value: dict[str, int]) -> dict[str, int]:
+        return _validate_nonnegative_count_map(value)
+
+    @model_validator(mode="after")
+    def _selection_counts_cover_the_declared_sample(self) -> Self:
+        if sum(self.stratum_population_counts.values()) != self.available_distribution_count:
+            raise ValueError("stratum populations must cover every family distribution")
+        if sum(self.selected_stratum_counts.values()) != self.selected_probe_count:
+            raise ValueError("selected strata must cover every sampled probe")
+        if self.selected_probe_count != min(
+            self.target_probe_count, self.available_distribution_count
+        ):
+            raise ValueError("sample count must equal target or the complete smaller population")
+        if self.open_license_available_count > self.available_distribution_count:
+            raise ValueError("open-license count exceeds the family population")
+        if self.auth_required_available_count > self.available_distribution_count:
+            raise ValueError("auth-required count exceeds the family population")
+        if self.schema_profile_available_count > self.available_distribution_count:
+            raise ValueError("schema-profile count exceeds the family population")
+        return self
+
+
+class ProbeCandidate(_StrictBoundaryModel):
+    """One deterministic distribution-level member of the stratified census sample."""
+
+    attempt_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    metric_id: str = Field(min_length=1)
+    dataset_id: str = Field(min_length=1)
+    distribution_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
+    execution_tier: str = Field(min_length=1)
+    quality_score: float = Field(ge=0.0, le=1.0)
+    quality_bucket: Literal["q00_24", "q25_49", "q50_74", "q75_100"]
+    binding_confidence: float = Field(ge=0.0, le=1.0)
+    endpoint_url: str
+    connector_params: dict[str, Any]
+    filters: dict[str, list[str]]
+    access_license: str
+    auth_required: bool
+    parser_supported: bool
+    schema_profile: SchemaProfileContract | None
+    family_sample_rank: int = Field(ge=1, le=15)
+    stratum_id: str = Field(min_length=1)
+    stratum_rank: int = Field(ge=1)
+
+    @model_validator(mode="after")
+    def _candidate_edges_are_exact(self) -> Self:
+        if self.schema_profile is not None:
+            if self.schema_profile.distribution_id != self.distribution_id:
+                raise ValueError("probe schema profile must bind the exact distribution")
+            if self.schema_profile.dataset_id != self.dataset_id:
+                raise ValueError("probe schema profile must bind the exact dataset")
+            if self.schema_profile.profile_id != self.profile_id:
+                raise ValueError("probe schema profile must bind the exact profile")
+        expected_bucket = _quality_bucket(self.quality_score)
+        if self.quality_bucket != expected_bucket:
+            raise ValueError("quality bucket must be recomputed from owner quality")
+        if self.stratum_id != f"{self.execution_tier}:{self.quality_bucket}":
+            raise ValueError("stratum must be execution tier x quality bucket")
+        return self
+
+
+class ProbeBudget(_StrictBoundaryModel):
+    """Derived HTTP limits carried by one live characterization request."""
+
+    profile_timeout_seconds: float | None = Field(default=None, gt=0.0)
+    profile_rate_limit_rps: float | None = Field(default=None, gt=0.0)
+    profile_requests_per_hour: int | None = Field(default=None, gt=0)
+    timeout_seconds: float = Field(gt=0.0)
+    max_response_bytes: int = Field(gt=0)
+    minimum_interval_seconds: float = Field(ge=0.0)
+    call_budget: Literal[1] = 1
+
+    @model_validator(mode="after")
+    def _limits_are_derived_from_profile_and_census_caps(self) -> Self:
+        if self.profile_timeout_seconds is not None:
+            expected_timeout = min(self.profile_timeout_seconds, MAX_PROBE_TIMEOUT_SECONDS)
+            if self.timeout_seconds != expected_timeout:
+                raise ValueError("probe timeout must be derived from profile and census cap")
+        intervals = []
+        if self.profile_rate_limit_rps is not None:
+            intervals.append(1.0 / self.profile_rate_limit_rps)
+        if self.profile_requests_per_hour is not None:
+            intervals.append(3600.0 / self.profile_requests_per_hour)
+        if intervals and abs(self.minimum_interval_seconds - max(intervals)) > 1e-9:
+            raise ValueError("probe interval must be derived from owner rate limits")
+        return self
 
 
 class ProbeRequest(_StrictBoundaryModel):
@@ -545,6 +727,43 @@ class ProbeRequest(_StrictBoundaryModel):
     dry_run_receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class ProbePreflight(_StrictBoundaryModel):
+    """Fail-closed authorization decision recomputed before any network call."""
+
+    attempt_id: str = Field(min_length=1)
+    connector_owner_resolved: bool
+    protocol_conformant: bool
+    simulator_intercepted: bool
+    schema_profile_resolved: bool
+    source_profile_resolved: bool
+    source_profile_family_matches: bool
+    open_license_validated: bool
+    auth_required: bool
+    execution_tier: str = Field(min_length=1)
+    endpoint_scheme: Literal["http", "https", "other", "missing"]
+    disposition: ProbeDisposition
+
+    @model_validator(mode="after")
+    def _disposition_is_recomputed(self) -> Self:
+        expected = _derive_probe_disposition(
+            connector_owner_resolved=self.connector_owner_resolved,
+            protocol_conformant=self.protocol_conformant,
+            simulator_intercepted=self.simulator_intercepted,
+            schema_profile_resolved=self.schema_profile_resolved,
+            source_profile_resolved=self.source_profile_resolved,
+            source_profile_family_matches=self.source_profile_family_matches,
+            open_license_validated=self.open_license_validated,
+            auth_required=self.auth_required,
+            execution_tier=self.execution_tier,
+            endpoint_scheme=self.endpoint_scheme,
+        )
+        if self.disposition is not expected:
+            raise ValueError(
+                "probe disposition must be recomputed from decisive preflight evidence"
+            )
+        return self
+
+
 class ProbeRawResponse(_StrictBoundaryModel):
     """Bounded response evidence journaled before liveness classification."""
 
@@ -558,6 +777,47 @@ class ProbeRawResponse(_StrictBoundaryModel):
     bytes_read: int = Field(ge=0)
     transport_error_code: str | None = None
 
+    @model_validator(mode="after")
+    def _body_evidence_is_self_consistent(self) -> Self:
+        if self.bounded_body_base64 is None:
+            if self.bytes_read != 0 or self.body_sha256 is not None:
+                raise ValueError("missing response body cannot claim bytes or content hash")
+        else:
+            try:
+                body = base64.b64decode(self.bounded_body_base64, validate=True)
+            except ValueError as exc:
+                raise ValueError("bounded response body must be canonical base64") from exc
+            expected_hash = f"sha256:{hashlib.sha256(body).hexdigest()}"
+            if self.bytes_read != len(body) or self.body_sha256 != expected_hash:
+                raise ValueError("response byte count/hash must bind the journaled body")
+        return self
+
+
+class ProbeTransportResult(_StrictBoundaryModel):
+    """One-call transport result before journal sequencing is attached."""
+
+    status_code: int | None = Field(default=None, ge=100, le=599)
+    response_headers: dict[str, str]
+    bounded_body_base64: str | None = None
+    body_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    bytes_read: int = Field(ge=0)
+    transport_error_code: str | None = None
+
+    @model_validator(mode="after")
+    def _transport_body_is_self_consistent(self) -> Self:
+        ProbeRawResponse(
+            attempt_id="transport-validation",
+            request_record_sha256="sha256:" + "0" * 64,
+            journal_sequence=1,
+            status_code=self.status_code,
+            response_headers=self.response_headers,
+            bounded_body_base64=self.bounded_body_base64,
+            body_sha256=self.body_sha256,
+            bytes_read=self.bytes_read,
+            transport_error_code=self.transport_error_code,
+        )
+        return self
+
 
 class DerivedLiveness(_StrictBoundaryModel):
     """Liveness state recomputed from a journaled response and owner profile."""
@@ -567,14 +827,85 @@ class DerivedLiveness(_StrictBoundaryModel):
     decisive_evidence_refs: tuple[str, ...] = Field(min_length=1)
 
 
+class ProbeJournalRecord(_StrictBoundaryModel):
+    """One selected probe with ordered request, evidence, and classification receipts."""
+
+    candidate: ProbeCandidate
+    request: ProbeRequest | None
+    preflight: ProbePreflight
+    raw_response: ProbeRawResponse | None
+    derived_liveness: DerivedLiveness
+    request_journal_sequence: int = Field(ge=1)
+    evidence_journal_sequence: int = Field(ge=2)
+    classification_journal_sequence: int = Field(ge=3)
+    attempt_wall_time_seconds: float = Field(ge=0.0)
+
+    @model_validator(mode="after")
+    def _record_is_ordered_and_recomputed(self) -> Self:
+        attempt_ids = {
+            self.candidate.attempt_id,
+            self.preflight.attempt_id,
+            self.derived_liveness.attempt_id,
+        }
+        if self.request is not None:
+            attempt_ids.add(self.request.attempt_id)
+        if self.raw_response is not None:
+            attempt_ids.add(self.raw_response.attempt_id)
+        if len(attempt_ids) != 1:
+            raise ValueError("all probe evidence must share one attempt ID")
+        if self.request is not None:
+            if self.request.metric_id != self.candidate.metric_id:
+                raise ValueError("probe request must preserve the selected metric")
+            if self.request.request_variable != self.candidate.metric_id:
+                raise ValueError("each live attempt must carry exactly one selected variable")
+            if self.request.connector_id != self.candidate.connector_id:
+                raise ValueError("probe request must preserve the selected connector")
+            if self.request.schema_profile != self.candidate.schema_profile:
+                raise ValueError("schema-profile contract must travel with the request")
+        if self.preflight.execution_tier != self.candidate.execution_tier:
+            raise ValueError("preflight must preserve the selected execution tier")
+        if not (
+            self.request_journal_sequence
+            < self.evidence_journal_sequence
+            < self.classification_journal_sequence
+        ):
+            raise ValueError("request/evidence/classification journal order is load-bearing")
+        live_authorized = self.preflight.disposition is ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED
+        if live_authorized and self.raw_response is None:
+            raise ValueError("an authorized live result requires journaled raw response evidence")
+        if live_authorized and self.request is None:
+            raise ValueError("an authorized live result requires a schema-carrying request")
+        if not live_authorized and self.raw_response is not None:
+            raise ValueError("a no-attempt preflight result cannot claim a raw response")
+        if self.raw_response is not None:
+            if self.raw_response.journal_sequence != self.evidence_journal_sequence:
+                raise ValueError("raw response sequence must equal the evidence sequence")
+            if self.request is None:
+                raise ValueError("raw response cannot exist without a request")
+            if self.raw_response.request_record_sha256 != semantic_content_hash(self.request):
+                raise ValueError("raw response must bind the exact journaled request")
+        expected_state = _derive_probe_liveness_state(
+            request=self.request,
+            preflight=self.preflight,
+            raw_response=self.raw_response,
+        )
+        if self.derived_liveness.liveness_state is not expected_state:
+            raise ValueError("liveness state must be recomputed from paid journal evidence")
+        return self
+
+
 class FamilyScorecard(_StrictBoundaryModel):
     """Aggregate characterization result for one data-enumerated family."""
 
     connector_id: str = Field(min_length=1)
     selected_probe_count: int = Field(ge=0)
     live_attempt_count: int = Field(ge=0)
+    network_call_count: int = Field(ge=0)
+    response_bytes: int = Field(ge=0)
+    wall_time_seconds: float = Field(ge=0.0)
     dry_run_passed: bool
     liveness_counts: dict[LivenessState, int]
+    family_liveness_state: FamilyLivenessState
     tier_decay_findings: tuple[str, ...]
 
     @field_validator("liveness_counts")
@@ -583,6 +914,23 @@ class FamilyScorecard(_StrictBoundaryModel):
         cls, value: dict[LivenessState, int]
     ) -> dict[LivenessState, int]:
         return _validate_nonnegative_count_map(value)
+
+    @model_validator(mode="after")
+    def _scorecard_counts_cover_the_family_sample(self) -> Self:
+        if sum(self.liveness_counts.values()) != self.selected_probe_count:
+            raise ValueError("liveness counts must cover every selected family probe")
+        if self.live_attempt_count > self.selected_probe_count:
+            raise ValueError("live attempts cannot exceed selected probes")
+        if self.network_call_count != self.live_attempt_count:
+            raise ValueError("one live attempt must equal one bounded network call")
+        expected_family_state = _derive_family_liveness_state(
+            selected_probe_count=self.selected_probe_count,
+            live_attempt_count=self.live_attempt_count,
+            liveness_counts=self.liveness_counts,
+        )
+        if self.family_liveness_state is not expected_family_state:
+            raise ValueError("family liveness must be recomputed from the scorecard")
+        return self
 
 
 class GrowthBacklogRow(_StrictBoundaryModel):
@@ -606,6 +954,80 @@ class ProjectionBinding(_StrictBoundaryModel):
     source_artifact: str = Field(min_length=1)
     projection_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     projected_item_count: int = Field(ge=0)
+
+
+class ProbeSelectionPlan(_StrictBoundaryModel):
+    """Data-derived family denominator and deterministic 10–15-row sample."""
+
+    family_projection_binding: ProjectionBinding
+    target_per_family: int = Field(ge=1, le=15)
+    sampling_receipts: tuple[FamilySamplingReceipt, ...] = Field(min_length=1)
+    candidates: tuple[ProbeCandidate, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _plan_covers_every_projected_family(self) -> Self:
+        receipt_families = tuple(row.connector_id for row in self.sampling_receipts)
+        if receipt_families != tuple(sorted(set(receipt_families))):
+            raise ValueError("sampling receipts must be unique and sorted by family")
+        if self.family_projection_binding.projected_item_count != len(receipt_families):
+            raise ValueError("family projection must cover every sampling receipt")
+        candidate_counts = Counter(row.connector_id for row in self.candidates)
+        for receipt in self.sampling_receipts:
+            if receipt.target_probe_count != self.target_per_family:
+                raise ValueError("each family must use the declared sample target")
+            if candidate_counts[receipt.connector_id] != receipt.selected_probe_count:
+                raise ValueError("candidate rows must cover every selected family probe")
+        if set(candidate_counts) != set(receipt_families):
+            raise ValueError("candidate families must equal the full family denominator")
+        candidate_keys = tuple(
+            (row.connector_id, row.family_sample_rank) for row in self.candidates
+        )
+        expected_keys = tuple(sorted(candidate_keys, key=lambda item: (item[0], item[1])))
+        if candidate_keys != expected_keys or len(candidate_keys) != len(set(candidate_keys)):
+            raise ValueError("probe candidates must have unique canonical family ranks")
+        return self
+
+
+class LiveProbeJournal(_StrictBoundaryModel):
+    """Frozen quarantine journal; response bytes never enter a canonical store."""
+
+    schema_version: Literal[JOURNAL_SCHEMA_VERSION]
+    rule_version: Literal[RULE_VERSION]
+    producer: Literal[
+        "tools.quality.validation.layer3_gy_n13a_acquisition_census.capture_probe_records"
+    ]
+    selection_plan: ProbeSelectionPlan
+    family_receipts: tuple[ConnectorFamilyReceipt, ...]
+    records: tuple[ProbeJournalRecord, ...]
+    event_log_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    observed_at: datetime
+    capture_wall_time_seconds: float = Field(ge=0.0)
+
+    @model_validator(mode="after")
+    def _journal_covers_the_plan_and_owner_receipts(self) -> Self:
+        families = tuple(row.connector_id for row in self.selection_plan.sampling_receipts)
+        receipt_families = tuple(row.connector_id for row in self.family_receipts)
+        if receipt_families != families:
+            raise ValueError("owner receipts must cover the exact data-derived family denominator")
+        plan_attempts = tuple(row.attempt_id for row in self.selection_plan.candidates)
+        record_attempts = tuple(row.candidate.attempt_id for row in self.records)
+        if record_attempts != plan_attempts:
+            raise ValueError("journal records must cover every selected probe in plan order")
+        sequences = [
+            sequence
+            for record in self.records
+            for sequence in (
+                record.request_journal_sequence,
+                record.evidence_journal_sequence,
+                record.classification_journal_sequence,
+            )
+        ]
+        if sequences != list(range(1, len(sequences) + 1)):
+            raise ValueError("journal event sequences must be contiguous and ordered")
+        expected_event_hash = _bytes_sha256(probe_journal_event_bytes(self.records))
+        if self.event_log_content_sha256 != expected_event_hash:
+            raise ValueError("event-log hash must bind the reconstructed journal evidence")
+        return self
 
 
 class FetchPlanGenerationProof(_StrictBoundaryModel):
@@ -1220,8 +1642,7 @@ def generate_fetch_plan_proofs(
         ordered_metrics = sorted(
             eligible,
             key=lambda metric_id: (
-                eligible[metric_id].resolution_status
-                is not ResolutionStatus.EXACT,
+                eligible[metric_id].resolution_status is not ResolutionStatus.EXACT,
                 metric_id,
             ),
         )
@@ -1230,8 +1651,7 @@ def generate_fetch_plan_proofs(
             executable_bindings = [
                 binding
                 for binding in bindings
-                if str(getattr(binding, "execution_tier", ""))
-                in EXECUTABLE_BINDING_TIERS
+                if str(getattr(binding, "execution_tier", "")) in EXECUTABLE_BINDING_TIERS
                 and str(getattr(binding, "connector_id", "") or "").strip()
                 and str(getattr(binding, "request_dataset_id", "") or "").strip()
             ]
@@ -1262,9 +1682,7 @@ def generate_fetch_plan_proofs(
                 resolution_status=resolution_by_metric[metric_id].resolution_status,
                 executable_binding_count=sum(
                     count
-                    for tier, count in resolution_by_metric[
-                        metric_id
-                    ].binding_tier_counts.items()
+                    for tier, count in resolution_by_metric[metric_id].binding_tier_counts.items()
                     if tier in EXECUTABLE_BINDING_TIERS
                 ),
                 selection_reasons=tuple(sorted(metric_reasons)),
@@ -1297,9 +1715,7 @@ def generate_fetch_plan_proofs(
         for plan in owner_plans:
             metric_id = str(getattr(plan, "metric_id", "") or "")
             if metric_id in plan_by_metric:
-                raise CatalogContractError(
-                    "fetch_plan_owner_duplicate_metric", metric_id
-                )
+                raise CatalogContractError("fetch_plan_owner_duplicate_metric", metric_id)
             plan_by_metric[metric_id] = plan
         expected_metrics = {row.metric_id for row in sample_rows}
         if set(plan_by_metric) != expected_metrics:
@@ -1316,9 +1732,7 @@ def generate_fetch_plan_proofs(
             plan = plan_by_metric[metric_id]
             bindings = recording_catalog.bindings_by_metric.get(metric_id, ())
             if not bindings:
-                raise CatalogContractError(
-                    "fetch_plan_catalog_owner_not_called", metric_id
-                )
+                raise CatalogContractError("fetch_plan_catalog_owner_not_called", metric_id)
             owner_binding = bindings[0]
             _validate_owner_fetch_plan(plan=plan, binding=owner_binding)
             metadata = getattr(plan, "metadata", {})
@@ -1362,6 +1776,624 @@ def generate_fetch_plan_proofs(
         execution_fence=fence_receipt,
         capability_status="implemented_but_not_orchestrated",
     )
+
+
+def select_stratified_probe_candidates(
+    catalog_path: Path,
+    *,
+    per_family: int = DEFAULT_PROBES_PER_FAMILY,
+    source_locator: str,
+) -> ProbeSelectionPlan:
+    """Select a deterministic round-robin tier×quality sample for every family.
+
+    The family denominator and candidate population come only from validated
+    ``ds_metric_bindings`` owner rows. Within each stratum, exact schema profiles,
+    recognized open licenses, no-auth endpoints, HTTP transport, parser support,
+    binding confidence, and stable IDs define preference. Every excluded condition
+    remains visible in the population receipts and downstream preflight evidence.
+    """
+
+    if not 1 <= per_family <= 15:
+        raise CatalogContractError(
+            "probe_sample_target_invalid", "per-family sample must be between 1 and 15"
+        )
+    if not source_locator.strip():
+        raise CatalogContractError("probe_source_locator_missing", "empty locator")
+    connection = _open_validated_catalog(catalog_path)
+    try:
+        rows = connection.execute(
+            """
+            SELECT binding.metric_id,
+                   binding.dataset_id,
+                   binding.distribution_id,
+                   binding.connector_id,
+                   binding.profile_id,
+                   binding.request_dataset_id,
+                   binding.confidence,
+                   binding.default_filters,
+                   binding.execution_tier,
+                   distribution.url,
+                   distribution.connector_params,
+                   distribution.quality_score,
+                   distribution.parser_supported,
+                   dataset.access_license,
+                   dataset.access_auth_required,
+                   schema_profile.columns_json,
+                   schema_profile.sample_row_count,
+                   schema_profile.preview_sample_hash,
+                   schema_profile.inference_mode,
+                   schema_profile.parser_mode
+            FROM ds_metric_bindings AS binding
+            JOIN ds_distributions AS distribution
+              ON distribution.id = binding.distribution_id
+             AND distribution.dataset_id = binding.dataset_id
+             AND distribution.connector_type = binding.connector_id
+             AND distribution.profile_id = binding.profile_id
+            JOIN ds_datasets AS dataset ON dataset.id = binding.dataset_id
+            LEFT JOIN ds_schema_profiles AS schema_profile
+              ON schema_profile.distribution_id = binding.distribution_id
+             AND schema_profile.dataset_id = binding.dataset_id
+            ORDER BY binding.connector_id,
+                     binding.distribution_id,
+                     binding.confidence DESC,
+                     binding.metric_id,
+                     binding.request_dataset_id
+            """
+        ).fetchall()
+    finally:
+        connection.close()
+
+    representative_rows: dict[tuple[str, str], tuple[Any, ...]] = {}
+    for row in rows:
+        key = (str(row[3]), str(row[2]))
+        representative_rows.setdefault(key, row)
+    populations: defaultdict[str, list[tuple[Any, ...]]] = defaultdict(list)
+    for (connector_id, _), row in representative_rows.items():
+        populations[connector_id].append(row)
+    if not populations:
+        raise CatalogContractError("probe_family_denominator_empty", "no binding families")
+
+    receipts: list[FamilySamplingReceipt] = []
+    candidates: list[ProbeCandidate] = []
+    for connector_id in sorted(populations):
+        population = populations[connector_id]
+        strata: defaultdict[str, list[tuple[Any, ...]]] = defaultdict(list)
+        for row in population:
+            quality_score = float(row[11] or 0.0)
+            stratum_id = f"{row[8]!s}:{_quality_bucket(quality_score)}"
+            strata[stratum_id].append(row)
+        for stratum_rows in strata.values():
+            stratum_rows.sort(key=_probe_candidate_preference_key)
+
+        selected: list[tuple[tuple[Any, ...], str, int]] = []
+        cursors = dict.fromkeys(strata, 0)
+        ordered_strata = sorted(strata, key=_probe_stratum_sort_key)
+        while len(selected) < min(per_family, len(population)):
+            advanced = False
+            for stratum_id in ordered_strata:
+                cursor = cursors[stratum_id]
+                stratum_rows = strata[stratum_id]
+                if cursor >= len(stratum_rows):
+                    continue
+                selected.append((stratum_rows[cursor], stratum_id, cursor + 1))
+                cursors[stratum_id] += 1
+                advanced = True
+                if len(selected) == min(per_family, len(population)):
+                    break
+            if not advanced:  # pragma: no cover - protected by population count
+                raise CatalogContractError("probe_stratification_stalled", connector_id)
+
+        selected_strata = Counter(stratum_id for _, stratum_id, _ in selected)
+        receipts.append(
+            FamilySamplingReceipt(
+                connector_id=connector_id,
+                available_distribution_count=len(population),
+                target_probe_count=per_family,
+                selected_probe_count=len(selected),
+                stratum_population_counts=dict(
+                    sorted(
+                        (stratum_id, len(stratum_rows))
+                        for stratum_id, stratum_rows in strata.items()
+                    )
+                ),
+                selected_stratum_counts=dict(sorted(selected_strata.items())),
+                open_license_available_count=sum(
+                    _is_open_license(str(row[13] or "")) for row in population
+                ),
+                auth_required_available_count=sum(bool(row[14]) for row in population),
+                schema_profile_available_count=sum(row[15] is not None for row in population),
+            )
+        )
+        for family_rank, (row, stratum_id, stratum_rank) in enumerate(selected, start=1):
+            schema_profile = _schema_profile_from_catalog_row(row)
+            filters = _coerce_plan_filters(_json_mapping(row[7]))
+            connector_params = _json_mapping(row[10])
+            attempt_hash = hashlib.sha256(
+                canonical_json_bytes(
+                    {
+                        "connector_id": connector_id,
+                        "distribution_id": str(row[2]),
+                        "metric_id": str(row[0]),
+                    }
+                )
+            ).hexdigest()[:20]
+            candidates.append(
+                ProbeCandidate(
+                    attempt_id=f"gy-n13a-{attempt_hash}",
+                    connector_id=connector_id,
+                    metric_id=str(row[0]),
+                    dataset_id=str(row[1]),
+                    distribution_id=str(row[2]),
+                    profile_id=str(row[4]),
+                    request_dataset_id=str(row[5]),
+                    execution_tier=str(row[8]),
+                    quality_score=float(row[11] or 0.0),
+                    quality_bucket=_quality_bucket(float(row[11] or 0.0)),
+                    binding_confidence=float(row[6] or 0.0),
+                    endpoint_url=str(row[9] or ""),
+                    connector_params=connector_params,
+                    filters=filters,
+                    access_license=str(row[13] or ""),
+                    auth_required=bool(row[14]),
+                    parser_supported=bool(row[12]),
+                    schema_profile=schema_profile,
+                    family_sample_rank=family_rank,
+                    stratum_id=stratum_id,
+                    stratum_rank=stratum_rank,
+                )
+            )
+
+    family_items = tuple(receipt.model_dump(mode="json") for receipt in receipts)
+    return ProbeSelectionPlan(
+        family_projection_binding=_projection_binding(
+            "catalog_connector_families",
+            source_locator,
+            family_items,
+        ),
+        target_per_family=per_family,
+        sampling_receipts=tuple(receipts),
+        candidates=tuple(candidates),
+    )
+
+
+def derive_connector_family_receipts(
+    connector_families: Sequence[str],
+    *,
+    fixture_root: Path,
+) -> tuple[ConnectorFamilyReceipt, ...]:
+    """Run registry/protocol and zero-network REPLAY interception for each family."""
+
+    families = tuple(connector_families)
+    if families != tuple(sorted(set(families))):
+        raise CatalogContractError(
+            "connector_family_denominator_invalid",
+            "families must be unique and sorted",
+        )
+    return asyncio.run(
+        _derive_connector_family_receipts_async(
+            families,
+            fixture_root=fixture_root,
+        )
+    )
+
+
+def prepare_probe_records(
+    selection_plan: ProbeSelectionPlan,
+    family_receipts: Sequence[ConnectorFamilyReceipt],
+) -> tuple[tuple[ProbeCandidate, ProbeRequest | None, ProbePreflight], ...]:
+    """Prepare request carriers and fail-closed no-attempt receipts without I/O."""
+
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    receipts = {receipt.connector_id: receipt for receipt in family_receipts}
+    expected_families = tuple(row.connector_id for row in selection_plan.sampling_receipts)
+    if tuple(receipts) != expected_families:
+        raise CatalogContractError(
+            "probe_family_receipt_coverage_mismatch",
+            "family receipts must cover the selection denominator in canonical order",
+        )
+    registry = SourceProfileRegistry.get_instance()
+    prepared: list[tuple[ProbeCandidate, ProbeRequest | None, ProbePreflight]] = []
+    for candidate in selection_plan.candidates:
+        receipt = receipts[candidate.connector_id]
+        source_profile = registry.get(candidate.profile_id)
+        source_profile_family = (
+            str(source_profile.connector_family) if source_profile is not None else None
+        )
+        family_namespace = candidate.connector_id.split(".", maxsplit=1)[0]
+        family_matches = source_profile_family == family_namespace
+        scheme = _endpoint_scheme(candidate.endpoint_url)
+        preflight = ProbePreflight(
+            attempt_id=candidate.attempt_id,
+            connector_owner_resolved=receipt.component_id is not None,
+            protocol_conformant=receipt.harness_passed,
+            simulator_intercepted=receipt.simulator_intercepted,
+            schema_profile_resolved=candidate.schema_profile is not None,
+            source_profile_resolved=source_profile is not None,
+            source_profile_family_matches=family_matches,
+            open_license_validated=_is_open_license(candidate.access_license),
+            auth_required=candidate.auth_required,
+            execution_tier=candidate.execution_tier,
+            endpoint_scheme=scheme,
+            disposition=_derive_probe_disposition(
+                connector_owner_resolved=receipt.component_id is not None,
+                protocol_conformant=receipt.harness_passed,
+                simulator_intercepted=receipt.simulator_intercepted,
+                schema_profile_resolved=candidate.schema_profile is not None,
+                source_profile_resolved=source_profile is not None,
+                source_profile_family_matches=family_matches,
+                open_license_validated=_is_open_license(candidate.access_license),
+                auth_required=candidate.auth_required,
+                execution_tier=candidate.execution_tier,
+                endpoint_scheme=scheme,
+            ),
+        )
+        request: ProbeRequest | None = None
+        if preflight.disposition is ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED:
+            if source_profile is None or candidate.schema_profile is None:
+                raise CatalogContractError(
+                    "probe_authorized_without_owner_contract", candidate.attempt_id
+                )
+            budget = _probe_budget_from_source_profile(source_profile)
+            request = ProbeRequest(
+                attempt_id=candidate.attempt_id,
+                metric_id=candidate.metric_id,
+                request_variable=candidate.metric_id,
+                connector_id=candidate.connector_id,
+                request_dataset_id=candidate.request_dataset_id,
+                endpoint_url=candidate.endpoint_url,
+                schema_profile=candidate.schema_profile,
+                budget=budget,
+                access_license=candidate.access_license,
+                auth_required=candidate.auth_required,
+                dry_run_receipt_sha256=semantic_content_hash(receipt),
+            )
+        prepared.append((candidate, request, preflight))
+    return tuple(prepared)
+
+
+def derive_probe_liveness(
+    *,
+    request: ProbeRequest | None,
+    preflight: ProbePreflight,
+    raw_response: ProbeRawResponse | None,
+    event_log_path: Path | None = None,
+) -> DerivedLiveness:
+    """Classify only from preflight and journaled raw response evidence."""
+
+    del event_log_path
+    state = _derive_probe_liveness_state(
+        request=request,
+        preflight=preflight,
+        raw_response=raw_response,
+    )
+    refs = [f"preflight:{preflight.disposition.value}"]
+    if raw_response is not None:
+        refs.append(f"journal:response:{raw_response.journal_sequence}")
+        if raw_response.status_code is not None:
+            refs.append(f"http_status:{raw_response.status_code}")
+        if raw_response.transport_error_code is not None:
+            refs.append(f"transport:{raw_response.transport_error_code}")
+    if request is not None:
+        profile = request.schema_profile
+        refs.append(f"schema_profile:{profile.inference_mode}:{profile.sample_row_count}")
+    return DerivedLiveness(
+        attempt_id=preflight.attempt_id,
+        liveness_state=state,
+        decisive_evidence_refs=tuple(sorted(set(refs))),
+    )
+
+
+async def capture_probe_records(
+    prepared: Sequence[tuple[ProbeCandidate, ProbeRequest | None, ProbePreflight]],
+    *,
+    event_log_path: Path,
+    transport: Callable[[ProbeRequest], Awaitable[ProbeTransportResult]] | None = None,
+    classifier: Callable[..., DerivedLiveness] = derive_probe_liveness,
+    sleep: Callable[[float], Awaitable[None]] = asyncio.sleep,
+) -> tuple[ProbeJournalRecord, ...]:
+    """Capture one family at a time with append+fsync before classification."""
+
+    if event_log_path.exists() and event_log_path.stat().st_size:
+        raise CatalogContractError("probe_event_log_not_empty", str(event_log_path))
+    event_log_path.parent.mkdir(parents=True, exist_ok=True)
+    live_transport = transport or _execute_live_probe
+    records: list[ProbeJournalRecord] = []
+    sequence = 0
+    previous_call_finished: dict[str, float] = {}
+    for candidate, request, preflight in prepared:
+        sequence += 1
+        request_sequence = sequence
+        _append_fsync_jsonl(
+            event_log_path,
+            {
+                "sequence": request_sequence,
+                "event_kind": "request" if request is not None else "selection",
+                "attempt_id": candidate.attempt_id,
+                "request": request.model_dump(mode="json") if request is not None else None,
+                "candidate_sha256": semantic_content_hash(candidate),
+            },
+        )
+        raw_response: ProbeRawResponse | None = None
+        attempt_wall_time = 0.0
+        sequence += 1
+        evidence_sequence = sequence
+        if preflight.disposition is ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED:
+            if request is None:
+                raise CatalogContractError("probe_live_request_missing", candidate.attempt_id)
+            previous = previous_call_finished.get(candidate.connector_id)
+            if previous is not None:
+                remaining = request.budget.minimum_interval_seconds - (time.monotonic() - previous)
+                if remaining > 0:
+                    await sleep(remaining)
+            started = time.monotonic()
+            result = await live_transport(request)
+            attempt_wall_time = time.monotonic() - started
+            previous_call_finished[candidate.connector_id] = time.monotonic()
+            raw_response = ProbeRawResponse(
+                attempt_id=candidate.attempt_id,
+                request_record_sha256=semantic_content_hash(request),
+                journal_sequence=evidence_sequence,
+                **result.model_dump(mode="python"),
+            )
+            _append_fsync_jsonl(
+                event_log_path,
+                {
+                    "sequence": evidence_sequence,
+                    "event_kind": "raw_response",
+                    "raw_response": raw_response.model_dump(mode="json"),
+                },
+            )
+        else:
+            _append_fsync_jsonl(
+                event_log_path,
+                {
+                    "sequence": evidence_sequence,
+                    "event_kind": "preflight_no_attempt",
+                    "attempt_id": candidate.attempt_id,
+                    "disposition": preflight.disposition.value,
+                },
+            )
+
+        derived = classifier(
+            request=request,
+            preflight=preflight,
+            raw_response=raw_response,
+            event_log_path=event_log_path,
+        )
+        sequence += 1
+        classification_sequence = sequence
+        _append_fsync_jsonl(
+            event_log_path,
+            {
+                "sequence": classification_sequence,
+                "event_kind": "classification",
+                "derived_liveness": derived.model_dump(mode="json"),
+            },
+        )
+        records.append(
+            ProbeJournalRecord(
+                candidate=candidate,
+                request=request,
+                preflight=preflight,
+                raw_response=raw_response,
+                derived_liveness=derived,
+                request_journal_sequence=request_sequence,
+                evidence_journal_sequence=evidence_sequence,
+                classification_journal_sequence=classification_sequence,
+                attempt_wall_time_seconds=attempt_wall_time,
+            )
+        )
+    return tuple(records)
+
+
+def capture_live_probe_journal(
+    selection_plan: ProbeSelectionPlan,
+    family_receipts: Sequence[ConnectorFamilyReceipt],
+    *,
+    event_log_path: Path,
+    observed_at: datetime | None = None,
+) -> LiveProbeJournal:
+    """Run the explicit live lane and freeze its quarantine evidence in memory."""
+
+    started = time.monotonic()
+    records = asyncio.run(
+        capture_probe_records(
+            prepare_probe_records(selection_plan, family_receipts),
+            event_log_path=event_log_path,
+        )
+    )
+    wall_time = time.monotonic() - started
+    return assemble_live_probe_journal(
+        selection_plan,
+        family_receipts,
+        records,
+        event_log_path=event_log_path,
+        observed_at=observed_at or datetime.now(UTC),
+        capture_wall_time_seconds=wall_time,
+    )
+
+
+def assemble_live_probe_journal(
+    selection_plan: ProbeSelectionPlan,
+    family_receipts: Sequence[ConnectorFamilyReceipt],
+    records: Sequence[ProbeJournalRecord],
+    *,
+    event_log_path: Path,
+    observed_at: datetime,
+    capture_wall_time_seconds: float,
+) -> LiveProbeJournal:
+    """Assemble a strict journal after the append+fsync event log is complete."""
+
+    return LiveProbeJournal(
+        schema_version=JOURNAL_SCHEMA_VERSION,
+        rule_version=RULE_VERSION,
+        producer=(
+            "tools.quality.validation.layer3_gy_n13a_acquisition_census.capture_probe_records"
+        ),
+        selection_plan=selection_plan,
+        family_receipts=tuple(family_receipts),
+        records=tuple(records),
+        event_log_content_sha256=_file_sha256(event_log_path),
+        observed_at=observed_at,
+        capture_wall_time_seconds=capture_wall_time_seconds,
+    )
+
+
+def probe_journal_event_bytes(records: Sequence[ProbeJournalRecord]) -> bytes:
+    """Reconstruct the exact append-only event stream from frozen records."""
+
+    chunks: list[bytes] = []
+    for record in records:
+        chunks.append(
+            canonical_json_bytes(
+                {
+                    "sequence": record.request_journal_sequence,
+                    "event_kind": "request" if record.request is not None else "selection",
+                    "attempt_id": record.candidate.attempt_id,
+                    "request": (
+                        record.request.model_dump(mode="json")
+                        if record.request is not None
+                        else None
+                    ),
+                    "candidate_sha256": semantic_content_hash(record.candidate),
+                }
+            )
+        )
+        if record.raw_response is not None:
+            evidence = {
+                "sequence": record.evidence_journal_sequence,
+                "event_kind": "raw_response",
+                "raw_response": record.raw_response.model_dump(mode="json"),
+            }
+        else:
+            evidence = {
+                "sequence": record.evidence_journal_sequence,
+                "event_kind": "preflight_no_attempt",
+                "attempt_id": record.candidate.attempt_id,
+                "disposition": record.preflight.disposition.value,
+            }
+        chunks.append(canonical_json_bytes(evidence))
+        chunks.append(
+            canonical_json_bytes(
+                {
+                    "sequence": record.classification_journal_sequence,
+                    "event_kind": "classification",
+                    "derived_liveness": record.derived_liveness.model_dump(mode="json"),
+                }
+            )
+        )
+    return b"".join(chunks)
+
+
+def read_live_probe_journal(path: Path) -> LiveProbeJournal:
+    """Load and strictly validate the self-contained frozen quarantine journal."""
+
+    try:
+        return LiveProbeJournal.model_validate_json(path.read_text(encoding="utf-8"))
+    except (OSError, ValidationError) as exc:
+        raise CatalogContractError("probe_journal_invalid", str(exc)) from exc
+
+
+def validate_live_probe_journal(
+    journal: LiveProbeJournal,
+    *,
+    selection_plan: ProbeSelectionPlan,
+    family_receipts: Sequence[ConnectorFamilyReceipt],
+) -> tuple[FamilyScorecard, ...]:
+    """Recompute owner/preflight/classification evidence without network access."""
+
+    if journal.selection_plan != selection_plan:
+        raise CatalogContractError(
+            "probe_journal_selection_drift",
+            "frozen sample differs from the current catalog-derived sample",
+        )
+    if journal.family_receipts != tuple(family_receipts):
+        raise CatalogContractError(
+            "probe_journal_owner_receipt_drift",
+            "frozen connector owner receipts differ from current owners",
+        )
+    expected_prepared = prepare_probe_records(selection_plan, family_receipts)
+    expected_by_attempt = {
+        candidate.attempt_id: (candidate, request, preflight)
+        for candidate, request, preflight in expected_prepared
+    }
+    for record in journal.records:
+        expected = expected_by_attempt.get(record.candidate.attempt_id)
+        if expected != (record.candidate, record.request, record.preflight):
+            raise CatalogContractError("probe_journal_preflight_drift", record.candidate.attempt_id)
+        recomputed = derive_probe_liveness(
+            request=record.request,
+            preflight=record.preflight,
+            raw_response=record.raw_response,
+        )
+        if recomputed != record.derived_liveness:
+            raise CatalogContractError("probe_journal_liveness_drift", record.candidate.attempt_id)
+    return derive_family_scorecards(journal.records)
+
+
+def derive_family_scorecards(
+    records: Sequence[ProbeJournalRecord],
+) -> tuple[FamilyScorecard, ...]:
+    """Recompute per-family liveness and tier-decay findings from journal records."""
+
+    grouped: defaultdict[str, list[ProbeJournalRecord]] = defaultdict(list)
+    for record in records:
+        grouped[record.candidate.connector_id].append(record)
+    scorecards: list[FamilyScorecard] = []
+    alive_states = {
+        LivenessState.ALIVE_CONFORMANT,
+        LivenessState.ALIVE_SCHEMA_DRIFT,
+        LivenessState.ALIVE_SCHEMA_UNVERIFIED,
+    }
+    for connector_id in sorted(grouped):
+        family_records = grouped[connector_id]
+        counts = Counter(record.derived_liveness.liveness_state for record in family_records)
+        decay_counts = Counter(
+            (record.candidate.execution_tier, record.derived_liveness.liveness_state)
+            for record in family_records
+            if record.candidate.execution_tier in EXECUTABLE_BINDING_TIERS
+            and record.derived_liveness.liveness_state not in alive_states
+        )
+        scorecards.append(
+            FamilyScorecard(
+                connector_id=connector_id,
+                selected_probe_count=len(family_records),
+                live_attempt_count=sum(
+                    record.raw_response is not None for record in family_records
+                ),
+                network_call_count=sum(
+                    record.raw_response is not None for record in family_records
+                ),
+                response_bytes=sum(
+                    record.raw_response.bytes_read
+                    for record in family_records
+                    if record.raw_response is not None
+                ),
+                wall_time_seconds=sum(
+                    record.attempt_wall_time_seconds for record in family_records
+                ),
+                dry_run_passed=all(
+                    record.preflight.protocol_conformant and record.preflight.simulator_intercepted
+                    for record in family_records
+                ),
+                liveness_counts=dict(sorted(counts.items(), key=lambda item: item[0].value)),
+                family_liveness_state=_derive_family_liveness_state(
+                    selected_probe_count=len(family_records),
+                    live_attempt_count=sum(
+                        record.raw_response is not None for record in family_records
+                    ),
+                    liveness_counts=dict(counts),
+                ),
+                tier_decay_findings=tuple(
+                    f"execution_tier_decay:{tier}:{state.value}:count={count}"
+                    for (tier, state), count in sorted(
+                        decay_counts.items(), key=lambda item: (item[0][0], item[0][1].value)
+                    )
+                ),
+            )
+        )
+    return tuple(scorecards)
 
 
 def measure_reverse_demand(
@@ -1539,13 +2571,9 @@ def _validate_owner_fetch_plan(*, plan: Any, binding: Any) -> None:
         )
     expected = {
         "connector_id": str(getattr(binding, "connector_id", "") or ""),
-        "request_dataset_id": str(
-            getattr(binding, "request_dataset_id", "") or ""
-        ),
+        "request_dataset_id": str(getattr(binding, "request_dataset_id", "") or ""),
         "profile_id": str(getattr(binding, "profile_id", "") or ""),
-        "catalog_dataset_id": str(
-            getattr(binding, "catalog_dataset_id", "") or ""
-        ),
+        "catalog_dataset_id": str(getattr(binding, "catalog_dataset_id", "") or ""),
         "distribution_id": str(getattr(binding, "distribution_id", "") or ""),
         "execution_tier": str(getattr(binding, "execution_tier", "") or ""),
     }
@@ -1566,9 +2594,7 @@ def _validate_owner_fetch_plan(*, plan: Any, binding: Any) -> None:
         raise CatalogContractError(
             "fetch_plan_catalog_tier_not_executable", actual["execution_tier"]
         )
-    expected_filters = _coerce_plan_filters(
-        getattr(binding, "default_filters", {}) or {}
-    )
+    expected_filters = _coerce_plan_filters(getattr(binding, "default_filters", {}) or {})
     if dict(getattr(plan, "filters", {}) or {}) != expected_filters:
         raise CatalogContractError(
             "fetch_plan_owner_filters_mismatch", str(getattr(plan, "metric_id", ""))
@@ -1582,6 +2608,438 @@ def _validate_owner_fetch_plan(*, plan: Any, binding: Any) -> None:
             "fetch_plan_persistence_forbidden",
             "N13a FetchPlans must keep persist_payload=false",
         )
+
+
+async def _derive_connector_family_receipts_async(
+    connector_families: Sequence[str],
+    *,
+    fixture_root: Path,
+) -> tuple[ConnectorFamilyReceipt, ...]:
+    import aiohttp
+
+    import polisyos.fabric.connectors as connector_package
+    from polisyos.fabric.connectors.capabilities import validate_protocol_compliance
+    from polisyos.fabric.connectors.components import __polisyos_components__
+
+    simulator_path = Path(connector_package.__file__).parent / "testing" / "simulator.py"
+    spec = importlib.util.spec_from_file_location(
+        "_polisyos_n13a_api_simulator_owner", simulator_path
+    )
+    if spec is None or spec.loader is None:
+        raise CatalogContractError("connector_simulator_owner_unreadable", str(simulator_path))
+    simulator_module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = simulator_module
+    spec.loader.exec_module(simulator_module)
+    api_simulator = simulator_module.APISimulator
+    missing_fixture_error = simulator_module.MissingFixtureError
+    simulator_mode = simulator_module.SimulatorMode
+
+    components = {
+        str(component.connector_class.connector_id): component
+        for component in __polisyos_components__
+    }
+    receipts: list[ConnectorFamilyReceipt] = []
+    for connector_id in connector_families:
+        component = components.get(connector_id)
+        if component is None:
+            receipts.append(
+                ConnectorFamilyReceipt(
+                    connector_id=connector_id,
+                    component_id=None,
+                    connector_class=None,
+                    protocol_violations=("connector_component_missing",),
+                    harness_passed=False,
+                    simulator_mode="replay",
+                    simulator_intercepted=False,
+                    simulator_call_count=0,
+                    simulator_network_calls=0,
+                )
+            )
+            continue
+        violations = tuple(
+            sorted(
+                str(violation)
+                for violation in validate_protocol_compliance(component.connector_class)
+            )
+        )
+        simulator = api_simulator(
+            mode=simulator_mode.REPLAY,
+            fixture_root=fixture_root,
+            connector_id=connector_id,
+            dataset_id="gy_n13a_dry_run",
+            max_call_log_entries=1,
+        )
+        intercepted = False
+        if not violations:
+            try:
+                async with simulator, aiohttp.ClientSession() as session:
+                    await session.get(
+                        f"https://gy-n13a.invalid/{connector_id}/dry-run",
+                        allow_redirects=False,
+                    )
+            except missing_fixture_error:
+                intercepted = simulator.call_count == 1
+        receipts.append(
+            ConnectorFamilyReceipt(
+                connector_id=connector_id,
+                component_id=str(component.metadata.component_id),
+                connector_class=(
+                    f"{component.connector_class.__module__}.{component.connector_class.__name__}"
+                ),
+                protocol_violations=violations,
+                harness_passed=not violations,
+                simulator_mode="replay",
+                simulator_intercepted=intercepted,
+                simulator_call_count=simulator.call_count,
+                simulator_network_calls=0,
+            )
+        )
+    return tuple(receipts)
+
+
+def _quality_bucket(score: float) -> str:
+    if score < 0.25:
+        return "q00_24"
+    if score < 0.5:
+        return "q25_49"
+    if score < 0.75:
+        return "q50_74"
+    return "q75_100"
+
+
+def _probe_stratum_sort_key(stratum_id: str) -> tuple[int, int, str]:
+    tier, bucket = stratum_id.split(":", maxsplit=1)
+    tier_order = {"transport_ready": 0, "fetchable": 1, "catalog": 2}
+    bucket_order = {"q75_100": 0, "q50_74": 1, "q25_49": 2, "q00_24": 3}
+    return tier_order.get(tier, 99), bucket_order.get(bucket, 99), stratum_id
+
+
+def _probe_candidate_preference_key(row: tuple[Any, ...]) -> tuple[Any, ...]:
+    return (
+        row[15] is None,
+        not _is_open_license(str(row[13] or "")),
+        bool(row[14]),
+        _endpoint_scheme(str(row[9] or "")) not in {"http", "https"},
+        not bool(row[12]),
+        -float(row[6] or 0.0),
+        -float(row[11] or 0.0),
+        str(row[2]),
+        str(row[0]),
+    )
+
+
+def _json_mapping(value: object) -> dict[str, Any]:
+    parsed = value
+    if isinstance(value, str):
+        try:
+            parsed = json.loads(value)
+        except json.JSONDecodeError:
+            return {}
+    if not isinstance(parsed, Mapping):
+        return {}
+    return {str(key): _json_value(item) for key, item in parsed.items()}
+
+
+def _schema_profile_from_catalog_row(
+    row: tuple[Any, ...],
+) -> SchemaProfileContract | None:
+    if row[15] is None:
+        return None
+    raw_columns: object = row[15]
+    if isinstance(raw_columns, str):
+        try:
+            raw_columns = json.loads(raw_columns)
+        except json.JSONDecodeError as exc:
+            raise CatalogContractError("probe_schema_profile_columns_invalid", str(row[2])) from exc
+    columns: list[str] = []
+    if isinstance(raw_columns, Sequence) and not isinstance(raw_columns, (str, bytes, bytearray)):
+        for item in raw_columns:
+            if isinstance(item, str) and item.strip():
+                columns.append(item.strip())
+            elif isinstance(item, Mapping):
+                name = item.get("name")
+                if isinstance(name, str) and name.strip():
+                    columns.append(name.strip())
+    elif isinstance(raw_columns, Mapping):
+        columns.extend(str(key) for key in raw_columns)
+    return SchemaProfileContract(
+        distribution_id=str(row[2]),
+        dataset_id=str(row[1]),
+        profile_id=str(row[4]),
+        columns=tuple(sorted(set(columns))),
+        sample_row_count=int(row[16] or 0),
+        preview_sample_hash=str(row[17]) if row[17] is not None else None,
+        inference_mode=str(row[18] or "metadata_only"),
+        parser_mode=str(row[19] or "metadata_only"),
+    )
+
+
+def _normalize_license(value: str) -> str:
+    return value.strip().lower().replace("_", "-")
+
+
+def _is_open_license(value: str) -> bool:
+    return _normalize_license(value) in OPEN_LICENSE_IDENTIFIERS
+
+
+def _endpoint_scheme(value: str) -> Literal["http", "https", "other", "missing"]:
+    if not value.strip():
+        return "missing"
+    scheme = urlsplit(value).scheme.lower()
+    if scheme == "http":
+        return "http"
+    if scheme == "https":
+        return "https"
+    return "other"
+
+
+def _derive_probe_disposition(
+    *,
+    connector_owner_resolved: bool,
+    protocol_conformant: bool,
+    simulator_intercepted: bool,
+    schema_profile_resolved: bool,
+    source_profile_resolved: bool,
+    source_profile_family_matches: bool,
+    open_license_validated: bool,
+    auth_required: bool,
+    execution_tier: str,
+    endpoint_scheme: str,
+) -> ProbeDisposition:
+    if not connector_owner_resolved:
+        return ProbeDisposition.CONNECTOR_OWNER_MISSING
+    if not protocol_conformant:
+        return ProbeDisposition.CONNECTOR_CONTRACT_INVALID
+    if not simulator_intercepted:
+        return ProbeDisposition.DRY_RUN_FAILED
+    if not schema_profile_resolved:
+        return ProbeDisposition.SCHEMA_PROFILE_MISSING
+    if not source_profile_resolved:
+        return ProbeDisposition.SOURCE_PROFILE_MISSING
+    if not source_profile_family_matches:
+        return ProbeDisposition.SOURCE_PROFILE_MISMATCH
+    if auth_required:
+        return ProbeDisposition.AUTH_REQUIRED
+    if execution_tier not in EXECUTABLE_BINDING_TIERS:
+        return ProbeDisposition.CATALOG_ONLY
+    if endpoint_scheme not in {"http", "https"}:
+        return ProbeDisposition.ENDPOINT_UNUSABLE
+    if not open_license_validated:
+        return ProbeDisposition.LICENSE_UNCLEAR
+    return ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED
+
+
+def _probe_budget_from_source_profile(profile: Any) -> ProbeBudget:
+    profile_timeout = float(profile.timeout_seconds)
+    rate_limit_rps = float(profile.rate_limit_rps) if profile.rate_limit_rps is not None else None
+    requests_per_hour = (
+        int(profile.requests_per_hour) if profile.requests_per_hour is not None else None
+    )
+    intervals = []
+    if rate_limit_rps is not None:
+        intervals.append(1.0 / rate_limit_rps)
+    if requests_per_hour is not None:
+        intervals.append(3600.0 / requests_per_hour)
+    return ProbeBudget(
+        profile_timeout_seconds=profile_timeout,
+        profile_rate_limit_rps=rate_limit_rps,
+        profile_requests_per_hour=requests_per_hour,
+        timeout_seconds=min(profile_timeout, MAX_PROBE_TIMEOUT_SECONDS),
+        max_response_bytes=MAX_PROBE_RESPONSE_BYTES,
+        minimum_interval_seconds=max(intervals, default=0.0),
+        call_budget=1,
+    )
+
+
+def _derive_probe_liveness_state(
+    *,
+    request: ProbeRequest | None,
+    preflight: ProbePreflight,
+    raw_response: ProbeRawResponse | None,
+) -> LivenessState:
+    preflight_states = {
+        ProbeDisposition.CONNECTOR_OWNER_MISSING: LivenessState.CONNECTOR_OWNER_MISSING,
+        ProbeDisposition.CONNECTOR_CONTRACT_INVALID: LivenessState.CONNECTOR_CONTRACT_INVALID,
+        ProbeDisposition.DRY_RUN_FAILED: LivenessState.DRY_RUN_FAILED,
+        ProbeDisposition.SCHEMA_PROFILE_MISSING: LivenessState.SCHEMA_PROFILE_MISSING,
+        ProbeDisposition.SOURCE_PROFILE_MISSING: LivenessState.SOURCE_PROFILE_MISSING,
+        ProbeDisposition.SOURCE_PROFILE_MISMATCH: LivenessState.SOURCE_PROFILE_MISMATCH,
+        ProbeDisposition.AUTH_REQUIRED: LivenessState.AUTH_REQUIRED,
+        ProbeDisposition.CATALOG_ONLY: LivenessState.CATALOG_ONLY,
+        ProbeDisposition.ENDPOINT_UNUSABLE: LivenessState.ENDPOINT_UNUSABLE,
+        ProbeDisposition.LICENSE_UNCLEAR: LivenessState.LICENSE_UNCLEAR,
+    }
+    if preflight.disposition is not ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED:
+        return preflight_states[preflight.disposition]
+    if request is None or raw_response is None:
+        raise ValueError("authorized probe requires request and raw response")
+    if raw_response.transport_error_code is not None:
+        if raw_response.transport_error_code == "response_budget_exceeded":
+            return LivenessState.RESPONSE_BUDGET_EXCEEDED
+        if raw_response.transport_error_code == "response_safety_blocked":
+            return LivenessState.RESPONSE_SAFETY_BLOCKED
+        return LivenessState.TRANSPORT_ERROR
+    status = raw_response.status_code
+    if status in {401, 403}:
+        return LivenessState.AUTH_REQUIRED
+    if status == 429:
+        return LivenessState.RATE_LIMITED
+    if status in {404, 410}:
+        return LivenessState.DEAD
+    if status is None or not 200 <= status < 300:
+        return LivenessState.TRANSPORT_ERROR
+    profile = request.schema_profile
+    if (
+        profile.sample_row_count == 0
+        or profile.preview_sample_hash is None
+        or profile.inference_mode == "metadata_only"
+    ):
+        return LivenessState.ALIVE_SCHEMA_UNVERIFIED
+    observed_columns = _response_columns(raw_response, profile.parser_mode)
+    if observed_columns is not None and set(profile.columns) <= observed_columns:
+        return LivenessState.ALIVE_CONFORMANT
+    return LivenessState.ALIVE_SCHEMA_DRIFT
+
+
+def _derive_family_liveness_state(
+    *,
+    selected_probe_count: int,
+    live_attempt_count: int,
+    liveness_counts: Mapping[LivenessState, int],
+) -> FamilyLivenessState:
+    alive_count = sum(
+        liveness_counts.get(state, 0)
+        for state in (
+            LivenessState.ALIVE_CONFORMANT,
+            LivenessState.ALIVE_SCHEMA_DRIFT,
+            LivenessState.ALIVE_SCHEMA_UNVERIFIED,
+        )
+    )
+    if alive_count and alive_count == selected_probe_count:
+        return FamilyLivenessState.LIVE_CHARACTERIZED
+    if alive_count:
+        return FamilyLivenessState.MIXED_LIVE_AND_FINDINGS
+    if live_attempt_count == 0:
+        return FamilyLivenessState.NO_SAFE_LIVE_ATTEMPT
+    if (
+        live_attempt_count == selected_probe_count
+        and liveness_counts.get(LivenessState.DEAD, 0) == selected_probe_count
+    ):
+        return FamilyLivenessState.SAMPLE_DEAD_AFTER_HONEST_LEVERS
+    return FamilyLivenessState.CHARACTERIZATION_FAILED
+
+
+def _response_columns(raw_response: ProbeRawResponse, parser_mode: str) -> set[str] | None:
+    if raw_response.bounded_body_base64 is None:
+        return None
+    body = base64.b64decode(raw_response.bounded_body_base64)
+    if (
+        "json" in parser_mode.lower()
+        or "json" in raw_response.response_headers.get("content-type", "").lower()
+    ):
+        try:
+            payload = json.loads(body)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            return None
+        if isinstance(payload, Mapping):
+            return {str(key) for key in payload}
+        if isinstance(payload, Sequence) and payload and isinstance(payload[0], Mapping):
+            return {str(key) for key in payload[0]}
+        return set()
+    if "csv" in parser_mode.lower():
+        try:
+            header = body.decode("utf-8").splitlines()[0]
+        except (UnicodeDecodeError, IndexError):
+            return None
+        return {item.strip() for item in header.split(",") if item.strip()}
+    return None
+
+
+async def _execute_live_probe(request: ProbeRequest) -> ProbeTransportResult:
+    import aiohttp
+
+    from polisyos.fabric.connectors.http_limits import read_bounded_response_body
+    from polisyos.fabric.connectors.types import FetchError
+
+    timeout = aiohttp.ClientTimeout(total=request.budget.timeout_seconds)
+    headers = {
+        "Accept": "*/*",
+        "Range": f"bytes=0-{request.budget.max_response_bytes - 1}",
+        "User-Agent": "PolicyOS-GY-N13a-Reality-Census/1.0",
+    }
+    status_code: int | None = None
+    response_headers: dict[str, str] = {}
+    try:
+        async with (
+            aiohttp.ClientSession(timeout=timeout) as session,
+            session.get(
+                request.endpoint_url,
+                headers=headers,
+                allow_redirects=False,
+            ) as response,
+        ):
+            status_code = int(response.status)
+            response_headers = _safe_response_headers(response.headers)
+            try:
+                body = await read_bounded_response_body(
+                    response,
+                    connector_id=request.connector_id,
+                    url=request.endpoint_url,
+                    max_response_bytes=request.budget.max_response_bytes,
+                    max_decompressed_bytes=request.budget.max_response_bytes,
+                )
+            except FetchError as exc:
+                message = str(exc).lower()
+                error_code = (
+                    "response_budget_exceeded"
+                    if "exceeds safe limit" in message or "decoded http body" in message
+                    else "response_safety_blocked"
+                    if "secret/pii" in message or "scan failed" in message
+                    else "bounded_response_error"
+                )
+                return ProbeTransportResult(
+                    status_code=status_code,
+                    response_headers=response_headers,
+                    bounded_body_base64=None,
+                    body_sha256=None,
+                    bytes_read=0,
+                    transport_error_code=error_code,
+                )
+    except (aiohttp.ClientError, TimeoutError) as exc:
+        return ProbeTransportResult(
+            status_code=status_code,
+            response_headers=response_headers,
+            bounded_body_base64=None,
+            body_sha256=None,
+            bytes_read=0,
+            transport_error_code=f"transport_{type(exc).__name__.lower()}",
+        )
+    return ProbeTransportResult(
+        status_code=status_code,
+        response_headers=response_headers,
+        bounded_body_base64=base64.b64encode(body).decode("ascii"),
+        body_sha256=f"sha256:{hashlib.sha256(body).hexdigest()}",
+        bytes_read=len(body),
+        transport_error_code=None,
+    )
+
+
+def _safe_response_headers(headers: Mapping[str, str]) -> dict[str, str]:
+    exact = {"content-type", "content-length", "etag", "last-modified", "retry-after"}
+    safe: dict[str, str] = {}
+    for key, value in headers.items():
+        normalized = key.lower()
+        if normalized in exact or normalized.startswith("x-ratelimit-"):
+            safe[normalized] = str(value)
+    return dict(sorted(safe.items()))
+
+
+def _append_fsync_jsonl(path: Path, event: Mapping[str, Any]) -> None:
+    payload = canonical_json_bytes(event)
+    with path.open("ab") as handle:
+        handle.write(payload)
+        handle.flush()
+        os.fsync(handle.fileno())
 
 
 def _coerce_plan_filters(value: object) -> dict[str, list[str]]:
@@ -2000,7 +3458,7 @@ def _extract_value_gate_demand_items(
 def _projection_binding(
     projection_id: str,
     source_artifact: str,
-    items: Sequence[Mapping[str, str]],
+    items: Sequence[Mapping[str, Any]],
 ) -> ProjectionBinding:
     if not source_artifact.strip():
         raise CatalogContractError(
@@ -2382,6 +3840,10 @@ def _file_sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return f"sha256:{digest.hexdigest()}"
+
+
+def _bytes_sha256(payload: bytes) -> str:
+    return f"sha256:{hashlib.sha256(payload).hexdigest()}"
 
 
 def _tree_sha256(path: Path) -> str:

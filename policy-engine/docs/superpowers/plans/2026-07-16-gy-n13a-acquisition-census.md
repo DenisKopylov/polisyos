@@ -179,27 +179,27 @@ Tasks 2–5 and remain RED/GREEN work there.
 
 **Files:** extend builder/checker/tests; create journal artifact; update execution journal.
 
-- [ ] Enumerate connector families only from `SELECT DISTINCT connector_id`. Resolve concrete
+- [x] Enumerate connector families only from `SELECT DISTINCT connector_id`. Resolve concrete
   connector classes through the live registry and run the simulator/harness gauntlet before any live
   request; record typed dry-run evidence per family.
-- [ ] Select 10–15 rows per family with a declared deterministic stratification over execution tier
+- [x] Select 10–15 rows per family with a declared deterministic stratification over execution tier
   and quality bucket, preferring explicit open-license/no-auth candidates within each stratum without
   hiding excluded unsafe rows.
-- [ ] Carry the exact schema-profile projection and derived HTTP budgets/rate limits in every request.
+- [x] Carry the exact schema-profile projection and derived HTTP budgets/rate limits in every request.
   If the owner profile cannot substantiate a schema contract, derive
   `alive_schema_unverified`, never `alive_conformant`.
-- [ ] For every attempted network call: append+fsync the request/response envelope before any
+- [x] For every attempted network call: append+fsync the request/response envelope before any
   classifier consumes it; issue one bounded request; never repair the response; record heartbeats,
   call count, wall time, bytes, status, headers needed for diagnosis, bounded body/checksum, and
   safety/license outcome. Nothing enters a canonical store.
-- [ ] Recompute liveness (`alive_conformant`, `alive_schema_drift`,
+- [x] Recompute liveness (`alive_conformant`, `alive_schema_drift`,
   `alive_schema_unverified`, `dead`, `auth_required`, `rate_limited`, `license_unclear`, and typed
   bounded-transport failures) from journal + profile evidence. Derive per-family scorecards and
   D3 execution-tier decay findings.
-- [ ] Add focused fake-owner tests and decisive flips: dead->alive relabel; live scorecard row with no
+- [x] Add focused fake-owner tests and decisive flips: dead->alive relabel; live scorecard row with no
   raw journal; hardcoded family denominator; schema self-attestation; reordered/unearned family
   result. All restore source/artifacts in `finally` and prove the clean checker after restoration.
-- [ ] Run one safe family-at-a-time live capture with declared budgets and record economics. Commit:
+- [x] Run one safe family-at-a-time live capture with declared budgets and record economics. Commit:
   `feat: journal N13a connector liveness census`.
 
 ## Task 6 — D2 growth backlog, artifact lifecycle, and recurring lane

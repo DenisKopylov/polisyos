@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import tempfile
 from collections import Counter
 from collections.abc import Sequence
@@ -17,14 +18,23 @@ from pathlib import Path
 
 from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
     CatalogContractError,
+    ProbeDisposition,
+    canonical_json_bytes,
+    capture_live_probe_journal,
+    derive_connector_family_receipts,
+    derive_family_scorecards,
     derive_metric_resolutions,
     generate_fetch_plan_proofs,
     measure_reverse_demand,
     measure_route_evidence,
+    prepare_probe_records,
     read_catalog_source,
+    read_live_probe_journal,
     read_reverse_demand_projection,
     read_route_projection,
     reverse_demand_residuals,
+    select_stratified_probe_candidates,
+    validate_live_probe_journal,
 )
 
 DEFAULT_SOURCE_LOCATOR = (
@@ -55,6 +65,28 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--capstone-path", type=Path, default=DEFAULT_CAPSTONE_PATH)
     parser.add_argument("--intervention-substrate-path", type=Path, default=DEFAULT_SUBSTRATE_PATH)
     parser.add_argument("--value-gate-path", type=Path, default=DEFAULT_VALUE_GATE_PATH)
+    parser.add_argument(
+        "--capture-live-journal",
+        type=Path,
+        help="Explicitly spend safe live calls and create this new quarantine journal JSON",
+    )
+    parser.add_argument(
+        "--probe-journal-path",
+        type=Path,
+        help="Offline strict validation of an existing frozen live-probe journal",
+    )
+    parser.add_argument(
+        "--event-log-path",
+        type=Path,
+        help="New append+fsync JSONL path used by explicit live capture",
+    )
+    parser.add_argument(
+        "--probes-per-family",
+        type=int,
+        choices=range(10, 16),
+        default=12,
+        metavar="10..15",
+    )
     return parser
 
 
@@ -91,6 +123,50 @@ def main(argv: Sequence[str] | None = None) -> int:
                 route_evidence=route_rows,
                 scratch_dir=Path(scratch),
                 source_locator=args.source_locator,
+            )
+        selection_plan = select_stratified_probe_candidates(
+            args.catalog_path,
+            per_family=args.probes_per_family,
+            source_locator=args.source_locator,
+        )
+        with tempfile.TemporaryDirectory(prefix="gy-n13a-simulator-") as fixtures:
+            family_receipts = derive_connector_family_receipts(
+                tuple(row.connector_id for row in selection_plan.sampling_receipts),
+                fixture_root=Path(fixtures),
+            )
+        prepared_probes = prepare_probe_records(selection_plan, family_receipts)
+        live_journal = None
+        scorecards = ()
+        journal_path = args.probe_journal_path
+        if args.capture_live_journal is not None and args.probe_journal_path is not None:
+            raise CatalogContractError(
+                "probe_journal_mode_conflict",
+                "choose capture or offline journal validation, not both",
+            )
+        if args.capture_live_journal is not None:
+            if args.event_log_path is None:
+                raise CatalogContractError(
+                    "probe_event_log_path_required",
+                    "--capture-live-journal requires --event-log-path",
+                )
+            if args.capture_live_journal.exists():
+                raise CatalogContractError(
+                    "probe_journal_already_exists", str(args.capture_live_journal)
+                )
+            live_journal = capture_live_probe_journal(
+                selection_plan,
+                family_receipts,
+                event_log_path=args.event_log_path,
+            )
+            scorecards = derive_family_scorecards(live_journal.records)
+            _write_new_json(args.capture_live_journal, live_journal.model_dump(mode="json"))
+            journal_path = args.capture_live_journal
+        elif args.probe_journal_path is not None:
+            live_journal = read_live_probe_journal(args.probe_journal_path)
+            scorecards = validate_live_probe_journal(
+                live_journal,
+                selection_plan=selection_plan,
+                family_receipts=family_receipts,
             )
     except CatalogContractError as exc:
         print(
@@ -156,6 +232,39 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "execute_calls": fetch_plan_proof.execution_fence.execute_calls,
                     "proof": fetch_plan_proof.model_dump(mode="json"),
                 },
+                "probe_plan_summary": {
+                    "family_count": len(selection_plan.sampling_receipts),
+                    "selected_probe_count": len(selection_plan.candidates),
+                    "family_projection_binding": (
+                        selection_plan.family_projection_binding.model_dump(mode="json")
+                    ),
+                    "sampling_receipts": [
+                        row.model_dump(mode="json") for row in selection_plan.sampling_receipts
+                    ],
+                    "owner_receipts": [row.model_dump(mode="json") for row in family_receipts],
+                    "preflight_counts": dict(
+                        sorted(
+                            Counter(
+                                preflight.disposition.value for _, _, preflight in prepared_probes
+                            ).items()
+                        )
+                    ),
+                    "authorized_live_attempt_count": sum(
+                        preflight.disposition is ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED
+                        for _, _, preflight in prepared_probes
+                    ),
+                },
+                "live_probe_summary": (
+                    {
+                        "journal_path": str(journal_path),
+                        "event_log_content_sha256": (live_journal.event_log_content_sha256),
+                        "network_call_count": sum(card.network_call_count for card in scorecards),
+                        "wall_time_seconds": sum(card.wall_time_seconds for card in scorecards),
+                        "scorecards": [card.model_dump(mode="json") for card in scorecards],
+                    }
+                    if live_journal is not None
+                    else None
+                ),
                 "status": "pass",
             },
             sort_keys=True,
@@ -171,6 +280,16 @@ def _stable_artifact_locator(path: Path) -> str:
         return str(path.resolve().relative_to(POLICY_ENGINE_ROOT.resolve()))
     except ValueError:
         return f"external://{path.name}"
+
+
+def _write_new_json(path: Path, payload: object) -> None:
+    """Create a new fsynced JSON artifact without overwriting prior census evidence."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("xb") as handle:
+        handle.write(canonical_json_bytes(payload))
+        handle.flush()
+        os.fsync(handle.fileno())
 
 
 if __name__ == "__main__":  # pragma: no cover - exercised through the CLI

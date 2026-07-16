@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import asyncio
+import base64
 import copy
+import hashlib
 import json
 import os
 from collections import Counter
@@ -28,7 +31,7 @@ def _insert_owner_rows(
     )
     connection.execute(
         """
-        INSERT INTO ds_distributions VALUES (?, ?, ?, ?, ?, 0.8, ?)
+        INSERT INTO ds_distributions VALUES (?, ?, ?, ?, ?, '{}', 0.8, ?)
         """,
         [
             f"distribution-{suffix}",
@@ -104,6 +107,7 @@ def catalog_path(tmp_path: Path) -> Path:
             url VARCHAR,
             connector_type VARCHAR,
             profile_id VARCHAR,
+            connector_params JSON,
             quality_score DOUBLE,
             parser_supported BOOLEAN
         )
@@ -219,11 +223,18 @@ def test_census_boundary_models_are_strict() -> None:
         census.FetchPlanProjection,
         census.FetchPlanExecutionFence,
         census.FetchPlanGenerationProof,
+        census.ConnectorFamilyReceipt,
+        census.FamilySamplingReceipt,
+        census.ProbeCandidate,
+        census.ProbeSelectionPlan,
         census.ProbeBudget,
         census.SchemaProfileContract,
         census.ProbeRequest,
+        census.ProbePreflight,
         census.ProbeRawResponse,
         census.DerivedLiveness,
+        census.ProbeJournalRecord,
+        census.LiveProbeJournal,
         census.FamilyScorecard,
         census.GrowthBacklogRow,
         census.ProjectionBinding,
@@ -1894,3 +1905,400 @@ def test_production_fetch_plan_generation_uses_real_graph_and_w2_demands(
     assert proof.execution_fence.execute_calls == 0
     assert all(plan.source_lane == "catalog" for plan in proof.plans)
     assert all(plan.persist_payload is False for plan in proof.plans)
+
+
+def _probe_record(census: Any) -> Any:
+    schema_profile = census.SchemaProfileContract(
+        distribution_id="distribution-a",
+        dataset_id="dataset-a",
+        profile_id="worldbank_wdi",
+        columns=("metric_alpha",),
+        sample_row_count=0,
+        preview_sample_hash=None,
+        inference_mode="metadata_only",
+        parser_mode="metadata_only",
+    )
+    candidate = census.ProbeCandidate(
+        attempt_id="probe-a",
+        connector_id="worldbank.wdi",
+        metric_id="metric_alpha",
+        dataset_id="dataset-a",
+        distribution_id="distribution-a",
+        profile_id="worldbank_wdi",
+        request_dataset_id="request-a",
+        execution_tier="transport_ready",
+        quality_score=0.8,
+        quality_bucket="q75_100",
+        binding_confidence=0.9,
+        endpoint_url="https://example.test/data",
+        connector_params={},
+        filters={},
+        access_license="CC-BY-4.0",
+        auth_required=False,
+        parser_supported=True,
+        schema_profile=schema_profile,
+        family_sample_rank=1,
+        stratum_id="transport_ready:q75_100",
+        stratum_rank=1,
+    )
+    budget = census.ProbeBudget(
+        profile_timeout_seconds=30.0,
+        profile_rate_limit_rps=10.0,
+        profile_requests_per_hour=None,
+        timeout_seconds=15.0,
+        max_response_bytes=65_536,
+        minimum_interval_seconds=0.1,
+        call_budget=1,
+    )
+    request = census.ProbeRequest(
+        attempt_id="probe-a",
+        metric_id="metric_alpha",
+        request_variable="metric_alpha",
+        connector_id="worldbank.wdi",
+        request_dataset_id="request-a",
+        endpoint_url="https://example.test/data",
+        schema_profile=schema_profile,
+        budget=budget,
+        access_license="CC-BY-4.0",
+        auth_required=False,
+        dry_run_receipt_sha256="sha256:" + "a" * 64,
+    )
+    preflight = census.ProbePreflight(
+        attempt_id="probe-a",
+        connector_owner_resolved=True,
+        protocol_conformant=True,
+        simulator_intercepted=True,
+        schema_profile_resolved=True,
+        source_profile_resolved=True,
+        source_profile_family_matches=True,
+        open_license_validated=True,
+        auth_required=False,
+        execution_tier="transport_ready",
+        endpoint_scheme="https",
+        disposition=census.ProbeDisposition.LIVE_ATTEMPT_AUTHORIZED,
+    )
+    body = b"[]"
+    raw = census.ProbeRawResponse(
+        attempt_id="probe-a",
+        request_record_sha256=census.semantic_content_hash(request),
+        journal_sequence=2,
+        status_code=200,
+        response_headers={"content-type": "application/json"},
+        bounded_body_base64=base64.b64encode(body).decode("ascii"),
+        body_sha256="sha256:" + hashlib.sha256(body).hexdigest(),
+        bytes_read=len(body),
+        transport_error_code=None,
+    )
+    return census.ProbeJournalRecord(
+        candidate=candidate,
+        request=request,
+        preflight=preflight,
+        raw_response=raw,
+        derived_liveness=census.DerivedLiveness(
+            attempt_id="probe-a",
+            liveness_state=census.LivenessState.ALIVE_SCHEMA_UNVERIFIED,
+            decisive_evidence_refs=("journal:response:2", "schema_profile:metadata_only"),
+        ),
+        request_journal_sequence=1,
+        evidence_journal_sequence=2,
+        classification_journal_sequence=3,
+        attempt_wall_time_seconds=0.01,
+    )
+
+
+def test_probe_selector_stratifies_the_complete_data_derived_family_denominator(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    plan = census.select_stratified_probe_candidates(
+        catalog_path,
+        per_family=2,
+        source_locator="fixture/catalog.duckdb",
+    )
+    source = census.read_catalog_source(
+        catalog_path,
+        source_locator="fixture/catalog.duckdb",
+    )
+
+    assert {row.connector_id for row in plan.sampling_receipts} == set(source.connector_families)
+    assert Counter(row.connector_id for row in plan.candidates) == {
+        "family.alpha": 2,
+        "family.beta": 2,
+    }
+    assert len({row.distribution_id for row in plan.candidates}) == len(plan.candidates)
+    assert all(row.stratum_rank >= 1 for row in plan.candidates)
+
+
+def test_probe_selector_grows_for_a_new_catalog_family_without_code_changes(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    _insert_owner_rows(
+        connection,
+        suffix="probe-growth",
+        connector_id="family.new",
+        execution_tier="transport_ready",
+        raw_variable="raw-probe-growth",
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_metric_bindings VALUES
+            ('metric_probe_growth', 'dataset-probe-growth', 'distribution-probe-growth',
+             'family.new', 'profile-probe-growth', 'request-probe-growth',
+             0.91, 0.91, '{}', 'transport_ready', 'fixture')
+        """
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_observations VALUES
+            ('observation-probe-growth', 'dataset-probe-growth',
+             'raw-probe-growth', 'metric_probe_growth')
+        """
+    )
+    connection.close()
+
+    plan = census.select_stratified_probe_candidates(
+        catalog_path,
+        per_family=2,
+        source_locator="fixture/catalog.duckdb",
+    )
+
+    assert "family.new" in {row.connector_id for row in plan.sampling_receipts}
+    assert any(row.connector_id == "family.new" for row in plan.candidates)
+
+
+def test_connector_owner_dry_run_uses_registry_protocol_owner_and_simulator(
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    receipts = census.derive_connector_family_receipts(
+        ("worldbank.wdi",),
+        fixture_root=tmp_path / "missing-fixtures",
+    )
+
+    assert len(receipts) == 1
+    receipt = receipts[0]
+    assert receipt.connector_id == "worldbank.wdi"
+    assert receipt.component_id == "worldbank.wdi@1.0.0"
+    assert receipt.protocol_violations == ()
+    assert receipt.harness_passed is True
+    assert receipt.simulator_intercepted is True
+    assert receipt.simulator_call_count == 1
+    assert receipt.simulator_network_calls == 0
+
+
+def test_probe_preflight_disposition_is_recomputed_from_decisive_evidence() -> None:
+    census = _census()
+    record = _probe_record(census)
+    payload = record.preflight.model_dump(mode="python")
+
+    with pytest.raises(ValidationError):
+        census.ProbePreflight(**{**payload, "disposition": "license_unclear"})
+    with pytest.raises(ValidationError):
+        census.ProbePreflight(
+            **{
+                **payload,
+                "open_license_validated": False,
+                "disposition": "live_attempt_authorized",
+            }
+        )
+
+
+def test_live_liveness_requires_raw_journal_and_rejects_relabeling() -> None:
+    census = _census()
+    record = _probe_record(census)
+    payload = record.model_dump(mode="python")
+
+    with pytest.raises(ValidationError):
+        census.ProbeJournalRecord(
+            **{
+                **payload,
+                "raw_response": None,
+                "evidence_journal_sequence": 2,
+            }
+        )
+    relabeled = record.derived_liveness.model_copy(
+        update={"liveness_state": census.LivenessState.DEAD}
+    )
+    with pytest.raises(ValidationError):
+        census.ProbeJournalRecord(**{**payload, "derived_liveness": relabeled})
+
+    dead_raw = record.raw_response.model_copy(update={"status_code": 404})
+    dead_record = census.ProbeJournalRecord(
+        **{
+            **payload,
+            "raw_response": dead_raw,
+            "derived_liveness": census.DerivedLiveness(
+                attempt_id="probe-a",
+                liveness_state=census.LivenessState.DEAD,
+                decisive_evidence_refs=("http_status:404", "journal:response:2"),
+            ),
+        }
+    )
+    falsely_alive = dead_record.derived_liveness.model_copy(
+        update={"liveness_state": census.LivenessState.ALIVE_SCHEMA_UNVERIFIED}
+    )
+    with pytest.raises(ValidationError):
+        census.ProbeJournalRecord(
+            **{
+                **dead_record.model_dump(mode="python"),
+                "derived_liveness": falsely_alive,
+            }
+        )
+
+
+def test_capture_journals_response_before_classifier_consumes_paid_evidence(
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    record = _probe_record(census)
+    observed_event_kinds: list[list[str]] = []
+
+    async def transport(_: Any) -> Any:
+        return census.ProbeTransportResult(
+            status_code=200,
+            response_headers={"content-type": "application/json"},
+            bounded_body_base64=base64.b64encode(b"[]").decode("ascii"),
+            body_sha256="sha256:" + hashlib.sha256(b"[]").hexdigest(),
+            bytes_read=2,
+            transport_error_code=None,
+        )
+
+    def classifier(*args: Any, event_log_path: Path, **kwargs: Any) -> Any:
+        events = [json.loads(line) for line in event_log_path.read_text().splitlines()]
+        observed_event_kinds.append([event["event_kind"] for event in events])
+        return census.derive_probe_liveness(*args, **kwargs)
+
+    captured = asyncio.run(
+        census.capture_probe_records(
+            ((record.candidate, record.request, record.preflight),),
+            event_log_path=tmp_path / "quarantine.jsonl",
+            transport=transport,
+            classifier=classifier,
+            sleep=lambda _: asyncio.sleep(0),
+        )
+    )
+
+    assert len(captured) == 1
+    assert observed_event_kinds == [["request", "raw_response"]]
+    events = [json.loads(line) for line in (tmp_path / "quarantine.jsonl").read_text().splitlines()]
+    assert [event["event_kind"] for event in events] == [
+        "request",
+        "raw_response",
+        "classification",
+    ]
+
+
+def test_scorecards_recompute_counts_and_executable_tier_decay() -> None:
+    census = _census()
+    record = _probe_record(census)
+    scorecards = census.derive_family_scorecards((record,))
+
+    assert len(scorecards) == 1
+    card = scorecards[0]
+    assert card.connector_id == "worldbank.wdi"
+    assert card.selected_probe_count == 1
+    assert card.live_attempt_count == 1
+    assert card.liveness_counts == {census.LivenessState.ALIVE_SCHEMA_UNVERIFIED: 1}
+    assert card.tier_decay_findings == ()
+
+    with pytest.raises(ValidationError):
+        census.FamilyScorecard(
+            **{
+                **card.model_dump(mode="python"),
+                "family_liveness_state": census.FamilyLivenessState.NO_SAFE_LIVE_ATTEMPT,
+            }
+        )
+
+
+def test_metadata_only_schema_contract_can_never_claim_conformant() -> None:
+    census = _census()
+    record = _probe_record(census)
+
+    assert (
+        census.derive_probe_liveness(
+            request=record.request,
+            preflight=record.preflight,
+            raw_response=record.raw_response,
+        ).liveness_state
+        is census.LivenessState.ALIVE_SCHEMA_UNVERIFIED
+    )
+    falsely_conformant = record.derived_liveness.model_copy(
+        update={"liveness_state": census.LivenessState.ALIVE_CONFORMANT}
+    )
+    with pytest.raises(ValidationError):
+        census.ProbeJournalRecord(
+            **{
+                **record.model_dump(mode="python"),
+                "derived_liveness": falsely_conformant,
+            }
+        )
+
+
+@pytest.mark.skipif(
+    not os.environ.get("POLISYOS_N13A_PRODUCTION_CATALOG"),
+    reason="production catalog is an explicit read-only witness",
+)
+def test_production_probe_plan_covers_every_data_family_with_twelve_rows(
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    catalog_path = Path(os.environ["POLISYOS_N13A_PRODUCTION_CATALOG"])
+    plan = census.select_stratified_probe_candidates(
+        catalog_path,
+        per_family=12,
+        source_locator="production_data/catalog.duckdb",
+    )
+    receipts = census.derive_connector_family_receipts(
+        tuple(row.connector_id for row in plan.sampling_receipts),
+        fixture_root=tmp_path / "simulator-fixtures",
+    )
+
+    assert len(plan.sampling_receipts) == len(receipts)
+    assert all(row.selected_probe_count == 12 for row in plan.sampling_receipts)
+    assert all(receipt.harness_passed for receipt in receipts)
+    assert all(receipt.simulator_intercepted for receipt in receipts)
+
+
+@pytest.mark.skipif(
+    not os.environ.get("POLISYOS_N13A_PRODUCTION_CATALOG"),
+    reason="production catalog is an explicit read-only witness",
+)
+def test_frozen_live_journal_recomputes_from_production_catalog_and_raw_evidence(
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    catalog_path = Path(os.environ["POLISYOS_N13A_PRODUCTION_CATALOG"])
+    journal_path = (
+        Path(__file__).resolve().parents[3]
+        / "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+    )
+    plan = census.select_stratified_probe_candidates(
+        catalog_path,
+        per_family=12,
+        source_locator=(
+            "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
+        ),
+    )
+    receipts = census.derive_connector_family_receipts(
+        tuple(row.connector_id for row in plan.sampling_receipts),
+        fixture_root=tmp_path / "simulator-fixtures",
+    )
+    journal = census.read_live_probe_journal(journal_path)
+    scorecards = census.validate_live_probe_journal(
+        journal,
+        selection_plan=plan,
+        family_receipts=receipts,
+    )
+
+    assert len(journal.records) == 144
+    assert sum(card.network_call_count for card in scorecards) == sum(
+        record.raw_response is not None for record in journal.records
+    )
+    assert sum(card.response_bytes for card in scorecards) == sum(
+        record.raw_response.bytes_read
+        for record in journal.records
+        if record.raw_response is not None
+    )
+    assert all(card.selected_probe_count == 12 for card in scorecards)

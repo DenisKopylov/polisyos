@@ -298,3 +298,89 @@ plan field validation, forbidden persistence/non-executable-tier claims, and a l
 attempt stopped by the fence. The production-only proof passes against the actual catalog and actual
 three-route W2 projection. Ruff and the consolidated source-flip lane are verified at the workstream
 commit/Task-6 boundary respectively.
+
+## Task 5 — W4 stratified connector reality census
+
+Status: complete.
+
+The selector derives its denominator from the 12 distinct validated binding `connector_id` values
+and chooses 12 unique distributions per family (144 total). The declared strata are
+`execution_tier × fixed quality bucket`; selection round-robins across extant strata and prefers,
+within each stratum, an exact schema profile, a recognized open-license identifier, no auth, a
+direct HTTP endpoint, parser support, binding confidence, quality, and stable owner IDs. The family
+projection binds all population and selected-stratum counts as
+`sha256:daad5dce7ae550a6e1f84a034137754125be2b0e46fe2b7f9388c5e2dc97cca5`.
+
+Every family resolves through `fabric.connectors.components.__polisyos_components__`; all 12 have
+zero `validate_protocol_compliance` violations. Each then enters `APISimulator(REPLAY)` against an
+intentionally absent fixture: one intercepted request and `MissingFixtureError` prove the simulator
+owned the transport, with zero network calls. The protocol owner is the same owner delegated by the
+existing `ConnectorTestHarness`.
+
+### Fail-closed preflight
+
+All 144 selected rows are journaled outcomes. Only 18 passed every live-call predicate: component
+and protocol owner, REPLAY interception, exact distribution/dataset/profile schema edge, matching
+source profile, no auth, executable tier, direct HTTP(S), and a recognized open license. The other
+126 rows spent no call:
+
+| Preflight disposition | Count |
+| --- | ---: |
+| `schema_profile_missing` | 42 |
+| `license_unclear` | 42 |
+| `endpoint_unusable` | 30 |
+| `auth_required` | 12 |
+| `live_attempt_authorized` | 18 |
+
+This is deliberately narrower than treating an empty license field, `other-open`, or a catalog
+claim such as `True` as permission. `unpd.data` is auth-required in the owner catalog. UK ONS has no
+schema profiles. Eurostat/SDMX/WVS selected rows do not expose a direct HTTP distribution carrier.
+Those are acquisition-layer findings, not reasons to improvise URLs, repair responses, or shrink
+the family denominator.
+
+### Journal-first live result and economics
+
+The explicit live command ran one family at a time. Every authorized request carried one metric,
+the exact owner schema profile, source-profile-derived rate interval, a 15-second effective timeout,
+64 KiB response/decompression caps through `read_bounded_response_body`, `call_budget=1`, a Range
+header, and a census user agent. The append-only JSONL request and raw-response records were flushed
+and `fsync`ed before the classifier was called; the frozen self-contained journal reconstructs that
+event stream byte-for-byte and binds it as
+`sha256:8a25cd8c8240cff1431bfa7f527156db38ea63c90730f0f476529cb53ce478c9`.
+
+| Family | Selected | Calls | Wall seconds | Derived outcomes | Aggregate state |
+| --- | ---: | ---: | ---: | --- | --- |
+| `ckan.resource` | 12 | 6 | 79.531 | 1 response-budget exceeded; 5 transport errors; 6 schema-profile missing | `characterization_failed` |
+| `eurostat.data` | 12 | 0 | 0 | 12 endpoint unusable | `no_safe_live_attempt` |
+| `opendatasoft.ods` | 12 | 0 | 0 | 6 license unclear; 6 schema-profile missing | `no_safe_live_attempt` |
+| `rest.json` | 12 | 0 | 0 | 6 license unclear; 6 schema-profile missing | `no_safe_live_attempt` |
+| `sdmx.source` | 12 | 0 | 0 | 6 endpoint unusable; 6 schema-profile missing | `no_safe_live_attempt` |
+| `socrata.soda` | 12 | 0 | 0 | 6 license unclear; 6 schema-profile missing | `no_safe_live_attempt` |
+| `ukons.datasets` | 12 | 0 | 0 | 12 schema-profile missing | `no_safe_live_attempt` |
+| `unesco_uis.data` | 12 | 0 | 0 | 12 license unclear | `no_safe_live_attempt` |
+| `unpd.data` | 12 | 0 | 0 | 12 auth required | `no_safe_live_attempt` |
+| `who.indicators` | 12 | 0 | 0 | 12 license unclear | `no_safe_live_attempt` |
+| `worldbank.wdi` | 12 | 12 | 7.692 | 12 alive, schema unverified | `live_characterized` |
+| `wvs.wave7` | 12 | 0 | 0 | 12 endpoint unusable | `no_safe_live_attempt` |
+
+Total paid live economics: 18 calls, 87.223 request-wall seconds, and 140,685 journaled response
+bytes. The CKAN calls produced five 15-second timeout receipts and one response rejected by the
+64 KiB owner limit; no endpoint was relabeled alive. All World Bank calls returned bounded 2xx
+evidence, but every production schema profile is metadata-only (`sample_row_count=0`), so the
+strongest earned state is `alive_schema_unverified`, never `alive_conformant`.
+
+The frozen journal is
+`architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`: 591,279 bytes,
+file `sha256:da064c4a6ae3eb47d6a369b1d58934e7d7e4b21c36c877672b2b4002c506b6e0`, semantic content
+`sha256:fa186d66136fa748fb23039bd9b599ea0b6ac6178dbdc6f7f265cba87bb16930` (top-level capture time
+and wall time excluded). It contains no canonical-store admission.
+
+### Behavioral verification
+
+The focused production file is `66 passed`. Decisive tests cover a new data family growing the
+denominator, registry/protocol/simulator receipts, preflight label pinning, a live row with no raw
+response, the exact `dead -> alive` relabel, metadata-only `alive_conformant` inflation, unearned
+family aggregate state, event ordering, and classifier invocation only after raw-response fsync.
+The offline checker reloads the frozen journal, re-derives the 144-row sample, current component
+receipts, all preflights, every liveness state, scorecard counts, and D3 tier-decay findings without
+performing a network call.

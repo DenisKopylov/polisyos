@@ -584,3 +584,55 @@ artifact SHA-256 after both writes:
 
 The 1,076 false-analog vetoes remain the firewall's honest result; no positive relation was invented
 to avoid the provenance ripple.
+
+### I1 N8 value-gate provenance rebaseline
+
+N8 first refused the superseded Fork-B constants with
+`fork_b_census_content_hash_drift`. The two verifier constants were repointed only to the two
+independently recomputed Fork-B hashes above. Live rederive then reported drift exclusively in
+content-bound receipt sections:
+
+```text
+--rederive-audit: exit 1; wall_time_ms=59282.964
+issues:
+  fork_b_census_receipt_drift
+  fork_b_census_receipt
+  production_refusal
+  acquisition_routing
+  transport_component_proofs
+unchanged decisive semantics:
+  catalog_method_count=390
+  value_capable_method_count=55
+  native_contract_families=6
+  education selected=bayesian.gp.gp_regression@1.0.0
+  education blocker=method_estimand_binding_mismatch
+  production blocker=acquire_data:value_panel_data_missing
+```
+
+The first source-flip attempt stopped before mutating because one focused test duplicated the old
+content-derived candidate id as a string. The RED was
+`candidate_b5d5d03eee11c6a6 != candidate_ea26e1ad2b9926a5`. The assertion now compares the cycle
+candidate with the candidate selected by the canonical frozen N4 owner lane. It still proves exact
+identity continuity, while removing the second non-owner identity source. Classification:
+**stronger / stale literal replaced by owner-bound expectation**.
+
+```text
+focused owner-bound N8 route test: 1 passed; exit 0; 46.79 s
+```
+
+The canonical writer remained byte-stable and the complete mutation denominator passed against the
+new receipt:
+
+```text
+first --write:  exit 0; ~61.04 s
+second --write: exit 0; ~61.93 s
+artifact SHA-256 after both writes:
+  b941c0b947a6c3e0c269c0974f76cb6c169e7e72607777b95ef87cefa0f21b69
+--check: exit 0; ~45.29 s
+--source-flip-mutations: exit 0; ~762.57 s
+  every mutation RED
+  every touched owner/verifier restored to its suite-base SHA-256
+Ruff (validator + focused test): All checks passed
+```
+
+No N9 consumer or promotion receipt shape was changed.

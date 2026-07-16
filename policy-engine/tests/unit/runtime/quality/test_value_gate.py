@@ -634,8 +634,9 @@ def test_n8_first_vertical_real_cycle_routes_owner_data_gap_through_n7() -> None
     run = value_contract._run_real_first_vertical_cycle()
     assert len(run.cycles) == 1
     cycle = run.cycles[0]
+    owner_candidate = value_contract._canonical_first_vertical_lane()["candidate"]
 
-    assert cycle.selected_candidate_ref == "candidate_b5d5d03eee11c6a6"
+    assert cycle.selected_candidate_ref == owner_candidate.candidate_id
     assert cycle.value_port.authority_blockers == (
         "acquire_data:value_panel_data_missing",
     )

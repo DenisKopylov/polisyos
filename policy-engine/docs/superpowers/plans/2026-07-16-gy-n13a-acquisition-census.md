@@ -19,14 +19,14 @@ recomputes every status from catalog rows, upstream narrow projections, or journ
 A separate explicit live-capture mode performs bounded shadow characterization into a quarantine
 journal. It never invokes a FetchPlan executor, ingestion orchestrator, canonical store writer, or
 world/CG owner. The committed census content-binds the catalog, the three narrow N10 route
-projections, the data-enumerated connector-family table, and its journal; run timestamps and wall
-time stay outside content hashes.
+projections, the data-enumerated connector-family table, and its journal; run timestamps, heartbeat
+elapsed timing, and nested wall-time economics stay outside semantic content hashes.
 
 **Tech stack:** Python 3.14, DuckDB, existing PolicyOS catalog/retrieval/connector owners, Pydantic v2
 strict DTOs where an artifact crosses a boundary, stdlib JSON/hash/fsync, pytest, Ruff, generated
 JSON artifacts.
 
-**Status (2026-07-16):** `in_progress`
+**Status (2026-07-17):** `complete`
 
 ## Landing and isolation receipt
 
@@ -113,7 +113,7 @@ JSON artifacts.
   family scorecard, backlog row, projection binding, and census manifest.
 - [x] Write Task-1 RED tests for strict DTO invariants, data-derived metric/family denominators,
   malformed-owner-row and fake-profile failure, exact/alignment/unresolved evidence shape, and
-  byte-stable semantic hashing with top-level-only run-economics exclusions.
+  byte-stable semantic hashing with recursive operational-time/economics exclusions.
 - [x] Run the focused file and record the expected import/contract failures in the journal.
 - [x] Implement only the schema, deterministic JSON/hash utilities, and catalog identity/query owner
   needed to make schema tests GREEN.
@@ -167,9 +167,10 @@ Tasks 2–5 and remain RED/GREEN work there.
   metric with an executable binding plus representative remaining tiers/families.
 - [x] Persist narrow FetchPlan proofs: metric, connector ID, request dataset ID, profile ID, filters,
   selected distribution, and owner type. Validate every field against owner output/catalog rows.
-- [x] Install a behavioral execution fence around proof generation. Forbidden owners include
-  `FetchExecutor.execute/preview`, `run_orchestrated_ingestion`, connector `fetch`, and canonical
-  persistence. A call raises a typed N13a violation before side effects.
+- [x] Install a behavioral execution fence around proof generation for the two executor edges that
+  are actually injected and reachable: `FetchExecutor.execute/preview`. The direct private catalog
+  resolver path reaches no connector, ingestion, or canonical-persistence owner; do not list those
+  sibling APIs as behaviorally guarded by this receipt.
 - [x] Add the decisive source flip that removes/bypasses the fence while markers remain; it must turn
   RED. Add a plan-generation e2e test proving owner FetchPlans exist without world growth or
   acquisition execution.
@@ -180,8 +181,9 @@ Tasks 2–5 and remain RED/GREEN work there.
 **Files:** extend builder/checker/tests; create journal artifact; update execution journal.
 
 - [x] Enumerate connector families only from `SELECT DISTINCT connector_id`. Resolve concrete
-  connector classes through the live registry and run the simulator/harness gauntlet before any live
-  request; record typed dry-run evidence per family.
+  connector classes through the live registry; run the public harness checks per family and every
+  selected carrier's actual connector fetch under zero-network REPLAY before any live request;
+  record typed carrier and family dry-run evidence.
 - [x] Select 10–15 rows per family with a declared deterministic stratification over execution tier
   and quality bucket, preferring explicit open-license/no-auth candidates within each stratum without
   hiding excluded unsafe rows.
@@ -197,8 +199,11 @@ Tasks 2–5 and remain RED/GREEN work there.
   bounded-transport failures) from journal + profile evidence. Derive per-family scorecards and
   D3 execution-tier decay findings.
 - [x] Add focused fake-owner tests and decisive flips: dead->alive relabel; live scorecard row with no
-  raw journal; hardcoded family denominator; schema self-attestation; reordered/unearned family
-  result. All restore source/artifacts in `finally` and prove the clean checker after restoration.
+  raw journal; hardcoded family denominator; actual connector fetch replaced by marker-only sleep;
+  progressing response given a total kill timeout; nested run economics retained in semantic hashing;
+  reordered backlog. Also mutate one required public harness check from pass to failure while keeping
+  exact-carrier interception; it must block the live request. All source mutations restore exact
+  bytes in `finally` and prove the clean checker after restoration.
 - [x] Run one safe family-at-a-time live capture with declared budgets and record economics. Commit:
   `feat: journal N13a connector liveness census`.
 
@@ -227,18 +232,20 @@ GY plan status, and execution journal.
 
 ## Task 7 — Targeted closeout and independent review
 
-- [ ] Reopen the failure/repair register and record the closeout pattern pass.
-- [ ] Run the new focused tests and every decisive flip serially.
-- [ ] Run Ruff over changed Python files.
-- [ ] Run `--check` for N13a and every consumed frozen artifact: N10 capstone, N4, N8, N10a,
-  composition, L6, and value gate. Confirm their bytes did not change.
-- [ ] Run the validator import census and require 38/38.
-- [ ] Run architecture guardrails.
-- [ ] Inspect `git diff --check`, protected-path diff, production-data diff, worktree status, and
+- [x] Reopen the failure/repair register and record the closeout pattern pass.
+- [x] Run the new focused tests and every decisive flip serially.
+- [x] Run Ruff over changed Python files.
+- [x] Run `--check` for N13a and every consumed frozen artifact: N10 capstone, N4, N8, N10a,
+  composition, L6, and value gate. Confirm their bytes did not change. The clean-main isolation
+  exposes one disclosed upstream L6 receipt mismatch in L6/N8/N10; N13a does not move those
+  artifacts, and the execution journal records the exact hashes and propagation.
+- [x] Run the validator import census and require 38/38.
+- [x] Run architecture guardrails.
+- [x] Inspect `git diff --check`, protected-path diff, production-data diff, worktree status, and
   scoped commit history.
-- [ ] Request independent spec-compliance and code-quality review; fix only evidence-backed findings
-  and rerun affected checks.
-- [ ] Commit closeout evidence if needed: `docs: close GY-N13a census ledger`.
+- [x] Request independent spec-compliance and code-quality review; fix only evidence-backed findings
+  and rerun affected checks. The requested reviewer outcome is recorded in the execution journal.
+- [x] Commit closeout evidence: `docs: close GY-N13a census ledger`.
 
 ## Acceptance report
 

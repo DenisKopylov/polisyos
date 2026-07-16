@@ -22,10 +22,11 @@ Observed result before implementation: `6 failed`; every test failed on the expe
 module, `ModuleNotFoundError: tools.quality.validation.layer3_gy_n13a_acquisition_census`.
 
 Review then tightened the Task-1 boundary. The added tests produced `11 failed, 6 passed` before the
-repair, witnessing each missing property: blank/null denominator rows were silently omitted, nested
-`observed_at` was incorrectly erased from the hash, the per-attempt call budget allowed values above
-one, manifest versions/time were not literal/typed, count maps admitted negatives, and resolution
-labels did not require their decisive evidence.
+repair, witnessing each missing property: blank/null denominator rows were silently omitted, the
+original top-level-only hash boundary mishandled nested operational time, the per-attempt call budget
+allowed values above one, manifest versions/time were not literal/typed, count maps admitted
+negatives, and resolution labels did not require their decisive evidence. Task 5 later superseded
+that boundary with recursive exclusion of declared operational fields at every nesting level.
 
 ### GREEN witness
 
@@ -264,10 +265,11 @@ family becomes a primary executable binding; there is no connector-family consta
 The execution boundary is behavioral. `RetrievalService` receives a typed forbidden executor whose
 `preview` and `execute` methods raise `fetch_plan_execution_forbidden` before side effects. The proof
 also records zero calls, one catalog resolution per sampled metric, identical before/after catalog
-content hashes, and identical empty scratch-tree hashes. Forbidden owners are explicitly projected
-as `FetchExecutor.execute`, `FetchExecutor.preview`, `connector.fetch`,
-`run_orchestrated_ingestion`, and `canonical_store.write`. A malicious service fixture that invokes
-`preview` turns RED before its fallback assertion; marker presence alone cannot satisfy that test.
+content hashes, and identical empty scratch-tree hashes. The receipt names exactly the two
+behaviorally guarded executor edges, `FetchExecutor.execute` and `FetchExecutor.preview`; it does not
+claim marker-only enforcement over sibling connector, ingestion, or store APIs. Calling the private
+catalog resolver reaches none of those owners by construction, while a malicious service fixture
+that invokes either executor entrypoint turns RED before its fallback assertion.
 
 ### Production proof
 
@@ -312,17 +314,45 @@ projection binds all population and selected-stratum counts as
 `sha256:daad5dce7ae550a6e1f84a034137754125be2b0e46fe2b7f9388c5e2dc97cca5`.
 
 Every family resolves through `fabric.connectors.components.__polisyos_components__`; all 12 have
-zero `validate_protocol_compliance` violations. Each then enters `APISimulator(REPLAY)` against an
-intentionally absent fixture: one intercepted request and `MissingFixtureError` prove the simulator
-owned the transport, with zero network calls. The protocol owner is the same owner delegated by the
-existing `ConnectorTestHarness`.
+zero `validate_protocol_compliance` violations. The repaired E7 gate invokes six public
+`ConnectorTestHarness` checks for every family (protocol compliance, required attributes, async
+core methods, capability-gated methods, unique sessions, and idempotent disconnect), then exercises
+all 144 selected carriers through the actual concrete connector using owner-resolved
+`ConnectionConfig` and `FetchRequest` objects under `APISimulator(REPLAY)`. A socket-connect fence
+proved zero escape attempts and zero actual network calls in the offline lane. An intercepted
+`MissingFixtureError` is recorded as positive transport-fence evidence plus a typed missing-fixture
+finding; it is never parser conformance or liveness.
+
+| Family | Offline carriers | REPLAY interceptions | Pre-transport findings | Harness failures |
+| --- | ---: | ---: | ---: | ---: |
+| `ckan.resource` | 12 | 12 | 0 | 0 |
+| `eurostat.data` | 12 | 12 | 0 | 0 |
+| `opendatasoft.ods` | 12 | 12 | 0 | 0 |
+| `rest.json` | 12 | 12 | 0 | 0 |
+| `sdmx.source` | 12 | 8 | 4 | 0 |
+| `socrata.soda` | 12 | 12 | 0 | 0 |
+| `ukons.datasets` | 12 | 12 | 0 | 0 |
+| `unesco_uis.data` | 12 | 12 | 0 | 0 |
+| `unpd.data` | 12 | 0 | 12 | 0 |
+| `who.indicators` | 12 | 12 | 0 | 0 |
+| `worldbank.wdi` | 12 | 12 | 0 | 0 |
+| `wvs.wave7` | 12 | 12 | 0 | 0 |
+
+The complete offline result is 144 carrier receipts, 128 actual connector interceptions, 16 typed
+pre-transport findings, and zero network escapes. SDMX's four findings are OECD carriers whose
+declared `1/60` request rate cannot acquire a one-token request from the current burst-size owner;
+the other eight SDMX carriers reach REPLAY. All 12 UNPD carriers lack the connector-required
+country/location filter. These findings remain nested by `attempt_id`; a family aggregate never
+overwrites carrier-specific evidence.
 
 ### Fail-closed preflight
 
 All 144 selected rows are journaled outcomes. Only 18 passed every live-call predicate: component
-and protocol owner, REPLAY interception, exact distribution/dataset/profile schema edge, matching
-source profile, no auth, executable tier, direct HTTP(S), and a recognized open license. The other
-126 rows spent no call:
+and protocol owner, that carrier's own safe REPLAY interception, exact
+distribution/dataset/profile schema edge, matching source profile, no auth, executable tier, direct
+HTTP(S), and a recognized open license. Candidate-specific schema/profile/auth/tier/endpoint/license
+findings are evaluated before `dry_run_failed`, so a family-level finding cannot erase more precise
+catalog evidence. The other 126 rows spent no call:
 
 | Preflight disposition | Count |
 | --- | ---: |
@@ -343,14 +373,17 @@ the family denominator.
 The explicit live command ran one family at a time. Every authorized request carried one metric,
 the exact owner schema profile, source-profile-derived rate interval, a 15-second effective timeout,
 64 KiB response/decompression caps through `read_bounded_response_body`, `call_budget=1`, a Range
-header, and a census user agent. The append-only JSONL request and raw-response records were flushed
-and `fsync`ed before the classifier was called; the frozen self-contained journal reconstructs that
-event stream byte-for-byte and binds it as
-`sha256:8a25cd8c8240cff1431bfa7f527156db38ea63c90730f0f476529cb53ce478c9`.
+header, and a census user agent. Transport uses connect/read inactivity timeouts with no total
+progress-kill timeout. The append-only JSONL request, periodic progress heartbeats, and raw-response
+records were flushed and `fsync`ed before the classifier was called; the frozen self-contained
+journal reconstructs that event stream byte-for-byte and binds it as
+`sha256:75870c436a7b1621805d0cadb9b024a758e53388a675a261f9a8f842355adeff`. The 18 live attempts
+record 18 `attempt_started`, 25 periodic `waiting`, 13 `response_headers`, and 17 body-progress
+events; elapsed timing is operational, while the exact event stream remains content-bound.
 
 | Family | Selected | Calls | Wall seconds | Derived outcomes | Aggregate state |
 | --- | ---: | ---: | ---: | --- | --- |
-| `ckan.resource` | 12 | 6 | 79.531 | 1 response-budget exceeded; 5 transport errors; 6 schema-profile missing | `characterization_failed` |
+| `ckan.resource` | 12 | 6 | 79.403 | 1 response-budget exceeded; 5 transport errors; 6 schema-profile missing | `characterization_failed` |
 | `eurostat.data` | 12 | 0 | 0 | 12 endpoint unusable | `no_safe_live_attempt` |
 | `opendatasoft.ods` | 12 | 0 | 0 | 6 license unclear; 6 schema-profile missing | `no_safe_live_attempt` |
 | `rest.json` | 12 | 0 | 0 | 6 license unclear; 6 schema-profile missing | `no_safe_live_attempt` |
@@ -360,30 +393,34 @@ event stream byte-for-byte and binds it as
 | `unesco_uis.data` | 12 | 0 | 0 | 12 license unclear | `no_safe_live_attempt` |
 | `unpd.data` | 12 | 0 | 0 | 12 auth required | `no_safe_live_attempt` |
 | `who.indicators` | 12 | 0 | 0 | 12 license unclear | `no_safe_live_attempt` |
-| `worldbank.wdi` | 12 | 12 | 7.692 | 12 alive, schema unverified | `live_characterized` |
+| `worldbank.wdi` | 12 | 12 | 1.896 | 12 alive, schema unverified | `live_characterized` |
 | `wvs.wave7` | 12 | 0 | 0 | 12 endpoint unusable | `no_safe_live_attempt` |
 
-Total paid live economics: 18 calls, 87.223 request-wall seconds, and 140,685 journaled response
+Total paid live economics: 18 calls, 82.503 capture-wall seconds (81.299 summed request-wall
+seconds), and 140,685 journaled response
 bytes. The CKAN calls produced five 15-second timeout receipts and one response rejected by the
 64 KiB owner limit; no endpoint was relabeled alive. All World Bank calls returned bounded 2xx
 evidence, but every production schema profile is metadata-only (`sample_row_count=0`), so the
 strongest earned state is `alive_schema_unverified`, never `alive_conformant`.
 
 The frozen journal is
-`architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`: 591,279 bytes,
-file `sha256:da064c4a6ae3eb47d6a369b1d58934e7d7e4b21c36c877672b2b4002c506b6e0`, semantic content
-`sha256:fa186d66136fa748fb23039bd9b599ea0b6ac6178dbdc6f7f265cba87bb16930` (top-level capture time
-and wall time excluded). It contains no canonical-store admission.
+`architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`: 719,062 bytes,
+file `sha256:027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd`, semantic content
+`sha256:e1b38f303965be715f61c70f9dc00f567fe1b5415c1dd11d89c02a19a7228eb9`. Operational timestamps,
+elapsed heartbeat timing, and nested wall-time economics are recursively excluded from semantic
+identity; exact artifact/event hashes still bind the journal bytes. It contains no canonical-store
+admission.
 
 ### Behavioral verification
 
-The focused production file is `66 passed`. Decisive tests cover a new data family growing the
-denominator, registry/protocol/simulator receipts, preflight label pinning, a live row with no raw
-response, the exact `dead -> alive` relabel, metadata-only `alive_conformant` inflation, unearned
-family aggregate state, event ordering, and classifier invocation only after raw-response fsync.
-The offline checker reloads the frozen journal, re-derives the 144-row sample, current component
-receipts, all preflights, every liveness state, scorecard counts, and D3 tier-decay findings without
-performing a network call.
+The focused production file is `77 passed`. Decisive tests cover a new data family growing the
+denominator, actual connector/harness/simulator receipts, exact-carrier preflight authority, a live
+row with no raw response, the exact `dead -> alive` relabel, metadata-only
+`alive_conformant` inflation, unearned family aggregate state, periodic heartbeat ordering,
+progress-safe inactivity timeouts, and classifier invocation only after raw-response fsync. The
+offline checker reloads the frozen journal, re-derives the 144-row sample and all 144 actual
+connector dry-run receipts, all preflights, every liveness state, scorecard counts, and D3
+tier-decay findings without performing a network call.
 
 ## Task 6 — D2 backlog and frozen recurring census
 
@@ -423,16 +460,16 @@ Top ten interim rows and exact demand sources:
 
 ### Artifact lifecycle and recurrence
 
-- census file: 5,599,392 bytes,
-  `sha256:71e2b304752005afd3239dad7fc4f6bcb0a1fdb90675efda16aa06029a4a30be`;
-- census semantic content (top-level observation time/economics excluded):
-  `sha256:fa6068ffeeaa245ffd3f56d2d7f0a87175e89b3da29c165857897a7f23af3683`;
+- census file: 5,599,325 bytes,
+  `sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791`;
+- census semantic content (nested operational time/economics recursively excluded):
+  `sha256:62c7e666c58002509c0cd3b65ac1a22630b6b55e7631df676986ab829be5f3c2`;
 - live journal semantic binding:
-  `sha256:fa186d66136fa748fb23039bd9b599ea0b6ac6178dbdc6f7f265cba87bb16930`;
+  `sha256:e1b38f303965be715f61c70f9dc00f567fe1b5415c1dd11d89c02a19a7228eb9`;
 - builder validator:
-  `sha256:d4e4c405a2f3eae4f4b33e9ecd36e4bf9350573d9a404f337413cfc03f8a41be`;
+  `sha256:704b1b5a10f8357ad6d7d18d19589d7b2da1ac0a504222155d9e94d7e63a77f4`;
 - lifecycle checker:
-  `sha256:bfd7bc19d95be34b598bba89c0fc206ede487dbb15a5cfc9bf137c7355ed47d4`.
+  `sha256:cae954933b6b9ae5fb3210c2f4336852b046a89d722504e743aec7639149d474`.
 
 Two independent `--write` passes over the real catalog and frozen journal produced the identical
 census file hash above. `--check` rederived the same manifest and canonical bytes. Explicit
@@ -442,14 +479,16 @@ are registered as one `generated_committed` GY lifecycle family, and the generat
 inventory was synchronized.
 
 The five nested corrupt-field cases all turned RED: metric binding evidence, route class, FetchPlan
-owner edge, scorecard economics, and backlog order. The restoring behavioral source-flip suite also
-turned all six decisive mutations RED: `dead→alive`, a live scorecard row without raw response,
-route-label pinning, FetchPlan fence removal, backlog-order reversal, and a hardcoded connector
-family denominator. Each subprocess verified the exact source SHA after restoration.
+owner edge, decisive tier-decay finding, and backlog order. The restoring behavioral source-flip
+suite turned all nine decisive mutations RED: `dead→alive`, a live scorecard row without raw
+response, route-label pinning, FetchPlan fence removal, backlog-order reversal, a hardcoded
+connector-family denominator, replacing the actual connector fetch with marker-only sleep,
+reintroducing a total timeout that can kill progress, and leaving nested run economics in semantic
+hashes. Each subprocess verified the exact source SHA after restoration.
 
-The focused file contains 71 tests. All 71 passed with the read-only production catalog declared;
-without it, the fixture suite passed and the six explicit production witnesses skipped. Ruff and
-`git diff --check` passed.
+The focused file contains 77 tests. All 77 passed with the read-only production catalog declared;
+without it, 71 fixture tests passed and the six explicit production witnesses skipped. Ruff passed;
+`git diff --check` passed again at the final commit boundary.
 
 ### N13b decision input
 
@@ -459,3 +498,67 @@ must not relabel one as local/live merely to demonstrate execution. The seven ge
 the catalog seam is ready but remain `implemented_but_not_orchestrated`; actual acquisition,
 overlay admission, epoch effects, and a capstone-eligible owner data gap remain N13b work. The
 audit artifact is the N13a surface; Atlas/DS15 UI projection is explicitly outside this lane.
+
+## Task 7 — targeted closeout
+
+Status: `complete`; one pre-existing consumed-artifact residual remains disclosed and unchanged.
+
+### Pattern closeout
+
+The failure/repair register was reopened after implementation. N13a closes P29/P31/P32/P33 for its
+own claims by recomputing every class from owner evidence, deriving both denominators from data,
+using one journal-first intake/classification boundary, and exercising nine remove-the-property
+source flips plus five nested corruptions. It does not claim a runtime acquisition bridge: W3
+remains `implemented_but_not_orchestrated`, execution is fenced, and canonical-store/UI surfaces are
+respectively forbidden and `surface_out_of_scope`. This avoids P01/P02/P03 inflation while routing
+the actual bridge to N13b. The L6/N8/N10 failure described below was reproduced in the clean main
+checkout, not excluded by assertion, satisfying the P34 isolation rule.
+
+### Final targeted verification
+
+| Lane | Result | Closeout evidence |
+| --- | --- | --- |
+| N13a focused file | PASS | 77 tests passed with the production catalog declared |
+| N13a `--check` | PASS | committed manifest and canonical bytes rederived offline |
+| N13a corrupt-field lane | PASS | all 5 decisive nested corruptions turned RED |
+| N13a restoring source flips | PASS | all 9 decisive mutations turned RED; exact source bytes restored |
+| Ruff | PASS | builder, checker, and focused test file |
+| N4 design-generation contract | PASS | serial `--check` |
+| composition artifacts | PASS | serial `--check` |
+| N10a second-domain pack | PASS | serial clean-main `--check`; 0.909 s validator wall time |
+| L6 intervention substrate | DISCLOSED RED | behavior itself passes with full coverage and zero issues; frozen receipt drift |
+| N8 value gate | DISCLOSED RED | propagates the same `cycle_substrate_l6_bundle_content_mismatch` |
+| N10 capstone | DISCLOSED RED | one issue: `known_vertical_owner_vocabulary_unavailable` wrapping that same mismatch; 108.835 s |
+| 38-validator import/CLI census | PASS | 38/38 in fresh subprocesses; 65.853 s |
+| architecture guardrails | PASS | `Architecture guardrail check passed.` |
+| `git diff --check` | PASS | no whitespace errors |
+| protected/production-data diff | PASS | empty for `production_data`, Atlas worktree, `docs/brand`, `apps`, and Atlas plans |
+
+The L6 residual is narrow and pre-existing. The committed L6 contract already reports live bundle
+`sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356`, while the frozen N10a
+pack binds `sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e`.
+Direct L6 recomputation has identical passing coverage counts and no behavioral issues; its only
+payload differences are the three legal `provision_ref` values changing from checkout-absolute
+DuckDB URIs to repo-relative DuckDB URIs, duplicated under `measured_coverage` and
+`behavior_report`. The existing generation-cycle disposition ledger already names this
+`gy_s3_intervention_substrate_contract_stale`. Both N8 and N10 were rerun from clean `main`, which
+contains none of the N13a commits, and reproduced the mismatch. N13a changes no L6, N8, N10a,
+value-gate, capstone, runtime, or production-data byte, so updating those artifacts here would
+violate the lane boundary and the user's unchanged-artifact gate.
+
+The branch diff is restricted to the two N13a validation modules, one focused test file, two frozen
+N13a artifacts, generated-artifact registration/reference, the active GY plan, and this plan/journal.
+The N10 merge remains `7e035a42695add42540c260bf61e6110d0fa3c93`; the scoped N13a commits before
+closeout are `585948078`, `1f6f50313`, `08a41cf1f`, `d2430b1d6`, `5d66b6411`, `14434b632`, and
+`752e4c10a`. The independent-review repair is `b8d1f445e`.
+
+Independent review found five evidence-backed closure defects. The recurring E7 gate now runs each
+selected carrier through its concrete connector and the public harness under zero-network REPLAY,
+and live authorization requires both the complete, zero-failure family harness set and the exact
+carrier's intercepted/no-escape receipt. E9 now journals periodic progress heartbeats and uses
+connect/read inactivity timeouts without a total timeout that can kill a progressing response.
+Semantic hashing now recursively excludes declared run economics, while exact artifact/event hashes
+still bind their bytes. The W3 execution fence now claims and behaviorally guards only the two actual
+`FetchExecutor.execute`/`preview` edges. Independent re-review found no behavioral blocker; the
+repaired 77-test focused suite, nine source flips, five corruption cases, byte-stable writer,
+offline checker, Ruff, 38-validator census, and architecture guardrails all passed at closeout.

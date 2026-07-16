@@ -1961,8 +1961,9 @@ re-architecting.
   `P29`/§3.5.9/§3.5.12.
   **Measured N13a result (2026-07-16):** the frozen census covers 124 metrics (95 exact, 20 via
   alignment, 9 unresolved), 19 cycle-demand variables (4 executable, 15 `binding_gap`), all 12
-  data-derived connector families (144 sampled probes; 18 bounded live calls), and all three
-  capstone routes. The actual route projection classifies all three `not_a_data_gap`: education is
+  data-derived connector families (144 actual-connector REPLAY receipts; 128 intercepted, zero
+  network escapes; 18 bounded live calls with journaled heartbeats), and all three capstone routes.
+  The actual route projection classifies all three `not_a_data_gap`: education is
   blocked on `method_estimand_binding_mismatch`; first-vertical and unseen are blocked on their
   exact grounding/world-record links. Therefore N13b has **no honest capstone data-only execution
   lane yet** and must not force the stale water-quality hypothesis. Seven real catalog FetchPlans
@@ -1970,7 +1971,7 @@ re-architecting.
   growth backlog uses the declared interim binding-confidence × route-demand order with an explicit
   N13b VOI-owner integration note; it is not claimed as VOI. Frozen artifact:
   `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`, file
-  `sha256:71e2b304752005afd3239dad7fc4f6bcb0a1fdb90675efda16aa06029a4a30be`.
+  `sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791`.
 - **GY-N13b — Acquisition executor — the world grows (close one capstone route end-to-end;
   NEW, Rev 16).** wire-existing + narrow build-new. Convert N7's routes from typed dead-ends
   into executed acquisitions: (1) wire the `DatasetCatalogGraph` into the N7 `_capture_fabric`
@@ -1990,8 +1991,12 @@ re-architecting.
   principle applied to data); (5) close the two typed N10 residuals
   (`owner_registration_derivation_missing` → acquired snapshots registered in the
   generated-artifact lifecycle; `journal_raw_evidence_persistence_missing` → journal-first raw
-  evidence persistence); (6) **close ONE N10 capstone route end-to-end** (per the N13a
-  classification: first-vertical local-lift and/or unseen live-fetch): typed requirement →
+  evidence persistence); (6) **close ONE honestly data-shaped route end-to-end**. N13a measured
+  that none of the three frozen N10 routes currently qualifies: education is estimand-shaped, and
+  first-vertical/unseen are grounding/world-record-shaped. N13b must therefore either consume a
+  newly surfaced `owner_data_gap` with capstone demand or first land the requisite non-data owner
+  bridge and rederive the route; it may not pin the stale first-vertical/local-lift or unseen/live-
+  fetch hypotheses merely to demonstrate execution. The accepted lane is typed requirement →
   resolved plan → executed acquisition → admitted observations → **cycle re-entry** → a
   measurably deeper honest terminal recorded against the same `DesignProblem`; (7) the
   **`derived` provenance class + derivation certificates (Rev 17, §3.5.12-D4/D5/D6)**: the

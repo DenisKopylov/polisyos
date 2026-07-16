@@ -724,3 +724,19 @@ tests/unit/runtime/quality/test_second_domain_pack.py:
 
 The rebaselined N10a education trace remains `acquisition_required`; no provider call was made and
 no unbound lever was promoted.
+
+### I1 composition provenance rebaseline
+
+The live composition check then reported only
+`layer3_gy_composition_certificate_drift`, caused by the rebaselined N10a smoke DesignProblem. Its
+canonical writer recomputed the recursive receipt twice with identical bytes:
+
+```text
+first --write:  exit 0; ~30.00 s
+second --write: exit 0; 29.154 s
+artifact SHA-256 after both writes:
+  003a5f0fa8851629832dc5b38d7387bd3b8085a7c0544f9f96f819ef513582da
+final --check: exit 0; 29.338 s
+```
+
+No coupling observation, recursion result, or composition authority changed.

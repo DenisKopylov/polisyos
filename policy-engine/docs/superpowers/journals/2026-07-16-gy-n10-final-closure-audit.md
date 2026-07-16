@@ -543,3 +543,44 @@ frozen --check: exit 0; wall_time_seconds=58.08
 
 This rebaseline is the required downstream consequence of fixing evidence identity; it does not
 change any acceptance, binding, or promotion authority.
+
+### I1 Fork-B census provenance rebaseline
+
+The next canonical dependency failed closed on the changed N4 receipt before inspecting relation
+outcomes:
+
+```text
+check_layer3_gy_n10_cg1_l2_relation_census.py --check
+exit 1; design_generation_artifact_ref_drift
+```
+
+The full CG1/L2 denominator was then recomputed twice: first through the audit lane and again through
+the canonical standalone owner that persists the writer input. Both runs produced exactly the same
+content result and the same Fork-B conclusion; only the N4 evidence reference changed.
+
+```text
+audit --rederive-audit: exit 1 (expected drift); wall_time_seconds=4104.242354
+canonical standalone rederive: exit 0; wall_time_seconds=2484.361342
+raw content hash, both runs:
+  sha256:415e73219df496e86f9b199885a7458bf9ea9818ab2d989e82f9c6c992e16247
+denominator/results, both runs:
+  atom_x_numeric_edge_pairs_evaluated=13092
+  SAT:false-analog=1076
+  UNKNOWN:unknown=12016
+  fork_a_evidence_candidate_rows=0
+```
+
+The compact writer remained byte-stable and the frozen checker accepted the new receipt:
+
+```text
+first --write:  exit 0; 1.795683 s
+second --write: exit 0; 1.679039 s
+compact content hash:
+  sha256:f511626547c17ff010b1ee26d9157c753a6f13fe8be18f96c17ee9f1ca31e605
+artifact SHA-256 after both writes:
+  1c004559fe41cc84296ebb05edcfd4f5f95ade9542b2992aa52543ccb0c3bca4
+--check: exit 0; 0.869115 s
+```
+
+The 1,076 false-analog vetoes remain the firewall's honest result; no positive relation was invented
+to avoid the provenance ripple.

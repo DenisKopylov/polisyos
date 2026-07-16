@@ -509,3 +509,37 @@ Ruff over owner/callers/validator/tests: All checks passed
 The canonical repo-relative identity intentionally changes the prior absolute-path-derived L6 and
 CG certificate hashes. The canonical provenance ladder and capstone remain pending a single writer
 rebaseline; accepting the warmed historical hashes would preserve the defect.
+
+### I1 N4 provenance rebaseline
+
+The historical N4 frozen receipt remained valid under `--check`, while the live rederive correctly
+reported only certificate-bearing drift from the canonicalized L6 owner identity:
+
+```text
+check_layer3_gy_design_generation_contract.py --rederive-audit
+exit 1; wall_time_seconds=1329.57
+issue=frozen_payoff_live_receipt_drift
+recorded=sha256:f40decc86a4212389b4bf92a5eb656028065c61f1006e4a1d1091a26ececa36b
+computed=sha256:cfb821d480fe6c2e4f5318d6a789839f43ce4b36dc78537b7f929e993120fd63
+changed keys:
+  frozen_payoff_receipt
+  generation_results
+  grounding_payoff
+  positive_gate
+  synthetic_cg3_handoff_probe
+```
+
+The canonical writer then replayed the current owners twice. Both writes produced identical bytes;
+the diff is confined to relation certificates, tickets, atom identities, and enclosing content
+hashes. Candidate dispositions, generator paths, grounding states, and gate outcomes are unchanged.
+
+```text
+first --write:  exit 0; wall_time_seconds=1536.67
+second --write: exit 0; wall_time_seconds=1384.97
+artifact SHA-256 after both writes:
+  665cdea7b0f83c1b6c0630e1e9ce94f38a9709b04482960017bd01d8d557a2fe
+frozen --check: exit 0; wall_time_seconds=58.08
+```
+
+This rebaseline is the required downstream consequence of fixing evidence identity; it does not
+change any acceptance, binding, or promotion authority.

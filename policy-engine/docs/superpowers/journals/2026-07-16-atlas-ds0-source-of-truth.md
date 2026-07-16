@@ -95,3 +95,33 @@ instances under `architecture/atlas_surfaces/`.
 
 Next checkpoint: reconcile final cross-links, close the pattern pass, and prove
 the branch path fence against `main`.
+
+## 2026-07-16 - Closeout verification
+
+- Both schemas pass Draft 2020-12 metaschema checks and both examples pass
+  `check-jsonschema` validation using the commands recorded in the DS0 plan.
+- The adoption instance has four source entries; the readiness instance has
+  exactly 19 ordered entries (`DS0`-`DS18`), all `contract_only` with
+  `fixture_only` provenance.
+- Negative probes remain red for an unknown adoption verdict, a UI-only
+  readiness state, and archive-only evidence relabeled `stable`.
+- The v15 sha256 was recomputed from the worktree and matches the frozen hash.
+- A local-link pass over every changed Markdown document plus the untouched
+  surface constitution found no missing file target. The protected active
+  `#f3`/`#f4` anchors and their archived targets were checked explicitly.
+- `git diff --check main` is clean.
+- `git diff --name-only main` contains 17 files; every path is within the
+  original DS0 fence or one of the two narrow exceptions. No app, package,
+  runtime source, GY-owned, policy-design-case, quality-tool, or production-data
+  file changed.
+- No pytest, application build, component, route, package, or runtime producer
+  was run or shipped.
+
+Pattern closeout: P04 is constrained by closed schema vocabularies; P05/P10 by
+purpose boundaries and the archive-only-stable negative; P06 by one canonical
+decision owner plus dated lifecycle dispositions; P13 by reassigning the
+behavioral validator to DS6 instead of creating a DS0 subsystem; P26 by keeping
+D4 pending; P29 by labeling schema examples as shape evidence only.
+
+DS0 is complete on the isolated branch and remains unmerged for architect
+review. The only ratification item is D4 (`ru` UI retention posture).

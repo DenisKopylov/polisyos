@@ -430,6 +430,11 @@ any audit or build.
 Canonical governing record:
 [Atlas Source-Of-Truth And Governing Decisions](../../brand/ATLAS_SOURCE_OF_TRUTH.md).
 
+**Status (2026-07-16):** DS0 is complete on
+`codex/atlas-ds0-source-of-truth` and awaits architect review. D4's locale
+recommendation is deliberately `pending_owner_ratification`; no locale policy
+is implied by DS0 closure.
+
 - **Goal:** one canonical design source of truth and the governing decisions
   every later slice references.
 - **Deliverables:** v4/v7/v15 **supersession decision**

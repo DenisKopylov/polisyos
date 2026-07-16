@@ -2,11 +2,12 @@
 plan_id: atlas-ds0-source-of-truth-freeze-and-governing-decisions
 title: "DS0 - Source-Of-Truth Freeze & Governing Decisions"
 type: slice-plan
-status: active - executable now under Revision 2
+status: complete-on-branch - architect review pending; D4 pending_owner_ratification recorded
 created: 2026-06-11
 revised: 2026-07-16
 last_verified: 2026-07-16
-stability: draft
+stability: review-ready
+closed_at: 2026-07-16
 slice: DS0
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 surface_constitution: ../../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
@@ -73,43 +74,47 @@ Phase-6 O-block).
 
 DS0 closes only when all of the following are true:
 
-- [ ] One short, dated, owned Atlas source-of-truth decision record contains
+- [x] One short, dated, owned Atlas source-of-truth decision record contains
       D1-D6. Every decision includes evidence, the strongest rejected
       alternative, and a concrete revisit condition.
-- [ ] D1 resolves the living coded v4, v4 brand documents, the v7 surfaces
+- [x] D1 resolves the living coded v4, v4 brand documents, the v7 surfaces
       plan, and the sha256-pinned v15 archive. It records what is superseded,
       what is retained, and what DS2 still must adjudicate.
-- [ ] The active GY plan is recorded as the Layer-3 owner; the historical
+- [x] The active GY plan is recorded as the Layer-3 owner; the historical
       G-naming Layer-3 plan is retained but explicitly superseded in practice,
       without deletion or edits under `layer3-slices/**`.
-- [ ] `FRONTEND_SOTA_PLAN.md` and `DESIGN_BEST_IN_CLASS_PLAN.md` are archived
+- [x] `FRONTEND_SOTA_PLAN.md` and `DESIGN_BEST_IN_CLASS_PLAN.md` are archived
       through ADR-0126's `docs/plans/archive/` lifecycle, with narrow active
       disposition stubs retained where needed for link continuity.
-- [ ] The v7 surfaces plan is retained as a DS11-DS13 material source but is
+- [x] The v7 surfaces plan is retained as a DS11-DS13 material source but is
       no longer an execution master.
-- [ ] D2 chooses one token source of truth and gives the losing path an owner,
+- [x] D2 chooses one token source of truth and gives the losing path an owner,
       sunset condition, and compatibility posture.
-- [ ] D3 chooses the package home, release/versioning policy, and Figma
+- [x] D3 chooses the package home, release/versioning policy, and Figma
       source-vs-projection status with parity ownership.
-- [ ] D4 records the `en`/`uk`/`ru` evidence, alternatives, recommendation,
+- [x] D4 records the `en`/`uk`/`ru` evidence, alternatives, recommendation,
       RTL posture, and owner, with status `pending_owner_ratification`.
-- [ ] D5 inventories all 12 manifest-driven flags with owner, intent,
+- [x] D5 inventories all 12 manifest-driven flags with owner, intent,
       sunset/review condition, shadow-shipping role, and one governed source
       path; implementation remains DS5.
-- [ ] D6 gives every named non-web artifact a named slice or an explicit
+- [x] D6 gives every named non-web artifact a named slice or an explicit
       `surface_out_of_scope` disposition with owner and revisit condition.
-- [ ] `architecture/atlas_surfaces/` contains two Draft 2020-12 JSON Schemas
+- [x] `architecture/atlas_surfaces/` contains two Draft 2020-12 JSON Schemas
       and one valid example instance for each: adoption ledger and surface
       readiness ledger.
-- [ ] The adoption example carries the v4/v7/v15 source-disposition entry set
+- [x] The adoption example carries the v4/v7/v15 source-disposition entry set
       and pins the v15 sha256
       `28d3e51dd452a074d30b7a0afa439302c48d4c208307a6a2d09beb935f71a969`.
-- [ ] The readiness example represents all 19 Revision 2 slices and uses only
+- [x] The readiness example represents all 19 Revision 2 slices and uses only
       the master plan's controlled vocabularies.
-- [ ] The two examples validate against their schemas with the in-fence
+- [x] The two examples validate against their schemas with the in-fence
       self-validation commands; no DS6 CI-validator claim is made.
-- [ ] All links in touched Markdown resolve, `git diff --check` is clean, and
+- [x] All links in touched Markdown resolve, `git diff --check` is clean, and
       `git diff --name-only main...HEAD` proves the path fence.
+
+Closure is review-ready rather than merged. The one unresolved product choice
+is intentionally not a DS0 blocker: D4's evidence package is complete and its
+policy result remains `pending_owner_ratification`, exactly as required.
 
 ## Binding Path Fence
 

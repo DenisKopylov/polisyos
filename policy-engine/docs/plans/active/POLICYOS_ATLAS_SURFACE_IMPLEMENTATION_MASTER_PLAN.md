@@ -1,11 +1,11 @@
 ---
 title: PolicyOS Atlas Surface & Frontend Implementation Master Plan
-status: draft - pre-activation (awaiting Layer 3 closeout re-derivation; Phase A may run early)
+status: revised - Revision 2 re-derived against the GY-N closure; Phase A may start now; Phase B+ activates on GY-N10 merge
 owner: team-design
 runtime_co_owner: team-architecture  # producers, bridges, and authz enforcement land in runtime code; named per task plan
 created: 2026-06-10
-revised: 2026-06-10 (slice rebalance - 15 proportional slices DS0-DS14, continuous numbering, no cross-cutting track, MACHINE twins in-slice)
-last_reviewed: 2026-06-10
+revised: 2026-07-16 (Revision 2 - re-derived against the GY-N campaign closure: GY input contract, Cycle Board hero, new slices DS15-DS18, re-stated activation and public gates)
+last_reviewed: 2026-07-16
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 organizing_constitution: ../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
 source_design_doc: ../../system-design-decisions/universal-policy-design-target-architecture-and-gap.md
@@ -14,7 +14,8 @@ capability_ratchet: ../../../architecture/policy_design_case/capability_reality_
 failure_patterns: ../../reference/policy-design-case-failure-patterns.md
 workspace_contract: ../../reference/frontend/workspace-contract.md
 upstream_plans:
-  - ./POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md  # supplies the lattice, registry, conversions, agent
+  - ./layer3-slices/GY-engine-subordination.md  # THE active Layer-3 execution plan (Rev 17): supplies the capstone, value gate, ledgers, censuses, acquisition (N13a/b), confidence ledger (N11), epochs (N12), O-block agent
+  - ./POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md  # historical G-naming; superseded in practice by the GY plan for vocabulary and artifacts
 supersedes_as_execution_master:
   - ./POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md  # retained as material source for DS11-DS13 until DS0 records its disposition
   - ./FRONTEND_SOTA_PLAN.md            # vision-superseded; DS0 moves to archive
@@ -61,17 +62,33 @@ on.
 
 ## Read This Before Anything Else
 
-**Activation gate.** This plan is a **pre-activation draft**. The surface
-constitution's re-derivation triggers require that its current-state snapshot be
-refreshed from Layer 3 closeout artifacts before this plan drives scope or
-priority. Until that re-derivation:
+**Revision 2 (2026-07-16) — this IS the re-derivation.** The Layer-3 closeout
+the original draft waited for has happened, under GY naming: the **GY-N
+campaign** (docs/plans/active/layer3-slices/GY-engine-subordination.md, Rev 17)
+closed GY-N4–N10 — the full plain-language → generate → ground → simulate →
+value → promote cycle is contract-generic across domains, with a frozen
+**depth-N universality capstone** (three plain-language runs, three honest
+`acquisition_required` terminals with structurally distinct evidence classes),
+a 55/390-method value gate, a disposition ledger, two censuses, and the CGF
+grounding firewall. The measured system truth: **the machinery is universal and
+honest; the substrate is thin; every gap routes to a typed, costed acquisition
+plan.** The GY plan's next wave (N13a/N13b acquisition execution → N11
+confidence ledger → N12 epochs → Phase-6 learning loop) is exactly the future
+data this plan's later surfaces render.
 
-- only **Phase A (DS0–DS2)** may execute, because its inputs (the v15 archive,
-  the v4/v7 brand docs, the live route/feature/authz/cache inventory) are
-  Layer-3-independent;
-- every other slice is frozen at `defined, not activated`;
-- the Input Contract table below must be re-stated with live values at
-  activation, and slice scopes adjusted to what Layer 3 actually shipped.
+**Activation gate (re-stated).**
+
+- **Phase A (DS0–DS2) may start NOW** — its inputs (the v15 archive, the v4/v7
+  brand docs, the live route/feature/authz/cache inventory) are
+  GY-independent, and Phase A does not touch the GY worktree.
+- **Phase B+ activates when the GY-N10 branch merges to main** (the capstone
+  and its sibling artifacts become main-tree data). No further re-derivation
+  ceremony is required — this revision replaces it; if the final N10 audit
+  materially changes the capstone vocabulary, amend the Input Contract before
+  DS3, not during it.
+- Later slices carry **explicit GY gates** (N13a, N13b, N11, N12, first
+  governed promotion, Phase-6 agent) stated per slice and in the start-now
+  ladder below.
 
 **Execution granularity (roadmap vs task plans).** This document is the
 **roadmap**: strategy, sequencing, doctrine, the dependency DAG, and the
@@ -99,21 +116,35 @@ capability chain. Fixture data is typed and visually marked `fixture_only` and
 never occupies an authority slot. Cached data renders with its staleness.
 Public gates are constitutional, not schedule-driven.
 
-## Input Contract — What This Plan Consumes From Layer 3 Closeout
+## Input Contract — What This Plan Consumes From The GY Campaign (Revision 2)
 
-| Input | Source artifact | HTTP producer today? | Feeds | Status (2026-06-10 snapshot) |
+All GY artifacts are frozen JSON contracts under
+`architecture/policy_design_case/` with **recomputing validators, byte-stable
+canonical writers, corrupt-drift lanes, and source-flip harnesses** — the
+strongest producer substrate a surface plan has ever had here. The HTTP
+producers are thin projections of already-verified artifacts, never new logic.
+
+| Input | Source artifact (GY name) | HTTP producer today? | Feeds | Status (2026-07-16) |
 | --- | --- | --- | --- | --- |
-| Final composed status lattice + promotion verdict vocabulary (G4) | core contracts; Layer 3 controlled vocabulary | partially (runtime contracts) | DS4 grammar binding; every surface | pending |
-| Adapter registry + capability-ratchet maturity (`fail_closed` → `predictive` → `calibrated`) | `capability_reality_report.json`; registry artifacts | **no — built in DS3** | DS7 board columns; DS10 discovery content | pending — admitted set still growing through G1–G3/GL |
-| Proving-ground conversion outcomes (G5/G7) | conversion records | **no — built in DS3** | DS7 board rows | pending |
-| Bounded-agent contract + orchestration-choice audit ledger (G6) | agent contracts | **no — built in DS14** | DS14 | pending |
-| Health-metric governance (G8) | health-metric ledgers | **no — built in DS3/DS6** | DS6 instrumentation; DS7 board | pending |
-| Updated cluster ownership map (`surface_missing` inventory) | `cluster_ownership_map.toml` | **no — built in DS3** | backlog generator #1; closure targets | live; refresh at activation |
+| Typed terminal + evidence vocabulary: `SearchTerminalState`, evidence classes (`owner_acquisition_route` / `estimand_binding_refusal` / `owner_data_gap`), decision grades, CGF dispositions (`bound`/`shadow_bound`/`candidate_unbound`), acquisition strategies (ADR-0166) | core contracts + the capstone validator's structural recomputation (`_domain_evidence_kind` pattern) | partially (runtime contracts) | DS4 grammar binding; every surface | **live** — frozen + recomputed, not pinned (GY §3.5.10) |
+| Depth-N universality capstone: three plain-language runs, per-stage traces, embedded proof recordings, per-domain terminal distributions | `layer3_gy_depth_n_universality_contract.json` | **no — built in DS3** | DS7 Cycle Board hero rows; DS8 drill-down | live on N10 merge (final audit in flight) |
+| Value gate: 390/55 method denominator, advisor selection receipts, `ValueOuterSet` (set-valued, `unknown`/incomparable), six-family projections, transport receipts | `layer3_gy_value_gate_contract.json` | **no — built in DS3** | DS16 value grammar; DS7 columns | live on N10 merge |
+| Disposition ledger + engine census + Fork-B CG1/L2 census (13,092 relations, 0 admissible positives) | `layer3_gy_generation_cycle_disposition_ledger.json`; census artifacts | **no — built in DS3** | DS7 columns; DS10 discovery; honesty copy | live on N10 merge |
+| Acquisition routes with costed plans (N7 planner reports: strategy, cost, VOI, requirement gap) | capstone terminals + `layer3_gy_acquisition_contract` artifacts | **no — built in DS3/DS15** | DS15 refusal-with-a-path; DS7 route column | live on N10 merge |
+| Acquisition-layer census: connector scorecard, liveness map, catalog↔runtime metric resolution, D2 growth backlog (VOI-ranked) | GY-N13a census artifact | **no — built in DS15** | DS15 growth surfaces | **pending GY-N13a** |
+| World growth: epoch-stamped overlay store, admission passports, quarantine, re-entry traces, derivation certificates + basis vocabulary (GY §3.5.12) | GY-N13b artifacts | **no — built in DS15/DS16** | DS15 live loop; DS16 derived-data provenance | **pending GY-N13b** |
+| Confidence ledger: δ-budget, risk-spend per obligation class × instrument, refusal/acquisition instruments as first-class rows | GY-N11 ledger artifact | **no — built in DS17** | DS17 | **pending GY-N11** |
+| Epochs: stale certificates, `revalidation_required`, revision triggers, OpenWorldRisk | GY-N12 artifacts | **no — built in DS18** | DS18 chrome; every time-bearing surface | **pending GY-N12** |
+| 13-case proving ground (legacy honest signal; still real) | proving-ground artifacts | **no — built in DS3** | DS7 legacy rows | live |
+| Bounded-agent contract + orchestration-choice audit ledger | Phase-6 O-block contracts | **no — built in DS14** | DS14 | **pending Phase 6** |
+| Updated cluster ownership map (`surface_missing` inventory) | `cluster_ownership_map.toml` | **no — built in DS3** | backlog generator #1; closure targets | live; refresh at N10 merge |
 
-The "no HTTP producer" column is the honest bridge debt this plan owns. If
-Layer 3 closes with materially different vocabulary or artifacts than assumed
-here, this plan is amended **before** activation — not patched around during
-execution.
+The "no HTTP producer" column is the honest bridge debt this plan owns. Two
+binding rules inherited from the GY plan apply to every producer built here:
+**§3.5.10 recompute-not-pin** (surface payloads carry recomputed structural
+properties, never pinned terminal labels) and **§3.5.11 projection-scoped
+provenance** (a surface producer binds to the narrowest upstream projection
+hash, so GY artifact churn does not ripple through every endpoint).
 
 ## Code-Grounded Technical State (Snapshot 2026-06-10)
 
@@ -245,10 +276,13 @@ This plan adds only:
 Two pinned proving grounds, mirroring how the runtime proves mechanisms on
 `ua-msme-affordable-loans-2022` before scaling:
 
-1. **The proving-ground board itself (DS7).** The board must render Layer 3's
-   13 canonical cases and their conversion outcomes truthfully — it is the
-   surface on which every law (fail-closed rendering, weakest-boundary,
-   candidate clothing, search-frontier honesty) is first proven.
+1. **The Cycle Board itself (DS7).** The board must render the GY-N10
+   capstone's three plain-language domains (first-vertical, education,
+   unseen/no-pack — three honest `acquisition_required` terminals with
+   structurally distinct evidence classes) plus Layer 3's 13 canonical legacy
+   cases truthfully — it is the surface on which every law (fail-closed
+   rendering, weakest-boundary, candidate clothing, refusal-with-a-path,
+   search-frontier honesty) is first proven.
 2. **The live route inventory of `apps/runtime-dashboard`** (snapshot
    2026-06-10): routes `/`, `/login`, `/welcome`, `compose`, `launch`, `data`,
    `evidence`, `health`, `knowledge`, `lex`, `platform`, `sources`,
@@ -323,38 +357,59 @@ roughly chronological; the DAG, not the numbers, governs start order.
 
 | Slice | Theme | Gate / prereqs | Phase |
 | --- | --- | --- | --- |
-| DS0 | Source-of-truth freeze & governing decisions | none (Layer-3-independent) | A |
+| DS0 | Source-of-truth freeze & governing decisions | none (GY-independent) | A |
 | DS1 | Live application audit | DS0 | A |
 | DS2 | Atlas v15 adjudication | DS0 | A |
-| DS3 | Runtime producers & export infrastructure | activation (Layer 3 closeout re-derivation) | B |
-| DS4 | Status-grammar primitives & test harness | DS3 | B |
+| DS3 | Runtime producers & export infrastructure (GY artifact projections) | **GY-N10 merged to main** | B |
+| DS4 | Status-grammar rebinding & test harness (GY vocabulary) | DS3 | B |
 | DS5 | Enforcement waist: lints, audience mapping, cache discipline | DS4; DS1 reports | B |
 | DS6 | Evidence workflow & instrumentation | DS4 | B |
-| DS7 | Proving-ground board (hero) | DS5 | C |
-| DS8 | Case & evidence workspace (strangling) | DS7 | C |
+| DS7 | **Cycle Board** (hero; supersedes "proving-ground board") | DS5 | C |
+| DS8 | Case & evidence workspace: stage-trace drill-down (strangling) | DS7 | C |
 | DS9 | Human decision integrity | DS8 | C |
-| DS10 | Capability discovery | DS5 + adapter-registry content | C |
+| DS10 | Capability discovery | DS5 + disposition-ledger/census content | C |
+| DS15 | Acquisition routes & data-pool growth surfaces | DS7; read parts after **GY-N13a**, live loop after **GY-N13b** | C |
+| DS16 | Value, uncertainty & derived-data grammar | DS4; value parts live at merge, derived parts after **GY-N13b** | C |
+| DS17 | Confidence-ledger & risk-spend surface | DS7; **GY-N11 closed** | C/D |
+| DS18 | Epoch & staleness chrome | DS4; **GY-N12 closed** | C/D |
 | DS11 | Trust/docs posture | DS9; DS6 | D |
-| DS12 | Public publication foundation | **G4 live AND ≥1 conversion ≠ `unchanged_blocker`** AND DS11 | D |
+| DS12 | Public publication foundation | **first governed promotion through the GY-N9 gate with N11 δ-accounting and N12 epoch validity live** AND DS11 | D |
 | DS13 | Accountability ledgers & transparency | DS12 | D |
-| DS14 | Bounded-agent surface | **Layer 3 G6 closed** AND DS9 | D |
+| DS14 | Bounded-agent surface | **Phase-6 bounded-agent contracts closed (O-block)** AND DS9 | D |
 
 ```text
-Phase A (pre-activation):   DS0 ─▶ { DS1, DS2 }
-        ───── activation: Layer 3 closeout re-derivation ─────
+Phase A (start NOW):        DS0 ─▶ { DS1, DS2 }
+        ───── activation: GY-N10 merged to main ─────
 Phase B (waist):            DS3 ─▶ DS4 ─▶ DS5
                                     └──▶ DS6  (gates all later `stable` claims)
 Phase C (workspace):        DS5 ─▶ DS7 ─▶ DS8 ─▶ DS9
-                            DS10: after DS5 + adapter-registry content
+                            DS10: after DS5 + ledger/census producers
+                            DS15: after DS7 (+N13a read / +N13b live loop)
+                            DS16: after DS4 (+N13b for derived-data parts)
+                            DS17: after DS7 + GY-N11
+                            DS18: after DS4 + GY-N12
 Phase D (outward):          DS11: after DS9 + DS6
-                            DS12: after DS11 + G4 + ≥1 real conversion
+                            DS12: after DS11 + first governed promotion (N9+N11+N12)
                             DS13: after DS12
-                            DS14: after DS9 + Layer 3 G6
+                            DS14: after DS9 + Phase-6 O-block
 ```
 
 The runtime gates encode the constitutional subordination order: public
 surfaces never outrun the promotion gate; the agent surface never precedes the
 bounded agent.
+
+### Start-Now Ladder (what runs when, against the GY plan)
+
+| GY milestone | Unblocked surface work |
+| --- | --- |
+| **Now** (audit in flight; nothing merged) | DS0, DS1, DS2 — decisions, live-app audit, v15 adjudication. Zero GY coupling; does not touch the GY worktree. |
+| **GY-N10 merged** (imminent) | DS3 producers over the capstone/value-gate/ledger/census artifacts → DS4 grammar rebinding → DS5/DS6 waist → **DS7 Cycle Board on real capstone data** → DS8 stage-trace workspace → DS9; DS10 discovery over the disposition ledger + method/dataset catalogs; DS16's value/uncertainty grammar (ValueOuterSet is live data). |
+| **GY-N13a closed** | DS15 read surfaces: connector scorecard, liveness map, D2 growth backlog ("what the system wants to learn next and why"). |
+| **GY-N13b closed** | DS15 live loop: approve-acquisition CTA → world-growth event → case re-entry rendered truthfully; admission passports and quarantine views; DS16 derived-data provenance (derivation certificates, basis/deflator assumption chips). |
+| **GY-N11 closed** | DS17 δ-budget and risk-spend surfaces (refusal/acquisition instruments first — that is the data that exists). |
+| **GY-N12 closed** | DS18 epoch chrome: `as_of`/epoch/`revalidation_required` badges everywhere; stale-certificate and revision-trigger views. |
+| **First governed promotion** (N9 + N11 + N12 live; per Rule 5 this may be distant) | DS12 public publication → DS13 accountability ledgers. |
+| **Phase-6 O-block closed** | DS14 bounded-agent surface (strangles `features/clerk`). |
 
 ## Per-Slice Detail
 
@@ -434,12 +489,18 @@ any audit or build.
 
 - **Goal:** the artifacts this plan renders get real HTTP producers, plus the
   shared export machinery every later twin reuses.
-- **Gate:** activation (Layer 3 closeout re-derivation done).
+- **Gate:** GY-N10 merged to main.
 - **Producer & bridge work (the slice IS producer work):** typed runtime API
-  endpoints (or governed static exports) for `capability_reality_report.json`,
-  `cluster_ownership_map.toml`, conversion records, the adapter registry,
+  endpoints (or governed static exports) for the **GY frozen artifacts** — the
+  depth-N capstone (`layer3_gy_depth_n_universality_contract.json`), the value
+  gate contract, the disposition ledger, the engine + Fork-B censuses, the
+  acquisition planner reports — plus `capability_reality_report.json`,
+  `cluster_ownership_map.toml`, the 13-case proving-ground records,
   health-metric ledgers, and the surface readiness ledger — each payload
-  carrying **as-of/freshness metadata**; **shared export machinery**: stable
+  carrying **as-of/freshness metadata** and each producer **binding the
+  narrowest upstream projection hash (GY §3.5.11)**, so artifact rebaselines
+  upstream do not ripple through every endpoint; payloads expose recomputed
+  structural properties, never pinned terminal labels (GY §3.5.10); **shared export machinery**: stable
   addressing, replay pinning, typed packet conventions — **extending the
   existing export endpoints** (lineage `openlineage`/`prov`, artifact packet
   export/render, decision-validity), not reinventing them; **off-contract
@@ -530,27 +591,40 @@ any audit or build.
 
 ### Phase C — Workspace Surfaces
 
-#### DS7 — Proving-Ground Board (the hero surface)
+#### DS7 — Cycle Board (the hero surface; supersedes "proving-ground board")
 
 - **Goal:** the REVIEWER/EXPERT board — the interface that is proud to say
-  "we do not know yet".
+  "we do not know yet", **and shows exactly what it would take to know**.
+  Revision 2 upgrades the hero from the static 13-case board to the living
+  board of the GY cycle.
 - **Gate:** DS5.
-- **Shape:** 13 canonical cases × columns: conversion outcome
-  (`typed_blocker → grounded_limited` / `→ grounded_abstention` /
-  `unchanged_blocker`), weakest missing link, responsible slice (G1–G8),
-  adapter admission state + maturity, search recall/freshness, surface
-  readiness, public-safe explanation. The board displays the
-  **as-of/staleness of its own data sources** (law 7 applies to the board
-  too) and renders the **surface readiness ledger** — this plan's own progress
-  is an Atlas surface.
+- **Shape:** one row per `DesignProblem` the cycle has ever run — the three
+  N10 capstone domains first (first-vertical, education, unseen/no-pack), the
+  13 legacy proving-ground cases as a second cohort, and every future
+  plain-language submission. Columns: typed terminal kind; **structural
+  evidence class** (`owner_acquisition_route` / `estimand_binding_refusal` /
+  `owner_data_gap` — recomputed, never a label); weakest missing link; the
+  **costed acquisition route** (strategy, cost, VOI from the N7 planner
+  report) with its execution status; responsible slice (GY-N13+ / DS-slice);
+  stage-trace drill-down link (DS8); surface readiness; public-safe
+  explanation. The board displays the **as-of/staleness of its own data
+  sources** (law 7 applies to the board too) and renders the **surface
+  readiness ledger** — this plan's own progress is an Atlas surface.
+- **The refusal-with-a-path pattern is the board's core interaction:** a
+  blocked row never dead-ends — it opens into what is known, the exact typed
+  missing link, and the costed route; after GY-N13b, a route that closes
+  renders as **movement** ("gap closed by acquisition {date} → case
+  re-entered → deeper terminal"), making the flywheel visible.
 - **MACHINE twin (in-slice):** typed JSON export on DS3 machinery with a
   parity test.
 - **Laws:** 3, 4, 5, 12; P25 negatives (frontier shown as control-plane
   evidence, never as exhaustiveness).
-- **Closure:** semantic test — the board's weakest-link claim equals the
-  report's, not a client-side recomputation.
+- **Closure:** semantic test — the board's weakest-link and evidence-class
+  claims equal the artifact's recomputed values, not a client-side
+  recomputation and not a pinned string.
 - **Not yet:** REVIEWER/EXPERT only; the board does not go PUBLIC before
-  DS12's gate.
+  DS12's gate; the movement row is honest-empty until N13b actually closes a
+  route (no simulated motion).
 
 #### DS8 — Case & Evidence Workspace (strangling)
 
@@ -638,8 +712,12 @@ any audit or build.
 
 #### DS12 — Public Publication Foundation
 
-- **Gate (constitutional):** G4 promotion gate live **and** ≥1 proving-ground
-  conversion that is not `unchanged_blocker` **and** DS11.
+- **Gate (constitutional, re-stated in Revision 2):** the **first governed
+  promotion** exists — a design promoted through the GY-N9 gate with GY-N11
+  δ-accounting and GY-N12 epoch validity live — **and** DS11. Per Rule 5 the
+  runtime never forces this milestone; the public surface waits honestly.
+  Before it, the public-facing story is DS11 posture + the Cycle Board's
+  public-safe projection (honest status, not recommendations).
 - **Goal:** the first honest public surface: one promoted decision record,
   published end-to-end, verifiable by a citizen.
 - **Producer & bridge work (in-slice):** public record/certificate endpoints;
@@ -686,7 +764,11 @@ any audit or build.
 
 #### DS14 — Bounded-Agent Surface
 
-- **Gate:** Layer 3 G6 closed; DS9.
+- **Gate:** Phase-6 bounded-agent contracts closed (the GY plan's O-block /
+  bounded LLM agent, formerly "G6"); DS9. The agent surface obeys the GY
+  §3.5.9 live-carrier gates by construction — its transcript UI renders the
+  constrained-carrier lifecycle honestly (typed refusals, truncation
+  dispositions, characterization posture), never a smoothed chat illusion.
 - **Goal:** the NL/orchestration interface in **candidate clothing**:
   request → grounded-result-or-abstention flows, the orchestration-choice
   audit view, abstention-first UX. The agent's fluency never upgrades its
@@ -707,6 +789,108 @@ any audit or build.
 - **Not yet:** no agent output on PUBLIC surfaces; agent surfaces stay
   REVIEWER/EXPERT until a separate, explicit decision.
 
+### New Slices (Revision 2 — the GY-N13/N11/N12 surface duals)
+
+#### DS15 — Acquisition Routes & Data-Pool Growth Surfaces
+
+- **Goal:** the surface dual of GY-N13 — the product's distinctive loop:
+  **refusal-with-a-path becomes refusal-with-a-button.** The user sees why a
+  case is blocked, what closing it costs, and (post-N13b) approves the
+  acquisition and watches the world grow and the case re-enter.
+- **Gate:** DS7. Read surfaces after **GY-N13a**; the live loop after
+  **GY-N13b**.
+- **Producer & bridge work (in-slice):** projections of the N13a census
+  (connector scorecard, liveness map, catalog↔runtime metric resolution, the
+  D2 VOI-ranked growth backlog) and, post-N13b, the acquisition execution
+  surfaces (route status, admission passports, quarantine ledger, overlay
+  epoch events, re-entry traces); schema + client regeneration.
+- **Deliverables:** route detail view (typed requirement → costed plan →
+  strategy → VOI → status); growth-backlog board ("what the system wants to
+  learn next and why"); connector scorecard + liveness surfaces with tier
+  decay honestly shown; post-N13b: the **approve-acquisition flow** (a
+  DS9-class human decision with mandate + step-up, never one-click), the
+  passport view (schema/units/alignment/license/PII/trust checks, each typed),
+  the quarantine view (what arrived but was NOT admitted, and why), and the
+  world-growth event feed; MACHINE twins throughout.
+- **Laws:** 3, 5, 11, 12; GY §3.5.12 D1–D6 rendered, never re-derived.
+- **Negative controls:** a fetched row without a full passport must render as
+  quarantined, never as world data (P05 at the data plane); an acquisition
+  approval from the offline queue is rejected; the growth backlog cannot be
+  reordered client-side against its VOI ranking without showing the override.
+- **Not yet:** no auto-execution UX — acquisition stays a gated human
+  decision; no PUBLIC projection of the backlog before DS12's gate.
+
+#### DS16 — Value, Uncertainty & Derived-Data Grammar
+
+- **Goal:** the visualization grammar that makes set-valued honesty readable:
+  values as sets/intervals with `unknown` and `incomparable` as **designed
+  states**, and every derived number wearing its recipe.
+- **Gate:** DS4. Value/uncertainty parts are live at N10 merge
+  (`ValueOuterSet`, advisor receipts); derived-data parts after **GY-N13b**.
+- **Producer & bridge work (in-slice):** value-gate projections (outer sets,
+  advisor receipts, method denominators); post-N13b: derivation-certificate
+  projections (recipe = inputs × method+params × auxiliaries) and the basis
+  vocabulary (GY §3.5.12-D6).
+- **Deliverables:** the set-valued value viz family (never collapses to a
+  point; `unknown`/incomparable rendered as first-class, not as gaps); basis
+  chips on every monetary/unit-bearing chart (`real, base-2020,
+  deflator=CPI` — the assumption is a visible, clickable element resolving to
+  its certificate); derivation-recipe popover (what this number was computed
+  from, by what, under which declared assumptions); provenance-class marking
+  (`observed` / `derived` / `deployment_update`) wherever data is
+  decision-bearing.
+- **Laws:** 1, 3, 4, 5; the chart obligations of the constitution's Data And
+  API Boundaries (source, uncertainty, time semantics — extended with basis).
+- **Negative controls:** a set-valued value rendered as a point estimate fails
+  visual regression; a derived series rendered without its provenance class
+  fails the semantic test; a class-(iv) model output styled as observed data
+  is the data-plane P15 and must fail.
+- **Not yet:** no transform-planner UI (the GY plan defers transform chains);
+  single-transform provenance only.
+
+#### DS17 — Confidence-Ledger & Risk-Spend Surface
+
+- **Goal:** δ-accounting on the glass: what promotion risk has been spent, on
+  which obligation classes, through which instruments.
+- **Gate:** DS7; **GY-N11 closed**.
+- **Producer & bridge work (in-slice):** ledger projections (δ-split,
+  risk-spend per obligation class × instrument, good-event posture); schema +
+  client regeneration.
+- **Deliverables:** the δ-budget view (spent vs remaining, per class); the
+  instrument register — **refusal and acquisition instruments first**, because
+  that is the data that exists (positive promotion certificates render
+  honestly empty until they exist); over-spend and non-anytime-valid
+  certificate states rendered as hard blockers; MACHINE twin.
+- **Laws:** 3, 4, 5, 8.
+- **Negative controls:** an over-spent scope cannot render as promotable; a
+  Bayesian credible interval without a coverage argument cannot appear as a
+  promotion certificate (the N11 negative, surfaced).
+- **Not yet:** no public δ claims before DS12; the view is REVIEWER/EXPERT
+  accounting, not a marketing score.
+
+#### DS18 — Epoch & Staleness Chrome
+
+- **Goal:** time semantics as universal chrome: every decision-bearing
+  surface shows `as_of`, epoch, and validity — and stale things look stale.
+- **Gate:** DS4 (the `TimeSemanticsLabel` primitive); **GY-N12 closed** for
+  real epoch semantics.
+- **Producer & bridge work (in-slice):** epoch/staleness projections (current
+  epoch per scope, stale-certificate sets, revision triggers, OpenWorldRisk);
+  schema + client regeneration.
+- **Deliverables:** epoch badges and `revalidation_required` states wired into
+  DS4 primitives everywhere; the stale-certificates view (what went stale,
+  which revision trigger, what revalidation would take); derived-data
+  staleness inheritance rendered (input revision → dependent derivations
+  flagged, recompute status); OpenWorldRisk freeze states; MACHINE twin.
+- **Laws:** 3, 6, 7.
+- **Negative controls:** a stale certificate rendered as current fails the
+  semantic test; a chart without `as_of` on a decision-bearing surface fails
+  the DS5 lint battery (extended here); crossing an epoch boundary in a replay
+  view must show the boundary, not blend across it.
+- **Not yet:** epoch chrome does not invent time semantics — it renders GY-N12
+  and §3.5.12-D6 outputs only; scopes without regime data render honest
+  `epoch_scope_unresolved`.
+
 ## Tensions (watch these or they go silent)
 
 | # | Tension | Mitigation |
@@ -721,6 +905,8 @@ any audit or build.
 | T8 | Cross-team coupling: surface slices needing runtime producers stall | full-stack slice definition + named backend deliverables with runtime co-owner in every task plan; "blocked on backend" is not a valid slice state |
 | T9 | Slice-count creep: 15 slices invite ceremony (P13) | one task plan, one closure contract, one review per slice; re-cut via roadmap amendment when disproportionate, never suffix or inflate |
 | T10 | Off-contract channels: SSE/WS and `include_in_schema=False` quietly grow a second, untyped API beside the waist | DS3 brings channels under typed/governed contracts or explicit out-of-scope; the DS5 lint battery covers raw `EventSource`/`WebSocket`/fetch construction outside the sanctioned transports |
+| T11 | GY frozen-artifact churn (rebaselines, provenance ripples) vs UI binding stability | producers bind narrow projection hashes (GY §3.5.11) and recomputed structural properties (GY §3.5.10); a rebaseline that changes only provenance must not break a surface contract test |
+| T12 | The refusal-with-a-button loop (DS15) creates product pressure to "make acquisitions succeed" — the surface twin of forcing `useful_design_rate` | Rule 5 on the glass: quarantine and failed passports render as prominently as admissions; the growth backlog shows VOI ranking, not conversion targets; no surface KPI rewards acquisition volume |
 
 ## Health Metrics (instrument these, or the honesty goes silent)
 
@@ -746,8 +932,10 @@ This plan is closed when all of the following hold:
    exists and runs in CI.
 2. The v15 archive is fully adjudicated in the adoption ledger (no `pending`
    verdicts); v4/v7 docs are superseded; the legacy plans are archived.
-3. The proving-ground board runs on live runtime artifacts **through in-repo
-   HTTP producers** with its MACHINE twin and semantic test green.
+3. The Cycle Board runs on the live GY artifacts (capstone + ledgers +
+   censuses + 13 legacy cases) **through in-repo HTTP producers** with its
+   MACHINE twin and semantic test green, and its evidence-class claims are
+   recomputed, never pinned (GY §3.5.10).
 4. The `surface_missing` closure target — set at activation from the post-L3
    cluster map count — is met, with each closure traceable to a slice.
 5. At least one public decision record is published end-to-end through the
@@ -765,6 +953,10 @@ This plan is closed when all of the following hold:
    (in-slice doctrine, no retrofit backlog).
 10. The surface readiness ledger is green-or-honestly-red in CI and rendered
     on the board.
+11. The refusal-with-a-path loop is proven end-to-end: at least one
+    acquisition route renders with its costed plan (DS15 read), and — once
+    GY-N13b has closed a route — the world-growth re-entry renders truthfully
+    with its passports and quarantine honestly shown.
 
 Closure converts the surface constitution's Promotion Criteria into fact:
 
@@ -781,7 +973,8 @@ Closure converts the surface constitution's Promotion Criteria into fact:
 
 | Document | Disposition |
 | --- | --- |
-| `POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md` | upstream dependency; supplies the Input Contract |
+| `layer3-slices/GY-engine-subordination.md` (Rev 17) | **the upstream dependency** — supplies the Input Contract, the artifact vocabulary, and the gate milestones (N10 merge, N13a/b, N11, N12, first promotion, O-block) |
+| `POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md` | historical G-naming upstream; superseded in practice by the GY plan — DS0 records its docs-lifecycle disposition |
 | `POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md` | superseded as execution master; material source for DS11–DS13; DS0 records final disposition |
 | `FRONTEND_SOTA_PLAN.md` | vision-superseded; DS0 archives via docs lifecycle |
 | `DESIGN_BEST_IN_CLASS_PLAN.md` | vision-superseded; DS0 archives via docs lifecycle |

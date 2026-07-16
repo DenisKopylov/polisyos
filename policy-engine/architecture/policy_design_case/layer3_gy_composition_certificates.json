@@ -437,7 +437,7 @@
   "recursive_runs": [
     {
       "authority_scope": "contract_testing",
-      "content_hash": "sha256:27b4c10f10d37353d59a889064fb0b6c0e1436d8be12c2f1ea1f26a51fac926f",
+      "content_hash": "sha256:6997284b5c2c666cc095d096e5828e67cecefbe38e7606510f2e7d08410e5a64",
       "controller_ref": "polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController",
       "nodes": [
         {
@@ -1551,8 +1551,8 @@
             "schema_version": "policyos.runtime.generation_cycle_controller.v1",
             "strangle_receipt": {
               "allowed_fixture_callers": [
-                "src/polisyos/runtime/quality/workspace/loop.py:905",
-                "src/polisyos/runtime/quality/workspace/loop.py:937"
+                "src/polisyos/runtime/quality/workspace/loop.py:898",
+                "src/polisyos/runtime/quality/workspace/loop.py:930"
               ],
               "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
               "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",
@@ -1996,8 +1996,8 @@
             "schema_version": "policyos.runtime.generation_cycle_controller.v1",
             "strangle_receipt": {
               "allowed_fixture_callers": [
-                "src/polisyos/runtime/quality/workspace/loop.py:905",
-                "src/polisyos/runtime/quality/workspace/loop.py:937"
+                "src/polisyos/runtime/quality/workspace/loop.py:898",
+                "src/polisyos/runtime/quality/workspace/loop.py:930"
               ],
               "default_cycle_controller": "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
               "predecessor_ref": "runtime.quality.workspace.loop.WorkspaceLoop.run_fixture",

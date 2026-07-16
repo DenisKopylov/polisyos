@@ -326,3 +326,28 @@ is written green; otherwise a stale artifact could create false REDs. The curren
 also explicit: first-vertical and unseen both carry independently recomputed grounding-coverage
 routes, while education carries the deeper estimand-binding refusal. The historical unseen L1 gap
 was produced only after contaminated fixed-vertical generation and is not retained as a third class.
+
+## Provenance ripple checkpoint
+
+The canonical dependency ladder was replayed after all owner/source fixes:
+
+```text
+N4 --check: exit 0
+Fork-B CG1/L2 census --check: exit 0
+  rows=13,092; false-analog=1,076; unknown=12,016
+N8 --check: exit 0
+N10a pack --check: exit 0
+composition --check: exit 1, layer3_gy_composition_certificate_drift
+```
+
+Only composition moved. N4 bytes and both census hashes were unchanged, so the 56-minute census
+rederive and the N8/N10a writers were correctly skipped. The composition writer regenerated the
+live recursive receipt after the WorkspaceLoop authority repair; two measured writes produced the
+same file SHA-256:
+
+```text
+before: c86810b84c5a8e85d1237972b8f2ae2f4d6b4324c4038a492ffe7a9766da64fe
+after:  6d94790328eee38dbdae6c551ec71ef30edb9789f1467341d506d2eae0b1d06b
+repeat: 6d94790328eee38dbdae6c551ec71ef30edb9789f1467341d506d2eae0b1d06b
+writer exits: 0; wall times 47.835 s, 47.735 s, 47.783 s
+```

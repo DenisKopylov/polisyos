@@ -57,9 +57,9 @@ archive zip is the evidence source; no extracted file will be committed.
 ### Result
 
 **Archive verification is internally useful but constitutionally
-insufficient.** The 44 physical verification artifacts collapse by exact
-content and generated-projection identity to 31 logical reports. DS2
-classified **44 of 44 physical reports and 31 of 31 logical reports** before
+insufficient.** The 45 physical verification artifacts collapse by exact
+content and generated-projection identity to 32 logical reports. DS2
+classified **45 of 45 physical reports and 32 of 32 logical reports** before
 assigning any token, component, or pattern verdict.
 
 The archive's primary `scripts/verify.py` gate does not execute the product
@@ -116,6 +116,7 @@ accounted for in the 44-member physical denominator.
 | `evidence-viz-build-summary` | `component-library/data-visualization/build-summary.md` | Recorded generation of component-library data-viz artifacts | No DS16 semantic compatibility or repo build; `defer`, experimental, DS4/DS16 | Revisit after admitted chart contracts generate in-repo and cover value/uncertainty requirements |
 | `evidence-viz-component-audit` | `component-library/data-visualization/data-visualization-audit.md`; exact duplicate `dist/verification/data-visualization-audit.md` | Static component-library data-viz checks at one archive revision | No browser/data fallback/semantic tests; `defer`, experimental, DS4/DS6/DS16 | Revisit when DS16 negatives exercise set-valued, incomparable, provenance, and missing-data cases |
 | `evidence-state-matrix-audit` | `component-library/state-matrix-audit.md` | Manifest/matrix parity for 56 components, 491 supported states, 92 rejected states, and 2 backlog states | Does not render or interact with any state and can coexist with an unsafe authority lattice; `admit_after_refactor`, experimental method, DS4/DS6 | Revisit when state identities bind to governed exports and browser/keyboard/negative evidence is derived from the matrix |
+| `evidence-state-matrix-build` | `component-library/state-matrix-build.md` | Generated component/state-count projection from the archive matrix | No repo generation, behavioral execution, or consumer parity; `defer`, experimental, DS4/DS6 | Revisit when DS4 reproduces the admitted matrix and DS6 binds each generated state to evidence |
 | `evidence-state-matrix-coverage` | `component-library/state-matrix/coverage.md` | Author-readable coverage projection of the canonical matrix | Same missing runtime evidence as the matrix; `defer`, experimental, DS4/DS6 | Revisit when generated from the admitted matrix and linked to per-state evidence |
 | `evidence-responsive-audit` | `dashboard-responsive/audit-results.md`; exact duplicates `dashboard-responsive/responsive-audit.md`, `component-library/dashboard-responsive/dashboard-responsive-audit.md`, `dist/verification/dashboard-responsive-audit.md`, `dist/verification/responsive-audit.md` | Static contract lint for five named window classes and required files/mirrors | No viewport render, touch, zoom, print, or live data evidence; `admit_after_refactor`, experimental method, DS4/DS6/DS8 | Revisit after DS6 executes admitted shell states at the declared viewports and print mode |
 | `evidence-responsive-build` | `dashboard-responsive/build-evidence.md` | Recorded manifest/TypeScript projection generation | No repo generator or consumer parity; `defer`, experimental, DS4 | Revisit when DS4 reproduces the projection and a drift check rejects a corrupted mirror |
@@ -142,13 +143,13 @@ accounted for in the 44-member physical denominator.
 | Preliminary evidence-artifact verdict | Logical reports |
 | --- | ---: |
 | `admit_after_refactor` | 9 |
-| `defer` | 16 |
+| `defer` | 17 |
 | `reject` | 6 |
 | `admit_as_is` | 0 |
 | `wrap_then_strangle` | 0 |
-| **Total** | **31** |
+| **Total** | **32** |
 
-All 31 are `experimental` except the bounded contrast-calculation method,
+All 32 are `experimental` except the bounded contrast-calculation method,
 which is `beta`; none is `stable`. These are evidence-artifact decisions, not
 the final distribution across archive components, tokens, and patterns.
 

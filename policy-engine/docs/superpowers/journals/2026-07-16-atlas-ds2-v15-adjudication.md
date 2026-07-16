@@ -40,17 +40,20 @@ verified archive to scratch and recompute every denominator.
 - Defined the report denominator by every claim-bearing `audit`, `report`,
   `scorecard`, `readiness`, `coverage`, `build-evidence`, `build-summary`,
   token-lint, component-health, and `dist/verification/**` artifact, excluding
-  pattern docs whose subject happens to include “audit.” The result is 44
-  physical artifacts and 31 logical reports after exact duplicates and the
-  component-health JSON/Markdown projections are folded.
-- Classified all 44/44 physical and 31/31 logical reports before item
+  pattern docs whose subject happens to include “audit.” An adversarial scan
+  for generated report content also caught
+  `component-library/state-matrix-build.md`, whose basename omitted the first
+  scan's report terms. The corrected result is 45 physical artifacts and 32
+  logical reports after exact duplicates and the component-health
+  JSON/Markdown projections are folded.
+- Classified all 45/45 physical and 32/32 logical reports before item
   admission. The archive's `verify.py` checks 33 artifact-presence facts and
   pinned regex markers in ten reports; the best-in-class lint mostly checks
   51 expected paths for presence. The full static chain runs archive-local
   generators/linters, but no report supplies PolicyOS runtime integration,
   authority compatibility, browser behavior, or manual AT.
-- Preliminary evidence-artifact decisions are 9 `admit_after_refactor`, 16
-  `defer`, and 6 `reject`; 30 are experimental and the bounded contrast-pair
+- Preliminary evidence-artifact decisions are 9 `admit_after_refactor`, 17
+  `defer`, and 6 `reject`; 31 are experimental and the bounded contrast-pair
   method alone is beta. No archive report can assign `stable`.
 - Wrote the canonical report's identity proof, evidence-class ceiling,
   exhaustive conformance table, distribution, and P10/P29 negative controls.

@@ -26,3 +26,37 @@ Starting HEAD: `b0f66adc0fa873a5224e6e6a8ec58b8ed7b43e5d`
 
 Next checkpoint: commit the DS2 plan and this unique journal, then extract the
 verified archive to scratch and recompute every denominator.
+
+## 2026-07-16 - Conformance-battery checkpoint
+
+- Extracted the verified zip only to
+  `/private/tmp/atlas-ds2-v15.DafNaR`. The 1,612 ZIP entries comprise 136
+  directories and 1,476 files; extraction produced exactly 1,476 files and
+  13,371,433 bytes, matching the ZIP's uncompressed member total. Repository
+  status remained clean immediately afterward.
+- Hashed every extracted file: 983 unique content blobs, with 925 physical
+  members participating in 432 duplicate-content groups. This establishes why
+  physical coverage and logical adoption denominators must both be reported.
+- Defined the report denominator by every claim-bearing `audit`, `report`,
+  `scorecard`, `readiness`, `coverage`, `build-evidence`, `build-summary`,
+  token-lint, component-health, and `dist/verification/**` artifact, excluding
+  pattern docs whose subject happens to include “audit.” The result is 44
+  physical artifacts and 31 logical reports after exact duplicates and the
+  component-health JSON/Markdown projections are folded.
+- Classified all 44/44 physical and 31/31 logical reports before item
+  admission. The archive's `verify.py` checks 33 artifact-presence facts and
+  pinned regex markers in ten reports; the best-in-class lint mostly checks
+  51 expected paths for presence. The full static chain runs archive-local
+  generators/linters, but no report supplies PolicyOS runtime integration,
+  authority compatibility, browser behavior, or manual AT.
+- Preliminary evidence-artifact decisions are 9 `admit_after_refactor`, 16
+  `defer`, and 6 `reject`; 30 are experimental and the bounded contrast-pair
+  method alone is beta. No archive report can assign `stable`.
+- Wrote the canonical report's identity proof, evidence-class ceiling,
+  exhaustive conformance table, distribution, and P10/P29 negative controls.
+  No archive script was executed and no application, package, runtime, GY,
+  quality-tool, production-data, zip, or extracted file was changed.
+
+Next checkpoint: finish the semantic item inventory, adjudicate every logical
+token/component/pattern/package row against the 12 live v4 families, and run
+the D2 static token-parity decision test.

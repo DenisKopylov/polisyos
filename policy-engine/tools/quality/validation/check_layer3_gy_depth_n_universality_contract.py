@@ -3430,11 +3430,38 @@ def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
             )
         ],
     }
-    if (
-        not prompt_hashes["owner_projection"]
-        or prompt_hashes["owner_projection"] != prompt_hashes["responses"]
-        or prompt_hashes["owner_projection"] != prompt_hashes["journal"]
-    ):
+    prompt_binding_mode = "exact_live_capture"
+    prompt_binding_issues: list[str] = []
+    if not prompt_hashes["owner_projection"]:
+        prompt_binding_issues.append("owner_projection_prompt_hashes_missing")
+    elif prompt_hashes["owner_projection"] != prompt_hashes["responses"]:
+        prompt_binding_issues.append("owner_projection_response_prompt_drift")
+    elif prompt_hashes["owner_projection"] != prompt_hashes["journal"]:
+        replay_issues = n10a_validator._historical_n4_replay_receipt_issues(
+            capture,
+            problem=problem,
+        )
+        rebindings = _mappings(
+            _mapping(capture.get("historical_replay_receipt")).get(
+                "call_rebindings"
+            )
+        )
+        historical_hashes = [
+            str(item.get("historical_prompt_hash") or "") for item in rebindings
+        ]
+        replay_hashes = [
+            str(item.get("replay_prompt_hash") or "") for item in rebindings
+        ]
+        if replay_issues:
+            prompt_binding_issues.extend(replay_issues)
+        if historical_hashes != prompt_hashes["journal"]:
+            prompt_binding_issues.append("historical_journal_prompt_drift")
+        if replay_hashes != prompt_hashes["owner_projection"]:
+            prompt_binding_issues.append("historical_replay_prompt_drift")
+        if not prompt_binding_issues:
+            prompt_binding_mode = "verified_historical_replay"
+    prompt_hashes["binding_mode"] = prompt_binding_mode
+    if prompt_binding_issues:
         issues.append({"code": "education_prompt_hash_binding_drift"})
 
     n10a_census_hash = str(

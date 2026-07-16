@@ -803,3 +803,28 @@ stable file SHA-256:
   cycle trace  eae69c1f4d04c608b8f566d3f2a4dc3e983e29352dc29e02aa49abff281c9a3e
   gaps         3282aebafd21747863bc566c3ca742d6cfa30d94ee33877630c97adf697ab930
 ```
+
+The complete owner-local ladder was then green, but its dedicated cross-owner witness exposed one
+stale assertion:
+
+```text
+N4 --check:         exit 0; 55.74 s
+Fork-B --check:     exit 0; 1.469 s
+N8 --check:         exit 0; ~91.76 s
+N10a --check:       exit 0; wall_time_seconds=1.007486
+composition --check: exit 0; ~44.38 s
+provenance-stability focused witness: exit 1; education_prompt_hash_binding_drift
+```
+
+The aggregate witness still required historical journal prompt hashes to equal today's replay
+prompts. That expectation would erase the already-verified historical boundary. The repaired
+witness retains exact equality for live captures; for a historical capture it accepts journal/current
+inequality only when the N10a owner recomputes a clean content-hashed replay receipt and the
+receipt's historical/replay sequences exactly match the journal and owner projection respectively.
+Response prompt hashes must always equal the current owner projection. The permanent raw-byte
+tamper and non-identity-drift negatives remain on the N10a owner.
+
+```text
+provenance-stability focused witness after reconciliation: 1 passed; exit 0; ~94.53 s
+Ruff (capstone validator + focused test): All checks passed
+```

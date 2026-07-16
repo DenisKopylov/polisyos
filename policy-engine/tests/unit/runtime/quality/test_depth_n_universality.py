@@ -1102,9 +1102,18 @@ def test_stage4_provenance_stability_binds_current_owner_graph() -> None:
     assert report["prompt_hashes"]["owner_projection"] == report["prompt_hashes"][
         "responses"
     ]
-    assert report["prompt_hashes"]["owner_projection"] == report["prompt_hashes"][
-        "journal"
-    ]
+    assert report["prompt_hashes"]["binding_mode"] in {
+        "exact_live_capture",
+        "verified_historical_replay",
+    }
+    if report["prompt_hashes"]["binding_mode"] == "exact_live_capture":
+        assert report["prompt_hashes"]["owner_projection"] == report[
+            "prompt_hashes"
+        ]["journal"]
+    else:
+        assert report["prompt_hashes"]["owner_projection"] != report[
+            "prompt_hashes"
+        ]["journal"]
     assert report["composition_ref"]["status"] == "bound"
 
 

@@ -260,3 +260,69 @@ declaration/equal-hash/full-rewrite/nested-clock probes after repair:
 
 The frozen capstone intentionally remains stale until the structural evidence and corrupt-drift
 repairs are complete; one writer rebaseline will update its canonical declaration and hashes.
+
+## Repair checkpoint — A/B/D/H structural recomputation and static mutation denominator
+
+The first structural rewrite exposed two further real P31/P32 gaps under adversarial review before
+the artifact was frozen:
+
+- a content-valid advisor observation could be transplanted to another selected candidate because
+  the capstone witness did not bind `ValuePortObservation.candidate_id`;
+- a real grounding planner route could classify a run even if the value observation claimed
+  positive authority, and education's higher-precedence refusal did not independently recompute
+  the earlier grounding route.
+
+The single evidence projector now validates and content-binds the complete typed grounding and
+value observations, selected candidate, DesignProblem ref, value-data profile, live advisor
+denominator, selection-context hash, and the exact acquisition gap. Every acquisition terminal is
+regenerated through `plan_requirement_gap_acquisition` from that gap. Education keeps the deeper
+advisor refusal as its class only after the earlier grounding route also verifies; L1 and grounding
+routes share the same canonical route verifier. Distinctness is counted from the resulting witness
+types, not labels or report strings.
+
+The no-pack vocabulary denominator now derives from both resolved owner contexts: candidate levers,
+transport covariates/contexts, WMR policy slots, and intervention knob/LEX vocabulary, plus semantic
+N4 proposal fields. Focused negatives cover `tax_relief_rate`, the education-only
+`school_quality`, and the first-world WMR-only `household_cells.disposable_income`.
+
+The static proof-recording verifier now validates the real embedded
+`CompiledRecursiveGenerationCycleRun` objects. Only the already-audited single historical recursive
+hash drift may enter the historical envelope verifier; any other schema error is fatal. In-memory
+real-recording probes that previously survived now fail for both a nested cycle terminal mutation
+and a fully rehashed extra compiled authority field.
+
+The corrupt lane is fail-closed on a missing or invalid base and expands to eleven frozen-only
+cases: top-level stale hash, evidence relabel, witness forgery, planner semantic drift, route hash,
+compiler bytes, N4 bytes, recursive compiled bytes, fully rehashed compiled schema drift, terminal
+distribution projection, and fabricated terminal. A baseline is validated before mutations so a
+pre-existing RED cannot masquerade as mutation evidence.
+
+Decisive live replay under repository runtime:
+
+```text
+education cached owner replay: exit 0 (657.616 s)
+terminal=acquisition_required
+evidence_kind=estimand_binding_refusal
+selected_candidate=gy_n4.active_learning_pedagogy_reform
+selected_method=bayesian.gp.gp_regression@1.0.0
+advisor_receipt=sha256:79fe8e60f1970f08fee2e4e060c631a091e06b0cd658a2220e790fe862325a9a
+selection_context=sha256:54a3a19ad298575a7244701c00ec6ed3ceb8c675c7e4f71c2909c83e94a1c7a2
+value_profile=sha256:eb5faeaffbb5507ba9ceed7c69ed3a892d5c106eb6a6336ed62c4d68f1db3566
+grounding_route=sha256:ac388789680a2c15b3ffa489061043533acb3a51d197f79249e362d8a9a0dc9e
+```
+
+Focused verification before the artifact rebaseline:
+
+```text
+historical envelope + no-context fence/recording + live education unbound owner:
+  6 passed, exit 0
+N10 local source-flip denominator declaration: 1 passed, exit 0
+all 16 local source guards: exact occurrence count 1
+.venv/bin/ruff check validator + focused tests: exit 0
+```
+
+The behavioral source flips are declared now but intentionally execute only after the new capstone
+is written green; otherwise a stale artifact could create false REDs. The current two-class truth is
+also explicit: first-vertical and unseen both carry independently recomputed grounding-coverage
+routes, while education carries the deeper estimand-binding refusal. The historical unseen L1 gap
+was produced only after contaminated fixed-vertical generation and is not retained as a third class.

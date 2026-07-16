@@ -2586,90 +2586,10 @@ def test_first_vertical_run_reaches_measured_grounding_gap_and_n7_route() -> Non
 
 
 def test_universality_terminal_gate_measures_routes_and_rejects_relabeling() -> None:
-    """Accept distinct honest routes while rejecting fake hashes and label transplants."""
+    """Recompute frozen owner witnesses and reject fake hashes or label transplants."""
 
-    validator = _universality_contract_validator()
-    planner_report = {
-        "schema_version": "policyos.runtime.acquisition_planner.v1",
-        "status": "pass",
-        "summary": {"acquire": 1},
-    }
-    first = {
-        "terminal": {
-            "kind": "acquisition_required",
-            "reason": "Canonical owner routed an unresolved grounding requirement.",
-            "blocking_obligations": ["grounding_relation_or_owner_lever"],
-            "data_need_spec": {
-                "metadata": {"source": "cgf_grounding_coverage"}
-            },
-            "costed_plan": {"canonical_planner_report": planner_report},
-        },
-        "stage_trace": {
-            "value": {
-                "status": "value_blocked",
-                "authority_blockers": ["value_world_model_record_unwired"],
-            },
-            "acquisition": {
-                "attempted": True,
-                "route_kind": "n7_requirement_gap",
-                "planner_report_content_hash": gy_content_hash(planner_report),
-            },
-        },
-        "terminal_distribution": {
-            "terminal_kind": "acquisition_required",
-            "evidence_kind": "owner_acquisition_route",
-            "decision_grade": "blocked",
-            "count": 1,
-        },
-        "promotion_reached": False,
-    }
-    education = {
-        "terminal": {
-            "kind": "search_ceiling_repair_required",
-            "reason": "Canonical owner refused the unwritable estimand.",
-            "blocking_obligations": ["method_estimand_binding_mismatch"],
-        },
-        "stage_trace": {
-            "value": {
-                "status": "value_blocked",
-                "authority_blockers": ["method_estimand_binding_mismatch"],
-            },
-            "acquisition": {"attempted": False, "route_kind": None},
-        },
-        "terminal_distribution": {
-            "terminal_kind": "search_ceiling_repair_required",
-            "evidence_kind": "estimand_binding_refusal",
-            "decision_grade": "blocked",
-            "count": 1,
-        },
-        "promotion_reached": False,
-    }
-    unseen = {
-        "terminal": {
-            "kind": "search_ceiling_repair_required",
-            "reason": "Canonical owner found no observations.",
-            "blocking_obligations": ["acquire_data:value_panel_data_missing"],
-        },
-        "stage_trace": {
-            "value": {
-                "status": "value_blocked",
-                "authority_blockers": ["acquire_data:value_panel_data_missing"],
-            },
-            "acquisition": {"attempted": False, "route_kind": None},
-        },
-        "terminal_distribution": {
-            "terminal_kind": "search_ceiling_repair_required",
-            "evidence_kind": "owner_data_gap",
-            "decision_grade": "blocked",
-            "count": 1,
-        },
-        "promotion_reached": False,
-    }
-    domain_runs = {
-        "first_vertical": first,
-        "education": education,
-        "unseen": unseen,
-    }
+    validator, payload = _complete_universality_payload()
+    domain_runs = copy.deepcopy(payload["domain_runs"])
 
     assert validator._domain_terminal_honesty_issues(
         domain_runs,
@@ -2715,7 +2635,10 @@ def test_universality_terminal_gate_measures_routes_and_rejects_relabeling() -> 
         )
     }
 
-    monoculture = {role: copy.deepcopy(first) for role in domain_runs}
+    monoculture = {
+        role: copy.deepcopy(domain_runs["first_vertical"])
+        for role in domain_runs
+    }
     assert "domain_degradation_class_denominator_missing" in {
         issue["code"]
         for issue in validator._domain_terminal_honesty_issues(
@@ -2758,6 +2681,128 @@ def test_education_run_uses_pack_levers_and_refuses_unwritable_estimand() -> Non
         "evidence_kind": "estimand_binding_refusal",
         "decision_grade": "blocked",
         "count": 1,
+    }
+
+
+def test_education_terminal_precedence_uses_deep_advisor_refusal() -> None:
+    """The real advisor refusal outranks the earlier grounding acquisition route."""
+
+    validator, payload = _complete_universality_payload()
+    education = payload["domain_runs"]["education"]
+
+    assert education["stage_trace"]["acquisition"]["attempted"] is True
+    assert education["stage_trace"]["grounding"]["owner_observation"][
+        "acquisition_requirement"
+    ] is not None
+    assert education["stage_trace"]["value"]["owner_observation"][
+        "method_selection_receipt"
+    ]["selection_authority"] == "foundry_registry_advisor"
+    assert education["evidence_witness"]["kind"] == "estimand_binding_refusal"
+    assert validator._domain_terminal_honesty_issues(
+        payload["domain_runs"],
+        expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
+    ) == []
+
+
+def test_education_advisor_denominator_is_recomputed_from_live_catalog() -> None:
+    """A content-valid receipt from a forged catalog denominator stays non-authoritative."""
+
+    validator, payload = _complete_universality_payload()
+    education = payload["domain_runs"]["education"]
+    value_stage = education["stage_trace"]["value"]
+    observation = value_stage["owner_observation"]
+    receipt = observation["method_selection_receipt"]
+    receipt["denominator"] = sorted(
+        [*receipt["denominator"], "forged.family.outside_live_catalog@9.9.9"]
+    )
+    receipt["content_hash"] = validator._semantic_hash(
+        {key: value for key, value in receipt.items() if key != "content_hash"}
+    )
+    value_stage["advisor_selection_receipt_content_hash"] = receipt["content_hash"]
+    value_stage["owner_observation_content_hash"] = validator._semantic_hash(
+        observation
+    )
+    education["content_hash"] = validator._semantic_hash(
+        {key: value for key, value in education.items() if key != "content_hash"}
+    )
+    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+
+    report = validator.validate_payload(payload)
+
+    assert "domain_owner_observation_invalid" in {
+        issue["code"] for issue in report["issues"]
+    }
+
+
+def test_value_owner_observation_cannot_be_transplanted_across_candidates() -> None:
+    """A real advisor receipt from another candidate is not evidence for this run."""
+
+    validator, payload = _complete_universality_payload()
+    education = payload["domain_runs"]["education"]
+    value_stage = education["stage_trace"]["value"]
+    observation = value_stage["owner_observation"]
+    observation["candidate_id"] = "candidate_transplanted_from_another_run"
+    value_stage["owner_observation_content_hash"] = validator._semantic_hash(
+        observation
+    )
+    education["content_hash"] = validator._semantic_hash(
+        {key: value for key, value in education.items() if key != "content_hash"}
+    )
+    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+
+    report = validator.validate_payload(payload)
+
+    assert "domain_owner_observation_invalid" in {
+        issue["code"] for issue in report["issues"]
+    }
+
+
+def test_education_refusal_rejects_transplanted_early_acquisition_report() -> None:
+    """Deep refusal precedence does not excuse a forged earlier N7 route."""
+
+    validator, payload = _complete_universality_payload()
+    education = payload["domain_runs"]["education"]
+    report = education["terminal"]["costed_plan"]["canonical_planner_report"]
+    report["acquisition_records"][0]["requirement_gap_id"] = (
+        "requirement-gap:data_requirement:transplanted"
+    )
+    education["stage_trace"]["acquisition"][
+        "planner_report_content_hash"
+    ] = validator._semantic_hash(report)
+    education["content_hash"] = validator._semantic_hash(
+        {key: value for key, value in education.items() if key != "content_hash"}
+    )
+    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+
+    validation = validator.validate_payload(payload)
+
+    assert "domain_owner_observation_invalid" in {
+        issue["code"] for issue in validation["issues"]
+    }
+
+
+def test_terminal_evidence_requires_typed_owner_observations() -> None:
+    """Blocker strings and matching labels cannot substitute for owner artifacts."""
+
+    validator, payload = _complete_universality_payload()
+    education = payload["domain_runs"]["education"]
+    education["stage_trace"]["grounding"].pop("owner_observation", None)
+    education["stage_trace"]["grounding"].pop(
+        "owner_observation_content_hash", None
+    )
+    education["stage_trace"]["value"].pop("owner_observation", None)
+    education["stage_trace"]["value"].pop(
+        "owner_observation_content_hash", None
+    )
+    education["content_hash"] = validator._semantic_hash(
+        {key: value for key, value in education.items() if key != "content_hash"}
+    )
+    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+
+    report = validator.validate_payload(payload)
+
+    assert "domain_owner_observation_invalid" in {
+        issue["code"] for issue in report["issues"]
     }
 
 
@@ -2835,23 +2880,36 @@ def test_pinned_fixture_replacement_is_rejected_after_hash_recompute() -> None:
 
 
 def test_unseen_vertical_contamination_is_rejected_after_hash_recompute() -> None:
-    """A recomputed capstone cannot dress a borrowed vertical token as unseen."""
+    """A recomputed capstone cannot borrow pack, WMR, or lever vocabulary."""
 
     validator = _universality_contract_validator()
-    payload = json.loads(
+    baseline = json.loads(
         (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
     )
-    unseen = payload["domain_runs"]["unseen"]
-    unseen["fabricated_diagnostic"] = "tax_relief_rate"
-    stable_run = {key: value for key, value in unseen.items() if key != "content_hash"}
-    unseen["content_hash"] = validator._semantic_hash(stable_run)
-    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+    owner_vocabulary = validator._known_vertical_vocabulary(baseline)
+    assert "tax_relief_rate" in owner_vocabulary
+    assert "school_quality" in owner_vocabulary
+    assert "household_cells.disposable_income" in owner_vocabulary
 
-    report = validator.validate_payload(payload)
+    for borrowed_token in (
+        "tax_relief_rate",
+        "school_quality",
+        "household_cells.disposable_income",
+    ):
+        payload = copy.deepcopy(baseline)
+        unseen = payload["domain_runs"]["unseen"]
+        unseen["fabricated_diagnostic"] = borrowed_token
+        stable_run = {
+            key: value for key, value in unseen.items() if key != "content_hash"
+        }
+        unseen["content_hash"] = validator._semantic_hash(stable_run)
+        payload["contract_content_hash"] = validator._contract_content_hash(payload)
 
-    assert "unseen_domain_vertical_contamination" in {
-        issue["code"] for issue in report["issues"]
-    }
+        report = validator.validate_payload(payload)
+
+        assert "unseen_domain_vertical_contamination" in {
+            issue["code"] for issue in report["issues"]
+        }
 
 
 def test_n10_source_flip_denominator_covers_every_local_decisive_property() -> None:
@@ -2863,12 +2921,18 @@ def test_n10_source_flip_denominator_covers_every_local_decisive_property() -> N
         "domain_pinned_in_engine",
         "cycle_driven_by_pinned_fixture",
         "unseen_domain_honesty_removed",
+        "no_context_generation_authority_fence_removed",
         "acquisition_route_verification_removed",
+        "canonical_route_recompute_removed",
         "degradation_class_relabel_accepted",
         "fabricated_terminal_accepted",
         "degradation_class_denominator_weakened",
+        "education_refusal_precedence_removed",
+        "live_advisor_denominator_verification_removed",
+        "value_owner_candidate_binding_removed",
         "historical_receipt_verification_removed",
         "operational_clock_preservation_removed",
+        "unbound_estimand_authority_fence_removed",
         "n7_design_problem_authority_removed",
     ]
 
@@ -3001,13 +3065,9 @@ def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
 
     validator = _universality_contract_validator()
     output = tmp_path / validator.OUTPUT_PATH
-    payload = {
-        "schema_version": validator.SCHEMA_VERSION,
-        "rule_version": validator.RULE_VERSION,
-        "proof_status": "complete",
-        "domain_runs": {},
-    }
-    payload["contract_content_hash"] = validator._contract_content_hash(payload)
+    payload = json.loads(
+        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
+    )
     output.parent.mkdir(parents=True)
     output.write_text(json.dumps(payload), encoding="utf-8")
     monkeypatch.setattr(
@@ -3019,9 +3079,44 @@ def test_corrupt_drift_uses_frozen_payload_without_live_rederive(
     report = validator.corrupt_field_drift_check(tmp_path)
 
     assert report["status"] == "fail"
-    assert "contract_content_hash_mismatch" in {
-        issue["code"] for issue in report["issues"]
-    }
+    assert [case["mutation_id"] for case in report["cases"]] == [
+        "stale_contract_hash",
+        "evidence_kind_relabel",
+        "evidence_witness_forgery",
+        "planner_report_semantic_drift",
+        "forged_route_hash",
+        "compiler_response_bytes",
+        "n4_response_bytes",
+        "compiled_recursive_bytes",
+        "compiled_schema_rehashed",
+        "terminal_distribution_projection",
+        "fabricated_terminal",
+    ]
+    assert {case["status"] for case in report["cases"]} == {"red"}
+
+
+def test_corrupt_drift_refuses_missing_or_invalid_baseline(tmp_path: Path) -> None:
+    """A missing or already-red base cannot masquerade as mutation evidence."""
+
+    validator = _universality_contract_validator()
+    missing = validator.corrupt_field_drift_check(tmp_path)
+    assert missing["status"] == "fail"
+    assert missing["issues"] == [
+        {"code": "universality_contract_artifact_missing"}
+    ]
+
+    output = tmp_path / validator.OUTPUT_PATH
+    output.parent.mkdir(parents=True)
+    payload = json.loads(
+        (REPO_ROOT / validator.OUTPUT_PATH).read_text(encoding="utf-8")
+    )
+    payload["proof_status"] = "proof_runs_pending"
+    output.write_text(json.dumps(payload), encoding="utf-8")
+
+    invalid = validator.corrupt_field_drift_check(tmp_path)
+    assert invalid["status"] == "fail"
+    assert invalid["cases"] == []
+    assert invalid["issues"][0]["code"] == "corrupt_field_drift_baseline_invalid"
 
 
 def test_universality_write_is_byte_stable(tmp_path: Path) -> None:

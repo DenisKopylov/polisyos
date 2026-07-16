@@ -104,20 +104,24 @@ JSON artifacts.
 - N10 capstone, N4, N8, N10a, composition artifacts, L6 substrate artifact, and value-gate artifact,
   each consumed through a declared narrow projection.
 
-## Task 1 — Freeze the census schema and witness RED
+## Task 1 — Freeze the schema, denominator owner, and hash boundary
 
 **Files:** create both Python modules and the focused test file; create the execution journal header.
 
-- [ ] Define strict DTOs for catalog identity, metric resolution, reverse demand residual, route
+- [x] Define strict DTOs for catalog identity, metric resolution, reverse demand residual, route
   evidence, FetchPlan projection, probe request/profile/budget/raw response, derived liveness,
   family scorecard, backlog row, projection binding, and census manifest.
-- [ ] Write RED tests for: data-derived 124-metric and connector-family denominators; exact/alignment/
-  unresolved recomputation; fake-profile failure; three actual capstone routes; owner FetchPlan
-  generation; no-execution fence; journal-before-classification; byte-stable content hashing.
-- [ ] Run the focused file and record the expected import/contract failures in the journal.
-- [ ] Implement only the schema, deterministic JSON/hash utilities, and catalog identity/query owner
+- [x] Write Task-1 RED tests for strict DTO invariants, data-derived metric/family denominators,
+  malformed-owner-row and fake-profile failure, exact/alignment/unresolved evidence shape, and
+  byte-stable semantic hashing with top-level-only run-economics exclusions.
+- [x] Run the focused file and record the expected import/contract failures in the journal.
+- [x] Implement only the schema, deterministic JSON/hash utilities, and catalog identity/query owner
   needed to make schema tests GREEN.
-- [ ] Commit: `feat: define N13a census evidence schema`.
+- [x] Commit: `feat: define N13a census evidence schema`.
+
+Task 1 does not claim route classification, real FetchPlan generation, an execution fence, live
+journal ordering, or connector characterization. Those behavioral witnesses are owned explicitly by
+Tasks 2–5 and remain RED/GREEN work there.
 
 ## Task 2 — W1 full catalog-to-runtime seam and reverse denominator
 

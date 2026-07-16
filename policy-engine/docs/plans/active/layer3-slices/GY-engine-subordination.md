@@ -276,6 +276,22 @@ capstone's per-domain distributions directly. Execution order after N10: **N13a 
 N12** — N13 first because world growth + cycle re-entry is the only unproven capability and N10
 just paid for all its inputs.
 
+**Revision 17 (2026-07-16).** The data-plane growth consultation (follow-on to Rev 16): how the
+connector pool grows, and how **derived data** (a method applied to fetched data — e.g. inflation
+adjustment — producing new data that is both a final result and an input to further methods,
+alone or in composition) is identified, stored, trusted, and reused. Core decision: **no parallel
+dataflow engine** — a derived dataset is an artifact in the EXISTING content-addressed artifact
+graph, and a transformation is a subordinated Operation with a recorded envelope. Codified as
+**§3.5.12 data-pool growth + derived-data gates D1–D6** and wired into the tasks: N13a gains the
+**D2 demand signal** (typed `connector_gap`/`binding_gap` residuals seed a VOI-ranked
+source-growth backlog; the liveness census becomes a recurring lane with tier decay); N13b gains
+the **`derived` provenance class + derivation certificates**, with the real-terms/inflation
+normalization family as the acceptance case (one derivation, two distinct method consumers,
+cache-hit reuse, typed `basis_mismatch` refusal); the N12 rider gains derived-staleness
+inheritance (input revision → automatic recompute via the certificate-as-recipe); and the **full
+transform-planner** (certified transform CHAINS over the basis vocabulary) is carried on the
+Phase-5 deferred list — N13b lands only single-transform matching + typed refusal.
+
 ## 1. Binding rules (for every GY task)
 
 From the constitution and the execution-topology decision. A change that breaks one
@@ -773,6 +789,53 @@ O-block):
    carried across rewrites only by the canonical writer's volatile-field branch under a matching
    contract hash — the volatile classification has ONE source of truth (the canonical GY hash
    owner's excluded-field list), never a writer-local list.
+
+### 3.5.12 Data-pool growth + derived-data gates (the Rev-17 consultation — binding for N13+, the O-block, and every data-plane task; NEW, Rev 17)
+
+The data plane grows two ways — new external sources, and new datasets **derived** from existing
+ones. Both are authority events. Six gates:
+
+1. **D1 Family-first, config-not-code growth.** A new external source is a **registry entry**
+   (endpoint / auth / rate limits / license) over an existing connector family; a new connector
+   CLASS is justified only by a genuinely new protocol family (one SDMX/CKAN-class family
+   unlocks dozens–hundreds of sources). §3.5.6-gate-3 / U3 at the connector scale.
+2. **D2 Demand-driven growth.** Sources are added when a typed N7 requirement resolves to
+   `connector_gap` / `binding_gap` — the growth backlog is **VOI-ranked by the same machinery
+   that ranks data acquisition**; the pool is pulled by the cycle, never grown for size.
+3. **D3 Graded source promotion + recurring liveness.** A new source enters at a low L5 trust
+   tier via ExploreLane (exploration-only authority) and **earns** curated-contract status
+   through the scorecard + PromotionLane (liveness, schema stability, license clarity, data
+   quality) — source authority is earned, exactly like a CGF bind. Liveness is a **recurring
+   journaled census with tier decay** (a stale scorecard downgrades `execution_tier` and
+   re-routes planning); schema drift at fetch time is a typed `schema_drift` → quarantine,
+   never silent coercion.
+4. **D4 Derived data = content-addressed artifacts, not a dataflow engine.** A derived
+   dataset's identity is the hash of its **full recipe** — input dataset hashes ×
+   method+version+parameters × **auxiliary inputs** (e.g. the deflator series version + base
+   year). The transformation is a subordinated Operation with a recorded envelope in the
+   EXISTING artifact graph; identical recipes are cache hits (E1); consumers bind the derived
+   artifact's hash (§3.5.11). Auxiliary choices (CPI vs GDP deflator, base year) are **declared
+   assumptions in the certificate**, visible to sensitivity analysis. The derivation graph is
+   acyclic.
+5. **D5 Provenance classes with an authority taxonomy.** The growing world store carries typed
+   provenance classes — `observed` (acquired), `derived` (certified transform),
+   `deployment_update` (posterior) — all epoch-stamped and passport-gated; derived data
+   **never masquerades as observed**. Transforms are classed by authority impact:
+   (i) normalizations (units / currency / inflation / per-capita — deterministic,
+   assumption-carrying); (ii) aggregation / resampling (deterministic, lossy);
+   (iii) statistical estimates (imputation / smoothing / seasonal models — model assumptions);
+   (iv) model outputs (**never** admissible as observations). A consumer declares which classes
+   it admits (**observed-only by default**); derived authority is monotone non-increasing over
+   the weakest input, degraded per class (the `is_proxy` / `proxy_penalty` pattern).
+6. **D6 Basis-aware matching — certified transform or typed refusal.** Variable **basis**
+   (nominal / real + base-year + deflator-ref, currency, per-capita, seasonal adjustment) is a
+   typed vocabulary over the existing units/dimensions/coercion + `condition_json` machinery; a
+   method's `RequiredDataSpec` declares its required basis; a mismatch resolves through a
+   **certified** transform (inserted or cache-hit) or refuses typed `basis_mismatch` → a
+   derivation requirement routed to N7 — never a silent coercion (the CGF principle for
+   transforms). Staleness inherits through N12 epochs: an input revision (agencies revise
+   series) marks dependent derived artifacts `revalidation_required`; the certificate IS the
+   recipe, so revalidation is an automatic recompute.
 
 ### 3.6 Anti-simplification audit — preserve capability, close findings substantively
 
@@ -1858,7 +1921,11 @@ re-architecting.
   schema regimes — the world growing IS a model-revision trigger: certificates whose evidence
   predates an admitted acquisition in their scope become `revalidation_required` exactly like an
   amendment crossing. The N13b overlay epoch stamps and the N12 epoch manager share ONE time
-  semantics (no fragmentation — the time-semantics anti-pattern). `P07`/`P08`/`P29`.
+  semantics (no fragmentation — the time-semantics anti-pattern); and **derived artifacts
+  inherit epoch validity from their inputs (Rev 17, §3.5.12-D6)** — an input revision (agencies
+  revise series) marks dependent derivations `revalidation_required`, and because the
+  derivation certificate IS the recipe, revalidation is an automatic recompute.
+  `P07`/`P08`/`P29`.
 - **GY-N13a — Acquisition-layer reality census (data + sampled-live probes; NEW, Rev 16).**
   census task, GY-0-class, zero engine-behavior change. The acquisition layer exists but is dark
   to the runtime: the DCAT catalog (`production_data/datasets_full_phase3full_20260327_183054/
@@ -1883,11 +1950,15 @@ re-architecting.
   census**: ~10–15 journaled probes per connector family (never the full 42k) under §3.5.9
   discipline — endpoint alive, schema-profile still matches, license/ToS metadata present —
   producing a typed connector scorecard + liveness map (the snapshot is ~4 months old; dead
-  URLs are expected findings, not failures). Done when: a frozen census artifact (recomputing
-  validator, §3.5.10-compliant — classes recomputed, not pinned) records the metric-resolution
-  map, the three routes classified with evidence, live FetchPlan generation from the real
-  catalog, and the per-family liveness table; every live probe journal-first; zero engine
-  behavior changes. `P29`/§3.5.9.
+  URLs are expected findings, not failures); (4) the **D2 demand signal (Rev 17)**: typed
+  `connector_gap` / `binding_gap` residuals for every cycle-relevant metric with no executable
+  binding, seeding the VOI-ranked source-growth backlog (§3.5.12). Done when: a frozen census
+  artifact (recomputing validator, §3.5.10-compliant — classes recomputed, not pinned) records
+  the metric-resolution map, the three routes classified with evidence, live FetchPlan
+  generation from the real catalog, the per-family liveness table, and the typed growth-backlog
+  residuals; the census lane is designed **re-runnable** (the D3 recurring liveness census with
+  tier decay); every live probe journal-first; zero engine behavior changes.
+  `P29`/§3.5.9/§3.5.12.
 - **GY-N13b — Acquisition executor — the world grows (close one capstone route end-to-end;
   NEW, Rev 16).** wire-existing + narrow build-new. Convert N7's routes from typed dead-ends
   into executed acquisitions: (1) wire the `DatasetCatalogGraph` into the N7 `_capture_fabric`
@@ -1910,14 +1981,26 @@ re-architecting.
   evidence persistence); (6) **close ONE N10 capstone route end-to-end** (per the N13a
   classification: first-vertical local-lift and/or unseen live-fetch): typed requirement →
   resolved plan → executed acquisition → admitted observations → **cycle re-entry** → a
-  measurably deeper honest terminal recorded against the same `DesignProblem`. Done when: the
+  measurably deeper honest terminal recorded against the same `DesignProblem`; (7) the
+  **`derived` provenance class + derivation certificates (Rev 17, §3.5.12-D4/D5/D6)**: the
+  overlay store admits certified derivations (content-addressed recipe = input hashes ×
+  method+version+params × auxiliary inputs), derived rows never masquerade as observed, and the
+  acceptance case is the **real-terms/inflation normalization family** — an acquired nominal
+  monetary series deflated against a connector-acquired deflator series (deflator choice + base
+  year declared assumptions in the certificate), the derived series consumed by **two distinct
+  method lanes from ONE cache-hit derivation**, a `basis_mismatch` with no certified transform
+  refusing typed into a derivation requirement, and a class-(iv) model output presented as an
+  observation failing the passport closed. Done when: the
   chosen capstone route's re-entry trace shows the gap closed by acquisition (or an honest
   typed deeper terminal); education's route remains honestly data-independent; the
   overlay/baseline separation is proven by a source flip (mutating the baseline = RED); a
-  fabricated fetch response fails the passport closed; the acquisition receipt is a §3.5.11
-  projection-scoped frozen artifact under §3.5.10 (recomputed, not pinned). This task builds
+  fabricated fetch response fails the passport closed; the derived acceptance case records one
+  derivation / two consumers / cache-hit reuse + the typed `basis_mismatch` refusal; the
+  acquisition and derivation receipts are §3.5.11 projection-scoped frozen artifacts under
+  §3.5.10 (recomputed, not pinned). This task builds
   the acquisition half of the Phase-6 world-growth spine — O1/O3's write-back reuses its
-  overlay store + passport, not a second write path. `P27`/`P29`/§3.5.6/§3.5.9/§3.5.10/§3.5.11.
+  overlay store + passport, not a second write path.
+  `P27`/`P29`/§3.5.6/§3.5.9/§3.5.10/§3.5.11/§3.5.12.
 
 **Phase-5 deferred (adopt the contract now, implement when a certified frontier exists).** With
 `useful_design_rate ≈ 0` and depth-1 integration, the mature-frontier machinery is not yet
@@ -1928,7 +2011,11 @@ unless linearity / no-interference / assignment semantics are certified) → the
 stays empty until this lands (Phase 7 / follow-on; the spec itself forbids returning an uncertified
 portfolio). **(2) CHHV solvers, scenario-tree VOI with rectangularity, EXP3 / sliding-window
 meta-controller, and full MCTS** (progressive widening + `UCT_H` selection over the prefix tree) →
-needed for a rich certified frontier and a non-stationary acquisition mix; not now. The honest
+needed for a rich certified frontier and a non-stationary acquisition mix; not now. **(3) The
+full transform-planner (Rev 17)** — automatic search/insertion of certified transform **chains**
+over the §3.5.12-D6 basis vocabulary → N13b lands only single-transform matching + the typed
+`basis_mismatch` refusal; chain search comes when the derived layer has enough certified
+families to need it. The honest
 **marginal-interval fallback** (GY-N-V) and the **phase-schedule** acquisition weights (N7) are the
 interim stand-ins, and the `unknown`/incomparable discipline keeps them safe.
 
@@ -2167,7 +2254,7 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
    flight)** are executed; the remaining Phase-5 tasks run **N13a → N13b → N11 → N12** — the
    acquisition census and executor land FIRST because world growth + cycle re-entry is the only
    unproven capability and N10's capstone routes are their paid-for inputs; all bound by
-   §3.5.6–§3.5.11.)* The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
+   §3.5.6–§3.5.12.)* The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
    VOI / EXP3 / MCTS) carries contracts now, implementation later. Runs before the learning loop
    and the V-battery so verification audits the **cycle**, not the single-pass harness.
 9. **GY-O0..GY-O3 — Deployed-Policy Learning Loop (greenfield horizon).** After the cycle:

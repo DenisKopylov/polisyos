@@ -249,3 +249,52 @@ and stale water-quality request prose. The first two supply flips move a synthet
 route leaves it `not_a_data_gap`.
 
 Focused Ruff lint passes. Formatting was applied only to the three touched Python files.
+
+## Task 4 — W3 owner FetchPlan generation, never execution
+
+Status: implementation and production owner proof complete; consolidated restoring source-flip lane
+remains owned by Task 6.
+
+The proof opens the supplied DuckDB with the existing `DatasetCatalogGraph`, resolves a sample whose
+membership is derived from resolved executable route demand plus connector-family representatives,
+and injects a recording graph into `RetrievalService._resolve_via_catalog`. Every projected field is
+cross-checked against the binding returned by that owner call. The sample grows when a new owner
+family becomes a primary executable binding; there is no connector-family constant in the selector.
+
+The execution boundary is behavioral. `RetrievalService` receives a typed forbidden executor whose
+`preview` and `execute` methods raise `fetch_plan_execution_forbidden` before side effects. The proof
+also records zero calls, one catalog resolution per sampled metric, identical before/after catalog
+content hashes, and identical empty scratch-tree hashes. Forbidden owners are explicitly projected
+as `FetchExecutor.execute`, `FetchExecutor.preview`, `connector.fetch`,
+`run_orchestrated_ingestion`, and `canonical_store.write`. A malicious service fixture that invokes
+`preview` turns RED before its fallback assertion; marker presence alone cannot satisfy that test.
+
+### Production proof
+
+The read-only production catalog generated seven real owner plans. The data-derived metric sample is:
+
+| Metric | Selection reason | Connector | Request dataset | Profile | Tier |
+| --- | --- | --- | --- | --- | --- |
+| `air_quality_index` | primary connector | `worldbank.wdi` | `EN.ATM.PM25.MC.M3` | `worldbank_wdi` | `transport_ready` |
+| `avg_income` | primary connector | `sdmx.source` | `DSD_EARNINGS@RMW` | `oecd_sdmx` | `transport_ready` |
+| `cultural_cluster` | primary connector | `wvs.wave7` | `A173` | `wvs_wave7` | `transport_ready` |
+| `infant_mortality` | primary connector | `unpd.data` | `22` | `unpd_dataportal` | `transport_ready` |
+| `tertiary_enrollment` | education route | `worldbank.wdi` | `GCI.5THPILLAR.XQ` | `worldbank_wdi` | `transport_ready` |
+| `wage_growth` | primary connector | `eurostat.data` | `EARN_SES_ANNUAL` | `eurostat_public` | `transport_ready` |
+| `years_of_schooling` | education route | `worldbank.wdi` | `UIS.SLE.123.M` | `worldbank_wdi` | `transport_ready` |
+
+All seven plans have `source_lane=catalog`, `persist_payload=false`, real catalog dataset and
+distribution IDs, and owner type `polisyos.core.contracts.control.FetchPlan`. The fence receipt is
+`preview_calls=0`, `execute_calls=0`, `catalog_resolution_calls=7`; catalog SHA-256 remained
+`4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7`, and both scratch hashes are
+the empty-tree SHA-256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+
+### RED/GREEN witness
+
+The initial W3 slice failed four tests on the intentionally missing sample/proof/fence models and
+generation owner. After implementation, the complete focused file with the production catalog
+declared is `57 passed`. The fixture suite covers real owner output, sample growth from a new family,
+plan field validation, forbidden persistence/non-executable-tier claims, and a live execution
+attempt stopped by the fence. The production-only proof passes against the actual catalog and actual
+three-route W2 projection. Ruff and the consolidated source-flip lane are verified at the workstream
+commit/Task-6 boundary respectively.

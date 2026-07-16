@@ -162,18 +162,18 @@ Tasks 2–5 and remain RED/GREEN work there.
 
 **Files:** extend builder/checker/tests/journal only; do not edit retrieval/connector execution code.
 
-- [ ] Open the real catalog through `DatasetCatalogGraph` and inject it into
+- [x] Open the real catalog through `DatasetCatalogGraph` and inject it into
   `RetrievalService._resolve_via_catalog` for a declared data-derived sample including every W2
   metric with an executable binding plus representative remaining tiers/families.
-- [ ] Persist narrow FetchPlan proofs: metric, connector ID, request dataset ID, profile ID, filters,
+- [x] Persist narrow FetchPlan proofs: metric, connector ID, request dataset ID, profile ID, filters,
   selected distribution, and owner type. Validate every field against owner output/catalog rows.
-- [ ] Install a behavioral execution fence around proof generation. Forbidden owners include
+- [x] Install a behavioral execution fence around proof generation. Forbidden owners include
   `FetchExecutor.execute/preview`, `run_orchestrated_ingestion`, connector `fetch`, and canonical
   persistence. A call raises a typed N13a violation before side effects.
 - [ ] Add the decisive source flip that removes/bypasses the fence while markers remain; it must turn
   RED. Add a plan-generation e2e test proving owner FetchPlans exist without world growth or
   acquisition execution.
-- [ ] Commit: `feat: prove catalog FetchPlan generation without execution`.
+- [x] Commit: `feat: prove catalog FetchPlan generation without execution`.
 
 ## Task 5 — W4 stratified live connector characterization
 

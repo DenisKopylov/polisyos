@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect the read-only W1/W2 seams for the GY-N13a acquisition census.
+"""Inspect the read-only W1/W2/W3 seams for the GY-N13a acquisition census.
 
 This command recomputes the complete metric/reverse-demand denominators and the
 evidence-derived capstone route classes. Later workstreams extend it with artifact
@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import tempfile
 from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
@@ -17,6 +18,7 @@ from pathlib import Path
 from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
     CatalogContractError,
     derive_metric_resolutions,
+    generate_fetch_plan_proofs,
     measure_reverse_demand,
     measure_route_evidence,
     read_catalog_source,
@@ -82,6 +84,14 @@ def main(argv: Sequence[str] | None = None) -> int:
             capstone_source=_stable_artifact_locator(args.capstone_path),
         )
         route_rows = measure_route_evidence(args.catalog_path, route_projection)
+        with tempfile.TemporaryDirectory(prefix="gy-n13a-fetch-plan-") as scratch:
+            fetch_plan_proof = generate_fetch_plan_proofs(
+                args.catalog_path,
+                metric_resolutions=resolutions,
+                route_evidence=route_rows,
+                scratch_dir=Path(scratch),
+                source_locator=args.source_locator,
+            )
     except CatalogContractError as exc:
         print(
             json.dumps(
@@ -137,6 +147,14 @@ def main(argv: Sequence[str] | None = None) -> int:
                         route_projection.projection_binding.model_dump(mode="json")
                     ),
                     "routes": [row.model_dump(mode="json") for row in route_rows],
+                },
+                "fetch_plan_summary": {
+                    "capability_status": fetch_plan_proof.capability_status,
+                    "sample_count": len(fetch_plan_proof.sample_rows),
+                    "plan_count": len(fetch_plan_proof.plans),
+                    "preview_calls": fetch_plan_proof.execution_fence.preview_calls,
+                    "execute_calls": fetch_plan_proof.execution_fence.execute_calls,
+                    "proof": fetch_plan_proof.model_dump(mode="json"),
                 },
                 "status": "pass",
             },

@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import Counter, defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from datetime import datetime
 from enum import StrEnum
 from pathlib import Path
@@ -23,6 +23,15 @@ SCHEMA_VERSION = "policyos.policy_design_case.gy_n13a.acquisition_census.v1"
 RULE_VERSION = "policyos.layer3.gy.n13a.acquisition_census.v1"
 CONTENT_HASH_EXCLUDED_FIELDS = frozenset({"capture_wall_time_seconds", "observed_at"})
 EXECUTABLE_BINDING_TIERS = frozenset({"fetchable", "transport_ready"})
+_FETCH_PLAN_FORBIDDEN_OWNERS = frozenset(
+    {
+        "FetchExecutor.execute",
+        "FetchExecutor.preview",
+        "connector.fetch",
+        "run_orchestrated_ingestion",
+        "canonical_store.write",
+    }
+)
 
 _REQUIRED_CATALOG_COLUMNS: dict[str, frozenset[str]] = {
     "ds_datasets": frozenset({"id", "access_license", "access_auth_required", "execution_tier"}),
@@ -431,17 +440,71 @@ class RouteEvidence(_StrictBoundaryModel):
         return self
 
 
+class FetchPlanSampleRow(_StrictBoundaryModel):
+    """One data-derived metric selected for owner plan generation."""
+
+    metric_id: str = Field(min_length=1)
+    resolution_status: ResolutionStatus
+    executable_binding_count: int = Field(ge=1)
+    selection_reasons: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _sample_is_resolved_and_canonical(self) -> Self:
+        if self.resolution_status is ResolutionStatus.UNRESOLVED:
+            raise ValueError("unresolved metrics cannot enter the FetchPlan sample")
+        if self.selection_reasons != tuple(sorted(set(self.selection_reasons))):
+            raise ValueError("selection reasons must be unique and sorted")
+        return self
+
+
 class FetchPlanProjection(_StrictBoundaryModel):
     """Narrow proof projected from a real owner-generated FetchPlan."""
 
+    plan_id: str = Field(min_length=1)
     metric_id: str = Field(min_length=1)
+    selection_reasons: tuple[str, ...] = Field(min_length=1)
     connector_id: str = Field(min_length=1)
-    dataset_id: str = Field(min_length=1)
+    catalog_dataset_id: str = Field(min_length=1)
     distribution_id: str = Field(min_length=1)
     request_dataset_id: str = Field(min_length=1)
     profile_id: str = Field(min_length=1)
-    filters: dict[str, Any]
-    owner_type: str = Field(min_length=1)
+    filters: dict[str, list[str]]
+    execution_tier: Literal["fetchable", "transport_ready"]
+    source_lane: Literal["catalog"]
+    persist_payload: Literal[False]
+    owner_type: Literal["polisyos.core.contracts.control.FetchPlan"]
+
+    @model_validator(mode="after")
+    def _selection_reasons_are_canonical(self) -> Self:
+        if self.selection_reasons != tuple(sorted(set(self.selection_reasons))):
+            raise ValueError("selection reasons must be unique and sorted")
+        return self
+
+
+class FetchPlanExecutionFence(_StrictBoundaryModel):
+    """Behavioral receipt proving plan generation executed no acquisition owner."""
+
+    preview_calls: Literal[0]
+    execute_calls: Literal[0]
+    catalog_resolution_calls: int = Field(ge=1)
+    expected_catalog_resolution_calls: int = Field(ge=1)
+    catalog_content_before_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    catalog_content_after_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    scratch_tree_before_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    scratch_tree_after_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    forbidden_owners: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _fence_must_prove_no_growth(self) -> Self:
+        if self.catalog_resolution_calls != self.expected_catalog_resolution_calls:
+            raise ValueError("catalog owner must be called once for every sampled metric")
+        if self.catalog_content_before_sha256 != self.catalog_content_after_sha256:
+            raise ValueError("FetchPlan generation must not mutate the catalog")
+        if self.scratch_tree_before_sha256 != self.scratch_tree_after_sha256:
+            raise ValueError("FetchPlan generation must not persist payloads")
+        if self.forbidden_owners != tuple(sorted(set(self.forbidden_owners))):
+            raise ValueError("forbidden owners must be unique and sorted")
+        return self
 
 
 class ProbeBudget(_StrictBoundaryModel):
@@ -545,6 +608,31 @@ class ProjectionBinding(_StrictBoundaryModel):
     projected_item_count: int = Field(ge=0)
 
 
+class FetchPlanGenerationProof(_StrictBoundaryModel):
+    """Complete plan-only owner proof for the declared metric sample."""
+
+    sample_binding: ProjectionBinding
+    sample_rows: tuple[FetchPlanSampleRow, ...] = Field(min_length=1)
+    plans: tuple[FetchPlanProjection, ...] = Field(min_length=1)
+    execution_fence: FetchPlanExecutionFence
+    capability_status: Literal["implemented_but_not_orchestrated"]
+
+    @model_validator(mode="after")
+    def _proof_covers_the_declared_sample(self) -> Self:
+        sample_metrics = tuple(row.metric_id for row in self.sample_rows)
+        if sample_metrics != tuple(sorted(set(sample_metrics))):
+            raise ValueError("FetchPlan sample metrics must be unique and sorted")
+        plan_metrics = tuple(plan.metric_id for plan in self.plans)
+        if plan_metrics != sample_metrics:
+            raise ValueError("one owner FetchPlan must cover every sampled metric")
+        if self.sample_binding.projected_item_count != len(self.sample_rows):
+            raise ValueError("sample projection must cover every sampled metric")
+        reasons = {row.metric_id: row.selection_reasons for row in self.sample_rows}
+        if any(plan.selection_reasons != reasons[plan.metric_id] for plan in self.plans):
+            raise ValueError("FetchPlan selection reasons must match the sample")
+        return self
+
+
 class RouteProjection(_StrictBoundaryModel):
     """Narrow, content-bound acquisition-route projection from the capstone."""
 
@@ -590,7 +678,7 @@ class CensusManifest(_StrictBoundaryModel):
     reverse_demand_variables: tuple[DemandVariableEvidence, ...]
     reverse_demand_residuals: tuple[ReverseDemandResidual, ...]
     route_evidence: tuple[RouteEvidence, ...]
-    fetch_plan_proofs: tuple[FetchPlanProjection, ...]
+    fetch_plan_generation: FetchPlanGenerationProof
     family_scorecards: tuple[FamilyScorecard, ...]
     growth_backlog: tuple[GrowthBacklogRow, ...]
     journal_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -608,6 +696,15 @@ class CatalogSource(_StrictBoundaryModel):
 
 class CatalogContractError(RuntimeError):
     """Raised when the supplied catalog cannot satisfy the census read contract."""
+
+    def __init__(self, code: str, detail: str) -> None:
+        super().__init__(f"{code}: {detail}")
+        self.code = code
+        self.detail = detail
+
+
+class CensusExecutionFenceError(RuntimeError):
+    """Raised before N13a can execute a FetchPlan or acquisition owner."""
 
     def __init__(self, code: str, detail: str) -> None:
         super().__init__(f"{code}: {detail}")
@@ -1065,6 +1162,208 @@ def measure_route_evidence(
     return tuple(rows)
 
 
+def generate_fetch_plan_proofs(
+    catalog_path: Path,
+    *,
+    metric_resolutions: Sequence[MetricResolution],
+    route_evidence: Sequence[RouteEvidence],
+    scratch_dir: Path,
+    source_locator: str,
+    _service_factory: Callable[..., Any] | None = None,
+) -> FetchPlanGenerationProof:
+    """Generate real owner FetchPlans under a hard no-execution fence.
+
+    The sample contains every resolved, executable capstone-route metric plus one
+    deterministic resolved metric for every connector family that is primary for
+    at least one executable binding. The existing catalog graph and retrieval
+    service produce the plans; no preview, execute, connector fetch, ingestion, or
+    persistence owner is invoked.
+    """
+
+    from polisyos.core.contracts.control import DataNeed
+    from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph
+    from polisyos.fabric.retrieval.service import RetrievalService
+
+    if not source_locator.strip():
+        raise CatalogContractError("fetch_plan_source_locator_missing", "empty locator")
+    recomputed_resolutions = derive_metric_resolutions(catalog_path)
+    if tuple(metric_resolutions) != recomputed_resolutions:
+        raise CatalogContractError(
+            "fetch_plan_resolution_projection_mismatch",
+            "supplied W1 resolutions do not match the catalog owner",
+        )
+    resolution_by_metric = {row.metric_id: row for row in recomputed_resolutions}
+    eligible = {
+        row.metric_id: row
+        for row in recomputed_resolutions
+        if row.resolution_status is not ResolutionStatus.UNRESOLVED
+        and sum(
+            count
+            for tier, count in row.binding_tier_counts.items()
+            if tier in EXECUTABLE_BINDING_TIERS
+        )
+        > 0
+    }
+    route_reasons: defaultdict[str, set[str]] = defaultdict(set)
+    for route_row in route_evidence:
+        for metric_id in route_row.route.demanded_metrics:
+            if metric_id in eligible:
+                route_reasons[metric_id].add(f"capstone_route:{route_row.route.route_id}")
+
+    scratch_dir.mkdir(parents=True, exist_ok=True)
+    catalog_before = _file_sha256(catalog_path)
+    scratch_before = _tree_sha256(scratch_dir)
+    graph = DatasetCatalogGraph(catalog_path, catalog_path.parent)
+    try:
+        primary_binding_by_metric: dict[str, Any] = {}
+        representative_by_connector: dict[str, str] = {}
+        ordered_metrics = sorted(
+            eligible,
+            key=lambda metric_id: (
+                eligible[metric_id].resolution_status
+                is not ResolutionStatus.EXACT,
+                metric_id,
+            ),
+        )
+        for metric_id in ordered_metrics:
+            bindings = graph.resolve_metric_bindings(metric_id, top_k=3)
+            executable_bindings = [
+                binding
+                for binding in bindings
+                if str(getattr(binding, "execution_tier", ""))
+                in EXECUTABLE_BINDING_TIERS
+                and str(getattr(binding, "connector_id", "") or "").strip()
+                and str(getattr(binding, "request_dataset_id", "") or "").strip()
+            ]
+            if not executable_bindings:
+                continue
+            primary = executable_bindings[0]
+            primary_binding_by_metric[metric_id] = primary
+            representative_by_connector.setdefault(str(primary.connector_id), metric_id)
+
+        missing_route_metrics = sorted(set(route_reasons) - set(primary_binding_by_metric))
+        if missing_route_metrics:
+            raise CatalogContractError(
+                "fetch_plan_route_binding_unresolvable",
+                ", ".join(missing_route_metrics),
+            )
+        reasons: defaultdict[str, set[str]] = defaultdict(set)
+        for metric_id, values in route_reasons.items():
+            reasons[metric_id].update(values)
+        for connector_id, metric_id in representative_by_connector.items():
+            reasons[metric_id].add(f"primary_connector:{connector_id}")
+        if not reasons:
+            raise CatalogContractError(
+                "fetch_plan_sample_empty", "no resolved executable catalog metrics"
+            )
+        sample_rows = tuple(
+            FetchPlanSampleRow(
+                metric_id=metric_id,
+                resolution_status=resolution_by_metric[metric_id].resolution_status,
+                executable_binding_count=sum(
+                    count
+                    for tier, count in resolution_by_metric[
+                        metric_id
+                    ].binding_tier_counts.items()
+                    if tier in EXECUTABLE_BINDING_TIERS
+                ),
+                selection_reasons=tuple(sorted(metric_reasons)),
+            )
+            for metric_id, metric_reasons in sorted(reasons.items())
+        )
+        sample_binding = _projection_binding(
+            "catalog_fetch_plan_sample",
+            source_locator,
+            tuple(row.model_dump(mode="json") for row in sample_rows),
+        )
+
+        recording_catalog = _RecordingMetricCatalog(graph)
+        execution_fence = _ForbiddenFetchExecutor()
+        service_type = _service_factory or RetrievalService
+        service = service_type(
+            curated_dir=scratch_dir,
+            dataset_catalog=recording_catalog,
+            executor=execution_fence,
+        )
+        needs = [
+            DataNeed(
+                metric=row.metric_id,
+                purpose="gy_n13a_shadow_plan_generation_only",
+            )
+            for row in sample_rows
+        ]
+        owner_plans, _ = service._resolve_via_catalog(needs)
+        plan_by_metric: dict[str, Any] = {}
+        for plan in owner_plans:
+            metric_id = str(getattr(plan, "metric_id", "") or "")
+            if metric_id in plan_by_metric:
+                raise CatalogContractError(
+                    "fetch_plan_owner_duplicate_metric", metric_id
+                )
+            plan_by_metric[metric_id] = plan
+        expected_metrics = {row.metric_id for row in sample_rows}
+        if set(plan_by_metric) != expected_metrics:
+            missing = sorted(expected_metrics - set(plan_by_metric))
+            extra = sorted(set(plan_by_metric) - expected_metrics)
+            raise CatalogContractError(
+                "fetch_plan_owner_coverage_mismatch",
+                f"missing={missing}; extra={extra}",
+            )
+
+        projected_plans: list[FetchPlanProjection] = []
+        sample_by_metric = {row.metric_id: row for row in sample_rows}
+        for metric_id in sorted(plan_by_metric):
+            plan = plan_by_metric[metric_id]
+            bindings = recording_catalog.bindings_by_metric.get(metric_id, ())
+            if not bindings:
+                raise CatalogContractError(
+                    "fetch_plan_catalog_owner_not_called", metric_id
+                )
+            owner_binding = bindings[0]
+            _validate_owner_fetch_plan(plan=plan, binding=owner_binding)
+            metadata = getattr(plan, "metadata", {})
+            projected_plans.append(
+                FetchPlanProjection(
+                    plan_id=str(plan.plan_id),
+                    metric_id=metric_id,
+                    selection_reasons=sample_by_metric[metric_id].selection_reasons,
+                    connector_id=str(plan.connector_id),
+                    catalog_dataset_id=str(metadata["catalog_dataset_id"]),
+                    distribution_id=str(metadata["distribution_id"]),
+                    request_dataset_id=str(plan.dataset_id),
+                    profile_id=str(plan.profile_id),
+                    filters=dict(plan.filters),
+                    execution_tier=str(metadata["execution_tier"]),
+                    source_lane=str(plan.source_lane),
+                    persist_payload=bool(plan.persist_payload),
+                    owner_type=f"{type(plan).__module__}.{type(plan).__name__}",
+                )
+            )
+    finally:
+        graph.close()
+
+    catalog_after = _file_sha256(catalog_path)
+    scratch_after = _tree_sha256(scratch_dir)
+    fence_receipt = FetchPlanExecutionFence(
+        preview_calls=execution_fence.preview_calls,
+        execute_calls=execution_fence.execute_calls,
+        catalog_resolution_calls=len(recording_catalog.calls),
+        expected_catalog_resolution_calls=len(sample_rows),
+        catalog_content_before_sha256=catalog_before,
+        catalog_content_after_sha256=catalog_after,
+        scratch_tree_before_sha256=scratch_before,
+        scratch_tree_after_sha256=scratch_after,
+        forbidden_owners=tuple(sorted(_FETCH_PLAN_FORBIDDEN_OWNERS)),
+    )
+    return FetchPlanGenerationProof(
+        sample_binding=sample_binding,
+        sample_rows=sample_rows,
+        plans=tuple(projected_plans),
+        execution_fence=fence_receipt,
+        capability_status="implemented_but_not_orchestrated",
+    )
+
+
 def measure_reverse_demand(
     catalog_path: Path,
     demands: Sequence[DemandRequirement],
@@ -1193,6 +1492,110 @@ def _open_validated_catalog(catalog_path: Path) -> duckdb.DuckDBPyConnection:
             raise
         raise CatalogContractError("catalog_unreadable", str(exc)) from exc
     return connection
+
+
+class _ForbiddenFetchExecutor:
+    """Injected executor that turns every execution attempt red before effects."""
+
+    def __init__(self) -> None:
+        self.preview_calls = 0
+        self.execute_calls = 0
+
+    def preview(self, *_: object, **__: object) -> None:
+        self.preview_calls += 1
+        raise CensusExecutionFenceError(
+            "fetch_plan_execution_forbidden",
+            "FetchExecutor.preview is forbidden during N13a plan generation",
+        )
+
+    def execute(self, *_: object, **__: object) -> None:
+        self.execute_calls += 1
+        raise CensusExecutionFenceError(
+            "fetch_plan_execution_forbidden",
+            "FetchExecutor.execute is forbidden during N13a plan generation",
+        )
+
+
+class _RecordingMetricCatalog:
+    """Narrow recording adapter over the real DatasetCatalogGraph owner."""
+
+    def __init__(self, graph: Any) -> None:
+        self._graph = graph
+        self.calls: list[tuple[str, int]] = []
+        self.bindings_by_metric: dict[str, tuple[Any, ...]] = {}
+
+    def resolve_metric_bindings(self, metric: str, *, top_k: int = 3) -> list[Any]:
+        self.calls.append((metric, top_k))
+        bindings = tuple(self._graph.resolve_metric_bindings(metric, top_k=top_k))
+        self.bindings_by_metric[metric] = bindings
+        return list(bindings)
+
+
+def _validate_owner_fetch_plan(*, plan: Any, binding: Any) -> None:
+    metadata = getattr(plan, "metadata", None)
+    if not isinstance(metadata, Mapping):
+        raise CatalogContractError(
+            "fetch_plan_owner_metadata_missing", str(getattr(plan, "metric_id", ""))
+        )
+    expected = {
+        "connector_id": str(getattr(binding, "connector_id", "") or ""),
+        "request_dataset_id": str(
+            getattr(binding, "request_dataset_id", "") or ""
+        ),
+        "profile_id": str(getattr(binding, "profile_id", "") or ""),
+        "catalog_dataset_id": str(
+            getattr(binding, "catalog_dataset_id", "") or ""
+        ),
+        "distribution_id": str(getattr(binding, "distribution_id", "") or ""),
+        "execution_tier": str(getattr(binding, "execution_tier", "") or ""),
+    }
+    actual = {
+        "connector_id": str(getattr(plan, "connector_id", "") or ""),
+        "request_dataset_id": str(getattr(plan, "dataset_id", "") or ""),
+        "profile_id": str(getattr(plan, "profile_id", "") or ""),
+        "catalog_dataset_id": str(metadata.get("catalog_dataset_id") or ""),
+        "distribution_id": str(metadata.get("distribution_id") or ""),
+        "execution_tier": str(metadata.get("execution_tier") or ""),
+    }
+    if actual != expected:
+        raise CatalogContractError(
+            "fetch_plan_owner_projection_mismatch",
+            f"metric={getattr(plan, 'metric_id', '')}; expected={expected}; actual={actual}",
+        )
+    if actual["execution_tier"] not in EXECUTABLE_BINDING_TIERS:
+        raise CatalogContractError(
+            "fetch_plan_catalog_tier_not_executable", actual["execution_tier"]
+        )
+    expected_filters = _coerce_plan_filters(
+        getattr(binding, "default_filters", {}) or {}
+    )
+    if dict(getattr(plan, "filters", {}) or {}) != expected_filters:
+        raise CatalogContractError(
+            "fetch_plan_owner_filters_mismatch", str(getattr(plan, "metric_id", ""))
+        )
+    if getattr(plan, "source_lane", None) != "catalog":
+        raise CatalogContractError(
+            "fetch_plan_source_lane_invalid", str(getattr(plan, "source_lane", ""))
+        )
+    if bool(getattr(plan, "persist_payload", False)):
+        raise CensusExecutionFenceError(
+            "fetch_plan_persistence_forbidden",
+            "N13a FetchPlans must keep persist_payload=false",
+        )
+
+
+def _coerce_plan_filters(value: object) -> dict[str, list[str]]:
+    if not isinstance(value, Mapping):
+        return {}
+    normalized: dict[str, list[str]] = {}
+    for key, raw_values in value.items():
+        if not isinstance(key, str):
+            continue
+        if isinstance(raw_values, list):
+            normalized[key] = [str(item) for item in raw_values]
+        elif raw_values is not None:
+            normalized[key] = [str(raw_values)]
+    return normalized
 
 
 def _alignment_candidate_sort_key(candidate: AlignmentCandidate) -> tuple[object, ...]:
@@ -1978,6 +2381,18 @@ def _file_sha256(path: Path) -> str:
     with path.open("rb") as handle:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
+    return f"sha256:{digest.hexdigest()}"
+
+
+def _tree_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    for item in sorted(candidate for candidate in path.rglob("*") if candidate.is_file()):
+        relative = item.relative_to(path).as_posix().encode("utf-8")
+        digest.update(len(relative).to_bytes(8, "big"))
+        digest.update(relative)
+        with item.open("rb") as handle:
+            for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(chunk)
     return f"sha256:{digest.hexdigest()}"
 
 

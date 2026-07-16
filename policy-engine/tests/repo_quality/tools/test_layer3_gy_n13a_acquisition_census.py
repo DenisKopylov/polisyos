@@ -23,8 +23,8 @@ def _insert_owner_rows(
     parser_supported: bool = True,
 ) -> None:
     connection.execute(
-        "INSERT INTO ds_datasets VALUES (?, 'CC-BY-4.0', FALSE, ?)",
-        [f"dataset-{suffix}", execution_tier],
+        "INSERT INTO ds_datasets VALUES (?, ?, 'CC-BY-4.0', FALSE, ?)",
+        [f"dataset-{suffix}", f"Fixture dataset {suffix}", execution_tier],
     )
     connection.execute(
         """
@@ -140,6 +140,7 @@ def catalog_path(tmp_path: Path) -> Path:
         """
         CREATE TABLE ds_datasets (
             id VARCHAR,
+            title VARCHAR,
             access_license VARCHAR,
             access_auth_required BOOLEAN,
             execution_tier VARCHAR
@@ -214,7 +215,10 @@ def test_census_boundary_models_are_strict() -> None:
         census.RouteProjection,
         census.VariableSupplyEvidence,
         census.RouteEvidence,
+        census.FetchPlanSampleRow,
         census.FetchPlanProjection,
+        census.FetchPlanExecutionFence,
+        census.FetchPlanGenerationProof,
         census.ProbeBudget,
         census.SchemaProfileContract,
         census.ProbeRequest,
@@ -1258,6 +1262,10 @@ def test_checker_accepts_external_upstream_artifact_paths(
     ]
     assert payload["route_summary"]["denominator_count"] == 1
     assert payload["route_summary"]["counts"] == {"not_a_data_gap": 1}
+    assert payload["fetch_plan_summary"]["sample_count"] == 1
+    assert payload["fetch_plan_summary"]["plan_count"] == 1
+    assert payload["fetch_plan_summary"]["preview_calls"] == 0
+    assert payload["fetch_plan_summary"]["execute_calls"] == 0
     assert (
         payload["route_summary"]["projection_binding"]["source_artifact"]
         == "external://external-capstone.json"
@@ -1662,3 +1670,227 @@ def test_actual_capstone_route_classes_recompute_from_owner_evidence() -> None:
         for row in rows
         if row.route.witness_kind != "owner_data_gap"
     )
+
+
+def _fixture_route_evidence(census: Any, catalog_path: Path) -> tuple[Any, ...]:
+    projection = _route_projection(
+        census,
+        {
+            "opaque-route": _route_run(
+                witness_kind="owner_acquisition_route",
+                demanded_variable="metric_alpha",
+            )
+        },
+    )
+    return census.measure_route_evidence(catalog_path, projection)
+
+
+def test_real_catalog_owner_generates_fetch_plan_proofs_without_execution(
+    catalog_path: Path,
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    resolutions = census.derive_metric_resolutions(catalog_path)
+    route_rows = _fixture_route_evidence(census, catalog_path)
+
+    proof = census.generate_fetch_plan_proofs(
+        catalog_path,
+        metric_resolutions=resolutions,
+        route_evidence=route_rows,
+        scratch_dir=tmp_path / "plan-only",
+        source_locator="fixture/catalog.duckdb",
+    )
+
+    assert proof.capability_status == "implemented_but_not_orchestrated"
+    assert proof.sample_binding.projected_item_count == len(proof.sample_rows)
+    assert len(proof.plans) == len(proof.sample_rows)
+    assert {row.metric_id for row in proof.sample_rows} == {"metric_alpha"}
+    plan = proof.plans[0]
+    assert plan.metric_id == "metric_alpha"
+    assert plan.connector_id == "family.alpha"
+    assert plan.catalog_dataset_id == "dataset-a"
+    assert plan.distribution_id == "distribution-a"
+    assert plan.request_dataset_id == "request-a"
+    assert plan.profile_id == "profile-a"
+    assert plan.execution_tier == "transport_ready"
+    assert plan.source_lane == "catalog"
+    assert plan.persist_payload is False
+    assert proof.execution_fence.preview_calls == 0
+    assert proof.execution_fence.execute_calls == 0
+    assert proof.execution_fence.catalog_content_before_sha256 == (
+        proof.execution_fence.catalog_content_after_sha256
+    )
+    assert proof.execution_fence.scratch_tree_before_sha256 == (
+        proof.execution_fence.scratch_tree_after_sha256
+    )
+
+
+def test_fetch_plan_sample_grows_from_a_new_owner_family_without_code_changes(
+    catalog_path: Path,
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    _insert_owner_rows(
+        connection,
+        suffix="plan",
+        connector_id="family.plan",
+        execution_tier="transport_ready",
+        raw_variable="raw-plan",
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_metric_bindings VALUES
+            ('metric_plan', 'dataset-plan', 'distribution-plan', 'family.plan',
+             'profile-plan', 'request-plan', 0.95, 0.95, '{}',
+             'transport_ready', 'fixture')
+        """
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_observations VALUES
+            ('observation-plan', 'dataset-plan', 'raw-plan', 'metric_plan')
+        """
+    )
+    connection.close()
+
+    proof = census.generate_fetch_plan_proofs(
+        catalog_path,
+        metric_resolutions=census.derive_metric_resolutions(catalog_path),
+        route_evidence=_fixture_route_evidence(census, catalog_path),
+        scratch_dir=tmp_path / "plan-growth",
+        source_locator="fixture/catalog.duckdb",
+    )
+    by_metric = {row.metric_id: row for row in proof.sample_rows}
+
+    assert "metric_plan" in by_metric
+    assert "primary_connector:family.plan" in by_metric["metric_plan"].selection_reasons
+    assert any(
+        plan.metric_id == "metric_plan" and plan.connector_id == "family.plan"
+        for plan in proof.plans
+    )
+
+
+def test_fetch_plan_execution_attempt_is_hard_red(
+    catalog_path: Path,
+    tmp_path: Path,
+) -> None:
+    census = _census()
+
+    class MaliciousService:
+        def __init__(self, *, executor: Any, **_: Any) -> None:
+            self.executor = executor
+
+        def _resolve_via_catalog(self, _: list[Any]) -> tuple[list[Any], list[Any]]:
+            self.executor.preview(None)
+            raise AssertionError("the forbidden executor must raise first")
+
+    with pytest.raises(census.CensusExecutionFenceError) as exc_info:
+        census.generate_fetch_plan_proofs(
+            catalog_path,
+            metric_resolutions=census.derive_metric_resolutions(catalog_path),
+            route_evidence=_fixture_route_evidence(census, catalog_path),
+            scratch_dir=tmp_path / "malicious-plan",
+            source_locator="fixture/catalog.duckdb",
+            _service_factory=MaliciousService,
+        )
+
+    assert exc_info.value.code == "fetch_plan_execution_forbidden"
+
+
+def test_fetch_plan_proof_models_reject_executable_or_unearned_claims() -> None:
+    census = _census()
+    plan = {
+        "plan_id": "plan-a",
+        "metric_id": "metric-a",
+        "selection_reasons": ("capstone_route:route-a",),
+        "connector_id": "family.alpha",
+        "catalog_dataset_id": "dataset-a",
+        "distribution_id": "distribution-a",
+        "request_dataset_id": "request-a",
+        "profile_id": "profile-a",
+        "filters": {},
+        "execution_tier": "transport_ready",
+        "source_lane": "catalog",
+        "persist_payload": False,
+        "owner_type": "polisyos.core.contracts.control.FetchPlan",
+    }
+
+    with pytest.raises(ValidationError):
+        census.FetchPlanProjection(**{**plan, "persist_payload": True})
+    with pytest.raises(ValidationError):
+        census.FetchPlanProjection(**{**plan, "execution_tier": "catalog"})
+    with pytest.raises(ValidationError):
+        census.FetchPlanExecutionFence(
+            preview_calls=1,
+            execute_calls=0,
+            catalog_resolution_calls=1,
+            expected_catalog_resolution_calls=1,
+            catalog_content_before_sha256="sha256:" + "a" * 64,
+            catalog_content_after_sha256="sha256:" + "a" * 64,
+            scratch_tree_before_sha256="sha256:" + "b" * 64,
+            scratch_tree_after_sha256="sha256:" + "b" * 64,
+            forbidden_owners=("FetchExecutor.preview",),
+        )
+
+
+@pytest.mark.skipif(
+    not os.environ.get("POLISYOS_N13A_PRODUCTION_CATALOG"),
+    reason="production catalog is an explicit read-only witness",
+)
+def test_production_fetch_plan_generation_uses_real_graph_and_w2_demands(
+    tmp_path: Path,
+) -> None:
+    census = _census()
+    catalog_path = Path(os.environ["POLISYOS_N13A_PRODUCTION_CATALOG"])
+    capstone_path = (
+        Path(__file__).resolve().parents[3]
+        / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+    )
+    route_projection = census.read_route_projection(
+        capstone_path=capstone_path,
+        capstone_source="architecture/policy_design_case/"
+        "layer3_gy_depth_n_universality_contract.json",
+    )
+    route_rows = census.measure_route_evidence(catalog_path, route_projection)
+    resolutions = census.derive_metric_resolutions(catalog_path)
+
+    proof = census.generate_fetch_plan_proofs(
+        catalog_path,
+        metric_resolutions=resolutions,
+        route_evidence=route_rows,
+        scratch_dir=tmp_path / "production-plan-only",
+        source_locator="production_data/catalog.duckdb",
+    )
+    resolved = {
+        row.metric_id: row
+        for row in resolutions
+        if row.resolution_status is not census.ResolutionStatus.UNRESOLVED
+    }
+    connection = duckdb.connect(str(catalog_path), read_only=True)
+    try:
+        demanded_executable = {
+            str(row[0])
+            for route in route_rows
+            for row in connection.execute(
+                """
+                SELECT DISTINCT metric_id
+                FROM ds_metric_bindings
+                WHERE metric_id IN (SELECT UNNEST(?))
+                  AND execution_tier IN ('fetchable', 'transport_ready')
+                """,
+                [list(route.route.demanded_metrics)],
+            ).fetchall()
+            if str(row[0]) in resolved
+        }
+    finally:
+        connection.close()
+
+    sample_metrics = {row.metric_id for row in proof.sample_rows}
+    assert demanded_executable <= sample_metrics
+    assert len(proof.plans) == len(proof.sample_rows)
+    assert proof.execution_fence.catalog_resolution_calls == len(proof.sample_rows)
+    assert proof.execution_fence.preview_calls == 0
+    assert proof.execution_fence.execute_calls == 0
+    assert all(plan.source_lane == "catalog" for plan in proof.plans)
+    assert all(plan.persist_payload is False for plan in proof.plans)

@@ -109,6 +109,7 @@ from polisyos.runtime.quality.generation_cycle import (
     _derived_value_data_modalities,
     _run_value_transport,
     _s10_calibration_evidence_from_report,
+    _selector_problem_for_value_profile,
     _value_calibration_receipt,
     _value_outer_set_from_foundry_result,
     _value_owner_row,
@@ -1612,6 +1613,35 @@ def test_value_owner_shape_uses_canonical_four_period_panel_floor(
     )
 
     assert _derived_value_data_modalities(rows) == expected_modalities
+
+
+def test_value_advisor_projection_preserves_typed_design_problem_authority() -> None:
+    """Owner data context must not turn a real DesignProblem into a shaped dict."""
+
+    problem = _avg_income_problem()
+    profile = RealValueOwnerGateway(repo_root=Path.cwd()).load_value_data_profile(
+        problem=problem,
+        candidate=_avg_income_candidate(),
+        world_record=_world_record(),
+    )
+
+    projected = _selector_problem_for_value_profile(problem, profile)
+
+    assert isinstance(projected, DesignProblem)
+    assert projected.design_problem_id == problem.design_problem_id
+    assert projected.nl_provenance == problem.nl_provenance
+    assert projected.runtime_hints == {
+        "value_required_data_modalities": profile.available_data_modalities,
+        "value_data_characteristics": {
+            "n_obs": profile.owner_row_count,
+            "n_units": profile.unit_count,
+            "n_periods": profile.period_count,
+            "is_panel": "panel" in profile.available_data_modalities,
+            "treatment_is_binary": None,
+            "outcome_is_continuous": None,
+        },
+        "value_data_profile_content_hash": profile.content_hash,
+    }
 
 
 def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition() -> None:

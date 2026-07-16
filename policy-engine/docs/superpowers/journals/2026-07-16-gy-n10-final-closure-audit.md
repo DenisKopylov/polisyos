@@ -408,3 +408,21 @@ Independent subagents were requested for the final F/G/H source census but the w
 exhausted subagent credits. This continuation is therefore explicitly local/non-independent; the
 evidence is recomputed from source and focused behavioral probes rather than accepted from prior
 journal claims.
+
+RED-first and bounded repair evidence:
+
+```text
+typed advisor projection probe before repair:
+  exit 1; projected value was dict, not DesignProblem
+typed advisor projection + Workspace sibling after repair:
+  2 passed; exit 0; 10.941414 s
+typed projection + real selection + cross-profile replay negatives:
+  3 passed; exit 0; 33.177 s
+.venv/bin/ruff check generation_cycle.py test_value_gate.py:
+  exit 0; All checks passed
+```
+
+The owner projection now returns a `DesignProblem` and changes only its runtime-only advisor
+context to the content-bound `ValueDataProfile` fields. No method family, domain, candidate, or
+selection default was added. The final caller census has two authority-bearing advisor calls and
+both now receive typed `DesignProblem` objects.

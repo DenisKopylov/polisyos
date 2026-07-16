@@ -4307,21 +4307,10 @@ def _selector_problem_for_value_profile(
 def _selector_problem_with_owner_context(
     problem: DesignProblem,
     context: Mapping[str, object],
-) -> Mapping[str, object]:
-    outcome = _object_get(problem, "outcome_of_interest")
-    if hasattr(outcome, "model_dump"):
-        outcome_payload = outcome.model_dump(mode="json")
-    elif isinstance(outcome, Mapping):
-        outcome_payload = dict(outcome)
-    else:
-        outcome_payload = {}
-    return {
-        "design_problem_id": str(_object_get(problem, "design_problem_id") or ""),
-        "problem_statement": str(_object_get(problem, "problem_statement") or ""),
-        "domain": str(_object_get(problem, "domain") or ""),
-        "outcome_of_interest": outcome_payload,
-        "runtime_hints": dict(context),
-    }
+) -> DesignProblem:
+    """Project owner data context without discarding problem authority."""
+
+    return problem.model_copy(update={"runtime_hints": dict(context)})
 
 def _run_value_transport(
     *,

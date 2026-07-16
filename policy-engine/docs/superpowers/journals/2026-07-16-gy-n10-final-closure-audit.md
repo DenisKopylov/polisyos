@@ -636,3 +636,91 @@ Ruff (validator + focused test): All checks passed
 ```
 
 No N9 consumer or promotion receipt shape was changed.
+
+### I1 N10a historical N4 boundary and five-artifact rebaseline
+
+After N8 moved, the frozen pack check first failed only on
+`n8_transport_gap_receipt_drift`. The initial live rederive then exposed a real frozen-receipt lane
+defect instead of being absorbed by the writer:
+
+```text
+--rederive-audit: exit 1; 6.257 s
+education_n4_owner_capture_invalid:
+  n4_owner_capture_input_binding_mismatch
+  n4_owner_lever_context_binding_mismatch
+```
+
+The frozen capture still validated exactly against its frozen context. Against current owners, the
+only input-binding deltas were `design_problem_ref` and
+`cycle_substrate_context_content_hash`; the old and current DesignProblems differed solely in
+`nl_provenance.source_context.census_content_hash`. No world, registry, pack, substrate-input, WMR,
+policy field, or raw response changed.
+
+The canonical live-bundle lane now applies the frozen-receipt doctrine narrowly:
+
+- the complete old capture must validate against its historical problem/context;
+- current and historical DesignProblems must match after removing only the typed census checksum;
+- the current issue set must be exactly the two issues above;
+- the changed binding fields must be exactly the two fields above;
+- every raw response hash/alias, journal row, effective config, call role/model/status, and call
+  denominator remains exact;
+- old and current prompt hashes are both preserved in a content-hashed historical replay receipt.
+
+The first implementation attempt correctly went RED because four current prompt hashes differ from
+their original live-journal hashes. The repair does not relabel those calls: it preserves the live
+journal rows, records the current replay prompt rows separately, and binds both to the same five raw
+response hashes plus the full provenance-stripped problem projection. Ordinary live captures still
+require byte-equal journal/current prompt rows.
+
+```text
+historical replay + non-identity drift + raw tamper witnesses:
+  3 passed; exit 0; ~193.0 s
+rehashed non-identity projection drift:
+  fatal n4_owner_status_not_generated
+raw bytes changed + outer capture rehashed:
+  fatal n4_owner_capture_raw_response_hash_mismatch
+whole-bundle --rederive-audit after repair:
+  exit 1; wall_time_seconds=182.929801
+  drift artifacts=census,pack,smoke_problem,cycle_trace,gaps
+```
+
+The five canonical outputs are byte-stable across two successful writers:
+
+```text
+first --write:  exit 0; wall_time_seconds=183.660994
+second --write: exit 0; wall_time_seconds=183.795551
+file SHA-256 after both writes:
+  census       82ae8c00ca45ab910d5f4547f8965dd142768f06aeca5e44fd2d7096e67fa347
+  pack         a710bd4bc44fe6f665913b61890b0a5376f3dd120dbf4f8262d9873c68bc1f30
+  smoke        46e9b2dc0813bfa69ce43fef5ebf7bb8ea823b73bc2c301511bec8b3d4cc8911
+  cycle trace  3a2a4563e02debccffaa2f4dea8f63fea571a8d409d2c6f67718c01f134201a3
+  gaps         eed7d5d9cfa91e11b10d595ac11a44cd48c3f5269402952ab1d4b679d0e7843b
+--check: exit 0; wall_time_seconds=0.646577
+```
+
+The corruption lane initially exited 2 because `terminal_kind="crash"` was schema-invalid and
+therefore never exercised `smoke_terminal_not_honest`. The adversary now keeps the typed N6 run
+coherent and changes only the outer execution status to `crashed`. That direct property witness is
+RED-capable:
+
+```text
+--corrupt-field-drift-check: expected exit 1; 8.462 s
+  smoke_terminal_not_honest observed
+  no corrupt_field_drift_not_detected
+focused crash/honesty witness: 1 passed; exit 0; ~193.1 s
+Ruff (checker + focused tests): All checks passed
+```
+
+The complete focused module then found one pre-existing form-based seam-hash test: its hardcoded
+replacement string no longer existed, so the purported seam mutation changed zero bytes. The probe
+now resolves the witnessed function by AST, appends an in-function no-op, and proves that unrelated
+out-of-function text remains hash-neutral while the real segment changes.
+
+```text
+AST-local seam witness: 1 passed; exit 0; 8.653 s
+tests/unit/runtime/quality/test_second_domain_pack.py:
+  62 passed; exit 0; ~230.0 s
+```
+
+The rebaselined N10a education trace remains `acquisition_required`; no provider call was made and
+no unbound lever was promoted.

@@ -572,14 +572,7 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "manifest_content_hash"
     )
     corrupted["pack"]["content_addressing"] = addressing
-    cycle_run = _mapping(corrupted["cycle_trace"].get("generation_cycle_run"))
-    trace_cycles = _list_of_mappings(
-        cycle_run.get("cycles")
-    )
-    if trace_cycles:
-        trace_cycles[0]["terminal_kind"] = "crash"
-    cycle_run["cycles"] = trace_cycles
-    corrupted["cycle_trace"]["generation_cycle_run"] = cycle_run
+    corrupted["cycle_trace"]["execution_status"] = "crashed"
     stage_attempts = _mapping(corrupted["cycle_trace"].get("stage_attempts"))
     stage_generation = _mapping(stage_attempts.get("generation"))
     stage_generation["generation_channel"] = "grammar_fallback"
@@ -2464,6 +2457,21 @@ def _build_cycle_trace(
                 problem=problem,
                 cycle_substrate_context=cycle_substrate_context,
             )
+        elif _n4_owner_capture_issues(
+            active_capture,
+            problem=problem,
+            cycle_substrate_context=cycle_substrate_context,
+        ):
+            (
+                active_capture,
+                capture_metrics,
+                captured_organ_run,
+            ) = await _replay_historical_n4_owner_capture(
+                root,
+                capture=active_capture,
+                problem=problem,
+                cycle_substrate_context=cycle_substrate_context,
+            )
         _require_valid_n4_owner_capture(
             active_capture,
             problem=problem,
@@ -2779,16 +2787,17 @@ async def _capture_n4_owner_from_journal(
     )
 
 
-def _n4_owner_capture_from_organ_run(
+def _assemble_n4_owner_capture(
     organ_run: DesignGenerationOrganRun,
     *,
     problem: DesignProblem,
     cycle_substrate_context: CycleSubstrateContext,
-    journal_path: Path,
+    journal_receipt: Mapping[str, Any],
     recording_source: str,
     capture_environment: Mapping[str, str],
-) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
-    """Build one path-independent capture after the native result passes."""
+    historical_replay_receipt: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build one path-independent capture from verified owner and journal evidence."""
 
     projection = _n4_owner_result_projection(organ_run)
     projection_issues = _n4_owner_projection_issues(
@@ -2800,9 +2809,11 @@ def _n4_owner_capture_from_organ_run(
             "education_n4_live_capture_rejected:" + ",".join(projection_issues)
         )
     responses = _n4_capture_responses(organ_run)
-    journal_receipt = _n4_call_journal_receipt(journal_path)
     expected_journal_rows = _n4_call_evidence_rows(organ_run)
-    if journal_receipt.get("call_evidence_rows") != expected_journal_rows:
+    if (
+        historical_replay_receipt is None
+        and journal_receipt.get("call_evidence_rows") != expected_journal_rows
+    ):
         raise ValueError(
             "education_n4_live_capture_journal_denominator_mismatch:"
             + _canonical_json(
@@ -2831,37 +2842,20 @@ def _n4_owner_capture_from_organ_run(
         "producer": PRODUCER,
         "recording_source": recording_source,
         "model_id": N4_CAPTURE_MODEL_ID,
-        "input_binding": {
-            "design_problem_ref": cycle_substrate_context.design_problem_ref,
-            "domain": cycle_substrate_context.domain,
-            "source_pack_content_hash": (
-                cycle_substrate_context.source_pack_content_hash
-            ),
-            "substrate_input_content_hash": (
-                cycle_substrate_context.substrate_input_content_hash
-            ),
-            "cycle_substrate_context_content_hash": (
-                cycle_substrate_context.content_hash
-            ),
-            "substrate_registry_content_hash": (
-                cycle_substrate_context.substrate_registry_content_hash
-            ),
-            "selected_registry_entry_hashes": list(
-                cycle_substrate_context.selected_registry_entry_hashes
-            ),
-            "world_model_record_id": (
-                cycle_substrate_context.world_model_record.world_model_record_id
-            ),
-            "world_model_record_content_hash": (
-                cycle_substrate_context.world_model_record_content_hash
-            ),
-        },
+        "input_binding": _n4_owner_capture_input_binding(
+            problem,
+            cycle_substrate_context,
+        ),
         "response": responses[0],
         "responses": responses,
         "effective_runtime_environment": runtime_environment,
         "owner_result_projection": projection,
         "journal_receipt": journal_receipt,
     }
+    if historical_replay_receipt is not None:
+        capture["historical_replay_receipt"] = copy.deepcopy(
+            dict(historical_replay_receipt)
+        )
     capture["recording_content_hash"] = _hash(
         {
             key: value
@@ -2874,12 +2868,230 @@ def _n4_owner_capture_from_organ_run(
         problem=problem,
         cycle_substrate_context=cycle_substrate_context,
     )
+    return capture
+
+
+def _n4_owner_capture_from_organ_run(
+    organ_run: DesignGenerationOrganRun,
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+    journal_path: Path,
+    recording_source: str,
+    capture_environment: Mapping[str, str],
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Build one path-independent capture after the native result passes."""
+
+    journal_receipt = _n4_call_journal_receipt(journal_path)
+    capture = _assemble_n4_owner_capture(
+        organ_run,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+        journal_receipt=journal_receipt,
+        recording_source=recording_source,
+        capture_environment=capture_environment,
+    )
     return (
         capture,
         {
             "n4_source_capture_call_wall_seconds": (
                 _n4_journal_call_wall_seconds(journal_path)
             ),
+            "n4_live_capture_journal_entry_count": journal_receipt[
+                "journal_entry_count"
+            ],
+        },
+        organ_run,
+    )
+
+
+_HISTORICAL_N4_RECORDING_SOURCE = (
+    "historical_capture_raw_responses_replayed_through_current_n4_owner"
+)
+_HISTORICAL_N4_REPLAY_ISSUES = frozenset(
+    {
+        "n4_owner_capture_input_binding_mismatch",
+        "n4_owner_lever_context_binding_mismatch",
+    }
+)
+_HISTORICAL_N4_REPLAY_BINDING_FIELDS = frozenset(
+    {
+        "design_problem_ref",
+        "cycle_substrate_context_content_hash",
+    }
+)
+
+
+def _problem_without_census_provenance(problem: DesignProblem) -> dict[str, Any]:
+    """Remove only the N10a census checksum from a problem comparison."""
+
+    payload = problem.model_dump(mode="json")
+    provenance = copy.deepcopy(_mapping(payload.get("nl_provenance")))
+    source_context = copy.deepcopy(_mapping(provenance.get("source_context")))
+    census_hash = source_context.pop("census_content_hash", None)
+    if not isinstance(census_hash, str) or not re.fullmatch(
+        r"sha256:[0-9a-f]{64}", census_hash
+    ):
+        raise ValueError("education_n4_historical_problem_census_ref_missing")
+    provenance["source_context"] = source_context
+    payload["nl_provenance"] = provenance
+    return payload
+
+
+def _historical_n4_replay_receipt(
+    *,
+    capture: Mapping[str, Any],
+    historical_problem: DesignProblem,
+    current_problem: DesignProblem,
+    current_call_rows: Sequence[Mapping[str, Any]],
+    changed_binding_fields: frozenset[str],
+) -> dict[str, Any]:
+    """Bind historical live prompts to current semantically equivalent prompts."""
+
+    journal_rows = _list_of_mappings(
+        _mapping(capture.get("journal_receipt")).get("call_evidence_rows")
+    )
+    if len(journal_rows) != len(current_call_rows):
+        raise ValueError("education_n4_historical_replay_call_denominator_mismatch")
+    stable_call_fields = (
+        "call_index",
+        "role_hint",
+        "status",
+        "model_id",
+        "raw_response_hash",
+    )
+    call_rebindings: list[dict[str, Any]] = []
+    for historical_row, current_row in zip(
+        journal_rows,
+        current_call_rows,
+        strict=True,
+    ):
+        if any(
+            historical_row.get(field) != current_row.get(field)
+            for field in stable_call_fields
+        ):
+            raise ValueError("education_n4_historical_replay_call_identity_drift")
+        call_rebindings.append(
+            {
+                "call_index": current_row.get("call_index"),
+                "role_hint": current_row.get("role_hint"),
+                "raw_response_hash": current_row.get("raw_response_hash"),
+                "historical_prompt_hash": historical_row.get("prompt_hash"),
+                "replay_prompt_hash": current_row.get("prompt_hash"),
+            }
+        )
+    semantic_projection = _problem_without_census_provenance(current_problem)
+    if semantic_projection != _problem_without_census_provenance(
+        historical_problem
+    ):
+        raise ValueError("education_n4_historical_problem_semantic_drift")
+    payload = {
+        "schema_version": "policyos.policy_design_case.gy_n10.n4_replay_receipt.v1",
+        "historical_capture_content_hash": capture.get("recording_content_hash"),
+        "historical_design_problem_ref": gy_content_hash(
+            historical_problem.model_dump(mode="json")
+        ),
+        "current_design_problem_ref": gy_content_hash(
+            current_problem.model_dump(mode="json")
+        ),
+        "problem_semantic_projection": semantic_projection,
+        "changed_binding_fields": sorted(changed_binding_fields),
+        "call_rebindings": call_rebindings,
+    }
+    return _with_content_hash(payload, "receipt_content_hash")
+
+
+async def _replay_historical_n4_owner_capture(
+    root: Path,
+    *,
+    capture: Mapping[str, Any],
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Replay verified historical bytes only across census-provenance drift."""
+
+    frozen = _load_frozen_bundle(root)
+    historical_problem = DesignProblem.model_validate(
+        _mapping(frozen.get("smoke_problem")).get("design_problem")
+    )
+    historical_context = _build_frozen_cycle_substrate_context(
+        root,
+        bundle=frozen,
+        design_problem=historical_problem,
+    )
+    _require_valid_n4_owner_capture(
+        capture,
+        problem=historical_problem,
+        cycle_substrate_context=historical_context,
+    )
+    if _problem_without_census_provenance(
+        historical_problem
+    ) != _problem_without_census_provenance(problem):
+        raise ValueError("education_n4_historical_problem_semantic_drift")
+
+    current_issues = frozenset(
+        _n4_owner_capture_issues(
+            capture,
+            problem=problem,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    )
+    if current_issues != _HISTORICAL_N4_REPLAY_ISSUES:
+        raise ValueError(
+            "education_n4_historical_capture_not_replay_eligible:"
+            + ",".join(sorted(current_issues))
+        )
+    recorded_binding = _mapping(capture.get("input_binding"))
+    current_binding = _n4_owner_capture_input_binding(
+        problem,
+        cycle_substrate_context,
+    )
+    changed_binding_fields = frozenset(
+        key
+        for key in set(recorded_binding) | set(current_binding)
+        if recorded_binding.get(key) != current_binding.get(key)
+    )
+    if changed_binding_fields != _HISTORICAL_N4_REPLAY_BINDING_FIELDS:
+        raise ValueError(
+            "education_n4_historical_capture_binding_drift:"
+            + ",".join(sorted(changed_binding_fields))
+        )
+
+    responses = copy.deepcopy(_list_of_mappings(capture.get("responses")))
+    recording = {
+        "model_id": str(capture.get("model_id") or ""),
+        "responses": responses,
+    }
+    with _n4_recorded_runtime_environment(capture):
+        organ_run = await generate_design_candidate_bundle_under_a(
+            problem,
+            model_id=N4_CAPTURE_MODEL_ID,
+            llm_client=RecordedGenerationReplayClient(recording),
+            repo_root=root,
+            min_diverse_candidates=3,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    journal_receipt = copy.deepcopy(_mapping(capture.get("journal_receipt")))
+    replay_receipt = _historical_n4_replay_receipt(
+        capture=capture,
+        historical_problem=historical_problem,
+        current_problem=problem,
+        current_call_rows=_n4_call_evidence_rows(organ_run),
+        changed_binding_fields=changed_binding_fields,
+    )
+    refreshed = _assemble_n4_owner_capture(
+        organ_run,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+        journal_receipt=journal_receipt,
+        recording_source=_HISTORICAL_N4_RECORDING_SOURCE,
+        capture_environment=_mapping(capture.get("effective_runtime_environment")),
+        historical_replay_receipt=replay_receipt,
+    )
+    return (
+        refreshed,
+        {
+            "n4_source_capture_call_wall_seconds": 0.0,
             "n4_live_capture_journal_entry_count": journal_receipt[
                 "journal_entry_count"
             ],
@@ -3138,36 +3350,20 @@ def _n4_call_journal_receipt(path: Path) -> dict[str, Any]:
     }
 
 
-def _require_valid_n4_owner_capture(
-    capture: Mapping[str, Any],
-    *,
+def _n4_owner_capture_input_binding(
     problem: DesignProblem,
     cycle_substrate_context: CycleSubstrateContext,
-) -> None:
-    """Fail closed on tampered bytes, repointed inputs, or an unusable owner result."""
+) -> dict[str, Any]:
+    """Project the complete owner-derived identity bound by one N4 capture."""
 
-    issues: list[str] = []
-    recorded_hash = str(capture.get("recording_content_hash") or "")
-    computed_hash = _hash(
-        {
-            key: value
-            for key, value in capture.items()
-            if key != "recording_content_hash"
-        }
-    )
-    if recorded_hash != computed_hash:
-        issues.append("n4_owner_capture_content_hash_mismatch")
-    binding = _mapping(capture.get("input_binding"))
-    expected_binding = {
+    return {
         "design_problem_ref": gy_content_hash(problem.model_dump(mode="json")),
         "domain": cycle_substrate_context.domain,
         "source_pack_content_hash": cycle_substrate_context.source_pack_content_hash,
         "substrate_input_content_hash": (
             cycle_substrate_context.substrate_input_content_hash
         ),
-        "cycle_substrate_context_content_hash": (
-            cycle_substrate_context.content_hash
-        ),
+        "cycle_substrate_context_content_hash": cycle_substrate_context.content_hash,
         "substrate_registry_content_hash": (
             cycle_substrate_context.substrate_registry_content_hash
         ),
@@ -3181,6 +3377,140 @@ def _require_valid_n4_owner_capture(
             cycle_substrate_context.world_model_record_content_hash
         ),
     }
+
+
+def _n4_capture_call_evidence_rows(
+    capture: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Project the call denominator recorded by one persisted capture."""
+
+    return [
+        {
+            "call_index": int(response.get("call_index") or 0),
+            "role_hint": response.get("role_hint"),
+            "status": response.get("status"),
+            "model_id": response.get("model_id"),
+            "prompt_hash": response.get("prompt_hash"),
+            "raw_response_hash": response.get("raw_response_hash"),
+        }
+        for response in _list_of_mappings(capture.get("responses"))
+    ]
+
+
+def _historical_n4_replay_receipt_issues(
+    capture: Mapping[str, Any],
+    *,
+    problem: DesignProblem,
+) -> list[str]:
+    """Recompute the only allowed historical-prompt/current-prompt bridge."""
+
+    issues: list[str] = []
+    receipt = _mapping(capture.get("historical_replay_receipt"))
+    if not receipt:
+        return ["n4_owner_historical_replay_receipt_missing"]
+    stable = {
+        key: value
+        for key, value in receipt.items()
+        if key != "receipt_content_hash"
+    }
+    if receipt.get("receipt_content_hash") != _hash(stable):
+        issues.append("n4_owner_historical_replay_receipt_hash_mismatch")
+    if receipt.get("schema_version") != (
+        "policyos.policy_design_case.gy_n10.n4_replay_receipt.v1"
+    ):
+        issues.append("n4_owner_historical_replay_receipt_schema_mismatch")
+    current_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if receipt.get("current_design_problem_ref") != current_problem_ref:
+        issues.append("n4_owner_historical_replay_problem_ref_mismatch")
+    if receipt.get("problem_semantic_projection") != (
+        _problem_without_census_provenance(problem)
+    ):
+        issues.append("n4_owner_historical_replay_problem_semantic_mismatch")
+    if receipt.get("changed_binding_fields") != sorted(
+        _HISTORICAL_N4_REPLAY_BINDING_FIELDS
+    ):
+        issues.append("n4_owner_historical_replay_binding_fields_mismatch")
+    historical_capture_hash = receipt.get("historical_capture_content_hash")
+    historical_problem_ref = receipt.get("historical_design_problem_ref")
+    if not isinstance(historical_capture_hash, str) or not re.fullmatch(
+        r"sha256:[0-9a-f]{64}", historical_capture_hash
+    ):
+        issues.append("n4_owner_historical_capture_ref_invalid")
+    if (
+        not isinstance(historical_problem_ref, str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", historical_problem_ref)
+        or historical_problem_ref == current_problem_ref
+    ):
+        issues.append("n4_owner_historical_problem_ref_invalid")
+
+    historical_rows = _list_of_mappings(
+        _mapping(capture.get("journal_receipt")).get("call_evidence_rows")
+    )
+    current_rows = _n4_capture_call_evidence_rows(capture)
+    if len(historical_rows) != len(current_rows):
+        issues.append("n4_owner_historical_replay_call_denominator_mismatch")
+        return issues
+    expected_rebindings: list[dict[str, Any]] = []
+    stable_call_fields = (
+        "call_index",
+        "role_hint",
+        "status",
+        "model_id",
+        "raw_response_hash",
+    )
+    for historical_row, current_row in zip(
+        historical_rows,
+        current_rows,
+        strict=True,
+    ):
+        if any(
+            historical_row.get(field) != current_row.get(field)
+            for field in stable_call_fields
+        ):
+            issues.append("n4_owner_historical_replay_call_identity_mismatch")
+        expected_rebindings.append(
+            {
+                "call_index": current_row.get("call_index"),
+                "role_hint": current_row.get("role_hint"),
+                "raw_response_hash": current_row.get("raw_response_hash"),
+                "historical_prompt_hash": historical_row.get("prompt_hash"),
+                "replay_prompt_hash": current_row.get("prompt_hash"),
+            }
+        )
+    if receipt.get("call_rebindings") != expected_rebindings:
+        issues.append("n4_owner_historical_replay_call_binding_mismatch")
+    if not any(
+        row["historical_prompt_hash"] != row["replay_prompt_hash"]
+        for row in expected_rebindings
+    ):
+        issues.append("n4_owner_historical_replay_prompt_drift_missing")
+    return sorted(set(issues))
+
+
+def _n4_owner_capture_issues(
+    capture: Mapping[str, Any],
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> list[str]:
+    """Return every capture-integrity and current-owner binding issue."""
+
+    issues: list[str] = []
+    recorded_hash = str(capture.get("recording_content_hash") or "")
+    computed_hash = _hash(
+        {
+            key: value
+            for key, value in capture.items()
+            if key != "recording_content_hash"
+        }
+    )
+    if recorded_hash != computed_hash:
+        issues.append("n4_owner_capture_content_hash_mismatch")
+    binding = _mapping(capture.get("input_binding"))
+    expected_binding = _n4_owner_capture_input_binding(
+        problem,
+        cycle_substrate_context,
+    )
     if binding != expected_binding:
         issues.append("n4_owner_capture_input_binding_mismatch")
     responses = _list_of_mappings(capture.get("responses"))
@@ -3192,6 +3522,8 @@ def _require_valid_n4_owner_capture(
             "raw_response_hash"
         ) != _hash(raw_response):
             issues.append("n4_owner_capture_raw_response_hash_mismatch")
+        if response.get("raw_llm_response") != raw_response:
+            issues.append("n4_owner_capture_raw_response_alias_mismatch")
     projection = _mapping(capture.get("owner_result_projection"))
     issues.extend(
         _n4_owner_projection_issues(
@@ -3221,12 +3553,42 @@ def _require_valid_n4_owner_capture(
         != _hash(_list_of_mappings(journal.get("call_evidence_rows")))
     ):
         issues.append("n4_owner_capture_journal_receipt_invalid")
+    journal_rows = _list_of_mappings(journal.get("call_evidence_rows"))
+    current_rows = _n4_capture_call_evidence_rows(capture)
+    replay_receipt = _mapping(capture.get("historical_replay_receipt"))
+    if capture.get("recording_source") == _HISTORICAL_N4_RECORDING_SOURCE:
+        issues.extend(
+            _historical_n4_replay_receipt_issues(
+                capture,
+                problem=problem,
+            )
+        )
+    elif replay_receipt:
+        issues.append("n4_owner_historical_replay_receipt_unexpected")
+    elif journal_rows != current_rows:
+        issues.append("n4_owner_capture_journal_prompt_binding_mismatch")
     try:
         EffectiveGenerationRuntimeConfig.model_validate(
             projection.get("effective_runtime_config")
         )
     except ValueError:
         issues.append("n4_owner_capture_effective_config_invalid")
+    return sorted(set(issues))
+
+
+def _require_valid_n4_owner_capture(
+    capture: Mapping[str, Any],
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> None:
+    """Fail closed on tampered bytes, repointed inputs, or an unusable owner result."""
+
+    issues = _n4_owner_capture_issues(
+        capture,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+    )
     if issues:
         raise ValueError("education_n4_owner_capture_invalid:" + ",".join(sorted(set(issues))))
 

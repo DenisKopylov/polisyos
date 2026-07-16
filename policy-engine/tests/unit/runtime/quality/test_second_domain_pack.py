@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import ast
+import asyncio
 import copy
 import json
 import subprocess
@@ -102,6 +104,96 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
     assert bundle["census"]["decision"]["chosen_candidate"] == "education"
     assert bundle["pack"]["manifest_content_hash"].startswith("sha256:")
     assert not second_domain_pack.validate_bundle_payloads(bundle, REPO_ROOT)
+
+
+def test_live_bundle_replays_verified_historical_n4_bytes_on_provenance_drift(
+    live_bundle: dict[str, object],
+) -> None:
+    """Discard a stale projection only after exact historical-byte verification."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    historical_capture = frozen["cycle_trace"]["n4_owner_capture"]
+    refreshed = live_bundle["cycle_trace"]["n4_owner_capture"]
+
+    assert refreshed["recording_source"] == (
+        "historical_capture_raw_responses_replayed_through_current_n4_owner"
+    )
+    assert [row["raw_response_hash"] for row in refreshed["responses"]] == [
+        row["raw_response_hash"] for row in historical_capture["responses"]
+    ]
+    assert refreshed["input_binding"]["design_problem_ref"] == gy_content_hash(
+        live_bundle["smoke_problem"]["design_problem"]
+    )
+
+
+def test_historical_n4_replay_rejects_rehashed_non_identity_drift(
+    live_bundle: dict[str, object],
+) -> None:
+    """A non-hash capture defect remains fatal even with a coherent outer hash."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    corrupted = copy.deepcopy(frozen["cycle_trace"]["n4_owner_capture"])
+    corrupted["owner_result_projection"]["status"] = "blocked"
+    corrupted["recording_content_hash"] = second_domain_pack._hash(
+        {
+            key: value
+            for key, value in corrupted.items()
+            if key != "recording_content_hash"
+        }
+    )
+    problem = DesignProblem.model_validate(
+        live_bundle["smoke_problem"]["design_problem"]
+    )
+    context = second_domain_pack._build_cycle_substrate_context_from_bundle(
+        REPO_ROOT,
+        bundle=live_bundle,
+        design_problem=problem,
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="education_n4_owner_capture_invalid:n4_owner_status_not_generated",
+    ):
+        asyncio.run(
+            second_domain_pack._replay_historical_n4_owner_capture(
+                REPO_ROOT,
+                capture=corrupted,
+                problem=problem,
+                cycle_substrate_context=context,
+            )
+        )
+
+
+def test_historical_n4_capture_inner_raw_hash_survives_outer_rehash() -> None:
+    """Rehashing the envelope cannot launder tampered raw response bytes."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    problem = DesignProblem.model_validate(
+        frozen["smoke_problem"]["design_problem"]
+    )
+    context = second_domain_pack._build_frozen_cycle_substrate_context(
+        REPO_ROOT,
+        bundle=frozen,
+        design_problem=problem,
+    )
+    corrupted = copy.deepcopy(frozen["cycle_trace"]["n4_owner_capture"])
+    corrupted["responses"][0]["raw_response"] += " "
+    corrupted["responses"][0]["raw_llm_response"] += " "
+    corrupted["recording_content_hash"] = second_domain_pack._hash(
+        {
+            key: value
+            for key, value in corrupted.items()
+            if key != "recording_content_hash"
+        }
+    )
+
+    issues = second_domain_pack._n4_owner_capture_issues(
+        corrupted,
+        problem=problem,
+        cycle_substrate_context=context,
+    )
+
+    assert "n4_owner_capture_raw_response_hash_mismatch" in issues
 
 
 def _candidate_unbound_world_identity_witness() -> tuple[dict[str, object], dict[str, object]]:
@@ -1350,12 +1442,17 @@ def test_gap_segment_hash_ignores_unrelated_edits_and_detects_seam_edits(tmp_pat
     original = second_domain_pack._resolve_gap_witness(copied_root, spec)
     copied.write_text(source_text + "\n# unrelated audit probe\n", encoding="utf-8")
     unrelated = second_domain_pack._resolve_gap_witness(copied_root, spec)
+    tree = ast.parse(source_text)
+    target = next(
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == spec.symbol
+    )
+    segment = ast.get_source_segment(source_text, target)
+    assert segment is not None
     copied.write_text(
-        source_text.replace(
-            "registry = build_substrate_registry_from_existing_catalogs(repo_root)",
-            "registry = build_substrate_registry_from_existing_catalogs(repo_root)  # seam probe",
-            1,
-        ),
+        source_text.replace(segment, segment + "\n    _gy_n10_test_probe = None", 1),
         encoding="utf-8",
     )
     seam_changed = second_domain_pack._resolve_gap_witness(copied_root, spec)
@@ -1549,7 +1646,7 @@ def test_crash_or_mismatch_trace_cannot_be_labeled_honest(
     bundle = live_bundle
     corrupted = copy.deepcopy(bundle)
     corrupted["cycle_trace"]["smoke_status"] = "typed_terminal_pass"
-    corrupted["cycle_trace"]["generation_cycle_run"]["cycles"][0]["terminal_kind"] = "crash"
+    corrupted["cycle_trace"]["execution_status"] = "crashed"
 
     codes = {
         str(issue["code"])

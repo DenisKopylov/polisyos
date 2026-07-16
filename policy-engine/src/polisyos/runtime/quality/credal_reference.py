@@ -1991,6 +1991,7 @@ def _iter_l6_edges(
     lex_store = lex_module.LegalKnowledgeStore(
         repo_root / DEFAULT_L3_LEX_KG_PATH,
         (repo_root / DEFAULT_L3_LEX_KG_PATH).parent,
+        canonical_db_ref_path=DEFAULT_L3_LEX_KG_PATH,
     )
     version = bundle.content_hash
     for knob_id, raw in sorted(bundle.knob_dictionary.items()):

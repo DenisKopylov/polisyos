@@ -2940,6 +2940,7 @@ def test_n10_source_flip_denominator_covers_every_local_decisive_property() -> N
         "operational_clock_preservation_removed",
         "unbound_estimand_authority_fence_removed",
         "n7_design_problem_authority_removed",
+        "lex_reference_mount_path_independence_removed",
     ]
 
 

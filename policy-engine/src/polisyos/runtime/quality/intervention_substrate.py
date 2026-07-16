@@ -805,6 +805,7 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     lex_store = lex_module.LegalKnowledgeStore(
         repo_root / DEFAULT_L3_LEX_DB_PATH,
         (repo_root / DEFAULT_L3_LEX_DB_PATH).parent,
+        canonical_db_ref_path=DEFAULT_L3_LEX_DB_PATH,
     )
     threshold = lex_store.resolve_rule_threshold(
         threshold_id=_REPRESENTATIVE_L3_THRESHOLD_ID,

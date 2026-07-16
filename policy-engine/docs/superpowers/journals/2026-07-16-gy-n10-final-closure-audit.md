@@ -482,3 +482,30 @@ relative DB ref; external/default callers retain their existing physical ref. Ev
 URI emitted by the store consumes that one reference owner. A RED must prove that two physical
 checkouts over the same DB bytes produce identical provision/threshold refs and hence identical L6
 reference content. Replay equality and every CG gate remain unchanged.
+
+### I1 owner repair checkpoint
+
+`LegalKnowledgeStore` now separates its physical read path from one optional canonical evidence
+path and routes every provision, threshold, obligation, temporal-subject, and amendment DuckDB ref
+through the same helper. The standalone API keeps its existing physical-path default; the two
+repository-bound L6 owners explicitly provide the repo-relative canonical path. No row, threshold,
+relation, or grounding gate changed.
+
+```text
+RED before repair:
+  test_legal_store_evidence_refs_ignore_physical_checkout_path
+  TypeError: canonical_db_ref_path unsupported; exit 1
+focused Lex owner file: 4 passed; exit 0; 2.28 s
+real L6 law resolution/behavior probes: 3 passed; exit 0; 40.72 s
+two-root full CredalReference proof: exit 0; 413.68 s
+  reference_hashes=[sha256:706f49e7...90b74, sha256:706f49e7...90b74]
+  reference_epochs=[kref:706f49e73924a725, kref:706f49e73924a725]
+  L6 versions=[sha256:3f167b68...da81b, sha256:3f167b68...da81b]
+source flip lex_reference_mount_path_independence_removed:
+  RED; probe exit 1; signal observed; exact source restoration
+Ruff over owner/callers/validator/tests: All checks passed
+```
+
+The canonical repo-relative identity intentionally changes the prior absolute-path-derived L6 and
+CG certificate hashes. The canonical provenance ladder and capstone remain pending a single writer
+rebaseline; accepting the warmed historical hashes would preserve the defect.

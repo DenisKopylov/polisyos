@@ -5006,6 +5006,22 @@ def _n10_source_flip_cases() -> tuple[_N10SourceFlipCase, ...]:
                 "test_acquisition_required_invokes_n7_and_records_same_cycle_reentry"
             ),
         ),
+        _N10SourceFlipCase(
+            mutation_id="lex_reference_mount_path_independence_removed",
+            relative_path="src/polisyos/lex/knowledge/store.py",
+            old_source=(
+                "        self._canonical_db_ref_path = "
+                "canonical_db_ref_path or db_path\n"
+            ),
+            new_source="        self._canonical_db_ref_path = db_path\n",
+            probe_nodeid=(
+                "tests/unit/lex/test_knowledge_store_filters.py::"
+                "test_legal_store_evidence_refs_ignore_physical_checkout_path"
+            ),
+            expected_red_signal=(
+                "test_legal_store_evidence_refs_ignore_physical_checkout_path"
+            ),
+        ),
     )
 
 

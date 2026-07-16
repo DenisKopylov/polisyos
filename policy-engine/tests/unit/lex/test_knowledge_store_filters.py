@@ -1,8 +1,72 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import duckdb
 import pytest
+
 from polisyos.lex.knowledge.store import LegalKnowledgeStore
+
+
+def test_legal_store_evidence_refs_ignore_physical_checkout_path(tmp_path) -> None:
+    canonical_path = Path("production_data/lex/canonical/lex_knowledge_graph.duckdb")
+    observed = []
+    threshold_row = (
+        "threshold-1",
+        "fact-1",
+        "tax_rate",
+        "<=",
+        0.2,
+        "",
+        "ratio",
+        "firms",
+        "doc-1",
+        "family-1",
+        "version-1",
+        "body:1/item:1",
+        "article 1",
+        "UA",
+        "fiscal",
+        "obligation",
+        "obligation",
+        "2024-01-01",
+        "",
+        "resolved",
+        "normative_fact",
+    )
+    for checkout_name in ("checkout-a", "checkout-b"):
+        db_path = tmp_path / checkout_name / "lex_knowledge_graph.duckdb"
+        db_path.parent.mkdir()
+        with duckdb.connect(str(db_path)):
+            pass
+        store = LegalKnowledgeStore(
+            db_path=db_path,
+            index_dir=db_path.parent,
+            canonical_db_ref_path=canonical_path,
+        )
+        try:
+            threshold = store._to_rule_threshold_row(threshold_row)
+            evaluation = store._threshold_evaluation(
+                threshold,
+                status="admitted",
+                reason="threshold_satisfied",
+            )
+            observed.append((threshold.provision_ref, evaluation.threshold_ref))
+        finally:
+            store.close()
+
+    expected_provision_ref = (
+        "duckdb://production_data/lex/canonical/lex_knowledge_graph.duckdb"
+        "#lex_provisions/doc-1:body:1/item:1"
+    )
+    expected_threshold_ref = (
+        "duckdb://production_data/lex/canonical/lex_knowledge_graph.duckdb"
+        "#lex_rule_thresholds/threshold-1"
+    )
+    assert observed == [
+        (expected_provision_ref, expected_threshold_ref),
+        (expected_provision_ref, expected_threshold_ref),
+    ]
 
 
 def test_legal_knowledge_store_prefers_high_trust_layers(tmp_path) -> None:

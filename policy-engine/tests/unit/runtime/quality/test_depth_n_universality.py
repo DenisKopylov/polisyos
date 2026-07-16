@@ -2763,12 +2763,18 @@ def test_education_refusal_rejects_transplanted_early_acquisition_report() -> No
     validator, payload = _complete_universality_payload()
     education = payload["domain_runs"]["education"]
     report = education["terminal"]["costed_plan"]["canonical_planner_report"]
-    report["acquisition_records"][0]["requirement_gap_id"] = (
+    report["acquisition_records"][0]["requirement_gap_ref"] = (
         "requirement-gap:data_requirement:transplanted"
     )
+    report_hash = validator._semantic_hash(report)
     education["stage_trace"]["acquisition"][
         "planner_report_content_hash"
-    ] = validator._semantic_hash(report)
+    ] = report_hash
+    witness = education["evidence_witness"]
+    witness["grounding_route"]["planner_report_content_hash"] = report_hash
+    witness["content_hash"] = validator._semantic_hash(
+        {key: value for key, value in witness.items() if key != "content_hash"}
+    )
     education["content_hash"] = validator._semantic_hash(
         {key: value for key, value in education.items() if key != "content_hash"}
     )

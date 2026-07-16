@@ -441,3 +441,15 @@ typed `requirement_gap_ref`, recomputes the planner hash, and rebinds the stored
 outer hashes. On the normal owner path the regenerated report must still reject the transplant; with
 only the `report != expected_report` comparison removed, the mutation must become an otherwise
 coherent payload and the focused probe must turn RED.
+
+Repair evidence:
+
+```text
+strengthened schema-valid transplant against normal owner:
+  1 passed; exit 0; 20.603541 s
+canonical_route_recompute_removed isolated source flip:
+  RED; exit 0 harness; probe exit 1; signal observed; 20.348491 s
+  restored validator sha256=f39684559f90ce956c176d5bdaee869268a3c22c9d66e3316aade359fd789b7c
+.venv/bin/ruff check test_depth_n_universality.py:
+  exit 0; All checks passed
+```

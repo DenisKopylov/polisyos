@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+import os
+from collections import Counter
 from importlib import import_module
 from pathlib import Path
 from typing import Any
@@ -7,6 +10,45 @@ from typing import Any
 import duckdb
 import pytest
 from pydantic import ValidationError
+
+
+def _insert_owner_rows(
+    connection: duckdb.DuckDBPyConnection,
+    *,
+    suffix: str,
+    connector_id: str,
+    execution_tier: str,
+    raw_variable: str,
+    parser_supported: bool = True,
+) -> None:
+    connection.execute(
+        "INSERT INTO ds_datasets VALUES (?, 'CC-BY-4.0', FALSE, ?)",
+        [f"dataset-{suffix}", execution_tier],
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_distributions VALUES (?, ?, ?, ?, ?, 0.8, ?)
+        """,
+        [
+            f"distribution-{suffix}",
+            f"dataset-{suffix}",
+            f"https://example.test/{suffix}",
+            connector_id,
+            f"profile-{suffix}",
+            parser_supported,
+        ],
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_schema_profiles VALUES (?, ?, ?, 1, ?, 'sample', 'json')
+        """,
+        [
+            f"distribution-{suffix}",
+            f"dataset-{suffix}",
+            json.dumps([raw_variable]),
+            "sha256:" + "a" * 64,
+        ],
+    )
 
 
 @pytest.fixture
@@ -61,7 +103,8 @@ def catalog_path(tmp_path: Path) -> Path:
             url VARCHAR,
             connector_type VARCHAR,
             profile_id VARCHAR,
-            quality_score DOUBLE
+            quality_score DOUBLE,
+            parser_supported BOOLEAN
         )
         """
     )
@@ -102,6 +145,52 @@ def catalog_path(tmp_path: Path) -> Path:
         )
         """
     )
+    _insert_owner_rows(
+        connection,
+        suffix="a",
+        connector_id="family.alpha",
+        execution_tier="transport_ready",
+        raw_variable="raw-alpha",
+    )
+    _insert_owner_rows(
+        connection,
+        suffix="b",
+        connector_id="family.beta",
+        execution_tier="fetchable",
+        raw_variable="raw-alpha",
+    )
+    _insert_owner_rows(
+        connection,
+        suffix="c",
+        connector_id="family.alpha",
+        execution_tier="catalog",
+        raw_variable="raw-beta",
+    )
+    _insert_owner_rows(
+        connection,
+        suffix="d",
+        connector_id="family.beta",
+        execution_tier="transport_ready",
+        raw_variable="raw-delta",
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_observations VALUES
+            ('observation-alpha', 'dataset-a', 'raw-alpha', 'metric_alpha'),
+            ('observation-unrelated', 'dataset-z', 'raw-delta', 'metric_delta')
+        """
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_variable_alignments VALUES
+            ('dataset-a', 'raw-alpha', 'metric_alpha', 'owner_exact', 0.99,
+             'fixture-alpha', FALSE, 0.0),
+            ('dataset-c', 'raw-beta', 'metric_beta', 'owner_alignment', 0.85,
+             'fixture-beta', FALSE, 0.0),
+            ('dataset-z', 'raw-delta', 'metric_delta', 'unrelated_alignment', 0.95,
+             'fixture-unrelated', FALSE, 0.0)
+        """
+    )
     connection.close()
     return path
 
@@ -119,6 +208,8 @@ def test_census_boundary_models_are_strict() -> None:
         census.CatalogIdentity,
         census.AlignmentCandidate,
         census.MetricResolution,
+        census.DemandRequirement,
+        census.DemandVariableEvidence,
         census.ReverseDemandResidual,
         census.RouteEvidence,
         census.FetchPlanProjection,
@@ -130,6 +221,7 @@ def test_census_boundary_models_are_strict() -> None:
         census.FamilyScorecard,
         census.GrowthBacklogRow,
         census.ProjectionBinding,
+        census.DemandProjection,
         census.CensusManifest,
     )
 
@@ -167,6 +259,13 @@ def test_catalog_source_does_not_pin_metric_or_family_denominators(
     census = _census()
     before = census.read_catalog_source(catalog_path, source_locator="fixture")
     connection = duckdb.connect(str(catalog_path))
+    _insert_owner_rows(
+        connection,
+        suffix="g",
+        connector_id="family.gamma",
+        execution_tier="fetchable",
+        raw_variable="raw-gamma",
+    )
     connection.execute(
         """
         INSERT INTO ds_metric_bindings VALUES
@@ -199,6 +298,113 @@ def test_catalog_source_fails_closed_on_fake_schema_profile_contract(
 
     assert exc_info.value.code == "catalog_schema_missing_columns"
     assert "ds_schema_profiles.inference_mode" in str(exc_info.value)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "expected_code"),
+    [
+        (
+            "DELETE FROM ds_datasets WHERE id = 'dataset-a'",
+            "catalog_binding_dataset_missing",
+        ),
+        (
+            "DELETE FROM ds_distributions WHERE id = 'distribution-a'",
+            "catalog_binding_distribution_missing",
+        ),
+        (
+            "UPDATE ds_distributions SET dataset_id = 'dataset-z' "
+            "WHERE id = 'distribution-a'",
+            "catalog_binding_distribution_dataset_mismatch",
+        ),
+        (
+            "UPDATE ds_distributions SET connector_type = 'family.fake' "
+            "WHERE id = 'distribution-a'",
+            "catalog_binding_connector_mismatch",
+        ),
+        (
+            "UPDATE ds_distributions SET profile_id = 'profile-fake' "
+            "WHERE id = 'distribution-a'",
+            "catalog_binding_profile_mismatch",
+        ),
+        (
+            "UPDATE ds_metric_bindings SET request_dataset_id = ' ' "
+            "WHERE distribution_id = 'distribution-a'",
+            "catalog_binding_request_dataset_id_invalid",
+        ),
+        (
+            "UPDATE ds_metric_bindings SET execution_tier = 'magic' "
+            "WHERE distribution_id = 'distribution-a'",
+            "catalog_binding_execution_tier_invalid",
+        ),
+        (
+            "UPDATE ds_metric_bindings SET execution_tier = 'transport_ready' "
+            "WHERE distribution_id = 'distribution-c'",
+            "catalog_binding_execution_tier_mismatch",
+        ),
+        (
+            "UPDATE ds_distributions SET parser_supported = FALSE "
+            "WHERE id = 'distribution-a'",
+            "catalog_binding_executable_parser_unsupported",
+        ),
+        (
+            "DELETE FROM ds_schema_profiles "
+            "WHERE distribution_id = 'distribution-a'",
+            "catalog_binding_executable_schema_profile_missing",
+        ),
+    ],
+)
+def test_metric_resolution_fails_closed_on_invalid_binding_owner_edges(
+    catalog_path: Path,
+    mutation: str,
+    expected_code: str,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute(mutation)
+    connection.close()
+
+    with pytest.raises(census.CatalogContractError) as exc_info:
+        census.derive_metric_resolutions(catalog_path)
+
+    assert exc_info.value.code == expected_code
+
+
+@pytest.mark.parametrize("read_path", ["source", "resolution", "reverse_demand"])
+def test_all_catalog_read_paths_share_fake_executable_validation(
+    catalog_path: Path,
+    read_path: str,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute(
+        """
+        UPDATE ds_distributions
+        SET parser_supported = FALSE
+        WHERE id = 'distribution-a'
+        """
+    )
+    connection.close()
+
+    def read_catalog_path() -> None:
+        if read_path == "source":
+            census.read_catalog_source(catalog_path, source_locator="fixture")
+        elif read_path == "resolution":
+            census.derive_metric_resolutions(catalog_path)
+        else:
+            census.measure_reverse_demand(
+                catalog_path,
+                (
+                    census.DemandRequirement(
+                        variable_id="metric_alpha",
+                        demand_sources=("fixture.metric_alpha",),
+                    ),
+                ),
+            )
+
+    with pytest.raises(census.CatalogContractError) as exc_info:
+        read_catalog_path()
+
+    assert exc_info.value.code == "catalog_binding_executable_parser_unsupported"
 
 
 @pytest.mark.parametrize(
@@ -374,12 +580,15 @@ def test_other_count_maps_reject_negative_values() -> None:
 
 def _alignment_candidate(census: Any) -> Any:
     return census.AlignmentCandidate(
-        canonical_variable="canonical-a",
+        dataset_id="dataset-a",
+        raw_variable="raw-a",
+        canonical_variable="metric-b",
         confidence=0.9,
         is_proxy=False,
         proxy_penalty=0.0,
         method="owner",
         evidence="fixture",
+        bound_observation_edge_missing=False,
     )
 
 
@@ -390,20 +599,44 @@ def test_metric_resolution_enforces_status_evidence_algebra() -> None:
     exact = census.MetricResolution(
         metric_id="metric-a",
         resolution_status=census.ResolutionStatus.EXACT,
+        resolution_scope=census.ResolutionScope.DATASET_LEVEL_IDENTITY,
         binding_count=1,
+        binding_dataset_count=1,
+        exact_observation_count=1,
+        alignment_candidate_count=0,
+        binding_tier_counts={"catalog": 1},
+        connector_ids=("family.alpha",),
         exact_canonical_variable="metric-a",
+        limitations=(
+            census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
+        ),
     )
     aligned = census.MetricResolution(
         metric_id="metric-b",
         resolution_status=census.ResolutionStatus.VIA_ALIGNMENT,
+        resolution_scope=census.ResolutionScope.DATASET_LEVEL_IDENTITY,
         binding_count=1,
+        binding_dataset_count=1,
+        exact_observation_count=0,
+        alignment_candidate_count=1,
+        binding_tier_counts={"catalog": 1},
+        connector_ids=("family.alpha",),
         best_alignment=candidate,
         alignment_candidates=(candidate,),
+        limitations=(
+            census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
+        ),
     )
     unresolved = census.MetricResolution(
         metric_id="metric-c",
         resolution_status=census.ResolutionStatus.UNRESOLVED,
+        resolution_scope=census.ResolutionScope.DATASET_LEVEL_IDENTITY,
         binding_count=1,
+        binding_dataset_count=1,
+        exact_observation_count=0,
+        alignment_candidate_count=0,
+        binding_tier_counts={"catalog": 1},
+        connector_ids=("family.alpha",),
     )
 
     assert exact.exact_canonical_variable == "metric-a"
@@ -414,17 +647,41 @@ def test_metric_resolution_enforces_status_evidence_algebra() -> None:
         {
             "metric_id": "metric-a",
             "resolution_status": census.ResolutionStatus.EXACT,
+            "resolution_scope": census.ResolutionScope.DATASET_LEVEL_IDENTITY,
             "binding_count": 1,
+            "binding_dataset_count": 1,
+            "exact_observation_count": 0,
+            "alignment_candidate_count": 0,
+            "binding_tier_counts": {"catalog": 1},
+            "connector_ids": ("family.alpha",),
+            "limitations": (
+                census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
+            ),
         },
         {
             "metric_id": "metric-b",
             "resolution_status": census.ResolutionStatus.VIA_ALIGNMENT,
+            "resolution_scope": census.ResolutionScope.DATASET_LEVEL_IDENTITY,
             "binding_count": 1,
+            "binding_dataset_count": 1,
+            "exact_observation_count": 0,
+            "alignment_candidate_count": 0,
+            "binding_tier_counts": {"catalog": 1},
+            "connector_ids": ("family.alpha",),
+            "limitations": (
+                census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
+            ),
         },
         {
             "metric_id": "metric-c",
             "resolution_status": census.ResolutionStatus.UNRESOLVED,
+            "resolution_scope": census.ResolutionScope.DATASET_LEVEL_IDENTITY,
             "binding_count": 1,
+            "binding_dataset_count": 1,
+            "exact_observation_count": 0,
+            "alignment_candidate_count": 1,
+            "binding_tier_counts": {"catalog": 1},
+            "connector_ids": ("family.alpha",),
             "best_alignment": candidate,
             "alignment_candidates": (candidate,),
         },
@@ -442,3 +699,581 @@ def test_canonical_json_bytes_are_byte_stable() -> None:
 
     assert census.canonical_json_bytes(left) == census.canonical_json_bytes(right)
     assert census.canonical_json_bytes(left).endswith(b"\n")
+
+
+def test_metric_resolution_partition_uses_only_binding_linked_owner_evidence(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+
+    rows = census.derive_metric_resolutions(catalog_path)
+    by_metric = {row.metric_id: row for row in rows}
+
+    assert Counter(row.resolution_status for row in rows) == {
+        census.ResolutionStatus.EXACT: 1,
+        census.ResolutionStatus.VIA_ALIGNMENT: 1,
+        census.ResolutionStatus.UNRESOLVED: 1,
+    }
+    assert by_metric["metric_alpha"].exact_observation_count == 1
+    assert by_metric["metric_alpha"].binding_tier_counts == {
+        "fetchable": 1,
+        "transport_ready": 1,
+    }
+    assert by_metric["metric_alpha"].connector_ids == (
+        "family.alpha",
+        "family.beta",
+    )
+    assert by_metric["metric_alpha"].limitations == (
+        census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
+    )
+    assert by_metric["metric_beta"].best_alignment.dataset_id == "dataset-c"
+    assert by_metric["metric_beta"].best_alignment.raw_variable == "raw-beta"
+    assert by_metric["metric_beta"].alignment_candidate_count == 1
+    assert by_metric["metric_delta"].resolution_status is census.ResolutionStatus.UNRESOLVED
+
+
+def test_resolution_scope_and_limitations_recompute_from_catalog_keys(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute("ALTER TABLE ds_metric_bindings ADD COLUMN raw_variable VARCHAR")
+    connection.execute("ALTER TABLE ds_observations ADD COLUMN distribution_id VARCHAR")
+    connection.execute(
+        """
+        UPDATE ds_metric_bindings
+        SET raw_variable = CASE dataset_id
+            WHEN 'dataset-a' THEN 'raw-alpha'
+            WHEN 'dataset-b' THEN 'raw-alpha'
+            WHEN 'dataset-c' THEN 'raw-beta'
+            WHEN 'dataset-d' THEN 'raw-delta'
+        END
+        """
+    )
+    connection.execute(
+        """
+        UPDATE ds_observations
+        SET distribution_id = CASE dataset_id
+            WHEN 'dataset-a' THEN 'distribution-a'
+            ELSE 'distribution-z'
+        END
+        """
+    )
+    connection.close()
+
+    rows = census.derive_metric_resolutions(catalog_path)
+    by_metric = {row.metric_id: row for row in rows}
+
+    assert all(
+        row.resolution_scope is census.ResolutionScope.DISTRIBUTION_FIELD_BOUND
+        for row in rows
+    )
+    assert by_metric["metric_alpha"].resolution_status is census.ResolutionStatus.EXACT
+    assert (
+        by_metric["metric_beta"].resolution_status
+        is census.ResolutionStatus.VIA_ALIGNMENT
+    )
+    assert by_metric["metric_alpha"].limitations == ()
+    assert by_metric["metric_beta"].limitations == ()
+
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute(
+        """
+        UPDATE ds_metric_bindings
+        SET raw_variable = 'not-raw-beta'
+        WHERE metric_id = 'metric_beta'
+        """
+    )
+    connection.close()
+    flipped = next(
+        row
+        for row in census.derive_metric_resolutions(catalog_path)
+        if row.metric_id == "metric_beta"
+    )
+
+    assert flipped.resolution_status is census.ResolutionStatus.UNRESOLVED
+
+
+def test_unrelated_dataset_alignment_does_not_resolve_metric(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+
+    row = next(
+        row
+        for row in census.derive_metric_resolutions(catalog_path)
+        if row.metric_id == "metric_delta"
+    )
+
+    assert row.resolution_status is census.ResolutionStatus.UNRESOLVED
+    assert row.alignment_candidates == ()
+
+
+def test_same_dataset_predicate_is_decisive_for_exact_resolution(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute(
+        """
+        INSERT INTO ds_observations VALUES
+            ('observation-beta-unrelated', 'dataset-z', 'raw-beta', 'metric_beta')
+        """
+    )
+    connection.close()
+
+    before = next(
+        row
+        for row in census.derive_metric_resolutions(catalog_path)
+        if row.metric_id == "metric_beta"
+    )
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute(
+        """
+        UPDATE ds_observations
+        SET dataset_id = 'dataset-c'
+        WHERE observation_id = 'observation-beta-unrelated'
+        """
+    )
+    connection.close()
+    after = next(
+        row
+        for row in census.derive_metric_resolutions(catalog_path)
+        if row.metric_id == "metric_beta"
+    )
+
+    assert before.resolution_status is census.ResolutionStatus.VIA_ALIGNMENT
+    assert after.resolution_status is census.ResolutionStatus.EXACT
+
+
+def test_metric_resolution_denominator_grows_without_code_changes(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    _insert_owner_rows(
+        connection,
+        suffix="n",
+        connector_id="family.novel",
+        execution_tier="fetchable",
+        raw_variable="raw-novel",
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_metric_bindings VALUES
+            ('metric_novel', 'dataset-n', 'distribution-n', 'family.novel',
+             'profile-n', 'request-n', 0.88, 0.8, '{}', 'fetchable', 'fixture')
+        """
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_variable_alignments VALUES
+            ('dataset-n', 'raw-novel', 'metric_novel', 'owner_alignment', 0.87,
+             'fixture-novel', TRUE, 0.25)
+        """
+    )
+    connection.close()
+
+    rows = census.derive_metric_resolutions(catalog_path)
+    novel = next(row for row in rows if row.metric_id == "metric_novel")
+
+    assert len(rows) == 4
+    assert novel.resolution_status is census.ResolutionStatus.VIA_ALIGNMENT
+    assert novel.proxy_only is True
+    assert novel.best_alignment.proxy_penalty == 0.25
+    assert novel.limitations == (
+        census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,
+    )
+
+
+def test_resolution_status_is_recomputed_when_decisive_owner_edge_changes(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    before = next(
+        row
+        for row in census.derive_metric_resolutions(catalog_path)
+        if row.metric_id == "metric_beta"
+    )
+    connection = duckdb.connect(str(catalog_path))
+    _insert_owner_rows(
+        connection,
+        suffix="o",
+        connector_id="family.alpha",
+        execution_tier="catalog",
+        raw_variable="raw-catalog-only",
+    )
+    connection.execute(
+        """
+        UPDATE ds_variable_alignments
+        SET canonical_var = 'not_metric_beta'
+        WHERE dataset_id = 'dataset-c'
+        """
+    )
+    connection.close()
+    after = next(
+        row
+        for row in census.derive_metric_resolutions(catalog_path)
+        if row.metric_id == "metric_beta"
+    )
+
+    assert before.resolution_status is census.ResolutionStatus.VIA_ALIGNMENT
+    assert after.resolution_status is census.ResolutionStatus.UNRESOLVED
+
+
+def test_alignment_order_and_proxy_evidence_recompute_from_owner_rows(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute(
+        """
+        INSERT INTO ds_variable_alignments VALUES
+            ('dataset-c', 'raw-beta-second', 'metric_beta', 'owner_alignment', 0.80,
+             'fixture-beta-second', FALSE, 0.0)
+        """
+    )
+    connection.close()
+    before = next(
+        row
+        for row in census.derive_metric_resolutions(catalog_path)
+        if row.metric_id == "metric_beta"
+    )
+
+    connection = duckdb.connect(str(catalog_path))
+    connection.execute(
+        """
+        UPDATE ds_variable_alignments
+        SET confidence = 0.65, is_proxy = TRUE, proxy_penalty = 0.30
+        WHERE dataset_id = 'dataset-c' AND raw_variable = 'raw-beta'
+        """
+    )
+    connection.close()
+    after = next(
+        row
+        for row in census.derive_metric_resolutions(catalog_path)
+        if row.metric_id == "metric_beta"
+    )
+
+    assert before.alignment_ambiguous is True
+    assert before.best_alignment.raw_variable == "raw-beta"
+    assert after.best_alignment.raw_variable == "raw-beta-second"
+    mutated = next(
+        candidate
+        for candidate in after.alignment_candidates
+        if candidate.raw_variable == "raw-beta"
+    )
+    assert mutated.confidence == 0.65
+    assert mutated.is_proxy is True
+    assert mutated.proxy_penalty == 0.30
+
+
+def _upstream_demand_payloads() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    capstone = {
+        "domain_runs": {
+            "renamed_route": {
+                "domain_role": "renamed_domain",
+                "design_problem": {
+                    "outcome_of_interest": {
+                        "metric_id": "outcome_metric",
+                        "target_variable": "outcome_target",
+                    },
+                    "objectives": [{"metric_id": "objective_metric"}],
+                    "candidate_lever_space": {
+                        "candidate_levers": [{"target_slot": "lever_target"}]
+                    },
+                },
+            }
+        }
+    }
+    intervention_substrate = {
+        "measured_coverage": {
+            "world_slot": {
+                "details": [{"target_world_slots": ["world.slot", "world.other"]}]
+            }
+        }
+    }
+    value_gate = {
+        "transport_component_proofs": {
+            "renamed_proof": {
+                "selection_nodes": [{"target_variable": "transport_target"}]
+            }
+        }
+    }
+    return capstone, intervention_substrate, value_gate
+
+
+def test_reverse_demand_projection_is_generic_and_content_bound() -> None:
+    census = _census()
+    capstone, intervention_substrate, value_gate = _upstream_demand_payloads()
+
+    projection = census.extract_reverse_demand_projection(
+        capstone=capstone,
+        intervention_substrate=intervention_substrate,
+        value_gate=value_gate,
+        capstone_source="capstone.json",
+        intervention_substrate_source="l6.json",
+        value_gate_source="value.json",
+    )
+
+    assert tuple(row.variable_id for row in projection.demands) == (
+        "lever_target",
+        "objective_metric",
+        "outcome_metric",
+        "outcome_target",
+        "transport_target",
+        "world.other",
+        "world.slot",
+    )
+    assert projection.demands[0].demand_sources == (
+        "capstone.domain_runs.renamed_route.design_problem."
+        "candidate_lever_space.candidate_levers[0].target_slot",
+    )
+    assert tuple(binding.projection_id for binding in projection.projection_bindings) == (
+        "capstone_cycle_demands",
+        "intervention_substrate_world_slots",
+        "value_gate_target_requirements",
+    )
+
+    changed = dict(value_gate)
+    changed["transport_component_proofs"] = {
+        "new_key": {
+            "selection_nodes": [{"target_variable": "novel_transport_target"}]
+        }
+    }
+    changed_projection = census.extract_reverse_demand_projection(
+        capstone=capstone,
+        intervention_substrate=intervention_substrate,
+        value_gate=changed,
+        capstone_source="capstone.json",
+        intervention_substrate_source="l6.json",
+        value_gate_source="value.json",
+    )
+
+    assert "novel_transport_target" in {
+        row.variable_id for row in changed_projection.demands
+    }
+    assert (
+        projection.projection_bindings[-1].projection_content_sha256
+        != changed_projection.projection_bindings[-1].projection_content_sha256
+    )
+
+
+def test_reverse_demand_measurement_keeps_supported_rows_and_typed_residuals(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    capstone, intervention_substrate, value_gate = _upstream_demand_payloads()
+    capstone["domain_runs"]["renamed_route"]["design_problem"][
+        "outcome_of_interest"
+    ]["metric_id"] = "metric_alpha"
+    capstone["domain_runs"]["renamed_route"]["design_problem"]["objectives"] = [
+        {"metric_id": "metric_beta"}
+    ]
+    connection = duckdb.connect(str(catalog_path))
+    _insert_owner_rows(
+        connection,
+        suffix="o",
+        connector_id="family.alpha",
+        execution_tier="catalog",
+        raw_variable="raw-catalog-only",
+    )
+    connection.execute(
+        """
+        INSERT INTO ds_metric_bindings VALUES
+            ('catalog_only_metric', 'dataset-o', 'distribution-o', 'family.alpha',
+             'profile-o', 'request-o', 0.4, 0.4, '{}', 'catalog', 'fixture')
+        """
+    )
+    capstone["domain_runs"]["renamed_route"]["design_problem"][
+        "outcome_of_interest"
+    ]["target_variable"] = "catalog_only_metric"
+    connection.close()
+    projection = census.extract_reverse_demand_projection(
+        capstone=capstone,
+        intervention_substrate=intervention_substrate,
+        value_gate=value_gate,
+        capstone_source="capstone.json",
+        intervention_substrate_source="l6.json",
+        value_gate_source="value.json",
+    )
+
+    rows = census.measure_reverse_demand(catalog_path, projection.demands)
+    by_variable = {row.variable_id: row for row in rows}
+    residuals = census.reverse_demand_residuals(rows)
+
+    assert len(rows) == len(projection.demands)
+    assert by_variable["metric_alpha"].gap_kind is None
+    assert by_variable["metric_alpha"].executable_binding_count == 2
+    assert by_variable["catalog_only_metric"].gap_kind is census.DemandGapKind.CONNECTOR
+    assert by_variable["catalog_only_metric"].binding_tier_counts == {"catalog": 1}
+    assert by_variable["metric_beta"].gap_kind is census.DemandGapKind.CONNECTOR
+    assert by_variable["lever_target"].gap_kind is census.DemandGapKind.BINDING
+    assert {row.variable_id for row in residuals} == {
+        row.variable_id for row in rows if row.gap_kind is not None
+    }
+
+
+def test_reverse_demand_projection_rejects_denominator_shrink() -> None:
+    census = _census()
+    capstone, intervention_substrate, value_gate = _upstream_demand_payloads()
+    del capstone["domain_runs"]["renamed_route"]["design_problem"][
+        "outcome_of_interest"
+    ]["metric_id"]
+
+    with pytest.raises(census.CatalogContractError) as exc_info:
+        census.extract_reverse_demand_projection(
+            capstone=capstone,
+            intervention_substrate=intervention_substrate,
+            value_gate=value_gate,
+            capstone_source="capstone.json",
+            intervention_substrate_source="l6.json",
+            value_gate_source="value.json",
+        )
+
+    assert exc_info.value.code == "demand_projection_missing_field"
+
+
+def test_checker_accepts_external_upstream_artifact_paths(
+    catalog_path: Path,
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    checker = import_module(
+        "tools.quality.validation.check_layer3_gy_n13a_acquisition_census"
+    )
+    capstone, intervention_substrate, value_gate = _upstream_demand_payloads()
+    artifact_payloads = {
+        "external-capstone.json": capstone,
+        "external-l6.json": intervention_substrate,
+        "external-value.json": value_gate,
+    }
+    for filename, payload in artifact_payloads.items():
+        (tmp_path / filename).write_text(json.dumps(payload), encoding="utf-8")
+
+    exit_code = checker.main(
+        [
+            "--catalog-path",
+            str(catalog_path),
+            "--capstone-path",
+            str(tmp_path / "external-capstone.json"),
+            "--intervention-substrate-path",
+            str(tmp_path / "external-l6.json"),
+            "--value-gate-path",
+            str(tmp_path / "external-value.json"),
+        ]
+    )
+    payload = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 0
+    assert [
+        row["source_artifact"]
+        for row in payload["reverse_demand_summary"]["projection_bindings"]
+    ] == [
+        "external://external-capstone.json",
+        "external://external-l6.json",
+        "external://external-value.json",
+    ]
+
+
+def test_production_metric_resolution_partition_when_catalog_is_declared() -> None:
+    catalog_value = os.environ.get("POLISYOS_N13A_PRODUCTION_CATALOG")
+    if not catalog_value:
+        pytest.skip("set POLISYOS_N13A_PRODUCTION_CATALOG for the read-only census witness")
+    census = _census()
+
+    catalog_path = Path(catalog_value)
+    rows = census.derive_metric_resolutions(catalog_path)
+    connection = duckdb.connect(str(catalog_path), read_only=True)
+    try:
+        metric_ids = tuple(
+            str(row[0])
+            for row in connection.execute(
+                """
+                SELECT DISTINCT metric_id
+                FROM ds_metric_bindings
+                ORDER BY metric_id
+                """
+            ).fetchall()
+        )
+        columns = {
+            (str(table_name), str(column_name))
+            for table_name, column_name in connection.execute(
+                """
+                SELECT table_name, column_name
+                FROM information_schema.columns
+                WHERE table_name IN ('ds_metric_bindings', 'ds_observations')
+                """
+            ).fetchall()
+        }
+        field_bound = (
+            ("ds_metric_bindings", "raw_variable") in columns
+            and ("ds_observations", "distribution_id") in columns
+        )
+        if field_bound:
+            exact_query = """
+                SELECT DISTINCT binding.metric_id
+                FROM ds_metric_bindings AS binding
+                JOIN ds_observations AS observed
+                  ON observed.dataset_id = binding.dataset_id
+                 AND observed.distribution_id = binding.distribution_id
+                 AND observed.raw_variable = binding.raw_variable
+                 AND observed.canonical_var = binding.metric_id
+            """
+            alignment_query = """
+                SELECT DISTINCT binding.metric_id
+                FROM ds_metric_bindings AS binding
+                JOIN ds_variable_alignments AS aligned
+                  ON aligned.dataset_id = binding.dataset_id
+                 AND aligned.raw_variable = binding.raw_variable
+                 AND aligned.canonical_var = binding.metric_id
+            """
+        else:
+            exact_query = """
+                SELECT DISTINCT binding.metric_id
+                FROM ds_metric_bindings AS binding
+                JOIN ds_observations AS observed
+                  ON observed.dataset_id = binding.dataset_id
+                 AND observed.canonical_var = binding.metric_id
+            """
+            alignment_query = """
+                SELECT DISTINCT binding.metric_id
+                FROM ds_metric_bindings AS binding
+                JOIN ds_variable_alignments AS aligned
+                  ON aligned.dataset_id = binding.dataset_id
+                 AND aligned.canonical_var = binding.metric_id
+            """
+        exact_ids = {str(row[0]) for row in connection.execute(exact_query).fetchall()}
+        alignment_ids = {
+            str(row[0]) for row in connection.execute(alignment_query).fetchall()
+        }
+    finally:
+        connection.close()
+
+    expected_counts = Counter(
+        census.ResolutionStatus.EXACT
+        if metric_id in exact_ids
+        else census.ResolutionStatus.VIA_ALIGNMENT
+        if metric_id in alignment_ids
+        else census.ResolutionStatus.UNRESOLVED
+        for metric_id in metric_ids
+    )
+    expected_scope = (
+        census.ResolutionScope.DISTRIBUTION_FIELD_BOUND
+        if field_bound
+        else census.ResolutionScope.DATASET_LEVEL_IDENTITY
+    )
+
+    assert tuple(row.metric_id for row in rows) == metric_ids
+    assert Counter(row.resolution_status for row in rows) == expected_counts
+    assert all(row.resolution_scope is expected_scope for row in rows)
+    assert all(
+        row.limitations
+        == (
+            (census.ResolutionLimitation.CATALOG_BINDING_FIELD_EDGE_MISSING,)
+            if expected_scope is census.ResolutionScope.DATASET_LEVEL_IDENTITY
+            and row.resolution_status is not census.ResolutionStatus.UNRESOLVED
+            else ()
+        )
+        for row in rows
+    )

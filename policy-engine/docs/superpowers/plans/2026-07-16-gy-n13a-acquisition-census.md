@@ -127,19 +127,19 @@ Tasks 2–5 and remain RED/GREEN work there.
 
 **Files:** extend builder/checker/tests/journal.
 
-- [ ] Query every distinct binding metric. Resolve `exact` only when the metric is cycle-visible in
+- [x] Query every distinct binding metric. Resolve `exact` only when the metric is cycle-visible in
   the runtime canonical-variable read path; otherwise derive alignment candidates from owner rows,
   preserving confidence, proxy status/penalty, method, and ambiguity; otherwise `unresolved`.
-- [ ] Never choose a semantically arbitrary alignment silently. Persist the deterministic best
+- [x] Never choose a semantically arbitrary alignment silently. Persist the deterministic best
   candidate plus the complete candidate set and an ambiguity indicator; validation recomputes all of
   them from DuckDB.
-- [ ] Derive the reverse denominator generically from declared JSON paths over the actual capstone
+- [x] Derive the reverse denominator generically from declared JSON paths over the actual capstone
   outcome/objective/lever targets, L6 knob targets, and value-gate requirements. Classify missing
   executable support as typed `binding_gap` or `connector_gap` with local evidence counts.
-- [ ] Add negative tests for dropped metric, pinned status, modified confidence/proxy penalty,
+- [x] Add negative tests for dropped metric, pinned status, modified confidence/proxy penalty,
   denominator shrink, fake binding, and a newly inserted catalog family/metric fixture.
-- [ ] Record measured counts and exact residuals, then commit:
-  `feat: census acquisition metric resolution`.
+- [x] Record measured counts and exact residuals in the execution journal.
+- [x] Commit: `feat: census acquisition metric resolution`.
 
 ## Task 3 — W2 evidence-derived classification of the three N10 routes
 

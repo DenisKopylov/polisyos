@@ -453,3 +453,32 @@ canonical_route_recompute_removed isolated source flip:
 .venv/bin/ruff check test_depth_n_universality.py:
   exit 0; All checks passed
 ```
+
+## Fresh-state finding — I1 absolute Lex store path in CG certificate identity
+
+The required detached checkout began at `0c9cfb78c` with no `.tmp`, mounted only the repository
+runtime and read-only owner data, and passed the frozen `--check` plus all three wrong-checkout
+precedence/byte-preservation probes. Its first behavioral rederive then failed after 217.22 seconds
+with `proof_n4_owner_projection_replay_drift`. The warmed audit worktree continued to pass the same
+embedded recording, so the failure was not accepted as an artifact expectation or retried away.
+
+A full-body differential over the identical first-vertical recording localized every changed
+CG1 input to the Lex provision URI prefix. The read-only database rows and all dispositions were
+identical, but `LegalKnowledgeStore` emitted its physical checkout path into owner evidence:
+
+```text
+cold: duckdb:///.../.worktrees/gy-n10-audit-clean/policy-engine/production_data/...#lex_provisions/...
+warm: duckdb:///.../.worktrees/gy-n10/policy-engine/production_data/...#lex_provisions/...
+reference_versions.L6:
+  cold sha256:a68fa9da17bcb83f46bc21dc7e1361fb0d1dc19ad97bdf1dc74a3eda0270f09e
+  warm sha256:f1813b5e4b5374c2393d49bdf39c2aab362e573a42f13d742b2db9da2237903c
+```
+
+That path leak changed the CG1 content hash and therefore every linked CG2, CG3, CG5, and ticket
+identity despite identical owner knowledge. Classification: **blocker / real P30 content-addressing
+defect**. The bounded owner-first repair is to separate the Lex store's physical read path from its
+canonical repository-relative evidence reference. Repository-bound callers supply the canonical
+relative DB ref; external/default callers retain their existing physical ref. Every DuckDB evidence
+URI emitted by the store consumes that one reference owner. A RED must prove that two physical
+checkouts over the same DB bytes produce identical provision/threshold refs and hence identical L6
+reference content. Replay equality and every CG gate remain unchanged.

@@ -55,3 +55,25 @@ decisions without touching application or GY-owned paths.
 
 Next checkpoint: execute the docs-lifecycle moves and update the retained
 source documents to point at the new canonical decision record.
+
+## 2026-07-16 - Docs lifecycle and source dispositions
+
+- Followed ADR-0126 plus the active/archive bucket READMEs. Moved the complete
+  legacy plans under their original filenames to `docs/plans/archive/` and
+  marked them superseded/archived.
+- Left narrow active-path stubs because inbound references exist outside the
+  DS0 fence. The design stub preserves exact `#f3` and `#f4` anchors used by
+  publication-packet provenance in app code.
+- Reclassified the v4 design-system and adoption docs as retained live-baseline
+  evidence, not governing sources. ADR-047 remains in force; the historical
+  local-download path is explicitly non-replayable DS2 debt.
+- Marked the v7 surfaces plan superseded for execution and retained only for
+  DS11-DS13. Recorded the historical G plan centrally as retained context with
+  no execution authority; its protected file was not edited.
+- Updated the v15 wrapper: DS0 freezes its evidence-source role, DS2 owns
+  item-level adjudication, and DS4 owns any migration.
+- Rebound the Revision 2 master plan and brand index to the canonical DS0
+  record without editing the read-only surface constitution.
+
+Next checkpoint: define the two strict ledger schemas and their valid example
+instances under `architecture/atlas_surfaces/`.

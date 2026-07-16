@@ -1,14 +1,18 @@
 ---
 title: PolicyOS Atlas Product, Marketing, Client Surfaces Master Plan
-status: active
+status: superseded
 owner: team-polisyos
 created: 2026-05-06
-last_verified: 2026-05-20
-stability: draft
+last_verified: 2026-07-16
+stability: retained-material
+execution_authority: superseded
+superseded_by: docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
+retained_for: [DS11, DS12, DS13]
+disposition_record: docs/brand/ATLAS_SOURCE_OF_TRUTH.md
 related:
   - docs/plans/active/REPOSITORY_BEST_IN_CLASS_REMEDIATION_MASTER_PLAN.md
-  - docs/plans/active/DESIGN_BEST_IN_CLASS_PLAN.md
-  - docs/plans/active/FRONTEND_SOTA_PLAN.md
+  - docs/plans/archive/DESIGN_BEST_IN_CLASS_PLAN.md
+  - docs/plans/archive/FRONTEND_SOTA_PLAN.md
   - docs/plans/active/DOCUMENTATION_SOTA_PLAN.md
   - docs/plans/active/INFRASTRUCTURE_SOTA_PLAN.md
   - docs/brand/ATLAS_DESIGN_SYSTEM.md
@@ -32,10 +36,11 @@ inputs:
 
 # PolicyOS Atlas Product, Marketing, Client Surfaces Master Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development`
-> (recommended) or `superpowers:executing-plans` to implement this plan
-> task-by-task. Steps use checkbox (`- [ ]`) syntax where a phase is ready for
-> execution tracking.
+> **DS0 lifecycle disposition (2026-07-16): retained material, not an
+> execution master.** Do not execute this v7-era plan. DS11-DS13 may mine its
+> trust, public-publication, and accountability material through the
+> [Revision 2 master plan](./POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md)
+> and the [DS0 decision](../../brand/ATLAS_SOURCE_OF_TRUTH.md#atlas-d1).
 
 **Goal:** turn the Atlas design package and the marketing/client ideas into a
 production-grade public web, authenticated product shell, procurement journey,

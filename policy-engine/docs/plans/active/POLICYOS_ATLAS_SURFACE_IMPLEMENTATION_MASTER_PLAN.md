@@ -7,6 +7,7 @@ created: 2026-06-10
 revised: 2026-07-16 (Revision 2 - re-derived against the GY-N campaign closure: GY input contract, Cycle Board hero, new slices DS15-DS18, re-stated activation and public gates)
 last_reviewed: 2026-07-16
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
+atlas_source_of_truth: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
 organizing_constitution: ../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
 source_design_doc: ../../system-design-decisions/universal-policy-design-target-architecture-and-gap.md
 governed_inventory: ../../../architecture/policy_design_case/cluster_ownership_map.toml
@@ -15,11 +16,11 @@ failure_patterns: ../../reference/policy-design-case-failure-patterns.md
 workspace_contract: ../../reference/frontend/workspace-contract.md
 upstream_plans:
   - ./layer3-slices/GY-engine-subordination.md  # THE active Layer-3 execution plan (Rev 17): supplies the capstone, value gate, ledgers, censuses, acquisition (N13a/b), confidence ledger (N11), epochs (N12), O-block agent
-  - ./POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md  # historical G-naming; superseded in practice by the GY plan for vocabulary and artifacts
+  - ./POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md  # historical G-naming retained in place; DS0 records no execution authority
 supersedes_as_execution_master:
-  - ./POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md  # retained as material source for DS11-DS13 until DS0 records its disposition
-  - ./FRONTEND_SOTA_PLAN.md            # vision-superseded; DS0 moves to archive
-  - ./DESIGN_BEST_IN_CLASS_PLAN.md     # vision-superseded; DS0 moves to archive
+  - ./POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md  # DS0-retained material source for DS11-DS13; no execution authority
+  - ../archive/FRONTEND_SOTA_PLAN.md            # archived by DS0; active path is a compatibility stub
+  - ../archive/DESIGN_BEST_IN_CLASS_PLAN.md     # archived by DS0; active path is a compatibility stub
 evidence:
   atlas_v15_archive:
     path: ../../../design/atlas-v15/PolicyOS_Atlas_Design_System-15_Best_in_Class_Readiness.zip
@@ -49,7 +50,8 @@ it subordinates the frontend, design system, and public surfaces to the runtime
 authority discipline, closes `surface_missing` capability links, and admits the
 Atlas v15 archive as a governed substrate through the same admission logic the
 runtime uses for engines. Atlas renders the authority system; it never produces
-authority.
+authority. DS0 source ownership and governing decisions live once in the
+[Atlas source-of-truth record](../../brand/ATLAS_SOURCE_OF_TRUTH.md).
 
 **A surface here is a full-stack vertical, not a React layer.** Every slice
 carries its capability from the typed runtime contract through the producer
@@ -165,14 +167,14 @@ and subordination, not greenfield building.**
 | Publication | `publicationPacket.ts` (~1.4k lines): Toulmin argument maps, projection fail-closed client logic, decision packet **built and "signed" in the browser** (`signatureForPayload` = salted `stableHash`), **verified client-side from the URL payload** | the "Verified" badge is decorative — forgeable by construction; no server-side signing, verification, or public-records producer | DS1, DS12 |
 | Authz | `/api/v1/auth/me` with role→permission map (`http/routes/auth.py`); client `PERMISSION_KEYS` + workspace/tab gating (`app/authz/permissions.ts`); tenant check on the review path | **fixture identity fallback** (`allow_fixture_identity`); permission vocabulary duplicated server+client; **no per-permission deny found on mutating endpoints** (e.g. production-approval); no step-up auth | DS5, DS9 |
 | Offline | Workbox precache of static assets only — the SW **denylists `/api/`** from caching; `OfflineQueueProvider` + background `sync` flush; **`useQueuedPromotionDecision` queues evidence promotion approve/reject offline — a live authority action in the offline queue** | freshness rendering; revalidation protocol; authority-action queue exclusion | DS1, DS5 |
-| i18n | `en`/`uk`/`ru` locales with parity tests, ICU messages, date/currency formatters | locale-scope decision (incl. `ru` retention) and public-surface plain-language register | DS0, DS12 |
-| Tokens / design system | `shared/ui/tokens/designTokens.ts` + `AtlasV4Reference.stories` — a living, coded v4; theming `light`/`dark`/`system` + density preferences | v15 DTCG pipeline unadmitted; two token sources pending the T6 decision; v15 accessibility modes unreconciled with the live theming | DS0, DS2 |
+| i18n | `en`/`uk`/`ru` catalogs have structural parity; DS0 measured 2,449 string leaves each, while 80.16% of `ru` equals English; runtime capability contracts admit `en`/`uk` | D4 recommends `uk` primary + `en` baseline + frozen legacy `ru` UI continuity, but remains `pending_owner_ratification`; DS12 cannot publish locale claims before ratification | DS5, DS12 |
+| Tokens / design system | `shared/ui/tokens/designTokens.ts` + `AtlasV4Reference.stories` — a living, coded v4; theming `light`/`dark`/`system` + density preferences | DS0 selects future one-way DTCG generation and sunsets hand-maintained TS authority; v15 values/modes remain unadmitted until DS2 and no migration occurs before DS4 | DS2, DS4 |
 | Agent surface | `features/clerk` — a full NL chat (streaming, history, structured responses, `AIDiffView`) over `POST /control/runs/nl`; **`clerk` is one of two app-level interface modes** (`InterfaceMode = clerk \| analyst`, flag- and permission-gated) — the chat-first posture, not a side feature | candidate-clothing discipline; G6 contracts; orchestration-choice audit | DS1, DS14 |
 | Realtime & off-contract endpoints | dual client transport (`websocketTransport.ts`, `sseTransport.ts`); server WS hub `/api/v1/review/live`; SSE `GET /runs/live` and `GET /runs/{id}/live` — both **`include_in_schema=False`**, deliberately hidden from the contract | collaboration REST `/api/v1/collaboration/*` called by the UI has **no server route found** (vite only proxies to the runtime) — a phantom API; off-contract channels have no typed coverage | DS1, DS3 |
-| Feature flags & shadow shipping | 12 manifest-driven flags (zod-validated remote manifest, TTL cache, env profiles) gating **whole workspaces** plus `enableAtlasV2`, `enableClerkMode`, `enableDarkMode`; `feature_overrides` also arrive via `/auth/me` | no flag governance (owner, intent, sunset); two flag sources; the shadow-shipping mechanism this plan needs already exists but is ungoverned | DS0, DS1 |
+| Feature flags & shadow shipping | 12 manifest-driven flags (all observed defaults `true`) plus the separate `/auth/me.enableReviewCollaboration` vocabulary; four declared keys have no consumer | DS0 records owner/intent/sunset and one-registry direction; DS5 must create the machine registry, reject unknown keys, separate authz, and wire-or-retire the four `consumer_missing` gates | DS1, DS5 |
 | Observability & audit | Sentry wired (`@sentry/react` + vite plugin, `shared/telemetry/sentry.ts`); server-side **append-only access audit** (`http/access_audit.py`), compliance export/retention, CSRF protection | public-route telemetry posture vs the no-tracker bar; review-effectiveness telemetry not yet drawing on the audit trail | DS6, DS9, DS12 |
 | Discovery seeds & machine exports | `GET /control/capabilities` (live endpoint), `control/data/catalog/search`, lineage exports (`openlineage`, `prov`), artifact packet export/render, decision-validity endpoints | the capability manifest is a **hand-maintained `CapabilityFeatureInfo` enumeration** in `services/control/capabilities.py` — a live Rule-12 violation; exports cover lineage/packets, not the Layer 3 artifacts | DS3, DS10 |
-| Non-web surface artifacts | `packages/cli` (styleguide exports); `docs/brand/` beyond Atlas: `EMAIL_TEMPLATES.md`, `PRINT_AND_EXPORT.md`, `CLI_STYLEGUIDE.md`, `BUREAUCRATIC_RENDERING.md`, `GLYPH_SPECIFICATION.md`, `MOTION.md`, `A11Y_CONTRAST.md` | email/print/CLI surface families have brand specs but no place in any plan — admit or explicitly out-of-scope | DS0 |
+| Non-web surface artifacts | `packages/cli` styleguide plus email/print/CLI/bureaucratic/glyph/motion/contrast specs | DS0 assigns them to DS2/DS3/DS4/DS6/DS8; email alone is explicitly `surface_out_of_scope` until a typed notification/privacy/delivery slice exists | DS2, DS3, DS4, DS6, DS8 |
 
 Three consequences are folded into the slices below:
 
@@ -420,25 +422,31 @@ bounded agent.
 The surface analogue of G0's discipline freeze: decisions and schemas, before
 any audit or build.
 
+Canonical governing record:
+[Atlas Source-Of-Truth And Governing Decisions](../../brand/ATLAS_SOURCE_OF_TRUTH.md).
+
 - **Goal:** one canonical design source of truth and the governing decisions
   every later slice references.
 - **Deliverables:** v4/v7/v15 **supersession decision**
-  (`docs/brand/ATLAS_DESIGN_SYSTEM.md`, `ATLAS_V4_ADOPTION.md` updated or
-  superseded; `FRONTEND_SOTA_PLAN.md`, `DESIGN_BEST_IN_CLASS_PLAN.md` archived
-  via docs lifecycle; disposition recorded for the v7 surfaces master plan);
+  (`docs/brand/ATLAS_DESIGN_SYSTEM.md`, `ATLAS_V4_ADOPTION.md` superseded as
+  governing sources but retained as v4 evidence; `FRONTEND_SOTA_PLAN.md` and
+  `DESIGN_BEST_IN_CLASS_PLAN.md` archived via docs lifecycle; v7 retained only
+  as DS11-DS13 material; historical G naming retained without execution
+  authority);
   **token pipeline decision** (one source of truth, sunset for the loser —
   closes T6); **package home + versioning decision** (e.g. `packages/atlas-ui`,
   release policy, Figma source-vs-projection status with parity ownership);
-  **i18n/locale decision** (en/uk/ru locales already exist with parity tests —
-  the decision is locale scope and retention, incl. `ru`, plus RTL posture and
-  owner; not creation); **feature-flag registry decision** (the 12
+  **i18n/locale evidence package and recommendation** (`ru` retention remains
+  `pending_owner_ratification`; includes RTL posture and owner);
+  **feature-flag registry decision** (the 12
   manifest-driven flags get owner, intent, sunset, and an explicit role in the
   shadow-shipping discipline; the dual flag source — manifest vs `/auth/me`
   overrides — collapses to one governed path); **non-web surface disposition**
   (`packages/cli` styleguide, `docs/brand/` email/print/CLI/glyph/motion
   specs: each named surface family is admitted into a slice's scope or
   recorded explicitly out-of-scope); **adoption ledger schema** and **surface
-  readiness ledger schema** (proposed home: `architecture/atlas_surfaces/`).
+  readiness ledger schema**, each with a valid example and in-fence
+  self-validation, under `architecture/atlas_surfaces/`.
 - **Laws / patterns:** Rule 10; closes P06.
 - **Negative controls:** every decision records rejected alternatives and
   revisit conditions.
@@ -974,10 +982,11 @@ Closure converts the surface constitution's Promotion Criteria into fact:
 | Document | Disposition |
 | --- | --- |
 | `layer3-slices/GY-engine-subordination.md` (Rev 17) | **the upstream dependency** — supplies the Input Contract, the artifact vocabulary, and the gate milestones (N10 merge, N13a/b, N11, N12, first promotion, O-block) |
-| `POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md` | historical G-naming upstream; superseded in practice by the GY plan — DS0 records its docs-lifecycle disposition |
-| `POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md` | superseded as execution master; material source for DS11–DS13; DS0 records final disposition |
-| `FRONTEND_SOTA_PLAN.md` | vision-superseded; DS0 archives via docs lifecycle |
-| `DESIGN_BEST_IN_CLASS_PLAN.md` | vision-superseded; DS0 archives via docs lifecycle |
-| `docs/brand/ATLAS_DESIGN_SYSTEM.md`, `docs/brand/ATLAS_V4_ADOPTION.md` | DS0 supersession ledger decides update vs supersede |
+| `POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md` | historical G-naming context retained in place with no execution authority; GY Rev 17 owns current vocabulary, artifacts, and gates |
+| `POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md` | superseded as execution master; retained material source for DS11–DS13 until those task plans disposition every item |
+| `docs/plans/archive/FRONTEND_SOTA_PLAN.md` | archived 2026-07-16 as vision-superseded; active path is a compatibility stub |
+| `docs/plans/archive/DESIGN_BEST_IN_CLASS_PLAN.md` | archived 2026-07-16 as vision-superseded v4 history; active path preserves provenance anchors |
+| `docs/brand/ATLAS_DESIGN_SYSTEM.md`, `docs/brand/ATLAS_V4_ADOPTION.md` | superseded as governing sources; retained as v4 baseline/adoption evidence for DS2/DS4 |
+| `docs/brand/ATLAS_SOURCE_OF_TRUTH.md` | canonical DS0 source-disposition and governing-decision record |
 | `docs/reference/frontend/workspace-contract.md` | binding; DS5 lints implement its boundary mechanically |
 | `design/atlas-v15/` archive | evidence source under DS2 admission; never a source of authority by itself |

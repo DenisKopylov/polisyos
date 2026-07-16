@@ -47,6 +47,8 @@ reviewed rather than locally patched around it.
 | D5 | Feature-flag governance | `accepted` | `@architecture-owners`; implementation `@frontend-owners` | 2026-07-16 |
 | D6 | Non-web surface dispositions | `accepted` | owners per row | 2026-07-16 |
 
+<a id="atlas-d1"></a>
+
 ## D1 - Canonical Source, Supersession, And Docs Lifecycle
 
 ### Decision
@@ -395,6 +397,8 @@ A future multi-tenant/server-side evaluation service may become the evaluator,
 but it must consume the same registry vocabulary and emit versioned
 provenance. Retire registry machinery only after every flag is permanently
 admitted or retired and no shadow rollout remains.
+
+<a id="atlas-d6"></a>
 
 ## D6 - Non-Web Surface Dispositions
 

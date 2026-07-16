@@ -19,8 +19,14 @@ Admission posture:
 
 - This archive is a design source, not a production frontend package.
 - Relative to `policy-engine`, it remains `implemented_but_not_orchestrated`
-  until DS0 records conformance, supersession, runtime consumer inventory, and
-  browser/accessibility evidence.
+  after DS0. DS0 records it as `evidence_source_pending_adjudication`; DS2 owns
+  item-level conformance and adoption verdicts, and DS4 owns any later
+  production migration.
+- The governing disposition is
+  [`docs/brand/ATLAS_SOURCE_OF_TRUTH.md`](../../docs/brand/ATLAS_SOURCE_OF_TRUTH.md#atlas-d1).
+- Archive `PASS`, `stable`, release, or Figma labels do not prove repo
+  consumers, browser behavior, manual assistive-technology evidence, authority
+  compatibility, or package publishability.
 - If any archive evidence is promoted as long-lived reviewed evidence, promote
   that reviewed evidence through `docs/archive/reports/` or a registered
   generated-artifact family.

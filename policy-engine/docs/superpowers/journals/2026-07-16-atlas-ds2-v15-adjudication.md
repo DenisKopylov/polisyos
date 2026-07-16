@@ -63,3 +63,54 @@ verified archive to scratch and recompute every denominator.
 Next checkpoint: finish the semantic item inventory, adjudicate every logical
 token/component/pattern/package row against the 12 live v4 families, and run
 the D2 static token-parity decision test.
+
+## 2026-07-16 - Full adjudication checkpoint
+
+- Fixed the normalized denominator at 233 unique logical units: 71
+  components; six root token sets; 17 modes; seven form patterns; 16
+  responsive semantics; 32 data-visualization semantics; eight governance,
+  six i18n, four Figma, five content, six security/privacy, seven product-flow,
+  and four accessibility contracts; six package/archive units; six adjacent
+  material units; and 32 verification reports. Five report rows also supply
+  the 17th responsive, ninth governance, and three remaining accessibility
+  dimension units, so the requested dimension total is 238 while the unique
+  union remains 233.
+- Generated one physical ownership map from the same index. It assigns all
+  1,476 extracted files to exactly one ledger ID with path, byte size,
+  content hash, and normalization rule. The archive-path set difference is
+  empty and no path has duplicate ownership. Thirty section-level semantics
+  share an authored file and therefore cite exact `file:line` anchors while
+  that physical file retains one primary owner.
+- Corrected the archive's “56 components” claim to its actual scopes: 56
+  manifest/Figma rows, 80 TSX files, 81 exported declarations, 70 unique real
+  exported identities, and one docs-only `DecisionTimeline` phantom. The
+  exhaustive component denominator is 71. Fourteen real exports are absent
+  from the manifest; five identities account for 11 surplus implementations;
+  62/71 identities have state docs; all 56 Figma names remain synthetic and
+  unaudited.
+- Adjudicated all 233 units against a living DS1 family or an explicit
+  no-live-counterpart disposition. Final distribution: 120
+  `admit_after_refactor`, 62 `wrap_then_strangle`, 38 `defer`, 13 `reject`,
+  and zero `admit_as_is`. Maturity is 232 experimental, one beta method, and
+  zero stable.
+- Executed D2's static decision test over all six root DTCG files, 16 mode
+  files, the 74-variable live typed registry, frozen v4 reference, and live
+  light/dark/system/density/accessibility/print semantics. Verdict:
+  `parity_achievable_with_named_gaps`; D2's revisit condition does not fire
+  because every gap is representable in DTCG, but no migration is allowed
+  until DS4 closes warm-dark, z-index, semantic-alias, density/runtime-control,
+  breakpoint/projection, and mode-provider gaps and DS6 evidence passes.
+- Rejected the current scalar-midpoint `UncertaintyBand` as DS16 authority,
+  all conflicting breakpoint taxonomies as canonical authority, the package
+  and compiled mirrors as wholesale import sources, the phantom component,
+  and form-/presence-/self-score-based reports as PolicyOS evidence gates.
+- Mechanical checks currently pass: strict DS0-schema validation reports zero
+  errors for 233 ledger entries; report/ledger ID set difference is empty;
+  the physical map/archive path set difference is empty; all 233 archive
+  evidence paths exist and their cited lines resolve. The ledger and map stay
+  uncommitted until the dedicated machine-twin/synthesis checkpoint; this
+  checkpoint commits only the human adjudication report and journal.
+
+Next checkpoint: commit the human adjudication, then add the strict ledger,
+physical map, archive disposition note, and Phase-A synthesis as the machine
+twin/synthesis cluster.

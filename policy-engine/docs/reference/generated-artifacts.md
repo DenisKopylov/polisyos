@@ -63,6 +63,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_second_domain_census.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_pack.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json` |
 | `Policy Design Case Layer 3 GY-N10 depth-N universality contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json` |
 | `Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json` |
+| `Policy Design Case Layer 3 GY-N13a acquisition-layer reality census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`<br/>`architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json` |
 | `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
@@ -1738,6 +1739,31 @@ Canonical regeneration commands:
 ```bash
 python3 tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py
 python3 tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py --write
+```
+
+## `Policy Design Case Layer 3 GY-N13a acquisition-layer reality census`
+
+- Family id: `policy-design-case-layer3-gy-n13a-acquisition-census`
+- Lifecycle: `generated_committed`
+- Source of truth: the content-bound production dataset catalog, narrow N10 capstone/L6/value-gate projections, data-derived connector family table, architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json, and tools/quality/validation/layer3_gy_n13a_acquisition_census.py
+- Generator: Read-only full-denominator catalog and capstone projection replay plus journal-first stratified connector characterization; live capture is explicit and quarantine-only
+- Verifier: GY-N13a recomputing catalog/journal checker, canonical byte-stable writer, nested corrupt-field drift lane, and restoring behavioral source-flip suite
+- Promotion target: N13b demonstration-lane selection and D2 source-growth backlog only; never admitted data, connector promotion, FetchPlan execution, or engine authority
+- Commit policy: `committed`
+- Freshness rule: Re-run the recurring journal-first live census when the catalog snapshot, binding execution tiers, connector registry/profile contracts, or liveness freshness window changes; regenerate the census whenever any bound upstream projection or frozen journal changes.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`
+  - `architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb
 ```
 
 ## `Policy Design Case Layer 3 GY generation-cycle disposition ledger`

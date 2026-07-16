@@ -170,7 +170,7 @@ Tasks 2–5 and remain RED/GREEN work there.
 - [x] Install a behavioral execution fence around proof generation. Forbidden owners include
   `FetchExecutor.execute/preview`, `run_orchestrated_ingestion`, connector `fetch`, and canonical
   persistence. A call raises a typed N13a violation before side effects.
-- [ ] Add the decisive source flip that removes/bypasses the fence while markers remain; it must turn
+- [x] Add the decisive source flip that removes/bypasses the fence while markers remain; it must turn
   RED. Add a plan-generation e2e test proving owner FetchPlans exist without world growth or
   acquisition execution.
 - [x] Commit: `feat: prove catalog FetchPlan generation without execution`.
@@ -207,21 +207,22 @@ Tasks 2–5 and remain RED/GREEN work there.
 **Files:** extend builder/checker/tests; create frozen census; modify generated-artifact registry,
 GY plan status, and execution journal.
 
-- [ ] Rank every W1 reverse residual. Use the existing N7/VOI owner only where its contract accepts
-  the metric-level input. Otherwise label the score `interim_binding_demand_rank`, compute the
+- [x] Rank every W1 reverse residual. Use the existing N7/VOI owner only where its contract accepts
+  the metric-level input. Otherwise label the score
+  `interim_binding_confidence_x_route_demand`, compute the
   declared binding-confidence x route-demand ordering, and persist
   `voi_owner_integration = "routed_to_gy_n13b"`; never call it VOI.
-- [ ] Bind narrow identities: DuckDB content SHA, capstone route projection SHA, connector-family
+- [x] Bind narrow identities: DuckDB content SHA, capstone route projection SHA, connector-family
   table SHA, upstream demand projection SHA, and journal content SHA. Keep observed-at/wall-time
   economics outside the semantic content hash.
-- [ ] Implement `--check`, offline `--write`, explicit `--capture-live`,
+- [x] Implement `--check`, offline `--write`, explicit `--capture-live-journal`,
   `--corrupt-field-drift-check`, and `--source-flip-mutations`. The recurring command performs
   dry-run -> bounded live journal -> offline census write/check and creates a dated run identifier
   outside the schema/content hash.
-- [ ] Register both outputs in `architecture/generated_artifacts.toml` with generator, checker,
+- [x] Register both outputs in `architecture/generated_artifacts.toml` with generator, checker,
   freshness, commit policy, and stale-output failure.
-- [ ] Prove `--write` twice byte-identical. Add nested decisive corruptions and backlog-order flip.
-- [ ] Update the GY plan/ledger with measured status, typed findings, N13b lane decision inputs, and
+- [x] Prove `--write` twice byte-identical. Add nested decisive corruptions and backlog-order flip.
+- [x] Update the GY plan/ledger with measured status, typed findings, N13b lane decision inputs, and
   remaining capability labels. Commit: `feat: freeze recurring N13a acquisition census`.
 
 ## Task 7 — Targeted closeout and independent review

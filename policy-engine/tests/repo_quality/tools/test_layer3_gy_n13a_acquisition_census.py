@@ -1214,6 +1214,105 @@ def test_reverse_demand_measurement_keeps_supported_rows_and_typed_residuals(
     }
 
 
+def test_growth_backlog_ranks_full_residual_denominator_without_claiming_voi() -> None:
+    census = _census()
+    residuals = (
+        census.ReverseDemandResidual(
+            variable_id="binding-gap",
+            gap_kind=census.DemandGapKind.BINDING,
+            demand_sources=("route:a", "route:b"),
+            local_observation_count=0,
+            alignment_count=0,
+            binding_count=0,
+            executable_binding_count=0,
+            binding_tier_counts={},
+            connector_ids=(),
+            best_binding_confidence=0.0,
+        ),
+        census.ReverseDemandResidual(
+            variable_id="connector-gap",
+            gap_kind=census.DemandGapKind.CONNECTOR,
+            demand_sources=("route:c",),
+            local_observation_count=4,
+            alignment_count=1,
+            binding_count=2,
+            executable_binding_count=0,
+            binding_tier_counts={"catalog": 2},
+            connector_ids=("family.alpha",),
+            best_binding_confidence=0.75,
+        ),
+        census.ReverseDemandResidual(
+            variable_id="connector-gap-wide-demand",
+            gap_kind=census.DemandGapKind.CONNECTOR,
+            demand_sources=("route:d", "route:e"),
+            local_observation_count=0,
+            alignment_count=0,
+            binding_count=1,
+            executable_binding_count=0,
+            binding_tier_counts={"catalog": 1},
+            connector_ids=("family.beta",),
+            best_binding_confidence=0.5,
+        ),
+    )
+
+    backlog = census.derive_growth_backlog(residuals)
+
+    assert tuple(row.variable_id for row in backlog) == (
+        "connector-gap-wide-demand",
+        "connector-gap",
+        "binding-gap",
+    )
+    assert tuple(row.rank for row in backlog) == (1, 2, 3)
+    assert tuple(row.ranking_score for row in backlog) == (1.0, 0.75, 0.0)
+    assert backlog[0].route_demand == 2.0
+    assert backlog[0].binding_confidence == 0.5
+    assert all(
+        row.voi_owner_fit == "metric_residual_granularity_not_supported"
+        for row in backlog
+    )
+    assert all(row.voi_owner_integration == "routed_to_gy_n13b" for row in backlog)
+
+
+def test_growth_backlog_rejects_pinned_score_or_reordered_rows() -> None:
+    census = _census()
+    residuals = (
+        census.ReverseDemandResidual(
+            variable_id="a",
+            gap_kind=census.DemandGapKind.CONNECTOR,
+            demand_sources=("route:a",),
+            local_observation_count=0,
+            alignment_count=0,
+            binding_count=1,
+            executable_binding_count=0,
+            binding_tier_counts={"catalog": 1},
+            connector_ids=("family.alpha",),
+            best_binding_confidence=0.9,
+        ),
+        census.ReverseDemandResidual(
+            variable_id="b",
+            gap_kind=census.DemandGapKind.BINDING,
+            demand_sources=("route:b",),
+            local_observation_count=0,
+            alignment_count=0,
+            binding_count=0,
+            executable_binding_count=0,
+            binding_tier_counts={},
+            connector_ids=(),
+            best_binding_confidence=0.0,
+        ),
+    )
+    rows = census.derive_growth_backlog(residuals)
+    pinned = rows[0].model_dump(mode="python")
+
+    with pytest.raises(ValidationError):
+        census.GrowthBacklogRow(**{**pinned, "ranking_score": 0.1})
+
+    with pytest.raises(census.CatalogContractError) as exc_info:
+        census.validate_growth_backlog(tuple(reversed(rows)), residuals=residuals)
+
+    assert exc_info.value.code == "growth_backlog_drift"
+
+
 def test_reverse_demand_projection_rejects_denominator_shrink() -> None:
     census = _census()
     capstone, intervention_substrate, value_gate = _upstream_demand_payloads()
@@ -1645,8 +1744,8 @@ def test_route_class_label_is_rejected_when_it_disagrees_with_evidence(
         },
     )
     evidence = census.measure_route_evidence(catalog_path, projection)[0]
-    pinned = evidence.model_dump(mode="json")
-    pinned["route_class"] = census.RouteClass.LIVE_FETCHABLE.value
+    pinned = evidence.model_dump(mode="python")
+    pinned["route_class"] = census.RouteClass.LIVE_FETCHABLE
 
     with pytest.raises(ValidationError):
         census.RouteEvidence.model_validate(pinned)
@@ -2068,6 +2167,26 @@ def test_probe_selector_grows_for_a_new_catalog_family_without_code_changes(
     assert any(row.connector_id == "family.new" for row in plan.candidates)
 
 
+def test_probe_family_denominator_rejects_a_hardcoded_subset(
+    catalog_path: Path,
+) -> None:
+    census = _census()
+    source = census.read_catalog_source(catalog_path, source_locator="fixture/catalog.duckdb")
+    plan = census.select_stratified_probe_candidates(
+        catalog_path,
+        per_family=2,
+        source_locator="fixture/catalog.duckdb",
+    )
+    hardcoded_subset = plan.model_copy(
+        update={"sampling_receipts": plan.sampling_receipts[:-1]}
+    )
+
+    with pytest.raises(census.CatalogContractError) as exc_info:
+        census.validate_probe_family_denominator(source, hardcoded_subset)
+
+    assert exc_info.value.code == "probe_family_denominator_drift"
+
+
 def test_connector_owner_dry_run_uses_registry_protocol_owner_and_simulator(
     tmp_path: Path,
 ) -> None:
@@ -2302,3 +2421,36 @@ def test_frozen_live_journal_recomputes_from_production_catalog_and_raw_evidence
         if record.raw_response is not None
     )
     assert all(card.selected_probe_count == 12 for card in scorecards)
+
+
+@pytest.mark.skipif(
+    not os.environ.get("POLISYOS_N13A_PRODUCTION_CATALOG"),
+    reason="production catalog is an explicit read-only witness",
+)
+def test_production_census_writer_is_byte_stable_and_checker_recomputes(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    checker = import_module("tools.quality.validation.check_layer3_gy_n13a_acquisition_census")
+    output = tmp_path / "census.json"
+    base_args = [
+        "--catalog-path",
+        os.environ["POLISYOS_N13A_PRODUCTION_CATALOG"],
+        "--output",
+        str(output),
+    ]
+
+    assert checker.main([*base_args, "--write"]) == 0
+    first = output.read_bytes()
+    capsys.readouterr()
+    assert checker.main([*base_args, "--write"]) == 0
+    second = output.read_bytes()
+    capsys.readouterr()
+    assert checker.main([*base_args, "--check"]) == 0
+    report = json.loads(capsys.readouterr().out)
+
+    assert first == second
+    assert report["status"] == "pass"
+    assert report["artifact_sha256"] == (
+        "sha256:" + hashlib.sha256(first).hexdigest()
+    )

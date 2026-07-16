@@ -943,8 +943,22 @@ class GrowthBacklogRow(_StrictBoundaryModel):
     route_demand: float = Field(ge=0.0)
     binding_confidence: float = Field(ge=0.0, le=1.0)
     ranking_score: float = Field(ge=0.0)
-    ranking_method: str = Field(pattern=r"^interim_binding_demand_rank$")
-    voi_owner_integration: str = Field(pattern=r"^routed_to_gy_n13b$")
+    ranking_method: Literal["interim_binding_confidence_x_route_demand"]
+    authority_boundary: Literal["ranking_only_not_voi"]
+    voi_owner_fit: Literal["metric_residual_granularity_not_supported"]
+    voi_owner_ref: Literal[
+        "polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition"
+    ]
+    voi_owner_integration: Literal["routed_to_gy_n13b"]
+
+    @model_validator(mode="after")
+    def _score_is_derived_from_declared_inputs(self) -> Self:
+        if self.route_demand != float(len(self.demand_sources)):
+            raise ValueError("route_demand must count distinct demand sources")
+        expected_score = round(self.binding_confidence * self.route_demand, 12)
+        if self.ranking_score != expected_score:
+            raise ValueError("ranking_score must equal binding confidence times route demand")
+        return self
 
 
 class ProjectionBinding(_StrictBoundaryModel):
@@ -1093,7 +1107,9 @@ class CensusManifest(_StrictBoundaryModel):
 
     schema_version: Literal[SCHEMA_VERSION]
     rule_version: Literal[RULE_VERSION]
-    producer: str = Field(min_length=1)
+    producer: Literal[
+        "tools.quality.validation.layer3_gy_n13a_acquisition_census.assemble_census_manifest"
+    ]
     catalog_identity: CatalogIdentity
     projection_bindings: tuple[ProjectionBinding, ...]
     metric_resolutions: tuple[MetricResolution, ...]
@@ -1106,6 +1122,39 @@ class CensusManifest(_StrictBoundaryModel):
     journal_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     observed_at: datetime
     capture_wall_time_seconds: float = Field(ge=0.0)
+
+    @model_validator(mode="after")
+    def _classes_and_denominators_are_evidence_derived(self) -> Self:
+        binding_ids = tuple(row.projection_id for row in self.projection_bindings)
+        if binding_ids != tuple(sorted(set(binding_ids))):
+            raise ValueError("projection bindings must be unique and sorted")
+
+        metric_ids = tuple(row.metric_id for row in self.metric_resolutions)
+        if metric_ids != tuple(sorted(set(metric_ids))):
+            raise ValueError("metric resolution denominator must be unique and sorted")
+        if len(metric_ids) != self.catalog_identity.binding_metric_count:
+            raise ValueError("metric resolution denominator must cover every catalog metric")
+
+        demand_ids = tuple(row.variable_id for row in self.reverse_demand_variables)
+        if demand_ids != tuple(sorted(set(demand_ids))):
+            raise ValueError("reverse demand denominator must be unique and sorted")
+        expected_residuals = reverse_demand_residuals(self.reverse_demand_variables)
+        if self.reverse_demand_residuals != expected_residuals:
+            raise ValueError("reverse-demand residuals must be recomputed from full evidence")
+
+        route_ids = tuple(row.route.route_id for row in self.route_evidence)
+        if route_ids != tuple(sorted(set(route_ids))):
+            raise ValueError("route evidence denominator must be unique and sorted")
+
+        family_ids = tuple(row.connector_id for row in self.family_scorecards)
+        if family_ids != tuple(sorted(set(family_ids))):
+            raise ValueError("family scorecards must be unique and sorted")
+        if len(family_ids) != self.catalog_identity.connector_family_count:
+            raise ValueError("scorecards must cover every catalog connector family")
+
+        if self.growth_backlog != derive_growth_backlog(self.reverse_demand_residuals):
+            raise ValueError("growth backlog must preserve and rank every residual")
+        return self
 
 
 class CatalogSource(_StrictBoundaryModel):
@@ -1155,6 +1204,71 @@ def semantic_content_hash(value: object) -> str:
 
     stable = _without_top_level_run_economics(_json_value(value))
     return f"sha256:{hashlib.sha256(canonical_json_bytes(stable)).hexdigest()}"
+
+
+def assemble_census_manifest(
+    *,
+    catalog_source: CatalogSource,
+    projection_bindings: Sequence[ProjectionBinding],
+    metric_resolutions: Sequence[MetricResolution],
+    reverse_demand_variables: Sequence[DemandVariableEvidence],
+    route_evidence: Sequence[RouteEvidence],
+    fetch_plan_generation: FetchPlanGenerationProof,
+    family_scorecards: Sequence[FamilyScorecard],
+    journal_content_sha256: str,
+    observed_at: datetime,
+    capture_wall_time_seconds: float,
+) -> CensusManifest:
+    """Assemble the frozen census only from owner-derived projections and evidence."""
+
+    demand_rows = tuple(reverse_demand_variables)
+    residuals = reverse_demand_residuals(demand_rows)
+    return CensusManifest(
+        schema_version=SCHEMA_VERSION,
+        rule_version=RULE_VERSION,
+        producer=(
+            "tools.quality.validation.layer3_gy_n13a_acquisition_census."
+            "assemble_census_manifest"
+        ),
+        catalog_identity=catalog_source.identity,
+        projection_bindings=tuple(
+            sorted(projection_bindings, key=lambda row: row.projection_id)
+        ),
+        metric_resolutions=tuple(metric_resolutions),
+        reverse_demand_variables=demand_rows,
+        reverse_demand_residuals=residuals,
+        route_evidence=tuple(route_evidence),
+        fetch_plan_generation=fetch_plan_generation,
+        family_scorecards=tuple(family_scorecards),
+        growth_backlog=derive_growth_backlog(residuals),
+        journal_content_sha256=journal_content_sha256,
+        observed_at=observed_at,
+        capture_wall_time_seconds=capture_wall_time_seconds,
+    )
+
+
+def read_census_manifest(path: Path) -> CensusManifest:
+    """Read and strictly validate one frozen census artifact."""
+
+    try:
+        return CensusManifest.model_validate_json(path.read_bytes())
+    except (OSError, ValidationError, ValueError) as exc:
+        raise CatalogContractError("census_artifact_invalid", f"{path}: {exc}") from exc
+
+
+def validate_census_manifest(
+    stored: CensusManifest,
+    *,
+    recomputed: CensusManifest,
+) -> CensusManifest:
+    """Fail closed when any stored decisive field differs from live recomputation."""
+
+    if stored != recomputed:
+        raise CatalogContractError(
+            "census_artifact_drift",
+            "stored census differs from the catalog, upstream projections, or probe journal",
+        )
+    return recomputed
 
 
 def read_catalog_source(catalog_path: Path, *, source_locator: str) -> CatalogSource:
@@ -1956,6 +2070,23 @@ def select_stratified_probe_candidates(
     )
 
 
+def validate_probe_family_denominator(
+    catalog_source: CatalogSource,
+    selection_plan: ProbeSelectionPlan,
+) -> ProbeSelectionPlan:
+    """Require probes for every family derived from binding-owner rows."""
+
+    selected_families = tuple(
+        receipt.connector_id for receipt in selection_plan.sampling_receipts
+    )
+    if selected_families != catalog_source.connector_families:
+        raise CatalogContractError(
+            "probe_family_denominator_drift",
+            "probe families must equal distinct ds_metric_bindings.connector_id values",
+        )
+    return selection_plan
+
+
 def derive_connector_family_receipts(
     connector_families: Sequence[str],
     *,
@@ -2505,6 +2636,74 @@ def reverse_demand_residuals(
         for row in rows
         if row.gap_kind is not None
     )
+
+
+def derive_growth_backlog(
+    residuals: Sequence[ReverseDemandResidual],
+) -> tuple[GrowthBacklogRow, ...]:
+    """Rank the complete metric-level gap denominator without inventing VOI.
+
+    The canonical acquisition planner consumes typed claim/requirement gaps and an
+    optional VOI decision report.  Raw census metric residuals do not carry that
+    authority-bearing contract, so N13a records the mismatch and uses only the
+    explicitly permitted interim score: existing binding confidence multiplied by
+    the number of distinct upstream demand sources.
+    """
+
+    variable_ids = tuple(row.variable_id for row in residuals)
+    if len(variable_ids) != len(set(variable_ids)):
+        raise CatalogContractError(
+            "growth_backlog_denominator_invalid", "residual variable IDs must be unique"
+        )
+    unranked = [
+        GrowthBacklogRow(
+            rank=1,
+            variable_id=row.variable_id,
+            gap_kind=row.gap_kind,
+            demand_sources=row.demand_sources,
+            route_demand=float(len(row.demand_sources)),
+            binding_confidence=row.best_binding_confidence,
+            ranking_score=round(
+                row.best_binding_confidence * float(len(row.demand_sources)), 12
+            ),
+            ranking_method="interim_binding_confidence_x_route_demand",
+            authority_boundary="ranking_only_not_voi",
+            voi_owner_fit="metric_residual_granularity_not_supported",
+            voi_owner_ref=(
+                "polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition"
+            ),
+            voi_owner_integration="routed_to_gy_n13b",
+        )
+        for row in residuals
+    ]
+    ordered = sorted(
+        unranked,
+        key=lambda row: (
+            -row.ranking_score,
+            -row.route_demand,
+            -row.binding_confidence,
+            row.variable_id,
+            row.gap_kind.value,
+        ),
+    )
+    return tuple(row.model_copy(update={"rank": rank}) for rank, row in enumerate(ordered, 1))
+
+
+def validate_growth_backlog(
+    rows: Sequence[GrowthBacklogRow],
+    *,
+    residuals: Sequence[ReverseDemandResidual],
+) -> tuple[GrowthBacklogRow, ...]:
+    """Fail closed when a stored backlog differs from the evidence-derived order."""
+
+    expected = derive_growth_backlog(residuals)
+    observed = tuple(rows)
+    if observed != expected:
+        raise CatalogContractError(
+            "growth_backlog_drift",
+            "stored rows must cover and rank the complete reverse-demand residual denominator",
+        )
+    return expected
 
 
 def _open_validated_catalog(catalog_path: Path) -> duckdb.DuckDBPyConnection:

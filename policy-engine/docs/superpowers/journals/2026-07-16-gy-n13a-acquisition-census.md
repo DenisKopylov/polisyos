@@ -384,3 +384,78 @@ family aggregate state, event ordering, and classifier invocation only after raw
 The offline checker reloads the frozen journal, re-derives the 144-row sample, current component
 receipts, all preflights, every liveness state, scorecard counts, and D3 tier-decay findings without
 performing a network call.
+
+## Task 6 — D2 backlog and frozen recurring census
+
+Status: complete.
+
+The frozen census contains the complete 124-row metric-resolution denominator, all 19 reverse
+demand variables and 15 typed residuals, all three capstone routes, seven owner-generated FetchPlan
+proofs, the 12-family scorecard, and all 15 growth-backlog rows. Its narrow bindings are the catalog
+content identity, three upstream demand projections, the three-route capstone projection, the
+data-derived connector-family projection, and the frozen live-journal semantic hash. No whole
+capstone hash or timestamp is used as a semantic classifier input.
+
+The existing N7 owner `polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition`
+requires authority-bearing claim/requirement gaps plus optional VOI decision rows. The W1 residuals
+are raw metric-level gaps and do not carry those semantics, so converting them would invent a
+parallel acquisition/VOI contract. Every backlog row therefore records
+`voi_owner_fit=metric_residual_granularity_not_supported`,
+`authority_boundary=ranking_only_not_voi`, and `voi_owner_integration=routed_to_gy_n13b`. The exact
+interim score is existing binding confidence × distinct demand-source count. All 15 current gaps are
+true `binding_gap` rows with confidence 0, so all scores are honestly 0; deterministic order uses
+route demand, then confidence, then variable ID. It is not presented as VOI.
+
+Top ten interim rows and exact demand sources:
+
+| Rank | Variable | Demand | Exact demand sources |
+| ---: | --- | ---: | --- |
+| 1 | `avg_hh_income_uah` | 2 | `capstone.domain_runs.first_vertical.design_problem.objectives[0].metric_id`; `capstone.domain_runs.first_vertical.design_problem.outcome_of_interest.metric_id` |
+| 2 | `particulate_emissions` | 2 | `capstone.domain_runs.unseen.design_problem.candidate_lever_space.candidate_levers[1].target_slot`; `capstone.domain_runs.unseen.design_problem.objectives[1].metric_id` |
+| 3 | `residential_peak_demand` | 2 | `capstone.domain_runs.unseen.design_problem.candidate_lever_space.candidate_levers[0].target_slot`; `capstone.domain_runs.unseen.design_problem.objectives[0].metric_id` |
+| 4 | `avg_household_income` | 1 | `capstone.domain_runs.first_vertical.design_problem.outcome_of_interest.target_variable` |
+| 5 | `cells.distress_score` | 1 | `intervention_substrate.measured_coverage.world_slot.details[1].target_world_slots[0]` |
+| 6 | `combined_demand_emissions_burden` | 1 | `capstone.domain_runs.unseen.design_problem.outcome_of_interest.metric_id` |
+| 7 | `global.tax_rate` | 1 | `intervention_substrate.measured_coverage.world_slot.details[2].target_world_slots[0]` |
+| 8 | `government.balance` | 1 | `intervention_substrate.measured_coverage.world_slot.details[0].target_world_slots[0]` |
+| 9 | `heat_wave_environmental_equity_burden` | 1 | `capstone.domain_runs.unseen.design_problem.outcome_of_interest.target_variable` |
+| 10 | `learning` | 1 | `capstone.domain_runs.education.design_problem.candidate_lever_space.candidate_levers[1].target_slot` |
+
+### Artifact lifecycle and recurrence
+
+- census file: 5,599,392 bytes,
+  `sha256:71e2b304752005afd3239dad7fc4f6bcb0a1fdb90675efda16aa06029a4a30be`;
+- census semantic content (top-level observation time/economics excluded):
+  `sha256:fa6068ffeeaa245ffd3f56d2d7f0a87175e89b3da29c165857897a7f23af3683`;
+- live journal semantic binding:
+  `sha256:fa186d66136fa748fb23039bd9b599ea0b6ac6178dbdc6f7f265cba87bb16930`;
+- builder validator:
+  `sha256:d4e4c405a2f3eae4f4b33e9ecd36e4bf9350573d9a404f337413cfc03f8a41be`;
+- lifecycle checker:
+  `sha256:bfd7bc19d95be34b598bba89c0fc206ede487dbb15a5cfc9bf137c7355ed47d4`.
+
+Two independent `--write` passes over the real catalog and frozen journal produced the identical
+census file hash above. `--check` rederived the same manifest and canonical bytes. Explicit
+`--capture-live-journal` refuses pre-existing journal/event paths, captures raw evidence first, and
+then writes a new dated census; offline `--write`/`--check` never spend a network call. Both outputs
+are registered as one `generated_committed` GY lifecycle family, and the generated architecture
+inventory was synchronized.
+
+The five nested corrupt-field cases all turned RED: metric binding evidence, route class, FetchPlan
+owner edge, scorecard economics, and backlog order. The restoring behavioral source-flip suite also
+turned all six decisive mutations RED: `dead→alive`, a live scorecard row without raw response,
+route-label pinning, FetchPlan fence removal, backlog-order reversal, and a hardcoded connector
+family denominator. Each subprocess verified the exact source SHA after restoration.
+
+The focused file contains 71 tests. All 71 passed with the read-only production catalog declared;
+without it, the fixture suite passed and the six explicit production witnesses skipped. Ruff and
+`git diff --check` passed.
+
+### N13b decision input
+
+No frozen capstone route is currently a data-only demonstration lane: education is an estimand
+binding refusal, while first-vertical and unseen are structural grounding/world-record gaps. N13b
+must not relabel one as local/live merely to demonstrate execution. The seven generated plans prove
+the catalog seam is ready but remain `implemented_but_not_orchestrated`; actual acquisition,
+overlay admission, epoch effects, and a capstone-eligible owner data gap remain N13b work. The
+audit artifact is the N13a surface; Atlas/DS15 UI projection is explicitly outside this lane.

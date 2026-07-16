@@ -1876,6 +1876,40 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-gy-n13a-acquisition-census"
+label = "Policy Design Case Layer 3 GY-N13a acquisition-layer reality census"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Read-only full-denominator catalog and capstone projection replay plus journal-first stratified connector characterization; live capture is explicit and quarantine-only"
+verifier = "GY-N13a recomputing catalog/journal checker, canonical byte-stable writer, nested corrupt-field drift lane, and restoring behavioral source-flip suite"
+promotion_target = "N13b demonstration-lane selection and D2 source-growth backlog only; never admitted data, connector promotion, FetchPlan execution, or engine authority"
+stale_output_behavior = "fail"
+source_of_truth = "the content-bound production dataset catalog, narrow N10 capstone/L6/value-gate projections, data-derived connector family table, architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json, and tools/quality/validation/layer3_gy_n13a_acquisition_census.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
+  "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+]
+commit_policy = "committed"
+freshness_rule = "Re-run the recurring journal-first live census when the catalog snapshot, binding execution tiers, connector registry/profile contracts, or liveness freshness window changes; regenerate the census whenever any bound upstream projection or frozen journal changes."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py",
+  "--check",
+  "--catalog-path",
+  "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+]
+
+[[family]]
 id = "policy-design-case-layer3-gy-generation-cycle-disposition-ledger"
 label = "Policy Design Case Layer 3 GY generation-cycle disposition ledger"
 owner = "team-runtime-quality"

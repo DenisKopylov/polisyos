@@ -380,3 +380,31 @@ The unseen proof recording now contains the typed no-context N4 owner refusal, n
 or owner projection, and grammar-derived levers exactly equal to its compiled DesignProblem:
 `demand_reduction_instrument`, `emission_reduction_instrument`, and
 `equity_protection_instrument`. Static compiled/response verification reports no issue.
+
+## Continued closure audit — F3 shaped advisor problem sibling
+
+The final codebase-wide caller census found one surviving instance of the same P31/P32 class fixed
+for Workspace Phase 2. `FoundryValuePort` starts with a validated `DesignProblem`, but
+`_selector_problem_with_owner_context` projects it to an untyped mapping before the
+authority-bearing `select_value_method_for_problem` call. The mapping is content-bound later by the
+advisor receipt, so no observed receipt was forged, but shape is still standing in for typed problem
+authority at the owner boundary. The direct caller denominator is exactly two: Workspace Phase 2
+now passes its original typed object, while the generation-cycle value lane passes this mapping.
+
+Classification: **must-fix / real sibling defect (P31, P32)**. The bounded fix preserves the
+original `DesignProblem` and replaces only its runtime-only advisor context with the owner-derived
+`ValueDataProfile` projection. A focused RED must observe a real `DesignProblem` plus the exact
+profile hash at the Foundry boundary. This does not widen selection and must leave the advisor
+selection-context hash unchanged.
+
+The pre-fix committed capstone behavioral replay remained green and is retained as the base control:
+
+```text
+check_layer3_gy_depth_n_universality_contract.py --rederive-audit
+exit 0; status=pass; issues=[]; wall_time_seconds=758.257067
+```
+
+Independent subagents were requested for the final F/G/H source census but the workspace reported
+exhausted subagent credits. This continuation is therefore explicitly local/non-independent; the
+evidence is recomputed from source and focused behavioral probes rather than accepted from prior
+journal claims.

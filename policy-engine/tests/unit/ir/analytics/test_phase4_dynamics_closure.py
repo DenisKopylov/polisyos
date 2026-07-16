@@ -4,10 +4,6 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
-from polisyos.ir.registry.refs import (
-    DynamicMicrosimValidationReportRef,
-    MicrosimCalibrationReportRef,
-)
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
@@ -43,10 +39,13 @@ from polisyos.ir.analytics.phase4_dynamics import (
     Phase4DynamicsGate,
     Phase4DynamicsGateError,
     SpaceTimeCausalCertificate,
+    StrangleReceiptError,
     TemporalGraphCausalCertificate,
+    build_abm_result_from_content_bound_simulation,
     build_abm_result_from_simulation,
     build_dynamic_microsim_validation_report,
     build_space_time_causal_certificate,
+    build_strangle_receipt,
     build_temporal_graph_causal_certificate,
     enforce_dynamic_microsim_validation_report,
     load_abm_result,
@@ -56,6 +55,11 @@ from polisyos.ir.analytics.phase4_dynamics import (
     persist_dynamic_microsim_validation_report,
     persist_space_time_causal_certificate,
     persist_temporal_graph_causal_certificate,
+    verify_strangle_receipt,
+)
+from polisyos.ir.registry.refs import (
+    DynamicMicrosimValidationReportRef,
+    MicrosimCalibrationReportRef,
 )
 from polisyos.ir.schemas import get_ir_type
 
@@ -143,6 +147,61 @@ def test_phase4_abm_result_exact_fields_wrap_existing_refs() -> None:
     assert result.identifiability_certificate.diagnostic_ref is not None
     assert result.bifurcation_report is not None
     assert result.bifurcation_report.bifurcation_count == 2
+
+
+def test_phase4_abm_strangle_receipt_recomputes_payload_and_diagnostics() -> None:
+    payload = {
+        "trajectory": [{"step": 0, "outcome": 1.0}],
+        "metrics": {"completed_count": 2},
+    }
+    diagnostics = {"engine": "simulation.test", "warnings": []}
+    receipt = build_strangle_receipt(
+        method_id="simulation.test.abm",
+        horizon=3,
+        payload=payload,
+        diagnostics=diagnostics,
+    )
+
+    verify_strangle_receipt(
+        receipt,
+        method_id="simulation.test.abm",
+        horizon=3,
+        payload=payload,
+        diagnostics=diagnostics,
+    )
+    with pytest.raises(StrangleReceiptError, match="receipt_content_mismatch"):
+        verify_strangle_receipt(
+            receipt,
+            method_id="simulation.test.abm",
+            horizon=3,
+            payload={**payload, "trajectory": [{"step": 0, "outcome": 2.0}]},
+            diagnostics=diagnostics,
+        )
+
+    no_diagnostics = build_strangle_receipt(
+        method_id="simulation.test.abm",
+        horizon=3,
+        payload=payload,
+        diagnostics={},
+    )
+    with pytest.raises(StrangleReceiptError, match="receipt_diagnostics_missing"):
+        verify_strangle_receipt(
+            no_diagnostics,
+            method_id="simulation.test.abm",
+            horizon=3,
+            payload=payload,
+            diagnostics={},
+        )
+
+    result = build_abm_result_from_content_bound_simulation(
+        method_id="simulation.test.abm",
+        horizon=3,
+        payload=payload,
+        diagnostics=diagnostics,
+    )
+    assert result.identifiability_certificate is not None
+    assert result.identifiability_certificate.status == "diagnostic_attached"
+    assert "phase4_abm_result_stub" not in result.model_dump_json()
 
 
 def test_phase4_abm_attachment_helpers_persist_exact_fields(tmp_path) -> None:

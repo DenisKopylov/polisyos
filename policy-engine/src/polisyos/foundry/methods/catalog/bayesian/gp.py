@@ -234,11 +234,11 @@ def _gp_prior_sensitivity_report(
 def _output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 "result",
                 SlotType.SCALAR,
                 Unit("posterior", "json"),
-                contract_id=PosteriorResult.contract_id,
+                output_contract=PosteriorResult,
             ),
             SlotSpec(
                 "prediction_result",

@@ -8,6 +8,11 @@ from typing import Any, ClassVar
 from pydantic import ConfigDict, Field, model_validator
 
 from polisyos.ir.analytics.forecasting_uncertainty import ForecastingUncertaintyBundle
+from polisyos.ir.analytics.uncertainty import (
+    OutputContractDeclaration,
+    ValueUncertaintyProjectionKind,
+    value_uncertainty_output_contract,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import ArtifactRefModel, RegimeShiftForecastBundleRef
@@ -70,6 +75,12 @@ class RegimeShiftForecastBundle(ForecastingUncertaintyBundle):
     """Forecasting bundle carrying latent regime and break-date uncertainty."""
 
     contract_id: ClassVar[str] = "ir.regime_shift_forecast_bundle.v1"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.FORECASTING,
+        )
+    )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     regime_model_family: RegimeModelFamily

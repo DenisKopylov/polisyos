@@ -6,7 +6,19 @@ Approved architecture: extend canonical owners and add one thin recursive
 router. This revision incorporates the five approval corrections: a mandatory
 real non-panel positive, a bounded N4 owner-surface repair, one-directional N6
 validation, an N7 consumer census before fencing bootstrap authority, and four
-commit-gated implementation stages.
+commit-gated implementation stages. The resumed revision additionally pins the
+historical N10a receipt, extends the bounded N4 import reconciliation through
+recorded formalizer evidence, cross-binds candidate levers to their complete
+cycle context, routes disposition-only N4 output, and rejects wrong-checkout
+proof execution structurally.
+The integration-debt resumption revision additionally requires repository-runtime
+interpreter identity at bootstrap and restores N2-owned normalization provenance
+without allowing provenance to influence grounding authority.
+The Stage-2 treatment-ownership revision additionally makes exposure assignment
+world knowledge: observational methods may consume treated units and periods only
+from a canonical substrate owner, never from a caller, test DTO, candidate label,
+or ordering heuristic. The positive method lane is selected only after a committed
+read-only census of owner evidence.
 
 ## Goal
 
@@ -61,6 +73,11 @@ The proof must include:
    not branch on domain names or enumerate the Foundry family denominator.
 4. **Fail closed on substance.** A path/ref prefix, present contract-shaped
    mapping, empty coupling graph, or self-attestation is not evidence.
+5. **Treatment assignment is owner-resolved world knowledge.** A candidate atom
+   identifies the intervention whose effect is being queried, but it cannot
+   self-author who was exposed or when. Observational assignment must resolve,
+   content-bind, and verify through the canonical substrate owner. Caller-supplied
+   assignment is refused as `treatment_assignment_not_owner_derived`.
 5. **Honest terminals are success.** A real refusal is a successful execution
    outcome but cannot, by itself, prove that a positive projector path works.
 6. **No authority inflation.** Simulation receipts remain K_sim evidence and
@@ -72,6 +89,13 @@ The proof must include:
    in content hashes.
 8. **One mutating process.** Tests, validators, source flips, writes, and cold
    proof runs execute serially. Long owner lanes receive their full budget.
+9. **Repository runtime is proof input.** Checkout identity is verified first;
+   then the resolved virtual-environment prefix must equal the checkout's
+   resolved `.venv` target; only then may the canonical CG backend owner run.
+   A bare interpreter fails `wrong_interpreter_resolved` at bootstrap. Because
+   a venv's Python executable resolves to its base binary, membership is proven
+   by `sys.prefix`/`sys.exec_prefix`, not by trusting `VIRTUAL_ENV` or the final
+   executable symlink target.
 
 ## Pattern pass and capability state
 
@@ -114,6 +138,15 @@ the committed manifest content hash and projects its data into canonical
 runtime contracts. No `src/polisyos/**` module opens
 `layer3_gy_second_domain_pack.json` by filename.
 
+N10a's `zero_engine_code` receipt is historical evidence, not a moving-head
+gate. It is pinned to the immutable N9 merge base
+`26cc7cc03efc9da44362dc2914a5bde8ac8f7e73` through the N10a proof head
+`d8a8cf076da6233c66b0a90010647c0d437e81c4`. The checker replays that exact
+commit range, proves both commits are ancestors of the current checkout, and
+continues to rederive pack provenance from live owners. Repointing the receipt
+at `HEAD` fails `historical_receipt_rebased_to_moving_head`; GY-N10 scope is
+owned only by the GY-N10 contract.
+
 The projection has two authority layers:
 
 - **Canonical owner layer:** rederived `SubstrateRegistration`s, a persisted
@@ -123,12 +156,23 @@ The projection has two authority layers:
   profiles carrying their original `candidate_unbound` and
   `candidate_context_only_not_transport_authority` postures.
 
-One cycle-entry context binds the selected domain, DesignProblem hash, pack
-hash when present, S0 registry/ref, concrete WMR/ref, selected entry hashes,
+One cycle-entry context binds the selected domain, DesignProblem hash, stable
+pack substrate-input hash when present, S0 registry/ref, concrete WMR/ref, selected entry hashes,
 candidate levers, transport evidence, and any verified writable L6 bundle.
-Every downstream consumer receives that same context. A cache entry is keyed by
-these content hashes and exact requested slots, never `repo_root` or a domain
-name.
+Every candidate lever carries its parent pack/context hash and its selected S0
+entry hash. Validation proves membership in the context, presence in both the
+registry and WMR resolution, and equality of WMR/context registry hashes before
+the lever can reach a consumer. Every downstream consumer receives that same
+context. A cache entry is keyed by these content hashes and exact requested
+slots, never `repo_root` or a domain name.
+
+The context binds a stable `substrate_input_content_hash` computed only from
+the owner-derived pack inputs. The final pack manifest also names downstream
+cycle-trace and gap-report hashes, so using its final manifest hash as an input
+to that trace would be a cryptographic cycle. Trace/gap refs and runtime metrics
+are excluded from the substrate-input hash; the final manifest still binds all
+of them in the outward direction and records the immutable N10a source-pack
+hash from the historical proof head.
 
 The intake rejects stale pack hashes, stale registry hashes, unresolved S0
 entries, a WMR/ref mismatch, shaped strings without a resolved object, and
@@ -160,8 +204,15 @@ additional prerequisite, not a relabeling of the N6 seam.
 
 ### Bounded N4 import repair
 
-`design_generation.py` imports two public owners that are absent. Add only the
-canonical wrappers over existing private logic:
+Before changing an owner, audit every import in `design_generation.py` in one
+pass and record module, symbol, live-use count, resolution state, and one of
+`dead`, `live_existing_logic_to_wrap`, or `live_no_existing_owner_logic` in the
+Stage-1 journal. Dead imports are deleted, live existing logic receives a thin
+canonical wrapper, and any live symbol with no existing owner logic halts the
+stage before implementation.
+
+`design_generation.py` imports two public intervention owners that are absent.
+Add only the canonical wrappers over existing private logic:
 
 - `production_composed_world_model_record(...)` delegates to the cached
   `_production_composed_world_model_record(...)` owner;
@@ -171,6 +222,18 @@ canonical wrappers over existing private logic:
 Also remove the local `GroundingDispositionKind` literal and re-export/import
 the canonical type from `grounding_disposition_vocab`. Do not create an alias
 enum or duplicate vocabulary.
+
+The additional live import `trinity_bundle_formalizer_generator_path` is a
+thin Scientist-owner accessor over evidence already recorded around the
+formalizer call. `TrinityBundle` has no provenance field, so the accessor may
+not infer a path from bundle shape and may not default either honesty
+direction. It consumes the formalizer's exact `RecordingLLMClient` call slice
+and returns `model_generated` only when a successful recorded formalizer
+response parses and normalizes to the returned bundle. A recorded fallback is
+`degraded_mock_fallback`; no usable record is `path_unrecorded`. Both non-real
+states trigger conservative salvage and remain typed if salvage cannot produce
+matching evidence. Removing this derivation must make the salvage decision
+degrade and turn the N4 source-flip RED.
 
 The local acceptance signal is both the frozen N4 contract and a direct import
 of the default N4 generation stack. Closing this records the long-standing
@@ -204,9 +267,30 @@ hashes. Actual intervention atom construction stays with
 `build_intervention_atom_binding`; the lever resolver cannot manufacture a
 grounded fiscal atom.
 
-Stage 1 is not complete until education generation proposes over exact pack
-levers and reaches a real grounding-input attempt beyond the committed N10a
-entry baseline.
+The resolver consumes the complete `CycleSubstrateContext`, not a loose
+candidate plus independently supplied hashes. Cross-pack candidate
+substitution, selected-entry mismatch, stale WMR, or a WMR whose registry hash
+differs from the context fails closed before a refusal/resolution receipt can
+be minted.
+
+When N4 returns only `candidate_unbound` candidates, the cycle consumes their
+real grounding dispositions and routes them to the existing typed
+grounding/acquisition terminal. It may not replace the N4 result with grammar
+fallback merely because no bound atom exists. Mixed results also retain every
+unmatched non-binding disposition in the full denominator; the route is not an
+all-empty special case. Stage 1 is not complete until
+education generation proposes over exact pack levers, grounding receives the
+real disposition/content hashes, and the cycle terminal is independently
+typed and differs from `a_spec_gap`. The terminal is derived by the existing
+mapping (`novel_cg3` currently routes through a grounding gap toward
+`search_ceiling_repair_required`); the proof may not preselect
+`acquisition_required`. Grounding dispositions and cycle terminals remain
+separate vocabularies.
+
+The Stage-1 gap artifact closes `s0_to_n4_l6_bridge_missing`,
+`s0_to_n5_wmr_bridge_missing`, and `s0_to_l6_world_slot_bridge_missing` with
+live seam receipts before the gate can pass. N7 persistence, N8 transport, and
+N6 validation gaps remain typed residuals at that boundary.
 
 ## 3. A1 transport de-hardcode
 
@@ -261,13 +345,19 @@ may only stay equal or widen under grounded transport/applicability limits.
 
 The frozen artifact must contain both:
 
-1. **Real non-panel positive.** Select a non-panel catalog method whose
-   treatment and estimand genuinely bind. The preferred early feasibility lane
-   is a Bayesian/posterior method over owner-resolved first-vertical
-   `avg_income` observations and the real credit treatment binding. The solve
-   must produce `value_ready`, and changing the native posterior interval must
-   change `ValueOuterSet.width`. If that candidate is not semantically valid,
-   another real bound treatment must be chosen before Stage 2 proceeds.
+1. **Real non-panel positive.** First census the canonical substrate for three
+   evidence lanes: L2 study estimates with uncertainty/context suitable for
+   transport, L1/L2 owner-recorded rollout assignment, and any cheaply available
+   sibling domain with owner-recorded assignment. Choose the lane by measured
+   evidence, not by the plan's former Bayesian expectation. The advisor must
+   select the reachable method from the real candidate/problem/data-modality
+   denominator and persist its ranked trace. A transport result may honestly be
+   partial or `transported_limited`; an observational result must derive every
+   treated unit and period from a content-bound owner producer. In either case
+   the real native uncertainty contract must produce `value_ready`, and changing
+   the native interval/bounds must change `ValueOuterSet.width`. If no censused
+   lane can mint honestly, Stage 2 stops rather than manufacturing assignment or
+   forcing a method.
 2. **Education honesty negative.** Run a real registry-selected non-panel method
    over education observations. If a `candidate_unbound` teaching-method lever
    cannot bind to the method's estimand, or calibration/transport evidence is
@@ -361,6 +451,55 @@ The artifact content hash excludes runtime metrics, timestamps, and wall time.
 `--write` is byte-stable. `--rederive-audit` uses Lane-0 and cached Lane-1 paths;
 the one cold two-domain closeout runs once and receives the full E9 budget.
 
+### Stage-4 cold-run world-context reconciliation
+
+The cold first-vertical capture exposed a Class-1 wiring/measurement defect, not
+a genuine CG refusal. Its compiler-authored lever
+`state_backed_credit_guarantee` had no L6 owner counterpart, but the proof
+harness also constructed its `CycleSubstrateContext` with the correct fiscal
+WMR and an empty `intervention_substrate`. Consequently N4 received zero owner
+lever prompt entries and `_content_bound_candidates` skipped canonical lever
+resolution entirely. The Stage-2 run differed because its N4 prompt contained
+the three owner knobs and grounded `global.tax_rate` against the same fiscal
+world.
+
+The repair extends canonical owners rather than the proof role:
+
+- cycle-context selection resolves one context from exact DesignProblem
+  provenance plus the context WMR's target-region/world evidence; domain labels
+  and proof-role names are recorded provenance and never lookup authority;
+- no match or more than one content-valid match is a typed refusal, not a thin
+  context or arbitrary first match;
+- a world-bound context carries its real `InterventionSubstrateBundle`; a pack
+  context continues to carry its candidate-unbound lever evidence;
+- N4 derives the world-bound lever prompt slice from that exact bundle and
+  verifies every knob against the context WMR through
+  `resolve_intervention_lever`; model-authored candidate strings may propose but
+  cannot suppress, substitute, or bind owner vocabulary; and
+- an unseen world receives no first-vertical or education context and degrades
+  through the existing typed path.
+
+This is generic over any WMR/substrate pair. The RED denominator requires a
+synonym domain label to select the same content-bound world, a wrong or
+ambiguous world to refuse, the cold fiscal problem to receive all three real L6
+knobs despite its free-text lever, and an unseen target context to receive no
+borrowed vocabulary. A role/domain conditional, an alias from
+`credit_guarantee` to a fiscal knob, or prompt hints that teach the model an
+owner FQN are P31/P32/P33 violations.
+
+If the repaired prompt changes the first-vertical N4 request hash, the existing
+cold closeout is resumed once with a journal-first N4 recapture. It is not a
+second proof denominator. The downstream result is measured rather than
+preselected. Independently, any grounding terminal without a usable identity
+must compile a real N7 grounding-coverage/lever-vocabulary requirement so that
+honest refusal is actionable rather than a dead end.
+
+Finally, verified non-binding identity is refusal authority only. An atomless
+or non-binding-resolved candidate may reach refusal classification, but even
+with data-rich inputs it can never mint a positive value receipt or become
+promotion eligible. The Stage-4 mutation suite removes this fence and must turn
+RED.
+
 ## 8. Source-flip and semantic mutation contract
 
 Every decisive source flip patches source, executes the probe to RED, restores
@@ -384,9 +523,35 @@ P33 variants include synonyms, malformed and present-but-fake contracts, stale
 hashes, swapped contexts, a sibling no-hints consumer, a third pack vocabulary,
 and an unseen no-pack domain.
 
+N2 owns optional, strict `normalized_from` provenance on
+`InterventionAtomBinding` through the recovered canonical
+`AtomNormalizationRecord`. It records the original operator/slot surface and
+the CG1 certificate that justified normalization, participates in the atom's
+content hash, and round-trips through persistence. It is supporting provenance
+only: `consume_intervention_atom_for_cycle`, CG1, CG2, CG3, value, and promotion
+may not consult it to widen or replace canonical atom fields. The
+`normalized_from_used_as_authority` source flip deliberately makes the cycle
+consumer read the original pre-normalization slots and must turn the N2
+behavioral contract RED while markers remain present.
+An absent record is omitted from semantic content hashing to preserve the
+historical hashes of persisted July rows whose serialization carries
+`normalized_from: null`; a non-null record remains content-bound.
+
 Existing N5, N6, N8, and N9 harnesses are additive-only. The N7 checker and
 acquisition tests join the blast-radius set because the bootstrap fence affects
 their historical fallback path.
+
+Every GY-N10 validator and focused universality harness begins, before any
+`polisyos.*` import or producer execution, by resolving
+`polisyos.__file__` and proving that it lies under the current checkout's
+`src/` root. A mismatch fails `wrong_checkout_resolved` before any proof runs.
+The source-flip points resolution at the main checkout and must be rejected;
+testing a different checkout can never count as green evidence.
+The next preamble assertion proves the active `sys.prefix` and `sys.exec_prefix`
+equal the resolved repository `.venv`; failure is
+`wrong_interpreter_resolved` and occurs before the CG substrate probe or any
+producer. The final preamble assertion calls the canonical grounding-backend
+availability owner and fails `cg_substrate_unavailable` when CP-SAT is absent.
 
 ## 9. Four-stage execution and commit gates
 
@@ -400,18 +565,29 @@ coherent bridge slice. The stage gate requires:
 - N10a pack checker green;
 - N7 acquisition contract green after the bootstrap-consumer census/fence;
 - focused N4, substrate, WMR, generation-cycle, N7 acquisition, and education
-  smoke tests green; and
-- education generation over exact pack levers with a real grounding-input
-  attempt beyond the committed entry baseline.
+  smoke tests green;
+- the three Stage-1 bridge gaps closed in the regenerated gap artifact; and
+- education generation over exact pack levers through `generation_channel =
+  "n4_owner"`, real grounding dispositions received, and a separately typed
+  cycle terminal other than `a_spec_gap`.
 
 ### Stage 2 — transport and generic value
 
-Commit A1 and A2 as owner-focused slices. Before completing A2, establish a
-real bound non-panel positive; do not defer estimand feasibility to closeout.
+Commit A1 and A2 as owner-focused slices. The non-panel positive is the Stage 2
+exit gate, not an entry prerequisite; establish it during the stage and do not
+defer estimand feasibility to closeout.
 The gate requires:
 
 - N8 frozen contract and extended source-flip harness green;
 - a real non-panel `value_ready` receipt with native width lineage;
+- an advisor selection trace proving the non-panel method was selected rather
+  than code-pinned, including ranked panel alternatives and loss reasons;
+- either transport-estimate provenance binding the selected study estimates,
+  uncertainty, and contexts, or treatment-assignment provenance proving every
+  treated unit/period came from a canonical owner and was joined to the
+  owner-resolved observations;
+- caller-supplied assignment refused as
+  `treatment_assignment_not_owner_derived`;
 - education's real typed non-panel refusal;
 - first-/education-/third-pack transport vocabulary tests; and
 - no domain-name branches in engine code.
@@ -489,3 +665,9 @@ The final journal must explicitly report:
 - verbatim verification with exit codes;
 - the two infrastructure residuals; and
 - any genuinely cloud-only residual.
+
+It also includes a dedicated integration-debt ledger: every
+never-landed-state symbol reconciled under the bounded metadata/mechanics
+class, its July evidence and owner-first disposition; the wrong-checkout,
+wrong-interpreter, and CG-substrate environmental tripwires; and the two typed
+infrastructure residuals.

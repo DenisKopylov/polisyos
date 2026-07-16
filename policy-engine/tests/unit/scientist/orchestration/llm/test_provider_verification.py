@@ -13,6 +13,8 @@ import pytest
 from polisyos.scientist.orchestration.llm.provider_verification import (
     ProviderCapabilityVerification,
     ProviderPreflightReport,
+    _probe_json_completion,
+    _probe_response_healing,
     _run_named_check,
     is_provider_capability_verified,
     load_provider_verification,
@@ -20,6 +22,26 @@ from polisyos.scientist.orchestration.llm.provider_verification import (
     run_provider_preflight,
     save_provider_verification,
 )
+
+
+class _WrappedJSONProviderClient:
+    async def generate(self, **kwargs: object) -> SimpleNamespace:
+        del kwargs
+        return SimpleNamespace(
+            content='<think>provider text</think>{"status":"ok","sum":4}',
+            request_id="req-wrapped-json",
+            provider="test-provider",
+            usage=SimpleNamespace(total_tokens=4),
+        )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("probe", [_probe_json_completion, _probe_response_healing])
+async def test_provider_conformance_probes_reject_wrapped_json(probe) -> None:
+    result = await probe(_WrappedJSONProviderClient())
+
+    assert result["passed"] is False
+    assert result["error"]
 
 
 def test_provider_verification_round_trip(tmp_path):

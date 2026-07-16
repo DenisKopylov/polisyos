@@ -6,19 +6,32 @@ import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
+from functools import cache
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, get_args
 
 import pytest
 
 from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
 from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
+from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCaptureProvenance,
     AcquisitionOwnerArtifact,
     AcquisitionWorldSnapshot,
     RecordedAcquisitionOwnerGateway,
+    l1_variable_availability_requirement_gap,
+    value_input_world_knowledge_requirement_gap,
 )
+from polisyos.runtime.quality.cycle_substrate import (
+    CandidateLeverEvidence,
+    CycleSubstrateContext,
+    build_cycle_substrate_context,
+    cycle_substrate_context_binding_hash,
+    resolve_cycle_substrate_world_identity,
+)
+from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -39,6 +52,8 @@ from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleError,
     GenerationCycleRun,
+    JointSimulationPort,
+    N4GenerationPort,
     PendingN8ValuePort,
     PolicyGroundingPort,
     PromotionPortObservation,
@@ -46,12 +61,17 @@ from polisyos.runtime.quality.generation_cycle import (
     StrangleReceipt,
     ValuePortObservation,
     _apply_promotion_to_summaries,
+    _build_boundary_world_model_record,
     _derive_fronts,
+    _disposition_candidates,
     _grounding_disposition_denominator,
+    _joint_simulation_port_outcome,
     enforce_no_retry_without_new_grammar,
+    generation_cycle_terminal_state,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
     SubstrateLayer,
@@ -62,6 +82,7 @@ from polisyos.runtime.quality.substrate_registry import (
     build_substrate_registry,
     build_substrate_registry_entry,
 )
+from polisyos.runtime.quality.world_model_record import WorldModelRecordError
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tools.quality.validation import check_layer3_gy_generation_cycle_contract as contract
 
@@ -80,7 +101,7 @@ class _Atom:
     intervention_id: str
     content_hash: str
     status: str = "candidate_unverified"
-    world_model_record_ref: str = "world_model_record_test"
+    world_model_record_ref: str | None = "world_model_record_test"
     target_world_slots: tuple[str, ...] = ("firm_survival",)
 
 
@@ -378,6 +399,169 @@ class _CgfGenerationPort:
         )
 
 
+class _DispositionOnlyGenerationPort:
+    """Expose a real N4 non-binding denominator with no fabricated atom."""
+
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> _GenerationResult:
+        del problem, cycle_index
+        return _GenerationResult(
+            status="generated",
+            candidates=(),
+            surrogate_rankings=(),
+            grounding_dispositions=(
+                _GroundingDisposition(
+                    proposal_id="gy_n4.education_teaching_method",
+                    candidate_id=None,
+                    raw_candidate_hash="sha256:" + "7" * 64,
+                    disposition="novel_cg3",
+                    selected_relation="novel-candidate",
+                    identified_atom_id=None,
+                    cg2_decision="novel_candidate",
+                    cg2_reason="cg2_relation_not_bind_eligible",
+                    cg3_decision="route_to_acquisition",
+                    cg3_reason="cg3_candidate_unbound",
+                ),
+            ),
+        )
+
+
+class _NoPromotionPort:
+    def __call__(
+        self,
+        *,
+        summaries: Any,
+        problem: DesignProblem,
+    ) -> PromotionPortObservation:
+        del summaries, problem
+        return PromotionPortObservation(
+            status="not_promoted",
+            reason="candidate_unbound",
+        )
+
+
+class _MixedBindingAndDispositionPort:
+    """Return one bound candidate and one honest non-binding CGF row."""
+
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> _GenerationResult:
+        del problem, cycle_index
+        candidate = _Candidate(
+            candidate_id="candidate_mixed_bound",
+            atom=_Atom(
+                "candidate_mixed_bound",
+                "sha256:" + "8" * 64,
+            ),
+            diversity_key=("grant", "firms", "mixed", "bound"),
+        )
+        return _GenerationResult(
+            status="generated",
+            candidates=(candidate,),
+            surrogate_rankings=(
+                _Ranking(
+                    candidate_id=candidate.candidate_id,
+                    score=0.9,
+                    voi_estimate=0.2,
+                ),
+            ),
+            grounding_dispositions=(
+                _GroundingDisposition(
+                    proposal_id="gy_n4.bound",
+                    candidate_id=candidate.candidate_id,
+                    raw_candidate_hash="sha256:" + "9" * 64,
+                    disposition="shadow_bound",
+                    selected_relation="exact",
+                    shadow_atom_content_hash=candidate.atom.content_hash,
+                ),
+                _GroundingDisposition(
+                    proposal_id="gy_n4.unbound",
+                    candidate_id=None,
+                    raw_candidate_hash="sha256:" + "a" * 64,
+                    disposition="novel_cg3",
+                    selected_relation="novel-candidate",
+                    identified_atom_id=None,
+                    cg2_decision="novel_candidate",
+                    cg2_reason="cg2_relation_not_bind_eligible",
+                    cg3_decision="route_to_acquisition",
+                    cg3_reason="cg3_candidate_unbound",
+                ),
+            ),
+        )
+
+
+@pytest.mark.asyncio
+async def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
+    """A usable N4 refusal is a cycle candidate denominator, not spec absence."""
+
+    run = await GenerationCycleController(
+        generation_port=_DispositionOnlyGenerationPort(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_NoPromotionPort(),
+        repo_root=REPO_ROOT,
+    ).run(
+        _problem("education_disposition_only"),
+        budget_state=_budget(),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    cycle = run.cycles[0]
+    assert run.candidate_summaries[0].generation_channel == "n4_owner"
+    assert cycle.selected_candidate_ref == "gy_n4.education_teaching_method"
+    assert cycle.selected_candidate_content_hash == "sha256:" + "7" * 64
+    assert cycle.grounding.grounding_source == "cgf_firewall"
+    assert cycle.grounding.grounding_disposition == "novel_cg3"
+    assert cycle.grounding.acquisition_requirement is not None
+    assert cycle.grounding.acquisition_requirement.metadata["source"] == (
+        "cgf_grounding_coverage"
+    )
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_routing_report.status == "pass"
+    assert cycle.terminal_kind != "a_spec_gap"
+    assert "grammar_fallback" not in json.dumps(cycle.model_dump(mode="json"))
+
+
+@pytest.mark.asyncio
+async def test_mixed_n4_result_keeps_non_binding_disposition_in_denominator() -> None:
+    """The bridge covers every disposition, not only the all-empty case."""
+
+    run = await GenerationCycleController(
+        generation_port=_MixedBindingAndDispositionPort(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_NoPromotionPort(),
+        repo_root=REPO_ROOT,
+    ).run(
+        _problem("mixed_disposition_denominator"),
+        budget_state=_budget(),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    assert {summary.candidate_id for summary in run.candidate_summaries} == {
+        "candidate_mixed_bound",
+        "gy_n4.unbound",
+    }
+    assert {summary.generation_channel for summary in run.candidate_summaries} == {
+        "n4_owner"
+    }
+    unbound = next(
+        summary
+        for summary in run.candidate_summaries
+        if summary.candidate_id == "gy_n4.unbound"
+    )
+    assert unbound.content_hash == "sha256:" + "a" * 64
+    assert unbound.grounding_disposition == "novel_cg3"
+
+
 class _FabricatedPromotionPort:
     def __call__(self, *, summaries: Any, problem: DesignProblem) -> PromotionPortObservation:
         del problem
@@ -479,6 +663,906 @@ def _problem(problem_id: str = "generic_cycle_problem") -> DesignProblem:
             ]
         ),
     )
+
+
+def _domain_problem(
+    *,
+    domain: str,
+    region: str,
+    valid_time: str,
+    as_of: str,
+    outcome: str,
+    stakeholder_id: str,
+) -> DesignProblem:
+    """Build a domain-shaped problem without changing the boundary owner."""
+
+    return _problem(f"{domain}_boundary_problem").model_copy(
+        update={
+            "domain": domain,
+            "jurisdiction_time": JurisdictionTimeSemantics(
+                region=region,
+                valid_time=valid_time,
+                as_of=as_of,
+                policy_time=valid_time,
+                data_time=valid_time,
+            ),
+            "stakeholders": [
+                DesignStakeholder(
+                    stakeholder_id=stakeholder_id,
+                    name=stakeholder_id.replace("_", " ").title(),
+                    role="affected_population",
+                )
+            ],
+            "outcome_of_interest": OutcomeOfInterest(
+                target_variable=outcome,
+                metric_id=outcome,
+                estimand="average_treatment_effect",
+            ),
+        }
+    )
+
+
+def _lane0_registry(*, domain: str, source_id: str) -> SubstrateRegistry:
+    """Build one content-addressed registry with domain-shaped vocabulary."""
+
+    registration = SubstrateRegistration(
+        source_id=source_id,
+        family_id=f"{domain}_causal_priors",
+        layer=SubstrateLayer.L2,
+        coverage=SubstrateCoverage(
+            coverage_score=0.74,
+            coverage_kind="lane0.causal_claim_coverage",
+            coverage_rule_ref=f"lane0://{domain}/coverage",
+            observation_count=7,
+            metric_binding_count=3,
+        ),
+        trust_tier=SubstrateTrustTier(
+            tier="derived_proxy",
+            trust_cap=0.5,
+            trust_multiplier=0.6,
+            min_coverage=0.0,
+            max_coverage=1.0,
+            authority_ref=f"lane0://{domain}/trust",
+        ),
+        identification_mode="causal_prior_candidate",
+        schema_regime=SubstrateSchemaRegime(
+            schema_regime_id=f"{domain}_schema_v1",
+            authority_ref=f"lane0://{domain}/schema",
+            source_version="1",
+        ),
+        data_version=f"{domain}-data-v1",
+        snapshot_id=f"{domain}-snapshot-v1",
+        source_snapshot_id=f"{domain}-snapshot-v1",
+        provenance_refs=(f"lane0://{domain}/causal-claims",),
+        authority_refs=(f"lane0://{domain}/registry-owner",),
+    )
+    return build_substrate_registry(
+        (build_substrate_registry_entry(registration),),
+        producer_ref="tests.unit.runtime.quality.test_generation_cycle",
+        source_catalog_refs=registration.authority_refs,
+    )
+
+
+def _lane0_cycle_context(
+    *,
+    runtime_hints: dict[str, Any] | None = None,
+) -> tuple[DesignProblem, CycleSubstrateContext]:
+    """Build one unseen-shape context through the canonical boundary owner."""
+
+    problem = _domain_problem(
+        domain="water_quality",
+        region="dnieper_basin",
+        valid_time="2021/2024",
+        as_of="2026-07-12",
+        outcome="nitrate_load",
+        stakeholder_id="watershed_communities",
+    )
+    if runtime_hints is not None:
+        problem = problem.model_copy(update={"runtime_hints": runtime_hints})
+    registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.duckdb",
+    )
+    selected_hash = registry.entries[0].entry_content_hash
+    world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="nitrate_load",
+        policy_slot_ids=("nitrate_load",),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+    )
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    substrate_input_hash = gy_content_hash(
+        {"domain": problem.domain, "registry": registry.content_hash}
+    )
+    binding_hash = cycle_substrate_context_binding_hash(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_input_content_hash=substrate_input_hash,
+        substrate_registry_content_hash=registry.content_hash,
+        world_model_record_id=world.world_model_record_id,
+        world_model_record_content_hash=world.content_hash,
+        world_model_record_authority_status=world.authority_status,
+        selected_registry_entry_hashes=(selected_hash,),
+    )
+    candidate = CandidateLeverEvidence(
+        lever_id="riparian_buffer_width",
+        instrument="water.riparian_buffer_width",
+        target_concept="water.nitrate_load",
+        status="candidate_unbound",
+        entry_content_hash=gy_content_hash(
+            {"lever": "riparian_buffer_width", "domain": "water_quality"}
+        ),
+        substrate_input_content_hash=substrate_input_hash,
+        selected_registry_entry_hash=selected_hash,
+        context_binding_hash=binding_hash,
+        source_refs=("lane0://water-quality/lever",),
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(selected_hash,),
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(candidate,),
+        transport_context=None,
+        source_pack_content_hash=gy_content_hash("water-quality-pack"),
+        substrate_input_content_hash=substrate_input_hash,
+    )
+    return problem, context
+
+
+def _candidate_unbound_refusal(
+    context: CycleSubstrateContext,
+) -> InterventionLeverRefusal:
+    """Bind one candidate-only lever refusal to the exact test context."""
+
+    candidate = context.candidate_levers[0]
+    payload = {
+        "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+        "status": "candidate_unbound",
+        "operator_kind": candidate.lever_id,
+        "instrument": candidate.instrument,
+        "lever_id": candidate.lever_id,
+        "reason_code": "knob_operator_unresolved",
+        "candidate_entry_content_hash": candidate.entry_content_hash,
+        "selected_registry_entry_hash": candidate.selected_registry_entry_hash,
+        "substrate_input_content_hash": candidate.substrate_input_content_hash,
+        "context_binding_hash": candidate.context_binding_hash,
+        "substrate_registry_content_hash": context.substrate_registry_content_hash,
+        "world_model_record_content_hash": context.world_model_record_content_hash,
+        "source_refs": candidate.source_refs,
+    }
+    return InterventionLeverRefusal.model_validate(
+        {**payload, "content_hash": gy_content_hash(payload)}
+    )
+
+
+def test_disposition_projection_preserves_verified_candidate_unbound_resolution() -> None:
+    """N6 keeps owner-verified world identity without inventing an intervention atom."""
+
+    _problem_value, context = _lane0_cycle_context()
+    refusal = _candidate_unbound_refusal(context)
+    raw_candidate_hash = gy_content_hash({"candidate": "riparian-buffer"})
+    disposition = SimpleNamespace(
+        candidate_id=None,
+        proposal_id="candidate_unbound_riparian_buffer",
+        raw_candidate_hash=raw_candidate_hash,
+        disposition="unknown_blocked",
+        lever_resolution=refusal,
+    )
+
+    projected = _disposition_candidates(
+        SimpleNamespace(grounding_dispositions=(disposition,)),
+        existing_candidates=(),
+    )
+
+    assert len(projected) == 1
+    assert projected[0].lever_resolution == refusal
+    assert not hasattr(projected[0], "atom")
+
+
+def test_joint_port_uses_verified_candidate_unbound_resolution_for_context_wmr() -> None:
+    """N5 may carry the context WMR while the intervention remains explicitly unbound."""
+
+    problem, context = _lane0_cycle_context()
+    candidate = SimpleNamespace(
+        candidate_id="candidate_unbound_riparian_buffer",
+        status="candidate_unbound",
+        lever_resolution=_candidate_unbound_refusal(context),
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_pending_n5"
+    assert observation.world_model_record is context.world_model_record
+    assert observation.diagnostics["world_model_source"] == "cycle_substrate_context"
+    assert "world_identity_unresolved" not in observation.authority_blockers
+    assert not hasattr(candidate, "atom")
+
+
+def test_joint_port_rejects_candidate_unbound_resolution_from_another_context() -> None:
+    """A valid refusal from another problem cannot act as shaped world identity."""
+
+    problem, context = _lane0_cycle_context()
+    _other_problem, other_context = _lane0_cycle_context(
+        runtime_hints={"probe": "another-context"}
+    )
+    candidate = SimpleNamespace(
+        candidate_id="candidate_unbound_cross_context",
+        status="candidate_unbound",
+        lever_resolution=_candidate_unbound_refusal(other_context),
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+    assert observation.world_model_record is None
+
+
+@cache
+def _canonical_strict_world_case() -> tuple[
+    DesignProblem,
+    CycleSubstrateContext,
+    object,
+]:
+    """Load one real N4 shadow atom and bind it to the canonical production WMR."""
+
+    from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
+    from polisyos.runtime.quality.intervention_substrate import (
+        production_composed_world_model_record,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        build_substrate_registry_from_existing_catalogs,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    assert n4_contract.validate(REPO_ROOT)["status"] == "pass"
+    payload = json.loads((REPO_ROOT / n4_contract.OUTPUT_PATH).read_text(encoding="utf-8"))
+    candidate = ShadowGeneratedCandidate.model_validate(
+        n4_contract.first_shadow_bound_recorded_candidate(payload)
+    )
+    problems = tuple(
+        n4_contract._design_problem(recording)
+        for recording in n4_contract._load_recordings(REPO_ROOT)
+    )
+    matched = tuple(
+        problem
+        for problem in problems
+        if gy_content_hash(problem.model_dump(mode="json"))
+        == candidate.atom.problem_frame_ref
+    )
+    assert len(matched) == 1
+    problem = matched[0]
+    world = production_composed_world_model_record(REPO_ROOT)
+    registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    assert registry.content_hash == world.substrate_registry_ref.content_hash
+    selected_hashes = tuple(
+        entry.entry_content_hash
+        for entry in world.substrate_registry_ref.resolved_entries
+    )
+    substrate_input_hash = gy_content_hash(
+        {
+            "design_problem_ref": candidate.atom.problem_frame_ref,
+            "substrate_registry_content_hash": registry.content_hash,
+            "world_model_record_content_hash": world.content_hash,
+            "selected_registry_entry_hashes": selected_hashes,
+        }
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=candidate.atom.problem_frame_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=world,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=substrate_input_hash,
+    )
+    return problem, context, candidate
+
+
+def _canonical_context_case_with_runtime_hints(
+    runtime_hints: dict[str, Any],
+) -> tuple[DesignProblem, CycleSubstrateContext, object]:
+    """Rebind the strict candidate/context after adding request-shaping hints."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    base_problem, base_context, base_candidate = _canonical_strict_world_case()
+    problem = base_problem.model_copy(update={"runtime_hints": runtime_hints})
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    atom_draft = base_candidate.atom.model_copy(
+        update={"problem_frame_ref": problem_ref}
+    )
+    atom = atom_draft.model_copy(
+        update={"content_hash": intervention_atom_content_hash(atom_draft)}
+    )
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = SimpleNamespace(candidate_id=base_candidate.candidate_id, atom=atom)
+    selected_hashes = tuple(base_context.selected_registry_entry_hashes)
+    substrate_input_hash = gy_content_hash(
+        {
+            "design_problem_ref": problem_ref,
+            "substrate_registry_content_hash": (
+                base_context.substrate_registry_content_hash
+            ),
+            "world_model_record_content_hash": (
+                base_context.world_model_record_content_hash
+            ),
+            "selected_registry_entry_hashes": selected_hashes,
+        }
+    )
+    context = build_cycle_substrate_context(
+        design_problem_ref=problem_ref,
+        domain=problem.domain,
+        substrate_registry=base_context.substrate_registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=base_context.world_model_record,
+        intervention_substrate=None,
+        candidate_levers=(),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=substrate_input_hash,
+    )
+    return problem, context, candidate
+
+
+def test_joint_port_reuses_exact_cycle_context_wmr() -> None:
+    """N5 receives the exact WMR object bound into the cycle context."""
+
+    problem, context, candidate = _canonical_strict_world_case()
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(
+        candidate=candidate,
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.world_model_record is context.world_model_record
+    assert observation.diagnostics["world_model_source"] == "cycle_substrate_context"
+    assert observation.k_world_ref_before == context.world_model_record.content_hash
+    assert observation.k_world_ref_after == context.world_model_record.content_hash
+
+
+def test_joint_port_accepts_label_drift_after_atom_world_resolution() -> None:
+    """World identity follows resolved slots/content, never producer label equality."""
+
+    problem, context, candidate = _canonical_strict_world_case()
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert problem.domain == "ua_msme_cgf_decisive_capture"
+    assert context.world_model_record.policy_domain == "fiscal_credit"
+    assert observation.status == "simulation_pending_n5"
+    assert observation.world_model_record is context.world_model_record
+    assert observation.diagnostics["world_model_record_content_hash"] == (
+        context.world_model_record.content_hash
+    )
+    assert observation.k_world_ref_before == context.world_model_record.content_hash
+
+
+def test_real_unsupported_n5_result_is_serialized_as_simulation_blocked() -> None:
+    """A real gated N5 receipt cannot be relabeled as a completed simulation."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationHorizonController,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_joint_simulation_horizon_contract as n5_contract,
+    )
+
+    request = n5_contract._request().model_copy(
+        update={"coupling_graph": n5_contract._coupling_graph("feedback")}
+    )
+    result = JointSimulationHorizonController().run(request)
+
+    status, blockers = _joint_simulation_port_outcome(result)
+
+    assert result.receipt.calibration_status == "unsupported_coupling_gated"
+    assert not result.trajectories
+    assert status == "simulation_blocked", "unsupported_n5_result_must_block"
+    assert "unsupported_coupling_class:feedback" in blockers
+
+
+def test_joint_port_rejects_candidate_ref_mismatched_to_context_wmr() -> None:
+    """A candidate's shaped WMR ref cannot override the resolved context world."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    problem, context, canonical_candidate = _canonical_strict_world_case()
+    draft = canonical_candidate.atom.model_copy(
+        update={"world_model_record_ref": "world_model_record_0123456789abcdef"}
+    )
+    atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = SimpleNamespace(
+        candidate_id="candidate_first_vertical_wrong_world",
+        atom=atom,
+    )
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+
+
+def test_cycle_world_identity_rejects_shaped_atom_even_when_strings_match() -> None:
+    """Matching ref/slot strings are not a substitute for the strict atom owner."""
+
+    _problem_value, context, _candidate = _canonical_strict_world_case()
+    shaped = _Atom(
+        "candidate_shaped_world_identity",
+        "sha256:" + "7" * 64,
+        world_model_record_ref=context.world_model_record.content_hash,
+        target_world_slots=("global.tax_rate",),
+    )
+
+    with pytest.raises(WorldModelRecordError, match="world_identity_unresolved"):
+        resolve_cycle_substrate_world_identity(context, atom=shaped)
+
+
+def test_cycle_world_identity_rejects_atom_from_another_problem() -> None:
+    """A valid atom cannot cross a DesignProblem boundary within the same world."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    _problem_value, context, candidate = _canonical_strict_world_case()
+    draft = candidate.atom.model_copy(
+        update={"problem_frame_ref": "sha256:" + "9" * 64}
+    )
+    atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+
+    with pytest.raises(WorldModelRecordError, match="world_identity_unresolved"):
+        resolve_cycle_substrate_world_identity(context, atom=atom)
+
+
+def test_joint_port_rejects_empty_atom_slots_as_unresolved_world_identity() -> None:
+    """A world ref without at least one resolved slot is not world identity."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+
+    problem, context, canonical_candidate = _canonical_strict_world_case()
+    draft = canonical_candidate.atom.model_copy(update={"target_world_slots": ()})
+    atom = draft.model_copy(update={"content_hash": intervention_atom_content_hash(draft)})
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = SimpleNamespace(candidate_id="candidate_empty_slots", atom=atom)
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+
+
+def test_joint_port_types_tampered_strict_atom_as_unresolved_world_identity() -> None:
+    """A model-constructed atom with a stale hash fails closed at the port."""
+
+    problem, context, canonical_candidate = _canonical_strict_world_case()
+    atom = canonical_candidate.atom.model_copy(
+        update={"content_hash": "sha256:" + "0" * 64}
+    )
+    candidate = SimpleNamespace(candidate_id="candidate_tampered_atom", atom=atom)
+
+    observation = JointSimulationPort(
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+
+
+def test_explicit_joint_request_cannot_bypass_context_wmr() -> None:
+    """An explicit N5 request with another concrete WMR is refused before simulation."""
+
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationRequest,
+    )
+
+    base_problem, base_context, _base_candidate = _canonical_strict_world_case()
+    request_registry = _lane0_registry(
+        domain="first_vertical_request_probe",
+        source_id="l2_watershed_graph:explicit_request.duckdb",
+    )
+    request_world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=base_problem,
+        outcome="employment_retention",
+        policy_slot_ids=("global.tax_rate",),
+        substrate_registry=request_registry,
+        selected_registry_entry_hashes=(
+            request_registry.entries[0].entry_content_hash,
+        ),
+    )
+    request = JointSimulationRequest.model_construct(
+        world_model_record_ref=request_world.world_model_record_id,
+        world_model_record=request_world,
+    )
+    problem, context, candidate = _canonical_context_case_with_runtime_hints(
+        {"joint_simulation_request": request}
+    )
+    assert context.world_model_record.content_hash == base_context.world_model_record.content_hash
+    calls: list[object] = []
+
+    class _RecordingController:
+        def run(self, concrete_request: object) -> object:
+            calls.append(concrete_request)
+            return SimpleNamespace(
+                receipt=SimpleNamespace(payload_hash="sha256:" + "1" * 64),
+                uncertainty_kind="K_sim",
+                promotion_ready_value_packet={},
+                engine_decisions=(),
+                trajectories=(),
+                interaction_terms=(),
+            )
+
+    observation = JointSimulationPort(
+        controller=_RecordingController(),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "cycle_substrate_request_wmr_mismatch" in observation.authority_blockers
+    assert calls == []
+
+
+def test_explicit_joint_request_atom_refs_bind_before_injected_controller() -> None:
+    """A valid nested atom for another world is refused at the single N5 intake."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationRequest,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_design_generation_contract as n4_contract,
+    )
+
+    base_problem, base_context, _base_candidate = _canonical_strict_world_case()
+    n4_payload = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    candidate_payload = n4_contract.first_shadow_bound_recorded_candidate(
+        n4_payload
+    )
+    atom = InterventionAtomBinding.model_validate(candidate_payload["atom"])
+    mismatched_atom = atom.model_copy(
+        update={"world_model_record_ref": "world_model_record_0123456789abcdef"}
+    )
+    mismatched_atom = mismatched_atom.model_copy(
+        update={"content_hash": intervention_atom_content_hash(mismatched_atom)}
+    )
+    mismatched_atom = InterventionAtomBinding.model_validate(
+        mismatched_atom.model_dump(mode="python")
+    )
+    request = JointSimulationRequest.model_construct(
+        world_model_record_ref=base_context.world_model_record.world_model_record_id,
+        world_model_record=base_context.world_model_record,
+        intervention_atoms=(mismatched_atom,),
+    )
+    problem, context, candidate = _canonical_context_case_with_runtime_hints(
+        {"joint_simulation_request": request}
+    )
+    assert problem.domain == base_problem.domain
+    assert context.world_model_record.content_hash == base_context.world_model_record.content_hash
+    calls: list[object] = []
+
+    class _RecordingController:
+        def run(self, concrete_request: object) -> object:
+            calls.append(concrete_request)
+            return SimpleNamespace(
+                receipt=SimpleNamespace(payload_hash="sha256:" + "3" * 64),
+                uncertainty_kind="K_sim",
+                promotion_ready_value_packet={},
+                engine_decisions=(),
+                trajectories=(),
+                interaction_terms=(),
+            )
+
+    observation = JointSimulationPort(
+        controller=_RecordingController(),
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=context,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert "world_identity_unresolved" in observation.authority_blockers
+    assert calls == []
+
+
+def test_explicit_request_nested_atom_missing_slot_fails_world_identity() -> None:
+    """Every nested request atom resolves before any N5 controller injection."""
+
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import (
+        JointSimulationRequest,
+    )
+
+    problem, context, candidate = _canonical_strict_world_case()
+    draft = candidate.atom.model_copy(
+        update={
+            "target_world_slots": ("missing.world_slot",),
+            "normalized_from": None,
+        }
+    )
+    nested_atom = draft.model_copy(
+        update={"content_hash": intervention_atom_content_hash(draft)}
+    )
+    nested_atom = InterventionAtomBinding.model_validate(
+        nested_atom.model_dump(mode="python")
+    )
+    request = JointSimulationRequest.model_construct(
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+        world_model_record=context.world_model_record,
+        intervention_atoms=(nested_atom,),
+    )
+    problem = problem.model_copy(
+        update={"runtime_hints": {"joint_simulation_request": request}}
+    )
+    calls: list[object] = []
+
+    observation = JointSimulationPort(
+        controller=SimpleNamespace(run=lambda concrete: calls.append(concrete)),
+        repo_root=REPO_ROOT,
+    )(candidate=candidate, problem=problem, cycle_index=0)
+
+    assert observation.status == "simulation_blocked"
+    assert observation.authority_blockers == ("world_identity_unresolved",)
+    assert calls == []
+
+
+def test_joint_port_cache_key_tracks_canonical_registry_content(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A changed canonical registry rebuilds the WMR instead of reusing stale world state."""
+
+    from polisyos.runtime.quality import generation_cycle
+
+    problem, _context = _lane0_cycle_context()
+    first_registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.v1.duckdb",
+    )
+    second_registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.v2.duckdb",
+    )
+    registries = iter((first_registry, second_registry))
+
+    def _next_registry(_repo_root: Path) -> SubstrateRegistry:
+        return next(registries)
+
+    monkeypatch.setattr(
+        generation_cycle,
+        "build_substrate_registry_from_existing_catalogs",
+        _next_registry,
+    )
+    candidate = _Candidate(
+        candidate_id="candidate_water_quality_cache",
+        atom=_Atom(
+            "candidate_water_quality_cache",
+            "sha256:" + "d" * 64,
+            world_model_record_ref=None,
+            target_world_slots=("nitrate_load",),
+        ),
+        diversity_key=("buffer", "watershed", "water", "cache"),
+    )
+    port = JointSimulationPort(repo_root=REPO_ROOT)
+
+    first = port(candidate=candidate, problem=problem, cycle_index=0)
+    second = port(candidate=candidate, problem=problem, cycle_index=1)
+
+    assert first.world_model_record is not None
+    assert second.world_model_record is not None
+    assert first.world_model_record.content_hash != second.world_model_record.content_hash
+    assert first.world_model_record.substrate_registry_ref.content_hash == first_registry.content_hash
+    assert second.world_model_record.substrate_registry_ref.content_hash == second_registry.content_hash
+
+
+def test_joint_port_revalidates_context_before_reusing_wmr() -> None:
+    """A stale registry checksum cannot retain an old WMR through the context route."""
+
+    _problem_value, context = _lane0_cycle_context()
+    stale_context = context.model_copy(
+        update={"substrate_registry_content_hash": "sha256:" + "e" * 64}
+    )
+
+    with pytest.raises(ValueError, match="cycle_substrate_registry_hash_mismatch"):
+        JointSimulationPort(
+            repo_root=REPO_ROOT,
+            cycle_substrate_context=stale_context,
+        )
+
+
+def test_shaped_wmr_ref_without_resolved_object_is_rejected() -> None:
+    """A WMR-looking string cannot substitute for a resolved owner object."""
+
+    problem = _problem("shaped_wmr_ref").model_copy(
+        update={
+            "runtime_hints": {
+                "world_model_record_ref": "world_model_record_0123456789abcdef"
+            }
+        }
+    )
+    candidate = _Candidate(
+        candidate_id="candidate_shaped_wmr",
+        atom=_Atom("candidate_shaped_wmr", "sha256:" + "c" * 64),
+        diversity_key=("grant", "firms", "shaped", "wmr"),
+    )
+
+    observation = JointSimulationPort(repo_root=REPO_ROOT)(
+        candidate=candidate,
+        problem=problem,
+        cycle_index=0,
+    )
+
+    assert observation.status == "simulation_blocked"
+    assert "world_model_record_unresolved" in observation.authority_blockers
+
+
+@pytest.mark.asyncio
+async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """N7 remains requested when S0 is unavailable; N6 mints no registry."""
+
+    from polisyos.runtime.quality import generation_cycle
+
+    def _owner_unavailable(_repo_root: Path) -> SubstrateRegistry:
+        raise FileNotFoundError("lane0 owner unavailable")
+
+    monkeypatch.setattr(
+        generation_cycle,
+        "build_substrate_registry_from_existing_catalogs",
+        _owner_unavailable,
+    )
+    run = await GenerationCycleController(
+        generation_port=_CounterexampleAwareGenerator(),
+        grounding_port=_AcquisitionGrounding(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_NoPromotionPort(),
+        acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={}
+        ),
+        repo_root=REPO_ROOT,
+    ).run(
+        _problem("missing_canonical_registry"),
+        budget_state=_budget(),
+        min_cycles=1,
+        max_cycles=1,
+    )
+
+    cycle = run.cycles[0]
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.acquisition_receipt is None
+    assert "n7_substrate_registry_unresolved" in cycle.counterexample.diagnostic.code
+    assert "n7_substrate_registry_unresolved" not in cycle.grounding.issue_codes
+    assert "n7_route" not in cycle.revision_request.strategy_payload
+    assert "n6.bootstrap" not in json.dumps(run.model_dump(mode="json"))
+
+
+def test_boundary_wmr_uses_injected_registry_and_problem_scope(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The canonical boundary owner must not rebuild or stamp first-vertical scope."""
+
+    from polisyos.runtime.quality import generation_cycle
+
+    registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.duckdb",
+    )
+    problem = _domain_problem(
+        domain="water_quality",
+        region="dnieper_basin",
+        valid_time="2021/2024",
+        as_of="2026-07-12",
+        outcome="nitrate_load",
+        stakeholder_id="watershed_communities",
+    )
+
+    def _unexpected_registry_rebuild(_repo_root: Path) -> SubstrateRegistry:
+        raise AssertionError("injected_registry_was_ignored")
+
+    monkeypatch.setattr(
+        generation_cycle,
+        "build_substrate_registry_from_existing_catalogs",
+        _unexpected_registry_rebuild,
+    )
+    record = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome="nitrate_load",
+        policy_slot_ids=("nitrate_load",),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=(registry.entries[0].entry_content_hash,),
+    )
+
+    assert record.policy_domain == "water_quality"
+    assert record.region_or_jurisdiction == "dnieper_basin"
+    assert record.valid_time_scope == "2021/2024"
+    assert record.tx_time_scope == "2026-07-12"
+    assert "watershed_communities" in record.population_scope
+    assert record.substrate_registry_ref.content_hash == registry.content_hash
+    assert {
+        item.entry_content_hash for item in record.substrate_registry_ref.resolved_entries
+    } == {registry.entries[0].entry_content_hash}
+    assert not record.fabric_world_ref.snapshot_root.startswith("/")
+    assert "UA" not in json.dumps(record.model_dump(mode="json"))
+
+
+def test_boundary_wmr_rejects_selected_entry_absent_from_registry() -> None:
+    """A shaped selected hash cannot become a boundary-world authority receipt."""
+
+    registry = _lane0_registry(
+        domain="water_quality",
+        source_id="l2_watershed_graph:causal_edges.duckdb",
+    )
+    problem = _domain_problem(
+        domain="water_quality",
+        region="dnieper_basin",
+        valid_time="2021/2024",
+        as_of="2026-07-12",
+        outcome="nitrate_load",
+        stakeholder_id="watershed_communities",
+    )
+
+    with pytest.raises(WorldModelRecordError, match="boundary_registry_entry_unresolved"):
+        _build_boundary_world_model_record(
+            repo_root=REPO_ROOT,
+            problem=problem,
+            outcome="nitrate_load",
+            policy_slot_ids=("nitrate_load",),
+            substrate_registry=registry,
+            selected_registry_entry_hashes=("sha256:" + "0" * 64,),
+        )
 
 
 def _budget(max_usd: str = "5.0") -> BudgetState:
@@ -611,9 +1695,9 @@ def _n7_registration(*, source_id: str, family_id: str, snapshot_id: str) -> Sub
     )
 
 
-def _real_n4_generation_result_with_candidate(
-    candidate_id: str,
-) -> tuple[dict[str, Any], dict[str, Any]]:
+def _real_n4_generation_result_with_candidate() -> tuple[dict[str, Any], dict[str, Any]]:
+    """Select one content-matched real candidate without pinning a receipt-local id."""
+
     payload = json.loads(
         (
             REPO_ROOT
@@ -621,10 +1705,20 @@ def _real_n4_generation_result_with_candidate(
         ).read_text(encoding="utf-8")
     )
     for result in payload["generation_results"]:
+        dispositions = {
+            item.get("candidate_id"): item
+            for item in result.get("grounding_dispositions") or ()
+            if item.get("candidate_id")
+        }
         for candidate in result.get("candidates") or ():
-            if candidate.get("candidate_id") == candidate_id:
+            disposition = dispositions.get(candidate.get("candidate_id"))
+            if (
+                disposition is not None
+                and disposition.get("shadow_atom_content_hash")
+                == candidate.get("atom", {}).get("content_hash")
+            ):
                 return result, candidate
-    raise AssertionError(f"missing real N4 candidate {candidate_id}")
+    raise AssertionError("missing content-matched real N4 candidate")
 
 
 def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
@@ -639,11 +1733,15 @@ def _real_cg4_proxy_gap_result() -> tuple[dict[str, Any], dict[str, Any]]:
         for item in cg4_payload["certificate"]["quarantine_handoffs"]
         if item["action"] == "adversarial_validate"
     )
-    result, candidate = _real_n4_generation_result_with_candidate(
-        "candidate_6c4c225a4ce4961a"
+    result, candidate = _real_n4_generation_result_with_candidate()
+    disposition = copy.deepcopy(
+        next(
+            item
+            for item in result["grounding_dispositions"]
+            if item.get("candidate_id") == candidate["candidate_id"]
+        )
     )
     candidate = copy.deepcopy(candidate)
-    disposition = copy.deepcopy(result["grounding_dispositions"][0])
     disposition["candidate_id"] = candidate["candidate_id"]
     disposition["shadow_atom_content_hash"] = candidate["atom"]["content_hash"]
     disposition["disposition"] = "shadow_bound"
@@ -763,6 +1861,9 @@ async def test_controller_refuses_live_retry_without_new_grammar() -> None:
     assert run.blocked_reason == "no_retry_without_new_grammar"
     assert run.cycles[0].refinement_decision.decision == "block_candidate"
     assert run.cycles[0].search_iteration.status == "blocked_no_retry"
+    terminal = generation_cycle_terminal_state(run)
+    assert terminal.kind.value == "recursive_blocked"
+    assert terminal.blocking_obligations == ["no_retry_without_new_grammar"]
 
 
 @pytest.mark.asyncio
@@ -999,6 +2100,40 @@ async def test_empty_llm_generation_uses_grammar_fallback_without_promotion() ->
 
 
 @pytest.mark.asyncio
+async def test_n4_port_without_owner_context_refuses_before_scientist_generation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A no-pack cycle cannot borrow the fixed Scientist vertical vocabulary."""
+
+    from polisyos.runtime.quality import design_generation
+
+    calls = 0
+
+    async def _forbidden_generation(*args: Any, **kwargs: Any) -> object:
+        nonlocal calls
+        del args, kwargs
+        calls += 1
+        raise AssertionError("scientist_generation_reached_without_owner_context")
+
+    monkeypatch.setattr(
+        design_generation,
+        "generate_design_candidate_bundle_under_a",
+        _forbidden_generation,
+    )
+    port = N4GenerationPort(
+        model_id="owner-selected-model",
+        repo_root=REPO_ROOT,
+        cycle_substrate_context=None,
+    )
+
+    result = await port(_problem(), cycle_index=0)
+
+    assert calls == 0
+    assert result.status == "cycle_substrate_context_unavailable"
+    assert result.candidates == ()
+
+
+@pytest.mark.asyncio
 async def test_default_grounding_port_rejects_legacy_matrix_without_cgf_disposition() -> None:
     controller = GenerationCycleController(
         generation_port=_LegacyOnlyGenerationPort(),
@@ -1014,9 +2149,7 @@ async def test_default_grounding_port_rejects_legacy_matrix_without_cgf_disposit
 
 
 def test_default_grounding_port_resolves_real_serialized_n4_candidate() -> None:
-    result, candidate = _real_n4_generation_result_with_candidate(
-        "candidate_6c4c225a4ce4961a"
-    )
+    result, candidate = _real_n4_generation_result_with_candidate()
 
     grounding = PolicyGroundingPort()(
         candidate=candidate,
@@ -1025,7 +2158,7 @@ def test_default_grounding_port_resolves_real_serialized_n4_candidate() -> None:
         generation_result=result,
     )
 
-    assert grounding.candidate_id == "candidate_6c4c225a4ce4961a"
+    assert grounding.candidate_id == candidate["candidate_id"]
     assert grounding.status != "grounding_unavailable"
     assert "cgf_disposition_missing" not in grounding.issue_codes
     assert grounding.grounding_source == "cgf_firewall"
@@ -1188,6 +2321,44 @@ def test_blocked_value_candidate_cannot_be_promoted_to_decision_front() -> None:
     assert fronts.research.candidate_ids == ("candidate_value_blocked",)
 
 
+def test_nonbinding_resolution_cannot_become_promotion_eligible() -> None:
+    """World identity for refusal cannot be laundered into decision authority."""
+
+    nonbinding = CandidateSummary(
+        candidate_id="candidate_nonbinding_world_identity",
+        content_hash="sha256:" + "6" * 64,
+        cycle_index=0,
+        generation_channel="n4_owner",
+        proxy_score=0.9,
+        voi_estimate=0.8,
+        grounding_status="grounding_gap",
+        grounding_source="cgf_firewall",
+        grounding_disposition="non_binding_abstain",
+        grounding_score=0.2,
+        current_valid=False,
+        value_status="value_blocked",
+        value_decision_grade="blocked",
+        value_blockers=("method_estimand_binding_mismatch",),
+        front="research",
+        high_proxy=True,
+        low_grounding=True,
+    )
+    projected = _apply_promotion_to_summaries(
+        (nonbinding,),
+        PromotionPortObservation(
+            status="certified_current_valid",
+            certified_candidate_ids=(nonbinding.candidate_id,),
+            receipts=(
+                _n9_receipt(nonbinding.candidate_id, consumer_promotable=True),
+            ),
+        ),
+    )
+    fronts = _derive_fronts(tuple(projected))
+
+    assert fronts.decision.candidate_ids == ()
+    assert projected[0].certified_by_n9 is False
+
+
 def test_contract_lane_n9_receipt_cannot_enter_decision_front() -> None:
     current_valid = CandidateSummary(
         candidate_id="candidate_contract_lane",
@@ -1239,12 +2410,91 @@ class _BlockedValuePort:
 
 class _DataGapValuePort:
     def __call__(self, **kwargs: Any) -> ValuePortObservation:
-        del kwargs
+        candidate = kwargs["candidate"]
+        problem = kwargs["problem"]
         return ValuePortObservation(
             status="value_blocked",
+            candidate_id=candidate.candidate_id,
             authority_blockers=("acquire_data:value_panel_data_missing",),
             reason="Owner-bound panel observations are missing.",
             decision_grade="blocked",
+            acquisition_requirement=l1_variable_availability_requirement_gap(
+                candidate_id=candidate.candidate_id,
+                candidate_content_hash=candidate.atom.content_hash,
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                availability=L1VariableAvailability(
+                    variable_id="firm_survival",
+                    status="unavailable",
+                    dataset_count=0,
+                    metric_binding_count=0,
+                    observation_count=0,
+                    coverage_ref=(
+                        "repo://production_data/dataset_catalog.duckdb#variable/"
+                        "firm_survival"
+                    ),
+                ),
+                authority_level=problem.authority_profile.requested_authority_level,
+            ),
+        )
+
+
+class _WorldKnowledgeGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        del kwargs
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id="candidate_cgf_shadow",
+            authority_blockers=("treatment_assignment_not_owner_derived",),
+            reason="Owner treatment assignment is missing.",
+            decision_grade="blocked",
+            acquisition_requirement=value_input_world_knowledge_requirement_gap(
+                claim_ref="value-claim:candidate_cgf_shadow"
+            ),
+        )
+
+
+class _TransplantedWorldKnowledgeGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        del kwargs
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id="candidate_from_another_cycle",
+            authority_blockers=("treatment_assignment_not_owner_derived",),
+            reason="Transplanted owner-treatment gap.",
+            decision_grade="blocked",
+            acquisition_requirement=value_input_world_knowledge_requirement_gap(
+                claim_ref="value-claim:candidate_from_another_cycle"
+            ),
+        )
+
+
+class _RepointedDataGapValuePort:
+    def __call__(self, **kwargs: Any) -> ValuePortObservation:
+        candidate = kwargs["candidate"]
+        problem = kwargs["problem"]
+        return ValuePortObservation(
+            status="value_blocked",
+            candidate_id=candidate.candidate_id,
+            authority_blockers=("acquire_data:value_panel_data_missing",),
+            reason="Owner data gap repointed to another candidate payload.",
+            decision_grade="blocked",
+            acquisition_requirement=l1_variable_availability_requirement_gap(
+                candidate_id=candidate.candidate_id,
+                candidate_content_hash="sha256:" + "0" * 64,
+                design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
+                availability=L1VariableAvailability(
+                    variable_id="firm_survival",
+                    status="unavailable",
+                    dataset_count=0,
+                    metric_binding_count=0,
+                    observation_count=0,
+                    coverage_ref=(
+                        "repo://production_data/dataset_catalog.duckdb#variable/"
+                        "firm_survival"
+                    ),
+                ),
+                authority_level=problem.authority_profile.requested_authority_level,
+            ),
         )
 
 
@@ -1284,7 +2534,127 @@ async def test_value_data_gap_routes_to_n7_acquisition_terminal() -> None:
         run.cycles[0].revision_request.strategy_payload["acquisition_request"]["driver"]
         == "acquire_data:value_panel_data_missing"
     )
+    assert run.cycles[0].acquisition_routing_report is not None
+    assert run.cycles[0].acquisition_receipt is None
+    record = run.cycles[0].acquisition_routing_report.acquisition_records[0]
+    assert record.recommended_strategy.value == "production_snapshot_build"
+    assert record.terminal_disposition.value == "acquire"
+    assert record.claim_ref == "value-claim:candidate_cgf_shadow"
     assert run.fronts.decision.candidate_ids == ()
+
+
+@pytest.mark.asyncio
+async def test_honest_single_cycle_acquisition_terminal_validates() -> None:
+    """A coherent one-cycle terminal is not a missing positive denominator."""
+
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    assert len(run.cycles) == 1
+    assert run.cycles[0].terminal_kind == "acquisition_required"
+    assert validate_generation_cycle_run(run) == ()
+
+
+@pytest.mark.asyncio
+async def test_fabricated_single_cycle_unreachable_terminal_combination_is_red() -> None:
+    """A supported terminal label cannot override the real stage state."""
+
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+    )
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+    fabricated_cycle = run.cycles[0].model_copy(
+        update={"terminal_kind": "frontier_stable"}
+    )
+    fabricated_run = run.model_copy(update={"cycles": (fabricated_cycle,)})
+
+    issue_codes = {
+        str(issue.get("code"))
+        for issue in validate_generation_cycle_run(fabricated_run)
+    }
+
+    assert "incoherent_single_terminal_state" in issue_codes
+
+
+@pytest.mark.asyncio
+async def test_empty_completed_cycle_run_is_red() -> None:
+    """The one-directional relaxation still requires a non-empty denominator."""
+
+    run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_DataGapValuePort(),
+    ).run(_problem(), budget_state=_budget(), max_cycles=1)
+
+    empty = run.model_copy(update={"cycles": ()})
+    issue_codes = {
+        str(issue.get("code")) for issue in validate_generation_cycle_run(empty)
+    }
+
+    assert "cycle_denominator_empty" in issue_codes
+
+
+@pytest.mark.asyncio
+async def test_value_gap_for_another_candidate_cannot_be_routed() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_TransplantedWorldKnowledgeGapValuePort(),
+    )
+
+    with pytest.raises(ValueError, match="cycle_stage_candidate_mismatch"):
+        await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+
+@pytest.mark.asyncio
+async def test_value_data_gap_cannot_repoint_same_candidate_content() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_RepointedDataGapValuePort(),
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="cycle_acquisition_candidate_binding_mismatch",
+    ):
+        await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+
+
+@pytest.mark.asyncio
+async def test_typed_value_world_knowledge_gap_routes_without_renaming_blocker() -> None:
+    controller = GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        value_port=_WorldKnowledgeGapValuePort(),
+    )
+
+    run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
+    cycle = run.cycles[0]
+
+    assert cycle.value_port.authority_blockers == (
+        "treatment_assignment_not_owner_derived",
+    )
+    assert cycle.terminal_kind == "acquisition_required"
+    assert cycle.revision_request.revision_strategy == "acquire_or_elicit"
+    acquisition = cycle.revision_request.strategy_payload["acquisition_request"]
+    assert acquisition["requirement_gap"]["requirement_gap_id"] == (
+        "requirement-gap:data_requirement:value-input-world-knowledge"
+    )
+    assert acquisition["requirement_gap"]["metadata"]["satisfaction_status"] == (
+        "unsatisfied"
+    )
+    assert cycle.acquisition_routing_report is not None
+    assert cycle.acquisition_receipt is None
+    assert cycle.acquisition_routing_report.status == "pass"
+    assert len(cycle.acquisition_routing_report.acquisition_records) == 1
+    record = cycle.acquisition_routing_report.acquisition_records[0]
+    assert record.compiled_requirement_ref == (
+        "runtime-requirement:value-input-world-knowledge:v1"
+    )
+    assert record.claim_ref == "value-claim:candidate_cgf_shadow"
+    assert record.terminal_disposition.value == "acquire"
 
 
 @pytest.mark.asyncio
@@ -1322,6 +2692,8 @@ async def test_generation_cycle_contract_mutations_turn_red() -> None:
         "coverage_depends_on_llm": "red",
         "k_sim_shrank_k_world": "red",
         "full_denominator_curated_subset": "red",
+        "incoherent_single_terminal_run": "red",
+        "empty_cycle_run": "red",
     }
     assert payload["denominators"]["counts"] == {
         "front_kinds": 4,

@@ -7,12 +7,15 @@ import json
 import math
 import os
 import re
+from collections.abc import Mapping, Sequence
+from copy import deepcopy
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import ValidationError
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import truncated_hash
 from polisyos.ir.governance.policy_spec import InterventionSpec as TrinityInterventionSpec
@@ -164,6 +167,32 @@ _RATE_PARAM_ALIASES = (
     "co_financing_rate",
     "cofinancing_rate",
 )
+_GROUNDING_AXIS_PARAM_KEYS = frozenset(
+    {
+        "target_world_slot",
+        "world_slot",
+        "slot",
+        "target_slot",
+        "state_variable",
+        "sign",
+        "direction",
+        "effect_direction",
+        "outcome",
+        "outcome_slot",
+        "outcome_slots",
+        "expected_outcome",
+        "expected_outcome_slot",
+        "expected_outcome_slots",
+        "effect_path",
+        "estimand",
+        "scope",
+        "population",
+        "unit",
+        "time",
+        "wm_version",
+    }
+)
+_CANDIDATE_ONLY_PARAM_KEYS = frozenset({"candidate_lever_id"})
 _EXECUTABLE_PARAM_KEYS_BY_MECHANISM = {
     "adaptive_agent": frozenset(
         {
@@ -177,8 +206,8 @@ _EXECUTABLE_PARAM_KEYS_BY_MECHANISM = {
             "weights_artifact",
         }
     ),
-    "income_tax": frozenset({"rate"}),
-    "tax_subsidy": frozenset({"rate"}),
+    "income_tax": frozenset({"rate"}) | _GROUNDING_AXIS_PARAM_KEYS,
+    "tax_subsidy": frozenset({"rate"}) | _GROUNDING_AXIS_PARAM_KEYS,
 }
 _EXECUTABLE_ADAPTIVE_AGENT_SLOTS = frozenset(
     {
@@ -232,6 +261,27 @@ _MODEL_FIDELITY_LEVEL_ALIASES = {
     "mid": "hybrid",
     "high": "full_discrete",
     "full": "full_discrete",
+}
+_PROBLEM_DOMAIN_ALIASES = {
+    "health": "healthcare",
+    "health_care": "healthcare",
+    "medical": "healthcare",
+    "public_health": "healthcare",
+    "industrial": "custom",
+    "industrial_policy": "custom",
+    "industrial_resilience": "custom",
+}
+_OBJECTIVE_DIRECTION_ALIASES = {
+    "maintain_above": "maintain_range",
+    "maintain_above_threshold": "maintain_range",
+    "maintain_below": "maintain_range",
+    "maintain_below_threshold": "maintain_range",
+    "maintain_threshold": "maintain_range",
+    "keep_above_threshold": "maintain_range",
+    "keep_below_threshold": "maintain_range",
+}
+_POLICY_PARAMETER_FIELD_ALIASES = {
+    "intervention__id": "intervention_id",
 }
 
 
@@ -953,6 +1003,81 @@ def _schema_healing_event(path: str, raw: object, normalized: str) -> dict[str, 
     }
 
 
+def _loc_parent(data: object, loc: tuple[object, ...]) -> object:
+    current = data
+    for item in loc:
+        if isinstance(item, int):
+            if not isinstance(current, list) or item >= len(current):
+                return None
+            current = current[item]
+            continue
+        if not isinstance(current, dict) or item not in current:
+            return None
+        current = current[item]
+    return current
+
+
+def _strip_verified_unknown_extra_fields(
+    data: dict[str, Any],
+    exc: ValidationError,
+) -> list[dict[str, Any]]:
+    events: list[dict[str, Any]] = []
+    for error in exc.errors():
+        if error.get("type") != "extra_forbidden":
+            continue
+        loc = tuple(error.get("loc") or ())
+        if not loc:
+            continue
+        parent = _loc_parent(data, loc[:-1])
+        field = loc[-1]
+        if not isinstance(parent, dict) or not isinstance(field, str) or field not in parent:
+            continue
+        raw = parent.pop(field)
+        path = ".".join(str(item) for item in loc)
+        events.append(
+            {
+                "path": path,
+                "raw": raw,
+                "normalized": "stripped_unknown_extra_field",
+                "note": f"schema_healed:{path}:unknown_extra_stripped",
+            }
+        )
+    return events
+
+
+def _unwrap_trinity_root_wrapper(
+    data: dict[str, Any],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    root = data.get("root")
+    if not isinstance(root, dict):
+        return data, []
+    if not {"problem_frame", "policy_spec", "model_spec"}.issubset(root):
+        return data, []
+    unexpected_outer_keys = set(data).difference({"root", "schema_version"})
+    if unexpected_outer_keys:
+        raise ValueError(
+            "Ambiguous Trinity root wrapper contains sibling payload fields: "
+            f"{sorted(unexpected_outer_keys)}"
+        )
+    outer_schema_version = data.get("schema_version")
+    inner_schema_version = root.get("schema_version")
+    if (
+        outer_schema_version is not None
+        and outer_schema_version != inner_schema_version
+    ):
+        raise ValueError(
+            "Trinity root wrapper schema_version disagrees with its payload."
+        )
+    return root, [
+        {
+            "path": "root",
+            "raw": sorted(data),
+            "normalized": "unwrapped_trinity_bundle_root",
+            "note": "schema_healed:root:trinity_bundle_root_unwrapped",
+        }
+    ]
+
+
 def _normalize_model_spec_aliases_for_validation(data: object) -> list[dict[str, Any]]:
     healing_events: list[dict[str, Any]] = []
     if not isinstance(data, dict):
@@ -990,7 +1115,51 @@ def _normalize_model_spec_aliases_for_validation(data: object) -> list[dict[str,
         model_spec["fidelity_level"] = normalized_fidelity
         _append_healing("model_spec.fidelity_level", raw_fidelity, normalized_fidelity)
 
+    if "data_snapshot_ref" not in model_spec:
+        for alias in ("data_snapshot_artifact", "data_snapshot", "snapshot_ref"):
+            raw_ref = model_spec.pop(alias, None)
+            if raw_ref is None:
+                continue
+            model_spec["data_snapshot_ref"] = str(raw_ref)
+            _append_healing("model_spec.data_snapshot_ref", raw_ref, str(raw_ref))
+            break
+
     model_spec["notes"] = notes
+    return healing_events
+
+
+def _normalize_policy_spec_aliases_for_validation(data: object) -> list[dict[str, Any]]:
+    healing_events: list[dict[str, Any]] = []
+    if not isinstance(data, dict):
+        return healing_events
+    policy_spec = data.get("policy_spec")
+    if not isinstance(policy_spec, dict):
+        return healing_events
+    parameters = policy_spec.get("parameters")
+    if not isinstance(parameters, list):
+        return healing_events
+
+    for index, item in enumerate(parameters):
+        if not isinstance(item, dict):
+            continue
+        for alias, canonical in _POLICY_PARAMETER_FIELD_ALIASES.items():
+            if alias not in item:
+                continue
+            raw_value = item[alias]
+            if canonical in item and item[canonical] != raw_value:
+                raise ValueError(
+                    "Conflicting formalizer parameter aliases at "
+                    f"policy_spec.parameters[{index}]: {alias} != {canonical}"
+                )
+            item.pop(alias)
+            item[canonical] = raw_value
+            healing_events.append(
+                _schema_healing_event(
+                    f"policy_spec.parameters[{index}].{alias}",
+                    alias,
+                    canonical,
+                )
+            )
     return healing_events
 
 
@@ -1033,6 +1202,121 @@ def _normalize_problem_frame_metric_aliases_for_validation(
         if note not in notes and len(notes) < 50:
             notes.append(note)
 
+    raw_domain = problem_frame.get("domain")
+    normalized_domain = _PROBLEM_DOMAIN_ALIASES.get(_enum_alias_key(raw_domain))
+    if normalized_domain is not None:
+        problem_frame["domain"] = normalized_domain
+        _append_healing("problem_frame.domain", raw_domain, normalized_domain)
+
+    for collection_name in ("hard_constraints", "soft_constraints"):
+        collection = problem_frame.get(collection_name)
+        if not isinstance(collection, list):
+            continue
+        for index, item in enumerate(collection):
+            if not isinstance(item, dict):
+                continue
+            expected_type = "soft" if collection_name == "soft_constraints" else "hard"
+            if item.get("constraint_type") != expected_type:
+                raw_type = item.get("constraint_type")
+                item["constraint_type"] = expected_type
+                _append_healing(
+                    f"problem_frame.{collection_name}[{index}].constraint_type",
+                    raw_type,
+                    expected_type,
+                )
+            if "slot_id" not in item and item.get("metric_id") is not None:
+                raw_metric = item.pop("metric_id")
+                item["slot_id"] = str(raw_metric)
+                _append_healing(
+                    f"problem_frame.{collection_name}[{index}].slot_id",
+                    raw_metric,
+                    item["slot_id"],
+                )
+            raw_bound = item.get("bound")
+            if raw_bound is not None and item.get("operator") is None:
+                operator = {
+                    "eq": "==",
+                    "equal": "==",
+                    "equals": "==",
+                    "gt": ">",
+                    "gte": ">=",
+                    "ge": ">=",
+                    "lt": "<",
+                    "lte": "<=",
+                    "le": "<=",
+                    "neq": "!=",
+                    "not_equal": "!=",
+                }.get(_enum_alias_key(raw_bound))
+                if operator is not None:
+                    item.pop("bound")
+                    item["operator"] = operator
+                    _append_healing(
+                        f"problem_frame.{collection_name}[{index}].operator",
+                        raw_bound,
+                        operator,
+                    )
+            if "value" not in item and item.get("description") is not None:
+                raw_description = item.pop("description")
+                item["value"] = str(raw_description)
+                _append_healing(
+                    f"problem_frame.{collection_name}[{index}].value",
+                    raw_description,
+                    item["value"],
+                )
+            elif item.get("description") is not None:
+                raw_description = item.pop("description")
+                if raw_description is not None:
+                    item_notes = [
+                        str(note) for note in item.get("notes") or [] if str(note).strip()
+                    ]
+                    note = f"constraint_description:{raw_description}"
+                    if note not in item_notes and len(item_notes) < 5:
+                        item_notes.append(note)
+                    item["notes"] = item_notes
+                    _append_healing(
+                        f"problem_frame.{collection_name}[{index}].description",
+                        raw_description,
+                        note,
+                    )
+            raw_threshold = item.get("threshold")
+            if raw_threshold is not None:
+                item.pop("threshold")
+                if "value" not in item:
+                    item["value"] = raw_threshold
+                    _append_healing(
+                        f"problem_frame.{collection_name}[{index}].value",
+                        raw_threshold,
+                        str(raw_threshold),
+                    )
+                else:
+                    item_notes = [
+                        str(note) for note in item.get("notes") or [] if str(note).strip()
+                    ]
+                    note = f"constraint_threshold:{raw_threshold}"
+                    if note not in item_notes and len(item_notes) < 5:
+                        item_notes.append(note)
+                    item["notes"] = item_notes
+                    _append_healing(
+                        f"problem_frame.{collection_name}[{index}].threshold",
+                        raw_threshold,
+                        note,
+                    )
+            raw_scope = item.get("scope")
+            if raw_scope is not None:
+                item.pop("scope")
+                item_notes = [
+                    str(note) for note in item.get("notes") or [] if str(note).strip()
+                ]
+                note = f"constraint_scope:{raw_scope}"
+                if note not in item_notes and len(item_notes) < 5:
+                    item_notes.append(note)
+                item["notes"] = item_notes
+                _append_healing(
+                    f"problem_frame.{collection_name}[{index}].scope",
+                    raw_scope,
+                    note,
+                )
+
     for collection_name in ("objectives", "kpis"):
         collection = problem_frame.get(collection_name)
         if not isinstance(collection, list):
@@ -1040,6 +1324,29 @@ def _normalize_problem_frame_metric_aliases_for_validation(
         for index, item in enumerate(collection):
             if not isinstance(item, dict):
                 continue
+            raw_direction = item.get("direction")
+            normalized_direction = _OBJECTIVE_DIRECTION_ALIASES.get(
+                _enum_alias_key(raw_direction)
+            )
+            if normalized_direction is not None:
+                item["direction"] = normalized_direction
+                _append_healing(
+                    f"problem_frame.{collection_name}[{index}].direction",
+                    raw_direction,
+                    normalized_direction,
+                )
+            if "metric_id" not in item:
+                for alias in ("metric__id", "metricId", "metric"):
+                    raw_alias = item.pop(alias, None)
+                    if raw_alias is None:
+                        continue
+                    item["metric_id"] = str(raw_alias)
+                    _append_healing(
+                        f"problem_frame.{collection_name}[{index}].metric_id",
+                        raw_alias,
+                        item["metric_id"],
+                    )
+                    break
             raw_metric_id = item.get("metric_id")
             if not isinstance(raw_metric_id, str) or not raw_metric_id.strip():
                 continue
@@ -1058,6 +1365,62 @@ def _normalize_problem_frame_metric_aliases_for_validation(
     return healing_events
 
 
+def _normalize_formalizer_payload_for_validation(
+    data: Mapping[str, Any],
+    *,
+    taxonomy: ProductionMetricTaxonomy,
+    fail_unknown_metrics: bool,
+    schema_healing_mode: str,
+    draft_id: str | None = None,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Normalize one formalizer payload and verify every audit-only repair.
+
+    Unknown fields are removable only when Trinity itself reports their exact
+    locations as ``extra_forbidden``. The stripped payload is then validated
+    again in full, so removal cannot conceal an unrelated schema error.
+    """
+
+    normalized = deepcopy(dict(data))
+    normalized, wrapper_events = _unwrap_trinity_root_wrapper(normalized)
+    schema_healing_events = [
+        *wrapper_events,
+        *_normalize_problem_frame_metric_aliases_for_validation(
+            normalized,
+            taxonomy=taxonomy,
+            fail_unknown=fail_unknown_metrics,
+        ),
+        *_normalize_model_spec_aliases_for_validation(normalized),
+        *_normalize_policy_spec_aliases_for_validation(normalized),
+    ]
+    if schema_healing_events and schema_healing_mode == "strict":
+        raise FormalizerSchemaValidationError(
+            "LLM formalizer output required schema healing in strict mode.",
+            phase="schema_healing",
+            field_errors=schema_healing_events,
+            draft_id=draft_id,
+        )
+
+    try:
+        TrinityBundle.model_validate(normalized)
+    except ValidationError as exc:
+        stripped = deepcopy(normalized)
+        extra_healing_events = _strip_verified_unknown_extra_fields(stripped, exc)
+        if not extra_healing_events:
+            raise
+        if schema_healing_mode == "strict":
+            raise FormalizerSchemaValidationError(
+                "LLM formalizer output required schema healing in strict mode.",
+                phase="schema_healing",
+                field_errors=extra_healing_events,
+                draft_id=draft_id,
+            ) from exc
+        TrinityBundle.model_validate(stripped)
+        normalized = stripped
+        schema_healing_events.extend(extra_healing_events)
+
+    return normalized, schema_healing_events
+
+
 def _normalize_mechanism_params(kind: str, params: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(params)
     if kind in {"income_tax", "tax_subsidy"} and "rate" not in normalized:
@@ -1073,7 +1436,11 @@ def _normalize_mechanism_params(kind: str, params: dict[str, Any]) -> dict[str, 
 
     executable_keys = _EXECUTABLE_PARAM_KEYS_BY_MECHANISM.get(kind)
     if executable_keys is not None:
-        normalized = {key: value for key, value in normalized.items() if key in executable_keys}
+        normalized = {
+            key: value
+            for key, value in normalized.items()
+            if key in executable_keys or key in _CANDIDATE_ONLY_PARAM_KEYS
+        }
 
     if kind == "adaptive_agent":
         observation_space = normalized.get("observation_space")
@@ -1242,6 +1609,28 @@ def _ensure_budget_feasibility_constraint(bundle_data: dict[str, Any]) -> None:
     bundle_data["problem_frame"] = problem_data
 
 
+def _has_candidate_grounding_axis_bundle(params: Mapping[str, Any]) -> bool:
+    target_world_slot = params.get("target_world_slot")
+    sign = params.get("sign")
+    outcome_slots = params.get("outcome_slots")
+    effect_path = params.get("effect_path")
+    estimand = params.get("estimand")
+    return (
+        isinstance(target_world_slot, str)
+        and bool(target_world_slot.strip())
+        and isinstance(sign, str)
+        and bool(sign.strip())
+        and isinstance(outcome_slots, list)
+        and bool(outcome_slots)
+        and all(isinstance(item, str) and item.strip() for item in outcome_slots)
+        and isinstance(effect_path, list)
+        and bool(effect_path)
+        and all(isinstance(item, str) and item.strip() for item in effect_path)
+        and isinstance(estimand, str)
+        and bool(estimand.strip())
+    )
+
+
 def _normalize_trinity_bundle_for_linker(bundle: TrinityBundle) -> TrinityBundle:
     bundle_data = bundle.model_dump(mode="python")
     policy_data = bundle_data.get("policy_spec") or {}
@@ -1249,12 +1638,16 @@ def _normalize_trinity_bundle_for_linker(bundle: TrinityBundle) -> TrinityBundle
     for intervention in interventions:
         if not isinstance(intervention, dict):
             continue
-        kind = _normalize_mechanism_kind(str(intervention.get("kind") or "tax_subsidy"))
-        kind = _normalize_mechanism_kind_for_intervention(kind, intervention)
+        raw_kind = str(intervention.get("kind") or "tax_subsidy")
         params = intervention.get("params")
         if not isinstance(params, dict):
             params = {}
         params = _canonicalize_params(params)
+        if _has_candidate_grounding_axis_bundle(params):
+            kind = raw_kind
+        else:
+            kind = _normalize_mechanism_kind(raw_kind)
+            kind = _normalize_mechanism_kind_for_intervention(kind, intervention)
         intervention["kind"] = kind
         normalized_params = _normalize_mechanism_params(kind, params)
         if (
@@ -1272,6 +1665,58 @@ def _normalize_trinity_bundle_for_linker(bundle: TrinityBundle) -> TrinityBundle
     _normalize_parameter_specs(policy_data, interventions)
     _ensure_budget_feasibility_constraint(bundle_data)
     return TrinityBundle.model_validate(bundle_data)
+
+
+def _recorded_call_value(call: object, field: str) -> object | None:
+    if isinstance(call, Mapping):
+        return call.get(field)
+    return getattr(call, field, None)
+
+
+def trinity_bundle_formalizer_generator_path(
+    bundle: TrinityBundle,
+    *,
+    recorded_calls: Sequence[object],
+) -> Literal["model_generated", "degraded_mock_fallback", "path_unrecorded"]:
+    """Derive formalizer provenance from the actual recorded response window.
+
+    A returned bundle is model-generated only when a successful formalizer call
+    in the supplied window contains Trinity JSON that normalizes to that exact
+    bundle. Readable but non-matching Trinity evidence is degraded; an empty or
+    unusable window leaves provenance explicitly unrecorded.
+    """
+
+    expected = _normalize_trinity_bundle_for_linker(bundle).model_dump(mode="json")
+    readable_response_seen = False
+    for call in recorded_calls:
+        if _recorded_call_value(call, "role_hint") != "formalizer":
+            continue
+        if _recorded_call_value(call, "status") != "success":
+            continue
+        parsed = _recorded_call_value(call, "parsed_json")
+        if not isinstance(parsed, Mapping):
+            continue
+        try:
+            candidate_data, _ = _normalize_formalizer_payload_for_validation(
+                parsed,
+                taxonomy=build_production_metric_taxonomy(),
+                fail_unknown_metrics=False,
+                schema_healing_mode="audit",
+            )
+            candidate = TrinityBundle.model_validate(candidate_data)
+        except (ValidationError, ValueError, TypeError):
+            continue
+        if candidate.schema_version != bundle.schema_version:
+            candidate = candidate.model_copy(
+                update={"schema_version": bundle.schema_version}
+            )
+        candidate = _normalize_trinity_bundle_for_linker(candidate)
+        readable_response_seen = True
+        if candidate.model_dump(mode="json") == expected:
+            return "model_generated"
+    if readable_response_seen:
+        return "degraded_mock_fallback"
+    return "path_unrecorded"
 
 
 def _draft_interventions_to_policy_spec(
@@ -1546,9 +1991,16 @@ class LLMFormalizerAgent:
             "POLISYOS_FORMALIZER_LLM_TIMEOUT_S",
             default=60.0,
         )
+        self._last_schema_healing_events: tuple[dict[str, Any], ...] = ()
 
     def set_method_catalog_snapshot(self, payload: dict[str, Any] | None) -> None:
         self._method_catalog_snapshot = dict(payload or {})
+
+    @property
+    def schema_healing_events(self) -> tuple[dict[str, Any], ...]:
+        """Return audited normalizations from the most recent successful call."""
+
+        return tuple(dict(item) for item in self._last_schema_healing_events)
 
     async def formalize(
         self,
@@ -1573,6 +2025,7 @@ Generate a valid TrinityBundle v{schema_version} JSON.
 
         last_error: str | None = None
         last_schema_error: str | None = None
+        self._last_schema_healing_events = ()
         for attempt in range(self.MAX_RETRIES + 1):
             attempt_message = user_message
             if last_error and attempt > 0:
@@ -1607,33 +2060,24 @@ Generate a valid TrinityBundle v{schema_version} JSON.
                 continue
 
             content = response.content if hasattr(response, "content") else str(response)
-            content = content.strip()
-            if content.startswith("```"):
-                content = content.split("```")[1]
-                if content.startswith("json"):
-                    content = content[4:]
 
             try:
-                data = json.loads(content)
-                schema_healing_events = [
-                    *_normalize_problem_frame_metric_aliases_for_validation(
+                data = extract_llm_json_object(content)
+                normalized_data, schema_healing_events = (
+                    _normalize_formalizer_payload_for_validation(
                         data,
                         taxonomy=self._metric_taxonomy,
-                        fail_unknown=self._fail_unknown_metrics,
-                    ),
-                    *_normalize_model_spec_aliases_for_validation(data),
-                ]
-                if schema_healing_events and self._schema_healing_mode == "strict":
-                    raise FormalizerSchemaValidationError(
-                        "LLM formalizer output required schema healing in strict mode.",
-                        phase="schema_healing",
-                        field_errors=schema_healing_events,
+                        fail_unknown_metrics=self._fail_unknown_metrics,
+                        schema_healing_mode=self._schema_healing_mode,
                         draft_id=draft.draft_id,
                     )
-                bundle = TrinityBundle.model_validate(data)
+                )
+                bundle = TrinityBundle.model_validate(normalized_data)
                 if schema_version and bundle.schema_version != schema_version:
                     bundle = bundle.model_copy(update={"schema_version": schema_version})
-                return _normalize_trinity_bundle_for_linker(bundle)
+                normalized_bundle = _normalize_trinity_bundle_for_linker(bundle)
+                self._last_schema_healing_events = tuple(schema_healing_events)
+                return normalized_bundle
             except FormalizerSchemaValidationError:
                 raise
             except (json.JSONDecodeError, ValidationError, ValueError, TypeError) as exc:

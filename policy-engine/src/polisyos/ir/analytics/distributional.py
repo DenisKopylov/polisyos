@@ -4,10 +4,21 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Any
+from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    NativeValueEstimandBinding,
+    OutputContractDeclaration,
+    PropagationMethod,
+    UncertaintyEnvelope,
+    UncertaintySource,
+    ValueUncertaintyProjectionKind,
+    value_uncertainty_output_contract,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import (
@@ -682,6 +693,13 @@ class DistributionalBoundsMethodSummary(BaseModel):
 class DistributionalBoundsBundle(BaseModel):
     """Canonical bounds contract for partially identified distributional functionals."""
 
+    contract_id: ClassVar[str] = "ir.distributional_bounds_bundle.v1"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.DISTRIBUTIONAL,
+        )
+    )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("1.0", pattern=r"^\d+\.\d+$")
@@ -776,6 +794,55 @@ class DistributionalBoundsBundle(BaseModel):
         object.__setattr__(self, "point_identified", point_identified)
         object.__setattr__(self, "warnings", warnings)
         return self
+
+    def to_value_uncertainty(
+        self,
+        *,
+        estimand: object,
+        projection_binding: NativeValueEstimandBinding,
+    ) -> UncertaintyEnvelope | None:
+        """Project the conservative scalar hull of a bound distributional estimand."""
+
+        estimand_id = str(getattr(estimand, "estimand_id", "") or "")
+        if estimand_id not in {self.estimand_type, self.functional.value}:
+            return None
+        if (
+            projection_binding.native_contract_id != self.contract_id
+            or not projection_binding.matches(estimand)
+        ):
+            return None
+        bounds = self.consensus_bounds
+        if bounds is None or not bounds.lower or not bounds.upper:
+            return None
+        lower = min(float(value) for value in bounds.lower)
+        upper = max(float(value) for value in bounds.upper)
+        point = (lower + upper) / 2.0
+        gate_eligible = self.sharpness_status in {"sharp", "outer_approx"}
+        return UncertaintyEnvelope(
+            point_estimate=point,
+            confidence_interval=(lower, upper),
+            confidence_level=None,
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.CAUSAL,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+            gate_eligible=gate_eligible,
+            metadata={
+                "estimand_type": self.estimand_type,
+                "functional": self.functional.value,
+                "sharpness_status": self.sharpness_status,
+                "projection": "consensus_outer_hull",
+                "value_estimand_binding_content_hash": (
+                    projection_binding.content_hash
+                ),
+                "value_estimand_binding_native_contract_id": (
+                    projection_binding.native_contract_id
+                ),
+                "value_estimand_binding_producer_method_fqn": (
+                    projection_binding.producer_method_fqn
+                ),
+            },
+        )
 
 
 def attach_distributional_dual_certificate_ref(

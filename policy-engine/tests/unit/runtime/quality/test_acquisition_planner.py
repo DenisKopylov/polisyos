@@ -4,7 +4,7 @@ import asyncio
 import hashlib
 import json
 import os
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
@@ -30,6 +30,7 @@ from polisyos.participation_requirement import (
     ParticipationRepresentativenessClass,
     ParticipationSourceKind,
 )
+from polisyos.runtime.quality import acquisition_planner as acquisition_owner
 from polisyos.runtime.quality.acquisition_planner import (
     ACQUISITION_FAMILY_DENOMINATOR,
     AcquisitionCaptureProvenance,
@@ -54,6 +55,7 @@ from polisyos.runtime.quality.acquisition_planner import (
     acquisition_report_deficit_records,
     acquisition_request_from_world_acquirable,
     acquisition_strangle_receipt,
+    l1_variable_availability_requirement_gap,
     load_acquisition_planner_report,
     persist_acquisition_planner_report,
     plan_evidence_acquisition,
@@ -62,8 +64,11 @@ from polisyos.runtime.quality.acquisition_planner import (
     requirement_gaps_from_compiled_specs,
     run_acquisition_closed_loop,
     validate_acquisition_receipt,
+    value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.capability_index import FailureModeNode
+from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
+from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
@@ -86,6 +91,332 @@ from polisyos.scientist.methods.search.voi_models import (
     acquisition_voi_metadata,
     stable_voi_decision_id,
 )
+from tools.quality.validation import check_layer3_gy_acquisition_contract as contract
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def _acquisition_design_problem() -> DesignProblem:
+    """Build real research authority for acquisition grounding rederivation."""
+
+    return DesignProblem.model_validate(
+        {
+            "design_problem_id": "n7_acquisition_grounding_probe",
+            "problem_statement": "Ground acquired evidence against the affected world region.",
+            "domain": "acquisition_grounding_probe",
+            "nl_provenance": {
+                "raw_request": "Acquire and ground the missing evidence.",
+                "source_surface": "test_acquisition_planner",
+            },
+            "authority_profile": {
+                "requester_authority": "research_lab",
+                "requested_authority_level": "research",
+                "mandate": "Test acquisition rederivation without promotion authority.",
+            },
+            "jurisdiction_time": {
+                "region": "probe_region",
+                "valid_time": "2026",
+                "as_of": "2026-07-15",
+                "policy_time": "2026",
+                "data_time": "2026",
+            },
+            "objectives": [
+                {
+                    "objective_id": "ground_acquired_evidence",
+                    "description": "Ground acquired evidence.",
+                    "metric_id": "grounded_evidence",
+                }
+            ],
+            "constraints": [
+                {
+                    "constraint_id": "no_fabricated_authority",
+                    "description": "Acquisition cannot fabricate grounding authority.",
+                    "admissibility_basis": "request_text",
+                    "source_text": "Do not fabricate grounding authority.",
+                }
+            ],
+            "stakeholders": [
+                {
+                    "stakeholder_id": "evidence_consumers",
+                    "name": "Evidence consumers",
+                    "role": "consumer",
+                }
+            ],
+            "outcome_of_interest": {
+                "target_variable": "grounded_evidence",
+                "metric_id": "grounded_evidence",
+                "estimand": "owner_grounding_status",
+            },
+            "candidate_lever_space": {
+                "allowed_operator_kinds": ["evidence_acquisition"],
+                "candidate_levers": [
+                    {
+                        "lever_id": "acquire_evidence",
+                        "operator_kind": "evidence_acquisition",
+                        "instrument": "Owner evidence acquisition",
+                        "target_slot": "grounded_evidence",
+                    }
+                ],
+            },
+            "evidence_acquisition_needs": {"needs": []},
+        }
+    )
+
+
+def test_grounding_coverage_gap_is_content_bound_and_planner_routable() -> None:
+    """A CG refusal must reach N7 as an unsatisfied owner-evidence need."""
+
+    gap = acquisition_owner.grounding_coverage_requirement_gap(
+        candidate_id="candidate_unresolved_lever",
+        candidate_content_hash="sha256:" + "1" * 64,
+        design_problem_ref="sha256:" + "2" * 64,
+        issue_codes=("unknown_blocked", "cg2_relation_not_bind_eligible"),
+        evidence_refs=("sha256:" + "3" * 64,),
+        authority_level="research",
+        grounding_report_ref="sha256:" + "4" * 64,
+    )
+    report = plan_requirement_gap_acquisition(
+        run_id="run-grounding-coverage-gap",
+        requirement_gaps=(gap,),
+    )
+
+    assert gap.requirement_family is RequirementGapFamily.DATA
+    assert gap.metadata["source"] == "cgf_grounding_coverage"
+    assert gap.metadata["candidate_binding"]["candidate_id"] == (
+        "candidate_unresolved_lever"
+    )
+    assert gap.metadata["satisfaction_status"] == "unsatisfied"
+    assert report.status == "pass"
+    assert len(report.acquisition_records) == 1
+    assert report.acquisition_records[0].requirement_gap_ref == (
+        gap.requirement_gap_id
+    )
+    assert report.acquisition_records[0].terminal_disposition.value == "acquire"
+
+
+def test_value_input_world_knowledge_gap_is_one_unsatisfied_any_of_requirement() -> None:
+    gap = value_input_world_knowledge_requirement_gap(
+        claim_ref="claim:value-input-world-knowledge",
+    )
+
+    assert isinstance(gap, AcquisitionRequirementGap)
+    assert gap.requirement_family is RequirementGapFamily.DATA
+    assert gap.gap_type is AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+    assert gap.missing_requirement_fields == (
+        "world_knowledge:any_of(owner_rollout_assignment,certified_skg_identity_bridge)",
+    )
+    assert gap.metadata == {
+        "schema_version": "policyos.runtime.value_input_world_knowledge_gap.v1",
+        "source": "n8_value_input_world_knowledge",
+        "acquisition_family": AcquisitionFamily.ID.value,
+        "authority_purpose": "routing_only",
+        "requirement": {
+            "operator": "any_of",
+            "alternatives": [
+                {
+                    "alternative_id": "owner_rollout_assignment",
+                    "satisfaction_status": "unsatisfied",
+                },
+                {
+                    "alternative_id": "certified_skg_identity_bridge",
+                    "satisfaction_status": "unsatisfied",
+                },
+            ],
+        },
+        "satisfaction_status": "unsatisfied",
+        "census_evidence": {
+            "artifact_ref": (
+                "architecture/policy_design_case/"
+                "layer3_gy_n10_cg1_l2_relation_census.json"
+            ),
+            "content_hash": (
+                "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"
+            ),
+            "authority_purpose": "costing_and_provenance_only",
+        },
+    }
+
+    report = plan_requirement_gap_acquisition(
+        run_id="run-n8-value-input-acquisition",
+        requirement_gaps=(gap,),
+    )
+    assert len(report.acquisition_records) == 1
+    assert report.acquisition_records[0].terminal_disposition is AcquisitionDisposition.ACQUIRE
+    assert "source_family_satisfaction" in report.authority_boundary["may_not_use_for"]
+
+
+@pytest.mark.parametrize(
+    "mutator",
+    [
+        lambda payload: payload["metadata"]["census_evidence"].__setitem__(
+            "content_hash",
+            "sha256:" + "0" * 64,
+        ),
+        lambda payload: payload["metadata"]["census_evidence"].__setitem__(
+            "content_hash",
+            "sha256:b06c1667128178a68dc9031ec52eaff260856bd062b5bfff73c51baeee8481d0",
+        ),
+        lambda payload: payload["metadata"]["requirement"].__setitem__(
+            "alternatives",
+            [
+                {
+                    "alternative_id": "owner_rollout_assignment",
+                    "satisfaction_status": "unsatisfied",
+                }
+            ],
+        ),
+        lambda payload: payload["metadata"].__setitem__(
+            "satisfaction_status",
+            "satisfied",
+        ),
+        lambda payload: payload["metadata"].__setitem__(
+            "authority_purpose",
+            "satisfaction_authority",
+        ),
+        lambda payload: payload["metadata"]["requirement"]["alternatives"][
+            0
+        ].__setitem__("satisfaction_status", "satisfied"),
+    ],
+    ids=(
+        "wrong-committed-census-hash",
+        "superseded-census-hash",
+        "missing-any-of-alternative",
+        "fake-aggregate-satisfaction",
+        "fake-satisfaction-authority",
+        "fake-alternative-satisfaction",
+    ),
+)
+def test_value_input_world_knowledge_gap_rejects_untrusted_metadata(mutator: object) -> None:
+    payload = value_input_world_knowledge_requirement_gap(
+        claim_ref="claim:value-input-world-knowledge",
+    ).model_dump(mode="json")
+
+    assert callable(mutator)
+    mutator(payload)
+
+    with pytest.raises(ValueError):
+        AcquisitionRequirementGap.model_validate(payload)
+
+
+def test_value_input_world_knowledge_gap_identity_cannot_bypass_metadata_validation() -> None:
+    payload = value_input_world_knowledge_requirement_gap(
+        claim_ref="claim:value-input-world-knowledge",
+    ).model_dump(mode="json")
+    payload["metadata"].pop("source")
+    payload["metadata"].pop("schema_version")
+    payload["metadata"]["satisfaction_status"] = "satisfied"
+
+    with pytest.raises(ValueError):
+        AcquisitionRequirementGap.model_validate(payload)
+
+
+def _unavailable_l1_variable(
+    variable_id: str = "employment_retention",
+) -> L1VariableAvailability:
+    return L1VariableAvailability(
+        variable_id=variable_id,
+        status="unavailable",
+        dataset_count=0,
+        metric_binding_count=0,
+        observation_count=0,
+        coverage_ref=(
+            "repo://production_data/dataset_catalog.duckdb#variable/"
+            f"{variable_id}"
+        ),
+    )
+
+
+def test_l1_variable_availability_gap_routes_exact_owner_absence() -> None:
+    availability = _unavailable_l1_variable()
+    gap = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_employment_retention",
+        candidate_content_hash="sha256:" + "3" * 64,
+        design_problem_ref="sha256:" + "4" * 64,
+        availability=availability,
+        authority_level=AuthorityLevel.PRODUCTION,
+    )
+
+    assert gap.requirement_family is RequirementGapFamily.DATA
+    assert gap.gap_type is AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+    assert gap.claim_ref == "value-claim:candidate_employment_retention"
+    assert gap.producer_output_ref == availability.coverage_ref
+    assert gap.missing_requirement_fields == (
+        "canonical_variable_observations:employment_retention",
+    )
+    assert gap.metadata["source"] == "l1_dcat_variable_availability"
+    assert gap.metadata["satisfaction_status"] == "unsatisfied"
+    assert gap.metadata["availability"]["observation_count"] == 0
+
+    report = plan_requirement_gap_acquisition(
+        run_id="run-first-vertical-data-gap",
+        requirement_gaps=(gap,),
+    )
+    assert report.status == "pass"
+    assert len(report.acquisition_records) == 1
+    record = report.acquisition_records[0]
+    assert record.recommended_strategy is AcquisitionStrategy.PRODUCTION_SNAPSHOT_BUILD
+    assert record.terminal_disposition is AcquisitionDisposition.ACQUIRE
+    assert record.producer_output_ref == availability.coverage_ref
+
+
+def test_l1_variable_availability_gap_rejects_available_or_tampered_evidence() -> None:
+    available = L1VariableAvailability(
+        variable_id="avg_income",
+        status="available",
+        dataset_count=1,
+        metric_binding_count=1,
+        observation_count=4,
+        coverage_ref="repo://production_data/dataset_catalog.duckdb#variable/avg_income",
+    )
+    with pytest.raises(ValueError, match="l1_variable_is_not_an_acquisition_gap"):
+        l1_variable_availability_requirement_gap(
+            candidate_id="candidate_avg_income",
+            candidate_content_hash="sha256:" + "5" * 64,
+            design_problem_ref="sha256:" + "6" * 64,
+            availability=available,
+            authority_level=AuthorityLevel.PRODUCTION,
+        )
+
+    payload = l1_variable_availability_requirement_gap(
+        candidate_id="candidate_employment_retention",
+        candidate_content_hash="sha256:" + "3" * 64,
+        design_problem_ref="sha256:" + "4" * 64,
+        availability=_unavailable_l1_variable(),
+        authority_level=AuthorityLevel.PRODUCTION,
+    ).model_dump(mode="json")
+    payload["metadata"]["availability"]["availability_content_hash"] = (
+        "sha256:" + "0" * 64
+    )
+
+    with pytest.raises(ValueError, match="l1_variable_availability_hash_mismatch"):
+        AcquisitionRequirementGap.model_validate(payload)
+
+
+def test_l1_variable_availability_rejects_incoherent_unavailable_counts() -> None:
+    with pytest.raises(ValueError, match="l1_unavailable_counts_nonzero"):
+        L1VariableAvailability(
+            variable_id="employment_retention",
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=1,
+            coverage_ref=(
+                "repo://production_data/dataset_catalog.duckdb#variable/"
+                "employment_retention"
+            ),
+        )
+
+
+def test_generation_cycle_bootstrap_authority_is_strangled() -> None:
+    """The N7 checker derives both caller census and fail-closed owner refusal."""
+
+    witness = contract.generation_cycle_substrate_fence(REPO_ROOT)
+
+    assert witness["status"] == "strangled"
+    assert witness["production_bootstrap_callers"] == []
+    assert witness["bootstrap_authority_literals"] == []
+    assert witness["owner_absence_reason"] == "n7_substrate_registry_unresolved"
+    assert witness["fabricated_registry"] is False
 
 
 def _decision(
@@ -620,6 +951,7 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
         },
         data_requirement_specs=(data_spec, second_spec),
         world_snapshot=world,
+        design_problem=_acquisition_design_problem(),
         owner_gateway=gateway,
         useful_design_rate_before=0.0,
     )
@@ -643,6 +975,77 @@ def test_n7_closed_loop_compiles_all_specs_and_reenters_same_cycle() -> None:
     )
     assert {entry.sequence for entry in receipt.journal_entries} == {1, 2}
     assert validate_acquisition_receipt(receipt) == ()
+
+    clock_shifted_payload = receipt.model_dump(mode="json")
+    clock_shifted_payload.pop("content_hash")
+    clock_shifted_payload["generated_at"] = (
+        receipt.generated_at + timedelta(seconds=1)
+    ).isoformat()
+    clock_shifted_payload["planner_report"]["generated_at"] = (
+        receipt.planner_report.generated_at + timedelta(seconds=1)
+    ).isoformat()
+    clock_shifted = type(receipt).model_validate(clock_shifted_payload)
+    assert clock_shifted.content_hash == receipt.content_hash
+
+    semantic_change_payload = receipt.model_dump(mode="json")
+    semantic_change_payload.pop("content_hash")
+    semantic_change_payload["cost_summary_usd"] += 1.0
+    semantic_change = type(receipt).model_validate(semantic_change_payload)
+    assert semantic_change.content_hash != receipt.content_hash
+
+
+def test_n7_missing_design_problem_refuses_grounding_rederive_without_crash() -> None:
+    """World growth without real problem authority cannot mint grounding."""
+
+    data_spec = _compiled_requirement_specs()[0]
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-missing-design-problem",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "counterexample_ref": "pdc://gy/n7/counterexample/missing-problem",
+            "cycle_index": 3,
+        },
+        data_requirement_specs=(data_spec,),
+        world_snapshot=AcquisitionWorldSnapshot(
+            world_ref="world://before/missing-design-problem",
+            known_slots=("production_msme_panel",),
+            dependency_index={"production_msme_panel": ("design:credit",)},
+            design_revalidation_stages={
+                "design:credit": (
+                    "identification",
+                    "calibration",
+                    "value_set",
+                    "grounding",
+                )
+            },
+            substrate_registry=_substrate_registry().model_dump(mode="json"),
+        ),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={
+                data_spec.requirement_id: _captured_owner_artifact(
+                    owner_component="fabric.ingestion",
+                    requirement_ref=data_spec.requirement_id,
+                    artifact_ref="fabric://recorded/missing-design-problem",
+                    acquired_family="production_msme_panel",
+                    source_id="fabric.production_msme_panel",
+                    candidate_id="design:credit",
+                    cost_usd=11.25,
+                )
+            }
+        ),
+        useful_design_rate_before=0.0,
+    )
+
+    assert receipt.real_grounding_result_count == 0
+    assert receipt.status == "completed_no_results"
+    assert receipt.grounding_rederivations[0].issue_codes == (
+        "design_problem_unavailable_after_world_write",
+    )
+    assert any(
+        reason.endswith(":design_problem_unavailable_after_world_write")
+        for reason in receipt.fail_closed_reasons
+    )
 
 
 def test_n7_no_result_records_costed_gap_without_forcing_useful_rate() -> None:
@@ -1103,6 +1506,7 @@ def test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle() -> No
                 family_ids=("production_msme_panel", "openalex.live_claim_support")
             ).model_dump(mode="json"),
         ),
+        design_problem=_acquisition_design_problem(),
         owner_gateway=RecordedAcquisitionOwnerGateway(
             artifacts_by_requirement={data_spec.requirement_id: artifact}
         ),

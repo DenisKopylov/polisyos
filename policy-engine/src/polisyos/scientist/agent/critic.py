@@ -9,6 +9,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash, truncated_hash
 from polisyos.ir.trinity import TrinityBundle
@@ -218,6 +219,7 @@ class MockCriticAgent:
             citations=_context_citations(problem_frame),
             metadata={
                 "depth": depth,
+                "generator_path": "degraded_mock_fallback",
                 "mock_generated": True,
                 "critique_count": self._critique_count,
                 "artifact_kind": "trinity_bundle",
@@ -486,15 +488,21 @@ Provide your critique as a JSON object.
                 },
                 log=logger,
             )
-            return await self._fallback.critique(
+            fallback_report = await self._fallback.critique(
                 bundle,
                 problem_frame,
                 depth=depth,
             )
+            fallback_report.metadata = {
+                **fallback_report.metadata,
+                "generator_path": "degraded_mock_fallback",
+                "degraded_reason": "llm_call_failed",
+            }
+            return fallback_report
 
         content = response.content if hasattr(response, "content") else str(response)
         try:
-            data = json.loads(content)
+            data = extract_llm_json_object(content)
             issues = []
             for idx, issue in enumerate(data.get("issues", [])):
                 category = issue.get("category", "SCHEMA")
@@ -552,6 +560,8 @@ Provide your critique as a JSON object.
                 metadata={
                     "artifact_kind": "trinity_bundle",
                     "depth": depth,
+                    "generator_path": "model_generated",
+                    "raw_llm_response": content,
                     "web_grounding": _context_web_grounding(problem_frame),
                     "raw_verdict": data.get("verdict"),
                     "suppressed_stale_contract_issue_count": len(suppressed_issues),
@@ -580,6 +590,9 @@ Provide your critique as a JSON object.
                 metadata={
                     "artifact_kind": "trinity_bundle",
                     "depth": depth,
+                    "generator_path": "degraded_mock_fallback",
+                    "raw_llm_response": content,
+                    "degraded_reason": "llm_parse_failed",
                     "error": str(exc),
                     "web_grounding": _context_web_grounding(problem_frame),
                 },

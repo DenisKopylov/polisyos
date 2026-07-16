@@ -1,19 +1,32 @@
 from __future__ import annotations
 
 import importlib.util
+from dataclasses import replace
 
 import pytest
+
+from polisyos.foundry.methods.base import MethodMetadata
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
+from polisyos.foundry.methods.catalog.bayesian.regression import (
+    BayesianLinearRegressionEstimator,
+)
 from polisyos.foundry.methods.catalog.snapshot import (
     build_method_capability_matrix,
     build_method_catalog_snapshot,
 )
+from polisyos.foundry.methods.selection.registry import MethodRegistry, registry_scope
 
 _Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
 
 def test_method_catalog_snapshot_contains_stable_entries() -> None:
     ensure_all_methods_registered()
+    registered_fqns = tuple(
+        sorted(
+            entry.fqn
+            for entry in MethodRegistry.get_instance().snapshot().entries()
+        )
+    )
     first = build_method_catalog_snapshot(run_id="R_catalog")
     second = build_method_catalog_snapshot(run_id="R_catalog")
 
@@ -21,9 +34,63 @@ def test_method_catalog_snapshot_contains_stable_entries() -> None:
     second_fqns = [entry.fqn for entry in second.entries]
 
     assert first_fqns
+    assert tuple(first_fqns) == registered_fqns
     assert first_fqns == second_fqns
     assert first.snapshot_id == second.snapshot_id
     assert first.schema_version == "2.0"
+    first_value_capable = {
+        entry.fqn
+        for entry in first.entries
+        if entry.capability_matrix.get("value_projection_contracts")
+    }
+    second_value_capable = {
+        entry.fqn
+        for entry in second.entries
+        if entry.capability_matrix.get("value_projection_contracts")
+    }
+    assert len(first.entries) >= 382
+    assert first_value_capable == second_value_capable
+    assert len(first_value_capable) == 55
+
+
+def test_value_projection_and_joint_simulation_output_axes_compose() -> None:
+    class _ComposedOutputMethod:
+        signature = replace(
+            BayesianLinearRegressionEstimator.signature,
+            name="composed_output_axes",
+            namespace="tests.catalog",
+        )
+        metadata = MethodMetadata(
+            description="Prove independent output-contract axes compose.",
+            assumptions={
+                "joint_simulation_output_shape": "time_series_trajectory",
+                "joint_simulation_equilibrium_semantics": "dynamic_SCM",
+            },
+        )
+
+        @staticmethod
+        def pure_step(state, params):
+            del params
+            return state
+
+    with registry_scope() as registry:
+        registry.register(_ComposedOutputMethod)
+        snapshot = build_method_catalog_snapshot(registry=registry)
+        entry = next(
+            item
+            for item in snapshot.entries
+            if item.fqn == _ComposedOutputMethod.signature.fqn
+        )
+
+    assert entry.capability_matrix["value_projection_contracts"]
+    assert "joint_simulation_output_shape" in entry.assumptions
+    assert "joint_simulation_equilibrium_semantics" in entry.assumptions
+    assert _ComposedOutputMethod.metadata.assumptions[
+        "joint_simulation_output_shape"
+    ] == "time_series_trajectory"
+    assert _ComposedOutputMethod.metadata.assumptions[
+        "joint_simulation_equilibrium_semantics"
+    ] == "dynamic_SCM"
 
 
 @pytest.mark.skipif(

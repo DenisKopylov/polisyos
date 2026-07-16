@@ -41,11 +41,11 @@ from .protocols import EconometricResult
 def _factor_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 "result",
                 SlotType.SCALAR,
                 Unit("result", "json"),
-                contract_id=EconometricResult.contract_id,
+                output_contract=EconometricResult,
             ),
             SlotSpec(
                 "factor_loadings",

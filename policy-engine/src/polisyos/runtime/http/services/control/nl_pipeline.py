@@ -11,11 +11,12 @@ from collections.abc import Awaitable, Callable, Mapping
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
+
+from pydantic import BaseModel, ConfigDict, model_validator
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
 from polisyos.core.contracts.control import (
     DataNeed,
@@ -96,12 +97,110 @@ from .._control_contracts import (
 
 logger = get_logger(__name__)
 
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.manifest import ArtifactRef
+
+
+class NaturalLanguagePipelineRefusalError(RuntimeError):
+    """Typed fail-closed refusal for an unavailable NL production capability."""
+
+    def __init__(self, code: str, message: str | None = None) -> None:
+        self.code = code
+        super().__init__(f"{code}:{message or code}")
+
+
+class _NLProductionAuthorityStamp(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    authority_scope: Literal["production"] = "production"
+    production_promotable: Literal[True] = True
+
+
+class _DesignProblemCompilerOutputPolicy(BaseModel):
+    """Evidence-derived completion ceiling for strict DesignProblem emission."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    observed_max_completion_tokens: int
+    max_tokens: int
+    headroom_tokens: int
+    evidence_ref: str
+
+    @classmethod
+    def from_characterization(
+        cls,
+        *,
+        observed_max_completion_tokens: int,
+        evidence_ref: str,
+    ) -> Self:
+        """Derive a power-of-two ceiling above the measured clean denominator."""
+
+        if observed_max_completion_tokens <= 0:
+            raise ValueError("output_budget_observed_max_invalid")
+        max_tokens = 1 << (observed_max_completion_tokens - 1).bit_length()
+        return cls(
+            observed_max_completion_tokens=observed_max_completion_tokens,
+            max_tokens=max_tokens,
+            headroom_tokens=max_tokens - observed_max_completion_tokens,
+            evidence_ref=evidence_ref,
+        )
+
+    @model_validator(mode="after")
+    def _verify_derivation(self) -> Self:
+        if self.observed_max_completion_tokens <= 0:
+            raise ValueError("output_budget_observed_max_invalid")
+        expected = 1 << (self.observed_max_completion_tokens - 1).bit_length()
+        if self.max_tokens != expected:
+            raise ValueError("output_budget_not_next_power_of_two")
+        if self.headroom_tokens != self.max_tokens - self.observed_max_completion_tokens:
+            raise ValueError("output_budget_headroom_drift")
+        if not self.evidence_ref.strip():
+            raise ValueError("output_budget_evidence_ref_missing")
+        return self
+
+
+_DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY = (
+    _DesignProblemCompilerOutputPolicy.from_characterization(
+        observed_max_completion_tokens=5628,
+        evidence_ref=(
+            "docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md"
+            "#structured-conformance-denominator-universal-owner-schema-selected"
+        ),
+    )
+)
+_DESIGN_PROBLEM_SOURCE_SEMANTICS_INVARIANT = (
+    "Do not interpret, elaborate, or strengthen any cited constraint beyond the "
+    "exact semantic content of its source. When a source names a condition but "
+    "does not state its effects or consequences, record only the named condition "
+    "and leave those effects or consequences unstated."
+)
+_DESIGN_PROBLEM_OPTIONAL_STRUCTURE_INVARIANT = (
+    "Emit an optional structure only when the supplied request and context can "
+    "satisfy its entire provided tool contract. Otherwise omit the optional "
+    "structure rather than supplying null, guessed, or partial placeholders."
+)
+
+
+def design_problem_compiler_source_semantics_invariant() -> str:
+    """Return the generic no-strengthening contract for candidate constraints."""
+
+    return _DESIGN_PROBLEM_SOURCE_SEMANTICS_INVARIANT
+
+
+def design_problem_compiler_optional_structure_invariant() -> str:
+    """Return the generic completeness contract for optional model structures."""
+
+    return _DESIGN_PROBLEM_OPTIONAL_STRUCTURE_INVARIANT
+
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _CAUSAL_VALIDITY_CASES_PATH = (
     Path(__file__).resolve().parents[6]
     / "tests/_golden/foundry/causal_validity/cases.json"
 )
 _DESIGN_PROBLEM_TOOL_NAME = "emit_design_problem"
+_DESIGN_PROBLEM_TRUNCATION_FINISH_REASONS = frozenset(
+    {"length", "max_output_tokens", "max_tokens"}
+)
 _PROMOTED_CONTEXT_PARAM_KEYS = frozenset(
     {
         "source_context",
@@ -224,17 +323,27 @@ async def build_design_problem_from_nl_request(
             system=(
                 "Extract one PolicyOS DesignProblem. Use only the provided request and "
                 "authority context. Do not invent constraints, admissibility, mandate, "
-                "jurisdiction, evidence, or value authority."
+                "jurisdiction, evidence, or value authority. Populate every "
+                "schema-required non-empty collection with request-grounded candidate "
+                "entries; never emit empty objectives, stakeholders, allowed operator "
+                "kinds, or candidate levers. "
+                + design_problem_compiler_source_semantics_invariant()
             ),
             user=json.dumps(
                 {
                     "raw_request": nl_request,
                     "context": dict(context),
-                    "required_semantics": {
-                        "llm_output": "candidate_only",
-                        "constraints": (
-                            "must cite request_text, authority_profile, or producer_evidence"
-                        ),
+                        "required_semantics": {
+                            "llm_output": "candidate_only",
+                            "non_empty_collections": [
+                                "objectives",
+                                "stakeholders",
+                                "candidate_lever_space.allowed_operator_kinds",
+                                "candidate_lever_space.candidate_levers",
+                            ],
+                            "constraints": (
+                                "must cite request_text, authority_profile, or producer_evidence"
+                            ),
                     },
                 },
                 sort_keys=True,
@@ -250,13 +359,20 @@ async def build_design_problem_from_nl_request(
                             "constraint must include admissibility_basis and source_text "
                             "or evidence_ref."
                         ),
-                        "parameters": _inline_json_schema_refs(DesignProblem.model_json_schema()),
+                        "parameters": design_problem_provider_constraint_schema(),
                     },
                 }
             ],
             tool_choice={"type": "function", "function": {"name": _DESIGN_PROBLEM_TOOL_NAME}},
             temperature=0.0,
+            max_tokens=_DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY.max_tokens,
         )
+        finish_reason = _design_problem_finish_reason(response)
+        if finish_reason in _DESIGN_PROBLEM_TRUNCATION_FINISH_REASONS:
+            raise DesignProblemAuthorityError(
+                "design_problem_output_truncated",
+                f"Gateway stopped DesignProblem emission at its output ceiling: {finish_reason}",
+            )
         tool_calls = list(getattr(response, "tool_calls", None) or [])
         matching_calls = [
             call
@@ -293,6 +409,23 @@ async def build_design_problem_from_nl_request(
     finally:
         if owns_client:
             await _close_llm_client(client)
+
+
+def _design_problem_finish_reason(response: object) -> str | None:
+    """Return provider-owned completion termination evidence, when available."""
+
+    raw = getattr(response, "raw", None)
+    if not isinstance(raw, Mapping):
+        return None
+    choices = raw.get("choices")
+    if isinstance(choices, list) and choices and isinstance(choices[0], Mapping):
+        value = choices[0].get("finish_reason") or choices[0].get("stop_reason")
+        if isinstance(value, str) and value.strip():
+            return value.strip().casefold()
+    value = raw.get("finish_reason") or raw.get("stop_reason")
+    if isinstance(value, str) and value.strip():
+        return value.strip().casefold()
+    return None
 
 
 async def _preflight_design_problem_model(
@@ -365,6 +498,61 @@ def _inline_json_schema_refs(schema: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(inlined, dict):
         raise ValueError("json_schema_inline_result_not_object")
     return inlined
+
+
+def design_problem_provider_constraint_schema() -> dict[str, Any]:
+    """Return the request-only schema projection used for constrained generation.
+
+    Pydantic keeps cross-field ``model_validator`` rules outside its exported JSON
+    schema.  The provider projection mirrors the existing TimeSemantics completeness
+    rule so generation can see it, while the canonical model remains the sole
+    admission authority and re-validates every emitted candidate.
+    """
+
+    schema = _inline_json_schema_refs(DesignProblem.model_json_schema())
+    try:
+        time_union = schema["properties"]["jurisdiction_time"]["properties"][
+            "time_semantics"
+        ]
+        branches = time_union["anyOf"]
+    except (KeyError, TypeError) as exc:
+        raise ValueError("design_problem_provider_time_schema_missing") from exc
+    if not isinstance(branches, list):
+        raise ValueError("design_problem_provider_time_schema_invalid")
+    object_branches = [
+        branch
+        for branch in branches
+        if isinstance(branch, dict) and branch.get("type") == "object"
+    ]
+    null_branches = [
+        branch
+        for branch in branches
+        if isinstance(branch, dict) and branch.get("type") == "null"
+    ]
+    if len(object_branches) != 1 or len(null_branches) != 1:
+        raise ValueError("design_problem_provider_time_union_drift")
+    time_object = object_branches[0]
+    properties = time_object.get("properties")
+    if not isinstance(properties, dict) or not {
+        "step_count",
+        "end_date",
+    }.issubset(properties):
+        raise ValueError("design_problem_provider_time_completion_fields_missing")
+    time_object["anyOf"] = [
+        {
+            "required": ["step_count"],
+            "properties": {
+                "step_count": {"type": "integer", "minimum": 1},
+            },
+        },
+        {
+            "required": ["end_date"],
+            "properties": {
+                "end_date": {"type": "string", "minLength": 1},
+            },
+        },
+    ]
+    return schema
 
 
 def _assert_design_problem_admissibility_grounded(
@@ -1520,12 +1708,138 @@ class NaturalLanguageRunMixin:
         control_job_id: str | None = None,
         execution_profile: str | None = None,
         capability_manifest_ref: str | None = None,
-        allow_mock_fallback: bool = True,
+        allow_mock_fallback: Literal[False] = False,
         capability_manifest_updater: Callable[[list[str]], str] | None = None,
         provider_preflight_payload: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """Run agent circuit synchronously for a durable control-plane job."""
+        """Run the production NL path; mock authority is structurally unavailable."""
+
+        if allow_mock_fallback:
+            raise NaturalLanguagePipelineRefusalError(
+                "nl_contract_testing_path_required",
+                "Mock agents are available only on the explicit contract-testing path.",
+            )
+        if not _dedupe_models(list(llm_models)):
+            raise NaturalLanguagePipelineRefusalError(
+                "llm_model_unconfigured",
+                "A configured LLM model is required for the production NL path.",
+            )
+        result = self._execute_nl_pipeline_impl(
+            run_id=run_id,
+            nl_request=nl_request,
+            context=context,
+            domain_hint=domain_hint,
+            data_source=data_source,
+            max_iterations=max_iterations,
+            llm_models=llm_models,
+            max_parallel_models=max_parallel_models,
+            run_budget_usd=run_budget_usd,
+            per_model_budget_usd=per_model_budget_usd,
+            checkpoint_policy=checkpoint_policy,
+            execution_plan_ref=execution_plan_ref,
+            execution_plan_payload=execution_plan_payload,
+            stop_criteria_payload=stop_criteria_payload,
+            governance_constraints_payload=governance_constraints_payload,
+            expected_outputs_payload=expected_outputs_payload,
+            control_job_id=control_job_id,
+            execution_profile=execution_profile,
+            capability_manifest_ref=capability_manifest_ref,
+            capability_manifest_updater=capability_manifest_updater,
+            provider_preflight_payload=provider_preflight_payload,
+            contract_testing_agent_factory=None,
+        )
+        result["nl_authority"] = _NLProductionAuthorityStamp().model_dump(mode="json")
+        return result
+
+    def _execute_nl_pipeline_for_contract_testing(
+        self,
+        run_id: str,
+        nl_request: str,
+        context: dict[str, Any],
+        domain_hint: str | None,
+        data_source: DataSourceBinding | None,
+        max_iterations: int,
+        llm_models: list[str],
+        max_parallel_models: int,
+        run_budget_usd: float | None,
+        per_model_budget_usd: float | None,
+        checkpoint_policy: str,
+        execution_plan_ref: str | None,
+        execution_plan_payload: dict[str, Any] | None,
+        stop_criteria_payload: dict[str, Any] | None,
+        governance_constraints_payload: list[dict[str, Any]] | None,
+        expected_outputs_payload: list[dict[str, Any]] | None,
+        control_job_id: str | None = None,
+        execution_profile: str | None = None,
+        capability_manifest_ref: str | None = None,
+        capability_manifest_updater: Callable[[list[str]], str] | None = None,
+        provider_preflight_payload: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Run the explicit non-promotable mock lane for contract tests only."""
+
+        from polisyos.runtime.http.services.control.nl_pipeline_testing import (
+            NLContractTestingAuthorityStamp,
+            build_nl_contract_testing_agents,
+        )
+
+        result = self._execute_nl_pipeline_impl(
+            run_id=run_id,
+            nl_request=nl_request,
+            context=context,
+            domain_hint=domain_hint,
+            data_source=data_source,
+            max_iterations=max_iterations,
+            llm_models=llm_models,
+            max_parallel_models=max_parallel_models,
+            run_budget_usd=run_budget_usd,
+            per_model_budget_usd=per_model_budget_usd,
+            checkpoint_policy=checkpoint_policy,
+            execution_plan_ref=execution_plan_ref,
+            execution_plan_payload=execution_plan_payload,
+            stop_criteria_payload=stop_criteria_payload,
+            governance_constraints_payload=governance_constraints_payload,
+            expected_outputs_payload=expected_outputs_payload,
+            control_job_id=control_job_id,
+            execution_profile=execution_profile,
+            capability_manifest_ref=capability_manifest_ref,
+            capability_manifest_updater=capability_manifest_updater,
+            provider_preflight_payload=provider_preflight_payload,
+            contract_testing_agent_factory=build_nl_contract_testing_agents,
+        )
+        result["contract_testing_authority"] = (
+            NLContractTestingAuthorityStamp().model_dump(mode="json")
+        )
+        return result
+
+    def _execute_nl_pipeline_impl(
+        self,
+        run_id: str,
+        nl_request: str,
+        context: dict[str, Any],
+        domain_hint: str | None,
+        data_source: DataSourceBinding | None,
+        max_iterations: int,
+        llm_models: list[str],
+        max_parallel_models: int,
+        run_budget_usd: float | None,
+        per_model_budget_usd: float | None,
+        checkpoint_policy: str,
+        execution_plan_ref: str | None,
+        execution_plan_payload: dict[str, Any] | None,
+        stop_criteria_payload: dict[str, Any] | None,
+        governance_constraints_payload: list[dict[str, Any]] | None,
+        expected_outputs_payload: list[dict[str, Any]] | None,
+        control_job_id: str | None = None,
+        execution_profile: str | None = None,
+        capability_manifest_ref: str | None = None,
+        capability_manifest_updater: Callable[[list[str]], str] | None = None,
+        provider_preflight_payload: dict[str, Any] | None = None,
+        contract_testing_agent_factory: Callable[[], tuple[object, ...]] | None = None,
+    ) -> dict[str, Any]:
+        """Shared implementation used by the fenced production and contract-test routers."""
         from polisyos.common.async_tools import run_coro_sync
+
+        allow_mock_fallback = contract_testing_agent_factory is not None
 
         execution_profile = execution_profile or getattr(
             getattr(self, "_policy_resolver", None),
@@ -1593,6 +1907,9 @@ class NaturalLanguageRunMixin:
                 DIAGNOSTIC_KEYS,
                 PRODUCTION_DATA_QUALITY_REF_KEY,
             )
+            from polisyos.runtime.quality.design_generation import (
+                generate_design_candidate_bundle_under_a,
+            )
             from polisyos.runtime.quality.policy_design_case import (
                 compile_policy_design_case_runtime_record_families,
             )
@@ -1607,18 +1924,16 @@ class NaturalLanguageRunMixin:
             from polisyos.runtime.quality.semantic_binding import (
                 build_producer_spine_read_context,
             )
-            from polisyos.scientist.agent.critic import LLMCriticAgent, MockCriticAgent
+            from polisyos.scientist.agent.critic import LLMCriticAgent
             from polisyos.scientist.agent.data_need_extractor import (
                 LLMDataNeedExtractorAgent,
-                MockDataNeedExtractorAgent,
             )
-            from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent, MockDrafterAgent
+            from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent
             from polisyos.scientist.agent.formalizer import (
                 LLMFormalizerAgent,
-                MockFormalizerAgent,
                 build_final_policy_claims_report,
             )
-            from polisyos.scientist.agent.pi import LLMPIAgent, MockPIAgent
+            from polisyos.scientist.agent.pi import LLMPIAgent
             from polisyos.scientist.evidence.source_quality import build_source_quality_report
             from polisyos.scientist.orchestration.engine.iteration_state_machine import transition
             from polisyos.scientist.orchestration.llm.adjudication import (
@@ -1647,7 +1962,7 @@ class NaturalLanguageRunMixin:
             models_to_run = _dedupe_models(list(llm_models))
             current_capability_manifest_ref = capability_manifest_ref
             if not models_to_run and not allow_mock_fallback:
-                raise RuntimeError("mock_fallback_disallowed")
+                raise NaturalLanguagePipelineRefusalError("llm_model_unconfigured")
             method_catalog_snapshot_cache: dict[str, Any] = {
                 "snapshot": None,
                 "ref": None,
@@ -4671,12 +4986,11 @@ class NaturalLanguageRunMixin:
                         metrics=self._metrics,
                     )
                     if llm_client is None:
-                        if not allow_mock_fallback:
-                            raise RuntimeError("mock_fallback_disallowed")
-                        notes.append("gateway_not_configured_fallback_to_mock")
-                        if callable(capability_manifest_updater):
+                        if allow_mock_fallback:
+                            notes.append("gateway_not_configured_contract_testing_mock")
+                        if allow_mock_fallback and callable(capability_manifest_updater):
                             current_capability_manifest_ref = capability_manifest_updater(
-                                ["gateway_not_configured_fallback_to_mock"]
+                                ["gateway_not_configured_contract_testing_mock"]
                             )
                     else:
                         provider = "gateway"
@@ -4687,15 +5001,67 @@ class NaturalLanguageRunMixin:
                         details={"model": model_name, "provider": provider},
                     )
                 elif not allow_mock_fallback:
-                    raise RuntimeError("mock_fallback_disallowed")
+                    raise NaturalLanguagePipelineRefusalError("llm_model_unconfigured")
+
+                if llm_client is None and not allow_mock_fallback:
+                    if design_problem is None:
+                        raise NaturalLanguagePipelineRefusalError(
+                            "design_problem_unavailable",
+                            "N4 cannot route an unavailable gateway without a DesignProblem.",
+                        )
+                    n4_run = await generate_design_candidate_bundle_under_a(
+                        design_problem,
+                        model_id=str(model_name),
+                        llm_client=None,
+                        repo_root=Path(__file__).resolve().parents[6],
+                    )
+                    n4_terminal = n4_run.result.model_dump(mode="json")
+                    terminal_reason = (
+                        n4_run.result.degraded_artifacts[0].reason
+                        if n4_run.result.degraded_artifacts
+                        else n4_run.result.status
+                    )
+                    return {
+                        "model_variant_id": variant_id,
+                        "model": model_name,
+                        "provider": "gateway_unavailable",
+                        "status": "failed",
+                        "verdict": None,
+                        "issue_count": 0,
+                        "prompt_tokens": 0,
+                        "completion_tokens": 0,
+                        "total_tokens": 0,
+                        "latency_ms": max(0, _now_ms() - variant_started_at),
+                        "cost_usd": 0.0,
+                        "started_at": variant_started_iso,
+                        "finished_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
+                        "steps": [],
+                        "notes": [f"n4_generation_terminal:{terminal_reason}"],
+                        "schema_healing": [],
+                        "schema_healing_count": 0,
+                        "n4_generation_terminal": n4_terminal,
+                        "failure": {
+                            "code": "generation_unavailable",
+                            "layer": "n4_generation",
+                            "phase": "model_variant_gateway",
+                            "message": str(terminal_reason),
+                            "retryable": False,
+                        },
+                        "_bundle": None,
+                    }
 
                 curated_dir = _resolve_curated_dir()
                 if llm_client is None:
-                    pi = MockPIAgent()
-                    data_need_extractor = MockDataNeedExtractorAgent()
-                    drafter = MockDrafterAgent()
-                    formalizer = MockFormalizerAgent()
-                    critic = MockCriticAgent()
+                    if contract_testing_agent_factory is None:
+                        raise NaturalLanguagePipelineRefusalError(
+                            "fabric_generation_bypass_blocked"
+                        )
+                    agents = contract_testing_agent_factory()
+                    if len(agents) != 5:
+                        raise NaturalLanguagePipelineRefusalError(
+                            "contract_testing_agent_factory_invalid"
+                        )
+                    pi, data_need_extractor, drafter, formalizer, critic = agents
                 else:
                     pi = LLMPIAgent(llm_client=llm_client, model_name=model_name)
                     data_need_extractor = LLMDataNeedExtractorAgent(
@@ -6141,17 +6507,13 @@ class NaturalLanguageRunMixin:
                 if non_failed:
                     selected_variant = non_failed[0]
             if selected_variant is None:
-                if not allow_mock_fallback:
-                    failure = _model_variants_failure_envelope(variants)
-                    _emit_job_progress(
-                        phase="model_variants_failed",
-                        state="failed",
-                        details={"failure": failure},
-                    )
-                    raise RuntimeError(f"{failure['code']}:{failure['message']}")
-                # Last-resort fallback only runs when policy allows it.
-                selected_variant = await _run_variant(None, len(variants))
-                variants.append(selected_variant)
+                failure = _model_variants_failure_envelope(variants)
+                _emit_job_progress(
+                    phase="model_variants_failed",
+                    state="failed",
+                    details={"failure": failure},
+                )
+                raise RuntimeError(f"{failure['code']}:{failure['message']}")
             selected_variant["selected_for_workflow"] = True
             selected_variant_id = str(selected_variant.get("model_variant_id") or "")
             if selected_variant_id:

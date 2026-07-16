@@ -459,7 +459,7 @@ class BottomUpReconciliationEstimator:
             }
         ),
         output_slots=forecasting_output_slots(
-            contract_id=ForecastingUncertaintyBundleV2.contract_id
+            output_contract=ForecastingUncertaintyBundleV2
         ),
         parameters=(),
         fidelity=FidelityLevel.MEDIUM,
@@ -595,7 +595,7 @@ class GeneralLinearReconciliationEstimator:
             }
         ),
         output_slots=forecasting_output_slots(
-            contract_id=ForecastingUncertaintyBundleV2.contract_id
+            output_contract=ForecastingUncertaintyBundleV2
         ),
         parameters=(),
         fidelity=FidelityLevel.MEDIUM,

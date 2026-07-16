@@ -18,6 +18,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
 from polisyos.scientist.agent.protocols import DraftResult, ProblemFrame
 
@@ -230,10 +231,8 @@ class VerificationCodeExtractor:
         if not raw_response:
             return None
         try:
-            payload = json.loads(raw_response)
+            payload = extract_llm_json_object(raw_response)
         except json.JSONDecodeError:
-            return None
-        if not isinstance(payload, dict):
             return None
         code = payload.get("verification_code")
         if not isinstance(code, str):

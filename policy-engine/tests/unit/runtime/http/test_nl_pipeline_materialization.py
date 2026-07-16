@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from decimal import Decimal
+from pathlib import Path
 from types import SimpleNamespace
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
 import pytest
 
@@ -14,23 +16,107 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
+from polisyos.runtime.http.services.control.generation_cycle import (
+    compile_and_run_recursive_generation_cycle,
+)
 from polisyos.runtime.http.services.control.nl_pipeline import (
+    _DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY,
+    NaturalLanguagePipelineRefusalError,
+    NaturalLanguageRunMixin,
     _build_scientist_context_params,
     _preflight_design_problem_model,
     _production_materialization_failure,
     build_design_problem_from_nl_request,
+    design_problem_compiler_source_semantics_invariant,
+    design_problem_provider_constraint_schema,
+)
+from polisyos.runtime.http.services.control.nl_pipeline_testing import (
+    NLContractTestingAuthorityStamp,
 )
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityError
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
-from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblemAuthorityError
+from polisyos.runtime.quality.generation_cycle import (
+    CandidateGroundingObservation,
+    GenerationCycleController,
+    PendingN8ValuePort,
+    PromotionPortObservation,
+    SimulationPortObservation,
+)
+from polisyos.runtime.quality.recursive_generation_cycle import (
+    RecursiveCycleBudget,
+    RecursiveGenerationCycleController,
+)
+from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
 from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
 from polisyos.scientist.validation.policy_grounding import build_policy_grounding_matrix_report
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 
-if TYPE_CHECKING:
-    from pathlib import Path
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def test_production_nl_pipeline_refuses_empty_model_set_before_work() -> None:
+    with pytest.raises(NaturalLanguagePipelineRefusalError) as exc_info:
+        NaturalLanguageRunMixin()._execute_nl_pipeline(
+            run_id="R_no_model",
+            nl_request="Design a policy.",
+            context={},
+            domain_hint=None,
+            data_source=None,
+            max_iterations=1,
+            llm_models=[],
+            max_parallel_models=1,
+            run_budget_usd=None,
+            per_model_budget_usd=None,
+            checkpoint_policy="strict",
+            execution_plan_ref=None,
+            execution_plan_payload=None,
+            stop_criteria_payload=None,
+            governance_constraints_payload=None,
+            expected_outputs_payload=None,
+        )
+
+    assert exc_info.value.code == "llm_model_unconfigured"
+
+
+def test_production_nl_pipeline_never_injects_contract_agents(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    mixin = NaturalLanguageRunMixin()
+
+    def _capture_router(**kwargs: Any) -> dict[str, Any]:
+        assert kwargs["contract_testing_agent_factory"] is None
+        return {"run_id": kwargs["run_id"]}
+
+    monkeypatch.setattr(mixin, "_execute_nl_pipeline_impl", _capture_router)
+    result = mixin._execute_nl_pipeline(
+        run_id="R_production_router",
+        nl_request="Design a policy.",
+        context={},
+        domain_hint=None,
+        data_source=None,
+        max_iterations=1,
+        llm_models=["configured-model"],
+        max_parallel_models=1,
+        run_budget_usd=None,
+        per_model_budget_usd=None,
+        checkpoint_policy="strict",
+        execution_plan_ref=None,
+        execution_plan_payload=None,
+        stop_criteria_payload=None,
+        governance_constraints_payload=None,
+        expected_outputs_payload=None,
+    )
+
+    assert result["nl_authority"]["authority_scope"] == "production"
+    assert result["nl_authority"]["production_promotable"] is True
+
+
+def test_contract_testing_nl_stamp_cannot_be_promotable() -> None:
+    with pytest.raises(ValueError):
+        NLContractTestingAuthorityStamp(production_promotable=True)  # type: ignore[arg-type]
 
 
 class _FakeMetric:
@@ -241,6 +327,91 @@ class _FakeDesignProblemGateway:
         )
 
 
+class _PlainLanguageGenerationPort:
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> SimpleNamespace:
+        del cycle_index
+        candidate_id = f"candidate_{problem.design_problem_id}"
+        candidate = SimpleNamespace(
+            candidate_id=candidate_id,
+            atom=SimpleNamespace(
+                intervention_id=f"intervention_{problem.design_problem_id}",
+                content_hash="sha256:" + "4" * 64,
+                status="candidate_unverified",
+                world_model_record_ref="world_model_record_plain_language_lane0",
+                target_world_slots=(problem.outcome_of_interest.target_variable,),
+            ),
+            diversity_key=("plain", "language", "lane0", "candidate"),
+            status="candidate_unverified",
+        )
+        return SimpleNamespace(
+            status="generated",
+            candidates=(candidate,),
+            surrogate_rankings=(
+                SimpleNamespace(
+                    candidate_id=candidate_id,
+                    score=0.2,
+                    voi_estimate=0.1,
+                    trust_level="search_guiding",
+                    promotion_allowed=False,
+                ),
+            ),
+            grounding_dispositions=(),
+        )
+
+
+class _PlainLanguageGroundingPort:
+    def __call__(
+        self,
+        *,
+        candidate: Any,
+        **kwargs: Any,
+    ) -> CandidateGroundingObservation:
+        del kwargs
+        return CandidateGroundingObservation(
+            candidate_id=str(candidate.candidate_id),
+            status="grounding_gap",
+            grounding_score=0.2,
+            issue_codes=("plain_language_lane0_grounding_gap",),
+            current_valid=False,
+        )
+
+
+class _PlainLanguageSimulationPort:
+    def __call__(self, *, candidate: Any, **kwargs: Any) -> SimulationPortObservation:
+        del kwargs
+        return SimulationPortObservation(
+            candidate_id=str(candidate.candidate_id),
+            status="simulation_pending_n5",
+            authority_blockers=("plain_language_lane0_n5_pending",),
+        )
+
+
+class _PlainLanguagePromotionPort:
+    def __call__(self, **kwargs: Any) -> PromotionPortObservation:
+        del kwargs
+        return PromotionPortObservation()
+
+
+def _plain_language_leaf_cycle_factory(
+    node_ref: str,
+    problem: DesignProblem,
+) -> GenerationCycleController:
+    del node_ref, problem
+    return GenerationCycleController(
+        generation_port=_PlainLanguageGenerationPort(),
+        grounding_port=_PlainLanguageGroundingPort(),
+        simulation_port=_PlainLanguageSimulationPort(),
+        value_port=PendingN8ValuePort(),
+        promotion_port=_PlainLanguagePromotionPort(),
+        repo_root=REPO_ROOT,
+    )
+
+
 def _design_problem_tool_args(*, constraint_source: str = "UAH 10b budget cap") -> dict[str, Any]:
     return {
         "design_problem_id": "design_problem_ua_msme_credit",
@@ -346,10 +517,283 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     assert gateway.generate_calls
     assert gateway.generate_calls[0]["tools"][0]["function"]["name"] == "emit_design_problem"
     assert gateway.generate_calls[0]["tool_choice"]["function"]["name"] == "emit_design_problem"
+    assert gateway.generate_calls[0]["max_tokens"] == 8192
     tool_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
     assert "$defs" not in tool_schema
     assert "$ref" not in json.dumps(tool_schema)
+    time_object = tool_schema["properties"]["jurisdiction_time"]["properties"][
+        "time_semantics"
+    ]["anyOf"][0]
+    assert time_object["anyOf"] == [
+        {
+            "required": ["step_count"],
+            "properties": {"step_count": {"type": "integer", "minimum": 1}},
+        },
+        {
+            "required": ["end_date"],
+            "properties": {"end_date": {"type": "string", "minLength": 1}},
+        },
+    ]
     assert span_support.calls
+
+
+@pytest.mark.asyncio
+async def test_design_problem_prompt_exposes_non_empty_collection_contract() -> None:
+    """Make the producer state strict collection invariants before model output."""
+
+    required_collections = {
+        "objectives",
+        "stakeholders",
+        "candidate_lever_space.allowed_operator_kinds",
+        "candidate_lever_space.candidate_levers",
+    }
+
+    class _PromptBoundGateway(_FakeDesignProblemGateway):
+        async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
+            self.generate_calls.append(kwargs)
+            user_payload = json.loads(str(kwargs.get("user") or "{}"))
+            required_semantics = user_payload.get("required_semantics") or {}
+            observed = set(required_semantics.get("non_empty_collections") or [])
+            arguments = _design_problem_tool_args()
+            if observed != required_collections:
+                arguments["stakeholders"] = []
+            return GatewayLLMResponse(
+                content="",
+                model="moonshotai/Kimi-K2.6",
+                provider="test-gateway",
+                tool_calls=[
+                    GatewayToolCall(
+                        id="call-prompt-bound-design-problem",
+                        name="emit_design_problem",
+                        arguments=arguments,
+                    )
+                ],
+            )
+
+    gateway = _PromptBoundGateway(
+        models=["moonshotai/Kimi-K2.6"],
+        arguments={},
+    )
+
+    problem = await build_design_problem_from_nl_request(
+        nl_request=(
+            "Design a wartime MSME credit guarantee for Ukraine within the stated "
+            "UAH 10b budget cap."
+        ),
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="moonshotai/Kimi-K2.6",
+        gateway_client=gateway,
+        span_support_client=_DeterministicSpanSupportClient(),
+    )
+
+    assert problem.stakeholders
+    assert problem.objectives
+    assert problem.candidate_lever_space.candidate_levers
+    assert design_problem_compiler_source_semantics_invariant() in str(
+        gateway.generate_calls[0]["system"]
+    )
+
+
+def test_design_problem_output_budget_is_derived_from_characterization() -> None:
+    """The compiler ceiling is typed, evidence-bound, and not a silent default."""
+
+    policy = _DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY
+
+    assert policy.observed_max_completion_tokens == 5628
+    assert policy.max_tokens == 8192
+    assert policy.headroom_tokens == 2564
+    assert policy.max_tokens == 1 << (policy.observed_max_completion_tokens - 1).bit_length()
+    assert "2026-07-14-gy-n10-stage-4" in policy.evidence_ref
+    with pytest.raises(ValueError, match="output_budget_not_next_power_of_two"):
+        type(policy)(
+            observed_max_completion_tokens=policy.observed_max_completion_tokens,
+            max_tokens=9000,
+            headroom_tokens=3677,
+            evidence_ref=policy.evidence_ref,
+        )
+
+
+def test_design_problem_provider_constraint_exposes_existing_time_rule() -> None:
+    """The request schema mirrors strict time completeness without changing its gate owner."""
+
+    from polisyos.ir.kernel.time_semantics import TimeSemantics
+
+    canonical_before = json.dumps(
+        DesignProblem.model_json_schema(),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    provider_schema = design_problem_provider_constraint_schema()
+    canonical_after = json.dumps(
+        DesignProblem.model_json_schema(),
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    time_union = provider_schema["properties"]["jurisdiction_time"]["properties"][
+        "time_semantics"
+    ]["anyOf"]
+    time_schema = next(item for item in time_union if item.get("type") == "object")
+
+    assert canonical_after == canonical_before
+    assert {item.get("type") for item in time_union} == {"object", "null"}
+    assert time_schema["anyOf"] == [
+        {
+            "required": ["step_count"],
+            "properties": {
+                "step_count": {"type": "integer", "minimum": 1},
+            },
+        },
+        {
+            "required": ["end_date"],
+            "properties": {
+                "end_date": {"type": "string", "minLength": 1},
+            },
+        },
+    ]
+    TimeSemantics.model_validate(
+        {
+            "frequency": "Q",
+            "start_date": "2026-07-14",
+            "step_count": 1,
+        }
+    )
+    TimeSemantics.model_validate(
+        {
+            "frequency": "Q",
+            "start_date": "2026-07-14",
+            "end_date": "2027-07-14",
+        }
+    )
+    with pytest.raises(ValueError, match="step_count or end_date must be provided"):
+        TimeSemantics.model_validate(
+            {
+                "frequency": "Q",
+                "start_date": "2026-07-14",
+                "step_count": None,
+                "end_date": None,
+            }
+        )
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_types_provider_output_truncation() -> None:
+    """A provider-declared completion ceiling is not a generic JSON/schema failure."""
+
+    class _TruncatedGateway(_FakeDesignProblemGateway):
+        async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
+            self.generate_calls.append(kwargs)
+            return GatewayLLMResponse(
+                content="",
+                model="moonshotai/Kimi-K2.6",
+                provider="test-gateway",
+                raw={"choices": [{"finish_reason": "length"}]},
+                tool_calls=[
+                    GatewayToolCall(
+                        id="call-truncated-design-problem",
+                        name="emit_design_problem",
+                        arguments={},
+                        error_envelope={
+                            "reason": "tool_call_arguments_parse_error",
+                            "details": {"arguments_preview": "{\"objectives\":"},
+                        },
+                    )
+                ],
+            )
+
+    gateway = _TruncatedGateway(
+        models=["moonshotai/Kimi-K2.6"],
+        arguments={},
+    )
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await build_design_problem_from_nl_request(
+            nl_request="Design a credit guarantee for wartime MSMEs.",
+            context=_intent_context(),
+            model_name="moonshotai/Kimi-K2.6",
+            gateway_client=gateway,
+            span_support_client=_DeterministicSpanSupportClient(),
+        )
+
+    assert exc_info.value.code == "design_problem_output_truncated"
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_keeps_nontruncated_malformed_output_strict() -> None:
+    """Malformed tool arguments do not acquire truncation semantics by shape alone."""
+
+    class _MalformedGateway(_FakeDesignProblemGateway):
+        async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
+            self.generate_calls.append(kwargs)
+            return GatewayLLMResponse(
+                content="",
+                model="MiniMaxAI/MiniMax-M2.7",
+                provider="test-gateway",
+                raw={"choices": [{"finish_reason": "tool_calls"}]},
+                tool_calls=[
+                    GatewayToolCall(
+                        id="call-malformed-design-problem",
+                        name="emit_design_problem",
+                        arguments={},
+                        error_envelope={
+                            "reason": "tool_call_arguments_parse_error",
+                            "details": {"arguments_preview": "<think>reasoning"},
+                        },
+                    )
+                ],
+            )
+
+    gateway = _MalformedGateway(
+        models=["MiniMaxAI/MiniMax-M2.7"],
+        arguments={},
+    )
+
+    with pytest.raises(DesignProblemAuthorityError) as exc_info:
+        await build_design_problem_from_nl_request(
+            nl_request="Design a credit guarantee for wartime MSMEs.",
+            context=_intent_context(),
+            model_name="MiniMaxAI/MiniMax-M2.7",
+            gateway_client=gateway,
+            span_support_client=_DeterministicSpanSupportClient(),
+        )
+
+    assert exc_info.value.code == "design_problem_validation_failed"
+
+
+@pytest.mark.asyncio
+async def test_plain_language_front_door_calls_real_design_problem_compiler() -> None:
+    raw_request = (
+        "Design a wartime MSME credit guarantee for Ukraine within the stated "
+        "UAH 10b budget cap."
+    )
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=_design_problem_tool_args(),
+    )
+    result = await compile_and_run_recursive_generation_cycle(
+        raw_request=raw_request,
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        compiler_gateway=gateway,
+        span_support_client=_DeterministicSpanSupportClient(),
+        controller=RecursiveGenerationCycleController.for_contract_testing(
+            cycle_controller_factory=_plain_language_leaf_cycle_factory,
+            repo_root=REPO_ROOT,
+        ),
+        budget_state=BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+        ),
+        recursive_budget=RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=2,
+        ),
+    )
+
+    assert result.design_problem.nl_provenance.raw_request == raw_request
+    assert result.recursive_run.root_design_problem_ref == result.design_problem_ref
+    assert result.recursive_run.observed_max_depth == 0
+    assert gateway.generate_calls
 
 
 @pytest.mark.asyncio
@@ -665,7 +1109,7 @@ def test_nl_pipeline_fails_unknown_serious_metric_before_workflow(
 
     try:
         with pytest.raises(RuntimeError) as exc_info:
-            service._execute_nl_pipeline(
+            service._execute_nl_pipeline_for_contract_testing(
                 run_id="R_nl_unknown_metric",
                 nl_request="Evaluate a serious MSME policy.",
                 context=_intent_context(
@@ -687,7 +1131,6 @@ def test_nl_pipeline_fails_unknown_serious_metric_before_workflow(
                 expected_outputs_payload=[],
                 control_job_id=job_id,
                 execution_profile="research",
-                allow_mock_fallback=True,
             )
         record = service._control_store.get_job(job_id)
     finally:
@@ -945,7 +1388,7 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
     )
 
     try:
-        service._execute_nl_pipeline(
+        result = service._execute_nl_pipeline_for_contract_testing(
             run_id="R_nl_materialize",
             nl_request="test request",
             context=_intent_context(requested_authority_level="dev"),
@@ -967,6 +1410,11 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
         service.close()
 
     payload = captured["payload"]
+    assert result["contract_testing_authority"] == {
+        "authority_scope": "contract_testing",
+        "production_promotable": False,
+        "non_promotable_reason": "nl_mock_agents_contract_testing_only",
+    }
     assert captured["kwargs"]["store"] is service._artifact_store
     inputs = payload["inputs"]
     assert "data_snapshot_ref" in inputs

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import ast
+from pathlib import Path
+
 import pytest
 
 from polisyos.foundry.methods.catalog.simulation.dynamics import (
@@ -18,6 +21,12 @@ def test_abm_stub_is_fixture_only_and_default_path_is_content_bound() -> None:
 
     with pytest.raises(RuntimeError, match="abm_result_stub_strangled"):
         _abm_result_stub(method_id="simulation.coupled_policy.des_abm", horizon=3)
+    fixture = _abm_result_stub(
+        method_id="simulation.coupled_policy.des_abm",
+        horizon=3,
+        fixture_only=True,
+    )
+    assert "phase4_abm_result_stub" in fixture.model_dump_json()
 
     first = build_content_bound_abm_result(
         method_id="simulation.coupled_policy.des_abm",
@@ -46,3 +55,24 @@ def test_abm_stub_is_fixture_only_and_default_path_is_content_bound() -> None:
         payload=payload,
         diagnostics=diagnostics,
     )
+
+
+def test_production_simulation_modules_have_zero_abm_stub_callers() -> None:
+    repo_root = Path(__file__).resolve().parents[6]
+    relative_paths = (
+        Path("src/polisyos/foundry/methods/catalog/simulation/dynamics.py"),
+        Path("src/polisyos/foundry/methods/catalog/simulation/coupled.py"),
+    )
+
+    callers: list[str] = []
+    for relative_path in relative_paths:
+        module = ast.parse((repo_root / relative_path).read_text(encoding="utf-8"))
+        callers.extend(
+            f"{relative_path}:{node.lineno}"
+            for node in ast.walk(module)
+            if isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "_abm_result_stub"
+        )
+
+    assert callers == []

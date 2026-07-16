@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import inspect
 import math
+from dataclasses import dataclass
 from enum import Enum
 from statistics import NormalDist
 from typing import TYPE_CHECKING, Annotated, Any, ClassVar, Literal
@@ -11,7 +13,7 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
 
 if TYPE_CHECKING:
@@ -22,6 +24,215 @@ if TYPE_CHECKING:
 
 class UncertaintyCompatibilityError(ValueError):
     """Raised when envelopes with incompatible interval semantics are combined."""
+
+
+class OutputContractCapability(str, Enum):
+    """Typed semantic capabilities owned by native analytical output contracts."""
+
+    VALUE_UNCERTAINTY_PROJECTION = "value_uncertainty_projection"
+
+
+class ValueUncertaintyProjectionKind(str, Enum):
+    """Native interval semantics owned by an analytical output contract."""
+
+    POSTERIOR = "posterior"
+    ECONOMETRIC = "econometric"
+    FORECASTING = "forecasting"
+    DISTRIBUTIONAL = "distributional"
+    PARTIAL_IDENTIFICATION = "partial_identification"
+    TRANSPORT = "transport"
+
+
+@dataclass(frozen=True, slots=True)
+class OutputContractDeclaration:
+    """Bind a native contract identifier to its owner-declared capabilities."""
+
+    contract_id: str
+    capabilities: frozenset[OutputContractCapability] = frozenset()
+    value_uncertainty_projection_kind: ValueUncertaintyProjectionKind | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.contract_id, str) or not self.contract_id.strip():
+            raise ValueError("output_contract_declaration_contract_id_invalid")
+        normalized = frozenset(self.capabilities)
+        if not all(isinstance(item, OutputContractCapability) for item in normalized):
+            raise TypeError("output_contract_declaration_capability_invalid")
+        owns_value_projection = (
+            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in normalized
+        )
+        if owns_value_projection != isinstance(
+            self.value_uncertainty_projection_kind,
+            ValueUncertaintyProjectionKind,
+        ):
+            raise ValueError("output_contract_projection_kind_capability_mismatch")
+        object.__setattr__(self, "capabilities", normalized)
+
+
+class NativeValueEstimandBinding(BaseModel):
+    """Bind one contract-only projection probe to a complete value estimand.
+
+    This request is intentionally caller-constructible and therefore carries
+    no production or promotion authority.  A future production lane must bind
+    a separate owner-resolved method-run receipt; this object only proves that
+    a native output contract can project its own interval semantics.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.ir.native_value_estimand_binding.v1"] = (
+        "polisyos.ir.native_value_estimand_binding.v1"
+    )
+    authority_scope: Literal["contract_only_nonproduction"] = (
+        "contract_only_nonproduction"
+    )
+    production_value_eligible: Literal[False] = False
+    binding_kind: Literal["contract_projection_request"] = (
+        "contract_projection_request"
+    )
+    native_contract_id: str = Field(min_length=1)
+    producer_method_fqn: str = Field(min_length=1)
+    projection_input_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    query_id: str = Field(min_length=1)
+    estimand_id: str = Field(min_length=1)
+    outcome: str = Field(min_length=1)
+    treatment_or_exposure: str | None = None
+    covariates_or_conditioning: tuple[str, ...] = ()
+    adjustment_set: tuple[str, ...] | None = None
+    population: str = Field(min_length=1)
+    sample_filter: str | None = None
+    time_horizon: str | None = None
+    prediction_origin: str | None = None
+    unit: str = Field(min_length=1)
+    scale: str = Field(min_length=1)
+    transform: str | None = None
+    target_role: str = Field(min_length=1)
+    loss_or_utility_id: str | None = None
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_content_hash(self) -> NativeValueEstimandBinding:
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != _native_value_estimand_binding_hash(payload):
+            raise ValueError("native_value_estimand_binding_content_hash_mismatch")
+        return self
+
+    @classmethod
+    def from_estimand(
+        cls,
+        *,
+        estimand: object,
+        native_contract_id: str,
+        producer_method_fqn: str,
+        projection_input_content_hash: str,
+    ) -> NativeValueEstimandBinding:
+        """Build a binding from an owner-resolved method input estimand."""
+
+        payload = {
+            "schema_version": "polisyos.ir.native_value_estimand_binding.v1",
+            "authority_scope": "contract_only_nonproduction",
+            "production_value_eligible": False,
+            "binding_kind": "contract_projection_request",
+            "native_contract_id": native_contract_id,
+            "producer_method_fqn": producer_method_fqn,
+            "projection_input_content_hash": projection_input_content_hash,
+            "query_id": str(getattr(estimand, "query_id", "") or ""),
+            "estimand_id": str(getattr(estimand, "estimand_id", "") or ""),
+            "outcome": str(getattr(estimand, "outcome", "") or ""),
+            "treatment_or_exposure": _optional_estimand_text(
+                getattr(estimand, "treatment_or_exposure", None)
+            ),
+            "covariates_or_conditioning": tuple(
+                str(item)
+                for item in getattr(estimand, "covariates_or_conditioning", ())
+            ),
+            "adjustment_set": _optional_estimand_tuple(
+                getattr(estimand, "adjustment_set", None)
+            ),
+            "population": str(getattr(estimand, "population", "") or ""),
+            "sample_filter": _optional_estimand_text(
+                getattr(estimand, "sample_filter", None)
+            ),
+            "time_horizon": _optional_estimand_text(
+                getattr(estimand, "time_horizon", None)
+            ),
+            "prediction_origin": _optional_estimand_text(
+                getattr(estimand, "prediction_origin", None)
+            ),
+            "unit": str(getattr(estimand, "unit", "") or ""),
+            "scale": str(getattr(estimand, "scale", "") or ""),
+            "transform": _optional_estimand_text(getattr(estimand, "transform", None)),
+            "target_role": str(getattr(estimand, "target_role", "") or ""),
+            "loss_or_utility_id": _optional_estimand_text(
+                getattr(estimand, "loss_or_utility_id", None)
+            ),
+        }
+        return cls.model_validate(
+            {**payload, "content_hash": _native_value_estimand_binding_hash(payload)}
+        )
+
+    def matches(self, estimand: object) -> bool:
+        """Return whether all authority-bearing estimand fields match exactly."""
+
+        expected = type(self).from_estimand(
+            estimand=estimand,
+            native_contract_id=self.native_contract_id,
+            producer_method_fqn=self.producer_method_fqn,
+            projection_input_content_hash=self.projection_input_content_hash,
+        )
+        return self == expected
+
+
+def _native_value_estimand_binding_hash(payload: object) -> str:
+    return content_hash(
+        to_canonical_bytes(payload, CanonSpec(forbid_floats=True)),
+        prefix=True,
+    )
+
+
+def _optional_estimand_text(value: object) -> str | None:
+    if value is None:
+        return None
+    normalized = str(value)
+    return normalized or None
+
+
+def _optional_estimand_tuple(value: object) -> tuple[str, ...] | None:
+    if value is None:
+        return None
+    return tuple(str(item) for item in value)  # type: ignore[union-attr]
+
+
+def value_uncertainty_output_contract(
+    contract_id: str,
+    *,
+    projection_kind: ValueUncertaintyProjectionKind,
+) -> OutputContractDeclaration:
+    """Declare that a native output owns estimand-aware value uncertainty projection."""
+
+    return OutputContractDeclaration(
+        contract_id=contract_id,
+        capabilities=frozenset(
+            {OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}
+        ),
+        value_uncertainty_projection_kind=projection_kind,
+    )
+
+
+def supports_value_uncertainty_projection_contract(owner: type[object]) -> bool:
+    """Return whether an output owner exposes the complete projection interface."""
+
+    projector = getattr(owner, "to_value_uncertainty", None)
+    if not callable(projector):
+        return False
+    try:
+        parameters = inspect.signature(projector).parameters
+    except (TypeError, ValueError):
+        return False
+    return all(
+        name in parameters
+        and parameters[name].kind is inspect.Parameter.KEYWORD_ONLY
+        for name in ("estimand", "projection_binding")
+    )
 
 
 class PullBackNotRepresentableError(ValueError):
@@ -1898,8 +2109,11 @@ __all__ = [
     "IntervalSemantics",
     "MixtureComponent",
     "MixtureDistributionCarrier",
+    "NativeValueEstimandBinding",
     "NumericPolicySpec",
     "NumericToleranceMode",
+    "OutputContractCapability",
+    "OutputContractDeclaration",
     "ParametricFitCarrier",
     "PosteriorSamplesCarrier",
     "PropagationMethod",
@@ -1915,6 +2129,7 @@ __all__ = [
     "UncertaintyCompatibilityError",
     "UncertaintyEnvelope",
     "UncertaintySource",
+    "ValueUncertaintyProjectionKind",
     "build_composition_provenance",
     "combine_envelopes",
     "compress_envelope",
@@ -1924,4 +2139,6 @@ __all__ = [
     "persist_uncertainty_envelope",
     "pull_back_envelope",
     "push_forward_envelope",
+    "supports_value_uncertainty_projection_contract",
+    "value_uncertainty_output_contract",
 ]

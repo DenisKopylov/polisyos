@@ -747,6 +747,24 @@
       "additionalProperties": false,
       "description": "Evidence span public type.",
       "properties": {
+        "content_sha256": {
+          "default": "",
+          "title": "Content Sha256",
+          "type": "string"
+        },
+        "end_char": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "End Char"
+        },
         "score": {
           "default": 0.0,
           "maximum": 1.0,
@@ -771,10 +789,28 @@
           "default": null,
           "title": "Sentence Index"
         },
+        "source_ref": {
+          "default": "",
+          "title": "Source Ref",
+          "type": "string"
+        },
         "span_id": {
           "default": "",
           "title": "Span Id",
           "type": "string"
+        },
+        "start_char": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Start Char"
         },
         "text": {
           "title": "Text",

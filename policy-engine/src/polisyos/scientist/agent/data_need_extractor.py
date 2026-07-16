@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.common.logger import get_logger
 from polisyos.fabric.catalog.registry import DataContractRegistry
 from polisyos.scientist.agent.prompts import get_data_need_extractor_prompt
@@ -138,7 +139,7 @@ class LLMDataNeedExtractorAgent:
         )
         content = response.content if hasattr(response, "content") else str(response)
         try:
-            data = json.loads(content)
+            data = extract_llm_json_object(content)
             rows = data.get("data_needs")
             if not isinstance(rows, list):
                 raise ValueError("`data_needs` must be a list")

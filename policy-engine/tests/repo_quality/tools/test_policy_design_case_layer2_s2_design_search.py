@@ -42,6 +42,10 @@ def test_s2_manifest_declares_closed_cells_and_shadow_scope() -> None:
     }
     assert manifest["required_governance_decision_classes"] == ["a_spec_gap"]
     assert manifest["required_voi_sites"] == ["s2_refinement_policy"]
+    assert len(manifest["candidate_space"]["instrument_families"]) == 3
+    assert manifest["candidate_space"]["parameter_space"]["coverage"][0] == (
+        "partial_portfolio"
+    )
     assert "production_recommendation" in manifest["may_not_use_for"]
 
 
@@ -79,6 +83,30 @@ def test_s2_validator_rejects_manifest_that_claims_acquisition() -> None:
 
     assert validation["status"] == "fail"
     assert "s2_acquisition_branch_must_remain_bridge_missing" in {
+        issue["code"] for issue in validation["issues"]
+    }
+
+
+def test_s2_validator_rejects_candidate_space_without_shadow_evidence_authority() -> None:
+    manifest = copy.deepcopy(_manifest())
+    manifest["candidate_space"]["authority_purpose"] = "runtime_authority"
+
+    validation = s2_validator.validate_s2_manifest_payload(manifest)
+
+    assert validation["status"] == "fail"
+    assert "s2_candidate_space_authority_purpose_invalid" in {
+        issue["code"] for issue in validation["issues"]
+    }
+
+
+def test_s2_validator_binds_candidate_space_to_declared_diversity_floor() -> None:
+    manifest = copy.deepcopy(_manifest())
+    manifest["shadow_adequacy_checks"][0]["required_value"] = 4
+
+    validation = s2_validator.validate_s2_manifest_payload(manifest)
+
+    assert validation["status"] == "fail"
+    assert "s2_shadow_grammar_diversity_floor_invalid" in {
         issue["code"] for issue in validation["issues"]
     }
 

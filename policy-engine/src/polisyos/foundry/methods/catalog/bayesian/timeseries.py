@@ -55,11 +55,11 @@ def _time_series_payload(state: Any) -> dict[str, Any]:
 def _output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 "result",
                 SlotType.SCALAR,
                 Unit("posterior", "json"),
-                contract_id=PosteriorResult.contract_id,
+                output_contract=PosteriorResult,
             ),
             SlotSpec(
                 "prediction_result",

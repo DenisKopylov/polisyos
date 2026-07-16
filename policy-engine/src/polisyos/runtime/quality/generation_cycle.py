@@ -18,12 +18,13 @@ from __future__ import annotations
 import ast
 import inspect
 import math
+import re
 import time
 from collections.abc import Awaitable, Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Any, Literal, Protocol, get_args
+from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -33,44 +34,54 @@ from polisyos.core.contracts.value_outer_set import (
     ValueOuterSetIdentificationStatus,
 )
 from polisyos.data_requirement.compiler import DataRequirementCompiler
+from polisyos.foundry.methods.selection import (
+    MethodSelectionReceipt,
+    method_selection_context_hash,
+)
 from polisyos.pdc import (
     CounterexampleRecord,
     RefinementDecision,
     SearchTerminalKind,
+    SearchTerminalState,
     TypedDiagnosticRecord,
     ValueOfInformationEstimate,
     gy_content_hash,
 )
 from polisyos.pdc._impl.layer2_design_search import SearchIteration
 from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionPlannerReport,
     AcquisitionReceipt,
+    AcquisitionRequirementGap,
     AcquisitionWorldSnapshot,
     RealAcquisitionOwnerGateway,
+    grounding_coverage_requirement_gap,
+    l1_variable_availability_requirement_gap,
+    plan_requirement_gap_acquisition,
     run_acquisition_closed_loop,
+    value_input_world_knowledge_requirement_gap,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem  # noqa: TC001
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
+from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationHorizonController,
     JointSimulationRequest,
+    JointSimulationResult,
 )
 from polisyos.runtime.quality.substrate_registry import (
-    SubstrateCoverage,
     SubstrateLayer,
-    SubstrateRegistration,
     SubstrateRegistry,
     SubstrateRegistryError,
-    SubstrateSchemaRegime,
-    SubstrateTrustTier,
-    build_substrate_registry,
-    build_substrate_registry_entry,
     build_substrate_registry_from_existing_catalogs,
 )
 from polisyos.runtime.quality.workspace.loop import (
     SearchExitDecisionInputs,
     select_search_terminal,
 )
-from polisyos.runtime.quality.world_model_record import WorldModelRecord
+from polisyos.runtime.quality.world_model_record import (
+    WorldModelRecord,
+    WorldModelRecordError,
+)
 from polisyos.scientist.methods.search.voi_scheduler import (
     ParetoSnapshot,
     SchedulingDecision,
@@ -78,6 +89,12 @@ from polisyos.scientist.methods.search.voi_scheduler import (
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetState  # noqa: TC001
 from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopEngine
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
 
 GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v1"
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
@@ -89,6 +106,15 @@ GENERATION_CYCLE_CONTROLLER_REF = (
 )
 ENGINE_SIMPLE_OWNER_REF = (
     "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine"
+)
+_N7_ROUTING_FAILURE_CODES = frozenset(
+    {
+        "n7_cycle_substrate_context_invalid",
+        "n7_cycle_substrate_context_mismatch",
+        "n7_requirement_gap_invalid",
+        "n7_substrate_registry_invalid",
+        "n7_substrate_registry_unresolved",
+    }
 )
 
 FrontKind = Literal["decision", "research", "quarantine", "portfolio"]
@@ -157,6 +183,7 @@ class CandidateGroundingObservation(_StrictModel):
     cgf_certificate_refs: tuple[str, ...] = ()
     quarantine_action: QuarantineAction = "none"
     adversarial_validation_ref: str | None = None
+    acquisition_requirement: AcquisitionRequirementGap | None = None
 
     @model_validator(mode="after")
     def _current_valid_requires_grounding(self) -> CandidateGroundingObservation:
@@ -166,6 +193,13 @@ class CandidateGroundingObservation(_StrictModel):
             self.grounding_source != "cgf_firewall" or not self.grounding_disposition
         ):
             raise ValueError("grounded_status_requires_cgf_firewall_disposition")
+        if self.acquisition_requirement is not None:
+            if self.status in {"current_valid", "grounded_shadow"}:
+                raise ValueError("grounded_status_cannot_require_acquisition")
+            if self.acquisition_requirement.metadata.get("source") != (
+                "cgf_grounding_coverage"
+            ):
+                raise ValueError("grounding_acquisition_requirement_not_canonical")
         return self
 
 
@@ -196,6 +230,29 @@ class SimulationPortObservation(_StrictModel):
         return self
 
 
+def _joint_simulation_port_outcome(
+    result: JointSimulationResult,
+) -> tuple[Literal["joint_simulated", "simulation_blocked"], tuple[str, ...]]:
+    """Project the real N5 outcome without relabeling an unsupported run."""
+
+    unsupported = (
+        result.receipt.calibration_status in {"unsupported_coupling_gated", "no_run"}
+        or not result.trajectories
+        or any(decision.decision != "selected" for decision in result.engine_decisions)
+    )
+    blockers = list(
+        result.promotion_ready_value_packet.get("authority_blockers", ())
+    )
+    if unsupported:
+        blockers.extend(result.feedback_classification.support_blockers)
+        for decision in result.engine_decisions:
+            blockers.extend(decision.blockers)
+        if not blockers:
+            blockers.append("joint_simulation_no_supported_trajectory")
+        return "simulation_blocked", tuple(dict.fromkeys(str(item) for item in blockers))
+    return "joint_simulated", tuple(dict.fromkeys(str(item) for item in blockers))
+
+
 class ValueTransportReceipt(_StrictModel):
     """N8 transport receipt bound to the WMR version that produced value."""
 
@@ -219,6 +276,104 @@ class ValueCalibrationReceipt(_StrictModel):
     uncertainty_interval_refs: tuple[str, ...] = ()
     false_clear_counts: dict[str, int] = Field(default_factory=dict)
     issue_codes: tuple[str, ...] = ()
+
+
+class ValueOwnerRow(_StrictModel):
+    """One content-bound owner outcome row used only for value-data shape."""
+
+    unit_id: str = Field(min_length=1)
+    period_id: int
+    outcome_value: float
+    source_row_content_hashes: tuple[str, ...] = Field(min_length=1)
+    row_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_row_content(self) -> ValueOwnerRow:
+        expected = gy_content_hash(
+            {
+                "unit_id": self.unit_id,
+                "period_id": self.period_id,
+                "outcome_value": self.outcome_value,
+                "source_row_content_hashes": self.source_row_content_hashes,
+            }
+        )
+        if self.row_content_hash != expected:
+            raise ValueError("value_owner_row_content_hash_mismatch")
+        return self
+
+
+VALUE_DATA_SHAPE_RULE_VERSION = "polisyos.runtime.value_data_shape.v1"
+
+
+def is_value_panel_shape(
+    *,
+    longitudinal_unit_count: int,
+    period_count: int,
+) -> bool:
+    """Classify panel readiness under the canonical owner-data shape rule."""
+
+    return longitudinal_unit_count >= 3 and period_count >= 4
+
+
+def _derived_value_data_modalities(
+    rows: Sequence[ValueOwnerRow],
+) -> tuple[str, ...]:
+    """Derive conservative method-selection modalities from owner row shape."""
+
+    periods_by_unit: dict[str, set[int]] = {}
+    for row in rows:
+        periods_by_unit.setdefault(row.unit_id, set()).add(row.period_id)
+    longitudinal_units = sum(
+        1 for periods in periods_by_unit.values() if len(periods) >= 4
+    )
+    modalities = {"tabular"}
+    if is_value_panel_shape(
+        longitudinal_unit_count=longitudinal_units,
+        period_count=len({row.period_id for row in rows}),
+    ):
+        modalities.add("panel")
+    return tuple(sorted(modalities))
+
+
+class ValueDataProfile(_StrictModel):
+    """Method-neutral owner rows and their still-missing treatment knowledge."""
+
+    schema_version: Literal["policyos.runtime.value_data_profile.v1"] = (
+        "policyos.runtime.value_data_profile.v1"
+    )
+    outcome: str = Field(min_length=1)
+    rows: tuple[ValueOwnerRow, ...] = Field(min_length=4)
+    owner_row_count: int = Field(ge=4)
+    unit_count: int = Field(ge=1)
+    period_count: int = Field(ge=1)
+    available_data_modalities: tuple[str, ...]
+    treatment_assignment_status: Literal["owner_assignment_unresolved"] = (
+        "owner_assignment_unresolved"
+    )
+    owner_access_ref: str = Field(min_length=1)
+    owner_rows_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_profile_content(self) -> ValueDataProfile:
+        if self.owner_row_count != len(self.rows):
+            raise ValueError("value_data_profile_row_count_mismatch")
+        if self.unit_count != len({row.unit_id for row in self.rows}):
+            raise ValueError("value_data_profile_unit_count_mismatch")
+        if self.period_count != len({row.period_id for row in self.rows}):
+            raise ValueError("value_data_profile_period_count_mismatch")
+        modalities = tuple(sorted(set(self.available_data_modalities)))
+        if self.available_data_modalities != modalities or "tabular" not in modalities:
+            raise ValueError("value_data_profile_modalities_not_canonical")
+        if modalities != _derived_value_data_modalities(self.rows):
+            raise ValueError("value_data_profile_modalities_not_derived")
+        rows_payload = tuple(row.model_dump(mode="json") for row in self.rows)
+        if self.owner_rows_content_hash != gy_content_hash(rows_payload):
+            raise ValueError("value_data_profile_owner_rows_hash_mismatch")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_data_profile_content_hash_mismatch")
+        return self
 
 
 class ValueGateReceipt(_StrictModel):
@@ -260,11 +415,15 @@ class ValuePortObservation(_StrictModel):
     """N8 value-port observation; pending is explicit and non-authoritative."""
 
     status: ValuePortStatus = "value_pending_n8"
+    candidate_id: str | None = Field(default=None, min_length=1)
     value_ref: str | None = None
     authority_blockers: tuple[str, ...] = ("value_gate_pending_n8",)
     reason: str = "N8 value gate is not present; N6 will not fabricate value."
     evaluation_mode: ValueEvaluationMode | None = None
     selected_method_fqn: str | None = None
+    method_selection_receipt: MethodSelectionReceipt | None = None
+    value_data_profile_content_hash: str | None = None
+    acquisition_requirement: AcquisitionRequirementGap | None = None
     identification_status: ValueOuterSetIdentificationStatus | None = None
     decision_grade: Literal["blocked", "low", "medium", "high"] | None = None
     world_model_record_content_hash: str | None = None
@@ -272,6 +431,69 @@ class ValuePortObservation(_StrictModel):
     calibration_receipt: ValueCalibrationReceipt | None = None
     value_receipt: ValueGateReceipt | None = None
     wall_time_ms: float | None = Field(default=None, ge=0.0)
+
+    @model_validator(mode="after")
+    def _verify_value_authority_shape(self) -> ValuePortObservation:
+        if self.status == "value_ready":
+            if self.value_receipt is None or self.method_selection_receipt is None:
+                raise ValueError("value_ready_requires_owner_receipts")
+            if self.acquisition_requirement is not None:
+                raise ValueError("value_ready_cannot_carry_unsatisfied_acquisition")
+        elif self.value_receipt is not None:
+            raise ValueError("blocked_or_pending_value_cannot_carry_value_receipt")
+        if self.acquisition_requirement is not None and self.status != "value_blocked":
+            raise ValueError("value_acquisition_requirement_requires_blocked_status")
+        if self.acquisition_requirement is not None:
+            if self.candidate_id is None:
+                raise ValueError("value_acquisition_requirement_not_canonical")
+            if self.authority_blockers == (
+                "treatment_assignment_not_owner_derived",
+            ):
+                expected = value_input_world_knowledge_requirement_gap(
+                    claim_ref=f"value-claim:{self.candidate_id}"
+                )
+            elif self.authority_blockers == (
+                "acquire_data:value_panel_data_missing",
+            ):
+                from polisyos.runtime.quality.data_state_substrate import (
+                    L1VariableAvailability,
+                )
+
+                metadata = self.acquisition_requirement.metadata
+                binding = metadata.get("candidate_binding")
+                availability = metadata.get("availability")
+                if not isinstance(binding, Mapping) or not isinstance(
+                    availability, Mapping
+                ):
+                    raise ValueError("value_acquisition_requirement_not_canonical")
+                availability_payload = dict(availability)
+                availability_payload.pop("availability_content_hash", None)
+                expected = l1_variable_availability_requirement_gap(
+                    candidate_id=str(binding.get("candidate_id") or ""),
+                    candidate_content_hash=str(
+                        binding.get("candidate_content_hash") or ""
+                    ),
+                    design_problem_ref=str(binding.get("design_problem_ref") or ""),
+                    availability=L1VariableAvailability.model_validate(
+                        availability_payload
+                    ),
+                    authority_level=str(metadata.get("authority_level") or ""),
+                )
+                if binding.get("candidate_id") != self.candidate_id:
+                    raise ValueError("value_acquisition_requirement_not_canonical")
+            else:
+                raise ValueError("value_acquisition_requirement_not_canonical")
+            if self.acquisition_requirement.model_dump(mode="json") != expected.model_dump(
+                mode="json"
+            ):
+                raise ValueError("value_acquisition_requirement_not_canonical")
+        if (
+            self.method_selection_receipt is not None
+            and self.selected_method_fqn
+            != self.method_selection_receipt.selected_method_fqn
+        ):
+            raise ValueError("value_observation_selection_receipt_method_mismatch")
+        return self
 
 
 class PromotionPortObservation(_StrictModel):
@@ -381,6 +603,15 @@ class DesignRevisionRequest(_StrictModel):
         return tuple(item for item in self.next_grammar_elements if item not in previous)
 
 
+def _cycle_acquisition_requirement(
+    grounding: CandidateGroundingObservation,
+    value_port: ValuePortObservation,
+) -> AcquisitionRequirementGap | None:
+    """Return the earliest-stage real acquisition requirement for one cycle."""
+
+    return grounding.acquisition_requirement or value_port.acquisition_requirement
+
+
 class GenerationCycleRecord(_StrictModel):
     """Replay-visible record for one real generate-ground-value-revise cycle."""
 
@@ -403,6 +634,64 @@ class GenerationCycleRecord(_StrictModel):
     introduced_grammar_elements: tuple[str, ...] = ()
     revision_driver: Literal["counterexample", "none"] = "none"
     acquisition_receipt: dict[str, Any] | None = None
+    acquisition_routing_report: AcquisitionPlannerReport | None = None
+
+    @model_validator(mode="after")
+    def _bind_every_stage_to_selected_candidate(self) -> GenerationCycleRecord:
+        selected = self.selected_candidate_ref
+        if (
+            selected not in self.candidate_ids
+            or self.grounding.candidate_id != selected
+            or self.simulation.candidate_id != selected
+            or (
+                self.value_port.candidate_id is not None
+                and self.value_port.candidate_id != selected
+            )
+            or self.counterexample.candidate_ref != selected
+        ):
+            raise ValueError("cycle_stage_candidate_mismatch")
+        requirement = _cycle_acquisition_requirement(
+            self.grounding,
+            self.value_port,
+        )
+        if requirement is None:
+            return self
+        metadata = requirement.metadata
+        binding = metadata.get("candidate_binding")
+        if not isinstance(binding, Mapping):
+            return self
+        if (
+            binding.get("candidate_id") != selected
+            or binding.get("candidate_content_hash")
+            != self.selected_candidate_content_hash
+            or binding.get("design_problem_ref") != self.design_problem_ref
+        ):
+            raise ValueError("cycle_acquisition_candidate_binding_mismatch")
+        return self
+
+    @model_validator(mode="after")
+    def _routing_evidence_is_not_owner_evidence(self) -> GenerationCycleRecord:
+        if self.acquisition_receipt is not None and self.acquisition_routing_report is not None:
+            raise ValueError("acquisition_route_cannot_mint_owner_receipt")
+        if self.acquisition_routing_report is None:
+            return self
+        if self.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+            raise ValueError("acquisition_route_cannot_satisfy_terminal")
+        requirement = _cycle_acquisition_requirement(
+            self.grounding,
+            self.value_port,
+        )
+        records = self.acquisition_routing_report.acquisition_records
+        if requirement is None or len(records) != 1:
+            raise ValueError("acquisition_route_requirement_mismatch")
+        record = records[0]
+        if (
+            record.requirement_gap_ref != requirement.requirement_gap_id
+            or record.compiled_requirement_ref != requirement.compiled_requirement_ref
+            or record.claim_ref != requirement.claim_ref
+        ):
+            raise ValueError("acquisition_route_requirement_mismatch")
+        return self
 
 
 class StrangleReceipt(_StrictModel):
@@ -534,6 +823,16 @@ class RevisionPolicy(Protocol):
         """Return the next revision request."""
 
 
+@dataclass(frozen=True)
+class _N4OwnerContextUnavailableResult:
+    """Typed U4 refusal before a fixed Scientist vertical can become authority."""
+
+    status: str = "cycle_substrate_context_unavailable"
+    candidates: tuple[object, ...] = ()
+    surrogate_rankings: tuple[object, ...] = ()
+    grounding_dispositions: tuple[object, ...] = ()
+
+
 class N4GenerationPort:
     """Default N4 port calling the real design generation owner."""
 
@@ -543,10 +842,12 @@ class N4GenerationPort:
         model_id: str,
         llm_client: object | None = None,
         repo_root: Path | None = None,
+        cycle_substrate_context: CycleSubstrateContext | None = None,
     ) -> None:
         self._model_id = model_id
         self._llm_client = llm_client
         self._repo_root = repo_root
+        self._cycle_substrate_context = cycle_substrate_context
 
     async def __call__(
         self,
@@ -557,6 +858,8 @@ class N4GenerationPort:
         """Call N4 generation for this cycle."""
 
         del cycle_index
+        if self._cycle_substrate_context is None:
+            return _N4OwnerContextUnavailableResult()
         from polisyos.runtime.quality.design_generation import (
             generate_design_candidate_bundle_under_a,
         )
@@ -566,6 +869,7 @@ class N4GenerationPort:
             model_id=self._model_id,
             llm_client=self._llm_client,
             repo_root=self._repo_root,
+            cycle_substrate_context=self._cycle_substrate_context,
         )
         return organ_run.result
 
@@ -583,8 +887,11 @@ class PolicyGroundingPort:
     ) -> CandidateGroundingObservation:
         """Resolve the generated candidate through N4's CGF disposition records."""
 
-        del problem, cycle_index
+        del cycle_index
         candidate_id = _candidate_id(candidate)
+        candidate_content_hash = _candidate_content_hash(candidate)
+        design_problem_ref = _problem_ref(problem)
+        authority_level = problem.authority_profile.requested_authority_level
         disposition = _grounding_disposition_for_candidate(
             candidate,
             generation_result=generation_result,
@@ -593,15 +900,27 @@ class PolicyGroundingPort:
             return _grounding_unavailable(
                 candidate_id,
                 issue_codes=("cgf_disposition_missing",),
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
             )
         owner_issues = _candidate_owner_validation_issues(candidate, disposition)
         if owner_issues:
-            return _grounding_unavailable(candidate_id, issue_codes=owner_issues)
+            return _grounding_unavailable(
+                candidate_id,
+                issue_codes=owner_issues,
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
+            )
         raw_disposition = str(_object_get(disposition, "disposition") or "")
         if raw_disposition not in _grounding_disposition_denominator():
             return _grounding_unavailable(
                 candidate_id,
                 issue_codes=("unknown_grounding_disposition", raw_disposition),
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                authority_level=authority_level,
             )
         chain = _object_get(disposition, "certificate_chain")
         certificate_refs = _certificate_refs(chain)
@@ -641,6 +960,17 @@ class PolicyGroundingPort:
                 "source": "cgf_firewall",
             }
         )
+        acquisition_requirement = None
+        if status not in {"current_valid", "grounded_shadow"}:
+            acquisition_requirement = grounding_coverage_requirement_gap(
+                candidate_id=candidate_id,
+                candidate_content_hash=candidate_content_hash,
+                design_problem_ref=design_problem_ref,
+                issue_codes=issue_codes,
+                evidence_refs=certificate_refs,
+                authority_level=authority_level,
+                grounding_report_ref=grounding_ref,
+            )
         return CandidateGroundingObservation(
             candidate_id=candidate_id,
             status=status,
@@ -658,6 +988,7 @@ class PolicyGroundingPort:
             adversarial_validation_ref=(
                 str(quarantine_handoff_ref) if quarantine_handoff_ref else None
             ),
+            acquisition_requirement=acquisition_requirement,
         )
 
 
@@ -669,10 +1000,19 @@ class JointSimulationPort:
         controller: JointSimulationHorizonController | None = None,
         *,
         repo_root: Path | None = None,
+        cycle_substrate_context: CycleSubstrateContext | None = None,
     ) -> None:
         self._controller = controller or JointSimulationHorizonController()
         self._repo_root = repo_root
+        if cycle_substrate_context is not None:
+            from polisyos.runtime.quality.cycle_substrate import (
+                revalidate_cycle_substrate_context,
+            )
+
+            revalidate_cycle_substrate_context(cycle_substrate_context)
+        self._cycle_substrate_context = cycle_substrate_context
         self._boundary_world_cache: dict[str, WorldModelRecord] = {}
+        self._boundary_world_cache_index: dict[str, str] = {}
 
     def __call__(
         self,
@@ -692,6 +1032,7 @@ class JointSimulationPort:
             request = problem.runtime_hints["joint_simulation_request"]
         if request is None:
             world_record = None
+            world_error_code: str | None = None
             diagnostics: dict[str, Any] = {
                 "port": "N5",
                 "reason": "joint_simulation_request_missing",
@@ -705,31 +1046,46 @@ class JointSimulationPort:
                     {
                         "world_model_record_id": world_record.world_model_record_id,
                         "world_model_record_content_hash": world_record.content_hash,
-                        "world_model_source": "real_substrate_registry_boundary",
+                        "world_model_source": (
+                            "cycle_substrate_context"
+                            if self._cycle_substrate_context is not None
+                            else "real_substrate_registry_boundary"
+                        ),
                         "simulation_status": "pending_full_joint_request",
                     }
                 )
             except Exception as exc:
+                world_error_code = str(
+                    getattr(exc, "code", None) or "world_model_record_unavailable"
+                )
                 diagnostics.update(
                     {
                         "world_model_source": "unavailable",
+                        "world_model_error_code": world_error_code,
                         "world_model_error": str(exc),
                     }
                 )
             return SimulationPortObservation(
                 candidate_id=candidate_id,
-                status="simulation_pending_n5",
-                authority_blockers=("joint_simulation_request_missing",),
+                status=(
+                    "simulation_pending_n5"
+                    if world_record is not None
+                    else "simulation_blocked"
+                ),
+                authority_blockers=tuple(
+                    item
+                    for item in (
+                        "joint_simulation_request_missing",
+                        world_error_code,
+                    )
+                    if item is not None
+                ),
                 diagnostics=diagnostics,
                 k_world_ref_before=(
-                    world_record.content_hash
-                    if world_record is not None
-                    else _candidate_world_ref(candidate, problem)
+                    world_record.content_hash if world_record is not None else None
                 ),
                 k_world_ref_after=(
-                    world_record.content_hash
-                    if world_record is not None
-                    else _candidate_world_ref(candidate, problem)
+                    world_record.content_hash if world_record is not None else None
                 ),
                 world_model_record=world_record,
             )
@@ -738,16 +1094,38 @@ class JointSimulationPort:
             if isinstance(request, JointSimulationRequest)
             else JointSimulationRequest.model_validate(request)
         )
+        try:
+            request = self._request_with_verified_world_model(
+                request=request,
+                candidate=candidate,
+                problem=problem,
+            )
+        except WorldModelRecordError as exc:
+            source = (
+                "cycle_substrate_context"
+                if self._cycle_substrate_context is not None
+                else "joint_simulation_request"
+            )
+            return SimulationPortObservation(
+                candidate_id=candidate_id,
+                status="simulation_blocked",
+                authority_blockers=(exc.code,),
+                diagnostics={
+                    "port": "N5",
+                    "reason": exc.code,
+                    "world_model_source": source,
+                    "world_model_error": str(exc),
+                },
+            )
         result = self._controller.run(request)
         k_world_ref = request.world_model_record.content_hash
+        status, authority_blockers = _joint_simulation_port_outcome(result)
         return SimulationPortObservation(
             candidate_id=candidate_id,
-            status="joint_simulated",
+            status=status,
             simulation_ref=result.receipt.payload_hash,
             uncertainty_kind=result.uncertainty_kind,
-            authority_blockers=tuple(
-                result.promotion_ready_value_packet.get("authority_blockers", ())
-            ),
+            authority_blockers=authority_blockers,
             diagnostics={
                 "engine_decisions": [
                     item.model_dump(mode="json") for item in result.engine_decisions
@@ -762,6 +1140,166 @@ class JointSimulationPort:
             world_model_record=request.world_model_record,
         )
 
+    def _request_with_verified_world_model(
+        self,
+        *,
+        request: JointSimulationRequest,
+        candidate: object,
+        problem: DesignProblem,
+    ) -> JointSimulationRequest:
+        """Resolve every request/candidate ref against one concrete WMR object."""
+
+        request_refs = (
+            ("joint_simulation_request", request.world_model_record_ref),
+            *tuple(
+                (
+                    f"joint_simulation_request.intervention_atoms[{index}]",
+                    _object_get(atom, "world_model_record_ref"),
+                )
+                for index, atom in enumerate(
+                    getattr(request, "intervention_atoms", ()) or ()
+                )
+            ),
+        )
+        if self._cycle_substrate_context is not None:
+            context_record = self._context_world_model_record(
+                candidate=candidate,
+                problem=problem,
+            )
+            from polisyos.runtime.quality.cycle_substrate import (
+                resolve_world_model_atom_identity,
+            )
+
+            for atom in getattr(request, "intervention_atoms", ()) or ():
+                resolve_world_model_atom_identity(
+                    atom=atom,
+                    world_model_record=context_record,
+                    expected_world_model_content_hash=context_record.content_hash,
+                )
+            accepted = {
+                context_record.world_model_record_id,
+                context_record.content_hash,
+            }
+            if (
+                request.world_model_record.world_model_record_id
+                != context_record.world_model_record_id
+                or request.world_model_record.content_hash
+                != context_record.content_hash
+                or request.world_model_record_ref not in accepted
+            ):
+                raise WorldModelRecordError(
+                    "cycle_substrate_request_wmr_mismatch"
+                )
+            self._assert_world_model_reference_bindings(
+                candidate=candidate,
+                problem=problem,
+                world_model_record=context_record,
+                additional_refs=request_refs,
+            )
+            return request.model_copy(
+                update={"world_model_record": context_record}
+            )
+        from polisyos.runtime.quality.cycle_substrate import (
+            resolve_world_model_atom_identity,
+        )
+
+        for atom in getattr(request, "intervention_atoms", ()) or ():
+            resolve_world_model_atom_identity(
+                atom=atom,
+                world_model_record=request.world_model_record,
+                expected_world_model_content_hash=request.world_model_record.content_hash,
+            )
+        self._assert_world_model_reference_bindings(
+            candidate=candidate,
+            problem=problem,
+            world_model_record=request.world_model_record,
+            additional_refs=request_refs,
+        )
+        return request
+
+    def _context_world_model_record(
+        self,
+        *,
+        candidate: object,
+        problem: DesignProblem,
+    ) -> WorldModelRecord:
+        """Return the exact verified context WMR and bind all supplied refs to it."""
+
+        if self._cycle_substrate_context is None:
+            raise WorldModelRecordError("cycle_substrate_context_missing")
+        from polisyos.runtime.quality.cycle_substrate import (
+            resolve_candidate_lever_world_identity,
+            resolve_cycle_substrate_world_identity,
+            revalidate_cycle_substrate_context,
+        )
+
+        context = revalidate_cycle_substrate_context(
+            self._cycle_substrate_context
+        )
+        if context.design_problem_ref != _problem_ref(problem):
+            raise WorldModelRecordError(
+                "cycle_substrate_design_problem_mismatch"
+            )
+        if context.domain != problem.domain:
+            raise WorldModelRecordError(
+                "cycle_substrate_problem_domain_mismatch"
+            )
+        record = self._cycle_substrate_context.world_model_record
+        atom = _object_get(candidate, "atom")
+        if atom is None:
+            if _object_get(candidate, "status") != "candidate_unbound":
+                raise WorldModelRecordError(
+                    "world_identity_unresolved",
+                    "candidate atom is absent",
+                )
+            resolve_candidate_lever_world_identity(
+                context,
+                refusal=_object_get(candidate, "lever_resolution"),
+            )
+        else:
+            resolve_cycle_substrate_world_identity(context, atom=atom)
+        self._assert_world_model_reference_bindings(
+            candidate=candidate,
+            problem=problem,
+            world_model_record=record,
+        )
+        return record
+
+    @staticmethod
+    def _assert_world_model_reference_bindings(
+        *,
+        candidate: object,
+        problem: DesignProblem,
+        world_model_record: WorldModelRecord,
+        additional_refs: Sequence[tuple[str, object]] = (),
+    ) -> None:
+        """Reject every supplied loose WMR ref that does not resolve to the object."""
+
+        atom = _object_get(candidate, "atom")
+        supplied_refs = (
+            (
+                "problem.runtime_hints.world_model_record_ref",
+                _runtime_hint_optional(problem, "world_model_record_ref"),
+            ),
+            ("candidate.world_model_record_ref", _object_get(candidate, "world_model_record_ref")),
+            ("candidate.atom.world_model_record_ref", _object_get(atom, "world_model_record_ref")),
+            *additional_refs,
+        )
+        accepted = {
+            world_model_record.world_model_record_id,
+            world_model_record.content_hash,
+        }
+        mismatches = tuple(
+            f"{label}={value}"
+            for label, value in supplied_refs
+            if value is not None and str(value).strip() and str(value) not in accepted
+        )
+        if mismatches:
+            raise WorldModelRecordError(
+                "world_model_record_unresolved",
+                ";".join(mismatches),
+            )
+
     def _boundary_world_model_record(
         self,
         *,
@@ -775,27 +1313,57 @@ class JointSimulationPort:
         an acquisition gap while the full joint simulation remains pending.
         """
 
+        if self._cycle_substrate_context is not None:
+            return self._context_world_model_record(
+                candidate=candidate,
+                problem=problem,
+            )
+
         repo_root = (self._repo_root or Path.cwd()).resolve()
         outcome = _value_outcome_variable(candidate, problem) or "value_outcome"
         slots = tuple(_candidate_target_world_slots(candidate)) or (outcome,)
-        cache_key = gy_content_hash(
-            {
-                "repo_root": repo_root.as_posix(),
-                "problem_id": problem.design_problem_id,
-                "domain": problem.domain,
-                "outcome": outcome,
-                "slots": slots,
-            }
+        registry = build_substrate_registry_from_existing_catalogs(repo_root)
+        selected_entry_hashes = tuple(
+            sorted(entry.entry_content_hash for entry in registry.entries)
         )
-        if cache_key in self._boundary_world_cache:
-            return self._boundary_world_cache[cache_key]
+        cache_identity = {
+            "design_problem_ref": _problem_ref(problem),
+            "substrate_registry_content_hash": registry.content_hash,
+            "selected_registry_entry_hashes": selected_entry_hashes,
+            "outcome_hash": gy_content_hash(outcome),
+            "policy_slot_hash": gy_content_hash(slots),
+        }
+        cache_index_key = gy_content_hash(cache_identity)
+        cache_key = self._boundary_world_cache_index.get(cache_index_key)
+        if cache_key is not None:
+            record = self._boundary_world_cache[cache_key]
+            self._assert_world_model_reference_bindings(
+                candidate=candidate,
+                problem=problem,
+                world_model_record=record,
+            )
+            return record
         record = _build_boundary_world_model_record(
             repo_root=repo_root,
             problem=problem,
             outcome=outcome,
             policy_slot_ids=slots,
+            substrate_registry=registry,
+            selected_registry_entry_hashes=selected_entry_hashes,
+        )
+        cache_key = gy_content_hash(
+            {
+                **cache_identity,
+                "world_model_record_content_hash": record.content_hash,
+            }
         )
         self._boundary_world_cache[cache_key] = record
+        self._boundary_world_cache_index[cache_index_key] = cache_key
+        self._assert_world_model_reference_bindings(
+            candidate=candidate,
+            problem=problem,
+            world_model_record=record,
+        )
         return record
 
 
@@ -825,9 +1393,11 @@ class ValueOwnerAccessError(ValueError):
         message: str | None = None,
         *,
         owner_access_ref: str | None = None,
+        owner_gap_evidence: L1VariableAvailability | None = None,
     ) -> None:
         self.code = code
         self.owner_access_ref = owner_access_ref
+        self.owner_gap_evidence = owner_gap_evidence
         detail = message or code
         if owner_access_ref:
             detail = f"{detail} owner_access_ref={owner_access_ref}"
@@ -837,14 +1407,14 @@ class ValueOwnerAccessError(ValueError):
 class ValueOwnerGateway(Protocol):
     """Owner access surface for N8 input materialization."""
 
-    def load_panel_observational_data(
+    def load_value_data_profile(
         self,
         *,
         candidate: object,
         problem: DesignProblem,
         world_record: WorldModelRecord,
-    ) -> object:
-        """Load owner-bound panel data for the candidate outcome and world slot."""
+    ) -> ValueDataProfile:
+        """Load content-bound outcome rows without inventing treatment knowledge."""
 
     def produce_forecast_inputs(
         self,
@@ -872,15 +1442,16 @@ class RealValueOwnerGateway:
     """Production owner access for N8 value inputs."""
 
     repo_root: Path | None = None
+    cycle_substrate_context: CycleSubstrateContext | None = None
 
-    def load_panel_observational_data(
+    def load_value_data_profile(
         self,
         *,
         candidate: object,
         problem: DesignProblem,
         world_record: WorldModelRecord,
-    ) -> object:
-        """Load panel data through the real substrate owner or return a real gap."""
+    ) -> ValueDataProfile:
+        """Load method-neutral rows through the real substrate owner."""
 
         del world_record
         outcome = _value_outcome_variable(candidate, problem)
@@ -914,19 +1485,20 @@ class RealValueOwnerGateway:
                     f"observations={availability.observation_count})"
                 ),
                 owner_access_ref=owner_access_ref,
+                owner_gap_evidence=availability,
             )
-        panel = _load_panel_from_l1_dcat(
+        profile = _load_value_data_profile_from_l1_dcat(
             repo_root=repo_root,
             outcome=outcome,
-            candidate=candidate,
+            owner_access_ref=owner_access_ref,
         )
-        if panel is None:
+        if profile is None:
             raise ValueOwnerAccessError(
-                "acquire_data:value_panel_data_missing",
-                f"substrate owner found {outcome} but no usable panel matrix",
+                "acquire_data:value_owner_rows_missing",
+                f"substrate owner found {outcome} but no usable owner rows",
                 owner_access_ref=owner_access_ref,
             )
-        return panel
+        return profile
 
     def produce_forecast_inputs(
         self,
@@ -965,6 +1537,7 @@ class RealValueOwnerGateway:
                 world_record=world_record,
                 query_treatment=treatment,
                 query_outcome=outcome,
+                cycle_substrate_context=self.cycle_substrate_context,
             ),
             "query_treatment": treatment,
             "query_outcome": outcome,
@@ -981,20 +1554,21 @@ class FoundryValuePort:
         evaluation_mode: ValueEvaluationMode = "simulate_only",
         data_trust: DataTrust | None = None,
         requested_method_fqn: str | None = None,
-        method_params: Mapping[str, Any] | None = None,
         observation_to_contract_manifest: object | None = None,
         runtime_budget_ms: float | None = None,
-        seed: int = 42,
         repo_root: Path | None = None,
+        cycle_substrate_context: CycleSubstrateContext | None = None,
     ) -> None:
-        self._owner_gateway = owner_gateway or RealValueOwnerGateway(repo_root=repo_root)
+        self._owner_gateway = owner_gateway or RealValueOwnerGateway(
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
         self._evaluation_mode = evaluation_mode
         self._data_trust = data_trust
         self._requested_method_fqn = requested_method_fqn
-        self._method_params = dict(method_params or {})
         self._observation_to_contract_manifest = observation_to_contract_manifest
         self._runtime_budget_ms = runtime_budget_ms
-        self._seed = seed
+        self._cycle_substrate_context = cycle_substrate_context
         self._world_cache: dict[str, object] = {}
 
     def __call__(
@@ -1009,6 +1583,7 @@ class FoundryValuePort:
 
         started = time.monotonic()
         del cycle_index
+        candidate_id = _candidate_id(candidate)
         inputs = self._selection_inputs()
         mode = self._evaluation_mode
         if mode in {"sandbox_pilot", "field_pilot", "deployment"}:
@@ -1017,6 +1592,7 @@ class FoundryValuePort:
                 reason="EvalSafety is not wired yet; pilot/deployment value execution is blocked.",
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
             )
         data_trust = self._data_trust
         if mode in {"retrospective", "measurement_audit"} and data_trust is None:
@@ -1025,9 +1601,20 @@ class FoundryValuePort:
                 reason="Retrospective and measurement-audit value modes require DataTrust.",
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
             )
-        data_trust = data_trust or _simulate_only_data_trust()
-        world_record, cache_status, world_error = self._world_record_from_simulation(simulation)
+        if simulation.candidate_id != candidate_id:
+            return _blocked_value_observation(
+                code="value_candidate_simulation_mismatch",
+                reason=(
+                    "N8 refuses value evidence produced for a different candidate; "
+                    f"candidate={candidate_id} simulation={simulation.candidate_id}."
+                ),
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        world_record, _cache_status, world_error = self._world_record_from_simulation(simulation)
         if world_error is not None or world_record is None:
             return _blocked_value_observation(
                 code=world_error or "value_world_model_record_unwired",
@@ -1037,26 +1624,82 @@ class FoundryValuePort:
                 ),
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
             )
+        if (
+            self._cycle_substrate_context is not None
+            and not _candidate_estimand_binding_is_unresolved(candidate)
+        ):
+            world_identity_error = _value_candidate_world_identity_error(
+                cycle_substrate_context=self._cycle_substrate_context,
+                candidate=candidate,
+                world_record=world_record,
+            )
+            if world_identity_error is not None:
+                return _blocked_value_observation(
+                    code="world_identity_unresolved",
+                    reason=world_identity_error,
+                    mode=mode,
+                    started=started,
+                    candidate_id=candidate_id,
+                    world_model_record_content_hash=str(
+                        _object_get(world_record, "content_hash")
+                    ),
+                )
         try:
-            method_state = self._owner_gateway.load_panel_observational_data(
+            method_state = self._owner_gateway.load_value_data_profile(
                 candidate=candidate,
                 problem=problem,
                 world_record=world_record,
             )
         except ValueOwnerAccessError as exc:
+            acquisition_requirement = None
+            if exc.owner_gap_evidence is not None:
+                outcome = _value_outcome_variable(candidate, problem)
+                if outcome != exc.owner_gap_evidence.variable_id:
+                    return _blocked_value_observation(
+                        code="value_owner_gap_evidence_mismatch",
+                        reason=(
+                            "L1 availability evidence names another outcome; "
+                            f"expected={outcome} actual={exc.owner_gap_evidence.variable_id}."
+                        ),
+                        mode=mode,
+                        started=started,
+                        candidate_id=candidate_id,
+                        world_model_record_content_hash=str(
+                            _object_get(world_record, "content_hash")
+                        ),
+                    )
+                acquisition_requirement = l1_variable_availability_requirement_gap(
+                    candidate_id=candidate_id,
+                    candidate_content_hash=_candidate_content_hash(candidate),
+                    design_problem_ref=_problem_ref(problem),
+                    availability=exc.owner_gap_evidence,
+                    authority_level=problem.authority_profile.requested_authority_level,
+                )
             return _blocked_value_observation(
                 code=exc.code,
                 reason=str(exc),
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
+                acquisition_requirement=acquisition_requirement,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
+        if not isinstance(method_state, ValueDataProfile):
+            return _blocked_value_observation(
+                code="value_owner_data_profile_invalid",
+                reason="N8 owner returned an unverified value-data profile.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        selector_problem = _selector_problem_for_value_profile(problem, method_state)
         selection = _select_value_method(
             candidate=candidate,
-            problem=problem,
+            problem=selector_problem,
             inputs=inputs,
-            method_state=method_state,
         )
         if selection.get("status") != "selected" or not selection.get("selected_method_fqn"):
             return _blocked_value_observation(
@@ -1064,170 +1707,85 @@ class FoundryValuePort:
                 reason=str(selection.get("reason") or "Foundry selector refused value method."),
                 mode=mode,
                 started=started,
+                candidate_id=candidate_id,
                 selected_method_fqn=_optional_text(selection.get("selected_method_fqn")),
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
-        method_result = None
-        method_error = None
-        selected_method_fqn = str(selection["selected_method_fqn"])
-        attempted_methods: list[str] = []
-        for method_fqn in _candidate_value_method_trace(
-            selection=selection,
-            requested_method_fqn=self._requested_method_fqn,
-        ):
-            attempted_methods.append(method_fqn)
-            method_result, method_error = _run_value_method(
-                method_fqn=method_fqn,
-                method_state=method_state,
-                method_params=self._method_params,
-                seed=self._seed,
+        try:
+            selection_receipt = MethodSelectionReceipt.model_validate(
+                selection.get("selection_receipt")
             )
-            if method_error is None and method_result is not None:
-                selected_method_fqn = method_fqn
-                break
-        if method_error is not None or method_result is None:
+        except Exception as exc:
             return _blocked_value_observation(
-                code=method_error or "foundry_method_refused_value",
-                reason=(
-                    "Foundry method did not produce a usable causal value estimate "
-                    f"(attempted_methods={attempted_methods})."
-                ),
+                code="value_method_selection_authority_unresolved",
+                reason=f"Foundry selector receipt was invalid: {exc}",
                 mode=mode,
                 started=started,
-                selected_method_fqn=selected_method_fqn,
+                candidate_id=candidate_id,
+                selected_method_fqn=_optional_text(selection.get("selected_method_fqn")),
+                value_data_profile_content_hash=method_state.content_hash,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
             )
         try:
-            forecast_inputs = self._owner_gateway.produce_forecast_inputs(
-                candidate=candidate,
-                problem=problem,
-                world_record=world_record,
-                method_result=method_result,
-                selected_method_fqn=selected_method_fqn,
-            )
-        except ValueOwnerAccessError as exc:
-            return _blocked_value_observation(
-                code=exc.code,
-                reason=str(exc),
-                mode=mode,
-                started=started,
-                selected_method_fqn=selected_method_fqn,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-            )
-        calibration_receipt = _value_calibration_receipt(
-            inputs=forecast_inputs,
-            world_record=world_record,
-        )
-        if calibration_receipt.status == "blocked":
-            return _blocked_value_observation(
-                code=(
-                    calibration_receipt.issue_codes[0]
-                    if calibration_receipt.issue_codes
-                    else "forecast_calibration_blocked"
-                ),
-                reason="S10 outcome-prediction calibration refused value authority.",
-                mode=mode,
-                started=started,
-                calibration_receipt=calibration_receipt,
-                selected_method_fqn=selected_method_fqn,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-            )
-        try:
-            transport_inputs = self._owner_gateway.build_transport_inputs(
-                candidate=candidate,
-                problem=problem,
-                world_record=world_record,
-            )
-        except ValueOwnerAccessError as exc:
-            return _blocked_value_observation(
-                code=exc.code,
-                reason=str(exc),
-                mode=mode,
-                started=started,
-                calibration_receipt=calibration_receipt,
-                selected_method_fqn=selected_method_fqn,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-            )
-        transport_receipt, transport_error = _run_value_transport(
-            inputs=transport_inputs,
-            world_record=world_record,
-        )
-        if transport_error is not None or transport_receipt is None:
-            return _blocked_value_observation(
-                code=transport_error or "untransportable_forecast_minted_value",
-                reason="Transport owner refused to produce a transport receipt.",
-                mode=mode,
-                started=started,
-                calibration_receipt=calibration_receipt,
-                selected_method_fqn=selected_method_fqn,
-                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-            )
-        try:
-            value_set = _value_outer_set_from_foundry_result(
-                method_result=method_result,
-                transport_receipt=transport_receipt,
-                calibration_receipt=calibration_receipt,
-                world_record=world_record,
-                data_trust=data_trust,
+            selection_receipt.verify_selection_context(
+                method_selection_context_hash(
+                    candidate=candidate,
+                    problem=selector_problem,
+                    requested_method_fqn=_optional_text(inputs.get("method_fqn")),
+                    observation_to_contract_manifest=inputs.get(
+                        "observation_to_contract_manifest"
+                    ),
+                    runtime_budget_ms=(
+                        float(inputs["runtime_budget_ms"])
+                        if inputs.get("runtime_budget_ms") is not None
+                        else None
+                    ),
+                )
             )
         except ValueError as exc:
             return _blocked_value_observation(
-                code=str(exc).split(":", 1)[0],
-                reason=str(exc),
+                code="value_method_selection_context_hash_mismatch",
+                reason=f"Foundry selector receipt context did not match owner rows: {exc}",
                 mode=mode,
                 started=started,
-                calibration_receipt=calibration_receipt,
-                selected_method_fqn=selected_method_fqn,
+                candidate_id=candidate_id,
+                selected_method_fqn=selection_receipt.selected_method_fqn,
+                value_data_profile_content_hash=method_state.content_hash,
                 world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
-                transport_receipt=transport_receipt,
             )
-        decision = value_set.promotion_decision()
-        world_hash = str(_object_get(world_record, "content_hash"))
-        value_ref = gy_content_hash(
-            {
-                "candidate_id": _candidate_id(candidate),
-                "world_model_record_content_hash": world_hash,
-                "method_fqn": selected_method_fqn,
-                "value_outer_set": value_set.canonical_payload(),
-                "transport_receipt": transport_receipt.model_dump(mode="json"),
-                "calibration_receipt": calibration_receipt.model_dump(mode="json"),
-            }
-        )
-        receipt = ValueGateReceipt(
-            candidate_id=_candidate_id(candidate),
-            evaluation_mode=mode,
-            selected_method_fqn=selected_method_fqn,
-            method_selection_trace=tuple(str(item) for item in selection.get("score_trace", ())),
-            identification_status=value_set.identification_status,
-            value_outer_set=value_set,
-            transport_receipt=transport_receipt,
-            calibration_receipt=calibration_receipt,
-            world_model_record_id=str(_object_get(world_record, "world_model_record_id")),
-            world_model_record_content_hash=world_hash,
-            value_ref=value_ref,
-            wall_time_ms=(time.monotonic() - started) * 1000.0,
-            wmr_cache_status=cache_status,
-            k_world_ref_before=world_hash,
-            k_world_ref_after=world_hash,
-        )
-        blockers = tuple(reason for reason in decision.reasons if reason != "eligible")
-        return ValuePortObservation(
-            status="value_ready",
-            value_ref=value_ref,
-            authority_blockers=blockers,
+        selected_method_fqn = selection_receipt.selected_method_fqn
+        if _candidate_estimand_binding_is_unresolved(candidate):
+            return _blocked_value_observation(
+                code="method_estimand_binding_mismatch",
+                reason=(
+                    "The advisor selected a real method over owner-resolved outcome rows, "
+                    "but the candidate_unbound intervention has no estimand binding."
+                ),
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+                selected_method_fqn=selected_method_fqn,
+                method_selection_receipt=selection_receipt,
+                value_data_profile_content_hash=method_state.content_hash,
+                world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
+            )
+        return _blocked_value_observation(
+            code="treatment_assignment_not_owner_derived",
             reason=(
-                "N8 value computed by Foundry method execution plus "
-                "transport/calibration gates."
+                f"substrate owner resolved outcome rows for {method_state.outcome}, but no "
+                "canonical owner-derived treatment assignment producer is registered; "
+                "candidate and intervention-atom exposure fields are not world knowledge"
             ),
-            evaluation_mode=mode,
+            mode=mode,
+            started=started,
             selected_method_fqn=selected_method_fqn,
-            identification_status=value_set.identification_status,
-            decision_grade=decision.capped_decision_grade,
-            world_model_record_content_hash=world_hash,
-            transport_receipt=transport_receipt,
-            calibration_receipt=calibration_receipt,
-            value_receipt=receipt,
-            wall_time_ms=receipt.wall_time_ms,
+            method_selection_receipt=selection_receipt,
+            value_data_profile_content_hash=method_state.content_hash,
+            candidate_id=candidate_id,
+            acquisition_requirement=value_input_world_knowledge_requirement_gap(
+                claim_ref=f"value-claim:{candidate_id}"
+            ),
+            world_model_record_content_hash=str(_object_get(world_record, "content_hash")),
         )
 
     def _selection_inputs(self) -> dict[str, Any]:
@@ -1350,6 +1908,19 @@ class _GrammarFallbackResult:
     fallback_reason: str = "llm_generation_unavailable"
 
 
+@dataclass(frozen=True)
+class _DispositionCandidate:
+    """Internal route for a CGF disposition that correctly minted no atom."""
+
+    candidate_id: str
+    content_hash: str
+    proposal_id: str
+    grounding_disposition: str
+    lever_resolution: InterventionLeverRefusal | None = None
+    status: str = "candidate_unbound"
+    generator_path: str = "n4_grounding_disposition"
+
+
 class GenerationCycleController:
     """Thin N6 controller over SimpleLoopEngine and real generation organs."""
 
@@ -1366,6 +1937,8 @@ class GenerationCycleController:
         acquisition_owner_gateway: object | None = None,
         repo_root: Path | None = None,
         model_id: str | None = None,
+        cycle_substrate_context: CycleSubstrateContext | None = None,
+        generated_at: datetime | None = None,
         high_proxy_threshold: float = 0.8,
         low_grounding_threshold: float = 0.5,
     ) -> None:
@@ -1374,10 +1947,17 @@ class GenerationCycleController:
         self._generation_port = generation_port or N4GenerationPort(
             model_id=str(model_id),
             repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
         )
         self._grounding_port = grounding_port or PolicyGroundingPort()
-        self._simulation_port = simulation_port or JointSimulationPort()
-        self._value_port = value_port or FoundryValuePort()
+        self._simulation_port = simulation_port or JointSimulationPort(
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+        self._value_port = value_port or FoundryValuePort(
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
         if promotion_port is None:
             from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
 
@@ -1390,6 +1970,8 @@ class GenerationCycleController:
             min_roi_threshold=1.0,
         )
         self._repo_root = repo_root
+        self._cycle_substrate_context = cycle_substrate_context
+        self._generated_at = generated_at
         self._high_proxy_threshold = high_proxy_threshold
         self._low_grounding_threshold = low_grounding_threshold
         self._engine = SimpleLoopEngine(
@@ -1442,10 +2024,26 @@ class GenerationCycleController:
                     terminal_status = "blocked"
                     blocked_reason = fake_reason
                     cycle = _blocked_cycle(cycle, reason=fake_reason)
-            acquisition_receipt = self._run_n7_acquisition_if_requested(
-                current_problem,
-                cycle=cycle,
-            )
+            acquisition_receipt: AcquisitionReceipt | None = None
+            try:
+                routing_report = self._plan_n7_requirement_gap_if_requested(
+                    current_problem,
+                    cycle=cycle,
+                )
+                if routing_report is not None:
+                    cycle = _cycle_with_acquisition_routing_report(
+                        cycle,
+                        report=routing_report,
+                    )
+                else:
+                    acquisition_receipt = self._run_n7_acquisition_if_requested(
+                        current_problem,
+                        cycle=cycle,
+                    )
+            except GenerationCycleError as exc:
+                if exc.code not in _N7_ROUTING_FAILURE_CODES:
+                    raise
+                cycle = _cycle_with_n7_route_failure(cycle, reason=exc.code)
             if acquisition_receipt is not None:
                 cycle, cycle_summaries = self._reenter_cycle_after_n7_acquisition(
                     current_problem,
@@ -1621,10 +2219,46 @@ class GenerationCycleController:
             acquisition_request={**acquisition_request, "cycle_index": cycle.cycle_index},
             data_requirement_specs=tuple(specs),
             world_snapshot=world_snapshot,
+            design_problem=problem,
             owner_gateway=owner_gateway,
             useful_design_rate_before=float(
                 problem.runtime_hints.get("n7_useful_design_rate_before") or 0.0
             ),
+            generated_at=self._generated_at,
+        )
+
+    def _plan_n7_requirement_gap_if_requested(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle: GenerationCycleRecord,
+    ) -> AcquisitionPlannerReport | None:
+        """Route one typed requirement gap without fabricating acquired evidence."""
+
+        if cycle.terminal_kind != SearchTerminalKind.ACQUISITION_REQUIRED.value:
+            return None
+        acquisition_request = cycle.revision_request.strategy_payload.get(
+            "acquisition_request"
+        )
+        if not isinstance(acquisition_request, Mapping):
+            return None
+        raw_gap = acquisition_request.get("requirement_gap")
+        if raw_gap is None:
+            return None
+        try:
+            gap = AcquisitionRequirementGap.model_validate(raw_gap)
+        except Exception as exc:
+            raise GenerationCycleError(
+                "n7_requirement_gap_invalid",
+                str(exc),
+            ) from exc
+        return plan_requirement_gap_acquisition(
+            run_id=(
+                f"n7-routing:{problem.design_problem_id}:"
+                f"{cycle.cycle_index}"
+            ),
+            requirement_gaps=(gap,),
+            generated_at=self._generated_at,
         )
 
     def _n7_data_requirement_specs(
@@ -1679,9 +2313,17 @@ class GenerationCycleController:
             problem,
             families=families,
             repo_root=self._repo_root or Path.cwd(),
+            cycle_substrate_context=self._cycle_substrate_context,
+        )
+        context_world_ref = (
+            self._cycle_substrate_context.world_model_record_content_hash
+            if self._cycle_substrate_context is not None
+            else None
         )
         world_ref_hint = _runtime_hint_optional(problem, "world_model_record_ref")
         world_ref = str(world_ref_hint or f"s0://substrate-registry/{registry.substrate_version_id}")
+        if context_world_ref is not None:
+            world_ref = context_world_ref
         return AcquisitionWorldSnapshot(
             world_ref=world_ref,
             known_slots=families,
@@ -1695,7 +2337,7 @@ class GenerationCycleController:
                 )
             },
             substrate_registry=registry.model_dump(mode="json"),
-            world_model_record_ref=_runtime_hint_optional(problem, "world_model_record_ref"),
+            world_model_record_ref=(context_world_ref or world_ref_hint),
         )
 
     def _n7_owner_gateway(self, problem: DesignProblem) -> object:
@@ -1765,6 +2407,8 @@ class GenerationCycleController:
             candidate_id=cycle.selected_candidate_ref,
             terminal_kind=terminal_kind,
             counterexample=counterexample,
+            grounding=grounding,
+            value_port=cycle.value_port,
         )
         voi_decision = self.decide_next_action(
             candidate_id=cycle.selected_candidate_ref,
@@ -1809,9 +2453,17 @@ class GenerationCycleController:
         )
         if inspect.isawaitable(result):
             result = await result
-        candidates = tuple(getattr(result, "candidates", ()) or ())
+        owner_candidates = tuple(getattr(result, "candidates", ()) or ())
+        disposition_candidates = _disposition_candidates(
+            result,
+            existing_candidates=owner_candidates,
+        )
+        candidates = (*owner_candidates, *disposition_candidates)
         generation_channel: GenerationChannel = "n4_owner"
-        if getattr(result, "status", None) != "generated" or not candidates:
+        if not candidates or (
+            getattr(result, "status", None) != "generated"
+            and not disposition_candidates
+        ):
             result = _grammar_fallback_result(
                 state["problem"],
                 cycle_index=int(state["cycle_index"]),
@@ -1939,6 +2591,8 @@ class GenerationCycleController:
             candidate_id=candidate_id,
             terminal_kind=terminal_kind,
             counterexample=counterexample,
+            grounding=grounding,
+            value_port=state["value_port"],
         )
         placeholder_cycle = _cycle_record(
             problem=problem,
@@ -2082,8 +2736,8 @@ def validate_generation_cycle_run(
     expected_denominator = _terminal_denominator()
     if run.terminal_denominator != expected_denominator:
         issues.append({"code": "terminal_denominator_not_derived"})
-    if run.terminal_status == "completed" and len(run.cycles) < 2:
-        issues.append({"code": "positive_cycle_denominator_missing"})
+    if not run.cycles:
+        issues.append({"code": "cycle_denominator_empty"})
     for index, cycle in enumerate(run.cycles):
         if cycle.terminal_kind not in expected_denominator:
             issues.append(
@@ -2091,6 +2745,20 @@ def validate_generation_cycle_run(
                     "code": "unsupported_terminal_not_honest",
                     "cycle_index": index,
                     "terminal_kind": cycle.terminal_kind,
+                }
+            )
+        expected_terminal_kind = _select_terminal_kind(
+            grounding=cycle.grounding,
+            proxy_score=0.0,
+            value_port=cycle.value_port,
+        )
+        if cycle.terminal_kind != expected_terminal_kind:
+            issues.append(
+                {
+                    "code": "incoherent_single_terminal_state",
+                    "cycle_index": index,
+                    "expected_terminal_kind": expected_terminal_kind,
+                    "actual_terminal_kind": cycle.terminal_kind,
                 }
             )
         if cycle.voi_decision.scheduler_action not in _scheduling_action_denominator() | {
@@ -2236,6 +2904,58 @@ def validate_generation_cycle_run(
     return tuple(issues)
 
 
+def generation_cycle_terminal_state(run: GenerationCycleRun) -> SearchTerminalState:
+    """Project one N6 run into the existing typed search-terminal contract."""
+
+    if not run.cycles:
+        return SearchTerminalState(
+            kind=SearchTerminalKind.RECURSIVE_BLOCKED,
+            reason="The canonical generation cycle emitted no executable cycle.",
+            blocking_obligations=["cycle_denominator_empty"],
+        )
+    if run.terminal_status == "blocked":
+        reason = run.blocked_reason or "generation_cycle_blocked"
+        if reason == "voi_safety_cap_reached_without_scheduler_stop":
+            return SearchTerminalState(
+                kind=SearchTerminalKind.BUDGET_EXHAUSTED,
+                reason="The N6 cycle safety cap was reached before scheduler closure.",
+                blocking_obligations=[reason],
+                budget_kind="cycle",
+            )
+        return SearchTerminalState(
+            kind=SearchTerminalKind.RECURSIVE_BLOCKED,
+            reason="The canonical generation cycle blocked before safe closure.",
+            blocking_obligations=[reason],
+        )
+
+    last_cycle = run.cycles[-1]
+    kind = SearchTerminalKind(last_cycle.terminal_kind)
+    costed_plan: dict[str, Any] | None = None
+    data_need_spec: dict[str, Any] | None = None
+    if kind is SearchTerminalKind.ACQUISITION_REQUIRED:
+        if last_cycle.acquisition_routing_report is not None:
+            costed_plan = {
+                "canonical_planner_report": (
+                    last_cycle.acquisition_routing_report.model_dump(mode="json")
+                )
+            }
+        requirement = _cycle_acquisition_requirement(
+            last_cycle.grounding,
+            last_cycle.value_port,
+        )
+        if requirement is not None:
+            data_need_spec = requirement.model_dump(mode="json")
+    blockers = list(last_cycle.grounding.issue_codes)
+    blockers.extend(last_cycle.value_port.authority_blockers)
+    return SearchTerminalState(
+        kind=kind,
+        reason="Terminal emitted by the canonical generation-cycle owner.",
+        blocking_obligations=list(dict.fromkeys(blockers)),
+        costed_plan=costed_plan,
+        data_need_spec=data_need_spec,
+    )
+
+
 def _terminal_denominator() -> tuple[str, ...]:
     return tuple(item.value for item in SearchTerminalKind)
 
@@ -2325,6 +3045,7 @@ def _revision_strategy_payload(
     counterexample: CounterexampleRecord,
     new_grammar_elements: Sequence[str],
     cycle_index: int,
+    acquisition_requirement: AcquisitionRequirementGap | None = None,
 ) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "strategy": strategy,
@@ -2333,7 +3054,7 @@ def _revision_strategy_payload(
         "source_counterexample_ref": counterexample.counterexample_ref,
     }
     if strategy == "acquire_or_elicit":
-        payload["acquisition_request"] = {
+        acquisition_request: dict[str, Any] = {
             "request_kind": "owner_grounding_evidence",
             "driver": issue,
             "counterexample_ref": counterexample.counterexample_ref,
@@ -2342,6 +3063,11 @@ def _revision_strategy_payload(
             "reentry": "same_generation_cycle_index",
             "network_policy": "record_replay_required_for_routine_check",
         }
+        if acquisition_requirement is not None:
+            acquisition_request["requirement_gap"] = acquisition_requirement.model_dump(
+                mode="json"
+            )
+        payload["acquisition_request"] = acquisition_request
     elif strategy == "adversarial_validate":
         payload["adversarial_validation"] = {
             "counterexample_ref": counterexample.counterexample_ref,
@@ -2429,58 +3155,50 @@ def _n7_substrate_registry(
     *,
     families: Sequence[str],
     repo_root: Path,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> SubstrateRegistry:
+    del families
+    if cycle_substrate_context is not None:
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
+
+        try:
+            context = revalidate_cycle_substrate_context(cycle_substrate_context)
+        except ValueError as exc:
+            raise GenerationCycleError(
+                "n7_cycle_substrate_context_invalid",
+                str(exc),
+            ) from exc
+        if (
+            context.design_problem_ref != _problem_ref(problem)
+            or context.domain != problem.domain
+        ):
+            raise GenerationCycleError(
+                "n7_cycle_substrate_context_mismatch"
+            )
+        return cycle_substrate_context.substrate_registry
     for key in ("substrate_registry", "s0_substrate_registry"):
         raw = problem.runtime_hints.get(key)
         if raw is not None:
-            return (
-                raw
-                if isinstance(raw, SubstrateRegistry)
-                else SubstrateRegistry.model_validate(raw)
-            )
+            try:
+                return SubstrateRegistry.model_validate(
+                    raw.model_dump(mode="python")
+                    if isinstance(raw, SubstrateRegistry)
+                    else raw
+                )
+            except ValueError as exc:
+                raise GenerationCycleError(
+                    "n7_substrate_registry_invalid",
+                    str(exc),
+                ) from exc
     try:
         return build_substrate_registry_from_existing_catalogs(repo_root)
-    except (SubstrateRegistryError, FileNotFoundError, ValueError):
-        pass
-    entries = [
-        build_substrate_registry_entry(
-            SubstrateRegistration(
-                source_id=f"n6.bootstrap.{family}",
-                family_id=family,
-                layer=SubstrateLayer.L1,
-                coverage=SubstrateCoverage(
-                    coverage_score=0.01,
-                    coverage_kind="n6_bootstrap_world_slot",
-                    coverage_rule_ref=f"n6://coverage/{family}",
-                    dataset_count=1,
-                    metric_binding_count=1,
-                    observation_count=1,
-                ),
-                trust_tier=SubstrateTrustTier(
-                    tier="bootstrap",
-                    trust_cap=0.01,
-                    trust_multiplier=0.01,
-                    authority_ref=f"n6://trust/{family}",
-                ),
-                identification_mode="bootstrap_slot",
-                schema_regime=SubstrateSchemaRegime(
-                    schema_regime_id=f"manifest:{family}",
-                    authority_ref=f"n6://schema/{family}",
-                ),
-                data_version="n6-bootstrap",
-                snapshot_id=f"n6-bootstrap:{family}",
-                source_snapshot_id=f"n6-bootstrap:{family}",
-                provenance_refs=(f"n6://provenance/{family}",),
-                authority_refs=(f"n6://authority/{family}",),
-            )
-        )
-        for family in families
-    ]
-    return build_substrate_registry(
-        entries,
-        producer_ref="polisyos.runtime.quality.generation_cycle.N6",
-        source_catalog_refs=(f"n6://{problem.design_problem_id}/bootstrap-substrate-registry",),
-    )
+    except (SubstrateRegistryError, FileNotFoundError, ValueError) as exc:
+        raise GenerationCycleError(
+            "n7_substrate_registry_unresolved",
+            str(exc),
+        ) from exc
 
 
 def _n7_rederived_grounding_for_candidate(
@@ -2553,179 +3271,161 @@ def _candidate_target_world_slots(candidate: object) -> tuple[str, ...]:
     )
 
 
-def _load_panel_from_l1_dcat(
+def _load_value_data_profile_from_l1_dcat(
     *,
     repo_root: Path,
     outcome: str,
-    candidate: object,
-) -> object | None:
+    owner_access_ref: str,
+) -> ValueDataProfile | None:
+    """Load deterministic owner rows without deriving an exposure assignment."""
+
     try:
         import duckdb
-        import numpy as np
 
-        from polisyos.foundry.methods.catalog.causal.protocols import PanelObservationalData
-        from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+        from polisyos.runtime.quality.substrate_registry import (
+            default_substrate_catalog_paths,
+        )
     except Exception as exc:  # pragma: no cover - local dependency surface.
         raise ValueOwnerAccessError(
-            "acquire_data:value_panel_data_missing",
-            f"substrate panel loader dependencies unavailable: {exc}",
-            owner_access_ref="substrate_owner://panel_loader_dependency_missing",
+            "acquire_data:value_owner_rows_missing",
+            f"substrate row loader dependencies unavailable: {exc}",
+            owner_access_ref="substrate_owner://row_loader_dependency_missing",
         ) from exc
 
     dcat_path = default_substrate_catalog_paths(repo_root).l1_dcat_path
     if not dcat_path.exists():
         raise ValueOwnerAccessError(
-            "acquire_data:value_panel_data_missing",
+            "acquire_data:value_owner_rows_missing",
             f"L1 DCAT catalog missing at {dcat_path}",
             owner_access_ref="substrate_owner://l1_dcat_missing",
         )
     con = duckdb.connect(str(dcat_path), read_only=True)
     try:
-        rows = con.execute(
+        raw_rows = con.execute(
             """
             SELECT
               COALESCE(NULLIF(country_code, ''), 'unknown') AS unit_id,
               COALESCE(year, survey_year, wave) AS period_id,
-              avg(value) AS value
+              value,
+              dataset_id,
+              observation_id
             FROM ds_observations
             WHERE canonical_var = ?
               AND value IS NOT NULL
               AND COALESCE(year, survey_year, wave) IS NOT NULL
-            GROUP BY unit_id, period_id
-            ORDER BY unit_id, period_id
-            LIMIT 5000
+            ORDER BY unit_id, period_id, dataset_id, observation_id, value
+            LIMIT 20000
             """,
             [outcome],
         ).fetchall()
     finally:
         con.close()
-    if not rows:
-        return None
-    periods = sorted({int(period) for _, period, _ in rows})
-    units = sorted({str(unit) for unit, _, _ in rows})
-    if len(periods) < 4 or len(units) < 3:
-        return None
-    period_index = {period: index for index, period in enumerate(periods)}
-    unit_index = {unit: index for index, unit in enumerate(units)}
-    matrix = np.full((len(units), len(periods)), np.nan, dtype=float)
-    for unit, period, value in rows:
-        matrix[unit_index[str(unit)], period_index[int(period)]] = float(value)
-    usable_units = np.where(np.sum(~np.isnan(matrix), axis=1) >= 4)[0]
-    if len(usable_units) < 3:
-        return None
-    matrix = matrix[usable_units, :]
-    usable_periods = np.where(np.sum(~np.isnan(matrix), axis=0) >= 2)[0]
-    if len(usable_periods) < 4:
-        return None
-    matrix = matrix[:, usable_periods]
-    global_mean = float(np.nanmean(matrix))
-    col_means = np.nanmean(matrix, axis=0)
-    col_means = np.where(np.isnan(col_means), global_mean, col_means)
-    missing_rows, missing_cols = np.where(np.isnan(matrix))
-    matrix[missing_rows, missing_cols] = col_means[missing_cols]
-    units = [units[int(index)] for index in usable_units]
-    periods = [periods[int(index)] for index in usable_periods]
-    treatment, time_treatment = _candidate_treatment_assignment(
-        candidate=candidate,
-        units=units,
-        periods=periods,
+    grouped: dict[tuple[str, int], list[tuple[float, str, str]]] = {}
+    for unit, period, value, dataset_id, observation_id in raw_rows:
+        numeric_value = float(value)
+        if not math.isfinite(numeric_value):
+            continue
+        grouped.setdefault((str(unit), int(period)), []).append(
+            (numeric_value, str(dataset_id), str(observation_id))
+        )
+    owner_rows = tuple(
+        _value_owner_row(
+            outcome=outcome,
+            unit_id=unit_id,
+            period_id=period_id,
+            source_rows=tuple(values),
+        )
+        for (unit_id, period_id), values in sorted(grouped.items())
     )
-    return PanelObservationalData(
-        outcome=matrix,
-        treatment=treatment,
-        time_treatment=time_treatment,
+    if len(owner_rows) < 4:
+        return None
+    unit_count = len({row.unit_id for row in owner_rows})
+    period_count = len({row.period_id for row in owner_rows})
+    modalities = _derived_value_data_modalities(owner_rows)
+    rows_payload = tuple(row.model_dump(mode="json") for row in owner_rows)
+    payload = {
+        "schema_version": "policyos.runtime.value_data_profile.v1",
+        "outcome": outcome,
+        "rows": rows_payload,
+        "owner_row_count": len(owner_rows),
+        "unit_count": unit_count,
+        "period_count": period_count,
+        "available_data_modalities": modalities,
+        "treatment_assignment_status": "owner_assignment_unresolved",
+        "owner_access_ref": owner_access_ref,
+        "owner_rows_content_hash": gy_content_hash(rows_payload),
+    }
+    return ValueDataProfile.model_validate(
+        {**payload, "content_hash": gy_content_hash(payload)}
     )
 
 
-def _candidate_treatment_assignment(
+def _value_owner_row(
     *,
+    outcome: str,
+    unit_id: str,
+    period_id: int,
+    source_rows: tuple[tuple[float, str, str], ...],
+) -> ValueOwnerRow:
+    ordered = tuple(sorted(source_rows, key=lambda row: (row[1], row[2], row[0])))
+    source_hashes = tuple(
+        gy_content_hash(
+            {
+                "outcome": outcome,
+                "unit_id": unit_id,
+                "period_id": period_id,
+                "value": value,
+                "dataset_id": dataset_id,
+                "observation_id": observation_id,
+            }
+        )
+        for value, dataset_id, observation_id in ordered
+    )
+    outcome_value = math.fsum(value for value, _, _ in ordered) / len(ordered)
+    row_payload = {
+        "unit_id": unit_id,
+        "period_id": period_id,
+        "outcome_value": outcome_value,
+        "source_row_content_hashes": source_hashes,
+    }
+    return ValueOwnerRow(
+        **row_payload,
+        row_content_hash=gy_content_hash(row_payload),
+    )
+
+
+def _candidate_estimand_binding_is_unresolved(candidate: object) -> bool:
+    """Return only a conservative refusal signal; this can never grant authority."""
+
+    disposition = str(_object_get(candidate, "grounding_disposition") or "")
+    status = str(_object_get(candidate, "status") or "")
+    return status == "candidate_unbound" or (
+        bool(disposition) and disposition != "shadow_bound"
+    )
+
+
+def _value_candidate_world_identity_error(
+    *,
+    cycle_substrate_context: CycleSubstrateContext,
     candidate: object,
-    units: Sequence[str],
-    periods: Sequence[int],
-) -> tuple[Any, int]:
-    import numpy as np
+    world_record: WorldModelRecord,
+) -> str | None:
+    """Resolve a bound candidate against the exact cycle world or explain refusal."""
 
-    atom = _object_get(candidate, "atom")
-    treated_units_raw = (
-        _object_get(candidate, "treated_unit_ids")
-        or _object_get(candidate, "treated_units")
-        or _object_get(atom, "treated_unit_ids")
-        or _object_get(atom, "treated_units")
-        or _object_get(atom, "treatment_unit_ids")
+    from polisyos.runtime.quality.cycle_substrate import (
+        resolve_cycle_substrate_world_identity,
     )
-    treated_units = tuple(
-        str(unit)
-        for unit in _sequence(treated_units_raw)
-        if _optional_text(unit) is not None
-    )
-    if not treated_units:
-        raise ValueOwnerAccessError(
-            "treatment_binding_underdetermined",
-            "candidate intervention does not identify treated substrate units",
-            owner_access_ref="candidate_owner://treated_units_missing",
-        )
-    unit_index = {str(unit): index for index, unit in enumerate(units)}
-    treated_indices = tuple(unit_index[unit] for unit in treated_units if unit in unit_index)
-    if not treated_indices:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_treatment_assignment_missing",
-            (
-                "candidate treated units are absent from the substrate panel "
-                f"(treated_units={treated_units})"
-            ),
-            owner_access_ref="substrate_owner://treated_units_not_in_panel",
-        )
-    period_raw = (
-        _object_get(candidate, "treatment_period")
-        or _object_get(candidate, "time_treatment")
-        or _object_get(atom, "treatment_period")
-        or _object_get(atom, "time_treatment")
-        or _object_get(atom, "treatment_start_period")
-    )
-    if period_raw is None:
-        raise ValueOwnerAccessError(
-            "treatment_binding_underdetermined",
-            "candidate intervention does not identify a treatment start period",
-            owner_access_ref="candidate_owner://treatment_period_missing",
-        )
-    period_index = _resolve_treatment_period_index(period_raw, periods)
-    if period_index <= 0 or period_index >= len(periods) - 1:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_treatment_assignment_missing",
-            (
-                "candidate treatment period must leave pre/post periods in the "
-                f"substrate panel (period={period_raw})"
-            ),
-            owner_access_ref="candidate_owner://treatment_period_out_of_panel_range",
-        )
-    treatment = np.asarray([0 for _ in units], dtype=int)
-    for index in treated_indices:
-        treatment[int(index)] = 1
-    if int(np.sum(treatment)) <= 0:
-        raise ValueOwnerAccessError(
-            "acquire_data:value_treatment_assignment_missing",
-            "candidate-derived treatment vector is empty",
-            owner_access_ref="candidate_owner://treatment_vector_empty",
-        )
-    return treatment, period_index
 
-
-def _resolve_treatment_period_index(period_raw: object, periods: Sequence[int]) -> int:
-    if isinstance(period_raw, int):
-        if period_raw in periods:
-            return list(periods).index(period_raw)
-        if 0 <= period_raw < len(periods):
-            return period_raw
-    text = str(period_raw).strip()
-    if text:
-        for index, period in enumerate(periods):
-            if text == str(period):
-                return index
-    raise ValueOwnerAccessError(
-        "acquire_data:value_treatment_assignment_missing",
-        f"candidate treatment period {period_raw!r} is absent from the substrate panel",
-        owner_access_ref="substrate_owner://treatment_period_not_in_panel",
-    )
+    try:
+        resolved_world = resolve_cycle_substrate_world_identity(
+            cycle_substrate_context,
+            atom=_object_get(candidate, "atom"),
+        )
+    except (TypeError, WorldModelRecordError) as exc:
+        return f"N8 candidate world identity refused: {exc}"
+    if resolved_world.world_model_record_content_hash != world_record.content_hash:
+        return "N8 simulation WMR differs from the resolved candidate world."
+    return None
 
 
 def _build_boundary_world_model_record(
@@ -2734,7 +3434,18 @@ def _build_boundary_world_model_record(
     problem: DesignProblem,
     outcome: str,
     policy_slot_ids: Sequence[str],
+    substrate_registry: SubstrateRegistry | None = None,
+    selected_registry_entry_hashes: Sequence[str] | None = None,
 ) -> WorldModelRecord:
+    """Build one limited WMR from canonical registry evidence.
+
+    An explicitly supplied registry has already crossed its owner's verification
+    boundary and is consumed directly. The function never selects entries by a
+    domain name; selected content hashes and ``DesignProblem`` scope determine
+    the resulting world. When no registry is supplied, the canonical catalog
+    owner is still used for existing first-vertical callers.
+    """
+
     from polisyos.runtime.quality.world_model_record import (
         BranchMode,
         DataForgeBindingRef,
@@ -2748,7 +3459,43 @@ def _build_boundary_world_model_record(
         world_model_record_content_hash,
     )
 
-    registry = build_substrate_registry_from_existing_catalogs(repo_root)
+    registry = (
+        SubstrateRegistry.model_validate(substrate_registry.model_dump(mode="python"))
+        if substrate_registry is not None
+        else build_substrate_registry_from_existing_catalogs(repo_root)
+    )
+    selected_hashes = tuple(
+        dict.fromkeys(
+            str(item)
+            for item in (
+                selected_registry_entry_hashes
+                if selected_registry_entry_hashes is not None
+                else (entry.entry_content_hash for entry in registry.entries)
+            )
+            if str(item).strip()
+        )
+    )
+    if not selected_hashes:
+        raise WorldModelRecordError("boundary_registry_entries_missing")
+    raw_selected = tuple(
+        str(item)
+        for item in (selected_registry_entry_hashes or selected_hashes)
+        if str(item).strip()
+    )
+    if len(raw_selected) != len(set(raw_selected)):
+        raise WorldModelRecordError("boundary_registry_entry_duplicate")
+    entries_by_hash = {
+        entry.entry_content_hash: entry for entry in registry.entries
+    }
+    missing_hashes = sorted(set(selected_hashes).difference(entries_by_hash))
+    if missing_hashes:
+        raise WorldModelRecordError(
+            "boundary_registry_entry_unresolved",
+            ",".join(missing_hashes),
+        )
+    selected_entries = tuple(
+        entries_by_hash[entry_hash] for entry_hash in sorted(selected_hashes)
+    )
     resolved_entries = tuple(
         ResolvedSubstrateEntryRef(
             source_id=entry.source_id,
@@ -2764,29 +3511,51 @@ def _build_boundary_world_model_record(
             source_snapshot_id=entry.source_snapshot_id,
             entry_content_hash=entry.entry_content_hash,
         )
-        for entry in sorted(
-            registry.entries,
-            key=lambda item: (item.layer.value, item.source_id, item.family_id),
-        )
+        for entry in selected_entries
+    )
+    registry_artifact_ref = (
+        f"substrate-registry://{registry.substrate_version_id}/"
+        f"{registry.content_hash.removeprefix('sha256:')}"
     )
     registry_ref = SubstrateRegistryRef(
         substrate_version_id=registry.substrate_version_id,
         content_hash=registry.content_hash,
-        registry_artifact_ref=(
-            "repo://production_data/canonical/local_data_20260501"
-            "#substrate_registry_from_existing_catalogs"
-        ),
+        registry_artifact_ref=registry_artifact_ref,
         resolved_entries=resolved_entries,
     )
     slots = tuple(dict.fromkeys(str(slot) for slot in policy_slot_ids if str(slot).strip()))
+    population_scope = "stakeholders:" + ",".join(
+        sorted(stakeholder.stakeholder_id for stakeholder in problem.stakeholders)
+    )
+    resolution = str(
+        problem.runtime_hints.get("world_resolution") or "entity_observation_period"
+    )
     slot_map = tuple(
         PolicySlotBinding(
             slot_id=slot,
-            state_path=f"substrate.l1.{slot}",
-            entity_scope="country",
-            temporal_granularity="year",
+            state_path=f"substrate.{problem.domain}.{slot}",
+            entity_scope=population_scope,
+            temporal_granularity=resolution,
         )
         for slot in (slots or (outcome,))
+    )
+    primary_entry = next(
+        (entry for entry in selected_entries if entry.layer is SubstrateLayer.L2),
+        selected_entries[0],
+    )
+    primary_source_ref = next(
+        (
+            str(ref)
+            for ref in (*primary_entry.provenance_refs, *primary_entry.authority_refs)
+            if str(ref).strip()
+        ),
+        f"substrate-source://{primary_entry.source_id}",
+    )
+    selected_query_digest = gy_content_hash(
+        {
+            "registry_content_hash": registry.content_hash,
+            "selected_registry_entry_hashes": sorted(selected_hashes),
+        }
     )
     scope_hash = gy_content_hash(
         {
@@ -2794,6 +3563,7 @@ def _build_boundary_world_model_record(
             "domain": problem.domain,
             "outcome": outcome,
             "registry": registry.content_hash,
+            "selected_registry_entry_hashes": sorted(selected_hashes),
             "slots": [binding.model_dump(mode="json") for binding in slot_map],
         }
     )
@@ -2804,41 +3574,38 @@ def _build_boundary_world_model_record(
             "polisyos.runtime.quality.generation_cycle."
             "_build_boundary_world_model_record"
         ),
-        "region_or_jurisdiction": "UA",
-        "population_scope": "real_l1_dcat_country_panel",
-        "policy_domain": problem.domain or "runtime_quality",
-        "valid_time_scope": "2018/2023",
-        "tx_time_scope": "2026-07-06T00:00:00+00:00",
-        "resolution": "country_year",
+        "region_or_jurisdiction": problem.jurisdiction_time.region,
+        "population_scope": population_scope,
+        "policy_domain": problem.domain,
+        "valid_time_scope": problem.jurisdiction_time.valid_time,
+        "tx_time_scope": problem.jurisdiction_time.as_of,
+        "resolution": resolution,
         "branch_mode": BranchMode.OBSERVED,
         "fabric_world_ref": FabricWorldRef(
-            snapshot_root=str(repo_root / "production_data"),
+            snapshot_root="repo://production_data",
             snapshot_id=registry.substrate_version_id,
             branch="observed",
-            as_of_valid_time="2026-07-06T00:00:00+00:00",
-            as_of_tx_time="2026-07-06T00:00:00+00:00",
-            world_query_policy="real_substrate_registry_boundary",
-            provenance_manifest_ref="repo://production_data/manifest.json",
-            content_query_digest=registry.content_hash,
-            content_query_row_count=len(registry.entries),
+            as_of_valid_time=problem.jurisdiction_time.valid_time,
+            as_of_tx_time=problem.jurisdiction_time.as_of,
+            world_query_policy="selected_substrate_registry_entries",
+            provenance_manifest_ref=registry_artifact_ref,
+            content_query_digest=selected_query_digest,
+            content_query_row_count=len(selected_entries),
         ),
         "data_forge_binding_ref": DataForgeBindingRef(
-            snapshot_id=registry.substrate_version_id,
-            release_id="production_data_20260327",
+            snapshot_id=primary_entry.snapshot_id,
+            release_id=primary_entry.data_version,
             role="domain",
-            read_api_identity="l1_dcat.duckdb",
-            snapshot_ref=(
-                "repo://production_data/datasets_full_phase3full_20260327_183054/"
-                "dataset_catalog.duckdb"
-            ),
+            read_api_identity=primary_entry.source_id,
+            snapshot_ref=primary_source_ref,
             merkle_root=f"registry:{registry.substrate_version_id}",
             data_hash=registry.content_hash,
-            provenance_manifest_ref="repo://production_data/manifest.json",
+            provenance_manifest_ref=registry_artifact_ref,
         ),
         "simulation_model_ref": SimulationModelRef(
             model_spec_ref=gy_content_hash({"boundary": "model_spec", "scope": scope_hash}),
             model_spec_hash=gy_content_hash({"boundary": "model_hash", "scope": scope_hash}),
-            model_id="model_real_l1_dcat_boundary",
+            model_id="model_registry_boundary",
             data_snapshot_ref=gy_content_hash({"boundary": "data_snapshot", "scope": scope_hash}),
             registry_bundle_ref=gy_content_hash(
                 {"boundary": "registry_bundle", "scope": scope_hash}
@@ -2867,12 +3634,9 @@ def _build_boundary_world_model_record(
             ),
         ),
         "skg_causal_prior_ref": SkgCausalPriorRef(
-            skg_snapshot_ref=(
-                "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/"
-                "academic/graph/scholar_knowledge.duckdb"
-            ),
-            skg_version_id="production_data_20260411_boundary",
-            source_data_snapshot_id=registry.substrate_version_id,
+            skg_snapshot_ref=primary_source_ref,
+            skg_version_id=primary_entry.data_version,
+            source_data_snapshot_id=primary_entry.source_snapshot_id,
         ),
         "substrate_registry_ref": registry_ref,
         "policy_slot_map": slot_map,
@@ -2895,6 +3659,7 @@ def _build_default_selection_diagram(
     candidate: object,
     problem: DesignProblem,
     world_record: WorldModelRecord,
+    cycle_substrate_context: CycleSubstrateContext | None,
 ) -> object:
     return _build_candidate_selection_diagram(
         candidate=candidate,
@@ -2902,6 +3667,7 @@ def _build_default_selection_diagram(
         world_record=world_record,
         query_treatment=_candidate_transport_treatment_variable(candidate),
         query_outcome=_candidate_transport_outcome_variable(candidate, problem),
+        cycle_substrate_context=cycle_substrate_context,
     )
 
 
@@ -2912,12 +3678,59 @@ def _build_candidate_selection_diagram(
     world_record: WorldModelRecord,
     query_treatment: str,
     query_outcome: str,
+    cycle_substrate_context: CycleSubstrateContext | None,
 ) -> object:
     from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
     from polisyos.ir.analytics.context import ContextProfile
-    from polisyos.ir.analytics.transportability import build_selection_diagram
+    from polisyos.ir.analytics.transportability import (
+        SelectionDiagramBuilder,
+        measured_transport_severity,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
 
-    transport_covariates = ("state_capacity", "institutional_quality")
+    if cycle_substrate_context is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:transport_context_unresolved",
+            "content-bound source/target transport context is absent",
+            owner_access_ref="cycle_substrate_context://transport_context_missing",
+        )
+    try:
+        context = revalidate_cycle_substrate_context(cycle_substrate_context)
+    except ValueError as exc:
+        raise ValueOwnerAccessError(
+            "transport_context_invalid",
+            str(exc),
+            owner_access_ref="cycle_substrate_context://content_validation_failed",
+        ) from exc
+    expected_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if context.design_problem_ref != expected_problem_ref or context.domain != problem.domain:
+        raise ValueOwnerAccessError(
+            "transport_context_problem_mismatch",
+            "transport context is not bound to the active DesignProblem",
+            owner_access_ref=context.content_hash,
+        )
+    if (
+        context.world_model_record_content_hash != world_record.content_hash
+        or context.world_model_record.world_model_record_id
+        != world_record.world_model_record_id
+    ):
+        raise ValueOwnerAccessError(
+            "transport_context_world_mismatch",
+            "transport context is not bound to the active WorldModelRecord",
+            owner_access_ref=context.content_hash,
+        )
+    transport = context.transport_context
+    if transport is None:
+        raise ValueOwnerAccessError(
+            "acquire_data:transport_context_unresolved",
+            "content-bound source/target transport measurements are absent",
+            owner_access_ref=context.content_hash,
+        )
+    transport_covariates = tuple(
+        observation.canonical_var for observation in transport.covariates
+    )
     graph = CausalGraphModel(
         graph_type=GraphType.DAG,
         nodes=list(dict.fromkeys((query_treatment, query_outcome, *transport_covariates))),
@@ -2929,36 +3742,40 @@ def _build_candidate_selection_diagram(
             ],
         ],
     )
-    region = str(world_record.region_or_jurisdiction or "")
-    country = region.split("-", 1)[0] if region else ""
-    treatment_period = _candidate_treatment_period(candidate)
     source_context = ContextProfile(
-        context_id=_candidate_source_context_id(candidate),
-        context_label=f"source:{_candidate_id(candidate)}",
-        countries=[country] if country else [],
-        time_period=str(treatment_period or world_record.valid_time_scope),
-        institutional_quality=_candidate_float(
-            candidate,
-            "source_institutional_quality",
-            default=0.72,
-        ),
-        state_capacity=_candidate_float(candidate, "source_state_capacity", default=0.68),
-        post_conflict=_candidate_bool(candidate, "source_post_conflict", default=False),
+        context_id=transport.source_context_id,
+        context_label=f"measured-source:{transport.source_context_id}",
+        data_sources=[
+            observation.source_row_content_hash
+            for observation in transport.covariates
+        ],
     )
     target_context = ContextProfile(
-        context_id=f"target:{world_record.world_model_record_id}",
-        context_label=f"target:{region}",
-        countries=[region.split("-", 1)[0]] if region else [],
-        time_period=str(world_record.valid_time_scope),
-        institutional_quality=_world_context_float(
-            world_record,
-            "target_institutional_quality",
-            default=0.42,
-        ),
-        state_capacity=_world_context_float(world_record, "target_state_capacity", default=0.36),
-        post_conflict=_world_post_conflict(world_record),
+        context_id=transport.target_context_id,
+        context_label=f"measured-target:{transport.target_context_id}",
+        data_sources=[
+            observation.target_row_content_hash
+            for observation in transport.covariates
+        ],
     )
-    return build_selection_diagram(source_context, target_context, graph)
+    builder = SelectionDiagramBuilder(graph)
+    for observation in transport.covariates:
+        builder.add_measured_sigma_variable(
+            observation.canonical_var,
+            source_value=observation.source_value,
+            target_value=observation.target_value,
+            severity=measured_transport_severity(
+                observation.source_value,
+                observation.target_value,
+            ),
+            role=None,
+            source_ref=observation.source_row_content_hash,
+            target_ref=observation.target_row_content_hash,
+        )
+    return builder.build(
+        source_context=source_context,
+        target_context=target_context,
+    )
 
 
 def _candidate_transport_treatment_variable(candidate: object) -> str:
@@ -2974,70 +3791,6 @@ def _candidate_transport_treatment_variable(candidate: object) -> str:
 
 def _candidate_transport_outcome_variable(candidate: object, problem: DesignProblem) -> str:
     return _slug(_value_outcome_variable(candidate, problem) or "value_outcome")
-
-
-def _candidate_source_context_id(candidate: object) -> str:
-    atom = _object_get(candidate, "atom")
-    raw = (
-        _object_get(candidate, "source_context_ref")
-        or _object_get(atom, "source_context_ref")
-        or _object_get(atom, "world_model_record_ref")
-        or _candidate_id(candidate)
-    )
-    return f"source:{_slug(str(raw))}"
-
-
-def _candidate_treatment_period(candidate: object) -> object | None:
-    atom = _object_get(candidate, "atom")
-    return (
-        _object_get(candidate, "treatment_period")
-        or _object_get(candidate, "time_treatment")
-        or _object_get(atom, "treatment_period")
-        or _object_get(atom, "time_treatment")
-        or _object_get(atom, "treatment_start_period")
-    )
-
-
-def _candidate_float(candidate: object, field: str, *, default: float) -> float:
-    atom = _object_get(candidate, "atom")
-    raw = _object_get(candidate, field)
-    if raw is None:
-        raw = _object_get(atom, field)
-    try:
-        return float(raw)
-    except (TypeError, ValueError):
-        return default
-
-
-def _candidate_bool(candidate: object, field: str, *, default: bool) -> bool:
-    atom = _object_get(candidate, "atom")
-    raw = _object_get(candidate, field)
-    if raw is None:
-        raw = _object_get(atom, field)
-    if raw is None:
-        return default
-    if isinstance(raw, str):
-        return raw.strip().lower() in {"1", "true", "yes", "y"}
-    return bool(raw)
-
-
-def _world_context_float(world_record: WorldModelRecord, field: str, *, default: float) -> float:
-    raw = _object_get(world_record, field)
-    try:
-        return float(raw)
-    except (TypeError, ValueError):
-        return default
-
-
-def _world_post_conflict(world_record: WorldModelRecord) -> bool:
-    raw = _object_get(world_record, "post_conflict")
-    if raw is not None:
-        return bool(raw)
-    scope = " ".join(
-        str(_object_get(world_record, field) or "")
-        for field in ("population_scope", "policy_domain", "region_or_jurisdiction")
-    ).lower()
-    return "wartime" in scope or "post_conflict" in scope or "ua" in scope
 
 
 def _build_s10_forecast_inputs(
@@ -3358,18 +4111,26 @@ def _blocked_value_observation(
     reason: str,
     mode: ValueEvaluationMode,
     started: float,
+    candidate_id: str | None = None,
     calibration_receipt: ValueCalibrationReceipt | None = None,
     selected_method_fqn: str | None = None,
+    method_selection_receipt: MethodSelectionReceipt | None = None,
+    value_data_profile_content_hash: str | None = None,
+    acquisition_requirement: AcquisitionRequirementGap | None = None,
     world_model_record_content_hash: str | None = None,
     transport_receipt: ValueTransportReceipt | None = None,
 ) -> ValuePortObservation:
     return ValuePortObservation(
         status="value_blocked",
+        candidate_id=candidate_id,
         value_ref=None,
         authority_blockers=(code,),
         reason=reason,
         evaluation_mode=mode,
         selected_method_fqn=selected_method_fqn,
+        method_selection_receipt=method_selection_receipt,
+        value_data_profile_content_hash=value_data_profile_content_hash,
+        acquisition_requirement=acquisition_requirement,
         decision_grade="blocked",
         world_model_record_content_hash=world_model_record_content_hash,
         transport_receipt=transport_receipt,
@@ -3496,9 +4257,8 @@ def _false_clear_counts(inputs: Mapping[str, Any]) -> dict[str, int]:
 def _select_value_method(
     *,
     candidate: object,
-    problem: DesignProblem,
+    problem: object,
     inputs: Mapping[str, Any],
-    method_state: object | None = None,
 ) -> dict[str, Any]:
     try:
         from polisyos.foundry.methods.selection import select_value_method_for_problem
@@ -3508,18 +4268,9 @@ def _select_value_method(
             "blockers": ("value_method_selector_unavailable",),
             "reason": str(exc),
         }
-    selector_problem: object = problem
-    if _is_panel_observational_data(method_state) and inputs.get("method_fqn") is None:
-        selector_problem = _selector_problem_with_owner_context(
-            problem,
-            {
-                "value_method_hint": "panel",
-                "value_required_data_modalities": ("panel",),
-            },
-        )
     return select_value_method_for_problem(
         candidate=candidate,
-        problem=selector_problem,
+        problem=problem,
         requested_method_fqn=_optional_text(inputs.get("method_fqn")),
         observation_to_contract_manifest=inputs.get("observation_to_contract_manifest"),
         runtime_budget_ms=(
@@ -3530,90 +4281,36 @@ def _select_value_method(
     )
 
 
-def _is_panel_observational_data(value: object | None) -> bool:
-    return (
-        value is not None
-        and hasattr(value, "outcome")
-        and hasattr(value, "treatment")
-        and hasattr(value, "time_treatment")
+def _selector_problem_for_value_profile(
+    problem: DesignProblem,
+    profile: ValueDataProfile,
+) -> Mapping[str, object]:
+    """Bind method selection to the exact owner-derived data profile."""
+
+    return _selector_problem_with_owner_context(
+        problem,
+        {
+            "value_required_data_modalities": profile.available_data_modalities,
+            "value_data_characteristics": {
+                "n_obs": profile.owner_row_count,
+                "n_units": profile.unit_count,
+                "n_periods": profile.period_count,
+                "is_panel": "panel" in profile.available_data_modalities,
+                "treatment_is_binary": None,
+                "outcome_is_continuous": None,
+            },
+            "value_data_profile_content_hash": profile.content_hash,
+        },
     )
 
 
 def _selector_problem_with_owner_context(
     problem: DesignProblem,
     context: Mapping[str, object],
-) -> Mapping[str, object]:
-    outcome = _object_get(problem, "outcome_of_interest")
-    if hasattr(outcome, "model_dump"):
-        outcome_payload = outcome.model_dump(mode="json")
-    elif isinstance(outcome, Mapping):
-        outcome_payload = dict(outcome)
-    else:
-        outcome_payload = {}
-    return {
-        "design_problem_id": str(_object_get(problem, "design_problem_id") or ""),
-        "problem_statement": str(_object_get(problem, "problem_statement") or ""),
-        "domain": str(_object_get(problem, "domain") or ""),
-        "outcome_of_interest": outcome_payload,
-        "runtime_hints": dict(context),
-    }
+) -> DesignProblem:
+    """Project owner data context without discarding problem authority."""
 
-
-def _run_value_method(
-    *,
-    method_fqn: str,
-    method_state: object,
-    method_params: Mapping[str, Any],
-    seed: int,
-) -> tuple[object | None, str | None]:
-    try:
-        from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-        from polisyos.foundry.methods.selection.registry import get_registry
-        from polisyos.ir.analytics.causal import EstimationStatus
-
-        registry = get_registry()
-        method_cls = registry.get(method_fqn)
-        result = MethodDispatcher.get_instance().dispatch(
-            method_class=method_cls,
-            signature=method_cls.signature,
-            state=method_state,
-            params=method_params,
-            seed=seed,
-        )
-        report = _method_report(result)
-        if report is None or getattr(report, "status", None) is not EstimationStatus.SUCCESS:
-            status = getattr(getattr(report, "status", None), "value", None) or getattr(
-                report, "status", None
-            )
-            reason = getattr(report, "status_reason", None) or getattr(
-                report, "diagnostics", None
-            )
-            detail = ":".join(str(item) for item in (status, reason) if item)
-            return None, (
-                f"foundry_method_refused_value:{detail}"
-                if detail
-                else "foundry_method_refused_value"
-            )
-        return result, None
-    except Exception as exc:
-        return None, f"foundry_method_refused_value:{exc}"
-
-
-def _candidate_value_method_trace(
-    *,
-    selection: Mapping[str, Any],
-    requested_method_fqn: str | None,
-) -> tuple[str, ...]:
-    selected = _optional_text(selection.get("selected_method_fqn"))
-    if requested_method_fqn:
-        return (str(requested_method_fqn),) if requested_method_fqn else ()
-    ordered: list[str] = []
-    for value in (selected, *_sequence(selection.get("score_trace"))):
-        method_fqn = _optional_text(value)
-        if method_fqn and method_fqn not in ordered:
-            ordered.append(method_fqn)
-    return tuple(ordered)
-
+    return problem.model_copy(update={"runtime_hints": dict(context)})
 
 def _run_value_transport(
     *,
@@ -3800,15 +4497,6 @@ def _candidate_content_hash(candidate: object) -> str:
     return gy_content_hash(_json_ready(_candidate_id(candidate)))
 
 
-def _candidate_world_ref(candidate: object, problem: DesignProblem) -> str | None:
-    atom = _object_get(candidate, "atom")
-    value = _object_get(atom, "world_model_record_ref")
-    if value:
-        return str(value)
-    hint = _runtime_hint_optional(problem, "world_model_record_ref")
-    return str(hint) if hint else None
-
-
 def _grounding_disposition_for_candidate(
     candidate: object,
     *,
@@ -3818,8 +4506,17 @@ def _grounding_disposition_for_candidate(
     candidate_hash = _candidate_content_hash(candidate)
     for disposition in _sequence(_object_get(generation_result, "grounding_dispositions")):
         disposition_candidate_id = _object_get(disposition, "candidate_id")
+        proposal_id = _object_get(disposition, "proposal_id")
+        raw_candidate_hash = _object_get(disposition, "raw_candidate_hash")
         shadow_hash = _object_get(disposition, "shadow_atom_content_hash")
         if disposition_candidate_id and str(disposition_candidate_id) == candidate_id:
+            return disposition
+        if (
+            proposal_id
+            and str(proposal_id) == candidate_id
+            and raw_candidate_hash
+            and str(raw_candidate_hash) == candidate_hash
+        ):
             return disposition
         if shadow_hash and str(shadow_hash) == candidate_hash:
             return disposition
@@ -3835,6 +4532,17 @@ def _candidate_owner_validation_issues(
     disposition_candidate_id = _object_get(disposition, "candidate_id")
     if disposition_candidate_id and str(disposition_candidate_id) != candidate_id:
         issues.append("candidate_cgf_id_mismatch")
+    raw_disposition = str(_object_get(disposition, "disposition") or "")
+    if raw_disposition != "shadow_bound":
+        proposal_id = str(_object_get(disposition, "proposal_id") or "")
+        raw_candidate_hash = str(
+            _object_get(disposition, "raw_candidate_hash") or ""
+        )
+        if proposal_id != candidate_id:
+            issues.append("candidate_cgf_proposal_id_mismatch")
+        if raw_candidate_hash != _candidate_content_hash(candidate):
+            issues.append("candidate_cgf_raw_hash_mismatch")
+        return tuple(_dedupe(issues))
     atom = _object_get(candidate, "atom")
     if atom is None:
         issues.append("candidate_atom_missing")
@@ -3847,13 +4555,79 @@ def _candidate_owner_validation_issues(
     world_ref = _object_get(atom, "world_model_record_ref")
     if world_ref and str(world_ref).startswith("world_model_record_pending:"):
         issues.append("candidate_world_model_ref_pending")
-    if str(_object_get(disposition, "disposition") or "") == "shadow_bound":
+    if raw_disposition == "shadow_bound":
         shadow_hash = _object_get(disposition, "shadow_atom_content_hash")
         if shadow_hash and str(shadow_hash) != _candidate_content_hash(candidate):
             issues.append("candidate_cgf_content_hash_mismatch")
         if not shadow_hash:
             issues.append("candidate_cgf_shadow_hash_missing")
     return tuple(_dedupe(issues))
+
+
+def _disposition_candidates(
+    result: object,
+    *,
+    existing_candidates: Sequence[object],
+) -> tuple[_DispositionCandidate, ...]:
+    """Project every usable non-binding N4 disposition into the N6 denominator."""
+
+    existing_ids = {_candidate_id(candidate) for candidate in existing_candidates}
+    existing_hashes = {
+        _candidate_content_hash(candidate) for candidate in existing_candidates
+    }
+    projected: list[_DispositionCandidate] = []
+    for disposition in _sequence(
+        _object_get(result, "grounding_dispositions")
+    ):
+        disposition_kind = str(_object_get(disposition, "disposition") or "")
+        if (
+            disposition_kind not in _grounding_disposition_denominator()
+            or disposition_kind == "shadow_bound"
+        ):
+            continue
+        proposal_id = str(_object_get(disposition, "proposal_id") or "")
+        raw_candidate_hash = str(
+            _object_get(disposition, "raw_candidate_hash") or ""
+        )
+        if not proposal_id or not re.fullmatch(r"sha256:[0-9a-f]{64}", raw_candidate_hash):
+            continue
+        candidate_id = str(
+            _object_get(disposition, "candidate_id") or proposal_id
+        )
+        if candidate_id in existing_ids or raw_candidate_hash in existing_hashes:
+            continue
+        projected.append(
+            _DispositionCandidate(
+                candidate_id=candidate_id,
+                content_hash=raw_candidate_hash,
+                proposal_id=proposal_id,
+                grounding_disposition=disposition_kind,
+                lever_resolution=_verified_candidate_lever_refusal(
+                    disposition
+                ),
+            )
+        )
+        existing_ids.add(candidate_id)
+        existing_hashes.add(raw_candidate_hash)
+    return tuple(projected)
+
+
+def _verified_candidate_lever_refusal(
+    disposition: object,
+) -> InterventionLeverRefusal | None:
+    """Return a strict content-bound L6 refusal or fail closed to no witness."""
+
+    raw = _object_get(disposition, "lever_resolution")
+    if raw is None:
+        return None
+    try:
+        return InterventionLeverRefusal.model_validate(
+            raw.model_dump(mode="python")
+            if hasattr(raw, "model_dump")
+            else raw
+        )
+    except (AttributeError, TypeError, ValueError):
+        return None
 
 
 def _grounding_status_and_score(
@@ -3876,15 +4650,43 @@ def _grounding_unavailable(
     candidate_id: str,
     *,
     issue_codes: Sequence[str],
+    candidate_content_hash: str | None = None,
+    design_problem_ref: str | None = None,
+    authority_level: str | None = None,
 ) -> CandidateGroundingObservation:
+    normalized_issues = tuple(str(item) for item in issue_codes if str(item))
+    report_ref = gy_content_hash(
+        {
+            "candidate_id": candidate_id,
+            "issue_codes": normalized_issues,
+            "source": "grounding_unavailable",
+        }
+    )
+    acquisition_requirement = None
+    if (
+        candidate_content_hash is not None
+        and design_problem_ref is not None
+        and authority_level is not None
+    ):
+        acquisition_requirement = grounding_coverage_requirement_gap(
+            candidate_id=candidate_id,
+            candidate_content_hash=candidate_content_hash,
+            design_problem_ref=design_problem_ref,
+            issue_codes=normalized_issues,
+            evidence_refs=(),
+            authority_level=authority_level,
+            grounding_report_ref=report_ref,
+        )
     return CandidateGroundingObservation(
         candidate_id=candidate_id,
         status="grounding_unavailable",
         grounding_score=0.0,
-        issue_codes=tuple(str(item) for item in issue_codes if str(item)),
+        issue_codes=normalized_issues,
         evidence_refs=(),
         current_valid=False,
+        report_ref=report_ref,
         grounding_source="grounding_unavailable",
+        acquisition_requirement=acquisition_requirement,
     )
 
 
@@ -4025,6 +4827,8 @@ def _select_terminal_kind(
     value_port: ValuePortObservation,
 ) -> str:
     del proxy_score
+    if grounding.acquisition_requirement is not None:
+        return SearchTerminalKind.ACQUISITION_REQUIRED.value
     if any(str(code).startswith("acquire_data:") for code in grounding.issue_codes):
         return SearchTerminalKind.ACQUISITION_REQUIRED.value
     if grounding.status == "grounding_unavailable":
@@ -4035,6 +4839,8 @@ def _select_terminal_kind(
         return SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED.value
     if value_port.status == "value_pending_n8":
         return SearchTerminalKind.GROUNDED_ABSTENTION.value
+    if value_port.acquisition_requirement is not None:
+        return SearchTerminalKind.ACQUISITION_REQUIRED.value
     value_issue = _value_revision_issue(value_port)
     if value_issue and value_issue.startswith("acquire_data:"):
         return SearchTerminalKind.ACQUISITION_REQUIRED.value
@@ -4141,6 +4947,8 @@ def _default_revision_request(
     candidate_id: str,
     terminal_kind: str,
     counterexample: CounterexampleRecord,
+    grounding: CandidateGroundingObservation | None = None,
+    value_port: ValuePortObservation | None = None,
 ) -> DesignRevisionRequest:
     previous_grammar = tuple(
         str(item)
@@ -4161,6 +4969,13 @@ def _default_revision_request(
         counterexample=counterexample,
         new_grammar_elements=new_grammar_elements,
         cycle_index=cycle_index,
+        acquisition_requirement=(
+            grounding.acquisition_requirement
+            if grounding is not None and grounding.acquisition_requirement is not None
+            else value_port.acquisition_requirement
+            if value_port is not None
+            else None
+        ),
     )
     next_grammar = _dedupe((*previous_grammar, *new_grammar_elements))
     revised_problem = problem.model_copy(
@@ -4371,6 +5186,52 @@ def _blocked_cycle(cycle: GenerationCycleRecord, *, reason: str) -> GenerationCy
     )
 
 
+def _cycle_with_acquisition_routing_report(
+    cycle: GenerationCycleRecord,
+    *,
+    report: AcquisitionPlannerReport,
+) -> GenerationCycleRecord:
+    """Attach typed N7 routing evidence through full record validation."""
+
+    values = {
+        name: getattr(cycle, name)
+        for name in GenerationCycleRecord.model_fields
+    }
+    values["acquisition_routing_report"] = report
+    return GenerationCycleRecord.model_validate(values)
+
+
+def _cycle_with_n7_route_failure(
+    cycle: GenerationCycleRecord,
+    *,
+    reason: str,
+) -> GenerationCycleRecord:
+    """Retain an acquisition terminal while recording a failed canonical N7 route."""
+
+    counterexample = cycle.counterexample.model_copy(
+        update={
+            "counterexample_class": "substrate_gap",
+            "diagnostic": cycle.counterexample.diagnostic.model_copy(
+                update={
+                    "code": f"n6.acquisition.{reason}",
+                    "message": (
+                        "Acquisition remains required because the canonical "
+                        f"N7 route refused the request: {reason}."
+                    ),
+                }
+            ),
+            "routed_to": "acquisition",
+        }
+    )
+    return cycle.model_copy(
+        update={
+            "counterexample": counterexample,
+            "acquisition_receipt": None,
+            "acquisition_routing_report": None,
+        }
+    )
+
+
 def _fake_cycle_reason(
     previous: GenerationCycleRecord,
     current: GenerationCycleRecord,
@@ -4571,6 +5432,7 @@ __all__ = [
     "GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION",
     "GENERATION_CYCLE_CONTROLLER_REF",
     "GENERATION_CYCLE_SCHEMA_VERSION",
+    "VALUE_DATA_SHAPE_RULE_VERSION",
     "CandidateFront",
     "CandidateGroundingObservation",
     "CandidateSummary",
@@ -4597,5 +5459,7 @@ __all__ = [
     "ValuePortObservation",
     "ValueTransportReceipt",
     "enforce_no_retry_without_new_grammar",
+    "generation_cycle_terminal_state",
+    "is_value_panel_shape",
     "validate_generation_cycle_run",
 ]

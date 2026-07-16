@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 
 import pytest
@@ -8,14 +9,19 @@ from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.selection.registry import get_registry, registry_scope
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY
 from polisyos.lex.knowledge.store import LegalKnowledgeStore
+from polisyos.runtime.quality.design_problem import DesignProblem
+from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
 from polisyos.runtime.quality.intervention_substrate import (
     InterventionSubstrateError,
     intervention_substrate_behavior_report,
     load_l6_intervention_substrate,
+    replace_intervention_substrate_bundle,
     resolve_intervention_lever,
     resolve_law_bound_lever,
     route_observation_family_method,
 )
+from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
+from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain_pack
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 L3_THRESHOLD_ID = "a5429abb6621acb11ed10b20"
@@ -38,6 +44,80 @@ L6_MECHANISM_IDS = {
 FREE_GROW_KNOB = "future_child_benefit_intensity"
 FREE_GROW_MECHANISM = "future_child_benefit_transfer"
 FREE_GROW_SLOT = "household_cells.transfer_intensity"
+
+
+@lru_cache(maxsize=1)
+def _education_cycle_context() -> tuple[DesignProblem, object]:
+    """Load the committed education evidence through the canonical WMR owner."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    pack = frozen["pack"]
+    problem = DesignProblem.model_validate(
+        frozen["smoke_problem"]["design_problem"]
+    )
+    registry = SubstrateRegistry.model_validate(
+        pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected_hashes = tuple(
+        pack["components"]["substrate_registry"]["selected_entry_hashes"]
+    )
+    world = _build_boundary_world_model_record(
+        repo_root=REPO_ROOT,
+        problem=problem,
+        outcome=problem.outcome_of_interest.target_variable,
+        policy_slot_ids=(problem.outcome_of_interest.target_variable,),
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+    return problem, second_domain_pack.project_second_domain_cycle_substrate_context(
+        frozen,
+        repo_root=REPO_ROOT,
+        design_problem=problem,
+        world_model_record=world,
+        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+    )
+
+
+def test_pack_lever_resolution_returns_typed_candidate_unbound() -> None:
+    """A pack candidate reaches the L6 owner but never enters its writable map."""
+
+    _problem, context = _education_cycle_context()
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+
+    result = resolve_intervention_lever(
+        bundle,
+        operator_kind="education.teaching_method",
+        parameter_value=0,
+        cycle_substrate_context=context,
+    )
+
+    assert type(result).__name__ == "InterventionLeverRefusal"
+    assert result.status == "candidate_unbound"
+    assert result.reason_code == "knob_operator_unresolved"
+    assert result.operator_kind == "education.teaching_method"
+    assert result.context_binding_hash == context.context_binding_hash
+    assert result.world_model_record_content_hash == context.world_model_record_content_hash
+    assert result.candidate_entry_content_hash in {
+        row.entry_content_hash for row in context.candidate_levers
+    }
+    assert result.operator_kind not in bundle.knob_dictionary
+
+
+def test_pack_context_fences_first_vertical_knob_fallback() -> None:
+    """An education context cannot silently cross-bind a writable L6 knob."""
+
+    _problem, context = _education_cycle_context()
+    bundle = load_l6_intervention_substrate(REPO_ROOT)
+
+    with pytest.raises(InterventionSubstrateError) as error:
+        resolve_intervention_lever(
+            bundle,
+            operator_kind="budget_allocation_multiplier",
+            parameter_value=1.0,
+            cycle_substrate_context=context,
+        )
+
+    assert error.value.code == "cycle_substrate_candidate_lever_unresolved"
 
 
 def _lex_store() -> LegalKnowledgeStore:
@@ -164,10 +244,12 @@ def test_all_real_law_map_entries_trace_to_l3_provision_without_injected_authori
 
 
 def test_law_bound_lever_fails_closed_for_dangling_map_entries() -> None:
-    bundle = load_l6_intervention_substrate(REPO_ROOT).model_copy(
+    base_bundle = load_l6_intervention_substrate(REPO_ROOT)
+    bundle = replace_intervention_substrate_bundle(
+        base_bundle,
         update={
             "lex_intervention_map": {
-                **load_l6_intervention_substrate(REPO_ROOT).lex_intervention_map,
+                **base_bundle.lex_intervention_map,
                 DANGLING_LAW: ("not_a_real_knob",),
             }
         }
@@ -198,7 +280,8 @@ def test_family_method_routing_uses_real_manifest_registry_and_python314_blocker
     bundle = load_l6_intervention_substrate(REPO_ROOT)
     dead_contract = "foundry.dead.unregistered_contract.v1"
     unavailable_contract = "foundry.bayesian.bart_regression.v1"
-    dead_bundle = bundle.model_copy(
+    dead_bundle = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "observation_manifest": {
                 **bundle.observation_manifest,
@@ -301,7 +384,8 @@ def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_
         as_of=FREE_GROW_L3_AS_OF,
     )
     assert threshold is not None
-    grown = bundle.model_copy(
+    grown = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "knob_dictionary": {
                 **bundle.knob_dictionary,
@@ -417,7 +501,8 @@ def test_intervention_substrate_free_grows_knobs_laws_and_families_without_code_
     assert law.status == "admissible"
     assert route.status == "routed"
 
-    malformed = grown.model_copy(
+    malformed = replace_intervention_substrate_bundle(
+        grown,
         update={
             "knob_dictionary": {
                 **grown.knob_dictionary,

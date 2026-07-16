@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Literal
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, InputRef, PutOptions, SchemaInfo
 from polisyos.core.canon import CanonSpec
@@ -88,6 +88,15 @@ class L1VariableAvailability(_StrictModel):
     metric_binding_count: int = Field(..., ge=0)
     observation_count: int = Field(..., ge=0)
     coverage_ref: str = Field(..., min_length=1)
+
+    @model_validator(mode="after")
+    def _status_matches_owner_counts(self) -> L1VariableAvailability:
+        count = self.dataset_count + self.metric_binding_count + self.observation_count
+        if self.status == "unavailable" and count != 0:
+            raise ValueError("l1_unavailable_counts_nonzero")
+        if self.status == "available" and count == 0:
+            raise ValueError("l1_available_counts_empty")
+        return self
 
 
 class L5FamilyAuthority(_StrictModel):

@@ -35,6 +35,11 @@ from polisyos.core.observability.truthfulness import (
     parse_truthfulness_tier,
 )
 from polisyos.foundry.methods.exceptions import LawViolationError, MethodDefinitionError
+from polisyos.ir.analytics.uncertainty import (
+    OutputContractCapability,
+    OutputContractDeclaration,
+    supports_value_uncertainty_projection_contract,
+)
 
 _SEMVER_RE = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)"
@@ -399,9 +404,11 @@ class SlotSpec:
     slot_type: SlotType
     unit: Unit
     contract_id: str | None = None
-    shape: tuple[int | str, ...] = ()
+    shape: Shape = ()
     description: str = ""
     bounds: tuple[float | int | None, float | int | None] = (None, None)
+    contract_capabilities: frozenset[OutputContractCapability] = frozenset()
+    contract_owner: str | None = None
 
     def __post_init__(self) -> None:
         if not isinstance(self.name, str) or not self.name:
@@ -414,6 +421,26 @@ class SlotSpec:
             not isinstance(self.contract_id, str) or not self.contract_id.strip()
         ):
             raise TypeError("SlotSpec.contract_id must be None or a non-empty string")
+        normalized_capabilities = frozenset(self.contract_capabilities)
+        if not all(
+            isinstance(item, OutputContractCapability) for item in normalized_capabilities
+        ):
+            raise TypeError(
+                "SlotSpec.contract_capabilities must contain OutputContractCapability"
+            )
+        if normalized_capabilities and self.contract_id is None:
+            raise ValueError("slot_contract_capability_requires_contract_id")
+        if self.contract_owner is not None and (
+            not isinstance(self.contract_owner, str)
+            or ":" not in self.contract_owner
+            or not all(self.contract_owner.split(":", 1))
+        ):
+            raise ValueError("slot_contract_owner_ref_invalid")
+        if normalized_capabilities and self.contract_owner is None:
+            raise ValueError("slot_contract_capability_requires_owner_ref")
+        if self.contract_owner is not None and not normalized_capabilities:
+            raise ValueError("slot_contract_owner_requires_capability")
+        object.__setattr__(self, "contract_capabilities", normalized_capabilities)
         if not isinstance(self.shape, tuple):
             raise TypeError("SlotSpec.shape must be a tuple")
         for dim in self.shape:
@@ -422,6 +449,46 @@ class SlotSpec:
         if self.slot_type is SlotType.SCALAR and self.shape != ():
             raise ValueError("SlotType.SCALAR requires shape=()")
         _validate_bounds("SlotSpec.bounds", self.bounds)
+
+    @classmethod
+    def for_output_contract(
+        cls,
+        name: str,
+        slot_type: SlotType,
+        unit: Unit,
+        *,
+        output_contract: type[object],
+        shape: Shape = (),
+        description: str = "",
+        bounds: tuple[float | int | None, float | int | None] = (None, None),
+    ) -> SlotSpec:
+        """Build a slot witness from a native output owner's typed declaration."""
+
+        declaration = getattr(output_contract, "output_contract_declaration", None)
+        contract_id = getattr(output_contract, "contract_id", None)
+        if not isinstance(declaration, OutputContractDeclaration):
+            raise ValueError("output_contract_declaration_missing")
+        if not isinstance(contract_id, str) or contract_id != declaration.contract_id:
+            raise ValueError("output_contract_declaration_id_mismatch")
+        if (
+            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
+            in declaration.capabilities
+            and not supports_value_uncertainty_projection_contract(output_contract)
+        ):
+            raise ValueError("output_contract_value_projector_missing")
+        return cls(
+            name=name,
+            slot_type=slot_type,
+            unit=unit,
+            contract_id=contract_id,
+            contract_capabilities=declaration.capabilities,
+            contract_owner=(
+                f"{output_contract.__module__}:{output_contract.__qualname__}"
+            ),
+            shape=shape,
+            description=description,
+            bounds=bounds,
+        )
 
     def stable_digest(self) -> str:
         """Stable digest for persistent cache keys (Law H)."""
@@ -435,13 +502,19 @@ class SlotSpec:
                 return f"$DimVar:{d.name}"
             return d  # int or str
 
-        return {
+        payload = {
             "name": self.name,
             "slot_type": self.slot_type.name,
             "unit": self.unit._stable_dict(),
             "contract_id": self.contract_id,
             "shape": [_serialise_dim(d) for d in self.shape],
         }
+        if self.contract_capabilities:
+            payload["contract_capabilities"] = sorted(
+                item.value for item in self.contract_capabilities
+            )
+            payload["contract_owner"] = self.contract_owner
+        return payload
 
     def __hash__(self) -> int:
         """
@@ -450,7 +523,17 @@ class SlotSpec:
         Note: description and bounds are excluded as they do not affect
         slot identity for linking purposes.
         """
-        return hash((self.name, self.slot_type, self.unit, self.contract_id, self.shape))
+        return hash(
+            (
+                self.name,
+                self.slot_type,
+                self.unit,
+                self.contract_id,
+                self.contract_capabilities,
+                self.contract_owner,
+                self.shape,
+            )
+        )
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, SlotSpec):
@@ -460,6 +543,8 @@ class SlotSpec:
             and self.slot_type == other.slot_type
             and self.unit == other.unit
             and self.contract_id == other.contract_id
+            and self.contract_capabilities == other.contract_capabilities
+            and self.contract_owner == other.contract_owner
             and self.shape == other.shape
         )
 

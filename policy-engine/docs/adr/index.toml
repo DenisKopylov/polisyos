@@ -1833,6 +1833,17 @@ superseded_by = []
 related = []
 
 [[adr]]
+id = "ADR-048"
+title = "Native value projection is a two-sided output-contract capability"
+status = "approved"
+topic = "schemas"
+package = "polisyos.foundry"
+path = "docs/adr/ADR-048-native-value-projection-capability.md"
+supersedes = []
+superseded_by = []
+related = []
+
+[[adr]]
 id = "RSR-0129"
 title = "Empty Placeholder Package Policy"
 status = "proposed"

@@ -21,7 +21,9 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.foundry.methods.catalog.simulation.dynamics import _abm_result_stub
+from polisyos.foundry.methods.catalog.simulation.dynamics import (
+    build_content_bound_abm_result,
+)
 
 
 def _result_slot() -> frozenset[SlotSpec]:
@@ -137,9 +139,22 @@ def _run_coupled_policy(
         "summary": summary,
         "metrics": metrics,
     }
-    abm_result = _abm_result_stub(
+    horizon = max(1, int(params.get("n_steps", 12)))
+    diagnostics = {
+        "method_id": "simulation.coupled_policy.des_abm",
+        "horizon": horizon,
+        "diagnostic_source": "CoupledPolicySimulationEstimator.pure_step",
+        "summary_keys": (
+            sorted(str(key) for key in summary)
+            if isinstance(summary, Mapping)
+            else []
+        ),
+    }
+    abm_result = build_content_bound_abm_result(
         method_id="simulation.coupled_policy.des_abm",
-        horizon=max(1, int(params.get("n_steps", 12))),
+        horizon=horizon,
+        payload=result,
+        diagnostics=diagnostics,
     )
     result["abm_result"] = abm_result.model_dump(mode="json")
     return result
@@ -205,6 +220,13 @@ class CoupledPolicySimulationEstimator:
     metadata: ClassVar[MethodMetadata] = MethodMetadata(
         description="Typed coupled DES+ABM simulation with queue lifecycle messages.",
         tags=frozenset({"simulation", "discrete-event", "agent-based", "structural", "coupled"}),
+        assumptions={
+            "joint_simulation_engine_kind": "coupled_des_abm",
+            "joint_simulation_policy_domains": "unemployment_claims_benefit",
+            "joint_simulation_required_structure": (
+                "unemployment_claims,benefit_queue,service_queue"
+            ),
+        },
         when_to_use=(
             "Policy simulations where a service queue and heterogeneous agent "
             "decisions form a feedback loop."

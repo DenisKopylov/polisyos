@@ -11,14 +11,35 @@
     },
     "candidate_lever_space": {
       "allowed_operator_kinds": [
-        "candidate_intervention"
+        "education_blended_learning",
+        "education_stem_education",
+        "education_teaching_method",
+        "education_dialogic_reading_modality"
       ],
       "candidate_levers": [
         {
+          "instrument": "education.blended_learning",
+          "lever_id": "education_blended_learning",
+          "operator_kind": "education_blended_learning",
+          "target_slot": "education_motivation"
+        },
+        {
+          "instrument": "education.stem_education",
+          "lever_id": "education_stem_education",
+          "operator_kind": "education_stem_education",
+          "target_slot": "education_academic_success"
+        },
+        {
           "instrument": "education.teaching_method",
           "lever_id": "education_teaching_method",
-          "operator_kind": "candidate_intervention",
+          "operator_kind": "education_teaching_method",
           "target_slot": "education_learning_outcomes"
+        },
+        {
+          "instrument": "education.dialogic_reading_modality",
+          "lever_id": "education_dialogic_reading_modality",
+          "operator_kind": "education_dialogic_reading_modality",
+          "target_slot": "education_story_comprehension"
         }
       ]
     },
@@ -59,7 +80,7 @@
     "nl_provenance": {
       "raw_request": "Improve education outcomes through evidence-backed interventions.",
       "source_context": {
-        "census_content_hash": "sha256:9d7e3b74ed90dc3052fa9ac908610910c4d819a513f60066a43c35763263dd23"
+        "census_content_hash": "sha256:f2cbe0c71d8024b8b420f521347cea264b0fff6582b47e5af8f935a99d6dd30b"
       },
       "source_surface": "gy_n10a_second_domain_pack"
     },
@@ -101,5 +122,5 @@
   "producer": "tools.quality.validation.check_layer3_gy_second_domain_pack",
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
-  "smoke_problem_content_hash": "sha256:3c2b5b02c46a571ef425f9ae4ec95fbc510146e48b1e1de18fd5cd0cb00ba500"
+  "smoke_problem_content_hash": "sha256:a4cd15957c3875c64a2bb38bb79e2d2e4e610df69b471d1b159964357794cc34"
 }

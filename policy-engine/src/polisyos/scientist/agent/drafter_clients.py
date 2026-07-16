@@ -7,6 +7,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import Any
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.core.canon import truncated_hash
 from polisyos.scientist.agent.prompts import get_drafter_prompt
 from polisyos.scientist.agent.protocols import CritiqueReport, DraftResult, ProblemFrame
@@ -241,17 +242,13 @@ class MockDrafterAgent:
 
         if prior_drafts:
             rationale_parts.append(
-                (
-                    f"Building on {len(prior_drafts)} prior draft(s), this iteration "
-                    "incorporates lessons learned."
-                )
+                f"Building on {len(prior_drafts)} prior draft(s), this iteration "
+                "incorporates lessons learned."
             )
 
         rationale_parts.append(
-            (
-                "The interventions are designed to work within the stated constraints "
-                "while maximizing impact."
-            )
+            "The interventions are designed to work within the stated constraints "
+            "while maximizing impact."
         )
 
         return " ".join(rationale_parts)
@@ -390,27 +387,8 @@ Generate a draft JSON object.
 
         content = response.content if hasattr(response, "content") else str(response)
         try:
-            data = json.loads(content)
-            return DraftResult(
-                draft_id=data.get("draft_id", f"draft_{uuid.uuid4().hex[:8]}"),
-                problem_frame_ref=data.get("problem_frame_ref", problem_frame.frame_id),
-                narrative=data.get("narrative", ""),
-                interventions=data.get("interventions", []),
-                rationale=data.get("rationale", ""),
-                domain_references=(
-                    list(data.get("domain_references", []))
-                    if isinstance(data.get("domain_references"), list)
-                    else []
-                ),
-                citations=_context_citations(problem_frame),
-                claim_supports=_context_claim_supports(problem_frame),
-                grounding_notes=_context_grounding_notes(problem_frame),
-                alternatives_considered=data.get("alternatives_considered", []),
-                confidence=float(data.get("confidence", 0.6)),
-                raw_llm_response=content,
-                created_at=datetime.now(UTC),
-            )
-        except (json.JSONDecodeError, TypeError, ValueError):
+            data = extract_llm_json_object(content)
+        except json.JSONDecodeError:
             fallback = MockDrafterAgent()
             return await fallback.draft_policy(
                 problem_frame,
@@ -418,6 +396,25 @@ Generate a draft JSON object.
                 hints=hints,
                 prior_drafts=prior_drafts,
             )
+        return DraftResult(
+            draft_id=data.get("draft_id", f"draft_{uuid.uuid4().hex[:8]}"),
+            problem_frame_ref=data.get("problem_frame_ref", problem_frame.frame_id),
+            narrative=data.get("narrative", ""),
+            interventions=data.get("interventions", []),
+            rationale=data.get("rationale", ""),
+            domain_references=(
+                list(data.get("domain_references", []))
+                if isinstance(data.get("domain_references"), list)
+                else []
+            ),
+            citations=_context_citations(problem_frame),
+            claim_supports=_context_claim_supports(problem_frame),
+            grounding_notes=_context_grounding_notes(problem_frame),
+            alternatives_considered=data.get("alternatives_considered", []),
+            confidence=float(data.get("confidence", 0.6)),
+            raw_llm_response=content,
+            created_at=datetime.now(UTC),
+        )
 
     async def refine_draft(
         self,

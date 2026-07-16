@@ -6,10 +6,15 @@ from __future__ import annotations
 import argparse
 import asyncio
 import copy
+import hashlib
 import json
+import os
+import subprocess
 import sys
+import time
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -27,11 +32,15 @@ from polisyos.runtime.quality.design_generation import (
     DESIGN_GENERATION_SCHEMA_VERSION,
     NOT_CERTIFICATE_KINDS,
     SUPPORTED_GENERATION_MODEL_IDS,
+    EffectiveGenerationRuntimeConfig,
     GenerationUnderAResult,
     GroundingDispositionRecord,
     _content_bound_candidates,
     _grounding_disposition_summary,
     _grounding_proposal_for_intervention,
+    _json_for_prompt_size,
+    _with_generation_cycle_revision_context,
+    _with_lever_space_prompt_slice,
     firewall_issues_for_result,
     generate_design_candidates_under_a,
     validate_design_generation_strangle_receipts,
@@ -60,6 +69,41 @@ RECORDING_FIXTURE_PATH = (
     "architecture/policy_design_case/layer3_gy_design_generation_replay_recordings.json"
 )
 MODEL_ID = SUPPORTED_GENERATION_MODEL_IDS[0]
+SOURCE_FLIP_MUTATION_ID = "source_flip_formalizer_recorded_path_derivation_removed"
+POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID = (
+    "source_flip_policy_verified_fixture_reconnected_to_production"
+)
+NL_SOURCE_FLIP_MUTATION_ID = "source_flip_nl_contract_agents_reconnected_to_production"
+S2_SOURCE_FLIP_MUTATION_ID = "source_flip_s2_fixed_candidate_body_restored"
+DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID = (
+    "source_flip_drafter_naive_json_parser_restored"
+)
+RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID = (
+    "source_flip_recorded_effective_runtime_config_ignored"
+)
+PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID = "source_flip_prompt_size_estimate_fixed_default"
+CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID = (
+    "source_flip_candidate_lever_provenance_removed"
+)
+_PROMPT_SLICE_LIMIT_CHARS = 5000
+_FROZEN_DIAGNOSTIC_PROJECTION = {
+    "schema_version": "policyos.gy.n4.diagnostic_projection.v1",
+    "elapsed_measurements": "journal_only_not_committed",
+    "prompt_size_measurement": (
+        "prompt_local_created_at_excluded_full_measurement_verified_live_then_omitted"
+    ),
+    "prompt_slice_limit_chars": _PROMPT_SLICE_LIMIT_CHARS,
+}
+N4_SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
+    SOURCE_FLIP_MUTATION_ID,
+    DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+    RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+    PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
+    CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+    POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+    NL_SOURCE_FLIP_MUTATION_ID,
+    S2_SOURCE_FLIP_MUTATION_ID,
+)
 
 
 def declared_outputs() -> list[str]:
@@ -170,6 +214,147 @@ def _recorded_response_label(recorded: dict[str, Any], index: int) -> str:
     return f"{index}:{role if isinstance(role, str) and role else 'unknown'}"
 
 
+_RECORDED_RUNTIME_INPUT_FIELDS = frozenset(
+    {
+        "drafter_pass_timeout_s",
+        "drafter_pass_retry_count",
+        "formalizer_timeout_s",
+        "formalizer_retry_count",
+        "critic_timeout_s",
+        "terminal_salvage_retry_count",
+        "terminal_salvage_backoff_base_s",
+        "gateway_timeout_s",
+        "gateway_max_retries",
+        "prompt_cache_ttl_s",
+        "prompt_cache_maxsize",
+        "cg1_index_prewarm_enabled",
+    }
+)
+
+
+def _verify_recording_content_hash(recording: Mapping[str, Any]) -> None:
+    recorded = recording.get("recording_content_hash")
+    if not isinstance(recorded, str) or not recorded:
+        raise RuntimeError("gy_n4_recording_content_hash_missing")
+    computed = gy_content_hash(
+        {
+            key: value
+            for key, value in recording.items()
+            if key != "recording_content_hash"
+        }
+    )
+    if computed != recorded:
+        raise RuntimeError(
+            f"gy_n4_recording_content_hash_mismatch:{computed}!={recorded}"
+        )
+
+
+def _recorded_effective_runtime_config(
+    recording: Mapping[str, Any],
+) -> EffectiveGenerationRuntimeConfig:
+    _verify_recording_content_hash(recording)
+    capture_summary = recording.get("capture_summary")
+    if not isinstance(capture_summary, Mapping):
+        raise RuntimeError("recorded_effective_runtime_config_missing:capture_summary")
+    payload = capture_summary.get("effective_runtime_config")
+    if not isinstance(payload, Mapping):
+        raise RuntimeError("recorded_effective_runtime_config_missing")
+    missing_inputs = sorted(_RECORDED_RUNTIME_INPUT_FIELDS.difference(payload))
+    if missing_inputs:
+        raise RuntimeError(
+            "recorded_effective_runtime_config_input_missing:"
+            + ",".join(missing_inputs)
+        )
+    try:
+        config = EffectiveGenerationRuntimeConfig.model_validate(payload)
+    except (TypeError, ValueError) as exc:
+        raise RuntimeError("recorded_effective_runtime_config_invalid") from exc
+    if not config.formalizer_schema_healing_events:
+        raise RuntimeError("recorded_effective_runtime_config_healing_mode_unrecorded")
+    return config
+
+
+def _recorded_runtime_input_projection(
+    config: EffectiveGenerationRuntimeConfig,
+) -> dict[str, float | int | bool]:
+    optional_inputs = {
+        "gateway_timeout_s": config.gateway_timeout_s,
+        "gateway_max_retries": config.gateway_max_retries,
+        "prompt_cache_ttl_s": config.prompt_cache_ttl_s,
+        "prompt_cache_maxsize": config.prompt_cache_maxsize,
+    }
+    missing = sorted(key for key, value in optional_inputs.items() if value is None)
+    if missing:
+        raise RuntimeError(
+            "recorded_effective_runtime_config_input_missing:" + ",".join(missing)
+        )
+    return {
+        "drafter_pass_timeout_s": config.drafter_pass_timeout_s,
+        "drafter_pass_retry_count": config.drafter_pass_retry_count,
+        "formalizer_timeout_s": config.formalizer_timeout_s,
+        "formalizer_retry_count": config.formalizer_retry_count,
+        "critic_timeout_s": config.critic_timeout_s,
+        "terminal_salvage_retry_count": config.terminal_salvage_retry_count,
+        "terminal_salvage_backoff_base_s": config.terminal_salvage_backoff_base_s,
+        "gateway_timeout_s": float(config.gateway_timeout_s),
+        "gateway_max_retries": int(config.gateway_max_retries),
+        "prompt_cache_ttl_s": float(config.prompt_cache_ttl_s),
+        "prompt_cache_maxsize": int(config.prompt_cache_maxsize),
+        "cg1_index_prewarm_enabled": config.cg1_index_prewarm_enabled,
+    }
+
+
+def _recorded_runtime_environment_values(
+    config: EffectiveGenerationRuntimeConfig,
+) -> dict[str, str]:
+    inputs = _recorded_runtime_input_projection(config)
+    return {
+        "POLISYOS_DRAFTER_PASS_TIMEOUT_S": str(inputs["drafter_pass_timeout_s"]),
+        "POLISYOS_DRAFTER_PASS_RETRY_COUNT": str(inputs["drafter_pass_retry_count"]),
+        "POLISYOS_FORMALIZER_LLM_TIMEOUT_S": str(inputs["formalizer_timeout_s"]),
+        "POLISYOS_FORMALIZER_LLM_RETRIES": str(inputs["formalizer_retry_count"]),
+        "POLISYOS_CRITIC_LLM_TIMEOUT_S": str(inputs["critic_timeout_s"]),
+        "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": str(
+            inputs["terminal_salvage_retry_count"]
+        ),
+        "POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S": str(
+            inputs["terminal_salvage_backoff_base_s"]
+        ),
+        "POLISYOS_LLM_GATEWAY_TIMEOUT_S": str(inputs["gateway_timeout_s"]),
+        "POLISYOS_LLM_GATEWAY_MAX_RETRIES": str(inputs["gateway_max_retries"]),
+        "POLISYOS_LLM_CACHE_TTL_S": str(inputs["prompt_cache_ttl_s"]),
+        "POLISYOS_LLM_CACHE_MAXSIZE": str(inputs["prompt_cache_maxsize"]),
+        "POLISYOS_N4_PREWARM_CG1_INDEX": (
+            "1" if inputs["cg1_index_prewarm_enabled"] else "0"
+        ),
+        # Historical v1 receipts did not persist the mode field itself. Their
+        # non-empty healing-event denominator proves audit mode: strict mode
+        # would have refused before emitting the captured result.
+        "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
+    }
+
+
+@contextmanager
+def _recorded_runtime_environment(
+    recording: Mapping[str, Any],
+) -> Iterator[EffectiveGenerationRuntimeConfig]:
+    expected = _recorded_effective_runtime_config(recording)
+    runtime_environment = _recorded_runtime_environment_values(expected)
+    missing = object()
+    previous: dict[str, object] = {
+        key: os.environ.get(key, missing) for key in runtime_environment
+    }
+    try:
+        os.environ.update(runtime_environment)
+        yield expected
+    finally:
+        for key, value in previous.items():
+            if value is missing:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = str(value)
+
+
 async def _run_live_generation(
     repo_root: Path,
     *,
@@ -177,13 +362,32 @@ async def _run_live_generation(
 ) -> GenerationUnderAResult:
     client = RecordedGenerationReplayClient(recording)
     world_model_record_ref = recording.get("world_model_record_ref")
-    result = await generate_design_candidates_under_a(
-        _design_problem(recording),
-        model_id=str(recording["model_id"]),
-        llm_client=client,
-        repo_root=repo_root,
-        world_model_record_ref=str(world_model_record_ref) if world_model_record_ref else None,
-    )
+    with _recorded_runtime_environment(recording) as expected_config:
+        result = await generate_design_candidates_under_a(
+            _design_problem(recording),
+            model_id=str(recording["model_id"]),
+            llm_client=client,
+            repo_root=repo_root,
+            world_model_record_ref=(
+                str(world_model_record_ref) if world_model_record_ref else None
+            ),
+        )
+        emitted_config = getattr(result, "effective_runtime_config", None)
+        try:
+            emitted = EffectiveGenerationRuntimeConfig.model_validate(emitted_config)
+        except (TypeError, ValueError) as exc:
+            raise RuntimeError("recorded_effective_runtime_config_emission_missing") from exc
+        expected_inputs = _recorded_runtime_input_projection(expected_config)
+        emitted_inputs = _recorded_runtime_input_projection(emitted)
+        if emitted_inputs != expected_inputs:
+            raise RuntimeError(
+                "recorded_effective_runtime_config_drift:"
+                + json.dumps(
+                    {"expected": expected_inputs, "emitted": emitted_inputs},
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            )
     # Historical fixtures can include retry/repair tail calls that current live
     # assembly no longer reaches. The fixture loader still validates every
     # recorded raw_response_hash; replay only gates the outputs actually served
@@ -201,6 +405,27 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         asyncio.run(_run_live_generation(repo_root.resolve(), recording=recording))
         for recording in recordings
     ]
+    prompt_size_frame_issues = [
+        issue
+        for recording, replay_result in zip(recordings, results, strict=True)
+        if (
+            issue := _prompt_size_actual_frame_issue(
+                design_problem=_design_problem(recording),
+                lever_space_prompt_slice=replay_result.lever_space_prompt_slice,
+                emitted=replay_result.effective_runtime_config.prompt_size_estimate,
+            )
+        )
+        is not None
+    ]
+    if prompt_size_frame_issues:
+        raise RuntimeError(
+            "gy_n4_prompt_size_measurement_not_actual_frames:"
+            + json.dumps(
+                prompt_size_frame_issues,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+        )
     result = results[0]
     if len(recordings) >= 2:
         variation = results[1]
@@ -254,6 +479,8 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
         "recording_fixture_ref": RECORDING_FIXTURE_PATH,
         "recording_fixture_hash": _fixture_hash(repo_root),
         "recording_fixture_integrity": _recording_fixture_integrity_report(recordings),
+        "diagnostic_projection": dict(_FROZEN_DIAGNOSTIC_PROJECTION),
+        "prompt_size_gate": _prompt_size_gate(result_payloads),
         "replay_fixture_versioning": {
             "follow_up": "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING",
             "status": "closed",
@@ -265,7 +492,11 @@ def build_live_payload(repo_root: Path) -> dict[str, Any]:
             ),
         },
         "not_certificate_denominator": list(NOT_CERTIFICATE_KINDS),
-        "generation_result": result_payload,
+        "source_flip_mutation_harness": {
+            "mode": "--source-flip-mutations",
+            "mutation_ids": list(N4_SOURCE_FLIP_MUTATION_IDS),
+            "property": "patch_source_then_causal_red_then_restore_exact_bytes",
+        },
         "generation_results": result_payloads,
         "recording_set_coverage": set_coverage,
         "grounding_payoff": grounding_payoff,
@@ -363,51 +594,77 @@ def _grounding_payoff_report(
     *,
     cg3_handoff_probe: dict[str, Any],
 ) -> dict[str, Any]:
-    dispositions = tuple(
-        disposition for result in results for disposition in result.grounding_dispositions
-    )
-    counts = Counter(item.disposition for item in dispositions)
-    legacy = Counter(item.legacy_exact_match for item in dispositions)
-    payoff_bindings = [
-        {
-            "proposal_id": item.proposal_id,
-            "candidate_id": item.candidate_id,
-            "selected_relation": item.selected_relation,
-            "identified_atom_id": item.identified_atom_id,
-            "cg1_certificate_id": item.certificate_chain.cg1_certificate_id,
-            "cg1_content_hash": item.certificate_chain.cg1_content_hash,
-            "legacy_exact_match": item.legacy_exact_match,
-        }
-        for item in dispositions
-        if item.disposition == "shadow_bound" and item.legacy_exact_match == "would_reject"
-    ]
-    novel_routes = [
-        {
-            "proposal_id": item.proposal_id,
-            "selected_relation": item.selected_relation,
-            "cg2_decision": item.cg2_decision,
-            "cg3_decision": item.cg3_decision,
-            "cg3_reason": item.cg3_reason,
-            "certificate_chain": item.certificate_chain.model_dump(mode="json"),
-            "bridge_missing_records": list(item.bridge_missing_records),
-        }
-        for item in dispositions
-        if item.disposition == "novel_cg3"
-    ]
-    vetoes = [
-        {
-            "proposal_id": item.proposal_id,
-            "selected_relation": item.selected_relation,
-            "identified_atom_id": item.identified_atom_id,
-            "rejected_cause": item.rejected_cause,
-            "certificate_chain": item.certificate_chain.model_dump(mode="json"),
-        }
-        for item in dispositions
-        if item.disposition == "veto_false_analog"
+    disposition_payloads = [
+        disposition.model_dump(mode="json")
+        for result in results
+        for disposition in result.grounding_dispositions
     ]
     return {
         "recording_count": len(results),
-        "recorded_candidate_count": len(dispositions),
+        "recorded_candidate_count": len(disposition_payloads),
+        **_grounding_payoff_projection(disposition_payloads),
+        "synthetic_cg3_handoff": cg3_handoff_probe,
+    }
+
+
+def _grounding_payoff_projection(
+    dispositions: list[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Project full payoff evidence from canonical disposition rows."""
+
+    counts = Counter(str(item.get("disposition") or "") for item in dispositions)
+    legacy = Counter(str(item.get("legacy_exact_match") or "") for item in dispositions)
+    payoff_bindings: list[dict[str, Any]] = []
+    novel_routes: list[dict[str, Any]] = []
+    vetoes: list[dict[str, Any]] = []
+    for item in dispositions:
+        chain = item.get("certificate_chain")
+        chain_payload = dict(chain) if isinstance(chain, Mapping) else {}
+        if (
+            item.get("disposition") == "shadow_bound"
+            and item.get("legacy_exact_match") == "would_reject"
+        ):
+            payoff_bindings.append(
+                {
+                    "proposal_id": item.get("proposal_id"),
+                    "candidate_id": item.get("candidate_id"),
+                    "selected_relation": item.get("selected_relation"),
+                    "identified_atom_id": item.get("identified_atom_id"),
+                    "cg1_certificate_id": chain_payload.get("cg1_certificate_id"),
+                    "cg1_content_hash": chain_payload.get("cg1_content_hash"),
+                    "legacy_exact_match": item.get("legacy_exact_match"),
+                }
+            )
+        if item.get("disposition") == "novel_cg3":
+            novel_routes.append(
+                {
+                    "proposal_id": item.get("proposal_id"),
+                    "selected_relation": item.get("selected_relation"),
+                    "cg2_decision": item.get("cg2_decision"),
+                    "cg3_decision": item.get("cg3_decision"),
+                    "cg3_reason": item.get("cg3_reason"),
+                    "certificate_chain": chain_payload,
+                    "bridge_missing_records": list(
+                        item.get("bridge_missing_records") or []
+                    ),
+                }
+            )
+        if item.get("disposition") == "veto_false_analog":
+            rejected_cause = item.get("rejected_cause")
+            vetoes.append(
+                {
+                    "proposal_id": item.get("proposal_id"),
+                    "selected_relation": item.get("selected_relation"),
+                    "identified_atom_id": item.get("identified_atom_id"),
+                    "rejected_cause": (
+                        dict(rejected_cause)
+                        if isinstance(rejected_cause, Mapping)
+                        else rejected_cause
+                    ),
+                    "certificate_chain": chain_payload,
+                }
+            )
+    return {
         "before_legacy_exact_match": {
             "would_bind": legacy["would_bind"],
             "would_reject": legacy["would_reject"],
@@ -421,42 +678,69 @@ def _grounding_payoff_report(
         "payoff_shadow_bindings_legacy_rejected": payoff_bindings,
         "novel_routes": novel_routes,
         "recorded_vetoes": vetoes,
-        "synthetic_cg3_handoff": cg3_handoff_probe,
     }
 
 
 def _recording_set_coverage(results: list[GenerationUnderAResult]) -> dict[str, Any]:
-    dispositions = tuple(
-        disposition for result in results for disposition in result.grounding_dispositions
+    """Project typed live results through the canonical coverage owner."""
+
+    return _recording_set_coverage_from_payloads(
+        [item.model_dump(mode="json") for item in results]
     )
-    candidates = tuple(candidate for result in results for candidate in result.candidates)
-    counts = Counter(item.disposition for item in dispositions)
-    legacy = Counter(item.legacy_exact_match for item in dispositions)
+
+
+def _recording_set_coverage_from_payloads(
+    results: list[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Compute one full-denominator coverage projection from result payloads."""
+
+    dispositions = tuple(
+        disposition
+        for result in results
+        for disposition in result.get("grounding_dispositions") or []
+        if isinstance(disposition, Mapping)
+    )
+    candidates = tuple(
+        candidate
+        for result in results
+        for candidate in result.get("candidates") or []
+        if isinstance(candidate, Mapping)
+    )
+    counts = Counter(str(item.get("disposition") or "") for item in dispositions)
+    legacy = Counter(str(item.get("legacy_exact_match") or "") for item in dispositions)
     diversity_keys: set[tuple[str, ...]] = {
-        tuple(str(part) for part in candidate.diversity_key) for candidate in candidates
+        tuple(str(part) for part in candidate.get("diversity_key") or ())
+        for candidate in candidates
+        if isinstance(candidate.get("diversity_key"), list | tuple)
     }
+
+
     diversity_keys.update(
         (
-            disposition.proposal_id,
-            disposition.disposition,
-            disposition.selected_relation,
-            disposition.identified_atom_id
-            or disposition.cg3_decision
-            or disposition.cg2_decision
-            or disposition.raw_candidate_hash,
+            str(disposition.get("proposal_id") or ""),
+            str(disposition.get("disposition") or ""),
+            str(disposition.get("selected_relation") or ""),
+            str(
+                disposition.get("identified_atom_id")
+                or disposition.get("cg3_decision")
+                or disposition.get("cg2_decision")
+                or disposition.get("raw_candidate_hash")
+                or ""
+            ),
         )
         for disposition in dispositions
-        if disposition.candidate_id is None
+        if disposition.get("candidate_id") is None
     )
     has_recovered = any(
-        item.disposition == "shadow_bound" and item.legacy_exact_match == "would_reject"
+        item.get("disposition") == "shadow_bound"
+        and item.get("legacy_exact_match") == "would_reject"
         for item in dispositions
     )
-    has_novel = any(item.disposition == "novel_cg3" for item in dispositions)
+    has_novel = any(item.get("disposition") == "novel_cg3" for item in dispositions)
     candidate_count = len(dispositions)
     return {
         "recording_count": len(results),
-        "all_recordings_generated": all(item.status == "generated" for item in results),
+        "all_recordings_generated": all(item.get("status") == "generated" for item in results),
         "candidate_count": candidate_count,
         "grounding_disposition_count": len(dispositions),
         "unique_diversity_key_count": len(diversity_keys),
@@ -477,6 +761,207 @@ def _recording_set_coverage(results: list[GenerationUnderAResult]) -> dict[str, 
             "legacy_exact_match_would_reject": legacy["would_reject"],
         },
     }
+
+
+def _prompt_size_gate(results: list[Mapping[str, Any]]) -> dict[str, Any]:
+    """Derive a stable verdict from live prompt-size diagnostics."""
+
+    within_limit: list[bool] = []
+    measurement_consistent: list[bool] = []
+    for result in results:
+        config = result.get("effective_runtime_config")
+        estimate = config.get("prompt_size_estimate") if isinstance(config, Mapping) else None
+        consistent, derived_slice = _prompt_size_measurement(estimate)
+        measurement_consistent.append(consistent)
+        within_limit.append(
+            derived_slice is not None and derived_slice <= _PROMPT_SLICE_LIMIT_CHARS
+        )
+    return {
+        "schema_version": "policyos.gy.n4.prompt_size_gate.v1",
+        "source_field": (
+            "generation_results[].effective_runtime_config."
+            "prompt_size_estimate.slice_added_chars"
+        ),
+        "limit_slice_added_chars": _PROMPT_SLICE_LIMIT_CHARS,
+        "result_count": len(results),
+        "within_limit_by_index": within_limit,
+        "measurement_consistent_by_index": measurement_consistent,
+        "status": (
+            "pass"
+            if within_limit
+            and all(within_limit)
+            and all(measurement_consistent)
+            else "fail"
+        ),
+    }
+
+
+def _canonical_json_bytes(value: object) -> bytes | None:
+    """Return exact canonical JSON bytes, preserving JSON scalar types."""
+
+    try:
+        payload = json.dumps(
+            value,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        )
+    except (TypeError, ValueError):
+        return None
+    return payload.encode("utf-8")
+
+
+def _json_exact_equal(left: object, right: object) -> bool:
+    """Compare JSON values without Python's bool/int or int/float aliases."""
+
+    left_bytes = _canonical_json_bytes(left)
+    right_bytes = _canonical_json_bytes(right)
+    return left_bytes is not None and right_bytes is not None and left_bytes == right_bytes
+
+
+def _prompt_size_actual_frame_issue(
+    *,
+    design_problem: DesignProblem,
+    lever_space_prompt_slice: object,
+    emitted: object,
+) -> dict[str, Any] | None:
+    """Bind the full measurement after the owner excludes prompt-local clocks."""
+
+    base_frame = _with_generation_cycle_revision_context(
+        design_problem.to_scientist_problem_frame(),
+        design_problem=design_problem,
+    )
+    sliced_frame = _with_lever_space_prompt_slice(
+        base_frame,
+        lever_space_prompt_slice=lever_space_prompt_slice,
+    )
+
+    def _frame_chars(frame: object) -> int:
+        return len(_json_for_prompt_size(frame))
+
+    without_chars = _frame_chars(base_frame)
+    with_chars = _frame_chars(sliced_frame)
+    slice_chars = max(0, with_chars - without_chars)
+    expected = {
+        "frame_without_slice_chars": without_chars,
+        "frame_with_slice_chars": with_chars,
+        "slice_added_chars": slice_chars,
+        "frame_without_slice_estimated_tokens": (without_chars + 3) // 4,
+        "frame_with_slice_estimated_tokens": (with_chars + 3) // 4,
+        "slice_added_estimated_tokens": (slice_chars + 3) // 4,
+    }
+    if isinstance(emitted, Mapping):
+        observed: object = dict(emitted)
+    elif hasattr(emitted, "model_dump"):
+        observed = emitted.model_dump(mode="json")
+    else:
+        observed = emitted
+    if _json_exact_equal(observed, expected):
+        return None
+    return {
+        "code": "prompt_size_measurement_not_actual_frames",
+        "observed": observed,
+        "expected": expected,
+        "excluded_prompt_local_fields": ["created_at"],
+    }
+
+
+def _prompt_size_measurement(value: object) -> tuple[bool, int | None]:
+    """Verify prompt-size arithmetic and return the derived slice length."""
+
+    if not isinstance(value, Mapping):
+        return False, None
+    fields = (
+        "frame_without_slice_chars",
+        "frame_with_slice_chars",
+        "slice_added_chars",
+        "frame_without_slice_estimated_tokens",
+        "frame_with_slice_estimated_tokens",
+        "slice_added_estimated_tokens",
+    )
+    if any(
+        not isinstance(value.get(field), int)
+        or isinstance(value.get(field), bool)
+        or int(value[field]) < 0
+        for field in fields
+    ):
+        return False, None
+    without_chars = int(value["frame_without_slice_chars"])
+    with_chars = int(value["frame_with_slice_chars"])
+    derived_slice = max(0, with_chars - without_chars)
+    consistent = (
+        int(value["slice_added_chars"]) == derived_slice
+        and int(value["frame_without_slice_estimated_tokens"])
+        == (without_chars + 3) // 4
+        and int(value["frame_with_slice_estimated_tokens"])
+        == (with_chars + 3) // 4
+        and int(value["slice_added_estimated_tokens"])
+        == (derived_slice + 3) // 4
+    )
+    return consistent, derived_slice
+
+
+def _prompt_size_projection_issues(
+    payload: Mapping[str, Any],
+    results: list[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Verify live measurements or their byte-stable frozen verdict."""
+
+    issues: list[dict[str, Any]] = []
+    if not _json_exact_equal(
+        payload.get("diagnostic_projection"),
+        _FROZEN_DIAGNOSTIC_PROJECTION,
+    ):
+        issues.append({"code": "frozen_diagnostic_projection_drift"})
+    gate = payload.get("prompt_size_gate")
+    if not isinstance(gate, Mapping):
+        return [*issues, {"code": "prompt_size_gate_missing"}]
+    presence: list[bool] = []
+    for result in results:
+        config = result.get("effective_runtime_config")
+        presence.append(
+            isinstance(config, Mapping) and "prompt_size_estimate" in config
+        )
+    if presence and all(presence):
+        expected = _prompt_size_gate(results)
+        if not _json_exact_equal(dict(gate), expected):
+            issues.append(
+                {
+                    "code": "prompt_size_gate_drift",
+                    "recorded": dict(gate),
+                    "expected": expected,
+                }
+            )
+    elif presence and not any(presence):
+        expected_frozen = {
+            "schema_version": "policyos.gy.n4.prompt_size_gate.v1",
+            "source_field": (
+                "generation_results[].effective_runtime_config."
+                "prompt_size_estimate.slice_added_chars"
+            ),
+            "limit_slice_added_chars": _PROMPT_SLICE_LIMIT_CHARS,
+            "result_count": len(results),
+            "within_limit_by_index": [True] * len(results),
+            "measurement_consistent_by_index": [True] * len(results),
+            "status": "pass",
+        }
+        if not _json_exact_equal(dict(gate), expected_frozen):
+            issues.append(
+                {
+                    "code": "prompt_size_gate_frozen_drift",
+                    "recorded": dict(gate),
+                    "expected": expected_frozen,
+                }
+            )
+    else:
+        issues.append({"code": "prompt_size_measurement_partial_denominator"})
+    consistency = gate.get("measurement_consistent_by_index")
+    if not isinstance(consistency, list) or not consistency or not all(consistency):
+        issues.append({"code": "prompt_size_measurement_inconsistent"})
+    if gate.get("status") != "pass":
+        issues.append({"code": "prompt_size_gate_not_pass"})
+    return issues
 
 
 def _synthetic_cg3_handoff_probe(repo_root: Path, recording: dict[str, Any]) -> dict[str, Any]:
@@ -707,6 +1192,8 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
     """Validate one contract payload, including behavioral firewall properties."""
 
     issues: list[dict[str, Any]] = []
+    if "generation_result" in payload:
+        issues.append({"code": "legacy_singular_generation_result_present"})
     if payload.get("schema_version") != DESIGN_GENERATION_CONTRACT_SCHEMA_VERSION:
         issues.append({"code": "design_generation_contract_schema_mismatch"})
     result_payloads = payload.get("generation_results")
@@ -715,6 +1202,10 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         result_payloads = [result_payload] if isinstance(result_payload, dict) else []
     if not result_payloads:
         issues.append({"code": "design_generation_result_missing"})
+    raw_result_payloads = [
+        item for item in result_payloads if isinstance(item, Mapping)
+    ]
+    issues.extend(_prompt_size_projection_issues(payload, raw_result_payloads))
     results: list[GenerationUnderAResult] = []
     for index, result_payload in enumerate(result_payloads):
         if not isinstance(result_payload, dict):
@@ -778,6 +1269,12 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
     denominator = payload.get("not_certificate_denominator")
     if denominator != list(NOT_CERTIFICATE_KINDS):
         issues.append({"code": "not_certificate_denominator_drift"})
+    if payload.get("source_flip_mutation_harness") != {
+        "mode": "--source-flip-mutations",
+        "mutation_ids": list(N4_SOURCE_FLIP_MUTATION_IDS),
+        "property": "patch_source_then_causal_red_then_restore_exact_bytes",
+    }:
+        issues.append({"code": "source_flip_mutation_denominator_drift"})
     payoff = payload.get("grounding_payoff")
     if not isinstance(payoff, dict):
         issues.append({"code": "grounding_payoff_missing"})
@@ -972,6 +1469,39 @@ def validate_rederive_audit(repo_root: Path) -> dict[str, Any]:
         if not isinstance(item, dict) or item.get("status") != "red"
     ]
     issues = list(report["issues"])
+    path = repo_root / OUTPUT_PATH
+    if not path.is_file():
+        issues.append({"code": "design_generation_contract_missing", "path": OUTPUT_PATH})
+    else:
+        try:
+            committed = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            issues.append(
+                {
+                    "code": "design_generation_contract_invalid_json",
+                    "path": OUTPUT_PATH,
+                    "error": str(exc),
+                }
+            )
+        else:
+            committed_report = validate_payload(dict(committed))
+            issues.extend(committed_report["issues"])
+            issues.extend(_frozen_payoff_receipt_issues(dict(committed)))
+            issues.extend(_frozen_payoff_live_receipt_issues(committed, live))
+            if report["status"] == "pass":
+                expected_artifact = _build_frozen_artifact_payload(live)
+                if not _json_exact_equal(committed, expected_artifact):
+                    differing_keys = sorted(
+                        key
+                        for key in set(committed).union(expected_artifact)
+                        if committed.get(key) != expected_artifact.get(key)
+                    )
+                    issues.append(
+                        {
+                            "code": "frozen_artifact_live_drift",
+                            "differing_top_level_keys": differing_keys,
+                        }
+                    )
     if mutation_failures:
         issues.append(
             {
@@ -979,10 +1509,24 @@ def validate_rederive_audit(repo_root: Path) -> dict[str, Any]:
                 "mutations": mutation_failures,
             }
         )
+    generation_terminal_evidence = [
+        {
+            "index": index,
+            "status": result.get("status"),
+            "degraded_reasons": [
+                item.get("reason")
+                for item in result.get("degraded_artifacts", [])
+                if isinstance(item, Mapping) and item.get("reason")
+            ],
+        }
+        for index, result in enumerate(live.get("generation_results", []))
+        if isinstance(result, Mapping)
+    ]
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "outputs": declared_outputs(),
+        "generation_terminal_evidence": generation_terminal_evidence,
     }
 
 
@@ -1022,6 +1566,8 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
     if not isinstance(receipt, dict):
         issues.append({"code": "frozen_payoff_receipt_missing"})
     else:
+        if receipt.get("mode") != "frozen_real_output_payoff_receipt":
+            issues.append({"code": "frozen_payoff_receipt_mode_drift"})
         if (
             receipt.get("follow_up")
             != "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING"
@@ -1030,6 +1576,11 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
             issues.append({"code": "frozen_payoff_followup_not_closed"})
         if receipt.get("routine_check_mode") != "verify_frozen_receipt_without_live_rederive":
             issues.append({"code": "frozen_payoff_receipt_check_mode_drift"})
+        if receipt.get("live_grounding_guarantee") != (
+            "test_cgf_binding_recovers_legacy_exact_match_rejection plus "
+            "recomputing CG0-CG6 contracts"
+        ):
+            issues.append({"code": "frozen_payoff_receipt_live_guarantee_drift"})
         expected_hash = _frozen_receipt_hash(payload)
         if receipt.get("content_hash") != expected_hash:
             issues.append(
@@ -1044,16 +1595,9 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
     if not isinstance(coverage, dict):
         issues.append({"code": "recording_set_coverage_missing"})
         coverage = {}
+    expected_coverage = _recomputed_frozen_coverage(payload)
     summary = coverage.get("grounding_summary")
-    expected_summary = {
-        "abstain_or_blocked": 1,
-        "legacy_exact_match_would_bind": 0,
-        "legacy_exact_match_would_reject": 6,
-        "novel_cg3": 3,
-        "shadow_bound": 2,
-        "total_candidates": 6,
-        "veto_false_analog": 0,
-    }
+    expected_summary = expected_coverage["grounding_summary"]
     if coverage.get("coverage_status") != "covered":
         issues.append({"code": "frozen_receipt_coverage_not_covered"})
     if int(coverage.get("candidate_count") or 0) < 3:
@@ -1062,8 +1606,6 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
         issues.append({"code": "frozen_receipt_diversity_missing"})
     if coverage.get("has_legacy_rejected_shadow_binding") is not True:
         issues.append({"code": "frozen_receipt_shadow_recovery_missing"})
-    if coverage.get("has_novel_cg3_route") is not True:
-        issues.append({"code": "frozen_receipt_novel_route_missing"})
     if summary != expected_summary:
         issues.append(
             {
@@ -1072,42 +1614,107 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
                 "expected": expected_summary,
             }
         )
+    coverage_projection = {key: value for key, value in coverage.items() if key != "grounding_summary"}
+    expected_coverage_projection = {
+        key: value for key, value in expected_coverage.items() if key != "grounding_summary"
+    }
+    if coverage_projection != expected_coverage_projection:
+        issues.append(
+            {
+                "code": "frozen_receipt_coverage_drift",
+                "recorded": coverage_projection,
+                "expected": expected_coverage_projection,
+            }
+        )
+    for index, result in enumerate(_mutable_generation_results(payload)):
+        dispositions = [
+            item
+            for item in result.get("grounding_dispositions") or []
+            if isinstance(item, dict)
+        ]
+        diversity = result.get("diversity_report")
+        grounding_summary = result.get("grounding_disposition_summary")
+        if not isinstance(diversity, dict) or not isinstance(grounding_summary, dict):
+            issues.append(
+                {
+                    "code": "frozen_receipt_producer_denominator_missing",
+                    "index": index,
+                }
+            )
+            continue
+        owner_count = diversity.get("candidate_count")
+        summary_count = grounding_summary.get("total_candidates")
+        if owner_count != len(dispositions) or summary_count != len(dispositions):
+            issues.append(
+                {
+                    "code": "producer_candidate_denominator_drift",
+                    "index": index,
+                    "owner_candidate_count": owner_count,
+                    "grounding_summary_count": summary_count,
+                    "disposition_count": len(dispositions),
+                }
+            )
+    positive = payload.get("positive_gate")
+    if not isinstance(positive, dict):
+        issues.append({"code": "frozen_receipt_positive_gate_missing"})
+    elif (
+        positive.get("candidate_count") != expected_coverage["candidate_count"]
+        or positive.get("grounding_disposition_count")
+        != expected_coverage["grounding_disposition_count"]
+        or positive.get("grounding_summary") != expected_summary
+        or positive.get("unique_diversity_key_count")
+        != expected_coverage["unique_diversity_key_count"]
+    ):
+        issues.append({"code": "frozen_receipt_positive_denominator_drift"})
 
+    disposition_rows = _frozen_disposition_rows(payload)
+    expected_payoff = _grounding_payoff_projection(disposition_rows)
     payoff = payload.get("grounding_payoff")
     if not isinstance(payoff, dict):
         issues.append({"code": "grounding_payoff_missing"})
         payoff = {}
-    if payoff.get("before_legacy_exact_match") != {"would_bind": 0, "would_reject": 6}:
+    expected_payoff_keys = {
+        "recording_count",
+        "recorded_candidate_count",
+        "synthetic_cg3_handoff",
+        *expected_payoff,
+    }
+    if set(payoff) != expected_payoff_keys:
+        issues.append(
+            {
+                "code": "frozen_receipt_payoff_envelope_drift",
+                "recorded": sorted(payoff),
+                "expected": sorted(expected_payoff_keys),
+            }
+        )
+    if payoff.get("recording_count") != expected_coverage["recording_count"]:
+        issues.append({"code": "frozen_receipt_payoff_recording_denominator_drift"})
+    if payoff.get("recorded_candidate_count") != expected_coverage["candidate_count"]:
+        issues.append({"code": "frozen_receipt_payoff_candidate_denominator_drift"})
+    expected_before = expected_payoff["before_legacy_exact_match"]
+    if payoff.get("before_legacy_exact_match") != expected_before:
         issues.append({"code": "frozen_receipt_before_table_drift"})
-    if payoff.get("after_cgf") != {
-        "abstain_or_blocked": 1,
-        "novel_cg3": 3,
-        "shadow_bound": 2,
-        "veto_false_analog": 0,
-    }:
+    expected_after = expected_payoff["after_cgf"]
+    if payoff.get("after_cgf") != expected_after:
         issues.append({"code": "frozen_receipt_after_table_drift"})
     shadow_payoff = payoff.get("payoff_shadow_bindings_legacy_rejected")
-    if not isinstance(shadow_payoff, list) or len(shadow_payoff) != 2:
+    if shadow_payoff != expected_payoff["payoff_shadow_bindings_legacy_rejected"]:
         issues.append({"code": "frozen_receipt_shadow_binding_payoff_drift"})
     novel_routes = payoff.get("novel_routes")
-    if not isinstance(novel_routes, list) or len(novel_routes) != 3:
+    if novel_routes != expected_payoff["novel_routes"]:
         issues.append({"code": "frozen_receipt_novel_route_payoff_drift"})
+    vetoes = payoff.get("recorded_vetoes")
+    if vetoes != expected_payoff["recorded_vetoes"]:
+        issues.append({"code": "frozen_receipt_veto_payoff_drift"})
+    if payoff.get("synthetic_cg3_handoff") != payload.get("synthetic_cg3_handoff_probe"):
+        issues.append({"code": "frozen_receipt_synthetic_cg3_projection_drift"})
 
-    disposition_rows = _frozen_disposition_rows(payload)
-    if len(disposition_rows) != 6:
+    if len(disposition_rows) != expected_coverage["candidate_count"]:
         issues.append({"code": "frozen_receipt_disposition_denominator_drift"})
-    shadow_dispositions = [
-        item
-        for item in disposition_rows
-        if item.get("disposition") == "shadow_bound"
-        and item.get("legacy_exact_match") == "would_reject"
-    ]
-    if len(shadow_dispositions) != 2:
-        issues.append({"code": "frozen_receipt_shadow_disposition_drift"})
     novel_dispositions = [
         item for item in disposition_rows if item.get("selected_relation") == "novel-candidate"
     ]
-    if len(novel_dispositions) != 3 or any(
+    if len(novel_dispositions) != expected_summary["novel_cg3"] or any(
         item.get("disposition") != "novel_cg3" for item in novel_dispositions
     ):
         issues.append({"code": "frozen_receipt_novel_disposition_drift"})
@@ -1150,6 +1757,12 @@ def _frozen_payoff_receipt_issues(payload: dict[str, Any]) -> list[dict[str, Any
     return issues
 
 
+def _recomputed_frozen_coverage(payload: dict[str, Any]) -> dict[str, Any]:
+    """Recompute the frozen receipt's complete disposition denominator."""
+
+    return _recording_set_coverage_from_payloads(_mutable_generation_results(payload))
+
+
 def _frozen_disposition_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for result in _mutable_generation_results(payload):
@@ -1164,6 +1777,8 @@ def _frozen_receipt_projection(payload: dict[str, Any]) -> dict[str, Any]:
         "schema_version": payload.get("schema_version"),
         "recording_fixture_hash": payload.get("recording_fixture_hash"),
         "generation_results": payload.get("generation_results"),
+        "diagnostic_projection": payload.get("diagnostic_projection"),
+        "prompt_size_gate": payload.get("prompt_size_gate"),
         "recording_set_coverage": payload.get("recording_set_coverage"),
         "grounding_payoff": payload.get("grounding_payoff"),
         "positive_gate": payload.get("positive_gate"),
@@ -1177,33 +1792,123 @@ def _frozen_receipt_hash(payload: dict[str, Any]) -> str:
     return _stable_json_hash(_drift_stable_payload(_frozen_receipt_projection(payload)))
 
 
+def _build_frozen_payoff_receipt(payload: dict[str, Any]) -> dict[str, Any]:
+    """Build the content-bound routine-verification receipt for one live payload."""
+
+    return {
+        "content_hash": _frozen_receipt_hash(payload),
+        "follow_up": "GY_N4_REPLAY_FIXTURE_VERSIONING_AND_CG_CONTRACT_DECOUPLING",
+        "live_grounding_guarantee": (
+            "test_cgf_binding_recovers_legacy_exact_match_rejection plus "
+            "recomputing CG0-CG6 contracts"
+        ),
+        "mode": "frozen_real_output_payoff_receipt",
+        "routine_check_mode": "verify_frozen_receipt_without_live_rederive",
+        "status": "closed",
+    }
+
+
+def _frozen_payoff_live_receipt_issues(
+    committed: Mapping[str, Any],
+    live: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Compare current live semantics with the committed frozen receipt."""
+
+    receipt = committed.get("frozen_payoff_receipt")
+    if not isinstance(receipt, Mapping):
+        return [{"code": "frozen_payoff_receipt_missing"}]
+    recorded = receipt.get("content_hash")
+    committed_computed = _frozen_receipt_hash(dict(committed))
+    live_computed = _frozen_receipt_hash(dict(live))
+    issues: list[dict[str, Any]] = []
+    if "generation_result" in committed:
+        issues.append({"code": "legacy_singular_generation_result_present"})
+    if recorded != committed_computed:
+        issues.append(
+            {
+                "code": "frozen_payoff_receipt_hash_drift",
+                "recorded": recorded,
+                "computed": committed_computed,
+            }
+        )
+    if recorded != live_computed:
+        issues.append(
+            {
+                "code": "frozen_payoff_live_receipt_drift",
+                "recorded": recorded,
+                "computed": live_computed,
+            }
+        )
+    return issues
+
+
 def write(repo_root: Path) -> None:
     """Write the live GY-N4 design-generation contract artifact."""
 
     path = repo_root / OUTPUT_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
+    payload = _build_frozen_artifact_payload(build_live_payload(repo_root))
+    if not isinstance(payload, dict):  # pragma: no cover - build_live_payload is typed.
+        raise RuntimeError("gy_n4_artifact_payload_invalid")
     path.write_text(
-        json.dumps(build_live_payload(repo_root), indent=2, sort_keys=True) + "\n",
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
+
+
+def _build_frozen_artifact_payload(live: Mapping[str, Any]) -> dict[str, Any]:
+    """Project one live run into the exact byte-stable committed payload."""
+
+    raw_results = live.get("generation_results")
+    if (
+        not isinstance(raw_results, list)
+        or not raw_results
+        or any(not isinstance(item, Mapping) for item in raw_results)
+    ):
+        raise RuntimeError("gy_n4_generation_result_denominator_invalid")
+    live_results = list(raw_results)
+    if not live_results or any(
+        not isinstance(result.get("effective_runtime_config"), Mapping)
+        or "prompt_size_estimate" not in result["effective_runtime_config"]
+        for result in live_results
+    ):
+        raise RuntimeError("gy_n4_prompt_size_live_measurement_missing")
+    prompt_issues = _prompt_size_projection_issues(live, live_results)
+    if prompt_issues:
+        codes = ",".join(str(item.get("code")) for item in prompt_issues)
+        raise RuntimeError(f"gy_n4_prompt_size_projection_invalid:{codes}")
+    payload = _artifact_stable_payload(dict(live))
+    if not isinstance(payload, dict):  # pragma: no cover - input is a mapping.
+        raise RuntimeError("gy_n4_artifact_payload_invalid")
+    payload.pop("frozen_payoff_receipt", None)
+    payload["frozen_payoff_receipt"] = _build_frozen_payoff_receipt(payload)
+    return payload
+
+
+def _artifact_stable_payload(value: Any) -> Any:
+    """Remove replay-local elapsed measurements from committed artifact bytes."""
+
+    normalized = copy.deepcopy(value)
+    if not isinstance(normalized, dict):
+        return normalized
+    normalized.pop("wall_time_seconds", None)
+    for result in normalized.get("generation_results") or []:
+        if not isinstance(result, dict):
+            continue
+        config = result.get("effective_runtime_config")
+        if isinstance(config, dict):
+            config.pop("cg1_index_prewarm_wall_seconds", None)
+            config.pop("prompt_size_estimate", None)
+        for call in result.get("llm_calls") or []:
+            if isinstance(call, dict):
+                call.pop("wall_seconds", None)
+    return normalized
 
 
 def _drift_stable_payload(value: Any) -> Any:
     """Normalize replay-local timing measurements before artifact drift comparison."""
 
-    if isinstance(value, dict):
-        normalized: dict[str, Any] = {}
-        for key, item in value.items():
-            if key == "prompt_size_estimate":
-                normalized[key] = "<measured-prompt-size>"
-            elif key in {"wall_seconds", "cg1_index_prewarm_wall_seconds"}:
-                normalized[key] = "<measured-runtime>"
-            else:
-                normalized[key] = _drift_stable_payload(item)
-        return normalized
-    if isinstance(value, list):
-        return [_drift_stable_payload(item) for item in value]
-    return value
+    return _artifact_stable_payload(value)
 
 
 def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1225,6 +1930,8 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
             _mutate_disposition_diverges_from_certificate_verdict
         ),
         "grounding_disposition_count_drift": _mutate_grounding_disposition_count,
+        "producer_candidate_denominator_drift": _mutate_producer_candidate_denominator,
+        "prompt_size_gate_drift": _mutate_prompt_size_gate,
         "grounding_certificate_chain_drift": _mutate_grounding_certificate_chain,
         "domain_mechanism_hardcode": _mutate_domain_hardcode,
         "recorded_replay_collapses_to_authored_fixed_set": _mutate_authored_replay_collapse,
@@ -1424,8 +2131,7 @@ def _mutable_generation_results(payload: dict[str, Any]) -> list[dict[str, Any]]
     results = payload.get("generation_results")
     if isinstance(results, list):
         return [item for item in results if isinstance(item, dict)]
-    result = payload.get("generation_result")
-    return [result] if isinstance(result, dict) else []
+    return []
 
 
 def first_shadow_bound_recorded_candidate(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1491,9 +2197,11 @@ def _effective_runtime_config_issues(result_payload: Mapping[str, Any]) -> list[
     if float(config.get("prompt_cache_ttl_s") or 0.0) <= 0.0:
         issues.append({"code": "prompt_cache_disabled"})
     prompt_size = config.get("prompt_size_estimate")
-    if not isinstance(prompt_size, Mapping):
-        issues.append({"code": "prompt_size_estimate_missing"})
-    elif int(prompt_size.get("slice_added_chars") or 0) > 5000:
+    if prompt_size is not None and not isinstance(prompt_size, Mapping):
+        issues.append({"code": "prompt_size_estimate_invalid"})
+    elif isinstance(prompt_size, Mapping) and int(
+        prompt_size.get("slice_added_chars") or 0
+    ) > _PROMPT_SLICE_LIMIT_CHARS:
         issues.append(
             {
                 "code": "lever_space_prompt_slice_not_compact",
@@ -1702,6 +2410,16 @@ def _mutate_grounding_disposition_count(payload: dict[str, Any]) -> None:
     summary["shadow_bound"] = int(summary.get("shadow_bound") or 0) + 1
 
 
+def _mutate_producer_candidate_denominator(payload: dict[str, Any]) -> None:
+    diversity = _mutable_generation_results(payload)[0]["diversity_report"]
+    diversity["candidate_count"] = int(diversity.get("candidate_count") or 0) + 1
+
+
+def _mutate_prompt_size_gate(payload: dict[str, Any]) -> None:
+    gate = payload["prompt_size_gate"]
+    gate["within_limit_by_index"][0] = False
+
+
 def _mutate_grounding_certificate_chain(payload: dict[str, Any]) -> None:
     for result in _mutable_generation_results(payload):
         for disposition in result.get("grounding_dispositions") or []:
@@ -1821,6 +2539,7 @@ def _validate_recording_fixture(recording: dict[str, Any]) -> None:
             )
         if "__draft_" in raw or "__placeholder__" in raw:
             raise RuntimeError(f"gy_n4_recording_placeholder_detected:{index}")
+    _verify_recording_content_hash(recording)
 
 
 def _fixture_hash(repo_root: Path) -> str:
@@ -2137,6 +2856,847 @@ def _corrupt_field_drift_report(repo_root: Path) -> dict[str, Any]:
     }
 
 
+def _run_formalizer_source_flip(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Remove the formalizer evidence derivation and require the live path to go RED."""
+
+    relative_path = Path("src/polisyos/scientist/agent/formalizer.py")
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = (
+        '        if candidate.model_dump(mode="json") == expected:\n'
+        '            return "model_generated"\n'
+    )
+    new = (
+        '        if candidate.model_dump(mode="json") == expected:\n'
+        '            return "path_unrecorded"\n'
+    )
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return (
+            {
+                "mutation_id": SOURCE_FLIP_MUTATION_ID,
+                "result": "HARNESS_ERROR",
+                "proof": f"source guard count was {text.count(old)}, expected 1",
+            },
+        )
+
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/runtime/quality/test_design_generation.py::"
+                    "test_unrecorded_formalizer_path_salvages_only_from_matching_retry"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            },
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return (
+            {
+                "mutation_id": SOURCE_FLIP_MUTATION_ID,
+                "result": "HARNESS_ERROR",
+                "proof": {
+                    "error": "source_restore_hash_mismatch",
+                    "before": original_hash,
+                    "after": restored_hash,
+                },
+            },
+        )
+    if harness_error is not None or completed is None:
+        return (
+            {
+                "mutation_id": SOURCE_FLIP_MUTATION_ID,
+                "result": "HARNESS_ERROR",
+                "proof": harness_error or "source_flip_probe_not_run",
+            },
+        )
+
+    output = f"{completed.stdout}\n{completed.stderr}"
+    mutation_red = completed.returncode != 0 and "formalizer_path_unrecorded" in output
+    return (
+        {
+            "mutation_id": SOURCE_FLIP_MUTATION_ID,
+            "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+            "guard": "formalizer provenance derives from matching recorded response evidence",
+            "proof": {
+                "command": [str(item) for item in completed.args],
+                "exit_code": completed.returncode,
+                "expected_terminal_reason": "formalizer_path_unrecorded",
+                "terminal_reason_observed": "formalizer_path_unrecorded" in output,
+                "source_restored_sha256": restored_hash,
+                "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+                "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+            },
+        },
+    )
+
+
+def _run_drafter_parser_source_flip(repo_root: Path) -> dict[str, Any]:
+    """Restore naive drafter parsing and require the real N4 replay to go RED."""
+
+    relative_path = Path("src/polisyos/scientist/agent/drafter_clients.py")
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = "data = extract_llm_json_object(content)"
+    new = "data = json.loads(content)"
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": f"source guard count was {text.count(old)}, expected 1",
+        }
+
+    rederive: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        env = {
+            **os.environ,
+            "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            "JAX_PLATFORMS": "cpu",
+            "JAX_PLATFORM_NAME": "cpu",
+        }
+        rederive = subprocess.run(
+            (
+                sys.executable,
+                str(
+                    repo_root
+                    / "tools/quality/validation/"
+                    "check_layer3_gy_design_generation_contract.py"
+                ),
+                "--repo-root",
+                str(repo_root),
+                "--rederive-audit",
+                "--output-format",
+                "json",
+            ),
+            cwd=repo_root,
+            env=env,
+            text=True,
+            capture_output=True,
+            timeout=3600,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or rederive is None:
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+
+    try:
+        rederive_report = json.loads(rederive.stdout)
+    except json.JSONDecodeError as exc:
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "rederive_output_not_json",
+                "detail": str(exc),
+                "exit_code": rederive.returncode,
+                "source_restored_sha256": restored_hash,
+                "stdout_tail": "\n".join(rederive.stdout.splitlines()[-20:]),
+                "stderr_tail": "\n".join(rederive.stderr.splitlines()[-20:]),
+            },
+        }
+    if rederive.returncode not in {0, 1} or not isinstance(rederive_report, Mapping):
+        return {
+            "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "rederive_probe_invalid_exit_or_shape",
+                "exit_code": rederive.returncode,
+                "source_restored_sha256": restored_hash,
+                "stdout_tail": "\n".join(rederive.stdout.splitlines()[-20:]),
+                "stderr_tail": "\n".join(rederive.stderr.splitlines()[-20:]),
+            },
+        }
+    issues = rederive_report.get("issues")
+    issue_rows = issues if isinstance(issues, list) else []
+    issue_fingerprint = Counter(
+        (
+            str(item.get("code")),
+            item.get("index") if isinstance(item.get("index"), int) else None,
+        )
+        for item in issue_rows
+        if isinstance(item, Mapping) and item.get("code")
+    )
+    issue_code_counts = dict(
+        sorted(
+            Counter(
+                str(item.get("code"))
+                for item in issue_rows
+                if isinstance(item, Mapping) and item.get("code")
+            ).items()
+        )
+    )
+    positive_index_zero = any(
+        isinstance(item, Mapping)
+        and item.get("code") == "positive_generation_not_generated"
+        and item.get("index") == 0
+        for item in issue_rows
+    )
+    terminal_evidence = rederive_report.get("generation_terminal_evidence")
+    terminal_rows = terminal_evidence if isinstance(terminal_evidence, list) else []
+    terminal_reason_observed = any(
+        isinstance(item, Mapping)
+        and item.get("index") == 0
+        and "drafter_degraded_mock_fallback" in (item.get("degraded_reasons") or [])
+        for item in terminal_rows
+    )
+    mutation_red = (
+        rederive.returncode == 1
+        and rederive_report.get("status") == "fail"
+        and positive_index_zero
+        and terminal_reason_observed
+    )
+    return {
+        "mutation_id": DRAFTER_PARSER_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "drafter semantic model output uses the shared embedded-object parser, "
+            "with degraded fallback only when no object exists"
+        ),
+        "proof": {
+            "rederive_command": [str(item) for item in rederive.args],
+            "rederive_exit_code": rederive.returncode,
+            "positive_generation_index_zero_observed": positive_index_zero,
+            "terminal_reason": "drafter_degraded_mock_fallback",
+            "terminal_reason_observed": terminal_reason_observed,
+            "issue_code_counts": issue_code_counts,
+            "issue_fingerprint": [
+                {"code": code, "index": index, "count": count}
+                for (code, index), count in sorted(
+                    issue_fingerprint.items(),
+                    key=lambda item: (item[0][0], -1 if item[0][1] is None else item[0][1]),
+                )
+            ],
+            "generation_terminal_evidence": terminal_rows,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "rederive_stdout_tail": "\n".join(rederive.stdout.splitlines()[-20:]),
+            "rederive_stderr_tail": "\n".join(rederive.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def _run_recorded_config_source_flip(repo_root: Path) -> dict[str, Any]:
+    """Ignore recorded replay config and require the behavioral lane to go RED."""
+
+    relative_path = Path(
+        "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+    )
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = "    runtime_environment = _recorded_runtime_environment_values(expected)\n"
+    new = "    runtime_environment: dict[str, str] = {}\n"
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return {
+            "mutation_id": RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": f"source guard count was {text.count(old)}, expected 1",
+        }
+
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/runtime/quality/test_design_generation.py::"
+                    "test_n4_replay_applies_recorded_effective_config_and_restores_host"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            },
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+
+    output = f"{completed.stdout}\n{completed.stderr}"
+    drift_reason_observed = "recorded_effective_runtime_config_drift" in output
+    mutation_red = completed.returncode != 0 and drift_reason_observed
+    return {
+        "mutation_id": RECORDED_CONFIG_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "N4 deterministic replay applies each recording's content-bound effective "
+            "runtime config and verifies the owner-emitted input projection"
+        ),
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "drift_reason": "recorded_effective_runtime_config_drift",
+            "drift_reason_observed": drift_reason_observed,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def _run_prompt_size_source_flip(repo_root: Path) -> dict[str, Any]:
+    """Hardwire prompt-size defaults and require actual-frame binding to go RED."""
+
+    relative_path = Path("src/polisyos/runtime/quality/design_generation.py")
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = (
+        "def _prompt_size_estimate(base_frame: object, sliced_frame: object) -> PromptSizeEstimate:\n"
+        "    base_chars = len(_json_for_prompt_size(base_frame))\n"
+        "    sliced_chars = len(_json_for_prompt_size(sliced_frame))\n"
+        "    added = max(0, sliced_chars - base_chars)\n"
+        "    return PromptSizeEstimate(\n"
+        "        frame_without_slice_chars=base_chars,\n"
+        "        frame_with_slice_chars=sliced_chars,\n"
+        "        slice_added_chars=added,\n"
+        "        frame_without_slice_estimated_tokens=_estimated_tokens(base_chars),\n"
+        "        frame_with_slice_estimated_tokens=_estimated_tokens(sliced_chars),\n"
+        "        slice_added_estimated_tokens=_estimated_tokens(added),\n"
+        "    )\n"
+    )
+    new = (
+        "def _prompt_size_estimate(base_frame: object, sliced_frame: object) -> PromptSizeEstimate:\n"
+        "    del base_frame, sliced_frame\n"
+        "    return PromptSizeEstimate()\n"
+    )
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return {
+            "mutation_id": PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": f"source guard count was {text.count(old)}, expected 1",
+        }
+
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/runtime/quality/test_design_generation.py::"
+                    "test_n4_build_live_payload_binds_prompt_size_to_actual_frames"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            },
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+
+    output = f"{completed.stdout}\n{completed.stderr}"
+    drift_reason = "prompt_size_measurement_not_actual_frames"
+    drift_reason_observed = drift_reason in output
+    mutation_red = completed.returncode != 0 and drift_reason_observed
+    return {
+        "mutation_id": PROMPT_SIZE_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "N4 prompt-size evidence is independently recomputed from the actual "
+            "base and lever-sliced prompt frames"
+        ),
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "drift_reason": drift_reason,
+            "drift_reason_observed": drift_reason_observed,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def _run_candidate_lever_source_flip(repo_root: Path) -> dict[str, Any]:
+    """Remove candidate-lever provenance and require its owner probe to go RED."""
+
+    relative_path = Path("src/polisyos/scientist/agent/formalizer.py")
+    source_path = repo_root / relative_path
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    old = "            if key in executable_keys or key in _CANDIDATE_ONLY_PARAM_KEYS\n"
+    new = "            if key in executable_keys\n"
+    text = original.decode("utf-8")
+    if text.count(old) != 1:
+        return {
+            "mutation_id": CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": f"source guard count was {text.count(old)}, expected 1",
+        }
+
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/runtime/quality/test_design_generation.py::"
+                    "test_formalizer_preserves_a_translated_draft_lever_as_candidate_only"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            },
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+
+    output = f"{completed.stdout}\n{completed.stderr}"
+    candidate_lever_loss_observed = "candidate_lever_id" in output
+    mutation_red = completed.returncode != 0 and candidate_lever_loss_observed
+    return {
+        "mutation_id": CANDIDATE_LEVER_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "formalizer normalization retains the exact data-derived candidate lever "
+            "as non-authoritative provenance when executable Trinity kinds differ"
+        ),
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "candidate_lever_loss_observed": candidate_lever_loss_observed,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def _run_policy_verified_source_flip(repo_root: Path) -> dict[str, Any]:
+    source_path = repo_root / "src/polisyos/scientist/validation/policy_verified/service.py"
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    text = original.decode("utf-8")
+    replacements = (
+        (
+            "    del ctx, frame, option_set\n",
+            (
+                "    from polisyos.scientist.validation.policy_verified.testing import (\n"
+                "        formalize_policy_option_set_for_contract_testing,\n"
+                "    )\n"
+            ),
+        ),
+        (
+            "    if existing_ref is None:\n        return None\n",
+            (
+                "    if existing_ref is None:\n"
+                "        fixture = formalize_policy_option_set_for_contract_testing(\n"
+                "            ctx, frame, option_set\n"
+                "        )\n"
+                "        return TrinityBundleRef.model_validate(\n"
+                "            fixture.artifact_ref.model_dump()\n"
+                "        )\n"
+            ),
+        ),
+    )
+    for old, _new in replacements:
+        if text.count(old) != 1:
+            return {
+                "mutation_id": POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+                "result": "HARNESS_ERROR",
+                "proof": f"source guard count was {text.count(old)}, expected 1",
+            }
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    try:
+        mutated = text
+        for old, new in replacements:
+            mutated = mutated.replace(old, new, 1)
+        source_path.write_text(mutated, encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/scientist/nodes/builtins/compile/"
+                    "test_formalize_verified_policy.py::"
+                    "test_production_formalizer_only_resolves_supplied_trinity"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={**os.environ, "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}"},
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": "source_restore_hash_mismatch",
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+    return {
+        "mutation_id": POLICY_VERIFIED_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if completed.returncode != 0 else "GREEN_MUTATION_SURVIVED",
+        "guard": "policy-verified production accepts supplied real Trinity only",
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "source_restored_sha256": restored_hash,
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def _run_nl_source_flip(repo_root: Path) -> dict[str, Any]:
+    source_path = repo_root / "src/polisyos/runtime/http/services/control/nl_pipeline.py"
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    text = original.decode("utf-8")
+    old = "            contract_testing_agent_factory=None,\n"
+    new = (
+        "            contract_testing_agent_factory=(\n"
+        "                __import__(\n"
+        "                    'polisyos.runtime.http.services.control.nl_pipeline_testing',\n"
+        "                    fromlist=['build_nl_contract_testing_agents'],\n"
+        "                ).build_nl_contract_testing_agents\n"
+        "            ),\n"
+    )
+    if text.count(old) != 1:
+        return {
+            "mutation_id": NL_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": f"source guard count was {text.count(old)}, expected 1",
+        }
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    try:
+        source_path.write_text(text.replace(old, new, 1), encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/runtime/http/test_nl_pipeline_materialization.py::"
+                    "test_production_nl_pipeline_never_injects_contract_agents"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={**os.environ, "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}"},
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": NL_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": "source_restore_hash_mismatch",
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": NL_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+    return {
+        "mutation_id": NL_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if completed.returncode != 0 else "GREEN_MUTATION_SURVIVED",
+        "guard": "production NL router cannot inject contract-testing agents",
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "source_restored_sha256": restored_hash,
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def _run_s2_source_flip(repo_root: Path) -> dict[str, Any]:
+    source_path = repo_root / "src/polisyos/pdc/_impl/layer2_design_search.py"
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    text = original.decode("utf-8")
+    family_old = "    instrument_family = expansion.instrument_families[0]\n"
+    family_new = '    instrument_family = "credit_guarantee"\n'
+    parameters_old = (
+        "        parameterization={\n"
+        "            dimension: values[0] for dimension, values in expansion.parameter_space.items()\n"
+        "        },\n"
+    )
+    parameters_new = (
+        "        parameterization={\n"
+        '            "coverage": "partial_portfolio",\n'
+        '            "risk_share": "first_loss",\n'
+        '            "delivery_channel": "bank_intermediated",\n'
+        "        },\n"
+    )
+    if text.count(family_old) != 1 or text.count(parameters_old) != 1:
+        return {
+            "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "family_guard_count": text.count(family_old),
+                "parameter_guard_count": text.count(parameters_old),
+                "expected": 1,
+            },
+        }
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    try:
+        mutated = text.replace(family_old, family_new, 1).replace(
+            parameters_old,
+            parameters_new,
+            1,
+        )
+        source_path.write_text(mutated, encoding="utf-8")
+        completed = subprocess.run(
+            (
+                sys.executable,
+                "-m",
+                "pytest",
+                (
+                    "tests/unit/pdc/test_layer2_s2_design_search.py::"
+                    "test_s2_candidate_space_is_data_derived_for_unseen_families"
+                ),
+                "-q",
+            ),
+            cwd=repo_root,
+            env={**os.environ, "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}"},
+            text=True,
+            capture_output=True,
+            timeout=240,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - returned as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": "source_restore_hash_mismatch",
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+    return {
+        "mutation_id": S2_SOURCE_FLIP_MUTATION_ID,
+        "result": "RED" if completed.returncode != 0 else "GREEN_MUTATION_SURVIVED",
+        "guard": (
+            "S2 candidate family and parameterization derive from the input-carried "
+            "candidate space"
+        ),
+        "proof": {
+            "command": [str(item) for item in completed.args],
+            "exit_code": completed.returncode,
+            "source_restored_sha256": restored_hash,
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Run every restoring N4 source mutation sequentially."""
+
+    results = (
+        *_run_formalizer_source_flip(repo_root),
+        _run_drafter_parser_source_flip(repo_root),
+        _run_recorded_config_source_flip(repo_root),
+        _run_prompt_size_source_flip(repo_root),
+        _run_candidate_lever_source_flip(repo_root),
+        _run_policy_verified_source_flip(repo_root),
+        _run_nl_source_flip(repo_root),
+        _run_s2_source_flip(repo_root),
+    )
+    observed_ids = tuple(str(item.get("mutation_id")) for item in results)
+    if observed_ids != N4_SOURCE_FLIP_MUTATION_IDS:
+        return (
+            {
+                "mutation_id": "source_flip_harness_denominator",
+                "result": "HARNESS_ERROR",
+                "proof": {
+                    "expected": list(N4_SOURCE_FLIP_MUTATION_IDS),
+                    "observed": list(observed_ids),
+                },
+            },
+        )
+    return results
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the GY-N4 contract validator."""
 
@@ -2146,6 +3706,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
+    parser.add_argument("--source-flip-mutations", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
 
@@ -2154,6 +3715,10 @@ def main(argv: list[str] | None = None) -> int:
     for item in reversed(inserted):
         if item not in sys.path:
             sys.path.insert(0, item)
+    if args.source_flip_mutations:
+        results = run_source_flip_mutations(repo_root)
+        print(json.dumps({"results": list(results)}, indent=2, sort_keys=True))
+        return 0 if all(item.get("result") == "RED" for item in results) else 1
     if args.write:
         write(repo_root)
     if args.corrupt_field_drift_check:

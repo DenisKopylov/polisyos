@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from polisyos.ir.analytics.causal_discovery import DataCharacteristics, DataType, DimensionRegime
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.scientist.methods.discovery.aggregator import (
@@ -185,6 +187,49 @@ def test_skeptic_worker_falls_back_on_invalid_provider_output(monkeypatch) -> No
     assert findings
     assert provenance.fallback_used is True
     assert provenance.worker_name == "skeptic"
+
+
+def test_skeptic_worker_parses_think_prefixed_provider_output(monkeypatch) -> None:
+    payload = {
+        "findings": [
+            {
+                "category": "orientation_conflict",
+                "severity": "warning",
+                "message": "The X to Y orientation remains disputed.",
+                "falsification_suggestion": "Collect an intervention on X.",
+                "alternative_explanation": "Y may cause X.",
+                "hypothesis_id": "h1",
+                "edge_key": "X->Y",
+            }
+        ]
+    }
+
+    class _Client:
+        async def generate(self, **kwargs):
+            del kwargs
+            return "<think>skeptic reasoning</think>" + json.dumps(payload)
+
+    monkeypatch.setattr(
+        "polisyos.scientist.methods.discovery.workers.create_traced_gateway_client",
+        lambda **kwargs: _Client(),
+    )
+
+    findings, provenance = SkepticWorker().critique(
+        SkepticWorkerInput(
+            hypotheses=[_hypothesis()],
+            edge_confidence_matrix=_matrix(),
+            bootstrap_stability_report=_stability(),
+            downstream_utility_report=_utility(),
+            graph_prior_bundle=_priors(),
+            prior_knowledge_bundle=PriorKnowledgeBundle(),
+        ),
+        budget=DiscoveryWorkerBudget(max_findings=3),
+        context=DiscoveryWorkerContext(run_id="skeptic_think", task_id="task"),
+    )
+
+    assert [finding.finding_id for finding in findings] == ["skeptic_1"]
+    assert provenance.fallback_used is False
+    assert provenance.mode == "gateway_json"
 
 
 def test_worker_bundle_degrades_on_partial_inputs() -> None:

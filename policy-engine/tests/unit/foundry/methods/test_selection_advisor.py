@@ -1,11 +1,26 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import time
 from dataclasses import replace
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
+
+import polisyos.foundry.methods.components.value_evidence as value_evidence
+import polisyos.foundry.methods.selection as method_selection
+import polisyos.foundry.methods.selection.advisor as advisor_module
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry, MethodCatalogSnapshot
+from polisyos.foundry.methods.base import (
+    ComplexityClass,
+    FidelityLevel,
+    MethodSignature,
+    SlotSpec,
+    SlotType,
+    Unit,
+)
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog.snapshot import build_method_catalog_snapshot
 from polisyos.foundry.methods.components.consensus import (
@@ -13,17 +28,84 @@ from polisyos.foundry.methods.components.consensus import (
     EstimandSpec,
     run_cross_method_consensus,
 )
+from polisyos.foundry.methods.exceptions import FoundryMethodError
 from polisyos.foundry.methods.selection import (
     AdvisorValuePolicy,
     DataCharacteristics,
     MethodAdvisorQuery,
     MethodSelectionCriteria,
+    MethodSelectionReceipt,
     advise_methods,
     advise_methods_for_analyst,
     build_advisor_execution_context,
     pareto_advise_methods,
+    select_value_method_for_problem,
 )
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.foundry.methods.selection_history import MethodExecutionRecord, SelectionHistoryStore
+from polisyos.ir.analytics.uncertainty import (
+    NativeValueEstimandBinding,
+    ValueUncertaintyProjectionKind,
+    value_uncertainty_output_contract,
+)
+
+
+def test_reachable_value_denominator_fails_closed_on_catalog_error(monkeypatch) -> None:
+    ensure_all_methods_registered()
+
+    def _catalog_failure(*args, **kwargs):
+        del args, kwargs
+        raise RuntimeError("catalog unavailable")
+
+    monkeypatch.setattr(advisor_module, "build_method_catalog_snapshot", _catalog_failure)
+
+    with pytest.raises(FoundryMethodError) as exc_info:
+        advisor_module.reachable_value_method_fqns()
+
+    assert exc_info.value.code == "value_method_catalog_unavailable"
+
+
+class _WaterQualityNativeInterval:
+    """Third-domain native interval contract used to prove owner-driven discovery."""
+
+    contract_id = "test.water_quality.native_interval.v1"
+    output_contract_declaration = value_uncertainty_output_contract(
+        contract_id,
+        projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
+    )
+
+    def to_value_uncertainty(
+        self,
+        *,
+        estimand: object,
+        projection_binding: NativeValueEstimandBinding,
+    ) -> None:
+        del estimand, projection_binding
+        return None
+
+
+class _WaterQualityValueMethod:
+    """Pack-shaped U2 witness with no engine family or FQN registration."""
+
+    signature = MethodSignature(
+        name="water_quality_interval",
+        namespace="environment.water_quality",
+        version="1.0.0",
+        input_slots=frozenset(),
+        output_slots=frozenset(
+            {
+                SlotSpec.for_output_contract(
+                    "result",
+                    SlotType.SCALAR,
+                    Unit("water_quality_interval", "json"),
+                    output_contract=_WaterQualityNativeInterval,
+                )
+            }
+        ),
+        parameters=(),
+        fidelity=FidelityLevel.HIGH,
+        complexity=ComplexityClass.O_N,
+    )
 
 
 def _entry(
@@ -199,6 +281,620 @@ def test_method_advisor_returns_ranked_payload_and_capability_matrix() -> None:
             "frontier_method_count": 0,
         },
     )
+
+
+def test_value_advisor_trace_is_filtered_to_the_value_denominator() -> None:
+    result = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "candidate_value_denominator",
+            "diversity_key": ("posterior", "tabular", "effect"),
+        },
+        problem={
+            "design_problem_id": "problem_value_denominator",
+            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": False,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                }
+            },
+        },
+    )
+
+    assert result["status"] == "selected"
+    denominator = set(result["denominator"])
+    assert denominator
+    assert set(result["score_trace"]) <= denominator
+    assert result["ranked_alternatives"]
+    assert all(
+        row["method_fqn"] in denominator
+        for row in result["ranked_alternatives"]
+    )
+    assert sum(
+        row["method_fqn"] == result["selected_method_fqn"]
+        for row in result["ranked_alternatives"]
+    ) == 1
+
+
+def test_value_denominator_excludes_diagnostics_without_native_projection() -> None:
+    """A diagnostic name/tag cannot substitute for an owner-native value contract."""
+
+    result = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "education_candidate_unbound",
+            "diversity_key": ("tabular", "cross-section", "education"),
+        },
+        problem={
+            "design_problem_id": "education_value_denominator",
+            "problem_statement": "Estimate tertiary enrollment effects.",
+            "domain": "education",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 3,
+                    "n_units": 3,
+                    "n_periods": 1,
+                    "is_panel": False,
+                    "treatment_is_binary": None,
+                    "outcome_is_continuous": True,
+                },
+                "value_required_data_modalities": ("tabular",),
+            },
+        },
+    )
+
+    assert result["status"] == "selected"
+    assert "econometrics.diagnostics.hausman_test@1.0.0" not in result["denominator"]
+    assert all("diagnostic" not in fqn for fqn in result["denominator"])
+
+
+def test_value_denominator_rejects_catalog_capability_without_method_owner(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A shaped catalog row cannot make a diagnostic method value-capable."""
+
+    registry = MethodRegistry.get_instance()
+    ensure_all_methods_registered(registry)
+    live_catalog = build_method_catalog_snapshot(registry=registry)
+    hausman = next(
+        entry
+        for entry in live_catalog.entries
+        if entry.fqn == "econometrics.diagnostics.hausman_test@1.0.0"
+    )
+    slot_name = str(hausman.output_slots[0]["name"])
+    owner_ref = (
+        f"{_WaterQualityNativeInterval.__module__}:"
+        f"{_WaterQualityNativeInterval.__qualname__}"
+    )
+    forged_capability = value_evidence.NativeValueProjectionCapability(
+        output_slot=slot_name,
+        contract_id=_WaterQualityNativeInterval.contract_id,
+        owner_module=_WaterQualityNativeInterval.__module__,
+        owner_qualname=_WaterQualityNativeInterval.__qualname__,
+        projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
+    )
+    forged = hausman.model_copy(
+        update={
+            "capability_matrix": {
+                **hausman.capability_matrix,
+                "value_projection_contracts": [
+                    forged_capability.model_dump(mode="json")
+                ],
+            },
+            "output_slots": [
+                {
+                    **hausman.output_slots[0],
+                    "contract_id": _WaterQualityNativeInterval.contract_id,
+                    "contract_capabilities": ["value_uncertainty_projection"],
+                    "contract_owner": owner_ref,
+                }
+            ],
+        }
+    )
+    forged_catalog = live_catalog.model_copy(update={"entries": [forged]})
+    monkeypatch.setattr(
+        advisor_module,
+        "build_method_catalog_snapshot",
+        lambda *, registry=None: forged_catalog,
+    )
+
+    result = select_value_method_for_problem(
+        registry=registry,
+        candidate={"candidate_id": "catalog-shape-attack"},
+        problem={
+            "design_problem_id": "catalog-shape-attack",
+            "problem_statement": "Estimate an outcome.",
+            "domain": "generic",
+        },
+    )
+
+    assert result["status"] == "blocked"
+    assert result["blockers"] == ("value_method_registry_empty",)
+
+
+def test_value_projection_capability_is_discovered_from_third_contract_owner() -> None:
+    """A new native contract flows without a method-family/FQN branch in the advisor."""
+
+    resolver = value_evidence.resolve_method_value_projection_capabilities
+
+    capabilities = resolver(
+        method_cls=_WaterQualityValueMethod,
+        method_signature=_WaterQualityValueMethod.signature,
+    )
+
+    assert len(capabilities) == 1
+    assert capabilities[0].output_slot == "result"
+    assert capabilities[0].contract_id == _WaterQualityNativeInterval.contract_id
+    assert capabilities[0].projector == "to_value_uncertainty"
+    assert capabilities[0].owner_qualname.endswith("_WaterQualityNativeInterval")
+
+
+def test_value_advisor_builds_content_bound_selection_receipt_from_real_trace() -> None:
+    result = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "candidate_selection_receipt",
+            "diversity_key": ("posterior", "tabular", "effect"),
+        },
+        problem={
+            "design_problem_id": "problem_selection_receipt",
+            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": False,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                }
+            },
+        },
+    )
+
+    receipt = MethodSelectionReceipt.model_validate(result["selection_receipt"])
+
+    assert receipt.selection_authority == "foundry_registry_advisor"
+    assert receipt.denominator == tuple(sorted(set(receipt.denominator)))
+    assert len(receipt.denominator) > 1
+    assert receipt.selected_method_fqn == result["selected_method_fqn"]
+    assert tuple(row.method_fqn for row in receipt.ranked_alternatives) == tuple(
+        result["score_trace"]
+    )
+    assert sum(row.selected for row in receipt.ranked_alternatives) == 1
+
+
+def test_method_selection_context_hash_uses_exact_canonical_selector_payload() -> None:
+    profile_hash = "sha256:" + "a" * 64
+    candidate = {
+        "candidate_id": "candidate_selection_context",
+        "diversity_key": ("posterior", "tabular", "effect"),
+    }
+    problem = {
+        "design_problem_id": "problem_selection_context",
+        "problem_statement": "Estimate a bounded effect.",
+        "domain": "generic_policy",
+        "runtime_hints": {
+            "value_data_characteristics": {
+                "n_obs": 64,
+                "n_units": 16,
+                "n_periods": 4,
+                "is_panel": True,
+                "treatment_is_binary": True,
+                "outcome_is_continuous": True,
+            },
+            "value_data_profile_content_hash": profile_hash,
+            "value_required_data_modalities": ("tabular", "panel"),
+        },
+    }
+    manifest = (
+        {"contract_target": "tabular"},
+        {"data_modality": "panel"},
+        {"contract_target": "tabular"},
+    )
+    ensure_all_methods_registered()
+    registry = MethodRegistry.get_instance()
+    catalog = build_method_catalog_snapshot(registry=registry)
+    value_catalog_projection_hash = advisor_module._value_catalog_projection_hash(
+        tuple(
+            entry
+            for entry in catalog.entries
+            if advisor_module._catalog_entry_is_value_method(entry, registry=registry)
+        )
+    )
+    expected_payload = {
+        "schema_version": "policyos.foundry.method_selection_context.v3",
+        "value_catalog_projection_hash": value_catalog_projection_hash,
+        "candidate_signal": "candidate_selection_context posterior tabular effect",
+        "problem_signal": (
+            "problem_selection_context Estimate a bounded effect. generic_policy"
+        ),
+        "value_data_profile_content_hash": profile_hash,
+        "effective_query": {
+            "criteria": {
+                "preferred_kind": None,
+                "preferred_family": None,
+                "preferred_variant": None,
+                "family_prefixes": ("bayesian",),
+                "preferred_execution_backends": (),
+                "required_data_modalities": ("tabular", "panel"),
+                "preferred_data_modalities": (),
+                "preferred_determinism_tier": None,
+                "minimum_fidelity_tier": None,
+                "runnable_only": True,
+                "exclude_fqns": (),
+            },
+            "data": {
+                "n_obs": 64,
+                "n_units": 16,
+                "n_periods": 4,
+                "has_instrument": False,
+                "has_running_variable": False,
+                "is_panel": True,
+                "treatment_is_binary": True,
+                "outcome_is_continuous": True,
+            },
+            "runtime_budget_ms": 25.0,
+            "limit": 8,
+            "runnable_only": True,
+            "loss_profile_id": "balanced",
+            "coverage_floor": None,
+            "confidence_level": 0.95,
+            "cost_policy": "ignore",
+            "cost_budget": None,
+            "risk_delta": 0.05,
+            "return_certificate": False,
+            "dominance_mode": "point",
+            "allow_heuristic_cost_estimate": True,
+            "require_declared_accuracy_estimate": False,
+            "require_cross_method_consensus": False,
+            "minimum_consensus_methods": 2,
+        },
+        "requested_method_fqn": None,
+        "manifest_targets": ("panel", "tabular"),
+        "runtime_budget_ms": 25.0,
+    }
+    expected_hash = "sha256:" + hashlib.sha256(
+        json.dumps(
+            expected_payload,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=True,
+        ).encode("utf-8")
+    ).hexdigest()
+
+    actual_hash = method_selection.method_selection_context_hash(
+        candidate=candidate,
+        problem=problem,
+        observation_to_contract_manifest=manifest,
+        runtime_budget_ms=25.0,
+    )
+
+    assert actual_hash == expected_hash
+    assert actual_hash == method_selection.method_selection_context_hash(
+        candidate=candidate,
+        problem=problem,
+        observation_to_contract_manifest=manifest,
+        runtime_budget_ms=25.0,
+    )
+
+
+def test_advisor_receipt_rejects_replay_across_owner_profile_contexts() -> None:
+    candidate = {
+        "candidate_id": "candidate_advisor_context_replay",
+        "diversity_key": ("posterior", "tabular", "effect"),
+    }
+
+    def _problem(profile_digest: str) -> dict[str, object]:
+        return {
+            "design_problem_id": "problem_advisor_context_replay",
+            "problem_statement": "Estimate a bounded effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": True,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                },
+                "value_data_profile_content_hash": profile_digest,
+                "value_required_data_modalities": ("tabular",),
+            },
+        }
+
+    first_problem = _problem("sha256:" + "d" * 64)
+    second_problem = _problem("sha256:" + "e" * 64)
+    first_selection = select_value_method_for_problem(candidate=candidate, problem=first_problem)
+    second_selection = select_value_method_for_problem(candidate=candidate, problem=second_problem)
+    first_receipt = MethodSelectionReceipt.model_validate(first_selection["selection_receipt"])
+    second_receipt = MethodSelectionReceipt.model_validate(second_selection["selection_receipt"])
+
+    assert first_selection["selected_method_fqn"] == second_selection["selected_method_fqn"]
+    assert first_selection["denominator"] == second_selection["denominator"]
+    assert first_selection["score_trace"] == second_selection["score_trace"]
+    assert first_receipt.selection_context_hash != second_receipt.selection_context_hash
+    assert first_receipt.content_hash != second_receipt.content_hash
+    assert first_receipt.verify_selection_context(
+        method_selection.method_selection_context_hash(
+            candidate=candidate,
+            problem=first_problem,
+        )
+    ) is first_receipt
+    with pytest.raises(ValueError, match="value_method_selection_context_hash_mismatch"):
+        first_receipt.verify_selection_context(second_receipt.selection_context_hash)
+
+
+@pytest.mark.parametrize("requested", [False, True])
+def test_value_selection_receipt_rejects_replay_across_catalog_snapshots(
+    monkeypatch: pytest.MonkeyPatch,
+    requested: bool,
+) -> None:
+    base_catalog = build_method_catalog_snapshot()
+    active_catalog = {"snapshot": base_catalog}
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.selection.advisor.build_method_catalog_snapshot",
+        lambda **_kwargs: active_catalog["snapshot"],
+    )
+    candidate = {"candidate_id": "candidate_catalog_context"}
+    problem = {
+        "design_problem_id": "problem_catalog_context",
+        "problem_statement": "Choose a registered value method.",
+        "domain": "generic_policy",
+        "runtime_hints": {
+            "value_data_profile_content_hash": "sha256:" + "c" * 64,
+        },
+    }
+    preliminary = select_value_method_for_problem(candidate=candidate, problem=problem)
+    requested_fqn = str(preliminary["selected_method_fqn"]) if requested else None
+    first = select_value_method_for_problem(
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn=requested_fqn,
+    )
+    first_receipt = MethodSelectionReceipt.model_validate(first["selection_receipt"])
+    removed_fqn = next(
+        fqn
+        for fqn in reversed(first_receipt.denominator)
+        if fqn != first_receipt.selected_method_fqn
+    )
+    active_catalog["snapshot"] = base_catalog.model_copy(
+        update={
+            "snapshot_id": f"{base_catalog.snapshot_id}-changed",
+            "entries": [
+                entry for entry in base_catalog.entries if entry.fqn != removed_fqn
+            ],
+        }
+    )
+    second = select_value_method_for_problem(
+        candidate=candidate,
+        problem=problem,
+        requested_method_fqn=requested_fqn,
+    )
+    second_receipt = MethodSelectionReceipt.model_validate(second["selection_receipt"])
+
+    assert first_receipt.selected_method_fqn == second_receipt.selected_method_fqn
+    assert first_receipt.selection_context_hash != second_receipt.selection_context_hash
+    with pytest.raises(ValueError, match="value_method_selection_context_hash_mismatch"):
+        first_receipt.verify_selection_context(
+            method_selection.method_selection_context_hash(
+                candidate=candidate,
+                problem=problem,
+                requested_method_fqn=requested_fqn,
+            )
+        )
+
+
+def test_value_selection_context_ignores_unrelated_catalog_drift(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Bind selection replay to the value denominator, not import-order noise."""
+
+    base_catalog = build_method_catalog_snapshot()
+    candidate = {"candidate_id": "candidate_value_catalog_projection"}
+    problem = {
+        "design_problem_id": "problem_value_catalog_projection",
+        "problem_statement": "Choose a registered value method.",
+        "domain": "generic_policy",
+        "runtime_hints": {
+            "value_data_profile_content_hash": "sha256:" + "9" * 64,
+        },
+    }
+    active_catalog = {"snapshot": base_catalog}
+    monkeypatch.setattr(
+        "polisyos.foundry.methods.selection.advisor.build_method_catalog_snapshot",
+        lambda **_kwargs: active_catalog["snapshot"],
+    )
+
+    first = select_value_method_for_problem(candidate=candidate, problem=problem)
+    first_receipt = MethodSelectionReceipt.model_validate(first["selection_receipt"])
+    unrelated = next(
+        entry for entry in base_catalog.entries if entry.fqn not in first_receipt.denominator
+    )
+    changed_unrelated = unrelated.model_copy(
+        update={"description": f"{unrelated.description} unrelated_import_order_probe"}
+    )
+    active_catalog["snapshot"] = base_catalog.model_copy(
+        update={
+            "snapshot_id": f"{base_catalog.snapshot_id}-unrelated-drift",
+            "entries": [
+                changed_unrelated if entry.fqn == unrelated.fqn else entry
+                for entry in base_catalog.entries
+            ],
+        }
+    )
+
+    second = select_value_method_for_problem(candidate=candidate, problem=problem)
+    second_receipt = MethodSelectionReceipt.model_validate(second["selection_receipt"])
+
+    assert first_receipt.denominator == second_receipt.denominator
+    assert first_receipt.ranked_alternatives == second_receipt.ranked_alternatives
+    assert first_receipt.selection_context_hash == second_receipt.selection_context_hash
+
+
+def test_requested_value_method_builds_receipt_from_verified_registry_entry() -> None:
+    advisor_selection = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "candidate_registry_request_source",
+            "diversity_key": ("posterior", "tabular", "effect"),
+        },
+        problem={
+            "design_problem_id": "problem_registry_request_source",
+            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+            "domain": "generic_policy",
+        },
+    )
+    requested_fqn = advisor_selection["selected_method_fqn"]
+
+    requested_selection = select_value_method_for_problem(
+        candidate={"candidate_id": "candidate_registry_request"},
+        problem={
+            "design_problem_id": "problem_registry_request",
+            "problem_statement": "Use the explicitly requested registered method.",
+            "domain": "generic_policy",
+        },
+        requested_method_fqn=requested_fqn,
+    )
+    receipt = MethodSelectionReceipt.model_validate(requested_selection["selection_receipt"])
+
+    assert receipt.selection_authority == "requested_registry_method"
+    assert receipt.selected_method_fqn == requested_fqn
+    assert receipt.denominator == tuple(sorted(set(receipt.denominator)))
+    assert len(receipt.ranked_alternatives) == 1
+    assert receipt.ranked_alternatives[0].method_fqn == requested_fqn
+    assert receipt.ranked_alternatives[0].selected is True
+    assert receipt.ranked_alternatives[0].advisor_score is None
+    assert receipt.ranked_alternatives[0].loss_reasons == ("explicit_registry_request",)
+
+
+def test_requested_registry_receipt_is_bound_to_its_owner_profile_context() -> None:
+    candidate = {"candidate_id": "candidate_requested_context_replay"}
+    first_problem = {
+        "design_problem_id": "problem_requested_context_replay",
+        "problem_statement": "Use the requested registered method.",
+        "domain": "generic_policy",
+        "runtime_hints": {
+            "value_data_profile_content_hash": "sha256:" + "f" * 64,
+        },
+    }
+    advisor_selection = select_value_method_for_problem(candidate=candidate, problem=first_problem)
+    advisor_receipt = MethodSelectionReceipt.model_validate(advisor_selection["selection_receipt"])
+    requested_fqn = str(advisor_selection["selected_method_fqn"])
+    second_problem = {
+        **first_problem,
+        "runtime_hints": {
+            "value_data_profile_content_hash": "sha256:" + "0" * 64,
+        },
+    }
+
+    first_selection = select_value_method_for_problem(
+        candidate=candidate,
+        problem=first_problem,
+        requested_method_fqn=requested_fqn,
+    )
+    second_selection = select_value_method_for_problem(
+        candidate=candidate,
+        problem=second_problem,
+        requested_method_fqn=requested_fqn,
+    )
+    first_receipt = MethodSelectionReceipt.model_validate(first_selection["selection_receipt"])
+    second_receipt = MethodSelectionReceipt.model_validate(second_selection["selection_receipt"])
+
+    assert first_receipt.selection_authority == "requested_registry_method"
+    assert first_receipt.selected_method_fqn == second_receipt.selected_method_fqn
+    assert first_receipt.denominator == second_receipt.denominator
+    assert first_receipt.selection_context_hash != advisor_receipt.selection_context_hash
+    assert first_receipt.selection_context_hash != second_receipt.selection_context_hash
+    assert first_receipt.content_hash != second_receipt.content_hash
+    assert first_receipt.verify_selection_context(
+        method_selection.method_selection_context_hash(
+            candidate=candidate,
+            problem=first_problem,
+            requested_method_fqn=requested_fqn,
+        )
+    ) is first_receipt
+    with pytest.raises(ValueError, match="value_method_selection_context_hash_mismatch"):
+        first_receipt.verify_selection_context(second_receipt.selection_context_hash)
+
+
+@pytest.mark.parametrize(
+    ("mutation", "reason"),
+    [
+        (
+            lambda payload: payload.update(selection_authority="caller_asserted_advisor"),
+            "selection_authority",
+        ),
+        (
+            lambda payload: payload.update(denominator=tuple(reversed(payload["denominator"]))),
+            "value_method_selection_denominator_not_canonical",
+        ),
+        (
+            lambda payload: payload["ranked_alternatives"][0].update(
+                method_fqn="out.of.denominator@1.0.0"
+            ),
+            "value_method_selection_trace_outside_denominator",
+        ),
+        (
+            lambda payload: payload.update(
+                ranked_alternatives=[
+                    {**row, "selected": False} for row in payload["ranked_alternatives"]
+                ]
+            ),
+            "value_method_selection_receipt_incoherent",
+        ),
+        (
+            lambda payload: payload.update(denominator=(payload["selected_method_fqn"],)),
+            "value_method_selection_fixed_default",
+        ),
+        (
+            lambda payload: payload.update(content_hash="sha256:" + "0" * 64),
+            "value_method_selection_receipt_content_hash_mismatch",
+        ),
+        (
+            lambda payload: payload.update(selection_context_hash="sha256:" + "0" * 64),
+            "value_method_selection_receipt_content_hash_mismatch",
+        ),
+        (
+            lambda payload: payload.update(unexpected_authority_hint="trusted"),
+            "extra_forbidden",
+        ),
+    ],
+)
+def test_value_method_selection_receipt_rejects_self_attested_or_incoherent_payloads(
+    mutation: object,
+    reason: str,
+) -> None:
+    selection = select_value_method_for_problem(
+        candidate={
+            "candidate_id": "candidate_selection_receipt_negative",
+            "diversity_key": ("posterior", "tabular", "effect"),
+        },
+        problem={
+            "design_problem_id": "problem_selection_receipt_negative",
+            "problem_statement": "Estimate an uncertainty-bounded causal effect.",
+            "domain": "generic_policy",
+            "runtime_hints": {
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": False,
+                    "treatment_is_binary": True,
+                    "outcome_is_continuous": True,
+                }
+            },
+        },
+    )
+    payload = selection["selection_receipt"]
+    mutation(payload)  # type: ignore[operator]
+
+    with pytest.raises(ValidationError, match=reason):
+        MethodSelectionReceipt.model_validate(payload)
 
 
 def test_method_advisor_strict_phase5_blocks_missing_consensus() -> None:

@@ -5,9 +5,11 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import contextlib
 import copy
 import importlib
 import importlib.util
+import io
 import json
 import os
 import re
@@ -30,10 +32,12 @@ SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1"
 )
 DISPOSITIONS = {"USE_AS_IS", "REWORK_TO_FIT", "DELETE"}
+BRIDGE_DISPOSITIONS = {"BUILD_NEW_BRIDGE", "BUILD_NEW_FOUNDATION_CONTRACT", "REWORK_TO_FIT"}
 TASK_STATUSES = {"pending", "landed"}
 STRANGLE_STATUSES = {"pending", "strangled"}
 REQUIRED_TASKS = {
     *{f"GY-N{index}" for index in range(1, 11)},
+    "GY-N10a",
     "GY-N-V",
     "GY-S0",
     "GY-S1",
@@ -49,6 +53,7 @@ REQUIRED_BRIDGES = {
     "WorldModelRecord",
     "JointSimulationHorizonController",
     "ValueOuterSet",
+    "FoundryValuePort",
 }
 STRANGLE_RECEIPT_FIELDS = {
     "predecessor_ref",
@@ -136,27 +141,36 @@ def validate_ledger(repo_root: Path, ledger: dict[str, Any]) -> dict[str, Any]:
 
     tasks = _dict_of_dicts(ledger.get("tasks"), field="tasks", issues=issues)
     for task_id in REQUIRED_TASKS:
-        task = tasks.get(task_id)
-        if not task:
+        if task_id not in tasks:
             issues.append({"code": "task_status_missing", "task_id": task_id})
-            continue
+    for task_id, task in tasks.items():
         status = task.get("status")
         if status not in TASK_STATUSES:
             issues.append({"code": "task_status_invalid", "task_id": task_id, "status": status})
 
     bridges = _dict_of_dicts(ledger.get("bridge_artifacts"), field="bridge_artifacts", issues=issues)
     for bridge_id in REQUIRED_BRIDGES:
-        bridge = bridges.get(bridge_id)
-        if not bridge:
+        if bridge_id not in bridges:
             issues.append({"code": "bridge_artifact_missing", "bridge": bridge_id})
-            continue
+    for bridge_id, bridge in bridges.items():
         task_id = bridge.get("consuming_task")
         if task_id not in tasks:
             issues.append(
                 {"code": "bridge_artifact_task_missing", "bridge": bridge_id, "task_id": task_id}
             )
+        disposition = bridge.get("disposition")
+        if disposition not in BRIDGE_DISPOSITIONS:
+            issues.append(
+                {
+                    "code": "bridge_artifact_disposition_invalid",
+                    "bridge": bridge_id,
+                    "disposition": disposition,
+                }
+            )
 
     _validate_task_mapping(ledger, owner_by_id, tasks, issues)
+    _validate_parallel_world_reconciliation(ledger, tasks, issues)
+    _validate_source_reconciliation(repo_root, ledger, owners, issues)
     strangle_summary = _validate_strangle_obligations(repo_root, owners, tasks, issues)
     method_gate = _validate_method_availability_gate(repo_root, ledger, issues)
     _validate_registration(repo_root, issues)
@@ -426,6 +440,111 @@ def _validate_task_mapping(
                 )
 
 
+def _validate_parallel_world_reconciliation(
+    ledger: dict[str, Any],
+    tasks: dict[str, dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> None:
+    rows = _list_of_dicts(
+        ledger.get("parallel_world_reconciliation"),
+        field="parallel_world_reconciliation",
+        issues=issues,
+    )
+    prefix = "pending_strangle_under_"
+    for row in rows:
+        parallel_world = str(row.get("parallel_world") or "")
+        status = str(row.get("status") or "")
+        if status == "strangled":
+            continue
+        if not status.startswith(prefix):
+            issues.append(
+                {
+                    "code": "parallel_world_status_invalid",
+                    "parallel_world": parallel_world,
+                    "status": status,
+                }
+            )
+            continue
+        task_ids = tuple(item for item in status.removeprefix(prefix).split("_") if item)
+        if not task_ids:
+            issues.append(
+                {
+                    "code": "parallel_world_pending_task_missing",
+                    "parallel_world": parallel_world,
+                }
+            )
+            continue
+        for task_id in task_ids:
+            task = tasks.get(task_id)
+            if task is None:
+                issues.append(
+                    {
+                        "code": "parallel_world_pending_task_unknown",
+                        "parallel_world": parallel_world,
+                        "task_id": task_id,
+                    }
+                )
+            elif task.get("status") == "landed":
+                issues.append(
+                    {
+                        "code": "parallel_world_pending_task_already_landed",
+                        "parallel_world": parallel_world,
+                        "task_id": task_id,
+                    }
+                )
+
+
+def _validate_source_reconciliation(
+    repo_root: Path,
+    ledger: dict[str, Any],
+    owners: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> None:
+    reconciliation = ledger.get("source_reconciliation")
+    if not isinstance(reconciliation, dict):
+        issues.append({"code": "source_reconciliation_missing"})
+        return
+    expected_counts = dict.fromkeys(sorted(DISPOSITIONS), 0)
+    for owner in owners:
+        disposition = owner.get("disposition")
+        if disposition in expected_counts:
+            expected_counts[disposition] += 1
+    if reconciliation.get("disposition_counts") != expected_counts:
+        issues.append(
+            {
+                "code": "source_reconciliation_disposition_counts_drift",
+                "expected": expected_counts,
+                "actual": reconciliation.get("disposition_counts"),
+            }
+        )
+    if reconciliation.get("total_owner_entries") != len(owners):
+        issues.append(
+            {
+                "code": "source_reconciliation_owner_total_drift",
+                "expected": len(owners),
+                "actual": reconciliation.get("total_owner_entries"),
+            }
+        )
+    parallel_rows = ledger.get("parallel_world_reconciliation")
+    parallel_count = len(parallel_rows) if isinstance(parallel_rows, list) else 0
+    if reconciliation.get("parallel_worlds_reconciled") != parallel_count:
+        issues.append(
+            {
+                "code": "source_reconciliation_parallel_world_total_drift",
+                "expected": parallel_count,
+                "actual": reconciliation.get("parallel_worlds_reconciled"),
+            }
+        )
+    for field in ("reuse_rework_delete_source", "task_mapping_source"):
+        anchor = str(reconciliation.get(field) or "")
+        if not _anchor_resolves(repo_root, anchor):
+            issues.append(
+                {
+                    "code": "source_reconciliation_anchor_unresolved",
+                    "field": field,
+                    "anchor": anchor,
+                }
+            )
 def _validate_strangle_obligations(
     repo_root: Path,
     owners: list[dict[str, Any]],
@@ -464,6 +583,22 @@ def _validate_strangle_obligations(
                         "owner_id": owner_id,
                         "consuming_task": consuming_task,
                         "status": status,
+                        "condition_holds": condition_holds,
+                    }
+                )
+            else:
+                summary["strangled"] += 1
+        elif status == "strangled":
+            condition_holds = _evaluate_strangle_condition(
+                repo_root,
+                receipt.get("strangle_condition"),
+            )
+            if not condition_holds:
+                issues.append(
+                    {
+                        "code": "strangled_owner_condition_not_met",
+                        "owner_id": owner_id,
+                        "consuming_task": consuming_task,
                         "condition_holds": condition_holds,
                     }
                 )
@@ -536,11 +671,310 @@ def _evaluate_strangle_condition(repo_root: Path, condition: object) -> bool:
         )
     if kind == "design_generation_model_preflight_landed":
         return _design_generation_mutation_red(repo_root, "unsupported_model_not_rejected")
+    if kind == "value_gate_contract_landed":
+        return _n8_value_gate_property_landed(repo_root, "canonical_foundry_value_port")
+    if kind == "n8_value_gate_property_landed":
+        return _n8_value_gate_property_landed(
+            repo_root,
+            str(condition.get("property") or ""),
+        )
+    if kind == "s2_candidate_space_data_derived":
+        return _s2_candidate_space_data_derived(repo_root, condition)
     if kind == "generation_cycle_contract_landed":
         return _generation_cycle_contract_landed(repo_root)
     if kind == "n9_promotion_contract_landed":
         return _n9_promotion_contract_landed(repo_root)
     return False
+
+
+def _s2_candidate_space_data_derived(repo_root: Path, condition: dict[str, Any]) -> bool:
+    try:
+        from polisyos.runtime.quality.design_generation import (
+            design_generation_strangle_receipts,
+        )
+
+        predecessor_ref = str(condition.get("predecessor_ref") or "")
+        receipt = next(
+            (
+                row
+                for row in design_generation_strangle_receipts(repo_root)
+                if row.get("predecessor_ref") == predecessor_ref
+            ),
+            None,
+        )
+        return bool(
+            receipt
+            and receipt.get("status") == "strangled"
+            and receipt.get("remaining_callers") == []
+        )
+    except Exception:
+        return False
+
+
+def _n8_value_gate_property_landed(repo_root: Path, property_id: str) -> bool:
+    evidence = _n8_value_gate_evidence(repo_root.resolve().as_posix())
+    if evidence is None:
+        return False
+    mutation_ids = set(evidence["red_mutation_ids"])
+    source_flip_ids = set(evidence["source_flip_ids"])
+    if property_id == "canonical_foundry_value_port":
+        return bool(
+            evidence["default_value_port_is_foundry"]
+            and evidence["pending_value_port_production_call_count"] == 0
+        )
+    if property_id == "reachable_method_policy":
+        return bool(
+            evidence["selector_surface_is_registry_advisor"]
+            and evidence["unavailable_method_blockers_present"]
+            and "value_method_selection_fixed_default" in mutation_ids
+        )
+    if property_id == "stage_b_nonparallel":
+        return bool(
+            evidence["default_value_port_is_foundry"]
+            and not evidence["cycle_imports_scientist_stage_b"]
+        )
+    if property_id == "evidence_driven_backend":
+        return bool(
+            evidence["production_owner_inputs"]
+            and not evidence["cycle_imports_policy_runtime_support"]
+            and "bad_forecast_minted_value" in mutation_ids
+        )
+    if property_id == "advisor_method_selection":
+        return bool(
+            evidence["workspace_fixed_method_count"] == 0
+            and evidence["selector_surface_is_registry_advisor"]
+            and "value_method_selection_fixed_default" in mutation_ids
+            and "source_flip_value_method_selection_fixed_default" in source_flip_ids
+        )
+    if property_id == "content_bound_transport_receipts":
+        return bool(
+            evidence["transport_receipt_content_bound"]
+            and "source_flip_transport_real_solver_required" in source_flip_ids
+            and "source_flip_value_world_version_laundered" in source_flip_ids
+        )
+    if property_id == "synthetic_backend_authority_fenced":
+        return bool(
+            evidence["production_owner_inputs"]
+            and not evidence["cycle_imports_policy_runtime_support"]
+            and evidence["synthetic_backend_directly_nonpromotable"]
+            and "pilot_mode_ran_without_eval_safety" in mutation_ids
+        )
+    return False
+
+
+@lru_cache(maxsize=4)
+def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
+    try:
+        from polisyos.runtime.quality.generation_cycle import (
+            FoundryValuePort,
+            GenerationCycleController,
+        )
+        from tools.quality.validation.check_layer3_gy_value_gate_contract import (
+            OUTPUT_PATH,
+            check,
+            run_rederive_audit,
+        )
+
+        root = Path(repo_root)
+        if check(root):
+            return None
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+            if run_rederive_audit(root):
+                return None
+        payload = json.loads((root / OUTPUT_PATH).read_text(encoding="utf-8"))
+        production = payload.get("production_derivation") or {}
+        production_refusal = payload.get("production_refusal") or {}
+        acquisition_routing = payload.get("acquisition_routing") or {}
+        education_refusal = payload.get("education_refusal") or {}
+        denominators = payload.get("denominators") or {}
+        mutation_ids = {
+            str(row.get("mutation_id"))
+            for row in (
+                payload.get("decisive_mutations")
+                or payload.get("decisive_mutation_expectations")
+                or []
+            )
+            if isinstance(row, dict)
+            and (row.get("result") == "RED" or row.get("expected_result") == "RED")
+        }
+        source_flip_ids = tuple(
+            str(item)
+            for item in (payload.get("source_flip_mutation_harness") or {}).get(
+                "mutation_ids",
+                [],
+            )
+        )
+        receipt = payload.get("frozen_positive_receipt") or {}
+        transport = receipt.get("transport_receipt") or {}
+        transport_components = payload.get("transport_component_proofs") or {}
+        content_bound_component_receipts = tuple(
+            proof
+            for proof in transport_components.values()
+            if isinstance(proof, dict)
+            and proof.get("outcome_kind") == "transport_receipt"
+            and isinstance(proof.get("transport_receipt"), dict)
+            and proof["transport_receipt"].get("world_model_record_content_hash")
+            == proof.get("world_model_record_content_hash")
+            and proof["transport_receipt"].get("world_model_record_id")
+            == proof.get("world_model_record_id")
+            and proof.get("context_binding_hash")
+            and proof.get("cycle_substrate_context_content_hash")
+            and proof.get("selection_diagram_content_hash")
+            and proof.get("transport_result_content_hash")
+        )
+        owner_availability = production_refusal.get("owner_availability") or {}
+        v2_owner_refusal_is_bound = bool(
+            payload.get("schema_version")
+            == "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
+            and production_refusal.get("receipt_kind")
+            == "first_vertical_owner_data_gap"
+            and production_refusal.get("status") == "value_blocked"
+            and production_refusal.get("value_receipt") is None
+            and owner_availability.get("status") == "unavailable"
+            and owner_availability.get("availability_content_hash")
+            and acquisition_routing.get("terminal_kind") == "acquisition_required"
+            and acquisition_routing.get("simulated_reentry") is False
+            and acquisition_routing.get("selected_candidate_ref")
+            == production_refusal.get("candidate_id")
+            and acquisition_routing.get("selected_candidate_content_hash")
+            == production_refusal.get("candidate_content_hash")
+        )
+        v2_reachable_denominator = bool(
+            denominators.get("catalog_matches_registry") is True
+            and denominators.get("catalog_snapshot_stable") is True
+            and isinstance(denominators.get("registered_method_count"), int)
+            and isinstance(denominators.get("value_capable_method_count"), int)
+            and 0 < denominators["value_capable_method_count"]
+            < denominators["registered_method_count"]
+            and education_refusal.get("selected_method_fqn")
+            in set(denominators.get("value_capable_methods") or ())
+            and education_refusal.get("authority_blockers")
+            == ["method_estimand_binding_mismatch"]
+        )
+        controller = GenerationCycleController(repo_root=root)
+        cycle_source = (root / "src/polisyos/runtime/quality/generation_cycle.py").read_text(
+            encoding="utf-8"
+        )
+        workspace_source = (
+            root / "src/polisyos/runtime/quality/workspace/loop.py"
+        ).read_text(encoding="utf-8")
+        return {
+            "red_mutation_ids": tuple(sorted(mutation_ids)),
+            "source_flip_ids": source_flip_ids,
+            "default_value_port_is_foundry": isinstance(
+                getattr(controller, "_value_port", None),
+                FoundryValuePort,
+            ),
+            "pending_value_port_production_call_count": cycle_source.count(
+                "PendingN8ValuePort()"
+            ),
+            "cycle_imports_scientist_stage_b": (
+                "CompileFoundry" in cycle_source
+                or "scientist.nodes.builtins" in cycle_source
+            ),
+            "cycle_imports_policy_runtime_support": (
+                "policy_runtime_support" in cycle_source
+            ),
+            "workspace_fixed_method_count": workspace_source.count(
+                "causal.inference.synthetic_control@1.0.0"
+            ),
+            "selector_surface_is_registry_advisor": (
+                (payload.get("disposition") or {}).get("selector_surface")
+                == "polisyos.foundry.methods.selection.select_value_method_for_problem"
+            ),
+            "unavailable_method_blockers_present": bool(
+                denominators.get("python314_unavailable_method_blockers")
+                or v2_reachable_denominator
+            ),
+            "production_owner_inputs": (
+                (
+                    production.get("input_source")
+                    == "production_owner_access_no_runtime_hints"
+                    and production.get("audit_replay_source")
+                    == "real_owner_rederive_value_ready"
+                )
+                or v2_owner_refusal_is_bound
+            ),
+            "transport_receipt_content_bound": bool(
+                (
+                    transport
+                    and transport.get("world_model_record_content_hash")
+                    == receipt.get("world_model_record_content_hash")
+                    and production.get("transport_source")
+                    == "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner"
+                )
+                or (
+                    len(content_bound_component_receipts) >= 2
+                    and {
+                        str(proof.get("domain_role"))
+                        for proof in content_bound_component_receipts
+                    }
+                    >= {"education", "unseen_pack_shape"}
+                )
+            ),
+            "synthetic_backend_directly_nonpromotable": (
+                _synthetic_policy_backend_authority_fenced()
+            ),
+        }
+    except Exception:
+        return None
+
+
+def _synthetic_policy_backend_authority_fenced() -> bool:
+    from decimal import Decimal
+
+    from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+    from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+    from polisyos.ir.governance.schedule import ScheduleSpec
+    from polisyos.ir.governance.selector_expr import SelectorPredicate
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.model_layer.types import SelectorOperator
+    from polisyos.ir.trinity import TrinityBundle
+    from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
+        SyntheticPolicyEvaluationBackend,
+    )
+    from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
+
+    bundle = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="problem_n8_synthetic_fence_probe",
+            domain=ProblemDomain.FISCAL,
+        ),
+        policy_spec=PolicySpec(
+            policy_id="policy_n8_synthetic_fence_probe",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="intervention_n8_synthetic_fence_probe",
+                    kind="tax_policy",
+                    target=SelectorPredicate(
+                        field="id",
+                        operator=SelectorOperator.EQUALS,
+                        value="all",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": Decimal("0.1")},
+                )
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="model_n8_synthetic_fence_probe",
+            data_snapshot_ref="sha256:" + "8" * 64,
+        ),
+    )
+    artifact = SyntheticPolicyEvaluationBackend().evaluate(
+        PolicyCandidateSchema.from_trinity_bundle(bundle),
+        fidelity="full",
+        simulation_metrics=None,
+        uncertainty=None,
+        distributional_report=None,
+        causal_effect_report=None,
+        cross_graph_profile=None,
+        governance_report=None,
+    )
+    return bool(
+        not artifact.provenance.promotable_source
+        and artifact.provenance.degradation_mode == "research_only"
+    )
 
 
 def _plain_policy_nl_not_verified_default() -> bool:
@@ -777,6 +1211,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.intervention_atom_binding import (
         INTERVENTION_ATOM_BINDING_SCHEMA_VERSION,
+        AtomNormalizationRecord,
         CausalAssignmentProjection,
         CausalDoExpression,
         DirectEffectBundle,
@@ -920,6 +1355,21 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
     linked_intervention = linked_bundle.bindings.interventions[0]
     selector_ref = intervention_atom_target_selector_ref(intervention)
     write_variables = tuple(sorted(assignment.variable for assignment in causal.assignments))
+    normalization_certificate_hash = "sha256:" + "d" * 64
+    normalization_record = AtomNormalizationRecord(
+        original_kind="tax_credit_rate",
+        original_target_world_slots=("global.tax_rate",),
+        normalized_kind=intervention.kind,
+        normalized_target_world_slots=tuple(linked_intervention.writes_slots),
+        grounding_relation="certified-specialization",
+        grounding_relation_certificate_id="cg1_cert_" + "6" * 16,
+        grounding_relation_content_hash=normalization_certificate_hash,
+    )
+    provenance_refs = (
+        "trinity_bundle:policy_ua_msme_credit",
+        "proof_kernel:node_do_income",
+        normalization_certificate_hash,
+    )
     expected_fields: dict[str, Any] = {
         "schema_version": INTERVENTION_ATOM_BINDING_SCHEMA_VERSION,
         "problem_frame_ref": "sha256:" + "a" * 64,
@@ -978,8 +1428,9 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
         "world_model_record_ref": "world_model_record_ua_msme_v1",
         "measurement_expectations": dict(intervention.measurement_expectations),
         "measurement_expectations_authority": "supporting_metadata",
+        "normalized_from": normalization_record,
         "producer_ref": "validator:intervention_atom_binding",
-        "provenance_refs": ("trinity_bundle:policy_ua_msme_credit", "proof_kernel:node_do_income"),
+        "provenance_refs": provenance_refs,
         "status": "grounded",
     }
     content_hash = gy_content_hash(_content_payload_from_fields(expected_fields))
@@ -999,7 +1450,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
         causal_context=context,
         world_model_record_ref="world_model_record_ua_msme_v1",
         producer_ref="validator:intervention_atom_binding",
-        provenance_refs=("trinity_bundle:policy_ua_msme_credit", "proof_kernel:node_do_income"),
+        provenance_refs=provenance_refs,
         operator_proof_type_map={"tax_subsidy": "node"},
         estimand_metric_id="msme_survival_rate",
         estimand_unit_id="ratio",
@@ -1008,6 +1459,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
         mechanism_config_overrides={"merge_policy": "sum_income_delta"},
         transform_refs=("transform:subsidy_rate_to_income_delta",),
         coerce_refs=("coerce:decimal_rate",),
+        normalized_from=normalization_record,
         status="grounded",
     )
     return {
@@ -1036,9 +1488,6 @@ def _intervention_atom_binding_sample_default_justifications() -> dict[str, str]
         "atom.measurement_expectations_authority": (
             "measurement expectations are metadata-only by contract; constrained to "
             "supporting_metadata"
-        ),
-        "atom.normalized_from": (
-            "normalization provenance is absent unless CG1/CG2 actually normalize a candidate"
         ),
         "intervention.target.kind": (
             "selector discriminator; constrained by SelectorPredicate"
@@ -1101,7 +1550,6 @@ def _sample_default_constraint_holds(field_path: str, value: Any) -> bool:
     constrained_values = {
         "atom.schema_version": INTERVENTION_ATOM_BINDING_SCHEMA_VERSION,
         "atom.measurement_expectations_authority": "supporting_metadata",
-        "atom.normalized_from": None,
         "intervention.target.kind": "predicate",
         "causal.intervention_type": "node",
         "causal_context.interaction_complex_ref.kind": "ir.interaction_complex",
@@ -1124,12 +1572,14 @@ def _intervention_atom_binding_sample_non_default_report(
     justifications = _intervention_atom_binding_sample_default_justifications()
     issues: list[dict[str, Any]] = []
     justified_default_fields: set[str] = set()
+    visited_field_paths: set[str] = set()
 
     def walk(value: Any, field_path: str) -> None:
         if isinstance(value, BaseModel):
             for field_name, field in value.__class__.model_fields.items():
                 child = getattr(value, field_name)
                 child_path = f"{field_path}.{field_name}"
+                visited_field_paths.add(child_path)
                 has_default, default = _field_default_value(field)
                 if has_default and child == default:
                     if child_path not in justifications:
@@ -1178,6 +1628,7 @@ def _intervention_atom_binding_sample_non_default_report(
         "issues": issues,
         "justified_default_fields": sorted(justified_default_fields),
         "required_justified_default_fields": sorted(justifications),
+        "visited_field_paths": sorted(visited_field_paths),
     }
 
 
@@ -1510,14 +1961,13 @@ def _value_outer_set_contract_importable() -> bool:
         )
         non_certified = ValueOuterSet.model_validate(
             {
-                **value_set.model_dump(mode="json"),
+                **value_set.model_dump(mode="json", exclude={"width"}),
                 "representation_status": "search_only",
-                "width": (),
             }
         )
         zero_trust = ValueOuterSet.model_validate(
             {
-                **value_set.model_dump(mode="json"),
+                **value_set.model_dump(mode="json", exclude={"width"}),
                 "data_trust": {
                     "tier": "synthetic_zero_trust",
                     "trust_cap": 0.0,
@@ -1527,7 +1977,6 @@ def _value_outer_set_contract_importable() -> bool:
                     "promotion_floor": 0.5,
                     "authority_ref": "ledger://l5/trust_tier/synthetic_zero_trust",
                 },
-                "width": (),
             }
         )
         return (

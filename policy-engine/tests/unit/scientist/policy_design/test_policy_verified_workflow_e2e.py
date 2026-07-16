@@ -9,16 +9,26 @@ from polisyos.core.contracts.foundry import StateSnapshotRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import put_state_snapshot
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.knowledge.types import LegalFactResult, LegalSourceAnchor, LegalSourceBundle
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+from polisyos.scientist.nodes.builtins.state_keys import (
+    INPUT_TRINITY_BUNDLE_REF,
+    REPORT_GOVERNANCE_REPORT_REF,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.nodes.builtins.state_keys import REPORT_GOVERNANCE_REPORT_REF
+from polisyos.scientist.orchestration.workflows.builder import run_selected_workflow
 from polisyos.scientist.validation.policy_verified import (
     load_source_verification_report,
     load_verified_policy_report,
 )
 from polisyos.scientist.validation.policy_verified.models import LegalCandidatePack, LegalSourcePack
-from polisyos.scientist.orchestration.workflows.builder import run_selected_workflow
 
 
 def _passing_judge_verdict() -> dict[str, object]:
@@ -55,6 +65,44 @@ def _put_data_snapshot(
     return DataSnapshotRef(artifact_id=ref.artifact_id)
 
 
+def _put_supplied_trinity(store: FileSystemCAS, data_snapshot_ref: DataSnapshotRef):
+    bundle = TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="policy_verified_supplied_problem",
+            domain=ProblemDomain.FISCAL,
+        ),
+        policy_spec=PolicySpec(
+            policy_id="policy_verified_supplied_policy",
+            problem_frame_ref="sha256:" + "a" * 64,
+            interventions=[
+                InterventionSpec(
+                    intervention_id="supplied_tax_subsidy",
+                    kind="tax_subsidy",
+                    target=SelectorPredicate(
+                        field="id",
+                        operator=SelectorOperator.EQUALS,
+                        value="all",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": Decimal("0.1")},
+                )
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="policy_verified_supplied_model",
+            data_snapshot_ref=str(data_snapshot_ref.artifact_id),
+        ),
+    )
+    return store.put_json(
+        bundle,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=bundle.schema_version),
+        ),
+    )
+
+
 def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
     monkeypatch, tmp_path
 ) -> None:
@@ -64,6 +112,7 @@ def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
     snapshot_ref_payload = put_state_snapshot(store, state=base_state, step=0)
     state_snapshot_ref = StateSnapshotRef(artifact_id=snapshot_ref_payload.artifact_id)
     data_snapshot_ref = _put_data_snapshot(store, state_snapshot_ref)
+    supplied_trinity_ref = _put_supplied_trinity(store, data_snapshot_ref)
 
     class _FakeLegalToolkit:
         def assemble_legal_candidate_pack(
@@ -145,6 +194,7 @@ def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
         inputs={
             "registry_bundle_ref": registry_bundle.bundle_ref,
             "data_snapshot_ref": data_snapshot_ref,
+            INPUT_TRINITY_BUNDLE_REF: supplied_trinity_ref,
         },
         params={
             "policy_answer_mode": "verified_async",
@@ -164,6 +214,8 @@ def test_policy_verified_workflow_runs_end_to_end_with_verified_artifacts(
     assert result.state.policy_option_set_ref is not None
     assert result.state.verified_policy_report_ref is not None
     assert result.state.inputs.get("trinity_bundle_ref") is not None
+    assert result.state.inputs[INPUT_TRINITY_BUNDLE_REF] == supplied_trinity_ref
+    assert "policy_trinity_generated" not in result.state.params
     assert "workflow_report" in result.state.reports_index
 
     verification_report = load_source_verification_report(

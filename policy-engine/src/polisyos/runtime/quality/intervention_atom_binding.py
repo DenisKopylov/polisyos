@@ -92,6 +92,32 @@ class DirectEffectBundle(_StrictModel):
     notes: tuple[str, ...] = ()
 
 
+class AtomNormalizationRecord(_StrictModel):
+    """Record certificate-warranted normalization as supporting provenance."""
+
+    original_kind: str = Field(..., min_length=1)
+    original_target_world_slots: tuple[str, ...] = ()
+    normalized_kind: str = Field(..., min_length=1)
+    normalized_target_world_slots: tuple[str, ...]
+    grounding_relation: Literal["exact", "certified-specialization"]
+    grounding_relation_certificate_id: str = Field(..., min_length=1, strict=True)
+    grounding_relation_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+        strict=True,
+    )
+
+    @model_validator(mode="after")
+    def _normalization_changes_surface(self) -> AtomNormalizationRecord:
+        same_kind = self.original_kind == self.normalized_kind
+        same_slots = tuple(sorted(self.original_target_world_slots)) == tuple(
+            sorted(self.normalized_target_world_slots)
+        )
+        if same_kind and same_slots:
+            raise ValueError("normalization_record_noop")
+        return self
+
+
 class CausalAssignmentProjection(_StrictModel):
     """Project one proof-kernel node assignment."""
 
@@ -173,6 +199,7 @@ class InterventionAtomBinding(_StrictModel):
         world_model_record_ref: Forward hook to the future WorldModelRecord.
         measurement_expectations: Retained Trinity free-form metadata.
         measurement_expectations_authority: Always supporting metadata.
+        normalized_from: Certificate-bound supporting normalization provenance.
         content_hash: Time-invariant hash over the content-bound fields.
         producer_ref: Producer that emitted this atom candidate.
         provenance_refs: Upstream Trinity/proof-kernel provenance references.
@@ -197,6 +224,7 @@ class InterventionAtomBinding(_StrictModel):
     world_model_record_ref: str = Field(..., min_length=1)
     measurement_expectations: dict[str, Any] = Field(default_factory=dict)
     measurement_expectations_authority: Literal["supporting_metadata"] = "supporting_metadata"
+    normalized_from: AtomNormalizationRecord | None = None
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     producer_ref: str = Field(..., min_length=1)
     provenance_refs: tuple[str, ...] = ()
@@ -211,6 +239,16 @@ class InterventionAtomBinding(_StrictModel):
             if not _SLOT_ID_RE.fullmatch(slot_id):
                 raise ValueError(f"world_slot_id_malformed:{slot_id}")
         return value
+
+    @model_validator(mode="after")
+    def _validate_normalization_provenance(self) -> InterventionAtomBinding:
+        _assert_normalization_record_matches(
+            self.normalized_from,
+            intervention_kind=self.operator_kind.trinity_kind,
+            target_world_slots=self.target_world_slots,
+            provenance_refs=self.provenance_refs,
+        )
+        return self
 
     @model_validator(mode="after")
     def _validate_content_hash(self) -> InterventionAtomBinding:
@@ -317,6 +355,7 @@ def build_intervention_atom_binding(
     mechanism_config_overrides: Mapping[str, Any] | None = None,
     transform_refs: Sequence[str] = (),
     coerce_refs: Sequence[str] = (),
+    normalized_from: Mapping[str, Any] | AtomNormalizationRecord | None = None,
     status: Literal[
         "candidate_unverified",
         "grounded",
@@ -348,6 +387,7 @@ def build_intervention_atom_binding(
         mechanism_config_overrides: Existing mechanism-binding config overrides.
         transform_refs: Existing transform references used by the mechanism.
         coerce_refs: Existing coercion references used by the mechanism.
+        normalized_from: Optional certificate-warranted normalization provenance.
         status: Atom lifecycle state.
 
     Raises:
@@ -381,6 +421,13 @@ def build_intervention_atom_binding(
 
     target_world_slots = _validate_slot_tuple(linked_intervention.writes_slots)
     read_slots = _validate_slot_tuple(linked_intervention.reads_slots)
+    provenance_tuple = tuple(provenance_refs)
+    normalization_record = _validated_normalization_record(
+        normalized_from,
+        intervention_kind=intervention.kind,
+        target_world_slots=target_world_slots,
+        provenance_refs=provenance_tuple,
+    )
     causal_do_expr = CausalDoExpression(
         intervention_type=proof_type,
         assignments=_node_assignments(causal_intervention),
@@ -460,8 +507,9 @@ def build_intervention_atom_binding(
         "world_model_record_ref": world_model_record_ref,
         "measurement_expectations": dict(intervention.measurement_expectations),
         "measurement_expectations_authority": "supporting_metadata",
+        "normalized_from": normalization_record,
         "producer_ref": producer_ref,
-        "provenance_refs": tuple(provenance_refs),
+        "provenance_refs": provenance_tuple,
         "status": status,
     }
     content_hash = gy_content_hash(_content_payload_from_fields(fields))
@@ -512,6 +560,8 @@ def _content_payload_from_atom(atom: InterventionAtomBinding) -> dict[str, Any]:
         mode="json",
         exclude={"atom_id", "content_hash", "producer_ref", "provenance_refs", "status"},
     )
+    if payload.get("normalized_from") is None:
+        payload.pop("normalized_from", None)
     return payload
 
 
@@ -520,6 +570,7 @@ def _content_payload_from_fields(fields: Mapping[str, Any]) -> dict[str, Any]:
         key: _json_ready(value)
         for key, value in fields.items()
         if key not in {"atom_id", "content_hash", "producer_ref", "provenance_refs", "status"}
+        and not (key == "normalized_from" and value is None)
     }
 
 
@@ -701,10 +752,63 @@ def _validate_slot_tuple(values: Sequence[str]) -> tuple[str, ...]:
     return slots
 
 
+def _validated_normalization_record(
+    value: Mapping[str, Any] | AtomNormalizationRecord | None,
+    *,
+    intervention_kind: str,
+    target_world_slots: tuple[str, ...],
+    provenance_refs: tuple[str, ...],
+) -> AtomNormalizationRecord | None:
+    if value is None:
+        return None
+    record = (
+        value
+        if isinstance(value, AtomNormalizationRecord)
+        else AtomNormalizationRecord.model_validate(value)
+    )
+    _assert_normalization_record_matches(
+        record,
+        intervention_kind=intervention_kind,
+        target_world_slots=target_world_slots,
+        provenance_refs=provenance_refs,
+    )
+    return record
+
+
+def _assert_normalization_record_matches(
+    record: AtomNormalizationRecord | None,
+    *,
+    intervention_kind: str,
+    target_world_slots: tuple[str, ...],
+    provenance_refs: tuple[str, ...],
+) -> None:
+    if record is None:
+        return
+    if record.normalized_kind != intervention_kind:
+        raise InterventionAtomBindingError(
+            "normalization_kind_mismatch",
+            f"{record.normalized_kind} != {intervention_kind}",
+        )
+    if record.normalized_target_world_slots != target_world_slots:
+        raise InterventionAtomBindingError(
+            "normalization_target_world_slots_mismatch",
+            (
+                f"{record.normalized_target_world_slots} != "
+                f"{target_world_slots}"
+            ),
+        )
+    if record.grounding_relation_content_hash not in provenance_refs:
+        raise InterventionAtomBindingError(
+            "normalization_certificate_hash_missing_from_provenance",
+            record.grounding_relation_content_hash,
+        )
+
+
 __all__ = [
     "INTERVENTION_ATOM_BINDING_ARTIFACT_KIND",
     "INTERVENTION_ATOM_BINDING_SCHEMA_NAME",
     "INTERVENTION_ATOM_BINDING_SCHEMA_VERSION",
+    "AtomNormalizationRecord",
     "CausalAssignmentProjection",
     "CausalDoExpression",
     "DirectEffectBundle",

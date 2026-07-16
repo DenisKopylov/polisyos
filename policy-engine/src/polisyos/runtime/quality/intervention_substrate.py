@@ -19,7 +19,7 @@ from decimal import Decimal
 from enum import StrEnum
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Literal, Protocol, get_args, get_origin
+from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args, get_origin
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -63,6 +63,9 @@ from polisyos.runtime.quality.world_model_record import (
     WorldModelRecordError,
     resolve_intervention_atom_world_binding,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 
 INTERVENTION_SUBSTRATE_SCHEMA_VERSION = (
     "policyos.runtime.intervention_substrate_lift.v1"
@@ -238,6 +241,50 @@ class InterventionLeverResolution(_StrictModel):
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class InterventionLeverRefusal(_StrictModel):
+    """Content-bound refusal for a selected candidate with no L6 binding."""
+
+    schema_version: str = INTERVENTION_SUBSTRATE_SCHEMA_VERSION
+    status: Literal["candidate_unbound", "acquisition_required"]
+    operator_kind: str = Field(..., min_length=1)
+    instrument: str = Field(..., min_length=1)
+    lever_id: str = Field(..., min_length=1)
+    reason_code: str = Field(..., min_length=1)
+    candidate_entry_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    selected_registry_entry_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    substrate_input_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    context_binding_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    substrate_registry_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    world_model_record_content_hash: str = Field(
+        ...,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    source_refs: tuple[str, ...]
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_refusal_content(self) -> InterventionLeverRefusal:
+        if not self.source_refs or any(not item.strip() for item in self.source_refs):
+            raise ValueError("intervention_lever_refusal_source_refs_missing")
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        expected = gy_content_hash(payload)
+        if self.content_hash != expected:
+            raise ValueError("intervention_lever_refusal_content_hash_mismatch")
+        return self
+
+
 class LawAuthorityRef(_StrictModel):
     """Owner-derived L3 authority for one legal modality/provision binding."""
 
@@ -304,6 +351,77 @@ class InterventionSubstrateBundle(_StrictModel):
     source_refs: dict[str, str]
     source_content_hashes: dict[str, str]
     content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _validate_content_hash(self) -> InterventionSubstrateBundle:
+        _assert_intervention_substrate_bundle_content_hash(self)
+        return self
+
+
+def intervention_substrate_bundle_content_hash(
+    bundle: InterventionSubstrateBundle | Mapping[str, Any],
+) -> str:
+    """Return the canonical full-payload hash for an L6 substrate bundle."""
+
+    if isinstance(bundle, InterventionSubstrateBundle):
+        payload = bundle.model_dump(mode="json", exclude={"content_hash"})
+    else:
+        payload = {
+            str(key): value
+            for key, value in bundle.items()
+            if str(key) != "content_hash"
+        }
+    return gy_content_hash(payload)
+
+
+def verify_intervention_substrate_bundle_content_hash(
+    bundle: InterventionSubstrateBundle,
+) -> InterventionSubstrateBundle:
+    """Verify and return a fresh snapshot of one L6 substrate bundle."""
+
+    payload = bundle.model_dump(mode="python")
+    _assert_intervention_substrate_bundle_content_hash(payload)
+    return InterventionSubstrateBundle.model_validate(payload)
+
+
+def _assert_intervention_substrate_bundle_content_hash(
+    bundle: InterventionSubstrateBundle | Mapping[str, Any],
+) -> None:
+    expected = intervention_substrate_bundle_content_hash(bundle)
+    actual = (
+        bundle.content_hash
+        if isinstance(bundle, InterventionSubstrateBundle)
+        else str(bundle.get("content_hash") or "")
+    )
+    if actual != expected:
+        raise InterventionSubstrateError(
+            "intervention_substrate_bundle_content_hash_mismatch",
+            f"expected {expected}, got {actual}",
+        )
+
+
+def replace_intervention_substrate_bundle(
+    bundle: InterventionSubstrateBundle,
+    *,
+    update: Mapping[str, Any],
+) -> InterventionSubstrateBundle:
+    """Return a validated bundle after content-addressing top-level updates."""
+
+    if "content_hash" in update:
+        raise InterventionSubstrateError(
+            "intervention_substrate_content_hash_update_forbidden"
+        )
+    verified = verify_intervention_substrate_bundle_content_hash(bundle)
+    payload = verified.model_dump(mode="python", exclude={"content_hash"})
+    payload.update(
+        {
+            str(key): value
+            for key, value in update.items()
+            if str(key) != "content_hash"
+        }
+    )
+    payload["content_hash"] = intervention_substrate_bundle_content_hash(payload)
+    return InterventionSubstrateBundle.model_validate(payload)
 
 
 def default_l6_bundle_paths(repo_root: Path) -> dict[str, Path]:
@@ -376,7 +494,7 @@ def load_l6_intervention_substrate(repo_root: Path) -> InterventionSubstrateBund
     }
     return InterventionSubstrateBundle(
         **fields,
-        content_hash=gy_content_hash(fields),
+        content_hash=intervention_substrate_bundle_content_hash(fields),
     )
 
 
@@ -386,12 +504,92 @@ def resolve_intervention_lever(
     operator_kind: str,
     parameter_value: object,
     world_model_record: WorldModelRecord | None = None,
-) -> InterventionLeverResolution:
+    cycle_substrate_context: CycleSubstrateContext | None = None,
+) -> InterventionLeverResolution | InterventionLeverRefusal:
     """Resolve an atom operator/value against the L6 knob dictionary."""
 
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     operator = str(operator_kind or "").strip()
     if not operator:
         raise InterventionSubstrateError("knob_operator_missing")
+    if cycle_substrate_context is not None:
+        from polisyos.runtime.quality.cycle_substrate import (
+            revalidate_cycle_substrate_context,
+        )
+
+        context = revalidate_cycle_substrate_context(cycle_substrate_context)
+        if (
+            world_model_record is not None
+            and world_model_record.content_hash
+            != context.world_model_record_content_hash
+        ):
+            raise InterventionSubstrateError(
+                "cycle_substrate_world_model_record_mismatch"
+            )
+        if (
+            context.intervention_substrate is not None
+            and context.intervention_substrate.content_hash != bundle.content_hash
+        ):
+            raise InterventionSubstrateError(
+                "cycle_substrate_l6_bundle_content_mismatch"
+            )
+        if context.candidate_levers:
+            if context.intervention_substrate is None:
+                raise InterventionSubstrateError(
+                    "cycle_substrate_l6_bundle_missing"
+                )
+            matches = tuple(
+                candidate
+                for candidate in context.candidate_levers
+                if operator in {candidate.instrument, candidate.lever_id}
+            )
+            if not matches:
+                raise InterventionSubstrateError(
+                    "cycle_substrate_candidate_lever_unresolved",
+                    operator,
+                )
+            if len(matches) != 1:
+                raise InterventionSubstrateError(
+                    "cycle_substrate_candidate_lever_ambiguous",
+                    operator,
+                )
+            candidate = matches[0]
+            if {
+                operator,
+                candidate.instrument,
+                candidate.lever_id,
+            }.intersection(bundle.knob_dictionary):
+                raise InterventionSubstrateError(
+                    "cycle_substrate_candidate_binding_contradiction",
+                    operator,
+                )
+            fields = {
+                "schema_version": INTERVENTION_SUBSTRATE_SCHEMA_VERSION,
+                "status": "candidate_unbound",
+                "operator_kind": operator,
+                "instrument": candidate.instrument,
+                "lever_id": candidate.lever_id,
+                "reason_code": "knob_operator_unresolved",
+                "candidate_entry_content_hash": candidate.entry_content_hash,
+                "selected_registry_entry_hash": (
+                    candidate.selected_registry_entry_hash
+                ),
+                "substrate_input_content_hash": (
+                    candidate.substrate_input_content_hash
+                ),
+                "context_binding_hash": context.context_binding_hash,
+                "substrate_registry_content_hash": (
+                    context.substrate_registry_content_hash
+                ),
+                "world_model_record_content_hash": (
+                    context.world_model_record_content_hash
+                ),
+                "source_refs": candidate.source_refs,
+            }
+            return InterventionLeverRefusal(
+                **fields,
+                content_hash=gy_content_hash(fields),
+            )
     raw_knob = _mapping_or_none(bundle.knob_dictionary.get(operator))
     if raw_knob is None:
         raise InterventionSubstrateError("knob_operator_unresolved", operator)
@@ -448,6 +646,7 @@ def resolve_law_bound_lever(
 ) -> LawLeverResolution:
     """Resolve a legal modality to a knob and evaluate L3 admissibility."""
 
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     token = str(law_token or "").strip()
     knob = str(knob_id or "").strip()
     mapped_knobs = _lex_map_knobs(bundle.lex_intervention_map, token)
@@ -529,6 +728,7 @@ def route_observation_family_method(
 ) -> ObservationMethodRoute:
     """Route an observation family to an available Foundry method."""
 
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     family_id = str(family or "").strip()
     route = _manifest_route(bundle.observation_manifest, family_id)
     contract_id, contract_fqn = _route_contract(route)
@@ -605,6 +805,7 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
     lex_store = lex_module.LegalKnowledgeStore(
         repo_root / DEFAULT_L3_LEX_DB_PATH,
         (repo_root / DEFAULT_L3_LEX_DB_PATH).parent,
+        canonical_db_ref_path=DEFAULT_L3_LEX_DB_PATH,
     )
     threshold = lex_store.resolve_rule_threshold(
         threshold_id=_REPRESENTATIVE_L3_THRESHOLD_ID,
@@ -756,7 +957,8 @@ def intervention_substrate_behavior_report(repo_root: Path) -> dict[str, Any]:
         },
     )
 
-    dangling_bundle = bundle.model_copy(
+    dangling_bundle = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "lex_intervention_map": {
                 **bundle.lex_intervention_map,
@@ -988,6 +1190,21 @@ def _production_composed_world_model_record(repo_root: str) -> WorldModelRecord:
         required_substrate_families=_COMPOSED_WMR_REQUIRED_SUBSTRATE_FAMILIES,
     )
     return built.world_model.record
+
+
+def production_composed_world_model_record(repo_root: str | Path) -> WorldModelRecord:
+    """Return the cached production WMR composed by the existing owner."""
+
+    return _production_composed_world_model_record(Path(repo_root).resolve().as_posix())
+
+
+def intervention_generation_registry_bundle(repo_root: str | Path) -> RegistryBundle:
+    """Return the existing L6 slot/mechanism registries for the N4 linker."""
+
+    bundle = load_l6_intervention_substrate(Path(repo_root).resolve())
+    slots = _owner_slot_registry(bundle)
+    mechanisms = _owner_mechanism_registry(bundle, slot_registry=slots)
+    return _owner_registry_bundle(mechanism_registry=mechanisms, slot_registry=slots)
 
 
 def _resolve_owner_atom_world_binding(
@@ -1289,7 +1506,8 @@ def _free_grow_bundle(
     threshold: _ThresholdRefProtocol,
     as_of: str = _REPRESENTATIVE_L3_AS_OF,
 ) -> InterventionSubstrateBundle:
-    return bundle.model_copy(
+    return replace_intervention_substrate_bundle(
+        bundle,
         update={
             "knob_dictionary": {
                 **bundle.knob_dictionary,
@@ -1379,16 +1597,6 @@ def _free_grow_bundle(
                 ],
                 "artifacts": _mapping_list(bundle.observation_manifest.get("artifacts")),
             },
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "future_knob": _FREE_GROW_KNOB,
-                    "future_law": "future_relief_law",
-                    "future_family": "future_budget_flows",
-                    "threshold_id": threshold.threshold_id,
-                    "future_mechanism": _FREE_GROW_MECHANISM,
-                }
-            ),
         }
     )
 
@@ -1519,6 +1727,7 @@ def _coverage_report(
     lex_store: _LegalKnowledgeStoreProtocol,
     world_model_record: WorldModelRecord,
 ) -> dict[str, Any]:
+    bundle = verify_intervention_substrate_bundle_content_hash(bundle)
     catalog_module = importlib.import_module("polisyos.foundry.methods.catalog")
     registry_module = importlib.import_module(
         "polisyos.foundry.methods.selection.registry"
@@ -1692,12 +1901,10 @@ def _dead_route_bundle(bundle: InterventionSubstrateBundle) -> InterventionSubst
             },
         ],
     }
-    return bundle.model_copy(
+    return replace_intervention_substrate_bundle(
+        bundle,
         update={
             "observation_manifest": observation_manifest,
-            "content_hash": gy_content_hash(
-                {"source": bundle.content_hash, "dead_route_family": dead_contract}
-            ),
         }
     )
 
@@ -1729,15 +1936,10 @@ def _unavailable_route_bundle(bundle: InterventionSubstrateBundle) -> Interventi
             },
         ],
     }
-    return bundle.model_copy(
+    return replace_intervention_substrate_bundle(
+        bundle,
         update={
             "observation_manifest": observation_manifest,
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "python314_unavailable_route_family": unavailable_contract,
-                }
-            ),
         }
     )
 
@@ -1758,7 +1960,8 @@ def _owner_slot_reference_binds_without_owner_validation_signal(
             "owner_validation_probe_fake_family": {"slots": [fake_slot]},
         },
     }
-    mutated = bundle.model_copy(
+    mutated = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "knob_dictionary": {
                 **bundle.knob_dictionary,
@@ -1799,12 +2002,6 @@ def _owner_slot_reference_binds_without_owner_validation_signal(
                     },
                 },
             },
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "mutation": "owner_slot_reference_binds_without_owner_validation",
-                }
-            ),
         }
     )
     return resolve_intervention_lever(
@@ -1825,7 +2022,8 @@ def _law_provision_reference_binds_without_l3_validation_signal(
     fake_threshold_id = "ffffffffffffffffffffffff"
     knob_id = next(iter(sorted(bundle.knob_dictionary)))
     raw_knob = _mapping_or_none(bundle.knob_dictionary[knob_id]) or {}
-    mutated = bundle.model_copy(
+    mutated = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "lex_intervention_map": {
                 **bundle.lex_intervention_map,
@@ -1853,12 +2051,6 @@ def _law_provision_reference_binds_without_l3_validation_signal(
                     },
                 ],
             },
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "mutation": "law_provision_reference_binds_without_l3_validation",
-                }
-            ),
         }
     )
     return resolve_law_bound_lever(
@@ -1877,15 +2069,10 @@ def _world_slot_owner_derivation_disabled_signal(
     lex_store: _LegalKnowledgeStoreProtocol,
     world_model_record: WorldModelRecord,
 ) -> dict[str, Any]:
-    mutated = bundle.model_copy(
+    mutated = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "world_mechanism_manifest": {"schema_version": "1.0", "mechanisms": {}},
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "mutation": "world_slot_owner_derivation_disabled",
-                }
-            ),
         }
     )
     coverage = _coverage_report(
@@ -1907,16 +2094,11 @@ def _world_slot_hardcoded_bypass_signal(bundle: InterventionSubstrateBundle) -> 
             "mechanism_id": "parallel_raw_slot_only",
             "target_world_slots": ["government.balance"],
         }
-    mutated = bundle.model_copy(
+    mutated = replace_intervention_substrate_bundle(
+        bundle,
         update={
             "knob_dictionary": raw_knobs,
             "world_mechanism_manifest": {"schema_version": "1.0", "mechanisms": {}},
-            "content_hash": gy_content_hash(
-                {
-                    "source": bundle.content_hash,
-                    "mutation": "world_slot_hardcoded_bypass",
-                }
-            ),
         }
     )
     first_knob = next(iter(sorted(mutated.knob_dictionary)))
@@ -2594,6 +2776,7 @@ def _is_number(value: object) -> bool:
 __all__ = [
     "INTERVENTION_SUBSTRATE_ARTIFACT_KIND",
     "INTERVENTION_SUBSTRATE_SCHEMA_VERSION",
+    "InterventionLeverRefusal",
     "InterventionLeverResolution",
     "InterventionSubstrateBundle",
     "InterventionSubstrateError",
@@ -2601,9 +2784,14 @@ __all__ = [
     "LawLeverResolution",
     "ObservationMethodRoute",
     "default_l6_bundle_paths",
+    "intervention_generation_registry_bundle",
     "intervention_substrate_behavior_report",
+    "intervention_substrate_bundle_content_hash",
     "load_l6_intervention_substrate",
+    "production_composed_world_model_record",
+    "replace_intervention_substrate_bundle",
     "resolve_intervention_lever",
     "resolve_law_bound_lever",
     "route_observation_family_method",
+    "verify_intervention_substrate_bundle_content_hash",
 ]

@@ -249,14 +249,13 @@ def _household_proxy_behavioral_detail(
         degenerate_rejected = _degenerate_proxy_payload_rejected(proxy_set)
         non_certified_decision = ValueOuterSet.model_validate(
             {
-                **proxy_set.model_dump(mode="json"),
+                **proxy_set.model_dump(mode="json", exclude={"width"}),
                 "representation_status": "search_only",
-                "width": (),
             }
         ).promotion_decision()
         zero_trust_decision = ValueOuterSet.model_validate(
             {
-                **proxy_set.model_dump(mode="json"),
+                **proxy_set.model_dump(mode="json", exclude={"width"}),
                 "data_trust": {
                     "tier": "synthetic_zero_trust",
                     "trust_cap": 0.0,
@@ -266,12 +265,11 @@ def _household_proxy_behavioral_detail(
                     "promotion_floor": 0.5,
                     "authority_ref": "contract://l5/trust_tiers/synthetic_zero_trust",
                 },
-                "width": (),
             }
         ).promotion_decision()
         weak_trust_decision = ValueOuterSet.model_validate(
             {
-                **proxy_set.model_dump(mode="json"),
+                **proxy_set.model_dump(mode="json", exclude={"width"}),
                 "data_trust": {
                     "tier": "synthetic_weak_trust",
                     "trust_cap": 0.25,
@@ -281,12 +279,11 @@ def _household_proxy_behavioral_detail(
                     "promotion_floor": 0.5,
                     "authority_ref": "contract://l5/trust_tiers/synthetic_weak_trust",
                 },
-                "width": (),
             }
         ).promotion_decision()
         strong_trust_decision = ValueOuterSet.model_validate(
             {
-                **point_set.model_dump(mode="json"),
+                **point_set.model_dump(mode="json", exclude={"width"}),
                 "data_trust": {
                     "tier": "synthetic_authoritative_high",
                     "trust_cap": 1.0,
@@ -298,7 +295,6 @@ def _household_proxy_behavioral_detail(
                         "contract://l5/trust_tiers/synthetic_authoritative_high"
                     ),
                 },
-                "width": (),
             }
         ).promotion_decision()
         non_certified_blocked = (
@@ -376,10 +372,9 @@ def _degenerate_proxy_payload_rejected(proxy_set: Any) -> bool:
     try:
         ValueOuterSet.model_validate(
             {
-                **proxy_set.model_dump(mode="json"),
+                **proxy_set.model_dump(mode="json", exclude={"width"}),
                 "lower": midpoint,
                 "upper": midpoint,
-                "width": (),
             }
         )
     except ValueError:

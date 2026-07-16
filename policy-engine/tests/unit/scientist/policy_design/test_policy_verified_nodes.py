@@ -4,6 +4,7 @@ import json
 import logging
 
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
@@ -14,8 +15,6 @@ from polisyos.lex.knowledge.types import (
     LegalSourceAnchor,
     LegalSourceBundle,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.planning.run_source_gap_review import RunSourceGapReviewNode
@@ -31,6 +30,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.validation.policy_verified import (
     LegalCandidatePack,
     LegalSourcePack,
@@ -461,12 +462,22 @@ def test_parse_json_object_assertion_is_not_swallowed(monkeypatch: pytest.Monkey
         raise AssertionError("json-parse-broken")
 
     monkeypatch.setattr(
-        "polisyos.scientist.validation.policy_verified.service.json.loads",
+        "polisyos.scientist.validation.policy_verified.service.extract_llm_json_object",
         _boom,
     )
 
     with pytest.raises(AssertionError, match="json-parse-broken"):
         _parse_json_object(json.dumps({"ok": True}))
+
+
+def test_parse_json_object_accepts_think_prefixed_json() -> None:
+    assert _parse_json_object('<think>legal reasoning</think>{"ok":true}') == {
+        "ok": True
+    }
+
+
+def test_parse_json_object_returns_none_when_no_object_exists() -> None:
+    assert _parse_json_object("no legal-verifier object exists") is None
 
 
 def test_maybe_verify_with_llm_assertion_is_not_swallowed(monkeypatch: pytest.MonkeyPatch) -> None:

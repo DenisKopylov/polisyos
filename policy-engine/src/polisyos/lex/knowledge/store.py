@@ -7,7 +7,8 @@ from __future__ import annotations
 
 import hashlib
 from datetime import date, datetime
-from typing import TYPE_CHECKING, Any
+from pathlib import Path
+from typing import Any
 
 import duckdb
 import numpy as np
@@ -25,9 +26,6 @@ from polisyos.lex.knowledge.types import (
     LegalTemporalCompetence,
     LegalThresholdEvaluation,
 )
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 logger = get_logger(__name__)
 
@@ -107,9 +105,25 @@ _PROVISION_SELECT_FIELDS: tuple[tuple[str, str], ...] = (
 class LegalKnowledgeStore:
     """Read-only handle to the legal knowledge graph (DuckDB + HNSW)."""
 
-    def __init__(self, db_path: Path, index_dir: Path) -> None:
+    def __init__(
+        self,
+        db_path: Path,
+        index_dir: Path,
+        *,
+        canonical_db_ref_path: Path | None = None,
+    ) -> None:
+        """Open owner data while keeping evidence refs independent of its mount path.
+
+        Args:
+            db_path: Physical read-only DuckDB path.
+            index_dir: Physical vector-index directory.
+            canonical_db_ref_path: Stable logical path used only in emitted DuckDB evidence
+                references. When omitted, the physical path preserves the standalone-store API.
+        """
+
         self._db_path = db_path
         self._index_dir = index_dir
+        self._canonical_db_ref_path = canonical_db_ref_path or db_path
         self._con = duckdb.connect(str(db_path), read_only=True)
 
         self._entity_index = None
@@ -267,7 +281,9 @@ class LegalKnowledgeStore:
         doc_id = str(row[8] or "")
         provision_anchor = str(row[11] or "")
         if doc_id and provision_anchor:
-            provision_ref = f"duckdb://{self._db_path}#lex_provisions/{doc_id}:{provision_anchor}"
+            provision_ref = self._duckdb_ref(
+                f"lex_provisions/{doc_id}:{provision_anchor}"
+            )
         return LegalRuleThresholdRow(
             threshold_id=str(row[0] or ""),
             fact_id=str(row[1] or ""),
@@ -304,8 +320,8 @@ class LegalKnowledgeStore:
         canonical_unit: str = "",
         temporal_status: str = "in_force",
     ) -> LegalThresholdEvaluation:
-        threshold_ref = (
-            f"duckdb://{self._db_path}#lex_rule_thresholds/{threshold.threshold_id}"
+        threshold_ref = self._duckdb_ref(
+            f"lex_rule_thresholds/{threshold.threshold_id}"
         )
         return LegalThresholdEvaluation(
             status=status,
@@ -320,9 +336,16 @@ class LegalKnowledgeStore:
             normalized_threshold_value=normalized_threshold_value,
             canonical_unit=canonical_unit,
             temporal_status=temporal_status,
-            obligation_ref=f"duckdb://{self._db_path}#lex_normative_facts/{threshold.fact_id}",
+            obligation_ref=self._duckdb_ref(
+                f"lex_normative_facts/{threshold.fact_id}"
+            ),
             provision_ref=threshold.provision_ref,
         )
+
+    def _duckdb_ref(self, fragment: str) -> str:
+        """Return a stable owner evidence ref without changing the physical read path."""
+
+        return f"duckdb://{self._canonical_db_ref_path.as_posix()}#{fragment}"
 
     @staticmethod
     def _threshold_ref(*, threshold_id: str | None, metric: str | None) -> str:
@@ -1257,7 +1280,9 @@ class LegalKnowledgeStore:
         threshold: LegalRuleThresholdRow,
         as_of: str,
     ) -> LegalTemporalCompetence:
-        subject_ref = f"duckdb://{self._db_path}#lex_rule_thresholds/{threshold.threshold_id}"
+        subject_ref = self._duckdb_ref(
+            f"lex_rule_thresholds/{threshold.threshold_id}"
+        )
         as_of_date = self._parse_lex_date(as_of)
         if as_of_date is None:
             return LegalTemporalCompetence(
@@ -1309,7 +1334,7 @@ class LegalKnowledgeStore:
         """Resolve the as-of temporal window for a threshold-backed norm."""
 
         threshold = self.resolve_rule_threshold(threshold_id=threshold_id)
-        subject_ref = f"duckdb://{self._db_path}#lex_rule_thresholds/{threshold_id}"
+        subject_ref = self._duckdb_ref(f"lex_rule_thresholds/{threshold_id}")
         if threshold is None:
             return LegalTemporalCompetence(
                 status="blocked",
@@ -1327,7 +1352,7 @@ class LegalKnowledgeStore:
     ) -> LegalTemporalCompetence:
         """Resolve amendment effective_from as temporal competence authority."""
 
-        subject_ref = f"duckdb://{self._db_path}#lex_amendments/{amendment_id}"
+        subject_ref = self._duckdb_ref(f"lex_amendments/{amendment_id}")
         if not self._table_exists("lex_amendments"):
             return LegalTemporalCompetence(
                 status="blocked",

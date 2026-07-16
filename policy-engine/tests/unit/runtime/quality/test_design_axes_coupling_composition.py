@@ -51,7 +51,17 @@ def _modular_graph() -> CouplingGraph:
         design_ref="pdc://layer2/s5/modular/design",
         module_refs=_modules(),
         module_discovery_ref="pdc://layer2/s5/module-discovery/modular",
-        interaction_edges=(),
+        interaction_edges=(
+            CouplingEdge(
+                boundary_ref="boundary://modular/eligibility-delivery",
+                source_module_ref="module://eligibility",
+                target_module_ref="module://delivery",
+                relation="observed_independent_measurement",
+                interaction_strength="none",
+                evidence_ref="fixture://s5/modular/edge-1",
+            ),
+        ),
+        evidence_state="observed",
         rule_version_ref=RULE_REF,
     )
 
@@ -73,6 +83,7 @@ def _near_decomposable_graph() -> CouplingGraph:
                 evidence_ref="fixture://s5/near/edge-1",
             ),
         ),
+        evidence_state="observed",
         rule_version_ref=RULE_REF,
     )
 
@@ -114,6 +125,7 @@ def _entangled_graph() -> CouplingGraph:
                 evidence_ref="fixture://s5/entangled/edge-3",
             ),
         ),
+        evidence_state="observed",
         rule_version_ref=RULE_REF,
     )
 
@@ -145,6 +157,7 @@ def _hierarchical_graph() -> CouplingGraph:
                 evidence_ref="fixture://s5/hierarchical/edge-2",
             ),
         ),
+        evidence_state="observed",
         rule_version_ref=RULE_REF,
     )
 
@@ -289,6 +302,7 @@ def test_user_supplied_module_split_is_candidate_not_boundary_proof() -> None:
         module_refs=discovered.discovered_module_refs,
         module_discovery_ref=discovered.module_discovery_ref,
         interaction_edges=_entangled_graph().interaction_edges,
+        evidence_state="observed",
         rule_version_ref=RULE_REF,
     )
 

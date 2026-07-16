@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
@@ -25,8 +25,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.loading.norm_pack import NormPack
+    from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.scientist.agent.constitution import ConstitutionGenerator
     from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
     from polisyos.scientist.agent.memory import ShortTermMemory
@@ -60,16 +60,23 @@ def create_drafter_agent(
     constitution_norm_pack: NormPack | None = None,
     constitution_model_spec: ModelSpec | None = None,
     rag_store_factory: Callable[[Path], FileSystemCAS] | None = None,
+    multipass_mode: Literal["off", "active", "shadow"] | None = None,
 ) -> DrafterAgent:
     """
-    Build drafter according to feature flag `POLISYOS_DRAFTER_MULTIPASS_MODE`.
+    Build a drafter from an explicit mode or `POLISYOS_DRAFTER_MULTIPASS_MODE`.
 
     Modes:
     - off (default): LLMDrafterAgent
     - active: MultiPassLLMDrafter
     - shadow: MultiPassLLMDrafter with shadow_mode=True
     """
-    mode = os.getenv("POLISYOS_DRAFTER_MULTIPASS_MODE", "off").strip().lower()
+    mode = (
+        multipass_mode
+        if multipass_mode is not None
+        else os.getenv("POLISYOS_DRAFTER_MULTIPASS_MODE", "off").strip().lower()
+    )
+    if mode not in {"off", "active", "shadow"}:
+        raise ValueError(f"unsupported_drafter_multipass_mode:{mode}")
     inner = LLMDrafterAgent(llm_client, model_name=model_name)
     if mode not in {"active", "shadow"}:
         return inner

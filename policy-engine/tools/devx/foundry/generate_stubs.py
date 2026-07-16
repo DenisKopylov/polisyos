@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import re
 import sys
 import tempfile
@@ -33,13 +34,25 @@ OUTPUT_MAP: dict[str, Path] = {
     / "methods"
     / "composer.pyi",
 }
+REEXPORT_STUBS: dict[str, str] = {
+    "polisyos.foundry.methods.registry": (
+        "from polisyos.foundry.methods.selection.registry import *\n"
+    ),
+    "polisyos.foundry.methods.composer": (
+        "from polisyos.foundry.methods.components.composer import *\n"
+    ),
+}
 
 
 def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
+    stubgen = Path(sys.executable).with_name("stubgen")
+    launcher = (
+        (str(stubgen),)
+        if stubgen.is_file()
+        else (sys.executable, "-m", "mypy.stubgen")
+    )
     cmd = (
-        sys.executable,
-        "-m",
-        "mypy.stubgen",
+        *launcher,
         "-m",
         module,
         "-o",
@@ -64,13 +77,17 @@ def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
 
 
 def _remove_private_exports(content: str) -> str:
+    """Drop private data exports without orphaning definition bodies.
+
+    Private classes and functions remain non-exported by normal ``.pyi``
+    semantics.  Keeping their complete blocks is safer than deleting only a
+    definition header, which can silently re-parent members or produce an
+    invalid stub.
+    """
+
     cleaned: list[str] = []
     for line in content.splitlines():
         if re.match(r"^_\w+\s*:", line) and not line.startswith("__"):
-            continue
-        if re.match(r"^def _\w+", line) and not line.startswith("def __"):
-            continue
-        if re.match(r"^class _\w+", line):
             continue
         cleaned.append(line)
     return "\n".join(cleaned) + "\n"
@@ -88,23 +105,37 @@ def main(argv: Sequence[str] | None = None) -> int:
         sys.path.insert(0, str(SRC_ROOT))
 
     print("Generating type stubs for Foundry Methods public API ...")
+    failed: list[str] = []
     with tempfile.TemporaryDirectory(prefix="foundry_stubs_") as tmpdir:
         out_dir = Path(tmpdir)
         for module in TARGETS:
             print(f"\n  Processing {module} ...")
-            stub_path = _run_stubgen(module, out_dir, verbose=args.verbose)
-            if stub_path is None:
-                print(f"  SKIP: could not generate stub for {module}")
-                continue
-
-            cleaned = _remove_private_exports(stub_path.read_text(encoding="utf-8"))
+            reexport_stub = REEXPORT_STUBS.get(module)
+            if reexport_stub is not None:
+                cleaned = reexport_stub
+            else:
+                stub_path = _run_stubgen(module, out_dir, verbose=args.verbose)
+                if stub_path is None:
+                    print(f"  SKIP: could not generate stub for {module}")
+                    failed.append(module)
+                    continue
+                cleaned = _remove_private_exports(stub_path.read_text(encoding="utf-8"))
             target = OUTPUT_MAP[module]
+            try:
+                ast.parse(cleaned, filename=str(target))
+            except SyntaxError as exc:
+                print(f"  Invalid generated stub for {module}: {exc}", file=sys.stderr)
+                failed.append(module)
+                continue
             if args.dry_run:
                 print(f"  [dry-run] Would write {len(cleaned)} chars to {target}")
             else:
                 atomic_write_text(target, cleaned, encoding="utf-8")
                 print(f"  Wrote -> {target}")
 
+    if failed:
+        print(f"\nStub generation failed for: {', '.join(failed)}", file=sys.stderr)
+        return 1
     if args.dry_run:
         print("\n[dry-run] No files written.")
     else:

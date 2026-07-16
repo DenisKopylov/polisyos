@@ -13,6 +13,8 @@ from collections.abc import Awaitable, Mapping, Sequence
 from datetime import date, datetime
 from typing import Any, Literal
 
+from polisyos.common.llm_json import extract_llm_json_object
+
 SCHEMA_VERSION = "policyos.scientist.citation_faithfulness.v1"
 
 CitationFaithfulnessLabel = Literal[
@@ -630,7 +632,7 @@ def _extract_span_support_judgment(response: Any) -> dict[str, Any]:
     content = _text(getattr(response, "content", ""))
     if content:
         try:
-            payload = json.loads(content)
+            payload = extract_llm_json_object(content)
         except json.JSONDecodeError:
             payload = {}
         if isinstance(payload, Mapping):

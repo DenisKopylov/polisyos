@@ -18,7 +18,8 @@ import re
 import time
 from collections import Counter
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, is_dataclass, replace
+from dataclasses import fields as dataclass_fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -49,6 +50,7 @@ from polisyos.runtime.quality.grounding_bind import (
     GroundingBindGate,
     GroundingDecisionCertificate,
 )
+from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.grounding_phrasing_defense import (
     GroundingPhrasingDefenseEngine,
     GroundingProxyGapRisk,
@@ -66,10 +68,13 @@ from polisyos.runtime.quality.intervention_atom_binding import (
     intervention_atom_target_selector_ref,
 )
 from polisyos.runtime.quality.intervention_substrate import (
+    InterventionLeverRefusal,
+    InterventionLeverResolution,
     InterventionSubstrateError,
     intervention_generation_registry_bundle,
     load_l6_intervention_substrate,
     production_composed_world_model_record,
+    resolve_intervention_lever,
 )
 from polisyos.runtime.quality.world_model_record import resolve_intervention_atom_world_binding
 from polisyos.scientist.agent.critic import create_critic_agent
@@ -82,6 +87,7 @@ from polisyos.scientist.agent.formalizer import (
 
 if TYPE_CHECKING:
     from polisyos.ir.trinity import TrinityBundle
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.design_problem import DesignProblem
 
 DESIGN_GENERATION_SCHEMA_VERSION = "policyos.runtime.design_generation_under_a.v1"
@@ -134,13 +140,6 @@ AuthorityState = Literal[
     "promoted",
 ]
 LeverSpaceSliceStatus = Literal["derived", "unavailable"]
-GroundingDispositionKind = Literal[
-    "shadow_bound",
-    "veto_false_analog",
-    "novel_cg3",
-    "non_binding_abstain",
-    "unknown_blocked",
-]
 LegacyLinkerDisposition = Literal["would_bind", "would_reject"]
 
 
@@ -287,6 +286,7 @@ class LeverSpaceSliceEntry(_StrictModel):
     """One owner-derived lever row nudged into the generator prompt."""
 
     operator_kind: str = Field(..., min_length=1)
+    instrument: str | None = None
     aliases: tuple[str, ...] = ()
     target_world_slots: tuple[str, ...] = ()
     unit: str | None = None
@@ -296,6 +296,39 @@ class LeverSpaceSliceEntry(_StrictModel):
     expected_outcome_slots: tuple[str, ...] = ()
     effect_path: tuple[str, ...] = ()
     source_refs: tuple[str, ...] = ()
+    binding_status: Literal["world_bound", "candidate_unbound"] = "world_bound"
+    candidate_entry_content_hash: str | None = Field(
+        None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    context_binding_hash: str | None = Field(
+        None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    substrate_registry_content_hash: str | None = Field(
+        None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    world_model_record_content_hash: str | None = Field(
+        None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+
+    @model_validator(mode="after")
+    def _binding_evidence_matches_status(self) -> LeverSpaceSliceEntry:
+        if self.binding_status == "candidate_unbound":
+            if self.target_world_slots:
+                raise ValueError("candidate_unbound_prompt_entry_carried_world_slots")
+            if not all(
+                (
+                    self.candidate_entry_content_hash,
+                    self.context_binding_hash,
+                    self.substrate_registry_content_hash,
+                    self.world_model_record_content_hash,
+                )
+            ):
+                raise ValueError("candidate_unbound_prompt_entry_evidence_missing")
+        return self
 
 
 class LeverSpacePromptSlice(_StrictModel):
@@ -358,6 +391,7 @@ class GroundingDispositionRecord(_StrictModel):
     legacy_linker_issues: tuple[dict[str, Any], ...] = ()
     certificate_chain: GroundingCertificateChain
     bridge_missing_records: tuple[dict[str, Any], ...] = ()
+    lever_resolution: InterventionLeverResolution | InterventionLeverRefusal | None = None
 
     @model_validator(mode="after")
     def _binding_requires_certificate_and_atom(self) -> GroundingDispositionRecord:
@@ -488,6 +522,8 @@ class GenerationUnderAResult(_StrictModel):
                 != len(self.grounding_dispositions)
             ):
                 raise ValueError("grounding_disposition_summary_denominator_mismatch")
+            if self.diversity_report.candidate_count != len(self.grounding_dispositions):
+                raise ValueError("producer_candidate_denominator_drift")
             bound_ids = {candidate.candidate_id for candidate in self.candidates}
             disposition_ids = {
                 item.candidate_id
@@ -748,6 +784,7 @@ async def generate_design_candidates_under_a(
     min_diverse_candidates: int = 3,
     data_context: dict[str, Any] | None = None,
     world_model_record_ref: str | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> GenerationUnderAResult:
     """Generate shadow candidates by reusing the real LLM organs and N2 atom bridge."""
 
@@ -759,6 +796,7 @@ async def generate_design_candidates_under_a(
         min_diverse_candidates=min_diverse_candidates,
         data_context=data_context,
         world_model_record_ref=world_model_record_ref,
+        cycle_substrate_context=cycle_substrate_context,
     )
     return organ_run.result
 
@@ -827,19 +865,61 @@ async def generate_design_candidate_bundle_under_a(
     min_diverse_candidates: int = 3,
     data_context: dict[str, Any] | None = None,
     world_model_record_ref: str | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> DesignGenerationOrganRun:
-    """Run the canonical N4 organ path and expose real draft/bundle/critique artifacts."""
+    """Run the canonical N4 organ path and own any gateway client it creates."""
 
-    repo_root = (repo_root or Path.cwd()).resolve()
-    design_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+    owned_llm_client: object | None = None
     if llm_client is None:
         from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 
-        llm_client = create_traced_gateway_client(
+        owned_llm_client = create_traced_gateway_client(
             model_name=model_id,
             run_id="gy_n4_generation_under_a",
             model_variant_id=_model_variant_id(model_id),
         )
+        llm_client = owned_llm_client
+    try:
+        return await _generate_design_candidate_bundle_under_a(
+            design_problem,
+            model_id=model_id,
+            llm_client=llm_client,
+            repo_root=repo_root,
+            min_diverse_candidates=min_diverse_candidates,
+            data_context=data_context,
+            world_model_record_ref=world_model_record_ref,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    finally:
+        await _close_owned_generation_client(owned_llm_client)
+
+
+async def _close_owned_generation_client(llm_client: object | None) -> None:
+    if llm_client is None:
+        return
+    close = getattr(llm_client, "aclose", None)
+    if not callable(close):
+        return
+    result = close()
+    if inspect.isawaitable(result):
+        await result
+
+
+async def _generate_design_candidate_bundle_under_a(
+    design_problem: DesignProblem,
+    *,
+    model_id: str,
+    llm_client: object | None,
+    repo_root: Path | None,
+    min_diverse_candidates: int,
+    data_context: dict[str, Any] | None,
+    world_model_record_ref: str | None,
+    cycle_substrate_context: CycleSubstrateContext | None,
+) -> DesignGenerationOrganRun:
+    """Execute N4 with an already resolved caller- or owner-supplied client."""
+
+    repo_root = (repo_root or Path.cwd()).resolve()
+    design_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
     if llm_client is None:
         preflight = ModelProfilePreflight(
             status="gateway_unavailable",
@@ -887,6 +967,7 @@ async def generate_design_candidate_bundle_under_a(
             design_problem,
             repo_root=repo_root,
             reference=reference,
+            cycle_substrate_context=cycle_substrate_context,
         )
     base_scientist_frame = _with_generation_cycle_revision_context(
         design_problem.to_scientist_problem_frame(),
@@ -1046,7 +1127,10 @@ async def generate_design_candidate_bundle_under_a(
             lever_space_prompt_slice=lever_space_prompt_slice,
             effective_runtime_config=effective_runtime_config,
         ).as_organ_run(draft=draft)
-    formalizer_path = trinity_bundle_formalizer_generator_path(bundle)
+    formalizer_path = trinity_bundle_formalizer_generator_path(
+        bundle,
+        recorded_calls=recording_client.calls[formalizer_call_start:],
+    )
     if formalizer_path != _REAL_GENERATOR_PATH:
         bundle, formalizer_path = await _salvage_formalizer_terminal(
             formalizer=formalizer,
@@ -1069,7 +1153,11 @@ async def generate_design_candidate_bundle_under_a(
             model_id=model_id,
             preflight=preflight,
             status="generation_unavailable",
-            reason="formalizer_degraded_mock_fallback",
+            reason=(
+                "formalizer_path_unrecorded"
+                if formalizer_path == "path_unrecorded"
+                else "formalizer_degraded_mock_fallback"
+            ),
             organ="formalizer",
             min_diverse_candidates=min_diverse_candidates,
             llm_calls=tuple(recording_client.calls),
@@ -1119,6 +1207,7 @@ async def generate_design_candidate_bundle_under_a(
             world_model_record_ref=world_model_record_ref,
             reference=reference,
             relation_engine=relation_engine,
+            cycle_substrate_context=cycle_substrate_context,
         )
     except (DesignGenerationError, InterventionSubstrateError, ValueError) as exc:
         return _terminal_result(
@@ -1267,7 +1356,9 @@ async def _salvage_formalizer_terminal(
     current_bundle: TrinityBundle,
     current_path: str,
 ) -> tuple[TrinityBundle, str]:
-    if not _terminal_window_is_transient(recording_client.calls[terminal_start:]):
+    if current_path != "path_unrecorded" and not _terminal_window_is_transient(
+        recording_client.calls[terminal_start:]
+    ):
         return current_bundle, current_path
     first_prompt_hash = _first_prompt_hash(recording_client.calls[terminal_start:])
     bundle = current_bundle
@@ -1280,7 +1371,10 @@ async def _salvage_formalizer_terminal(
             recording_client.calls[retry_start:],
             first_prompt_hash=first_prompt_hash,
         )
-        path = trinity_bundle_formalizer_generator_path(bundle)
+        path = trinity_bundle_formalizer_generator_path(
+            bundle,
+            recorded_calls=recording_client.calls[retry_start:],
+        )
         if path == _REAL_GENERATOR_PATH:
             return bundle, path
         if not _terminal_window_is_transient(recording_client.calls[retry_start:]):
@@ -1450,8 +1544,39 @@ def _prompt_size_estimate(base_frame: object, sliced_frame: object) -> PromptSiz
 
 
 def _json_for_prompt_size(value: object) -> str:
-    payload = value.__dict__ if hasattr(value, "__dict__") else value
-    return json.dumps(payload, sort_keys=True, default=str, separators=(",", ":"))
+    return json.dumps(
+        _prompt_size_payload(value),
+        sort_keys=True,
+        default=str,
+        separators=(",", ":"),
+    )
+
+
+def _prompt_size_payload(value: object) -> object:
+    """Project prompt content while excluding local dataclass creation clocks."""
+
+    if isinstance(value, BaseModel):
+        return _prompt_size_payload(value.model_dump(mode="json"))
+    if is_dataclass(value) and not isinstance(value, type):
+        return {
+            field.name: _prompt_size_payload(getattr(value, field.name))
+            for field in dataclass_fields(value)
+            if field.name != "created_at"
+        }
+    if isinstance(value, Mapping):
+        return {
+            str(key): _prompt_size_payload(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+        return [_prompt_size_payload(item) for item in value]
+    if isinstance(value, set | frozenset):
+        projected = [_prompt_size_payload(item) for item in value]
+        return sorted(
+            projected,
+            key=lambda item: json.dumps(item, sort_keys=True, default=str),
+        )
+    return value
 
 
 def _estimated_tokens(char_count: int) -> int:
@@ -1644,9 +1769,10 @@ _STRANGLE_RECEIPT_SPECS: tuple[dict[str, Any], ...] = (
             "formalizer = MockFormalizerAgent()",
             "critic = MockCriticAgent()",
             "selected_variant = await _run_variant(None",
-            "trinity_bundle = fabric_result.trinity_bundle",
         ),
         "required": (
+            "NaturalLanguagePipelineRefusalError",
+            "_execute_nl_pipeline_for_contract_testing",
             "generate_design_candidate_bundle_under_a",
             "generation_unavailable",
             "n4_generation_terminal",
@@ -1654,36 +1780,35 @@ _STRANGLE_RECEIPT_SPECS: tuple[dict[str, Any], ...] = (
         ),
         "default_before": "llm_client None selected MockDrafter/MockFormalizer/MockCritic.",
         "default_after": (
-            "llm_client None or gateway unavailable returns N4 generation_unavailable."
+            "missing model refuses; unavailable gateway returns N4 generation_unavailable."
         ),
-        "disposition": "degraded_fixture_only",
+        "disposition": "contract_testing_only",
         "removed_loc": "nl_pipeline.py:llm_client_none_mock_generator_fork",
     },
     {
         "predecessor_ref": "scientist.validation.policy_verified.mock_formalizer_tax_subsidy",
         "replacement_ref": (
-            f"{DESIGN_GENERATION_PRODUCER_REF}.generate_design_candidate_bundle_under_a"
+            "polisyos.scientist.nodes.builtins.compile.formalize_verified_policy."
+            "FormalizeVerifiedPolicyNode"
         ),
         "file": "src/polisyos/scientist/validation/policy_verified/service.py",
-        "forbidden": (
-            "mechanism_type\": \"tax_subsidy",
-            "MockFormalizerAgent().formalize",
-        ),
+        "forbidden": (),
         "required": (
-            "allow_policy_verified_fixture_formalizer",
-            "policy_verified_hardcoded_formalizer_strangled",
+            "POLICY_VERIFIED_HARDCODED_FORMALIZER_STRANGLED",
+            "INPUT_TRINITY_BUNDLE_REF",
         ),
         "default_before": (
             "verified-policy formalized a hardcoded tax_subsidy draft with MockFormalizer."
         ),
         "default_after": "verified-policy consumes a supplied real TrinityBundleRef by default.",
-        "disposition": "explicit_fixture_only",
+        "disposition": "supplied_real_or_typed_refusal",
         "removed_loc": "policy_verified/service.py:formalize_policy_option_set",
     },
     {
         "predecessor_ref": "pdc._impl.layer2_design_search.fixed_credit_guarantee_candidate",
         "replacement_ref": (
-            f"{DESIGN_GENERATION_PRODUCER_REF}.generate_design_candidate_bundle_under_a"
+            "polisyos.pdc._impl.layer2_design_search."
+            "run_s2_shadow_design_loop.input_derived_candidate_space"
         ),
         "file": "src/polisyos/pdc/_impl/layer2_design_search.py",
         "forbidden": (
@@ -1692,13 +1817,13 @@ _STRANGLE_RECEIPT_SPECS: tuple[dict[str, Any], ...] = (
             "def fixed_credit_guarantee_candidate",
         ),
         "required": (
-            "S2_FIXED_CREDIT_GUARANTEE_FIXTURE_ONLY",
-            "s2_fixed_credit_guarantee_fixture_authorized: bool = False",
+            "instrument_families=list(input.instrument_families)",
+            "_candidate_from_expansion",
             "source_authority=input.candidate_source_authority",
         ),
         "default_before": "S2 emitted a fixed credit_guarantee candidate as its replay body.",
-        "default_after": "S2 fixed candidate is an explicitly authorized replay fixture only.",
-        "disposition": "fixture_replay_only",
+        "default_after": "S2 candidate family and parameters derive from input-carried evidence.",
+        "disposition": "input_derived_candidate_space",
         "removed_loc": "layer2_design_search.py:_candidate",
     },
 )
@@ -1743,6 +1868,12 @@ def _build_strangle_receipt(root: Path, spec: Mapping[str, Any]) -> dict[str, An
         "pdc._impl.layer2_design_search.fixed_credit_guarantee_candidate"
     ):
         ast_callers = _s2_forbidden_candidate_callers(source)
+    elif spec["predecessor_ref"] == "runtime.http.nl_pipeline.none_to_mock_generator_fork":
+        ast_callers = _nl_pipeline_fixture_callers(root)
+    elif spec["predecessor_ref"] == (
+        "scientist.validation.policy_verified.mock_formalizer_tax_subsidy"
+    ):
+        ast_callers = _policy_verified_fixture_callers(root)
     status = "strangled" if not forbidden_hits and not missing_required else "drift"
     if ast_callers:
         status = "drift"
@@ -1781,7 +1912,7 @@ def _build_strangle_receipt(root: Path, spec: Mapping[str, Any]) -> dict[str, An
 
 
 def _s2_forbidden_candidate_callers(source: str) -> list[dict[str, str]]:
-    """Return S2 hardcoded-candidate callers outside the fixture shadow loop."""
+    """Prove S2 candidate vocabulary and parameters derive from input data."""
 
     try:
         tree = ast.parse(source)
@@ -1794,24 +1925,363 @@ def _s2_forbidden_candidate_callers(source: str) -> list[dict[str, str]]:
             }
         ]
     issues: list[dict[str, str]] = []
-    for node in ast.walk(tree):
-        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+    assigned_names = {
+        target.id
+        for node in tree.body
+        if isinstance(node, (ast.Assign, ast.AnnAssign))
+        for target in (
+            (*node.targets,) if isinstance(node, ast.Assign) else (node.target,)
+        )
+        if isinstance(target, ast.Name)
+    }
+    if "_INSTRUMENT_FAMILIES" in assigned_names or "credit_guarantee" in source:
+        issues.append(
+            {
+                "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+                "reason": "fixed_candidate_body_in_engine",
+                "pattern": "credit_guarantee",
+            }
+        )
+    if any(
+        isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "_candidate"
+        for node in ast.walk(tree)
+    ):
+        issues.append(
+            {
+                "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+                "reason": "legacy_fixed_candidate_owner_present",
+                "pattern": "_candidate",
+            }
+        )
+    try:
+        from polisyos.pdc._impl.layer2_design_search import (
+            Layer2S2DesignSearchInput,
+            run_s2_shadow_design_loop,
+        )
+
+        shapes = (
+            (
+                ("energy_storage", "demand_response", "grid_efficiency"),
+                {
+                    "dispatch": ("peak_shaving", "load_shift"),
+                    "ownership": ("municipal", "cooperative"),
+                },
+            ),
+            (
+                ("public_transit_fare", "service_frequency", "fleet_electrification"),
+                {
+                    "coverage": ("low_income", "all_riders"),
+                    "timing": ("off_peak", "all_day"),
+                },
+            ),
+        )
+        for index, (families, parameters) in enumerate(shapes):
+            input_row = Layer2S2DesignSearchInput.model_validate(
+                {
+                    "case_id": f"n4-s2-unseen-{index}",
+                    "intent_ref": f"intent://n4-s2-unseen-{index}",
+                    "grammar_ref": f"grammar://n4-s2-unseen-{index}",
+                    "instrument_families": families,
+                    "parameter_space": parameters,
+                    "actor_ref": "actor://contract-probe",
+                    "domain": "unseen_contract_probe",
+                    "objective_refs": ("objective://outcome",),
+                    "construct_refs": ("construct://outcome",),
+                    "authority_profile_ref": "authority://shadow",
+                    "generated_at": "2026-07-11T00:00:00Z",
+                }
+            )
+            run = run_s2_shadow_design_loop(input_row)
+            expected_params = {
+                dimension: values[0] for dimension, values in parameters.items()
+            }
+            if not (
+                run.grammar_expansion.instrument_families == list(families)
+                and run.grammar_expansion.parameter_space
+                == {dimension: list(values) for dimension, values in parameters.items()}
+                and run.candidates[0].instrument_family == families[0]
+                and run.candidates[0].parameterization == expected_params
+                and run.search_ledger.instrument_family_coverage == list(families)
+            ):
+                issues.append(
+                    {
+                        "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+                        "reason": "s2_fixed_candidate_derivation_not_data_driven",
+                        "pattern": f"unseen_shape_{index}",
+                    }
+                )
+    except Exception as exc:
+        issues.append(
+            {
+                "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+                "reason": "s2_candidate_derivation_probe_failed",
+                "pattern": f"{type(exc).__name__}:{exc}",
+            }
+        )
+    return issues
+
+
+def _policy_verified_fixture_callers(root: Path) -> list[dict[str, str]]:
+    """Census production calls and authority-shaped remnants of the verified-policy fixture."""
+
+    source_root = root / "src"
+    fixture_path = (
+        source_root / "polisyos/scientist/validation/policy_verified/testing.py"
+    ).resolve()
+    service_path = (
+        source_root / "polisyos/scientist/validation/policy_verified/service.py"
+    ).resolve()
+    node_path = (
+        source_root
+        / "polisyos/scientist/nodes/builtins/compile/formalize_verified_policy.py"
+    ).resolve()
+    issues: list[dict[str, str]] = []
+    for path in source_root.rglob("*.py"):
+        resolved = path.resolve()
+        source = path.read_text(encoding="utf-8")
+        if (
+            resolved not in {service_path, node_path, fixture_path}
+            and "formalize_policy_option_set_for_contract_testing" not in source
+        ):
             continue
-        for child in ast.walk(node):
-            if not isinstance(child, ast.Call):
-                continue
-            if not isinstance(child.func, ast.Name) or child.func.id != "_candidate":
-                continue
-            if node.name == "run_s2_shadow_design_loop":
-                continue
+        try:
+            tree = ast.parse(source)
+        except SyntaxError as exc:
+            if resolved in {service_path, node_path, fixture_path}:
+                issues.append(
+                    {
+                        "path": path.relative_to(root).as_posix(),
+                        "reason": "source_not_parseable",
+                        "pattern": str(exc),
+                    }
+                )
+            continue
+        relative = path.relative_to(root).as_posix()
+        if resolved != fixture_path:
+            for call in (node for node in ast.walk(tree) if isinstance(node, ast.Call)):
+                name = _ast_call_name(call)
+                if name == "formalize_policy_option_set_for_contract_testing":
+                    issues.append(
+                        {
+                            "path": relative,
+                            "reason": "forbidden_contract_fixture_caller",
+                            "pattern": name,
+                        }
+                    )
+        if resolved == service_path:
+            for function in (
+                node
+                for node in tree.body
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == "formalize_policy_option_set"
+            ):
+                call_names = {
+                    _ast_call_name(call)
+                    for call in ast.walk(function)
+                    if isinstance(call, ast.Call)
+                }
+                constants = {
+                    node.value
+                    for node in ast.walk(function)
+                    if isinstance(node, ast.Constant) and isinstance(node.value, str)
+                }
+                for forbidden in (
+                    "MockFormalizerAgent",
+                    "formalize_policy_option_set_for_contract_testing",
+                    "put_json",
+                ):
+                    if forbidden in call_names:
+                        issues.append(
+                            {
+                                "path": relative,
+                                "reason": "authority_shaped_fixture_in_production_owner",
+                                "pattern": forbidden,
+                            }
+                        )
+                if "tax_subsidy" in constants:
+                    issues.append(
+                        {
+                            "path": relative,
+                            "reason": "fixed_fixture_body_in_production_owner",
+                            "pattern": "tax_subsidy",
+                        }
+                    )
+    if not fixture_path.is_file():
+        issues.append(
+            {
+                "path": fixture_path.relative_to(root).as_posix(),
+                "reason": "explicit_contract_fixture_missing",
+                "pattern": "formalize_policy_option_set_for_contract_testing",
+            }
+        )
+    return issues
+
+
+def _nl_pipeline_fixture_callers(root: Path) -> list[dict[str, str]]:
+    """Census NL mock reachability and require the production refusal/default flip."""
+
+    source_root = root / "src"
+    pipeline_path = (
+        source_root / "polisyos/runtime/http/services/control/nl_pipeline.py"
+    ).resolve()
+    testing_path = (
+        source_root / "polisyos/runtime/http/services/control/nl_pipeline_testing.py"
+    ).resolve()
+    lifecycle_path = (
+        source_root / "polisyos/runtime/http/services/control/run_lifecycle.py"
+    ).resolve()
+    issues: list[dict[str, str]] = []
+    parsed: dict[Path, ast.Module] = {}
+    for path in (pipeline_path, testing_path, lifecycle_path):
+        if not path.is_file():
             issues.append(
                 {
-                    "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
-                    "reason": "forbidden_live_default_present",
-                    "pattern": f"{node.name}:_candidate",
+                    "path": path.relative_to(root).as_posix(),
+                    "reason": "required_owner_missing",
+                    "pattern": path.name,
+                }
+            )
+            continue
+        try:
+            parsed[path] = ast.parse(path.read_text(encoding="utf-8"))
+        except SyntaxError as exc:
+            issues.append(
+                {
+                    "path": path.relative_to(root).as_posix(),
+                    "reason": "source_not_parseable",
+                    "pattern": str(exc),
+                }
+            )
+    pipeline_tree = parsed.get(pipeline_path)
+    if pipeline_tree is not None:
+        functions = {
+            node.name: node
+            for node in ast.walk(pipeline_tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        production = functions.get("_execute_nl_pipeline")
+        contract = functions.get("_execute_nl_pipeline_for_contract_testing")
+        implementation = functions.get("_execute_nl_pipeline_impl")
+        for name, function in (
+            ("_execute_nl_pipeline", production),
+            ("_execute_nl_pipeline_for_contract_testing", contract),
+            ("_execute_nl_pipeline_impl", implementation),
+        ):
+            if function is None:
+                issues.append(
+                    {
+                        "path": pipeline_path.relative_to(root).as_posix(),
+                        "reason": "required_router_missing",
+                        "pattern": name,
+                    }
+                )
+        if production is not None:
+            constants = {
+                node.value
+                for node in ast.walk(production)
+                if isinstance(node, ast.Constant) and isinstance(node.value, str)
+            }
+            calls = {
+                _ast_call_name(call)
+                for call in ast.walk(production)
+                if isinstance(call, ast.Call)
+            }
+            if "llm_model_unconfigured" not in constants:
+                issues.append(
+                    {
+                        "path": pipeline_path.relative_to(root).as_posix(),
+                        "reason": "production_empty_model_refusal_missing",
+                        "pattern": "llm_model_unconfigured",
+                    }
+                )
+            if "build_nl_contract_testing_agents" in calls:
+                issues.append(
+                    {
+                        "path": pipeline_path.relative_to(root).as_posix(),
+                        "reason": "contract_fixture_reachable_from_production_router",
+                        "pattern": "build_nl_contract_testing_agents",
+                    }
+                )
+        if implementation is not None:
+            calls = {
+                _ast_call_name(call)
+                for call in ast.walk(implementation)
+                if isinstance(call, ast.Call)
+            }
+            for mock_name in (
+                "MockPIAgent",
+                "MockDataNeedExtractorAgent",
+                "MockDrafterAgent",
+                "MockFormalizerAgent",
+                "MockCriticAgent",
+            ):
+                if mock_name in calls:
+                    issues.append(
+                        {
+                            "path": pipeline_path.relative_to(root).as_posix(),
+                            "reason": "mock_constructor_in_shared_pipeline",
+                            "pattern": mock_name,
+                        }
+                    )
+    lifecycle_tree = parsed.get(lifecycle_path)
+    if lifecycle_tree is not None:
+        launch = next(
+            (
+                node
+                for node in ast.walk(lifecycle_tree)
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == "launch_nl_run"
+            ),
+            None,
+        )
+        constants = (
+            {
+                node.value
+                for node in ast.walk(launch)
+                if isinstance(node, ast.Constant) and isinstance(node.value, str)
+            }
+            if launch is not None
+            else set()
+        )
+        if "llm_model_unconfigured" not in constants:
+            issues.append(
+                {
+                    "path": lifecycle_path.relative_to(root).as_posix(),
+                    "reason": "launch_default_not_flipped",
+                    "pattern": "llm_model_unconfigured",
+                }
+            )
+    for path in source_root.rglob("*.py"):
+        if path.resolve() == pipeline_path:
+            continue
+        source = path.read_text(encoding="utf-8")
+        if "_execute_nl_pipeline_for_contract_testing" not in source:
+            continue
+        try:
+            tree = ast.parse(source)
+        except SyntaxError:
+            continue
+        if any(
+            _ast_call_name(call) == "_execute_nl_pipeline_for_contract_testing"
+            for call in ast.walk(tree)
+            if isinstance(call, ast.Call)
+        ):
+            issues.append(
+                {
+                    "path": path.relative_to(root).as_posix(),
+                    "reason": "contract_testing_lane_called_from_source",
+                    "pattern": "_execute_nl_pipeline_for_contract_testing",
                 }
             )
     return issues
+
+
+def _ast_call_name(call: ast.Call) -> str:
+    if isinstance(call.func, ast.Name):
+        return call.func.id
+    if isinstance(call.func, ast.Attribute):
+        return call.func.attr
+    return ""
 
 
 def firewall_issues_for_result(result: GenerationUnderAResult) -> tuple[dict[str, Any], ...]:
@@ -1987,9 +2457,30 @@ def _content_bound_candidates(
     world_model_record_ref: str | None,
     reference: CredalReference | None,
     relation_engine: GroundingRelationEngine | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> tuple[tuple[ShadowGeneratedCandidate, ...], tuple[GroundingDispositionRecord, ...]]:
-    world_record = None
-    resolved_world_model_record_ref = world_model_record_ref
+    context = None
+    context_l6_bundle = None
+    if cycle_substrate_context is not None:
+        context = _cycle_substrate_context_for_problem(
+            cycle_substrate_context,
+            design_problem=design_problem,
+        )
+        world_record = context.world_model_record
+        resolved_world_model_record_ref = world_record.world_model_record_id
+        if (
+            world_model_record_ref is not None
+            and world_model_record_ref != resolved_world_model_record_ref
+        ):
+            raise DesignGenerationError("cycle_substrate_world_model_ref_mismatch")
+        if context.candidate_levers:
+            context_l6_bundle = (
+                context.intervention_substrate
+                or load_l6_intervention_substrate(repo_root.resolve())
+            )
+    else:
+        world_record = None
+        resolved_world_model_record_ref = world_model_record_ref
     if resolved_world_model_record_ref is None:
         world_record = production_composed_world_model_record(repo_root.resolve())
         resolved_world_model_record_ref = world_record.world_model_record_id
@@ -2056,6 +2547,82 @@ def _content_bound_candidates(
             cg5=cg5,
         )
         raw_candidate_hash = gy_content_hash(intervention.model_dump(mode="json"))
+        lever_resolution: InterventionLeverRefusal | None = None
+        if context is not None and context.candidate_levers:
+            candidate_lever_ref = _candidate_lever_reference(intervention)
+            matching_context_levers = tuple(
+                candidate
+                for candidate in context.candidate_levers
+                if candidate_lever_ref
+                in {candidate.instrument, candidate.lever_id}
+            )
+            if len(matching_context_levers) != 1:
+                dispositions.append(
+                    GroundingDispositionRecord(
+                        proposal_id=proposal_id,
+                        raw_candidate_hash=raw_candidate_hash,
+                        disposition="unknown_blocked",
+                        selected_relation=cg1.selected_relation,
+                        identified_atom_id=_selected_atom_id_from_cg1(cg1),
+                        cg2_decision=cg2.decision,
+                        cg2_reason=cg2.decisive_reason,
+                        cg3_decision=cg3.decision,
+                        cg3_reason=cg3.decisive_reason,
+                        rejected_cause={
+                            "code": "cycle_substrate_candidate_lever_unresolved",
+                            "operator_kind": str(intervention.kind),
+                            "candidate_lever_id": candidate_lever_ref or None,
+                            "resolved_count": len(matching_context_levers),
+                            "context_binding_hash": context.context_binding_hash,
+                        },
+                        legacy_exact_match=legacy_disposition,
+                        legacy_linker_issues=legacy_issues,
+                        certificate_chain=chain,
+                        bridge_missing_records=bridge_records,
+                    )
+                )
+                continue
+            if context_l6_bundle is None:
+                raise DesignGenerationError("cycle_substrate_l6_bundle_missing")
+            resolved_lever = resolve_intervention_lever(
+                context_l6_bundle,
+                operator_kind=candidate_lever_ref,
+                parameter_value=_candidate_parameter_value(intervention),
+                world_model_record=context.world_model_record,
+                cycle_substrate_context=context,
+            )
+            if not isinstance(resolved_lever, InterventionLeverRefusal):
+                raise DesignGenerationError(
+                    "candidate_unbound_lever_resolved_as_world_bound"
+                )
+            lever_resolution = resolved_lever
+        if lever_resolution is not None and cg1.selected_relation in {
+            "exact",
+            "certified-specialization",
+        }:
+            dispositions.append(
+                GroundingDispositionRecord(
+                    proposal_id=proposal_id,
+                    raw_candidate_hash=raw_candidate_hash,
+                    disposition="non_binding_abstain",
+                    selected_relation=cg1.selected_relation,
+                    identified_atom_id=_selected_atom_id_from_cg1(cg1),
+                    cg2_decision=cg2.decision,
+                    cg2_reason=cg2.decisive_reason,
+                    cg3_decision=cg3.decision,
+                    cg3_reason=cg3.decisive_reason,
+                    rejected_cause={
+                        "code": "candidate_unbound_world_slot",
+                        "lever_resolution_ref": lever_resolution.content_hash,
+                    },
+                    legacy_exact_match=legacy_disposition,
+                    legacy_linker_issues=legacy_issues,
+                    certificate_chain=chain,
+                    bridge_missing_records=bridge_records,
+                    lever_resolution=lever_resolution,
+                )
+            )
+            continue
         if cg1.selected_relation in {"exact", "certified-specialization"}:
             try:
                 candidate = _shadow_candidate_from_grounding(
@@ -2117,6 +2684,7 @@ def _content_bound_candidates(
                     legacy_linker_issues=legacy_issues,
                     certificate_chain=chain,
                     bridge_missing_records=bridge_records,
+                    lever_resolution=lever_resolution,
                 )
             )
             continue
@@ -2137,6 +2705,7 @@ def _content_bound_candidates(
                     legacy_linker_issues=legacy_issues,
                     certificate_chain=chain,
                     bridge_missing_records=bridge_records,
+                    lever_resolution=lever_resolution,
                 )
             )
             continue
@@ -2163,9 +2732,37 @@ def _content_bound_candidates(
                 legacy_linker_issues=legacy_issues,
                 certificate_chain=chain,
                 bridge_missing_records=bridge_records,
+                lever_resolution=lever_resolution,
             )
         )
     return tuple(candidates), tuple(dispositions)
+
+
+def _candidate_lever_reference(intervention: InterventionSpec) -> str:
+    """Return one exact candidate-only lever ref without normalizing its value."""
+
+    explicit = intervention.params.get("candidate_lever_id")
+    if explicit is None:
+        return str(intervention.kind)
+    if not isinstance(explicit, str):
+        return ""
+    return explicit.strip()
+
+
+def _candidate_parameter_value(intervention: InterventionSpec) -> object:
+    """Return one candidate-authored value for the resolver attempt."""
+
+    for key, value in sorted(intervention.params.items()):
+        if key not in {
+            "effect_path",
+            "estimand",
+            "candidate_lever_id",
+            "outcome_slots",
+            "sign",
+            "target_world_slot",
+        }:
+            return value
+    return 0
 
 
 def derive_lever_space_prompt_slice(
@@ -2173,9 +2770,76 @@ def derive_lever_space_prompt_slice(
     *,
     repo_root: Path,
     reference: CredalReference | None = None,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
 ) -> LeverSpacePromptSlice:
     """Derive the non-authoritative RAG-in-prompt lever slice from live owners."""
 
+    if cycle_substrate_context is not None:
+        context = _cycle_substrate_context_for_problem(
+            cycle_substrate_context,
+            design_problem=design_problem,
+        )
+        if context.candidate_levers:
+            entries = tuple(
+                LeverSpaceSliceEntry(
+                    operator_kind=candidate.lever_id,
+                    instrument=candidate.instrument,
+                    aliases=(candidate.instrument, candidate.target_concept),
+                    target_world_slots=(),
+                    source_refs=tuple(
+                        dict.fromkeys(
+                            (
+                                *candidate.source_refs,
+                                candidate.entry_content_hash,
+                                candidate.selected_registry_entry_hash,
+                                context.substrate_registry_content_hash,
+                                context.world_model_record_content_hash,
+                            )
+                        )
+                    ),
+                    binding_status="candidate_unbound",
+                    candidate_entry_content_hash=candidate.entry_content_hash,
+                    context_binding_hash=context.context_binding_hash,
+                    substrate_registry_content_hash=(
+                        context.substrate_registry_content_hash
+                    ),
+                    world_model_record_content_hash=(
+                        context.world_model_record_content_hash
+                    ),
+                )
+                for candidate in context.candidate_levers
+            )
+            selected = entries
+            owner_refs = tuple(
+                str(item)
+                for item in dict.fromkeys(
+                    (
+                        context.source_pack_content_hash,
+                        context.substrate_input_content_hash,
+                        context.substrate_registry_content_hash,
+                        context.world_model_record_content_hash,
+                        context.context_binding_hash,
+                    )
+                )
+                if item
+            )
+            payload = {
+                "design_problem_id": design_problem.design_problem_id,
+                "entries": [entry.model_dump(mode="json") for entry in selected],
+                "owner_refs": list(owner_refs),
+                "non_constraining": True,
+            }
+            return LeverSpacePromptSlice(
+                status="derived",
+                content_hash=gy_content_hash(payload),
+                entries=selected,
+                owner_refs=owner_refs,
+            )
+        if context.intervention_substrate is not None:
+            return _world_bound_lever_space_prompt_slice(
+                design_problem,
+                context=context,
+            )
     try:
         bundle = load_l6_intervention_substrate(repo_root.resolve())
     except (InterventionSubstrateError, OSError, RuntimeError, ValueError) as exc:
@@ -2273,6 +2937,124 @@ def derive_lever_space_prompt_slice(
         entries=tuple(LeverSpaceSliceEntry.model_validate(item) for item in payload["entries"]),
         owner_refs=tuple(item for item in owner_refs if item),
     )
+
+
+def _world_bound_lever_space_prompt_slice(
+    design_problem: DesignProblem,
+    *,
+    context: CycleSubstrateContext,
+) -> LeverSpacePromptSlice:
+    """Derive the active world's real L6 vocabulary without model filtering."""
+
+    bundle = context.intervention_substrate
+    if bundle is None:
+        return LeverSpacePromptSlice(
+            status="unavailable",
+            failure_reason="context_bound_l6_bundle_missing",
+        )
+    entries: list[LeverSpaceSliceEntry] = []
+    for operator_kind, raw in sorted(bundle.knob_dictionary.items()):
+        raw_knob = _mapping(raw)
+        if not raw_knob or "default" not in raw_knob:
+            continue
+        try:
+            resolution = resolve_intervention_lever(
+                bundle,
+                operator_kind=str(operator_kind),
+                parameter_value=raw_knob["default"],
+                world_model_record=context.world_model_record,
+                cycle_substrate_context=context,
+            )
+        except (InterventionSubstrateError, ValueError):
+            continue
+        if not isinstance(resolution, InterventionLeverResolution):
+            continue
+        mechanism = _owner_mechanism_entry(bundle, str(operator_kind))
+        parameter_key, parameter_bounds, unit = _compact_parameter_facts(
+            raw_knob,
+            mechanism,
+        )
+        entries.append(
+            LeverSpaceSliceEntry(
+                operator_kind=str(operator_kind),
+                instrument=str(operator_kind),
+                aliases=_owner_aliases_for_operator(
+                    str(operator_kind),
+                    raw_knob=raw_knob,
+                    lex_intervention_map=bundle.lex_intervention_map,
+                ),
+                target_world_slots=resolution.target_world_slots,
+                unit=unit,
+                parameter_key=parameter_key,
+                parameter_bounds=parameter_bounds,
+                source_refs=tuple(
+                    item
+                    for item in dict.fromkeys(
+                        (
+                            bundle.source_refs.get("owner_authority_bindings", ""),
+                            resolution.content_hash,
+                        )
+                    )
+                    if item
+                ),
+                binding_status="world_bound",
+                context_binding_hash=context.context_binding_hash,
+                substrate_registry_content_hash=(
+                    context.substrate_registry_content_hash
+                ),
+                world_model_record_content_hash=(
+                    context.world_model_record_content_hash
+                ),
+            )
+        )
+    selected = _cap_lever_space_entries(entries, design_problem=design_problem)
+    if not selected:
+        return LeverSpacePromptSlice(
+            status="unavailable",
+            failure_reason="context_bound_owner_slice_unresolved",
+        )
+    owner_refs = tuple(
+        item
+        for item in dict.fromkeys(
+            (
+                bundle.content_hash,
+                context.context_binding_hash,
+                context.substrate_registry_content_hash,
+                context.world_model_record_content_hash,
+            )
+        )
+        if item
+    )
+    payload = {
+        "design_problem_id": design_problem.design_problem_id,
+        "entries": [entry.model_dump(mode="json") for entry in selected],
+        "owner_refs": list(owner_refs),
+        "non_constraining": True,
+    }
+    return LeverSpacePromptSlice(
+        status="derived",
+        content_hash=gy_content_hash(payload),
+        entries=selected,
+        owner_refs=owner_refs,
+    )
+
+
+def _cycle_substrate_context_for_problem(
+    cycle_substrate_context: CycleSubstrateContext,
+    *,
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Revalidate one context and reject cross-problem substitution."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
+
+    context = revalidate_cycle_substrate_context(cycle_substrate_context)
+    expected_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+    if context.design_problem_ref != expected_problem_ref:
+        raise DesignGenerationError("cycle_substrate_design_problem_mismatch")
+    return context
 
 
 def _with_lever_space_prompt_slice(
@@ -2522,6 +3304,7 @@ def _grounding_proposal_for_intervention(
     bundle_ref: str,
 ) -> dict[str, Any]:
     target_hint = _candidate_declared_target_hint(intervention)
+    grounding_params = _candidate_direct_params(intervention)
     signature = _candidate_grounding_signature(
         intervention,
         target_hint=target_hint,
@@ -2532,7 +3315,7 @@ def _grounding_proposal_for_intervention(
             f"Generated policy candidate {intervention.intervention_id}.",
             f"operator={intervention.kind}.",
             f"target={json.dumps(intervention.target.model_dump(mode='json'), sort_keys=True)}.",
-            f"params={json.dumps(intervention.params, sort_keys=True, default=str)}.",
+            f"params={json.dumps(grounding_params, sort_keys=True, default=str)}.",
             "measurement="
             f"{json.dumps(intervention.measurement_expectations, sort_keys=True, default=str)}.",
             f"do.target={target_hint}." if target_hint else "",
@@ -2611,7 +3394,11 @@ def _candidate_grounding_signature(
 
 def _candidate_direct_params(intervention: InterventionSpec) -> dict[str, Any]:
     params = dict(_mapping(intervention.params))
-    for key in _CANDIDATE_AXIS_PARAM_KEYS | _CANDIDATE_TARGET_PARAM_KEYS:
+    for key in (
+        _CANDIDATE_AXIS_PARAM_KEYS
+        | _CANDIDATE_TARGET_PARAM_KEYS
+        | _CANDIDATE_PROVENANCE_PARAM_KEYS
+    ):
         params.pop(key, None)
     return params
 
@@ -2625,6 +3412,7 @@ _CANDIDATE_TARGET_PARAM_KEYS = frozenset(
         "state_variable",
     }
 )
+_CANDIDATE_PROVENANCE_PARAM_KEYS = frozenset({"candidate_lever_id"})
 _CANDIDATE_AXIS_PARAM_KEYS = frozenset(
     {
         "sign",
@@ -3316,6 +4104,7 @@ __all__ = [
     "GenerationCandidateProvenance",
     "GenerationDiversityReport",
     "GenerationUnderAResult",
+    "GroundingDispositionKind",
     "LLMGenerationCall",
     "ModelProfilePreflight",
     "RecordingLLMClient",

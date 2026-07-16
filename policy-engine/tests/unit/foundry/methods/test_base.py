@@ -8,6 +8,7 @@ import dataclasses
 
 import jax.numpy as jnp
 import pytest
+
 from polisyos.foundry.methods import (
     ComplexityClass,
     ComputeBackend,
@@ -21,6 +22,11 @@ from polisyos.foundry.methods import (
     parse_fqn,
 )
 from polisyos.foundry.methods.types.units import Units
+from polisyos.ir.analytics.uncertainty import (
+    OutputContractCapability,
+    ValueUncertaintyProjectionKind,
+    value_uncertainty_output_contract,
+)
 
 
 class TestUnitImmutability:
@@ -139,6 +145,28 @@ class TestSlotSpecValidation:
                 contract_id="",
             )
 
+    def test_contract_owner_without_capability_is_rejected(self) -> None:
+        with pytest.raises(ValueError, match="slot_contract_owner_requires_capability"):
+            SlotSpec(
+                name="result",
+                slot_type=SlotType.SCALAR,
+                unit=Unit("value", "json"),
+                contract_id="test.output.v1",
+                contract_owner="tests.native:Output",
+            )
+
+    def test_legacy_fifth_positional_argument_remains_shape(self) -> None:
+        slot = SlotSpec(
+            "vector",
+            SlotType.VECTOR,
+            Unit("value", "1"),
+            "test.vector.v1",
+            ("n",),
+        )
+
+        assert slot.shape == ("n",)
+        assert slot.contract_capabilities == frozenset()
+
 
 class TestParameterSpecValidation:
     def test_bounds_must_be_ordered(self):
@@ -230,6 +258,48 @@ class TestHashing:
         s2 = SlotSpec(name="a", slot_type=SlotType.SCALAR, unit=Units.UAH, contract_id="c2")
         assert hash(s1) != hash(s2)
         assert s1 != s2
+
+    def test_output_capability_participates_in_slot_identity_and_digest(self):
+        plain = SlotSpec(
+            name="result",
+            slot_type=SlotType.SCALAR,
+            unit=Unit("value", "json"),
+            contract_id="test.output.v1",
+        )
+        capable = SlotSpec(
+            name="result",
+            slot_type=SlotType.SCALAR,
+            unit=Unit("value", "json"),
+            contract_id="test.output.v1",
+            contract_capabilities=frozenset(
+                {OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}
+            ),
+            contract_owner="tests.native:Output",
+        )
+
+        assert plain != capable
+        assert hash(plain) != hash(capable)
+        assert plain.stable_digest() != capable.stable_digest()
+
+    def test_output_contract_rejects_incomplete_projection_interface(self):
+        class _IncompleteProjectionOwner:
+            contract_id = "test.incomplete_projection.v1"
+            output_contract_declaration = value_uncertainty_output_contract(
+                contract_id,
+                projection_kind=ValueUncertaintyProjectionKind.POSTERIOR,
+            )
+
+            def to_value_uncertainty(self, *, estimand: object) -> None:
+                del estimand
+                return None
+
+        with pytest.raises(ValueError, match="output_contract_value_projector_missing"):
+            SlotSpec.for_output_contract(
+                "result",
+                SlotType.SCALAR,
+                Unit("value", "json"),
+                output_contract=_IncompleteProjectionOwner,
+            )
 
     def test_array_param_hashable(self):
         arr = jnp.array([0.1, 0.2, 0.3])

@@ -36,18 +36,18 @@ _EPS = 1e-12
 
 def forecasting_output_slots(
     *,
-    contract_id: str = ForecastingUncertaintyBundle.contract_id,
+    output_contract: type[ForecastingUncertaintyBundle] = ForecastingUncertaintyBundle,
 ) -> frozenset[SlotSpec]:
     """Return the standard forecasting output surface for Phase 0."""
 
     return frozenset(
         {
             SlotSpec("result", SlotType.SCALAR, Unit("result", "json")),
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 "forecasting_uncertainty_bundle",
                 SlotType.SCALAR,
                 Unit("uncertainty", "json"),
-                contract_id=contract_id,
+                output_contract=output_contract,
             ),
         }
     )

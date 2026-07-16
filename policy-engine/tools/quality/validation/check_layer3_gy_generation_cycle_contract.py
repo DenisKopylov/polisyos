@@ -10,6 +10,7 @@ import json
 import sys
 import time
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, get_args
@@ -46,6 +47,7 @@ from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json"
+_FIXED_GENERATED_AT = datetime(2026, 7, 5, tzinfo=UTC)
 _CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash", "capture_wall_time_seconds"}
 _EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "revision_not_terminal_driven",
@@ -58,6 +60,8 @@ _EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "coverage_depends_on_llm",
     "k_sim_shrank_k_world",
     "full_denominator_curated_subset",
+    "incoherent_single_terminal_run",
+    "empty_cycle_run",
 )
 
 
@@ -221,6 +225,7 @@ async def build_live_payload(repo_root: Path) -> dict[str, Any]:
         grounding_port=PolicyGroundingPort(),
         value_port=PendingN8ValuePort(),
         repo_root=repo_root,
+        generated_at=_FIXED_GENERATED_AT,
     )
     run = await controller.run(
         _design_problem(),
@@ -507,6 +512,8 @@ def _mutation_reports(payload: dict[str, Any]) -> list[dict[str, Any]]:
         "coverage_depends_on_llm": _mutate_fallback_promoted,
         "k_sim_shrank_k_world": _mutate_k_sim_shrank_world,
         "full_denominator_curated_subset": _mutate_full_denominator_subset,
+        "incoherent_single_terminal_run": _mutate_incoherent_single_terminal,
+        "empty_cycle_run": _mutate_empty_cycle_run,
     }
     reports: list[dict[str, Any]] = []
     for mutation_id, mutator in mutations.items():
@@ -544,6 +551,16 @@ def _mutate_strangle_drift(payload: dict[str, Any]) -> None:
         "src/polisyos/runtime/http/services/control/nl_pipeline.py:1"
     ]
     payload["positive_gate"]["strangle_status"] = "drift"
+
+
+def _mutate_incoherent_single_terminal(payload: dict[str, Any]) -> None:
+    first_cycle = copy.deepcopy(payload["generation_cycle_run"]["cycles"][0])
+    first_cycle["terminal_kind"] = SearchTerminalKind.FRONTIER_STABLE.value
+    payload["generation_cycle_run"]["cycles"] = [first_cycle]
+
+
+def _mutate_empty_cycle_run(payload: dict[str, Any]) -> None:
+    payload["generation_cycle_run"]["cycles"] = []
 
 
 def _mutate_proxy_gap_decision(payload: dict[str, Any]) -> None:

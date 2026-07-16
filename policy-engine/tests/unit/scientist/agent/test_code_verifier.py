@@ -3,6 +3,7 @@ from __future__ import annotations
 import builtins
 
 import pytest
+
 from polisyos.scientist.agent.code_verifier import (
     CodeVerificationSandbox,
     DraftVariableExtractor,
@@ -43,6 +44,12 @@ def test_verification_code_extractor() -> None:
     raw = '{"findings":[],"confidence_adjustment":0.0,"verification_code":"assert 1 == 1"}'
     code = VerificationCodeExtractor.extract_from_llm_response(raw)
     assert code == "assert 1 == 1"
+
+
+def test_verification_code_extractor_accepts_think_prefixed_json() -> None:
+    raw = '<think>verification reasoning</think>{"verification_code":"assert 2 == 2"}'
+
+    assert VerificationCodeExtractor.extract_from_llm_response(raw) == "assert 2 == 2"
 
 
 def test_draft_variable_extractor() -> None:

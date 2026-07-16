@@ -455,6 +455,7 @@ async def test_nl_runs_path_is_legacy_shadow_until_loop_proposer_exists(
     launch = await service.launch_nl_run(
         NaturalLanguageRunRequest(
             request="Estimate whether UA MSME credit access can be measured.",
+            llm_model="simulated-qwen",
             max_iterations=1,
         )
     )

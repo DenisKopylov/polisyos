@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from polisyos.scientist.agent._drafter_parsing import _DrafterParsingMixin
 from polisyos.scientist.agent.drafter_models import (
     FindingCategory,
@@ -135,6 +136,21 @@ class TestParseCritiquePayload:
         assert findings[0].category == FindingCategory.OTHER
         assert findings[0].severity == FindingSeverity.MEDIUM
 
+    def test_think_prefixed_json(self, parser):
+        payload = {
+            "findings": [{"description": "real finding", "severity": "high"}],
+            "confidence_adjustment": -0.02,
+        }
+
+        findings, adjustment, ok, _code = parser._parse_critique_payload(
+            "<think>critique reasoning</think>" + json.dumps(payload),
+            pass_name="think",
+        )
+
+        assert ok is True
+        assert [finding.description for finding in findings] == ["real finding"]
+        assert adjustment == -0.02
+
 
 # ---------------------------------------------------------------------------
 # _parse_findings (wrapper)
@@ -179,6 +195,20 @@ class TestParseConsolidatedDraft:
         assert result.confidence == 0.95
         assert result.alternatives_considered == ["alt1"]
         assert result.draft_id == "d1_mp"
+
+    def test_think_prefixed_json_preserves_raw_response(self, parser):
+        original = _make_draft()
+        payload = {"narrative": "Think-prefixed consolidation", "confidence": 0.91}
+        raw = "<think>consolidation reasoning</think>" + json.dumps(payload)
+
+        result, ok = parser._parse_consolidated_draft(
+            raw_response=raw,
+            original=original,
+        )
+
+        assert ok is True
+        assert result.narrative == "Think-prefixed consolidation"
+        assert result.raw_llm_response == raw
 
     def test_null_fields_use_original(self, parser):
         original = _make_draft(narrative="original nar", rationale="orig rat")

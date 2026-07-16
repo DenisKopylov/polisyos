@@ -3,12 +3,23 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
 from polisyos.ir.analytics.partial_identification import PartialIdentificationResult
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily,
+    IntervalSemantics,
+    NativeValueEstimandBinding,
+    OutputContractDeclaration,
+    PropagationMethod,
+    UncertaintyEnvelope,
+    UncertaintySource,
+    ValueUncertaintyProjectionKind,
+    value_uncertainty_output_contract,
+)
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import TransportabilityResultRef
@@ -98,6 +109,14 @@ class SNode(BaseModel):
     origin: SNodeOrigin = SNodeOrigin.CONTEXT_DELTA
     legal_constraint_id: str | None = None
     role: SNodeRole | None = None
+    source_ref: str | None = Field(None, min_length=1)
+    target_ref: str | None = Field(None, min_length=1)
+
+    @model_validator(mode="after")
+    def _measured_refs_are_paired(self) -> SNode:
+        if (self.source_ref is None) != (self.target_ref is None):
+            raise ValueError("selection_node_measured_refs_incomplete")
+        return self
 
 
 class SelectionDiagram(BaseModel):
@@ -219,6 +238,42 @@ class SelectionDiagramBuilder:
         )
         self._s_nodes.append(sn)
         self._sigma_vars.append(SigmaVariable.from_s_node(sn))
+        return self
+
+    def add_measured_sigma_variable(
+        self,
+        variable_name: str,
+        *,
+        source_value: float,
+        target_value: float,
+        severity: Literal["low", "medium", "high"],
+        role: SNodeRole | None,
+        source_ref: str,
+        target_ref: str,
+    ) -> SelectionDiagramBuilder:
+        """Add a content-referenced mechanism shift measured in both contexts.
+
+        The supplied row references are provenance only. They do not establish
+        transportability or causal role; the transport solver remains the
+        authority for those decisions.
+        """
+
+        if variable_name in self._seen:
+            return self
+        self._seen.add(variable_name)
+        s_node = SNode(
+            target_variable=variable_name,
+            context_dimension=f"measured:{variable_name}",
+            source_value=float(source_value),
+            target_value=float(target_value),
+            delta=abs(float(target_value) - float(source_value)),
+            severity=severity,
+            role=role,
+            source_ref=source_ref,
+            target_ref=target_ref,
+        )
+        self._s_nodes.append(s_node)
+        self._sigma_vars.append(SigmaVariable.from_s_node(s_node))
         return self
 
     def build(
@@ -424,6 +479,13 @@ class TransportabilityResult(BaseModel):
     creation so validated models no longer rewrite their own fields.
     """
 
+    contract_id: ClassVar[str] = "ir.transportability_result.v2"
+    output_contract_declaration: ClassVar[OutputContractDeclaration] = (
+        value_uncertainty_output_contract(
+            contract_id,
+            projection_kind=ValueUncertaintyProjectionKind.TRANSPORT,
+        )
+    )
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: str = Field("2.0", pattern=r"^\d+\.\d+$")
@@ -590,6 +652,53 @@ class TransportabilityResult(BaseModel):
             TransportabilityStatus.PARTIALLY_IDENTIFIED,
         }
 
+    def to_value_uncertainty(
+        self,
+        *,
+        estimand: object,
+        projection_binding: NativeValueEstimandBinding,
+    ) -> UncertaintyEnvelope | None:
+        """Project transport bounds only when the query identity is explicit."""
+
+        estimand_id = str(getattr(estimand, "estimand_id", "") or "")
+        if not self.query or estimand_id != self.query:
+            return None
+        if (
+            projection_binding.native_contract_id != self.contract_id
+            or not projection_binding.matches(estimand)
+        ):
+            return None
+        bounds = self.partial_identification_result
+        if bounds is None:
+            return None
+        lower = float(bounds.lower_bound)
+        upper = float(bounds.upper_bound)
+        return UncertaintyEnvelope(
+            point_estimate=(lower + upper) / 2.0,
+            confidence_interval=(lower, upper),
+            confidence_level=None,
+            distribution_family=DistributionFamily.UNKNOWN,
+            source=UncertaintySource.CAUSAL,
+            propagation_method=PropagationMethod.NONE,
+            interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS,
+            gate_eligible=bool(bounds.is_informative),
+            metadata={
+                "query": self.query,
+                "transport_status": self.status.value,
+                "transport_mode": self.transport_mode.value,
+                "bounds_method": bounds.method.value,
+                "value_estimand_binding_content_hash": (
+                    projection_binding.content_hash
+                ),
+                "value_estimand_binding_native_contract_id": (
+                    projection_binding.native_contract_id
+                ),
+                "value_estimand_binding_producer_method_fqn": (
+                    projection_binding.producer_method_fqn
+                ),
+            },
+        )
+
 
 def build_selection_diagram(
     source_context: ContextProfile,
@@ -714,6 +823,15 @@ def _severity_from_delta(delta: float) -> Literal["low", "medium", "high"]:
     if delta > 0.3:
         return "medium"
     return "low"
+
+
+def measured_transport_severity(
+    source_value: float,
+    target_value: float,
+) -> Literal["low", "medium", "high"]:
+    """Classify a measured source/target delta using the transport owner rule."""
+
+    return _severity_from_delta(abs(float(target_value) - float(source_value)))
 
 
 def _clamp01(value: float) -> float:
@@ -879,5 +997,6 @@ __all__ = [
     "TransportabilityStatus",
     "build_selection_diagram",
     "load_transportability_result",
+    "measured_transport_severity",
     "persist_transportability_result",
 ]

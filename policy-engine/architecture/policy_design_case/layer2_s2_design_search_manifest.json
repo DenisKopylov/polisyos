@@ -21,6 +21,28 @@
   "open_cell_count_baseline": 17,
   "expected_current_open_cell_count": 15,
   "first_proving_case_id": "ua-msme-affordable-loans-2022",
+  "candidate_space": {
+    "authority_purpose": "shadow_first_proving_case_evidence",
+    "instrument_families": [
+      "credit_guarantee",
+      "interest_rate_buydown",
+      "cash_grant"
+    ],
+    "parameter_space": {
+      "coverage": [
+        "partial_portfolio",
+        "targeted_sector"
+      ],
+      "risk_share": [
+        "first_loss",
+        "pari_passu"
+      ],
+      "delivery_channel": [
+        "bank_intermediated",
+        "public_fund"
+      ]
+    }
+  },
   "required_artifacts": [
     "DesignGrammarExpansion",
     "DesignCandidateV0",

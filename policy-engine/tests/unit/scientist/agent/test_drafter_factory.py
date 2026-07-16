@@ -3,7 +3,9 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.scientist.agent.drafter_clients import LLMDrafterAgent
 from polisyos.scientist.agent.drafter_factory import create_drafter_agent
 from polisyos.scientist.agent.drafter_models import MultiPassConfig
 from polisyos.scientist.agent.drafter_multipass import MultiPassLLMDrafter
@@ -13,6 +15,28 @@ class _StubClient:
     async def generate(self, **kwargs: Any) -> object:
         del kwargs
         return object()
+
+
+def test_explicit_multipass_mode_overrides_environment(monkeypatch) -> None:
+    monkeypatch.setenv("POLISYOS_DRAFTER_MULTIPASS_MODE", "off")
+
+    active = create_drafter_agent(
+        _StubClient(),
+        config=MultiPassConfig(max_passes=1),
+        multipass_mode="active",
+    )
+
+    assert isinstance(active, MultiPassLLMDrafter)
+
+    monkeypatch.setenv("POLISYOS_DRAFTER_MULTIPASS_MODE", "active")
+    off = create_drafter_agent(_StubClient(), multipass_mode="off")
+
+    assert isinstance(off, LLMDrafterAgent)
+
+
+def test_explicit_unknown_multipass_mode_fails_closed() -> None:
+    with pytest.raises(ValueError, match="unsupported_drafter_multipass_mode"):
+        create_drafter_agent(_StubClient(), multipass_mode="invented")  # type: ignore[arg-type]
 
 
 def test_create_drafter_agent_uses_injected_rag_store_factory(

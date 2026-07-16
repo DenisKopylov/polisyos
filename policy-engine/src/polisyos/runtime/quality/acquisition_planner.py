@@ -17,18 +17,26 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from importlib import import_module
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import TYPE_CHECKING, Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.pdc import SearchTerminalKind, SearchTerminalState, VOISelectionAudit
+from polisyos.pdc import (
+    SearchTerminalKind,
+    SearchTerminalState,
+    VOISelectionAudit,
+    strip_gy_volatile_fields,
+)
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateRegistration,
     SubstrateRegistry,
     SubstrateRegistryError,
     register_substrate_entry,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.design_problem import DesignProblem
 
 ACQUISITION_PLANNER_SCHEMA_VERSION = "policyos.runtime.acquisition_planner.v1"
 ACQUISITION_PLANNER_KIND = "runtime.acquisition_planner_report"
@@ -178,6 +186,179 @@ class AcquisitionFamily(StrEnum):
     SAFE = "SAFE"
 
 
+_VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION = (
+    "policyos.runtime.value_input_world_knowledge_gap.v1"
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE = "n8_value_input_world_knowledge"
+_VALUE_INPUT_WORLD_KNOWLEDGE_ALTERNATIVES = (
+    "owner_rollout_assignment",
+    "certified_skg_identity_bridge",
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF = (
+    "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_HASH = (
+    "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID = (
+    "requirement-gap:data_requirement:value-input-world-knowledge"
+)
+_VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF = (
+    "runtime-requirement:value-input-world-knowledge:v1"
+)
+_GROUNDING_COVERAGE_SCHEMA_VERSION = (
+    "policyos.runtime.grounding_coverage_gap.v1"
+)
+_GROUNDING_COVERAGE_SOURCE = "cgf_grounding_coverage"
+
+
+class _ValueInputWorldKnowledgeAlternative(BaseModel):
+    """One still-missing way to satisfy the value-input knowledge gap."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    alternative_id: Literal[
+        "owner_rollout_assignment",
+        "certified_skg_identity_bridge",
+    ]
+    satisfaction_status: Literal["unsatisfied"]
+
+
+class _ValueInputWorldKnowledgeAnyOf(BaseModel):
+    """Strict disjunction of the two admissible acquisition alternatives."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    operator: Literal["any_of"]
+    alternatives: tuple[_ValueInputWorldKnowledgeAlternative, ...]
+
+    @model_validator(mode="after")
+    def _require_exact_alternative_denominator(self) -> _ValueInputWorldKnowledgeAnyOf:
+        alternative_ids = tuple(row.alternative_id for row in self.alternatives)
+        if alternative_ids != _VALUE_INPUT_WORLD_KNOWLEDGE_ALTERNATIVES:
+            raise ValueError("value_input_world_knowledge_any_of_denominator_mismatch")
+        return self
+
+
+class _ValueInputWorldKnowledgeCensusEvidence(BaseModel):
+    """Committed Fork-B census receipt used only for costing and provenance."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    artifact_ref: Literal[
+        "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
+    ]
+    content_hash: Literal[
+        "sha256:c6822ee88e9815508799f65e829086ef30e8809c00bca26bfa529dae3deea60c"
+    ]
+    authority_purpose: Literal["costing_and_provenance_only"]
+
+
+class _ValueInputWorldKnowledgeGapMetadata(BaseModel):
+    """Validated metadata carried by the canonical N8-to-N7 gap bridge."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.value_input_world_knowledge_gap.v1"]
+    source: Literal["n8_value_input_world_knowledge"]
+    acquisition_family: Literal["ID"]
+    authority_purpose: Literal["routing_only"]
+    requirement: _ValueInputWorldKnowledgeAnyOf
+    satisfaction_status: Literal["unsatisfied"]
+    census_evidence: _ValueInputWorldKnowledgeCensusEvidence
+
+
+class _L1VariableCandidateBinding(BaseModel):
+    """Candidate and DesignProblem identity bound into an L1 data gap."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class _L1VariableAvailabilityEvidence(BaseModel):
+    """Exact unavailable L1 owner result used only for acquisition routing."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    variable_id: str = Field(min_length=1)
+    status: Literal["unavailable"]
+    dataset_count: Literal[0]
+    metric_binding_count: Literal[0]
+    observation_count: Literal[0]
+    coverage_ref: str = Field(min_length=1)
+    availability_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _verify_content_hash(self) -> _L1VariableAvailabilityEvidence:
+        expected = _stable_content_hash(
+            {
+                "variable_id": self.variable_id,
+                "status": self.status,
+                "dataset_count": self.dataset_count,
+                "metric_binding_count": self.metric_binding_count,
+                "observation_count": self.observation_count,
+                "coverage_ref": self.coverage_ref,
+            }
+        )
+        if self.availability_content_hash != expected:
+            raise ValueError("l1_variable_availability_hash_mismatch")
+        return self
+
+
+class _L1VariableAvailabilityGapMetadata(BaseModel):
+    """Strict owner-evidence bridge from L1 availability into N7 routing."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.l1_variable_availability_gap.v1"]
+    source: Literal["l1_dcat_variable_availability"]
+    authority_purpose: Literal["routing_only"]
+    satisfaction_status: Literal["unsatisfied"]
+    authority_level: AuthorityLevel
+    candidate_binding: _L1VariableCandidateBinding
+    availability: _L1VariableAvailabilityEvidence
+
+
+class _GroundingCoverageCandidateBinding(BaseModel):
+    """Candidate and problem identity for one unresolved grounding demand."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    candidate_id: str = Field(min_length=1)
+    candidate_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class _GroundingCoverageGapMetadata(BaseModel):
+    """Strict CGF evidence carried into N7 for routing only."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.runtime.grounding_coverage_gap.v1"]
+    source: Literal["cgf_grounding_coverage"]
+    acquisition_family: Literal["COV"]
+    authority_purpose: Literal["routing_only"]
+    satisfaction_status: Literal["unsatisfied"]
+    authority_level: AuthorityLevel
+    candidate_binding: _GroundingCoverageCandidateBinding
+    issue_codes: tuple[str, ...]
+    evidence_refs: tuple[str, ...]
+    grounding_report_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _require_issue_denominator(self) -> _GroundingCoverageGapMetadata:
+        if not self.issue_codes or any(not item.strip() for item in self.issue_codes):
+            raise ValueError("grounding_coverage_issue_codes_missing")
+        if len(self.issue_codes) != len(set(self.issue_codes)):
+            raise ValueError("grounding_coverage_issue_codes_duplicate")
+        if len(self.evidence_refs) != len(set(self.evidence_refs)):
+            raise ValueError("grounding_coverage_evidence_refs_duplicate")
+        return self
+
+
 class AcquisitionGap(BaseModel):
     """One evidence gap requiring acquisition routing."""
 
@@ -297,6 +478,148 @@ class AcquisitionRequirementGap(BaseModel):
             "scenario_requirement_refs",
             (self.compiled_requirement_ref,),
         )
+        return self
+
+    @model_validator(mode="after")
+    def _validate_value_input_world_knowledge_metadata(self) -> AcquisitionRequirementGap:
+        metadata = self.metadata
+        if not (
+            metadata.get("source") == _VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE
+            or metadata.get("schema_version") == _VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION
+            or self.requirement_gap_id == _VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID
+            or self.compiled_requirement_ref == _VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF
+        ):
+            return self
+        normalized = _ValueInputWorldKnowledgeGapMetadata.model_validate(metadata)
+        if self.requirement_gap_id != _VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID:
+            raise ValueError("value_input_world_knowledge_gap_id_mismatch")
+        if self.compiled_requirement_ref != _VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF:
+            raise ValueError("value_input_world_knowledge_compiled_ref_mismatch")
+        if self.requirement_schema_version != _VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION:
+            raise ValueError("value_input_world_knowledge_schema_version_mismatch")
+        if self.requirement_family is not RequirementGapFamily.DATA:
+            raise ValueError("value_input_world_knowledge_requires_data_gap_family")
+        if self.gap_type is not AcquisitionGapType.DATA_SNAPSHOT_RELEASE:
+            raise ValueError("value_input_world_knowledge_requires_data_snapshot_gap")
+        if self.limitation_permitted:
+            raise ValueError("value_input_world_knowledge_limitation_not_permitted")
+        object.__setattr__(self, "metadata", normalized.model_dump(mode="json"))
+        return self
+
+    @model_validator(mode="after")
+    def _validate_l1_variable_availability_metadata(self) -> AcquisitionRequirementGap:
+        metadata = self.metadata
+        if not (
+            metadata.get("source") == "l1_dcat_variable_availability"
+            or metadata.get("schema_version")
+            == "policyos.runtime.l1_variable_availability_gap.v1"
+            or self.requirement_gap_id.startswith(
+                "requirement-gap:data_requirement:l1-variable-availability:"
+            )
+        ):
+            return self
+        normalized = _L1VariableAvailabilityGapMetadata.model_validate(metadata)
+        binding = normalized.candidate_binding
+        availability = normalized.availability
+        identity = _stable_content_hash(
+            {
+                "candidate_id": binding.candidate_id,
+                "candidate_content_hash": binding.candidate_content_hash,
+                "design_problem_ref": binding.design_problem_ref,
+                "variable_id": availability.variable_id,
+            }
+        ).removeprefix("sha256:")[:16]
+        expected_gap_id = (
+            "requirement-gap:data_requirement:l1-variable-availability:"
+            f"{identity}"
+        )
+        expected_compiled_ref = (
+            "runtime-requirement:l1-variable-availability:"
+            f"{identity}:v1"
+        )
+        expected_gate = (
+            MandatoryGateState.NONE
+            if normalized.authority_level is AuthorityLevel.RESEARCH
+            else MandatoryGateState.NON_OVERRIDABLE
+        )
+        expected_claim = f"value-claim:{binding.candidate_id}"
+        if (
+            self.requirement_gap_id != expected_gap_id
+            or self.compiled_requirement_ref != expected_compiled_ref
+            or self.requirement_schema_version
+            != "policyos.runtime.l1_variable_availability_gap.v1"
+            or self.requirement_family is not RequirementGapFamily.DATA
+            or self.gap_type is not AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+            or self.claim_ref != expected_claim
+            or self.scenario_requirement_refs
+            != (binding.design_problem_ref, availability.coverage_ref)
+            or self.missing_requirement_fields
+            != (f"canonical_variable_observations:{availability.variable_id}",)
+            or self.authority_level is not normalized.authority_level
+            or self.mandatory_gate_state is not expected_gate
+            or self.mandatory_gate_refs != (expected_compiled_ref,)
+            or self.limitation_permitted
+            or self.decision_owner_ref
+            != "polisyos.runtime.quality.acquisition_planner"
+            or self.producer_output_ref != availability.coverage_ref
+        ):
+            raise ValueError("l1_variable_availability_gap_binding_mismatch")
+        object.__setattr__(self, "metadata", normalized.model_dump(mode="json"))
+        return self
+
+    @model_validator(mode="after")
+    def _validate_grounding_coverage_metadata(self) -> AcquisitionRequirementGap:
+        metadata = self.metadata
+        if not (
+            metadata.get("source") == _GROUNDING_COVERAGE_SOURCE
+            or metadata.get("schema_version") == _GROUNDING_COVERAGE_SCHEMA_VERSION
+            or self.requirement_gap_id.startswith(
+                "requirement-gap:data_requirement:grounding-coverage:"
+            )
+        ):
+            return self
+        normalized = _GroundingCoverageGapMetadata.model_validate(metadata)
+        binding = normalized.candidate_binding
+        identity = _stable_content_hash(
+            {
+                "candidate_binding": binding.model_dump(mode="json"),
+                "issue_codes": normalized.issue_codes,
+                "evidence_refs": normalized.evidence_refs,
+                "grounding_report_ref": normalized.grounding_report_ref,
+            }
+        ).removeprefix("sha256:")[:16]
+        compiled_ref = f"runtime-requirement:grounding-coverage:{identity}:v1"
+        expected_gate = (
+            MandatoryGateState.NONE
+            if normalized.authority_level is AuthorityLevel.RESEARCH
+            else MandatoryGateState.NON_OVERRIDABLE
+        )
+        if (
+            self.requirement_gap_id
+            != f"requirement-gap:data_requirement:grounding-coverage:{identity}"
+            or self.compiled_requirement_ref != compiled_ref
+            or self.requirement_schema_version != _GROUNDING_COVERAGE_SCHEMA_VERSION
+            or self.requirement_family is not RequirementGapFamily.DATA
+            or self.gap_type is not AcquisitionGapType.DATA_SNAPSHOT_RELEASE
+            or self.claim_ref != f"grounding-claim:{binding.candidate_id}"
+            or self.scenario_requirement_refs
+            != (
+                binding.design_problem_ref,
+                normalized.grounding_report_ref,
+                *normalized.evidence_refs,
+            )
+            or self.missing_requirement_fields
+            != (f"grounding_relation_or_owner_lever:{binding.candidate_id}",)
+            or self.authority_level is not normalized.authority_level
+            or self.mandatory_gate_state is not expected_gate
+            or self.mandatory_gate_refs != (compiled_ref,)
+            or self.limitation_permitted
+            or self.decision_owner_ref
+            != "polisyos.runtime.quality.acquisition_planner"
+            or self.producer_output_ref != normalized.grounding_report_ref
+        ):
+            raise ValueError("grounding_coverage_gap_binding_mismatch")
+        object.__setattr__(self, "metadata", normalized.model_dump(mode="json"))
         return self
 
     def to_acquisition_gap(self) -> AcquisitionGap:
@@ -1375,6 +1698,7 @@ def run_acquisition_closed_loop(
     acquisition_request: Mapping[str, Any],
     data_requirement_specs: Sequence[BaseModel | Mapping[str, Any]],
     world_snapshot: AcquisitionWorldSnapshot | Mapping[str, Any],
+    design_problem: DesignProblem | None = None,
     owner_gateway: AcquisitionOwnerGateway | None = None,
     network_counter: AcquisitionNetworkCallCounter | None = None,
     useful_design_rate_before: float = 0.0,
@@ -1384,7 +1708,9 @@ def run_acquisition_closed_loop(
 
     The default path is record/replay-only: callers must explicitly provide a
     gateway for owner artifacts, so routine checks never discover or fetch from
-    network owners by accident.
+    network owners by accident. Grounding rederivation additionally requires the
+    real ``DesignProblem`` authority supplied by the calling cycle; its absence
+    fails closed instead of constructing a dict-shaped authority surrogate.
     """
 
     request = dict(acquisition_request)
@@ -1461,6 +1787,7 @@ def run_acquisition_closed_loop(
         world=world,
         specs=specs,
         owner_artifacts=owner_artifacts,
+        design_problem=design_problem,
     )
     fail_closed.extend(projection.fail_closed_reasons)
     real_grounding_results = projection.real_grounding_result_count
@@ -1784,6 +2111,7 @@ def _project_owner_artifacts_into_world(
     world: AcquisitionWorldSnapshot,
     specs: Sequence[Mapping[str, Any]],
     owner_artifacts: Sequence[AcquisitionOwnerArtifact],
+    design_problem: DesignProblem | None,
 ) -> _WorldProjectionResult:
     registry = _substrate_registry_from_world(world)
     registry_before = registry
@@ -1921,7 +2249,14 @@ def _project_owner_artifacts_into_world(
         world_after_ref=world_after_ref,
         affected_region=affected_region,
         owner_artifacts=written_artifacts,
+        design_problem=design_problem,
     )
+    for row in grounding:
+        if "design_problem_unavailable_after_world_write" in row.issue_codes:
+            fail_closed.append(
+                "grounding_rederivation_refused:"
+                f"{row.design_id}:design_problem_unavailable_after_world_write"
+            )
     return _WorldProjectionResult(
         added_slots=added_slots,
         world_after_ref=world_after_ref,
@@ -2015,6 +2350,7 @@ def _rederive_grounding_for_affected_region(
     world_after_ref: str,
     affected_region: AcquisitionAffectedRegion,
     owner_artifacts: Sequence[AcquisitionOwnerArtifact],
+    design_problem: DesignProblem | None,
 ) -> tuple[AcquisitionGroundingRederivation, ...]:
     if not affected_region.design_ids:
         return ()
@@ -2045,6 +2381,17 @@ def _rederive_grounding_for_affected_region(
                     status="grounding_unavailable",
                     grounding_score=0.0,
                     issue_codes=("candidate_target_not_in_written_world_region",),
+                )
+            )
+            continue
+        if design_problem is None:
+            rows.append(
+                AcquisitionGroundingRederivation(
+                    design_id=design_id,
+                    source_slots=affected_region.source_slots,
+                    status="grounding_unavailable",
+                    grounding_score=0.0,
+                    issue_codes=("design_problem_unavailable_after_world_write",),
                 )
             )
             continue
@@ -2081,7 +2428,7 @@ def _rederive_grounding_for_affected_region(
         }
         observation = port(
             candidate=candidate,
-            problem={"runtime_hints": {"world_model_record_ref": world.world_model_record_ref}},
+            problem=design_problem,
             cycle_index=0,
             generation_result={"grounding_dispositions": (disposition,)},
         )
@@ -2261,7 +2608,10 @@ def _stable_content_hash(payload: Mapping[str, Any] | Sequence[Any]) -> str:
 def _receipt_content_hash(receipt: AcquisitionReceipt) -> str:
     payload = receipt.model_dump(mode="json")
     payload.pop("content_hash", None)
-    return _stable_content_hash(payload)
+    stable_payload = strip_gy_volatile_fields(payload)
+    if not isinstance(stable_payload, dict):
+        raise TypeError("acquisition_receipt_semantic_projection_not_mapping")
+    return _stable_content_hash(stable_payload)
 
 
 def _failed_closed_journal_entry(
@@ -2525,6 +2875,243 @@ def requirement_gaps_from_compiled_specs(
     for spec in participation_provenance_requirement_specs:
         gaps.append(_participation_provenance_requirement_gap(_spec_payload(spec)))
     return tuple(gaps)
+
+
+def l1_variable_availability_requirement_gap(
+    *,
+    candidate_id: str,
+    candidate_content_hash: str,
+    design_problem_ref: str,
+    availability: object,
+    authority_level: AuthorityLevel | str,
+) -> AcquisitionRequirementGap:
+    """Route one exact unavailable L1 canonical variable through N7.
+
+    The L1 availability owner remains authoritative for the measured absence;
+    this bridge is authoritative only for routing that absence. It cannot
+    satisfy the requirement or mint a producer artifact.
+    """
+
+    from polisyos.runtime.quality.data_state_substrate import (
+        L1VariableAvailability,
+    )
+
+    verified = (
+        availability
+        if isinstance(availability, L1VariableAvailability)
+        else L1VariableAvailability.model_validate(availability)
+    )
+    verified = L1VariableAvailability.model_validate(
+        verified.model_dump(mode="python")
+    )
+    if verified.status != "unavailable":
+        raise ValueError("l1_variable_is_not_an_acquisition_gap")
+    level = (
+        authority_level
+        if isinstance(authority_level, AuthorityLevel)
+        else AuthorityLevel(str(authority_level))
+    )
+    availability_payload = verified.model_dump(mode="json")
+    availability_content_hash = _stable_content_hash(availability_payload)
+    binding = _L1VariableCandidateBinding(
+        candidate_id=candidate_id,
+        candidate_content_hash=candidate_content_hash,
+        design_problem_ref=design_problem_ref,
+    )
+    identity = _stable_content_hash(
+        {
+            **binding.model_dump(mode="json"),
+            "variable_id": verified.variable_id,
+        }
+    ).removeprefix("sha256:")[:16]
+    compiled_ref = f"runtime-requirement:l1-variable-availability:{identity}:v1"
+    metadata = _L1VariableAvailabilityGapMetadata(
+        schema_version="policyos.runtime.l1_variable_availability_gap.v1",
+        source="l1_dcat_variable_availability",
+        authority_purpose="routing_only",
+        satisfaction_status="unsatisfied",
+        authority_level=level,
+        candidate_binding=binding,
+        availability=_L1VariableAvailabilityEvidence(
+            **availability_payload,
+            availability_content_hash=availability_content_hash,
+        ),
+    )
+    return AcquisitionRequirementGap(
+        requirement_gap_id=(
+            "requirement-gap:data_requirement:l1-variable-availability:"
+            f"{identity}"
+        ),
+        requirement_family=RequirementGapFamily.DATA,
+        compiled_requirement_ref=compiled_ref,
+        requirement_schema_version=(
+            "policyos.runtime.l1_variable_availability_gap.v1"
+        ),
+        gap_type=AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
+        claim_ref=f"value-claim:{candidate_id}",
+        scenario_requirement_refs=(
+            design_problem_ref,
+            verified.coverage_ref,
+        ),
+        missing_requirement_fields=(
+            f"canonical_variable_observations:{verified.variable_id}",
+        ),
+        authority_level=level,
+        mandatory_gate_state=(
+            MandatoryGateState.NONE
+            if level is AuthorityLevel.RESEARCH
+            else MandatoryGateState.NON_OVERRIDABLE
+        ),
+        mandatory_gate_refs=(compiled_ref,),
+        limitation_permitted=False,
+        decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
+        producer_output_ref=verified.coverage_ref,
+        metadata=metadata.model_dump(mode="json"),
+    )
+
+
+def grounding_coverage_requirement_gap(
+    *,
+    candidate_id: str,
+    candidate_content_hash: str,
+    design_problem_ref: str,
+    issue_codes: Sequence[str],
+    evidence_refs: Sequence[str],
+    authority_level: AuthorityLevel | str,
+    grounding_report_ref: str,
+) -> AcquisitionRequirementGap:
+    """Route one unresolved CGF relation/lever demand through canonical N7."""
+
+    level = (
+        authority_level
+        if isinstance(authority_level, AuthorityLevel)
+        else AuthorityLevel(str(authority_level))
+    )
+    binding = _GroundingCoverageCandidateBinding(
+        candidate_id=candidate_id,
+        candidate_content_hash=candidate_content_hash,
+        design_problem_ref=design_problem_ref,
+    )
+    normalized_issues = tuple(dict.fromkeys(str(item) for item in issue_codes if str(item)))
+    normalized_evidence = tuple(
+        dict.fromkeys(str(item) for item in evidence_refs if str(item))
+    )
+    metadata = _GroundingCoverageGapMetadata(
+        schema_version=_GROUNDING_COVERAGE_SCHEMA_VERSION,
+        source=_GROUNDING_COVERAGE_SOURCE,
+        acquisition_family=AcquisitionFamily.COV.value,
+        authority_purpose="routing_only",
+        satisfaction_status="unsatisfied",
+        authority_level=level,
+        candidate_binding=binding,
+        issue_codes=normalized_issues,
+        evidence_refs=normalized_evidence,
+        grounding_report_ref=grounding_report_ref,
+    )
+    identity = _stable_content_hash(
+        {
+            "candidate_binding": binding.model_dump(mode="json"),
+            "issue_codes": normalized_issues,
+            "evidence_refs": normalized_evidence,
+            "grounding_report_ref": grounding_report_ref,
+        }
+    ).removeprefix("sha256:")[:16]
+    compiled_ref = f"runtime-requirement:grounding-coverage:{identity}:v1"
+    return AcquisitionRequirementGap(
+        requirement_gap_id=(
+            f"requirement-gap:data_requirement:grounding-coverage:{identity}"
+        ),
+        requirement_family=RequirementGapFamily.DATA,
+        compiled_requirement_ref=compiled_ref,
+        requirement_schema_version=_GROUNDING_COVERAGE_SCHEMA_VERSION,
+        gap_type=AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
+        claim_ref=f"grounding-claim:{candidate_id}",
+        scenario_requirement_refs=(
+            design_problem_ref,
+            grounding_report_ref,
+            *normalized_evidence,
+        ),
+        missing_requirement_fields=(
+            f"grounding_relation_or_owner_lever:{candidate_id}",
+        ),
+        authority_level=level,
+        mandatory_gate_state=(
+            MandatoryGateState.NONE
+            if level is AuthorityLevel.RESEARCH
+            else MandatoryGateState.NON_OVERRIDABLE
+        ),
+        mandatory_gate_refs=(compiled_ref,),
+        limitation_permitted=False,
+        decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
+        producer_output_ref=grounding_report_ref,
+        metadata=metadata.model_dump(mode="json"),
+    )
+
+
+def value_input_world_knowledge_requirement_gap(
+    *,
+    claim_ref: str,
+) -> AcquisitionRequirementGap:
+    """Build the unsatisfied N8 value-input world-knowledge acquisition gap.
+
+    The returned record routes one disjunctive requirement through the existing
+    N7 planner: either an owner-derived rollout assignment or a certified SKG
+    identity bridge may satisfy it later. The committed Fork-B census is bound
+    as costing and provenance evidence only; neither its presence nor this gap
+    record is evidence that either alternative has been acquired.
+
+    Args:
+        claim_ref: Claim whose value solve is blocked on missing world knowledge.
+
+    Returns:
+        One production, non-overridable ``AcquisitionRequirementGap`` in the
+        ``ID`` acquisition family, with both alternatives still unsatisfied.
+    """
+
+    metadata = _ValueInputWorldKnowledgeGapMetadata(
+        schema_version=_VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION,
+        source=_VALUE_INPUT_WORLD_KNOWLEDGE_SOURCE,
+        acquisition_family=AcquisitionFamily.ID.value,
+        authority_purpose="routing_only",
+        requirement=_ValueInputWorldKnowledgeAnyOf(
+            operator="any_of",
+            alternatives=tuple(
+                _ValueInputWorldKnowledgeAlternative(
+                    alternative_id=alternative,
+                    satisfaction_status="unsatisfied",
+                )
+                for alternative in _VALUE_INPUT_WORLD_KNOWLEDGE_ALTERNATIVES
+            )
+        ),
+        satisfaction_status="unsatisfied",
+        census_evidence=_ValueInputWorldKnowledgeCensusEvidence(
+            artifact_ref=_VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF,
+            content_hash=_VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_HASH,
+            authority_purpose="costing_and_provenance_only",
+        ),
+    )
+    return AcquisitionRequirementGap(
+        requirement_gap_id=_VALUE_INPUT_WORLD_KNOWLEDGE_GAP_ID,
+        requirement_family=RequirementGapFamily.DATA,
+        compiled_requirement_ref=_VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF,
+        requirement_schema_version=_VALUE_INPUT_WORLD_KNOWLEDGE_SCHEMA_VERSION,
+        gap_type=AcquisitionGapType.DATA_SNAPSHOT_RELEASE,
+        claim_ref=claim_ref,
+        scenario_requirement_refs=(
+            _VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF,
+            _VALUE_INPUT_WORLD_KNOWLEDGE_CENSUS_REF,
+        ),
+        missing_requirement_fields=(
+            "world_knowledge:any_of("
+            "owner_rollout_assignment,certified_skg_identity_bridge)",
+        ),
+        authority_level=AuthorityLevel.PRODUCTION,
+        mandatory_gate_state=MandatoryGateState.NON_OVERRIDABLE,
+        mandatory_gate_refs=(_VALUE_INPUT_WORLD_KNOWLEDGE_COMPILED_REF,),
+        limitation_permitted=False,
+        decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
+        metadata=metadata.model_dump(mode="json"),
+    )
 
 
 def acquisition_gaps_from_capability_failure_modes(
@@ -4315,6 +4902,8 @@ __all__ = [
     "acquisition_request_from_world_acquirable",
     "acquisition_strangle_receipt",
     "data_need_spec_payload",
+    "grounding_coverage_requirement_gap",
+    "l1_variable_availability_requirement_gap",
     "load_acquisition_planner_report",
     "persist_acquisition_planner_report",
     "plan_evidence_acquisition",
@@ -4323,4 +4912,5 @@ __all__ = [
     "requirement_gaps_from_compiled_specs",
     "run_acquisition_closed_loop",
     "validate_acquisition_receipt",
+    "value_input_world_knowledge_requirement_gap",
 ]

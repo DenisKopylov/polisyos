@@ -1,85 +1,496 @@
 {
-  "compute_economics": {
-    "live_resolve_flag": "--rederive-audit",
-    "routine_check_live_solve": false,
-    "wall_time_recorded_by_validator": true,
-    "wall_time_reported_outside_byte_stable_artifact": true,
-    "wmr_cache_rule": "build_once_per_world_model_record_content_hash"
+  "acquisition_routing": {
+    "acquisition_receipt": null,
+    "content_hash": "sha256:b16a2184ad487e6cf2fdc5d71961b96d4b1eea25f523849c780158942d9efc02",
+    "planner_report": {
+      "acquisition_records": [
+        {
+          "accepted_deficit_ref": null,
+          "acquisition_id": "acquisition:n7-routing:gy_n4_cgf_decisive_capture_1_20260704_092222_049411:0:requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+          "authority_boundary": {
+            "authoritative_for": [
+              "gap_detected",
+              "eligible_strategies",
+              "ineligible_strategies",
+              "voi_ranking_considered",
+              "decision_owner",
+              "terminal_disposition",
+              "producer_expected",
+              "calibration_feedback_target"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "source_family_satisfaction",
+              "data_quality",
+              "method_validity",
+              "participation_representativeness",
+              "claim_support",
+              "closeout_pass"
+            ]
+          },
+          "authority_level": "research",
+          "blocker_ref": null,
+          "calibration_feedback_ref": "calibration_feedback:requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+          "claim_ref": "value-claim:candidate_ea26e1ad2b9926a5",
+          "commit_authority": "advisory_recommendation_only",
+          "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:eee6b2c7e5b7c1af:v1",
+          "decision_owner": "runtime_planner",
+          "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+          "eligible_strategies": [
+            "production_snapshot_build",
+            "rerun",
+            "accepted_deficit"
+          ],
+          "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-eee6b2c7e5b7c1af.json",
+          "gap_id": "requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+          "gap_type": "data_snapshot_release",
+          "ineligible_strategies": [
+            "academic_retrieval",
+            "agency_request",
+            "closeout_block",
+            "consultation",
+            "legal_corpus_expansion",
+            "method_remediation",
+            "proxy_with_degraded_authority",
+            "public_registry",
+            "publish_with_limitation",
+            "source_contract_remediation",
+            "survey"
+          ],
+          "ineligible_strategy_records": [
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "academic_retrieval",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "agency_request",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "closeout_block",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "consultation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "legal_corpus_expansion",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "method_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "proxy_with_degraded_authority",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "public_registry",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "authority_profile_does_not_permit_public_limitation",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "publish_with_limitation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "source_contract_remediation",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "strategy_not_eligible_for_gap_authority_gate_matrix",
+              "eligible": false,
+              "mandatory_gate_state": "none",
+              "next_action": null,
+              "strategy": "survey",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "limitation_ref": null,
+          "mandatory_gate_refs": [
+            "runtime-requirement:l1-variable-availability:eee6b2c7e5b7c1af:v1"
+          ],
+          "mandatory_gate_state": "none",
+          "missing_requirement_fields": [
+            "canonical_variable_observations:employment_retention"
+          ],
+          "next_actions": [
+            {
+              "action": "build_production_snapshot",
+              "blocks_closeout": false,
+              "commit_required": false,
+              "evidence_ref": "quality_evidence/acquisition_planner/requirement-gap-data-requirement-l1-variable-availability-eee6b2c7e5b7c1af.json",
+              "message": "Acquire or remediate evidence via production_snapshot_build for value-claim:candidate_ea26e1ad2b9926a5.",
+              "owner": "polisyos.runtime.quality.acquisition_planner",
+              "producer_expected": "data_forge.snapshot",
+              "strategy": "production_snapshot_build"
+            }
+          ],
+          "planner_posture": "advisory",
+          "producer_expected": "data_forge.snapshot",
+          "producer_output_ref": "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention",
+          "public_projection_effect": "no_public_effect_until_producer_output",
+          "recommended_strategy": "production_snapshot_build",
+          "requirement_family": "data_requirement",
+          "requirement_gap_ref": "requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+          "requirement_schema_version": "policyos.runtime.l1_variable_availability_gap.v1",
+          "runtime_event_ref": "event://runtime/acquisition/n7-routing-gy-n4-cgf-decisive-capture-1-20260704-092222-049411-0/requirement-gap-data-requirement-l1-variable-availability-eee6b2c7e5b7c1af",
+          "scenario_requirement_refs": [
+            "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
+            "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention"
+          ],
+          "schema_version": "policyos.runtime.acquisition_planner.v1",
+          "status": "ready",
+          "strategy_records": [
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "none",
+              "next_action": "build_production_snapshot",
+              "strategy": "production_snapshot_build",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "none",
+              "next_action": "rerun",
+              "strategy": "rerun",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            },
+            {
+              "eligibility_reason": "eligible_after_gap_authority_gate_matrix",
+              "eligible": true,
+              "mandatory_gate_state": "none",
+              "next_action": "accept_deficit",
+              "strategy": "accepted_deficit",
+              "voi_decision_ref": null,
+              "voi_expected_cost": null,
+              "voi_expected_value": null,
+              "voi_rank": null
+            }
+          ],
+          "terminal_disposition": "acquire",
+          "voi_ranking_ref": null
+        }
+      ],
+      "adr_refs": [
+        "ADR-0166"
+      ],
+      "authority_boundary": {
+        "authoritative_for": [
+          "gap_detected",
+          "eligible_strategies",
+          "ineligible_strategies",
+          "voi_ranking_considered",
+          "decision_owner",
+          "terminal_disposition",
+          "producer_expected",
+          "calibration_feedback_target"
+        ],
+        "may_not_use_for": [
+          "legal_authority",
+          "source_family_satisfaction",
+          "data_quality",
+          "method_validity",
+          "participation_representativeness",
+          "claim_support",
+          "closeout_pass"
+        ]
+      },
+      "capability_reality_status": "implemented",
+      "pattern_refs": [
+        "P01",
+        "P09",
+        "P10"
+      ],
+      "run_id": "n7-routing:gy_n4_cgf_decisive_capture_1_20260704_092222_049411:0",
+      "schema_version": "policyos.runtime.acquisition_planner.v1",
+      "status": "pass",
+      "summary": {
+        "accepted_deficit": 0,
+        "acquire": 1,
+        "blocked": 0,
+        "eligible_strategy_count": 3,
+        "ineligible_strategy_count": 11,
+        "limited": 0,
+        "record_count": 1,
+        "rerun": 0
+      }
+    },
+    "requirement_gap": {
+      "authority_level": "research",
+      "calibration_feedback_ref": null,
+      "claim_ref": "value-claim:candidate_ea26e1ad2b9926a5",
+      "compiled_requirement_ref": "runtime-requirement:l1-variable-availability:eee6b2c7e5b7c1af:v1",
+      "decision_owner_ref": "polisyos.runtime.quality.acquisition_planner",
+      "gap_type": "data_snapshot_release",
+      "limitation_permitted": false,
+      "mandatory_gate_refs": [
+        "runtime-requirement:l1-variable-availability:eee6b2c7e5b7c1af:v1"
+      ],
+      "mandatory_gate_state": "none",
+      "metadata": {
+        "authority_level": "research",
+        "authority_purpose": "routing_only",
+        "availability": {
+          "availability_content_hash": "sha256:50673f0ea18e81c67a6ecf06cde994405c5ab2c00429980d8da54541acca4f25",
+          "coverage_ref": "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention",
+          "dataset_count": 0,
+          "metric_binding_count": 0,
+          "observation_count": 0,
+          "status": "unavailable",
+          "variable_id": "employment_retention"
+        },
+        "candidate_binding": {
+          "candidate_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
+          "candidate_id": "candidate_ea26e1ad2b9926a5",
+          "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac"
+        },
+        "satisfaction_status": "unsatisfied",
+        "schema_version": "policyos.runtime.l1_variable_availability_gap.v1",
+        "source": "l1_dcat_variable_availability"
+      },
+      "missing_requirement_fields": [
+        "canonical_variable_observations:employment_retention"
+      ],
+      "producer_output_ref": "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention",
+      "requirement_family": "data_requirement",
+      "requirement_gap_id": "requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+      "requirement_schema_version": "policyos.runtime.l1_variable_availability_gap.v1",
+      "scenario_requirement_refs": [
+        "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
+        "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention"
+      ],
+      "schema_version": "policyos.runtime.acquisition_requirement_gap.v1"
+    },
+    "schema_version": "policyos.layer3.gy.n8.acquisition_routing_receipt.v2",
+    "selected_candidate_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
+    "selected_candidate_ref": "candidate_ea26e1ad2b9926a5",
+    "simulated_reentry": false,
+    "terminal_kind": "acquisition_required"
   },
-  "contract_content_hash": "sha256:65441c2c84eed6455ae20411ad29a5ea836b847bb2c2c74181059d45f6358141",
-  "decisive_mutations": [
+  "compute_economics": {
+    "cache_rule": "catalog_context_WMR_and_owner_rows_reused_by_content_hash",
+    "live_resolve_flag": "--rederive-audit",
+    "routine_check_live_owner_reads": true,
+    "timestamps_in_content_hash": false,
+    "wall_time_recorded_by_validator": true,
+    "wall_time_reported_outside_byte_stable_artifact": true
+  },
+  "contract_content_hash": "sha256:0bd713b94720814f0c087f712583a4fd81186b531500facc290c1cf57c4b7634",
+  "decisive_mutation_expectations": [
     {
+      "expected_result": "RED",
       "mutation_id": "value_input_read_from_runtime_hint",
-      "proof": "Production N8 path has zero value-input runtime_hints reads.",
-      "result": "RED"
+      "proof": "Production N8 path has zero value-input runtime_hints reads."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "empty_hints_production_owner_access",
-      "proof": "Empty runtime_hints reached real substrate owner and blocked on L1 DCAT gap.",
-      "result": "RED"
+      "proof": "Empty runtime_hints reached real owner rows and refused missing owner assignment."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "audit_value_solve_fed_by_test_hints",
-      "proof": "Audit live lane uses real owner access and mints the frozen value_ready receipt.",
-      "result": "RED"
+      "proof": "Audit live lane uses real owner access, advisor selection, and typed Fork-B refusal."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "wmr_unavailable_not_acquire_gap",
-      "proof": "Missing cycle WMR fails as controller wiring, not acquire_data.",
-      "result": "RED"
+      "proof": "Missing cycle WMR fails as controller wiring, not acquire_data."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "value_outer_set_width_supplied_not_derived",
-      "proof": "ValueOuterSet.model_validate rejects non-empty supplied width.",
-      "result": "RED"
+      "proof": "ValueOuterSet.model_validate rejects non-empty supplied width."
     },
     {
+      "expected_result": "RED",
+      "mutation_id": "persisted_width_verification_removed",
+      "proof": "ValueOuterSet persisted intake rejects a width checksum that differs from deterministic lower/upper derivation."
+    },
+    {
+      "expected_result": "RED",
       "mutation_id": "proxy_forecast_narrow_set_rejected",
-      "proof": "Proxy identification cannot emit a narrow/point set.",
-      "result": "RED"
+      "proof": "Proxy identification cannot emit a narrow/point set."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "fixture_world_model_hash_rejected",
-      "proof": "Placeholder WMR hash rejected; audit WMR is sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd.",
-      "result": "RED"
+      "proof": "Placeholder WMR hash rejected; audit WMR is sha256:5e7e40f494e94986ddd5545faa256cb6ead5d564bc8abbc4c97ee4f23f535eb7."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "value_world_version_laundered",
-      "proof": "Receipt refuses V1 value as authority for V2 world hash.",
-      "result": "RED"
+      "proof": "Receipt refuses V1 value as authority for V2 world hash."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "dominance_timeout_forced_not_unknown",
-      "proof": "Timeout/approximation path returns unknown, not dominance.",
-      "result": "RED"
+      "proof": "Timeout/approximation path returns unknown, not dominance."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "simulate_only_shrank_k_world",
-      "proof": "simulate_only receipt refuses K_world narrowing.",
-      "result": "RED"
+      "proof": "simulate_only receipt refuses K_world narrowing."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "bad_forecast_minted_value",
-      "proof": "uncalibrated:uncalibrated_forecast_minted_value; unsupported:unsupported_method_unavailable; regime_laundered:regime_laundered_forecast_minted_value; untransportable:untransportable_forecast_minted_value:4 validation errors for SelectionDiagram\nbase_graph\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nsource_context\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ntarget_context\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ninvalid\n  Extra inputs are not permitted [type=extra_forbidden, input_value='selection-diagram', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden",
-      "result": "RED"
+      "proof": "uncalibrated:uncalibrated_forecast_minted_value; unsupported:unsupported_method_unavailable; regime_laundered:regime_laundered_forecast_minted_value; untransportable:untransportable_forecast_minted_value:4 validation errors for SelectionDiagram\nbase_graph\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nsource_context\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ntarget_context\n  Field required [type=missing, input_value={'invalid': 'selection-diagram'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ninvalid\n  Extra inputs are not permitted [type=extra_forbidden, input_value='selection-diagram', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
     },
     {
+      "expected_result": "RED",
       "mutation_id": "pilot_mode_ran_without_eval_safety",
-      "proof": "EvalSafety blocks sandbox_pilot,field_pilot,deployment",
-      "result": "RED"
+      "proof": "EvalSafety blocks sandbox_pilot,field_pilot,deployment"
     },
     {
+      "expected_result": "RED",
       "mutation_id": "value_method_selection_fixed_default",
-      "proof": "Advisor selected causal.diagnostics.parallel_trends_check@1.0.0 after scoring 275 reachable value methods; fixed-default source grep is clean.",
-      "result": "RED"
+      "proof": "Advisor selection uses the exact content-derived 55-method capability denominator."
     },
     {
+      "expected_result": "RED",
       "mutation_id": "value_blocked_candidate_promoted_to_decision_front",
-      "proof": "N6 promotion reducer refuses value_blocked summary.",
-      "result": "RED"
+      "proof": "N6 promotion reducer refuses value_blocked summary."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "transport_tuple_reintroduced",
+      "proof": "Education and first-vertical transport covariates derive from content-bound contexts."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "transport_measured_values_removed",
+      "proof": "Unseen pack-shaped transport retains owner-measured source/target values."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "owner_treatment_assignment_required",
+      "proof": "Caller/candidate treatment fields cannot open the observational value lane."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "forged_relation_certificate_rejected",
+      "proof": "A shaped CG1 relation certificate cannot substitute for owner world knowledge."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "value_projection_capability_contract_required",
+      "proof": "Token-matched methods without the two-sided native output contract are excluded."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "catalog_replay_rejected",
+      "proof": "Method selection receipts bind the exact catalog and selector context."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "truthfulness_auto_pass_rejected",
+      "proof": "Unverified native uncertainty returns a typed MethodValueRefusal."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "estimand_binding_required",
+      "proof": "The same coefficient cannot launder a different treatment identity."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "value_input_acquisition_route_required",
+      "proof": "Fork-B production refusal carries the canonical unsatisfied N7 any_of route."
+    },
+    {
+      "expected_result": "RED",
+      "mutation_id": "contract_projection_nonproduction",
+      "proof": "All six native proofs are contract_only_nonproduction and cannot mint value authority."
     }
   ],
   "denominators": {
+    "catalog_entry_count": 390,
+    "catalog_matches_registry": true,
+    "catalog_snapshot_id": "method_catalog_3240b5a4637e46b8",
+    "catalog_snapshot_stable": true,
     "evaluation_modes": [
       "simulate_only",
       "retrospective",
@@ -93,28 +504,18 @@
       "partial",
       "proxy"
     ],
-    "python314_unavailable_method_blockers": [
-      {
-        "dependency_family": "dowhy",
-        "registered_methods": [
-          "causal.inference.dowhy_identify_estimate@1.0.0",
-          "causal.inference.dowhy_identify_estimate@2.0.0",
-          "causal.refutation.dowhy_refute@1.0.0"
-        ],
-        "status": "honest_blocker_if_backend_unavailable_under_python_3_14"
-      },
-      {
-        "dependency_family": "econml",
-        "registered_methods": [],
-        "status": "honest_blocker_if_backend_unavailable_under_python_3_14"
-      },
-      {
-        "dependency_family": "cvxpy",
-        "registered_methods": [],
-        "status": "honest_blocker_if_backend_unavailable_under_python_3_14"
-      }
+    "native_contract_families": [
+      "posterior",
+      "econometric",
+      "forecasting",
+      "distributional",
+      "partial_identification",
+      "transport"
     ],
-    "reachable_value_methods": [
+    "registered_method_count": 390,
+    "value_capable_fqn_set_hash": "sha256:269896d1f8e1c3153e16d92d9dd97f98d1d0ffe84eaded88ee7495f098514f2d",
+    "value_capable_method_count": 55,
+    "value_capable_methods": [
       "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
       "bayesian.flow.affine_normalizing_flow@1.0.0",
       "bayesian.gp.gp_regression@1.0.0",
@@ -134,164 +535,6 @@
       "bayesian.variational.bbvi@1.0.0",
       "bayesian.variational.mean_field_vi@1.0.0",
       "bayesian.variational.svgd_regression@1.0.0",
-      "causal.advanced.bunching@1.0.0",
-      "causal.advanced.marginal_treatment_effect@1.0.0",
-      "causal.advanced.regression_kink@1.0.0",
-      "causal.advanced.shift_share_iv@1.0.0",
-      "causal.bounds.balke_pearl@1.0.0",
-      "causal.bounds.bounds_engine@1.0.0",
-      "causal.bounds.copula_bounds@1.0.0",
-      "causal.bounds.distributional_bounds_engine@1.0.0",
-      "causal.bounds.general_balke_pearl@1.0.0",
-      "causal.bounds.imbens_manski@1.0.0",
-      "causal.bounds.intersection_bounds@1.0.0",
-      "causal.bounds.lee@1.0.0",
-      "causal.bounds.manski@1.0.0",
-      "causal.bounds.optimization@1.0.0",
-      "causal.bounds.rosenbaum_sharp@1.0.0",
-      "causal.bounds.tan_bounds@1.0.0",
-      "causal.compiler.fold_aggregator@1.0.0",
-      "causal.continuous_treatment.entropy_balancing@1.0.0",
-      "causal.continuous_treatment.gps@1.0.0",
-      "causal.continuous_treatment.kernel_dr@1.0.0",
-      "causal.continuous_treatment.shift@1.0.0",
-      "causal.counterfactual.actual_causality@1.0.0",
-      "causal.counterfactual.hp_actual_cause@1.0.0",
-      "causal.counterfactual.ncm_engine@1.0.0",
-      "causal.counterfactual.path_specific_effects@1.0.0",
-      "causal.design.causal_experiment_designer@1.0.0",
-      "causal.diagnostics.independence.categorical_ci@1.0.0",
-      "causal.diagnostics.independence.hsic@1.0.0",
-      "causal.diagnostics.independence.kci@1.0.0",
-      "causal.diagnostics.independence.partial_correlation@1.0.0",
-      "causal.diagnostics.invariance.icp_invariance@1.0.0",
-      "causal.diagnostics.invariance.ks_invariance@1.0.0",
-      "causal.diagnostics.parallel_trends_check@1.0.0",
-      "causal.diagnostics.policy_overlap@1.0.0",
-      "causal.diagnostics.positivity_check@1.0.0",
-      "causal.diagnostics.support_mismatch@1.0.0",
-      "causal.discovery.dagma_discovery@1.0.0",
-      "causal.discovery.fci_discovery@1.0.0",
-      "causal.discovery.ges_discovery@1.0.0",
-      "causal.discovery.invariant_discovery_from_regimes@1.0.0",
-      "causal.discovery.pc_discovery@1.0.0",
-      "causal.discovery.pcmci_discovery@1.0.0",
-      "causal.discovery.unified_causal_discovery@1.1.0",
-      "causal.distributional.endogenous_group_decomposition@1.0.0",
-      "causal.distributional.unconditional_qte@1.0.0",
-      "causal.dynamic.a_learning.a_learning@1.0.0",
-      "causal.dynamic.causal_bandit.causal_bandit@1.0.0",
-      "causal.dynamic.dr_dtr.dr_dtr@1.0.0",
-      "causal.dynamic.g_computation.parametric_g_formula@1.0.0",
-      "causal.dynamic.ice_g_formula.ice_g_formula@1.0.0",
-      "causal.dynamic.ltmle.ltmle@1.0.0",
-      "causal.dynamic.ope.ope@1.0.0",
-      "causal.dynamic.owl.owl@1.0.0",
-      "causal.dynamic.q_learning.q_learning@1.0.0",
-      "causal.dynamic.snmm.snmm_g_estimation@1.0.0",
-      "causal.dynamic_graph.dscm@1.0.0",
-      "causal.fairness.causal_fairness_engine@1.0.0",
-      "causal.fairness.counterfactual_fairness@1.0.0",
-      "causal.fairness.path_specific_fairness@1.0.0",
-      "causal.fairness.tv_fairness_decomposer@1.0.0",
-      "causal.fusion.data_fusion@1.0.0",
-      "causal.hte.causal_bcf@1.0.0",
-      "causal.hte.causal_forest@1.0.0",
-      "causal.hte.double_ml@1.0.0",
-      "causal.hte.dr_learner@1.0.0",
-      "causal.hte.forest_dr@1.0.0",
-      "causal.hte.meta_learner@1.0.0",
-      "causal.hte.r_learner@1.0.0",
-      "causal.inference.did.borusyak_jaravel_spiess@1.0.0",
-      "causal.inference.did.callaway_santanna@1.0.0",
-      "causal.inference.did.dechaisemartin@1.0.0",
-      "causal.inference.did.staggered@1.0.0",
-      "causal.inference.did.standard@1.0.0",
-      "causal.inference.did.sun_abraham@1.0.0",
-      "causal.inference.dowhy_identify_estimate@1.0.0",
-      "causal.inference.dowhy_identify_estimate@2.0.0",
-      "causal.inference.regression_discontinuity@1.0.0",
-      "causal.inference.structural_time_series@1.0.0",
-      "causal.inference.synthetic_control@1.0.0",
-      "causal.interference.bipartite@1.0.0",
-      "causal.interference.network_aipw@1.0.0",
-      "causal.interference.network_cate@1.0.0",
-      "causal.interference.partial@1.0.0",
-      "causal.interference.spatial@1.0.0",
-      "causal.kernel.cme_plugin@1.0.0",
-      "causal.kernel.dr_cme@1.0.0",
-      "causal.kernel.effect_test@1.0.0",
-      "causal.kernel.frontdoor_cme@1.0.0",
-      "causal.kernel.kernel_semantics_diagnostics@1.0.0",
-      "causal.kernel.kiv@1.0.0",
-      "causal.kernel.nuisance.fit_cme_m_given_x@1.0.0",
-      "causal.kernel.nuisance.fit_cme_y_given_mx@1.0.0",
-      "causal.kernel.nuisance.fit_cme_y_given_xz@1.0.0",
-      "causal.kernel.nuisance.fit_density_ratio@1.0.0",
-      "causal.kernel.nuisance.fit_kiv_first_stage@1.0.0",
-      "causal.kernel.nuisance.fit_kiv_second_stage@1.0.0",
-      "causal.kernel.nuisance.fit_propensity@1.0.0",
-      "causal.kernel.nuisance.solve_proximal_bridge@1.0.0",
-      "causal.kernel.proximal_minimax@1.0.0",
-      "causal.kernel.refusal@1.0.0",
-      "causal.kernel.regularization_diagnostics@1.0.0",
-      "causal.kernel.transport_cme@1.0.0",
-      "causal.measurement_error.measurement_error_proxy@1.0.0",
-      "causal.mediation.causal_mediation@1.0.0",
-      "causal.mediation.controlled_direct_effect@1.0.0",
-      "causal.mediation.natural_effects@1.0.0",
-      "causal.missing_data.administrative_missingness_assessment@1.0.0",
-      "causal.missing_data.full_law_identify@1.0.0",
-      "causal.missing_data.ordered_recovery@1.0.0",
-      "causal.missing_data.recoverability_test@1.0.0",
-      "causal.multi_treatment.aipw@1.0.0",
-      "causal.multi_treatment.ipw@1.0.0",
-      "causal.nuisance.multinomial_propensity@1.0.0",
-      "causal.nuisance.parametric_conditional_density@1.0.0",
-      "causal.nuisance.super_learner@1.0.0",
-      "causal.operator.apply_probe@1.0.0",
-      "causal.operator.cme_krr@1.0.0",
-      "causal.operator.export_basis@1.0.0",
-      "causal.operator.kiv@1.0.0",
-      "causal.operator.operator_r_learner@1.0.0",
-      "causal.operator.proximal_minimax@1.0.0",
-      "causal.operator.unsupported_target@1.0.0",
-      "causal.prior.build_literature_prior@1.0.0",
-      "causal.prior.reconcile_causal_graph@1.0.0",
-      "causal.proximal.proximal_bridge@1.0.0",
-      "causal.proximal.proximal_mediation@1.0.0",
-      "causal.proximal.spatial_proximal_bridge@1.0.0",
-      "causal.refutation.dowhy_refute@1.0.0",
-      "causal.semiparametric.efficiency_bound@1.0.0",
-      "causal.sensitivity.sensitivity_metrics@1.0.0",
-      "causal.space_time.fem_spde_g_computation@1.0.0",
-      "causal.stochastic.policy_aipw@1.0.0",
-      "causal.stochastic.policy_plugin@1.0.0",
-      "causal.stochastic.policy_tmle@1.0.0",
-      "causal.structural.gcm_fit@1.0.0",
-      "causal.structural.gcm_query@1.0.0",
-      "causal.structural.parameter_transfer@1.0.0",
-      "causal.structural.twin_network_query@1.0.0",
-      "causal.targeting.policy_tree@1.0.0",
-      "causal.transport.check_transportability@1.0.0",
-      "causal.transport.density_ratio@1.0.0",
-      "causal.transport.symbolic_identify@1.0.0",
-      "causal.transport.symbolic_identify@2.0.0",
-      "causal.treatment_effects.aipw@1.0.0",
-      "causal.treatment_effects.cbps@1.0.0",
-      "causal.treatment_effects.cross_fit@1.0.0",
-      "causal.treatment_effects.cross_fit_continuous@1.0.0",
-      "causal.treatment_effects.entropy_balancing@1.0.0",
-      "causal.treatment_effects.ipw@1.0.0",
-      "causal.treatment_effects.propensity_matching@1.0.0",
-      "causal.treatment_effects.tmle@1.0.0",
-      "dependence.diagnostic.graph_dependence@1.0.0",
-      "distributional.poverty.ordinal_multidimensional@1.0.0",
-      "econometrics.diagnostics.cointegration_test@1.0.0",
-      "econometrics.diagnostics.forecast_backtest@1.0.0",
-      "econometrics.diagnostics.hausman_test@1.0.0",
-      "econometrics.diagnostics.sargan_hansen@1.0.0",
-      "econometrics.diagnostics.weak_iv_test@1.0.0",
       "econometrics.factor.dynamic_factor_model@1.0.0",
       "econometrics.factor.principal_components@1.0.0",
       "econometrics.iv.gmm@1.0.0",
@@ -327,316 +570,433 @@
       "forecasting.reconciliation.general_linear_projection@1.0.0",
       "forecasting.regime_shift.hybrid@1.0.0",
       "forecasting.univariate.exponential_smoothing@1.0.0",
-      "forecasting.univariate.theta@1.0.0",
-      "microsim.behavior.behavioral_response@1.0.0",
-      "microsim.behavior.behavioral_response@2.0.0",
-      "microsim.calibration.inverse_behavioral_calibration@1.0.0",
-      "microsim.calibration.reweighting_calibration@1.0.0",
-      "microsim.dynamic.dynamic_microsim@1.0.0",
-      "microsim.imputation.mnar_income_bounds@1.0.0",
-      "microsim.policy.tax_benefit_calculator@1.0.0",
-      "microsim.static.static_microsim@1.0.0",
-      "ml.deep.ft_transformer@1.0.0",
-      "ml.deep.tabnet@1.0.0",
-      "ml.deep.tabular_transformer@1.0.0",
-      "ml.diagnostics.shift_diagnostic@1.0.0",
-      "ml.dynamics.neural_ode@1.0.0",
-      "ml.graph.graph_conv@1.0.0",
-      "ml.regression.elastic_net@1.0.0",
-      "ml.regression.gaussian_process@1.0.0",
-      "ml.regression.gradient_boosting@1.0.0",
-      "ml.regression.quantile_forest@1.0.0",
-      "ml.regression.random_forest@1.0.0",
-      "ml.self_supervised.masked_autoencoder@1.0.0",
-      "ml.uncertainty.conformal_prediction@1.0.0",
-      "ml.uncertainty.graph_aware_conformal@1.0.0",
-      "ml.uncertainty.mondrian_aps_raps@1.0.0",
-      "ml.uncertainty.mondrian_cqr@1.0.0",
-      "ml.uncertainty.normalized_residual_mondrian@1.0.0",
-      "network.generative.diffusion_null_test@0.1.0",
-      "network.generative.ergm_null@0.1.0",
-      "network.peer_effects.peer_effect_decomposition@1.0.0",
-      "optimization.convex.quadratic_program@1.0.0",
-      "optimization.convex.robust_optimization@1.0.0",
-      "optimization.convex.set_based_robust_linear@1.0.0",
-      "optimization.convex.socp@1.0.0",
-      "optimization.stochastic.two_stage_stochastic_program@1.0.0",
-      "policy.evaluation.foundation_model_policy_analysis@1.0.0",
-      "policy.mcda.ahp@1.0.0",
-      "policy.mcda.electre@1.0.0",
-      "policy.mcda.rank_stability@1.0.0",
-      "policy.mcda.robust_ahp@1.0.0",
-      "policy.mcda.robust_electre@1.0.0",
-      "policy.mcda.robust_topsis@1.0.0",
-      "policy.mcda.topsis@1.0.0",
-      "policy.welfare.atkinson_swf@1.0.0",
-      "policy.welfare.cost_benefit_analysis@1.0.0",
-      "policy.welfare.cost_effectiveness@1.0.0",
-      "policy.welfare.rawlsian_swf@1.0.0",
-      "policy.welfare.sen_capability@1.0.0",
-      "policy.welfare.state_dependent_inverse_social_weights@1.0.0",
-      "policy.welfare.sufficient_statistics_welfare@1.0.0",
-      "policy.welfare.utilitarian_swf@1.0.0",
-      "simulation.inference.monte_carlo@1.0.0",
-      "survey.demography.cceb@1.0.0",
-      "survey.demography.demographic_consistency@1.0.0",
-      "survey.dr.design_missingness@1.0.0",
-      "survey.estimation.calibration_greg@1.0.0",
-      "survey.estimation.causal_frontier_fay_herriot@1.0.0",
-      "survey.estimation.fay_herriot_dependence_aware@1.0.0",
-      "survey.semiparametric.subgroup_mean@1.0.0",
-      "survey.weighting.rake_ipf@1.0.0",
-      "validation.calibration.calibration_diagnostic@1.0.0",
-      "validation.model.cross_validation@1.0.0",
-      "validation.model.walk_forward@1.0.0",
-      "validation.probabilistic.normal_scores@1.0.0"
-    ],
-    "reachable_value_methods_count": 275
+      "forecasting.univariate.theta@1.0.0"
+    ]
   },
   "disposition": {
-    "disposition": "rework_existing_wire",
+    "disposition": "landed_with_typed_fork_b_residual",
     "owner_surface": "polisyos.runtime.quality.generation_cycle.FoundryValuePort",
     "parallel_value_engine": "blocked_by_P27",
     "selector_surface": "polisyos.foundry.methods.selection.select_value_method_for_problem",
     "task": "GY-N8"
   },
-  "frozen_positive_receipt": {
-    "calibration_receipt": {
-      "calibration_record_ref": "s10://n8/19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/calibration",
-      "false_clear_counts": {
-        "equilibrium_contested_single_forecast_false_clear_count": 0,
-        "fail_closed_axis_prediction_promotion_false_clear_count": 0,
-        "hidden_uncertainty_interval_false_clear_count": 0,
-        "missing_design_graph_context_false_clear_count": 0,
-        "non_observable_claim_as_calibrated_false_clear_count": 0,
-        "observed_outcome_without_credible_evaluation_false_clear_count": 0,
-        "production_authority_from_forecast_false_clear_count": 0,
-        "regime_forecast_tier_laundering_false_clear_count": 0,
-        "scalar_welfare_hides_pareto_tradeoff_false_clear_count": 0,
-        "simulation_only_evidence_laundering_false_clear_count": 0,
-        "transported_estimate_without_limitation_false_clear_count": 0,
-        "uncalibrated_observable_promotion_false_clear_count": 0,
-        "validated_local_model_without_method_validity_false_clear_count": 0,
-        "weakest_boundary_ignored_false_clear_count": 0,
-        "welfare_without_value_provenance_false_clear_count": 0
-      },
-      "forecast_tier": "observable_calibrated",
-      "issue_codes": [],
-      "status": "pass",
-      "uncertainty_interval_refs": [
-        "interval://sha256:19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/95"
-      ]
-    },
-    "candidate_id": "candidate_live_value",
+  "education_refusal": {
+    "acquisition_requirement": null,
+    "authority_blockers": [
+      "method_estimand_binding_mismatch"
+    ],
+    "candidate_id": "gy_n4.blended_learning_expansion",
+    "content_hash": "sha256:84fd3f42c67946000b338399c199d69033dd210da7ef5cb0cd41f38ac9863a60",
+    "decision_grade": "blocked",
     "evaluation_mode": "simulate_only",
-    "identification_status": "partial",
-    "k_world_ref_after": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-    "k_world_ref_before": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-    "method_selection_trace": [
-      "causal.diagnostics.parallel_trends_check@1.0.0",
-      "causal.inference.did.staggered@1.0.0",
-      "causal.inference.did.standard@1.0.0",
-      "causal.inference.structural_time_series@1.0.0",
-      "causal.inference.synthetic_control@1.0.0",
-      "econometrics.panel.event_study@1.0.0",
-      "econometrics.panel.latent_mobility@1.0.0",
-      "econometrics.panel.nonstationary_garch@1.0.0",
-      "econometrics.panel.synthetic_did@1.0.0",
-      "spatial.panel.sarar@1.0.0",
-      "spatial.panel.slx@1.0.0",
-      "econometrics.panel.difference_gmm@1.0.0",
-      "econometrics.panel.system_gmm@1.0.0"
-    ],
-    "schema_version": "policyos.runtime.generation_cycle.value_gate_receipt.v1",
-    "selected_method_fqn": "causal.inference.did.standard@1.0.0",
-    "transport_receipt": {
-      "identification_engine": "bounds_only",
-      "limitation_refs": [
-        "Exact transport identification unavailable; emitted transport-aware bounds fallback."
-      ],
-      "required_target_data": [
-        "institutional_quality",
-        "state_capacity"
-      ],
-      "status": "transported_limited",
-      "transport_mode": "bounds_only",
-      "transport_result_ref": "sha256:d9f911d509caefc06d7d5d79c6a2fb5a19a22d489bb50aef919f28ba57c30a73",
-      "transport_status": "bounded_non_identified",
-      "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-      "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
-    },
-    "value_outer_set": {
-      "assumption_status": "externally_supported",
-      "assumptions": [
-        "forecast_tier:observable_calibrated",
-        "foundry_method_output",
-        "transport:bounded_non_identified"
-      ],
-      "calibration_scope": {
-        "forecast_tier": "observable_calibrated",
-        "transport_mode": "bounds_only",
-        "transport_status": "bounded_non_identified"
-      },
-      "coordinates": [
-        "CausalMethod.DIFFERENCE_IN_DIFFERENCES"
-      ],
-      "data_trust": {
-        "authority_ref": "policyos.runtime.n8.simulate_only_shadow",
-        "max_coverage": 1.0,
-        "min_coverage": 0.0,
-        "promotion_floor": 0.5,
-        "tier": "simulate_only_shadow",
-        "trust_cap": 0.6,
-        "trust_multiplier": 0.6
-      },
-      "epoch": "2018/2023",
-      "identification_status": "partial",
-      "lower": [
-        -6016.810766126787
-      ],
-      "representation": "interval_box",
-      "representation_status": "certified",
-      "solver_time_budget_ms": null,
-      "upper": [
-        4094.3096004508484
-      ],
-      "width": [
-        10111.120366577636
-      ],
-      "world_model_record_ref": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd"
-    },
-    "value_outer_set_width_derived": [
-      10111.120366577636
-    ],
-    "value_ref": "sha256:118acbcc7c3b936a01dbece75267618954b964b6e1cbcbe98eee43719e33096a",
-    "wall_time_ms": 5994.598250021227,
-    "wmr_cache_status": "built",
-    "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-    "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
-  },
-  "frozen_value_receipts": [
-    {
-      "calibration_receipt": {
-        "calibration_record_ref": "s10://n8/19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/calibration",
-        "false_clear_counts": {
-          "equilibrium_contested_single_forecast_false_clear_count": 0,
-          "fail_closed_axis_prediction_promotion_false_clear_count": 0,
-          "hidden_uncertainty_interval_false_clear_count": 0,
-          "missing_design_graph_context_false_clear_count": 0,
-          "non_observable_claim_as_calibrated_false_clear_count": 0,
-          "observed_outcome_without_credible_evaluation_false_clear_count": 0,
-          "production_authority_from_forecast_false_clear_count": 0,
-          "regime_forecast_tier_laundering_false_clear_count": 0,
-          "scalar_welfare_hides_pareto_tradeoff_false_clear_count": 0,
-          "simulation_only_evidence_laundering_false_clear_count": 0,
-          "transported_estimate_without_limitation_false_clear_count": 0,
-          "uncalibrated_observable_promotion_false_clear_count": 0,
-          "validated_local_model_without_method_validity_false_clear_count": 0,
-          "weakest_boundary_ignored_false_clear_count": 0,
-          "welfare_without_value_provenance_false_clear_count": 0
-        },
-        "forecast_tier": "observable_calibrated",
-        "issue_codes": [],
-        "status": "pass",
-        "uncertainty_interval_refs": [
-          "interval://sha256:19c3c4463740adb14b676bc98ad8468193b6d29273b4a1cff52fe96878e211f7/95"
-        ]
-      },
-      "candidate_id": "candidate_live_value",
-      "evaluation_mode": "simulate_only",
-      "identification_status": "partial",
-      "k_world_ref_after": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-      "k_world_ref_before": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-      "method_selection_trace": [
-        "causal.diagnostics.parallel_trends_check@1.0.0",
-        "causal.inference.did.staggered@1.0.0",
-        "causal.inference.did.standard@1.0.0",
-        "causal.inference.structural_time_series@1.0.0",
-        "causal.inference.synthetic_control@1.0.0",
+    "method_selection_receipt": {
+      "content_hash": "sha256:e8897ce030350f8d21eaef40ca2f3aa76fb598f871c56e3cab52f4259f89a060",
+      "denominator": [
+        "bayesian.approximation.expectation_propagation_gaussian@1.0.0",
+        "bayesian.flow.affine_normalizing_flow@1.0.0",
+        "bayesian.gp.gp_regression@1.0.0",
+        "bayesian.gp.sparse_gp_regression@1.0.0",
+        "bayesian.graphical.factor_graph_belief_propagation@1.0.0",
+        "bayesian.nonparametric.bart_regression@1.0.0",
+        "bayesian.nonparametric.dirichlet_process_mixture@1.0.0",
+        "bayesian.nonparametric.gaussian_mixture@1.0.0",
+        "bayesian.regression.hierarchical@1.0.0",
+        "bayesian.regression.linear_regression@1.0.0",
+        "bayesian.sampling.hmc@1.0.0",
+        "bayesian.sampling.nuts@1.0.0",
+        "bayesian.sbi.nle@1.0.0",
+        "bayesian.sbi.npe@1.0.0",
+        "bayesian.sbi.nre@1.0.0",
+        "bayesian.timeseries.autoregression@1.0.0",
+        "bayesian.variational.bbvi@1.0.0",
+        "bayesian.variational.mean_field_vi@1.0.0",
+        "bayesian.variational.svgd_regression@1.0.0",
+        "econometrics.factor.dynamic_factor_model@1.0.0",
+        "econometrics.factor.principal_components@1.0.0",
+        "econometrics.iv.gmm@1.0.0",
+        "econometrics.iv.high_dimensional_post_selection@1.0.0",
+        "econometrics.iv.two_stage_least_squares@1.0.0",
+        "econometrics.panel.difference_gmm@1.0.0",
         "econometrics.panel.event_study@1.0.0",
+        "econometrics.panel.fixed_effects@1.0.0",
         "econometrics.panel.latent_mobility@1.0.0",
         "econometrics.panel.nonstationary_garch@1.0.0",
+        "econometrics.panel.random_effects@1.0.0",
         "econometrics.panel.synthetic_did@1.0.0",
-        "spatial.panel.sarar@1.0.0",
-        "spatial.panel.slx@1.0.0",
-        "econometrics.panel.difference_gmm@1.0.0",
-        "econometrics.panel.system_gmm@1.0.0"
+        "econometrics.panel.system_gmm@1.0.0",
+        "econometrics.regression.quantile_regression@1.0.0",
+        "econometrics.spatial.spatial_autoregressive@1.0.0",
+        "econometrics.thresholds.state_dependent_frd@1.0.0",
+        "econometrics.thresholds.state_dependent_frkd@1.0.0",
+        "econometrics.thresholds.state_dependent_kink@1.0.0",
+        "econometrics.thresholds.state_dependent_threshold@1.0.0",
+        "econometrics.timeseries.arima@1.0.0",
+        "econometrics.timeseries.bayesian_var@1.0.0",
+        "econometrics.timeseries.change_point@1.0.0",
+        "econometrics.timeseries.garch@1.0.0",
+        "econometrics.timeseries.local_projections@1.0.0",
+        "econometrics.timeseries.var@1.0.0",
+        "econometrics.timeseries.vecm@1.0.0",
+        "forecasting.advanced.prophet@1.0.0",
+        "forecasting.decomposition.stl@1.0.0",
+        "forecasting.ensemble.simple_average@1.0.0",
+        "forecasting.hybrid.guarded_neural@1.0.0",
+        "forecasting.multivariate.vec_forecast@1.0.0",
+        "forecasting.reconciliation.bottom_up@1.0.0",
+        "forecasting.reconciliation.general_linear_projection@1.0.0",
+        "forecasting.regime_shift.hybrid@1.0.0",
+        "forecasting.univariate.exponential_smoothing@1.0.0",
+        "forecasting.univariate.theta@1.0.0"
       ],
-      "schema_version": "policyos.runtime.generation_cycle.value_gate_receipt.v1",
-      "selected_method_fqn": "causal.inference.did.standard@1.0.0",
-      "transport_receipt": {
-        "identification_engine": "bounds_only",
-        "limitation_refs": [
-          "Exact transport identification unavailable; emitted transport-aware bounds fallback."
-        ],
-        "required_target_data": [
-          "institutional_quality",
-          "state_capacity"
-        ],
-        "status": "transported_limited",
-        "transport_mode": "bounds_only",
-        "transport_result_ref": "sha256:d9f911d509caefc06d7d5d79c6a2fb5a19a22d489bb50aef919f28ba57c30a73",
-        "transport_status": "bounded_non_identified",
-        "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-        "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
-      },
-      "value_outer_set": {
-        "assumption_status": "externally_supported",
-        "assumptions": [
-          "forecast_tier:observable_calibrated",
-          "foundry_method_output",
-          "transport:bounded_non_identified"
-        ],
-        "calibration_scope": {
-          "forecast_tier": "observable_calibrated",
-          "transport_mode": "bounds_only",
-          "transport_status": "bounded_non_identified"
+      "ranked_alternatives": [
+        {
+          "advisor_score": 20.0,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [],
+          "method_family": "bayesian.gp",
+          "method_fqn": "bayesian.gp.gp_regression@1.0.0",
+          "rank": 1,
+          "selected": true
         },
-        "coordinates": [
-          "CausalMethod.DIFFERENCE_IN_DIFFERENCES"
-        ],
-        "data_trust": {
-          "authority_ref": "policyos.runtime.n8.simulate_only_shadow",
-          "max_coverage": 1.0,
-          "min_coverage": 0.0,
-          "promotion_floor": 0.5,
-          "tier": "simulate_only_shadow",
-          "trust_cap": 0.6,
-          "trust_multiplier": 0.6
+        {
+          "advisor_score": 20.0,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_tie_broken_by_rank_on_owner_data_shape"
+          ],
+          "method_family": "bayesian.regression",
+          "method_fqn": "bayesian.regression.linear_regression@1.0.0",
+          "rank": 2,
+          "selected": false
         },
-        "epoch": "2018/2023",
-        "identification_status": "partial",
-        "lower": [
-          -6016.810766126787
-        ],
-        "representation": "interval_box",
-        "representation_status": "certified",
-        "solver_time_budget_ms": null,
-        "upper": [
-          4094.3096004508484
-        ],
-        "width": [
-          10111.120366577636
-        ],
-        "world_model_record_ref": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd"
-      },
-      "value_outer_set_width_derived": [
-        10111.120366577636
+        {
+          "advisor_score": 20.0,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_tie_broken_by_rank_on_owner_data_shape"
+          ],
+          "method_family": "bayesian.sampling",
+          "method_fqn": "bayesian.sampling.hmc@1.0.0",
+          "rank": 3,
+          "selected": false
+        },
+        {
+          "advisor_score": 20.0,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_tie_broken_by_rank_on_owner_data_shape"
+          ],
+          "method_family": "bayesian.sampling",
+          "method_fqn": "bayesian.sampling.nuts@1.0.0",
+          "rank": 4,
+          "selected": false
+        },
+        {
+          "advisor_score": 20.0,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_tie_broken_by_rank_on_owner_data_shape"
+          ],
+          "method_family": "bayesian.regression",
+          "method_fqn": "bayesian.regression.hierarchical@1.0.0",
+          "rank": 5,
+          "selected": false
+        },
+        {
+          "advisor_score": 20.0,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_tie_broken_by_rank_on_owner_data_shape"
+          ],
+          "method_family": "bayesian.variational",
+          "method_fqn": "bayesian.variational.svgd_regression@1.0.0",
+          "rank": 6,
+          "selected": false
+        },
+        {
+          "advisor_score": 20.0,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_tie_broken_by_rank_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.factor",
+          "method_fqn": "econometrics.factor.principal_components@1.0.0",
+          "rank": 7,
+          "selected": false
+        },
+        {
+          "advisor_score": 12.8,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.panel",
+          "method_fqn": "econometrics.panel.fixed_effects@1.0.0",
+          "rank": 8,
+          "selected": false
+        },
+        {
+          "advisor_score": 12.8,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.panel",
+          "method_fqn": "econometrics.panel.random_effects@1.0.0",
+          "rank": 9,
+          "selected": false
+        },
+        {
+          "advisor_score": 12.8,
+          "data_modalities": [
+            "spatial",
+            "tabular",
+            "time-series"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.spatial",
+          "method_fqn": "econometrics.spatial.spatial_autoregressive@1.0.0",
+          "rank": 10,
+          "selected": false
+        },
+        {
+          "advisor_score": 8.0,
+          "data_modalities": [
+            "tabular",
+            "time-series"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.timeseries",
+          "method_fqn": "econometrics.timeseries.local_projections@1.0.0",
+          "rank": 11,
+          "selected": false
+        },
+        {
+          "advisor_score": 6.400000000000002,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.factor",
+          "method_fqn": "econometrics.factor.dynamic_factor_model@1.0.0",
+          "rank": 12,
+          "selected": false
+        },
+        {
+          "advisor_score": 6.400000000000002,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.regression",
+          "method_fqn": "econometrics.regression.quantile_regression@1.0.0",
+          "rank": 13,
+          "selected": false
+        },
+        {
+          "advisor_score": 5.333333333333332,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.panel",
+          "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+          "rank": 14,
+          "selected": false
+        },
+        {
+          "advisor_score": 3.1999999999999993,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "bayesian.gp",
+          "method_fqn": "bayesian.gp.sparse_gp_regression@1.0.0",
+          "rank": 15,
+          "selected": false
+        },
+        {
+          "advisor_score": 1.2800000000000011,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "bayesian.variational",
+          "method_fqn": "bayesian.variational.bbvi@1.0.0",
+          "rank": 16,
+          "selected": false
+        },
+        {
+          "advisor_score": 1.2800000000000011,
+          "data_modalities": [
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "bayesian.variational",
+          "method_fqn": "bayesian.variational.mean_field_vi@1.0.0",
+          "rank": 17,
+          "selected": false
+        },
+        {
+          "advisor_score": 1.2800000000000011,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.panel",
+          "method_fqn": "econometrics.panel.latent_mobility@1.0.0",
+          "rank": 18,
+          "selected": false
+        },
+        {
+          "advisor_score": -4.0,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.panel",
+          "method_fqn": "econometrics.panel.difference_gmm@1.0.0",
+          "rank": 19,
+          "selected": false
+        },
+        {
+          "advisor_score": -4.0,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.panel",
+          "method_fqn": "econometrics.panel.system_gmm@1.0.0",
+          "rank": 20,
+          "selected": false
+        },
+        {
+          "advisor_score": -13.599999999999994,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.iv",
+          "method_fqn": "econometrics.iv.two_stage_least_squares@1.0.0",
+          "rank": 21,
+          "selected": false
+        },
+        {
+          "advisor_score": -15.733333333333334,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.iv",
+          "method_fqn": "econometrics.iv.gmm@1.0.0",
+          "rank": 22,
+          "selected": false
+        },
+        {
+          "advisor_score": -16.799999999999997,
+          "data_modalities": [
+            "panel",
+            "tabular"
+          ],
+          "loss_reasons": [
+            "advisor_score_below_selected_on_owner_data_shape"
+          ],
+          "method_family": "econometrics.iv",
+          "method_fqn": "econometrics.iv.high_dimensional_post_selection@1.0.0",
+          "rank": 23,
+          "selected": false
+        }
       ],
-      "value_ref": "sha256:118acbcc7c3b936a01dbece75267618954b964b6e1cbcbe98eee43719e33096a",
-      "wall_time_ms": 5994.598250021227,
-      "wmr_cache_status": "built",
-      "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-      "world_model_record_id": "world_model_record_ac144f85a0c11f3a"
-    }
-  ],
-  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1",
-  "honest_blocked_cases": {
-    "pilot_or_deployment_mode": "eval_safety_gate_unavailable",
-    "regime_laundered": "regime_laundered_forecast_minted_value",
-    "uncalibrated": "uncalibrated_forecast_minted_value",
-    "unsupported_method": "unsupported_method_unavailable",
-    "untransportable": "untransportable_forecast_minted_value"
+      "schema_version": "policyos.foundry.method_selection_receipt.v2",
+      "selected_method_fqn": "bayesian.gp.gp_regression@1.0.0",
+      "selection_authority": "foundry_registry_advisor",
+      "selection_context_hash": "sha256:a86e914957e87b2d381d77d10e78d7245fb4f21526f192a573fee5c7f23e039a"
+    },
+    "reason": "The advisor selected a real method over owner-resolved outcome rows, but the candidate_unbound intervention has no estimand binding.",
+    "receipt_kind": "education_estimand_binding_refusal",
+    "schema_version": "policyos.layer3.gy.n8.value_refusal_receipt.v2",
+    "selected_method_fqn": "bayesian.gp.gp_regression@1.0.0",
+    "status": "value_blocked",
+    "value_data_profile_content_hash": "sha256:eb5faeaffbb5507ba9ceed7c69ed3a892d5c106eb6a6336ed62c4d68f1db3566",
+    "value_receipt": null,
+    "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
+  },
+  "fork_b_census_receipt": {
+    "acquisition_disposition": "any_of(owner_rollout_assignment,certified_skg_identity_bridge)",
+    "artifact_ref": "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json",
+    "authority": "shadow_read_only_no_bind",
+    "content_hash": "sha256:f511626547c17ff010b1ee26d9157c753a6f13fe8be18f96c17ee9f1ca31e605",
+    "fork": "B",
+    "numeric_edge_bindings": 3579,
+    "numeric_identities": 5124,
+    "raw_full_table_content_hash": "sha256:415e73219df496e86f9b199885a7458bf9ea9818ab2d989e82f9c6c992e16247",
+    "relation_counts": {
+      "SAT:false-analog": 1076,
+      "UNKNOWN:unknown": 12016
+    },
+    "relation_rows": 13092,
+    "usable_certified_relations": 0
+  },
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.value_gate_contract.v2",
+  "honest_residuals": {
+    "authority_posture": "writability_zero_and_CG2_production_freeze",
+    "education_value": "method_estimand_binding_mismatch",
+    "latent_assignment_or_identity_bridge": "not_current_blocker; acquire any_of(owner_rollout_assignment,certified_skg_identity_bridge) after outcome rows exist",
+    "non_panel_positive": "substrate_gated: no owner-backed positive in either domain; contract projector proven over six native families",
+    "production_value": "owner_outcome_data_unavailable_routed_to_N7",
+    "promotion": "not_reached_and_not_expected"
   },
   "mode_gates": {
     "deployment": "blocked_pending_GY_O0_eval_safety",
@@ -644,38 +1004,758 @@
     "measurement_audit": "requires_data_trust",
     "retrospective": "requires_data_trust",
     "sandbox_pilot": "blocked_pending_GY_O0_eval_safety",
-    "simulate_only": "runs_value_gate_without_narrowing_k_world"
+    "simulate_only": "cannot_narrow_k_world"
   },
+  "native_projector_contract_proofs": [
+    {
+      "authority_scope": "contract_only_nonproduction",
+      "content_hash": "sha256:5db96e8e497674ec443e2c5182d6457d0eec4995a395caefa67da17bcee024d8",
+      "diagnostic_refs": [],
+      "envelope": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          5.0
+        ],
+        "confidence_level": 0.9,
+        "distribution_family": "unknown",
+        "distribution_payload": null,
+        "gate_eligible": true,
+        "interval_semantics": "credible_interval",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "method_name": "bayesian_linear_regression",
+          "num_chains": null,
+          "parameter": "coefficients_0",
+          "simulator_diagnostic_ref": null,
+          "truthfulness_basis": "asymptotic_sampler_runtime_diagnostics",
+          "truthfulness_tier": "ASYMPTOTIC",
+          "value_estimand_binding_content_hash": "sha256:e674f09a5184f6bcd484a322af716b868e0c5ba38da47a528529673da4bc9d39",
+          "value_estimand_binding_native_contract_id": "foundry.bayesian.posterior_result.v2",
+          "value_estimand_binding_producer_method_fqn": "bayesian.regression.linear_regression@1.0.0"
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 1.5,
+        "propagation_method": "monte_carlo",
+        "sample_size": 128,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "estimand": {
+        "adjustment_set": null,
+        "covariates_or_conditioning": [],
+        "estimand_id": "coefficients_0",
+        "loss_or_utility_id": null,
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "estimand_binding_content_hash": "sha256:e674f09a5184f6bcd484a322af716b868e0c5ba38da47a528529673da4bc9d39",
+      "family": "posterior",
+      "limitation_codes": [],
+      "method_family": "bayesian.regression",
+      "method_fqn": "bayesian.regression.linear_regression@1.0.0",
+      "method_signature_digest": "da90c2d72863120a0a3410bef71336ab735844fdd025ea2cebe6443271d04f43",
+      "native_contract_id": "foundry.bayesian.posterior_result.v2",
+      "native_interval_width": 7.0,
+      "native_projection_capability": {
+        "contract_id": "foundry.bayesian.posterior_result.v2",
+        "output_slot": "result",
+        "owner_module": "polisyos.foundry.methods.catalog.bayesian.protocols",
+        "owner_qualname": "PosteriorResult",
+        "projection_kind": "posterior",
+        "projector": "to_value_uncertainty"
+      },
+      "production_value_eligible": false,
+      "projection_binding": {
+        "adjustment_set": null,
+        "authority_scope": "contract_only_nonproduction",
+        "binding_kind": "contract_projection_request",
+        "content_hash": "sha256:e674f09a5184f6bcd484a322af716b868e0c5ba38da47a528529673da4bc9d39",
+        "covariates_or_conditioning": [],
+        "estimand_id": "coefficients_0",
+        "loss_or_utility_id": null,
+        "native_contract_id": "foundry.bayesian.posterior_result.v2",
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "producer_method_fqn": "bayesian.regression.linear_regression@1.0.0",
+        "production_value_eligible": false,
+        "projection_input_content_hash": "sha256:c833b49a16dc6c59fcb1260fbc47de86cad4f88342ffb0a1559187fc001ec23d",
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "schema_version": "polisyos.ir.native_value_estimand_binding.v1",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "proof_content_hash": "sha256:214e4adac1fcadd95e3abadc1af95133f9500af24d0cd006e5a434a0a4520ac7",
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "selected_output_slot": "result",
+      "status": "contract_projection_ready",
+      "truthfulness_receipt": {
+        "certificate_version": "1.0",
+        "declared_truthfulness_tier": null,
+        "degradation_reasons": [],
+        "diagnostics": {
+          "basis": "asymptotic_sampler_runtime_diagnostics",
+          "credible_mass": 0.9,
+          "divergences": 0.0,
+          "ess_bulk_min": 128.0,
+          "ess_tail_min": 64.0,
+          "num_samples": 128,
+          "quantile_mcse_relative_max": 0.05,
+          "rhat_max": 1.01
+        },
+        "effective_truthfulness_tier": "asymptotic",
+        "evidence_ref": null,
+        "runtime_truthfulness_tier": "asymptotic",
+        "status": "runtime_only",
+        "truthfulness_scope": "posterior"
+      }
+    },
+    {
+      "authority_scope": "contract_only_nonproduction",
+      "content_hash": "sha256:af3007776307cf3549d66957f02a4acab13ea36a04774396776a0c4ccba937d8",
+      "diagnostic_refs": [],
+      "envelope": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          1.1,
+          2.9
+        ],
+        "confidence_level": 0.95,
+        "distribution_family": "normal",
+        "distribution_payload": null,
+        "gate_eligible": true,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "coverage_guarantee_tier": null,
+          "econometric_method": "time_series_ols",
+          "interval_hull_only": false,
+          "interval_source": "confidence_intervals",
+          "p_value": null,
+          "param_name": "coefficients_0",
+          "r_squared": null,
+          "std_error": 0.4,
+          "value_estimand_binding_content_hash": "sha256:de6a7387c44a100fc9aaf1330efdbb09c2751b5118e2b0bb022f5cf99f2c8e68",
+          "value_estimand_binding_native_contract_id": "foundry.econometrics.result.v2",
+          "value_estimand_binding_producer_method_fqn": "econometrics.timeseries.time_series@1.0.0"
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 2.0,
+        "propagation_method": "none",
+        "sample_size": 64,
+        "schema_version": "1.1",
+        "source": "causal"
+      },
+      "estimand": {
+        "adjustment_set": null,
+        "covariates_or_conditioning": [],
+        "estimand_id": "coefficients_0",
+        "loss_or_utility_id": null,
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "estimand_binding_content_hash": "sha256:de6a7387c44a100fc9aaf1330efdbb09c2751b5118e2b0bb022f5cf99f2c8e68",
+      "family": "econometric",
+      "limitation_codes": [],
+      "method_family": "econometrics.timeseries",
+      "method_fqn": "econometrics.timeseries.time_series@1.0.0",
+      "method_signature_digest": "bb17dd9506bd6c948054d9b6a47f55c8c5ddc934255530c1e99b307da0db26f8",
+      "native_contract_id": "foundry.econometrics.result.v2",
+      "native_interval_width": 1.7999999999999998,
+      "native_projection_capability": {
+        "contract_id": "foundry.econometrics.result.v2",
+        "output_slot": "result",
+        "owner_module": "polisyos.foundry.methods.catalog.econometrics.protocols",
+        "owner_qualname": "EconometricResult",
+        "projection_kind": "econometric",
+        "projector": "to_value_uncertainty"
+      },
+      "production_value_eligible": false,
+      "projection_binding": {
+        "adjustment_set": null,
+        "authority_scope": "contract_only_nonproduction",
+        "binding_kind": "contract_projection_request",
+        "content_hash": "sha256:de6a7387c44a100fc9aaf1330efdbb09c2751b5118e2b0bb022f5cf99f2c8e68",
+        "covariates_or_conditioning": [],
+        "estimand_id": "coefficients_0",
+        "loss_or_utility_id": null,
+        "native_contract_id": "foundry.econometrics.result.v2",
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "producer_method_fqn": "econometrics.timeseries.time_series@1.0.0",
+        "production_value_eligible": false,
+        "projection_input_content_hash": "sha256:88e992cf988a2d168b8eef82c1407d1b8ec965d0139698c4f16e9b038d6fd774",
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "schema_version": "polisyos.ir.native_value_estimand_binding.v1",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "proof_content_hash": "sha256:f80a52337d80a9ad38d4388201400ca5e6802dee3a9ac5c88acd054077fe10af",
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "selected_output_slot": "result",
+      "status": "contract_projection_ready",
+      "truthfulness_receipt": null
+    },
+    {
+      "authority_scope": "contract_only_nonproduction",
+      "content_hash": "sha256:e63c2ce2448e57f5fe000b35bca406244f55852b0d9297c0952ad9f3b44c2720",
+      "diagnostic_refs": [],
+      "envelope": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          8.0,
+          13.0
+        ],
+        "confidence_level": 0.9,
+        "distribution_family": "unknown",
+        "distribution_payload": null,
+        "gate_eligible": true,
+        "interval_semantics": "confidence_interval",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "calibration_method": "conformal",
+          "horizon": 1,
+          "method_fqn": "forecasting.contract_probe@1.0.0",
+          "native_interval_semantics": "conformalized_prediction_interval",
+          "target_id": "owner_resolved_outcome",
+          "value_estimand_binding_content_hash": "sha256:df11d7c600cf7cf7232d3e3f96acb4e979a8f21378bba0044d429fe3cf5ac71f",
+          "value_estimand_binding_native_contract_id": "ir.forecasting_uncertainty_bundle.v1",
+          "value_estimand_binding_producer_method_fqn": "contract_probe.forecasting.value_projection_contract_probe@1.0.0"
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 10.0,
+        "propagation_method": "none",
+        "sample_size": 64,
+        "schema_version": "1.1",
+        "source": "calibration"
+      },
+      "estimand": {
+        "adjustment_set": null,
+        "covariates_or_conditioning": [],
+        "estimand_id": "owner_resolved_outcome",
+        "loss_or_utility_id": null,
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "target_role": "prediction",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "estimand_binding_content_hash": "sha256:df11d7c600cf7cf7232d3e3f96acb4e979a8f21378bba0044d429fe3cf5ac71f",
+      "family": "forecasting",
+      "limitation_codes": [],
+      "method_family": "forecasting",
+      "method_fqn": "contract_probe.forecasting.value_projection_contract_probe@1.0.0",
+      "method_signature_digest": "79bf99196a9c973108521deaf33cf222baac2c17ca473c9b2e15de5a2a3da1dc",
+      "native_contract_id": "ir.forecasting_uncertainty_bundle.v1",
+      "native_interval_width": 5.0,
+      "native_projection_capability": {
+        "contract_id": "ir.forecasting_uncertainty_bundle.v1",
+        "output_slot": "result",
+        "owner_module": "polisyos.ir.analytics.forecasting_uncertainty",
+        "owner_qualname": "ForecastingUncertaintyBundle",
+        "projection_kind": "forecasting",
+        "projector": "to_value_uncertainty"
+      },
+      "production_value_eligible": false,
+      "projection_binding": {
+        "adjustment_set": null,
+        "authority_scope": "contract_only_nonproduction",
+        "binding_kind": "contract_projection_request",
+        "content_hash": "sha256:df11d7c600cf7cf7232d3e3f96acb4e979a8f21378bba0044d429fe3cf5ac71f",
+        "covariates_or_conditioning": [],
+        "estimand_id": "owner_resolved_outcome",
+        "loss_or_utility_id": null,
+        "native_contract_id": "ir.forecasting_uncertainty_bundle.v1",
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "producer_method_fqn": "contract_probe.forecasting.value_projection_contract_probe@1.0.0",
+        "production_value_eligible": false,
+        "projection_input_content_hash": "sha256:e163ea797907b74aeffa0d2591f1722e55ac1e4e716f432e1f7062cfd154b619",
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "schema_version": "polisyos.ir.native_value_estimand_binding.v1",
+        "target_role": "prediction",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "proof_content_hash": "sha256:ff4bedd9e29d1286d2d6234e6979339498bc0933ecb6d931b2f2c77fe9abed95",
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "selected_output_slot": "result",
+      "status": "contract_projection_ready",
+      "truthfulness_receipt": null
+    },
+    {
+      "authority_scope": "contract_only_nonproduction",
+      "content_hash": "sha256:51d98ed9d2a1e2b72bc6e4523b65ab749f7b16498f0560ae2b03545fa55b74c5",
+      "diagnostic_refs": [],
+      "envelope": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -2.0,
+          4.0
+        ],
+        "confidence_level": null,
+        "distribution_family": "unknown",
+        "distribution_payload": null,
+        "gate_eligible": true,
+        "interval_semantics": "deterministic_bounds",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "estimand_type": "quantile_shift",
+          "functional": "quantile_shift",
+          "projection": "consensus_outer_hull",
+          "sharpness_status": "outer_approx",
+          "value_estimand_binding_content_hash": "sha256:cc43ac21c4ab7558e345466aa75de298738ab39b5d9131001d09a34e034f3c3a",
+          "value_estimand_binding_native_contract_id": "ir.distributional_bounds_bundle.v1",
+          "value_estimand_binding_producer_method_fqn": "contract_probe.distributional.value_projection_contract_probe@1.0.0"
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 1.0,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "causal"
+      },
+      "estimand": {
+        "adjustment_set": null,
+        "covariates_or_conditioning": [],
+        "estimand_id": "quantile_shift",
+        "loss_or_utility_id": null,
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "estimand_binding_content_hash": "sha256:cc43ac21c4ab7558e345466aa75de298738ab39b5d9131001d09a34e034f3c3a",
+      "family": "distributional",
+      "limitation_codes": [],
+      "method_family": "distributional",
+      "method_fqn": "contract_probe.distributional.value_projection_contract_probe@1.0.0",
+      "method_signature_digest": "f0a6746a553b400b65da485865540a7f8e6025e8354386973f87afcd6ae3af32",
+      "native_contract_id": "ir.distributional_bounds_bundle.v1",
+      "native_interval_width": 6.0,
+      "native_projection_capability": {
+        "contract_id": "ir.distributional_bounds_bundle.v1",
+        "output_slot": "result",
+        "owner_module": "polisyos.ir.analytics.distributional",
+        "owner_qualname": "DistributionalBoundsBundle",
+        "projection_kind": "distributional",
+        "projector": "to_value_uncertainty"
+      },
+      "production_value_eligible": false,
+      "projection_binding": {
+        "adjustment_set": null,
+        "authority_scope": "contract_only_nonproduction",
+        "binding_kind": "contract_projection_request",
+        "content_hash": "sha256:cc43ac21c4ab7558e345466aa75de298738ab39b5d9131001d09a34e034f3c3a",
+        "covariates_or_conditioning": [],
+        "estimand_id": "quantile_shift",
+        "loss_or_utility_id": null,
+        "native_contract_id": "ir.distributional_bounds_bundle.v1",
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "producer_method_fqn": "contract_probe.distributional.value_projection_contract_probe@1.0.0",
+        "production_value_eligible": false,
+        "projection_input_content_hash": "sha256:0af283d0ffecc3582260e0127e565559ebdd94c61126124514de0d16f5d55c67",
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "schema_version": "polisyos.ir.native_value_estimand_binding.v1",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "proof_content_hash": "sha256:b6e77265fe33b5d6c785d09614aa497479868fc5470a8ca6099ff3b17acd4527",
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "selected_output_slot": "result",
+      "status": "contract_projection_ready",
+      "truthfulness_receipt": null
+    },
+    {
+      "authority_scope": "contract_only_nonproduction",
+      "content_hash": "sha256:5b4c7e836289de09fd8b11400dec210673c60b30cbd117f9b85f5ced92d933d5",
+      "diagnostic_refs": [],
+      "envelope": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -0.5,
+          1.25
+        ],
+        "confidence_level": null,
+        "distribution_family": "unknown",
+        "distribution_payload": null,
+        "gate_eligible": true,
+        "interval_semantics": "deterministic_bounds",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "estimand_type": "ate",
+          "projection": "consensus_bounds",
+          "sharpness_status": "sharp",
+          "value_estimand_binding_content_hash": "sha256:08e2c915262eebcb8208a0f31f26baf7b614e0bc41ed82f03eb17c3bb9e69a53",
+          "value_estimand_binding_native_contract_id": "ir.bounds_bundle.v1",
+          "value_estimand_binding_producer_method_fqn": "contract_probe.partial_identification.value_projection_contract_probe@1.0.0"
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.375,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "causal"
+      },
+      "estimand": {
+        "adjustment_set": null,
+        "covariates_or_conditioning": [],
+        "estimand_id": "ate",
+        "loss_or_utility_id": null,
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "estimand_binding_content_hash": "sha256:08e2c915262eebcb8208a0f31f26baf7b614e0bc41ed82f03eb17c3bb9e69a53",
+      "family": "partial_identification",
+      "limitation_codes": [],
+      "method_family": "partial_identification",
+      "method_fqn": "contract_probe.partial_identification.value_projection_contract_probe@1.0.0",
+      "method_signature_digest": "9ca4de34b2cce99420dc68f1da09388f7af3b46dfe3efee09fcda572c49bf250",
+      "native_contract_id": "ir.bounds_bundle.v1",
+      "native_interval_width": 1.75,
+      "native_projection_capability": {
+        "contract_id": "ir.bounds_bundle.v1",
+        "output_slot": "result",
+        "owner_module": "polisyos.ir.analytics.partial_identification",
+        "owner_qualname": "BoundsBundle",
+        "projection_kind": "partial_identification",
+        "projector": "to_value_uncertainty"
+      },
+      "production_value_eligible": false,
+      "projection_binding": {
+        "adjustment_set": null,
+        "authority_scope": "contract_only_nonproduction",
+        "binding_kind": "contract_projection_request",
+        "content_hash": "sha256:08e2c915262eebcb8208a0f31f26baf7b614e0bc41ed82f03eb17c3bb9e69a53",
+        "covariates_or_conditioning": [],
+        "estimand_id": "ate",
+        "loss_or_utility_id": null,
+        "native_contract_id": "ir.bounds_bundle.v1",
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "producer_method_fqn": "contract_probe.partial_identification.value_projection_contract_probe@1.0.0",
+        "production_value_eligible": false,
+        "projection_input_content_hash": "sha256:cb71de06a338757afe80756df32a3471ea3fd456b6f875830b6f403500a8b6a9",
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "schema_version": "polisyos.ir.native_value_estimand_binding.v1",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "proof_content_hash": "sha256:19b4f2ef1d297d767216d63f8c922d02cda11c68ba2fb462682ab1f51386d0e2",
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "selected_output_slot": "result",
+      "status": "contract_projection_ready",
+      "truthfulness_receipt": null
+    },
+    {
+      "authority_scope": "contract_only_nonproduction",
+      "content_hash": "sha256:289b9398e9283c487b798ecd52607f2618304139f9368d6035fbce6f9d462092",
+      "diagnostic_refs": [],
+      "envelope": {
+        "composition_provenance": null,
+        "confidence_interval": [
+          -1.0,
+          2.0
+        ],
+        "confidence_level": null,
+        "distribution_family": "unknown",
+        "distribution_payload": null,
+        "gate_eligible": true,
+        "interval_semantics": "deterministic_bounds",
+        "is_heuristic_ci": false,
+        "metadata": {
+          "bounds_method": "transport_bounds",
+          "query": "transported_ate",
+          "transport_mode": "bounds_only",
+          "transport_status": "bounded_non_identified",
+          "value_estimand_binding_content_hash": "sha256:1f2116ca47a14915dbbe245bb0c2ca4e3d1f586f95bed01f8272436bb058e6c8",
+          "value_estimand_binding_native_contract_id": "ir.transportability_result.v2",
+          "value_estimand_binding_producer_method_fqn": "contract_probe.transport.value_projection_contract_probe@1.0.0"
+        },
+        "numeric_policy": {
+          "absolute_tolerance": 1e-12,
+          "decimal_places": 12,
+          "mode": "float_round_12",
+          "policy_id": "bounded_float_v1"
+        },
+        "point_estimate": 0.5,
+        "propagation_method": "none",
+        "sample_size": null,
+        "schema_version": "1.1",
+        "source": "causal"
+      },
+      "estimand": {
+        "adjustment_set": null,
+        "covariates_or_conditioning": [],
+        "estimand_id": "transported_ate",
+        "loss_or_utility_id": null,
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "estimand_binding_content_hash": "sha256:1f2116ca47a14915dbbe245bb0c2ca4e3d1f586f95bed01f8272436bb058e6c8",
+      "family": "transport",
+      "limitation_codes": [],
+      "method_family": "transport",
+      "method_fqn": "contract_probe.transport.value_projection_contract_probe@1.0.0",
+      "method_signature_digest": "dda7e23fb97b9a21d3d1bcd02357efc561aabf6a671e4df1c94c5361fd983146",
+      "native_contract_id": "ir.transportability_result.v2",
+      "native_interval_width": 3.0,
+      "native_projection_capability": {
+        "contract_id": "ir.transportability_result.v2",
+        "output_slot": "result",
+        "owner_module": "polisyos.ir.analytics.transportability",
+        "owner_qualname": "TransportabilityResult",
+        "projection_kind": "transport",
+        "projector": "to_value_uncertainty"
+      },
+      "production_value_eligible": false,
+      "projection_binding": {
+        "adjustment_set": null,
+        "authority_scope": "contract_only_nonproduction",
+        "binding_kind": "contract_projection_request",
+        "content_hash": "sha256:1f2116ca47a14915dbbe245bb0c2ca4e3d1f586f95bed01f8272436bb058e6c8",
+        "covariates_or_conditioning": [],
+        "estimand_id": "transported_ate",
+        "loss_or_utility_id": null,
+        "native_contract_id": "ir.transportability_result.v2",
+        "outcome": "owner_resolved_outcome",
+        "population": "contract_probe_population",
+        "prediction_origin": null,
+        "producer_method_fqn": "contract_probe.transport.value_projection_contract_probe@1.0.0",
+        "production_value_eligible": false,
+        "projection_input_content_hash": "sha256:8838279d42ad448c81771885bf136192b7cb82dcc1ebfd9361858c82699585a3",
+        "query_id": "gy-n10-native-value-contract-proof",
+        "sample_filter": null,
+        "scale": "identity",
+        "schema_version": "polisyos.ir.native_value_estimand_binding.v1",
+        "target_role": "causal",
+        "time_horizon": "1",
+        "transform": null,
+        "treatment_or_exposure": "owner_resolved_exposure",
+        "unit": "value"
+      },
+      "proof_content_hash": "sha256:e054d3620e0caa43750b0ff727aa4f3c3b4aab10a68a119c60297c7d4633b22c",
+      "proof_scope": "contract_owner_probe_not_advisor_selection",
+      "selected_output_slot": "result",
+      "status": "contract_projection_ready",
+      "truthfulness_receipt": null
+    }
+  ],
   "pattern_pass": {
-    "acceptance_signal": "all_decisive_mutations_red_and_live_rederive_value_ready",
+    "acceptance_signal": "real advisor selections end in typed honest refusals; six native families project contract-only uncertainty; no value_ready is fabricated",
     "capability_labels": [
-      "upstream_residual:full_n5_joint_simulation_request"
+      "producer_missing:owner_rollout_assignment",
+      "bridge_missing:certified_skg_identity_bridge"
     ],
     "relevant_ids": [
+      "P05",
       "P10",
       "P14",
       "P27",
       "P29",
+      "P31",
       "P32"
     ],
-    "target_correct_pattern": "Foundry value method execution + S10 calibration + transport receipt over a named WorldModelRecord mints the only N8 value authority."
+    "target_correct_pattern": "owner-resolved world knowledge gates production value; native method contracts prove only nonproduction projection capability"
   },
   "produced_by": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
-  "production_derivation": {
-    "audit_replay_source": "real_owner_rederive_value_ready",
-    "candidate_source": "cycle_selected_candidate",
+  "production_refusal": {
+    "acquisition_requirement": "requirement-gap:data_requirement:l1-variable-availability:eee6b2c7e5b7c1af",
+    "authority_blockers": [
+      "acquire_data:value_panel_data_missing"
+    ],
+    "candidate_atom_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
+    "candidate_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
+    "candidate_id": "candidate_ea26e1ad2b9926a5",
+    "content_hash": "sha256:f1053b09e526180857cf0cc6487b6bae89360afdda53a9d69dc2f6c20ce3bda8",
+    "decision_grade": "blocked",
+    "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
     "evaluation_mode": "simulate_only",
-    "forecast_source": "RealValueOwnerGateway.produce_forecast_inputs",
-    "input_source": "production_owner_access_no_runtime_hints",
-    "live_rederive_flag": "--rederive-audit",
-    "local_positive_status": "value_ready",
-    "method_state_source": "RealValueOwnerGateway.load_panel_observational_data",
-    "transport_source": "ValueOwnerGateway.build_transport_inputs_selection_diagram_owner",
-    "world_model_record_content_hash": "sha256:ac144f85a0c11f3aa987b93c69903a56d1b9dd15fbcef84e93c0e583b35e87bd",
-    "world_model_record_id": "world_model_record_ac144f85a0c11f3a",
-    "world_model_record_source": "SimulationPortObservation.world_model_record"
+    "k_world_ref_after": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+    "k_world_ref_before": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+    "method_selection_receipt": null,
+    "n4_artifact_ref": "architecture/policy_design_case/layer3_gy_design_generation_contract.json",
+    "n4_artifact_sha256": "sha256:665cdea7b0f83c1b6c0630e1e9ce94f38a9709b04482960017bd01d8d557a2fe",
+    "n4_recording_id": "gy_n4_replay_20260704_095710_425807_7bf5552df372",
+    "owner_availability": {
+      "availability_content_hash": "sha256:50673f0ea18e81c67a6ecf06cde994405c5ab2c00429980d8da54541acca4f25",
+      "coverage_ref": "repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention",
+      "dataset_count": 0,
+      "metric_binding_count": 0,
+      "observation_count": 0,
+      "status": "unavailable",
+      "variable_id": "employment_retention"
+    },
+    "reason": "substrate owner found no panel data for employment_retention (datasets=0, bindings=0, observations=0) owner_access_ref=repo://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#variable/employment_retention",
+    "receipt_kind": "first_vertical_owner_data_gap",
+    "schema_version": "policyos.layer3.gy.n8.value_refusal_receipt.v2",
+    "selected_method_fqn": null,
+    "selection_stage": "not_reached_owner_data_unavailable",
+    "simulation_status": "simulation_pending_n5",
+    "status": "value_blocked",
+    "value_data_profile_content_hash": null,
+    "value_receipt": null,
+    "world_binding": {
+      "bound_state_snapshot_ref": "sha256:341c2e3c353c4aeb8912e73c75038aa948d01a2ba55dbda3c22a6be6b5d78560",
+      "branch_mode": "observed",
+      "input_bindings_ref": "sha256:e0f1ba95d752a009d44e4ee259a66aca4ba6aecef7136b2e872b5f21405b2814",
+      "schema_version": "policyos.runtime.world_model_record.v1",
+      "target_slot_bindings": [
+        {
+          "entity_scope": "global",
+          "slot_id": "global.tax_rate",
+          "state_path": "tax_rate",
+          "temporal_granularity": "parameter",
+          "unit": "ratio"
+        }
+      ],
+      "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+      "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+    },
+    "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+    "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
   },
-  "schema_version": "policyos.policy_design_case.layer3_gy.value_gate_contract.v1",
+  "projector_refusal_proofs": [
+    {
+      "case_id": "unverified_truthfulness",
+      "content_hash": "sha256:216cf3fff5a70be768af6a627a6486b4c7c1f0fd5ce74bba1197f96c9f5f87b7",
+      "method_family": "bayesian.regression",
+      "method_fqn": "bayesian.regression.linear_regression@1.0.0",
+      "proof_content_hash": "sha256:5afed05e7ad5b8097a4832588d09f0dc29bf8affaa988492da36a09118dcb18a",
+      "reason_code": "method_truthfulness_unverified",
+      "resolved_contract_id": "foundry.bayesian.posterior_result.v2",
+      "selected_output_slot": "result",
+      "status": "value_refused"
+    },
+    {
+      "case_id": "wrong_treatment_identity",
+      "content_hash": "sha256:b5d769847da4e17b211338467ffbabad56e42ed7dbe783d23d26083d5eb07385",
+      "method_family": "bayesian.regression",
+      "method_fqn": "bayesian.regression.linear_regression@1.0.0",
+      "proof_content_hash": "sha256:311bf89000afa7ac346442d3d1979a2aed446145696dfa5e80f4619c42566aab",
+      "reason_code": "method_estimand_binding_mismatch",
+      "resolved_contract_id": "foundry.bayesian.posterior_result.v2",
+      "selected_output_slot": "result",
+      "status": "value_refused"
+    },
+    {
+      "case_id": "undeclared_capability",
+      "content_hash": "sha256:4e6932209728e2dace22cdc3360719c50088f3aa3e57e453898f4d1a2423f30b",
+      "method_family": "contract_probe.refusal",
+      "method_fqn": "contract_probe.refusal.undeclared_value_contract@1.0.0",
+      "proof_content_hash": "sha256:c40c18a4f1a9075dc03884947ede9989c544b594a761b7282f6812a9d33d0655",
+      "reason_code": "method_output_contract_unresolved",
+      "resolved_contract_id": null,
+      "selected_output_slot": "result",
+      "status": "value_refused"
+    }
+  ],
+  "rule_version": "policyos.layer3.gy.n8.value_gate.v2",
+  "schema_version": "policyos.policy_design_case.layer3_gy.value_gate_contract.v2",
   "source_flip_mutation_harness": {
     "mode": "--source-flip-mutations",
     "mutation_ids": [
@@ -687,8 +1767,11 @@
       "source_flip_calibration_report_driven_refusal",
       "source_flip_width_tracks_real_did_ci",
       "source_flip_transport_real_solver_required",
+      "source_flip_transport_tuple_reintroduced",
+      "source_flip_transport_measured_values_removed",
       "source_flip_treatment_candidate_atom_binding_required",
       "source_flip_value_outer_set_width_supplied_not_derived",
+      "source_flip_persisted_width_verification_removed",
       "source_flip_proxy_forecast_narrow_set_rejected",
       "source_flip_fixture_world_model_hash_rejected",
       "source_flip_value_world_version_laundered",
@@ -697,9 +1780,196 @@
       "source_flip_bad_forecast_minted_value",
       "source_flip_pilot_mode_ran_without_eval_safety",
       "source_flip_value_method_selection_fixed_default",
-      "source_flip_value_blocked_candidate_promoted_to_decision_front"
+      "source_flip_value_blocked_candidate_promoted_to_decision_front",
+      "source_flip_treatment_assignment_owner_required",
+      "source_flip_forged_relation_certificate_rejected",
+      "source_flip_value_projection_capability_contract_required",
+      "source_flip_catalog_replay_rejected",
+      "source_flip_truthfulness_auto_pass_rejected",
+      "source_flip_estimand_binding_required",
+      "source_flip_value_input_acquisition_route_required",
+      "source_flip_contract_projection_nonproduction",
+      "source_flip_world_identity_wmr_ref_binding_required",
+      "source_flip_world_identity_problem_frame_binding_required",
+      "source_flip_world_identity_target_slot_binding_required"
     ],
-    "property": "remove_runtime_guard_then_probe_must_go_red_then_restore",
-    "routine_check_live_solve": false
+    "property": "remove one runtime property, require semantic RED, and restore exact bytes",
+    "routine_check_runs_mutations": false
+  },
+  "transport_component_proofs": {
+    "education": {
+      "candidate_content_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
+      "candidate_envelope_content_hash": "sha256:f166f87ec043fac7a927d729880e7478b2714a540e17741c330c2deff11a04a8",
+      "candidate_id": "gy_n4.blended_learning_expansion",
+      "component_scope_only": true,
+      "context_binding_hash": "sha256:4db7ef9130dcf371b572683dda914480da7805bff6436fec2a512b7695d33013",
+      "context_source": "content_bound_pack_cycle_substrate_context",
+      "cycle_substrate_context_content_hash": "sha256:a192e3182bc8e95af1cce195d75743767ce1f46fa169ce32f84253ffaa10338d",
+      "data_owner": "N10a_pack_transport_context",
+      "design_problem_ref": "sha256:ab258ef9471f875515200a0a1e9e1de5f4ae88dfc11bb7330d6f137568a19238",
+      "domain": "education",
+      "domain_role": "education",
+      "outcome_kind": "transport_receipt",
+      "production_value_eligible": false,
+      "proof_content_hash": "sha256:33d3bbc83719304ab4a3fec40538bca9d4eef3a94a2d2dc5332f1c6012dbb9df",
+      "query_outcome": "years_of_schooling",
+      "query_treatment": "gy_n4_blended_learning_expansion",
+      "required_target_data": [
+        "education_spending",
+        "school_quality"
+      ],
+      "rule_version": "policyos.layer3.gy.n8.transport_context.v2",
+      "schema_version": "policyos.layer3.gy.n8.transport_component_proof.v1",
+      "selection_diagram_content_hash": "sha256:2d86a10285f8690e9c4cd3ceaea496d8847144527de03d2a20af4d80e7bacf10",
+      "selection_nodes": [
+        {
+          "source_ref": "sha256:26a6e2afe7bcc67531236a8c1090bd136a5f5c08ff6cf272954a1fdd2fa6ce11",
+          "source_value": 2.447692812368548,
+          "target_ref": "sha256:fb2ba8a1de2c6fde0bf6d3df5c91f3787a94281ba20bf772d1fba25332fe64e4",
+          "target_value": 3.342583990097046,
+          "target_variable": "education_spending"
+        },
+        {
+          "source_ref": "sha256:5ac11e54c1ec902815684c7800233f4a82050468ec74e25e4fa0a41b5e2fb1e0",
+          "source_value": 27.2411460876464,
+          "target_ref": "sha256:89506cf17e9fedf090abdcdcb0d66015050bfd218615f1c6efa9999842a8ded8",
+          "target_value": 37.5467720031738,
+          "target_variable": "school_quality"
+        }
+      ],
+      "transport_covariates": [
+        {
+          "canonical_var": "education_spending",
+          "source_row_content_hash": "sha256:26a6e2afe7bcc67531236a8c1090bd136a5f5c08ff6cf272954a1fdd2fa6ce11",
+          "source_value": 2.447692812368548,
+          "target_row_content_hash": "sha256:fb2ba8a1de2c6fde0bf6d3df5c91f3787a94281ba20bf772d1fba25332fe64e4",
+          "target_value": 3.342583990097046
+        },
+        {
+          "canonical_var": "school_quality",
+          "source_row_content_hash": "sha256:5ac11e54c1ec902815684c7800233f4a82050468ec74e25e4fa0a41b5e2fb1e0",
+          "source_value": 27.2411460876464,
+          "target_row_content_hash": "sha256:89506cf17e9fedf090abdcdcb0d66015050bfd218615f1c6efa9999842a8ded8",
+          "target_value": 37.5467720031738
+        }
+      ],
+      "transport_receipt": {
+        "identification_engine": "bounds_only",
+        "limitation_refs": [
+          "Exact transport identification unavailable; emitted transport-aware bounds fallback."
+        ],
+        "required_target_data": [
+          "education_spending",
+          "school_quality"
+        ],
+        "status": "transported_limited",
+        "transport_mode": "bounds_only",
+        "transport_result_ref": "sha256:798bd75aaff1321ddb704bc11fcde0d6017c9edf6b7b57e1001de9b1fd11d4fe",
+        "transport_status": "bounded_non_identified",
+        "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",
+        "world_model_record_id": "world_model_record_b14cc2ae2bbe445b"
+      },
+      "transport_result_content_hash": "sha256:05df77ba8ab03ea7387f3940945174af736cf89be77454ea5769bc5d7713e952",
+      "typed_refusal": null,
+      "value_gate_receipt": null,
+      "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089",
+      "world_model_record_id": "world_model_record_b14cc2ae2bbe445b"
+    },
+    "first_vertical": {
+      "candidate_content_hash": "sha256:48a0f1aee8959525169d9d9a41dc8ec50aedc814220b987b2d0b68403d53a151",
+      "candidate_envelope_content_hash": "sha256:fe0a73084e14c971df726bb85f57187ee00033e8924c004bb897efe4dd843809",
+      "candidate_id": "candidate_ea26e1ad2b9926a5",
+      "component_scope_only": true,
+      "context_binding_hash": "sha256:8b954a5527e92a01c66b0c9e01b8bbef325a7745520d627cb00bcb15b55f4bb9",
+      "context_source": "canonical_first_vertical_cycle_substrate_context",
+      "cycle_substrate_context_content_hash": "sha256:3c705fca5f41a23d0c81ccb5d5e937d6fa4a2d399cac94f9a4432a233a410b8a",
+      "data_owner": "L1_DCAT_ds_observations",
+      "design_problem_ref": "sha256:92a39b5c7853b1965ce46bbbefc9bd579a0f169da315f35d117e7effd1788fac",
+      "domain": "ua_msme_cgf_decisive_capture",
+      "domain_role": "first_vertical",
+      "outcome_kind": "typed_refusal",
+      "production_value_eligible": false,
+      "proof_content_hash": "sha256:b6d30ba05b5a1cbb89d2f01a3b3197c707bf50a1c3740724e008c1f79a4216ef",
+      "query_outcome": "employment_retention",
+      "query_treatment": "industrial_retention_tax_credit",
+      "required_target_data": [],
+      "rule_version": "policyos.layer3.gy.n8.transport_context.v2",
+      "schema_version": "policyos.layer3.gy.n8.transport_component_proof.v1",
+      "selection_diagram_content_hash": null,
+      "selection_nodes": [],
+      "transport_covariates": [],
+      "transport_receipt": null,
+      "transport_result_content_hash": null,
+      "typed_refusal": {
+        "code": "acquire_data:transport_context_unresolved",
+        "owner_access_ref": "sha256:3c705fca5f41a23d0c81ccb5d5e937d6fa4a2d399cac94f9a4432a233a410b8a",
+        "reason": "content-bound source/target transport measurements are absent owner_access_ref=sha256:3c705fca5f41a23d0c81ccb5d5e937d6fa4a2d399cac94f9a4432a233a410b8a"
+      },
+      "value_gate_receipt": null,
+      "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+      "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+    },
+    "unseen_pack_shape": {
+      "candidate_content_hash": "sha256:3422c2bfb02b30df4475347dc6ef71a100b7920958ea5abebad687408b9aefe6",
+      "candidate_envelope_content_hash": "sha256:f700291f454937cd02fbe0b44a5e6e11115b782f50a04837ca8fe1ec2e5b2195",
+      "candidate_id": "riparian_buffer_candidate",
+      "component_scope_only": true,
+      "context_binding_hash": "sha256:694539a80cf2577b3aac38610fb608bba14d7f6bb7b415a8415a882ca2c7502c",
+      "context_source": "content_bound_unseen_pack_shape",
+      "cycle_substrate_context_content_hash": "sha256:c74dd00975357f21b3b10159ccf1ef0d1ef598333f4dd31c2a88b631830c3ce7",
+      "data_owner": "pack_shaped_lane0_measurements",
+      "design_problem_ref": "sha256:d2a7722f6f96e78e0c6caf39df4a593f9cea6dd3305d46267e330619607eb36a",
+      "domain": "water_quality",
+      "domain_role": "unseen_pack_shape",
+      "outcome_kind": "transport_receipt",
+      "production_value_eligible": false,
+      "proof_content_hash": "sha256:0d22ab48c85451bd6475dfd2f6e83cab699448b4689560c4119bc389d3607aaa",
+      "query_outcome": "nitrate_load",
+      "query_treatment": "riparian_buffer_width",
+      "required_target_data": [
+        "watershed_slope"
+      ],
+      "rule_version": "policyos.layer3.gy.n8.transport_context.v2",
+      "schema_version": "policyos.layer3.gy.n8.transport_component_proof.v1",
+      "selection_diagram_content_hash": "sha256:9556f6179f61b090db7a3d86baa945b2ca7777f2b632da55a0a93c237d65bd5b",
+      "selection_nodes": [
+        {
+          "source_ref": "sha256:f52bb37343cd913fecdb2617073acbc283e9120c067a4813c607ab3ef81ed329",
+          "source_value": 0.15,
+          "target_ref": "sha256:2c03edcb3064462f38bf494bbeb345e799114ca011a6c9ee6b523c93cd973db1",
+          "target_value": 0.63,
+          "target_variable": "watershed_slope"
+        }
+      ],
+      "transport_covariates": [
+        {
+          "canonical_var": "watershed_slope",
+          "source_row_content_hash": "sha256:f52bb37343cd913fecdb2617073acbc283e9120c067a4813c607ab3ef81ed329",
+          "source_value": 0.15,
+          "target_row_content_hash": "sha256:2c03edcb3064462f38bf494bbeb345e799114ca011a6c9ee6b523c93cd973db1",
+          "target_value": 0.63
+        }
+      ],
+      "transport_receipt": {
+        "identification_engine": "bounds_only",
+        "limitation_refs": [
+          "Exact transport identification unavailable; emitted transport-aware bounds fallback."
+        ],
+        "required_target_data": [
+          "watershed_slope"
+        ],
+        "status": "transported_limited",
+        "transport_mode": "bounds_only",
+        "transport_result_ref": "sha256:b299da76eb3e72b39bdb222e91f31e53a9b51cdfad0654947c41baba67ad8f53",
+        "transport_status": "bounded_non_identified",
+        "world_model_record_content_hash": "sha256:eadc211d530d0f21a12ce87874cbc19884cdad4781a8a4d3aa72b07fb80f3a7c",
+        "world_model_record_id": "world_model_record_eadc211d530d0f21"
+      },
+      "transport_result_content_hash": "sha256:5f40167041e3735f794a3b7fa57aee6eeb708360912a73af3d73083c846835a6",
+      "typed_refusal": null,
+      "value_gate_receipt": null,
+      "world_model_record_content_hash": "sha256:eadc211d530d0f21a12ce87874cbc19884cdad4781a8a4d3aa72b07fb80f3a7c",
+      "world_model_record_id": "world_model_record_eadc211d530d0f21"
+    }
   }
 }

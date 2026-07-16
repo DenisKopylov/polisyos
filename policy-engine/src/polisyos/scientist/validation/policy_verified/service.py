@@ -11,6 +11,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
@@ -24,18 +25,13 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.lex.knowledge.search import LegalKnowledgeGraph
 from polisyos.lex.knowledge.types import LegalFactResult, LegalSourceBundle
-from polisyos.scientist.agent.formalizer import MockFormalizerAgent
 from polisyos.scientist.agent.knowledge_tools import KnowledgeToolkit
 from polisyos.scientist.agent.prompts import get_source_verifier_prompt
-from polisyos.scientist.agent.protocols import DraftResult
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.evidence.sources import (
     build_path_source_status,
     normalize_evidence_sources_config,
     update_source_status,
 )
-from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CROSS_GRAPH_EVIDENCE_PROFILE_REF,
@@ -43,6 +39,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_RESEARCH_INTENT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.validation.policy_verified.models import (
     LegalCandidatePack,
     LegalSourcePack,
@@ -73,6 +72,9 @@ _POLICY_VERIFIED_TOOLKIT_ERRORS = (
 )
 _POLICY_VERIFIED_JSON_ERRORS = (TypeError, ValueError, json.JSONDecodeError)
 _POLICY_VERIFIED_ASYNC_RUN_ERRORS = (RuntimeError, TypeError, ValueError)
+POLICY_VERIFIED_HARDCODED_FORMALIZER_STRANGLED = (
+    "policy_verified_hardcoded_formalizer_strangled"
+)
 
 
 def build_policy_request_frame(ctx: ExecutionContext, state: ExperimentState) -> PolicyRequestFrame:
@@ -521,41 +523,13 @@ def formalize_policy_option_set(
     frame: PolicyRequestFrame,
     option_set: PolicyOptionSet,
 ) -> TrinityBundleRef | None:
-    """Convert the selected policy option into a Trinity bundle reference."""
+    """Resolve a caller-supplied Trinity bundle without synthesizing policy authority."""
+
+    del ctx, frame, option_set
     existing_ref = state.inputs.get(INPUT_TRINITY_BUNDLE_REF)
-    if existing_ref is not None:
-        return TrinityBundleRef.model_validate(existing_ref.model_dump())
-    primary = (option_set.verified_options or option_set.hypothesis_options or [None])[0]
-    if primary is None:
+    if existing_ref is None:
         return None
-    draft = DraftResult(
-        draft_id=_stable_id("draft", frame.request_id, primary.option_id),
-        problem_frame_ref=frame.request_id,
-        narrative=primary.summary,
-        interventions=[
-            {
-                "name": primary.title,
-                "description": primary.summary,
-                "mechanism_type": "tax_subsidy",
-                "target_population": "all",
-                "parameters": {"rate": "0.1"},
-                "rationale": primary.summary,
-            }
-        ],
-        rationale="Derived from verified policy option set.",
-        confidence=0.7,
-    )
-    bundle = asyncio.run(MockFormalizerAgent().formalize(draft))
-    artifact = ctx.store.put_json(
-        bundle,
-        PutOptions(
-            kind="ir.trinity_bundle",
-            media_type="application/json",
-            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=str(bundle.schema_version)),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
-    )
-    return TrinityBundleRef.model_validate(artifact.model_dump())
+    return TrinityBundleRef.model_validate(existing_ref.model_dump())
 
 
 def build_verified_policy_report(
@@ -1078,21 +1052,10 @@ def _parse_json_object(text: str) -> dict[str, Any] | None:
     raw = str(text or "").strip()
     if not raw:
         return None
-    if raw.startswith("```"):
-        raw = raw.strip("`")
-        raw = raw.split("\n", 1)[-1]
     try:
-        payload = json.loads(raw)
+        return dict(extract_llm_json_object(raw))
     except _POLICY_VERIFIED_JSON_ERRORS:
-        start = raw.find("{")
-        end = raw.rfind("}")
-        if start < 0 or end <= start:
-            return None
-        try:
-            payload = json.loads(raw[start : end + 1])
-        except _POLICY_VERIFIED_JSON_ERRORS:
-            return None
-    return payload if isinstance(payload, dict) else None
+        return None
 
 
 __all__ = [
@@ -1102,6 +1065,7 @@ __all__ = [
     "draft_policy_option_set",
     "expand_legal_source_pack",
     "formalize_policy_option_set",
+    "POLICY_VERIFIED_HARDCODED_FORMALIZER_STRANGLED",
     "recover_source_gaps",
     "review_source_gaps",
     "verify_source_pack",

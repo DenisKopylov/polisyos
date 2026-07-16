@@ -22,6 +22,65 @@
   "intervention_atom_binding_schema_version": "policyos.runtime.intervention_atom_binding.v1",
   "json_schema": {
     "$defs": {
+      "AtomNormalizationRecord": {
+        "additionalProperties": false,
+        "description": "Record certificate-warranted normalization as supporting provenance.",
+        "properties": {
+          "grounding_relation": {
+            "enum": [
+              "exact",
+              "certified-specialization"
+            ],
+            "title": "Grounding Relation",
+            "type": "string"
+          },
+          "grounding_relation_certificate_id": {
+            "minLength": 1,
+            "title": "Grounding Relation Certificate Id",
+            "type": "string"
+          },
+          "grounding_relation_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Grounding Relation Content Hash",
+            "type": "string"
+          },
+          "normalized_kind": {
+            "minLength": 1,
+            "title": "Normalized Kind",
+            "type": "string"
+          },
+          "normalized_target_world_slots": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Normalized Target World Slots",
+            "type": "array"
+          },
+          "original_kind": {
+            "minLength": 1,
+            "title": "Original Kind",
+            "type": "string"
+          },
+          "original_target_world_slots": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Original Target World Slots",
+            "type": "array"
+          }
+        },
+        "required": [
+          "original_kind",
+          "normalized_kind",
+          "normalized_target_world_slots",
+          "grounding_relation",
+          "grounding_relation_certificate_id",
+          "grounding_relation_content_hash"
+        ],
+        "title": "AtomNormalizationRecord",
+        "type": "object"
+      },
       "CausalAssignmentProjection": {
         "additionalProperties": false,
         "description": "Project one proof-kernel node assignment.",
@@ -474,7 +533,7 @@
       }
     },
     "additionalProperties": false,
-    "description": "Bind one executable Trinity action to one proof-kernel causal atom.\n\n``InterventionAtomBinding`` is a bridge over existing halves, not a second\nintervention hierarchy. The Trinity side remains ``InterventionSpec`` plus\n``LinkedIntervention`` slots. The proof-kernel side remains a typed\n``InterventionExpr``, ``QueryTarget``, and ``InterventionIdentificationPlan``.\nThis artifact records only the content correspondence needed by the\ngeneration cycle: same selector context, same written world slot, consistent\noperator kind, authoritative estimand, forward world-model reference, and a\ntime-invariant content hash.\n\nAttributes:\n    atom_id: Stable atom identifier derived from the content hash.\n    problem_frame_ref: ProblemFrame or DesignProblem reference.\n    policy_spec_ref: PolicySpec or Trinity bundle reference.\n    intervention_id: Trinity intervention id.\n    operator_kind: Trinity mechanism kind plus proof-kernel type.\n    target_selector: Trinity selector and population projection.\n    target_world_slots: Linker-resolved slots written by the action.\n    read_slots: Linker-resolved slots read by the action.\n    direct_effect_bundle: Trinity direct-effect projection.\n    causal_do_expr: Proof-kernel intervention expression projection.\n    intended_downstream_estimand: Authoritative QueryTarget projection.\n    causal_path_or_identification_plan_ref: Identification plan projection.\n    world_model_record_ref: Forward hook to the future WorldModelRecord.\n    measurement_expectations: Retained Trinity free-form metadata.\n    measurement_expectations_authority: Always supporting metadata.\n    content_hash: Time-invariant hash over the content-bound fields.\n    producer_ref: Producer that emitted this atom candidate.\n    provenance_refs: Upstream Trinity/proof-kernel provenance references.\n    status: Lifecycle state for A-side promotion.",
+    "description": "Bind one executable Trinity action to one proof-kernel causal atom.\n\n``InterventionAtomBinding`` is a bridge over existing halves, not a second\nintervention hierarchy. The Trinity side remains ``InterventionSpec`` plus\n``LinkedIntervention`` slots. The proof-kernel side remains a typed\n``InterventionExpr``, ``QueryTarget``, and ``InterventionIdentificationPlan``.\nThis artifact records only the content correspondence needed by the\ngeneration cycle: same selector context, same written world slot, consistent\noperator kind, authoritative estimand, forward world-model reference, and a\ntime-invariant content hash.\n\nAttributes:\n    atom_id: Stable atom identifier derived from the content hash.\n    problem_frame_ref: ProblemFrame or DesignProblem reference.\n    policy_spec_ref: PolicySpec or Trinity bundle reference.\n    intervention_id: Trinity intervention id.\n    operator_kind: Trinity mechanism kind plus proof-kernel type.\n    target_selector: Trinity selector and population projection.\n    target_world_slots: Linker-resolved slots written by the action.\n    read_slots: Linker-resolved slots read by the action.\n    direct_effect_bundle: Trinity direct-effect projection.\n    causal_do_expr: Proof-kernel intervention expression projection.\n    intended_downstream_estimand: Authoritative QueryTarget projection.\n    causal_path_or_identification_plan_ref: Identification plan projection.\n    world_model_record_ref: Forward hook to the future WorldModelRecord.\n    measurement_expectations: Retained Trinity free-form metadata.\n    measurement_expectations_authority: Always supporting metadata.\n    normalized_from: Certificate-bound supporting normalization provenance.\n    content_hash: Time-invariant hash over the content-bound fields.\n    producer_ref: Producer that emitted this atom candidate.\n    provenance_refs: Upstream Trinity/proof-kernel provenance references.\n    status: Lifecycle state for A-side promotion.",
     "properties": {
       "atom_id": {
         "pattern": "^atom_[a-f0-9]{16}$",
@@ -513,6 +572,17 @@
         "default": "supporting_metadata",
         "title": "Measurement Expectations Authority",
         "type": "string"
+      },
+      "normalized_from": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/AtomNormalizationRecord"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null
       },
       "operator_kind": {
         "$ref": "#/$defs/OperatorKind"
@@ -602,8 +672,27 @@
     "type": "object"
   },
   "measurement_expectations_authority": "supporting_metadata",
+  "normalization_provenance": {
+    "authority": "supporting_metadata_only",
+    "field": "normalized_from",
+    "may_not_use_for": [
+      "grounding_relation",
+      "grounding_bind",
+      "grounding_admission",
+      "simulation_input",
+      "value_authority",
+      "promotion_authority"
+    ],
+    "owner_type": "AtomNormalizationRecord"
+  },
   "owner": "polisyos.runtime.quality.intervention_atom_binding.InterventionAtomBinding",
   "producer": "build_intervention_atom_binding",
   "schema_version": "policyos.policy_design_case.layer3_gy.intervention_atom_binding_contract.v1",
+  "source_flip_mutation_harness": {
+    "mode": "--source-flip-mutations",
+    "mutation_ids": [
+      "source_flip_normalized_from_used_as_authority"
+    ]
+  },
   "source_module": "src/polisyos/runtime/quality/intervention_atom_binding.py"
 }

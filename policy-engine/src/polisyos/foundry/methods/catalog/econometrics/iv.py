@@ -45,11 +45,11 @@ def _materialize_iv_data(bound_inputs: Mapping[str, Any], fallback_state: Any) -
 def _iv_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {
-            SlotSpec(
+            SlotSpec.for_output_contract(
                 name="result",
                 slot_type=SlotType.SCALAR,
                 unit=Unit("result", "json"),
-                contract_id=EconometricResult.contract_id,
+                output_contract=EconometricResult,
             ),
             SlotSpec(
                 name="uncertainty_envelope",

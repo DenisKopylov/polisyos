@@ -21,6 +21,7 @@ from tools.quality.validation import run_universal_outcome_corpus as w12d
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 S8_MANIFEST = REPO_ROOT / "architecture/policy_design_case/layer2_s8_value_choice_manifest.json"
+S2_MANIFEST = REPO_ROOT / "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
 S8_MANIFEST_PATH = "architecture/policy_design_case/layer2_s8_value_choice_manifest.json"
 PDC_DESIGN_SEARCH = REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
 S8_VALUE_CHOICE_PRODUCER = REPO_ROOT / "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py"
@@ -114,10 +115,16 @@ def _posture_from_s8_block(block: dict[str, Any]) -> Layer2S8ValuePostureInput:
 
 
 def _s2_input() -> Layer2S2DesignSearchInput:
+    candidate_space = json.loads(S2_MANIFEST.read_text(encoding="utf-8"))["candidate_space"]
     return Layer2S2DesignSearchInput(
         case_id="ua-msme-affordable-loans-2022",
         intent_ref="repo://architecture/policy_design_case/layer2_first_proving_case.json",
         grammar_ref="repo://src/polisyos/policy_grammar",
+        instrument_families=tuple(candidate_space["instrument_families"]),
+        parameter_space={
+            str(dimension): tuple(values)
+            for dimension, values in candidate_space["parameter_space"].items()
+        },
         actor_ref="actor://ua/ministry-of-economy",
         domain="ukrainian_msme_credit",
         objective_refs=(

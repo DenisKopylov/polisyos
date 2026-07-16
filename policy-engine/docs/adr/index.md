@@ -9,7 +9,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | Status | Count |
 | --- | --- |
 | `accepted` | 87 |
-| `approved` | 6 |
+| `approved` | 7 |
 | `completed` | 1 |
 | `proposed` | 91 |
 | `superseded` | 1 |
@@ -118,6 +118,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | [ADR-045](ADR-045-glyph-alphabet-limit-10.md) | `approved` | `frontend` | `frontend` | Closed Glyph Alphabet — Ten Radicals | ADR-042, ADR-046 |
 | [ADR-046](ADR-046-authored-text-registry.md) | `approved` | `frontend` | `repository` | Authored Text Registry | ADR-042, ADR-043 |
 | [ADR-047](ADR-047-atlas-v4-dark-theme-canonicalization.md) | `approved` | `frontend` | `frontend` | Atlas v4 dark theme canonicalization | - |
+| [ADR-048](ADR-048-native-value-projection-capability.md) | `approved` | `schemas` | `polisyos.foundry` | Native value projection is a two-sided output-contract capability | - |
 
 ### completed
 

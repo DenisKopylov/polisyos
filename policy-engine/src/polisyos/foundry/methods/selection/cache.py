@@ -61,7 +61,7 @@ __all__ = [
     "RegistryPersistenceLayer",
 ]
 
-_SCHEMA_VERSION = "2"
+_SCHEMA_VERSION = "3"
 
 _CREATE_META = """
 CREATE TABLE IF NOT EXISTS _meta (
@@ -222,6 +222,9 @@ class RegistryPersistenceLayer:
 
         Returns the number of entries restored.
         """
+        if not self.is_cache_valid():
+            return 0
+
         rows = self._fetch_all_entries()
         restored = 0
 
@@ -406,12 +409,18 @@ def _unit_from_payload(payload: dict[str, Any]):
 
 def _slot_from_payload(payload: dict[str, Any]):
     from polisyos.foundry.methods.base import SlotSpec, SlotType
+    from polisyos.ir.analytics.uncertainty import OutputContractCapability
 
     return SlotSpec(
         name=str(payload["name"]),
         slot_type=SlotType[str(payload["slot_type"])],
         unit=_unit_from_payload(payload["unit"]),
         contract_id=payload.get("contract_id"),
+        contract_capabilities=frozenset(
+            OutputContractCapability(str(item))
+            for item in payload.get("contract_capabilities", ())
+        ),
+        contract_owner=payload.get("contract_owner"),
         shape=tuple(_dim_from_payload(item) for item in payload.get("shape", [])),
     )
 

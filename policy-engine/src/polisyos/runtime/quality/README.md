@@ -72,3 +72,7 @@ Workspace ownership:
 - `workspace/agent_proposal_bridge.py` is a thin GY projection over `proving_ground/bounded_request_agent.py` and the
   existing knowledge-tool/tool-loop homes. Agent outputs remain Ring-1
   candidate-only; VOI/usefulness scores pass through GY-H normalization.
+- `cycle_substrate.py` owns the content-bound candidate-evidence envelope shared
+  by one generation-cycle run. It binds canonical substrate-registry, world,
+  intervention, lever, and transport evidence without loading packs by filename
+  or granting grounding, transport, or promotion authority.

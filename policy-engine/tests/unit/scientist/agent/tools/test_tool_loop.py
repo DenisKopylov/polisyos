@@ -9,6 +9,7 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.agent.persistent_memory import PersistentMemoryStore
 from polisyos.scientist.agent.reflexion_evaluator import (
@@ -164,6 +165,34 @@ class TestParseToolCalls:
         assert degraded_events
         assert degraded_events[0]["component"] == "agent.tool_loop"
         assert degraded_events[0]["operation"] == "parse_tool_calls"
+        assert degraded_events[0]["reason"] == "tool_arguments_parse_failed"
+
+    def test_wrapped_arguments_json_remains_strict(self):
+        degraded_events: list[dict[str, Any]] = []
+        response = MockResponse(
+            tool_calls=None,
+            raw={
+                "choices": [
+                    {
+                        "message": {
+                            "tool_calls": [
+                                {
+                                    "id": "tc-wrapped",
+                                    "function": {
+                                        "name": "echo",
+                                        "arguments": '<think>x</think>{"text":"raw"}',
+                                    },
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+        )
+
+        calls = parse_tool_calls_from_response(response, degraded_events=degraded_events)
+
+        assert calls[0].arguments == {}
         assert degraded_events[0]["reason"] == "tool_arguments_parse_failed"
 
 

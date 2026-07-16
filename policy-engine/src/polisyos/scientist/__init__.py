@@ -14,6 +14,7 @@ import importlib
 from typing import Any
 
 __all__ = [
+    "BudgetState",
     "ExperimentState",
     "KnowledgeToolkit",
     "ToolContractSummary",
@@ -34,6 +35,7 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "BudgetState": ("polisyos.scientist.orchestration.engine.budget", "BudgetState"),
     "ExperimentState": ("polisyos.scientist.orchestration.engine.state", "ExperimentState"),
     "KnowledgeToolkit": ("polisyos.scientist.agent.knowledge_tools", "KnowledgeToolkit"),
     "ToolContractSummary": ("polisyos.scientist.agent.tool_contracts", "ToolContractSummary"),

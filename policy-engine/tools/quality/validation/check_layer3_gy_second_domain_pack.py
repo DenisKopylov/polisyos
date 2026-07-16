@@ -15,16 +15,19 @@ import copy
 import hashlib
 import json
 import math
+import os
+import re
 import subprocess
 import sys
 import time
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Iterator, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from decimal import Decimal
+from functools import lru_cache
 from pathlib import Path
-from types import SimpleNamespace
 from typing import Any
 
 import duckdb
@@ -46,6 +49,19 @@ from polisyos.runtime.quality.acquisition_planner import (
     run_acquisition_closed_loop,
     validate_acquisition_receipt,
 )
+from polisyos.runtime.quality.cycle_substrate import (
+    CandidateLeverEvidence,
+    CycleSubstrateContext,
+    TransportContextEvidence,
+    TransportCovariateObservation,
+    build_cycle_substrate_context,
+    cycle_substrate_context_binding_hash,
+)
+from polisyos.runtime.quality.design_generation import (
+    DesignGenerationOrganRun,
+    EffectiveGenerationRuntimeConfig,
+    generate_design_candidate_bundle_under_a,
+)
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
     CandidateLever,
@@ -63,20 +79,31 @@ from polisyos.runtime.quality.design_problem import (
 from polisyos.runtime.quality.generation_cycle import (
     GenerationCycleController,
     GenerationCycleRun,
+    _build_boundary_world_model_record,
+    is_value_panel_shape,
     validate_generation_cycle_run,
 )
 from polisyos.runtime.quality.grounding_admission import GroundingAdmissionLedger
 from polisyos.runtime.quality.intervention_substrate import (
+    InterventionLeverRefusal,
+    InterventionSubstrateBundle,
     InterventionSubstrateError,
     load_l6_intervention_substrate,
     resolve_intervention_lever,
 )
 from polisyos.runtime.quality.substrate_registry import (
     DEFAULT_L2_SCHOLAR_KG_PATH,
+    SubstrateRegistry,
+    build_substrate_registry,
     build_substrate_registry_from_existing_catalogs,
     default_substrate_catalog_paths,
 )
+from polisyos.runtime.quality.world_model_record import WorldModelRecord
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from tools.quality.validation.check_layer3_gy_design_generation_contract import (
+    RecordedGenerationReplayClient,
+    _recorded_runtime_environment_values,
+)
 
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"
 RULE_VERSION = "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1"
@@ -86,6 +113,39 @@ PACK_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_pack.json
 SMOKE_PROBLEM_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json"
 CYCLE_TRACE_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json"
 GAP_REPORT_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json"
+N4_CAPTURE_MODEL_ID = "moonshotai/Kimi-K2.6"
+_N4_LIVE_CAPTURE_ENV = {
+    "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "300",
+    "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "3",
+    "POLISYOS_DRAFTER_PASS_TIMEOUT_S": "300",
+    "POLISYOS_DRAFTER_PASS_RETRY_COUNT": "3",
+    "POLISYOS_FORMALIZER_LLM_TIMEOUT_S": "300",
+    "POLISYOS_FORMALIZER_LLM_RETRIES": "5",
+    "POLISYOS_CRITIC_LLM_TIMEOUT_S": "300",
+    "POLISYOS_CRITIC_LLM_RETRIES": "5",
+    "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": "2",
+    "POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S": "10",
+    "POLISYOS_N4_PREWARM_CG1_INDEX": "1",
+    "POLISYOS_LLM_CACHE_TTL_S": "300",
+    "POLISYOS_LLM_CACHE_MAXSIZE": "128",
+    "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
+}
+N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
+N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
+_SUBSTRATE_REGISTRY_OWNER = "runtime.quality.substrate_registry"
+_SUBSTRATE_REGISTRY_PRODUCER = (
+    "polisyos.runtime.quality.substrate_registry."
+    "build_substrate_registry_from_existing_catalogs"
+)
+_CYCLE_SUBSTRATE_MUTATION_EXPECTED_CODES = {
+    "coordinated_query_rewrite": "cycle_substrate_registry_query_census_mismatch",
+    "coherent_registry_forgery": "cycle_substrate_registry_owner_rederive_mismatch",
+    "registry_version_rewrite": "cycle_substrate_registry_version_id_mismatch",
+    "lever_registry_binding_rewrite": "cycle_substrate_lever_registry_binding_mismatch",
+    "alternate_valid_l2_repoint": (
+        "cycle_substrate_registry_selected_entry_not_query_owner"
+    ),
+}
 
 ARTIFACT_OUTPUTS = (
     CENSUS_OUTPUT,
@@ -186,6 +246,17 @@ class GapWitnessSpec:
     symbol: str
 
 
+@dataclass(frozen=True)
+class HistoricalL2QueryEvidence:
+    """Immutable N10a census evidence for the selected L2 owner query."""
+
+    candidate_id: str
+    query_id: str
+    query_content_hash: str
+    response_content_hash: str
+    owner_query_source_ref: str
+
+
 GAP_WITNESS_SPECS: dict[str, GapWitnessSpec] = {
     "s0_to_l6_world_slot_bridge_missing": GapWitnessSpec(
         source_path="src/polisyos/runtime/quality/intervention_substrate.py",
@@ -218,14 +289,62 @@ GAP_WITNESS_SPECS: dict[str, GapWitnessSpec] = {
 }
 
 
-class _UnavailableOwnerGenerationPort:
-    """Return an owner-unavailable result so N6 exercises its real fallback path."""
+class _RecordedN4OwnerPort:
+    """Replay a content-bound gateway capture through the canonical N4 owner."""
 
-    async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> object:
-        """Preserve a typed N4-unavailable condition without fabricating a candidate."""
+    def __init__(
+        self,
+        *,
+        repo_root: Path,
+        cycle_substrate_context: CycleSubstrateContext,
+        capture: Mapping[str, Any],
+        cached_organ_run: DesignGenerationOrganRun | None = None,
+    ) -> None:
+        self._repo_root = repo_root
+        self._cycle_substrate_context = cycle_substrate_context
+        self._capture = copy.deepcopy(dict(capture))
+        self._cached_organ_run = cached_organ_run
+        self.last_organ_run: DesignGenerationOrganRun | None = None
 
-        del problem, cycle_index
-        return SimpleNamespace(status="generation_unavailable", candidates=(), surrogate_rankings=())
+    async def __call__(
+        self,
+        problem: DesignProblem,
+        *,
+        cycle_index: int,
+    ) -> object:
+        """Invoke the real owner with recorded raw responses and effective config."""
+
+        del cycle_index
+        if self._cached_organ_run is not None:
+            organ_run = self._cached_organ_run
+            self._cached_organ_run = None
+            if _n4_owner_result_projection(organ_run) != _mapping(
+                self._capture.get("owner_result_projection")
+            ):
+                raise ValueError("education_n4_owner_cached_result_drift")
+            self.last_organ_run = organ_run
+            return organ_run.result
+        client = RecordedGenerationReplayClient(self._capture)
+        with _n4_recorded_runtime_environment(self._capture):
+            organ_run = await generate_design_candidate_bundle_under_a(
+                problem,
+                model_id=str(self._capture.get("model_id") or ""),
+                llm_client=client,
+                repo_root=self._repo_root,
+                cycle_substrate_context=self._cycle_substrate_context,
+            )
+        self.last_organ_run = organ_run
+        return organ_run.result
+
+
+_CYCLE_TRACE_CACHE: dict[tuple[str, str, str, str], dict[str, Any]] = {}
+
+
+@lru_cache(maxsize=4)
+def _cached_owner_substrate_registry(repo_root: str) -> SubstrateRegistry:
+    """Build the canonical S0 registry once per checkout for E1 reuse."""
+
+    return build_substrate_registry_from_existing_catalogs(Path(repo_root))
 
 
 def declared_outputs() -> list[str]:
@@ -234,7 +353,12 @@ def declared_outputs() -> list[str]:
     return list(ARTIFACT_OUTPUTS)
 
 
-def build_live_bundle(repo_root: Path) -> dict[str, Any]:
+def build_live_bundle(
+    repo_root: Path,
+    *,
+    allow_live_n4_capture: bool = False,
+    n4_capture_journal: Path | None = None,
+) -> dict[str, Any]:
     """Re-derive the complete pack from DCAT, SKG, S0/L6, and N6 owners."""
 
     started = time.monotonic()
@@ -243,11 +367,36 @@ def build_live_bundle(repo_root: Path) -> dict[str, Any]:
     query_timings: dict[str, float] = {}
     census = _build_census(root, paths, query_timings)
     source_facts = _build_selected_domain_facts(root, paths, census, query_timings)
-    source_facts["n7_attempt"] = _run_n7_live_attempt(root, source_facts)
+    source_facts["n7_attempt"] = _load_historical_n7_attempt(
+        root,
+        source_facts,
+    ) or _run_n7_live_attempt(root, source_facts)
+    substrate_input = _build_cycle_substrate_input_projection(census, source_facts)
     smoke_problem = _build_smoke_problem(census, source_facts)
-    cycle_trace = _build_cycle_trace(root, smoke_problem)
+    problem = DesignProblem.model_validate(smoke_problem["design_problem"])
+    cycle_substrate_context = _build_live_cycle_substrate_context(
+        root,
+        census=census,
+        substrate_input=substrate_input,
+        design_problem=problem,
+    )
+    cycle_trace = _build_cycle_trace(
+        root,
+        smoke_problem,
+        cycle_substrate_context=cycle_substrate_context,
+        allow_live_n4_capture=allow_live_n4_capture,
+        n4_capture_journal=n4_capture_journal,
+    )
     gaps = _build_gap_report(root, source_facts, cycle_trace)
-    pack = _build_pack(root, census, source_facts, smoke_problem, cycle_trace, gaps)
+    pack = _build_pack(
+        root,
+        census,
+        source_facts,
+        smoke_problem,
+        cycle_trace,
+        gaps,
+        substrate_input,
+    )
     return {
         "census": census,
         "pack": pack,
@@ -292,12 +441,14 @@ def validate_bundle_payloads(bundle: Mapping[str, Any], repo_root: Path) -> list
         issues.append({"code": "pack_gap_report_ref_drift"})
 
     _validate_census_selection(census, issues)
+    _validate_cycle_substrate_registry(root, census, pack, issues)
     _validate_owner_derived_entries(census, pack, issues)
-    _validate_n7_attempt(pack, issues)
+    _validate_n7_attempt(root, pack, issues)
     _validate_distinctness(root, pack, issues)
     _validate_coverage_denominators(census, pack, gaps, issues)
     _validate_gap_witnesses(root, gaps, issues)
     _validate_smoke_terminal(smoke_problem, cycle_trace, issues)
+    _validate_stage_1_cycle_receipts(root, pack, cycle_trace, gaps, issues)
     _validate_zero_engine_code(root, pack, issues)
     return issues
 
@@ -406,15 +557,36 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     transport_component["covariates"] = covariates
     components["transport_context"] = transport_component
     corrupted["pack"]["components"] = components
-    cycle_run = _mapping(corrupted["cycle_trace"].get("generation_cycle_run"))
-    trace_cycles = _list_of_mappings(
-        cycle_run.get("cycles")
+    registry_owner = _mapping(
+        _mapping(corrupted["pack"].get("owner_query_results")).get("s0_registry")
     )
-    if trace_cycles:
-        trace_cycles[0]["terminal_kind"] = "crash"
-    cycle_run["cycles"] = trace_cycles
-    corrupted["cycle_trace"]["generation_cycle_run"] = cycle_run
+    registry_payload = _mapping(registry_owner.get("registry_payload"))
+    registry_entries = _list_of_mappings(registry_payload.get("entries"))
+    if registry_entries:
+        registry_entries[0]["family_id"] = "corrupt_drift_shaped_family"
+        registry_payload["entries"] = registry_entries
+        registry_owner["registry_payload"] = registry_payload
+        corrupted["pack"]["owner_query_results"]["s0_registry"] = registry_owner
+    addressing = _mapping(corrupted["pack"].get("content_addressing"))
+    addressing["historical_source_pack_content_hash"] = corrupted["pack"].get(
+        "manifest_content_hash"
+    )
+    corrupted["pack"]["content_addressing"] = addressing
+    corrupted["cycle_trace"]["execution_status"] = "crashed"
+    stage_attempts = _mapping(corrupted["cycle_trace"].get("stage_attempts"))
+    stage_generation = _mapping(stage_attempts.get("generation"))
+    stage_generation["generation_channel"] = "grammar_fallback"
+    stage_attempts["generation"] = stage_generation
+    stage_grounding = _mapping(stage_attempts.get("grounding"))
+    stage_grounding["lever_resolution_content_hash"] = "sha256:" + "0" * 64
+    stage_grounding["context_binding_hash"] = "sha256:" + "7" * 64
+    stage_attempts["grounding"] = stage_grounding
+    stage_world = _mapping(stage_attempts.get("world_model"))
+    stage_world["object_identity_reused"] = False
+    stage_attempts["world_model"] = stage_world
+    corrupted["cycle_trace"]["stage_attempts"] = stage_attempts
     code_scope = _mapping(corrupted["pack"].get("zero_engine_code"))
+    code_scope["proof_head_commit"] = "HEAD"
     code_scope["changed_engine_paths"] = [
         "src/polisyos/runtime/quality/fabricated.py"
     ]
@@ -426,6 +598,14 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     n7_attempt["receipt_content"] = receipt_content
     n7_attempt["receipt_content_hash"] = _hash(receipt_content)
     corrupted["pack"]["n7_acquisition"] = n7_attempt
+    n7_operational = _mapping(
+        _mapping(corrupted["pack"].get("runtime_metrics")).get("n7_acquisition")
+    )
+    n7_operational["receipt"] = _reconstruct_n7_receipt_payload(
+        receipt_content,
+        n7_operational,
+    )
+    corrupted["pack"]["runtime_metrics"]["n7_acquisition"] = n7_operational
     gap_records = _list_of_mappings(corrupted["gaps"].get("gaps"))
     if gap_records:
         first_witness = _mapping(_mapping(gap_records[0].get("owner_evidence")).get("seam_witness"))
@@ -448,42 +628,312 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
     corrupted["pack"]["gap_report_content_hash"] = corrupted["gaps"][
         "gap_report_content_hash"
     ]
+    corrupted["cycle_trace"] = _with_content_hash(
+        corrupted["cycle_trace"],
+        "trace_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    corrupted["pack"]["cycle_trace_content_hash"] = corrupted["cycle_trace"][
+        "trace_content_hash"
+    ]
     corrupted["pack"] = _with_content_hash(
         corrupted["pack"],
         "manifest_content_hash",
         excluded_fields=("runtime_metrics",),
     )
     issues = validate_bundle_payloads(corrupted, root)
-    codes = sorted({str(issue.get("code")) for issue in issues if issue.get("code")})
+    mutation_results: list[dict[str, Any]] = []
+    per_mutation_missing: set[str] = set()
+    all_issues = list(issues)
+    for mutation_id, mutation in _cycle_substrate_corruption_bundles(bundle):
+        mutation_issues = validate_bundle_payloads(mutation, root)
+        mutation_codes = sorted(
+            {
+                str(issue.get("code"))
+                for issue in mutation_issues
+                if issue.get("code")
+            }
+        )
+        mutation_results.append(
+            {"mutation_id": mutation_id, "detected_codes": mutation_codes}
+        )
+        expected_mutation_code = _CYCLE_SUBSTRATE_MUTATION_EXPECTED_CODES.get(
+            mutation_id
+        )
+        if expected_mutation_code is None:
+            per_mutation_missing.add(f"{mutation_id}:mutation_expectation_missing")
+        elif expected_mutation_code not in mutation_codes:
+            per_mutation_missing.add(f"{mutation_id}:{expected_mutation_code}")
+        all_issues.extend(mutation_issues)
+    codes = sorted(
+        {str(issue.get("code")) for issue in all_issues if issue.get("code")}
+    )
     expected = {
         "pack_entry_not_owner_derived",
         "pack_entry_owner_projection_drift",
         "distinctness_lever_overlap",
         "distinctness_outcome_overlap",
-        "distinctness_covariate_overlap",
+        "transport_context_denominator_invalid",
         "smoke_terminal_not_honest",
+        "historical_receipt_rebased_to_moving_head",
         "free_grow_violated_by_code_change",
         "free_grow_violated_by_scope_change",
         "capture_time_content_bound",
         "source_hash_checkout_path_dependent",
         "gap_witness_target_missing",
+        "cycle_substrate_registry_payload_invalid",
+        "cycle_substrate_registry_owner_rederive_mismatch",
+        "cycle_substrate_registry_query_census_mismatch",
+        "cycle_substrate_registry_version_id_mismatch",
+        "cycle_substrate_lever_registry_binding_mismatch",
+        "cycle_substrate_registry_selected_entry_not_query_owner",
+        "cycle_substrate_input_content_hash_mismatch",
+        "historical_source_pack_content_hash_mismatch",
+        "n7_attempt_input_content_hash_mismatch",
+        "n7_operational_receipt_duplicate",
+        "cycle_generation_fell_back_from_n4_owner",
+        "stage_grounding_receipt_drift",
+        "stage_world_model_identity_receipt_missing",
     }
-    missing = sorted(expected.difference(codes))
+    missing = sorted(expected.difference(codes).union(per_mutation_missing))
     if missing:
         issues.append({"code": "corrupt_field_drift_not_detected", "missing": missing})
     return {
         "status": "fail" if not missing else "pass",
         "issues": [{"code": "corrupt_field_drift_detected", "detected": codes}, *issues],
+        "cycle_substrate_mutation_results": mutation_results,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
 
 
-def write(repo_root: Path) -> dict[str, Any]:
+def _cycle_substrate_corruption_bundles(
+    bundle: Mapping[str, Any],
+) -> list[tuple[str, dict[str, Any]]]:
+    """Build isolated coherent mutations for each cycle-substrate trust edge."""
+
+    mutations: list[tuple[str, dict[str, Any]]] = []
+
+    query_rewrite = copy.deepcopy(bundle)
+    query_pack = query_rewrite["pack"]
+    query = query_pack["owner_query_results"]["l2_selected_levers"]
+    original_query_id = query["query_id"]
+    shaped_query_id = "coordinated_shaped_query"
+    owner_query = query_rewrite["census"]["owner_queries"].pop(original_query_id)
+    owner_query["query_id"] = shaped_query_id
+    owner_query["sql"] += "\n-- coordinated query rewrite"
+    owner_query["query_content_hash"] = _hash(
+        {
+            "sql": owner_query["sql"],
+            "parameters": _json_value(owner_query["parameters"]),
+        }
+    )
+    query_rewrite["census"]["owner_queries"][shaped_query_id] = owner_query
+    query.update(
+        {
+            "query_id": shaped_query_id,
+            "query_content_hash": owner_query["query_content_hash"],
+            "response_content_hash": owner_query["response_content_hash"],
+        }
+    )
+    chosen = query_pack["selected_domain"]
+    census_query = query_rewrite["census"]["candidates"][chosen]["l2_scholar_kg"]
+    census_query.update(
+        {
+            "query_id": query["query_id"],
+            "query_content_hash": query["query_content_hash"],
+            "response_content_hash": query["response_content_hash"],
+        }
+    )
+    query_rewrite["census"] = _with_content_hash(
+        query_rewrite["census"],
+        "census_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    query_pack["census_content_hash"] = query_rewrite["census"][
+        "census_content_hash"
+    ]
+    selection = query_pack["components"]["substrate_registry"][
+        "selection_evidence"
+    ]
+    selection.update(
+        {
+            "query_id": query["query_id"],
+            "query_content_hash": query["query_content_hash"],
+            "query_response_content_hash": query["response_content_hash"],
+        }
+    )
+    query_pack["components"]["grounding_reference_coverage"]["owner_query"] = {
+        "query_id": query["query_id"],
+        "query_content_hash": query["query_content_hash"],
+        "response_content_hash": query["response_content_hash"],
+    }
+    for lever in query_pack["components"]["lever_vocabulary"]["entries"]:
+        lever["owner_evidence"].update(
+            {
+                "query_id": query["query_id"],
+                "query_content_hash": query["query_content_hash"],
+                "query_response_content_hash": query["response_content_hash"],
+            }
+        )
+        rehashed = _with_content_hash(lever, "entry_content_hash")
+        lever.clear()
+        lever.update(rehashed)
+    _rehash_cycle_substrate_mutation(query_rewrite)
+    mutations.append(("coordinated_query_rewrite", query_rewrite))
+
+    forged_owner = copy.deepcopy(bundle)
+    forged_pack = forged_owner["pack"]
+    registry = SubstrateRegistry.model_validate(
+        forged_pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected = set(
+        forged_pack["components"]["substrate_registry"]["selected_entry_hashes"]
+    )
+    removable = next(
+        entry for entry in registry.entries if entry.entry_content_hash not in selected
+    )
+    forged_registry = build_substrate_registry(
+        (entry for entry in registry.entries if entry != removable),
+        producer_ref=registry.producer_ref,
+        source_catalog_refs=registry.source_catalog_refs,
+    )
+    registry_owner = forged_pack["owner_query_results"]["s0_registry"]
+    registry_owner.update(
+        {
+            "registry_payload": forged_registry.model_dump(mode="json"),
+            "content_hash": forged_registry.content_hash,
+            "substrate_version_id": forged_registry.substrate_version_id,
+        }
+    )
+    registry_component = forged_pack["components"]["substrate_registry"]
+    registry_component.update(
+        {
+            "content_hash": forged_registry.content_hash,
+            "substrate_version_id": forged_registry.substrate_version_id,
+        }
+    )
+    forged_pack["components"]["owner_writability"]["s0_registry_content_hash"] = (
+        forged_registry.content_hash
+    )
+    _rehash_cycle_substrate_mutation(forged_owner)
+    mutations.append(("coherent_registry_forgery", forged_owner))
+
+    version_rewrite = copy.deepcopy(bundle)
+    version_pack = version_rewrite["pack"]
+    shaped_version = "substrate_version_ffffffffffffffff"
+    version_pack["owner_query_results"]["s0_registry"][
+        "substrate_version_id"
+    ] = shaped_version
+    version_pack["owner_query_results"]["s0_registry"]["registry_payload"][
+        "substrate_version_id"
+    ] = shaped_version
+    version_pack["components"]["substrate_registry"][
+        "substrate_version_id"
+    ] = shaped_version
+    _rehash_cycle_substrate_mutation(version_rewrite)
+    mutations.append(("registry_version_rewrite", version_rewrite))
+
+    lever_rewrite = copy.deepcopy(bundle)
+    lever_pack = lever_rewrite["pack"]
+    lever = lever_pack["components"]["lever_vocabulary"]["entries"][0]
+    lever["selected_registry_entry_hash"] = "sha256:" + "0" * 64
+    rehashed_lever = _with_content_hash(lever, "entry_content_hash")
+    lever.clear()
+    lever.update(rehashed_lever)
+    _rehash_cycle_substrate_mutation(lever_rewrite)
+    mutations.append(("lever_registry_binding_rewrite", lever_rewrite))
+
+    alternate_l2 = copy.deepcopy(bundle)
+    alternate_pack = alternate_l2["pack"]
+    alternate_registry = SubstrateRegistry.model_validate(
+        alternate_pack["owner_query_results"]["s0_registry"]["registry_payload"]
+    )
+    selected_hash = alternate_pack["components"]["substrate_registry"][
+        "selected_entry_hashes"
+    ][0]
+    other_l2 = next(
+        entry
+        for entry in alternate_registry.entries
+        if entry.layer.value == "L2" and entry.entry_content_hash != selected_hash
+    )
+    other_source_ref = next(
+        ref.split("#", 1)[0]
+        for ref in (*other_l2.provenance_refs, *other_l2.authority_refs)
+        if ref.startswith("repo://")
+    )
+    alternate_pack["components"]["substrate_registry"][
+        "selected_entry_hashes"
+    ] = [other_l2.entry_content_hash]
+    alternate_pack["components"]["substrate_registry"]["selection_evidence"][
+        "owner_query_source_ref"
+    ] = other_source_ref
+    alternate_pack["owner_query_results"]["l2_selected_levers"][
+        "owner_query_source_ref"
+    ] = other_source_ref
+    alternate_chosen = alternate_pack["selected_domain"]
+    alternate_l2["census"]["candidates"][alternate_chosen]["l2_scholar_kg"][
+        "owner_query_source_ref"
+    ] = other_source_ref
+    alternate_l2["census"] = _with_content_hash(
+        alternate_l2["census"],
+        "census_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    alternate_pack["census_content_hash"] = alternate_l2["census"][
+        "census_content_hash"
+    ]
+    for lever in alternate_pack["components"]["lever_vocabulary"]["entries"]:
+        lever["selected_registry_entry_hash"] = other_l2.entry_content_hash
+        rehashed = _with_content_hash(lever, "entry_content_hash")
+        lever.clear()
+        lever.update(rehashed)
+    _rehash_cycle_substrate_mutation(alternate_l2)
+    mutations.append(("alternate_valid_l2_repoint", alternate_l2))
+
+    return mutations
+
+
+def _rehash_cycle_substrate_mutation(bundle: dict[str, Any]) -> None:
+    """Refresh only hashes downstream of a coherent cycle-substrate mutation."""
+
+    pack = bundle["pack"]
+    pack["content_addressing"]["substrate_input_content_hash"] = (
+        second_domain_substrate_input_content_hash(pack)
+    )
+    bundle["pack"] = _with_content_hash(
+        pack,
+        "manifest_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+
+
+def write(
+    repo_root: Path,
+    *,
+    allow_live_n4_capture: bool = False,
+    n4_capture_journal: Path | None = None,
+) -> dict[str, Any]:
     """Write byte-stable generated artifacts after owner rederivation."""
 
+    started = time.monotonic()
     root = repo_root.resolve()
-    bundle = build_live_bundle(root)
+    bundle = build_live_bundle(
+        root,
+        allow_live_n4_capture=allow_live_n4_capture,
+        n4_capture_journal=n4_capture_journal,
+    )
     _preserve_frozen_operational_metrics(bundle, root)
+    issues = validate_bundle_payloads(bundle, root)
+    if issues:
+        return {
+            "status": "fail",
+            "issues": issues,
+            "outputs": declared_outputs(),
+            "query_timings_seconds": _mapping(
+                bundle["runtime_metrics"].get("query_timings_seconds")
+            ),
+            "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
+        }
     by_path = {
         CENSUS_OUTPUT: bundle["census"],
         PACK_OUTPUT: bundle["pack"],
@@ -495,12 +945,12 @@ def write(repo_root: Path) -> dict[str, Any]:
         path = root / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
-    issues = validate_bundle_payloads(bundle, root)
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
         "outputs": declared_outputs(),
         "query_timings_seconds": _mapping(bundle["runtime_metrics"].get("query_timings_seconds")),
+        "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
 
 
@@ -524,10 +974,13 @@ def _build_census(
     comparator = _first_vertical_comparator(root)
     l1_rows, l1_query = _l1_candidate_aggregate(paths["l1_dcat"], query_timings)
     l2_rows, l2_query = _l2_candidate_aggregate(paths["l2_skg"], query_timings)
+    l2_query["owner_query_source_ref"] = (
+        "repo://" + _repo_relative_mounted_evidence_path(paths["l2_skg"], root)
+    )
     l2_measure_names, l2_measure_query = _l2_candidate_measure_names(
         paths["l2_skg"], query_timings
     )
-    registry = build_substrate_registry_from_existing_catalogs(root)
+    registry = _cached_owner_substrate_registry(root.as_posix())
     l6_bundle = load_l6_intervention_substrate(root)
     cg3_application_scope = str(
         GroundingAdmissionLedger.model_fields["application_scope"].default
@@ -591,6 +1044,7 @@ def _build_census(
                 "query_id": l2_query["query_id"],
                 "query_content_hash": l2_query["query_content_hash"],
                 "response_content_hash": l2_query["response_content_hash"],
+                "owner_query_source_ref": l2_query["owner_query_source_ref"],
                 **l2,
             },
             "lever_feasibility": lever_feasibility,
@@ -606,6 +1060,9 @@ def _build_census(
                 "method_family": "non_panel" if nonpanel_count else "panel_only",
                 "not_ua_single_unit": all(int(row["geographic_units"]) > 1 for row in rows),
                 "transport_covariate_check": {
+                    "comparison_status": comparator[
+                        "transport_comparison_status"
+                    ],
                     "jointly_measured_transport_canonical_vars": transport_vars,
                     "first_vertical_overlap": sorted(
                         set(transport_vars).intersection(
@@ -681,32 +1138,59 @@ def _l1_candidate_aggregate(
         {item for spec in _CANDIDATE_SPECS.values() for item in spec["l1_canonical_vars"]}
     )
     sql = """
-SELECT
+WITH base AS (
+  SELECT
+    canonical_var,
+    dataset_id,
+    country_code,
+    COALESCE(year, survey_year) AS period_id,
+    condition_json
+  FROM ds_observations
+  WHERE canonical_var = ANY(?)
+),
+aggregated AS (
+  SELECT
   canonical_var,
   COUNT(*) AS observations,
   COUNT(DISTINCT dataset_id) AS datasets,
   COUNT(DISTINCT country_code)
     FILTER (WHERE country_code IS NOT NULL AND country_code <> '') AS geographic_units,
-  COUNT(DISTINCT COALESCE(year, survey_year))
-    FILTER (WHERE COALESCE(year, survey_year) IS NOT NULL) AS periods,
-  MIN(COALESCE(year, survey_year)) AS min_period,
-  MAX(COALESCE(year, survey_year)) AS max_period,
+  COUNT(DISTINCT period_id)
+    FILTER (WHERE period_id IS NOT NULL) AS periods,
+  MIN(period_id) AS min_period,
+  MAX(period_id) AS max_period,
   COUNT(*) FILTER (WHERE country_code IS NULL OR country_code = '') AS no_unit_rows,
-  COUNT(*) FILTER (WHERE COALESCE(year, survey_year) IS NULL) AS no_period_rows,
+  COUNT(*) FILTER (WHERE period_id IS NULL) AS no_period_rows,
   COUNT(DISTINCT json_extract_string(condition_json, '$.unit'))
     FILTER (WHERE json_extract_string(condition_json, '$.unit') IS NOT NULL) AS measurement_unit_values
-FROM ds_observations
-WHERE canonical_var = ANY(?)
+FROM base
 GROUP BY canonical_var
+),
+longitudinal AS (
+  SELECT canonical_var, COUNT(*) AS longitudinal_units
+  FROM (
+    SELECT canonical_var, country_code
+    FROM base
+    WHERE country_code IS NOT NULL
+      AND country_code <> ''
+      AND period_id IS NOT NULL
+    GROUP BY canonical_var, country_code
+    HAVING COUNT(DISTINCT period_id) >= 4
+  )
+  GROUP BY canonical_var
+)
+SELECT aggregated.*, COALESCE(longitudinal.longitudinal_units, 0) AS longitudinal_units
+FROM aggregated
+LEFT JOIN longitudinal USING (canonical_var)
 ORDER BY canonical_var
 """.strip()
     rows = _run_query(path, "l1_candidate_aggregate", sql, [all_vars], query_timings)
     normalized: list[dict[str, Any]] = []
     for row in rows["rows"]:
         normalized_row = dict(row)
-        normalized_row["panel_shape"] = (
-            int(normalized_row["geographic_units"]) >= 3
-            and int(normalized_row["periods"]) >= 4
+        normalized_row["panel_shape"] = is_value_panel_shape(
+            longitudinal_unit_count=int(normalized_row["longitudinal_units"]),
+            period_count=int(normalized_row["periods"]),
         )
         normalized.append(_with_content_hash(normalized_row, "row_content_hash"))
     rows["rows"] = normalized
@@ -958,11 +1442,16 @@ def _rank_candidates(candidates: Mapping[str, Mapping[str, Any]]) -> list[dict[s
         transport_score = float(
             int(transport_feasibility.get("jointly_measured_transport_count", 0)) > 0
         )
+        transport_comparison = _mapping(
+            preflight.get("transport_covariate_check")
+        )
         distinctness_score = float(
             not _list_of_strings(preflight.get("outcome_overlap"))
             and not _list_of_strings(preflight.get("lever_overlap"))
+            and transport_comparison.get("comparison_status")
+            == "evaluated_measured_first_vertical_context"
             and not _list_of_strings(
-                _mapping(preflight.get("transport_covariate_check")).get("first_vertical_overlap")
+                transport_comparison.get("first_vertical_overlap")
             )
         )
         ineligible_reasons: list[str] = []
@@ -1050,7 +1539,23 @@ def _build_selected_domain_facts(
         query_timings,
     )
     source_context, target_context = _select_context_pair(profiles)
-    registry = build_substrate_registry_from_existing_catalogs(root)
+    registry = _cached_owner_substrate_registry(root.as_posix())
+    l2_query_source_ref = (
+        "repo://" + _repo_relative_mounted_evidence_path(paths["l2_skg"], root)
+    )
+    selected_l2_query_entries = [
+        entry
+        for entry in registry.entries
+        if entry.layer.value == "L2"
+        and any(
+            ref.split("#", 1)[0] == l2_query_source_ref
+            for ref in (*entry.provenance_refs, *entry.authority_refs)
+        )
+    ]
+    if len(selected_l2_query_entries) != 1:
+        raise OwnerDataUnavailableError(
+            "S0 registry must have exactly one L2 entry resolving the selected query source"
+        )
     l6_bundle = load_l6_intervention_substrate(root)
     levers = _list_of_mappings(l2.get("top_levers"))
     if not levers:
@@ -1092,6 +1597,15 @@ def _build_selected_domain_facts(
             "content_hash": registry.content_hash,
             "substrate_version_id": registry.substrate_version_id,
             "registry_payload": registry.model_dump(mode="json"),
+            "selected_l2_query_entry_hashes": sorted(
+                entry.entry_content_hash for entry in selected_l2_query_entries
+            ),
+            "selection_evidence": {
+                "owner_query_source_ref": l2_query_source_ref,
+                "selection_rule": (
+                    "registry entry provenance or authority resolves the owner query source"
+                ),
+            },
             "education_relevant_entries": education_entries,
             "l6_entries": l6_entries,
         },
@@ -1354,6 +1868,179 @@ def _n7_capture_now() -> datetime:
     return datetime.now(UTC)
 
 
+def _n7_attempt_input_content_hash(facts: Mapping[str, Any]) -> str:
+    """Bind one N7 owner receipt to the inputs that selected its live attempt."""
+
+    selected = _preferred_lever(_list_of_mappings(facts.get("l2_levers")))
+    outcome = _list_of_mappings(facts.get("outcome_rows"))[0]
+    registry = _mapping(facts.get("s0_registry"))
+    return _n7_attempt_input_binding_hash(
+        attempted_variable=selected.get("cause"),
+        source_l2_row_content_hash=selected.get("row_content_hash"),
+        owner_l2_effect=selected.get("effect"),
+        outcome_min_period=outcome.get("min_period"),
+        outcome_max_period=outcome.get("max_period"),
+        substrate_registry_content_hash=registry.get("content_hash"),
+        substrate_version_id=registry.get("substrate_version_id"),
+        effective_owner_config=_n7_effective_owner_config(),
+    )
+
+
+def _n7_attempt_input_binding_hash(
+    *,
+    attempted_variable: Any,
+    source_l2_row_content_hash: Any,
+    owner_l2_effect: Any,
+    outcome_min_period: Any,
+    outcome_max_period: Any,
+    substrate_registry_content_hash: Any,
+    substrate_version_id: Any,
+    effective_owner_config: Mapping[str, Any],
+) -> str:
+    """Hash the exact owner inputs that select one cached N7 attempt."""
+
+    return _hash(
+        {
+            "attempted_variable": attempted_variable,
+            "attempt_source_l2_row_content_hash": source_l2_row_content_hash,
+            "owner_l2_effect": owner_l2_effect,
+            "observation_window": {
+                "min_period": outcome_min_period,
+                "max_period": outcome_max_period,
+            },
+            "substrate_registry_content_hash": substrate_registry_content_hash,
+            "substrate_version_id": substrate_version_id,
+            "effective_owner_config": dict(effective_owner_config),
+        }
+    )
+
+
+def _n7_effective_owner_config() -> dict[str, Any]:
+    """Resolve the canonical Fabric retrieval limits that produced the receipt."""
+
+    from polisyos.core.contracts.control import DataResolveRequest
+    from polisyos.fabric.retrieval.explore_lane import ExploreLaneLimits
+
+    limits = ExploreLaneLimits()
+    return {
+        "receipt_proof_head_commit": N10A_PROOF_HEAD_COMMIT,
+        "owner_gateway": "runtime.quality.acquisition_planner.RealAcquisitionOwnerGateway",
+        "owner_endpoint": "RetrievalService.resolve",
+        "request_mode": "hybrid",
+        "allow_explore_fallback": bool(
+            DataResolveRequest.model_fields["allow_explore_fallback"].default
+        ),
+        "explore_limits": {
+            "max_sources_per_query": limits.max_sources_per_query,
+            "max_discovery_calls_per_source": limits.max_discovery_calls_per_source,
+            "max_candidates_total": limits.max_candidates_total,
+            "time_budget_ms": limits.time_budget_ms,
+            "cost_budget_usd": limits.cost_budget_usd,
+        },
+        "feature_flag_environment": {
+            "POLISYOS_RETRIEVAL_FASTLANE_ENABLED": os.environ.get(
+                "POLISYOS_RETRIEVAL_FASTLANE_ENABLED",
+                "<default:true>",
+            ),
+            "POLISYOS_RETRIEVAL_EXPLORE_ENABLED": os.environ.get(
+                "POLISYOS_RETRIEVAL_EXPLORE_ENABLED",
+                "<default:true>",
+            ),
+        },
+    }
+
+
+def _n7_attempt_input_content_hash_from_pack(pack: Mapping[str, Any]) -> str:
+    """Recompute the N7 E1 cache key from owner-derived pack projections."""
+
+    attempt = _mapping(pack.get("n7_acquisition"))
+    components = _mapping(pack.get("components"))
+    instrument = str(attempt.get("attempted_variable") or "")
+    levers = [
+        lever
+        for lever in _list_of_mappings(
+            _mapping(components.get("lever_vocabulary")).get("entries")
+        )
+        if str(lever.get("instrument") or "") == instrument
+    ]
+    outcomes = _list_of_mappings(_mapping(components.get("outcomes")).get("entries"))
+    if len(levers) != 1 or not outcomes:
+        raise ValueError("n7_attempt_input_owner_projection_unresolved")
+    lever = levers[0]
+    lever_evidence = _mapping(lever.get("owner_evidence"))
+    if lever_evidence.get("source_row_content_hash") != attempt.get(
+        "attempt_source_l2_row_content_hash"
+    ):
+        raise ValueError("n7_attempt_input_lever_evidence_mismatch")
+    outcome = outcomes[0]
+    registry = _mapping(components.get("substrate_registry"))
+    effective_owner_config = _mapping(attempt.get("attempt_effective_owner_config"))
+    if effective_owner_config != _n7_effective_owner_config():
+        raise ValueError("n7_attempt_effective_owner_config_mismatch")
+    return _n7_attempt_input_binding_hash(
+        attempted_variable=instrument,
+        source_l2_row_content_hash=lever_evidence.get("source_row_content_hash"),
+        owner_l2_effect=lever.get("target_concept"),
+        outcome_min_period=outcome.get("min_period"),
+        outcome_max_period=outcome.get("max_period"),
+        substrate_registry_content_hash=registry.get("content_hash"),
+        substrate_version_id=registry.get("substrate_version_id"),
+        effective_owner_config=effective_owner_config,
+    )
+
+
+def _load_historical_n7_attempt(
+    root: Path,
+    facts: Mapping[str, Any],
+) -> dict[str, Any] | None:
+    """Reuse the immutable proof-head N7 owner receipt when current inputs match."""
+
+    try:
+        frozen_pack = _historical_n10a_pack_payload(root)
+    except RuntimeError:
+        return None
+    attempt = copy.deepcopy(_mapping(frozen_pack.get("n7_acquisition")))
+    historical_operational = copy.deepcopy(
+        _mapping(_mapping(frozen_pack.get("runtime_metrics")).get("n7_acquisition"))
+    )
+    historical_receipt_payload = _mapping(historical_operational.get("receipt"))
+    if not historical_receipt_payload:
+        return None
+    operational = _n7_operational_metadata(historical_receipt_payload)
+    selected = _preferred_lever(_list_of_mappings(facts.get("l2_levers")))
+    expected_input_hash = _n7_attempt_input_content_hash(facts)
+    if (
+        attempt.get("attempted_variable") != selected.get("cause")
+        or attempt.get("attempt_source_l2_row_content_hash")
+        != selected.get("row_content_hash")
+    ):
+        return None
+    receipt_content = _mapping(attempt.get("receipt_content"))
+    compiled_specs = _list_of_mappings(receipt_content.get("compiled_requirement_specs"))
+    expected_world_ref = (
+        "s0://substrate-registry/"
+        + str(_mapping(facts.get("s0_registry")).get("substrate_version_id"))
+    )
+    compute_economics = _mapping(receipt_content.get("compute_economics"))
+    if (
+        len(compiled_specs) != 1
+        or compiled_specs[0].get("required_data_families") != [selected.get("cause")]
+        or compiled_specs[0].get("concept_spine_refs")
+        != [f"skg:{selected.get('row_content_hash')}"]
+        or compute_economics.get("cached_world_ref_reused") != expected_world_ref
+    ):
+        return None
+    attempt["attempt_input_content_hash"] = expected_input_hash
+    attempt["attempt_effective_owner_config"] = _n7_effective_owner_config()
+    attempt.pop("gap_refs", None)
+    validation_issues: list[dict[str, Any]] = []
+    _validate_n7_receipt_evidence(attempt, operational, validation_issues)
+    if validation_issues:
+        return None
+    attempt["runtime_metrics"] = operational
+    return attempt
+
+
 def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]:
     """Run one real-owner N7 attempt and retain its journal-first receipt.
 
@@ -1453,6 +2140,8 @@ def _run_n7_live_attempt(root: Path, facts: Mapping[str, Any]) -> dict[str, Any]
     )
     return {
         "receipt_count": 1,
+        "attempt_input_content_hash": _n7_attempt_input_content_hash(facts),
+        "attempt_effective_owner_config": _n7_effective_owner_config(),
         "attempt_status": receipt.status,
         "attempted_variable": instrument,
         "attempt_source_l2_row_content_hash": selected["row_content_hash"],
@@ -1519,13 +2208,10 @@ def _n7_content_time_paths(value: Mapping[str, Any]) -> list[str]:
 
 
 def _n7_operational_metadata(receipt_payload: Mapping[str, Any]) -> dict[str, Any]:
-    """Retain operational N7 fields without persisting the engine's time-bound hash."""
+    """Retain only N7 timing fields, never a second unhashed receipt copy."""
 
     artifacts = _list_of_mappings(receipt_payload.get("owner_artifacts"))
-    operational_receipt = _json_value(dict(receipt_payload))
-    operational_receipt.pop("content_hash", None)
     return {
-        "receipt": operational_receipt,
         "receipt_generated_at": receipt_payload.get("generated_at"),
         "planner_report_generated_at": _mapping(receipt_payload.get("planner_report")).get(
             "generated_at"
@@ -1582,12 +2268,20 @@ def _n7_pack_entry_rejection_reason(owner_artifacts: Sequence[Mapping[str, Any]]
 
 
 def _build_smoke_problem(census: Mapping[str, Any], facts: Mapping[str, Any]) -> dict[str, Any]:
-    selected = _preferred_lever(_list_of_mappings(facts.get("l2_levers")))
+    lever_rows = _list_of_mappings(facts.get("l2_levers"))
+    selected = _preferred_lever(lever_rows)
     nonpanel_outcome = next(
         row for row in _list_of_mappings(facts.get("outcome_rows")) if not bool(row.get("panel_shape"))
     )
-    lever_id = _identifier(str(selected["cause"]))
-    target_slot = _identifier(str(selected["effect"]))
+    candidate_levers = [
+        CandidateLever(
+            lever_id=_identifier(str(row["cause"])),
+            operator_kind=_identifier(str(row["cause"])),
+            instrument=str(row["cause"]),
+            target_slot=_identifier(str(row["effect"])),
+        )
+        for row in lever_rows
+    ]
     problem = DesignProblem(
         design_problem_id="education_second_domain_smoke",
         problem_statement=(
@@ -1642,15 +2336,8 @@ def _build_smoke_problem(census: Mapping[str, Any], facts: Mapping[str, Any]) ->
             estimand="average_treatment_effect",
         ),
         candidate_lever_space=CandidateLeverSpace(
-            allowed_operator_kinds=["candidate_intervention"],
-            candidate_levers=[
-                CandidateLever(
-                    lever_id=lever_id,
-                    operator_kind="candidate_intervention",
-                    instrument=str(selected["cause"]),
-                    target_slot=target_slot,
-                )
-            ],
+            allowed_operator_kinds=[item.operator_kind for item in candidate_levers],
+            candidate_levers=candidate_levers,
         ),
         evidence_acquisition_needs=EvidenceAcquisitionNeeds(
             needs=[
@@ -1683,15 +2370,125 @@ def _build_smoke_problem(census: Mapping[str, Any], facts: Mapping[str, Any]) ->
     return _with_content_hash(payload, "smoke_problem_content_hash")
 
 
-def _build_cycle_trace(root: Path, smoke_problem: Mapping[str, Any]) -> dict[str, Any]:
-    problem = DesignProblem.model_validate(smoke_problem["design_problem"])
+def _build_cycle_trace(
+    root: Path,
+    smoke_problem: Mapping[str, Any],
+    *,
+    cycle_substrate_context: CycleSubstrateContext | None = None,
+    n4_owner_capture: Mapping[str, Any] | None = None,
+    allow_live_n4_capture: bool = False,
+    n4_capture_journal: Path | None = None,
+) -> dict[str, Any]:
+    """Run the real N4->N6 route from one content-bound capture or live attempt."""
 
-    async def run() -> Any:
-        controller = GenerationCycleController(
-            generation_port=_UnavailableOwnerGenerationPort(),
-            repo_root=root,
+    problem = DesignProblem.model_validate(smoke_problem["design_problem"])
+    if cycle_substrate_context is None:
+        frozen = _load_frozen_bundle(root)
+        cycle_substrate_context = _build_frozen_cycle_substrate_context(
+            root,
+            bundle=frozen,
+            design_problem=problem,
         )
-        return await controller.run(
+        if n4_owner_capture is None:
+            n4_owner_capture = _mapping(
+                _mapping(frozen.get("cycle_trace")).get("n4_owner_capture")
+            )
+    if (
+        n4_owner_capture is None
+        and not allow_live_n4_capture
+        and n4_capture_journal is None
+    ):
+        frozen_trace = _read_json(root / CYCLE_TRACE_OUTPUT)
+        n4_owner_capture = _mapping(frozen_trace.get("n4_owner_capture"))
+    if cycle_substrate_context.design_problem_ref != gy_content_hash(
+        problem.model_dump(mode="json")
+    ):
+        raise ValueError("education_cycle_context_problem_mismatch")
+    if allow_live_n4_capture and n4_capture_journal is not None:
+        raise ValueError("education_n4_capture_actions_conflict")
+    if (
+        not allow_live_n4_capture
+        and n4_capture_journal is None
+        and not n4_owner_capture
+    ):
+        raise ValueError("education_n4_owner_capture_missing")
+
+    capture_hash = str(_mapping(n4_owner_capture).get("recording_content_hash") or "live")
+    cache_key = (
+        root.resolve().as_posix(),
+        str(smoke_problem.get("smoke_problem_content_hash") or ""),
+        str(cycle_substrate_context.content_hash),
+        capture_hash,
+    )
+    if (
+        not allow_live_n4_capture
+        and n4_capture_journal is None
+        and cache_key in _CYCLE_TRACE_CACHE
+    ):
+        return copy.deepcopy(_CYCLE_TRACE_CACHE[cache_key])
+
+    async def run() -> tuple[
+        GenerationCycleRun,
+        DesignGenerationOrganRun,
+        dict[str, Any],
+        dict[str, Any],
+    ]:
+        capture_metrics: dict[str, Any] = {}
+        captured_organ_run: DesignGenerationOrganRun | None = None
+        active_capture = copy.deepcopy(_mapping(n4_owner_capture))
+        if n4_capture_journal is not None:
+            (
+                active_capture,
+                capture_metrics,
+                captured_organ_run,
+            ) = await _capture_n4_owner_from_journal(
+                root,
+                problem=problem,
+                cycle_substrate_context=cycle_substrate_context,
+                journal_path=n4_capture_journal,
+            )
+        elif allow_live_n4_capture:
+            (
+                active_capture,
+                capture_metrics,
+                captured_organ_run,
+            ) = await _capture_live_n4_owner(
+                root,
+                problem=problem,
+                cycle_substrate_context=cycle_substrate_context,
+            )
+        elif _n4_owner_capture_issues(
+            active_capture,
+            problem=problem,
+            cycle_substrate_context=cycle_substrate_context,
+        ):
+            (
+                active_capture,
+                capture_metrics,
+                captured_organ_run,
+            ) = await _replay_historical_n4_owner_capture(
+                root,
+                capture=active_capture,
+                problem=problem,
+                cycle_substrate_context=cycle_substrate_context,
+            )
+        _require_valid_n4_owner_capture(
+            active_capture,
+            problem=problem,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+        generation_port = _RecordedN4OwnerPort(
+            repo_root=root,
+            cycle_substrate_context=cycle_substrate_context,
+            capture=active_capture,
+            cached_organ_run=captured_organ_run,
+        )
+        controller = GenerationCycleController(
+            generation_port=generation_port,
+            repo_root=root,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+        run_result = await controller.run(
             problem,
             budget_state=BudgetState(
                 limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
@@ -1699,21 +2496,90 @@ def _build_cycle_trace(root: Path, smoke_problem: Mapping[str, Any]) -> dict[str
             min_cycles=2,
             max_cycles=1,
         )
+        if generation_port.last_organ_run is None:
+            raise ValueError("education_n4_owner_replay_not_attempted")
+        replay_projection = _n4_owner_result_projection(
+            generation_port.last_organ_run
+        )
+        if replay_projection != _mapping(active_capture.get("owner_result_projection")):
+            raise ValueError("education_n4_owner_capture_replay_drift")
+        return (
+            run_result,
+            generation_port.last_organ_run,
+            active_capture,
+            capture_metrics,
+        )
 
-    run_result = asyncio.run(run())
+    run_result, organ_run, active_capture, capture_metrics = asyncio.run(run())
+    stage_attempts = _cycle_stage_attempts(
+        run_result=run_result,
+        organ_run=organ_run,
+        cycle_substrate_context=cycle_substrate_context,
+        n4_owner_capture=active_capture,
+    )
+    transport_context = cycle_substrate_context.transport_context
+    expected_transport_covariates = (
+        tuple(
+            sorted(
+                covariate.canonical_var
+                for covariate in transport_context.covariates
+            )
+        )
+        if transport_context is not None
+        else ()
+    )
+    n8_transport_evidence = _n8_transport_gap_closure_from_root(
+        root,
+        expected_education_covariates=expected_transport_covariates,
+    )
     raw_run_payload = run_result.model_dump(mode="json")
     run_payload, runtime_metrics = _normalize_n6_run_payload(raw_run_payload)
+    runtime_metrics.update(capture_metrics)
     normalized_run = GenerationCycleRun.model_validate(run_payload)
     validation_issues = list(validate_generation_cycle_run(normalized_run))
+    n6_validation_evidence = _n6_single_terminal_gap_closure(normalized_run)
+    trace_identity = {
+        "substrate_input_content_hash": (
+            cycle_substrate_context.substrate_input_content_hash
+        ),
+        "world_model_record_content_hash": (
+            cycle_substrate_context.world_model_record_content_hash
+        ),
+    }
+    baseline_diff = recompute_baseline_diff(
+        {
+            **trace_identity,
+            "stage_attempts": stage_attempts,
+            "generation_cycle_run": run_payload,
+        },
+        load_committed_baseline(root),
+    )
     payload = {
         "schema_version": SCHEMA_VERSION,
         "artifact_kind": "policy_design_case.gy_n10a.cycle_entry_trace",
         "rule_version": RULE_VERSION,
         "producer": PRODUCER,
         "smoke_problem_content_hash": smoke_problem["smoke_problem_content_hash"],
-        "generation_owner_status": "unavailable_then_real_n6_grammar_fallback",
+        "substrate_input_content_hash": (
+            cycle_substrate_context.substrate_input_content_hash
+        ),
+        "source_pack_content_hash": cycle_substrate_context.source_pack_content_hash,
+        "cycle_substrate_context_content_hash": cycle_substrate_context.content_hash,
+        "world_model_record_content_hash": (
+            cycle_substrate_context.world_model_record_content_hash
+        ),
+        "n4_owner_capture": active_capture,
+        "generation_owner_status": "real_n4_owner_content_addressed_replay",
         "execution_status": "completed",
-        "smoke_status": "typed_terminal_with_known_n6_validation_gap",
+        "smoke_status": "typed_terminal_after_real_n4_and_grounding_attempt",
+        "stage_attempts": stage_attempts,
+        "baseline_diff": baseline_diff,
+        "gap_triage": _stage_1_gap_triage(
+            stage_attempts,
+            cycle_trace=trace_identity,
+            n8_transport_evidence=n8_transport_evidence,
+            n6_validation_evidence=n6_validation_evidence,
+        ),
         "content_hash_excluded_fields": ["runtime_metrics"],
         "runtime_metrics": runtime_metrics,
         "generation_cycle_run": run_payload,
@@ -1726,11 +2592,1470 @@ def _build_cycle_trace(root: Path, smoke_problem: Mapping[str, Any]) -> dict[str
             ),
         },
     }
-    return _with_content_hash(
+    trace = _with_content_hash(
         payload,
         "trace_content_hash",
         excluded_fields=("runtime_metrics",),
     )
+    if not allow_live_n4_capture and n4_capture_journal is None:
+        _CYCLE_TRACE_CACHE[cache_key] = copy.deepcopy(trace)
+    return trace
+
+
+def _build_live_cycle_substrate_context(
+    root: Path,
+    *,
+    census: Mapping[str, Any],
+    substrate_input: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Build one context directly from freshly derived pack-shaped evidence."""
+
+    projection = {
+        "selected_domain": substrate_input["selected_domain"],
+        "components": copy.deepcopy(substrate_input["components"]),
+        "owner_query_results": copy.deepcopy(substrate_input["owner_query_results"]),
+        "content_addressing": {
+            "historical_source_pack_content_hash": (
+                _historical_n10a_pack_content_hash(root)
+            ),
+            "substrate_input_content_hash": substrate_input[
+                "substrate_input_content_hash"
+            ],
+        },
+        "content_hash_excluded_fields": ["runtime_metrics"],
+    }
+    projection = _with_content_hash(
+        projection,
+        "manifest_content_hash",
+        excluded_fields=("runtime_metrics",),
+    )
+    return _build_cycle_substrate_context_from_bundle(
+        root,
+        bundle={"census": census, "pack": projection},
+        design_problem=design_problem,
+    )
+
+
+def _build_frozen_cycle_substrate_context(
+    root: Path,
+    *,
+    bundle: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Build one context after verifying the committed pack evidence."""
+
+    return _build_cycle_substrate_context_from_bundle(
+        root,
+        bundle=bundle,
+        design_problem=design_problem,
+    )
+
+
+def _build_cycle_substrate_context_from_bundle(
+    root: Path,
+    *,
+    bundle: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Reuse canonical registry/WMR/L6 owners for one verified pack projection."""
+
+    pack = _mapping(bundle.get("pack"))
+    components = _mapping(pack.get("components"))
+    registry = SubstrateRegistry.model_validate(
+        _mapping(
+            _mapping(pack.get("owner_query_results")).get("s0_registry")
+        ).get("registry_payload")
+    )
+    selected_hashes = tuple(
+        _list_of_strings(
+            _mapping(components.get("substrate_registry")).get(
+                "selected_entry_hashes"
+            )
+        )
+    )
+    outcome = design_problem.outcome_of_interest.target_variable
+    policy_slot_ids = tuple(
+        dict.fromkeys(
+            (
+                outcome,
+                *(
+                    str(row.get("target_concept") or "")
+                    for row in _list_of_mappings(
+                        _mapping(components.get("lever_vocabulary")).get("entries")
+                    )
+                    if str(row.get("target_concept") or "")
+                ),
+            )
+        )
+    )
+    world_model_record = _build_boundary_world_model_record(
+        repo_root=root,
+        problem=design_problem,
+        outcome=outcome,
+        policy_slot_ids=policy_slot_ids,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+    return project_second_domain_cycle_substrate_context(
+        bundle,
+        repo_root=root,
+        design_problem=design_problem,
+        world_model_record=world_model_record,
+        intervention_substrate=load_l6_intervention_substrate(root),
+    )
+
+
+async def _capture_live_n4_owner(
+    root: Path,
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Make one journal-first provider attempt through the canonical N4 owner."""
+
+    journal_path = (
+        root
+        / ".tmp"
+        / "gy-n10-stage1-n4"
+        / (
+            problem.design_problem_id
+            + "-"
+            + str(time.time_ns())
+            + ".jsonl"
+        )
+    )
+    live_environment = {
+        **_N4_LIVE_CAPTURE_ENV,
+        "POLISYOS_N4_CALL_JOURNAL_PATH": str(journal_path),
+    }
+    with _temporary_environment(live_environment):
+        organ_run = await generate_design_candidate_bundle_under_a(
+            problem,
+            model_id=N4_CAPTURE_MODEL_ID,
+            repo_root=root,
+            min_diverse_candidates=3,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    return _n4_owner_capture_from_organ_run(
+        organ_run,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+        journal_path=journal_path,
+        recording_source="live_gateway_real_n4_owner_journal_first",
+        capture_environment=live_environment,
+    )
+
+
+async def _capture_n4_owner_from_journal(
+    root: Path,
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+    journal_path: Path,
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Accept one paid live journal only after replay through current owners."""
+
+    resolved_journal = journal_path
+    if not resolved_journal.is_absolute():
+        resolved_journal = (root / resolved_journal).resolve()
+    try:
+        resolved_journal.relative_to((root / ".tmp").resolve())
+    except ValueError as exc:
+        raise ValueError("education_n4_capture_journal_outside_local_tmp") from exc
+    responses = _n4_capture_responses_from_journal(resolved_journal)
+    recording = {
+        "model_id": N4_CAPTURE_MODEL_ID,
+        "responses": responses,
+    }
+    with _temporary_environment(_N4_LIVE_CAPTURE_ENV):
+        organ_run = await generate_design_candidate_bundle_under_a(
+            problem,
+            model_id=N4_CAPTURE_MODEL_ID,
+            llm_client=RecordedGenerationReplayClient(recording),
+            repo_root=root,
+            min_diverse_candidates=3,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    return _n4_owner_capture_from_organ_run(
+        organ_run,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+        journal_path=resolved_journal,
+        recording_source="live_gateway_journal_replayed_through_current_n4_owner",
+        capture_environment=_N4_LIVE_CAPTURE_ENV,
+    )
+
+
+def _assemble_n4_owner_capture(
+    organ_run: DesignGenerationOrganRun,
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+    journal_receipt: Mapping[str, Any],
+    recording_source: str,
+    capture_environment: Mapping[str, str],
+    historical_replay_receipt: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build one path-independent capture from verified owner and journal evidence."""
+
+    projection = _n4_owner_result_projection(organ_run)
+    projection_issues = _n4_owner_projection_issues(
+        projection,
+        cycle_substrate_context=cycle_substrate_context,
+    )
+    if projection_issues:
+        raise ValueError(
+            "education_n4_live_capture_rejected:" + ",".join(projection_issues)
+        )
+    responses = _n4_capture_responses(organ_run)
+    expected_journal_rows = _n4_call_evidence_rows(organ_run)
+    if (
+        historical_replay_receipt is None
+        and journal_receipt.get("call_evidence_rows") != expected_journal_rows
+    ):
+        raise ValueError(
+            "education_n4_live_capture_journal_denominator_mismatch:"
+            + _canonical_json(
+                {
+                    "journal_rows": journal_receipt.get("call_evidence_rows"),
+                    "owner_rows": expected_journal_rows,
+                }
+            )
+        )
+    effective_config = _mapping(projection.get("effective_runtime_config"))
+    config = EffectiveGenerationRuntimeConfig.model_validate(effective_config)
+    runtime_environment = _recorded_runtime_environment_values(config)
+    runtime_environment.update(
+        {
+            "POLISYOS_CRITIC_LLM_RETRIES": capture_environment[
+                "POLISYOS_CRITIC_LLM_RETRIES"
+            ],
+            "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": capture_environment[
+                "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE"
+            ],
+        }
+    )
+    capture = {
+        "schema_version": "policyos.policy_design_case.gy_n10.n4_owner_capture.v1",
+        "artifact_kind": "policy_design_case.gy_n10.n4_owner_capture",
+        "producer": PRODUCER,
+        "recording_source": recording_source,
+        "model_id": N4_CAPTURE_MODEL_ID,
+        "input_binding": _n4_owner_capture_input_binding(
+            problem,
+            cycle_substrate_context,
+        ),
+        "response": responses[0],
+        "responses": responses,
+        "effective_runtime_environment": runtime_environment,
+        "owner_result_projection": projection,
+        "journal_receipt": journal_receipt,
+    }
+    if historical_replay_receipt is not None:
+        capture["historical_replay_receipt"] = copy.deepcopy(
+            dict(historical_replay_receipt)
+        )
+    capture["recording_content_hash"] = _hash(
+        {
+            key: value
+            for key, value in capture.items()
+            if key != "recording_content_hash"
+        }
+    )
+    _require_valid_n4_owner_capture(
+        capture,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+    )
+    return capture
+
+
+def _n4_owner_capture_from_organ_run(
+    organ_run: DesignGenerationOrganRun,
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+    journal_path: Path,
+    recording_source: str,
+    capture_environment: Mapping[str, str],
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Build one path-independent capture after the native result passes."""
+
+    journal_receipt = _n4_call_journal_receipt(journal_path)
+    capture = _assemble_n4_owner_capture(
+        organ_run,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+        journal_receipt=journal_receipt,
+        recording_source=recording_source,
+        capture_environment=capture_environment,
+    )
+    return (
+        capture,
+        {
+            "n4_source_capture_call_wall_seconds": (
+                _n4_journal_call_wall_seconds(journal_path)
+            ),
+            "n4_live_capture_journal_entry_count": journal_receipt[
+                "journal_entry_count"
+            ],
+        },
+        organ_run,
+    )
+
+
+_HISTORICAL_N4_RECORDING_SOURCE = (
+    "historical_capture_raw_responses_replayed_through_current_n4_owner"
+)
+_HISTORICAL_N4_REPLAY_ISSUES = frozenset(
+    {
+        "n4_owner_capture_input_binding_mismatch",
+        "n4_owner_lever_context_binding_mismatch",
+    }
+)
+_HISTORICAL_N4_REPLAY_BINDING_FIELDS = frozenset(
+    {
+        "design_problem_ref",
+        "cycle_substrate_context_content_hash",
+    }
+)
+
+
+def _problem_without_census_provenance(problem: DesignProblem) -> dict[str, Any]:
+    """Remove only the N10a census checksum from a problem comparison."""
+
+    payload = problem.model_dump(mode="json")
+    provenance = copy.deepcopy(_mapping(payload.get("nl_provenance")))
+    source_context = copy.deepcopy(_mapping(provenance.get("source_context")))
+    census_hash = source_context.pop("census_content_hash", None)
+    if not isinstance(census_hash, str) or not re.fullmatch(
+        r"sha256:[0-9a-f]{64}", census_hash
+    ):
+        raise ValueError("education_n4_historical_problem_census_ref_missing")
+    provenance["source_context"] = source_context
+    payload["nl_provenance"] = provenance
+    return payload
+
+
+def _historical_n4_replay_receipt(
+    *,
+    capture: Mapping[str, Any],
+    historical_problem: DesignProblem,
+    current_problem: DesignProblem,
+    current_call_rows: Sequence[Mapping[str, Any]],
+    changed_binding_fields: frozenset[str],
+) -> dict[str, Any]:
+    """Bind historical live prompts to current semantically equivalent prompts."""
+
+    journal_rows = _list_of_mappings(
+        _mapping(capture.get("journal_receipt")).get("call_evidence_rows")
+    )
+    if len(journal_rows) != len(current_call_rows):
+        raise ValueError("education_n4_historical_replay_call_denominator_mismatch")
+    stable_call_fields = (
+        "call_index",
+        "role_hint",
+        "status",
+        "model_id",
+        "raw_response_hash",
+    )
+    call_rebindings: list[dict[str, Any]] = []
+    for historical_row, current_row in zip(
+        journal_rows,
+        current_call_rows,
+        strict=True,
+    ):
+        if any(
+            historical_row.get(field) != current_row.get(field)
+            for field in stable_call_fields
+        ):
+            raise ValueError("education_n4_historical_replay_call_identity_drift")
+        call_rebindings.append(
+            {
+                "call_index": current_row.get("call_index"),
+                "role_hint": current_row.get("role_hint"),
+                "raw_response_hash": current_row.get("raw_response_hash"),
+                "historical_prompt_hash": historical_row.get("prompt_hash"),
+                "replay_prompt_hash": current_row.get("prompt_hash"),
+            }
+        )
+    semantic_projection = _problem_without_census_provenance(current_problem)
+    if semantic_projection != _problem_without_census_provenance(
+        historical_problem
+    ):
+        raise ValueError("education_n4_historical_problem_semantic_drift")
+    payload = {
+        "schema_version": "policyos.policy_design_case.gy_n10.n4_replay_receipt.v1",
+        "historical_capture_content_hash": capture.get("recording_content_hash"),
+        "historical_design_problem_ref": gy_content_hash(
+            historical_problem.model_dump(mode="json")
+        ),
+        "current_design_problem_ref": gy_content_hash(
+            current_problem.model_dump(mode="json")
+        ),
+        "problem_semantic_projection": semantic_projection,
+        "changed_binding_fields": sorted(changed_binding_fields),
+        "call_rebindings": call_rebindings,
+    }
+    return _with_content_hash(payload, "receipt_content_hash")
+
+
+async def _replay_historical_n4_owner_capture(
+    root: Path,
+    *,
+    capture: Mapping[str, Any],
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> tuple[dict[str, Any], dict[str, Any], DesignGenerationOrganRun]:
+    """Replay verified historical bytes only across census-provenance drift."""
+
+    frozen = _load_frozen_bundle(root)
+    historical_problem = DesignProblem.model_validate(
+        _mapping(frozen.get("smoke_problem")).get("design_problem")
+    )
+    historical_context = _build_frozen_cycle_substrate_context(
+        root,
+        bundle=frozen,
+        design_problem=historical_problem,
+    )
+    _require_valid_n4_owner_capture(
+        capture,
+        problem=historical_problem,
+        cycle_substrate_context=historical_context,
+    )
+    if _problem_without_census_provenance(
+        historical_problem
+    ) != _problem_without_census_provenance(problem):
+        raise ValueError("education_n4_historical_problem_semantic_drift")
+
+    current_issues = frozenset(
+        _n4_owner_capture_issues(
+            capture,
+            problem=problem,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    )
+    if current_issues != _HISTORICAL_N4_REPLAY_ISSUES:
+        raise ValueError(
+            "education_n4_historical_capture_not_replay_eligible:"
+            + ",".join(sorted(current_issues))
+        )
+    recorded_binding = _mapping(capture.get("input_binding"))
+    current_binding = _n4_owner_capture_input_binding(
+        problem,
+        cycle_substrate_context,
+    )
+    changed_binding_fields = frozenset(
+        key
+        for key in set(recorded_binding) | set(current_binding)
+        if recorded_binding.get(key) != current_binding.get(key)
+    )
+    if changed_binding_fields != _HISTORICAL_N4_REPLAY_BINDING_FIELDS:
+        raise ValueError(
+            "education_n4_historical_capture_binding_drift:"
+            + ",".join(sorted(changed_binding_fields))
+        )
+
+    responses = copy.deepcopy(_list_of_mappings(capture.get("responses")))
+    recording = {
+        "model_id": str(capture.get("model_id") or ""),
+        "responses": responses,
+    }
+    with _n4_recorded_runtime_environment(capture):
+        organ_run = await generate_design_candidate_bundle_under_a(
+            problem,
+            model_id=N4_CAPTURE_MODEL_ID,
+            llm_client=RecordedGenerationReplayClient(recording),
+            repo_root=root,
+            min_diverse_candidates=3,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    journal_receipt = copy.deepcopy(_mapping(capture.get("journal_receipt")))
+    replay_receipt = _historical_n4_replay_receipt(
+        capture=capture,
+        historical_problem=historical_problem,
+        current_problem=problem,
+        current_call_rows=_n4_call_evidence_rows(organ_run),
+        changed_binding_fields=changed_binding_fields,
+    )
+    refreshed = _assemble_n4_owner_capture(
+        organ_run,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+        journal_receipt=journal_receipt,
+        recording_source=_HISTORICAL_N4_RECORDING_SOURCE,
+        capture_environment=_mapping(capture.get("effective_runtime_environment")),
+        historical_replay_receipt=replay_receipt,
+    )
+    return (
+        refreshed,
+        {
+            "n4_source_capture_call_wall_seconds": 0.0,
+            "n4_live_capture_journal_entry_count": journal_receipt[
+                "journal_entry_count"
+            ],
+        },
+        organ_run,
+    )
+
+
+def _n4_owner_result_projection(
+    organ_run: DesignGenerationOrganRun,
+) -> dict[str, Any]:
+    """Project stable native N4 outputs without converting them into authority."""
+
+    result = organ_run.result
+    interventions = (
+        tuple(organ_run.trinity_bundle.policy_spec.interventions)
+        if organ_run.trinity_bundle is not None
+        else ()
+    )
+    config_payload = (
+        result.effective_runtime_config.model_dump(mode="json")
+        if result.effective_runtime_config is not None
+        else {}
+    )
+    if config_payload.get("cg1_index_prewarm_wall_seconds") is not None:
+        config_payload["cg1_index_prewarm_wall_seconds"] = 0.0
+    return {
+        "status": result.status,
+        "design_problem_ref": result.design_problem_ref,
+        "model_id": result.model_id,
+        "preflight_status": result.preflight.status,
+        "draft_present": organ_run.draft is not None,
+        "trinity_bundle_present": organ_run.trinity_bundle is not None,
+        "critique_present": organ_run.critique is not None,
+        "degraded_artifact_count": len(result.degraded_artifacts),
+        "lever_space_prompt_slice_content_hash": (
+            result.lever_space_prompt_slice.content_hash
+        ),
+        "prompt_slice_operator_kinds": [
+            entry.operator_kind for entry in result.lever_space_prompt_slice.entries
+        ],
+        "exact_call_prompt_hashes": [
+            call.prompt_hash for call in result.llm_calls
+        ],
+        "exact_formalizer_input_hashes": [
+            call.prompt_hash
+            for call in result.llm_calls
+            if call.role_hint == "formalizer"
+        ],
+        "raw_response_hashes": [
+            _hash(call.raw_llm_response) for call in result.llm_calls
+        ],
+        "proposed_interventions": [
+            {
+                "proposal_id": f"gy_n4.{intervention.intervention_id}",
+                "intervention_id": intervention.intervention_id,
+                "operator_kind": str(
+                    intervention.params.get("candidate_lever_id")
+                    or intervention.kind
+                ),
+                "trinity_kind": str(intervention.kind),
+                "raw_candidate_hash": _hash(
+                    intervention.model_dump(mode="json")
+                ),
+            }
+            for intervention in interventions
+        ],
+        "grounding_dispositions": [
+            disposition.model_dump(mode="json")
+            for disposition in result.grounding_dispositions
+        ],
+        "grounding_disposition_summary": (
+            result.grounding_disposition_summary.model_dump(mode="json")
+        ),
+        "effective_runtime_config": config_payload,
+    }
+
+
+def _n4_owner_projection_issues(
+    projection: Mapping[str, Any],
+    *,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> list[str]:
+    """Reject a real attempt that did not exercise every required owner bridge."""
+
+    issues: list[str] = []
+    expected_levers = {
+        candidate.lever_id for candidate in cycle_substrate_context.candidate_levers
+    }
+    prompt_levers = set(
+        _list_of_strings(projection.get("prompt_slice_operator_kinds"))
+    )
+    proposals = _list_of_mappings(projection.get("proposed_interventions"))
+    proposed_levers = {str(row.get("operator_kind") or "") for row in proposals}
+    dispositions = _list_of_mappings(projection.get("grounding_dispositions"))
+    expected_entry_hashes = {
+        candidate.entry_content_hash
+        for candidate in cycle_substrate_context.candidate_levers
+    }
+    if projection.get("status") != "generated":
+        issues.append("n4_owner_status_not_generated")
+    if not all(
+        bool(projection.get(field))
+        for field in ("draft_present", "trinity_bundle_present", "critique_present")
+    ):
+        issues.append("n4_owner_real_organ_artifact_missing")
+    if int(projection.get("degraded_artifact_count") or 0) != 0:
+        issues.append("n4_owner_degraded_artifact_present")
+    if prompt_levers != expected_levers:
+        issues.append("n4_owner_prompt_lever_denominator_mismatch")
+    if not proposed_levers or not proposed_levers.issubset(expected_levers):
+        issues.append("n4_owner_proposal_not_pack_bound")
+    if not _list_of_strings(projection.get("exact_formalizer_input_hashes")):
+        issues.append("n4_owner_formalizer_input_missing")
+    if len(dispositions) != len(proposals):
+        issues.append("n4_owner_grounding_denominator_mismatch")
+    for disposition in dispositions:
+        resolution_payload = _mapping(disposition.get("lever_resolution"))
+        try:
+            resolution = InterventionLeverRefusal.model_validate(resolution_payload)
+        except ValueError:
+            issues.append("n4_owner_lever_refusal_missing")
+            continue
+        if resolution.candidate_entry_content_hash not in expected_entry_hashes:
+            issues.append("n4_owner_lever_entry_unbound")
+        if resolution.substrate_input_content_hash != (
+            cycle_substrate_context.substrate_input_content_hash
+        ):
+            issues.append("n4_owner_lever_substrate_binding_mismatch")
+        if resolution.context_binding_hash != cycle_substrate_context.context_binding_hash:
+            issues.append("n4_owner_lever_context_binding_mismatch")
+        if resolution.world_model_record_content_hash != (
+            cycle_substrate_context.world_model_record_content_hash
+        ):
+            issues.append("n4_owner_lever_wmr_binding_mismatch")
+    return sorted(set(issues))
+
+
+def _n4_capture_responses(
+    organ_run: DesignGenerationOrganRun,
+) -> list[dict[str, Any]]:
+    """Persist exact gateway bytes needed by the existing replay client."""
+
+    rows = [
+        _n4_response_from_call_payload(call.model_dump(mode="json"))
+        for call in organ_run.result.llm_calls
+    ]
+    if not rows:
+        raise ValueError("education_n4_owner_capture_responses_missing")
+    return rows
+
+
+def _n4_capture_responses_from_journal(path: Path) -> list[dict[str, Any]]:
+    """Load exact response bytes from one ignored, journal-first capture file."""
+
+    if not path.is_file():
+        raise ValueError("education_n4_live_capture_journal_missing")
+    rows = [
+        _n4_response_from_call_payload(json.loads(line))
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    if not rows:
+        raise ValueError("education_n4_live_capture_journal_empty")
+    return rows
+
+
+def _n4_response_from_call_payload(call: Mapping[str, Any]) -> dict[str, Any]:
+    raw_response = str(call.get("raw_llm_response") or "")
+    call_index = int(call.get("call_index") or 0)
+    return {
+        "call_index": call_index,
+        "role": call.get("role_hint") or f"llm_call_{call_index}",
+        "role_hint": call.get("role_hint"),
+        "status": call.get("status") or "success",
+        "model_id": call.get("model_id"),
+        "provider": call.get("provider"),
+        "prompt_hash": call.get("prompt_hash"),
+        "raw_response": raw_response,
+        "raw_llm_response": raw_response,
+        "raw_response_hash": _hash(raw_response),
+        "parsed": call.get("parsed_json"),
+        "response_format": call.get("response_format"),
+        "usage": {
+            "prompt_tokens": int(call.get("prompt_tokens") or 0),
+            "completion_tokens": int(call.get("completion_tokens") or 0),
+            "total_tokens": int(call.get("total_tokens") or 0),
+        },
+        "error": {
+            "type": call.get("error_type"),
+            "message": call.get("error_message"),
+            "status": call.get("error_status"),
+            "code": call.get("error_code"),
+            "retry_after_s": call.get("retry_after_s"),
+        },
+    }
+
+
+def _n4_journal_call_wall_seconds(path: Path) -> float:
+    """Return source-call wall time as excluded operational metadata."""
+
+    total = 0.0
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        total += max(0.0, float(payload.get("wall_seconds") or 0.0))
+    return round(total, 6)
+
+
+def _n4_call_evidence_rows(
+    organ_run: DesignGenerationOrganRun,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "call_index": call.call_index,
+            "role_hint": call.role_hint,
+            "status": call.status,
+            "model_id": call.model_id,
+            "prompt_hash": call.prompt_hash,
+            "raw_response_hash": _hash(call.raw_llm_response),
+        }
+        for call in organ_run.result.llm_calls
+    ]
+
+
+def _n4_call_journal_receipt(path: Path) -> dict[str, Any]:
+    """Verify the local journal before projecting its stable evidence receipt."""
+
+    if not path.is_file():
+        raise ValueError("education_n4_live_capture_journal_missing")
+    rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        raw_response = str(payload.get("raw_llm_response") or "")
+        rows.append(
+            {
+                "call_index": int(payload.get("call_index") or 0),
+                "role_hint": payload.get("role_hint"),
+                "status": str(payload.get("status") or "success"),
+                "model_id": str(payload.get("model_id") or ""),
+                "prompt_hash": str(payload.get("prompt_hash") or ""),
+                "raw_response_hash": _hash(raw_response),
+            }
+        )
+    if not rows:
+        raise ValueError("education_n4_live_capture_journal_empty")
+    return {
+        "status": "journaled_before_artifact_write",
+        "journal_entry_count": len(rows),
+        "call_evidence_rows": rows,
+        "stable_journal_projection_content_hash": _hash(rows),
+        "local_raw_journal_persistence": "local_only_ignored",
+    }
+
+
+def _n4_owner_capture_input_binding(
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> dict[str, Any]:
+    """Project the complete owner-derived identity bound by one N4 capture."""
+
+    return {
+        "design_problem_ref": gy_content_hash(problem.model_dump(mode="json")),
+        "domain": cycle_substrate_context.domain,
+        "source_pack_content_hash": cycle_substrate_context.source_pack_content_hash,
+        "substrate_input_content_hash": (
+            cycle_substrate_context.substrate_input_content_hash
+        ),
+        "cycle_substrate_context_content_hash": cycle_substrate_context.content_hash,
+        "substrate_registry_content_hash": (
+            cycle_substrate_context.substrate_registry_content_hash
+        ),
+        "selected_registry_entry_hashes": list(
+            cycle_substrate_context.selected_registry_entry_hashes
+        ),
+        "world_model_record_id": (
+            cycle_substrate_context.world_model_record.world_model_record_id
+        ),
+        "world_model_record_content_hash": (
+            cycle_substrate_context.world_model_record_content_hash
+        ),
+    }
+
+
+def _n4_capture_call_evidence_rows(
+    capture: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Project the call denominator recorded by one persisted capture."""
+
+    return [
+        {
+            "call_index": int(response.get("call_index") or 0),
+            "role_hint": response.get("role_hint"),
+            "status": response.get("status"),
+            "model_id": response.get("model_id"),
+            "prompt_hash": response.get("prompt_hash"),
+            "raw_response_hash": response.get("raw_response_hash"),
+        }
+        for response in _list_of_mappings(capture.get("responses"))
+    ]
+
+
+def _historical_n4_replay_receipt_issues(
+    capture: Mapping[str, Any],
+    *,
+    problem: DesignProblem,
+) -> list[str]:
+    """Recompute the only allowed historical-prompt/current-prompt bridge."""
+
+    issues: list[str] = []
+    receipt = _mapping(capture.get("historical_replay_receipt"))
+    if not receipt:
+        return ["n4_owner_historical_replay_receipt_missing"]
+    stable = {
+        key: value
+        for key, value in receipt.items()
+        if key != "receipt_content_hash"
+    }
+    if receipt.get("receipt_content_hash") != _hash(stable):
+        issues.append("n4_owner_historical_replay_receipt_hash_mismatch")
+    if receipt.get("schema_version") != (
+        "policyos.policy_design_case.gy_n10.n4_replay_receipt.v1"
+    ):
+        issues.append("n4_owner_historical_replay_receipt_schema_mismatch")
+    current_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if receipt.get("current_design_problem_ref") != current_problem_ref:
+        issues.append("n4_owner_historical_replay_problem_ref_mismatch")
+    if receipt.get("problem_semantic_projection") != (
+        _problem_without_census_provenance(problem)
+    ):
+        issues.append("n4_owner_historical_replay_problem_semantic_mismatch")
+    if receipt.get("changed_binding_fields") != sorted(
+        _HISTORICAL_N4_REPLAY_BINDING_FIELDS
+    ):
+        issues.append("n4_owner_historical_replay_binding_fields_mismatch")
+    historical_capture_hash = receipt.get("historical_capture_content_hash")
+    historical_problem_ref = receipt.get("historical_design_problem_ref")
+    if not isinstance(historical_capture_hash, str) or not re.fullmatch(
+        r"sha256:[0-9a-f]{64}", historical_capture_hash
+    ):
+        issues.append("n4_owner_historical_capture_ref_invalid")
+    if (
+        not isinstance(historical_problem_ref, str)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", historical_problem_ref)
+        or historical_problem_ref == current_problem_ref
+    ):
+        issues.append("n4_owner_historical_problem_ref_invalid")
+
+    historical_rows = _list_of_mappings(
+        _mapping(capture.get("journal_receipt")).get("call_evidence_rows")
+    )
+    current_rows = _n4_capture_call_evidence_rows(capture)
+    if len(historical_rows) != len(current_rows):
+        issues.append("n4_owner_historical_replay_call_denominator_mismatch")
+        return issues
+    expected_rebindings: list[dict[str, Any]] = []
+    stable_call_fields = (
+        "call_index",
+        "role_hint",
+        "status",
+        "model_id",
+        "raw_response_hash",
+    )
+    for historical_row, current_row in zip(
+        historical_rows,
+        current_rows,
+        strict=True,
+    ):
+        if any(
+            historical_row.get(field) != current_row.get(field)
+            for field in stable_call_fields
+        ):
+            issues.append("n4_owner_historical_replay_call_identity_mismatch")
+        expected_rebindings.append(
+            {
+                "call_index": current_row.get("call_index"),
+                "role_hint": current_row.get("role_hint"),
+                "raw_response_hash": current_row.get("raw_response_hash"),
+                "historical_prompt_hash": historical_row.get("prompt_hash"),
+                "replay_prompt_hash": current_row.get("prompt_hash"),
+            }
+        )
+    if receipt.get("call_rebindings") != expected_rebindings:
+        issues.append("n4_owner_historical_replay_call_binding_mismatch")
+    if not any(
+        row["historical_prompt_hash"] != row["replay_prompt_hash"]
+        for row in expected_rebindings
+    ):
+        issues.append("n4_owner_historical_replay_prompt_drift_missing")
+    return sorted(set(issues))
+
+
+def _n4_owner_capture_issues(
+    capture: Mapping[str, Any],
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> list[str]:
+    """Return every capture-integrity and current-owner binding issue."""
+
+    issues: list[str] = []
+    recorded_hash = str(capture.get("recording_content_hash") or "")
+    computed_hash = _hash(
+        {
+            key: value
+            for key, value in capture.items()
+            if key != "recording_content_hash"
+        }
+    )
+    if recorded_hash != computed_hash:
+        issues.append("n4_owner_capture_content_hash_mismatch")
+    binding = _mapping(capture.get("input_binding"))
+    expected_binding = _n4_owner_capture_input_binding(
+        problem,
+        cycle_substrate_context,
+    )
+    if binding != expected_binding:
+        issues.append("n4_owner_capture_input_binding_mismatch")
+    responses = _list_of_mappings(capture.get("responses"))
+    if not responses:
+        issues.append("n4_owner_capture_responses_missing")
+    for response in responses:
+        raw_response = response.get("raw_response")
+        if not isinstance(raw_response, str) or response.get(
+            "raw_response_hash"
+        ) != _hash(raw_response):
+            issues.append("n4_owner_capture_raw_response_hash_mismatch")
+        if response.get("raw_llm_response") != raw_response:
+            issues.append("n4_owner_capture_raw_response_alias_mismatch")
+    projection = _mapping(capture.get("owner_result_projection"))
+    issues.extend(
+        _n4_owner_projection_issues(
+            projection,
+            cycle_substrate_context=cycle_substrate_context,
+        )
+    )
+    response_prompt_hashes = [
+        str(response.get("prompt_hash") or "") for response in responses
+    ]
+    if response_prompt_hashes != _list_of_strings(
+        projection.get("exact_call_prompt_hashes")
+    ):
+        issues.append("n4_owner_capture_prompt_hash_denominator_mismatch")
+    response_raw_hashes = [
+        str(response.get("raw_response_hash") or "") for response in responses
+    ]
+    if response_raw_hashes != _list_of_strings(
+        projection.get("raw_response_hashes")
+    ):
+        issues.append("n4_owner_capture_response_denominator_mismatch")
+    journal = _mapping(capture.get("journal_receipt"))
+    if (
+        journal.get("status") != "journaled_before_artifact_write"
+        or int(journal.get("journal_entry_count") or 0) != len(responses)
+        or journal.get("stable_journal_projection_content_hash")
+        != _hash(_list_of_mappings(journal.get("call_evidence_rows")))
+    ):
+        issues.append("n4_owner_capture_journal_receipt_invalid")
+    journal_rows = _list_of_mappings(journal.get("call_evidence_rows"))
+    current_rows = _n4_capture_call_evidence_rows(capture)
+    replay_receipt = _mapping(capture.get("historical_replay_receipt"))
+    if capture.get("recording_source") == _HISTORICAL_N4_RECORDING_SOURCE:
+        issues.extend(
+            _historical_n4_replay_receipt_issues(
+                capture,
+                problem=problem,
+            )
+        )
+    elif replay_receipt:
+        issues.append("n4_owner_historical_replay_receipt_unexpected")
+    elif journal_rows != current_rows:
+        issues.append("n4_owner_capture_journal_prompt_binding_mismatch")
+    try:
+        EffectiveGenerationRuntimeConfig.model_validate(
+            projection.get("effective_runtime_config")
+        )
+    except ValueError:
+        issues.append("n4_owner_capture_effective_config_invalid")
+    return sorted(set(issues))
+
+
+def _require_valid_n4_owner_capture(
+    capture: Mapping[str, Any],
+    *,
+    problem: DesignProblem,
+    cycle_substrate_context: CycleSubstrateContext,
+) -> None:
+    """Fail closed on tampered bytes, repointed inputs, or an unusable owner result."""
+
+    issues = _n4_owner_capture_issues(
+        capture,
+        problem=problem,
+        cycle_substrate_context=cycle_substrate_context,
+    )
+    if issues:
+        raise ValueError("education_n4_owner_capture_invalid:" + ",".join(sorted(set(issues))))
+
+
+@contextmanager
+def _n4_recorded_runtime_environment(
+    capture: Mapping[str, Any],
+) -> Iterator[None]:
+    """Replay under the effective inputs emitted by the original owner run."""
+
+    projection = _mapping(capture.get("owner_result_projection"))
+    config = EffectiveGenerationRuntimeConfig.model_validate(
+        projection.get("effective_runtime_config")
+    )
+    expected = _recorded_runtime_environment_values(config)
+    extras = _mapping(capture.get("effective_runtime_environment"))
+    for key in (
+        "POLISYOS_CRITIC_LLM_RETRIES",
+        "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE",
+    ):
+        value = extras.get(key)
+        if not isinstance(value, str) or not value:
+            raise ValueError("education_n4_owner_capture_effective_config_missing:" + key)
+        expected[key] = value
+    with _temporary_environment(expected):
+        yield
+
+
+@contextmanager
+def _temporary_environment(values: Mapping[str, str]) -> Iterator[None]:
+    """Apply one serial runtime envelope and restore every touched key exactly."""
+
+    missing = object()
+    previous: dict[str, object] = {
+        key: os.environ.get(key, missing) for key in values
+    }
+    try:
+        os.environ.update({str(key): str(value) for key, value in values.items()})
+        yield
+    finally:
+        for key, value in previous.items():
+            if value is missing:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = str(value)
+
+
+def _cycle_stage_attempts(
+    *,
+    run_result: GenerationCycleRun,
+    organ_run: DesignGenerationOrganRun,
+    cycle_substrate_context: CycleSubstrateContext,
+    n4_owner_capture: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Bind live N4/L6/N5 objects to the independently typed N6 terminal."""
+
+    if not run_result.cycles:
+        raise ValueError("education_cycle_terminal_missing")
+    cycle = run_result.cycles[0]
+    projection = _n4_owner_result_projection(organ_run)
+    dispositions = _list_of_mappings(projection.get("grounding_dispositions"))
+    selected = next(
+        (
+            disposition
+            for disposition in dispositions
+            if str(disposition.get("proposal_id") or "")
+            == cycle.selected_candidate_ref
+        ),
+        None,
+    )
+    if selected is None:
+        raise ValueError("education_cycle_selected_disposition_missing")
+    resolution = InterventionLeverRefusal.model_validate(
+        _mapping(selected.get("lever_resolution"))
+    )
+    summary = next(
+        (
+            item
+            for item in run_result.candidate_summaries
+            if item.candidate_id == cycle.selected_candidate_ref
+        ),
+        None,
+    )
+    if summary is None:
+        raise ValueError("education_cycle_selected_summary_missing")
+    world_model_record = cycle.simulation.world_model_record
+    identity_reused = (
+        world_model_record is cycle_substrate_context.world_model_record
+    )
+    disposition_kind = str(selected.get("disposition") or "")
+    expected_terminal = expected_cycle_terminal_for_disposition(disposition_kind)
+    if cycle.terminal_kind != expected_terminal:
+        raise ValueError("education_cycle_terminal_disposition_mismatch")
+    proposed = _list_of_mappings(projection.get("proposed_interventions"))
+    stage_attempts = {
+        "generation": {
+            "attempted": True,
+            "owner": (
+                "polisyos.runtime.quality.design_generation."
+                "generate_design_candidate_bundle_under_a"
+            ),
+            "generation_channel": summary.generation_channel,
+            "owner_status": projection.get("status"),
+            "prompt_slice_content_hash": projection.get(
+                "lever_space_prompt_slice_content_hash"
+            ),
+            "prompt_slice_operator_kinds": _list_of_strings(
+                projection.get("prompt_slice_operator_kinds")
+            ),
+            "proposed_operator_kinds": [
+                str(row.get("operator_kind") or "") for row in proposed
+            ],
+            "proposed_raw_candidate_hashes": [
+                str(row.get("raw_candidate_hash") or "") for row in proposed
+            ],
+            "lever_source_hash": (
+                cycle_substrate_context.substrate_input_content_hash
+            ),
+            "exact_formalizer_input_hashes": _list_of_strings(
+                projection.get("exact_formalizer_input_hashes")
+            ),
+            "n4_owner_capture_content_hash": n4_owner_capture.get(
+                "recording_content_hash"
+            ),
+        },
+        "grounding": {
+            "attempted": True,
+            "owner": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
+            "proposal_id": cycle.selected_candidate_ref,
+            "raw_candidate_hash": selected.get("raw_candidate_hash"),
+            "disposition": disposition_kind,
+            "grounding_source": cycle.grounding.grounding_source,
+            "grounding_status": cycle.grounding.status,
+            "candidate_entry_content_hash": (
+                resolution.candidate_entry_content_hash
+            ),
+            "selected_registry_entry_hash": (
+                resolution.selected_registry_entry_hash
+            ),
+            "lever_resolution_content_hash": resolution.content_hash,
+            "lever_resolution_status": resolution.status,
+            "lever_resolution_reason_code": resolution.reason_code,
+            "substrate_input_content_hash": (
+                resolution.substrate_input_content_hash
+            ),
+            "context_binding_hash": resolution.context_binding_hash,
+            "world_model_record_content_hash": (
+                resolution.world_model_record_content_hash
+            ),
+        },
+        "world_model": {
+            "attempted": True,
+            "owner": (
+                "polisyos.runtime.quality.generation_cycle."
+                "_build_boundary_world_model_record"
+            ),
+            "object_identity_reused": identity_reused,
+            "world_model_record_id": (
+                cycle_substrate_context.world_model_record.world_model_record_id
+            ),
+            "world_model_record_content_hash": (
+                cycle_substrate_context.world_model_record_content_hash
+            ),
+            "context_binding_hash": cycle_substrate_context.context_binding_hash,
+            "substrate_registry_content_hash": (
+                cycle_substrate_context.substrate_registry_content_hash
+            ),
+            "selected_registry_entry_hashes": list(
+                cycle_substrate_context.selected_registry_entry_hashes
+            ),
+            "simulation_status": cycle.simulation.status,
+        },
+        "cycle_terminal": {
+            "terminal_kind": cycle.terminal_kind,
+            "terminal_status": run_result.terminal_status,
+            "evidence_kind": "real_n4_cgf_disposition",
+            "decision_grade": "blocked",
+            "promotion_status": run_result.promotion_port.status,
+        },
+    }
+    stage_attempts["world_model"]["identity_evidence_kind"] = (
+        _recompute_stage_world_identity_evidence(
+            stage_attempts,
+            cycle_trace={
+                "substrate_input_content_hash": (
+                    cycle_substrate_context.substrate_input_content_hash
+                ),
+                "world_model_record_content_hash": (
+                    cycle_substrate_context.world_model_record_content_hash
+                ),
+            },
+        )
+    )
+    return stage_attempts
+
+
+def expected_cycle_terminal_for_disposition(disposition: str) -> str:
+    """Return N6's routed terminal implied by one canonical N4 disposition."""
+
+    if disposition in {
+        "novel_cg3",
+        "non_binding_abstain",
+        "unknown_blocked",
+        "veto_false_analog",
+    }:
+        return SearchTerminalKind.ACQUISITION_REQUIRED.value
+    if disposition == "shadow_bound":
+        return SearchTerminalKind.GROUNDED_ABSTENTION.value
+    raise ValueError("education_cycle_unknown_grounding_disposition:" + disposition)
+
+
+def _recompute_stage_world_identity_evidence(
+    stage_attempts: Mapping[str, Any],
+    *,
+    cycle_trace: Mapping[str, Any],
+) -> str:
+    """Resolve the live witness that binds one Stage-1 attempt to its WMR.
+
+    A bindable candidate may prove the bridge by exact simulation-object reuse.
+    A candidate-unbound lever cannot honestly enter N5; in that case the strict
+    L6 refusal proves the same world boundary by content-binding the candidate,
+    selected registry entry, substrate input, context, and WMR.  The recorded
+    evidence-kind label is deliberately ignored and recomputed here.
+    """
+
+    grounding = _mapping(stage_attempts.get("grounding"))
+    world = _mapping(stage_attempts.get("world_model"))
+    trace_wmr_hash = cycle_trace.get("world_model_record_content_hash")
+    trace_input_hash = cycle_trace.get("substrate_input_content_hash")
+    grounding_wmr_hash = grounding.get("world_model_record_content_hash")
+    world_wmr_hash = world.get("world_model_record_content_hash")
+    grounding_context_hash = grounding.get("context_binding_hash")
+    world_context_hash = world.get("context_binding_hash")
+    selected_registry_hash = grounding.get("selected_registry_entry_hash")
+    world_selected_hashes = set(
+        _list_of_strings(world.get("selected_registry_entry_hashes"))
+    )
+    sha256_values = (
+        trace_wmr_hash,
+        trace_input_hash,
+        grounding_wmr_hash,
+        world_wmr_hash,
+        grounding_context_hash,
+        world_context_hash,
+        selected_registry_hash,
+        grounding.get("lever_resolution_content_hash"),
+    )
+    if any(
+        not isinstance(value, str)
+        or re.fullmatch(r"sha256:[0-9a-f]{64}", value) is None
+        for value in sha256_values
+    ):
+        return "unresolved"
+    if not (
+        trace_wmr_hash == grounding_wmr_hash == world_wmr_hash
+        and trace_input_hash == grounding.get("substrate_input_content_hash")
+        and grounding_context_hash == world_context_hash
+        and selected_registry_hash in world_selected_hashes
+    ):
+        return "unresolved"
+    if world.get("object_identity_reused") is True:
+        return "simulation_object_identity"
+    if (
+        world.get("object_identity_reused") is False
+        and grounding.get("lever_resolution_status") == "candidate_unbound"
+        and grounding.get("disposition")
+        in {
+            "novel_cg3",
+            "non_binding_abstain",
+            "unknown_blocked",
+            "veto_false_analog",
+        }
+        and world.get("simulation_status") == "simulation_blocked"
+    ):
+        return "grounding_candidate_unbound_resolution"
+    return "unresolved"
+
+
+@lru_cache(maxsize=4)
+def _historical_n10a_cycle_trace_json(repo_root: str) -> str:
+    root = Path(repo_root)
+    git_prefix = _git(root, "rev-parse", "--show-prefix")
+    historical_path = f"{git_prefix}{CYCLE_TRACE_OUTPUT}" if git_prefix else CYCLE_TRACE_OUTPUT
+    return _git(root, "show", f"{N10A_PROOF_HEAD_COMMIT}:{historical_path}")
+
+
+def load_committed_baseline(root: Path) -> dict[str, Any]:
+    """Load and hash-verify the immutable N10a cycle-entry baseline."""
+
+    payload = json.loads(
+        _historical_n10a_cycle_trace_json(root.resolve().as_posix())
+    )
+    issues: list[dict[str, Any]] = []
+    _validate_artifact_hash(payload, "trace_content_hash", issues)
+    if issues:
+        raise ValueError("education_cycle_baseline_hash_invalid")
+    return payload
+
+
+def recompute_baseline_diff(
+    trace: Mapping[str, Any],
+    baseline: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Measure movement from the committed a_spec_gap grounding baseline."""
+
+    baseline_cycles = _list_of_mappings(
+        _mapping(baseline.get("generation_cycle_run")).get("cycles")
+    )
+    baseline_terminal = (
+        str(baseline_cycles[0].get("terminal_kind") or "")
+        if baseline_cycles
+        else "missing"
+    )
+    stages = _mapping(trace.get("stage_attempts"))
+    generation = _mapping(stages.get("generation"))
+    grounding = _mapping(stages.get("grounding"))
+    terminal = _mapping(stages.get("cycle_terminal"))
+    current_terminal = str(terminal.get("terminal_kind") or "")
+    movement = {
+        "generation_used_real_n4_owner": (
+            generation.get("generation_channel") == "n4_owner"
+            and bool(_list_of_strings(generation.get("proposed_operator_kinds")))
+        ),
+        "grounding_received_real_disposition": (
+            grounding.get("attempted") is True
+            and str(grounding.get("disposition") or "")
+            in {
+                "novel_cg3",
+                "non_binding_abstain",
+                "unknown_blocked",
+                "veto_false_analog",
+            }
+            and str(grounding.get("lever_resolution_content_hash") or "").startswith(
+                "sha256:"
+            )
+        ),
+        "world_model_received_content_bound_context": (
+            _recompute_stage_world_identity_evidence(
+                stages,
+                cycle_trace=trace,
+            )
+            != "unresolved"
+        ),
+        "terminal_moved_beyond_spec_gap": (
+            baseline_terminal == SearchTerminalKind.A_SPEC_GAP.value
+            and current_terminal != SearchTerminalKind.A_SPEC_GAP.value
+            and bool(current_terminal)
+        ),
+    }
+    return {
+        "baseline_trace_content_hash": baseline.get("trace_content_hash"),
+        "baseline_terminal_kind": baseline_terminal,
+        "current_terminal_kind": current_terminal,
+        "movement": movement,
+        "materially_deeper": all(movement.values()),
+    }
+
+
+def _stage_1_gap_triage(
+    stage_attempts: Mapping[str, Any],
+    *,
+    cycle_trace: Mapping[str, Any],
+    n8_transport_evidence: Mapping[str, Any],
+    n6_validation_evidence: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Close only bridges witnessed behaviorally by this Stage-1 run."""
+
+    generation = _mapping(stage_attempts.get("generation"))
+    grounding = _mapping(stage_attempts.get("grounding"))
+    world = _mapping(stage_attempts.get("world_model"))
+    closed = {
+        "s0_to_n4_l6_bridge_missing": {
+            "closed": (
+                generation.get("generation_channel") == "n4_owner"
+                and bool(generation.get("prompt_slice_content_hash"))
+                and bool(_list_of_strings(generation.get("proposed_operator_kinds")))
+            ),
+            "receipt_ref": generation.get("n4_owner_capture_content_hash"),
+        },
+        "s0_to_n5_wmr_bridge_missing": {
+            "closed": (
+                _recompute_stage_world_identity_evidence(
+                    stage_attempts,
+                    cycle_trace=cycle_trace,
+                )
+                != "unresolved"
+            ),
+            "receipt_ref": world.get("world_model_record_content_hash"),
+        },
+        "s0_to_l6_world_slot_bridge_missing": {
+            "closed": bool(grounding.get("lever_resolution_content_hash")),
+            "receipt_ref": grounding.get("lever_resolution_content_hash"),
+        },
+        "n8_transport_tuple_hardcode": {
+            "closed": n8_transport_evidence.get("closed") is True,
+            "receipt_ref": n8_transport_evidence.get("receipt_ref"),
+            "residual_reason": n8_transport_evidence.get("reason_code"),
+        },
+        "n6_single_terminal_validation_gap": {
+            "closed": n6_validation_evidence.get("closed") is True,
+            "receipt_ref": n6_validation_evidence.get("receipt_ref"),
+            "residual_reason": n6_validation_evidence.get("reason_code"),
+        },
+    }
+    rows: list[dict[str, Any]] = []
+    for gap_id in GAP_WITNESS_SPECS:
+        bridge = closed.get(gap_id)
+        if bridge is not None:
+            rows.append(
+                {
+                    "gap_id": gap_id,
+                    "status": "closed" if bridge["closed"] else "typed_residual",
+                    "disposition": (
+                        "closed_by_live_behavioral_receipt"
+                        if bridge["closed"]
+                        else bridge.get("residual_reason")
+                        or "receipt_missing_fail_closed"
+                    ),
+                    "receipt_ref": bridge["receipt_ref"],
+                }
+            )
+            continue
+        residual_reason = {
+            "owner_registration_derivation_missing": (
+                "N7 owner-registration derivation is acquisition infrastructure."
+            ),
+            "journal_raw_evidence_persistence_missing": (
+                "N7 durable raw-evidence persistence is acquisition infrastructure."
+            ),
+        }[gap_id]
+        rows.append(
+            {
+                "gap_id": gap_id,
+                "status": "typed_residual",
+                "disposition": residual_reason,
+                "receipt_ref": None,
+            }
+        )
+    return rows
+
+
+def _n6_single_terminal_gap_closure(
+    run: GenerationCycleRun,
+) -> dict[str, Any]:
+    """Prove N6 accepts one coherent terminal by invoking its live validator."""
+
+    validation_issues = list(validate_generation_cycle_run(run))
+    cycle_count = len(run.cycles)
+    terminal_kind = run.cycles[0].terminal_kind if cycle_count == 1 else None
+    run_content_hash = _hash(run.model_dump(mode="json"))
+    receipt_payload = {
+        "run_content_hash": run_content_hash,
+        "cycle_count": cycle_count,
+        "terminal_kind": terminal_kind,
+        "validation_issues": validation_issues,
+    }
+    closed = cycle_count == 1 and not validation_issues
+    return {
+        **receipt_payload,
+        "closed": closed,
+        "reason_code": (
+            "n6_coherent_single_terminal_accepted"
+            if closed
+            else "n6_single_terminal_validation_not_proven"
+        ),
+        "receipt_ref": _hash(receipt_payload),
+    }
 
 
 def _normalize_n6_run_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -1776,6 +4101,16 @@ def _build_gap_report(
     n7_attempt = _mapping(facts.get("n7_attempt"))
     registration_witness = seam_witnesses["owner_registration_derivation_missing"]
     n8_comparator = _first_vertical_comparator(root)
+    n8_transport_evidence = _n8_transport_gap_closure_from_root(
+        root,
+        expected_education_covariates=tuple(
+            sorted(
+                str(row.get("canonical_var") or "")
+                for row in _list_of_mappings(facts.get("covariate_rows"))
+                if row.get("canonical_var")
+            )
+        ),
+    )
     gaps = [
         {
             "gap_id": "s0_to_l6_world_slot_bridge_missing",
@@ -1878,92 +4213,412 @@ def _build_gap_report(
             },
         },
     ]
+    trace_triage = {
+        str(item.get("gap_id") or ""): item
+        for item in _list_of_mappings(cycle_trace.get("gap_triage"))
+    }
+    stage_attempts = _mapping(cycle_trace.get("stage_attempts"))
+    n6_validation_evidence = _n6_single_terminal_gap_closure(
+        GenerationCycleRun.model_validate(
+            _mapping(cycle_trace.get("generation_cycle_run"))
+        )
+    )
+    stage_receipts = {
+        "s0_to_n4_l6_bridge_missing": _mapping(stage_attempts.get("generation")),
+        "s0_to_n5_wmr_bridge_missing": _mapping(stage_attempts.get("world_model")),
+        "s0_to_l6_world_slot_bridge_missing": _mapping(stage_attempts.get("grounding")),
+        "n8_transport_tuple_hardcode": n8_transport_evidence,
+        "n6_single_terminal_validation_gap": n6_validation_evidence,
+    }
+    for gap in gaps:
+        gap_id = str(gap.get("gap_id") or "")
+        triage = _mapping(trace_triage.get(gap_id))
+        gap["status"] = triage.get("status") or "typed_residual"
+        gap["disposition"] = triage.get("disposition") or "untriaged_fail_closed"
+        if gap["status"] == "closed":
+            gap["capability_label"] = "closed"
+            gap["blocking_seam"] = "Closed by a live content-bound behavioral receipt."
+            gap.pop("acquisition_required", None)
+            owner_evidence = _mapping(gap.get("owner_evidence"))
+            receipt_key = {
+                "n8_transport_tuple_hardcode": "stage_2_behavioral_receipt",
+                "n6_single_terminal_validation_gap": "stage_3_behavioral_receipt",
+            }.get(gap_id, "stage_1_behavioral_receipt")
+            owner_evidence[receipt_key] = stage_receipts[gap_id]
+            gap["owner_evidence"] = owner_evidence
     hashed = [_with_content_hash(gap, "gap_content_hash") for gap in gaps]
     payload = {
         "schema_version": SCHEMA_VERSION,
         "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
         "rule_version": RULE_VERSION,
         "producer": PRODUCER,
-        "status": "gaps_recorded_no_engine_change",
+        "status": "cycle_blocking_bridges_closed_with_typed_residuals",
         "gaps": hashed,
     }
     return _with_content_hash(payload, "gap_report_content_hash")
 
 
-def _build_pack(
-    root: Path,
+def second_domain_substrate_input_content_hash(pack: Mapping[str, Any]) -> str:
+    """Hash only stable owner inputs available before cycle/gap production."""
+
+    components = _mapping(pack.get("components"))
+    owner_queries = _mapping(pack.get("owner_query_results"))
+    registry = _mapping(components.get("substrate_registry"))
+    writability = _mapping(components.get("owner_writability"))
+    transport = _mapping(components.get("transport_context"))
+    query_bindings = {}
+    for query_id in (
+        "l1_selected_entry_details",
+        "l2_selected_levers",
+        "l2_exact_domain_measure_names",
+        "l1_selected_context_profiles",
+    ):
+        query = _mapping(owner_queries.get(query_id))
+        query_bindings[query_id] = {
+            "query_id": query.get("query_id"),
+            "query_content_hash": query.get("query_content_hash"),
+            "response_content_hash": query.get("response_content_hash"),
+        }
+    return _hash(
+        {
+            "selected_domain": pack.get("selected_domain"),
+            "substrate_registry": {
+                "content_hash": registry.get("content_hash"),
+                "substrate_version_id": registry.get("substrate_version_id"),
+                "selected_entry_hashes": sorted(
+                    _list_of_strings(registry.get("selected_entry_hashes"))
+                ),
+                "selection_evidence": registry.get("selection_evidence"),
+            },
+            "lever_entries": _list_of_mappings(
+                _mapping(components.get("lever_vocabulary")).get("entries")
+            ),
+            "outcome_entries": _list_of_mappings(
+                _mapping(components.get("outcomes")).get("entries")
+            ),
+            "transport_context": {
+                "status": transport.get("status"),
+                "covariates": _list_of_mappings(transport.get("covariates")),
+                "source_context": _mapping(transport.get("source_context")),
+                "target_context": _mapping(transport.get("target_context")),
+            },
+            "l6_owner": {
+                "bundle_content_hash": writability.get("l6_bundle_content_hash"),
+                "attempts": _list_of_mappings(writability.get("attempts")),
+            },
+            "owner_query_bindings": query_bindings,
+        }
+    )
+
+
+def project_second_domain_cycle_substrate_context(
+    bundle: Mapping[str, Any],
+    *,
+    repo_root: Path,
+    design_problem: DesignProblem,
+    world_model_record: WorldModelRecord,
+    intervention_substrate: InterventionSubstrateBundle | None = None,
+) -> CycleSubstrateContext:
+    """Project a verified frozen pack into the runtime intake contract.
+
+    This checker-side adapter is deliberately object-in/object-out. It may
+    validate committed evidence, but it cannot build a world record from a pack
+    filename or treat registry-shaped JSON as runtime authority.
+    """
+
+    root = repo_root.resolve()
+    census = _mapping(bundle.get("census"))
+    pack = _mapping(bundle.get("pack"))
+    issues: list[dict[str, Any]] = []
+    _validate_artifact_hash(pack, "manifest_content_hash", issues)
+    _validate_cycle_substrate_registry(root, census, pack, issues)
+    _validate_owner_derived_entries(census, pack, issues)
+    if issues:
+        codes = sorted({str(issue.get("code") or "unknown") for issue in issues})
+        raise ValueError("cycle_substrate_pack_invalid:" + ",".join(codes))
+
+    if not second_domain_pack_supports_design_problem(bundle, design_problem):
+        raise ValueError("cycle_substrate_problem_owner_evidence_unresolved")
+    domain = design_problem.domain
+    WorldModelRecord.model_validate(world_model_record.model_dump(mode="python"))
+    if (
+        world_model_record.region_or_jurisdiction
+        != design_problem.jurisdiction_time.region
+    ):
+        raise ValueError("cycle_substrate_problem_world_mismatch")
+
+    components = _mapping(pack.get("components"))
+    owner_queries = _mapping(pack.get("owner_query_results"))
+    registry_owner = _mapping(owner_queries.get("s0_registry"))
+    registry = SubstrateRegistry.model_validate(registry_owner.get("registry_payload"))
+    selected_hashes = tuple(
+        _list_of_strings(
+            _mapping(components.get("substrate_registry")).get(
+                "selected_entry_hashes"
+            )
+        )
+    )
+    addressing = _mapping(pack.get("content_addressing"))
+    historical_pack_hash = str(
+        addressing.get("historical_source_pack_content_hash") or ""
+    )
+    substrate_input_hash = str(
+        addressing.get("substrate_input_content_hash") or ""
+    )
+    if substrate_input_hash != second_domain_substrate_input_content_hash(pack):
+        raise ValueError("cycle_substrate_input_content_hash_mismatch")
+    if intervention_substrate is not None:
+        expected_l6_hash = _mapping(components.get("owner_writability")).get(
+            "l6_bundle_content_hash"
+        )
+        if intervention_substrate.content_hash != expected_l6_hash:
+            raise ValueError("cycle_substrate_l6_bundle_content_mismatch")
+
+    design_problem_ref = gy_content_hash(design_problem.model_dump(mode="json"))
+    context_binding_hash = cycle_substrate_context_binding_hash(
+        design_problem_ref=design_problem_ref,
+        domain=domain,
+        substrate_input_content_hash=substrate_input_hash,
+        substrate_registry_content_hash=registry.content_hash,
+        world_model_record_id=world_model_record.world_model_record_id,
+        world_model_record_content_hash=world_model_record.content_hash,
+        world_model_record_authority_status=world_model_record.authority_status,
+        selected_registry_entry_hashes=selected_hashes,
+    )
+
+    candidates: list[CandidateLeverEvidence] = []
+    for row in _list_of_mappings(
+        _mapping(components.get("lever_vocabulary")).get("entries")
+    ):
+        owner_evidence = _mapping(row.get("owner_evidence"))
+        candidates.append(
+            CandidateLeverEvidence(
+                lever_id=str(row.get("lever_id") or ""),
+                instrument=str(row.get("instrument") or ""),
+                target_concept=str(row.get("target_concept") or ""),
+                status=str(row.get("status") or ""),
+                entry_content_hash=str(row.get("entry_content_hash") or ""),
+                substrate_input_content_hash=substrate_input_hash,
+                selected_registry_entry_hash=str(
+                    row.get("selected_registry_entry_hash") or ""
+                ),
+                context_binding_hash=context_binding_hash,
+                source_refs=(
+                    str(
+                        _mapping(
+                            _mapping(components.get("substrate_registry")).get(
+                                "selection_evidence"
+                            )
+                        ).get("owner_query_source_ref")
+                        or ""
+                    ),
+                    (
+                        "owner-query://"
+                        + str(owner_evidence.get("query_id") or "unresolved")
+                        + "/"
+                        + str(
+                            owner_evidence.get("source_row_content_hash")
+                            or "unresolved"
+                        )
+                    ),
+                ),
+            )
+        )
+
+    transport_component = _mapping(components.get("transport_context"))
+    source_profile = _mapping(transport_component.get("source_context"))
+    target_profile = _mapping(transport_component.get("target_context"))
+    source_rows = {
+        str(row.get("canonical_var") or ""): row
+        for row in _list_of_mappings(source_profile.get("covariates"))
+    }
+    target_rows = {
+        str(row.get("canonical_var") or ""): row
+        for row in _list_of_mappings(target_profile.get("covariates"))
+    }
+    covariate_names = tuple(
+        str(row.get("canonical_var") or "")
+        for row in _list_of_mappings(transport_component.get("covariates"))
+    )
+    if (
+        not covariate_names
+        or set(covariate_names) != set(source_rows)
+        or set(covariate_names) != set(target_rows)
+    ):
+        raise ValueError("cycle_substrate_transport_profile_denominator_mismatch")
+    transport = TransportContextEvidence(
+        status=str(transport_component.get("status") or ""),
+        source_context_id=str(source_profile.get("country_code") or ""),
+        target_context_id=str(target_profile.get("country_code") or ""),
+        source_profile_content_hash=str(
+            source_profile.get("profile_content_hash") or ""
+        ),
+        target_profile_content_hash=str(
+            target_profile.get("profile_content_hash") or ""
+        ),
+        substrate_input_content_hash=substrate_input_hash,
+        context_binding_hash=context_binding_hash,
+        covariates=tuple(
+            TransportCovariateObservation(
+                canonical_var=name,
+                source_value=float(source_rows[name]["mean_value"]),
+                target_value=float(target_rows[name]["mean_value"]),
+                source_row_content_hash=str(
+                    source_rows[name].get("row_content_hash") or ""
+                ),
+                target_row_content_hash=str(
+                    target_rows[name].get("row_content_hash") or ""
+                ),
+            )
+            for name in covariate_names
+        ),
+    )
+    return build_cycle_substrate_context(
+        design_problem_ref=design_problem_ref,
+        domain=domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_hashes,
+        world_model_record=world_model_record,
+        intervention_substrate=intervention_substrate,
+        candidate_levers=tuple(candidates),
+        transport_context=transport,
+        source_pack_content_hash=historical_pack_hash,
+        substrate_input_content_hash=substrate_input_hash,
+    )
+
+
+def second_domain_pack_supports_design_problem(
+    bundle: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> bool:
+    """Return whether verified pack evidence contains the requested outcome.
+
+    Domain labels are intentionally excluded. The pack can support a problem
+    only when its owner-derived outcome denominator names the exact requested
+    variable; lever and transport evidence remain candidate-only downstream.
+    """
+
+    pack = _mapping(bundle.get("pack"))
+    outcome_rows = _list_of_mappings(
+        _mapping(_mapping(pack.get("components")).get("outcomes")).get(
+            "entries"
+        )
+    )
+    owner_outcomes = {
+        str(row.get("canonical_var") or "").strip()
+        for row in outcome_rows
+        if str(row.get("canonical_var") or "").strip()
+    }
+    return design_problem.outcome_of_interest.target_variable in owner_outcomes
+
+
+def _build_cycle_substrate_input_projection(
     census: Mapping[str, Any],
     facts: Mapping[str, Any],
-    smoke_problem: Mapping[str, Any],
-    cycle_trace: Mapping[str, Any],
-    gaps: Mapping[str, Any],
 ) -> dict[str, Any]:
+    """Assemble the stable owner projection before any cycle or gap runs."""
+
     chosen = str(facts["chosen_candidate"])
     l1_detail_query = _mapping(facts.get("l1_detail_query"))
     detail_rows = _mapping(facts.get("l1_details"))
     outcome_entries = [
-        _pack_l1_entry(detail_rows[str(row["canonical_var"])], "outcome", l1_detail_query)
+        _pack_l1_entry(
+            detail_rows[str(row["canonical_var"])],
+            "outcome",
+            l1_detail_query,
+        )
         for row in _list_of_mappings(facts.get("outcome_rows"))
     ]
     covariate_entries = [
-        _pack_l1_entry(detail_rows[str(row["canonical_var"])], "transport_covariate", l1_detail_query)
+        _pack_l1_entry(
+            detail_rows[str(row["canonical_var"])],
+            "transport_covariate",
+            l1_detail_query,
+        )
         for row in _list_of_mappings(facts.get("covariate_rows"))
     ]
-    l2_component = _mapping(_mapping(census["candidates"])[chosen].get("l2_scholar_kg"))
+    l2_component = _mapping(
+        _mapping(census["candidates"])[chosen].get("l2_scholar_kg")
+    )
+    selected_registry_hashes = _list_of_strings(
+        _mapping(facts.get("s0_registry")).get("selected_l2_query_entry_hashes")
+    )
+    if len(selected_registry_hashes) != 1:
+        raise OwnerDataUnavailableError(
+            "cycle substrate intake requires exactly one selected L2 registry entry"
+        )
     lever_entries = [
-        _pack_l2_lever_entry(row, l2_component)
+        _pack_l2_lever_entry(
+            row,
+            l2_component,
+            selected_registry_entry_hash=selected_registry_hashes[0],
+        )
         for row in _list_of_mappings(facts.get("l2_levers"))
     ]
-    attempts = _list_of_mappings(_mapping(facts.get("l6_owner")).get("writability_attempts"))
+    attempts = _list_of_mappings(
+        _mapping(facts.get("l6_owner")).get("writability_attempts")
+    )
     writable = [item for item in attempts if item.get("status") == "owner_writable"]
-    base_commit = _task_base_commit(root)
-    changed_paths = _task_changed_paths(root, base_commit)
-    engine_paths = [path for path in changed_paths if path.startswith("src/polisyos/")]
-    out_of_scope_paths = [path for path in changed_paths if not _task_scope_path_allowed(path)]
-    n7_attempt = _mapping(facts.get("n7_attempt"))
-    n7_runtime_metrics = _mapping(n7_attempt.get("runtime_metrics"))
-    n7_content = {
-        key: value for key, value in n7_attempt.items() if key != "runtime_metrics"
-    }
     payload = {
-        "schema_version": SCHEMA_VERSION,
-        "artifact_kind": "policy_design_case.gy_n10a.second_domain_pack",
-        "rule_version": RULE_VERSION,
-        "producer": PRODUCER,
         "selected_domain": chosen,
-        "content_addressing": {
-            "cache_semantics": "E1 content-addressed frozen manifest",
-            "journal_semantics": "E6 gaps are explicit because existing N7 has no durable L2/L3 journal artifact",
-            "live_attempt_semantics": "E8 one candidate lever per N6 grammar-fallback attempt",
-        },
-        "census_content_hash": census["census_content_hash"],
-        "smoke_problem_content_hash": smoke_problem["smoke_problem_content_hash"],
-        "cycle_trace_content_hash": cycle_trace["trace_content_hash"],
-        "gap_report_content_hash": gaps["gap_report_content_hash"],
-        "content_hash_excluded_fields": ["runtime_metrics"],
         "components": {
             "outcomes": {
                 "owner": "L1 DCAT ds_observations",
-                "selection_rule": "two highest-observation specific panel outcomes plus one highest-observation non-panel outcome",
+                "selection_rule": (
+                    "two highest-observation specific panel outcomes plus one "
+                    "highest-observation non-panel outcome"
+                ),
                 "entries": outcome_entries,
             },
             "lever_vocabulary": {
                 "owner": "L2 scholar knowledge graph ac_causal_claims",
-                "selection_rule": "top owner causal cause/effect groups ranked by claim count",
+                "selection_rule": (
+                    "top owner causal cause/effect groups ranked by claim count"
+                ),
                 "entries": lever_entries,
                 "s0_registration_status": "bridge_missing_no_new_registry_format",
                 "gap_ref": "s0_to_l6_world_slot_bridge_missing",
             },
             "owner_writability": {
                 "owner": "L6 intervention substrate resolver",
-                "s0_registry_content_hash": _mapping(facts.get("s0_registry")).get("content_hash"),
+                "s0_registry_content_hash": _mapping(facts.get("s0_registry")).get(
+                    "content_hash"
+                ),
                 "s0_education_entries": _mapping(facts.get("s0_registry")).get(
                     "education_relevant_entries"
                 ),
-                "l6_bundle_content_hash": _mapping(facts.get("l6_owner")).get("bundle_content_hash"),
+                "l6_bundle_content_hash": _mapping(facts.get("l6_owner")).get(
+                    "bundle_content_hash"
+                ),
                 "attempts": attempts,
                 "positive_writable_count": len(writable),
                 "status": "thin_or_zero_is_honest",
+            },
+            "substrate_registry": {
+                "owner": _SUBSTRATE_REGISTRY_OWNER,
+                "content_hash": _mapping(facts.get("s0_registry")).get(
+                    "content_hash"
+                ),
+                "substrate_version_id": _mapping(facts.get("s0_registry")).get(
+                    "substrate_version_id"
+                ),
+                "selected_entry_hashes": selected_registry_hashes,
+                "registry_owner_query_ref": "owner_query_results.s0_registry",
+                "selection_evidence": {
+                    **_mapping(
+                        _mapping(facts.get("s0_registry")).get("selection_evidence")
+                    ),
+                    "owner_query_ref": "owner_query_results.l2_selected_levers",
+                    "owner_query_source_ref": l2_component.get(
+                        "owner_query_source_ref"
+                    ),
+                    "query_id": l2_component.get("query_id"),
+                    "query_content_hash": l2_component.get("query_content_hash"),
+                    "query_response_content_hash": l2_component.get(
+                        "response_content_hash"
+                    ),
+                },
+                "authority_purpose": "candidate_evidence_intake_only",
             },
             "transport_context": {
                 "owner": "L1 DCAT plus L2 exact concept presence",
@@ -1992,16 +4647,83 @@ def _build_pack(
             },
         },
         "owner_query_results": {
+            "s0_registry": {
+                "owner": _SUBSTRATE_REGISTRY_OWNER,
+                "content_hash": _mapping(facts.get("s0_registry")).get(
+                    "content_hash"
+                ),
+                "substrate_version_id": _mapping(facts.get("s0_registry")).get(
+                    "substrate_version_id"
+                ),
+                "registry_payload": _mapping(facts.get("s0_registry")).get(
+                    "registry_payload"
+                ),
+            },
             "l1_selected_entry_details": l1_detail_query,
             "l2_selected_levers": {
                 "query_id": l2_component["query_id"],
                 "query_content_hash": l2_component["query_content_hash"],
                 "response_content_hash": l2_component["response_content_hash"],
+                "owner_query_source_ref": l2_component["owner_query_source_ref"],
                 "rows": _list_of_mappings(facts.get("l2_levers")),
             },
             "l2_exact_domain_measure_names": facts["l2_exact_query"],
             "l1_selected_context_profiles": facts["l1_context_query"],
         },
+    }
+    payload["substrate_input_content_hash"] = (
+        second_domain_substrate_input_content_hash(payload)
+    )
+    return payload
+
+
+def _build_pack(
+    root: Path,
+    census: Mapping[str, Any],
+    facts: Mapping[str, Any],
+    smoke_problem: Mapping[str, Any],
+    cycle_trace: Mapping[str, Any],
+    gaps: Mapping[str, Any],
+    substrate_input: Mapping[str, Any],
+) -> dict[str, Any]:
+    chosen = str(substrate_input["selected_domain"])
+    expected_input_hash = second_domain_substrate_input_content_hash(substrate_input)
+    if substrate_input.get("substrate_input_content_hash") != expected_input_hash:
+        raise ValueError("cycle_substrate_input_projection_hash_mismatch")
+    base_commit = N10A_BASE_COMMIT
+    proof_head_commit = N10A_PROOF_HEAD_COMMIT
+    changed_paths = _historical_task_changed_paths(
+        root,
+        base=base_commit,
+        proof_head=proof_head_commit,
+    )
+    engine_paths = [path for path in changed_paths if path.startswith("src/polisyos/")]
+    out_of_scope_paths = [path for path in changed_paths if not _task_scope_path_allowed(path)]
+    n7_attempt = _mapping(facts.get("n7_attempt"))
+    n7_runtime_metrics = _mapping(n7_attempt.get("runtime_metrics"))
+    n7_content = {
+        key: value for key, value in n7_attempt.items() if key != "runtime_metrics"
+    }
+    payload = {
+        "schema_version": SCHEMA_VERSION,
+        "artifact_kind": "policy_design_case.gy_n10a.second_domain_pack",
+        "rule_version": RULE_VERSION,
+        "producer": PRODUCER,
+        "selected_domain": chosen,
+        "content_addressing": {
+            "cache_semantics": "E1 content-addressed frozen manifest",
+            "journal_semantics": "E6 gaps are explicit because existing N7 has no durable L2/L3 journal artifact",
+            "live_attempt_semantics": (
+                "E8 one journal-first N4 owner capture, then content-addressed replay"
+            ),
+        },
+        "census_content_hash": census["census_content_hash"],
+        "smoke_problem_content_hash": smoke_problem["smoke_problem_content_hash"],
+        "cycle_trace_content_hash": cycle_trace["trace_content_hash"],
+        "gap_report_content_hash": gaps["gap_report_content_hash"],
+        "content_hash_excluded_fields": ["runtime_metrics"],
+        "components": copy.deepcopy(substrate_input["components"]),
+        "owner_query_results": copy.deepcopy(substrate_input["owner_query_results"]),
         "distinctness": {
             "first_vertical_comparator": _first_vertical_comparator(root),
             "selected_method_family": "non_panel_short_series",
@@ -2017,18 +4739,26 @@ def _build_pack(
         },
         "runtime_metrics": {"n7_acquisition": n7_runtime_metrics},
         "zero_engine_code": {
+            "scope_semantics": "historical_commit_range",
             "task_base_commit": base_commit,
+            "proof_head_commit": proof_head_commit,
             "changed_paths": changed_paths,
             "changed_engine_paths": engine_paths,
             "out_of_scope_paths": out_of_scope_paths,
             "status": "pass" if not engine_paths and not out_of_scope_paths else "fail",
         },
         "capability_reality": {
-            "state": "artifact_missing_and_bridge_missing_for_durable_lever_registration",
+            "state": "stage_1_bridges_closed_with_typed_n7_infra_residuals",
             "surface": "pack_manifest_and_gap_report",
             "surface_out_of_scope": False,
         },
     }
+    content_addressing = _mapping(payload.get("content_addressing"))
+    content_addressing["historical_source_pack_content_hash"] = (
+        _historical_n10a_pack_content_hash(root)
+    )
+    content_addressing["substrate_input_content_hash"] = expected_input_hash
+    payload["content_addressing"] = content_addressing
     return _with_content_hash(
         payload,
         "manifest_content_hash",
@@ -2058,7 +4788,12 @@ def _pack_l1_entry(row: Mapping[str, Any], role: str, query: Mapping[str, Any]) 
     return _with_content_hash(payload, "entry_content_hash")
 
 
-def _pack_l2_lever_entry(row: Mapping[str, Any], query: Mapping[str, Any]) -> dict[str, Any]:
+def _pack_l2_lever_entry(
+    row: Mapping[str, Any],
+    query: Mapping[str, Any],
+    *,
+    selected_registry_entry_hash: str,
+) -> dict[str, Any]:
     """Project one L2 causal owner row into its exact candidate lever entry."""
 
     payload = {
@@ -2066,6 +4801,7 @@ def _pack_l2_lever_entry(row: Mapping[str, Any], query: Mapping[str, Any]) -> di
         "instrument": str(row["cause"]),
         "target_concept": str(row["effect"]),
         "status": "candidate_unbound",
+        "selected_registry_entry_hash": selected_registry_entry_hash,
         "owner_evidence": {
             "owner": "L2 scholar knowledge graph ac_causal_claims",
             "query_id": query["query_id"],
@@ -2174,6 +4910,11 @@ def _validate_owner_derived_entries(
                     {"code": "pack_entry_owner_projection_drift", "entry": canonical_var}
                 )
     l2_query = _mapping(owner_queries.get("l2_selected_levers"))
+    selected_registry_hashes = _list_of_strings(
+        _mapping(components.get("substrate_registry")).get("selected_entry_hashes")
+    )
+    if len(selected_registry_hashes) != 1:
+        issues.append({"code": "cycle_substrate_registry_selection_denominator_invalid"})
     lever_rows = {
         (str(row.get("cause")), str(row.get("effect"))): row
         for row in _list_of_mappings(l2_query.get("rows"))
@@ -2187,7 +4928,13 @@ def _validate_owner_derived_entries(
             continue
         if evidence.get("source_row_content_hash") != source.get("row_content_hash"):
             issues.append({"code": "pack_entry_owner_evidence_drift", "entry": key[0]})
-        expected = _pack_l2_lever_entry(source, l2_query)
+        if len(selected_registry_hashes) != 1:
+            continue
+        expected = _pack_l2_lever_entry(
+            source,
+            l2_query,
+            selected_registry_entry_hash=selected_registry_hashes[0],
+        )
         if entry != expected:
             issues.append({"code": "pack_entry_owner_projection_drift", "entry": key[0]})
     grounding = _mapping(components.get("grounding_reference_coverage"))
@@ -2233,30 +4980,240 @@ def _validate_owner_derived_entries(
         issues.append({"code": "owner_writability_denominator_mismatch"})
 
 
-def _validate_n7_attempt(pack: Mapping[str, Any], issues: list[dict[str, Any]]) -> None:
+def _validate_cycle_substrate_registry(
+    root: Path,
+    census: Mapping[str, Any],
+    pack: Mapping[str, Any],
+    issues: list[dict[str, Any]],
+) -> None:
+    """Resolve and content-bind the registry evidence used by cycle intake."""
+
+    addressing = _mapping(pack.get("content_addressing"))
+    try:
+        historical_hash = _historical_n10a_pack_content_hash(root)
+    except RuntimeError as exc:
+        issues.append(
+            {"code": "historical_source_pack_unresolvable", "error": str(exc)}
+        )
+    else:
+        if addressing.get("historical_source_pack_content_hash") != historical_hash:
+            issues.append({"code": "historical_source_pack_content_hash_mismatch"})
+    if addressing.get(
+        "substrate_input_content_hash"
+    ) != second_domain_substrate_input_content_hash(pack):
+        issues.append({"code": "cycle_substrate_input_content_hash_mismatch"})
+
+    components = _mapping(pack.get("components"))
+    component = _mapping(components.get("substrate_registry"))
+    owner_queries = _mapping(pack.get("owner_query_results"))
+    owner_registry = _mapping(owner_queries.get("s0_registry"))
+    registry_payload = _mapping(owner_registry.get("registry_payload"))
+    if not component or not owner_registry or not registry_payload:
+        issues.append({"code": "cycle_substrate_registry_payload_missing"})
+        return
+    try:
+        registry = SubstrateRegistry.model_validate(registry_payload)
+    except ValueError as exc:
+        issues.append(
+            {
+                "code": "cycle_substrate_registry_payload_invalid",
+                "error": str(exc),
+            }
+        )
+        return
+    if (
+        component.get("owner") != _SUBSTRATE_REGISTRY_OWNER
+        or owner_registry.get("owner") != _SUBSTRATE_REGISTRY_OWNER
+        or registry.producer_ref != _SUBSTRATE_REGISTRY_PRODUCER
+    ):
+        issues.append({"code": "cycle_substrate_registry_producer_mismatch"})
+    live_registry = _cached_owner_substrate_registry(root.resolve().as_posix())
+    if registry.model_dump(mode="json") != live_registry.model_dump(mode="json"):
+        issues.append({"code": "cycle_substrate_registry_owner_rederive_mismatch"})
+
+    expected_version_id = (
+        "substrate_version_" + registry.content_hash.removeprefix("sha256:")[:16]
+    )
+    if registry.substrate_version_id != expected_version_id:
+        issues.append({"code": "cycle_substrate_registry_version_id_mismatch"})
+    if (
+        owner_registry.get("content_hash") != registry.content_hash
+        or component.get("content_hash") != registry.content_hash
+        or _mapping(components.get("owner_writability")).get(
+            "s0_registry_content_hash"
+        )
+        != registry.content_hash
+    ):
+        issues.append({"code": "cycle_substrate_registry_content_hash_mismatch"})
+    if (
+        owner_registry.get("substrate_version_id") != registry.substrate_version_id
+        or component.get("substrate_version_id") != registry.substrate_version_id
+    ):
+        issues.append({"code": "cycle_substrate_registry_version_projection_mismatch"})
+    if component.get("registry_owner_query_ref") != "owner_query_results.s0_registry":
+        issues.append({"code": "cycle_substrate_registry_owner_ref_mismatch"})
+    if component.get("authority_purpose") != "candidate_evidence_intake_only":
+        issues.append({"code": "cycle_substrate_registry_authority_boundary_missing"})
+
+    selected_hashes = _list_of_strings(component.get("selected_entry_hashes"))
+    if len(selected_hashes) != 1 or len(selected_hashes) != len(set(selected_hashes)):
+        issues.append({"code": "cycle_substrate_registry_selection_denominator_invalid"})
+        return
+    entries_by_hash = {entry.entry_content_hash: entry for entry in registry.entries}
+    selected_entry = entries_by_hash.get(selected_hashes[0])
+    if selected_entry is None:
+        issues.append({"code": "cycle_substrate_registry_selected_entry_unresolved"})
+        return
+    if selected_entry.layer.value != "L2":
+        issues.append({"code": "cycle_substrate_registry_selected_entry_not_l2"})
+    selection = _mapping(component.get("selection_evidence"))
+    query = _mapping(owner_queries.get("l2_selected_levers"))
+    chosen = str(pack.get("selected_domain") or "")
+    try:
+        historical_query = _historical_n10a_l2_query_evidence(
+            root.resolve().as_posix()
+        )
+        canonical_source_ref = "repo://" + _repo_relative_mounted_evidence_path(
+            root / DEFAULT_L2_SCHOLAR_KG_PATH,
+            root,
+        )
+    except (RuntimeError, SourceHashCheckoutPathError) as exc:
+        issues.append(
+            {
+                "code": "cycle_substrate_registry_historical_query_unresolvable",
+                "error": str(exc),
+            }
+        )
+        return
+    try:
+        current_query = _verified_l2_query_evidence(
+            census,
+            context="current",
+        )
+    except RuntimeError as exc:
+        issues.append(
+            {
+                "code": "cycle_substrate_registry_query_census_mismatch",
+                "error": str(exc),
+            }
+        )
+        return
+    if historical_query.owner_query_source_ref != canonical_source_ref:
+        issues.append(
+            {"code": "cycle_substrate_registry_historical_source_mismatch"}
+        )
+        return
+    canonical_query = {
+        "query_id": historical_query.query_id,
+        "query_content_hash": historical_query.query_content_hash,
+        "response_content_hash": historical_query.response_content_hash,
+        "owner_query_source_ref": canonical_source_ref,
+    }
+    if (
+        chosen != historical_query.candidate_id
+        or current_query != historical_query
+        or any(query.get(key) != value for key, value in canonical_query.items())
+    ):
+        issues.append({"code": "cycle_substrate_registry_query_census_mismatch"})
+
+    live_query_entries = [
+        entry
+        for entry in live_registry.entries
+        if entry.layer.value == "L2"
+        and any(
+            ref.split("#", 1)[0] == canonical_source_ref
+            for ref in (*entry.provenance_refs, *entry.authority_refs)
+        )
+    ]
+    if len(live_query_entries) != 1:
+        issues.append(
+            {
+                "code": "cycle_substrate_registry_query_owner_denominator_invalid",
+                "resolved_entry_count": len(live_query_entries),
+            }
+        )
+    elif selected_hashes[0] != live_query_entries[0].entry_content_hash:
+        issues.append(
+            {"code": "cycle_substrate_registry_selected_entry_not_query_owner"}
+        )
+    expected_query_evidence = {
+        "owner_query_ref": "owner_query_results.l2_selected_levers",
+        "owner_query_source_ref": canonical_query["owner_query_source_ref"],
+        "query_id": canonical_query["query_id"],
+        "query_content_hash": canonical_query["query_content_hash"],
+        "query_response_content_hash": canonical_query["response_content_hash"],
+    }
+    if any(selection.get(key) != value for key, value in expected_query_evidence.items()):
+        issues.append({"code": "cycle_substrate_registry_selection_evidence_mismatch"})
+    source_ref = str(selection.get("owner_query_source_ref") or "")
+    source_matches = [
+        ref
+        for ref in (*selected_entry.provenance_refs, *selected_entry.authority_refs)
+        if ref.split("#", 1)[0] == source_ref
+    ]
+    if not source_ref.startswith("repo://") or not source_matches:
+        issues.append({"code": "cycle_substrate_registry_selection_evidence_mismatch"})
+
+    lever_entries = _list_of_mappings(
+        _mapping(components.get("lever_vocabulary")).get("entries")
+    )
+    if not lever_entries or {
+        str(entry.get("selected_registry_entry_hash")) for entry in lever_entries
+    } != set(selected_hashes):
+        issues.append({"code": "cycle_substrate_lever_registry_binding_mismatch"})
+
+
+def _validate_n7_attempt(
+    root: Path,
+    pack: Mapping[str, Any],
+    issues: list[dict[str, Any]],
+) -> None:
     """Require one real, journal-first N7 attempt without granting it pack authority."""
 
     attempt = _mapping(pack.get("n7_acquisition"))
     if int(attempt.get("receipt_count", 0)) != 1 or not attempt.get("one_live_variable_per_attempt"):
         issues.append({"code": "n7_live_attempt_denominator_invalid"})
         return
+    try:
+        expected_input_hash = _n7_attempt_input_content_hash_from_pack(pack)
+    except ValueError as exc:
+        issues.append({"code": str(exc)})
+    else:
+        if attempt.get("attempt_input_content_hash") != expected_input_hash:
+            issues.append({"code": "n7_attempt_input_content_hash_mismatch"})
     runtime_metrics = _mapping(pack.get("runtime_metrics"))
     operational = _mapping(runtime_metrics.get("n7_acquisition"))
-    receipt_payload = _mapping(operational.get("receipt"))
+    receipt_content = _mapping(attempt.get("receipt_content"))
+    try:
+        historical_pack = _historical_n10a_pack_payload(root)
+    except RuntimeError as exc:
+        issues.append({"code": "n7_historical_receipt_unresolvable", "error": str(exc)})
+    else:
+        historical_attempt = _mapping(historical_pack.get("n7_acquisition"))
+        if (
+            attempt.get("receipt_content_hash")
+            != historical_attempt.get("receipt_content_hash")
+            or receipt_content != _mapping(historical_attempt.get("receipt_content"))
+            or attempt.get("raw_response_hash_checks")
+            != historical_attempt.get("raw_response_hash_checks")
+        ):
+            issues.append({"code": "n7_historical_receipt_mismatch"})
+    _validate_n7_receipt_evidence(attempt, operational, issues)
+
+
+def _validate_n7_receipt_evidence(
+    attempt: Mapping[str, Any],
+    operational: Mapping[str, Any],
+    issues: list[dict[str, Any]],
+) -> None:
+    """Reconstruct and verify one journal-first N7 receipt without duplicate content."""
+
     receipt_content = _mapping(attempt.get("receipt_content"))
     time_paths = _n7_content_time_paths(receipt_content)
     if "receipt" in attempt or time_paths:
         issues.append({"code": "capture_time_content_bound", "paths": time_paths})
-    if not receipt_payload:
-        issues.append({"code": "n7_operational_receipt_missing"})
-        return
-    if "content_hash" in receipt_payload:
-        issues.append(
-            {
-                "code": "capture_time_content_bound",
-                "paths": ["runtime_metrics.n7_acquisition.receipt.content_hash"],
-            }
-        )
+    if "receipt" in operational:
+        issues.append({"code": "n7_operational_receipt_duplicate"})
     try:
         reconstructed_payload = _reconstruct_n7_receipt_payload(receipt_content, operational)
         receipt = AcquisitionReceipt.model_validate(reconstructed_payload)
@@ -2268,12 +5225,12 @@ def _validate_n7_attempt(pack: Mapping[str, Any], issues: list[dict[str, Any]]) 
         )
         issues.append({"code": code, "error": str(exc)})
         return
-    expected_content = _n7_owner_evidence_projection(receipt_payload)
+    expected_content = _n7_owner_evidence_projection(reconstructed_payload)
     if receipt_content != expected_content:
         issues.append({"code": "n7_receipt_content_projection_drift"})
     if attempt.get("receipt_content_hash") != _hash(expected_content):
         issues.append({"code": "n7_receipt_content_hash_drift"})
-    expected_operational = _n7_operational_metadata(receipt_payload)
+    expected_operational = _n7_operational_metadata(reconstructed_payload)
     if (
         operational.get("receipt_generated_at") != expected_operational.get("receipt_generated_at")
         or operational.get("planner_report_generated_at")
@@ -2284,8 +5241,8 @@ def _validate_n7_attempt(pack: Mapping[str, Any], issues: list[dict[str, Any]]) 
     receipt_issues = list(validate_acquisition_receipt(receipt))
     if receipt_issues:
         issues.append({"code": "n7_receipt_owner_validation_failed", "issues": receipt_issues})
-    artifacts = _list_of_mappings(receipt_payload.get("owner_artifacts"))
-    journals = _list_of_mappings(receipt_payload.get("journal_entries"))
+    artifacts = _list_of_mappings(reconstructed_payload.get("owner_artifacts"))
+    journals = _list_of_mappings(reconstructed_payload.get("journal_entries"))
     if receipt.compiled_spec_count != 1 or len(artifacts) != 1 or len(journals) != 1:
         issues.append({"code": "n7_live_attempt_denominator_invalid"})
     if any(item.get("status") != "journaled" for item in journals):
@@ -2337,8 +5294,17 @@ def _validate_distinctness(root: Path, pack: Mapping[str, Any], issues: list[dic
     }
     if outcomes.intersection(set(comparator["outcome_canonical_vars"])):
         issues.append({"code": "distinctness_outcome_overlap"})
-    if covariates.intersection(set(comparator["transport_covariates"])):
+    transport_comparison_status = comparator.get("transport_comparison_status")
+    if (
+        transport_comparison_status == "evaluated_measured_first_vertical_context"
+        and covariates.intersection(set(comparator["transport_covariates"]))
+    ):
         issues.append({"code": "distinctness_covariate_overlap"})
+    if transport_comparison_status not in {
+        "evaluated_measured_first_vertical_context",
+        "not_evaluated_first_vertical_context_unresolved",
+    }:
+        issues.append({"code": "distinctness_transport_comparison_status_invalid"})
     if levers.intersection(set(comparator["lever_vocabulary"])):
         issues.append({"code": "distinctness_lever_overlap"})
     if pack.get("distinctness", {}).get("selected_method_family") == comparator["method_family"]:
@@ -2553,17 +5519,337 @@ def _validate_smoke_terminal(
         issues.append({"code": "smoke_known_gap_not_disclosed"})
 
 
+def _validate_stage_1_cycle_receipts(
+    root: Path,
+    pack: Mapping[str, Any],
+    cycle_trace: Mapping[str, Any],
+    gaps: Mapping[str, Any],
+    issues: list[dict[str, Any]],
+) -> None:
+    """Cross-check every Stage-1 receipt against persisted native owner evidence."""
+
+    stages = _mapping(cycle_trace.get("stage_attempts"))
+    generation = _mapping(stages.get("generation"))
+    grounding = _mapping(stages.get("grounding"))
+    world = _mapping(stages.get("world_model"))
+    terminal = _mapping(stages.get("cycle_terminal"))
+    capture = _mapping(cycle_trace.get("n4_owner_capture"))
+    projection = _mapping(capture.get("owner_result_projection"))
+    computed_capture_hash = _hash(
+        {
+            key: value
+            for key, value in capture.items()
+            if key != "recording_content_hash"
+        }
+    )
+    if capture.get("recording_content_hash") != computed_capture_hash:
+        issues.append({"code": "n4_owner_capture_content_hash_mismatch"})
+    responses = _list_of_mappings(capture.get("responses"))
+    if not responses or any(
+        not isinstance(response.get("raw_response"), str)
+        or response.get("raw_response_hash")
+        != _hash(str(response.get("raw_response") or ""))
+        for response in responses
+    ):
+        issues.append({"code": "n4_owner_capture_raw_response_hash_mismatch"})
+    response_prompt_hashes = [
+        str(response.get("prompt_hash") or "") for response in responses
+    ]
+    if response_prompt_hashes != _list_of_strings(
+        projection.get("exact_call_prompt_hashes")
+    ):
+        issues.append({"code": "n4_owner_capture_prompt_hash_denominator_mismatch"})
+    response_raw_hashes = [
+        str(response.get("raw_response_hash") or "") for response in responses
+    ]
+    if response_raw_hashes != _list_of_strings(
+        projection.get("raw_response_hashes")
+    ):
+        issues.append({"code": "n4_owner_capture_response_denominator_mismatch"})
+    journal = _mapping(capture.get("journal_receipt"))
+    journal_rows = _list_of_mappings(journal.get("call_evidence_rows"))
+    if (
+        journal.get("status") != "journaled_before_artifact_write"
+        or int(journal.get("journal_entry_count") or 0) != len(responses)
+        or journal.get("stable_journal_projection_content_hash")
+        != _hash(journal_rows)
+    ):
+        issues.append({"code": "n4_owner_capture_journal_receipt_invalid"})
+
+    components = _mapping(pack.get("components"))
+    addressing = _mapping(pack.get("content_addressing"))
+    lever_entries = _list_of_mappings(
+        _mapping(components.get("lever_vocabulary")).get("entries")
+    )
+    expected_levers = {str(entry.get("lever_id") or "") for entry in lever_entries}
+    expected_entry_hashes = {
+        str(entry.get("entry_content_hash") or "") for entry in lever_entries
+    }
+    prompt_levers = set(
+        _list_of_strings(projection.get("prompt_slice_operator_kinds"))
+    )
+    proposed = _list_of_mappings(projection.get("proposed_interventions"))
+    proposed_levers = {str(row.get("operator_kind") or "") for row in proposed}
+    if (
+        projection.get("status") != "generated"
+        or not all(
+            bool(projection.get(field))
+            for field in ("draft_present", "trinity_bundle_present", "critique_present")
+        )
+        or int(projection.get("degraded_artifact_count") or 0) != 0
+    ):
+        issues.append({"code": "n4_owner_generation_not_real"})
+    if prompt_levers != expected_levers:
+        issues.append({"code": "n4_owner_prompt_lever_denominator_mismatch"})
+    if not proposed_levers or not proposed_levers.issubset(expected_levers):
+        issues.append({"code": "n4_owner_proposal_not_pack_bound"})
+    if generation.get("generation_channel") != "n4_owner":
+        issues.append({"code": "cycle_generation_fell_back_from_n4_owner"})
+    if generation.get("prompt_slice_operator_kinds") != projection.get(
+        "prompt_slice_operator_kinds"
+    ) or generation.get("exact_formalizer_input_hashes") != projection.get(
+        "exact_formalizer_input_hashes"
+    ):
+        issues.append({"code": "stage_generation_receipt_drift"})
+    if generation.get("lever_source_hash") != addressing.get(
+        "substrate_input_content_hash"
+    ):
+        issues.append({"code": "stage_generation_lever_source_drift"})
+    if generation.get("n4_owner_capture_content_hash") != capture.get(
+        "recording_content_hash"
+    ):
+        issues.append({"code": "stage_generation_capture_ref_drift"})
+
+    selected_disposition = next(
+        (
+            row
+            for row in _list_of_mappings(projection.get("grounding_dispositions"))
+            if str(row.get("proposal_id") or "")
+            == str(grounding.get("proposal_id") or "")
+        ),
+        None,
+    )
+    if selected_disposition is None:
+        issues.append({"code": "stage_grounding_disposition_unresolved"})
+    else:
+        resolution_payload = _mapping(selected_disposition.get("lever_resolution"))
+        try:
+            resolution = InterventionLeverRefusal.model_validate(resolution_payload)
+        except ValueError:
+            issues.append({"code": "stage_grounding_lever_refusal_invalid"})
+        else:
+            if (
+                grounding.get("disposition")
+                != selected_disposition.get("disposition")
+                or grounding.get("raw_candidate_hash")
+                != selected_disposition.get("raw_candidate_hash")
+                or grounding.get("candidate_entry_content_hash")
+                != resolution.candidate_entry_content_hash
+                or grounding.get("lever_resolution_content_hash")
+                != resolution.content_hash
+                or grounding.get("lever_resolution_status") != resolution.status
+            ):
+                issues.append({"code": "stage_grounding_receipt_drift"})
+            if resolution.candidate_entry_content_hash not in expected_entry_hashes:
+                issues.append({"code": "stage_grounding_pack_entry_unresolved"})
+            if resolution.substrate_input_content_hash != addressing.get(
+                "substrate_input_content_hash"
+            ):
+                issues.append({"code": "stage_grounding_substrate_ref_drift"})
+            if resolution.world_model_record_content_hash != cycle_trace.get(
+                "world_model_record_content_hash"
+            ):
+                issues.append({"code": "stage_grounding_wmr_ref_drift"})
+
+    run_cycles = _list_of_mappings(
+        _mapping(cycle_trace.get("generation_cycle_run")).get("cycles")
+    )
+    if not run_cycles:
+        issues.append({"code": "stage_cycle_terminal_missing"})
+    else:
+        cycle = run_cycles[0]
+        disposition_kind = str(grounding.get("disposition") or "")
+        try:
+            expected_terminal = expected_cycle_terminal_for_disposition(
+                disposition_kind
+            )
+        except ValueError:
+            issues.append({"code": "stage_grounding_disposition_unknown"})
+        else:
+            if (
+                terminal.get("terminal_kind") != expected_terminal
+                or cycle.get("terminal_kind") != expected_terminal
+            ):
+                issues.append({"code": "stage_cycle_terminal_receipt_drift"})
+    world_identity_evidence = _recompute_stage_world_identity_evidence(
+        stages,
+        cycle_trace=cycle_trace,
+    )
+    if (
+        world_identity_evidence == "unresolved"
+        or world.get("identity_evidence_kind") != world_identity_evidence
+    ):
+        issues.append({"code": "stage_world_model_identity_receipt_missing"})
+
+    try:
+        baseline_diff = recompute_baseline_diff(
+            cycle_trace,
+            load_committed_baseline(root),
+        )
+    except (RuntimeError, ValueError, json.JSONDecodeError) as exc:
+        issues.append({"code": "stage_baseline_diff_unavailable", "error": str(exc)})
+    else:
+        if cycle_trace.get("baseline_diff") != baseline_diff:
+            issues.append({"code": "stage_baseline_diff_drift"})
+        if baseline_diff.get("materially_deeper") is not True:
+            issues.append({"code": "stage_baseline_not_materially_deeper"})
+
+    trace_triage = {
+        str(row.get("gap_id") or ""): row
+        for row in _list_of_mappings(cycle_trace.get("gap_triage"))
+    }
+    gap_records = {
+        str(row.get("gap_id") or ""): row
+        for row in _list_of_mappings(gaps.get("gaps"))
+    }
+    expected_closed = {
+        "s0_to_n4_l6_bridge_missing",
+        "s0_to_n5_wmr_bridge_missing",
+        "s0_to_l6_world_slot_bridge_missing",
+    }
+    n8_transport_evidence = _n8_transport_gap_closure_from_root(
+        root,
+        expected_education_covariates=tuple(
+            sorted(
+                str(row.get("canonical_var") or "")
+                for row in _list_of_mappings(
+                    _mapping(
+                        _mapping(pack.get("components")).get("transport_context")
+                    ).get("covariates")
+                )
+                if row.get("canonical_var")
+            )
+        ),
+    )
+    if n8_transport_evidence.get("closed") is True:
+        expected_closed.add("n8_transport_tuple_hardcode")
+        trace_n8 = _mapping(trace_triage.get("n8_transport_tuple_hardcode"))
+        gap_n8 = _mapping(gap_records.get("n8_transport_tuple_hardcode"))
+        recorded_n8 = _mapping(
+            _mapping(gap_n8.get("owner_evidence")).get(
+                "stage_2_behavioral_receipt"
+            )
+        )
+        if (
+            trace_n8.get("receipt_ref")
+            != n8_transport_evidence.get("receipt_ref")
+            or recorded_n8 != n8_transport_evidence
+        ):
+            issues.append({"code": "n8_transport_gap_receipt_drift"})
+    try:
+        n6_validation_evidence = _n6_single_terminal_gap_closure(
+            GenerationCycleRun.model_validate(
+                _mapping(cycle_trace.get("generation_cycle_run"))
+            )
+        )
+    except (TypeError, ValueError) as exc:
+        issues.append(
+            {
+                "code": "n6_single_terminal_gap_receipt_unavailable",
+                "error": str(exc),
+            }
+        )
+    else:
+        if n6_validation_evidence.get("closed") is True:
+            expected_closed.add("n6_single_terminal_validation_gap")
+        trace_n6 = _mapping(
+            trace_triage.get("n6_single_terminal_validation_gap")
+        )
+        gap_n6 = _mapping(
+            gap_records.get("n6_single_terminal_validation_gap")
+        )
+        recorded_n6 = _mapping(
+            _mapping(gap_n6.get("owner_evidence")).get(
+                "stage_3_behavioral_receipt"
+            )
+        )
+        if (
+            trace_n6.get("receipt_ref")
+            != n6_validation_evidence.get("receipt_ref")
+            or recorded_n6 != n6_validation_evidence
+        ):
+            issues.append({"code": "n6_single_terminal_gap_receipt_drift"})
+    for gap_id in GAP_WITNESS_SPECS:
+        expected_status = "closed" if gap_id in expected_closed else "typed_residual"
+        if (
+            _mapping(trace_triage.get(gap_id)).get("status") != expected_status
+            or _mapping(gap_records.get(gap_id)).get("status") != expected_status
+        ):
+            issues.append({"code": "stage_gap_triage_drift", "gap_id": gap_id})
+
+
 def _validate_zero_engine_code(root: Path, pack: Mapping[str, Any], issues: list[dict[str, Any]]) -> None:
     scope = _mapping(pack.get("zero_engine_code"))
+    scope_semantics = scope.get("scope_semantics")
     base = scope.get("task_base_commit")
+    proof_head = scope.get("proof_head_commit")
     recorded_paths = _list_of_strings(scope.get("changed_paths"))
     recorded = _list_of_strings(scope.get("changed_engine_paths"))
     recorded_out_of_scope = _list_of_strings(scope.get("out_of_scope_paths"))
-    if not isinstance(base, str) or not base:
-        issues.append({"code": "diff_scope_unverifiable"})
-        return
+    if proof_head != N10A_PROOF_HEAD_COMMIT:
+        issues.append(
+            {
+                "code": "historical_receipt_rebased_to_moving_head",
+                "recorded_proof_head": proof_head,
+                "expected_proof_head": N10A_PROOF_HEAD_COMMIT,
+            }
+        )
+    if base != N10A_BASE_COMMIT:
+        issues.append(
+            {
+                "code": "historical_receipt_base_commit_drift",
+                "recorded_base": base,
+                "expected_base": N10A_BASE_COMMIT,
+            }
+        )
+    literal_commits = all(
+        isinstance(value, str)
+        and len(value) == 40
+        and all(character in "0123456789abcdef" for character in value)
+        for value in (base, proof_head)
+    )
+    if (
+        scope_semantics != "historical_commit_range"
+        or not literal_commits
+        or base != N10A_BASE_COMMIT
+        or proof_head != N10A_PROOF_HEAD_COMMIT
+    ):
+        issues.append(
+            {
+                "code": "diff_scope_unverifiable",
+                "scope_semantics": scope_semantics,
+                "task_base_commit": base,
+                "proof_head_commit": proof_head,
+            }
+        )
     try:
-        actual_paths = _task_changed_paths(root, base)
+        if (
+            _git(root, "merge-base", N10A_BASE_COMMIT, N10A_PROOF_HEAD_COMMIT)
+            != N10A_BASE_COMMIT
+        ):
+            issues.append({"code": "historical_receipt_base_not_ancestor"})
+            return
+        if (
+            _git(root, "merge-base", N10A_PROOF_HEAD_COMMIT, "HEAD")
+            != N10A_PROOF_HEAD_COMMIT
+        ):
+            issues.append({"code": "historical_receipt_proof_head_not_ancestor"})
+            return
+        actual_paths = _historical_task_changed_paths(
+            root,
+            base=N10A_BASE_COMMIT,
+            proof_head=N10A_PROOF_HEAD_COMMIT,
+        )
     except RuntimeError as exc:
         issues.append({"code": "diff_scope_unverifiable", "error": str(exc)})
         return
@@ -2605,6 +5891,211 @@ def _validate_zero_engine_code(root: Path, pack: Mapping[str, Any], issues: list
         )
 
 
+def _n8_first_vertical_transport_projection(
+    payload: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Resolve the acyclic N8 first-vertical transport evidence projection."""
+
+    proofs = _mapping(payload.get("transport_component_proofs"))
+    first_vertical = _mapping(proofs.get("first_vertical"))
+    if not first_vertical:
+        raise ValueError("n8_first_vertical_transport_proof_missing")
+    required = _list_of_strings(first_vertical.get("required_target_data"))
+    if required != sorted(set(required)):
+        raise ValueError("n8_first_vertical_transport_covariates_invalid")
+    required_text = (
+        "schema_version",
+        "rule_version",
+        "domain_role",
+        "domain",
+        "design_problem_ref",
+        "candidate_id",
+        "candidate_content_hash",
+        "data_owner",
+        "context_source",
+        "cycle_substrate_context_content_hash",
+        "context_binding_hash",
+        "world_model_record_id",
+        "world_model_record_content_hash",
+        "query_treatment",
+        "query_outcome",
+    )
+    if any(not str(first_vertical.get(field) or "") for field in required_text):
+        raise ValueError("n8_first_vertical_transport_proof_incomplete")
+    if first_vertical.get("domain_role") != "first_vertical":
+        raise ValueError("n8_first_vertical_transport_role_mismatch")
+    expected_hash = _hash(
+        {
+            key: value
+            for key, value in first_vertical.items()
+            if key != "proof_content_hash"
+        }
+    )
+    if first_vertical.get("proof_content_hash") != expected_hash:
+        raise ValueError("n8_first_vertical_transport_proof_hash_mismatch")
+    refusal = _mapping(first_vertical.get("typed_refusal"))
+    if (
+        first_vertical.get("component_scope_only") is not True
+        or first_vertical.get("production_value_eligible") is not False
+        or first_vertical.get("value_gate_receipt") is not None
+        or first_vertical.get("outcome_kind") != "typed_refusal"
+        or refusal.get("code") != "acquire_data:transport_context_unresolved"
+        or first_vertical.get("transport_covariates") != []
+        or required
+        or first_vertical.get("selection_diagram_content_hash") is not None
+        or first_vertical.get("selection_nodes") != []
+        or first_vertical.get("transport_receipt") is not None
+        or first_vertical.get("transport_result_content_hash") is not None
+    ):
+        raise ValueError("n8_first_vertical_transport_proof_incoherent")
+    return {
+        "schema_version": str(first_vertical["schema_version"]),
+        "rule_version": str(first_vertical["rule_version"]),
+        "domain_role": "first_vertical",
+        "domain": str(first_vertical["domain"]),
+        "design_problem_ref": str(first_vertical["design_problem_ref"]),
+        "candidate_id": str(first_vertical["candidate_id"]),
+        "candidate_content_hash": str(first_vertical["candidate_content_hash"]),
+        "data_owner": str(first_vertical["data_owner"]),
+        "context_source": str(first_vertical["context_source"]),
+        "required_target_data": required,
+        "outcome_kind": "typed_refusal",
+        "typed_refusal_code": str(refusal["code"]),
+        "transport_comparison_status": (
+            "not_evaluated_first_vertical_context_unresolved"
+        ),
+        "cycle_substrate_context_content_hash": str(
+            first_vertical["cycle_substrate_context_content_hash"]
+        ),
+        "context_binding_hash": str(first_vertical["context_binding_hash"]),
+        "world_model_record_id": str(first_vertical["world_model_record_id"]),
+        "world_model_record_content_hash": str(
+            first_vertical["world_model_record_content_hash"]
+        ),
+        "query_treatment": str(first_vertical["query_treatment"]),
+        "query_outcome": str(first_vertical["query_outcome"]),
+        "selection_diagram_content_hash": None,
+        "proof_content_hash": str(first_vertical["proof_content_hash"]),
+    }
+
+
+def _n8_transport_gap_closure(
+    payload: Mapping[str, Any],
+    *,
+    expected_education_covariates: Sequence[str],
+) -> dict[str, Any]:
+    """Recompute whether N8 closed the pack transport bridge generically."""
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    issues = n8.validate_payload(payload)
+    if issues:
+        return {
+            "closed": False,
+            "reason_code": "n8_value_contract_invalid",
+            "issue_codes": sorted(
+                {
+                    str(issue.get("code") or "")
+                    for issue in issues
+                    if issue.get("code")
+                }
+            ),
+            "receipt_ref": None,
+        }
+    proofs = _mapping(payload.get("transport_component_proofs"))
+    education = _mapping(proofs.get("education"))
+    unseen = _mapping(proofs.get("unseen_pack_shape"))
+    education_covariates = sorted(
+        str(row.get("canonical_var") or "")
+        for row in _list_of_mappings(education.get("transport_covariates"))
+    )
+    expected_covariates = sorted(
+        {str(value) for value in expected_education_covariates if str(value)}
+    )
+    unseen_covariates = sorted(
+        str(row.get("canonical_var") or "")
+        for row in _list_of_mappings(unseen.get("transport_covariates"))
+    )
+    if education_covariates != expected_covariates:
+        return {
+            "closed": False,
+            "reason_code": "n8_education_transport_vocabulary_mismatch",
+            "education_covariates": education_covariates,
+            "expected_education_covariates": expected_covariates,
+            "unseen_covariates": unseen_covariates,
+            "receipt_ref": None,
+        }
+    if (
+        education.get("outcome_kind") != "transport_receipt"
+        or unseen.get("outcome_kind") != "transport_receipt"
+        or not unseen_covariates
+    ):
+        return {
+            "closed": False,
+            "reason_code": "n8_domain_generic_transport_proof_missing",
+            "education_covariates": education_covariates,
+            "expected_education_covariates": expected_covariates,
+            "unseen_covariates": unseen_covariates,
+            "receipt_ref": None,
+        }
+    receipt_ref = _hash(
+        {
+            "value_contract_content_hash": payload.get("contract_content_hash"),
+            "education_proof_content_hash": education.get("proof_content_hash"),
+            "unseen_proof_content_hash": unseen.get("proof_content_hash"),
+            "education_covariates": education_covariates,
+            "unseen_covariates": unseen_covariates,
+        }
+    )
+    return {
+        "closed": True,
+        "reason_code": "n8_data_derived_transport_proven",
+        "education_covariates": education_covariates,
+        "expected_education_covariates": expected_covariates,
+        "unseen_covariates": unseen_covariates,
+        "value_contract_content_hash": payload.get("contract_content_hash"),
+        "education_proof_content_hash": education.get("proof_content_hash"),
+        "unseen_proof_content_hash": unseen.get("proof_content_hash"),
+        "receipt_ref": receipt_ref,
+    }
+
+
+def _n8_transport_gap_closure_from_root(
+    root: Path,
+    *,
+    expected_education_covariates: Sequence[str],
+) -> dict[str, Any]:
+    """Load the frozen N8 contract and fail closed when it is unavailable."""
+
+    path = root / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+    if not path.exists():
+        return {
+            "closed": False,
+            "reason_code": "n8_value_contract_missing",
+            "receipt_ref": None,
+        }
+    return _n8_transport_gap_closure(
+        _read_json(path),
+        expected_education_covariates=expected_education_covariates,
+    )
+
+
+def _source_projection_content_hash(
+    repo_root: Path,
+    source_path: Path,
+    projection: Mapping[str, Any],
+) -> str:
+    """Bind a semantic projection to repo-relative source identity."""
+
+    return _hash(
+        {
+            "repo_relative_path": _repo_relative(source_path, repo_root),
+            "projection_kind": "n8_first_vertical_transport.v1",
+            "projection": projection,
+        }
+    )
+
+
 def _first_vertical_comparator(root: Path) -> dict[str, Any]:
     pinned_path = root / "architecture/policy_design_case/layer3_gx_pinned_request.json"
     value_path = root / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
@@ -2612,6 +6103,7 @@ def _first_vertical_comparator(root: Path) -> dict[str, Any]:
     pinned = _read_json(pinned_path)
     value = _read_json(value_path)
     data = _read_json(data_path)
+    value_projection = _n8_first_vertical_transport_projection(value)
     g2 = _mapping(pinned.get("g2_request"))
     outcomes = {
         str(g2.get("effect", "")).rsplit(".", 1)[-1],
@@ -2622,7 +6114,7 @@ def _first_vertical_comparator(root: Path) -> dict[str, Any]:
     for case_id in case_ids:
         if case_id.startswith("l1_") and case_id.endswith("_available"):
             outcomes.add(case_id.removeprefix("l1_").removesuffix("_available"))
-    covariates = sorted(_recursive_values_for_key(value, "required_target_data"))
+    covariates = list(value_projection["required_target_data"])
     levers = sorted(
         {
             str(g2.get("cause")),
@@ -2637,12 +6129,26 @@ def _first_vertical_comparator(root: Path) -> dict[str, Any]:
         "case_id": pinned.get("case_id"),
         "source_hashes": {
             _repo_relative(pinned_path, root): _source_content_hash(root, pinned_path),
-            _repo_relative(value_path, root): _source_content_hash(root, value_path),
+            _repo_relative(value_path, root): _source_projection_content_hash(
+                root,
+                value_path,
+                value_projection,
+            ),
             _repo_relative(data_path, root): _source_content_hash(root, data_path),
+        },
+        "source_hash_kinds": {
+            _repo_relative(pinned_path, root): "full_file_content.v1",
+            _repo_relative(value_path, root): (
+                "semantic_projection:n8_first_vertical_transport.v1"
+            ),
+            _repo_relative(data_path, root): "full_file_content.v1",
         },
         "outcome_canonical_vars": sorted(item for item in outcomes if item),
         "method_family": str(g2.get("data_modality")),
         "transport_covariates": covariates,
+        "transport_comparison_status": value_projection[
+            "transport_comparison_status"
+        ],
         "lever_vocabulary": [item for item in levers if item],
     }
 
@@ -2674,28 +6180,164 @@ def _run_query(
     }
 
 
-def _task_base_commit(root: Path) -> str:
-    result = _git(root, "merge-base", "HEAD", "codex/gy-n9-promotion-sequence")
-    if not result:
-        raise RuntimeError("cannot derive task base from codex/gy-n9-promotion-sequence")
-    return result
-
-
-def _task_changed_paths(root: Path, base: str) -> list[str]:
-    """Return every committed, staged, working, or untracked task path from its base."""
+def _historical_task_changed_paths(
+    root: Path,
+    *,
+    base: str,
+    proof_head: str,
+) -> list[str]:
+    """Return only paths committed in the immutable historical proof range."""
 
     git_prefix = _git(root, "rev-parse", "--show-prefix")
-    committed = _git(root, "diff", "--name-only", f"{base}..HEAD")
-    working = _git(root, "diff", "--name-only", base)
-    staged = _git(root, "diff", "--cached", "--name-only", base)
-    untracked = _git(root, "ls-files", "--others", "--exclude-standard")
+    committed = _git(root, "diff", "--name-only", f"{base}..{proof_head}")
     paths = {
         _project_relative_git_path(path, git_prefix)
-        for output in (committed, working, staged, untracked)
-        for path in output.splitlines()
+        for path in committed.splitlines()
         if path.strip()
     }
     return sorted(paths)
+
+
+@lru_cache(maxsize=4)
+def _historical_n10a_pack_json(repo_root: str) -> str:
+    """Read the immutable N10a proof-head pack once per checkout."""
+
+    root = Path(repo_root)
+    git_prefix = _git(root, "rev-parse", "--show-prefix")
+    historical_path = f"{git_prefix}{PACK_OUTPUT}" if git_prefix else PACK_OUTPUT
+    return _git(
+        root,
+        "show",
+        f"{N10A_PROOF_HEAD_COMMIT}:{historical_path}",
+    )
+
+
+def _historical_n10a_pack_payload(root: Path) -> dict[str, Any]:
+    """Resolve and fully hash-verify the immutable N10a proof-head pack."""
+
+    raw = _historical_n10a_pack_json(root.resolve().as_posix())
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("historical N10a pack is not valid JSON") from exc
+    issues: list[dict[str, Any]] = []
+    _validate_artifact_hash(payload, "manifest_content_hash", issues)
+    if issues:
+        raise RuntimeError(f"historical N10a pack hash invalid: {issues}")
+    return payload
+
+
+def _historical_n10a_pack_content_hash(root: Path) -> str:
+    """Resolve and verify the immutable N10a proof-head pack identity."""
+
+    payload = _historical_n10a_pack_payload(root)
+    content_hash = str(payload.get("manifest_content_hash") or "")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", content_hash):
+        raise RuntimeError("historical N10a pack content hash missing")
+    return content_hash
+
+
+@lru_cache(maxsize=4)
+def _historical_n10a_l2_query_evidence(
+    repo_root: str,
+) -> HistoricalL2QueryEvidence:
+    """Resolve the selected L2 query from the immutable N10a census receipt."""
+
+    root = Path(repo_root)
+    git_prefix = _git(root, "rev-parse", "--show-prefix")
+    historical_path = f"{git_prefix}{CENSUS_OUTPUT}" if git_prefix else CENSUS_OUTPUT
+    raw = _git(
+        root,
+        "show",
+        f"{N10A_PROOF_HEAD_COMMIT}:{historical_path}",
+    )
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError("historical N10a census is not valid JSON") from exc
+    issues: list[dict[str, Any]] = []
+    _validate_artifact_hash(payload, "census_content_hash", issues)
+    if issues:
+        raise RuntimeError(f"historical N10a census hash invalid: {issues}")
+    return _verified_l2_query_evidence(payload, context="historical N10a")
+
+
+def _verified_l2_query_evidence(
+    payload: Mapping[str, Any],
+    *,
+    context: str,
+) -> HistoricalL2QueryEvidence:
+    """Recompute one census L2 receipt and its selected-row projection."""
+
+    candidate_id = str(_mapping(payload.get("decision")).get("chosen_candidate") or "")
+    candidate_query = _mapping(
+        _mapping(_mapping(payload.get("candidates")).get(candidate_id)).get(
+            "l2_scholar_kg"
+        )
+    )
+    query_id = str(candidate_query.get("query_id") or "")
+    query_content_hash = str(candidate_query.get("query_content_hash") or "")
+    response_content_hash = str(candidate_query.get("response_content_hash") or "")
+    if (
+        not candidate_id
+        or not query_id
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", query_content_hash)
+        or not re.fullmatch(r"sha256:[0-9a-f]{64}", response_content_hash)
+    ):
+        raise RuntimeError(f"{context} census L2 query evidence is incomplete")
+
+    owner_query = _mapping(_mapping(payload.get("owner_queries")).get(query_id))
+    owner_rows = _list_of_mappings(owner_query.get("rows"))
+    matching_rows = [
+        row for row in owner_rows if str(row.get("candidate_id") or "") == candidate_id
+    ]
+    candidate_row = {
+        key: value
+        for key, value in candidate_query.items()
+        if key
+        not in {
+            "query_id",
+            "query_content_hash",
+            "response_content_hash",
+            "owner_query_source_ref",
+        }
+    }
+    recomputed_query_hash = _hash(
+        {
+            "sql": owner_query.get("sql"),
+            "parameters": _json_value(owner_query.get("parameters")),
+        }
+    )
+    recomputed_response_hash = _hash(owner_rows)
+    if (
+        owner_query.get("query_id") != query_id
+        or owner_query.get("query_content_hash") != query_content_hash
+        or owner_query.get("response_content_hash") != response_content_hash
+        or recomputed_query_hash != query_content_hash
+        or recomputed_response_hash != response_content_hash
+        or len(matching_rows) != 1
+        or matching_rows[0] != candidate_row
+    ):
+        raise RuntimeError(f"{context} owner query receipt is inconsistent")
+
+    owner_path = str(
+        _mapping(payload.get("owner_paths")).get("l2_scholar_kg") or ""
+    )
+    lexical_owner_path = Path(owner_path)
+    if (
+        not owner_path
+        or lexical_owner_path.is_absolute()
+        or ".." in lexical_owner_path.parts
+    ):
+        raise RuntimeError(f"{context} L2 owner path is not repo-relative")
+    owner_query_source_ref = "repo://" + lexical_owner_path.as_posix()
+    return HistoricalL2QueryEvidence(
+        candidate_id=candidate_id,
+        query_id=query_id,
+        query_content_hash=query_content_hash,
+        response_content_hash=response_content_hash,
+        owner_query_source_ref=owner_query_source_ref,
+    )
 
 
 def _project_relative_git_path(path: str, git_prefix: str) -> str:
@@ -2834,7 +6476,6 @@ def _preserve_frozen_operational_metrics(bundle: dict[str, Any], root: Path) -> 
 
     artifacts = (
         ("census", CENSUS_OUTPUT, "census_content_hash"),
-        ("pack", PACK_OUTPUT, "manifest_content_hash"),
         ("cycle_trace", CYCLE_TRACE_OUTPUT, "trace_content_hash"),
     )
     for bundle_key, relative_path, hash_field in artifacts:
@@ -2846,13 +6487,56 @@ def _preserve_frozen_operational_metrics(bundle: dict[str, Any], root: Path) -> 
         if frozen.get(hash_field) != artifact.get(hash_field):
             continue
         frozen_metrics = _mapping(frozen.get("runtime_metrics"))
-        if bundle_key == "pack" and "content_hash" in _mapping(
-            _mapping(frozen_metrics.get("n7_acquisition")).get("receipt")
-        ):
-            continue
         if frozen_metrics:
             artifact["runtime_metrics"] = frozen_metrics
-            bundle[bundle_key] = artifact
+        if bundle_key == "cycle_trace":
+            artifact = _preserve_cycle_routing_generated_at(
+                artifact,
+                frozen=frozen,
+            )
+        bundle[bundle_key] = artifact
+
+
+def _preserve_cycle_routing_generated_at(
+    artifact: Mapping[str, Any],
+    *,
+    frozen: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Keep routing telemetry stable only across the same semantic cycle rows."""
+
+    result = copy.deepcopy(dict(artifact))
+    live_run = _mapping(result.get("generation_cycle_run"))
+    frozen_run = _mapping(frozen.get("generation_cycle_run"))
+    live_cycles = _list_of_mappings(live_run.get("cycles"))
+    frozen_cycles = {
+        int(cycle.get("cycle_index")): cycle
+        for cycle in _list_of_mappings(frozen_run.get("cycles"))
+        if isinstance(cycle.get("cycle_index"), int)
+    }
+    for live_cycle in live_cycles:
+        cycle_index = live_cycle.get("cycle_index")
+        if not isinstance(cycle_index, int) or cycle_index not in frozen_cycles:
+            continue
+        live_report = _mapping(live_cycle.get("acquisition_routing_report"))
+        frozen_report = _mapping(
+            frozen_cycles[cycle_index].get("acquisition_routing_report")
+        )
+        if not live_report or not frozen_report:
+            continue
+        live_semantic = {
+            key: value for key, value in live_report.items() if key != "generated_at"
+        }
+        frozen_semantic = {
+            key: value for key, value in frozen_report.items() if key != "generated_at"
+        }
+        frozen_generated_at = frozen_report.get("generated_at")
+        if live_semantic != frozen_semantic or not isinstance(frozen_generated_at, str):
+            continue
+        live_report["generated_at"] = frozen_generated_at
+        live_cycle["acquisition_routing_report"] = live_report
+    live_run["cycles"] = live_cycles
+    result["generation_cycle_run"] = live_run
+    return result
 
 
 def _hash(value: Any) -> str:
@@ -2936,6 +6620,19 @@ def _repo_relative(path: Path, root: Path) -> str:
         return path.as_posix()
 
 
+def _repo_relative_mounted_evidence_path(path: Path, root: Path) -> str:
+    """Return lexical repo identity for read-only mounts without resolving targets."""
+
+    lexical_root = root.absolute()
+    lexical_path = path.absolute()
+    try:
+        return lexical_path.relative_to(lexical_root).as_posix()
+    except ValueError as exc:
+        raise SourceHashCheckoutPathError(
+            f"owner evidence path is outside repo root: {path}"
+        ) from exc
+
+
 def _canonical_repo_relative_path(repo_root: Path, source_path: Path) -> str:
     """Return a resolved source path relative to its checkout root, or fail closed."""
 
@@ -2978,6 +6675,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--capture-stage1-n4", action="store_true")
+    parser.add_argument("--accept-stage1-n4-journal", type=Path)
     parser.add_argument("--rederive-audit", action="store_true")
     parser.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
@@ -2987,6 +6686,8 @@ def main(argv: list[str] | None = None) -> int:
         for value in (
             args.check,
             args.write,
+            args.capture_stage1_n4,
+            args.accept_stage1_n4_journal is not None,
             args.rederive_audit,
             args.corrupt_field_drift_check,
         )
@@ -2995,7 +6696,14 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("select exactly one action")
     root = args.repo_root.resolve()
     try:
-        if args.write:
+        if args.accept_stage1_n4_journal is not None:
+            report = write(
+                root,
+                n4_capture_journal=args.accept_stage1_n4_journal,
+            )
+        elif args.capture_stage1_n4:
+            report = write(root, allow_live_n4_capture=True)
+        elif args.write:
             report = write(root)
         elif args.rederive_audit:
             report = rederive_audit(root)

@@ -11,6 +11,7 @@ import uuid
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common.llm_json import extract_llm_json_object
 from polisyos.core.canon import truncated_hash
 from polisyos.scientist.agent.prompts import get_pi_prompt
 from polisyos.scientist.agent.protocols import (
@@ -226,7 +227,7 @@ class LLMPIAgent:
 
         content = response.content if hasattr(response, "content") else str(response)
         try:
-            data = json.loads(content)
+            data = extract_llm_json_object(content)
             pf_data = data.get("problem_frame", data)
             return ProblemFrame(
                 frame_id=pf_data.get("frame_id", str(uuid.uuid4())),
@@ -273,7 +274,7 @@ class LLMPIAgent:
 
         content = response.content if hasattr(response, "content") else str(response)
         try:
-            data = json.loads(content)
+            data = extract_llm_json_object(content)
             tasks_data = data.get("sub_tasks", [])
             tasks: list[SubTask] = []
             for idx, task in enumerate(tasks_data):

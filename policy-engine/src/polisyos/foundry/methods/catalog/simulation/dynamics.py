@@ -23,14 +23,29 @@ from polisyos.foundry.methods.base import (
     Unit,
     foundry_method,
 )
-from polisyos.ir.analytics.phase4_dynamics import ABMResult, build_abm_result_from_simulation
+from polisyos.ir.analytics.phase4_dynamics import (
+    ABMResult,
+    build_abm_result_from_content_bound_simulation,
+    build_abm_result_from_simulation,
+)
 
 
 def _result_slot() -> frozenset[SlotSpec]:
     return frozenset({SlotSpec("result", SlotType.SCALAR, Unit("result", "json"))})
 
 
-def _abm_result_stub(*, method_id: str, horizon: int) -> ABMResult:
+def _abm_result_stub(
+    *,
+    method_id: str,
+    horizon: int,
+    fixture_only: bool = False,
+) -> ABMResult:
+    """Build the legacy synthetic receipt only for explicit non-authority fixtures."""
+
+    if not fixture_only:
+        raise RuntimeError(
+            "abm_result_stub_strangled: use build_content_bound_abm_result for real runs"
+        )
     digest = hashlib.sha256(f"{method_id}:{horizon}".encode()).hexdigest()
     simulation = SimulationResult(
         exec_plan_ref=ExecPlanRef(artifact_id=f"sha256:{digest}"),
@@ -38,6 +53,23 @@ def _abm_result_stub(*, method_id: str, horizon: int) -> ABMResult:
         notes=["phase4_abm_result_stub", "diagnostics_not_attached"],
     )
     return build_abm_result_from_simulation(simulation)
+
+
+def build_content_bound_abm_result(
+    *,
+    method_id: str,
+    horizon: int,
+    payload: Mapping[str, Any],
+    diagnostics: Mapping[str, Any],
+) -> ABMResult:
+    """Build an ABM result whose evidence refs bind the actual simulation output."""
+
+    return build_abm_result_from_content_bound_simulation(
+        method_id=method_id,
+        horizon=horizon,
+        payload=payload,
+        diagnostics=diagnostics,
+    )
 
 
 def _vector(state: Mapping[str, Any], key: str) -> np.ndarray:
@@ -271,6 +303,10 @@ class StockFlowSystemDynamicsEstimator:
             "Sterman, J. (2000). Business Dynamics: Systems Thinking and Modeling for a Complex World. McGraw-Hill.",
         ),
         output_interpretation="Stock trajectories. Equilibrium = dStock/dt = 0. Time to equilibrium.",
+        assumptions={
+            "joint_simulation_output_shape": "time_series_trajectory",
+            "joint_simulation_equilibrium_semantics": "dynamic_SCM",
+        },
     )
 
     @staticmethod
@@ -454,6 +490,10 @@ class QueueDiscreteEventEstimator:
         when_to_use="Service system modeling; waiting-time analysis; congestion and capacity policy analysis",
         citations=("Banks, J. et al. (2005). Discrete-Event System Simulation. Prentice Hall.",),
         output_interpretation="Final queue length after simulation. Compare to steady-state M/M/1 rho=lambda/mu. Capacity hit = queue grows unbounded.",
+        assumptions={
+            "joint_simulation_output_shape": "scalar_final_value",
+            "joint_simulation_equilibrium_semantics": "none",
+        },
     )
 
     @staticmethod
@@ -784,12 +824,20 @@ class AgentPopulationSimulationEstimator:
 
         del state
         n_steps = max(1, int(params.get("n_steps", 12)))
-        abm_result = _abm_result_stub(
-            method_id="simulation.agent_based.population_dynamics",
-            horizon=n_steps,
-        )
         patched = dict(output)
         result_payload = dict(patched.get("result", {}))
+        abm_result = build_content_bound_abm_result(
+            method_id="simulation.agent_based.population_dynamics",
+            horizon=n_steps,
+            payload=result_payload,
+            diagnostics={
+                "method_id": "simulation.agent_based.population_dynamics",
+                "horizon": n_steps,
+                "diagnostic_source": (
+                    "AgentPopulationSimulationEstimator.postprocess_output"
+                ),
+            },
+        )
         result_payload["abm_result"] = abm_result.model_dump(mode="json")
         patched["result"] = result_payload
         return patched
@@ -802,4 +850,5 @@ __all__ = [
     "SEIRCompartmentalEstimator",
     "SIRCompartmentalEstimator",
     "StockFlowSystemDynamicsEstimator",
+    "build_content_bound_abm_result",
 ]

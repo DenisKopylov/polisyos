@@ -5,15 +5,233 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import hashlib
 import json
+import os
+import subprocess
 import sys
-import tempfile
+import time
 import tomllib
 from pathlib import Path
 from typing import Any
 
 FAMILY_ID = "policy-design-case-layer3-gy-composition-artifacts"
 CERTIFICATES_PATH = "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+
+
+def _run_source_flip(
+    repo_root: Path,
+    *,
+    mutation_id: str,
+    source_relative: str,
+    old_source: str,
+    new_source: str,
+    command: tuple[str, ...],
+    expected_red_signal: str,
+) -> dict[str, Any]:
+    """Apply one guarded mutation, run its behavioral probe, and restore bytes."""
+
+    source_path = repo_root / source_relative
+    original = source_path.read_bytes()
+    original_hash = hashlib.sha256(original).hexdigest()
+    text = original.decode("utf-8")
+    guard_count = text.count(old_source)
+    if guard_count != 1:
+        return {
+            "mutation_id": mutation_id,
+            "result": "HARNESS_ERROR",
+            "proof": {"source_guard_count": guard_count},
+        }
+    completed: subprocess.CompletedProcess[str] | None = None
+    harness_error: str | None = None
+    started = time.monotonic()
+    try:
+        source_path.write_text(text.replace(old_source, new_source, 1), encoding="utf-8")
+        completed = subprocess.run(
+            command,
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONDONTWRITEBYTECODE": "1",
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+                "JAX_PLATFORMS": "cpu",
+            },
+            text=True,
+            capture_output=True,
+            timeout=300,
+            check=False,
+        )
+    except Exception as exc:  # pragma: no cover - emitted as harness evidence.
+        harness_error = str(exc)
+    finally:
+        source_path.write_bytes(original)
+    restored = source_path.read_bytes()
+    restored_hash = hashlib.sha256(restored).hexdigest()
+    if restored != original or restored_hash != original_hash:
+        return {
+            "mutation_id": mutation_id,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_restore_hash_mismatch",
+                "before": original_hash,
+                "after": restored_hash,
+            },
+        }
+    if harness_error is not None or completed is None:
+        return {
+            "mutation_id": mutation_id,
+            "result": "HARNESS_ERROR",
+            "proof": harness_error or "source_flip_probe_not_run",
+        }
+    output = f"{completed.stdout}\n{completed.stderr}"
+    mutation_red = completed.returncode != 0 and expected_red_signal in output
+    return {
+        "mutation_id": mutation_id,
+        "result": "RED" if mutation_red else "GREEN_MUTATION_SURVIVED",
+        "proof": {
+            "command": list(command),
+            "exit_code": completed.returncode,
+            "expected_red_signal": expected_red_signal,
+            "signal_observed": expected_red_signal in output,
+            "source_restored_sha256": restored_hash,
+            "wall_time_seconds": round(time.monotonic() - started, 6),
+            "stdout_tail": "\n".join(completed.stdout.splitlines()[-20:]),
+            "stderr_tail": "\n".join(completed.stderr.splitlines()[-20:]),
+        },
+    }
+
+
+def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Run the Stage-3 decisive source mutations serially with exact restore."""
+
+    python = sys.executable
+    strangle = _run_source_flip(
+        repo_root,
+        mutation_id="gy_g_fixture_caller_reintroduced",
+        source_relative="src/polisyos/runtime/quality/workspace/loop.py",
+        old_source="\n\n__all__ = [",
+        new_source=(
+            "\n\ndef _reintroduced_fixture_caller() -> None:\n"
+            "    run_recursive_case()\n"
+            "\n\n__all__ = ["
+        ),
+        command=(
+            python,
+            "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+            "--repo-root",
+            ".",
+            "--check",
+            "--output-format",
+            "json",
+        ),
+        expected_red_signal="layer3_gy_depth_n_strangle_receipt_red",
+    )
+    coupling = _run_source_flip(
+        repo_root,
+        mutation_id="empty_coupling_assumed_independent",
+        source_relative=(
+            "src/polisyos/runtime/quality/design_axes/coupling_composition.py"
+        ),
+        old_source=(
+            "    elif (\n"
+            "        graph.evidence_state == \"absent\"\n"
+            "        or graph.module_discovery_ref is None\n"
+            "        or not graph.interaction_edges\n"
+            "    ):\n"
+        ),
+        new_source=(
+            "    elif (\n"
+            "        graph.evidence_state == \"absent\"\n"
+            "        or graph.module_discovery_ref is None\n"
+            "    ):\n"
+        ),
+        command=(
+            python,
+            "-m",
+            "pytest",
+            (
+                "tests/unit/runtime/quality/test_depth_n_universality.py::"
+                "test_missing_coupling_evidence_defaults_toward_entanglement"
+            ),
+            "-q",
+        ),
+        expected_red_signal=(
+            "empty_coupling_without_observed_boundary_must_default_entangled"
+        ),
+    )
+    n5_owner = _run_source_flip(
+        repo_root,
+        mutation_id="n5_joint_simulation_owner_bypassed",
+        source_relative="src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        old_source=(
+            "                joint_simulation = "
+            "self._joint_simulation_controller.run(request)\n"
+        ),
+        new_source=(
+            "                raise RecursiveGenerationCycleError(\n"
+            "                    \"joint_simulation_owner_bypassed\"\n"
+            "                )\n"
+        ),
+        command=(
+            python,
+            "-m",
+            "pytest",
+            (
+                "tests/unit/runtime/quality/test_depth_n_universality.py::"
+                "test_coupled_parent_runs_real_n5_and_records_interactions"
+            ),
+            "-q",
+        ),
+        expected_red_signal="joint_simulation_owner_bypassed",
+    )
+    unsupported_label = _run_source_flip(
+        repo_root,
+        mutation_id="unsupported_n5_relabelled_joint_simulated",
+        source_relative="src/polisyos/runtime/quality/generation_cycle.py",
+        old_source=(
+            "        return \"simulation_blocked\", "
+            "tuple(dict.fromkeys(str(item) for item in blockers))\n"
+        ),
+        new_source=(
+            "        return \"joint_simulated\", "
+            "tuple(dict.fromkeys(str(item) for item in blockers))\n"
+        ),
+        command=(
+            python,
+            "-m",
+            "pytest",
+            (
+                "tests/unit/runtime/quality/test_generation_cycle.py::"
+                "test_real_unsupported_n5_result_is_serialized_as_simulation_blocked"
+            ),
+            "-q",
+        ),
+        expected_red_signal="unsupported_n5_result_must_block",
+    )
+    default_route = _run_source_flip(
+        repo_root,
+        mutation_id="gy_g_production_default_route_removed",
+        source_relative="src/polisyos/runtime/http/services/control/generation_cycle.py",
+        old_source=(
+            "    resolved_controller = controller or "
+            "build_default_recursive_generation_cycle_controller(\n"
+        ),
+        new_source=(
+            "    resolved_controller = controller or "
+            "RecursiveGenerationCycleController(\n"
+        ),
+        command=(
+            python,
+            "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+            "--repo-root",
+            ".",
+            "--check",
+            "--output-format",
+            "json",
+        ),
+        expected_red_signal="layer3_gy_depth_n_strangle_receipt_red",
+    )
+    return (strangle, coupling, n5_owner, unsupported_label, default_route)
 
 
 def declared_outputs() -> list[str]:
@@ -95,93 +313,97 @@ def validate(
 
 
 def build_live_composition_artifacts(repo_root: Path) -> dict[str, dict[str, Any]]:
-    """Recompute the GY-G proof from real child Workspace runs."""
+    """Recompute GY-G through canonical composition and the depth-N router."""
 
     _ensure_src_path(repo_root)
-    from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.pdc import ArtifactRef, gy_content_hash
     from polisyos.runtime.quality.design_axes.coupling_composition import (
         CouplingEdge,
         build_composition_receipt,
+        build_coupling_graph,
         classify_coupling,
+        compose_subdesigns,
         decompose_design,
     )
-    from polisyos.runtime.quality.workspace.loop import WorkspaceLoop
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        recompute_depth_n_strangle_receipt,
+    )
 
-    with tempfile.TemporaryDirectory(prefix="polisyos-gy-composition-") as tmp:
-        loop = WorkspaceLoop(artifact_store=FileSystemCAS(Path(tmp) / ".polisyos"))
-        independent_children = loop.decompose_fixture(
-            parent_workspace_id="ws-gyg-independent",
-            child_fixture_ids=[
-                "ua_msme_credit_worldbank_measurement",
-                "ua_msme_credit_worldbank_measurement",
-            ],
-        )
-        independent_graph = loop.coupling_graph_for_subdesigns(
-            parent_workspace_id="ws-gyg-independent",
-            subdesigns=independent_children,
-        )
-        independent_classification = classify_coupling(independent_graph)
-        independent_decomposition = decompose_design(
-            independent_graph,
-            independent_classification,
-            critical_path_module_refs=independent_graph.module_refs,
-        )
-        independent_receipt = build_composition_receipt(independent_decomposition)
-        independent_certificate = loop.compose_subdesigns(
-            parent_workspace_id="ws-gyg-independent",
-            subdesigns=independent_children,
-            graph=independent_graph,
-            claims=[],
-        )
-        feedback_edge = CouplingEdge(
-            boundary_ref="boundary://gyg/feedback",
-            source_module_ref=independent_children[0].workspace_id,
-            target_module_ref=independent_children[1].workspace_id,
-            relation="tariff_take_up_feedback",
-            interaction_strength="strong",
-            feedback_intensity="high",
-            feedback=True,
-            evidence_ref="evidence://gyg/feedback",
-        )
-        feedback_back_edge = CouplingEdge(
-            boundary_ref="boundary://gyg/feedback",
-            source_module_ref=independent_children[1].workspace_id,
-            target_module_ref=independent_children[0].workspace_id,
-            relation="take_up_response",
-            interaction_strength="strong",
-            feedback_intensity="none",
-            feedback=False,
-            evidence_ref="evidence://gyg/feedback-back-edge",
-        )
-        feedback_graph = independent_graph.model_copy(
-            update={
-                "graph_id": "graph-gyg-feedback",
-                "graph_ref": "pdc://gyg/feedback/coupling-graph",
-                "design_ref": "pdc://gyg/feedback/design",
-                "interaction_edges": [feedback_edge, feedback_back_edge],
-            }
-        )
-        feedback_certificate = loop.compose_subdesigns(
-            parent_workspace_id="ws-gyg-feedback",
-            subdesigns=independent_children,
-            graph=feedback_graph,
-            claims=[],
-        )
-        recursive_result = loop.run_recursive_case("pl_household_energy_accession_class")
-        positive_recursive_result = loop.run_recursive_case("gyg_positive_recursive_compose")
+    independent_children = _synthetic_composition_subdesigns(
+        artifact_ref_factory=ArtifactRef.from_payload
+    )
+    independent_edge = CouplingEdge(
+        boundary_ref="boundary://gyg/observed-independent",
+        source_module_ref=independent_children[0].workspace_id,
+        target_module_ref=independent_children[1].workspace_id,
+        relation="observed_independent_measurement",
+        interaction_strength="none",
+        evidence_ref="evidence://gyg/observed-independent",
+    )
+    independent_graph = build_coupling_graph(
+        design_ref="pdc://gyg/independent/design",
+        module_refs=[child.workspace_id for child in independent_children],
+        module_discovery_ref="pdc://gyg/independent/module-discovery",
+        interaction_edges=(independent_edge,),
+        evidence_state="observed",
+        rule_version_ref="policyos.gy.composition.v1",
+    )
+    independent_classification = classify_coupling(independent_graph)
+    independent_decomposition = decompose_design(
+        independent_graph,
+        independent_classification,
+        critical_path_module_refs=independent_graph.module_refs,
+    )
+    independent_receipt = build_composition_receipt(independent_decomposition)
+    independent_certificate = compose_subdesigns(
+        parent_workspace_id="ws-gyg-independent",
+        subdesigns=independent_children,
+        graph=independent_graph,
+        claims=(),
+    )
+    feedback_edge = CouplingEdge(
+        boundary_ref="boundary://gyg/feedback",
+        source_module_ref=independent_children[0].workspace_id,
+        target_module_ref=independent_children[1].workspace_id,
+        relation="tariff_take_up_feedback",
+        interaction_strength="strong",
+        feedback_intensity="high",
+        feedback=True,
+        evidence_ref="evidence://gyg/feedback",
+    )
+    feedback_back_edge = CouplingEdge(
+        boundary_ref="boundary://gyg/feedback",
+        source_module_ref=independent_children[1].workspace_id,
+        target_module_ref=independent_children[0].workspace_id,
+        relation="take_up_response",
+        interaction_strength="strong",
+        feedback_intensity="none",
+        feedback=False,
+        evidence_ref="evidence://gyg/feedback-back-edge",
+    )
+    feedback_graph = independent_graph.model_copy(
+        update={
+            "graph_id": "graph-gyg-feedback",
+            "graph_ref": "pdc://gyg/feedback/coupling-graph",
+            "design_ref": "pdc://gyg/feedback/design",
+            "interaction_edges": [feedback_edge, feedback_back_edge],
+        }
+    )
+    feedback_certificate = compose_subdesigns(
+        parent_workspace_id="ws-gyg-feedback",
+        subdesigns=independent_children,
+        graph=feedback_graph,
+        claims=(),
+    )
+    recursive_result = _build_lane0_depth_n_run(
+        repo_root,
+        subdesigns=independent_children,
+    )
+    strangle_receipt = recompute_depth_n_strangle_receipt(repo_root)
     subdesign_verifications = _unique_records_by_id(
         [
             *_subdesign_verification_records(
                 independent_children,
-                gy_content_hash=gy_content_hash,
-            ),
-            *_subdesign_verification_records(
-                recursive_result.subdesign_contracts,
-                gy_content_hash=gy_content_hash,
-            ),
-            *_subdesign_verification_records(
-                positive_recursive_result.subdesign_contracts,
                 gy_content_hash=gy_content_hash,
             ),
             *_subdesign_verification_records(
@@ -218,7 +440,7 @@ def build_live_composition_artifacts(repo_root: Path) -> dict[str, dict[str, Any
         "schema_version": "policyos.policy_design_case.layer3_gy.composition_certificates.v1",
         "owner": "team-runtime-quality",
         "writer_role": "system_verifier",
-        "proof_source": "workspace_loop_recomputed",
+        "proof_source": "recursive_generation_cycle_recomputed",
         "produced_by": "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
         "composition_engine_owner": (
             "polisyos.runtime.quality.design_axes.coupling_composition"
@@ -270,10 +492,254 @@ def build_live_composition_artifacts(repo_root: Path) -> dict[str, dict[str, Any
         ],
         "recursive_runs": [
             recursive_result.model_dump(mode="json"),
-            positive_recursive_result.model_dump(mode="json"),
         ],
+        "depth_n_strangle_receipt": strangle_receipt.model_dump(mode="json"),
     }
     return {CERTIFICATES_PATH: _normalise_payload_for_artifact(payload)}
+
+
+def _build_lane0_depth_n_run(
+    repo_root: Path,
+    *,
+    subdesigns: list[Any],
+) -> Any:
+    """Run a depth-three mini-world through real N6, N5, and composition owners."""
+
+    import asyncio
+    from decimal import Decimal
+    from importlib import import_module
+    from types import SimpleNamespace
+
+    from polisyos.pdc import SearchTerminalKind, SearchTerminalState, gy_content_hash
+    from polisyos.runtime.quality.design_axes.coupling_composition import (
+        derive_recursive_design_graph,
+    )
+    from polisyos.runtime.quality.design_problem import DesignProblem
+    from polisyos.runtime.quality.generation_cycle import (
+        CandidateGroundingObservation,
+        GenerationCycleController,
+        PendingN8ValuePort,
+        PromotionPortObservation,
+        SimulationPortObservation,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCycleBudget,
+        RecursiveGenerationCycleController,
+    )
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+
+    problem_payload = json.loads(
+        (
+            repo_root
+            / "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json"
+        ).read_text(encoding="utf-8")
+    )["design_problem"]
+    class _Lane0GenerationPort:
+        async def __call__(
+            self,
+            problem: DesignProblem,
+            *,
+            cycle_index: int,
+        ) -> SimpleNamespace:
+            del problem, cycle_index
+            atom = SimpleNamespace(
+                intervention_id="lane0_depth_n_intervention",
+                content_hash="sha256:" + "4" * 64,
+                status="candidate_unverified",
+                world_model_record_ref="world_model_record_lane0_depth_n",
+                target_world_slots=("final_queue_length",),
+            )
+            candidate = SimpleNamespace(
+                candidate_id="candidate_lane0_depth_n",
+                atom=atom,
+                diversity_key=("queue", "claims", "lane0", "depth-n"),
+                status="candidate_unverified",
+            )
+            ranking = SimpleNamespace(
+                candidate_id=candidate.candidate_id,
+                score=0.2,
+                voi_estimate=0.1,
+                trust_level="search_guiding",
+                promotion_allowed=False,
+            )
+            return SimpleNamespace(
+                status="generated",
+                candidates=(candidate,),
+                surrogate_rankings=(ranking,),
+                grounding_dispositions=(),
+            )
+
+    class _Lane0GroundingPort:
+        def __call__(
+            self,
+            *,
+            candidate: Any,
+            **kwargs: Any,
+        ) -> CandidateGroundingObservation:
+            del kwargs
+            return CandidateGroundingObservation(
+                candidate_id=str(candidate.candidate_id),
+                status="grounding_gap",
+                grounding_score=0.2,
+                issue_codes=("lane0_grounding_gap",),
+                current_valid=False,
+            )
+
+    class _Lane0SimulationPort:
+        def __call__(
+            self,
+            *,
+            candidate: Any,
+            **kwargs: Any,
+        ) -> SimulationPortObservation:
+            del kwargs
+            return SimulationPortObservation(
+                candidate_id=str(candidate.candidate_id),
+                status="simulation_pending_n5",
+                authority_blockers=("lane0_joint_request_not_leaf_owned",),
+            )
+
+    class _Lane0PromotionPort:
+        def __call__(self, **kwargs: Any) -> PromotionPortObservation:
+            del kwargs
+            return PromotionPortObservation()
+
+    def _lane0_leaf_controller(
+        node_ref: str,
+        problem: DesignProblem,
+    ) -> GenerationCycleController:
+        del node_ref, problem
+        return GenerationCycleController(
+            generation_port=_Lane0GenerationPort(),
+            grounding_port=_Lane0GroundingPort(),
+            simulation_port=_Lane0SimulationPort(),
+            value_port=PendingN8ValuePort(),
+            promotion_port=_Lane0PromotionPort(),
+            repo_root=repo_root,
+        )
+
+    leaf_terminal = SearchTerminalState(
+        kind=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED,
+        reason="Terminal emitted by the canonical generation-cycle owner.",
+        blocking_obligations=["lane0_grounding_gap", "value_gate_pending_n8"],
+    )
+
+    root = "design://gy-n10/depth/root"
+    unary = "design://gy-n10/depth/one"
+    branch = "design://gy-n10/depth/two"
+    leaves = ("design://gy-n10/depth/three-a", "design://gy-n10/depth/three-b")
+    node_refs = (root, unary, branch, *leaves)
+    graph = derive_recursive_design_graph(
+        design_ref=root,
+        module_refs=node_refs[1:],
+        parent_child_edges=((root, unary), (unary, branch), (branch, leaves[0]), (branch, leaves[1])),
+        rule_version_ref="policyos.gy.depth_n.lane0.v1",
+    )
+    base_problem = DesignProblem.model_validate(problem_payload)
+    problems = {
+        node_ref: base_problem.model_copy(
+            update={
+                "design_problem_id": f"depth_n_{index}",
+                "objectives": [
+                    base_problem.objectives[0].model_copy(
+                        update={"metric_id": "final_queue_length"}
+                    )
+                ],
+                "outcome_of_interest": base_problem.outcome_of_interest.model_copy(
+                    update={
+                        "target_variable": "final_queue_length",
+                        "metric_id": "final_queue_length",
+                        "estimand": "effect on the final claims queue length",
+                        "direction": "minimize",
+                    }
+                ),
+            }
+        )
+        for index, node_ref in enumerate(node_refs)
+    }
+    n5_module = import_module(
+        "tools.quality.validation.check_layer3_gy_joint_simulation_horizon_contract"
+    )
+    request = n5_module._coupled_request()
+    request_graph = request.coupling_graph
+    if request_graph is None:
+        raise AssertionError("lane0_coupled_request_missing_graph")
+    request_edges = tuple(
+        edge.model_copy(
+            update={
+                "source_module_ref": leaves[0],
+                "target_module_ref": leaves[1],
+            }
+        )
+        for edge in request_graph.interaction_edges
+    )
+    branch_problem_ref = gy_content_hash(problems[branch].model_dump(mode="json"))
+    request_atoms: list[InterventionAtomBinding] = []
+    for atom in request.intervention_atoms:
+        draft = atom.model_copy(update={"problem_frame_ref": branch_problem_ref})
+        content_hash = intervention_atom_content_hash(draft)
+        bound = draft.model_copy(
+            update={
+                "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
+                "content_hash": content_hash,
+            }
+        )
+        request_atoms.append(
+            InterventionAtomBinding.model_validate(bound.model_dump(mode="python"))
+        )
+    request = request.model_copy(
+        update={
+            "intervention_atoms": tuple(request_atoms),
+            "coupling_graph": request_graph.model_copy(
+                update={
+                    "design_ref": branch,
+                    "module_refs": leaves,
+                    "interaction_edges": request_edges,
+                    "evidence_state": "observed",
+                }
+            )
+        }
+    )
+    bound_subdesigns = tuple(
+        child.model_copy(
+            update={
+                "workspace_id": leaf_ref,
+                "parent_workspace_id": branch,
+                "search_exit": child.search_exit.model_copy(
+                    update={
+                        "workspace_id": leaf_ref,
+                        "terminal_state": leaf_terminal,
+                    }
+                ),
+            }
+        )
+        for child, leaf_ref in zip(subdesigns, leaves, strict=True)
+    )
+    controller = RecursiveGenerationCycleController.for_contract_testing(
+        cycle_controller_factory=_lane0_leaf_controller,
+        repo_root=repo_root,
+    )
+    return asyncio.run(
+        controller.run(
+            graph,
+            problems_by_node=problems,
+            budget_state=BudgetState(
+                limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+            ),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=3,
+                max_nodes=5,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=2,
+            ),
+            joint_simulation_requests_by_node={branch: request},
+            subdesign_contracts_by_node={branch: bound_subdesigns},
+        )
+    )
 
 
 def _unique_records_by_id(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -838,16 +1304,48 @@ def _validate_certificate_payload(
     if not isinstance(recursive_runs, list):
         issues.append({"code": "layer3_gy_composition_recursive_runs_missing", "path": path})
     else:
-        positive_recursive = [
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveGenerationCycleRun,
+        )
+
+        for index, item in enumerate(recursive_runs):
+            try:
+                RecursiveGenerationCycleRun.model_validate(item)
+            except ValueError as exc:
+                issues.append(
+                    {
+                        "code": "layer3_gy_recursive_run_semantically_invalid",
+                        "path": f"{path}.recursive_runs[{index}]",
+                        "error": str(exc),
+                    }
+                )
+        depth_n_runs = [
             item
             for item in recursive_runs
             if isinstance(item, dict)
-            and item.get("terminal_state", {}).get("kind") == "grounded_partial_admissible"
-            and item.get("composition_certificate", {}).get("verdict") == "composable"
-            and item.get("composition_certificate", {}).get("composition_receipt_ref")
+            and int(item.get("observed_max_depth") or -1) >= 3
+            and any(
+                isinstance(node, dict)
+                and isinstance(node.get("joint_simulation"), dict)
+                and bool(node["joint_simulation"].get("interaction_terms"))
+                and isinstance(node.get("composition_certificate"), dict)
+                for node in item.get("nodes") or []
+            )
         ]
-        if not positive_recursive:
-            issues.append({"code": "layer3_gy_composition_positive_recursive_missing"})
+        if not depth_n_runs:
+            issues.append({"code": "layer3_gy_composition_depth_n_run_missing"})
+    strangle = payload.get("depth_n_strangle_receipt")
+    if not isinstance(strangle, dict):
+        issues.append({"code": "layer3_gy_depth_n_strangle_receipt_missing"})
+    elif (
+        strangle.get("status") != "strangled"
+        or strangle.get("production_fixture_callers") != []
+        or not strangle.get("production_default_routes")
+        or not str(strangle.get("default_controller") or "").endswith(
+            "RecursiveGenerationCycleController"
+        )
+    ):
+        issues.append({"code": "layer3_gy_depth_n_strangle_receipt_red"})
     for index, certificate in enumerate(certificates):
         if not isinstance(certificate, dict):
             issues.append(
@@ -902,6 +1400,7 @@ def _ensure_src_path(repo_root: Path) -> None:
 
 
 def main(argv: list[str] | None = None) -> int:
+    started = time.perf_counter()
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--output-format", choices=("json", "text"), default="text")
@@ -912,9 +1411,23 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Mutate a committed field in memory and assert drift is detectable.",
     )
+    parser.add_argument(
+        "--source-flip-mutations",
+        action="store_true",
+        help="Run restoring Stage-3 source mutations serially.",
+    )
     args = parser.parse_args(argv)
     if args.check and args.write:
         parser.error("--check and --write are mutually exclusive")
+
+    if args.source_flip_mutations:
+        results = run_source_flip_mutations(Path(args.repo_root).resolve())
+        report = {
+            "results": list(results),
+            "validator_wall_time_seconds": round(time.perf_counter() - started, 6),
+        }
+        print(json.dumps(report, indent=2, sort_keys=True))
+        return 0 if all(row.get("result") == "RED" for row in results) else 1
 
     with contextlib.redirect_stdout(sys.stderr):
         report = validate(
@@ -922,6 +1435,7 @@ def main(argv: list[str] | None = None) -> int:
             write=args.write,
             corrupt_field_drift_check=args.corrupt_field_drift_check,
         )
+    report["validator_wall_time_seconds"] = round(time.perf_counter() - started, 6)
     if args.output_format == "json":
         print(json.dumps(report, indent=2, sort_keys=True))
     else:

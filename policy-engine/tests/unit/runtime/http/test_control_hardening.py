@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos_tests_runtime_http_conftest import build_runtime_api_env
+
+from polisyos.runtime.http.app import create_runtime_api_app
 
 
 def test_research_profile_rejects_execution_profile_downgrade(
@@ -43,7 +44,7 @@ def test_research_profile_rejects_mock_nl_without_policy_flag(
         },
     )
     assert response.status_code == 422
-    assert response.json()["code"] == "mock_fallback_disallowed"
+    assert response.json()["code"] == "llm_model_unconfigured"
 
 
 def test_policy_flags_are_fail_closed_without_privileged_principal(

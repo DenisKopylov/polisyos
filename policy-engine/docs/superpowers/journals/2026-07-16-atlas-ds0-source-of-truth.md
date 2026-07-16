@@ -32,3 +32,26 @@ parallel GY audit.
 
 Next checkpoint: gather read-only evidence and record the six governing
 decisions without touching application or GY-owned paths.
+
+## 2026-07-16 - Governing decisions D1-D6
+
+- Completed three parallel read-only evidence passes inside the DS0 worktree:
+  design/token/package sources, locale/flags, and lifecycle/non-web surfaces.
+- Recorded one canonical decision register at
+  `docs/brand/ATLAS_SOURCE_OF_TRUTH.md`; it carries evidence, the strongest
+  rejected alternative, and revisit conditions for every decision.
+- Kept live v4 as the transitional production baseline; v7 is DS11-DS13
+  material only; v15 remains sha-pinned `implemented_but_not_orchestrated`
+  evidence pending DS2 item-level adjudication.
+- Chose future one-way DTCG generation without admitting v15 values; reserved
+  private `@polisyos/atlas-ui` at `packages/atlas-ui`; made Figma a projection.
+- Restored D4 to `pending_owner_ratification`. Snapshot evidence found 2,449
+  string leaves per locale, but 80.16% of `ru` values equal English and the
+  runtime advertises only `en`/`uk`.
+- Governed all 12 declared flags; recorded four as `consumer_missing` and
+  separated rollout from `/auth/me` authorization.
+- Assigned each non-web artifact to DS2/DS3/DS4/DS6/DS8 or explicit
+  `surface_out_of_scope` with an owner and revisit trigger.
+
+Next checkpoint: execute the docs-lifecycle moves and update the retained
+source documents to point at the new canonical decision record.

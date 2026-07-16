@@ -2,12 +2,15 @@
 
 ## Status
 
-`findings_repair_pending`
+`GO-CONFIRMED`
 
-The GO declared at `36942a1a8` is withdrawn pending this independent audit. Evidence in this
+The provisional GO declared at `36942a1a8` was withdrawn for this independent audit. Every blocker
+and must-fix finding was repaired owner-first, and the complete A--I denominator was recomputed at
+the audited capstone commit `6fcbd2c11b817745d266a73be247d7d59ebad04c`. Evidence in this
 journal comes from source inspection, direct frozen-payload probes, and recomputation; the earlier
 stage journals are context only. Read-only reconnaissance ran in parallel. Every validator,
-source flip, writer, and repair remains serial under the repository runtime.
+source flip, writer, and repair remained serial under the repository runtime. No merge to `main`
+was performed.
 
 ## Audit baseline
 
@@ -939,3 +942,151 @@ The five delegated IDs were `gy_g_fixture_caller_reintroduced`,
 `unsupported_n5_relabelled_joint_simulated`, and `gy_g_production_default_route_removed`.
 Every probe exited 1 on its expected RED signal. Post-harness `git status --short` showed no source
 movement: only this journal and the canonical capstone artifact remained modified.
+
+## Final independent verdict — A--I
+
+`GO-CONFIRMED`
+
+The capstone artifact was committed as the isolated checkpoint `6fcbd2c11b817745d266a73be247d7d59ebad04c`
+before the decisive cold-checkout replay. The final contract identity is:
+
+```text
+contract_content_hash:
+  sha256:fb1194882178801f0d08835e7c6683433ace055bcbd3ea44e6ecd6ba99a742a6
+file SHA-256:
+  29bb35048575ccc4fd61124875569d90c4cf843f5dac4f42b6f1ad768b22e9c6
+```
+
+Hash lineage:
+
+- provisional GO: `sha256:8d4b2f69f35d989206cc9304d6ccb76759800b386406654085a55fcb671cbb16`
+  at `ce847b9f2`;
+- pre-Lex audit rewrite: `sha256:38b61d274df4ff48bb6cebaf0c40907ebd2754d2477c88cef5db2cf812f95845`
+  with file SHA `97e5ea0d39ecfb7f429b357998692861ccca13a460f40ecbc8d77ba046f65a0e`;
+- final path-independent capstone: `sha256:fb119488...99a742a6` with file SHA
+  `29bb3504...b22e9c6`.
+
+The two canonical writers took `1265.261875 s` and `1354.788064 s` and produced identical bytes.
+The old/new semantic comparison observed 752 status/kind/reason/method/candidate leaves on each
+side with exact equality. Only content-bound provenance moved.
+
+### Final domain evidence
+
+| Domain | Terminal | Structural evidence | Grade | Domain-run content hash |
+| --- | --- | --- | --- | --- |
+| first vertical | `acquisition_required` | `owner_acquisition_route` | `blocked` | `sha256:2c43f86b73110915f3cc5462d0fbe3a1308faf9d7837fe121cd3bdbe6d559b0d` |
+| education | `acquisition_required` | `estimand_binding_refusal` | `blocked` | `sha256:68152e96cb0590f9d276b093b17c3f62e763361a1f221bba1ed12a97f5adc85d` |
+| unseen | `acquisition_required` | `owner_acquisition_route` | `blocked` | `sha256:b4226d20e9659abc389d56d2090509809dd89cc76ecb555c33aeb9cea40af1de` |
+
+Education's deeper value evidence binds a live 55-method capability denominator, selected
+`bayesian.gp.gp_regression@1.0.0`, advisor receipt
+`sha256:79fe8e60f1970f08fee2e4e060c631a091e06b0cd658a2220e790fe862325a9a`,
+selection-context hash
+`sha256:54a3a19ad298575a7244701c00ec6ed3ceb8c675c7e4f71c2909c83e94a1c7a2`,
+and owner-data-profile hash
+`sha256:eb5faeaffbb5507ba9ceed7c69ed3a892d5c106eb6a6336ed62c4d68f1db3566`.
+The real advisor route therefore reaches `method_estimand_binding_mismatch`; the verified earlier
+grounding route cannot mask it. Education correctly does not promote.
+
+### A--I recomputation matrix
+
+| Item | Verdict | Recomputed evidence |
+| --- | --- | --- |
+| A — structural universality | PASS | Evidence classes derive from validated typed owner witnesses. Relabel, fabricated-terminal, forged-route, canonical-route, and weakened-denominator mutations all went RED. Two superficial strings over one witness type cannot increase the structural class count. |
+| B — education precedence | PASS | The 55-method advisor receipt and owner-data profile recompute; the selected Bayesian GP is advisor-ranked, not code-pinned. The early-route-versus-downstream-refusal negative and `education_refusal_precedence_removed` mutation went RED. |
+| C — volatile carry | PASS | `polisyos.pdc` is the single owner of the excluded-field vocabulary. A semantic nested mutation takes the full-rewrite branch and changes the hash; inversion of the equal-hash condition went RED. |
+| D — corrupt drift | PASS | All 11 decisive nested corruptions went RED; both warm and cold commands exited 1 with an empty harness-issue list. |
+| E — historical boundary | PASS | Only the named, single nested content-hash projection delta is eligible. Raw compiler/N4 bytes and non-hash validation drift remain fatal; the permanent tamper negatives and historical-receipt source flip are RED-capable. |
+| F — shared surfaces | PASS | The authority-caller census found no dict-shaped pseudo-`DesignProblem` reaching Foundry; the two surviving callers pass typed owner objects. Operational N6/N7 clocks are hash-neutral while semantic cost remains hash-decisive. |
+| G — assertion sweep | PASS | Seven replacement groups were stronger or neutral; zero weakened assertions. The N4 closure assertion now requires three `novel_cg3` dispositions and zero bind-authorized candidates/rankings. |
+| H — U1--U4 | PASS | No domain/role/model branch controls generation, context resolution, recursion, value projection, advisor selection, or capstone authority. The unseen recording carries no first-vertical or education vocabulary. L6 intake is registry/data-derived; proof roles are expectations only. |
+| I — fresh state and coherence | PASS | Detached commit `6fcbd2c11` passed frozen check, behavioral rederive, wrong-checkout fences, and corrupt drift. Final owner checks, censuses, registration, guardrails, Ruff, and merge-tree all passed. |
+
+### Assertion-change classification
+
+| Commit | Surface | Classification | Evidence |
+| --- | --- | --- | --- |
+| `739f15b82` | depth-N proof lifecycle | neutral/stronger | Replaces `proof_runs_pending` with exactly three completed proof roles and implemented capability labels. |
+| `d575f86f9` | compiler characterization | stronger | Adds seed preservation and expands the frozen denominator to 21 with repeatability controls. |
+| `d1093bec3` | compiler token ceiling | neutral | Rebaselines observed completion/headroom while preserving the same derived 8192 ceiling. |
+| `6bbb9b482` | N7 grounding route | stronger | Replaces a dead-end label with a verified acquisition requirement and canonical planner report. |
+| `13a1103db` | terminal evidence | stronger/neutral | Requires an exact acquisition terminal and planner-report hash; changes the evidence label only to the recomputed owner-route class. |
+| `f34b87ee0` | wrong-checkout and frozen lifecycle | stronger/neutral | Requires byte preservation of the real artifact; updates the CLI expectation after artifact admission. |
+| `6ff1e7986` | N4 closure | strictly stronger | Requires exactly three `novel_cg3` dispositions, real owner calls, and zero candidates, rankings, candidate IDs, or atom authority. |
+
+No other Task-13--15 assertion was weakened.
+
+### Decisive cold checkout
+
+The detached checkout was created at
+`/Users/deniskopylov/polisyos/.worktrees/gy-n10-audit-final-clean`, HEAD
+`6fcbd2c11b817745d266a73be247d7d59ebad04c`. Before validation it had no `.tmp` and only local
+links for `.venv`, `production_data`, and `.env`. The validator then created its own isolated
+temporary world; no warmed-checkout source path appeared.
+
+```text
+capstone --check: exit 0; wall_time_seconds=71.849248
+capstone --rederive-audit: exit 0; issues=[]; wall_time_seconds=880.937063
+three wrong-checkout focused probes: 3 passed; exit 0; tool wall=11.073074 s
+capstone --corrupt-field-drift-check: expected exit 1;
+  all 11 cases red; harness issues=[]; wall_time_seconds=47.412417
+artifact SHA after all cold probes:
+  29bb35048575ccc4fd61124875569d90c4cf843f5dac4f42b6f1ad768b22e9c6
+git diff --exit-code: exit 0
+```
+
+This behavioral replay is the decisive closure of the cold-environment Lex defect: it derives from
+the embedded proof recordings in a different checkout and preserves the same structural terminals.
+
+### Final committed-base coherence
+
+| Gate | Result |
+| --- | --- |
+| N4 design generation | PASS; exit 0; issues=[] |
+| Fork-B CG1/L2 census | PASS; 13,092 rows = 1,076 false-analog vetoes + 12,016 unknowns; zero usable relations |
+| N8 value gate | PASS; exit 0 |
+| N10a second-domain pack | PASS; validator wall `0.651772 s` |
+| composition | PASS; validator wall `28.187470 s` |
+| N5 joint simulation | PASS; validator wall `2.294039 s` |
+| N6 generation cycle | PASS; validator wall `0.003976 s` |
+| N7 acquisition | PASS; validator wall `0.251882 s`; `network_calls=0` |
+| N9 promotion | PASS; validator wall `0.003957 s` |
+| canonical disposition ledger | PASS; the already-known CVXPY/OR-Tools version warnings remain non-authoritative noise |
+| engine census | PASS; 69 rows; 0 violations |
+| validator import/help census | PASS; 37/37; 0 failures; `51.848 s` |
+| current capstone registration | PASS; exactly one `generated_committed` family with the canonical output and checker workflow |
+| architecture guardrails | PASS; exit 0 |
+| Ruff over every Python path changed from `main` | PASS; `All checks passed!` |
+| `git merge-tree --write-tree --name-only --messages main HEAD` | PASS; exit 0; no conflict messages |
+
+One extra broad probe,
+`check_layer3_gy_generated_public_lifecycle_audit.py --check --json`, returned its frozen Task-0
+inventory drift (352 violations spanning hundreds of pre-existing output-root files and all post-N0
+validators). It is classified **stale expectation / non-applicable to the requested current-family
+registration check**. It was neither weakened nor regenerated. The capstone's exact current family,
+output, lifecycle, check command, and workflow were instead parsed directly from
+`architecture/generated_artifacts.toml`, and architecture guardrails passed.
+
+### Audit delta from the provisional GO
+
+The independent audit added or strengthened: the cold-checkout contamination fence; structural
+owner-witness classification; nested corrupt-field depth; one canonical volatile-field source;
+advisor authority binding at both sibling consumers; repository-relative Lex evidence addressing;
+the narrow historical prompt-rebind receipt; the narrow historical N4 certificate/ticket rebind;
+and the path-independence source flip. The historical-replay exception remains deliberately narrow:
+verified byte-identical raw responses, a provenance-only problem delta, the exact eligible issue
+set, one rebind, and permanent raw-tamper/non-identity-drift negatives. It is not permission to
+reuse responses under changed prompts.
+
+### Carried typed debt
+
+- `owner_registration_derivation_missing` — `artifact_missing`
+- `journal_raw_evidence_persistence_missing` — `artifact_missing`
+
+Both remain explicit N7 infrastructure residuals. Neither is hidden, treated as acquired, or
+counted as a successful value/promotion result.
+
+## Verdict
+
+**GO-CONFIRMED** — GY-N10 proves that the existing cycle is domain-generic and degrades honestly.
+Education correctly terminates without promotion. No merge to `main` was performed.

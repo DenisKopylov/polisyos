@@ -8,6 +8,25 @@
 
 **Tech Stack:** Python 3.14, Pydantic v2 strict models, existing PolicyOS IR/Foundry/runtime contracts, pytest, Ruff, JSON generated artifacts, AST/source-flip validators.
 
+**Status (2026-07-16):** `done — GO-CONFIRMED`
+
+**Audited capstone:** `architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json`
+at `6fcbd2c11b817745d266a73be247d7d59ebad04c`, contract hash
+`sha256:fb1194882178801f0d08835e7c6683433ace055bcbd3ea44e6ecd6ba99a742a6`,
+file SHA-256
+`29bb35048575ccc4fd61124875569d90c4cf843f5dac4f42b6f1ad768b22e9c6`.
+Independent closure audit:
+`docs/superpowers/journals/2026-07-16-gy-n10-final-closure-audit.md`.
+Historical execution hashes below remain as execution history; this audited reference supersedes
+them.
+
+**Carried typed N7 infrastructure debt:**
+
+- `owner_registration_derivation_missing` — `artifact_missing`
+- `journal_raw_evidence_persistence_missing` — `artifact_missing`
+
+Both remain honest typed residuals and do not weaken the GY-N10 universality proof.
+
 ## Global Constraints
 
 - Product root is `policy-engine/`; follow `CONTRIBUTING.md` and the failure/repair register before design and closeout.

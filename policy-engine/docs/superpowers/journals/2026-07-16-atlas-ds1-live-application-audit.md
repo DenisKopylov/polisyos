@@ -32,3 +32,31 @@ the isolated Atlas branch and never edits the DS0 or parallel GY journal.
 
 Next checkpoint: commit the DS1 executable plan, then begin recomputing the
 inventory from the live tree.
+
+## 2026-07-16 - Inventory and UI-estate checkpoint
+
+- Recomputed the June denominators instead of inheriting them. Dashboard
+  `src` is still exactly 908 TS/TSX and 136,827 physical LOC, while the full
+  frontend zone is 944 TS/TSX and 145,033 LOC. The old 230-test number counted
+  dashboard-source `.test` files and omitted 3 authored source specs, 17 e2e
+  specs, and the CLI test.
+- Expanded the route denominator to 32 declared objects, 29 effective URL
+  patterns, and 22 leaf UI patterns. Recorded the redundant second `/` index
+  route and the five leaf routes absent from browser axe coverage.
+- Audited all 17 feature directories. `features/layout` is empty;
+  collaboration, export, and onboarding have no outside production importer;
+  these are disposition findings, not omissions.
+- Reconciled 89 shared/UI implementation TSX files into 12 named families.
+  No family meets the constitution's `stable` bar. The structural a11y test's
+  allowlist omits `OperatorDiagnosticPanel`, making the current gate red by
+  set difference; an isolated test command could not start because installed
+  Vitest dependencies are absent, and no installation was attempted.
+- Audited the reference shell's four button-switched views. It directly uses
+  the package generated client, refuting the plan's dashboard-only consumer
+  claim.
+- Created the canonical report and froze stable IDs for routes, features, UI
+  families, and reference-shell views. The application/runtime tree remained
+  untouched and clean before report creation.
+
+Next checkpoint: add the 89-operation bidirectional census, local statuses,
+flags, transports, authorization matrix, and adjacent/evidence estates.

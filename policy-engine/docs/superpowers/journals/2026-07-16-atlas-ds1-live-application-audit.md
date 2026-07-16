@@ -60,3 +60,40 @@ inventory from the live tree.
 
 Next checkpoint: add the 89-operation bidirectional census, local statuses,
 flags, transports, authorization matrix, and adjacent/evidence estates.
+
+## 2026-07-16 - Contract, transport, and authority checkpoint
+
+- Enumerated all 89 checked-in OpenAPI method/path operations: 45 reach a
+  production surface, 7 stop at hook/client definitions, and 37 have no
+  dashboard call. The reference shell consumes eight operations already in
+  the 45-set through a second generated-client home.
+- Found exactly 9 production `fetch` calls outside `src/api` in 5 files, not
+  about 10 files. Lex has migrated to typed hooks. Recorded all sites and the
+  tooling-only tenth call separately.
+- Recorded 23 named + 24 inline UI-local status definitions. The three
+  `DisputeStatus` definitions form two vocabularies; operational and
+  authority-adjacent states are not namespaced cleanly.
+- Confirmed all 12 canonical flag defaults are true, all four D5
+  `consumer_missing` claims remain true, and three affected surfaces are live
+  outside those flags. `/auth/me` remains a thirteenth permission-derived
+  pseudo-source; unknown manifest keys are ignored.
+- Audited SSE/WS, three worker modules, the service worker, both IndexedDB
+  stores, query cache, all authority-looking local stores, raw telemetry, and
+  Sentry. Collaboration REST/WS is phantom but its whole feature is orphaned;
+  the review WS has an authentication bridge risk.
+- Recomputed the unsafe-method denominator from server decorators: 29 POST,
+  zero PUT/PATCH/DELETE, audited 29/29. None has an action-permission or
+  step-up dependency. Recorded the late OPA resource binding, fixture identity
+  reach, fail-open UI placeholder, 12-server/15-client permission delta, and
+  self-asserted production approval chain.
+- Completed all named P15/P05 surfaces, the browser-signing blast radius,
+  cache policy, 23 red-first negative specifications, and DS3-DS18 Plan Impact
+  Appendix. Corrected only the evidence-backed master-plan snapshot/scope
+  statements.
+- Populated the first real readiness ledger with 261 entries generated from
+  the delimited report index. JSON Schema validation passed; report and ledger
+  both contain 261 unique IDs with empty set differences. All 408 local links
+  in the report/master check resolved at this checkpoint.
+
+Next checkpoint: close the task-plan checklist, run independent ledger/content
+checks, final link/fence/diff/clean-tree verification, and commit DS1 closeout.

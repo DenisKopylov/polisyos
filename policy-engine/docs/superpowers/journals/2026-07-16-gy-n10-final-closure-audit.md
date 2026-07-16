@@ -740,3 +740,39 @@ final --check: exit 0; 29.338 s
 ```
 
 No coupling observation, recursion result, or composition authority changed.
+
+### I1 aggregate-ladder convergence: N8 post-N10a provenance carry
+
+The first aggregate pass on committed composition base `0dd6f1108` was green for N4 and the
+Fork-B census, then N8 correctly reported drift:
+
+```text
+N4 --check: exit 0; 58.98 s
+Fork-B --check: exit 0; 1.511 s
+  content_hash=sha256:f511626547c17ff010b1ee26d9157c753a6f13fe8be18f96c17ee9f1ca31e605
+  relation_rows=13092; false-analog=1076; unknown=12016
+N8 --check: exit 1; ~143 s; artifact_drift
+N8 --rederive-audit: exit 1; wall_time_ms=113949.662
+  live_rederive_section_drift: transport_component_proofs
+```
+
+The frozen/live field comparison localized the movement to the education proof's
+`design_problem_ref`, `cycle_substrate_context_content_hash`, `context_binding_hash`, and derived
+`proof_content_hash`. The candidate identity and content, lever binding, WMR, selection diagram,
+two transport covariates and values, transport receipt/status, first-vertical refusal, and unseen
+transport proof were byte-identical. Cause: the N8 artifact was frozen before the final N10a
+historical-problem rebind, so its education component still named the pre-rebind N10a smoke
+problem. This is provenance-only convergence, not a semantic rebaseline. The canonical writer is
+permitted only if the artifact diff preserves that exact classification.
+
+The canonical N8 diff met that condition exactly: the four classified education hashes and the
+enclosing `contract_content_hash` were the only changed fields. Two writes were byte-identical at
+file SHA-256
+`755d67837fd74b7e7fb35aff6ae3b355f5b1fafd9381b8964d1a02a18ae937cb`;
+the final live `--check` passed.
+
+```text
+first --write:  exit 0; ~109.92 s
+second --write: exit 0; ~115.15 s
+--check:         exit 0; ~114.12 s
+```

@@ -351,3 +351,32 @@ after:  6d94790328eee38dbdae6c551ec71ef30edb9789f1467341d506d2eae0b1d06b
 repeat: 6d94790328eee38dbdae6c551ec71ef30edb9789f1467341d506d2eae0b1d06b
 writer exits: 0; wall times 47.835 s, 47.735 s, 47.783 s
 ```
+
+## Capstone rebaseline checkpoint
+
+After committed provenance stability passed, the canonical capstone writer replayed all three
+embedded recordings through current owners and emitted only after the strengthened static and
+semantic gates passed.
+
+```text
+first --write: exit 0; 1473.399346 s
+second --write: exit 0; 1291.923042 s
+contract_content_hash:
+  sha256:38b61d274df4ff48bb6cebaf0c40907ebd2754d2477c88cef5db2cf812f95845
+file SHA-256 after both writes:
+  97e5ea0d39ecfb7f429b357998692861ccca13a460f40ecbc8d77ba046f65a0e
+frozen --check: exit 0; 107.272672 s
+```
+
+Measured distributions:
+
+```text
+first_vertical: acquisition_required / owner_acquisition_route / blocked
+education:      acquisition_required / estimand_binding_refusal / blocked
+unseen:         acquisition_required / owner_acquisition_route / blocked
+```
+
+The unseen proof recording now contains the typed no-context N4 owner refusal, no model responses
+or owner projection, and grammar-derived levers exactly equal to its compiled DesignProblem:
+`demand_reduction_instrument`, `emission_reduction_instrument`, and
+`equity_protection_instrument`. Static compiled/response verification reports no issue.

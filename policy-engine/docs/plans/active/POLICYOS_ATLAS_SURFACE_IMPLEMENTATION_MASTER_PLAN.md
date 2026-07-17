@@ -430,7 +430,7 @@ roughly chronological; the DAG, not the numbers, governs start order.
 | DS0 | Source-of-truth freeze & governing decisions | **CLOSED** (merged) | A |
 | DS1 | Live application audit | **CLOSED** (merged) | A |
 | DS2 | Atlas v15 adjudication | **CLOSED** (merged) | A |
-| DS3 | Runtime producers & export infrastructure (GY artifact projections; one-client consolidation) | activation satisfied — **may start now** | B |
+| DS3 | Runtime producers & export infrastructure (GY artifact projections; one-client consolidation) | **CLOSED** (merged e451cec56: 13 typed producers, owner-receipt cache law, replay binder, channel registry, canonical client twin) | B |
 | DS19 | False-substrate strangle wave + frontend disposition register | **CLOSED** (merged f9f69e807: 33 files / −4,005 LOC; register live) | B |
 | DS4 | Status-grammar rebinding & test harness (12 families / 47 statuses) | DS3 | B |
 | DS20 | **Server authorization enforcement (NEW, Rev 3 — split from DS5)** | DS3; parallel to DS4 | B |
@@ -476,8 +476,7 @@ bounded agent.
 
 | Milestone | Unblocked surface work |
 | --- | --- |
-| **Now** (Phase A merged; N10 merged; **DS19 closed & merged** — the register + wire/retire dispositions + debt manifests are live inputs) | **DS3** (producers over capstone/value-gate/ledger/census + the one-client/channel consolidation, PI-01..03; consumes DS19's wire/retire dispositions) — in flight. |
-| **DS3 closed** | **DS4** (12-family rebinding, 47-status retirement, D2 token adapter) and **DS20** (29-operation server authz + step-up + fixture-identity removal) in parallel; then DS5, DS6. |
+| **Now** (Phase A + DS19 + **DS3 all closed & merged**; the typed HTTP waist over the GY artifacts is live) | **DS4** (12-family rebinding, 47-status retirement, D2 token adapter, the 75-lint + temporal-cursor + severing debts) and **DS20** (29-operation server authz + step-up + fixture-identity removal) in parallel. |
 | **DS5 closed** | **DS7 Cycle Board on real capstone data** → DS8 → DS9 (with DS20); DS10; DS16's value/uncertainty grammar (ValueOuterSet is live main-tree data now). |
 | **GY-N13a accepted/merged** | DS15 read surfaces: connector scorecard (12-family liveness), the growth backlog (`ranking_only_not_voi`, 15 `binding_gap` residuals), route projections — noting the routes are currently **structural gaps, not data gaps**. |
 | **GY-N13b closed** | DS15 live loop (approve-acquisition → world-growth → re-entry), passports/quarantine; DS16 derived-data provenance (derivation certificates, basis chips). |
@@ -510,6 +509,8 @@ doctrine bullet); only the owning slice closes and re-manifests a debt:
 | Inherited Vitest failures | 5 failures / 3 files: 3 i18n parity, 1 a11y coverage census, 1 temporal-cursor assertion (all reproduced byte-for-byte on the pre-repair parent) | i18n parity → **DS5** (D4 locale mechanics — the ratified frozen-`ru` posture likely resolves or re-specifies them); a11y census → **DS6**; temporal-cursor → **DS4** (temporal family) | each owner closes-or-re-specifies its failures red-first in its task plan |
 | Dashboard architecture-layer violations | 36 violations (layer checker baseline-red; none introduced by DS19) | **DS4** (dependency severing — includes the 23 API/app ownership violations from DS1) with **DS5** lint enforcement | severing lands in DS4; the DS5 lint battery makes recurrence impossible |
 | Worktree tooling gap | agent worktrees carry invalid `.venv`s (Playwright/py tooling non-receipts in DS1/DS19) | ops note — every future slice prompt | slices declare their toolchain baseline gate up front (the DS19 pattern) |
+| Control-plane fixture drift | 2 pre-existing test failures in `tests/unit/runtime/http/test_control_api.py`-adjacent run-control paths (`DecisionMonitoringContract` rejects fixture fields; reproduced on pre-DS3 base in isolation) | **runtime/GY lane** (the contract's owner) — not an Atlas surface debt | the owner reconciles fixture vs contract red-first; DS3's focused selections exclude exactly these two, documented |
+| Producer availability denominator | DS3 measured 5 available / 7 `invalid_source` / 1 `artifact_missing` from a worktree WITHOUT `production_data` — environment-relative fail-closed, not artifact corruption | **DS7** (first consumer) re-measures on main with the catalog mounted and records the true availability row in the readiness ledger | the Cycle Board consumes measured availability, never the worktree-relative snapshot |
 
 The five formerly-phantom dependency declarations (+ the `workbox-window`
 peer) and the `audience` fixture drift are already repaired (d01eaa572) and

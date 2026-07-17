@@ -22,8 +22,10 @@ the unrelated eager startup chain; final verification uses the repository comman
 1. `test_depth_n_projection_preserves_recorded_validator_outputs_without_rederiving`
    failed collection because
    `src/polisyos/runtime/http/services/governed_projections.py` did not exist.
-2. `test_reference_shell_uses_only_shared_generated_client_home` failed because the
-   package client had no `listGovernedProjections()` proof call.
+2. The historical red-only
+   `test_reference_shell_uses_only_shared_generated_client_home` failed because the
+   package client had no `listGovernedProjections()` proof call. Its final behavioral
+   replacement is `test_reference_shell_executes_shared_generated_client_proof`.
 3. `test_committed_openapi_preserves_lex_truth_fields` failed because the committed Lex
    result schema lacked the upstream grounding, authority, hallucination, document,
    temporal, provenance, and provision-anchor fields.
@@ -48,10 +50,11 @@ implementation existed when they were captured.
 9. `8a4db34e2` — repair evidence, client checks, and first-review closure record.
 10. `952a52a44` — bind projections to owner validators, type active channels, and
     regenerate the shared contract.
-11. `202c1e48f` — consume the merged DS19 collaboration strangle in the transport
-    contract.
-12. The commit containing this journal — second-review receipts and final fence
-    evidence.
+11. `202c1e48f` — add the initial DS19 disposition resolver and transport gate; the
+    exact-head review later rejected its synthetic zero-residual proof, corrected below.
+12. `c9a477a9f` — close the second independent-review record.
+13. `7050786f2` — atomic exact-head producer/schema/client repair and verification.
+14. Final closure evidence — this plan/journal commit.
 
 ### Independent architect-review repair pass
 
@@ -127,28 +130,85 @@ The repair observes P32/P29 rather than adding markers:
   existing OpenAPI augmentation map, and the schema is produced by the canonical
   repository exporter.
 
+### Exact-head review and structural repair pass
+
+The independent review of `c9a477a9f` returned **not ready**. It demonstrated that the
+N13a worker checked only schema/self-consistency rather than the canonical recomputation;
+cached owner PASS receipts omitted transitive validator inputs; the HTTP service still
+owned a provenance-field blacklist; N13a replay omitted journal/catalog identity; the
+DS19 gate could claim closure from a synthetic register fixture; SSE timeout data
+bypassed the typed final emitter; and the generated client/reference-shell proof lost
+OpenAPI literal/discriminator truth and asserted only source markers.
+
+The repair closes those classes rather than their examples:
+
+- The worker calls the canonical N13a `--check` entrypoint with its catalog, capstone,
+  substrate, value-gate, census, and journal inputs. Catalog absence fails closed as
+  `owner_validator_dependency_missing_catalog`; a read-only production-catalog witness
+  proves a corrupt decisive `binding_count` is rejected as `census_artifact_invalid`.
+- A lightweight worker-only dependency tracker records file bytes, directory listings,
+  and absences consulted by every owner validator. The parent re-hashes the complete
+  manifest before a cache hit, binds its aggregate into packet/replay identity, and
+  also keys the receipt by the exact projected payload. Same-size, preserved-mtime
+  dependency drift and changed-payload/same-source probes both force revalidation.
+- Semantic projection hashes and rule versions now come only from the owner worker
+  (`gy_content_hash` or N13a `semantic_content_hash`). The HTTP-local provenance
+  blacklist was deleted; narrow acquisition provenance is omitted by the governed
+  projector before validation.
+- Both SSE snapshot and timeout variants pass through one discriminated
+  `RunsChannelDataEvent` encoder. Keepalive comments remain the only non-data bypass,
+  and the channel registry names the union rather than one happy-path snapshot.
+- DS19 integration requires the canonical register and an actual zero-caller scan as
+  one conjunction. On this pre-merge branch the five residual calls are reported as
+  `pre_merge_collaboration_residual`, so integration remains `verification_missing`.
+- `packages/runtime-api-client` exposes a deterministic canonical twin whose DTOs are
+  aliases to `openapi-typescript` output. The raw generator pair remains byte-identical
+  for the existing repository drift checker. The reference shell executes a real
+  generated-client call with a stub transport and verifies both success and failure.
+
+### Final exact-head review and repair pass
+
+The next independent review found two remaining blockers. First, the dependency receipt
+did not bind the already-imported canonical semantic-hasher module
+`src/polisyos/pdc/_impl/gy_waist.py`, so a cached PASS could survive owner-source drift.
+Second, the catalog-backed N13a witness exercised only the worker and ran at the old
+60-second service timeout boundary; there was no catalog-backed positive through the
+actual service bridge.
+
+Both were captured red before repair. The worker dependency tracker now records every
+repository-backed module loaded by the canonical owner validator, normalizing bytecode
+paths to source. The exact `gy_waist.py` drift test forces cache revalidation, and the
+receipt test proves that module is bound. For N13a, the worker temporarily scopes the
+canonical checker's repository root to the requested fixture root, the service budget is
+120 seconds (above the owner artifact's measured 82.5-second capture), and a read-only
+catalog-backed service test proves a valid census becomes `available`. A separate
+catalog-backed corrupt decisive-metric test still fails for `census_artifact_invalid`.
+The same independent reviewer rechecked the exact repaired tree and returned **READY**
+with no new Critical or Important finding.
+
 ### Producer closure inventory
 
-Hashes below were read from the final producer against the governed artifacts in this
-worktree. Seven sources pass their owner validators and expose projection hashes, five
-fail closed under current owner validation/dependency reality, and readiness is absent.
+Hashes below were read from the repaired producer against the governed artifacts in
+this worktree. Five sources pass their owner validators and expose projection and
+transitive dependency hashes, seven fail closed under current owner
+validation/dependency reality, and readiness is absent.
 `surface-readiness` is intentionally an honest absence, not a projection of the
 ineligible example or DS1 audit ledger.
 
-| Producer | Artifact identity | Current state / narrow projection hash | Consumer slice | Audience | Passing semantic test |
+| Producer | Artifact identity | Current state / owner projection hash / dependency hash | Consumer slice | Audience | Passing semantic test |
 |---|---|---|---|---|---|
 | `depth-n-cycle-board` | `layer3_gy_depth_n_universality_contract.json`<br>`sha256:29bb35048575ccc4fd61124875569d90c4cf843f5dac4f42b6f1ad768b22e9c6` | `invalid_source`; no exported projection hash; `owner_validator_dependency_missing_ortools_sat_python_cp_model` | DS7 Cycle Board / DS8 drilldown | MACHINE | recorded-output, missing-witness, unseen-label, provenance-only, and missing-owner-dependency tests |
 | `value-gate` | `layer3_gy_value_gate_contract.json`<br>`sha256:755d67837fd74b7e7fb35aff6ae3b355f5b1fafd9381b8964d1a02a18ae937cb` | `invalid_source`; no exported projection hash; missing OR-Tools owner dependency | DS7 value column / DS16 | MACHINE | `test_value_gate_projection_contains_denominators_receipts_and_outer_set_slots`; missing-owner-dependency test |
 | `generation-cycle-disposition` | `layer3_gy_generation_cycle_disposition_ledger.json`<br>`sha256:69757955ac4797e916a439bd19484278cfee5fa7da732c52e75f0b2e76e57e10` | `invalid_source`; no exported projection hash; missing OR-Tools owner dependency | DS7 honesty / DS10 explanation | EXPERT | disposition scope, missing/null dependency, and owner-dependency tests |
-| `engine-census` | `layer3_gy_engine_census.json`<br>`sha256:ca72e8bb9eda519b9da9f2c81d0069e2b7cb940308ad8c012b99f241f2652dd3` | `available`<br>`sha256:063147caa2de7e89a6730e4d7955d840be9f5a3a747910af968cabd582d2e06c` | DS7 / DS10 census | EXPERT | `test_engine_census_projection_omits_full_rows`; canonical owner-worker pass |
-| `fork-b-relation-census` | `layer3_gy_n10_cg1_l2_relation_census.json`<br>`sha256:1c004559fe41cc84296ebb05edcfd4f5f95ade9542b2992aa52543ccb0c3bca4` | `available`<br>`sha256:d34cca7c3a9c5bf8f707497d4be845d3d6f42dbc5ba915a71f44e16a664e5c22` | DS7 / DS10 census | MACHINE | `test_fork_b_projection_omits_relation_table_and_binds_counts` |
+| `engine-census` | `layer3_gy_engine_census.json`<br>`sha256:ca72e8bb9eda519b9da9f2c81d0069e2b7cb940308ad8c012b99f241f2652dd3` | `available`<br>projection `sha256:063147caa2de7e89a6730e4d7955d840be9f5a3a747910af968cabd582d2e06c`<br>dependencies `sha256:4560cdacc48625ecb848045f5e46f17cea88fe05b8d1b639363732bf0937b6a8` | DS7 / DS10 census | EXPERT | `test_engine_census_projection_omits_full_rows`; canonical owner-worker pass |
+| `fork-b-relation-census` | `layer3_gy_n10_cg1_l2_relation_census.json`<br>`sha256:1c004559fe41cc84296ebb05edcfd4f5f95ade9542b2992aa52543ccb0c3bca4` | `available`<br>projection `sha256:b06d8aa4e1750245f81561562d12d6edb4ae54898f97b9cc3023a7f013427516`<br>dependencies `sha256:9c92ef5dc50492d2d224f680d7f8d6cf0fe2cb440fcea790c103c49323bc6495` | DS7 / DS10 census | MACHINE | `test_fork_b_projection_omits_relation_table_and_binds_counts` |
 | `acquisition-routing-contract` | `layer3_gy_acquisition_contract.json`<br>`sha256:23ebac67c73963be8bd64fb3052d785904d1b7a7bcbea6ee79fecea9c5539bdd` | `invalid_source`; no exported projection hash; missing OR-Tools owner dependency | DS7 base route / DS15 | MACHINE | receipt preservation, table-driven capture-provenance immunity, semantic owner-content/producer binding, and owner-dependency tests |
-| `n13a-acquisition-census` | `layer3_gy_n13a_acquisition_census.json`<br>`sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791`<br>journal semantic `sha256:e1b38f303965be715f61c70f9dc00f567fe1b5415c1dd11d89c02a19a7228eb9` / byte `sha256:027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd` | `available`<br>`sha256:4f7e57e921e6034d6dd3fa2c063e941898065a6688ffda7e2520dca0a2c35f8e` | DS15 / DS7 route context | MACHINE | present/absence, semantic-journal drift, and canonical owner-worker tests |
-| `n13a-live-probe-journal` | `layer3_gy_n13a_live_probe_journal.json`<br>`sha256:027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd` | `available`<br>`sha256:4c1d2cbaf542b29a56c5e9212b53dac72222e58989bb77008b42134bfe7ed462` | DS15 audit | EXPERT | present-source and typed-absence tests |
+| `n13a-acquisition-census` | `layer3_gy_n13a_acquisition_census.json`<br>`sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791` | `invalid_source`; no exported projection hash; canonical recompute catalog absent | DS15 / DS7 route context | MACHINE | typed catalog absence, catalog-backed valid service recomputation within the bridge budget, and corrupt decisive-metric rejection |
+| `n13a-live-probe-journal` | `layer3_gy_n13a_live_probe_journal.json`<br>`sha256:027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd` | `invalid_source`; no exported projection hash; canonical recompute catalog absent | DS15 audit | EXPERT | typed catalog absence and shared canonical recompute tests |
 | `capability-reality` | `capability_reality_report.json`<br>`sha256:9a0a8baf637a886a059729b36902cad56b33443cf05cfa59adb32ccbd1dc20c6` | `invalid_source`; no exported projection hash; `capability_repo_ref_file_missing` | DS6 / DS7 | MACHINE | actual-owner drift, all-null, invalid-field, and missing/unrecognized owner-contract tests |
-| `cluster-ownership` | `cluster_ownership_map.toml`<br>`sha256:b9409bc276d77d60919fab996ced4d01189c276eb38edad1eaa23e831edd69f4` | `available`<br>`sha256:757666630746b9cd71c5ccbc8e1887f0ee2576e14eacc6831eb89a75a3c423e4` | DS6 / DS7 | EXPERT | `test_cluster_ownership_projection_parses_toml_without_reclassifying_cells` |
-| `layer3-health-metrics` | `layer3_health_metric_ledgers.toml`<br>`sha256:1b3f19fc0d039a417dbdd45ccada02be9e1998a340cedcbf85d67b7925e97ac5` | `available`<br>`sha256:2f097e220103821a3ae4f30fc6aec7b9535dd436abe9e8e1958d281fae39f26b` | DS6 instrumentation | MACHINE | `test_layer3_health_projection_preserves_freeze_values` |
-| `legacy-proving-ground` | 13 fixture identities<br>`sha256:c289f814835f60178b54fd6edeb5748d3c58865f8257ab9afabd4768637aa0c7` | `available` fixture identity only<br>`sha256:bb8e9a536ee4bdd5fcca797bba91974d7a30fd2951777fca59ac8555d16742d5` | DS7 legacy cohort | EXPERT | canonical 13-case owner load, fixture-not-runtime-outcome, and owner-valid metadata-rebaseline tests |
+| `cluster-ownership` | `cluster_ownership_map.toml`<br>`sha256:b9409bc276d77d60919fab996ced4d01189c276eb38edad1eaa23e831edd69f4` | `available`<br>projection `sha256:757666630746b9cd71c5ccbc8e1887f0ee2576e14eacc6831eb89a75a3c423e4`<br>dependencies `sha256:2a624828139f05f60ea76239589745cf593921ad6bda1c24f04761854fe074ab` | DS6 / DS7 | EXPERT | projection preservation plus transitive owner-dependency receipt test |
+| `layer3-health-metrics` | `layer3_health_metric_ledgers.toml`<br>`sha256:1b3f19fc0d039a417dbdd45ccada02be9e1998a340cedcbf85d67b7925e97ac5` | `available`<br>projection `sha256:2f097e220103821a3ae4f30fc6aec7b9535dd436abe9e8e1958d281fae39f26b`<br>dependencies `sha256:df0fba44af44512dc941485af6319ae0a446617ed18ca41fa7f29735e4f7f1c5` | DS6 instrumentation | MACHINE | `test_layer3_health_projection_preserves_freeze_values` |
+| `legacy-proving-ground` | 13 fixture identities<br>`sha256:c289f814835f60178b54fd6edeb5748d3c58865f8257ab9afabd4768637aa0c7` | `available` fixture identity only<br>projection `sha256:2a084d85888f9b36647ab7ab20bcf84666a65416610e0642c510a598d9182409`<br>dependencies `sha256:7aa9ff088d92da6d756c83fcabcf50674e790b0eae7c4911aa0b388dcfa1f22a` | DS7 legacy cohort | EXPERT | canonical 13-case owner load, fixture-not-runtime-outcome, and owner-valid metadata-rebaseline tests |
 | `surface-readiness` | canonical live ledger absent | `artifact_missing`; no projection hash | DS6 / DS7 | MACHINE | example, typed-absence, present-fake, and Revision-2 rejection tests |
 
 ### Shared export and channel governance
@@ -165,25 +225,28 @@ boundary.
 
 | Registry ID | Path | Producer contract | Auth class | Consumer | Capability state |
 |---|---|---|---|---|---|
-| `runs-list-live` | `/api/v1/runs/live` | `channel_contracts:RunsListSnapshot` / `policyos.runtime.runs_list_snapshot.v1` | `runtime_tenant_access+stream_rate_limit` | dashboard `RunsLiveProvider` | `verification_missing` |
-| `run-detail-live` | `/api/v1/runs/{run_id}/live` | `channel_contracts:RunDetailSnapshot` / `policyos.runtime.run_detail_snapshot.v1` | `runtime_run_tenant_access+stream_rate_limit` | dashboard `useRunLiveUpdates` | `verification_missing` |
+| `runs-list-live` | `/api/v1/runs/live` | `channel_contracts:RunsChannelDataEvent` / `policyos.runtime.runs_channel_data_event.v1` (snapshot + timeout) | `runtime_tenant_access+stream_rate_limit` | dashboard `RunsLiveProvider` | `verification_missing` |
+| `run-detail-live` | `/api/v1/runs/{run_id}/live` | `channel_contracts:RunsChannelDataEvent` / `policyos.runtime.runs_channel_data_event.v1` (snapshot + timeout) | `runtime_run_tenant_access+stream_rate_limit` | dashboard `useRunLiveUpdates` | `verification_missing` |
 | `review-live` | `/api/v1/review/live` (`review.cursor`, `review.lock`, `review.presence`) | `channel_contracts:ReviewSnapshot` / `policyos.runtime.review_collaboration_envelope.v1` | `runtime_review_socket_auth+tenant_opa_action+stream_rate_limit` | dashboard review collaboration surface | `verification_missing` |
 
 At closeout, `main` advanced through DS19 merge `f9f69e807` and the canonical frontend
-disposition register. DS3 consumed, but did not copy or edit, that architecture-owned
-authority:
+disposition register. The DS3 branch does not contain that merge or register; it
+observes the architecture-owned authority out of band and records the integration as
+`verification_missing`:
 
 - `feature-collaboration`, `transport-rest-collaboration`, and
   `transport-ws-collaboration` are `deleted` and `strangled` by DS19 on 2026-07-17.
-  DS3 adds no phantom server route or registry entry. A red-first transport negative
-  initially failed on the missing merged-register resolver; its positive now verifies
-  the register identity, authority limit, and exact collaboration rows, then requires
-  zero unmatched callers after the strangle.
+  DS3 adds no phantom server route or registry entry. Five phantom caller transports
+  remain on this pre-merge branch, so its live transport result is
+  `pre_merge_collaboration_residual`, not post-strangle verification. The same gate
+  requires the canonical register and an actual zero-residual caller scan together
+  before it can return `integrated_zero_residual`; a negative proves that valid-looking
+  register content with a remaining caller cannot claim integration.
 - The 37 uncalled OpenAPI operations have 13 `wire` and 24 `retire` dispositions.
   These remain decision-only rather than capability graduation. The register expressly
   forbids using the frontend decision to delete server endpoints or claiming pending
-  work as implemented, so DS3 leaves those operations unchanged and later owners must
-  execute the decisions.
+  work as implemented, so DS3 records build-or-remove recommendations, leaves those
+  operations unchanged, and requires later owners to execute the decisions.
 
 ### Client-home decision and generation receipt
 
@@ -197,48 +260,68 @@ authority:
 - Dashboard source and lockfiles were not changed.
 - The package now owns exact `npx --yes openapi-typescript@7.13.0`; regeneration has
   no dependency on `apps/runtime-dashboard`.
+- Package `main`, `types`, and root `exports` point to
+  `canonicalRuntimeApiClient.js/ts`, whose DTO aliases are the discriminated/literal
+  OpenAPI types. The raw `runtimeApiClient.*` pair remains generator-owned solely so
+  the existing repository contract checker stays authoritative.
+- The reference-shell proof executes `listGovernedProjections()` through the public
+  canonical entrypoint with a stub fetch and asserts both successful consumption and
+  transport-failure behavior.
 
 The final canonical generation sequence ran twice with byte-identical results:
 
 | Generated file | SHA-256 on run 1 and run 2 |
 |---|---|
-| `schemas/runtime_api_v1.openapi.json` | `5fd861d450ba6c265f452203951ff9e55c9b3957a424aca99a9552a5a06a77f8` |
-| `packages/runtime-api-client/types.ts` | `54d5b796eb956b373276a26f0522d1fefad9cc527f28804494437447b8c9479c` |
-| `packages/runtime-api-client/runtimeApiClient.ts` | `04c18a4247fec1bb6538462a28b13c1f0ea4d3e279e0e3b3315f11d4f05ed684` |
-| `packages/runtime-api-client/runtimeApiClient.js` | `f0cacc0409cf3edfc89a81b5d5257a8e7779eeb7d16916585f7dfa7f2636417f` |
+| `schemas/runtime_api_v1.openapi.json` | `16188033a7f5be7a42844a244320aa34edd6286570dd4255c43bb6f5a6949134` |
+| `packages/runtime-api-client/types.ts` | `e5430a16b949de4d020946dbf3fc1ff3bb27306b3e067620d9ad88be07d778ad` |
+| `packages/runtime-api-client/runtimeApiClient.ts` | `774d8683319d0f80e2437cf8cab00c6609f34c5a8750f671e8ae7e3cb5c8832e` |
+| `packages/runtime-api-client/runtimeApiClient.js` | `7a1094444cf72ab1ba7b6daf11bc85f4e07c289ac21c84b516724cff0f8e3945` |
+| `packages/runtime-api-client/canonicalRuntimeApiClient.ts` | `d06db70c79c2e497e69c0d141449f0ddb1ac958cdd2dc8f39971fc99c61ee9f4` |
+| `packages/runtime-api-client/canonicalRuntimeApiClient.js` | `6d7465160421459492cbef22102f4f9abc1e777803706b9730e2ebfe511e9568` |
 
 ### Fresh targeted verification receipts
 
-- Governed projection service plus isolated owner worker: 68 passed, including strict
-  source/payload states, owner receipt/component binding, all-null and schema/rule
-  negatives, N13a semantic-journal drift, malformed sources, cache isolation, narrow
-  hashes, source-time replay, and import-laziness.
-- Governed projection/channel API file: 7 passed.
-- Typed runs SSE/review WS behavior and existing relevant run/review cases: 15 passed;
-  the two unrelated control-plane cases in `test_runs_api.py` were excluded only after
-  a detached worktree at base `7b6933770` reproduced both baseline failures (expected
-  200/422, actual 400), completing the P34 isolation from all DS3 changes.
-- Existing artifact render/export file, including publication, POST pin, and tx-only
-  negatives: 8 passed.
-- Existing lineage file, including no-cursor PROV and replay: 6 passed.
-- Lex plus decision-validity run/packet/replay selection: 4 passed.
-- OpenAPI/client regeneration contract selection: 5 passed, including repository-wide
-  success examples and two-run byte identity.
-- Runtime client-home/transport bridge: 6 passed, including pre-merge phantom fencing
-  and verified post-DS19 zero-residual behavior.
-- `polisyos-tools runtime check-runtime-api-contract`: passed after canonical exporter,
-  examples, schema, and client drift checks.
-- Ruff: all DS3-changed Python paths passed; the pre-existing two `E501` lines in
-  `routes/runs.py` were left untouched and that file was checked with only `E501`
-  ignored.
-- Shared client: TypeScript, two Node tests, architecture, ESLint, and Prettier passed.
-- Reference shell: TypeScript, architecture, ESLint, and Prettier passed.
+- Governed projection service: 65 passed and 1 catalog-gated test skipped by default,
+  including strict source/payload states,
+  owner receipt/component/payload binding, same-size transitive dependency drift,
+  malformed sources, cache isolation, narrow hashes, dependency/time replay, and
+  import-laziness.
+- Isolated owner worker plus governed projection/channel API: 18 passed and 1 skipped.
+  The skip is the explicitly opt-in read-only production catalog witness.
+- Rerunning the catalog-backed service positive with
+  `POLISYOS_N13A_PRODUCTION_CATALOG` produced 1 passed and exercised the canonical
+  recomputation through the real service within its 120-second budget. Rerunning the
+  catalog-backed adversarial worker test produced 1 passed and rejected the corrupt
+  decisive metric through the canonical checker.
+- Runs SSE snapshot/timeout chokepoint plus runtime client/DS19/reference-shell bridge:
+  12 passed. The bridge reports this branch's five phantom callers as
+  `pre_merge_collaboration_residual`; canonical-register integration remains
+  `verification_missing`.
+- Existing OpenLineage/PROV, artifact render/export, decision-validity, Lex truth, and
+  review-WS selection: 11 passed, including replay mismatch, publication-authority,
+  transaction-time, and malformed-emission negatives.
+- OpenAPI/client hardening file: 13 passed, including repository success examples,
+  raw compatibility drift, canonical-twin derivation, and two independent generation
+  runs.
+- A final combined runs/channel, OpenAPI-hardening, and reference-shell bridge selection
+  passed 29 tests. The two pre-existing control-plane feedback/reissue failures were
+  reproduced unchanged from committed `c9a477a9f` in an isolated temporary archive
+  before applying the documented focused exclusion; they are not DS3 regressions.
+- The canonical repository `check_runtime_api_contract.py` command passed after the
+  final schema/client replay.
+- Ruff passed across every changed Python path with no ignores.
+- Shared client: TypeScript passed; 4 Node tests passed; architecture, ESLint, and
+  Prettier passed.
+- Reference shell: TypeScript passed; 2 behavioral Node tests passed; architecture,
+  ESLint, and Prettier passed.
+- The explicit six-file regeneration replay ran twice and produced identical SHA-256
+  values recorded above.
 - No full pytest or browser suite was run, per DS3 scope.
 
 ### Fence and authority closeout
 
 - `git diff --check` passed; no files were deleted.
-- Final `git diff --stat main...HEAD`: 39 files, 29,373 insertions and 854 deletions
+- Final `git diff --stat main...HEAD`: 52 files, 34,063 insertions and 883 deletions
   (predominantly generated schema/types).
 - Every changed path is inside the DS3 fence: runtime HTTP, schema, shared client,
   reference-shell proof, scoped tests, the DS3 plan, and this journal.

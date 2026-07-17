@@ -16,12 +16,16 @@ request, caches immutable serialized projections by source content hash, and emi
 discriminated available/missing/invalid packet with source identity, projection
 identity, as-of/freshness, stable addressing, and replay pins.
 An isolated, lazy subprocess invokes each artifact owner's validator against exact
-path-to-byte-hash bindings before an available packet can be emitted. Missing
-validator dependencies, drift, timeouts, and malformed receipts fail closed as typed
-`invalid_source`. The producer projects owner-recorded and validator-produced facts;
-it never recreates owner semantics. Existing OpenLineage/PROV, artifact render/export,
-and decision-validity endpoints remain the export implementations this packet
-convention complements, not a second renderer stack.
+path-to-byte-hash bindings and the exact projected payload before an available packet
+can be emitted. The worker records every repository file, directory listing, and
+missing path consulted by the validator; cached PASS receipts are reused only after
+those transitive identities still match. Missing validator dependencies, drift,
+timeouts, and malformed receipts fail closed as typed `invalid_source`. The owner
+worker supplies the semantic projection hash and rule version; the HTTP producer
+projects owner-recorded and validator-produced facts but never recreates owner
+semantics. Existing OpenLineage/PROV, artifact render/export, and decision-validity
+endpoints remain the export implementations this packet convention complements, not a
+second renderer stack.
 
 **Tech stack:** Python 3.14, FastAPI optional-router guard, Pydantic v2 strict DTOs,
 `tomllib`, SHA-256 canonical JSON projections, pytest, generated OpenAPI,
@@ -68,9 +72,10 @@ artifact as implemented.
 All stable producer addresses use
 `GET /api/v1/exports/governed-projections/{projection_id}`. The catalog is
 `GET /api/v1/exports/governed-projections`; replay is the same stable address plus
-`artifact_content_hash`, `projection_hash`, and `source_as_of` query pins. Every packet declares
-`projection_id`, `availability`, packet schema version, mandatory projection rule
-version, optional owner source schema/rule versions, `audience`,
+`artifact_content_hash`, `projection_hash`, `source_dependency_hash`, and
+`source_as_of` query pins. Every packet declares `projection_id`, `availability`,
+packet schema version, mandatory projection rule version, optional owner source
+schema/rule versions, `audience`,
 `authoritative_for`, `may_not_use_for`, source path, SHA-256 source content hash,
 SHA-256 narrow projection hash, `as_of`, freshness basis/state, stable address, and
 replay address. Source timestamps (`observed_at`, `generated_at`, `generated`, or
@@ -85,8 +90,8 @@ the narrow projection hash.
 | `engine-census` | `architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json` | Counts, execution vocabulary, critical findings, subcensus summary; never the complete row table unless explicitly requested by a future projection | DS7/DS10 census context | EXPERT | `test_engine_census_projection_omits_full_rows` |
 | `fork-b-relation-census` | `architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json` | Relation denominator/counts, authority, coverage manifest, certificate summaries, transport floor, known bridge limits; excludes the 16 MB relation table | DS7/DS10 census context | MACHINE | `test_fork_b_projection_omits_relation_table_and_binds_counts` |
 | `acquisition-routing-contract` | `architecture/policy_design_case/layer3_gy_acquisition_contract.json` | Denominators, positive/no-result receipts, fail-closed receipt, grounding request, recorded rederive inputs and economics | DS7 base route, DS15 acquisition surface | MACHINE | `test_acquisition_contract_projection_preserves_owner_receipts`; recursive capture-provenance immunity and semantic-producer binding tests |
-| `n13a-acquisition-census` | `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`, optional until upstream merge/file presence | Observed catalog identity, projection bindings, family scorecards, metric resolutions, route evidence, growth backlog, fetch-plan generation | DS15 acquisition surface, DS7 route context | MACHINE | `test_n13a_census_returns_typed_absence_when_source_is_missing`; `test_n13a_census_projects_present_source` |
-| `n13a-live-probe-journal` | `architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`, optional until upstream merge/file presence | Observed selection plan, family receipts, and probe records; no new success inference | DS15 acquisition audit | EXPERT | `test_n13a_probe_journal_returns_typed_absence_when_source_is_missing`; `test_n13a_probe_journal_projects_present_source` |
+| `n13a-acquisition-census` | `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`, optional until upstream merge/file presence | Observed catalog identity, projection bindings, family scorecards, metric resolutions, route evidence, growth backlog, fetch-plan generation | DS15 acquisition surface, DS7 route context | MACHINE | `test_n13a_census_returns_typed_absence_when_source_is_missing`; `test_n13a_census_fails_closed_when_recompute_catalog_is_absent`; `test_n13a_valid_catalog_recomputes_through_service_within_bridge_budget`; `test_n13a_canonical_recompute_rejects_corrupt_decisive_metric` |
+| `n13a-live-probe-journal` | `architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`, optional until upstream merge/file presence | Observed selection plan, family receipts, and probe records; no new success inference | DS15 acquisition audit | EXPERT | `test_n13a_probe_journal_returns_typed_absence_when_source_is_missing`; `test_n13a_probe_journal_fails_closed_when_recompute_catalog_is_absent`; `test_n13a_journal_drift_cannot_bypass_missing_recompute_catalog` |
 | `capability-reality` | `architecture/policy_design_case/capability_reality_report.json` | Summary/readiness, capability claims, blockers/issues, chain clusters, ratchet integrity; no new readiness calculation | DS6 validation, DS7 capability truth | MACHINE | `test_capability_reality_fails_closed_on_current_owner_validator_drift`; all-null and owner-identity negatives |
 | `cluster-ownership` | `architecture/policy_design_case/cluster_ownership_map.toml` | Cluster/cell ownership, ratchet states, capability-chain fields, stop rule, authority/firewall fields | DS6 validation, DS7 ownership drilldown | EXPERT | `test_cluster_ownership_projection_parses_toml_without_reclassifying_cells` |
 | `layer3-health-metrics` | `architecture/policy_design_case/layer3_health_metric_ledgers.toml` | Recorded metric ledgers, freeze values, owners, next-update rules and trend vocabularies | DS6 instrumentation | MACHINE | `test_layer3_health_projection_preserves_freeze_values` |
@@ -104,16 +109,18 @@ to follow the governed fields. This proves projection, not a second semantic own
 
 ### Narrow projection hashes (`§3.5.11`)
 
-Projection hashes are canonical JSON hashes of source-specific dependency DTO dumps.
-Source content hashes, timestamps/as-of, declared capture-provenance containers,
-source paths, addresses, and freshness are recursively excluded. Semantic producer
-identities remain bound. A table-driven nested receipt-provenance test
-requires the artifact hash to change while the projection hash remains identical; the
-legacy cohort hash covers only identity plus declared semantic expectations. Replay
-pins check both identities plus time: the source pin protects byte replay, the
-projection pin protects the consumer contract, and `source_as_of` prevents identical
-bytes with changed filesystem observation time from replaying under different time
-semantics.
+Projection hashes come only from the owner worker's semantic hash implementation over
+the source-specific projection DTO. The HTTP service has no local field blacklist or
+semantic hasher. Each PASS receipt binds the exact projected-payload hash plus a
+content identity for every transitive validator dependency. The acquisition projector
+omits its governed provenance envelopes before validation, while semantic producer
+identities remain in the projection. A table-driven nested receipt-provenance test
+requires the artifact hash to change while the owner semantic projection hash remains
+identical; the legacy cohort hash covers only identity plus declared semantic
+expectations. Replay pins bind four roles: source bytes, owner semantic projection,
+transitive validation dependencies, and source time. Thus provenance-only upstream
+rebaselines remain compatible, but validator-code/data drift and identical bytes with
+changed filesystem observation time cannot replay under stale authority.
 
 ### Source-prerequisite decisions
 
@@ -141,13 +148,14 @@ Evidence and procedure:
 2. The dashboard-local `apps/runtime-dashboard/src/api/types.ts` is generated only for
    one application and cannot be imported by later MACHINE twins without reversing the
    dependency direction.
-3. Generate the shared schema types at
-   `packages/runtime-api-client/types.ts` using exactly
+3. Generate the shared schema types at `packages/runtime-api-client/types.ts` using exactly
    `export_runtime_openapi_schema() -> schemas/runtime_api_v1.openapi.json -> npx
    --yes openapi-typescript@7.13.0`. The exact generator pin is package-owned and has
    no dashboard-local dependency; DS3 keeps the lockfile unchanged per its fence.
-   Continue regenerating `runtimeApiClient.ts/js` from the same committed OpenAPI
-   until its runtime wrapper is replaced in a separately approved slice.
+   The unchanged repository generator still produces `runtimeApiClient.ts/js` for its
+   canonical drift checker. A package-owned deterministic postprocessor aliases every
+   generated DTO to `types.ts` and emits `canonicalRuntimeApiClient.ts/js`; package
+   `main`, `types`, and `exports` expose only that typed twin.
 4. The reference shell proves the selected home by calling the governed-projection
    catalog through the package client. No dashboard file moves in DS3.
 5. The rejected alternative is dashboard-local ownership. Revisit only if the dashboard
@@ -166,26 +174,30 @@ existing auth defaults.
 
 | Registry ID | Runtime path / channels | Transport and contract | Existing auth class | Consumer | DS3 disposition |
 |---|---|---|---|---|---|
-| `runs-list-live` | `/api/v1/runs/live` | SSE `policyos.runtime.runs_list_snapshot.v1`, validated at final emission | tenant runtime access + stream rate limit | dashboard `RunsLiveProvider` | Active typed producer; consumer verification remains `verification_missing`; keep `include_in_schema=False` |
-| `run-detail-live` | `/api/v1/runs/{run_id}/live` | SSE `policyos.runtime.run_detail_snapshot.v1`, validated at final emission | run tenant access + stream rate limit | dashboard run live hook | Active typed producer; consumer verification remains `verification_missing`; keep `include_in_schema=False` |
+| `runs-list-live` | `/api/v1/runs/live` | SSE `policyos.runtime.runs_channel_data_event.v1`; discriminated snapshot/timeout variants through one final encoder | tenant runtime access + stream rate limit | dashboard `RunsLiveProvider` | Active typed producer; consumer verification remains `verification_missing`; keep `include_in_schema=False` |
+| `run-detail-live` | `/api/v1/runs/{run_id}/live` | SSE `policyos.runtime.runs_channel_data_event.v1`; discriminated snapshot/timeout variants through one final encoder | run tenant access + stream rate limit | dashboard run live hook | Active typed producer; consumer verification remains `verification_missing`; keep `include_in_schema=False` |
 | `review-live` | `/api/v1/review/live`, `review.presence`, `review.cursor`, `review.lock` | WS `policyos.runtime.review_collaboration_envelope.v1`, validated before transport error handling | review socket authentication, tenant binding, OPA action check, stream rate limit | dashboard review collaboration surface | Active typed producer; consumer verification remains `verification_missing`; DS5 owns browser auth/degradation enforcement |
 
 The dashboard's `/api/v1/collaboration/**` REST and `/api/v1/collaboration/live`
-transports were phantom at plan time. During closeout, `main` advanced through DS19
-merge `f9f69e807` and register authority
-`architecture/atlas_surfaces/frontend-disposition-register.json`. DS3 consumes its
-dated disposition: `feature-collaboration`, `transport-rest-collaboration`, and
-`transport-ws-collaboration` are `deleted` and `strangled` by DS19. DS3 therefore adds
-no phantom HTTP producer or registry entry. The transport contract test resolves the
-canonical register and requires zero residual callers once the DS19 strangle is merged;
-before that merge it permits only the enumerated collaboration residual.
+transports were phantom at plan time. `main` later advanced through DS19 merge
+`f9f69e807` and gained register authority at
+`architecture/atlas_surfaces/frontend-disposition-register.json`. DS3 observes that
+authority out of band: `feature-collaboration`, `transport-rest-collaboration`, and
+`transport-ws-collaboration` are dated `deleted` and `strangled` dispositions. This
+branch does not contain that merge or register and still has five dashboard caller
+transports, so DS19 integration is `verification_missing`, not consumed or verified.
+DS3 adds no phantom HTTP producer or registry entry. The transport contract test
+classifies the live branch as `pre_merge_collaboration_residual` and permits only the
+enumerated collaboration residual. If a later branch contains the canonical register,
+the same test requires actual zero residual callers; a register-shaped fixture cannot
+substitute for that caller scan.
 
-The same register fixes the 37 uncalled OpenAPI dispositions at 13 `wire` and 24
-`retire`. They remain disposition authority, not implementation evidence: the register
+The out-of-band register records the 37 uncalled OpenAPI dispositions at 13 `wire` and
+24 `retire`. They remain disposition authority, not implementation evidence: the register
 explicitly forbids using a frontend-only decision to delete server endpoints and
-forbids claiming pending rebind/retirement as implemented. DS3 consumes those decisions
-without deleting endpoints or adding UI consumers; later owning slices must execute the
-wire/retire actions.
+forbids claiming pending rebind/retirement as implemented. DS3 records those decisions
+as build-or-remove recommendations only, without deleting endpoints or adding UI
+consumers; later owning slices must execute and verify the wire/retire actions.
 
 ## Export convention and Lex truth bridge
 
@@ -216,6 +228,11 @@ failure for each owned behavior:
 - `test_projection_cache_reuses_content_hash_key_until_source_changes`
 - `test_path_cache_detects_same_size_rewrite_with_preserved_mtime`
 - `test_projection_cache_cannot_be_corrupted_through_returned_nested_payload`
+- `test_owner_validation_cache_revalidates_when_semantic_hasher_bytes_drift`
+- `test_owner_validation_cache_binds_exact_projected_payload`
+- `test_n13a_valid_catalog_recomputes_through_service_within_bridge_budget`
+- `test_replay_identity_and_pin_bind_owner_validation_dependencies`
+- `test_n13a_owner_hash_ignores_run_economics_but_replay_binds_changed_bytes`
 - `test_projection_packets_encode_distinct_available_missing_and_invalid_states`
 - `test_available_projection_payloads_are_source_specific_strict_models`
 - `test_available_packet_rejects_payload_for_a_different_projection`
@@ -230,10 +247,19 @@ failure for each owned behavior:
 
 - `test_all_null_capability_report_fails_owner_validation`
 - `test_component_hash_mismatch_fails_before_owner_validator`
-- `test_n13a_census_fails_when_bound_journal_semantics_drift`
+- `test_owner_receipt_binds_cluster_validator_transitive_dependencies`
+- `test_owner_receipt_binds_canonical_semantic_hasher_source`
+- `test_projection_hash_is_computed_by_canonical_gy_hash_owner`
+- `test_n13a_fails_closed_without_canonical_recompute_catalog`
+- `test_n13a_canonical_recompute_rejects_corrupt_decisive_metric`
+- `test_n13a_journal_drift_cannot_bypass_missing_recompute_catalog`
 - `test_normal_projection_import_does_not_import_owner_validators`
 - `test_hidden_runs_sse_channels_emit_versioned_contracts`
 - `test_runs_sse_emission_rejects_marker_complete_malformed_payload`
+- `test_runs_sse_timeout_emits_a_versioned_strict_contract`
+- `test_runs_sse_final_encoder_rejects_malformed_timeout_data`
+- `test_runs_sse_snapshot_and_timeout_share_final_data_encoder`
+- `test_runs_sse_keepalive_comment_bypasses_data_encoder`
 - `test_review_websocket_snapshots_emit_versioned_contract_identity`
 - `test_dispatch_rejects_marker_complete_malformed_review_snapshot`
 
@@ -255,8 +281,8 @@ failure for each owned behavior:
 - `tests/unit/runtime/http/test_bureaucratic_rendering_api.py::test_bureaucratic_export_preserves_publication_authority_boundary`
 - `tests/unit/runtime/http/test_control_api.py::test_decision_validity_exports_bind_shared_replay_contract`
 - `tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py::test_every_runtime_client_transport_has_openapi_or_governed_channel_contract`
-- `tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py::test_transport_contract_accepts_zero_residual_after_verified_ds19_strangle`
-- `tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py::test_reference_shell_uses_only_shared_generated_client_home`
+- `tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py::test_ds19_integration_requires_register_and_zero_callers`
+- `tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py::test_reference_shell_executes_shared_generated_client_proof`
 - `tests/unit/runtime/http/test_control_api.py::test_lex_search_preserves_truth_fields_through_api`
 - `tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_generated_runtime_client_includes_governed_projection_wrappers`
 - `tests/unit/runtime/http/test_runtime_api_contract_hardening.py::test_openapi_typescript_output_matches_committed_shared_types`
@@ -265,11 +291,11 @@ failure for each owned behavior:
 
 The generic transport test derives REST operations from the committed OpenAPI and
 generated/shared callers, and raw SSE/WS constructions from source, then resolves each
-against OpenAPI, the typed registry, or the content-checked merged DS19 collaboration
-strangle. It does not maintain a hand-written allowlist of current active channels.
+against OpenAPI, the typed registry, or the content-checked DS19 collaboration
+disposition. It does not maintain a hand-written allowlist of current active channels.
 Dynamic lineage paths and `/auth/me` are mutation cases. The pre-merge DS19 phantom
-residual is asserted and reported separately; after the register merges, zero residual
-is required.
+residual is asserted and reported separately; canonical register presence changes the
+assertion only when the live caller scan is also zero.
 
 ## Execution tasks
 
@@ -362,8 +388,9 @@ Steps:
 Files:
 
 - Regenerate `schemas/runtime_api_v1.openapi.json`.
-- Regenerate `packages/runtime-api-client/runtimeApiClient.ts` and `.js`.
-- Add generated `packages/runtime-api-client/types.ts` and update only package-local
+- Regenerate compatibility-owned `packages/runtime-api-client/runtimeApiClient.ts` and
+  `.js`, then deterministically derive public `canonicalRuntimeApiClient.ts` and `.js`.
+- Regenerate `packages/runtime-api-client/types.ts` and update only package-local
   config/docs/architecture fence as required.
 - Modify `apps/runtime-reference-shell/app.js` only to exercise the catalog through the
   package; no new page/route.
@@ -372,12 +399,12 @@ Canonical commands (serial where shared scratch is involved):
 
 ```bash
 PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json
-npx --yes openapi-typescript@7.13.0 schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts
-PYTHONPATH=src uv run python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
+corepack pnpm --dir packages/runtime-api-client run generate
 ```
 
-Run the sequence twice and compare hashes/working-tree diff. Commit schema and clients
-together: `build(runtime): regenerate shared API client contract`.
+Run the sequence twice and compare hashes/working-tree diff. Commit producer, schema,
+and generated-client changes atomically so no commit exposes a producer/schema/client
+contract mismatch.
 
 ### Task 6: Targeted verification and architect-review handoff
 
@@ -385,17 +412,24 @@ Run, serially:
 
 ```bash
 uv run pytest -q tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_governed_projection_validation_worker.py tests/unit/runtime/http/test_governed_projection_api.py
+POLISYOS_N13A_PRODUCTION_CATALOG=/absolute/read-only/catalog.duckdb uv run pytest -q tests/unit/runtime/http/test_governed_projection_service.py::test_n13a_valid_catalog_recomputes_through_service_within_bridge_budget
+POLISYOS_N13A_PRODUCTION_CATALOG=/absolute/read-only/catalog.duckdb uv run pytest -q tests/unit/runtime/http/test_governed_projection_validation_worker.py::test_n13a_canonical_recompute_rejects_corrupt_decisive_metric
 uv run pytest -q tests/unit/runtime/http/test_review_collaboration_service.py tests/unit/runtime/http/test_review_collaboration_api.py tests/unit/runtime/http/test_runs_api.py -k 'not evaluate_feedback_endpoint and not reissue_endpoint'
 uv run pytest -q tests/unit/runtime/http/test_control_api.py -k 'lex_search_preserves_truth_fields_through_api'
 uv run pytest -q tests/unit/runtime/http/test_runtime_api_contract_hardening.py -k 'openapi_contract_includes_examples or governed_projection or openapi_typescript or regenerate_byte_identically or committed_runtime_client'
 uv run pytest -q tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py
 uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract
-uv run ruff check src/polisyos/runtime/http/app.py src/polisyos/runtime/http/routes/governed_projections.py src/polisyos/runtime/http/services/governed_projections.py src/polisyos/runtime/http/routes/control.py src/polisyos/runtime/http/services/control tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_control_api.py tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py
+uv run ruff check src/polisyos/runtime/http/openapi_contract.py src/polisyos/runtime/http/routes/governed_projections.py src/polisyos/runtime/http/routes/runs.py src/polisyos/runtime/http/services/channel_contracts.py src/polisyos/runtime/http/services/governed_projection_dependencies.py src/polisyos/runtime/http/services/governed_projection_validation_worker.py src/polisyos/runtime/http/services/governed_projections.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_governed_projection_validation_worker.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_runs_api.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py
 corepack pnpm --dir packages/runtime-api-client run typecheck
 corepack pnpm --dir packages/runtime-api-client run test
 corepack pnpm --dir packages/runtime-api-client run check:architecture
+corepack pnpm --dir packages/runtime-api-client run lint
+corepack pnpm --dir packages/runtime-api-client run format:check
 corepack pnpm --dir apps/runtime-reference-shell run typecheck
+corepack pnpm --dir apps/runtime-reference-shell run test
 corepack pnpm --dir apps/runtime-reference-shell run check:architecture
+corepack pnpm --dir apps/runtime-reference-shell run lint
+corepack pnpm --dir apps/runtime-reference-shell run format:check
 ```
 
 No full pytest or browser suite. Re-open the failure/repair register before closeout.
@@ -406,11 +440,14 @@ The architect-review handoff includes:
 
 1. A final producer table: producer -> source artifact -> exact narrow projection hash
    -> consumer -> audience -> passing test, including honest absence rows.
-2. The active channel registry plus the consumed DS19 collaboration and 37-operation
-   dispositions, without treating decision-only rows as implemented capability.
+2. The active channel registry plus the out-of-band DS19 collaboration and 37-operation
+   dispositions, with integration labeled `verification_missing` until the canonical
+   register and zero-residual dashboard state are present together, and without
+   treating decision-only rows as implemented capability.
 3. The client-home decision, rejected alternative, revisit condition, and proof that
    the reference shell imports only the package home.
-4. Two-run byte-identity receipts for OpenAPI, `types.ts`, and runtime client outputs.
+4. Two-run byte-identity receipts for OpenAPI, `types.ts`, raw compatibility outputs,
+   and public canonical client outputs.
 5. Fresh targeted pytest, Ruff, package/reference-shell typecheck/test/architecture
    receipts.
 6. `git diff --stat main...HEAD`, `git diff --check`, path-fence audit, scoped commits,

@@ -11,6 +11,7 @@ atlas_source_of_truth: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
 phase_a_synthesis: ../../reference/frontend/atlas-phase-a-synthesis.md   # the Revision-3 input package: per-slice confirmed/re-scoped/invalidated + PI-01..PI-24
 phase_a_audit: ../../reference/frontend/atlas-live-application-audit.md  # DS1: the measured reality of record (261-unit ledger, 23 seeded negatives)
 phase_a_adjudication: ../../reference/frontend/atlas-v15-adjudication.md # DS2: 233-unit v15 verdicts; adoption-ledger IDs are the only door for v15 material
+disposition_register: ../../../architecture/atlas_surfaces/frontend-disposition-register.json # DS19: the disposition authority (261 units) + standalone checker + baseline-debt manifests
 organizing_constitution: ../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
 source_design_doc: ../../system-design-decisions/universal-policy-design-target-architecture-and-gap.md
 governed_inventory: ../../../architecture/policy_design_case/cluster_ownership_map.toml
@@ -302,7 +303,18 @@ A deliverable that traces to none of the three generators is out of scope
   the existing estate is eventually **used-as-is, rebound, or deleted** through
   the DS19 disposition register — never left as a live parallel owner. A
   successor closes only when a real consumer exists AND the old owner path is
-  proven strangled (the P27/P28 duals on the glass).
+  proven strangled (the P27/P28 duals on the glass). **The register is now
+  LIVE** (`architecture/atlas_surfaces/frontend-disposition-register.json` +
+  standalone checker): 261 units — 15 deleted, 200 `rebind_pending`, 25
+  `retire`, 16 `wire`, 5 `use_as_is`.
+- **Baseline-relative gating (Revision 3.1; the DS19 lesson).** Where main
+  carries measured inherited debt, a slice's toolchain gates are: **absolute
+  green** for typecheck, production build, and every test the slice owns or
+  touches; **zero-NEW-diagnostics** against the hashed baseline manifests for
+  inherited debt classes (post-state ⊆ baseline; removals shrink the debt,
+  additions are RED). Weakening or suppressing an authority-relevant rule to
+  make a gate pass is forbidden outright. Debt manifests live beside the
+  disposition register and are updated only by the slice that closes the debt.
 
 ## Controlled Vocabulary (references, then extends)
 
@@ -419,7 +431,7 @@ roughly chronological; the DAG, not the numbers, governs start order.
 | DS1 | Live application audit | **CLOSED** (merged) | A |
 | DS2 | Atlas v15 adjudication | **CLOSED** (merged) | A |
 | DS3 | Runtime producers & export infrastructure (GY artifact projections; one-client consolidation) | activation satisfied — **may start now** | B |
-| DS19 | **False-substrate strangle wave + frontend disposition register (NEW, Rev 3)** | DS1 evidence (merged) — **may start now**, parallel to DS3 | B |
+| DS19 | False-substrate strangle wave + frontend disposition register | **CLOSED** (merged f9f69e807: 33 files / −4,005 LOC; register live) | B |
 | DS4 | Status-grammar rebinding & test harness (12 families / 47 statuses) | DS3 | B |
 | DS20 | **Server authorization enforcement (NEW, Rev 3 — split from DS5)** | DS3; parallel to DS4 | B |
 | DS5 | Enforcement waist: lints, audience mapping, cache discipline, flags | DS4; DS20 vocabulary | B |
@@ -464,7 +476,7 @@ bounded agent.
 
 | Milestone | Unblocked surface work |
 | --- | --- |
-| **Now** (Phase A merged; N10 merged) | **DS3** (producers over capstone/value-gate/ledger/census + the one-client/channel consolidation, PI-01..03) and **DS19** (strangle wave over DS1's zero-consumer evidence) in parallel. |
+| **Now** (Phase A merged; N10 merged; **DS19 closed & merged** — the register + wire/retire dispositions + debt manifests are live inputs) | **DS3** (producers over capstone/value-gate/ledger/census + the one-client/channel consolidation, PI-01..03; consumes DS19's wire/retire dispositions) — in flight. |
 | **DS3 closed** | **DS4** (12-family rebinding, 47-status retirement, D2 token adapter) and **DS20** (29-operation server authz + step-up + fixture-identity removal) in parallel; then DS5, DS6. |
 | **DS5 closed** | **DS7 Cycle Board on real capstone data** → DS8 → DS9 (with DS20); DS10; DS16's value/uncertainty grammar (ValueOuterSet is live main-tree data now). |
 | **GY-N13a accepted/merged** | DS15 read surfaces: connector scorecard (12-family liveness), the growth backlog (`ranking_only_not_voi`, 15 `binding_gap` residuals), route projections — noting the routes are currently **structural gaps, not data gaps**. |
@@ -485,6 +497,23 @@ Rule 10). Effort posture per the synthesis: DS4/DS5(+DS20)/DS6/DS9/DS12/DS18
 on greenfield (living substrates exist); DS3 re-cut toward client/channel
 consolidation. `stable` remains unavailable everywhere until DS6 evidence
 exists — the single DS2 `beta` is an evidence method and raises no component.
+
+**Inherited baseline debt of record (measured by DS19, 2026-07-16).** Main's
+measured pre-existing debts — hashed manifests live in
+`architecture/atlas_surfaces/frontend-baseline-debt-manifest.json`; every
+slice gates baseline-relative against them (zero NEW diagnostics; see the
+doctrine bullet); only the owning slice closes and re-manifests a debt:
+
+| Debt | Measured | Owner | Closure expectation |
+| --- | --- | --- | --- |
+| `policyos/quantity-must-be-wrapped` lint violations | 75 errors across 22 untouched files | **DS4** (the quantity-family rebinding — this debt IS part of its work queue) | DS4 wraps decision-bearing values through the rebound quantity primitives; the manifest shrinks to zero; the rule is never weakened |
+| Inherited Vitest failures | 5 failures / 3 files: 3 i18n parity, 1 a11y coverage census, 1 temporal-cursor assertion (all reproduced byte-for-byte on the pre-repair parent) | i18n parity → **DS5** (D4 locale mechanics — the ratified frozen-`ru` posture likely resolves or re-specifies them); a11y census → **DS6**; temporal-cursor → **DS4** (temporal family) | each owner closes-or-re-specifies its failures red-first in its task plan |
+| Dashboard architecture-layer violations | 36 violations (layer checker baseline-red; none introduced by DS19) | **DS4** (dependency severing — includes the 23 API/app ownership violations from DS1) with **DS5** lint enforcement | severing lands in DS4; the DS5 lint battery makes recurrence impossible |
+| Worktree tooling gap | agent worktrees carry invalid `.venv`s (Playwright/py tooling non-receipts in DS1/DS19) | ops note — every future slice prompt | slices declare their toolchain baseline gate up front (the DS19 pattern) |
+
+The five formerly-phantom dependency declarations (+ the `workbox-window`
+peer) and the `audience` fixture drift are already repaired (d01eaa572) and
+recorded in the register.
 
 ### Phase A — Pre-Activation (Layer-3-independent)
 

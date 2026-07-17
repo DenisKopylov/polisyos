@@ -45,18 +45,18 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **3**
-- Application lines deleted: **3155**
-- Net application LOC reduction: **3152**
-- Application files deleted: **25**
+- Application lines added: **14**
+- Application lines deleted: **3186**
+- Net application LOC reduction: **3172**
+- Application files deleted: **26**
 
 <!-- BEGIN DS19 REGISTER PROJECTION -->
 ### Register statistics
 
 | Disposition | Root units |
 | --- | ---: |
-| `delete_pending` | 2 |
-| `deleted` | 13 |
+| `delete_pending` | 1 |
+| `deleted` | 14 |
 | `rebind_pending` | 200 |
 | `retire_disposition` | 25 |
 | `use_as_is` | 5 |
@@ -73,7 +73,7 @@ DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are evi
 | onboarding | `feature-onboarding-orphan` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---onboarding-cluster-verification` |
 | layout-placeholder | `feature-layout-empty` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---empty-layout-placeholder-cluster-verification` |
 | workers | `worker-dag-layout`, `worker-data-transform`, `worker-json-parse` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---zero-consumer-workers-cluster-verification` |
-| clerk-index | `route-home-clerk-duplicate` | not yet captured | `pending` | pending |
+| clerk-index | `route-home-clerk-duplicate` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---duplicate-clerk-index-cluster-verification` |
 | whatif-local | `cache-whatif-scenarios`, `feature-whatif::legacy-local-whatif-subgraph` | not yet captured | `pending` | pending |
 
 ### Wire dispositions — 13 OpenAPI operations
@@ -189,7 +189,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `route-app-layout` | `route-app-layout` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `route-login` | `route-login` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `route-home-mode-aware` | `route-home-mode-aware` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `route-home-clerk-duplicate` | `route-home-clerk-duplicate` | 0 | `delete_pending` | `pending` | `DS19` | `—` |
+| `route-home-clerk-duplicate` | `route-home-clerk-duplicate` | 0 | `deleted` | `strangled` | `DS19` | `census-duplicate-clerk-index-delete` |
 | `route-compose` | `route-compose` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `route-runs-list` | `route-runs-list` | 0 | `rebind_pending` | `pending` | `DS7` | `—` |
 | `route-runs-compare` | `route-runs-compare` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
@@ -449,6 +449,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `b66e77314 refactor(frontend): delete zero-consumer workers`
 - `9b25c0ca0 refactor(frontend): delete empty layout placeholder`
 - `2bbdfac4e refactor(frontend): delete orphan onboarding`
 - `df87559b3 refactor(frontend): delete phantom collaboration substrate`

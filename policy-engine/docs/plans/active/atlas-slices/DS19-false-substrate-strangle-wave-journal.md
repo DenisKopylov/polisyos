@@ -335,3 +335,50 @@ The three worker rows may now transition from `delete_pending` to `deleted`
 against census `census-zero-consumer-workers-delete`. Seeded negative
 `DS1-N019` becomes `obsolete_by_deletion` with that same receipt; it is not
 recast as a passing test.
+
+## 2026-07-17 - Duplicate Clerk Index Pre-Deletion Census
+
+- Clean cluster start: HEAD `b66e77314`; `route-home-clerk-duplicate` is
+  `delete_pending` against its DS1 evidence.
+- The candidate is the 27-line `features/clerk/route.tsx`. Its
+  `clerkChatRoute`/`clerk.chat` chain has only one barrel export, one static
+  import, and one insertion as a second index child under `/`; no direct link,
+  route path, flag/event key, story, e2e, manifest, or service-worker consumer
+  names that duplicate route.
+- The first index child already owns `/` with `dashboard.home`, the same
+  WorkspaceBoundary, and `ModeAwareHome`. The live Clerk page is selected
+  there through `features/clerk/routes.public`; mode-aware run routes, the
+  Clerk flag/provider, state/components, visual journeys, and locales remain
+  protected.
+- Before deletion, DS19 will add a structural route test requiring exactly one
+  root index and `dashboard.home` ownership, and capture its expected red
+  result against the current two-index tree.
+
+The fresh census authorizes deletion of the duplicate route file, its barrel
+export, and its sole route-tree insertion only.
+
+Red receipt: the new structural test failed exactly as intended — the `/`
+route had **2** index children where the invariant requires **1**; the other
+9 route tests passed.
+
+## 2026-07-17 - Duplicate Clerk Index Cluster Verification
+
+- Deleted the duplicate route, removed its barrel export and root-child
+  insertion, and retained the new structural regression test. Post-delete
+  census is **zero** for `clerkChatRoute` and `clerk.chat` in source and built
+  output.
+- The root now has exactly one index child, owned by `dashboard.home` and
+  `ModeAwareHome`. The live `routes.public` Clerk page, mode-aware run routes,
+  flag/provider, workspace evidence, components/state, and journeys remain.
+- Explicit typecheck: **PASS, 17.36 seconds**.
+- Affected routes/workspaces tests: **2 files / 15 tests, PASS,
+  5.35 seconds**. This includes the new one-index structural invariant.
+- Scoped lint across all changed files and the protected Clerk consumer chain:
+  **PASS, 0 diagnostics, 59.95 seconds**.
+- Production build/PWA/postbuild security: **PASS, 50.31 seconds**;
+  3,877 modules and 101 precache entries. The redundant lazy route chunk is no
+  longer emitted, while the live Clerk public-route chunk remains.
+- Application diff: **11 lines added, 31 lines deleted, 1 file deleted**.
+
+`route-home-clerk-duplicate` may now transition from `delete_pending` to
+`deleted` against census `census-duplicate-clerk-index-delete`.

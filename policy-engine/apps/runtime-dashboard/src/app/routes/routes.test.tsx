@@ -185,6 +185,17 @@ describe("APP_ROUTES", () => {
     trackMock.mockReset();
   });
 
+  it("has exactly one root index owned by the mode-aware dashboard", () => {
+    const rootRoute = APP_ROUTES.find((route) => route.path === "/");
+    const indexRoutes =
+      rootRoute?.children?.filter((route) => route.index === true) ?? [];
+
+    expect(indexRoutes).toHaveLength(1);
+    expect(indexRoutes[0]?.handle).toEqual(
+      expect.objectContaining({ routeId: "dashboard.home" }),
+    );
+  });
+
   it("renders login routes without the shell and emits route view telemetry", async () => {
     const router = createMemoryRouter(APP_ROUTES, {
       initialEntries: ["/login"],

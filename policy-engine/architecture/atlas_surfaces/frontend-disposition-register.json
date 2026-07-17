@@ -2,7 +2,7 @@
   "$schema": "./frontend-disposition-register.schema.json",
   "schema_version": "1.0",
   "register_id": "atlas-ds19-frontend-disposition",
-  "as_of": "2026-07-17T11:50:00+03:00",
+  "as_of": "2026-07-17T11:55:00+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
   "authority": {
     "authoritative_for": [
@@ -359,6 +359,48 @@
       "verification_refs": [
         "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---zero-consumer-workers-cluster-verification"
       ]
+    },
+    {
+      "census_id": "census-duplicate-clerk-index-delete",
+      "captured_at": "2026-07-17T11:55:00+03:00",
+      "covers_unit_ids": [
+        "route-home-clerk-duplicate"
+      ],
+      "ds1_evidence_ids": [
+        "route-home-clerk-duplicate"
+      ],
+      "result": "zero_consumers",
+      "probes": [
+        {
+          "kind": "path_absent",
+          "targets": [
+            "apps/runtime-dashboard/src/features/clerk/route.tsx"
+          ],
+          "scan_roots": [],
+          "expected_count": 0,
+          "observed_refs": []
+        },
+        {
+          "kind": "reference_count",
+          "targets": [
+            "clerkChatRoute",
+            "routeId: \"clerk.chat\""
+          ],
+          "scan_roots": [
+            "apps/runtime-dashboard/src",
+            "apps/runtime-dashboard/e2e",
+            "apps/runtime-dashboard/.storybook",
+            "apps/runtime-dashboard/scripts",
+            "apps/runtime-dashboard/package.json",
+            "packages"
+          ],
+          "expected_count": 0,
+          "observed_refs": []
+        }
+      ],
+      "verification_refs": [
+        "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---duplicate-clerk-index-cluster-verification"
+      ]
     }
   ],
   "entries": [
@@ -438,13 +480,14 @@
         "ds1_entry_id": "route-home-clerk-duplicate",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "Fresh DS19 census proved the second Clerk index had no independent consumer; its route/export/insertion were deleted and a structural test now enforces one mode-aware root owner.",
+      "reference_census_id": "census-duplicate-clerk-index-delete"
     },
     {
       "unit_id": "route-compose",

@@ -907,8 +907,14 @@ def compare_vitest_results(
         for assertion in test_result.get("assertionResults", []):
             if assertion.get("status") != "failed":
                 continue
-            full_name = assertion.get("fullName") or " > ".join(
-                [*assertion.get("ancestorTitles", []), assertion.get("title", "")]
+            canonical_name_parts = [
+                *assertion.get("ancestorTitles", []),
+                assertion.get("title", ""),
+            ]
+            full_name = (
+                " > ".join(part for part in canonical_name_parts if part)
+                or assertion.get("fullName")
+                or ""
             )
             key = (file_path, full_name)
             if key not in baseline_rows:
@@ -1468,6 +1474,23 @@ not changed.
 - Application lines deleted: **{deleted}**
 - Net application LOC reduction: **{deleted - added}**
 - Application files deleted: **{deleted_files}**
+
+## Wave-end full verification
+
+| Gate | Wave-end result | Law |
+| --- | --- | --- |
+| Typecheck | PASS, 33.98 s | absolute green |
+| Production build + PWA + security | PASS, 12.66 s; 3,871 modules; 101 precache entries | absolute green; run after the explicit typecheck because a duplicate-typecheck wrapper attempt was host-memory-killed before Vite |
+| ESLint | 916 files; inherited 75 errors / 0 warnings in 5.94 s | zero new diagnostic identities; baseline subset PASS |
+| Vitest | 228 files / 664 tests in four deterministic batches; 225 files / 659 tests passed; inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
+| Register/check | schema, fresh live probes, report parity, source-byte binding, lint/test comparisons, corruption probes PASS | disposition law enforced |
+
+The monolithic Vitest JSON reporter was host-memory-killed before producing a
+receipt, so the complete default-config suite was rerun in four two-worker
+batches and mechanically merged. ESLint receipt SHA-256:
+`22aed9b244038d5e1c0ed0453a7928ad5917dce229f8ee0de823d203ecb9bebb`;
+Vitest receipt SHA-256:
+`9046b0d0abd603a2919fda35f2dba0698fa92c158ed3eee62b6fbac6b07d2545`.
 
 {REPORT_PROJECTION_START}
 {projection}

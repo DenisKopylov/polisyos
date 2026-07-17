@@ -444,3 +444,37 @@ unreachable props/branch and obsolete barrel exports.
 `delete_pending` to `deleted` against census
 `census-whatif-local-subgraph-delete`. Parent `feature-whatif` remains
 `rebind_pending`; DS1-N015 becomes `partially_reduced`, never a passing test.
+
+## 2026-07-17 - Wave-End Full Verification
+
+- Full ESLint census: **916 files, 75 errors, 0 warnings, 22 diagnostic
+  files, 5.94 seconds**. Every diagnostic is the recorded
+  `policyos/quantity-must-be-wrapped` debt; the exact current multiset is a
+  subset of the baseline and contains zero new identities. Receipt SHA-256:
+  `22aed9b244038d5e1c0ed0453a7928ad5917dce229f8ee0de823d203ecb9bebb`.
+- A monolithic Vitest JSON-reporter attempt was memory-killed at 101.14
+  seconds before emitting a receipt and is not counted as evidence. The exact
+  default-config suite was then run in four deterministic two-worker batches:
+  **228 files / 664 tests, 225 files / 659 tests passed, the same 3 files /
+  5 tests failed, 210.80 seconds total**. This is a reduction of 3 executing
+  files and 14 tests, all owned by deleted units. The failed identities and
+  signatures are a baseline subset. Merged receipt SHA-256:
+  `9046b0d0abd603a2919fda35f2dba0698fa92c158ed3eee62b6fbac6b07d2545`.
+- The real Vitest 4 JSON exposed a checker-normalization defect: `fullName`
+  uses spaces while the manifest uses canonical `suite > test` identities.
+  The co-located checker now derives the name from `ancestorTitles` + `title`;
+  the five known failures compare cleanly and new failures still fail closed.
+- Explicit typecheck: **PASS, 33.98 seconds**.
+- The combined repository build command was interrupted inside its duplicate
+  typecheck by host memory pressure from an unrelated 3.7 GB Python process;
+  Vite had not started. The already-green explicit typecheck was therefore
+  followed by the production phases directly: **Vite/PWA/postbuild security
+  PASS, 12.66 seconds; 3,871 modules; 101 precache entries**. The final WhatIf
+  cluster had also passed the complete repository build command at the same
+  application state before the full-suite pressure run.
+- Register schema/live-census validation, report parity, lint/test
+  baseline-relative comparison, source-byte binding, and corruption probes:
+  **PASS**.
+
+Wave-end application reduction from repaired baseline `d01eaa572` is
+**14 lines added / 4,019 deleted / net -4,005 LOC / 33 files deleted**.

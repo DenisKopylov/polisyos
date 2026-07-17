@@ -50,6 +50,23 @@ not changed.
 - Net application LOC reduction: **4005**
 - Application files deleted: **33**
 
+## Wave-end full verification
+
+| Gate | Wave-end result | Law |
+| --- | --- | --- |
+| Typecheck | PASS, 33.98 s | absolute green |
+| Production build + PWA + security | PASS, 12.66 s; 3,871 modules; 101 precache entries | absolute green; run after the explicit typecheck because a duplicate-typecheck wrapper attempt was host-memory-killed before Vite |
+| ESLint | 916 files; inherited 75 errors / 0 warnings in 5.94 s | zero new diagnostic identities; baseline subset PASS |
+| Vitest | 228 files / 664 tests in four deterministic batches; 225 files / 659 tests passed; inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
+| Register/check | schema, fresh live probes, report parity, source-byte binding, lint/test comparisons, corruption probes PASS | disposition law enforced |
+
+The monolithic Vitest JSON reporter was host-memory-killed before producing a
+receipt, so the complete default-config suite was rerun in four two-worker
+batches and mechanically merged. ESLint receipt SHA-256:
+`22aed9b244038d5e1c0ed0453a7928ad5917dce229f8ee0de823d203ecb9bebb`;
+Vitest receipt SHA-256:
+`9046b0d0abd603a2919fda35f2dba0698fa92c158ed3eee62b6fbac6b07d2545`.
+
 <!-- BEGIN DS19 REGISTER PROJECTION -->
 ### Register statistics
 
@@ -448,6 +465,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `4a4f2a56b refactor(frontend): delete dead WhatIf parameter subgraph`
 - `42fcabe17 refactor(frontend): delete duplicate Clerk index route`
 - `b66e77314 refactor(frontend): delete zero-consumer workers`
 - `9b25c0ca0 refactor(frontend): delete empty layout placeholder`

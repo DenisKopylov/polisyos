@@ -55,25 +55,59 @@
         "description": "Acquisition routing contract projection.",
         "properties": {
           "compute_economics": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Compute Economics",
+            "type": "object"
           },
           "denominators": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Denominators",
+            "type": "object"
           },
           "fail_closed_probes": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Fail Closed Probes",
+            "type": "array"
           },
           "fail_closed_receipt": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Fail Closed Receipt",
+            "type": "object"
           },
           "grounding_acquisition_request": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Grounding Acquisition Request",
+            "type": "object"
           },
           "known_residuals": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Known Residuals",
+            "type": "array"
           },
           "no_result_receipt": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "No Result Receipt",
+            "type": "object"
           },
           "positive_receipt": {
             "additionalProperties": {
@@ -83,7 +117,11 @@
             "type": "object"
           },
           "recorded_rederive_inputs": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Recorded Rederive Inputs",
+            "type": "object"
           }
         },
         "required": [
@@ -3660,28 +3698,69 @@
         "description": "Owner-reported capability reality projection.",
         "properties": {
           "blockers": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Blockers",
+            "type": "array"
           },
           "capability_claims": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Capability Claims",
+            "type": "array"
           },
           "chain_clusters": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Chain Clusters",
+            "type": "array"
           },
           "debt_algebra": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Debt Algebra",
+            "type": "object"
           },
           "issues": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Issues",
+            "type": "array"
           },
           "ratchet_integrity_status": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Ratchet Integrity Status",
+            "type": "string"
           },
           "readiness": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Readiness",
+            "type": "object"
           },
           "summary": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Summary",
+            "type": "object"
           }
         },
         "required": [
@@ -4184,6 +4263,12 @@
             "title": "Auth Class",
             "type": "string"
           },
+          "capability_state": {
+            "const": "verification_missing",
+            "default": "verification_missing",
+            "title": "Capability State",
+            "type": "string"
+          },
           "channels": {
             "default": [],
             "items": {
@@ -4218,6 +4303,10 @@
             "title": "Path Template",
             "type": "string"
           },
+          "producer_contract_ref": {
+            "title": "Producer Contract Ref",
+            "type": "string"
+          },
           "registry_id": {
             "title": "Registry Id",
             "type": "string"
@@ -4242,6 +4331,7 @@
           "path_template",
           "transport",
           "message_contract",
+          "producer_contract_ref",
           "auth_class",
           "consumers",
           "owner"
@@ -4278,10 +4368,18 @@
         "description": "Cluster/cell ownership projection.",
         "properties": {
           "architecture_core": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Architecture Core",
+            "type": "object"
           },
           "capability_chain_steps": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "type": "string"
+            },
+            "title": "Capability Chain Steps",
+            "type": "array"
           },
           "clusters": {
             "additionalProperties": {
@@ -4291,31 +4389,58 @@
             "type": "object"
           },
           "handshake_graph": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Handshake Graph",
+            "type": "object"
           },
           "open_cell_closure": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Open Cell Closure",
+            "type": "object"
           },
           "owner": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Owner",
+            "type": "string"
           },
           "purpose": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Purpose",
+            "type": "string"
           },
           "ratchet_state_vocabulary": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "type": "string"
+            },
+            "title": "Ratchet State Vocabulary",
+            "type": "array"
           },
           "required_cell_fields": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Cell Fields",
+            "type": "array"
           },
           "required_clusters": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Clusters",
+            "type": "array"
           },
           "status": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Status",
+            "type": "string"
           },
           "stop_rule": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Stop Rule",
+            "type": "object"
           }
         },
         "required": [
@@ -8423,13 +8548,19 @@
         "description": "Narrow recorded fields for one depth-N domain run.",
         "properties": {
           "acquisition_route": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Acquisition Route",
+            "type": "object"
           },
           "design_problem_ref": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Design Problem Ref",
+            "type": "string"
           },
           "domain_role": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Domain Role",
+            "type": "string"
           },
           "evidence_class": {
             "title": "Evidence Class",
@@ -8443,7 +8574,8 @@
             "type": "object"
           },
           "generation_cycle_run_id": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Generation Cycle Run Id",
+            "type": "string"
           },
           "terminal_distribution": {
             "additionalProperties": {
@@ -8454,7 +8586,7 @@
           },
           "weakest_links": {
             "items": {
-              "$ref": "#/components/schemas/ProjectionJsonValue"
+              "type": "string"
             },
             "title": "Weakest Links",
             "type": "array"
@@ -8618,13 +8750,22 @@
         "description": "Engine census summary without the row table.",
         "properties": {
           "critical_findings": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "type": "string"
+            },
+            "title": "Critical Findings",
+            "type": "array"
           },
           "discipline": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Discipline",
+            "type": "string"
           },
           "evidence_reproducibility": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Evidence Reproducibility",
+            "type": "object"
           },
           "execution_status_vocabulary": {
             "additionalProperties": {
@@ -8634,20 +8775,33 @@
             "type": "object"
           },
           "gap_taxonomy_extensions": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Gap Taxonomy Extensions",
+            "type": "object"
           },
           "row_count": {
             "title": "Row Count",
             "type": "integer"
           },
           "scope": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Scope",
+            "type": "string"
           },
           "subcensus_summary": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Subcensus Summary",
+            "type": "object"
           },
           "verb_gap_consistency": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Verb Gap Consistency",
+            "type": "object"
           }
         },
         "required": [
@@ -10569,31 +10723,52 @@
         "description": "Fork-B relation census projection without relation rows.",
         "properties": {
           "authority": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Authority",
+            "type": "string"
           },
           "certificate_summaries": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Certificate Summaries",
+            "type": "object"
           },
           "coverage_manifest": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Coverage Manifest",
+            "type": "object"
           },
           "known_bridge_limits": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "type": "string"
+            },
+            "title": "Known Bridge Limits",
+            "type": "array"
           },
           "normalization": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Normalization",
+            "type": "string"
           },
           "relation_counts": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Relation Counts",
+            "type": "object"
           },
           "relation_denominator_formula": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Relation Denominator Formula",
+            "type": "string"
           },
           "transport_floor": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Transport Floor",
+            "type": "number"
           },
           "transport_floor_rule": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Transport Floor Rule",
+            "type": "string"
           }
         },
         "required": [
@@ -10615,25 +10790,62 @@
         "description": "Generation-cycle task and owner disposition projection.",
         "properties": {
           "bridge_artifacts": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Bridge Artifacts",
+            "type": "object"
           },
           "known_residuals": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Known Residuals",
+            "type": "array"
           },
           "method_availability_gate": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Method Availability Gate",
+            "type": "object"
           },
           "owners": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Owners",
+            "type": "array"
           },
           "parallel_world_reconciliation": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Parallel World Reconciliation",
+            "type": "array"
           },
           "task_owner_mapping": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Task Owner Mapping",
+            "type": "object"
           },
           "tasks": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Tasks",
+            "type": "object"
           }
         },
         "required": [
@@ -10945,7 +11157,7 @@
       },
       "IngestRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/data/ingest \u2014 trigger data collection.",
+        "description": "POST /api/v1/control/data/ingest — trigger data collection.",
         "properties": {
           "binding_profile_id": {
             "anyOf": [
@@ -11370,7 +11582,10 @@
         "properties": {
           "health_metric_ledgers": {
             "items": {
-              "$ref": "#/components/schemas/ProjectionJsonValue"
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
             },
             "title": "Health Metric Ledgers",
             "type": "array"
@@ -11551,7 +11766,7 @@
       },
       "LexSearchRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/lex/search \u2014 search knowledge graph facts.",
+        "description": "POST /api/v1/control/lex/search — search knowledge graph facts.",
         "properties": {
           "output_dir": {
             "minLength": 1,
@@ -11907,7 +12122,7 @@
       },
       "LexTriggerRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/lex/trigger \u2014 start batch pipeline.",
+        "description": "POST /api/v1/control/lex/trigger — start batch pipeline.",
         "properties": {
           "cards_path": {
             "minLength": 1,
@@ -13417,28 +13632,78 @@
         "description": "N13a census dependency projection.",
         "properties": {
           "catalog_identity": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Catalog Identity",
+            "type": "object"
           },
           "family_scorecards": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Family Scorecards",
+            "type": "array"
           },
           "fetch_plan_generation": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Fetch Plan Generation",
+            "type": "object"
           },
           "growth_backlog": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Growth Backlog",
+            "type": "array"
           },
           "metric_resolutions": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Metric Resolutions",
+            "type": "array"
           },
           "projection_bindings": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Projection Bindings",
+            "type": "array"
           },
           "reverse_demand_residuals": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Reverse Demand Residuals",
+            "type": "array"
           },
           "route_evidence": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Route Evidence",
+            "type": "array"
           }
         },
         "required": [
@@ -13459,13 +13724,31 @@
         "description": "N13a live-probe journal dependency projection.",
         "properties": {
           "family_receipts": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Family Receipts",
+            "type": "array"
           },
           "records": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "items": {
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
+            },
+            "title": "Records",
+            "type": "array"
           },
           "selection_plan": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Selection Plan",
+            "type": "object"
           }
         },
         "required": [
@@ -13478,7 +13761,7 @@
       },
       "NaturalLanguageRunRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/runs/nl \u2014 NL request triggering agent circuit.",
+        "description": "POST /api/v1/control/runs/nl — NL request triggering agent circuit.",
         "properties": {
           "checkpoint_policy": {
             "default": "strict",
@@ -15539,6 +15822,28 @@
             "title": "Expected Source Path",
             "type": "string"
           },
+          "expected_source_rule_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Source Rule Version"
+          },
+          "expected_source_schema_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Source Schema Version"
+          },
           "intended_audience": {
             "$ref": "#/components/schemas/AudienceClass"
           },
@@ -15548,6 +15853,14 @@
             },
             "title": "May Not Use For",
             "type": "array"
+          },
+          "owner_validator_id": {
+            "title": "Owner Validator Id",
+            "type": "string"
+          },
+          "owner_validator_version": {
+            "title": "Owner Validator Version",
+            "type": "string"
           },
           "projection_id": {
             "$ref": "#/components/schemas/ProjectionId"
@@ -15573,6 +15886,10 @@
           "intended_audience",
           "authoritative_for",
           "may_not_use_for",
+          "expected_source_schema_version",
+          "expected_source_rule_version",
+          "owner_validator_id",
+          "owner_validator_version",
           "stable_address"
         ],
         "title": "ProjectionCatalogEntry",
@@ -15696,31 +16013,41 @@
       },
       "ProjectionOwnerBinding": {
         "additionalProperties": false,
-        "description": "Name an owner-recorded binding to a different governed artifact.",
+        "description": "Resolve an owner-declared semantic hash without calling it byte identity.",
         "properties": {
-          "artifact_content_hash": {
-            "title": "Artifact Content Hash",
-            "type": "string"
-          },
           "binding_name": {
             "title": "Binding Name",
             "type": "string"
           },
+          "owner_semantic_hash": {
+            "title": "Owner Semantic Hash",
+            "type": "string"
+          },
           "relation": {
-            "const": "related_artifact",
-            "default": "related_artifact",
+            "const": "semantic_projection",
+            "default": "semantic_projection",
             "title": "Relation",
             "type": "string"
           },
           "relative_path": {
             "title": "Relative Path",
             "type": "string"
+          },
+          "resolved_artifact_content_hash": {
+            "title": "Resolved Artifact Content Hash",
+            "type": "string"
+          },
+          "semantic_hash_rule_version": {
+            "title": "Semantic Hash Rule Version",
+            "type": "string"
           }
         },
         "required": [
           "binding_name",
           "relative_path",
-          "artifact_content_hash"
+          "owner_semantic_hash",
+          "semantic_hash_rule_version",
+          "resolved_artifact_content_hash"
         ],
         "title": "ProjectionOwnerBinding",
         "type": "object"
@@ -15755,13 +16082,59 @@
           "relative_path": {
             "title": "Relative Path",
             "type": "string"
+          },
+          "validation": {
+            "$ref": "#/components/schemas/ProjectionSourceValidation"
           }
         },
         "required": [
           "relative_path",
-          "artifact_content_hash"
+          "artifact_content_hash",
+          "validation"
         ],
         "title": "ProjectionSourceIdentity",
+        "type": "object"
+      },
+      "ProjectionSourceValidation": {
+        "additionalProperties": false,
+        "description": "Bind an owner-validator result to the exact source identity projected.",
+        "properties": {
+          "bound_artifact_content_hash": {
+            "title": "Bound Artifact Content Hash",
+            "type": "string"
+          },
+          "issue_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Issue Codes",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "passed",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "validator_id": {
+            "title": "Validator Id",
+            "type": "string"
+          },
+          "validator_version": {
+            "title": "Validator Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "validator_id",
+          "validator_version",
+          "status",
+          "bound_artifact_content_hash"
+        ],
+        "title": "ProjectionSourceValidation",
         "type": "object"
       },
       "PromotionCandidate": {
@@ -15972,58 +16345,109 @@
         "description": "Narrow fixture expectation projection without producer metadata.",
         "properties": {
           "case_id": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Case Id",
+            "type": "string"
           },
           "claim_evidence_annotations": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Claim Evidence Annotations",
+            "type": "object"
           },
           "compilation_intent_text": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Compilation Intent Text",
+            "type": "string"
           },
           "concept_spine_refs": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Concept Spine Refs",
+            "type": "object"
           },
           "domain": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Domain",
+            "type": "string"
           },
           "expected_adapter_bindings": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Expected Adapter Bindings",
+            "type": "object"
           },
           "expected_claim_families": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Expected Claim Families",
+            "type": "object"
           },
           "expected_closeout_states": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Expected Closeout States",
+            "type": "object"
           },
           "expected_facets": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Expected Facets",
+            "type": "object"
           },
           "expected_obligation_graph": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Expected Obligation Graph",
+            "type": "object"
           },
           "expected_projection_truthfulness": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Expected Projection Truthfulness",
+            "type": "object"
           },
           "expected_requirement_specs": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Expected Requirement Specs",
+            "type": "object"
           },
           "expert_adjudication": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Expert Adjudication",
+            "type": "object"
           },
           "input_intent_ref": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Input Intent Ref",
+            "type": "string"
           },
           "intent": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Intent",
+            "type": "object"
           },
           "schema_version": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Schema Version",
+            "type": "string"
           },
           "split": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Split",
+            "type": "string"
           },
           "title": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "title": "Title",
+            "type": "string"
           }
         },
         "required": [
@@ -21019,7 +21443,11 @@
         "description": "Value-gate dependency projection.",
         "properties": {
           "acquisition_routing": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Acquisition Routing",
+            "type": "object"
           },
           "advisor_receipts": {
             "additionalProperties": {
@@ -21036,7 +21464,11 @@
             "type": "object"
           },
           "disposition": {
-            "$ref": "#/components/schemas/ProjectionJsonValue"
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Disposition",
+            "type": "object"
           },
           "education_refusal": {
             "additionalProperties": {
@@ -21061,7 +21493,10 @@
           },
           "value_outer_set_contract": {
             "items": {
-              "$ref": "#/components/schemas/ProjectionJsonValue"
+              "additionalProperties": {
+                "$ref": "#/components/schemas/ProjectionJsonValue"
+              },
+              "type": "object"
             },
             "title": "Value Outer Set Contract",
             "type": "array"
@@ -21177,7 +21612,7 @@
       },
       "WorkflowRunRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/runs \u2014 launch a workflow run.",
+        "description": "POST /api/v1/control/runs — launch a workflow run.",
         "properties": {
           "calibration_report_ref": {
             "anyOf": [
@@ -30992,18 +31427,18 @@
                         "request_id": "req_0123456789abcdef",
                         "source_kinds": []
                       },
-                      "query": "\u0431\u044e\u0434\u0436\u0435\u0442\u043d\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442",
+                      "query": "бюджетний дефіцит",
                       "results": [
                         {
                           "confidence": 0.92,
-                          "doc_name": "\u0411\u044e\u0434\u0436\u0435\u0442\u043d\u0438\u0439 \u043a\u043e\u0434\u0435\u043a\u0441 \u0423\u043a\u0440\u0430\u0457\u043d\u0438",
+                          "doc_name": "Бюджетний кодекс України",
                           "doc_reestr_code": "21010",
                           "fact_id": "a1b2c3d4e5f6g7h8i9j0",
                           "fact_text": "Budget deficit must not exceed 3% of projected GDP",
                           "norm_type": "obligation",
                           "object_name": "3_percent_of_gdp",
                           "predicate": "must_not_exceed",
-                          "provision_citation": "\u0421\u0442\u0430\u0442\u0442\u044f 14, \u043f\u0443\u043d\u043a\u0442 2",
+                          "provision_citation": "Стаття 14, пункт 2",
                           "subject_name": "budget_deficit_limit"
                         }
                       ],
@@ -35595,6 +36030,68 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_runtime_channel_registry response example",
+                    "value": {
+                      "channels": [
+                        {
+                          "auth_class": "runtime_tenant_access+stream_rate_limit",
+                          "capability_state": "verification_missing",
+                          "channels": [],
+                          "consumers": [
+                            "apps/runtime-dashboard:RunsLiveProvider"
+                          ],
+                          "include_in_schema": false,
+                          "message_contract": "policyos.runtime.runs_list_snapshot.v1",
+                          "owner": "polisyos.runtime.http.routes.runs",
+                          "path_template": "/api/v1/runs/live",
+                          "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:RunsListSnapshot",
+                          "registry_id": "runs-list-live",
+                          "status": "active",
+                          "transport": "sse"
+                        },
+                        {
+                          "auth_class": "runtime_run_tenant_access+stream_rate_limit",
+                          "capability_state": "verification_missing",
+                          "channels": [],
+                          "consumers": [
+                            "apps/runtime-dashboard:useRunLiveUpdates"
+                          ],
+                          "include_in_schema": false,
+                          "message_contract": "policyos.runtime.run_detail_snapshot.v1",
+                          "owner": "polisyos.runtime.http.routes.runs",
+                          "path_template": "/api/v1/runs/{run_id}/live",
+                          "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:RunDetailSnapshot",
+                          "registry_id": "run-detail-live",
+                          "status": "active",
+                          "transport": "sse"
+                        },
+                        {
+                          "auth_class": "runtime_review_socket_auth+tenant_opa_action+stream_rate_limit",
+                          "capability_state": "verification_missing",
+                          "channels": [
+                            "review.cursor",
+                            "review.lock",
+                            "review.presence"
+                          ],
+                          "consumers": [
+                            "apps/runtime-dashboard:useReviewCollaborationSurface"
+                          ],
+                          "include_in_schema": false,
+                          "message_contract": "policyos.runtime.review_collaboration_envelope.v1",
+                          "owner": "polisyos.runtime.http.routes.review",
+                          "path_template": "/api/v1/review/live",
+                          "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:ReviewSnapshot",
+                          "registry_id": "review-live",
+                          "status": "active",
+                          "transport": "websocket"
+                        }
+                      ],
+                      "schema_version": "policyos.runtime.channel_registry.v1"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ChannelRegistryResponse"
                 }
@@ -35798,6 +36295,37 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "list_governed_projections response example",
+                    "value": {
+                      "projections": [
+                        {
+                          "authoritative_for": [
+                            "engine_census_summary",
+                            "critical_findings"
+                          ],
+                          "expected_source_path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json",
+                          "expected_source_rule_version": "policyos.layer3.gy.engine_reality_census.v1",
+                          "expected_source_schema_version": "policyos.policy_design_case.layer3_gy_engine_census.v1",
+                          "intended_audience": "EXPERT",
+                          "may_not_use_for": [
+                            "public_claim",
+                            "publication_authority",
+                            "audience_authorization",
+                            "row_level_engine_export"
+                          ],
+                          "owner_validator_id": "tools.quality.validation.check_layer3_gy_engine_census:validate",
+                          "owner_validator_version": "policyos.policy_design_case.layer3_gy_engine_census.v1",
+                          "projection_id": "engine-census",
+                          "source_policy": "required",
+                          "stable_address": "/api/v1/exports/governed-projections/engine-census"
+                        }
+                      ],
+                      "schema_version": "policyos.runtime.governed_projection_catalog.v1"
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/ProjectionCatalogResponse"
                 }
@@ -36039,12 +36567,91 @@
               ],
               "title": "Projection Hash"
             }
+          },
+          {
+            "in": "query",
+            "name": "source_as_of",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source As Of"
+            }
           }
         ],
         "responses": {
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_governed_projection response example",
+                    "value": {
+                      "absence_reason": null,
+                      "as_of": "2026-02-11T12:00:00Z",
+                      "authoritative_for": [
+                        "engine_census_summary",
+                        "critical_findings"
+                      ],
+                      "availability": "available",
+                      "export_replay_contract": "policyos.runtime.export_replay_binding.v1",
+                      "freshness": {
+                        "basis": "filesystem_mtime",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "source_as_of": "2026-02-11T12:00:00Z",
+                        "state": "observed"
+                      },
+                      "intended_audience": "EXPERT",
+                      "may_not_use_for": [
+                        "public_claim",
+                        "publication_authority",
+                        "audience_authorization",
+                        "row_level_engine_export"
+                      ],
+                      "packet_schema_version": "policyos.runtime.governed_projection_packet.v1",
+                      "payload": {
+                        "critical_findings": [],
+                        "discipline": "owner_validated",
+                        "evidence_reproducibility": {},
+                        "execution_status_vocabulary": {
+                          "implemented": 1
+                        },
+                        "gap_taxonomy_extensions": {},
+                        "row_count": 1,
+                        "scope": "engine_census_summary",
+                        "subcensus_summary": {},
+                        "verb_gap_consistency": {}
+                      },
+                      "projection_hash": "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d",
+                      "projection_id": "engine-census",
+                      "projection_rule_version": "policyos.runtime.governed_projection.v1",
+                      "replay_address": "/api/v1/exports/governed-projections/engine-census?artifact_content_hash=sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb&projection_hash=sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d&source_as_of=2026-02-11T12:00:00Z",
+                      "source": {
+                        "artifact_content_hash": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                        "declared_content_hash": null,
+                        "related_artifact_bindings": [],
+                        "relative_path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json",
+                        "validation": {
+                          "bound_artifact_content_hash": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                          "issue_codes": [],
+                          "status": "passed",
+                          "validator_id": "tools.quality.validation.check_layer3_gy_engine_census:validate",
+                          "validator_version": "policyos.policy_design_case.layer3_gy_engine_census.v1"
+                        }
+                      },
+                      "source_rule_version": "policyos.layer3.gy.engine_reality_census.v1",
+                      "source_schema_version": "policyos.policy_design_case.layer3_gy_engine_census.v1",
+                      "stable_address": "/api/v1/exports/governed-projections/engine-census"
+                    }
+                  }
+                },
                 "schema": {
                   "discriminator": {
                     "mapping": {

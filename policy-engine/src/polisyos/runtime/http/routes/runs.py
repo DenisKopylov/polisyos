@@ -56,8 +56,16 @@ from polisyos.runtime.http.dependencies import (
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import bad_request, conflict
-from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 from polisyos.runtime.http.response_policies import add_run_link_relations
+from polisyos.runtime.http.services.channel_contracts import (
+    RunDetailSnapshot,
+    RunsListSnapshot,
+    RunsListSnapshotPage,
+    RunsListSnapshotRun,
+    RunsLiveSnapshot,
+    validate_runs_live_snapshot,
+)
+from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 from polisyos.runtime.quality.approval import (
     build_production_approval_packet,
     persist_production_approval_packet,
@@ -549,7 +557,7 @@ def _resolve_compare_temporal_scope(
     return scope
 
 
-def _build_runs_live_payload(request: Request, ctx: RuntimeApiContext) -> dict[str, Any]:
+def _build_runs_live_payload(request: Request, ctx: RuntimeApiContext) -> RunsListSnapshot:
     scope = require_access_scope(request)
     runs, page = ctx.run_index.list_runs(
         limit=50,
@@ -560,78 +568,66 @@ def _build_runs_live_payload(request: Request, ctx: RuntimeApiContext) -> dict[s
         tenant_id=scope.tenant_id if scope else None,
     )
     status_counts = Counter((run.status or "unknown") for run in runs)
-    now = datetime.now(UTC).replace(microsecond=0).isoformat()
-    return {
-        "cursor": now,
-        "generated_at": now,
-        "page": {
-            "count": page.count,
-            "total": page.total,
-            "next_cursor": page.next_cursor,
-        },
-        "status_counts": dict(sorted(status_counts.items())),
-        "runs": [
-            {
-                "run_id": run.run_id,
-                "status": run.status,
-                "started_at": run.started_at,
-                "finished_at": run.finished_at,
-                "duration_ms": run.duration_ms,
-                "root_artifact_count": run.root_artifact_count,
-                "decision_validity_status": (
-                    run.decision_validity_status.value
-                    if run.decision_validity_status is not None
-                    else None
-                ),
-                "decision_review_required": run.decision_review_required,
-            }
+    now = datetime.now(UTC).replace(microsecond=0)
+    return RunsListSnapshot(
+        cursor=now,
+        generated_at=now,
+        page=RunsListSnapshotPage(
+            count=page.count,
+            total=page.total,
+            next_cursor=page.next_cursor,
+        ),
+        status_counts=dict(sorted(status_counts.items())),
+        runs=[
+            RunsListSnapshotRun(
+                run_id=run.run_id,
+                status=run.status,
+                started_at=run.started_at,
+                finished_at=run.finished_at,
+                duration_ms=run.duration_ms,
+                root_artifact_count=run.root_artifact_count,
+                decision_validity_status=run.decision_validity_status,
+                decision_review_required=run.decision_review_required,
+            )
             for run in runs
         ],
-    }
+    )
 
 
-def _build_run_live_payload(run_id: str, ctx: RuntimeApiContext) -> dict[str, Any]:
+def _build_run_live_payload(run_id: str, ctx: RuntimeApiContext) -> RunDetailSnapshot:
     run = ctx.run_index.get_run(run_id)
     timeline = ctx.timeline.build_for_run(run).timeline
     agents = ctx.debug.get_run_agents(run)
     governance = ctx.debug.get_governance_debug(run)
     step_count = sum(len(attempt.steps or []) for attempt in agents.attempts or [])
-    now = datetime.now(UTC).replace(microsecond=0).isoformat()
-    return {
-        "run_id": run_id,
-        "cursor": now,
-        "status": run.details.status,
-        "started_at": run.details.started_at,
-        "finished_at": run.details.finished_at,
-        "duration_ms": run.details.duration_ms,
-        "timeline_events": timeline.summary.total_events,
-        "timeline_duration_ms": timeline.summary.duration_ms,
-        "agent_attempts": len(agents.attempts or []),
-        "agent_steps": step_count,
-        "governance_issues": len(governance.issues or []),
-        "transport_status": (
+    now = datetime.now(UTC).replace(microsecond=0)
+    return RunDetailSnapshot(
+        run_id=run_id,
+        cursor=now,
+        status=run.details.status,
+        started_at=run.details.started_at,
+        finished_at=run.details.finished_at,
+        duration_ms=run.details.duration_ms,
+        timeline_events=timeline.summary.total_events,
+        timeline_duration_ms=timeline.summary.duration_ms,
+        agent_attempts=len(agents.attempts or []),
+        agent_steps=step_count,
+        governance_issues=len(governance.issues or []),
+        transport_status=(
             governance.transport_summary.get("status")
             if isinstance(governance.transport_summary, dict)
             else None
         ),
-        "decision_validity_status": (
-            run.details.decision_validity_status.value
-            if run.details.decision_validity_status is not None
-            else None
-        ),
-        "decision_review_required": run.details.decision_review_required,
-        "decision_superseded_by_ref": (
-            run.details.decision_superseded_by_ref.model_dump(mode="json")
-            if run.details.decision_superseded_by_ref is not None
-            else None
-        ),
-        "terminal": _is_terminal_status(run.details.status),
-        "generated_at": now,
-    }
+        decision_validity_status=run.details.decision_validity_status,
+        decision_review_required=run.details.decision_review_required,
+        decision_superseded_by_ref=run.details.decision_superseded_by_ref,
+        terminal=_is_terminal_status(run.details.status),
+        generated_at=now,
+    )
 
 
 async def _stream_payloads(
-    builder: Callable[[], dict[str, Any]],
+    builder: Callable[[], RunsLiveSnapshot],
     request: Request,
     *,
     policy: LiveStreamPolicy,
@@ -654,7 +650,8 @@ async def _stream_payloads(
                 event="stream.timeout",
             )
             break
-        payload = builder()
+        snapshot = validate_runs_live_snapshot(builder())
+        payload = snapshot.model_dump(mode="json")
         signature = _payload_signature(payload)
         should_emit = signature != previous_signature
         if should_emit:

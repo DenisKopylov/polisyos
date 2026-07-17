@@ -1590,18 +1590,42 @@ export interface components {
          * @description Acquisition routing contract projection.
          */
         AcquisitionRoutingPayload: {
-            compute_economics: components["schemas"]["ProjectionJsonValue"];
-            denominators: components["schemas"]["ProjectionJsonValue"];
-            fail_closed_probes: components["schemas"]["ProjectionJsonValue"];
-            fail_closed_receipt: components["schemas"]["ProjectionJsonValue"];
-            grounding_acquisition_request: components["schemas"]["ProjectionJsonValue"];
-            known_residuals: components["schemas"]["ProjectionJsonValue"];
-            no_result_receipt: components["schemas"]["ProjectionJsonValue"];
+            /** Compute Economics */
+            compute_economics: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Denominators */
+            denominators: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Fail Closed Probes */
+            fail_closed_probes: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Fail Closed Receipt */
+            fail_closed_receipt: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Grounding Acquisition Request */
+            grounding_acquisition_request: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Known Residuals */
+            known_residuals: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** No Result Receipt */
+            no_result_receipt: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
             /** Positive Receipt */
             positive_receipt: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
-            recorded_rederive_inputs: components["schemas"]["ProjectionJsonValue"];
+            /** Recorded Rederive Inputs */
+            recorded_rederive_inputs: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
         };
         /**
          * AgentPipelineAttempt
@@ -3053,14 +3077,36 @@ export interface components {
          * @description Owner-reported capability reality projection.
          */
         CapabilityRealityPayload: {
-            blockers: components["schemas"]["ProjectionJsonValue"];
-            capability_claims: components["schemas"]["ProjectionJsonValue"];
-            chain_clusters: components["schemas"]["ProjectionJsonValue"];
-            debt_algebra: components["schemas"]["ProjectionJsonValue"];
-            issues: components["schemas"]["ProjectionJsonValue"];
-            ratchet_integrity_status: components["schemas"]["ProjectionJsonValue"];
-            readiness: components["schemas"]["ProjectionJsonValue"];
-            summary: components["schemas"]["ProjectionJsonValue"];
+            /** Blockers */
+            blockers: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Capability Claims */
+            capability_claims: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Chain Clusters */
+            chain_clusters: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Debt Algebra */
+            debt_algebra: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Issues */
+            issues: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Ratchet Integrity Status */
+            ratchet_integrity_status: string;
+            /** Readiness */
+            readiness: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Summary */
+            summary: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
         };
         /**
          * CausalFrontierAreaRecord
@@ -3262,6 +3308,12 @@ export interface components {
             /** Auth Class */
             auth_class: string;
             /**
+             * Capability State
+             * @default verification_missing
+             * @constant
+             */
+            capability_state: "verification_missing";
+            /**
              * Channels
              * @default []
              */
@@ -3280,6 +3332,8 @@ export interface components {
             owner: string;
             /** Path Template */
             path_template: string;
+            /** Producer Contract Ref */
+            producer_contract_ref: string;
             /** Registry Id */
             registry_id: string;
             /**
@@ -3313,21 +3367,40 @@ export interface components {
          * @description Cluster/cell ownership projection.
          */
         ClusterOwnershipPayload: {
-            architecture_core: components["schemas"]["ProjectionJsonValue"];
-            capability_chain_steps: components["schemas"]["ProjectionJsonValue"];
+            /** Architecture Core */
+            architecture_core: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Capability Chain Steps */
+            capability_chain_steps: string[];
             /** Clusters */
             clusters: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
-            handshake_graph: components["schemas"]["ProjectionJsonValue"];
-            open_cell_closure: components["schemas"]["ProjectionJsonValue"];
-            owner: components["schemas"]["ProjectionJsonValue"];
-            purpose: components["schemas"]["ProjectionJsonValue"];
-            ratchet_state_vocabulary: components["schemas"]["ProjectionJsonValue"];
-            required_cell_fields: components["schemas"]["ProjectionJsonValue"];
-            required_clusters: components["schemas"]["ProjectionJsonValue"];
-            status: components["schemas"]["ProjectionJsonValue"];
-            stop_rule: components["schemas"]["ProjectionJsonValue"];
+            /** Handshake Graph */
+            handshake_graph: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Open Cell Closure */
+            open_cell_closure: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Owner */
+            owner: string;
+            /** Purpose */
+            purpose: string;
+            /** Ratchet State Vocabulary */
+            ratchet_state_vocabulary: string[];
+            /** Required Cell Fields */
+            required_cell_fields: string[];
+            /** Required Clusters */
+            required_clusters: string[];
+            /** Status */
+            status: string;
+            /** Stop Rule */
+            stop_rule: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
         };
         /**
          * ComparabilityReport
@@ -4797,22 +4870,28 @@ export interface components {
          * @description Narrow recorded fields for one depth-N domain run.
          */
         DepthNDomainRunProjection: {
-            acquisition_route: components["schemas"]["ProjectionJsonValue"];
-            design_problem_ref: components["schemas"]["ProjectionJsonValue"];
-            domain_role: components["schemas"]["ProjectionJsonValue"];
+            /** Acquisition Route */
+            acquisition_route: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Design Problem Ref */
+            design_problem_ref: string;
+            /** Domain Role */
+            domain_role: string;
             /** Evidence Class */
             evidence_class: string;
             /** Evidence Witness */
             evidence_witness: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
-            generation_cycle_run_id: components["schemas"]["ProjectionJsonValue"];
+            /** Generation Cycle Run Id */
+            generation_cycle_run_id: string;
             /** Terminal Distribution */
             terminal_distribution: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
             /** Weakest Links */
-            weakest_links: components["schemas"]["ProjectionJsonValue"][];
+            weakest_links: string[];
         };
         /**
          * DerivedArtifact
@@ -4876,19 +4955,34 @@ export interface components {
          * @description Engine census summary without the row table.
          */
         EngineCensusPayload: {
-            critical_findings: components["schemas"]["ProjectionJsonValue"];
-            discipline: components["schemas"]["ProjectionJsonValue"];
-            evidence_reproducibility: components["schemas"]["ProjectionJsonValue"];
+            /** Critical Findings */
+            critical_findings: string[];
+            /** Discipline */
+            discipline: string;
+            /** Evidence Reproducibility */
+            evidence_reproducibility: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
             /** Execution Status Vocabulary */
             execution_status_vocabulary: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
-            gap_taxonomy_extensions: components["schemas"]["ProjectionJsonValue"];
+            /** Gap Taxonomy Extensions */
+            gap_taxonomy_extensions: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
             /** Row Count */
             row_count: number;
-            scope: components["schemas"]["ProjectionJsonValue"];
-            subcensus_summary: components["schemas"]["ProjectionJsonValue"];
-            verb_gap_consistency: components["schemas"]["ProjectionJsonValue"];
+            /** Scope */
+            scope: string;
+            /** Subcensus Summary */
+            subcensus_summary: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Verb Gap Consistency */
+            verb_gap_consistency: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
         };
         /**
          * EquilibriumBasinInterval
@@ -5720,28 +5814,64 @@ export interface components {
          * @description Fork-B relation census projection without relation rows.
          */
         ForkBRelationCensusPayload: {
-            authority: components["schemas"]["ProjectionJsonValue"];
-            certificate_summaries: components["schemas"]["ProjectionJsonValue"];
-            coverage_manifest: components["schemas"]["ProjectionJsonValue"];
-            known_bridge_limits: components["schemas"]["ProjectionJsonValue"];
-            normalization: components["schemas"]["ProjectionJsonValue"];
-            relation_counts: components["schemas"]["ProjectionJsonValue"];
-            relation_denominator_formula: components["schemas"]["ProjectionJsonValue"];
-            transport_floor: components["schemas"]["ProjectionJsonValue"];
-            transport_floor_rule: components["schemas"]["ProjectionJsonValue"];
+            /** Authority */
+            authority: string;
+            /** Certificate Summaries */
+            certificate_summaries: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Coverage Manifest */
+            coverage_manifest: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Known Bridge Limits */
+            known_bridge_limits: string[];
+            /** Normalization */
+            normalization: string;
+            /** Relation Counts */
+            relation_counts: {
+                [key: string]: number;
+            };
+            /** Relation Denominator Formula */
+            relation_denominator_formula: string;
+            /** Transport Floor */
+            transport_floor: number;
+            /** Transport Floor Rule */
+            transport_floor_rule: string;
         };
         /**
          * GenerationCycleDispositionPayload
          * @description Generation-cycle task and owner disposition projection.
          */
         GenerationCycleDispositionPayload: {
-            bridge_artifacts: components["schemas"]["ProjectionJsonValue"];
-            known_residuals: components["schemas"]["ProjectionJsonValue"];
-            method_availability_gate: components["schemas"]["ProjectionJsonValue"];
-            owners: components["schemas"]["ProjectionJsonValue"];
-            parallel_world_reconciliation: components["schemas"]["ProjectionJsonValue"];
-            task_owner_mapping: components["schemas"]["ProjectionJsonValue"];
-            tasks: components["schemas"]["ProjectionJsonValue"];
+            /** Bridge Artifacts */
+            bridge_artifacts: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Known Residuals */
+            known_residuals: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Method Availability Gate */
+            method_availability_gate: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Owners */
+            owners: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Parallel World Reconciliation */
+            parallel_world_reconciliation: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Task Owner Mapping */
+            task_owner_mapping: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Tasks */
+            tasks: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
         };
         /**
          * GovernanceDebugResponse
@@ -6036,7 +6166,9 @@ export interface components {
          */
         Layer3HealthMetricsPayload: {
             /** Health Metric Ledgers */
-            health_metric_ledgers: components["schemas"]["ProjectionJsonValue"][];
+            health_metric_ledgers: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
         };
         /**
          * LegacyProvingGroundPayload
@@ -7015,23 +7147,56 @@ export interface components {
          * @description N13a census dependency projection.
          */
         N13AAcquisitionCensusPayload: {
-            catalog_identity: components["schemas"]["ProjectionJsonValue"];
-            family_scorecards: components["schemas"]["ProjectionJsonValue"];
-            fetch_plan_generation: components["schemas"]["ProjectionJsonValue"];
-            growth_backlog: components["schemas"]["ProjectionJsonValue"];
-            metric_resolutions: components["schemas"]["ProjectionJsonValue"];
-            projection_bindings: components["schemas"]["ProjectionJsonValue"];
-            reverse_demand_residuals: components["schemas"]["ProjectionJsonValue"];
-            route_evidence: components["schemas"]["ProjectionJsonValue"];
+            /** Catalog Identity */
+            catalog_identity: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Family Scorecards */
+            family_scorecards: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Fetch Plan Generation */
+            fetch_plan_generation: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Growth Backlog */
+            growth_backlog: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Metric Resolutions */
+            metric_resolutions: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Projection Bindings */
+            projection_bindings: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Reverse Demand Residuals */
+            reverse_demand_residuals: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Route Evidence */
+            route_evidence: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
         };
         /**
          * N13ALiveProbeJournalPayload
          * @description N13a live-probe journal dependency projection.
          */
         N13ALiveProbeJournalPayload: {
-            family_receipts: components["schemas"]["ProjectionJsonValue"];
-            records: components["schemas"]["ProjectionJsonValue"];
-            selection_plan: components["schemas"]["ProjectionJsonValue"];
+            /** Family Receipts */
+            family_receipts: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Records */
+            records: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
+            /** Selection Plan */
+            selection_plan: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
         };
         /**
          * NaturalLanguageRunRequest
@@ -7952,9 +8117,17 @@ export interface components {
             authoritative_for: string[];
             /** Expected Source Path */
             expected_source_path: string;
+            /** Expected Source Rule Version */
+            expected_source_rule_version: string | null;
+            /** Expected Source Schema Version */
+            expected_source_schema_version: string | null;
             intended_audience: components["schemas"]["AudienceClass"];
             /** May Not Use For */
             may_not_use_for: string[];
+            /** Owner Validator Id */
+            owner_validator_id: string;
+            /** Owner Validator Version */
+            owner_validator_version: string;
             projection_id: components["schemas"]["ProjectionId"];
             /**
              * Source Policy
@@ -8012,21 +8185,25 @@ export interface components {
         } | null;
         /**
          * ProjectionOwnerBinding
-         * @description Name an owner-recorded binding to a different governed artifact.
+         * @description Resolve an owner-declared semantic hash without calling it byte identity.
          */
         ProjectionOwnerBinding: {
-            /** Artifact Content Hash */
-            artifact_content_hash: string;
             /** Binding Name */
             binding_name: string;
+            /** Owner Semantic Hash */
+            owner_semantic_hash: string;
             /**
              * Relation
-             * @default related_artifact
+             * @default semantic_projection
              * @constant
              */
-            relation: "related_artifact";
+            relation: "semantic_projection";
             /** Relative Path */
             relative_path: string;
+            /** Resolved Artifact Content Hash */
+            resolved_artifact_content_hash: string;
+            /** Semantic Hash Rule Version */
+            semantic_hash_rule_version: string;
         };
         /**
          * ProjectionSourceIdentity
@@ -8044,6 +8221,29 @@ export interface components {
             related_artifact_bindings: components["schemas"]["ProjectionOwnerBinding"][];
             /** Relative Path */
             relative_path: string;
+            validation: components["schemas"]["ProjectionSourceValidation"];
+        };
+        /**
+         * ProjectionSourceValidation
+         * @description Bind an owner-validator result to the exact source identity projected.
+         */
+        ProjectionSourceValidation: {
+            /** Bound Artifact Content Hash */
+            bound_artifact_content_hash: string;
+            /**
+             * Issue Codes
+             * @default []
+             */
+            issue_codes: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "passed" | "failed";
+            /** Validator Id */
+            validator_id: string;
+            /** Validator Version */
+            validator_version: string;
         };
         /**
          * PromotionCandidate
@@ -8143,24 +8343,64 @@ export interface components {
          * @description Narrow fixture expectation projection without producer metadata.
          */
         ProvingGroundFixtureRecord: {
-            case_id: components["schemas"]["ProjectionJsonValue"];
-            claim_evidence_annotations: components["schemas"]["ProjectionJsonValue"];
-            compilation_intent_text: components["schemas"]["ProjectionJsonValue"];
-            concept_spine_refs: components["schemas"]["ProjectionJsonValue"];
-            domain: components["schemas"]["ProjectionJsonValue"];
-            expected_adapter_bindings: components["schemas"]["ProjectionJsonValue"];
-            expected_claim_families: components["schemas"]["ProjectionJsonValue"];
-            expected_closeout_states: components["schemas"]["ProjectionJsonValue"];
-            expected_facets: components["schemas"]["ProjectionJsonValue"];
-            expected_obligation_graph: components["schemas"]["ProjectionJsonValue"];
-            expected_projection_truthfulness: components["schemas"]["ProjectionJsonValue"];
-            expected_requirement_specs: components["schemas"]["ProjectionJsonValue"];
-            expert_adjudication: components["schemas"]["ProjectionJsonValue"];
-            input_intent_ref: components["schemas"]["ProjectionJsonValue"];
-            intent: components["schemas"]["ProjectionJsonValue"];
-            schema_version: components["schemas"]["ProjectionJsonValue"];
-            split: components["schemas"]["ProjectionJsonValue"];
-            title: components["schemas"]["ProjectionJsonValue"];
+            /** Case Id */
+            case_id: string;
+            /** Claim Evidence Annotations */
+            claim_evidence_annotations: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Compilation Intent Text */
+            compilation_intent_text: string;
+            /** Concept Spine Refs */
+            concept_spine_refs: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Domain */
+            domain: string;
+            /** Expected Adapter Bindings */
+            expected_adapter_bindings: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Expected Claim Families */
+            expected_claim_families: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Expected Closeout States */
+            expected_closeout_states: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Expected Facets */
+            expected_facets: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Expected Obligation Graph */
+            expected_obligation_graph: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Expected Projection Truthfulness */
+            expected_projection_truthfulness: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Expected Requirement Specs */
+            expected_requirement_specs: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Expert Adjudication */
+            expert_adjudication: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Input Intent Ref */
+            input_intent_ref: string;
+            /** Intent */
+            intent: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Schema Version */
+            schema_version: string;
+            /** Split */
+            split: string;
+            /** Title */
+            title: string;
         };
         /**
          * ProvingGroundRuntimeOutcomes
@@ -10017,7 +10257,10 @@ export interface components {
          * @description Value-gate dependency projection.
          */
         ValueGatePayload: {
-            acquisition_routing: components["schemas"]["ProjectionJsonValue"];
+            /** Acquisition Routing */
+            acquisition_routing: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
             /** Advisor Receipts */
             advisor_receipts: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
@@ -10026,7 +10269,10 @@ export interface components {
             denominators: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
-            disposition: components["schemas"]["ProjectionJsonValue"];
+            /** Disposition */
+            disposition: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
             /** Education Refusal */
             education_refusal: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
@@ -10040,7 +10286,9 @@ export interface components {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
             /** Value Outer Set Contract */
-            value_outer_set_contract: components["schemas"]["ProjectionJsonValue"][];
+            value_outer_set_contract: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            }[];
         };
         /**
          * VerificationMetadata
@@ -14977,6 +15225,7 @@ export interface operations {
             query?: {
                 artifact_content_hash?: string | null;
                 projection_hash?: string | null;
+                source_as_of?: string | null;
             };
             header?: never;
             path: {

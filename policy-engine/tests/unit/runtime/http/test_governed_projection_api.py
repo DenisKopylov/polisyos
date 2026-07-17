@@ -24,21 +24,45 @@ def test_governed_projection_catalog_is_typed_and_complete(runtime_api_env) -> N
     }
     assert all(entry["intended_audience"] for entry in payload["projections"])
     assert all(entry["stable_address"] for entry in payload["projections"])
+    assert all(entry["owner_validator_id"] for entry in payload["projections"])
+    assert all(entry["owner_validator_version"] for entry in payload["projections"])
 
 
 def test_governed_projection_endpoint_uses_runtime_api_env(runtime_api_env) -> None:
-    response = runtime_api_env["client"].get(
-        "/api/v1/exports/governed-projections/depth-n-cycle-board"
-    )
+    response = runtime_api_env["client"].get("/api/v1/exports/governed-projections/engine-census")
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["projection_id"] == "depth-n-cycle-board"
+    assert payload["projection_id"] == "engine-census"
     assert payload["availability"] == "available"
     assert payload["source"]["artifact_content_hash"].startswith("sha256:")
+    assert payload["source"]["validation"]["status"] == "passed"
     assert payload["projection_hash"].startswith("sha256:")
     assert payload["as_of"]
     assert payload["freshness"]["observed_at"]
+
+
+def test_governed_projection_endpoint_enforces_replay_time_pin(
+    runtime_api_env,
+) -> None:
+    client = runtime_api_env["client"]
+    path = "/api/v1/exports/governed-projections/engine-census"
+    current = client.get(path).json()
+
+    replay = client.get(current["replay_address"])
+    stale = client.get(
+        path,
+        params={
+            "artifact_content_hash": current["source"]["artifact_content_hash"],
+            "projection_hash": current["projection_hash"],
+            "source_as_of": "2000-01-01T00:00:00Z",
+        },
+    )
+
+    assert replay.status_code == 200
+    assert stale.status_code == 409
+    assert stale.json()["code"] == "governed_projection_replay_pin_mismatch"
+    assert stale.json()["field"] == "source_as_of"
 
 
 def test_governed_projection_endpoint_preserves_existing_auth_defaults(
@@ -100,6 +124,8 @@ def test_channel_registry_covers_every_active_hidden_runtime_channel(
     assert hidden_http_paths | websocket_paths == registered_paths
     assert all(entry["auth_class"] for entry in entries)
     assert all(entry["consumers"] for entry in entries)
+    assert all(entry["producer_contract_ref"] for entry in entries)
+    assert {entry["capability_state"] for entry in entries} == {"verification_missing"}
 
 
 def test_channel_registry_rejects_unknown_channel_fields() -> None:
@@ -110,6 +136,7 @@ def test_channel_registry_rejects_unknown_channel_fields() -> None:
                 "path_template": "/api/v1/unexpected/live",
                 "transport": "sse",
                 "message_contract": "unexpected.v1",
+                "producer_contract_ref": "test:UnexpectedContract",
                 "auth_class": "runtime_tenant",
                 "consumers": ["test"],
                 "owner": "runtime-http",

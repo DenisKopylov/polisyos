@@ -285,6 +285,149 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "service": "runtime_api_v1",
         "ts": _TS_SAMPLE,
     },
+    "list_governed_projections": {
+        "schema_version": "policyos.runtime.governed_projection_catalog.v1",
+        "projections": [
+            {
+                "projection_id": "engine-census",
+                "expected_source_path": (
+                    "architecture/policy_design_case/layer3_gy_task0_audit/"
+                    "layer3_gy_engine_census.json"
+                ),
+                "source_policy": "required",
+                "intended_audience": "EXPERT",
+                "authoritative_for": ["engine_census_summary", "critical_findings"],
+                "may_not_use_for": [
+                    "public_claim",
+                    "publication_authority",
+                    "audience_authorization",
+                    "row_level_engine_export",
+                ],
+                "expected_source_schema_version": (
+                    "policyos.policy_design_case.layer3_gy_engine_census.v1"
+                ),
+                "expected_source_rule_version": ("policyos.layer3.gy.engine_reality_census.v1"),
+                "owner_validator_id": (
+                    "tools.quality.validation.check_layer3_gy_engine_census:validate"
+                ),
+                "owner_validator_version": (
+                    "policyos.policy_design_case.layer3_gy_engine_census.v1"
+                ),
+                "stable_address": "/api/v1/exports/governed-projections/engine-census",
+            }
+        ],
+    },
+    "get_governed_projection": {
+        "packet_schema_version": "policyos.runtime.governed_projection_packet.v1",
+        "export_replay_contract": "policyos.runtime.export_replay_binding.v1",
+        "projection_id": "engine-census",
+        "projection_rule_version": "policyos.runtime.governed_projection.v1",
+        "intended_audience": "EXPERT",
+        "authoritative_for": ["engine_census_summary", "critical_findings"],
+        "may_not_use_for": [
+            "public_claim",
+            "publication_authority",
+            "audience_authorization",
+            "row_level_engine_export",
+        ],
+        "source_schema_version": ("policyos.policy_design_case.layer3_gy_engine_census.v1"),
+        "source_rule_version": "policyos.layer3.gy.engine_reality_census.v1",
+        "as_of": _TS_SAMPLE,
+        "freshness": {
+            "state": "observed",
+            "basis": "filesystem_mtime",
+            "observed_at": _TS_SAMPLE,
+            "source_as_of": _TS_SAMPLE,
+        },
+        "stable_address": "/api/v1/exports/governed-projections/engine-census",
+        "availability": "available",
+        "source": {
+            "relative_path": (
+                "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json"
+            ),
+            "artifact_content_hash": _SHA_DATA,
+            "declared_content_hash": None,
+            "validation": {
+                "validator_id": ("tools.quality.validation.check_layer3_gy_engine_census:validate"),
+                "validator_version": ("policyos.policy_design_case.layer3_gy_engine_census.v1"),
+                "status": "passed",
+                "bound_artifact_content_hash": _SHA_DATA,
+                "issue_codes": [],
+            },
+            "related_artifact_bindings": [],
+        },
+        "projection_hash": _SHA_PLAN,
+        "replay_address": (
+            "/api/v1/exports/governed-projections/engine-census?"
+            f"artifact_content_hash={_SHA_DATA}&projection_hash={_SHA_PLAN}&"
+            f"source_as_of={_TS_SAMPLE}"
+        ),
+        "payload": {
+            "row_count": 1,
+            "execution_status_vocabulary": {"implemented": 1},
+            "critical_findings": [],
+            "subcensus_summary": {},
+            "gap_taxonomy_extensions": {},
+            "verb_gap_consistency": {},
+            "evidence_reproducibility": {},
+            "discipline": "owner_validated",
+            "scope": "engine_census_summary",
+        },
+        "absence_reason": None,
+    },
+    "get_runtime_channel_registry": {
+        "schema_version": "policyos.runtime.channel_registry.v1",
+        "channels": [
+            {
+                "registry_id": "runs-list-live",
+                "path_template": "/api/v1/runs/live",
+                "transport": "sse",
+                "channels": [],
+                "message_contract": "policyos.runtime.runs_list_snapshot.v1",
+                "producer_contract_ref": (
+                    "polisyos.runtime.http.services.channel_contracts:RunsListSnapshot"
+                ),
+                "auth_class": "runtime_tenant_access+stream_rate_limit",
+                "consumers": ["apps/runtime-dashboard:RunsLiveProvider"],
+                "owner": "polisyos.runtime.http.routes.runs",
+                "capability_state": "verification_missing",
+                "include_in_schema": False,
+                "status": "active",
+            },
+            {
+                "registry_id": "run-detail-live",
+                "path_template": "/api/v1/runs/{run_id}/live",
+                "transport": "sse",
+                "channels": [],
+                "message_contract": "policyos.runtime.run_detail_snapshot.v1",
+                "producer_contract_ref": (
+                    "polisyos.runtime.http.services.channel_contracts:RunDetailSnapshot"
+                ),
+                "auth_class": "runtime_run_tenant_access+stream_rate_limit",
+                "consumers": ["apps/runtime-dashboard:useRunLiveUpdates"],
+                "owner": "polisyos.runtime.http.routes.runs",
+                "capability_state": "verification_missing",
+                "include_in_schema": False,
+                "status": "active",
+            },
+            {
+                "registry_id": "review-live",
+                "path_template": "/api/v1/review/live",
+                "transport": "websocket",
+                "channels": ["review.cursor", "review.lock", "review.presence"],
+                "message_contract": ("policyos.runtime.review_collaboration_envelope.v1"),
+                "producer_contract_ref": (
+                    "polisyos.runtime.http.services.channel_contracts:ReviewSnapshot"
+                ),
+                "auth_class": ("runtime_review_socket_auth+tenant_opa_action+stream_rate_limit"),
+                "consumers": ["apps/runtime-dashboard:useReviewCollaborationSurface"],
+                "owner": "polisyos.runtime.http.routes.review",
+                "capability_state": "verification_missing",
+                "include_in_schema": False,
+                "status": "active",
+            },
+        ],
+    },
     "get_auth_me": {
         "meta": _META_NO_SOURCE,
         "user_id": "fixture-analyst",
@@ -1242,9 +1385,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                         "openlineage": "/api/v1/lineage/artifact:"
                         + _ARTIFACT_ID_SAMPLE
                         + "/export/openlineage",
-                        "prov": "/api/v1/lineage/artifact:"
-                        + _ARTIFACT_ID_SAMPLE
-                        + "/export/prov",
+                        "prov": "/api/v1/lineage/artifact:" + _ARTIFACT_ID_SAMPLE + "/export/prov",
                     },
                     "reason_code": None,
                     "owner": None,
@@ -2712,7 +2853,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "format": "html",
         "content_type": "text/html; charset=utf-8",
         "filename": "doc_fixture_001.html",
-        "content": "<article data-policyos-document=\"doc_fixture_001\"></article>",
+        "content": '<article data-policyos-document="doc_fixture_001"></article>',
         "metadata": {
             "watermark": _BUREAUCRATIC_DOCUMENT_SAMPLE["watermark"],
             "template_version": "ua.kmu.postanova.v1",

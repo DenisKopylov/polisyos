@@ -10,6 +10,16 @@ from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from polisyos.common.logger import get_logger
+from polisyos.runtime.http.services.channel_contracts import (
+    ReviewCursorParticipant,
+    ReviewCursorSnapshot,
+    ReviewLock,
+    ReviewLockSnapshot,
+    ReviewPresenceParticipant,
+    ReviewPresenceSnapshot,
+    ReviewSnapshot,
+    validate_review_snapshot,
+)
 
 logger = get_logger(__name__)
 
@@ -32,10 +42,6 @@ _COLLABORATION_COLORS = (
 
 def _utcnow() -> datetime:
     return datetime.now(UTC)
-
-
-def _isoformat(value: datetime) -> str:
-    return value.isoformat().replace("+00:00", "Z")
 
 
 def _resolve_color(participant_id: str) -> str:
@@ -90,7 +96,7 @@ class OutboundReviewMessage:
     """Outbound review message public type."""
 
     channel: ReviewChannel
-    payload: dict[str, Any]
+    payload: ReviewSnapshot
     recipients: list[OutboundReviewRecipient]
     review_id: str
 
@@ -351,10 +357,12 @@ class ReviewCollaborationHub:
             message = pending.pop(0)
             if not message.recipients:
                 continue
+            payload = validate_review_snapshot(message.payload)
+            serialized_payload = payload.model_dump(mode="json")
             failed_session_ids: list[str] = []
             for recipient in list(message.recipients):
                 try:
-                    await recipient.websocket.send_json(message.payload)
+                    await recipient.websocket.send_json(serialized_payload)
                 except (AttributeError, RuntimeError, ValueError) as exc:
                     logger.debug("Failed to send review message: %s", exc)
                     failed_session_ids.append(recipient.session_id)
@@ -432,75 +440,53 @@ class ReviewCollaborationHub:
             for session_id, websocket in self._subscribers.get((channel, review_id), {}).items()
         ]
 
-    def _build_presence_snapshot_locked(self, review_id: str) -> dict[str, Any]:
-        grouped: dict[str, dict[str, Any]] = {}
+    def _build_presence_snapshot_locked(self, review_id: str) -> ReviewPresenceSnapshot:
+        grouped: dict[str, list[ReviewCollaborationSession]] = defaultdict(list)
         for session in self._presence_sessions.get(review_id, {}).values():
-            current = grouped.get(session.participant_id)
-            last_seen_at = _isoformat(session.last_seen_at)
-            if current is None:
-                grouped[session.participant_id] = {
-                    "participant_id": session.participant_id,
-                    "display_name": session.display_name,
-                    "accent_color": session.accent_color,
-                    "last_seen_at": last_seen_at,
-                    "session_count": 1,
-                }
-                continue
+            grouped[session.participant_id].append(session)
 
-            current["session_count"] += 1
-            if last_seen_at > current["last_seen_at"]:
-                current["last_seen_at"] = last_seen_at
+        participants = [
+            ReviewPresenceParticipant(
+                participant_id=participant_id,
+                display_name=sessions[0].display_name,
+                accent_color=sessions[0].accent_color,
+                last_seen_at=max(session.last_seen_at for session in sessions),
+                session_count=len(sessions),
+            )
+            for participant_id, sessions in grouped.items()
+        ]
+        participants.sort(key=lambda item: (item.display_name.lower(), item.participant_id))
+        return ReviewPresenceSnapshot(participants=participants, review_id=review_id)
 
-        participants = sorted(
-            grouped.values(),
-            key=lambda item: (item["display_name"].lower(), item["participant_id"]),
-        )
-        return {
-            "channel": "review.presence",
-            "participants": participants,
-            "review_id": review_id,
-            "type": "presence.snapshot",
-        }
-
-    def _build_cursor_snapshot_locked(self, review_id: str) -> dict[str, Any]:
+    def _build_cursor_snapshot_locked(self, review_id: str) -> ReviewCursorSnapshot:
         cursors = [
-            {
-                "participant_id": cursor.participant_id,
-                "display_name": cursor.display_name,
-                "accent_color": cursor.accent_color,
-                "x": cursor.x,
-                "y": cursor.y,
-                "updated_at": _isoformat(cursor.updated_at),
-            }
+            ReviewCursorParticipant(
+                participant_id=cursor.participant_id,
+                display_name=cursor.display_name,
+                accent_color=cursor.accent_color,
+                x=cursor.x,
+                y=cursor.y,
+                updated_at=cursor.updated_at,
+            )
             for cursor in self._cursor_states.get(review_id, {}).values()
             if not cursor.hidden
         ]
-        cursors.sort(key=lambda item: (str(item["display_name"]).lower(), item["participant_id"]))
-        return {
-            "channel": "review.cursor",
-            "cursors": cursors,
-            "review_id": review_id,
-            "type": "cursor.snapshot",
-        }
+        cursors.sort(key=lambda item: (item.display_name.lower(), item.participant_id))
+        return ReviewCursorSnapshot(cursors=cursors, review_id=review_id)
 
-    def _build_lock_snapshot_locked(self, review_id: str) -> dict[str, Any]:
+    def _build_lock_snapshot_locked(self, review_id: str) -> ReviewLockSnapshot:
         self._clear_expired_lock_locked(review_id)
         current = self._locks.get(review_id)
         lock_payload = None
         if current is not None:
-            lock_payload = {
-                "participant_id": current.participant_id,
-                "display_name": current.display_name,
-                "accent_color": current.accent_color,
-                "acquired_at": _isoformat(current.acquired_at),
-                "expires_at": _isoformat(current.expires_at),
-            }
-        return {
-            "channel": "review.lock",
-            "lock": lock_payload,
-            "review_id": review_id,
-            "type": "lock.snapshot",
-        }
+            lock_payload = ReviewLock(
+                participant_id=current.participant_id,
+                display_name=current.display_name,
+                accent_color=current.accent_color,
+                acquired_at=current.acquired_at,
+                expires_at=current.expires_at,
+            )
+        return ReviewLockSnapshot(lock=lock_payload, review_id=review_id)
 
     async def _prune_failed_recipients(
         self,

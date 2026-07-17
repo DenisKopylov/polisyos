@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import asyncio
-from datetime import datetime
+from datetime import UTC, datetime
+
+import pytest
+from pydantic import ValidationError
 
 from polisyos.runtime.http.services.review_collaboration import ReviewCollaborationHub
 
@@ -20,6 +23,43 @@ class _FakeWebSocket:
     async def close(self, code: int, reason: str) -> None:
         del code, reason
         self.closed = True
+
+
+def test_dispatch_rejects_marker_complete_malformed_review_snapshot() -> None:
+    async def _run() -> None:
+        hub = ReviewCollaborationHub()
+        review_id = "run:R_core_api_001:governance"
+        websocket = _FakeWebSocket()
+        session = hub.build_session(
+            channel="review.presence",
+            display_name="Alice",
+            participant_id="alice",
+            review_id=review_id,
+            run_id="R_core_api_001",
+        )
+        messages = await hub.register(websocket, session)
+        messages[0].payload = {
+            "contract_id": "policyos.runtime.review_collaboration_envelope",
+            "schema_version": "policyos.runtime.review_collaboration_envelope.v1",
+            "channel": "review.presence",
+            "participants": [
+                {
+                    "participant_id": "alice",
+                    "display_name": "Alice",
+                    "accent_color": "#1d8f85",
+                    "last_seen_at": datetime.now(UTC),
+                    "session_count": "present-but-not-an-integer",
+                }
+            ],
+            "review_id": review_id,
+            "type": "presence.snapshot",
+        }
+
+        with pytest.raises(ValidationError):
+            await hub.dispatch(messages)
+        assert websocket.sent == []
+
+    asyncio.run(_run())
 
 
 def test_dispatch_prunes_failed_presence_recipients_and_rebroadcasts() -> None:

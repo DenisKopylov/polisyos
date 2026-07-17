@@ -4,15 +4,24 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import subprocess
+import sys
 import tomllib
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
+from threading import Lock
 from typing import Annotated, Any, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validator
 
+from polisyos.runtime.http.services.channel_contracts import (
+    ReviewPresenceSnapshot,
+    RunDetailSnapshot,
+    RunsListSnapshot,
+)
 from polisyos.runtime.http.services.export_replay import (
     EXPORT_REPLAY_CONTRACT,
     build_export_replay_address,
@@ -61,12 +70,24 @@ class _StrictModel(BaseModel):
 
 
 class ProjectionOwnerBinding(_StrictModel):
-    """Name an owner-recorded binding to a different governed artifact."""
+    """Resolve an owner-declared semantic hash without calling it byte identity."""
 
     binding_name: str
-    relation: Literal["related_artifact"] = "related_artifact"
+    relation: Literal["semantic_projection"] = "semantic_projection"
     relative_path: str
-    artifact_content_hash: str
+    owner_semantic_hash: str
+    semantic_hash_rule_version: str
+    resolved_artifact_content_hash: str
+
+
+class ProjectionSourceValidation(_StrictModel):
+    """Bind an owner-validator result to the exact source identity projected."""
+
+    validator_id: str
+    validator_version: str
+    status: Literal["passed", "failed"]
+    bound_artifact_content_hash: str
+    issue_codes: tuple[str, ...] = ()
 
 
 class ProjectionSourceIdentity(_StrictModel):
@@ -75,6 +96,7 @@ class ProjectionSourceIdentity(_StrictModel):
     relative_path: str
     artifact_content_hash: str
     declared_content_hash: str | None = None
+    validation: ProjectionSourceValidation
     related_artifact_bindings: tuple[ProjectionOwnerBinding, ...] = ()
 
 
@@ -96,6 +118,10 @@ class ProjectionCatalogEntry(_StrictModel):
     intended_audience: AudienceClass
     authoritative_for: tuple[str, ...]
     may_not_use_for: tuple[str, ...]
+    expected_source_schema_version: str | None
+    expected_source_rule_version: str | None
+    owner_validator_id: str
+    owner_validator_version: str
     stable_address: str
 
 
@@ -116,19 +142,20 @@ type ProjectionJsonValue = Annotated[
 ]
 
 JsonObject = dict[str, ProjectionJsonValue]
+JsonObjectTuple = tuple[JsonObject, ...]
 
 
 class DepthNDomainRunProjection(_StrictModel):
     """Narrow recorded fields for one depth-N domain run."""
 
-    generation_cycle_run_id: ProjectionJsonValue
-    design_problem_ref: ProjectionJsonValue
-    domain_role: ProjectionJsonValue
+    generation_cycle_run_id: str
+    design_problem_ref: str
+    domain_role: str
     terminal_distribution: JsonObject
     evidence_class: str
     evidence_witness: JsonObject
-    weakest_links: tuple[ProjectionJsonValue, ...]
-    acquisition_route: ProjectionJsonValue
+    weakest_links: tuple[str, ...]
+    acquisition_route: JsonObject
 
 
 class DepthNCycleBoardPayload(_StrictModel):
@@ -146,22 +173,22 @@ class ValueGatePayload(_StrictModel):
     education_refusal: JsonObject
     production_refusal: JsonObject
     advisor_receipts: JsonObject
-    value_outer_set_contract: tuple[ProjectionJsonValue, ...]
+    value_outer_set_contract: JsonObjectTuple
     mode_gates: JsonObject
-    acquisition_routing: ProjectionJsonValue
-    disposition: ProjectionJsonValue
+    acquisition_routing: JsonObject
+    disposition: JsonObject
 
 
 class GenerationCycleDispositionPayload(_StrictModel):
     """Generation-cycle task and owner disposition projection."""
 
-    tasks: ProjectionJsonValue
-    owners: ProjectionJsonValue
-    task_owner_mapping: ProjectionJsonValue
-    bridge_artifacts: ProjectionJsonValue
-    method_availability_gate: ProjectionJsonValue
-    known_residuals: ProjectionJsonValue
-    parallel_world_reconciliation: ProjectionJsonValue
+    tasks: JsonObject
+    owners: JsonObjectTuple
+    task_owner_mapping: JsonObject
+    bridge_artifacts: JsonObject
+    method_availability_gate: JsonObject
+    known_residuals: JsonObjectTuple
+    parallel_world_reconciliation: JsonObjectTuple
 
 
 class EngineCensusPayload(_StrictModel):
@@ -169,98 +196,98 @@ class EngineCensusPayload(_StrictModel):
 
     row_count: int
     execution_status_vocabulary: JsonObject
-    critical_findings: ProjectionJsonValue
-    subcensus_summary: ProjectionJsonValue
-    gap_taxonomy_extensions: ProjectionJsonValue
-    verb_gap_consistency: ProjectionJsonValue
-    evidence_reproducibility: ProjectionJsonValue
-    discipline: ProjectionJsonValue
-    scope: ProjectionJsonValue
+    critical_findings: tuple[str, ...]
+    subcensus_summary: JsonObject
+    gap_taxonomy_extensions: JsonObject
+    verb_gap_consistency: JsonObject
+    evidence_reproducibility: JsonObject
+    discipline: str
+    scope: str
 
 
 class ForkBRelationCensusPayload(_StrictModel):
     """Fork-B relation census projection without relation rows."""
 
-    relation_counts: ProjectionJsonValue
-    relation_denominator_formula: ProjectionJsonValue
-    authority: ProjectionJsonValue
-    coverage_manifest: ProjectionJsonValue
-    certificate_summaries: ProjectionJsonValue
-    transport_floor: ProjectionJsonValue
-    transport_floor_rule: ProjectionJsonValue
-    known_bridge_limits: ProjectionJsonValue
-    normalization: ProjectionJsonValue
+    relation_counts: dict[str, int]
+    relation_denominator_formula: str
+    authority: str
+    coverage_manifest: JsonObject
+    certificate_summaries: JsonObject
+    transport_floor: float
+    transport_floor_rule: str
+    known_bridge_limits: tuple[str, ...]
+    normalization: str
 
 
 class AcquisitionRoutingPayload(_StrictModel):
     """Acquisition routing contract projection."""
 
-    denominators: ProjectionJsonValue
+    denominators: JsonObject
     positive_receipt: JsonObject
-    no_result_receipt: ProjectionJsonValue
-    fail_closed_receipt: ProjectionJsonValue
-    fail_closed_probes: ProjectionJsonValue
-    grounding_acquisition_request: ProjectionJsonValue
-    recorded_rederive_inputs: ProjectionJsonValue
-    compute_economics: ProjectionJsonValue
-    known_residuals: ProjectionJsonValue
+    no_result_receipt: JsonObject
+    fail_closed_receipt: JsonObject
+    fail_closed_probes: JsonObjectTuple
+    grounding_acquisition_request: JsonObject
+    recorded_rederive_inputs: JsonObject
+    compute_economics: JsonObject
+    known_residuals: JsonObjectTuple
 
 
 class N13AAcquisitionCensusPayload(_StrictModel):
     """N13a census dependency projection."""
 
-    catalog_identity: ProjectionJsonValue
-    projection_bindings: ProjectionJsonValue
-    family_scorecards: ProjectionJsonValue
-    metric_resolutions: ProjectionJsonValue
-    route_evidence: ProjectionJsonValue
-    growth_backlog: ProjectionJsonValue
-    fetch_plan_generation: ProjectionJsonValue
-    reverse_demand_residuals: ProjectionJsonValue
+    catalog_identity: JsonObject
+    projection_bindings: JsonObjectTuple
+    family_scorecards: JsonObjectTuple
+    metric_resolutions: JsonObjectTuple
+    route_evidence: JsonObjectTuple
+    growth_backlog: JsonObjectTuple
+    fetch_plan_generation: JsonObject
+    reverse_demand_residuals: JsonObjectTuple
 
 
 class N13ALiveProbeJournalPayload(_StrictModel):
     """N13a live-probe journal dependency projection."""
 
-    selection_plan: ProjectionJsonValue
-    family_receipts: ProjectionJsonValue
-    records: ProjectionJsonValue
+    selection_plan: JsonObject
+    family_receipts: JsonObjectTuple
+    records: JsonObjectTuple
 
 
 class CapabilityRealityPayload(_StrictModel):
     """Owner-reported capability reality projection."""
 
-    summary: ProjectionJsonValue
-    readiness: ProjectionJsonValue
-    capability_claims: ProjectionJsonValue
-    blockers: ProjectionJsonValue
-    issues: ProjectionJsonValue
-    chain_clusters: ProjectionJsonValue
-    ratchet_integrity_status: ProjectionJsonValue
-    debt_algebra: ProjectionJsonValue
+    summary: JsonObject
+    readiness: JsonObject
+    capability_claims: JsonObjectTuple
+    blockers: JsonObjectTuple
+    issues: JsonObjectTuple
+    chain_clusters: JsonObjectTuple
+    ratchet_integrity_status: str
+    debt_algebra: JsonObject
 
 
 class ClusterOwnershipPayload(_StrictModel):
     """Cluster/cell ownership projection."""
 
-    status: ProjectionJsonValue
-    owner: ProjectionJsonValue
-    purpose: ProjectionJsonValue
-    ratchet_state_vocabulary: ProjectionJsonValue
-    required_clusters: ProjectionJsonValue
-    required_cell_fields: ProjectionJsonValue
-    capability_chain_steps: ProjectionJsonValue
-    stop_rule: ProjectionJsonValue
-    open_cell_closure: ProjectionJsonValue
-    handshake_graph: ProjectionJsonValue
-    architecture_core: ProjectionJsonValue
+    status: str
+    owner: str
+    purpose: str
+    ratchet_state_vocabulary: tuple[str, ...]
+    required_clusters: tuple[str, ...]
+    required_cell_fields: tuple[str, ...]
+    capability_chain_steps: tuple[str, ...]
+    stop_rule: JsonObject
+    open_cell_closure: JsonObject
+    handshake_graph: JsonObject
+    architecture_core: JsonObject
     clusters: JsonObject
 
 
 class Layer3HealthMetricsPayload(_StrictModel):
     """Recorded health metric ledger projection."""
 
-    health_metric_ledgers: tuple[ProjectionJsonValue, ...]
+    health_metric_ledgers: JsonObjectTuple
 
 
 class ProvingGroundFixtureIdentity(_StrictModel):
@@ -275,24 +302,24 @@ class ProvingGroundFixtureIdentity(_StrictModel):
 class ProvingGroundFixtureRecord(_StrictModel):
     """Narrow fixture expectation projection without producer metadata."""
 
-    case_id: ProjectionJsonValue
-    title: ProjectionJsonValue
-    domain: ProjectionJsonValue
-    split: ProjectionJsonValue
-    schema_version: ProjectionJsonValue
-    intent: ProjectionJsonValue
-    input_intent_ref: ProjectionJsonValue
-    compilation_intent_text: ProjectionJsonValue
-    concept_spine_refs: ProjectionJsonValue
-    expected_adapter_bindings: ProjectionJsonValue
-    expected_claim_families: ProjectionJsonValue
-    expected_closeout_states: ProjectionJsonValue
-    expected_facets: ProjectionJsonValue
-    expected_obligation_graph: ProjectionJsonValue
-    expected_projection_truthfulness: ProjectionJsonValue
-    expected_requirement_specs: ProjectionJsonValue
-    expert_adjudication: ProjectionJsonValue
-    claim_evidence_annotations: ProjectionJsonValue
+    case_id: str
+    title: str
+    domain: str
+    split: str
+    schema_version: str
+    intent: JsonObject
+    input_intent_ref: str
+    compilation_intent_text: str
+    concept_spine_refs: JsonObject
+    expected_adapter_bindings: JsonObject
+    expected_claim_families: JsonObject
+    expected_closeout_states: JsonObject
+    expected_facets: JsonObject
+    expected_obligation_graph: JsonObject
+    expected_projection_truthfulness: JsonObject
+    expected_requirement_specs: JsonObject
+    expert_adjudication: JsonObject
+    claim_evidence_annotations: JsonObject
 
 
 class ProvingGroundRuntimeOutcomes(_StrictModel):
@@ -427,9 +454,11 @@ class ChannelRegistryEntry(_StrictModel):
     transport: Literal["sse", "websocket"]
     channels: tuple[str, ...] = ()
     message_contract: str
+    producer_contract_ref: str
     auth_class: str
     consumers: tuple[str, ...] = Field(min_length=1)
     owner: str
+    capability_state: Literal["verification_missing"] = "verification_missing"
     include_in_schema: Literal[False] = False
     status: Literal["active"] = "active"
 
@@ -448,7 +477,8 @@ CHANNEL_REGISTRY: tuple[ChannelRegistryEntry, ...] = (
         registry_id="runs-list-live",
         path_template="/api/v1/runs/live",
         transport="sse",
-        message_contract="policyos.runtime.runs_list_snapshot.v1",
+        message_contract=str(RunsListSnapshot.model_fields["schema_version"].default),
+        producer_contract_ref=("polisyos.runtime.http.services.channel_contracts:RunsListSnapshot"),
         auth_class="runtime_tenant_access+stream_rate_limit",
         consumers=("apps/runtime-dashboard:RunsLiveProvider",),
         owner="polisyos.runtime.http.routes.runs",
@@ -457,7 +487,10 @@ CHANNEL_REGISTRY: tuple[ChannelRegistryEntry, ...] = (
         registry_id="run-detail-live",
         path_template="/api/v1/runs/{run_id}/live",
         transport="sse",
-        message_contract="policyos.runtime.run_detail_snapshot.v1",
+        message_contract=str(RunDetailSnapshot.model_fields["schema_version"].default),
+        producer_contract_ref=(
+            "polisyos.runtime.http.services.channel_contracts:RunDetailSnapshot"
+        ),
         auth_class="runtime_run_tenant_access+stream_rate_limit",
         consumers=("apps/runtime-dashboard:useRunLiveUpdates",),
         owner="polisyos.runtime.http.routes.runs",
@@ -467,7 +500,8 @@ CHANNEL_REGISTRY: tuple[ChannelRegistryEntry, ...] = (
         path_template="/api/v1/review/live",
         transport="websocket",
         channels=("review.cursor", "review.lock", "review.presence"),
-        message_contract="policyos.runtime.review_collaboration_envelope.v1",
+        message_contract=str(ReviewPresenceSnapshot.model_fields["schema_version"].default),
+        producer_contract_ref=("polisyos.runtime.http.services.channel_contracts:ReviewSnapshot"),
         auth_class="runtime_review_socket_auth+tenant_opa_action+stream_rate_limit",
         consumers=("apps/runtime-dashboard:useReviewCollaborationSurface",),
         owner="polisyos.runtime.http.routes.review",
@@ -498,6 +532,10 @@ class _ProjectionDefinition:
     intended_audience: AudienceClass
     authoritative_for: tuple[str, ...]
     may_not_use_for: tuple[str, ...]
+    expected_source_schema_version: str | None
+    expected_source_rule_version: str | None
+    owner_validator_id: str
+    owner_validator_version: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -516,6 +554,20 @@ class _LoadedSource:
     parsed: dict[str, Any]
     modified_at: datetime
     declared_content_hash: str | None
+    component_bindings: tuple[tuple[str, str], ...]
+
+
+class _OwnerValidationWorkerResult(_StrictModel):
+    """Strictly decode the isolated owner-validator worker result."""
+
+    schema_version: Literal["policyos.runtime.governed_projection.owner_validation.v1"]
+    projection_id: ProjectionId
+    validator_id: str
+    validator_version: str
+    status: Literal["passed", "failed"]
+    bound_aggregate_identity: str
+    bound_source_identities: dict[str, str]
+    issue_codes: tuple[str, ...]
 
 
 class _InvalidProjectionLoadError(ValueError):
@@ -541,6 +593,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.MACHINE,
         ("cycle_board_domain_runs", "terminal_distributions", "recorded_evidence_classes"),
         (*_COMMON_NOT_PUBLIC, "recompute_generation_cycle_semantics"),
+        "policyos.policy_design_case.gy_n10.depth_n_universality.v1",
+        "policyos.layer3.gy.n10.depth_n_universality.v1",
+        "tools.quality.validation.check_layer3_gy_depth_n_universality_contract",
+        "policyos.policy_design_case.gy_n10.depth_n_universality.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.VALUE_GATE,
@@ -550,6 +606,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.MACHINE,
         ("value_denominators", "advisor_receipts", "value_outer_set_contract_proofs"),
         (*_COMMON_NOT_PUBLIC, "method_validity"),
+        "policyos.policy_design_case.layer3_gy.value_gate_contract.v2",
+        "policyos.layer3.gy.n8.value_gate.v2",
+        "tools.quality.validation.check_layer3_gy_value_gate_contract:validate_payload",
+        "policyos.policy_design_case.layer3_gy.value_gate_contract.v2",
     ),
     _ProjectionDefinition(
         ProjectionId.GENERATION_CYCLE_DISPOSITION,
@@ -559,6 +619,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.EXPERT,
         ("generation_cycle_task_disposition", "known_residuals"),
         _COMMON_NOT_PUBLIC,
+        "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1",
+        None,
+        "tools.quality.validation.check_layer3_gy_generation_cycle_disposition_ledger:validate_ledger",
+        "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.ENGINE_CENSUS,
@@ -568,6 +632,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.EXPERT,
         ("engine_census_summary", "critical_findings"),
         (*_COMMON_NOT_PUBLIC, "row_level_engine_export"),
+        "policyos.policy_design_case.layer3_gy_engine_census.v1",
+        "policyos.layer3.gy.engine_reality_census.v1",
+        "tools.quality.validation.check_layer3_gy_engine_census:validate",
+        "policyos.policy_design_case.layer3_gy_engine_census.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.FORK_B_RELATION_CENSUS,
@@ -577,6 +645,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.MACHINE,
         ("fork_b_relation_counts", "coverage_manifest", "transport_floor"),
         (*_COMMON_NOT_PUBLIC, "relation_table_export"),
+        "policyos.gy_n10.cg1_l2_prior_census.compact.v1",
+        "policyos.layer3.gy.n10.cg1_relation_extension.v1",
+        "tools.quality.validation.check_layer3_gy_n10_cg1_l2_relation_census:_validate",
+        "policyos.gy_n10.cg1_l2_prior_census.compact.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.ACQUISITION_ROUTING_CONTRACT,
@@ -586,6 +658,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.MACHINE,
         ("acquisition_receipts", "fail_closed_acquisition_behavior"),
         (*_COMMON_NOT_PUBLIC, "source_family_satisfaction"),
+        "policyos.policy_design_case.layer3_gy.acquisition_contract.v1",
+        None,
+        "tools.quality.validation.check_layer3_gy_acquisition_contract:validate_payload",
+        "policyos.policy_design_case.layer3_gy.acquisition_contract.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.N13A_ACQUISITION_CENSUS,
@@ -595,6 +671,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.MACHINE,
         ("acquisition_family_scorecards", "metric_resolution", "route_evidence"),
         (*_COMMON_NOT_PUBLIC, "closeout_pass"),
+        "policyos.policy_design_case.gy_n13a.acquisition_census.v1",
+        "policyos.layer3.gy.n13a.acquisition_census.v1",
+        "tools.quality.validation.layer3_gy_n13a_acquisition_census:CensusManifest",
+        "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.N13A_LIVE_PROBE_JOURNAL,
@@ -604,6 +684,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.EXPERT,
         ("live_probe_records", "family_receipts", "selection_plan"),
         (*_COMMON_NOT_PUBLIC, "source_success_inference"),
+        "policyos.layer3.gy.n13a.live_probe_journal.v1",
+        "policyos.layer3.gy.n13a.acquisition_census.v1",
+        "tools.quality.validation.layer3_gy_n13a_acquisition_census:LiveProbeJournal",
+        "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.CAPABILITY_REALITY,
@@ -613,6 +697,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.MACHINE,
         ("reported_capability_readiness", "reported_blockers", "ratchet_integrity"),
         (*_COMMON_NOT_PUBLIC, "recompute_capability_readiness"),
+        "policyos.runtime.policy_design_case.capability_ratchet.v1",
+        None,
+        "tools.quality.validation.check_policy_design_case_capability_ratchet:validate_capability_reality_report",
+        "policyos.runtime.policy_design_case.capability_ratchet.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.CLUSTER_OWNERSHIP,
@@ -622,6 +710,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.EXPERT,
         ("cluster_cell_ownership", "ratchet_state", "authority_firewall"),
         (*_COMMON_NOT_PUBLIC, "ownership_reassignment"),
+        "policyos.policy_design_case.cluster_ownership_map.v1",
+        None,
+        "tools.quality.validation.check_policy_design_case_cluster_ownership_map:validate_cluster_ownership_map",
+        "policyos.policy_design_case.cluster_ownership_map.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.LAYER3_HEALTH_METRICS,
@@ -631,6 +723,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.MACHINE,
         ("recorded_health_metric_freezes", "metric_update_rules"),
         (*_COMMON_NOT_PUBLIC, "metric_recomputation"),
+        "policyos.policy_design_case.layer3_g0_discovery_search.v2",
+        "policyos.layer3.g0.discovery_search_free_growth.v2",
+        "polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory:HealthMetricLedger",
+        "policyos.policy_design_case.layer3_g0_discovery_search.v2",
     ),
     _ProjectionDefinition(
         ProjectionId.LEGACY_PROVING_GROUND,
@@ -645,6 +741,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
             "runtime_outcome",
             "admissibility",
         ),
+        "policyos.universal_corpus_manifest.v1",
+        None,
+        "polisyos.corpus:load_universal_corpus_fixtures",
+        "policyos.universal_corpus_manifest.v1",
     ),
     _ProjectionDefinition(
         ProjectionId.SURFACE_READINESS,
@@ -654,6 +754,10 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         AudienceClass.MACHINE,
         ("validated_surface_readiness_entries",),
         (*_COMMON_NOT_PUBLIC, "derive_readiness_from_route_presence"),
+        None,
+        None,
+        "unregistered:surface-readiness-owner-validator",
+        "unregistered",
     ),
 )
 
@@ -675,6 +779,144 @@ _PAYLOAD_MODEL_BY_ID: dict[ProjectionId, type[_StrictModel]] = {
     ProjectionId.SURFACE_READINESS: SurfaceReadinessPayload,
 }
 
+_OWNER_VALIDATION_CACHE: dict[
+    tuple[str, ProjectionId, str, tuple[tuple[str, str], ...]],
+    ProjectionSourceValidation,
+] = {}
+_OWNER_VALIDATION_LOCK = Lock()
+
+
+def _source_schema_version(source: dict[str, Any]) -> str | None:
+    direct = _optional_string(source.get("schema_version"))
+    if direct is not None:
+        return direct
+    manifest = source.get("manifest")
+    if isinstance(manifest, dict):
+        return _optional_string(manifest.get("schema_version"))
+    return None
+
+
+def _failed_source_validation(
+    definition: _ProjectionDefinition,
+    loaded: _LoadedSource,
+    *issue_codes: str,
+) -> ProjectionSourceValidation:
+    return ProjectionSourceValidation(
+        validator_id=definition.owner_validator_id,
+        validator_version=definition.owner_validator_version,
+        status="failed",
+        bound_artifact_content_hash=loaded.content_hash,
+        issue_codes=tuple(sorted(set(issue_codes))),
+    )
+
+
+def _run_owner_validation(
+    *,
+    repository_root: Path,
+    definition: _ProjectionDefinition,
+    loaded: _LoadedSource,
+) -> ProjectionSourceValidation:
+    observed_schema = _source_schema_version(loaded.parsed)
+    if (
+        definition.expected_source_schema_version is not None
+        and observed_schema != definition.expected_source_schema_version
+    ):
+        return _failed_source_validation(
+            definition,
+            loaded,
+            "source_schema_version_unrecognized",
+        )
+    observed_rule = _optional_string(loaded.parsed.get("rule_version"))
+    if (
+        definition.expected_source_rule_version is not None
+        and observed_rule != definition.expected_source_rule_version
+    ):
+        return _failed_source_validation(
+            definition,
+            loaded,
+            "source_rule_version_unrecognized",
+        )
+    cache_key = (
+        str(repository_root.resolve()),
+        definition.projection_id,
+        loaded.content_hash,
+        loaded.component_bindings,
+    )
+    cached = _OWNER_VALIDATION_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    with _OWNER_VALIDATION_LOCK:
+        cached = _OWNER_VALIDATION_CACHE.get(cache_key)
+        if cached is not None:
+            return cached
+        request = {
+            "projection_id": definition.projection_id.value,
+            "repository_root": str(repository_root.resolve()),
+            "component_bindings": dict(loaded.component_bindings),
+        }
+        worker_path = Path(__file__).with_name("governed_projection_validation_worker.py")
+        environment = os.environ.copy()
+        source_root = Path(__file__).resolve().parents[4]
+        python_paths = [str(source_root), str(source_root.parent)]
+        existing_pythonpath = environment.get("PYTHONPATH")
+        if existing_pythonpath:
+            python_paths.append(existing_pythonpath)
+        environment["PYTHONPATH"] = os.pathsep.join(python_paths)
+        try:
+            completed = subprocess.run(  # noqa: S603 - fixed interpreter and worker argv
+                [sys.executable, str(worker_path)],
+                cwd=repository_root,
+                env=environment,
+                input=json.dumps(request, separators=(",", ":"), sort_keys=True),
+                capture_output=True,
+                check=False,
+                text=True,
+                timeout=60,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            return _failed_source_validation(
+                definition,
+                loaded,
+                f"owner_validator_{type(exc).__name__}",
+            )
+        if completed.returncode != 0:
+            return _failed_source_validation(
+                definition,
+                loaded,
+                "owner_validator_process_failed",
+            )
+        try:
+            result = _OwnerValidationWorkerResult.model_validate_json(completed.stdout)
+        except (ValueError, TypeError):
+            return _failed_source_validation(
+                definition,
+                loaded,
+                "owner_validator_receipt_invalid",
+            )
+        expected_bindings = dict(loaded.component_bindings)
+        receipt_mismatch = (
+            result.projection_id is not definition.projection_id
+            or result.validator_id != definition.owner_validator_id
+            or result.validator_version != definition.owner_validator_version
+            or result.bound_aggregate_identity != hash_export_projection(expected_bindings)
+            or result.bound_source_identities != expected_bindings
+        )
+        if receipt_mismatch:
+            return _failed_source_validation(
+                definition,
+                loaded,
+                "owner_validator_receipt_mismatch",
+            )
+        validation = ProjectionSourceValidation(
+            validator_id=result.validator_id,
+            validator_version=result.validator_version,
+            status=result.status,
+            bound_artifact_content_hash=loaded.content_hash,
+            issue_codes=result.issue_codes,
+        )
+        _OWNER_VALIDATION_CACHE[cache_key] = validation
+        return validation
+
 
 class GovernedProjectionService:
     """Project governed files lazily and cache their parsed content by SHA-256."""
@@ -695,6 +937,10 @@ class GovernedProjectionService:
                 intended_audience=definition.intended_audience,
                 authoritative_for=definition.authoritative_for,
                 may_not_use_for=definition.may_not_use_for,
+                expected_source_schema_version=definition.expected_source_schema_version,
+                expected_source_rule_version=definition.expected_source_rule_version,
+                owner_validator_id=definition.owner_validator_id,
+                owner_validator_version=definition.owner_validator_version,
                 stable_address=_stable_address(definition.projection_id),
             )
             for definition in _DEFINITIONS
@@ -706,6 +952,7 @@ class GovernedProjectionService:
         *,
         artifact_content_hash: str | None = None,
         projection_hash: str | None = None,
+        source_as_of: datetime | None = None,
     ) -> GovernedProjectionPacket:
         """Return one packet and optionally enforce byte and projection replay pins."""
         resolved_id = ProjectionId(projection_id)
@@ -725,6 +972,11 @@ class GovernedProjectionService:
                 loaded=exc.loaded,
                 reason=str(exc),
                 observed_at=observed_at,
+                validation=_failed_source_validation(
+                    definition,
+                    exc.loaded,
+                    "source_decode_or_composite_load_failed",
+                ),
             )
         else:
             try:
@@ -735,50 +987,69 @@ class GovernedProjectionService:
                     loaded=loaded,
                     reason=str(exc),
                     observed_at=observed_at,
+                    validation=_failed_source_validation(
+                        definition,
+                        loaded,
+                        "projection_contract_invalid",
+                    ),
                 )
             else:
-                as_of, basis = _resolve_as_of(loaded.parsed, loaded.modified_at)
-                source = ProjectionSourceIdentity(
-                    relative_path=loaded.relative_path,
-                    artifact_content_hash=loaded.content_hash,
-                    declared_content_hash=loaded.declared_content_hash,
-                    related_artifact_bindings=_related_artifact_bindings(
-                        resolved_id,
-                        loaded.parsed,
-                    ),
+                validation = _run_owner_validation(
+                    repository_root=self._repository_root,
+                    definition=definition,
+                    loaded=loaded,
                 )
-                packet = AvailableGovernedProjectionPacket(
-                    projection_id=resolved_id,
-                    availability=ProjectionAvailability.AVAILABLE,
-                    intended_audience=definition.intended_audience,
-                    authoritative_for=definition.authoritative_for,
-                    may_not_use_for=definition.may_not_use_for,
-                    source=source,
-                    source_schema_version=_optional_string(
-                        loaded.parsed.get("schema_version")
-                        or loaded.parsed.get("manifest", {}).get("schema_version")
-                    ),
-                    source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
-                    projection_hash=resolved_projection_hash,
-                    as_of=as_of,
-                    freshness=ProjectionFreshness(
-                        state="observed",
-                        basis=basis,
+                if validation.status != "passed":
+                    packet = self._invalid_packet(
+                        definition,
+                        loaded=loaded,
+                        reason=("owner validation failed: " + ", ".join(validation.issue_codes)),
                         observed_at=observed_at,
-                        source_as_of=as_of,
-                    ),
-                    stable_address=_stable_address(resolved_id),
-                    replay_address=_replay_address(
-                        resolved_id,
-                        artifact_content_hash=source.artifact_content_hash,
+                        validation=validation,
+                    )
+                else:
+                    as_of, basis = _resolve_as_of(loaded.parsed, loaded.modified_at)
+                    source = ProjectionSourceIdentity(
+                        relative_path=loaded.relative_path,
+                        artifact_content_hash=loaded.content_hash,
+                        declared_content_hash=loaded.declared_content_hash,
+                        validation=validation,
+                        related_artifact_bindings=_related_artifact_bindings(
+                            resolved_id,
+                            loaded,
+                        ),
+                    )
+                    packet = AvailableGovernedProjectionPacket(
+                        projection_id=resolved_id,
+                        availability=ProjectionAvailability.AVAILABLE,
+                        intended_audience=definition.intended_audience,
+                        authoritative_for=definition.authoritative_for,
+                        may_not_use_for=definition.may_not_use_for,
+                        source=source,
+                        source_schema_version=_source_schema_version(loaded.parsed),
+                        source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
                         projection_hash=resolved_projection_hash,
-                    ),
-                    payload=payload,
-                )
+                        as_of=as_of,
+                        freshness=ProjectionFreshness(
+                            state="observed",
+                            basis=basis,
+                            observed_at=observed_at,
+                            source_as_of=as_of,
+                        ),
+                        stable_address=_stable_address(resolved_id),
+                        replay_address=_replay_address(
+                            resolved_id,
+                            artifact_content_hash=source.artifact_content_hash,
+                            projection_hash=resolved_projection_hash,
+                            source_as_of=as_of,
+                        ),
+                        payload=payload,
+                    )
         _enforce_replay_pins(
             packet,
             artifact_content_hash=artifact_content_hash,
             projection_hash=projection_hash,
+            source_as_of=source_as_of,
         )
         return packet
 
@@ -800,6 +1071,9 @@ class GovernedProjectionService:
                     parsed={"manifest": manifest},
                     modified_at=manifest_observation.modified_at,
                     declared_content_hash=None,
+                    component_bindings=(
+                        (definition.source_path, manifest_observation.content_hash),
+                    ),
                 )
                 raise _InvalidProjectionLoadError(loaded, str(exc)) from exc
         observation = self._read_file(definition.source_path)
@@ -812,14 +1086,26 @@ class GovernedProjectionService:
                 parsed={},
                 modified_at=observation.modified_at,
                 declared_content_hash=None,
+                component_bindings=((definition.source_path, observation.content_hash),),
             )
             raise _InvalidProjectionLoadError(loaded, str(exc)) from exc
+        component_bindings = [(definition.source_path, observation.content_hash)]
+        if definition.projection_id is ProjectionId.N13A_ACQUISITION_CENSUS:
+            try:
+                journal = self._read_file(
+                    "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+                )
+            except FileNotFoundError:
+                pass
+            else:
+                component_bindings.append((journal.relative_path, journal.content_hash))
         return _LoadedSource(
             relative_path=definition.source_path,
             content_hash=observation.content_hash,
             parsed=parsed,
             modified_at=observation.modified_at,
             declared_content_hash=_declared_content_hash(parsed),
+            component_bindings=tuple(sorted(component_bindings)),
         )
 
     def _read_file(self, relative_path: str) -> _FileObservation:
@@ -922,6 +1208,7 @@ class GovernedProjectionService:
             parsed=parsed,
             modified_at=modified_at,
             declared_content_hash=None,
+            component_bindings=tuple(sorted(content_bindings.items())),
         )
 
     def _project(
@@ -983,6 +1270,7 @@ class GovernedProjectionService:
         loaded: _LoadedSource,
         reason: str,
         observed_at: datetime,
+        validation: ProjectionSourceValidation,
     ) -> InvalidGovernedProjectionPacket:
         as_of, basis = _resolve_as_of(loaded.parsed, loaded.modified_at)
         return InvalidGovernedProjectionPacket(
@@ -995,12 +1283,10 @@ class GovernedProjectionService:
                 relative_path=loaded.relative_path,
                 artifact_content_hash=loaded.content_hash,
                 declared_content_hash=loaded.declared_content_hash,
-                related_artifact_bindings=_related_artifact_bindings(
-                    definition.projection_id,
-                    loaded.parsed,
-                ),
+                validation=validation,
+                related_artifact_bindings=(),
             ),
-            source_schema_version=_optional_string(loaded.parsed.get("schema_version")),
+            source_schema_version=_source_schema_version(loaded.parsed),
             source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
             as_of=as_of,
             freshness=ProjectionFreshness(
@@ -1336,20 +1622,22 @@ def _declared_content_hash(source: dict[str, Any]) -> str | None:
 
 def _related_artifact_bindings(
     projection_id: ProjectionId,
-    source: dict[str, Any],
+    loaded: _LoadedSource,
 ) -> tuple[ProjectionOwnerBinding, ...]:
     if projection_id is not ProjectionId.N13A_ACQUISITION_CENSUS:
         return ()
-    journal_hash = _optional_string(source.get("journal_content_sha256"))
-    if journal_hash is None:
+    journal_semantic_hash = _optional_string(loaded.parsed.get("journal_content_sha256"))
+    journal_path = "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+    resolved_content_hash = dict(loaded.component_bindings).get(journal_path)
+    if journal_semantic_hash is None or resolved_content_hash is None:
         return ()
     return (
         ProjectionOwnerBinding(
             binding_name="live_probe_journal_content_sha256",
-            relative_path=(
-                "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
-            ),
-            artifact_content_hash=journal_hash,
+            relative_path=journal_path,
+            owner_semantic_hash=journal_semantic_hash,
+            semantic_hash_rule_version=("policyos.layer3.gy.n13a.acquisition_census.v1"),
+            resolved_artifact_content_hash=resolved_content_hash,
         ),
     )
 
@@ -1357,13 +1645,13 @@ def _related_artifact_bindings(
 _PROVENANCE_ONLY_PROJECTION_FIELDS = frozenset(
     {
         "capture_wall_time_seconds",
+        "capture_provenance",
         "as_of",
         "freshness",
         "generated",
         "generated_at",
         "observed_at",
         "produced_by",
-        "producer",
         "provenance",
         "provenance_note",
         "relative_path",
@@ -1458,12 +1746,14 @@ def _replay_address(
     *,
     artifact_content_hash: str,
     projection_hash: str,
+    source_as_of: datetime,
 ) -> str:
     return build_export_replay_address(
         _stable_address(projection_id),
         {
             "artifact_content_hash": artifact_content_hash,
             "projection_hash": projection_hash,
+            "source_as_of": _replay_datetime(source_as_of),
         },
     )
 
@@ -1473,6 +1763,7 @@ def _enforce_replay_pins(
     *,
     artifact_content_hash: str | None,
     projection_hash: str | None,
+    source_as_of: datetime | None,
 ) -> None:
     actual_artifact_hash = (
         packet.source.artifact_content_hash if packet.source is not None else None
@@ -1489,6 +1780,25 @@ def _enforce_replay_pins(
             expected=projection_hash,
             actual=packet.projection_hash,
         )
+    if source_as_of is not None:
+        expected_as_of = _normalize_datetime(source_as_of)
+        actual_as_of = _normalize_datetime(packet.as_of)
+        if expected_as_of != actual_as_of:
+            raise ReplayPinMismatchError(
+                "source_as_of",
+                expected=_replay_datetime(expected_as_of),
+                actual=_replay_datetime(actual_as_of),
+            )
+
+
+def _normalize_datetime(value: datetime) -> datetime:
+    if value.tzinfo is None:
+        return value.replace(tzinfo=UTC)
+    return value.astimezone(UTC)
+
+
+def _replay_datetime(value: datetime) -> str:
+    return _normalize_datetime(value).isoformat().replace("+00:00", "Z")
 
 
 __all__ = [

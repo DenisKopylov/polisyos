@@ -18,17 +18,33 @@ export type AccessRef = {
 };
 
 export type AcquisitionRoutingPayload = {
-  compute_economics: ProjectionJsonValue;
-  denominators: ProjectionJsonValue;
-  fail_closed_probes: ProjectionJsonValue;
-  fail_closed_receipt: ProjectionJsonValue;
-  grounding_acquisition_request: ProjectionJsonValue;
-  known_residuals: ProjectionJsonValue;
-  no_result_receipt: ProjectionJsonValue;
+  compute_economics: {
+  [key: string]: ProjectionJsonValue;
+};
+  denominators: {
+  [key: string]: ProjectionJsonValue;
+};
+  fail_closed_probes: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  fail_closed_receipt: {
+  [key: string]: ProjectionJsonValue;
+};
+  grounding_acquisition_request: {
+  [key: string]: ProjectionJsonValue;
+};
+  known_residuals: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  no_result_receipt: {
+  [key: string]: ProjectionJsonValue;
+};
   positive_receipt: {
   [key: string]: ProjectionJsonValue;
 };
-  recorded_rederive_inputs: ProjectionJsonValue;
+  recorded_rederive_inputs: {
+  [key: string]: ProjectionJsonValue;
+};
 };
 
 export type AgentPipelineAttempt = {
@@ -657,14 +673,28 @@ export type CapabilityManifestResponse = {
 };
 
 export type CapabilityRealityPayload = {
-  blockers: ProjectionJsonValue;
-  capability_claims: ProjectionJsonValue;
-  chain_clusters: ProjectionJsonValue;
-  debt_algebra: ProjectionJsonValue;
-  issues: ProjectionJsonValue;
-  ratchet_integrity_status: ProjectionJsonValue;
-  readiness: ProjectionJsonValue;
-  summary: ProjectionJsonValue;
+  blockers: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  capability_claims: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  chain_clusters: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  debt_algebra: {
+  [key: string]: ProjectionJsonValue;
+};
+  issues: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  ratchet_integrity_status: string;
+  readiness: {
+  [key: string]: ProjectionJsonValue;
+};
+  summary: {
+  [key: string]: ProjectionJsonValue;
+};
 };
 
 export type CausalFrontierAreaRecord = {
@@ -753,12 +783,14 @@ export type CausalFrontierSAEResponse = {
 
 export type ChannelRegistryEntry = {
   auth_class: string;
+  capability_state?: string;
   channels?: Array<string>;
   consumers: Array<string>;
   include_in_schema?: boolean;
   message_contract: string;
   owner: string;
   path_template: string;
+  producer_contract_ref: string;
   registry_id: string;
   status?: string;
   transport: "sse" | "websocket";
@@ -770,20 +802,28 @@ export type ChannelRegistryResponse = {
 };
 
 export type ClusterOwnershipPayload = {
-  architecture_core: ProjectionJsonValue;
-  capability_chain_steps: ProjectionJsonValue;
+  architecture_core: {
+  [key: string]: ProjectionJsonValue;
+};
+  capability_chain_steps: Array<string>;
   clusters: {
   [key: string]: ProjectionJsonValue;
 };
-  handshake_graph: ProjectionJsonValue;
-  open_cell_closure: ProjectionJsonValue;
-  owner: ProjectionJsonValue;
-  purpose: ProjectionJsonValue;
-  ratchet_state_vocabulary: ProjectionJsonValue;
-  required_cell_fields: ProjectionJsonValue;
-  required_clusters: ProjectionJsonValue;
-  status: ProjectionJsonValue;
-  stop_rule: ProjectionJsonValue;
+  handshake_graph: {
+  [key: string]: ProjectionJsonValue;
+};
+  open_cell_closure: {
+  [key: string]: ProjectionJsonValue;
+};
+  owner: string;
+  purpose: string;
+  ratchet_state_vocabulary: Array<string>;
+  required_cell_fields: Array<string>;
+  required_clusters: Array<string>;
+  status: string;
+  stop_rule: {
+  [key: string]: ProjectionJsonValue;
+};
 };
 
 export type ComparabilityReport = {
@@ -1465,18 +1505,20 @@ export type DepthNCycleBoardPayload = {
 };
 
 export type DepthNDomainRunProjection = {
-  acquisition_route: ProjectionJsonValue;
-  design_problem_ref: ProjectionJsonValue;
-  domain_role: ProjectionJsonValue;
+  acquisition_route: {
+  [key: string]: ProjectionJsonValue;
+};
+  design_problem_ref: string;
+  domain_role: string;
   evidence_class: string;
   evidence_witness: {
   [key: string]: ProjectionJsonValue;
 };
-  generation_cycle_run_id: ProjectionJsonValue;
+  generation_cycle_run_id: string;
   terminal_distribution: {
   [key: string]: ProjectionJsonValue;
 };
-  weakest_links: Array<ProjectionJsonValue>;
+  weakest_links: Array<string>;
 };
 
 export type DerivedArtifact = {
@@ -1506,17 +1548,25 @@ export type DiscoveryCandidate = {
 };
 
 export type EngineCensusPayload = {
-  critical_findings: ProjectionJsonValue;
-  discipline: ProjectionJsonValue;
-  evidence_reproducibility: ProjectionJsonValue;
+  critical_findings: Array<string>;
+  discipline: string;
+  evidence_reproducibility: {
+  [key: string]: ProjectionJsonValue;
+};
   execution_status_vocabulary: {
   [key: string]: ProjectionJsonValue;
 };
-  gap_taxonomy_extensions: ProjectionJsonValue;
+  gap_taxonomy_extensions: {
+  [key: string]: ProjectionJsonValue;
+};
   row_count: number;
-  scope: ProjectionJsonValue;
-  subcensus_summary: ProjectionJsonValue;
-  verb_gap_consistency: ProjectionJsonValue;
+  scope: string;
+  subcensus_summary: {
+  [key: string]: ProjectionJsonValue;
+};
+  verb_gap_consistency: {
+  [key: string]: ProjectionJsonValue;
+};
 };
 
 export type EquilibriumBasinInterval = {
@@ -1883,25 +1933,45 @@ export type FetchPreview = {
 };
 
 export type ForkBRelationCensusPayload = {
-  authority: ProjectionJsonValue;
-  certificate_summaries: ProjectionJsonValue;
-  coverage_manifest: ProjectionJsonValue;
-  known_bridge_limits: ProjectionJsonValue;
-  normalization: ProjectionJsonValue;
-  relation_counts: ProjectionJsonValue;
-  relation_denominator_formula: ProjectionJsonValue;
-  transport_floor: ProjectionJsonValue;
-  transport_floor_rule: ProjectionJsonValue;
+  authority: string;
+  certificate_summaries: {
+  [key: string]: ProjectionJsonValue;
+};
+  coverage_manifest: {
+  [key: string]: ProjectionJsonValue;
+};
+  known_bridge_limits: Array<string>;
+  normalization: string;
+  relation_counts: {
+  [key: string]: number;
+};
+  relation_denominator_formula: string;
+  transport_floor: number;
+  transport_floor_rule: string;
 };
 
 export type GenerationCycleDispositionPayload = {
-  bridge_artifacts: ProjectionJsonValue;
-  known_residuals: ProjectionJsonValue;
-  method_availability_gate: ProjectionJsonValue;
-  owners: ProjectionJsonValue;
-  parallel_world_reconciliation: ProjectionJsonValue;
-  task_owner_mapping: ProjectionJsonValue;
-  tasks: ProjectionJsonValue;
+  bridge_artifacts: {
+  [key: string]: ProjectionJsonValue;
+};
+  known_residuals: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  method_availability_gate: {
+  [key: string]: ProjectionJsonValue;
+};
+  owners: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  parallel_world_reconciliation: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  task_owner_mapping: {
+  [key: string]: ProjectionJsonValue;
+};
+  tasks: {
+  [key: string]: ProjectionJsonValue;
+};
 };
 
 export type GovernanceDebugResponse = {
@@ -2029,7 +2099,9 @@ export type IterationLifecycleView = {
 };
 
 export type Layer3HealthMetricsPayload = {
-  health_metric_ledgers: Array<ProjectionJsonValue>;
+  health_metric_ledgers: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
 };
 
 export type LegacyProvingGroundPayload = {
@@ -2415,20 +2487,42 @@ export type MonitoringWindow = {
 };
 
 export type N13AAcquisitionCensusPayload = {
-  catalog_identity: ProjectionJsonValue;
-  family_scorecards: ProjectionJsonValue;
-  fetch_plan_generation: ProjectionJsonValue;
-  growth_backlog: ProjectionJsonValue;
-  metric_resolutions: ProjectionJsonValue;
-  projection_bindings: ProjectionJsonValue;
-  reverse_demand_residuals: ProjectionJsonValue;
-  route_evidence: ProjectionJsonValue;
+  catalog_identity: {
+  [key: string]: ProjectionJsonValue;
+};
+  family_scorecards: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  fetch_plan_generation: {
+  [key: string]: ProjectionJsonValue;
+};
+  growth_backlog: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  metric_resolutions: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  projection_bindings: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  reverse_demand_residuals: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  route_evidence: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
 };
 
 export type N13ALiveProbeJournalPayload = {
-  family_receipts: ProjectionJsonValue;
-  records: ProjectionJsonValue;
-  selection_plan: ProjectionJsonValue;
+  family_receipts: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  records: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  selection_plan: {
+  [key: string]: ProjectionJsonValue;
+};
 };
 
 export type NaturalLanguageRunRequest = {
@@ -2782,8 +2876,12 @@ export type ProductionApprovalResponse = {
 export type ProjectionCatalogEntry = {
   authoritative_for: Array<string>;
   expected_source_path: string;
+  expected_source_rule_version: string | null;
+  expected_source_schema_version: string | null;
   intended_audience: AudienceClass;
   may_not_use_for: Array<string>;
+  owner_validator_id: string;
+  owner_validator_version: string;
   projection_id: ProjectionId;
   source_policy: "required" | "presence_gated" | "fixture_identity_only";
   stable_address: string;
@@ -2808,10 +2906,12 @@ export type ProjectionJsonValue = string | number | boolean | Array<unknown> | {
 } | null;
 
 export type ProjectionOwnerBinding = {
-  artifact_content_hash: string;
   binding_name: string;
+  owner_semantic_hash: string;
   relation?: string;
   relative_path: string;
+  resolved_artifact_content_hash: string;
+  semantic_hash_rule_version: string;
 };
 
 export type ProjectionSourceIdentity = {
@@ -2819,6 +2919,15 @@ export type ProjectionSourceIdentity = {
   declared_content_hash?: string | null;
   related_artifact_bindings?: Array<ProjectionOwnerBinding>;
   relative_path: string;
+  validation: ProjectionSourceValidation;
+};
+
+export type ProjectionSourceValidation = {
+  bound_artifact_content_hash: string;
+  issue_codes?: Array<string>;
+  status: "passed" | "failed";
+  validator_id: string;
+  validator_version: string;
 };
 
 export type PromotionCandidate = {
@@ -2862,24 +2971,46 @@ export type ProvingGroundFixtureIdentity = {
 };
 
 export type ProvingGroundFixtureRecord = {
-  case_id: ProjectionJsonValue;
-  claim_evidence_annotations: ProjectionJsonValue;
-  compilation_intent_text: ProjectionJsonValue;
-  concept_spine_refs: ProjectionJsonValue;
-  domain: ProjectionJsonValue;
-  expected_adapter_bindings: ProjectionJsonValue;
-  expected_claim_families: ProjectionJsonValue;
-  expected_closeout_states: ProjectionJsonValue;
-  expected_facets: ProjectionJsonValue;
-  expected_obligation_graph: ProjectionJsonValue;
-  expected_projection_truthfulness: ProjectionJsonValue;
-  expected_requirement_specs: ProjectionJsonValue;
-  expert_adjudication: ProjectionJsonValue;
-  input_intent_ref: ProjectionJsonValue;
-  intent: ProjectionJsonValue;
-  schema_version: ProjectionJsonValue;
-  split: ProjectionJsonValue;
-  title: ProjectionJsonValue;
+  case_id: string;
+  claim_evidence_annotations: {
+  [key: string]: ProjectionJsonValue;
+};
+  compilation_intent_text: string;
+  concept_spine_refs: {
+  [key: string]: ProjectionJsonValue;
+};
+  domain: string;
+  expected_adapter_bindings: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_claim_families: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_closeout_states: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_facets: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_obligation_graph: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_projection_truthfulness: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_requirement_specs: {
+  [key: string]: ProjectionJsonValue;
+};
+  expert_adjudication: {
+  [key: string]: ProjectionJsonValue;
+};
+  input_intent_ref: string;
+  intent: {
+  [key: string]: ProjectionJsonValue;
+};
+  schema_version: string;
+  split: string;
+  title: string;
 };
 
 export type ProvingGroundRuntimeOutcomes = {
@@ -3684,14 +3815,18 @@ export type ValidationError = {
 };
 
 export type ValueGatePayload = {
-  acquisition_routing: ProjectionJsonValue;
+  acquisition_routing: {
+  [key: string]: ProjectionJsonValue;
+};
   advisor_receipts: {
   [key: string]: ProjectionJsonValue;
 };
   denominators: {
   [key: string]: ProjectionJsonValue;
 };
-  disposition: ProjectionJsonValue;
+  disposition: {
+  [key: string]: ProjectionJsonValue;
+};
   education_refusal: {
   [key: string]: ProjectionJsonValue;
 };
@@ -3701,7 +3836,9 @@ export type ValueGatePayload = {
   production_refusal: {
   [key: string]: ProjectionJsonValue;
 };
-  value_outer_set_contract: Array<ProjectionJsonValue>;
+  value_outer_set_contract: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
 };
 
 export type VerificationMetadata = {
@@ -4165,11 +4302,13 @@ export class RuntimeApiClient {
     projection_id: ProjectionId;
     artifact_content_hash?: string | null;
     projection_hash?: string | null;
+    source_as_of?: string | null;
   }): Promise<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket> {
     const path = `/api/v1/exports/governed-projections/${encodeURIComponent(String(params.projection_id))}`;
     const query = this.buildQuery({
       artifact_content_hash: params.artifact_content_hash,
       projection_hash: params.projection_hash,
+      source_as_of: params.source_as_of,
     });
     return this.request<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket>("GET", path, query);
   }

@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import os
+from datetime import datetime  # noqa: TC003 - FastAPI resolves this annotation at runtime
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Annotated, Any, cast
 
 from polisyos.runtime.http.dependencies import set_authz_resource
 from polisyos.runtime.http.errors import conflict
@@ -43,9 +44,7 @@ router = _build_router()
 def _get_projection_service() -> GovernedProjectionService:
     configured_root = os.getenv("POLISYOS_GOVERNED_ARTIFACT_ROOT")
     repository_root = (
-        Path(configured_root)
-        if configured_root
-        else Path(__file__).resolve().parents[5]
+        Path(configured_root) if configured_root else Path(__file__).resolve().parents[5]
     )
     return GovernedProjectionService(repository_root)
 
@@ -77,6 +76,7 @@ if router is not None:
         request: Request,
         artifact_content_hash: str | None = Query(default=None, max_length=128),
         projection_hash: str | None = Query(default=None, max_length=128),
+        source_as_of: Annotated[datetime | None, Query()] = None,
     ) -> GovernedProjectionPacket:
         set_authz_resource(
             request,
@@ -88,6 +88,7 @@ if router is not None:
                 projection_id,
                 artifact_content_hash=artifact_content_hash,
                 projection_hash=projection_hash,
+                source_as_of=source_as_of,
             )
         except ReplayPinMismatchError as exc:
             raise conflict(

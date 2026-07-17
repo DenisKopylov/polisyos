@@ -1,5 +1,91 @@
 from __future__ import annotations
 
+import asyncio
+import json
+from datetime import UTC, datetime
+from typing import Any
+
+import pytest
+from pydantic import ValidationError
+
+from polisyos.runtime.http.routes import runs as runs_routes
+
+
+def _read_first_sse_snapshot(client: Any, path: str) -> dict[str, Any]:
+    with client.stream("GET", path) as response:
+        assert response.status_code == 200
+        body = "".join(chunk for chunk in response.iter_text() if chunk)
+
+    for event_block in body.split("\n\n"):
+        if "event: snapshot" not in event_block:
+            continue
+        data_line = next(line for line in event_block.splitlines() if line.startswith("data: "))
+        payload = json.loads(data_line.removeprefix("data: "))
+        assert isinstance(payload, dict)
+        return payload
+    raise AssertionError(f"No snapshot event emitted by {path}")
+
+
+def test_hidden_runs_sse_channels_emit_versioned_contracts(runtime_api_env, monkeypatch) -> None:
+    monkeypatch.setattr(
+        runs_routes.LiveStreamPolicy,
+        "from_env",
+        classmethod(
+            lambda cls: cls(
+                min_interval_seconds=0.01,
+                max_interval_seconds=0.01,
+                keepalive_seconds=10.0,
+                max_duration_seconds=0.02,
+            )
+        ),
+    )
+    client = runtime_api_env["client"]
+
+    runs_snapshot = _read_first_sse_snapshot(client, "/api/v1/runs/live")
+    assert runs_snapshot["contract_id"] == "policyos.runtime.runs_list_snapshot"
+    assert runs_snapshot["schema_version"] == "policyos.runtime.runs_list_snapshot.v1"
+    assert isinstance(runs_snapshot["runs"], list)
+
+    run_snapshot = _read_first_sse_snapshot(
+        client, f"/api/v1/runs/{runtime_api_env['core_run_id']}/live"
+    )
+    assert run_snapshot["contract_id"] == "policyos.runtime.run_detail_snapshot"
+    assert run_snapshot["schema_version"] == "policyos.runtime.run_detail_snapshot.v1"
+    assert run_snapshot["run_id"] == runtime_api_env["core_run_id"]
+
+
+def test_runs_sse_emission_rejects_marker_complete_malformed_payload() -> None:
+    class _ConnectedRequest:
+        async def is_disconnected(self) -> bool:
+            return False
+
+    now = datetime.now(UTC)
+
+    async def _emit() -> None:
+        stream = runs_routes._stream_payloads(
+            lambda: {
+                "contract_id": "policyos.runtime.runs_list_snapshot",
+                "schema_version": "policyos.runtime.runs_list_snapshot.v1",
+                "cursor": now,
+                "generated_at": now,
+                "page": {"count": 0, "total": 0, "next_cursor": None},
+                "status_counts": {},
+                "runs": "present-but-not-a-run-list",
+            },
+            _ConnectedRequest(),
+            policy=runs_routes.LiveStreamPolicy(
+                min_interval_seconds=0.01,
+                max_interval_seconds=0.01,
+                keepalive_seconds=10.0,
+                max_duration_seconds=1.0,
+            ),
+        )
+        with pytest.raises(ValidationError):
+            await anext(stream)
+        await stream.aclose()
+
+    asyncio.run(_emit())
+
 
 def test_list_runs_returns_only_core_sources(runtime_api_env) -> None:
     client = runtime_api_env["client"]

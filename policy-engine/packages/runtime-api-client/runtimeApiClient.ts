@@ -1802,6 +1802,7 @@ export type GovernedProjectionPacket = {
   as_of: string;
   authoritative_for: Array<string>;
   availability: ProjectionAvailability;
+  export_replay_contract?: string;
   freshness: ProjectionFreshness;
   intended_audience: AudienceClass;
   may_not_use_for: Array<string>;
@@ -3697,6 +3698,7 @@ export class RuntimeApiClient {
     trust_view?: boolean;
     valid_at?: string | null;
     tx_at?: string | null;
+    export_projection_hash?: string | null;
   }): Promise<BureaucraticExportResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.packet_id))}/export`;
     const query = this.buildQuery({
@@ -3707,6 +3709,7 @@ export class RuntimeApiClient {
       trust_view: params.trust_view,
       valid_at: params.valid_at,
       tx_at: params.tx_at,
+      export_projection_hash: params.export_projection_hash,
     });
     return this.request<BureaucraticExportResponse>("GET", path, query);
   }
@@ -3775,9 +3778,12 @@ export class RuntimeApiClient {
 
   async getPacketDecisionValidity(params: {
     decision_packet_ref: string;
+    export_projection_hash?: string | null;
   }): Promise<DecisionValiditySummaryResponse> {
     const path = `/api/v1/control/decision-packets/${encodeURIComponent(String(params.decision_packet_ref))}/decision-validity`;
-    const query = undefined;
+    const query = this.buildQuery({
+      export_projection_hash: params.export_projection_hash,
+    });
     return this.request<DecisionValiditySummaryResponse>("GET", path, query);
   }
 
@@ -3827,9 +3833,12 @@ export class RuntimeApiClient {
 
   async getRunDecisionValidity(params: {
     run_id: string;
+    export_projection_hash?: string | null;
   }): Promise<DecisionValiditySummaryResponse> {
     const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/decision-validity`;
-    const query = undefined;
+    const query = this.buildQuery({
+      export_projection_hash: params.export_projection_hash,
+    });
     return this.request<DecisionValiditySummaryResponse>("GET", path, query);
   }
 
@@ -4068,6 +4077,7 @@ export class RuntimeApiClient {
     branch?: string | null;
     snapshot_id?: string | null;
     scenario_id?: string | null;
+    export_projection_hash?: string | null;
   }): Promise<LineageExportResponse> {
     const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}/export/openlineage`;
     const query = this.buildQuery({
@@ -4077,6 +4087,7 @@ export class RuntimeApiClient {
       branch: params.branch,
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
+      export_projection_hash: params.export_projection_hash,
     });
     return this.request<LineageExportResponse>("GET", path, query);
   }
@@ -4089,6 +4100,7 @@ export class RuntimeApiClient {
     branch?: string | null;
     snapshot_id?: string | null;
     scenario_id?: string | null;
+    export_projection_hash?: string | null;
   }): Promise<LineageExportResponse> {
     const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}/export/prov`;
     const query = this.buildQuery({
@@ -4098,6 +4110,7 @@ export class RuntimeApiClient {
       branch: params.branch,
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
+      export_projection_hash: params.export_projection_hash,
     });
     return this.request<LineageExportResponse>("GET", path, query);
   }

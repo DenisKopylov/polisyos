@@ -118,6 +118,7 @@ export class RuntimeApiClient {
       trust_view: params?.trust_view,
       valid_at: params?.valid_at,
       tx_at: params?.tx_at,
+      export_projection_hash: params?.export_projection_hash,
     });
     return this.request('GET', path, query);
   }
@@ -182,7 +183,9 @@ export class RuntimeApiClient {
 
   async getPacketDecisionValidity(params) {
     const path = `/api/v1/control/decision-packets/${encodeURIComponent(String(params.decision_packet_ref))}/decision-validity`;
-    const query = undefined;
+    const query = this.buildQuery({
+      export_projection_hash: params?.export_projection_hash,
+    });
     return this.request('GET', path, query);
   }
 
@@ -223,7 +226,9 @@ export class RuntimeApiClient {
 
   async getRunDecisionValidity(params) {
     const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/decision-validity`;
-    const query = undefined;
+    const query = this.buildQuery({
+      export_projection_hash: params?.export_projection_hash,
+    });
     return this.request('GET', path, query);
   }
 
@@ -391,6 +396,7 @@ export class RuntimeApiClient {
       branch: params?.branch,
       snapshot_id: params?.snapshot_id,
       scenario_id: params?.scenario_id,
+      export_projection_hash: params?.export_projection_hash,
     });
     return this.request('GET', path, query);
   }
@@ -404,6 +410,7 @@ export class RuntimeApiClient {
       branch: params?.branch,
       snapshot_id: params?.snapshot_id,
       scenario_id: params?.scenario_id,
+      export_projection_hash: params?.export_projection_hash,
     });
     return this.request('GET', path, query);
   }

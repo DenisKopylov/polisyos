@@ -5573,6 +5573,12 @@ export interface components {
             /** Authoritative For */
             authoritative_for: string[];
             availability: components["schemas"]["ProjectionAvailability"];
+            /**
+             * Export Replay Contract
+             * @default policyos.runtime.export_replay_binding.v1
+             * @constant
+             */
+            export_replay_contract: "policyos.runtime.export_replay_binding.v1";
             freshness: components["schemas"]["ProjectionFreshness"];
             intended_audience: components["schemas"]["AudienceClass"];
             /** May Not Use For */
@@ -10964,6 +10970,7 @@ export interface operations {
                 trust_view?: boolean;
                 valid_at?: string | null;
                 tx_at?: string | null;
+                export_projection_hash?: string | null;
             };
             header?: never;
             path: {
@@ -10976,6 +10983,16 @@ export interface operations {
             /** @description Successful Response */
             200: {
                 headers: {
+                    /** @description Time at which the exported semantics were valid or observed. */
+                    "X-PolicyOS-Export-As-Of"?: string;
+                    /** @description Typed runtime export replay-binding contract. */
+                    "X-PolicyOS-Export-Contract"?: "policyos.runtime.export_replay_binding.v1";
+                    /** @description SHA-256 of the narrow stable semantic export projection. */
+                    "X-PolicyOS-Export-Projection-Hash"?: string;
+                    /** @description Stable address with the current projection hash pinned. */
+                    "X-PolicyOS-Export-Replay-Address"?: string;
+                    /** @description Canonical address excluding the replay pin. */
+                    "X-PolicyOS-Export-Stable-Address"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -11066,6 +11083,16 @@ export interface operations {
             /** @description Successful Response */
             200: {
                 headers: {
+                    /** @description Time at which the exported semantics were valid or observed. */
+                    "X-PolicyOS-Export-As-Of"?: string;
+                    /** @description Typed runtime export replay-binding contract. */
+                    "X-PolicyOS-Export-Contract"?: "policyos.runtime.export_replay_binding.v1";
+                    /** @description SHA-256 of the narrow stable semantic export projection. */
+                    "X-PolicyOS-Export-Projection-Hash"?: string;
+                    /** @description Stable address with the current projection hash pinned. */
+                    "X-PolicyOS-Export-Replay-Address"?: string;
+                    /** @description Canonical address excluding the replay pin. */
+                    "X-PolicyOS-Export-Stable-Address"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -12512,7 +12539,9 @@ export interface operations {
     };
     get_packet_decision_validity: {
         parameters: {
-            query?: never;
+            query?: {
+                export_projection_hash?: string | null;
+            };
             header?: never;
             path: {
                 decision_packet_ref: string;
@@ -12524,6 +12553,16 @@ export interface operations {
             /** @description Successful Response */
             200: {
                 headers: {
+                    /** @description Time at which the exported semantics were valid or observed. */
+                    "X-PolicyOS-Export-As-Of"?: string;
+                    /** @description Typed runtime export replay-binding contract. */
+                    "X-PolicyOS-Export-Contract"?: "policyos.runtime.export_replay_binding.v1";
+                    /** @description SHA-256 of the narrow stable semantic export projection. */
+                    "X-PolicyOS-Export-Projection-Hash"?: string;
+                    /** @description Stable address with the current projection hash pinned. */
+                    "X-PolicyOS-Export-Replay-Address"?: string;
+                    /** @description Canonical address excluding the replay pin. */
+                    "X-PolicyOS-Export-Stable-Address"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -13466,7 +13505,9 @@ export interface operations {
     };
     get_run_decision_validity: {
         parameters: {
-            query?: never;
+            query?: {
+                export_projection_hash?: string | null;
+            };
             header?: never;
             path: {
                 run_id: string;
@@ -13478,6 +13519,16 @@ export interface operations {
             /** @description Successful Response */
             200: {
                 headers: {
+                    /** @description Time at which the exported semantics were valid or observed. */
+                    "X-PolicyOS-Export-As-Of"?: string;
+                    /** @description Typed runtime export replay-binding contract. */
+                    "X-PolicyOS-Export-Contract"?: "policyos.runtime.export_replay_binding.v1";
+                    /** @description SHA-256 of the narrow stable semantic export projection. */
+                    "X-PolicyOS-Export-Projection-Hash"?: string;
+                    /** @description Stable address with the current projection hash pinned. */
+                    "X-PolicyOS-Export-Replay-Address"?: string;
+                    /** @description Canonical address excluding the replay pin. */
+                    "X-PolicyOS-Export-Stable-Address"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -15324,6 +15375,7 @@ export interface operations {
                 branch?: string | null;
                 snapshot_id?: string | null;
                 scenario_id?: string | null;
+                export_projection_hash?: string | null;
             };
             header?: never;
             path: {
@@ -15336,6 +15388,16 @@ export interface operations {
             /** @description Successful Response */
             200: {
                 headers: {
+                    /** @description Time at which the exported semantics were valid or observed. */
+                    "X-PolicyOS-Export-As-Of"?: string;
+                    /** @description Typed runtime export replay-binding contract. */
+                    "X-PolicyOS-Export-Contract"?: "policyos.runtime.export_replay_binding.v1";
+                    /** @description SHA-256 of the narrow stable semantic export projection. */
+                    "X-PolicyOS-Export-Projection-Hash"?: string;
+                    /** @description Stable address with the current projection hash pinned. */
+                    "X-PolicyOS-Export-Replay-Address"?: string;
+                    /** @description Canonical address excluding the replay pin. */
+                    "X-PolicyOS-Export-Stable-Address"?: string;
                     [name: string]: unknown;
                 };
                 content: {
@@ -15417,6 +15479,7 @@ export interface operations {
                 branch?: string | null;
                 snapshot_id?: string | null;
                 scenario_id?: string | null;
+                export_projection_hash?: string | null;
             };
             header?: never;
             path: {
@@ -15429,6 +15492,16 @@ export interface operations {
             /** @description Successful Response */
             200: {
                 headers: {
+                    /** @description Time at which the exported semantics were valid or observed. */
+                    "X-PolicyOS-Export-As-Of"?: string;
+                    /** @description Typed runtime export replay-binding contract. */
+                    "X-PolicyOS-Export-Contract"?: "policyos.runtime.export_replay_binding.v1";
+                    /** @description SHA-256 of the narrow stable semantic export projection. */
+                    "X-PolicyOS-Export-Projection-Hash"?: string;
+                    /** @description Stable address with the current projection hash pinned. */
+                    "X-PolicyOS-Export-Replay-Address"?: string;
+                    /** @description Canonical address excluding the replay pin. */
+                    "X-PolicyOS-Export-Stable-Address"?: string;
                     [name: string]: unknown;
                 };
                 content: {

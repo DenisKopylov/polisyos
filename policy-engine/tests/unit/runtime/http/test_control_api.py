@@ -885,6 +885,33 @@ class TestDecisionValidity:
         assert body["lifecycle"]["pending_reviews"][0]["reason"] == "target_applicability_changed"
         assert body["lifecycle"]["transitions"][-1]["current_status"] == "requires_human_review"
 
+    def test_decision_validity_exports_bind_shared_replay_contract(
+        self,
+        runtime_api_env,
+    ):
+        client = runtime_api_env["client"]
+        run_id = runtime_api_env["core_run_id"]
+        path = f"/api/v1/control/runs/{run_id}/decision-validity"
+
+        first = client.get(path)
+
+        assert first.status_code == 200
+        projection_hash = first.headers["x-policyos-export-projection-hash"]
+        assert projection_hash.startswith("sha256:")
+        assert first.headers["x-policyos-export-stable-address"] == path
+        assert first.headers["x-policyos-export-as-of"]
+
+        replay = client.get(path, params={"export_projection_hash": projection_hash})
+        mismatch = client.get(
+            path,
+            params={"export_projection_hash": "sha256:" + "0" * 64},
+        )
+
+        assert replay.status_code == 200
+        assert replay.headers["x-policyos-export-projection-hash"] == projection_hash
+        assert mismatch.status_code == 409
+        assert mismatch.json()["code"] == "export_replay_pin_mismatch"
+
     def test_source_invalidation_marks_published_decision_stale_and_exposes_lifecycle_status(
         self,
         runtime_api_env,

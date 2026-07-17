@@ -103,6 +103,7 @@ def test_projection_packets_require_identity_as_of_and_freshness(tmp_path: Path)
     assert packet.source.artifact_content_hash.startswith("sha256:")
     assert packet.projection_hash is not None
     assert packet.projection_hash.startswith("sha256:")
+    assert packet.export_replay_contract == "policyos.runtime.export_replay_binding.v1"
     assert packet.as_of is not None
     assert packet.freshness.observed_at is not None
     assert packet.freshness.basis in {"source_timestamp", "filesystem_mtime"}

@@ -210,6 +210,10 @@ failure for each owned behavior:
 
 ### Existing contract suites
 
+- `tests/unit/runtime/http/test_lineage_api.py::test_runtime_lineage_exports_bind_shared_replay_contract`
+- `tests/unit/runtime/http/test_bureaucratic_rendering_api.py::test_bureaucratic_render_and_export_bind_shared_replay_contract`
+- `tests/unit/runtime/http/test_bureaucratic_rendering_api.py::test_bureaucratic_export_preserves_publication_authority_boundary`
+- `tests/unit/runtime/http/test_control_api.py::test_decision_validity_exports_bind_shared_replay_contract`
 - `tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py::test_every_runtime_client_transport_has_openapi_or_governed_channel_contract`
 - `tests/integration/runtime_frontend/test_runtime_client_contract_bridge.py::test_reference_shell_uses_only_shared_generated_client_home`
 - `tests/unit/runtime/http/test_control_api.py::test_lex_search_preserves_truth_fields_through_api`
@@ -262,6 +266,26 @@ Implementation sequence:
    FastAPI guard.
 7. Run the focused service/API tests green.
 8. Commit: `feat(runtime): expose governed artifact projections`.
+
+### Task 3a: Bind the convention through existing exporters
+
+Files:
+
+- Add one HTTP-local export replay binding helper under
+  `src/polisyos/runtime/http/services/`.
+- Extend only the existing lineage OpenLineage/PROV, artifact render/export, and
+  decision-validity routes.
+
+Steps:
+
+1. Define one strict replay-binding DTO and one documented response-header contract
+   carrying stable address, narrow projection hash, replay address, and as-of.
+2. Compute hashes over the owner export's stable semantic projection, excluding only
+   request-envelope and observation-time fields that are carried separately.
+3. Add `export_projection_hash` replay pins to existing GET exporters; a mismatched pin
+   fails with 409 and never falls through to an unpinned response.
+4. Prove render/export, OpenLineage/PROV, and decision-validity all use the helper.
+5. Regenerate OpenAPI and the shared client only after these route contracts are green.
 
 ### Task 4: Govern active channels and close the HTTP Lex truth drop
 
@@ -344,4 +368,3 @@ The architect-review handoff includes:
    ground result artifacts; no claims that DS5/DS10/DS15/DS16/DS20 enforcement or UI
    work is complete.
 8. Stop without merge for architect review.
-

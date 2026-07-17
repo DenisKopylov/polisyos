@@ -10253,6 +10253,12 @@
           "availability": {
             "$ref": "#/components/schemas/ProjectionAvailability"
           },
+          "export_replay_contract": {
+            "const": "policyos.runtime.export_replay_binding.v1",
+            "default": "policyos.runtime.export_replay_binding.v1",
+            "title": "Export Replay Contract",
+            "type": "string"
+          },
           "freshness": {
             "$ref": "#/components/schemas/ProjectionFreshness"
           },
@@ -10443,7 +10449,7 @@
       },
       "IngestRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/data/ingest — trigger data collection.",
+        "description": "POST /api/v1/control/data/ingest \u2014 trigger data collection.",
         "properties": {
           "binding_profile_id": {
             "anyOf": [
@@ -10879,7 +10885,7 @@
       },
       "LexSearchRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/lex/search — search knowledge graph facts.",
+        "description": "POST /api/v1/control/lex/search \u2014 search knowledge graph facts.",
         "properties": {
           "output_dir": {
             "minLength": 1,
@@ -11235,7 +11241,7 @@
       },
       "LexTriggerRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/lex/trigger — start batch pipeline.",
+        "description": "POST /api/v1/control/lex/trigger \u2014 start batch pipeline.",
         "properties": {
           "cards_path": {
             "minLength": 1,
@@ -12742,7 +12748,7 @@
       },
       "NaturalLanguageRunRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/runs/nl — NL request triggering agent circuit.",
+        "description": "POST /api/v1/control/runs/nl \u2014 NL request triggering agent circuit.",
         "properties": {
           "checkpoint_policy": {
             "default": "strict",
@@ -20150,7 +20156,7 @@
       },
       "WorkflowRunRequest": {
         "additionalProperties": false,
-        "description": "POST /api/v1/control/runs — launch a workflow run.",
+        "description": "POST /api/v1/control/runs \u2014 launch a workflow run.",
         "properties": {
           "calibration_report_ref": {
             "anyOf": [
@@ -24282,6 +24288,23 @@
               ],
               "title": "Tx At"
             }
+          },
+          {
+            "in": "query",
+            "name": "export_projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Export Projection Hash"
+            }
           }
         ],
         "responses": {
@@ -24315,7 +24338,42 @@
                 }
               }
             },
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "headers": {
+              "X-PolicyOS-Export-As-Of": {
+                "description": "Time at which the exported semantics were valid or observed.",
+                "schema": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Contract": {
+                "description": "Typed runtime export replay-binding contract.",
+                "schema": {
+                  "const": "policyos.runtime.export_replay_binding.v1",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Projection-Hash": {
+                "description": "SHA-256 of the narrow stable semantic export projection.",
+                "schema": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Replay-Address": {
+                "description": "Stable address with the current projection hash pinned.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Stable-Address": {
+                "description": "Canonical address excluding the replay pin.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "400": {
             "content": {
@@ -24595,7 +24653,42 @@
                 }
               }
             },
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "headers": {
+              "X-PolicyOS-Export-As-Of": {
+                "description": "Time at which the exported semantics were valid or observed.",
+                "schema": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Contract": {
+                "description": "Typed runtime export replay-binding contract.",
+                "schema": {
+                  "const": "policyos.runtime.export_replay_binding.v1",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Projection-Hash": {
+                "description": "SHA-256 of the narrow stable semantic export projection.",
+                "schema": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Replay-Address": {
+                "description": "Stable address with the current projection hash pinned.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Stable-Address": {
+                "description": "Canonical address excluding the replay pin.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "400": {
             "content": {
@@ -28799,6 +28892,23 @@
               "title": "Decision Packet Ref",
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "export_projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Export Projection Hash"
+            }
           }
         ],
         "responses": {
@@ -28846,7 +28956,42 @@
                 }
               }
             },
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "headers": {
+              "X-PolicyOS-Export-As-Of": {
+                "description": "Time at which the exported semantics were valid or observed.",
+                "schema": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Contract": {
+                "description": "Typed runtime export replay-binding contract.",
+                "schema": {
+                  "const": "policyos.runtime.export_replay_binding.v1",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Projection-Hash": {
+                "description": "SHA-256 of the narrow stable semantic export projection.",
+                "schema": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Replay-Address": {
+                "description": "Stable address with the current projection hash pinned.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Stable-Address": {
+                "description": "Canonical address excluding the replay pin.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "400": {
             "content": {
@@ -29809,18 +29954,18 @@
                         "request_id": "req_0123456789abcdef",
                         "source_kinds": []
                       },
-                      "query": "бюджетний дефіцит",
+                      "query": "\u0431\u044e\u0434\u0436\u0435\u0442\u043d\u0438\u0439 \u0434\u0435\u0444\u0456\u0446\u0438\u0442",
                       "results": [
                         {
                           "confidence": 0.92,
-                          "doc_name": "Бюджетний кодекс України",
+                          "doc_name": "\u0411\u044e\u0434\u0436\u0435\u0442\u043d\u0438\u0439 \u043a\u043e\u0434\u0435\u043a\u0441 \u0423\u043a\u0440\u0430\u0457\u043d\u0438",
                           "doc_reestr_code": "21010",
                           "fact_id": "a1b2c3d4e5f6g7h8i9j0",
                           "fact_text": "Budget deficit must not exceed 3% of projected GDP",
                           "norm_type": "obligation",
                           "object_name": "3_percent_of_gdp",
                           "predicate": "must_not_exceed",
-                          "provision_citation": "Стаття 14, пункт 2",
+                          "provision_citation": "\u0421\u0442\u0430\u0442\u0442\u044f 14, \u043f\u0443\u043d\u043a\u0442 2",
                           "subject_name": "budget_deficit_limit"
                         }
                       ],
@@ -31488,6 +31633,23 @@
               "title": "Run Id",
               "type": "string"
             }
+          },
+          {
+            "in": "query",
+            "name": "export_projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Export Projection Hash"
+            }
           }
         ],
         "responses": {
@@ -31535,7 +31697,42 @@
                 }
               }
             },
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "headers": {
+              "X-PolicyOS-Export-As-Of": {
+                "description": "Time at which the exported semantics were valid or observed.",
+                "schema": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Contract": {
+                "description": "Typed runtime export replay-binding contract.",
+                "schema": {
+                  "const": "policyos.runtime.export_replay_binding.v1",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Projection-Hash": {
+                "description": "SHA-256 of the narrow stable semantic export projection.",
+                "schema": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Replay-Address": {
+                "description": "Stable address with the current projection hash pinned.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Stable-Address": {
+                "description": "Canonical address excluding the replay pin.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "400": {
             "content": {
@@ -37821,6 +38018,23 @@
               ],
               "title": "Scenario Id"
             }
+          },
+          {
+            "in": "query",
+            "name": "export_projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Export Projection Hash"
+            }
           }
         ],
         "responses": {
@@ -37865,7 +38079,42 @@
                 }
               }
             },
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "headers": {
+              "X-PolicyOS-Export-As-Of": {
+                "description": "Time at which the exported semantics were valid or observed.",
+                "schema": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Contract": {
+                "description": "Typed runtime export replay-binding contract.",
+                "schema": {
+                  "const": "policyos.runtime.export_replay_binding.v1",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Projection-Hash": {
+                "description": "SHA-256 of the narrow stable semantic export projection.",
+                "schema": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Replay-Address": {
+                "description": "Stable address with the current projection hash pinned.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Stable-Address": {
+                "description": "Canonical address excluding the replay pin.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "400": {
             "content": {
@@ -38172,6 +38421,23 @@
               ],
               "title": "Scenario Id"
             }
+          },
+          {
+            "in": "query",
+            "name": "export_projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Export Projection Hash"
+            }
           }
         ],
         "responses": {
@@ -38208,7 +38474,42 @@
                 }
               }
             },
-            "description": "Successful Response"
+            "description": "Successful Response",
+            "headers": {
+              "X-PolicyOS-Export-As-Of": {
+                "description": "Time at which the exported semantics were valid or observed.",
+                "schema": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Contract": {
+                "description": "Typed runtime export replay-binding contract.",
+                "schema": {
+                  "const": "policyos.runtime.export_replay_binding.v1",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Projection-Hash": {
+                "description": "SHA-256 of the narrow stable semantic export projection.",
+                "schema": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Replay-Address": {
+                "description": "Stable address with the current projection hash pinned.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Export-Stable-Address": {
+                "description": "Canonical address excluding the replay pin.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "400": {
             "content": {

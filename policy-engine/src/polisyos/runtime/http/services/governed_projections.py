@@ -10,9 +10,14 @@ from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, Literal
-from urllib.parse import urlencode
 
 from pydantic import BaseModel, ConfigDict, Field
+
+from polisyos.runtime.http.services.export_replay import (
+    EXPORT_REPLAY_CONTRACT,
+    build_export_replay_address,
+    hash_export_projection,
+)
 
 _PROJECTION_BASE_PATH = "/api/v1/exports/governed-projections"
 
@@ -89,6 +94,9 @@ class GovernedProjectionPacket(_StrictModel):
 
     packet_schema_version: Literal["policyos.runtime.governed_projection_packet.v1"] = (
         "policyos.runtime.governed_projection_packet.v1"
+    )
+    export_replay_contract: Literal["policyos.runtime.export_replay_binding.v1"] = (
+        EXPORT_REPLAY_CONTRACT
     )
     projection_id: ProjectionId
     availability: ProjectionAvailability
@@ -545,7 +553,7 @@ class GovernedProjectionService:
         }
         return _LoadedSource(
             relative_path=f"{manifest_path}+cases/*",
-            content_hash=_canonical_hash(content_bindings),
+            content_hash=hash_export_projection(content_bindings),
             parsed=parsed,
             modified_at=modified_at,
             declared_content_hash=None,
@@ -562,7 +570,7 @@ class GovernedProjectionService:
             return cached
         projector = _PROJECTORS[definition.projection_id]
         payload = _mapping(_json_ready(projector(loaded.parsed)), "projection_payload")
-        projection_hash = _canonical_hash(payload)
+        projection_hash = hash_export_projection(payload)
         result = (payload, projection_hash)
         self._projection_cache[cache_key] = result
         return result
@@ -932,17 +940,6 @@ def _json_ready(value: object) -> object:
     return value
 
 
-def _canonical_hash(value: object) -> str:
-    encoded = json.dumps(
-        _json_ready(value),
-        ensure_ascii=False,
-        allow_nan=False,
-        separators=(",", ":"),
-        sort_keys=True,
-    ).encode("utf-8")
-    return _sha256(encoded)
-
-
 def _sha256(raw: bytes) -> str:
     return f"sha256:{hashlib.sha256(raw).hexdigest()}"
 
@@ -957,13 +954,13 @@ def _replay_address(
     artifact_content_hash: str,
     projection_hash: str,
 ) -> str:
-    query = urlencode(
+    return build_export_replay_address(
+        _stable_address(projection_id),
         {
             "artifact_content_hash": artifact_content_hash,
             "projection_hash": projection_hash,
-        }
+        },
     )
-    return f"{_stable_address(projection_id)}?{query}"
 
 
 def _enforce_replay_pins(

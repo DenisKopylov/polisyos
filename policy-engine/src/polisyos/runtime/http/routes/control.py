@@ -56,21 +56,24 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import bad_request, not_found
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
+from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
 from polisyos.runtime.http.services.control.lex_search_projection import LexSearchResponse
+from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.http.services.sae_spatial_service import SAESpatialService
 
 if TYPE_CHECKING:
-    from fastapi import APIRouter, Depends, Query, Request
+    from fastapi import APIRouter, Depends, Query, Request, Response
 
     from polisyos.runtime.http.services.control import ControlPlaneService
 else:
     try:  # pragma: no cover - optional runtime dependency
-        from fastapi import APIRouter, Depends, Query, Request
+        from fastapi import APIRouter, Depends, Query, Request, Response
     except ModuleNotFoundError:  # pragma: no cover
         APIRouter = cast("Any", None)
         Depends = cast("Any", None)
         Query = cast("Any", None)
         Request = cast("Any", object)
+        Response = cast("Any", object)
 
 
 def _build_router() -> APIRouter:
@@ -345,10 +348,13 @@ if router is not None:
         response_model=DecisionValiditySummaryResponse,
         operation_id="get_run_decision_validity",
         summary="Read full decision validity lifecycle for a run",
+        responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
     )
     def get_run_decision_validity(
         run_id: str,
         request: Request,
+        response: Response,
+        export_projection_hash: str | None = Query(default=None, max_length=128),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> DecisionValiditySummaryResponse:
         run = ctx.run_index.get_run(run_id)
@@ -365,21 +371,35 @@ if router is not None:
         )
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
-        return control.get_decision_validity_summary(
+        summary = control.get_decision_validity_summary(
             str(run.decision_packet_ref.artifact_id),
             run_id=run.run_id,
             request_id=request_id,
         )
+        bind_export_replay_or_conflict(
+            request=request,
+            response=response,
+            semantic_projection=summary.model_dump(
+                mode="json",
+                exclude={"meta", "checked_at"},
+            ),
+            as_of=summary.checked_at,
+            requested_projection_hash=export_projection_hash,
+        )
+        return summary
 
     @router.get(
         "/decision-packets/{decision_packet_ref}/decision-validity",
         response_model=DecisionValiditySummaryResponse,
         operation_id="get_packet_decision_validity",
         summary="Read full decision validity lifecycle for a decision packet",
+        responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
     )
     def get_packet_decision_validity(
         decision_packet_ref: str,
         request: Request,
+        response: Response,
+        export_projection_hash: str | None = Query(default=None, max_length=128),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> DecisionValiditySummaryResponse:
         artifact_id = ArtifactID.model_validate(decision_packet_ref)
@@ -395,10 +415,21 @@ if router is not None:
         )
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
-        return control.get_decision_validity_summary(
+        summary = control.get_decision_validity_summary(
             str(artifact_id),
             request_id=request_id,
         )
+        bind_export_replay_or_conflict(
+            request=request,
+            response=response,
+            semantic_projection=summary.model_dump(
+                mode="json",
+                exclude={"meta", "checked_at"},
+            ),
+            as_of=summary.checked_at,
+            requested_projection_hash=export_projection_hash,
+        )
+        return summary
 
     @router.post(
         "/data/ingest",

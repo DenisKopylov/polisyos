@@ -1425,7 +1425,8 @@ def render_report(data: Mapping[str, Any]) -> str:
     commit_lines = "\n".join(f"- `{line}`" for line in _recent_commits())
     return f"""# Atlas DS19 Frontend Disposition Register and Strangle-Wave Report
 
-Status: active; generated register projection, human verification receipts.
+Status: `implementation_complete_no_merge_baseline_red`; architect review
+pending; generated register projection and human verification receipts.
 
 This report projects the typed register. It does not replace DS1/DS2 evidence,
 upgrade readiness, or authorize a pending deletion/rebind. The block between
@@ -1491,6 +1492,32 @@ batches and mechanically merged. ESLint receipt SHA-256:
 `22aed9b244038d5e1c0ed0453a7928ad5917dce229f8ee0de823d203ecb9bebb`;
 Vitest receipt SHA-256:
 `9046b0d0abd603a2919fda35f2dba0698fa92c158ed3eee62b6fbac6b07d2545`.
+
+## Closure verification
+
+| Gate | Closure result | Interpretation |
+| --- | --- | --- |
+| Typecheck | PASS, 57.65 s | absolute green |
+| Production build + PWA + security | PASS, 28.72 s; 3,871 modules; 101 precache entries | absolute green after the separately recorded typecheck |
+| ESLint | 916 files; inherited 75 errors / 0 warnings in 5.96 s | zero new diagnostic identities; baseline subset PASS |
+| Vitest | 228 files / 664 tests in 236.92 s; 225 files / 659 tests passed; inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
+| Dashboard architecture | 36 inherited violations; 0 violation files changed since `d01eaa572` | baseline-red, no regression; no fence expansion |
+| Repository guardrails | PASS, 27.05 s under `uv run --isolated` | default worktree `.venv` is invalid; isolated run installed 116 ephemeral packages and changed no repository file |
+| Register/check | schema, 261 DS1 roots, 233 DS2 edges, seven live censuses, report parity, links, source hashes, and corruption probes PASS | disposition authority current |
+| Fence | 55 paths, 0 violations against `main...HEAD`; `git diff --check` PASS | DS19 fence only |
+
+Closure ESLint receipt SHA-256:
+`22aed9b244038d5e1c0ed0453a7928ad5917dce229f8ee0de823d203ecb9bebb`;
+closure Vitest receipt SHA-256:
+`21a0ab369f7447ab6a69f93de474cc0b34562e3c33a92a3ba159e254aa163dcb`.
+The optional focused counterfactual Playwright journey did not execute because
+the fixture server hit the invalid default `.venv` before browser startup;
+affected Vitest suites passed, and this non-receipt is not presented as green.
+
+The exact terminal state is
+`implementation_complete_no_merge_baseline_red`: reviewable but not merge
+ready while inherited lint, Vitest, and dashboard architecture debt remains.
+No merge or push is performed.
 
 {REPORT_PROJECTION_START}
 {projection}

@@ -2,7 +2,7 @@
   "$schema": "./frontend-disposition-register.schema.json",
   "schema_version": "1.0",
   "register_id": "atlas-ds19-frontend-disposition",
-  "as_of": "2026-07-17T11:51:00+03:00",
+  "as_of": "2026-07-17T12:16:00+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
   "authority": {
     "authoritative_for": [

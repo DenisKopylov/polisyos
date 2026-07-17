@@ -1,6 +1,6 @@
 ---
 title: Atlas DS19 False-Substrate Strangle Wave Journal
-status: active - baseline complete; deletion wave not started
+status: implementation_complete_no_merge_baseline_red - architect review pending
 owner: team-frontend
 created: 2026-07-17
 revised: 2026-07-17
@@ -21,13 +21,13 @@ disposition register, or turn baseline-relative results into green gates.
 
 | Phase | State | Evidence |
 | --- | --- | --- |
-| Branch/worktree identity | complete | Clean `codex/atlas-ds19-strangle-wave` worktree at `d01eaa572` when baseline receipts closed |
+| Branch/worktree identity | complete | Isolated `codex/atlas-ds19-strangle-wave`; no merge or push |
 | Typecheck/build baseline | complete | Both absolute gates green |
 | Lint/Vitest debt baseline | complete | Exact inherited red denominators measured; parent reproduction complete |
 | Scope and protected fences | complete | Six deletion clusters ratified; browser signing register-only |
 | Disposition authority | complete | Strict schema/instance, exact DS1/DS2 reconciliation, live checker, report parity, and corruption probes pass |
-| Deletion wave | not started | No feature, route, transport, worker, store, type, locale, package, or test deletion has begun |
-| Closeout | not started | Requires all cluster receipts and explicit no-merge result |
+| Deletion wave | complete | Six clusters; 33 files deleted; net -4,005 application LOC; all 15 DS1 roots and one subunit terminal |
+| Closeout | complete, baseline-red | No new lint/test debt; inherited lint, Vitest, and dashboard architecture debt remains; architect review required |
 
 ## 2026-07-17 - Baseline Identity Checkpoint
 
@@ -478,3 +478,67 @@ unreachable props/branch and obsolete barrel exports.
 
 Wave-end application reduction from repaired baseline `d01eaa572` is
 **14 lines added / 4,019 deleted / net -4,005 LOC / 33 files deleted**.
+
+## 2026-07-17 - Closure Verification And Pattern Pass
+
+Closure ran after wave-end commit `3d245d4fd` so the checker/report change was
+inside the second full gate:
+
+- Explicit typecheck: **PASS, 57.65 seconds**.
+- Production Vite/PWA/postbuild-security phases: **PASS, 28.72 seconds**;
+  3,871 modules and 101 precache entries. The phases followed the already
+  explicit green typecheck to avoid duplicating it under measured host memory
+  pressure.
+- Full ESLint: **916 files, 75 errors, 0 warnings, 22 diagnostic files,
+  5.96 seconds**. The receipt is byte-identical to wave end, SHA-256
+  `22aed9b244038d5e1c0ed0453a7928ad5917dce229f8ee0de823d203ecb9bebb`;
+  baseline comparison reports zero new diagnostics.
+- Complete default-config Vitest suite, four deterministic batches:
+  **228 files / 664 tests; 225 files / 659 tests passed; the same 3 files /
+  5 tests failed; 236.92 seconds**. Failure identity/signature comparison
+  passes. Closure receipt SHA-256:
+  `21a0ab369f7447ab6a69f93de474cc0b34562e3c33a92a3ba159e254aa163dcb`.
+- Dashboard architecture check: **baseline-red, 36 violations**. Mechanical
+  intersection with `git diff d01eaa572` is **zero changed violation files**;
+  receipt SHA-256
+  `bd10aaaa7c2a2626d6b79784dd9d9741317111cdcc9362681858fc62aa0d2019`.
+  No fence expansion or authority-bearing DS4 refactor was attempted.
+- Repository architecture guardrails: the default command exposed the known
+  invalid worktree `.venv` (no Python executable); `uv run --isolated` created
+  an ephemeral 116-package environment and **PASSED in 27.05 seconds**. No
+  repository file or lockfile changed.
+- A focused counterfactual Playwright preservation journey likewise could not
+  launch through the invalid default `.venv`; the fixture server exited before
+  browser startup. This is a disclosed non-receipt, not a hidden pass. The
+  directly affected counterfactual suites are green.
+- Final live checker: schema, all 261 DS1 roots, 233 DS2 evidence edges,
+  seven censuses, report parity, path/anchor resolution, source-byte binding,
+  lint/test comparisons, and corruption probes **PASS**.
+- Fresh source/built-output census contains zero retired collaboration,
+  onboarding, layout-placeholder, worker, Clerk-index, or local-WhatIf
+  identifiers. Fourteen built artifacts still witness the protected review,
+  Operator Craft, Clerk, counterfactual, and public-route chains.
+- `pnpm-lock.yaml` remains SHA-256
+  `111454fc3a69d075418dd93b5afd787fb13ca551511936eb629f9a09e7fe9eed`;
+  dashboard package/lock, audience fixtures, and frozen `ru.json` have zero
+  diff after baseline-repair commit `d01eaa572`. Browser-signing producers,
+  verifier, consumers, route, and e2e also have zero post-repair diff.
+- Fence proof against current `main...HEAD`: **55 changed paths,
+  0 violations**. `git diff --check` passes. No merge, push, endpoint removal,
+  flag wiring, locale edit, or other-worktree mutation occurred.
+
+Final failure/repair-register pass:
+
+| Pattern | Closure evidence |
+| --- | --- |
+| P06/P27/P28 | Parallel collaboration, onboarding, layout, Clerk, worker, and local-WhatIf owners are deleted with their exports/routes; protected canonical owners remain reachable. |
+| P13 | One register, one schema/checker, one report projection, and one journal govern the whole denominator; application code shrank by net 4,005 LOC. |
+| P29 | Deleted claims are recomputed from current tracked paths and consumer scans; built output and corruption probes reject marker-only proof. |
+| P31/P33 | Code-owned cluster target sets, the one-index route invariant, sibling-consumer probes, malformed/missing rows, and corrupted census variants guard the property rather than only the named witness. |
+| P32 | DS1/DS2/baseline sources are content-hashed; evidence paths/anchors resolve; missing or changed sources fail closed. |
+| P34 | The five Vitest failures reproduced on the parent and exact-compared twice after the wave; 36 architecture violations are mechanically disjoint from the DS19 app diff. None is relabeled green. |
+
+Truthful terminal state:
+`implementation_complete_no_merge_baseline_red`. DS19 is ready for architect
+review, but inherited lint, Vitest, and dashboard architecture debt prevents a
+merge-ready claim. The branch is intentionally not merged or pushed.

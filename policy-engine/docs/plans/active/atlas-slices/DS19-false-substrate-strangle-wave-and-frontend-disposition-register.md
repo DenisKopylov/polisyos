@@ -2,7 +2,7 @@
 plan_id: atlas-ds19-false-substrate-strangle-wave-and-frontend-disposition-register
 title: "DS19 - False-Substrate Strangle Wave And Frontend Disposition Register"
 type: slice-plan
-status: active - baseline complete; deletion wave not started
+status: implementation_complete_no_merge_baseline_red - architect review pending
 created: 2026-07-17
 revised: 2026-07-17
 last_verified: 2026-07-17
@@ -202,21 +202,21 @@ wire, delete, or otherwise implement those decisions. In particular,
 
 Every cluster follows these actions in order:
 
-- [ ] Record clean status, HEAD, and the current register row.
-- [ ] Run the cluster's pre-delete census and save the exact command/result in
+- [x] Record clean status, HEAD, and the current register row.
+- [x] Run the cluster's pre-delete census and save the exact command/result in
       the journal.
-- [ ] Add or run the smallest live-sibling behavior fence before deleting.
-- [ ] Delete only the enumerated paths and make only the listed shared edits.
-- [ ] Transition the corresponding register row to `deleted` in the same diff.
-- [ ] Run the affected tests; zero affected-test failures are allowed.
-- [ ] Run typecheck and the production build as absolute-green gates.
-- [ ] Run scoped lint over every deleted/edited file and every referencer
+- [x] Add or run the smallest live-sibling behavior fence before deleting.
+- [x] Delete only the enumerated paths and make only the listed shared edits.
+- [x] Transition the corresponding register row to `deleted` in the same diff.
+- [x] Run the affected tests; zero affected-test failures are allowed.
+- [x] Run typecheck and the production build as absolute-green gates.
+- [x] Run scoped lint over every deleted/edited file and every referencer
       touched by the fresh census; no scoped diagnostic is allowed.
-- [ ] Search generated `.vite/manifest.json`, `sw.js`, and built assets for the
+- [x] Search generated `.vite/manifest.json`, `sw.js`, and built assets for the
       retired identifiers; also prove protected sibling identifiers remain.
-- [ ] Update the journal with denominators, durations, baseline-relative
+- [x] Update the journal with denominators, durations, baseline-relative
       comparison, diff fence, and register-validator result.
-- [ ] Stop the cluster if any new consumer, route, dynamic import, test/e2e
+- [x] Stop the cluster if any new consumer, route, dynamic import, test/e2e
       dependency, package dependency, generated chunk, or service-worker
       reference appears.
 
@@ -534,22 +534,24 @@ this task.
 
 ## Task 9 - Close The Wave Without Merging
 
-- [ ] Re-run every cluster census against source, tests/stories/e2e, package
+- [x] Re-run every cluster census against source, tests/stories/e2e, package
       manifests, routes, Vite manifest, built assets, and `sw.js`.
-- [ ] Re-run the generic disposition validator and all corruption probes.
-- [ ] Run the dashboard typecheck, lint report/comparison, full Vitest
-      report/comparison, architecture check, and production build.
-- [ ] Run repository architecture guardrails:
+- [x] Re-run the generic disposition validator and all corruption probes.
+- [x] Run the dashboard typecheck, lint report/comparison, full Vitest
+      report/comparison, and production build. The dashboard architecture
+      checker remains baseline-red with 36 violations in files unchanged by
+      DS19; it is recorded as no-regression debt, not repaired in this slice.
+- [x] Run repository architecture guardrails:
 
 ```bash
 uv run polisyos-tools architecture guardrails check
 ```
 
-- [ ] Prove `package.json` and `pnpm-lock.yaml` are unchanged after the already
+- [x] Prove `package.json` and `pnpm-lock.yaml` are unchanged after the already
       isolated baseline-repair commit; no deletion-cluster lockfile exception
       exists.
 
-- [ ] Verify patch hygiene and branch scope:
+- [x] Verify patch hygiene and branch scope:
 
 ```bash
 git diff --check
@@ -558,15 +560,15 @@ git diff --stat main...HEAD
 git diff --name-only main...HEAD
 ```
 
-- [ ] Re-open the failure/repair register and record the final pattern pass in
+- [x] Re-open the failure/repair register and record the final pattern pass in
       the journal.
-- [ ] Mark each completed disposition only after its absence/consumer proof is
+- [x] Mark each completed disposition only after its absence/consumer proof is
       current. Mark browser signing protected/current.
-- [ ] State the exact truthful closeout:
+- [x] State the exact truthful closeout:
       `implementation_complete_no_merge_baseline_red` while inherited lint or
       Vitest failures remain, or `review_ready_no_merge` if all gates are
       absolutely green.
-- [ ] Do not merge, push, publish, or archive the task automatically.
+- [x] Do not merge, push, publish, or archive the task automatically.
 
 ## Logical Review And Commit Boundaries
 

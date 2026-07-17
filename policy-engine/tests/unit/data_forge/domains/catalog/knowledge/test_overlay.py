@@ -13,8 +13,11 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     OverlayAdmissionError,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
-from polisyos.runtime.quality.acquisition_executor import ObservationProvenanceClass
-from tests.unit.runtime.quality.test_acquisition_executor import _valid_passport
+from polisyos.runtime.quality.acquisition_executor import (
+    ObservationProvenanceClass,
+    build_admission_passport,
+)
+from tests.unit.runtime.quality.test_acquisition_executor import _fixture, _valid_passport
 
 
 def _sha256(path: Path) -> str:
@@ -23,6 +26,132 @@ def _sha256(path: Path) -> str:
 
 def test_overlay_owner_is_available_through_the_canonical_read_api() -> None:
     assert catalog_read_api.CatalogAcquisitionOverlay is CatalogAcquisitionOverlay
+    assert callable(catalog_read_api.open_catalog_read_session)
+    assert Path(
+        "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
+    ) == catalog_read_api.DEFAULT_ACQUISITION_OVERLAY_PATH
+    assert catalog_read_api.default_acquisition_overlay_path(Path("/repo")) == Path(
+        "/repo/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
+    )
+
+
+def test_catalog_read_session_unifies_epoch_zero_and_overlay_audit_views(
+    tmp_path: Path,
+) -> None:
+    passport, store, authority, _ = _valid_passport(tmp_path / "evidence")
+    baseline = authority.baseline_path
+    overlay_path = tmp_path / "acquisition-overlay.duckdb"
+    overlay = CatalogAcquisitionOverlay(baseline, overlay_path)
+    overlay.initialize()
+    overlay.admit_epoch(
+        passport=passport,
+        artifact_store=store,
+        authority=authority,
+    )
+
+    con = catalog_read_api.open_catalog_read_session(
+        baseline,
+        overlay_path=overlay_path,
+    )
+    catalog_store = catalog_read_api.DatasetCatalogStore(
+        baseline,
+        baseline.parent,
+        overlay_path=overlay_path,
+    )
+    catalog_graph = catalog_read_api.DatasetCatalogGraph(
+        baseline,
+        baseline.parent,
+        overlay_path=overlay_path,
+    )
+    try:
+        assert con.execute("select count(*) from ds_observations").fetchone()[0] == 2
+        assert con.execute("select count(*) from acquisition_epochs").fetchone()[0] == 1
+        assert con.execute("select count(*) from acquisition_passports").fetchone()[0] == 1
+        assert (
+            con.execute("select count(*) from ds_metric_field_bindings").fetchone()[0]
+            == 1
+        )
+        with pytest.raises(duckdb.Error):
+            con.execute("delete from baseline.ds_observations")
+        with pytest.raises(duckdb.Error):
+            con.execute("delete from acquisition_overlay.ds_observations")
+        bindings = catalog_store.resolve_metric_bindings("cells.distress_score")
+        assert bindings
+        assert bindings[0].catalog_dataset_id == (
+            "acquisition.local.corrected_firm_panels"
+        )
+        results = catalog_graph.search_datasets(
+            "Owner validated local distress observations",
+            top_k=5,
+        )
+        assert results
+        assert results[0].id == "acquisition.local.corrected_firm_panels"
+    finally:
+        catalog_graph.close()
+        catalog_store.close()
+        con.close()
+        overlay.close()
+
+
+def test_catalog_read_session_uses_baseline_when_overlay_is_absent(
+    tmp_path: Path,
+) -> None:
+    _, _, authority, _ = _valid_passport(tmp_path / "evidence")
+    missing = tmp_path / "not-created.duckdb"
+
+    for overlay_path in (None, missing):
+        con = catalog_read_api.open_catalog_read_session(
+            authority.baseline_path,
+            overlay_path=overlay_path,
+        )
+        try:
+            assert con.execute("select count(*) from ds_datasets").fetchone()[0] > 0
+            assert con.execute("select count(*) from ds_observations").fetchone()[0] == 0
+            assert (
+                con.execute(
+                    "select count(*) from information_schema.tables "
+                    "where table_name = 'acquisition_epochs'"
+                ).fetchone()[0]
+                == 0
+            )
+        finally:
+            con.close()
+    assert not missing.exists()
+
+
+def test_catalog_read_session_rejects_overlay_bound_to_other_baseline(
+    tmp_path: Path,
+) -> None:
+    _, _, first_authority, _ = _valid_passport(tmp_path / "first")
+    _, _, second_authority, _ = _valid_passport(tmp_path / "second")
+    overlay_path = tmp_path / "overlay.duckdb"
+    overlay = CatalogAcquisitionOverlay(first_authority.baseline_path, overlay_path)
+    overlay.initialize()
+    overlay.close()
+
+    with pytest.raises(BaselineMutationError, match="overlay_baseline_identity_mismatch"):
+        catalog_read_api.open_catalog_read_session(
+            second_authority.baseline_path,
+            overlay_path=overlay_path,
+        )
+
+
+def test_catalog_read_session_rejects_existing_non_overlay_database(
+    tmp_path: Path,
+) -> None:
+    _, _, authority, _ = _valid_passport(tmp_path / "evidence")
+    invalid_overlay = tmp_path / "invalid-overlay.duckdb"
+    con = duckdb.connect(str(invalid_overlay))
+    try:
+        con.execute("create table unrelated(value integer)")
+    finally:
+        con.close()
+
+    with pytest.raises(OverlayAdmissionError, match="overlay_catalog_contract_incomplete"):
+        catalog_read_api.open_catalog_read_session(
+            authority.baseline_path,
+            overlay_path=invalid_overlay,
+        )
 
 
 def test_exact_alignment_cannot_be_self_minted_for_different_variables() -> None:
@@ -224,4 +353,47 @@ def test_overlay_epoch_write_is_content_idempotent(tmp_path: Path) -> None:
     assert first.replayed is False
     assert second.replayed is True
     assert overlay.overlay_path.read_bytes() == first_bytes
+    overlay.close()
+
+
+def test_later_epoch_reuses_identical_registration_without_duplicate_catalog_rows(
+    tmp_path: Path,
+) -> None:
+    passport, store, authority, _, raw_ref = _fixture(tmp_path / "evidence")
+    overlay = CatalogAcquisitionOverlay(
+        authority.baseline_path,
+        tmp_path / "overlay.duckdb",
+    )
+    overlay.initialize()
+    overlay.admit_epoch(
+        passport=passport,
+        artifact_store=store,
+        authority=authority,
+    )
+    second_passport = build_admission_passport(
+        epoch_id=2,
+        raw_evidence_ref=raw_ref,
+        artifact_store=store,
+        raw_artifact_id=passport.raw_artifact_id,
+        authority=authority,
+    )
+
+    second = overlay.admit_epoch(
+        passport=second_passport,
+        artifact_store=store,
+        authority=authority,
+    )
+
+    con = duckdb.connect(str(overlay.overlay_path), read_only=True)
+    try:
+        assert con.execute("select count(*) from acquisition_epochs").fetchone()[0] == 2
+        assert con.execute("select count(*) from acquisition_registrations").fetchone()[0] == 1
+        assert con.execute("select count(*) from ds_datasets").fetchone()[0] == 1
+        assert con.execute("select count(*) from ds_distributions").fetchone()[0] == 1
+        assert con.execute("select count(*) from ds_metric_bindings").fetchone()[0] == 1
+        assert con.execute("select count(*) from ds_observations").fetchone()[0] == 4
+    finally:
+        con.close()
+    assert second.epoch_id == 2
+    assert second.replayed is False
     overlay.close()

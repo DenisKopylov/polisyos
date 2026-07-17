@@ -8,6 +8,7 @@ import types
 from pathlib import Path
 
 import duckdb
+
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.catalog.knowledge.search import DatasetCatalogGraph, SearchFilters
 from polisyos.data_forge.domains.catalog.knowledge.store import DatasetCatalogStore
@@ -77,6 +78,34 @@ def _build_test_db(tmpdir: str) -> Path:
     ]
     build_graph(records=iter(records), db_path=db_path)
     return db_path
+
+
+def test_missing_overlay_preserves_partial_legacy_catalog_reads() -> None:
+    with tempfile.TemporaryDirectory() as tmpdir:
+        db_path = Path(tmpdir) / "legacy-catalog.duckdb"
+        con = duckdb.connect(str(db_path))
+        try:
+            con.execute(
+                "CREATE TABLE ds_datasets "
+                "(id VARCHAR, title VARCHAR, polisyos_metrics VARCHAR[])"
+            )
+            con.execute(
+                "INSERT INTO ds_datasets VALUES "
+                "('legacy-ds', 'Legacy GDP', ['legacy_gdp'])"
+            )
+        finally:
+            con.close()
+
+        store = DatasetCatalogStore(
+            db_path,
+            Path(tmpdir),
+            overlay_path=Path(tmpdir) / "missing-overlay.duckdb",
+        )
+        try:
+            results = store.find_by_polisyos_metric("legacy_gdp")
+            assert [result.id for result in results] == ["legacy-ds"]
+        finally:
+            store.close()
 
 
 def test_search_by_text() -> None:

@@ -277,6 +277,7 @@ class CanonicalAcquisitionAuthority:
             projection, license_id, registration = self._resolve_live_catalog(entry)
         else:
             projection, license_id, registration = self._resolve_local_source(entry)
+        self._require_landing_identifiers_new(entry)
         disposition = _license_disposition(license_id)
         if disposition is not LicenseDisposition.ADMISSIBLE_OPEN:
             raise AcquisitionAuthorityError("license_not_admissible", license_id)
@@ -325,6 +326,36 @@ class CanonicalAcquisitionAuthority:
             upstream_catalog_projection_sha256=fabric_data_plane.content_sha256(projection),
             effective_authority_score=score,
         )
+
+    def _require_landing_identifiers_new(
+        self,
+        entry: AcquisitionAuthorityEntry,
+    ) -> None:
+        """Keep acquisition identities disjoint from immutable epoch zero."""
+
+        con = duckdb.connect(str(self.baseline_path), read_only=True)
+        try:
+            dataset_collision = int(
+                con.execute(
+                    "SELECT count(*) FROM ds_datasets WHERE id = ?",
+                    [entry.landing_dataset_id],
+                ).fetchone()[0]
+                or 0
+            )
+            distribution_collision = int(
+                con.execute(
+                    "SELECT count(*) FROM ds_distributions WHERE id = ?",
+                    [entry.landing_distribution_id],
+                ).fetchone()[0]
+                or 0
+            )
+        finally:
+            con.close()
+        if dataset_collision or distribution_collision:
+            raise AcquisitionAuthorityError(
+                "landing_identifier_collides_with_epoch_zero",
+                f"{entry.landing_dataset_id}:{entry.landing_distribution_id}",
+            )
 
     def verify_source_body(self, entry_id: str, body: bytes) -> bool:
         """Verify local carrier bytes directly; live carriers require E7 authorization."""

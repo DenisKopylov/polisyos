@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
     DEFAULT_L5_MEASUREMENT_REGISTRY,
+    AcquisitionAuthorityEntry,
     AcquisitionAuthorityError,
     AuthoritySchemaColumn,
     CanonicalAcquisitionAuthority,
@@ -191,10 +192,15 @@ def _entry():
     )
 
 
-def _resolver(repo_root: Path, *, license_id: str = "CC-BY-4.0"):
+def _resolver(
+    repo_root: Path,
+    *,
+    license_id: str = "CC-BY-4.0",
+    authority_entry: AcquisitionAuthorityEntry | None = None,
+):
     baseline = _baseline(repo_root, license_id=license_id)
     l5 = _write_l5(repo_root)
-    entry = _entry()
+    entry = authority_entry or _entry()
     registry = build_authority_registry(
         baseline_content_sha256=_sha(baseline),
         l5_measurement_registry_sha256=_sha(l5),
@@ -264,3 +270,22 @@ def test_authority_rejects_self_authored_and_invented_exact_edges() -> None:
     )
     with pytest.raises(ValidationError, match="exact authority alignment"):
         build_authority_entry(**values)
+
+
+def test_authority_rejects_landing_identifier_collision_with_epoch_zero(
+    tmp_path: Path,
+) -> None:
+    values = _entry().model_dump(mode="python", exclude={"entry_id"})
+    values["schema_columns"] = tuple(
+        AuthoritySchemaColumn.model_validate(column)
+        for column in values["schema_columns"]
+    )
+    values["landing_dataset_id"] = "source-worldbank-balance"
+    collision = build_authority_entry(**values)
+    resolver, entry = _resolver(tmp_path, authority_entry=collision)
+
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match="landing_identifier_collides_with_epoch_zero",
+    ):
+        resolver.resolve(entry.entry_id)

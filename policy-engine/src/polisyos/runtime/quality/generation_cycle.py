@@ -33,6 +33,7 @@ from polisyos.core.contracts.value_outer_set import (
     ValueOuterSet,
     ValueOuterSetIdentificationStatus,
 )
+from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_requirement.compiler import DataRequirementCompiler
 from polisyos.foundry.methods.selection import (
     MethodSelectionReceipt,
@@ -1443,6 +1444,7 @@ class RealValueOwnerGateway:
 
     repo_root: Path | None = None
     cycle_substrate_context: CycleSubstrateContext | None = None
+    catalog_overlay_path: Path | None = None
 
     def load_value_data_profile(
         self,
@@ -1467,7 +1469,11 @@ class RealValueOwnerGateway:
                 l1_dcat_variable_availability,
             )
 
-            availability = l1_dcat_variable_availability(repo_root, outcome)
+            availability = l1_dcat_variable_availability(
+                repo_root,
+                outcome,
+                overlay_path=self.catalog_overlay_path,
+            )
         except Exception as exc:
             raise ValueOwnerAccessError(
                 "acquire_data:value_panel_data_missing",
@@ -1491,6 +1497,7 @@ class RealValueOwnerGateway:
             repo_root=repo_root,
             outcome=outcome,
             owner_access_ref=owner_access_ref,
+            overlay_path=self.catalog_overlay_path,
         )
         if profile is None:
             raise ValueOwnerAccessError(
@@ -3276,12 +3283,11 @@ def _load_value_data_profile_from_l1_dcat(
     repo_root: Path,
     outcome: str,
     owner_access_ref: str,
+    overlay_path: Path | None = None,
 ) -> ValueDataProfile | None:
     """Load deterministic owner rows without deriving an exposure assignment."""
 
     try:
-        import duckdb
-
         from polisyos.runtime.quality.substrate_registry import (
             default_substrate_catalog_paths,
         )
@@ -3299,7 +3305,13 @@ def _load_value_data_profile_from_l1_dcat(
             f"L1 DCAT catalog missing at {dcat_path}",
             owner_access_ref="substrate_owner://l1_dcat_missing",
         )
-    con = duckdb.connect(str(dcat_path), read_only=True)
+    selected_overlay = overlay_path or (
+        data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
+    )
+    con = data_forge_read_api.catalog.open_catalog_read_session(
+        dcat_path,
+        overlay_path=selected_overlay,
+    )
     try:
         raw_rows = con.execute(
             """

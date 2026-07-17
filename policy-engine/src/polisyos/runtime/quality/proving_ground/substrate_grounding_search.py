@@ -45,15 +45,6 @@ from polisyos.runtime.quality.capability_index import (
     RightsEnvelope,
 )
 from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
-from polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory import (
-    AdapterAdmissionRecord,
-    DataAssetPort,
-    GroundingSearchLedger,
-    IndexFreshnessRecord,
-    ResourceDiscoveryRecord,
-    SearchRecallSeed,
-    build_hardcode_enumeration_backlog,
-)
 from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
     CONCEPT_ALIAS_GRAPH_PATH,
     Layer3GXDataHomeBlockedError,
@@ -62,6 +53,15 @@ from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
     load_layer3_gx_data_home,
     read_layer3_gx_construct_bundle_id,
     read_layer3_gx_pinned_case_id,
+)
+from polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory import (
+    AdapterAdmissionRecord,
+    DataAssetPort,
+    GroundingSearchLedger,
+    IndexFreshnessRecord,
+    ResourceDiscoveryRecord,
+    SearchRecallSeed,
+    build_hardcode_enumeration_backlog,
 )
 from polisyos.runtime.quality.proving_ground.status_decision_reducers import (
     G1SourceGroundingClosureInputs,
@@ -1840,8 +1840,17 @@ def _search_l1_dcat_cached(repo_root: str, construct: str) -> _L1DcatSearchMeasu
     graph: Any | None = None
     try:
         catalog_read_api = data_forge_read_api.catalog
-        store = catalog_read_api.DatasetCatalogStore(catalog_path, root / L1_DCAT_INDEX_DIR)
-        graph = catalog_read_api.DatasetCatalogGraph(catalog_path, root / L1_DCAT_INDEX_DIR)
+        overlay_path = catalog_read_api.default_acquisition_overlay_path(root)
+        store = catalog_read_api.DatasetCatalogStore(
+            catalog_path,
+            root / L1_DCAT_INDEX_DIR,
+            overlay_path=overlay_path,
+        )
+        graph = catalog_read_api.DatasetCatalogGraph(
+            catalog_path,
+            root / L1_DCAT_INDEX_DIR,
+            overlay_path=overlay_path,
+        )
         bindings_by_mode: dict[str, list[Any]] = {
             "exact": [],
             "alias": [],

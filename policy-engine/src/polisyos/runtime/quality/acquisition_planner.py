@@ -1206,8 +1206,19 @@ class RealAcquisitionOwnerGateway:
         if not families:
             return None
         paths = default_substrate_catalog_paths(self._repo_root)
-        factory = self._dataset_catalog_factory or catalog_read_api.DatasetCatalogGraph
-        graph = factory(paths.l1_dcat_path, paths.l1_dcat_path.parent)
+        if self._dataset_catalog_factory is not None:
+            graph = self._dataset_catalog_factory(
+                paths.l1_dcat_path,
+                paths.l1_dcat_path.parent,
+            )
+        else:
+            graph = catalog_read_api.DatasetCatalogGraph(
+                paths.l1_dcat_path,
+                paths.l1_dcat_path.parent,
+                overlay_path=catalog_read_api.default_acquisition_overlay_path(
+                    self._repo_root
+                ),
+            )
         try:
             service = RetrievalService(
                 curated_dir=curated_dir,

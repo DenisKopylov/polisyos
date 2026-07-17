@@ -29,6 +29,9 @@ resolve_raw_response_body = fabric_data_plane.resolve_raw_response_body
 resolve_linked_request_event = fabric_data_plane.resolve_linked_request_event
 
 OVERLAY_SCHEMA_VERSION = "polisyos.data_forge.acquisition_overlay.v1"
+DEFAULT_ACQUISITION_OVERLAY_PATH = Path(
+    "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
+)
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _BASELINE_UNION_TABLES = (
     "ds_datasets",
@@ -47,6 +50,14 @@ _OBSERVATION_DECISIVE_COLUMNS = frozenset(
         "country_code",
         "value",
     }
+)
+_OVERLAY_AUDIT_TABLES = (
+    "acquisition_overlay_metadata",
+    "acquisition_epochs",
+    "acquisition_passports",
+    "acquisition_registrations",
+    "acquisition_observation_provenance",
+    "ds_metric_field_bindings",
 )
 
 
@@ -360,6 +371,15 @@ class CatalogAcquisitionOverlay:
             )
             con.execute(
                 """
+                CREATE TABLE IF NOT EXISTS acquisition_registrations (
+                    catalog_dataset_id VARCHAR PRIMARY KEY,
+                    registration_content_sha256 VARCHAR NOT NULL,
+                    registration_json JSON NOT NULL
+                )
+                """
+            )
+            con.execute(
+                """
                 CREATE TABLE IF NOT EXISTS acquisition_observation_provenance (
                     observation_id VARCHAR PRIMARY KEY,
                     epoch_id BIGINT NOT NULL,
@@ -569,6 +589,102 @@ class CatalogAcquisitionOverlay:
         """Release the logical owner; connections are transaction-scoped."""
 
         self._initialized = False
+
+
+def default_acquisition_overlay_path(repo_root: Path) -> Path:
+    """Return the registered acquisition-overlay path beneath ``repo_root``."""
+
+    return Path(repo_root) / DEFAULT_ACQUISITION_OVERLAY_PATH
+
+
+def open_catalog_read_session(
+    baseline_path: Path,
+    *,
+    overlay_path: Path | None = None,
+) -> duckdb.DuckDBPyConnection:
+    """Open one read-only union session over epoch zero and admitted epochs.
+
+    A missing optional overlay means an epoch-zero-only session.  An existing
+    overlay is authoritative only when its complete schema and recorded
+    baseline content identity validate; malformed or cross-baseline overlays
+    fail closed instead of silently falling back.
+    """
+
+    baseline = Path(baseline_path)
+    selected_overlay = Path(overlay_path) if overlay_path is not None else None
+    overlay_present = selected_overlay is not None and (
+        selected_overlay.exists() or selected_overlay.is_symlink()
+    )
+    if selected_overlay is None or not overlay_present:
+        if not baseline.is_file():
+            raise BaselineMutationError("baseline_catalog_missing", baseline.as_posix())
+        try:
+            return duckdb.connect(str(baseline), read_only=True)
+        except duckdb.Error as exc:
+            raise BaselineMutationError(
+                "baseline_catalog_unreadable",
+                type(exc).__name__,
+            ) from exc
+
+    if not selected_overlay.is_file():
+        raise OverlayAdmissionError(
+            "overlay_catalog_unreadable",
+            selected_overlay.as_posix(),
+        )
+    if selected_overlay.resolve() == baseline.resolve():
+        raise BaselineMutationError(
+            "overlay_path_equals_baseline",
+            baseline.as_posix(),
+        )
+
+    con = duckdb.connect(":memory:")
+    try:
+        try:
+            _attach_read_only(con, baseline, alias="baseline")
+        except duckdb.Error as exc:
+            raise BaselineMutationError(
+                "baseline_catalog_unreadable",
+                type(exc).__name__,
+            ) from exc
+        identity = _baseline_identity(baseline)
+        _require_attached_tables(
+            con,
+            alias="baseline",
+            expected=_BASELINE_UNION_TABLES,
+            error_code="baseline_catalog_contract_incomplete",
+        )
+
+        try:
+            _attach_read_only(con, selected_overlay, alias="acquisition_overlay")
+        except duckdb.Error as exc:
+            raise OverlayAdmissionError(
+                "overlay_catalog_unreadable",
+                type(exc).__name__,
+            ) from exc
+        _require_attached_tables(
+            con,
+            alias="acquisition_overlay",
+            expected=(*_BASELINE_UNION_TABLES, *_OVERLAY_AUDIT_TABLES),
+            error_code="overlay_catalog_contract_incomplete",
+        )
+        _require_overlay_baseline_identity(con, identity, selected_overlay)
+
+        for table in _BASELINE_UNION_TABLES:
+            source = (
+                f"SELECT * FROM baseline.{table} "  # noqa: S608
+                f"UNION ALL BY NAME SELECT * FROM acquisition_overlay.{table}"
+            )
+            con.execute(f"CREATE TEMP VIEW {table} AS {source}")
+        for table in _OVERLAY_AUDIT_TABLES:
+            con.execute(
+                f"CREATE TEMP VIEW {table} AS "  # noqa: S608
+                f"SELECT * FROM acquisition_overlay.{table}"
+            )
+
+        return con
+    except Exception:
+        con.close()
+        raise
 
 
 def build_metric_field_binding(
@@ -953,6 +1069,28 @@ def _insert_registration(
     registration: AcquisitionDatasetRegistration,
     passport: _Passport,
 ) -> None:
+    registration_payload = registration.model_dump(mode="json")
+    registration_hash = content_sha256(registration_payload)
+    existing = con.execute(
+        "SELECT registration_content_sha256 FROM acquisition_registrations "
+        "WHERE catalog_dataset_id = ?",
+        [registration.catalog_dataset_id],
+    ).fetchone()
+    if existing is not None:
+        if str(existing[0]) != registration_hash:
+            raise OverlayAdmissionError(
+                "overlay_registration_content_conflict",
+                registration.catalog_dataset_id,
+            )
+        return
+    con.execute(
+        "INSERT INTO acquisition_registrations VALUES (?, ?, ?)",
+        [
+            registration.catalog_dataset_id,
+            registration_hash,
+            json.dumps(registration_payload),
+        ],
+    )
     binding = registration.field_binding
     effective_authority_score = _effective_authority_score(passport)
     con.execute(
@@ -1229,6 +1367,40 @@ def _attach_read_only(con: duckdb.DuckDBPyConnection, path: Path, *, alias: str)
     con.execute(f"ATTACH '{escaped}' AS {alias} (READ_ONLY)")
 
 
+def _require_attached_tables(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    alias: str,
+    expected: Sequence[str],
+    error_code: str,
+) -> None:
+    available = {str(row[0]) for row in con.execute(f"SHOW TABLES FROM {alias}").fetchall()}
+    missing = sorted(set(expected) - available)
+    if missing:
+        raise OverlayAdmissionError(error_code, ",".join(missing))
+
+
+def _require_overlay_baseline_identity(
+    con: duckdb.DuckDBPyConnection,
+    baseline: BaselineIdentity,
+    overlay_path: Path,
+) -> None:
+    rows = con.execute(
+        "SELECT schema_version, baseline_content_sha256, baseline_byte_size "
+        "FROM acquisition_overlay.acquisition_overlay_metadata"
+    ).fetchall()
+    expected = (
+        OVERLAY_SCHEMA_VERSION,
+        baseline.content_sha256,
+        baseline.byte_size,
+    )
+    if len(rows) != 1 or tuple(rows[0]) != expected:
+        raise BaselineMutationError(
+            "overlay_baseline_identity_mismatch",
+            overlay_path.as_posix(),
+        )
+
+
 def _existing_epoch(path: Path, epoch_id: int) -> tuple[str] | None:
     con = duckdb.connect(str(path), read_only=True)
     try:
@@ -1256,6 +1428,7 @@ def _model_json(value: object) -> dict[str, Any]:
 
 
 __all__ = [
+    "DEFAULT_ACQUISITION_OVERLAY_PATH",
     "OVERLAY_SCHEMA_VERSION",
     "AcquisitionDatasetRegistration",
     "BaselineIdentity",
@@ -1267,5 +1440,7 @@ __all__ = [
     "OverlayAdmissionError",
     "OverlayAdmissionReceipt",
     "build_metric_field_binding",
+    "default_acquisition_overlay_path",
     "derive_canonical_observations",
+    "open_catalog_read_session",
 ]

@@ -217,34 +217,34 @@
         "cg3_application_scope": "shadow_until_live_gy_s0_writer_is_declared_safe",
         "durable_registration_reason": "cg3_shadow_only_and_no_live_second_domain_s0_writer",
         "durable_s0_registration_available": false,
-        "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+        "l6_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
         "l6_positive_writable_count": 0,
         "l6_writability_attempts": [
           {
-            "attempt_content_hash": "sha256:8eae3fb38c3df394b9d8638a87ef6814e452cd92508113bb506335a3e765601f",
+            "attempt_content_hash": "sha256:82934a0e3847712c2820c434b77a4a5323add95e7c609d4e6f387f725bd92d5b",
             "instrument": "education.blended_learning",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:a2e510b0e67c16cef333f5538db7d00644429c8a23f39c80ebfde773a1bdadfa",
+            "attempt_content_hash": "sha256:db4f77072e0d5da71e6a1ab7abfaf851b743735e5398136ac5916af30d4593d7",
             "instrument": "education.stem_education",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:0ec138e5e61ae445298560b9af637575a974f1af3d3a0a9d0ee7afeb379df085",
+            "attempt_content_hash": "sha256:b501f58a97a34dc2b01eb71035c45cac21d830bb59941264198b08f391a5e2e4",
             "instrument": "education.teaching_method",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:9f9bdf7ad09ca0cf7232e50e0eab5d71743408dac8c270cae3012f15e107e771",
+            "attempt_content_hash": "sha256:2a834e04106a20744f38728827af9e20d3aa3618cebe6d24fc5647992171f133",
             "instrument": "education.dialogic_reading_modality",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           }
@@ -510,34 +510,34 @@
         "cg3_application_scope": "shadow_until_live_gy_s0_writer_is_declared_safe",
         "durable_registration_reason": "cg3_shadow_only_and_no_live_second_domain_s0_writer",
         "durable_s0_registration_available": false,
-        "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+        "l6_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
         "l6_positive_writable_count": 0,
         "l6_writability_attempts": [
           {
-            "attempt_content_hash": "sha256:2bc814498fc6e5b99b66a6035cd19540931c31710c5ed5b5d704e45faf5c182b",
+            "attempt_content_hash": "sha256:06f7906c12d2f6c5a15a07298738c4618a0a029ea58014ca0a26c44910170d65",
             "instrument": "climate.climate_change",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:a01d83ddd98d87e28973432ada839e49ef3ee78c8fa5baa5ab1ee57918501bf5",
+            "attempt_content_hash": "sha256:487576c3bbbd0675d8ef54a66be867c9117071b436a3a559e0aa8a8b80aed5d9",
             "instrument": "climate.renewable_energy_share",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:4feb867d92bac34f6919ea3525ae4c8c66fed12dd8e727cf4fa756d7fa0199c0",
+            "attempt_content_hash": "sha256:557629cb0c2d296d4d8d3f0fe4f55388be682685d0bcaeb2f216c4598e16111b",
             "instrument": "climate.aridity_rise",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:09350b5b9ce1f97f473c448c7c89bcd5bcf80659e33b923cb3a7018754b6a8d4",
+            "attempt_content_hash": "sha256:b2ed3b8d7c0f15b1ac7647bc65ed916147a7b7105df8faee909bbd8872962d9a",
             "instrument": "climate.carbon_emissions",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           }
@@ -834,34 +834,34 @@
         "cg3_application_scope": "shadow_until_live_gy_s0_writer_is_declared_safe",
         "durable_registration_reason": "cg3_shadow_only_and_no_live_second_domain_s0_writer",
         "durable_s0_registration_available": false,
-        "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+        "l6_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
         "l6_positive_writable_count": 0,
         "l6_writability_attempts": [
           {
-            "attempt_content_hash": "sha256:89e7f0191638e4ae39e1efada51e9e07181a3e32e3c7642eb8b5a1f5112546fe",
+            "attempt_content_hash": "sha256:3e70f2f2c95109cf978cf391734b7f5b7db247b5546b53a2ee11e2a8a3fa2e47",
             "instrument": "health.insecticide_treated_materials",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:ae40d7673b76fc9bf6636dd199b9ea1a99faec5adb705364ccdc5b0a97643c33",
+            "attempt_content_hash": "sha256:4c80a86a0dbe36c3f6cbcfb1a15a35b7cd5d9d70532eb9e38a44fde9887b6125",
             "instrument": "health.lactagogue_supplementation",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:0ed4c1aee589d661a7fe1e7e1b23e45d14e377df68840167e5f9d9e063f6a78c",
+            "attempt_content_hash": "sha256:336cc1d769b3c730b475d3a8c44049b27a0062f50516edaf71096763f40d2e32",
             "instrument": "health.tobacco_use",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:0d10442ae37056fd4349c2ebe9d577d3e9264deed4d85a67f78d22008d57b53a",
+            "attempt_content_hash": "sha256:97c3a6f9a7a11a64b99c701674db0e7a2fb4eb8d521b489e6bcd0b7af944de62",
             "instrument": "health.handwashing_campaign",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           }
@@ -915,7 +915,7 @@
       }
     }
   },
-  "census_content_hash": "sha256:f2cbe0c71d8024b8b420f521347cea264b0fff6582b47e5af8f935a99d6dd30b",
+  "census_content_hash": "sha256:bfe5f34b15ce7bcb4100f2ca47098cb0649f79796674a1cfcc44d2bcfc5f6053",
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
@@ -1815,9 +1815,9 @@
   "rule_version": "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1",
   "runtime_metrics": {
     "query_timings_seconds": {
-      "l1_candidate_aggregate": 0.131469,
-      "l2_candidate_aggregate": 0.036947,
-      "l2_candidate_exact_measure_names": 0.013899
+      "l1_candidate_aggregate": 0.379002,
+      "l2_candidate_aggregate": 0.094976,
+      "l2_candidate_exact_measure_names": 0.03336
     }
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"

@@ -1,15 +1,15 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:56ea726b24580245cf853b6b0a2de428cc0bfafdb30f0585d1126deacfdbebab",
+  "gap_report_content_hash": "sha256:76bd50064498450439e19aeb64f5e6452f1536a14c8a71cb329ad35ac8d3cfce",
   "gaps": [
     {
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:212ff7c67ef0a0277e952018a0a677d4e1a91305224d95a46ae2bc29036819be",
+      "gap_content_hash": "sha256:fd41752294e40728bff550abc36850c267ce29225c57ec0598115042254a0ac5",
       "gap_id": "s0_to_l6_world_slot_bridge_missing",
       "owner_evidence": {
-        "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+        "l6_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
         "positive_writable_count": 0,
         "seam_witness": {
           "observed_call_names": [
@@ -40,46 +40,46 @@
         "stage_1_behavioral_receipt": {
           "attempted": true,
           "candidate_entry_content_hash": "sha256:f84205ae9561311375d260d8300e47f6b764da5f6e207dbb676469afcfd22494",
-          "context_binding_hash": "sha256:4db7ef9130dcf371b572683dda914480da7805bff6436fec2a512b7695d33013",
+          "context_binding_hash": "sha256:c5251cfc6140784f32253bae2cd78ca0218923b4a36f4cb76d7f2f6b9bd78248",
           "disposition": "unknown_blocked",
           "grounding_source": "cgf_firewall",
           "grounding_status": "grounding_failed",
-          "lever_resolution_content_hash": "sha256:5df77e2ea6a1e80162a1e1fc335e5510ec326c37d5d051ae1ccad6d3adb1c871",
+          "lever_resolution_content_hash": "sha256:fdcdc45701d275789411f3b8ed8e3893d8bfedafb39077ebb204d0b1c6ded525",
           "lever_resolution_reason_code": "knob_operator_unresolved",
           "lever_resolution_status": "candidate_unbound",
           "owner": "polisyos.runtime.quality.generation_cycle.PolicyGroundingPort",
           "proposal_id": "gy_n4.blended_learning_expansion",
           "raw_candidate_hash": "sha256:4dba146b6769e624916d330747d8a226c550b5c2bb9ff583d96d28c7524f828d",
           "selected_registry_entry_hash": "sha256:0b083d7e6784d2750ca4e933e754bbfc936ccdd8f70b825d5a3c46caf17e6aa8",
-          "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
+          "substrate_input_content_hash": "sha256:5ac65f9ae4632f8d6582f9ae594f0046b633fe6f040d4d05973eabc9df4bd642",
           "world_model_record_content_hash": "sha256:b14cc2ae2bbe445b94f706e7362dd26fd84254416584fa37ac8019621d067089"
         },
         "writability_attempts": [
           {
-            "attempt_content_hash": "sha256:8eae3fb38c3df394b9d8638a87ef6814e452cd92508113bb506335a3e765601f",
+            "attempt_content_hash": "sha256:82934a0e3847712c2820c434b77a4a5323add95e7c609d4e6f387f725bd92d5b",
             "instrument": "education.blended_learning",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:a2e510b0e67c16cef333f5538db7d00644429c8a23f39c80ebfde773a1bdadfa",
+            "attempt_content_hash": "sha256:db4f77072e0d5da71e6a1ab7abfaf851b743735e5398136ac5916af30d4593d7",
             "instrument": "education.stem_education",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:0ec138e5e61ae445298560b9af637575a974f1af3d3a0a9d0ee7afeb379df085",
+            "attempt_content_hash": "sha256:b501f58a97a34dc2b01eb71035c45cac21d830bb59941264198b08f391a5e2e4",
             "instrument": "education.teaching_method",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           },
           {
-            "attempt_content_hash": "sha256:9f9bdf7ad09ca0cf7232e50e0eab5d71743408dac8c270cae3012f15e107e771",
+            "attempt_content_hash": "sha256:2a834e04106a20744f38728827af9e20d3aa3618cebe6d24fc5647992171f133",
             "instrument": "education.dialogic_reading_modality",
-            "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+            "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
             "reason_code": "knob_operator_unresolved",
             "status": "not_owner_writable"
           }
@@ -216,7 +216,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:d35dbcff7031546f2f572c90a90cd11463e69dd86202829c5d8737ba442fd0a7",
+      "gap_content_hash": "sha256:a6401a6b3168c694b906b019c91fa2b1f6acb58e1d7234e56b063ed88192ff48",
       "gap_id": "s0_to_n4_l6_bridge_missing",
       "owner_evidence": {
         "seam_witness": {
@@ -265,11 +265,11 @@
             "sha256:525c5540e21b0df8989a8c7486b6591a781ab98da01dcf04cf6049b751e06a2b"
           ],
           "generation_channel": "n4_owner",
-          "lever_source_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73",
-          "n4_owner_capture_content_hash": "sha256:073cb74072ac9476f3b353ec26576d268a47c018d399de5bbbb00789f5da6207",
+          "lever_source_hash": "sha256:5ac65f9ae4632f8d6582f9ae594f0046b633fe6f040d4d05973eabc9df4bd642",
+          "n4_owner_capture_content_hash": "sha256:adf43075ace4583e2b9375e1a0374c9d0efb002a5e8be71151f0e2613653a57b",
           "owner": "polisyos.runtime.quality.design_generation.generate_design_candidate_bundle_under_a",
           "owner_status": "generated",
-          "prompt_slice_content_hash": "sha256:e3fa42632af41edf0d036f29df365aefde6d7dcb95a6c678e60b1a7f3ee25690",
+          "prompt_slice_content_hash": "sha256:a086d463d1f26633c50cce83ecbd3b1d768ce44c60b065d486420bee096d6e55",
           "prompt_slice_operator_kinds": [
             "education_blended_learning",
             "education_stem_education",
@@ -296,7 +296,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:7af74e500131b3f7f2187be608e26dbe2249ce6bdc713b3590f49e7d214bc681",
+      "gap_content_hash": "sha256:28881361862b68ab5b7d70126d44be8b944ff4aefe5ab02e5538a82195a689c2",
       "gap_id": "s0_to_n5_wmr_bridge_missing",
       "owner_evidence": {
         "seam_witness": {
@@ -338,7 +338,7 @@
         },
         "stage_1_behavioral_receipt": {
           "attempted": true,
-          "context_binding_hash": "sha256:4db7ef9130dcf371b572683dda914480da7805bff6436fec2a512b7695d33013",
+          "context_binding_hash": "sha256:c5251cfc6140784f32253bae2cd78ca0218923b4a36f4cb76d7f2f6b9bd78248",
           "identity_evidence_kind": "simulation_object_identity",
           "object_identity_reused": true,
           "owner": "polisyos.runtime.quality.generation_cycle._build_boundary_world_model_record",
@@ -410,7 +410,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:b2961b0c4e608619122a3a549560d98e194416e6090b1a72e625d90ccc6112fe",
+      "gap_content_hash": "sha256:cce85b8aec085e9f5e51e7ee90a6846bfc9214dcea61acfddcd810ac5bd8e679",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [],
@@ -444,12 +444,12 @@
           "closed": true,
           "cycle_count": 1,
           "reason_code": "n6_coherent_single_terminal_accepted",
-          "receipt_ref": "sha256:f61d69696f33d8a38313728fd4ee7d4da3881494e993714bc26f6f4858c55674",
-          "run_content_hash": "sha256:e5f8608ec8b101a5f4c8b7b0cdf12d58a499f1a6ae9933e17596f0a1db2606e4",
+          "receipt_ref": "sha256:7fd2a5b44899cfc5c5f3e003f357c631c17264414965d010949486dc4e02f827",
+          "run_content_hash": "sha256:581243fd4ef651fac9d0b1eb1c17bcaf579a705f6f1862eda2b283fdaddebcf7",
           "terminal_kind": "acquisition_required",
           "validation_issues": []
         },
-        "trace_content_hash": "sha256:583da85b0e6ff1c74209eef60b89b2bf46146b3f777a1ff1dfb11a92de477547"
+        "trace_content_hash": "sha256:40175c349cf711e0d4dd4967b949c69bba182338055ea049a364aa9d8c125584"
       },
       "status": "closed"
     }

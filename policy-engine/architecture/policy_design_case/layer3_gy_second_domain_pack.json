@@ -5,7 +5,7 @@
     "surface": "pack_manifest_and_gap_report",
     "surface_out_of_scope": false
   },
-  "census_content_hash": "sha256:f2cbe0c71d8024b8b420f521347cea264b0fff6582b47e5af8f935a99d6dd30b",
+  "census_content_hash": "sha256:bfe5f34b15ce7bcb4100f2ca47098cb0649f79796674a1cfcc44d2bcfc5f6053",
   "components": {
     "grounding_reference_coverage": {
       "coverage": {
@@ -181,35 +181,35 @@
     "owner_writability": {
       "attempts": [
         {
-          "attempt_content_hash": "sha256:8eae3fb38c3df394b9d8638a87ef6814e452cd92508113bb506335a3e765601f",
+          "attempt_content_hash": "sha256:82934a0e3847712c2820c434b77a4a5323add95e7c609d4e6f387f725bd92d5b",
           "instrument": "education.blended_learning",
-          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+          "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
           "reason_code": "knob_operator_unresolved",
           "status": "not_owner_writable"
         },
         {
-          "attempt_content_hash": "sha256:a2e510b0e67c16cef333f5538db7d00644429c8a23f39c80ebfde773a1bdadfa",
+          "attempt_content_hash": "sha256:db4f77072e0d5da71e6a1ab7abfaf851b743735e5398136ac5916af30d4593d7",
           "instrument": "education.stem_education",
-          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+          "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
           "reason_code": "knob_operator_unresolved",
           "status": "not_owner_writable"
         },
         {
-          "attempt_content_hash": "sha256:0ec138e5e61ae445298560b9af637575a974f1af3d3a0a9d0ee7afeb379df085",
+          "attempt_content_hash": "sha256:b501f58a97a34dc2b01eb71035c45cac21d830bb59941264198b08f391a5e2e4",
           "instrument": "education.teaching_method",
-          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+          "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
           "reason_code": "knob_operator_unresolved",
           "status": "not_owner_writable"
         },
         {
-          "attempt_content_hash": "sha256:9f9bdf7ad09ca0cf7232e50e0eab5d71743408dac8c270cae3012f15e107e771",
+          "attempt_content_hash": "sha256:2a834e04106a20744f38728827af9e20d3aa3618cebe6d24fc5647992171f133",
           "instrument": "education.dialogic_reading_modality",
-          "owner_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+          "owner_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
           "reason_code": "knob_operator_unresolved",
           "status": "not_owner_writable"
         }
       ],
-      "l6_bundle_content_hash": "sha256:7baae8f3404668286ecf94868071117799b1589371cceec7c89a7bb866e3024e",
+      "l6_bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
       "owner": "L6 intervention substrate resolver",
       "positive_writable_count": 0,
       "s0_education_entries": [
@@ -353,12 +353,12 @@
     "historical_source_pack_content_hash": "sha256:078ab1b32f5f634855f8e8694a22c7a864a3d66650c386ab05c87ebe90ddc664",
     "journal_semantics": "E6 gaps are explicit because existing N7 has no durable L2/L3 journal artifact",
     "live_attempt_semantics": "E8 one journal-first N4 owner capture, then content-addressed replay",
-    "substrate_input_content_hash": "sha256:db478379203dd1cb33b29fbf11a2427db8e26ac33acbc75b2cbef505993d0e73"
+    "substrate_input_content_hash": "sha256:5ac65f9ae4632f8d6582f9ae594f0046b633fe6f040d4d05973eabc9df4bd642"
   },
   "content_hash_excluded_fields": [
     "runtime_metrics"
   ],
-  "cycle_trace_content_hash": "sha256:583da85b0e6ff1c74209eef60b89b2bf46146b3f777a1ff1dfb11a92de477547",
+  "cycle_trace_content_hash": "sha256:40175c349cf711e0d4dd4967b949c69bba182338055ea049a364aa9d8c125584",
   "distinctness": {
     "computed_status": "must_pass_validator",
     "first_vertical_comparator": {
@@ -386,8 +386,8 @@
     },
     "selected_method_family": "non_panel_short_series"
   },
-  "gap_report_content_hash": "sha256:56ea726b24580245cf853b6b0a2de428cc0bfafdb30f0585d1126deacfdbebab",
-  "manifest_content_hash": "sha256:5856a22cec6e59c07ad9637173a75ca774d83a0254520ac625c55d893711bb26",
+  "gap_report_content_hash": "sha256:76bd50064498450439e19aeb64f5e6452f1536a14c8a71cb329ad35ac8d3cfce",
+  "manifest_content_hash": "sha256:0290f99d3361997c67fc8fbe30af4cafaa10b25f0fd2a90cbd09ea0a23f285ef",
   "n7_acquisition": {
     "attempt_effective_owner_config": {
       "allow_explore_fallback": true,
@@ -4535,7 +4535,7 @@
   },
   "schema_version": "policyos.policy_design_case.layer3_gy_second_domain_pack.v1",
   "selected_domain": "education",
-  "smoke_problem_content_hash": "sha256:a4cd15957c3875c64a2bb38bb79e2d2e4e610df69b471d1b159964357794cc34",
+  "smoke_problem_content_hash": "sha256:9f9ff18f69235f9ed735c6ba56f9c121d744a008f938304836badbb9d0838f80",
   "zero_engine_code": {
     "changed_engine_paths": [],
     "changed_paths": [

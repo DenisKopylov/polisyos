@@ -45,7 +45,13 @@ implementation existed when they were captured.
 6. `48118be16` — shared replay binding through existing owner exporters.
 7. `9a0e2b743` — initial closure evidence and architect-review handoff.
 8. `99090d923` — close the independent review's producer/replay/type findings.
-9. The commit containing this journal — final repair receipts and fence evidence.
+9. `8a4db34e2` — repair evidence, client checks, and first-review closure record.
+10. `952a52a44` — bind projections to owner validators, type active channels, and
+    regenerate the shared contract.
+11. `202c1e48f` — consume the merged DS19 collaboration strangle in the transport
+    contract.
+12. The commit containing this journal — second-review receipts and final fence
+    evidence.
 
 ### Independent architect-review repair pass
 
@@ -85,27 +91,65 @@ the client generator's `JsonValue` and Pydantic's first generic JSON schema. The
 contract uses a non-recursive `ProjectionJsonValue` schema for nested owner JSON while
 keeping every producer's top-level dependency fields strict and required.
 
+### Second independent review and repair pass
+
+The second independent review of `8a4db34e2` again returned **not ready**. It found that
+top-level payload names were still insufficient evidence because nested owner data was
+accepted without a content-bound validator; recursive provenance filtering missed the
+real `capture_provenance` containers; the hidden-channel registry remained
+contract-by-string while SSE/WS producers emitted dictionaries; the N13a journal's
+owner semantic hash was mislabeled as byte identity; and replay did not bind an
+`as_of` derived from filesystem mtime.
+
+The repair observes P32/P29 rather than adding markers:
+
+- An isolated worker invokes each canonical owner validator against exact component
+  path-to-SHA-256 bindings. The parent verifies validator/version, every component
+  identity, and the aggregate identity before caching a receipt. Dependency absence,
+  timeout, malformed receipt, component drift, or owner issues produce a typed
+  `invalid_source`; owner modules remain absent from normal HTTP imports.
+- Top-level payload fields are source-specific types. All-null, wrong-shape,
+  unrecognized owner identity, forged aggregate receipt, and component-drift probes
+  fail. The canonical N13a validator additionally proves the census-to-journal semantic
+  hash handshake.
+- Provenance-only recursion covers each actual `capture_provenance` path, while a
+  control proves semantic owner content and semantic producer identity still change the
+  projection hash.
+- The N13a related binding now names `owner_semantic_hash` separately from the resolved
+  journal `artifact_content_hash` and states its semantic rule version.
+- Replay addresses and request pins include `source_as_of`; identical bytes with a
+  changed mtime retain their semantic projection hash but fail the stale time pin.
+- Runs SSE and review WS payloads are strict versioned DTOs validated at final emission.
+  The channel registry resolves their actual producer classes and honestly labels
+  dashboard-consumer verification as `verification_missing`.
+- The repository runtime contract checker initially exposed missing success examples
+  and noncanonical Unicode serialization. The three DS3 GETs now have examples in the
+  existing OpenAPI augmentation map, and the schema is produced by the canonical
+  repository exporter.
+
 ### Producer closure inventory
 
 Hashes below were read from the final producer against the governed artifacts in this
-worktree. `surface-readiness` is intentionally an honest absence, not a projection of
-the ineligible example or DS1 audit ledger.
+worktree. Seven sources pass their owner validators and expose projection hashes, five
+fail closed under current owner validation/dependency reality, and readiness is absent.
+`surface-readiness` is intentionally an honest absence, not a projection of the
+ineligible example or DS1 audit ledger.
 
-| Producer | Artifact identity | Narrow projection hash | Consumer slice | Audience | Passing semantic test |
+| Producer | Artifact identity | Current state / narrow projection hash | Consumer slice | Audience | Passing semantic test |
 |---|---|---|---|---|---|
-| `depth-n-cycle-board` | `layer3_gy_depth_n_universality_contract.json`<br>`sha256:29bb35048575ccc4fd61124875569d90c4cf843f5dac4f42b6f1ad768b22e9c6` | `sha256:381810985e695cbf29f0f00fc17f291b5c68610897a608251c070294ff9d4379` | DS7 Cycle Board / DS8 drilldown | MACHINE | `test_depth_n_projection_preserves_recorded_validator_outputs_without_rederiving`; unseen-label and provenance-only-rebaseline tests |
-| `value-gate` | `layer3_gy_value_gate_contract.json`<br>`sha256:755d67837fd74b7e7fb35aff6ae3b355f5b1fafd9381b8964d1a02a18ae937cb` | `sha256:d42cca389816c466d95b7d87c3eda11abc64afb7021182d43f3c47b5f015d541` | DS7 value column / DS16 | MACHINE | `test_value_gate_projection_contains_denominators_receipts_and_outer_set_slots` |
-| `generation-cycle-disposition` | `layer3_gy_generation_cycle_disposition_ledger.json`<br>`sha256:69757955ac4797e916a439bd19484278cfee5fa7da732c52e75f0b2e76e57e10` | `sha256:b5f9771158af35b72a7c3c7354273b86667ddcb9f017e2d2c39ce9d265ada4e5` | DS7 honesty / DS10 explanation | EXPERT | `test_disposition_projection_is_narrow_and_audience_declared` |
-| `engine-census` | `layer3_gy_engine_census.json`<br>`sha256:ca72e8bb9eda519b9da9f2c81d0069e2b7cb940308ad8c012b99f241f2652dd3` | `sha256:063147caa2de7e89a6730e4d7955d840be9f5a3a747910af968cabd582d2e06c` | DS7 / DS10 census | EXPERT | `test_engine_census_projection_omits_full_rows` |
-| `fork-b-relation-census` | `layer3_gy_n10_cg1_l2_relation_census.json`<br>`sha256:1c004559fe41cc84296ebb05edcfd4f5f95ade9542b2992aa52543ccb0c3bca4` | `sha256:d34cca7c3a9c5bf8f707497d4be845d3d6f42dbc5ba915a71f44e16a664e5c22` | DS7 / DS10 census | MACHINE | `test_fork_b_projection_omits_relation_table_and_binds_counts` |
-| `acquisition-routing-contract` | `layer3_gy_acquisition_contract.json`<br>`sha256:23ebac67c73963be8bd64fb3052d785904d1b7a7bcbea6ee79fecea9c5539bdd` | `sha256:85cc338a2bc9870ebb685f23ca5ce515cb6a5ff6b8c4069d46bdbd23df58f3b3` | DS7 base route / DS15 | MACHINE | receipt preservation and nested provenance-rebaseline tests |
-| `n13a-acquisition-census` | `layer3_gy_n13a_acquisition_census.json`<br>`sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791` | `sha256:4f7e57e921e6034d6dd3fa2c063e941898065a6688ffda7e2520dca0a2c35f8e` | DS15 / DS7 route context | MACHINE | present-source and typed-absence tests |
-| `n13a-live-probe-journal` | `layer3_gy_n13a_live_probe_journal.json`<br>`sha256:027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd` | `sha256:4c1d2cbaf542b29a56c5e9212b53dac72222e58989bb77008b42134bfe7ed462` | DS15 audit | EXPERT | present-source and typed-absence tests |
-| `capability-reality` | `capability_reality_report.json`<br>`sha256:9a0a8baf637a886a059729b36902cad56b33443cf05cfa59adb32ccbd1dc20c6` | `sha256:123def0f14990752d5319c5fb2d2ed2b6f6a87a2c045195b4c4ce91add087521` | DS6 / DS7 | MACHINE | `test_capability_reality_projection_uses_reported_readiness` |
-| `cluster-ownership` | `cluster_ownership_map.toml`<br>`sha256:b9409bc276d77d60919fab996ced4d01189c276eb38edad1eaa23e831edd69f4` | `sha256:577e68ce31aaa16a16ef6735f946770c9c821b9631bf6b852a86751c3bbc9bb7` | DS6 / DS7 | EXPERT | `test_cluster_ownership_projection_parses_toml_without_reclassifying_cells` |
-| `layer3-health-metrics` | `layer3_health_metric_ledgers.toml`<br>`sha256:1b3f19fc0d039a417dbdd45ccada02be9e1998a340cedcbf85d67b7925e97ac5` | `sha256:2f097e220103821a3ae4f30fc6aec7b9535dd436abe9e8e1958d281fae39f26b` | DS6 instrumentation | MACHINE | `test_layer3_health_projection_preserves_freeze_values` |
-| `legacy-proving-ground` | 13 fixture identities<br>`sha256:c289f814835f60178b54fd6edeb5748d3c58865f8257ab9afabd4768637aa0c7` | `sha256:bb8e9a536ee4bdd5fcca797bba91974d7a30fd2951777fca59ac8555d16742d5` | DS7 legacy cohort | EXPERT | identity, fixture-not-runtime-outcome, and metadata-rebaseline tests |
-| `surface-readiness` | canonical live ledger absent (`artifact_missing`) | none (`projection_missing`) | DS6 / DS7 | MACHINE | example, typed-absence, present-fake, and Revision-2 rejection tests |
+| `depth-n-cycle-board` | `layer3_gy_depth_n_universality_contract.json`<br>`sha256:29bb35048575ccc4fd61124875569d90c4cf843f5dac4f42b6f1ad768b22e9c6` | `invalid_source`; no exported projection hash; `owner_validator_dependency_missing_ortools_sat_python_cp_model` | DS7 Cycle Board / DS8 drilldown | MACHINE | recorded-output, missing-witness, unseen-label, provenance-only, and missing-owner-dependency tests |
+| `value-gate` | `layer3_gy_value_gate_contract.json`<br>`sha256:755d67837fd74b7e7fb35aff6ae3b355f5b1fafd9381b8964d1a02a18ae937cb` | `invalid_source`; no exported projection hash; missing OR-Tools owner dependency | DS7 value column / DS16 | MACHINE | `test_value_gate_projection_contains_denominators_receipts_and_outer_set_slots`; missing-owner-dependency test |
+| `generation-cycle-disposition` | `layer3_gy_generation_cycle_disposition_ledger.json`<br>`sha256:69757955ac4797e916a439bd19484278cfee5fa7da732c52e75f0b2e76e57e10` | `invalid_source`; no exported projection hash; missing OR-Tools owner dependency | DS7 honesty / DS10 explanation | EXPERT | disposition scope, missing/null dependency, and owner-dependency tests |
+| `engine-census` | `layer3_gy_engine_census.json`<br>`sha256:ca72e8bb9eda519b9da9f2c81d0069e2b7cb940308ad8c012b99f241f2652dd3` | `available`<br>`sha256:063147caa2de7e89a6730e4d7955d840be9f5a3a747910af968cabd582d2e06c` | DS7 / DS10 census | EXPERT | `test_engine_census_projection_omits_full_rows`; canonical owner-worker pass |
+| `fork-b-relation-census` | `layer3_gy_n10_cg1_l2_relation_census.json`<br>`sha256:1c004559fe41cc84296ebb05edcfd4f5f95ade9542b2992aa52543ccb0c3bca4` | `available`<br>`sha256:d34cca7c3a9c5bf8f707497d4be845d3d6f42dbc5ba915a71f44e16a664e5c22` | DS7 / DS10 census | MACHINE | `test_fork_b_projection_omits_relation_table_and_binds_counts` |
+| `acquisition-routing-contract` | `layer3_gy_acquisition_contract.json`<br>`sha256:23ebac67c73963be8bd64fb3052d785904d1b7a7bcbea6ee79fecea9c5539bdd` | `invalid_source`; no exported projection hash; missing OR-Tools owner dependency | DS7 base route / DS15 | MACHINE | receipt preservation, table-driven capture-provenance immunity, semantic owner-content/producer binding, and owner-dependency tests |
+| `n13a-acquisition-census` | `layer3_gy_n13a_acquisition_census.json`<br>`sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791`<br>journal semantic `sha256:e1b38f303965be715f61c70f9dc00f567fe1b5415c1dd11d89c02a19a7228eb9` / byte `sha256:027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd` | `available`<br>`sha256:4f7e57e921e6034d6dd3fa2c063e941898065a6688ffda7e2520dca0a2c35f8e` | DS15 / DS7 route context | MACHINE | present/absence, semantic-journal drift, and canonical owner-worker tests |
+| `n13a-live-probe-journal` | `layer3_gy_n13a_live_probe_journal.json`<br>`sha256:027b3824f77c325ec4550afbf1ea75fb7a4b70c78070d6bb3cb471d73110d3fd` | `available`<br>`sha256:4c1d2cbaf542b29a56c5e9212b53dac72222e58989bb77008b42134bfe7ed462` | DS15 audit | EXPERT | present-source and typed-absence tests |
+| `capability-reality` | `capability_reality_report.json`<br>`sha256:9a0a8baf637a886a059729b36902cad56b33443cf05cfa59adb32ccbd1dc20c6` | `invalid_source`; no exported projection hash; `capability_repo_ref_file_missing` | DS6 / DS7 | MACHINE | actual-owner drift, all-null, invalid-field, and missing/unrecognized owner-contract tests |
+| `cluster-ownership` | `cluster_ownership_map.toml`<br>`sha256:b9409bc276d77d60919fab996ced4d01189c276eb38edad1eaa23e831edd69f4` | `available`<br>`sha256:757666630746b9cd71c5ccbc8e1887f0ee2576e14eacc6831eb89a75a3c423e4` | DS6 / DS7 | EXPERT | `test_cluster_ownership_projection_parses_toml_without_reclassifying_cells` |
+| `layer3-health-metrics` | `layer3_health_metric_ledgers.toml`<br>`sha256:1b3f19fc0d039a417dbdd45ccada02be9e1998a340cedcbf85d67b7925e97ac5` | `available`<br>`sha256:2f097e220103821a3ae4f30fc6aec7b9535dd436abe9e8e1958d281fae39f26b` | DS6 instrumentation | MACHINE | `test_layer3_health_projection_preserves_freeze_values` |
+| `legacy-proving-ground` | 13 fixture identities<br>`sha256:c289f814835f60178b54fd6edeb5748d3c58865f8257ab9afabd4768637aa0c7` | `available` fixture identity only<br>`sha256:bb8e9a536ee4bdd5fcca797bba91974d7a30fd2951777fca59ac8555d16742d5` | DS7 legacy cohort | EXPERT | canonical 13-case owner load, fixture-not-runtime-outcome, and owner-valid metadata-rebaseline tests |
+| `surface-readiness` | canonical live ledger absent | `artifact_missing`; no projection hash | DS6 / DS7 | MACHINE | example, typed-absence, present-fake, and Revision-2 rejection tests |
 
 ### Shared export and channel governance
 
@@ -119,16 +163,27 @@ carries stable address, projection hash, replay address, and as-of headers. The 
 negative also proves replay work did not bypass a `may_not_use_for: publication`
 boundary.
 
-| Registry ID | Path | Contract | Auth class | Consumer |
-|---|---|---|---|---|
-| `runs-list-live` | `/api/v1/runs/live` | `policyos.runtime.runs_list_snapshot.v1` | `runtime_tenant_access+stream_rate_limit` | dashboard `RunsLiveProvider` |
-| `run-detail-live` | `/api/v1/runs/{run_id}/live` | `policyos.runtime.run_detail_snapshot.v1` | `runtime_run_tenant_access+stream_rate_limit` | dashboard `useRunLiveUpdates` |
-| `review-live` | `/api/v1/review/live` (`review.cursor`, `review.lock`, `review.presence`) | `policyos.runtime.review_collaboration_envelope.v1` | `runtime_review_socket_auth+tenant_opa_action+stream_rate_limit` | dashboard review collaboration surface |
+| Registry ID | Path | Producer contract | Auth class | Consumer | Capability state |
+|---|---|---|---|---|---|
+| `runs-list-live` | `/api/v1/runs/live` | `channel_contracts:RunsListSnapshot` / `policyos.runtime.runs_list_snapshot.v1` | `runtime_tenant_access+stream_rate_limit` | dashboard `RunsLiveProvider` | `verification_missing` |
+| `run-detail-live` | `/api/v1/runs/{run_id}/live` | `channel_contracts:RunDetailSnapshot` / `policyos.runtime.run_detail_snapshot.v1` | `runtime_run_tenant_access+stream_rate_limit` | dashboard `useRunLiveUpdates` | `verification_missing` |
+| `review-live` | `/api/v1/review/live` (`review.cursor`, `review.lock`, `review.presence`) | `channel_contracts:ReviewSnapshot` / `policyos.runtime.review_collaboration_envelope.v1` | `runtime_review_socket_auth+tenant_opa_action+stream_rate_limit` | dashboard review collaboration surface | `verification_missing` |
 
-DS19's disposition register was not merged during DS3. The dated DS3 recommendation
-for phantom `/api/v1/collaboration/**` REST/live traffic remains remove/strangle
-(2026-07-17); DS3 did not add, delete, register, or exempt it. The 37 uncalled OpenAPI
-operations remain untouched for DS19 disposition.
+At closeout, `main` advanced through DS19 merge `f9f69e807` and the canonical frontend
+disposition register. DS3 consumed, but did not copy or edit, that architecture-owned
+authority:
+
+- `feature-collaboration`, `transport-rest-collaboration`, and
+  `transport-ws-collaboration` are `deleted` and `strangled` by DS19 on 2026-07-17.
+  DS3 adds no phantom server route or registry entry. A red-first transport negative
+  initially failed on the missing merged-register resolver; its positive now verifies
+  the register identity, authority limit, and exact collaboration rows, then requires
+  zero unmatched callers after the strangle.
+- The 37 uncalled OpenAPI operations have 13 `wire` and 24 `retire` dispositions.
+  These remain decision-only rather than capability graduation. The register expressly
+  forbids using the frontend decision to delete server endpoints or claiming pending
+  work as implemented, so DS3 leaves those operations unchanged and later owners must
+  execute the decisions.
 
 ### Client-home decision and generation receipt
 
@@ -147,23 +202,35 @@ The final canonical generation sequence ran twice with byte-identical results:
 
 | Generated file | SHA-256 on run 1 and run 2 |
 |---|---|
-| `schemas/runtime_api_v1.openapi.json` | `2b30cf8a84f3fe985e16a0edc2f45346fcc80149ac61b718d0fed4ef04d5b79e` |
-| `packages/runtime-api-client/types.ts` | `706b0048f642c85ea7cd8fe8c3c3960a7d13f4dc26c2045cd38e1f1c04c74260` |
-| `packages/runtime-api-client/runtimeApiClient.ts` | `fe5deb1641bc0f82a34ac7d45191e54a98a003b79d71bad3424ebe3d872c5243` |
-| `packages/runtime-api-client/runtimeApiClient.js` | `40b63431602abd2e1ad9f9dc69bae17657b1e8d638db9192bc03184d04a0d5eb` |
+| `schemas/runtime_api_v1.openapi.json` | `5fd861d450ba6c265f452203951ff9e55c9b3957a424aca99a9552a5a06a77f8` |
+| `packages/runtime-api-client/types.ts` | `54d5b796eb956b373276a26f0522d1fefad9cc527f28804494437447b8c9479c` |
+| `packages/runtime-api-client/runtimeApiClient.ts` | `04c18a4247fec1bb6538462a28b13c1f0ea4d3e279e0e3b3315f11d4f05ed684` |
+| `packages/runtime-api-client/runtimeApiClient.js` | `f0cacc0409cf3edfc89a81b5d5257a8e7779eeb7d16916585f7dfa7f2636417f` |
 
 ### Fresh targeted verification receipts
 
-- Governed projection service: 39 passed, including typed-state/payload, fake-source,
-  malformed-source, cache-isolation, narrow-hash, and stable-stat negatives.
-- Governed projection/channel API file: 6 passed.
+- Governed projection service plus isolated owner worker: 68 passed, including strict
+  source/payload states, owner receipt/component binding, all-null and schema/rule
+  negatives, N13a semantic-journal drift, malformed sources, cache isolation, narrow
+  hashes, source-time replay, and import-laziness.
+- Governed projection/channel API file: 7 passed.
+- Typed runs SSE/review WS behavior and existing relevant run/review cases: 15 passed;
+  the two unrelated control-plane cases in `test_runs_api.py` were excluded only after
+  a detached worktree at base `7b6933770` reproduced both baseline failures (expected
+  200/422, actual 400), completing the P34 isolation from all DS3 changes.
 - Existing artifact render/export file, including publication, POST pin, and tx-only
   negatives: 8 passed.
 - Existing lineage file, including no-cursor PROV and replay: 6 passed.
 - Lex plus decision-validity run/packet/replay selection: 4 passed.
-- OpenAPI/client regeneration contract selection: 5 passed.
-- Runtime client-home/transport bridge: 5 passed.
-- Ruff check: all 18 changed Python paths passed.
+- OpenAPI/client regeneration contract selection: 5 passed, including repository-wide
+  success examples and two-run byte identity.
+- Runtime client-home/transport bridge: 6 passed, including pre-merge phantom fencing
+  and verified post-DS19 zero-residual behavior.
+- `polisyos-tools runtime check-runtime-api-contract`: passed after canonical exporter,
+  examples, schema, and client drift checks.
+- Ruff: all DS3-changed Python paths passed; the pre-existing two `E501` lines in
+  `routes/runs.py` were left untouched and that file was checked with only `E501`
+  ignored.
 - Shared client: TypeScript, two Node tests, architecture, ESLint, and Prettier passed.
 - Reference shell: TypeScript, architecture, ESLint, and Prettier passed.
 - No full pytest or browser suite was run, per DS3 scope.
@@ -171,8 +238,8 @@ The final canonical generation sequence ran twice with byte-identical results:
 ### Fence and authority closeout
 
 - `git diff --check` passed; no files were deleted.
-- Final `git diff --stat main...HEAD`: 30 files, 26,629 insertions,
-  1,124 line replacements/removals (predominantly generated schema/types).
+- Final `git diff --stat main...HEAD`: 39 files, 29,373 insertions and 854 deletions
+  (predominantly generated schema/types).
 - Every changed path is inside the DS3 fence: runtime HTTP, schema, shared client,
   reference-shell proof, scoped tests, the DS3 plan, and this journal.
 - No runtime-quality, fabric, foundry, scientist, data-forge, dashboard source,

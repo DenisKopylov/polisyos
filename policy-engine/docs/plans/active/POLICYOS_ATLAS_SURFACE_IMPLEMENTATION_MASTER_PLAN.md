@@ -7,6 +7,7 @@ created: 2026-06-10
 revised: 2026-07-16 (Revision 2 - re-derived against the GY-N campaign closure: GY input contract, Cycle Board hero, new slices DS15-DS18, re-stated activation and public gates)
 last_reviewed: 2026-07-16
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
+atlas_source_of_truth: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
 organizing_constitution: ../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
 source_design_doc: ../../system-design-decisions/universal-policy-design-target-architecture-and-gap.md
 governed_inventory: ../../../architecture/policy_design_case/cluster_ownership_map.toml
@@ -15,11 +16,11 @@ failure_patterns: ../../reference/policy-design-case-failure-patterns.md
 workspace_contract: ../../reference/frontend/workspace-contract.md
 upstream_plans:
   - ./layer3-slices/GY-engine-subordination.md  # THE active Layer-3 execution plan (Rev 17): supplies the capstone, value gate, ledgers, censuses, acquisition (N13a/b), confidence ledger (N11), epochs (N12), O-block agent
-  - ./POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md  # historical G-naming; superseded in practice by the GY plan for vocabulary and artifacts
+  - ./POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md  # historical G-naming retained in place; DS0 records no execution authority
 supersedes_as_execution_master:
-  - ./POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md  # retained as material source for DS11-DS13 until DS0 records its disposition
-  - ./FRONTEND_SOTA_PLAN.md            # vision-superseded; DS0 moves to archive
-  - ./DESIGN_BEST_IN_CLASS_PLAN.md     # vision-superseded; DS0 moves to archive
+  - ./POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md  # DS0-retained material source for DS11-DS13; no execution authority
+  - ../archive/FRONTEND_SOTA_PLAN.md            # archived by DS0; active path is a compatibility stub
+  - ../archive/DESIGN_BEST_IN_CLASS_PLAN.md     # archived by DS0; active path is a compatibility stub
 evidence:
   atlas_v15_archive:
     path: ../../../design/atlas-v15/PolicyOS_Atlas_Design_System-15_Best_in_Class_Readiness.zip
@@ -49,7 +50,8 @@ it subordinates the frontend, design system, and public surfaces to the runtime
 authority discipline, closes `surface_missing` capability links, and admits the
 Atlas v15 archive as a governed substrate through the same admission logic the
 runtime uses for engines. Atlas renders the authority system; it never produces
-authority.
+authority. DS0 source ownership and governing decisions live once in the
+[Atlas source-of-truth record](../../brand/ATLAS_SOURCE_OF_TRUTH.md).
 
 **A surface here is a full-stack vertical, not a React layer.** Every slice
 carries its capability from the typed runtime contract through the producer
@@ -146,7 +148,7 @@ properties, never pinned terminal labels) and **§3.5.11 projection-scoped
 provenance** (a surface producer binds to the narrowest upstream projection
 hash, so GY artifact churn does not ripple through every endpoint).
 
-## Code-Grounded Technical State (Snapshot 2026-06-10)
+## Code-Grounded Technical State (Snapshot 2026-06-10; DS1 Recount 2026-07-16)
 
 A deep pass over the app, the client package, and the runtime HTTP layer was
 made before activation. The expected pattern — rich content, weak
@@ -158,21 +160,21 @@ and subordination, not greenfield building.**
 
 | Area | What exists (anchors) | What is missing / divergent | Feeds |
 | --- | --- | --- | --- |
-| Scale & quality infra | 908 TS/TSX files, ~137k LOC, 230 test files; Storybook configured; 44 stories; Playwright e2e (`e2e/a11y`, `e2e/journeys`, **visual spec + snapshots**); per-component `.a11y.test.tsx` across ~40 `shared/ui` components; 388 `aria-` usages | no evidence storage convention; visual/a11y coverage not tied to the maturity bar | DS4, DS6 |
-| Typed waist | `openapi-fetch` `createClient<paths>` over generated types with auth-aware fetch and API events (`src/api/client.ts`); 4.4k-line generated TS client; 89 OpenAPI operations (runs, debug, fabric, lineage, analysis, mobility, control) | ~10 files hand-fetch outside `src/api/` (collaboration hooks, lex graph page, auth/prefetch/network); **no endpoints** for capability report, cluster map, conversions, adapter registry, public records | DS3, DS5 |
-| Status semantics | ≥8 UI-local status enums; `DisputeStatus` defined three times with diverging values (`runs/domain/disputes.ts`, `shared/ui/quantity/quantity.types.ts`, `shared/ui/trust-view/trust-glyphs.ts`) | **zero authority-lattice statuses anywhere in the app** — the UI predates Layer 2/3 entirely; P04 live | DS4, DS5 |
+| Scale & quality infra | dashboard `src`: 908 TS/TSX, 136,827 LOC, 230 `.test` + 3 `.spec`; full frontend zone: 944 TS/TSX, 145,033 LOC, 251 test/spec files; 44 stories; 89 `shared/ui` implementation TSX in 12 families; 67 `.a11y.test`, 390 `aria-` usages, 17 e2e specs, 16 visual baselines | structural shared/UI a11y gate is currently red; route axe covers 17/22 leaf patterns; no manual-AT record or evidence storage/cadence; zero families meet the `stable` bar | DS4, DS6 |
+| Typed waist | `openapi-fetch` `createClient<paths>` over generated types with auth-aware fetch and API events (`src/api/client.ts`); 4.4k-line generated TS package client; 89 OpenAPI operations: 45 surface-consumed, 7 hook-only, 37 with no dashboard call; reference shell consumes 8 overlapping operations through the package client | dashboard and reference shell use two client homes; 9 raw `fetch` calls in 5 production files outside `src/api` (Lex is no longer one); **no endpoints** for capability report, cluster map, conversions, adapter registry, public records | DS3, DS5 |
+| Status semantics | 23 named + 24 inline UI-local status definitions; `DisputeStatus` defined three times as two vocabularies (`runs/domain/disputes.ts`, `shared/ui/quantity/quantity.types.ts`, `shared/ui/trust-view/trust-glyphs.ts`) | **zero authority-lattice statuses anywhere in the app**; operational and authority-adjacent states share namespaces; P04 is materially broader than the ≥8 recon inventory | DS4, DS5 |
 | Evidence ontology | `quantity.types.ts`: `VerificationMetadata` (hash, status, freshness, dispute), bitemporal `TemporalRef`, `LineageRef`, `QuantityClass` (`decision`/`telemetry`/`layout`/`debug`); `ProvenanceStrip`, `trust-view` glyphs, `temporal`, `counterfactual`, `authored-text` families; compounds incl. `DecisionCard`, `EvidenceChain`, `ExplainabilityCard`, `AttributionWaterfall`, `DataFreshnessBadge` | an entire **parallel evidence vocabulary**, UI-local, not bound to runtime contracts | DS4 |
-| Publication | `publicationPacket.ts` (~1.4k lines): Toulmin argument maps, projection fail-closed client logic, decision packet **built and "signed" in the browser** (`signatureForPayload` = salted `stableHash`), **verified client-side from the URL payload** | the "Verified" badge is decorative — forgeable by construction; no server-side signing, verification, or public-records producer | DS1, DS12 |
-| Authz | `/api/v1/auth/me` with role→permission map (`http/routes/auth.py`); client `PERMISSION_KEYS` + workspace/tab gating (`app/authz/permissions.ts`); tenant check on the review path | **fixture identity fallback** (`allow_fixture_identity`); permission vocabulary duplicated server+client; **no per-permission deny found on mutating endpoints** (e.g. production-approval); no step-up auth | DS5, DS9 |
-| Offline | Workbox precache of static assets only — the SW **denylists `/api/`** from caching; `OfflineQueueProvider` + background `sync` flush; **`useQueuedPromotionDecision` queues evidence promotion approve/reject offline — a live authority action in the offline queue** | freshness rendering; revalidation protocol; authority-action queue exclusion | DS1, DS5 |
-| i18n | `en`/`uk`/`ru` locales with parity tests, ICU messages, date/currency formatters | locale-scope decision (incl. `ru` retention) and public-surface plain-language register | DS0, DS12 |
-| Tokens / design system | `shared/ui/tokens/designTokens.ts` + `AtlasV4Reference.stories` — a living, coded v4; theming `light`/`dark`/`system` + density preferences | v15 DTCG pipeline unadmitted; two token sources pending the T6 decision; v15 accessibility modes unreconciled with the live theming | DS0, DS2 |
-| Agent surface | `features/clerk` — a full NL chat (streaming, history, structured responses, `AIDiffView`) over `POST /control/runs/nl`; **`clerk` is one of two app-level interface modes** (`InterfaceMode = clerk \| analyst`, flag- and permission-gated) — the chat-first posture, not a side feature | candidate-clothing discipline; G6 contracts; orchestration-choice audit | DS1, DS14 |
-| Realtime & off-contract endpoints | dual client transport (`websocketTransport.ts`, `sseTransport.ts`); server WS hub `/api/v1/review/live`; SSE `GET /runs/live` and `GET /runs/{id}/live` — both **`include_in_schema=False`**, deliberately hidden from the contract | collaboration REST `/api/v1/collaboration/*` called by the UI has **no server route found** (vite only proxies to the runtime) — a phantom API; off-contract channels have no typed coverage | DS1, DS3 |
-| Feature flags & shadow shipping | 12 manifest-driven flags (zod-validated remote manifest, TTL cache, env profiles) gating **whole workspaces** plus `enableAtlasV2`, `enableClerkMode`, `enableDarkMode`; `feature_overrides` also arrive via `/auth/me` | no flag governance (owner, intent, sunset); two flag sources; the shadow-shipping mechanism this plan needs already exists but is ungoverned | DS0, DS1 |
-| Observability & audit | Sentry wired (`@sentry/react` + vite plugin, `shared/telemetry/sentry.ts`); server-side **append-only access audit** (`http/access_audit.py`), compliance export/retention, CSRF protection | public-route telemetry posture vs the no-tracker bar; review-effectiveness telemetry not yet drawing on the audit trail | DS6, DS9, DS12 |
+| Publication | `publicationPacket.ts` (~1.4k lines): Toulmin maps and projection normalization; three run-detail builders produce a packet and exactly one link emits a payload + public-salt 32-bit FNV hash in the URL; browser recomputation alone renders `Verified` | forgeable by construction; structural validator does not bind packet hash; private-data scan is not on the builder path; no server signing/verifier/public-record producer or persisted public dependency | DS1, DS12 |
+| Authz | `/api/v1/auth/me` with 12 server permission keys; client has 15 and workspace/tab gating; selected handlers enforce tenant ownership; coarse path/role OPA is optional | **29/29 POST operations have no action-permission or step-up dependency**; resource is bound after OPA reads it; client-only collaboration permission delta ×3; fixture identity and 11-permission UI placeholder fail open; production approval accepts self-asserted reviewer/signature | DS5, DS9 |
+| Offline | Workbox precaches static assets and denies API caching; IndexedDB has exactly composer drafts + promotion queue; approve/reject is the only queued mutation class and is optimistically finalized/replayed | no live state/permission/step-up/tenant/epoch revalidation; six authority-looking local caches lack tenant+user+expiry+epoch binding; cache freshness rendering absent | DS1, DS5 |
+| i18n | `en`/`uk`/`ru` catalogs have structural parity; DS0 measured 2,449 string leaves each, while 80.16% of `ru` equals English; runtime capability contracts admit `en`/`uk` | D4 recommends `uk` primary + `en` baseline + frozen legacy `ru` UI continuity, but remains `pending_owner_ratification`; DS12 cannot publish locale claims before ratification | DS5, DS12 |
+| Tokens / design system | `shared/ui/tokens/designTokens.ts` + `AtlasV4Reference.stories` — a living, coded v4; theming `light`/`dark`/`system` + density preferences | DS0 selects future one-way DTCG generation and sunsets hand-maintained TS authority; v15 values/modes remain unadmitted until DS2 and no migration occurs before DS4 | DS2, DS4 |
+| Agent surface | `features/clerk` is an app-level interface mode over `POST /control/runs/nl`; live path launches a run and consumes SSE status only; persisted store/renderers contain structured verdict/confidence/diff and `AIDiffView` | structured response and diff have no live producer (`producer_missing`) and would launder candidates if wired as-is; duplicate direct `/` index route is redundant; G6 contracts and storage partition absent | DS1, DS14 |
+| Realtime & off-contract endpoints | two real `include_in_schema=False` SSE routes; real review WS hub with three channels; collaboration client declares four REST pairs + four WS channels | review WS browser-auth bridge is absent/undocumented; collaboration server producers are absent, but the whole feature is orphaned so current live UX does not call them; every admitted channel lacks one governed registry | DS1, DS3, DS5 |
+| Feature flags & shadow shipping | 12 manifest keys, all defaults true, plus auth-derived `enableReviewCollaboration`; exactly four keys have no production read | causal/command-palette/what-if surfaces remain live outside their missing flags; collaboration feature is orphaned; unknown manifest keys are ignored; DS5 must strictly separate rollout from authz and wire-or-retire four gates | DS1, DS5 |
+| Observability & audit | app-wide configurable beacon plus production-only Sentry (`sendDefaultPii:false`); both attach full path/route context and arbitrary payload/extras; server-side append-only access audit, compliance export/retention, CSRF | public-route no-tracker/redaction unproven; signed IDs/run/artifact refs can enter transport context; environment supplies destination ownership; review-effectiveness telemetry not yet drawing on audit trail | DS6, DS9, DS12 |
 | Discovery seeds & machine exports | `GET /control/capabilities` (live endpoint), `control/data/catalog/search`, lineage exports (`openlineage`, `prov`), artifact packet export/render, decision-validity endpoints | the capability manifest is a **hand-maintained `CapabilityFeatureInfo` enumeration** in `services/control/capabilities.py` — a live Rule-12 violation; exports cover lineage/packets, not the Layer 3 artifacts | DS3, DS10 |
-| Non-web surface artifacts | `packages/cli` (styleguide exports); `docs/brand/` beyond Atlas: `EMAIL_TEMPLATES.md`, `PRINT_AND_EXPORT.md`, `CLI_STYLEGUIDE.md`, `BUREAUCRATIC_RENDERING.md`, `GLYPH_SPECIFICATION.md`, `MOTION.md`, `A11Y_CONTRAST.md` | email/print/CLI surface families have brand specs but no place in any plan — admit or explicitly out-of-scope | DS0 |
+| Non-web surface artifacts | `packages/cli` styleguide plus email/print/CLI/bureaucratic/glyph/motion/contrast specs | DS0 assigns them to DS2/DS3/DS4/DS6/DS8; email alone is explicitly `surface_out_of_scope` until a typed notification/privacy/delivery slice exists | DS2, DS3, DS4, DS6, DS8 |
 
 Three consequences are folded into the slices below:
 
@@ -180,7 +182,8 @@ Three consequences are folded into the slices below:
    evidence-bearing primitives largely exist; what they lack is binding to the
    authority lattice and the retirement of UI-local vocabularies.
 2. **DS2 adjudicates two living systems, not one archive.** The repo already
-   runs a coded v4 (tokens + ~40 components with a11y evidence); v15 admission
+   runs a coded v4 (tokens + 89 implementation TSX in 12 families with uneven
+   a11y/story evidence); v15 admission
    is a migration between two real systems, not an import into a void.
 3. **DS12 replaces a decorative mechanism, not a missing one.** Client-side
    "signing" is a useful UX prototype and a live overclaim risk at once; the
@@ -260,7 +263,12 @@ A deliverable that traces to none of the three generators is out of scope
 
 Authority statuses, interaction states, and surface states are defined in the
 surface constitution's Status Grammar and the Layer 3 controlled vocabulary.
-This plan adds only:
+This plan adds only the values below. DS0 encodes them in the
+[adoption-ledger schema](../../../architecture/atlas_surfaces/adoption-ledger.schema.json)
+and
+[surface-readiness schema](../../../architecture/atlas_surfaces/surface-readiness-ledger.schema.json);
+the table remains the vocabulary source and later slices reference the schemas
+rather than minting local values.
 
 | Kind | Values | Rule |
 | --- | --- | --- |
@@ -283,10 +291,13 @@ Two pinned proving grounds, mirroring how the runtime proves mechanisms on
    cases truthfully — it is the surface on which every law (fail-closed
    rendering, weakest-boundary, candidate clothing, refusal-with-a-path,
    search-frontier honesty) is first proven.
-2. **The live route inventory of `apps/runtime-dashboard`** (snapshot
-   2026-06-10): routes `/`, `/login`, `/welcome`, `compose`, `launch`, `data`,
-   `evidence`, `health`, `knowledge`, `lex`, `platform`, `sources`,
-   `artifacts/:artifactId`, `public/decisions/:signedId`; feature modules
+2. **The live route inventory of `apps/runtime-dashboard`** (DS1 recount
+   2026-07-16): 32 declared route objects, 29 effective URL patterns, and 22
+   leaf UI patterns. The full tree includes `/`, `/login`, `/welcome`,
+   `/public/decisions/:signedId`, `/compose`, `/runs`, compare/report/deck and
+   eight run-detail tabs, `/artifacts/:artifactId`, `/evidence`, `/knowledge`,
+   `/platform`, five legacy redirects, and a catch-all; two sibling index
+   objects redundantly target `/`. Feature modules remain
    `artifacts`, `auth`, `causal`, `clerk`, `collaboration`, `commandPalette`,
    `composer`, `dashboard`, `evidence`, `export`, `landing`, `layout`, `lex`,
    `onboarding`, `platform`, `runs`, `whatif`. DS1 audits each route/feature
@@ -343,8 +354,10 @@ from the technical snapshot are recorded inline as confirmed starting points):**
 
 ## Strangler Decision
 
-`apps/runtime-dashboard` is the only live consumer of the generated client and
-is the strangle target: DS4 primitives land inside it, admitted v15 substance
+`apps/runtime-dashboard` is the product strangle target and uses a local
+`openapi-fetch` generated-type client; `apps/runtime-reference-shell` is a
+second live consumer through the generated package class. DS3 must collapse
+that two-client seam to one governed home. DS4 primitives land inside the dashboard, admitted v15 substance
 replaces its pieces feature-by-feature, and the surface readiness ledger tracks
 migration coverage. `apps/runtime-reference-shell` stays an intentionally
 narrow read-path diagnostics tool and must not grow product surfaces. A
@@ -420,25 +433,36 @@ bounded agent.
 The surface analogue of G0's discipline freeze: decisions and schemas, before
 any audit or build.
 
+Canonical governing record:
+[Atlas Source-Of-Truth And Governing Decisions](../../brand/ATLAS_SOURCE_OF_TRUTH.md).
+
+**Status (2026-07-16):** DS0 is complete on
+`codex/atlas-ds0-source-of-truth` and awaits architect review. D4's locale
+recommendation is deliberately `pending_owner_ratification`; no locale policy
+is implied by DS0 closure.
+
 - **Goal:** one canonical design source of truth and the governing decisions
   every later slice references.
 - **Deliverables:** v4/v7/v15 **supersession decision**
-  (`docs/brand/ATLAS_DESIGN_SYSTEM.md`, `ATLAS_V4_ADOPTION.md` updated or
-  superseded; `FRONTEND_SOTA_PLAN.md`, `DESIGN_BEST_IN_CLASS_PLAN.md` archived
-  via docs lifecycle; disposition recorded for the v7 surfaces master plan);
+  (`docs/brand/ATLAS_DESIGN_SYSTEM.md`, `ATLAS_V4_ADOPTION.md` superseded as
+  governing sources but retained as v4 evidence; `FRONTEND_SOTA_PLAN.md` and
+  `DESIGN_BEST_IN_CLASS_PLAN.md` archived via docs lifecycle; v7 retained only
+  as DS11-DS13 material; historical G naming retained without execution
+  authority);
   **token pipeline decision** (one source of truth, sunset for the loser —
   closes T6); **package home + versioning decision** (e.g. `packages/atlas-ui`,
   release policy, Figma source-vs-projection status with parity ownership);
-  **i18n/locale decision** (en/uk/ru locales already exist with parity tests —
-  the decision is locale scope and retention, incl. `ru`, plus RTL posture and
-  owner; not creation); **feature-flag registry decision** (the 12
+  **i18n/locale evidence package and recommendation** (`ru` retention remains
+  `pending_owner_ratification`; includes RTL posture and owner);
+  **feature-flag registry decision** (the 12
   manifest-driven flags get owner, intent, sunset, and an explicit role in the
   shadow-shipping discipline; the dual flag source — manifest vs `/auth/me`
   overrides — collapses to one governed path); **non-web surface disposition**
   (`packages/cli` styleguide, `docs/brand/` email/print/CLI/glyph/motion
   specs: each named surface family is admitted into a slice's scope or
   recorded explicitly out-of-scope); **adoption ledger schema** and **surface
-  readiness ledger schema** (proposed home: `architecture/atlas_surfaces/`).
+  readiness ledger schema**, each with a valid example and in-fence
+  self-validation, under `architecture/atlas_surfaces/`.
 - **Laws / patterns:** Rule 10; closes P06.
 - **Negative controls:** every decision records rejected alternatives and
   revisit conditions.
@@ -466,8 +490,8 @@ any audit or build.
 #### DS2 — Atlas v15 Adjudication
 
 - **Goal:** the v15 archive fully adjudicated into the adoption ledger —
-  against the **living coded v4** (`shared/ui` ~40 components with a11y tests
-  and stories, `designTokens.ts`), not into a void: every verdict is a
+  against the **living coded v4** (`shared/ui` 89 implementation TSX across 12
+  families with uneven a11y/story coverage, `designTokens.ts`), not into a void: every verdict is a
   migration decision between two real systems.
 - **Prereqs:** DS0 (ledger schema, token/package decisions).
 - **Deliverables:** **conformance battery** for archive claims (what "PASS" in
@@ -530,7 +554,7 @@ any audit or build.
   rendering), `WeakestLinkExplainer` — **built by rebinding the existing
   component families to generated client types** (names indicative; task plan
   finalizes the build-vs-rebind call per component); **retirement of UI-local
-  status vocabularies** — the ≥8 local enums (incl. `DisputeStatus` ×3)
+  status vocabularies** — the 23 named + 24 inline local definitions (incl. `DisputeStatus` ×3)
   migrate to lattice-derived types or get explicit non-authority
   classification; `fixture_only` marking machinery (type + visual treatment);
   the existing Storybook/a11y harness and the **existing Playwright visual
@@ -552,13 +576,15 @@ any audit or build.
   composition exposed in the schema where not yet projected; client
   regeneration.
 - **Deliverables:** the `[to build]` lints from laws 8/9/10/12 —
-  unauthorized-status-enum lint, no-hand-written-authority-fetch lint (the ~10
-  known hand-fetch files are its first targets), capability-menu lint,
+  unauthorized-status-enum lint, no-hand-written-authority-fetch lint (the 9
+  known production calls in 5 files are its first targets, with typed exemptions
+  for sanctioned auth/flag/telemetry adapters), capability-menu lint,
   duplicate-label/static-copy lint; **single permission vocabulary** — the
   server/client duplication (`_ROLE_PERMISSIONS` vs `PERMISSION_KEYS`)
   collapses to one source projected through the schema; **per-permission deny
-  on mutating endpoints** (none found in recon — this is the load-bearing
-  half); **cache/staleness rendering rules** implementing the DS1 policy
+  on mutating endpoints** (DS1 found none on 29/29 POST operations — this is the
+  load-bearing half), resource binding before OPA, production fixture
+  prohibition, and step-up for the high-stakes classes; **cache/staleness rendering rules** implementing the DS1 policy
   (cached payloads carry as-of; authority actions barred from the offline
   queue or carrying an explicit revalidation protocol — `useQueuedPromotionDecision`
   is the first migration); server-side **deny tests** per audience class.
@@ -974,10 +1000,11 @@ Closure converts the surface constitution's Promotion Criteria into fact:
 | Document | Disposition |
 | --- | --- |
 | `layer3-slices/GY-engine-subordination.md` (Rev 17) | **the upstream dependency** — supplies the Input Contract, the artifact vocabulary, and the gate milestones (N10 merge, N13a/b, N11, N12, first promotion, O-block) |
-| `POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md` | historical G-naming upstream; superseded in practice by the GY plan — DS0 records its docs-lifecycle disposition |
-| `POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md` | superseded as execution master; material source for DS11–DS13; DS0 records final disposition |
-| `FRONTEND_SOTA_PLAN.md` | vision-superseded; DS0 archives via docs lifecycle |
-| `DESIGN_BEST_IN_CLASS_PLAN.md` | vision-superseded; DS0 archives via docs lifecycle |
-| `docs/brand/ATLAS_DESIGN_SYSTEM.md`, `docs/brand/ATLAS_V4_ADOPTION.md` | DS0 supersession ledger decides update vs supersede |
+| `POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md` | historical G-naming context retained in place with no execution authority; GY Rev 17 owns current vocabulary, artifacts, and gates |
+| `POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md` | superseded as execution master; retained material source for DS11–DS13 until those task plans disposition every item |
+| `docs/plans/archive/FRONTEND_SOTA_PLAN.md` | archived 2026-07-16 as vision-superseded; active path is a compatibility stub |
+| `docs/plans/archive/DESIGN_BEST_IN_CLASS_PLAN.md` | archived 2026-07-16 as vision-superseded v4 history; active path preserves provenance anchors |
+| `docs/brand/ATLAS_DESIGN_SYSTEM.md`, `docs/brand/ATLAS_V4_ADOPTION.md` | superseded as governing sources; retained as v4 baseline/adoption evidence for DS2/DS4 |
+| `docs/brand/ATLAS_SOURCE_OF_TRUTH.md` | canonical DS0 source-disposition and governing-decision record |
 | `docs/reference/frontend/workspace-contract.md` | binding; DS5 lints implement its boundary mechanically |
 | `design/atlas-v15/` archive | evidence source under DS2 admission; never a source of authority by itself |

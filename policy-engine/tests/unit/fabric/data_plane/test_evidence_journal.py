@@ -15,6 +15,7 @@ from polisyos.fabric.data_plane.evidence_journal import (
     derive_harness_authorization_evidence,
     derive_live_http_budget,
     require_authorized_execution,
+    resolve_raw_response_body,
     verify_journal_event_ref,
 )
 
@@ -263,6 +264,38 @@ def test_oversize_raw_response_is_rejected_before_a_journal_claim(tmp_path: Path
         )
 
     assert path.read_bytes().count(b"\n") == 1
+
+
+def test_raw_response_resolution_requires_the_exact_linked_request(tmp_path: Path) -> None:
+    path = tmp_path / "linked.jsonl"
+    journal = AppendOnlyEvidenceJournal(path)
+    request_ref = journal.append_request(
+        attempt_id="attempt-linked",
+        request={
+            "variable_id": "FP.CPI.TOTL",
+            "schema_contract": {"columns": ["value"]},
+        },
+    )
+    raw_ref = journal.append_raw_evidence(
+        attempt_id="attempt-linked",
+        request_ref=request_ref,
+        payload=b'{"value":187.2}',
+        status_code=200,
+        response_headers={"content-type": "application/json"},
+        budget=derive_live_http_budget(
+            _source_profile(),
+            max_response_bytes=1_024,
+            max_decompressed_bytes=1_024,
+        ),
+    )
+    assert resolve_raw_response_body(raw_ref) == b'{"value":187.2}'
+
+    path.write_bytes(
+        path.read_bytes().replace(b"FP.CPI.TOTL", b"FP.CPI.TOTX", 1)
+    )
+    assert verify_journal_event_ref(raw_ref)
+    with pytest.raises(EvidenceJournalError, match="linked_request_event_unresolved"):
+        resolve_raw_response_body(raw_ref)
 
 
 def test_shared_canonical_writer_preserves_n13a_bytes() -> None:

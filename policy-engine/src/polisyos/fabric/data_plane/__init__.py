@@ -25,6 +25,7 @@ __all__ = [
     "benchmark_world_materialization",
     "build_quarantine_report",
     "compare_historical_rows",
+    "content_sha256",
     "derive_harness_authorization_evidence",
     "derive_live_http_budget",
     "iter_record_batches",
@@ -43,6 +44,9 @@ __all__ = [
     "reprocess_quarantine_records",
     "require_authorized_execution",
     "require_dataframe",
+    "resolve_journal_event_ref",
+    "resolve_linked_request_event",
+    "resolve_raw_response_body",
     "verify_journal_event_ref",
 ]
 
@@ -79,9 +83,25 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.fabric.data_plane.evidence_journal",
         "derive_live_http_budget",
     ),
+    "content_sha256": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "content_sha256",
+    ),
     "require_authorized_execution": (
         "polisyos.fabric.data_plane.evidence_journal",
         "require_authorized_execution",
+    ),
+    "resolve_journal_event_ref": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_journal_event_ref",
+    ),
+    "resolve_linked_request_event": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_linked_request_event",
+    ),
+    "resolve_raw_response_body": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_raw_response_body",
     ),
     "verify_journal_event_ref": (
         "polisyos.fabric.data_plane.evidence_journal",

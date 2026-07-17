@@ -219,23 +219,113 @@ def append_fsync_jsonl(path: Path, event: Mapping[str, Any]) -> JournalEventRef:
 def verify_journal_event_ref(ref: JournalEventRef) -> bool:
     """Resolve and content-verify one event ref against durable journal bytes."""
 
+    try:
+        _read_verified_journal_event(ref)
+    except EvidenceJournalError:
+        return False
+    return True
+
+
+def resolve_journal_event_ref(ref: JournalEventRef) -> dict[str, Any]:
+    """Return one verified canonical journal event or fail closed."""
+
+    return _read_verified_journal_event(ref)
+
+
+def resolve_linked_request_event(ref: JournalEventRef) -> dict[str, Any]:
+    """Resolve the exact request event content-bound by one raw-response event."""
+
+    if ref.event_kind != "raw_response":
+        raise EvidenceJournalError("raw_response_event_required", ref.event_kind)
+    raw_event = _read_verified_journal_event(ref)
+    return _resolve_linked_request_event(ref, raw_event)
+
+
+def resolve_raw_response_body(ref: JournalEventRef) -> bytes:
+    """Resolve and verify the bounded body carried by one raw-response event."""
+
+    if ref.event_kind != "raw_response":
+        raise EvidenceJournalError("raw_response_event_required", ref.event_kind)
+    event = _read_verified_journal_event(ref)
+    _resolve_linked_request_event(ref, event)
+    raw = event.get("raw_response")
+    if not isinstance(raw, Mapping):
+        raise EvidenceJournalError("raw_response_payload_missing", ref.event_sha256)
+    encoded = raw.get("bounded_body_base64")
+    expected_hash = raw.get("body_sha256")
+    expected_size = raw.get("bytes_read")
+    if not isinstance(encoded, str) or not isinstance(expected_hash, str):
+        raise EvidenceJournalError("raw_response_body_missing", ref.event_sha256)
+    try:
+        body = base64.b64decode(encoded, validate=True)
+    except ValueError as exc:
+        raise EvidenceJournalError("raw_response_body_invalid", ref.event_sha256) from exc
+    actual_hash = f"sha256:{hashlib.sha256(body).hexdigest()}"
+    if actual_hash != expected_hash or expected_size != len(body):
+        raise EvidenceJournalError("raw_response_body_identity_drift", ref.event_sha256)
+    return body
+
+
+def _read_verified_journal_event(ref: JournalEventRef) -> dict[str, Any]:
+    """Read once, then verify and parse that exact immutable buffer."""
+
     path = Path(ref.journal_path)
     if not path.is_file():
-        return False
+        raise EvidenceJournalError("journal_event_ref_unresolved", ref.event_sha256)
     with path.open("rb") as handle:
         handle.seek(ref.byte_offset)
         payload = handle.read(ref.byte_length)
     if len(payload) != ref.byte_length:
-        return False
+        raise EvidenceJournalError("journal_event_ref_unresolved", ref.event_sha256)
     if f"sha256:{hashlib.sha256(payload).hexdigest()}" != ref.event_sha256:
-        return False
+        raise EvidenceJournalError("journal_event_ref_unresolved", ref.event_sha256)
     try:
         event = json.loads(payload)
-    except (UnicodeDecodeError, json.JSONDecodeError):
-        return False
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise EvidenceJournalError("journal_event_ref_unresolved", ref.event_sha256) from exc
+    if not isinstance(event, dict):
+        raise EvidenceJournalError("journal_event_not_mapping", ref.event_sha256)
     if canonical_json_bytes(event) != payload:
-        return False
-    return event.get("sequence") == ref.sequence and event.get("event_kind") == ref.event_kind
+        raise EvidenceJournalError("journal_event_not_canonical", ref.event_sha256)
+    if event.get("sequence") != ref.sequence or event.get("event_kind") != ref.event_kind:
+        raise EvidenceJournalError("journal_event_ref_unresolved", ref.event_sha256)
+    return event
+
+
+def _resolve_linked_request_event(
+    ref: JournalEventRef,
+    raw_event: Mapping[str, Any],
+) -> dict[str, Any]:
+    raw = raw_event.get("raw_response")
+    if not isinstance(raw, Mapping):
+        raise EvidenceJournalError("raw_response_payload_missing", ref.event_sha256)
+    request_sha = raw.get("request_event_sha256")
+    attempt_id = raw_event.get("attempt_id")
+    if not isinstance(request_sha, str) or not isinstance(attempt_id, str):
+        raise EvidenceJournalError("linked_request_event_unresolved", ref.event_sha256)
+    prefix = Path(ref.journal_path).read_bytes()[: ref.byte_offset]
+    matches: list[dict[str, Any]] = []
+    for payload in prefix.splitlines(keepends=True):
+        if f"sha256:{hashlib.sha256(payload).hexdigest()}" != request_sha:
+            continue
+        try:
+            candidate = json.loads(payload)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        if not isinstance(candidate, dict) or canonical_json_bytes(candidate) != payload:
+            continue
+        request = candidate.get("request")
+        if (
+            candidate.get("event_kind") != "request"
+            or candidate.get("attempt_id") != attempt_id
+            or not isinstance(request, Mapping)
+            or candidate.get("request_sha256") != content_sha256(request)
+        ):
+            continue
+        matches.append(candidate)
+    if len(matches) != 1:
+        raise EvidenceJournalError("linked_request_event_unresolved", request_sha)
+    return matches[0]
 
 
 def derive_live_http_budget(
@@ -544,5 +634,8 @@ __all__ = [
     "derive_harness_authorization_evidence",
     "derive_live_http_budget",
     "require_authorized_execution",
+    "resolve_journal_event_ref",
+    "resolve_linked_request_event",
+    "resolve_raw_response_body",
     "verify_journal_event_ref",
 ]

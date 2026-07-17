@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import mimetypes
 import re
-from datetime import datetime  # noqa: TC003 - FastAPI needs the runtime query annotation.
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
@@ -37,8 +37,15 @@ from polisyos.runtime.http.response_policies import (
     build_not_modified_response,
     set_immutable_resource_headers,
 )
+from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
 from polisyos.runtime.http.services.artifact_inspector import ArtifactSurfaceAdmissionError
+from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.quality.authority import authority_surface_decision
+
+_BUREAUCRATIC_OBSERVATION_TIMESTAMP = re.compile(
+    r"(?<=Дата формування: )\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"
+    + r"(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})"
+)
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
@@ -404,11 +411,14 @@ if router is not None:
         "/{packet_id}/render",
         response_model=BureaucraticRenderResponse,
         operation_id="render_bureaucratic_artifact",
+        responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
     )
     def render_bureaucratic_artifact(
         packet_id: str,
         body: BureaucraticRenderRequest,
         request: Request,
+        response: Response,
+        export_projection_hash: str | None = Query(default=None, max_length=128),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> BureaucraticRenderResponse:
         parsed_id = _parse_artifact_id(packet_id)
@@ -451,16 +461,34 @@ if router is not None:
                 "trust_view": body.trust_view,
             },
         )
-        return BureaucraticRenderResponse(meta=build_meta(request), document=document)
+        render_response = BureaucraticRenderResponse(
+            meta=build_meta(request),
+            document=document,
+        )
+        bind_export_replay_or_conflict(
+            request=request,
+            response=response,
+            semantic_projection=_bureaucratic_replay_projection(
+                document.model_dump(mode="json"),
+            ),
+            as_of=_bureaucratic_replay_as_of(
+                temporal_scope=document.temporal_scope,
+                observed_at=document.render_timestamp,
+            ),
+            requested_projection_hash=export_projection_hash,
+        )
+        return render_response
 
     @router.get(
         "/{packet_id}/export",
         response_model=BureaucraticExportResponse,
         operation_id="export_bureaucratic_artifact",
+        responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
     )
     def export_bureaucratic_artifact(
         packet_id: str,
         request: Request,
+        response: Response,
         format: BureaucraticExportFormat = Query(default="html"),
         genre: BureaucraticGenre = Query(default="postanova_kmu"),
         jurisdiction: str = Query(default="ua", min_length=1),
@@ -468,6 +496,7 @@ if router is not None:
         trust_view: bool = Query(default=False),
         valid_at: datetime | None = Query(default=None),
         tx_at: datetime | None = Query(default=None),
+        export_projection_hash: str | None = Query(default=None, max_length=128),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> BureaucraticExportResponse:
         parsed_id = _parse_artifact_id(packet_id)
@@ -525,6 +554,22 @@ if router is not None:
                 "template_version": template_version,
                 "trust_view": trust_view,
             },
+        )
+        semantic_projection = _bureaucratic_replay_projection(
+            export.model_dump(mode="json", exclude={"meta"}),
+        )
+        render_timestamp = datetime.fromisoformat(
+            cast("str", export.metadata["render_timestamp"]),
+        )
+        bind_export_replay_or_conflict(
+            request=request,
+            response=response,
+            semantic_projection=semantic_projection,
+            as_of=_bureaucratic_replay_as_of(
+                temporal_scope=temporal_scope,
+                observed_at=render_timestamp,
+            ),
+            requested_projection_hash=export_projection_hash,
         )
         return export
 
@@ -602,6 +647,33 @@ if router is not None:
             metadata={"representation": "download"},
         )
         return response
+
+
+def _bureaucratic_replay_projection(value: object) -> object:
+    """Remove renderer observation clocks from the semantic replay projection."""
+    if isinstance(value, dict):
+        mapping = cast("dict[str, object]", value)
+        return {
+            key: _bureaucratic_replay_projection(item)
+            for key, item in mapping.items()
+            if key != "render_timestamp"
+        }
+    if isinstance(value, list):
+        return [_bureaucratic_replay_projection(item) for item in value]
+    if isinstance(value, str):
+        return _BUREAUCRATIC_OBSERVATION_TIMESTAMP.sub("observation-time", value)
+    return value
+
+
+def _bureaucratic_replay_as_of(
+    *,
+    temporal_scope: TemporalScope | None,
+    observed_at: datetime,
+) -> datetime:
+    """Resolve replay time by semantic role: validity, transaction, observation."""
+    if temporal_scope is None:
+        return observed_at
+    return temporal_scope.valid_at or temporal_scope.tx_at or observed_at
 
 
 def _parse_artifact_id(value: str) -> ArtifactID:

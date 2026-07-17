@@ -7,20 +7,36 @@ Runtime API v1. It is the lightest consumer surface in the frontend tree: a
 thin wrapper over the OpenAPI contract that exposes read and batch-read runtime
 operations without React, Vite, or dashboard-specific state management.
 
-Do not edit `runtimeApiClient.ts` or `runtimeApiClient.js` by hand. The source
-of truth is the runtime OpenAPI schema and the generator scripts in
-`tools/ops_runners/runtime/`.
+This package is the canonical generated-client home selected by Atlas DS3.
+Do not edit `types.ts`, `runtimeApiClient.ts`, `runtimeApiClient.js`,
+`canonicalRuntimeApiClient.ts`, or `canonicalRuntimeApiClient.js` by hand. Their
+shared source of truth is the runtime OpenAPI schema. The package-root export is
+the canonical twin: its DTO aliases point directly at the discriminated schema
+types in `types.ts`. The raw `runtimeApiClient.*` pair remains a generated
+compatibility artifact for the repository's existing contract-drift checker;
+it is not the package's public entrypoint. The dashboard-local generated type
+file is a downstream compatibility surface, not a second owner.
 
 ## Where to Start
 
-- Generated TypeScript source:
-  [`runtimeApiClient.ts`](runtimeApiClient.ts)
+- Public generated TypeScript client:
+  [`canonicalRuntimeApiClient.ts`](canonicalRuntimeApiClient.ts)
 
-- Generated JavaScript output:
+- Generated OpenAPI schema types:
+  [`types.ts`](types.ts)
+
+- Public generated JavaScript client:
+  [`canonicalRuntimeApiClient.js`](canonicalRuntimeApiClient.js)
+
+- Raw compatibility generator output:
+  [`runtimeApiClient.ts`](runtimeApiClient.ts) and
   [`runtimeApiClient.js`](runtimeApiClient.js)
 
 - Generator:
   [`../../tools/ops_runners/runtime/generate_runtime_client.py`](../../tools/ops_runners/runtime/generate_runtime_client.py)
+
+- Canonicalizer:
+  [`scripts/canonicalize-runtime-client.mjs`](scripts/canonicalize-runtime-client.mjs)
 
 - Contract checker:
   [`../../tools/ops_runners/runtime/check_runtime_api_contract.py`](../../tools/ops_runners/runtime/check_runtime_api_contract.py)
@@ -30,13 +46,15 @@ of truth is the runtime OpenAPI schema and the generator scripts in
 
 ## Public Entrypoints
 
-- `RuntimeApiClient` class in [`runtimeApiClient.ts`](runtimeApiClient.ts)
+- `RuntimeApiClient` class in
+  [`canonicalRuntimeApiClient.ts`](canonicalRuntimeApiClient.ts)
+- OpenAPI `paths`, `components`, and `operations` in [`types.ts`](types.ts)
 - Constructor options: `baseUrl`, `headers`, `fetchImpl`
 - Generated method groups for health, runs, debug, artifacts, and control read
-  paths in [`runtimeApiClient.ts`](runtimeApiClient.ts)
+  paths in [`canonicalRuntimeApiClient.ts`](canonicalRuntimeApiClient.ts)
 
 - ESM import surface for the reference shell:
-  [`runtimeApiClient.js`](runtimeApiClient.js)
+  [`canonicalRuntimeApiClient.js`](canonicalRuntimeApiClient.js)
 
 ## Dependencies
 
@@ -74,8 +92,13 @@ of truth is the runtime OpenAPI schema and the generator scripts in
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/export_runtime_openapi.py --output schemas/runtime_api_v1.openapi.json`
   `conceptual/manual; rewrites the checked-in OpenAPI snapshot`
 
-- `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js`
-  `conceptual/manual; regenerates the committed client artifacts`
+- `corepack pnpm --dir packages/runtime-api-client run generate`
+  Replays schema types, the raw compatibility artifacts, and the public
+  canonical twin in one command after exporting the OpenAPI schema.
+
+- `npx --yes openapi-typescript@7.13.0 schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts`
+  Canonical schema-type generation; the exact tool pin is owned by this shared
+  package and does not depend on a dashboard-local installation.
 
 ## Test And Verification
 
@@ -112,4 +135,4 @@ of truth is the runtime OpenAPI schema and the generator scripts in
 - [`../../docs/reference/api/artifacts.md`](../../docs/reference/api/artifacts.md)
 - [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
 
-Last updated: 2026-04-23
+Last updated: 2026-07-17

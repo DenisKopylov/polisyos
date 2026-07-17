@@ -17,6 +17,36 @@ export type AccessRef = {
   tenant_scope?: string;
 };
 
+export type AcquisitionRoutingPayload = {
+  compute_economics: {
+  [key: string]: ProjectionJsonValue;
+};
+  denominators: {
+  [key: string]: ProjectionJsonValue;
+};
+  fail_closed_probes: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  fail_closed_receipt: {
+  [key: string]: ProjectionJsonValue;
+};
+  grounding_acquisition_request: {
+  [key: string]: ProjectionJsonValue;
+};
+  known_residuals: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  no_result_receipt: {
+  [key: string]: ProjectionJsonValue;
+};
+  positive_receipt: {
+  [key: string]: ProjectionJsonValue;
+};
+  recorded_rederive_inputs: {
+  [key: string]: ProjectionJsonValue;
+};
+};
+
 export type AgentPipelineAttempt = {
   attempt: number;
   duration_ms?: number | null;
@@ -160,6 +190,28 @@ export type ArtifactManifestView = {
   producer_version?: string | null;
   schema_name?: string | null;
   schema_version?: string | null;
+};
+
+export type ArtifactMissingGovernedProjectionPacket = {
+  absence_reason: string;
+  as_of: string;
+  authoritative_for: Array<string>;
+  availability: string;
+  export_replay_contract?: string;
+  freshness: ProjectionFreshness;
+  intended_audience: AudienceClass;
+  may_not_use_for: Array<string>;
+  packet_schema_version?: string;
+  payload?: null;
+  projection_hash?: null;
+  projection_id: ProjectionId;
+  projection_rule_version?: string;
+  replay_address?: null;
+  source?: null;
+  source_dependency_hash?: null;
+  source_rule_version?: null;
+  source_schema_version?: null;
+  stable_address: string;
 };
 
 export type ArtifactRefInput = {
@@ -352,6 +404,8 @@ export type AttractorUncertaintySummary = {
   unresolved_items?: Array<string>;
 };
 
+export type AudienceClass = "REVIEWER" | "EXPERT" | "MACHINE";
+
 export type AuthMeResponse = {
   cell_id?: string | null;
   display_name: string;
@@ -371,6 +425,28 @@ export type AuthoredText = {
   format?: "plain" | "markdown" | "html" | "json";
   semantic_type?: string | null;
   text: string;
+};
+
+export type AvailableGovernedProjectionPacket = {
+  absence_reason?: null;
+  as_of: string;
+  authoritative_for: Array<string>;
+  availability: string;
+  export_replay_contract?: string;
+  freshness: ProjectionFreshness;
+  intended_audience: AudienceClass;
+  may_not_use_for: Array<string>;
+  packet_schema_version?: string;
+  payload: DepthNCycleBoardPayload | ValueGatePayload | GenerationCycleDispositionPayload | EngineCensusPayload | ForkBRelationCensusPayload | AcquisitionRoutingPayload | N13AAcquisitionCensusPayload | N13ALiveProbeJournalPayload | CapabilityRealityPayload | ClusterOwnershipPayload | Layer3HealthMetricsPayload | LegacyProvingGroundPayload | SurfaceReadinessPayload;
+  projection_hash: string;
+  projection_id: ProjectionId;
+  projection_rule_version?: string;
+  replay_address: string;
+  source: ProjectionSourceIdentity;
+  source_dependency_hash: string;
+  source_rule_version?: string | null;
+  source_schema_version?: string | null;
+  stable_address: string;
 };
 
 export type BasinEstimate = {
@@ -598,6 +674,31 @@ export type CapabilityManifestResponse = {
   workspaces?: Array<string>;
 };
 
+export type CapabilityRealityPayload = {
+  blockers: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  capability_claims: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  chain_clusters: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  debt_algebra: {
+  [key: string]: ProjectionJsonValue;
+};
+  issues: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  ratchet_integrity_status: string;
+  readiness: {
+  [key: string]: ProjectionJsonValue;
+};
+  summary: {
+  [key: string]: ProjectionJsonValue;
+};
+};
+
 export type CausalFrontierAreaRecord = {
   area_id: string;
   covariates?: {
@@ -679,6 +780,51 @@ export type CausalFrontierSAEResponse = {
   method_name: string;
   output_bundle?: {
   [key: string]: string;
+};
+};
+
+export type ChannelRegistryEntry = {
+  auth_class: string;
+  capability_state?: string;
+  channels?: Array<string>;
+  consumers: Array<string>;
+  include_in_schema?: boolean;
+  message_contract: string;
+  owner: string;
+  path_template: string;
+  producer_contract_ref: string;
+  registry_id: string;
+  status?: string;
+  transport: "sse" | "websocket";
+};
+
+export type ChannelRegistryResponse = {
+  channels: Array<ChannelRegistryEntry>;
+  schema_version?: string;
+};
+
+export type ClusterOwnershipPayload = {
+  architecture_core: {
+  [key: string]: ProjectionJsonValue;
+};
+  capability_chain_steps: Array<string>;
+  clusters: {
+  [key: string]: ProjectionJsonValue;
+};
+  handshake_graph: {
+  [key: string]: ProjectionJsonValue;
+};
+  open_cell_closure: {
+  [key: string]: ProjectionJsonValue;
+};
+  owner: string;
+  purpose: string;
+  ratchet_state_vocabulary: Array<string>;
+  required_cell_fields: Array<string>;
+  required_clusters: Array<string>;
+  status: string;
+  stop_rule: {
+  [key: string]: ProjectionJsonValue;
 };
 };
 
@@ -1348,6 +1494,35 @@ export type DeltaQuantity = {
   significance?: "improved" | "worsened" | "mixed" | "uncertain" | "not_comparable";
 };
 
+export type DepthNCycleBoardPayload = {
+  depth_evidence: {
+  [key: string]: ProjectionJsonValue;
+};
+  domain_runs: {
+  [key: string]: DepthNDomainRunProjection;
+};
+  terminal_distributions: {
+  [key: string]: ProjectionJsonValue;
+};
+};
+
+export type DepthNDomainRunProjection = {
+  acquisition_route: {
+  [key: string]: ProjectionJsonValue;
+};
+  design_problem_ref: string;
+  domain_role: string;
+  evidence_class: string;
+  evidence_witness: {
+  [key: string]: ProjectionJsonValue;
+};
+  generation_cycle_run_id: string;
+  terminal_distribution: {
+  [key: string]: ProjectionJsonValue;
+};
+  weakest_links: Array<string>;
+};
+
 export type DerivedArtifact = {
   ref: ArtifactRefOutput;
   role: string;
@@ -1372,6 +1547,28 @@ export type DiscoveryCandidate = {
   [key: string]: unknown;
 };
   source_lane?: "fastlane" | "explorelane" | "catalog";
+};
+
+export type EngineCensusPayload = {
+  critical_findings: Array<string>;
+  discipline: string;
+  evidence_reproducibility: {
+  [key: string]: ProjectionJsonValue;
+};
+  execution_status_vocabulary: {
+  [key: string]: ProjectionJsonValue;
+};
+  gap_taxonomy_extensions: {
+  [key: string]: ProjectionJsonValue;
+};
+  row_count: number;
+  scope: string;
+  subcensus_summary: {
+  [key: string]: ProjectionJsonValue;
+};
+  verb_gap_consistency: {
+  [key: string]: ProjectionJsonValue;
+};
 };
 
 export type EquilibriumBasinInterval = {
@@ -1737,6 +1934,48 @@ export type FetchPreview = {
   status?: "ok" | "insufficient_coverage" | "error";
 };
 
+export type ForkBRelationCensusPayload = {
+  authority: string;
+  certificate_summaries: {
+  [key: string]: ProjectionJsonValue;
+};
+  coverage_manifest: {
+  [key: string]: ProjectionJsonValue;
+};
+  known_bridge_limits: Array<string>;
+  normalization: string;
+  relation_counts: {
+  [key: string]: number;
+};
+  relation_denominator_formula: string;
+  transport_floor: number;
+  transport_floor_rule: string;
+};
+
+export type GenerationCycleDispositionPayload = {
+  bridge_artifacts: {
+  [key: string]: ProjectionJsonValue;
+};
+  known_residuals: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  method_availability_gate: {
+  [key: string]: ProjectionJsonValue;
+};
+  owners: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  parallel_world_reconciliation: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  task_owner_mapping: {
+  [key: string]: ProjectionJsonValue;
+};
+  tasks: {
+  [key: string]: ProjectionJsonValue;
+};
+};
+
 export type GovernanceDebugResponse = {
   debug: GovernanceDebugView;
   meta: ApiMeta;
@@ -1831,6 +2070,28 @@ export type InputRef = {
   role: string;
 };
 
+export type InvalidGovernedProjectionPacket = {
+  absence_reason: string;
+  as_of: string;
+  authoritative_for: Array<string>;
+  availability: string;
+  export_replay_contract?: string;
+  freshness: ProjectionFreshness;
+  intended_audience: AudienceClass;
+  may_not_use_for: Array<string>;
+  packet_schema_version?: string;
+  payload?: null;
+  projection_hash?: null;
+  projection_id: ProjectionId;
+  projection_rule_version?: string;
+  replay_address?: null;
+  source: ProjectionSourceIdentity;
+  source_dependency_hash?: null;
+  source_rule_version?: string | null;
+  source_schema_version?: string | null;
+  stable_address: string;
+};
+
 export type IterationLifecycleView = {
   iteration?: number;
   last_verdict?: "APPROVE" | "REPLAN_DATA" | "REPLAN_METHOD" | "REPLAN_PARAMS" | "STOP_BUDGET" | null;
@@ -1838,6 +2099,19 @@ export type IterationLifecycleView = {
   state?: "plan_created" | "preflight_running" | "preflight_failed" | "ready_to_run" | "executing" | "evaluating" | "replanning" | "approved" | "stopped_budget" | "stopped_no_delta" | "stopped_guardrail";
   state_ref?: ArtifactRefOutput | null;
   stop_reason?: "approved" | "budget_exhausted" | "no_delta" | "guardrail_violation" | null;
+};
+
+export type Layer3HealthMetricsPayload = {
+  health_metric_ledgers: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+};
+
+export type LegacyProvingGroundPayload = {
+  fixture_authority?: string;
+  fixture_identities: Array<ProvingGroundFixtureIdentity>;
+  fixture_records: Array<ProvingGroundFixtureRecord>;
+  runtime_outcomes: ProvingGroundRuntimeOutcomes;
 };
 
 export type LexGraphStatsResponse = {
@@ -1887,22 +2161,54 @@ export type LexSearchResponse = {
 
 export type LexSearchResultItem = {
   action_canon?: string;
+  audit_miss_prone?: boolean;
+  canonical_status?: "canonicalized" | "partially_canonicalized" | "raw";
   condition_text_uk?: string;
   confidence: number;
+  confidence_breakdown_json?: string;
+  consistency_score?: number | null;
+  constraint_type_canon?: string;
+  doc_family_id?: string;
+  doc_id?: string;
   doc_name: string;
   doc_reestr_code: string;
+  effective_from?: string;
+  effective_to?: string;
+  empty_spo_retry_eligible?: boolean;
   exception_text_uk?: string;
   fact_id: string;
   fact_text: string;
+  fused_confidence?: number | null;
+  grounding_status?: "exact_quote" | "quote_without_offsets" | "offsets_without_quote" | "missing_quote";
+  hallucination_flags_json?: string;
+  jurisdiction?: string;
+  legal_unit_subtype?: string;
   norm_type: string;
   norm_type_canon?: string;
   object_name: string;
   predicate: string;
   procedure_text_uk?: string;
+  provision_anchor?: string;
   provision_citation: string;
+  quality_band?: string;
+  reference_bearing?: boolean;
+  reference_resolution_status?: "resolved" | "partial" | "unresolved" | "not_applicable";
+  route_class?: string;
+  similarity: number;
   source_quote_uk?: string;
+  structure_quality?: string;
   subject_name: string;
+  temporal_confidence?: number | null;
+  temporal_provenance_json?: string;
+  temporal_resolution_status?: string;
+  temporal_source_kind?: string;
+  temporal_source_scope?: string;
+  temporal_state?: string;
+  threshold_bearing?: boolean;
   thresholds_json?: string;
+  top_domain?: string;
+  trust_tier?: "search_candidate" | "grounded_fact" | "normative_fact";
+  version_id?: string;
 };
 
 export type LexTriggerRequest = {
@@ -2181,6 +2487,45 @@ export type MonitoringWindow = {
   end_offset_days?: number;
   grace_days?: number;
   start_offset_days?: number;
+};
+
+export type N13AAcquisitionCensusPayload = {
+  catalog_identity: {
+  [key: string]: ProjectionJsonValue;
+};
+  family_scorecards: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  fetch_plan_generation: {
+  [key: string]: ProjectionJsonValue;
+};
+  growth_backlog: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  metric_resolutions: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  projection_bindings: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  reverse_demand_residuals: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  route_evidence: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+};
+
+export type N13ALiveProbeJournalPayload = {
+  family_receipts: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  records: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
+  selection_plan: {
+  [key: string]: ProjectionJsonValue;
+};
 };
 
 export type NaturalLanguageRunRequest = {
@@ -2531,6 +2876,67 @@ export type ProductionApprovalResponse = {
   run_id: string;
 };
 
+export type ProjectionCatalogEntry = {
+  authoritative_for: Array<string>;
+  expected_source_path: string;
+  expected_source_rule_version: string | null;
+  expected_source_schema_version: string | null;
+  intended_audience: AudienceClass;
+  may_not_use_for: Array<string>;
+  owner_validator_id: string;
+  owner_validator_version: string;
+  projection_id: ProjectionId;
+  source_policy: "required" | "presence_gated" | "fixture_identity_only";
+  stable_address: string;
+};
+
+export type ProjectionCatalogResponse = {
+  projections: Array<ProjectionCatalogEntry>;
+  schema_version?: string;
+};
+
+export type ProjectionFreshness = {
+  basis: "source_timestamp" | "filesystem_mtime" | "request_observation";
+  observed_at: string;
+  source_as_of?: string | null;
+  state: "observed" | "artifact_missing" | "invalid_source";
+};
+
+export type ProjectionId = "depth-n-cycle-board" | "value-gate" | "generation-cycle-disposition" | "engine-census" | "fork-b-relation-census" | "acquisition-routing-contract" | "n13a-acquisition-census" | "n13a-live-probe-journal" | "capability-reality" | "cluster-ownership" | "layer3-health-metrics" | "legacy-proving-ground" | "surface-readiness";
+
+export type ProjectionJsonValue = string | number | boolean | Array<unknown> | {
+  [key: string]: unknown;
+} | null;
+
+export type ProjectionOwnerBinding = {
+  binding_name: string;
+  owner_semantic_hash: string;
+  relation?: string;
+  relative_path: string;
+  resolved_artifact_content_hash: string;
+  semantic_hash_rule_version: string;
+};
+
+export type ProjectionSourceIdentity = {
+  artifact_content_hash: string;
+  declared_content_hash?: string | null;
+  related_artifact_bindings?: Array<ProjectionOwnerBinding>;
+  relative_path: string;
+  validation: ProjectionSourceValidation;
+};
+
+export type ProjectionSourceValidation = {
+  bound_artifact_content_hash: string;
+  bound_dependency_aggregate_identity: string;
+  bound_dependency_count: number;
+  issue_codes?: Array<string>;
+  semantic_projection_hash?: string | null;
+  semantic_projection_hash_rule_version?: string | null;
+  status: "passed" | "failed" | "not_run";
+  validator_id: string;
+  validator_version: string;
+};
+
 export type PromotionCandidate = {
   confidence?: number;
   connector_id: string;
@@ -2562,6 +2968,61 @@ export type PromotionDecisionResponse = {
   meta: ApiMeta;
   promotion_id: string;
   status: "approved" | "rejected";
+};
+
+export type ProvingGroundFixtureIdentity = {
+  authority_levels: Array<string>;
+  case_id: string;
+  domain: string;
+  split: string;
+};
+
+export type ProvingGroundFixtureRecord = {
+  case_id: string;
+  claim_evidence_annotations: {
+  [key: string]: ProjectionJsonValue;
+};
+  compilation_intent_text: string;
+  concept_spine_refs: {
+  [key: string]: ProjectionJsonValue;
+};
+  domain: string;
+  expected_adapter_bindings: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_claim_families: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_closeout_states: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_facets: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_obligation_graph: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_projection_truthfulness: {
+  [key: string]: ProjectionJsonValue;
+};
+  expected_requirement_specs: {
+  [key: string]: ProjectionJsonValue;
+};
+  expert_adjudication: {
+  [key: string]: ProjectionJsonValue;
+};
+  input_intent_ref: string;
+  intent: {
+  [key: string]: ProjectionJsonValue;
+};
+  schema_version: string;
+  split: string;
+  title: string;
+};
+
+export type ProvingGroundRuntimeOutcomes = {
+  availability?: string;
+  reason: string;
 };
 
 export type QualityRef = {
@@ -3229,6 +3690,15 @@ export type SourceProfilesListResponse = {
   profiles?: Array<SourceProfileInfo>;
 };
 
+export type SurfaceReadinessPayload = {
+  authority: {
+  [key: string]: ProjectionJsonValue;
+};
+  controlled_vocabulary_source: string;
+  entries: Array<ProjectionJsonValue>;
+  ledger_id: string;
+};
+
 export type TemporalCapabilitiesResponse = {
   capabilities: TemporalCapabilitiesView;
   meta: ApiMeta;
@@ -3349,6 +3819,33 @@ export type ValidationError = {
   loc: Array<string | number>;
   msg: string;
   type: string;
+};
+
+export type ValueGatePayload = {
+  acquisition_routing: {
+  [key: string]: ProjectionJsonValue;
+};
+  advisor_receipts: {
+  [key: string]: ProjectionJsonValue;
+};
+  denominators: {
+  [key: string]: ProjectionJsonValue;
+};
+  disposition: {
+  [key: string]: ProjectionJsonValue;
+};
+  education_refusal: {
+  [key: string]: ProjectionJsonValue;
+};
+  mode_gates: {
+  [key: string]: ProjectionJsonValue;
+};
+  production_refusal: {
+  [key: string]: ProjectionJsonValue;
+};
+  value_outer_set_contract: Array<{
+  [key: string]: ProjectionJsonValue;
+}>;
 };
 
 export type VerificationMetadata = {
@@ -3592,6 +4089,7 @@ export class RuntimeApiClient {
     trust_view?: boolean;
     valid_at?: string | null;
     tx_at?: string | null;
+    export_projection_hash?: string | null;
   }): Promise<BureaucraticExportResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.packet_id))}/export`;
     const query = this.buildQuery({
@@ -3602,6 +4100,7 @@ export class RuntimeApiClient {
       trust_view: params.trust_view,
       valid_at: params.valid_at,
       tx_at: params.tx_at,
+      export_projection_hash: params.export_projection_hash,
     });
     return this.request<BureaucraticExportResponse>("GET", path, query);
   }
@@ -3670,9 +4169,12 @@ export class RuntimeApiClient {
 
   async getPacketDecisionValidity(params: {
     decision_packet_ref: string;
+    export_projection_hash?: string | null;
   }): Promise<DecisionValiditySummaryResponse> {
     const path = `/api/v1/control/decision-packets/${encodeURIComponent(String(params.decision_packet_ref))}/decision-validity`;
-    const query = undefined;
+    const query = this.buildQuery({
+      export_projection_hash: params.export_projection_hash,
+    });
     return this.request<DecisionValiditySummaryResponse>("GET", path, query);
   }
 
@@ -3722,9 +4224,12 @@ export class RuntimeApiClient {
 
   async getRunDecisionValidity(params: {
     run_id: string;
+    export_projection_hash?: string | null;
   }): Promise<DecisionValiditySummaryResponse> {
     const path = `/api/v1/control/runs/${encodeURIComponent(String(params.run_id))}/decision-validity`;
-    const query = undefined;
+    const query = this.buildQuery({
+      export_projection_hash: params.export_projection_hash,
+    });
     return this.request<DecisionValiditySummaryResponse>("GET", path, query);
   }
 
@@ -3786,6 +4291,35 @@ export class RuntimeApiClient {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/nodes/${encodeURIComponent(String(params.alias))}`;
     const query = undefined;
     return this.request<NodeDebugResponse>("GET", path, query);
+  }
+
+  async getRuntimeChannelRegistry(): Promise<ChannelRegistryResponse> {
+    const path = `/api/v1/exports/channel-registry`;
+    const query = undefined;
+    return this.request<ChannelRegistryResponse>("GET", path, query);
+  }
+
+  async listGovernedProjections(): Promise<ProjectionCatalogResponse> {
+    const path = `/api/v1/exports/governed-projections`;
+    const query = undefined;
+    return this.request<ProjectionCatalogResponse>("GET", path, query);
+  }
+
+  async getGovernedProjection(params: {
+    projection_id: ProjectionId;
+    artifact_content_hash?: string | null;
+    projection_hash?: string | null;
+    source_dependency_hash?: string | null;
+    source_as_of?: string | null;
+  }): Promise<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket> {
+    const path = `/api/v1/exports/governed-projections/${encodeURIComponent(String(params.projection_id))}`;
+    const query = this.buildQuery({
+      artifact_content_hash: params.artifact_content_hash,
+      projection_hash: params.projection_hash,
+      source_dependency_hash: params.source_dependency_hash,
+      source_as_of: params.source_as_of,
+    });
+    return this.request<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket>("GET", path, query);
   }
 
   async analyzeFabricImpact(params: {
@@ -3938,6 +4472,7 @@ export class RuntimeApiClient {
     branch?: string | null;
     snapshot_id?: string | null;
     scenario_id?: string | null;
+    export_projection_hash?: string | null;
   }): Promise<LineageExportResponse> {
     const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}/export/openlineage`;
     const query = this.buildQuery({
@@ -3947,6 +4482,7 @@ export class RuntimeApiClient {
       branch: params.branch,
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
+      export_projection_hash: params.export_projection_hash,
     });
     return this.request<LineageExportResponse>("GET", path, query);
   }
@@ -3959,6 +4495,7 @@ export class RuntimeApiClient {
     branch?: string | null;
     snapshot_id?: string | null;
     scenario_id?: string | null;
+    export_projection_hash?: string | null;
   }): Promise<LineageExportResponse> {
     const path = `/api/v1/lineage/${encodeURIComponent(String(params.lineage_id))}/export/prov`;
     const query = this.buildQuery({
@@ -3968,6 +4505,7 @@ export class RuntimeApiClient {
       branch: params.branch,
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
+      export_projection_hash: params.export_projection_hash,
     });
     return this.request<LineageExportResponse>("GET", path, query);
   }

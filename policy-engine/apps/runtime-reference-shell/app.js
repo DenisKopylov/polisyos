@@ -1,4 +1,5 @@
-import { RuntimeApiClient } from "../../packages/runtime-api-client/runtimeApiClient.js";
+import { RuntimeApiClient } from "../../packages/runtime-api-client/canonicalRuntimeApiClient.js";
+import { verifyGovernedProjectionCatalog } from "./governedProjectionProof.js";
 
 /**
  * @template {typeof HTMLElement} T
@@ -26,10 +27,11 @@ function getPages() {
   );
 }
 
-/** @type {{ baseUrl: string; client: RuntimeApiClient | null }} */
+/** @type {{ baseUrl: string; client: RuntimeApiClient | null; governedProjectionCount: number | null }} */
 const state = {
   baseUrl: "http://127.0.0.1:8000",
   client: null,
+  governedProjectionCount: null,
 };
 
 const elements = {
@@ -74,8 +76,30 @@ const elements = {
 /** @param {string} baseUrl */
 function connectClient(baseUrl) {
   state.baseUrl = baseUrl.replace(/\/$/, "");
-  state.client = new RuntimeApiClient({ baseUrl: state.baseUrl });
+  const client = new RuntimeApiClient({ baseUrl: state.baseUrl });
+  state.client = client;
   elements.runsState.textContent = `Connected to ${state.baseUrl}`;
+  void renderGovernedProjectionCatalogProof(client, state.baseUrl);
+}
+
+/**
+ * Prove the reference shell consumes the shared generated-client home without
+ * introducing a DS3 UI route.
+ * @param {RuntimeApiClient} client
+ * @param {string} baseUrl
+ */
+async function renderGovernedProjectionCatalogProof(client, baseUrl) {
+  const proof = await verifyGovernedProjectionCatalog(client);
+  if (state.client !== client) {
+    return;
+  }
+  if (proof.status === "available") {
+    state.governedProjectionCount = proof.projectionCount;
+    elements.runsState.textContent = `Connected to ${baseUrl}; governed projections: ${proof.projectionCount}`;
+  } else {
+    state.governedProjectionCount = null;
+    elements.runsState.textContent = `Connected to ${baseUrl}; projection catalog unavailable: ${proof.reason}`;
+  }
 }
 
 /** @returns {RuntimeApiClient} */

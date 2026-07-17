@@ -5,21 +5,39 @@ const projectRoot = process.cwd();
 const allowedFiles = new Set([
   ".prettierignore",
   "README.md",
+  "canonicalRuntimeApiClient.js",
+  "canonicalRuntimeApiClient.ts",
   "eslint.config.mjs",
   "package.json",
   "runtimeApiClient.js",
   "runtimeApiClient.test.mjs",
+  "runtimeApiClient.type-test.ts",
   "runtimeApiClient.ts",
+  "scripts/canonicalize-runtime-client.mjs",
+  "scripts/canonicalize-runtime-client.test.mjs",
   "scripts/check-architecture.mjs",
   "tsconfig.json",
+  "types.ts",
 ]);
 
 const expectedImports = new Map([
   ["runtimeApiClient.ts", []],
+  ["canonicalRuntimeApiClient.ts", ["./types.js"]],
+  ["canonicalRuntimeApiClient.js", []],
   ["runtimeApiClient.js", []],
+  ["runtimeApiClient.type-test.ts", ["./canonicalRuntimeApiClient.js"]],
+  ["types.ts", []],
   [
     "runtimeApiClient.test.mjs",
     ["./runtimeApiClient.js", "node:assert/strict", "node:test"],
+  ],
+  [
+    "scripts/canonicalize-runtime-client.mjs",
+    ["node:fs/promises", "node:path", "prettier"],
+  ],
+  [
+    "scripts/canonicalize-runtime-client.test.mjs",
+    ["./canonicalize-runtime-client.mjs", "node:assert/strict", "node:test"],
   ],
   ["scripts/check-architecture.mjs", ["node:fs/promises", "node:path"]],
 ]);

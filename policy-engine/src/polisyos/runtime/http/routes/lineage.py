@@ -24,6 +24,8 @@ from polisyos.runtime.http.dependencies import (
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import bad_request, conflict
+from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
+from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 
 if TYPE_CHECKING:
@@ -165,6 +167,7 @@ if router is not None:
         "/{lineage_id}/export/openlineage",
         response_model=LineageExportResponse,
         operation_id="export_lineage_openlineage",
+        responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
     )
     def export_lineage_openlineage(
         lineage_id: str,
@@ -176,6 +179,7 @@ if router is not None:
         branch: str | None = Query(default=None),
         snapshot_id: str | None = Query(default=None),
         scenario_id: str | None = Query(default=None),
+        export_projection_hash: str | None = Query(default=None, max_length=128),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> LineageExportResponse:
         return _export_lineage(
@@ -190,12 +194,14 @@ if router is not None:
             branch=branch,
             snapshot_id=snapshot_id,
             scenario_id=scenario_id,
+            export_projection_hash=export_projection_hash,
         )
 
     @router.get(
         "/{lineage_id}/export/prov",
         response_model=LineageExportResponse,
         operation_id="export_lineage_prov",
+        responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
     )
     def export_lineage_prov(
         lineage_id: str,
@@ -207,6 +213,7 @@ if router is not None:
         branch: str | None = Query(default=None),
         snapshot_id: str | None = Query(default=None),
         scenario_id: str | None = Query(default=None),
+        export_projection_hash: str | None = Query(default=None, max_length=128),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> LineageExportResponse:
         return _export_lineage(
@@ -221,6 +228,7 @@ if router is not None:
             branch=branch,
             snapshot_id=snapshot_id,
             scenario_id=scenario_id,
+            export_projection_hash=export_projection_hash,
         )
 
 
@@ -237,6 +245,7 @@ def _export_lineage(
     branch: str | None,
     snapshot_id: str | None,
     scenario_id: str | None,
+    export_projection_hash: str | None,
 ) -> LineageExportResponse:
     temporal_scope = _resolve_lineage_temporal_scope(
         ctx,
@@ -272,13 +281,25 @@ def _export_lineage(
         tenant_id=tenant_id,
         metadata={"format": format_name},
     )
-    return LineageExportResponse(
+    export_response = LineageExportResponse(
         meta=build_meta(request),
         temporal_scope=temporal_scope,
         lineage_id=lineage_id,
         format=cast("Any", format_name),
         payload=payload,
     )
+    bind_export_replay_or_conflict(
+        request=request,
+        response=response,
+        semantic_projection=export_response.model_dump(mode="json", exclude={"meta"}),
+        as_of=(
+            temporal_scope.valid_at or temporal_scope.tx_at
+            if temporal_scope is not None
+            else export_response.meta.generated_at
+        ),
+        requested_projection_hash=export_projection_hash,
+    )
+    return export_response
 
 
 def _build_runtime_lineage(

@@ -2,6 +2,31 @@ from __future__ import annotations
 
 from datetime import datetime
 
+import pytest
+
+
+@pytest.mark.parametrize(
+    ("channel", "message_type"),
+    [
+        ("review.presence", "presence.snapshot"),
+        ("review.cursor", "cursor.snapshot"),
+        ("review.lock", "lock.snapshot"),
+    ],
+)
+def test_review_websocket_snapshots_emit_versioned_contract_identity(
+    runtime_api_env, channel: str, message_type: str
+) -> None:
+    review_id = "run:R_core_api_001:governance"
+    with runtime_api_env["client"].websocket_connect(
+        f"/api/v1/review/live?channel={channel}&review_id={review_id}"
+        "&participant_id=alice&display_name=Alice"
+    ) as websocket:
+        snapshot = websocket.receive_json()
+
+    assert snapshot["contract_id"] == "policyos.runtime.review_collaboration_envelope"
+    assert snapshot["schema_version"] == "policyos.runtime.review_collaboration_envelope.v1"
+    assert snapshot["type"] == message_type
+
 
 class TestReviewCollaborationApi:
     def test_presence_snapshot_tracks_active_reviewers(self, runtime_api_env):

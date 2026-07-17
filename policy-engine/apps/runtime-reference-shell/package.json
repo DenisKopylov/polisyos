@@ -8,8 +8,8 @@
   },
   "scripts": {
     "build": "corepack pnpm run typecheck",
-    "test": "corepack pnpm run check:architecture",
-    "lint": "eslint app.js scripts/check-architecture.mjs eslint.config.mjs --max-warnings=0",
+    "test": "node --test governedProjectionProof.test.mjs && corepack pnpm run check:architecture",
+    "lint": "eslint app.js governedProjectionProof.js governedProjectionProof.test.mjs scripts/check-architecture.mjs eslint.config.mjs --max-warnings=0",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "typecheck": "tsc -p tsconfig.json --noEmit",

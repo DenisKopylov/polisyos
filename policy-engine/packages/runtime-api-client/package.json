@@ -3,15 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "main": "./canonicalRuntimeApiClient.js",
+  "types": "./canonicalRuntimeApiClient.ts",
+  "exports": {
+    ".": {
+      "types": "./canonicalRuntimeApiClient.ts",
+      "import": "./canonicalRuntimeApiClient.js"
+    },
+    "./types": {
+      "types": "./types.ts"
+    }
+  },
   "engines": {
     "node": ">=22 <23"
   },
   "scripts": {
     "build": "corepack pnpm run typecheck",
-    "generate": "cd ../.. && PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js",
+    "generate": "cd ../.. && npx --yes openapi-typescript@7.13.0 schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts && PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js && node packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs --openapi schemas/runtime_api_v1.openapi.json --client packages/runtime-api-client/runtimeApiClient.ts --out-ts packages/runtime-api-client/canonicalRuntimeApiClient.ts --runtime-js packages/runtime-api-client/runtimeApiClient.js --out-js packages/runtime-api-client/canonicalRuntimeApiClient.js",
     "contracts:verify": "cd ../.. && PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py",
-    "test": "node --test runtimeApiClient.test.mjs",
-    "lint": "eslint runtimeApiClient.ts runtimeApiClient.js runtimeApiClient.test.mjs scripts/check-architecture.mjs eslint.config.mjs --max-warnings=0",
+    "test": "node --test runtimeApiClient.test.mjs scripts/canonicalize-runtime-client.test.mjs",
+    "lint": "eslint runtimeApiClient.ts canonicalRuntimeApiClient.ts runtimeApiClient.type-test.ts runtimeApiClient.js canonicalRuntimeApiClient.js runtimeApiClient.test.mjs scripts/*.mjs eslint.config.mjs --max-warnings=0",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "typecheck": "tsc -p tsconfig.json --noEmit",

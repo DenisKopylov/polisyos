@@ -70,6 +70,36 @@ def test_runtime_lineage_exports(runtime_api_env) -> None:
     assert "entity" in prov.json()["payload"]
 
 
+def test_runtime_lineage_exports_bind_shared_replay_contract(runtime_api_env) -> None:
+    client = runtime_api_env["client"]
+    artifact_id = runtime_api_env["decision_packet_artifact_id"]
+    path = f"/api/v1/lineage/artifact:{artifact_id}/export/openlineage"
+    params = {"valid_at": "2026-04-15T12:00:00Z"}
+
+    first = client.get(path, params=params)
+
+    assert first.status_code == 200
+    projection_hash = first.headers["x-policyos-export-projection-hash"]
+    assert projection_hash.startswith("sha256:")
+    assert first.headers["x-policyos-export-stable-address"].startswith(path)
+    assert first.headers["x-policyos-export-replay-address"].startswith(path)
+    assert first.headers["x-policyos-export-as-of"] == "2026-04-15T12:00:00+00:00"
+
+    replay = client.get(
+        path,
+        params={**params, "export_projection_hash": projection_hash},
+    )
+    mismatch = client.get(
+        path,
+        params={**params, "export_projection_hash": "sha256:" + "0" * 64},
+    )
+
+    assert replay.status_code == 200
+    assert replay.headers["x-policyos-export-projection-hash"] == projection_hash
+    assert mismatch.status_code == 409
+    assert mismatch.json()["code"] == "export_replay_pin_mismatch"
+
+
 def test_run_quantities_inventory_reports_traced_and_untraced(runtime_api_env) -> None:
     client = runtime_api_env["client"]
     run_id = runtime_api_env["core_run_id"]

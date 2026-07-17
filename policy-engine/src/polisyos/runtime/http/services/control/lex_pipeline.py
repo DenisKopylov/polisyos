@@ -11,12 +11,12 @@ from polisyos.core.contracts.control import (
     LexGraphStatsResponse,
     LexPipelineStatusResponse,
     LexSearchRequest,
-    LexSearchResponse,
     LexTriggerRequest,
     LexTriggerResponse,
 )
 
 from .._control_contracts import _build_api_meta
+from .lex_search_projection import LexSearchResponse, LexSearchResultItem
 
 if TYPE_CHECKING:
     from polisyos.runtime.http.execution_policy import RuntimePrincipal
@@ -270,8 +270,6 @@ class LexPipelineMixin:
         request_id: str | None = None,
     ) -> LexSearchResponse:
         """Run a Lex text search against the generated knowledge graph and return ranked facts."""
-        from polisyos.core.contracts.control import LexSearchResultItem
-
         db_path = Path(request.output_dir) / "lex_knowledge_graph.duckdb"
 
         if not db_path.exists():
@@ -283,35 +281,24 @@ class LexPipelineMixin:
             )
 
         try:
-            from polisyos.data_forge.read_api.legal import search_legal_knowledge_graph
+            import duckdb
 
-            raw_results = search_legal_knowledge_graph(
-                output_dir=request.output_dir,
-                query=request.query,
-                top_k=request.top_k,
-            )
+            from polisyos.lex.knowledge.store import LegalKnowledgeStore
+
+            store = LegalKnowledgeStore(db_path=db_path, index_dir=Path(request.output_dir))
+            try:
+                raw_results = store.text_search_facts(
+                    request.query,
+                    top_k=request.top_k,
+                    trust_tier=None,
+                    include_candidates=False,
+                )
+            finally:
+                store.close()
 
             items = [
-                LexSearchResultItem(
-                    fact_id=r.fact_id,
-                    subject_name=r.subject_name,
-                    predicate=r.predicate,
-                    object_name=r.object_name,
-                    fact_text=r.fact_text,
-                    confidence=r.confidence,
-                    norm_type=r.norm_type,
-                    action_canon=r.action_canon,
-                    norm_type_canon=r.norm_type_canon,
-                    condition_text_uk=r.condition_text_uk,
-                    exception_text_uk=r.exception_text_uk,
-                    procedure_text_uk=r.procedure_text_uk,
-                    thresholds_json=r.thresholds_json,
-                    source_quote_uk=r.source_quote_uk,
-                    doc_name=r.doc_name,
-                    doc_reestr_code=r.doc_reestr_code,
-                    provision_citation=r.provision_citation,
-                )
-                for r in raw_results
+                LexSearchResultItem.model_validate(result.model_dump(mode="python"))
+                for result in raw_results
             ]
 
             return LexSearchResponse(
@@ -320,7 +307,13 @@ class LexPipelineMixin:
                 results=items,
                 total=len(items),
             )
-        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        except (
+            duckdb.Error,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
             logger.warning("Lex graph search failed: %s", exc)
             return LexSearchResponse(
                 meta=_build_api_meta(request_id),

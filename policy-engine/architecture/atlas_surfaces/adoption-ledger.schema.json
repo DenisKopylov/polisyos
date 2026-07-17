@@ -1,0 +1,327 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PolicyOS Atlas Adoption Ledger",
+  "description": "Strict DS0 contract for Atlas source and item adoption decisions. The source-level example does not replace DS2 item adjudication.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ledger_id",
+    "as_of",
+    "controlled_vocabulary_source",
+    "authority",
+    "source_hashes",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "ledger_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "controlled_vocabulary_source": {
+      "const": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+    },
+    "authority": {
+      "$ref": "surface-readiness-ledger.schema.json#/$defs/authorityBoundary"
+    },
+    "source_hashes": {
+      "$ref": "#/$defs/sourceHashes"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/adoptionEntry"
+      }
+    }
+  },
+  "$defs": {
+    "adoptionVerdict": {
+      "type": "string",
+      "enum": [
+        "admit_as_is",
+        "admit_after_refactor",
+        "wrap_then_strangle",
+        "reject",
+        "defer"
+      ]
+    },
+    "sourceDisposition": {
+      "type": "string",
+      "enum": [
+        "retained_current_production_baseline",
+        "superseded_as_canonical",
+        "retained_as_material",
+        "evidence_source_pending_adjudication"
+      ]
+    },
+    "artifactKind": {
+      "type": "string",
+      "enum": [
+        "token_set",
+        "component",
+        "pattern",
+        "package",
+        "doc",
+        "archive"
+      ]
+    },
+    "sourceKind": {
+      "type": "string",
+      "enum": [
+        "v4_code",
+        "v4_doc",
+        "v7_doc",
+        "v15_archive"
+      ]
+    },
+    "evidenceKind": {
+      "type": "string",
+      "enum": [
+        "code_reference",
+        "document",
+        "archive_report",
+        "contract_test",
+        "storybook",
+        "visual_snapshot",
+        "browser",
+        "at_manual"
+      ]
+    },
+    "sourceHashes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "v15_archive_sha256"
+      ],
+      "properties": {
+        "v15_archive_sha256": {
+          "const": "28d3e51dd452a074d30b7a0afa439302c48d4c208307a6a2d09beb935f71a969"
+        }
+      }
+    },
+    "evidenceRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "ref",
+        "as_of"
+      ],
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/evidenceKind"
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date"
+        }
+      }
+    },
+    "nextAdjudication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "owner_slices",
+        "scope",
+        "completion_signal"
+      ],
+      "properties": {
+        "owner_slices": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "surface-readiness-ledger.schema.json#/$defs/owningSlice"
+          }
+        },
+        "scope": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "completion_signal": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "adoptionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "kind",
+        "source",
+        "source_disposition",
+        "adoption_verdict",
+        "maturity",
+        "audiences",
+        "owner",
+        "decided_at",
+        "evidence_refs",
+        "reason",
+        "rejected_alternatives",
+        "revisit_condition",
+        "sunset_condition",
+        "consuming_surfaces",
+        "next_adjudication",
+        "not_yet",
+        "authority"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "$ref": "#/$defs/artifactKind"
+        },
+        "source": {
+          "$ref": "#/$defs/sourceKind"
+        },
+        "source_disposition": {
+          "$ref": "#/$defs/sourceDisposition"
+        },
+        "adoption_verdict": {
+          "$ref": "#/$defs/adoptionVerdict"
+        },
+        "maturity": {
+          "$ref": "surface-readiness-ledger.schema.json#/$defs/componentMaturity"
+        },
+        "audiences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "surface-readiness-ledger.schema.json#/$defs/surfaceAudience"
+          }
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "decided_at": {
+          "type": "string",
+          "format": "date"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidenceRef"
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rejected_alternatives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "revisit_condition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sunset_condition": {
+          "type": "string",
+          "minLength": 1
+        },
+        "consuming_surfaces": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "surface-readiness-ledger.schema.json#/$defs/owningSlice"
+          }
+        },
+        "next_adjudication": {
+          "$ref": "#/$defs/nextAdjudication"
+        },
+        "not_yet": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "authority": {
+          "$ref": "surface-readiness-ledger.schema.json#/$defs/authorityBoundary"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "maturity": {
+                "const": "stable"
+              }
+            },
+            "required": [
+              "maturity"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_refs": {
+                "allOf": [
+                  {
+                    "contains": {
+                      "type": "object",
+                      "required": [
+                        "kind"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "browser"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "contains": {
+                      "type": "object",
+                      "required": [
+                        "kind"
+                      ],
+                      "properties": {
+                        "kind": {
+                          "const": "at_manual"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

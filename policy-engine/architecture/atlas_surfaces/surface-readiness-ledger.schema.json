@@ -1,0 +1,294 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PolicyOS Atlas Surface Readiness Ledger",
+  "description": "Strict DS0 contract for surface capability-chain readiness. Behavioral claim validation belongs to DS6.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "ledger_id",
+    "as_of",
+    "controlled_vocabulary_source",
+    "authority",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0"
+    },
+    "ledger_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "as_of": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "controlled_vocabulary_source": {
+      "const": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+    },
+    "authority": {
+      "$ref": "#/$defs/authorityBoundary"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/readinessEntry"
+      }
+    }
+  },
+  "$defs": {
+    "surfaceAudience": {
+      "type": "string",
+      "enum": [
+        "PUBLIC",
+        "REVIEWER",
+        "EXPERT",
+        "MACHINE"
+      ]
+    },
+    "componentMaturity": {
+      "type": "string",
+      "enum": [
+        "experimental",
+        "beta",
+        "stable",
+        "deprecated"
+      ]
+    },
+    "surfaceReadinessState": {
+      "type": "string",
+      "enum": [
+        "contract_only",
+        "producer_missing",
+        "bridge_missing",
+        "consumer_missing",
+        "verification_missing",
+        "surface_missing",
+        "semantic_test_missing",
+        "implemented"
+      ]
+    },
+    "provenancePosture": {
+      "type": "string",
+      "enum": [
+        "live",
+        "replay",
+        "fixture_only"
+      ]
+    },
+    "freshnessState": {
+      "type": "string",
+      "enum": [
+        "live",
+        "cached",
+        "stale",
+        "offline_queued"
+      ]
+    },
+    "capabilityLinkState": {
+      "type": "string",
+      "enum": [
+        "implemented",
+        "missing",
+        "out_of_scope"
+      ]
+    },
+    "owningSlice": {
+      "type": "string",
+      "enum": [
+        "DS0",
+        "DS1",
+        "DS2",
+        "DS3",
+        "DS4",
+        "DS5",
+        "DS6",
+        "DS7",
+        "DS8",
+        "DS9",
+        "DS10",
+        "DS11",
+        "DS12",
+        "DS13",
+        "DS14",
+        "DS15",
+        "DS16",
+        "DS17",
+        "DS18"
+      ]
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "authoritative_for",
+        "may_not_use_for"
+      ],
+      "properties": {
+        "authoritative_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "may_not_use_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "freshness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "state",
+        "as_of"
+      ],
+      "properties": {
+        "state": {
+          "$ref": "#/$defs/freshnessState"
+        },
+        "as_of": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "capabilityChain": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "producer",
+        "persisted",
+        "bridge",
+        "consumer",
+        "verification",
+        "surface",
+        "negative_test",
+        "semantic_test"
+      ],
+      "properties": {
+        "contract": {
+          "$ref": "#/$defs/capabilityLinkState"
+        },
+        "producer": {
+          "$ref": "#/$defs/capabilityLinkState"
+        },
+        "persisted": {
+          "$ref": "#/$defs/capabilityLinkState"
+        },
+        "bridge": {
+          "$ref": "#/$defs/capabilityLinkState"
+        },
+        "consumer": {
+          "$ref": "#/$defs/capabilityLinkState"
+        },
+        "verification": {
+          "$ref": "#/$defs/capabilityLinkState"
+        },
+        "surface": {
+          "$ref": "#/$defs/capabilityLinkState"
+        },
+        "negative_test": {
+          "$ref": "#/$defs/capabilityLinkState"
+        },
+        "semantic_test": {
+          "$ref": "#/$defs/capabilityLinkState"
+        }
+      }
+    },
+    "readinessEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "surface_id",
+        "title",
+        "owning_slice",
+        "audiences",
+        "readiness_state",
+        "maturity",
+        "provenance_posture",
+        "freshness",
+        "chain",
+        "evidence_refs",
+        "reason",
+        "not_yet",
+        "owner",
+        "updated_at"
+      ],
+      "properties": {
+        "surface_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "owning_slice": {
+          "$ref": "#/$defs/owningSlice"
+        },
+        "audiences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/surfaceAudience"
+          }
+        },
+        "readiness_state": {
+          "$ref": "#/$defs/surfaceReadinessState"
+        },
+        "maturity": {
+          "$ref": "#/$defs/componentMaturity"
+        },
+        "provenance_posture": {
+          "$ref": "#/$defs/provenancePosture"
+        },
+        "freshness": {
+          "$ref": "#/$defs/freshness"
+        },
+        "chain": {
+          "$ref": "#/$defs/capabilityChain"
+        },
+        "evidence_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "not_yet": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

@@ -1,15 +1,34 @@
+---
+title: Atlas v4 Adoption Record
+status: superseded-as-canonical
+owner: team-design
+created: 2026-04-29
+last_reviewed: 2026-07-16
+disposition: retained-historical-adoption-record
+superseded_by: ./ATLAS_SOURCE_OF_TRUTH.md
+retained_for: DS2 counterpart evidence and ADR-047 history
+---
+
 # Atlas v4 Adoption Record
 
-**Date:** 2026-04-29  
-**Source archive:** `/Users/deniskopylov/Downloads/PolicyOS Atlas Design System-4.zip`  
-**Reference token file:** `docs/brand/atlas-v4/colors_and_type.css`  
-**Canonical product docs:** `docs/brand/ATLAS_DESIGN_SYSTEM.md`  
+**Date:** 2026-04-29
+
+**Status:** Dated v4 evidence; superseded as a governing source by [Atlas Source-Of-Truth](./ATLAS_SOURCE_OF_TRUTH.md)
+
+**Historical source archive:** `/Users/deniskopylov/Downloads/PolicyOS Atlas Design System-4.zip` (non-replayable local provenance; DS2 must not use it as evidence)
+
+**Reference token file:** `docs/brand/atlas-v4/colors_and_type.css`
+
+**Retained v4 reference:** `docs/brand/ATLAS_DESIGN_SYSTEM.md`
+
 **Dark theme ADR:** `docs/adr/ADR-047-atlas-v4-dark-theme-canonicalization.md`
 
 This record explains what was accepted from the Atlas v4 archive, what already
 existed in production, and which differences are intentional. The rule is
 simple: production and the v4 reference must agree, or the difference must have
-an explicit decision here.
+an explicit decision here. Its local-download source path is a known replay
+defect; DS2 compares the repo-local reference and live code, not that path.
+ADR-047 remains in force until an ADR-process change supersedes it.
 
 ## 1. Adoption Summary
 

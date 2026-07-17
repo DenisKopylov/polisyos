@@ -1,15 +1,31 @@
+---
+title: PolicyOS Atlas Design System - v4 Reference
+status: superseded-as-canonical
+owner: team-design
+created: 2026-04-29
+last_reviewed: 2026-07-16
+disposition: retained-current-v4-reference
+superseded_by: ./ATLAS_SOURCE_OF_TRUTH.md
+retained_for: DS2 comparison and DS4 migration
+---
+
 # PolicyOS Atlas Design System
 
-**Status:** Canonical production design system  
-**Source archive:** `PolicyOS Atlas Design System-4.zip`, received 2026-04-29  
-**Production root:** `policy-engine/apps/runtime-dashboard/`  
-**Reference token file:** `docs/brand/atlas-v4/colors_and_type.css`  
+**Status:** Transitional live v4 baseline; superseded as a governing source by [Atlas Source-Of-Truth](./ATLAS_SOURCE_OF_TRUTH.md)
+
+**Source archive:** `PolicyOS Atlas Design System-4.zip`, received 2026-04-29
+
+**Production root:** `policy-engine/apps/runtime-dashboard/`
+
+**Reference token file:** `docs/brand/atlas-v4/colors_and_type.css`
+
 **Adoption record:** `docs/brand/ATLAS_V4_ADOPTION.md`
 
 This document adapts the Atlas v4 archive into the current production reality.
-The archive is an excellent design reference kit, but production remains the
-source of truth when a token, component, accessibility constraint, or ADR has
-already made a stricter choice.
+It is retained as dated v4 rationale and DS2/DS4 migration evidence. The live
+code remains the operational production baseline until strangled item by item;
+the surface constitution, Revision 2 master plan, and DS0 decision now own
+normative and execution authority.
 
 ## 1. Product Context
 
@@ -32,9 +48,9 @@ The UI should feel like an editorial control room: rigorous, calm, legible,
 and operational. It should never feel like a marketing site, a generic SaaS
 dashboard, or a decorative science demo.
 
-## 2. Canonical Sources
+## 2. Retained v4 Production Baseline
 
-Production source of truth:
+Current implementation anchors:
 
 - `apps/runtime-dashboard/src/styles.css` - Tailwind v4 theme tokens,
   density hooks, typography scale, motion scale, and base app rules.
@@ -50,8 +66,10 @@ Production source of truth:
 - `docs/adr/ADR-047-atlas-v4-dark-theme-canonicalization.md` - dark theme
   decision.
 
-The v4 archive is canonical only as a reference baseline. The repo-local copy
-of its token contract lives in `docs/brand/atlas-v4/colors_and_type.css`.
+The v4 archive is retained only as a reference baseline. The repo-local copy of
+its token contract lives in `docs/brand/atlas-v4/colors_and_type.css`. DS2 must
+adjudicate v15 against these live counterparts; this page cannot admit either
+source.
 
 ## 3. Content Fundamentals
 

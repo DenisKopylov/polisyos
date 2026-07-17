@@ -1959,6 +1959,19 @@ re-architecting.
   residuals; the census lane is designed **re-runnable** (the D3 recurring liveness census with
   tier decay); every live probe journal-first; zero engine behavior changes.
   `P29`/§3.5.9/§3.5.12.
+  **Measured N13a result (2026-07-16):** the frozen census covers 124 metrics (95 exact, 20 via
+  alignment, 9 unresolved), 19 cycle-demand variables (4 executable, 15 `binding_gap`), all 12
+  data-derived connector families (144 actual-connector REPLAY receipts; 128 intercepted, zero
+  network escapes; 18 bounded live calls with journaled heartbeats), and all three capstone routes.
+  The actual route projection classifies all three `not_a_data_gap`: education is
+  blocked on `method_estimand_binding_mismatch`; first-vertical and unseen are blocked on their
+  exact grounding/world-record links. Therefore N13b has **no honest capstone data-only execution
+  lane yet** and must not force the stale water-quality hypothesis. Seven real catalog FetchPlans
+  generate behind a zero-call execution fence (`implemented_but_not_orchestrated`). The 15-row
+  growth backlog uses the declared interim binding-confidence × route-demand order with an explicit
+  N13b VOI-owner integration note; it is not claimed as VOI. Frozen artifact:
+  `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`, file
+  `sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791`.
 - **GY-N13b — Acquisition executor — the world grows (close one capstone route end-to-end;
   NEW, Rev 16).** wire-existing + narrow build-new. Convert N7's routes from typed dead-ends
   into executed acquisitions: (1) wire the `DatasetCatalogGraph` into the N7 `_capture_fabric`

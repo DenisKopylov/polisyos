@@ -2,7 +2,7 @@
   "$schema": "./frontend-disposition-register.schema.json",
   "schema_version": "1.0",
   "register_id": "atlas-ds19-frontend-disposition",
-  "as_of": "2026-07-17T11:45:00+03:00",
+  "as_of": "2026-07-17T11:50:00+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
   "authority": {
     "authoritative_for": [
@@ -309,6 +309,55 @@
       ],
       "verification_refs": [
         "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---empty-layout-placeholder-cluster-verification"
+      ]
+    },
+    {
+      "census_id": "census-zero-consumer-workers-delete",
+      "captured_at": "2026-07-17T11:50:00+03:00",
+      "covers_unit_ids": [
+        "worker-data-transform",
+        "worker-dag-layout",
+        "worker-json-parse"
+      ],
+      "ds1_evidence_ids": [
+        "worker-data-transform",
+        "worker-dag-layout",
+        "worker-json-parse"
+      ],
+      "result": "zero_consumers",
+      "probes": [
+        {
+          "kind": "path_absent",
+          "targets": [
+            "apps/runtime-dashboard/src/workers/dataTransform.worker.ts",
+            "apps/runtime-dashboard/src/workers/dagLayout.worker.ts",
+            "apps/runtime-dashboard/src/workers/jsonParse.worker.ts"
+          ],
+          "scan_roots": [],
+          "expected_count": 0,
+          "observed_refs": []
+        },
+        {
+          "kind": "reference_count",
+          "targets": [
+            "dataTransform.worker",
+            "dagLayout.worker",
+            "jsonParse.worker"
+          ],
+          "scan_roots": [
+            "apps/runtime-dashboard/src",
+            "apps/runtime-dashboard/e2e",
+            "apps/runtime-dashboard/.storybook",
+            "apps/runtime-dashboard/scripts",
+            "apps/runtime-dashboard/package.json",
+            "packages"
+          ],
+          "expected_count": 0,
+          "observed_refs": []
+        }
+      ],
+      "verification_refs": [
+        "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---zero-consumer-workers-cluster-verification"
       ]
     }
   ],
@@ -3988,13 +4037,14 @@
         "ds1_entry_id": "worker-data-transform",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "Fresh DS19 census found zero consumers, so the unused data-transform worker was deleted while the generic worker hook and PWA service worker remained live.",
+      "reference_census_id": "census-zero-consumer-workers-delete"
     },
     {
       "unit_id": "worker-dag-layout",
@@ -4002,13 +4052,14 @@
         "ds1_entry_id": "worker-dag-layout",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "Fresh DS19 census found zero consumers, so the unused DAG-layout worker and its documentation-only filename mention were deleted while the generic hook remained live.",
+      "reference_census_id": "census-zero-consumer-workers-delete"
     },
     {
       "unit_id": "worker-json-parse",
@@ -4016,13 +4067,14 @@
         "ds1_entry_id": "worker-json-parse",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
       "owner": "team-architecture",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "Fresh DS19 census found zero consumers, so the unused JSON-parse worker was deleted without changing the live PWA/offline substrate.",
+      "reference_census_id": "census-zero-consumer-workers-delete"
     },
     {
       "unit_id": "cache-service-worker-static",
@@ -4775,14 +4827,17 @@
     {
       "negative_id": "DS1-N019",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:831",
-      "lifecycle": "still_required",
+      "lifecycle": "obsolete_by_deletion",
       "affected_unit_ids": [
         "worker-data-transform",
         "worker-dag-layout",
         "worker-json-parse"
       ],
+      "deletion_census_ids": [
+        "census-zero-consumer-workers-delete"
+      ],
       "may_count_as_passing_test": false,
-      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+      "rationale": "All three zero-consumer worker substrates named by this negative were deleted under a fresh census; the negative is obsolete by scope reduction and is not counted as a passing test."
     },
     {
       "negative_id": "DS1-N020",

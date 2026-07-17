@@ -45,18 +45,18 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **2**
-- Application lines deleted: **2775**
-- Net application LOC reduction: **2773**
-- Application files deleted: **22**
+- Application lines added: **3**
+- Application lines deleted: **3155**
+- Net application LOC reduction: **3152**
+- Application files deleted: **25**
 
 <!-- BEGIN DS19 REGISTER PROJECTION -->
 ### Register statistics
 
 | Disposition | Root units |
 | --- | ---: |
-| `delete_pending` | 5 |
-| `deleted` | 10 |
+| `delete_pending` | 2 |
+| `deleted` | 13 |
 | `rebind_pending` | 200 |
 | `retire_disposition` | 25 |
 | `use_as_is` | 5 |
@@ -72,7 +72,7 @@ DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are evi
 | collaboration | `feature-collaboration`, `raw-fetch-collab-activity`, `raw-fetch-collab-comment-post`, `raw-fetch-collab-comments-get`, `raw-fetch-collab-resolve`, `status-collaboration-session`, `transport-rest-collaboration`, `transport-ws-collaboration` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification` |
 | onboarding | `feature-onboarding-orphan` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---onboarding-cluster-verification` |
 | layout-placeholder | `feature-layout-empty` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---empty-layout-placeholder-cluster-verification` |
-| workers | `worker-dag-layout`, `worker-data-transform`, `worker-json-parse` | not yet captured | `pending` | pending |
+| workers | `worker-dag-layout`, `worker-data-transform`, `worker-json-parse` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---zero-consumer-workers-cluster-verification` |
 | clerk-index | `route-home-clerk-duplicate` | not yet captured | `pending` | pending |
 | whatif-local | `cache-whatif-scenarios`, `feature-whatif::legacy-local-whatif-subgraph` | not yet captured | `pending` | pending |
 
@@ -174,7 +174,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `DS1-N016` | `still_required` | — | — |
 | `DS1-N017` | `partially_reduced` | `flag-enable-causal-graph`, `flag-enable-collaboration`, `flag-enable-command-palette`, `flag-enable-what-if-analysis` | `census-collaboration-delete` |
 | `DS1-N018` | `still_required` | — | — |
-| `DS1-N019` | `still_required` | `worker-data-transform`, `worker-dag-layout`, `worker-json-parse` | — |
+| `DS1-N019` | `obsolete_by_deletion` | `worker-data-transform`, `worker-dag-layout`, `worker-json-parse` | `census-zero-consumer-workers-delete` |
 | `DS1-N020` | `still_required` | — | — |
 | `DS1-N021` | `partially_reduced` | `feature-collaboration`, `raw-fetch-collab-activity`, `raw-fetch-collab-comment-post`, `raw-fetch-collab-comments-get`, `raw-fetch-collab-resolve`, `status-collaboration-session`, `transport-rest-collaboration`, `transport-ws-collaboration` | `census-collaboration-delete` |
 | `DS1-N022` | `still_required` | — | — |
@@ -414,9 +414,9 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `transport-sse-run-detail` | `transport-sse-run-detail` | 0 | `rebind_pending` | `pending` | `DS3` | `—` |
 | `transport-ws-review` | `transport-ws-review` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `transport-ws-collaboration` | `transport-ws-collaboration` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
-| `worker-data-transform` | `worker-data-transform` | 0 | `delete_pending` | `pending` | `DS19` | `—` |
-| `worker-dag-layout` | `worker-dag-layout` | 0 | `delete_pending` | `pending` | `DS19` | `—` |
-| `worker-json-parse` | `worker-json-parse` | 0 | `delete_pending` | `pending` | `DS19` | `—` |
+| `worker-data-transform` | `worker-data-transform` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
+| `worker-dag-layout` | `worker-dag-layout` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
+| `worker-json-parse` | `worker-json-parse` | 0 | `deleted` | `strangled` | `DS19` | `census-zero-consumer-workers-delete` |
 | `cache-service-worker-static` | `cache-service-worker-static` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `offline-queue-promotion-decision` | `offline-queue-promotion-decision` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `offline-draft-composer` | `offline-draft-composer` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
@@ -449,6 +449,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `9b25c0ca0 refactor(frontend): delete empty layout placeholder`
 - `2bbdfac4e refactor(frontend): delete orphan onboarding`
 - `df87559b3 refactor(frontend): delete phantom collaboration substrate`
 - `702256135 feat(frontend): establish DS19 disposition authority`

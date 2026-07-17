@@ -293,3 +293,45 @@ feature directories only.
 
 `feature-layout-empty` may now transition from `delete_pending` to `deleted`
 against census `census-layout-placeholder-delete`.
+
+## 2026-07-17 - Zero-Consumer Workers Pre-Deletion Census
+
+- Clean cluster start: HEAD `9b25c0ca0`; `worker-data-transform`,
+  `worker-dag-layout`, and `worker-json-parse` are `delete_pending` with their
+  three DS1 ledger entries as evidence.
+- The candidate set is exactly **3 modules / 372 lines**. Fresh static,
+  dynamic, Vite `new URL`, route, event-name, story, e2e, package, manifest,
+  and service-worker searches found **zero runtime consumers**.
+- The only reference outside the candidates is a documentation example in the
+  live generic `useWorker` hook naming `dagLayout.worker.ts`; it is not a
+  consumer but must be removed so the retired module name cannot drift back
+  into use. The hook and its 8-test suite remain protected.
+- The PWA service worker is a separate live chain: `src/sw.ts`, Workbox
+  dependencies, `virtual:pwa-register`, OfflineQueue provider/repository, and
+  their consumers remain nonzero and protected.
+
+The census authorizes deletion of the three modules plus the single
+consequential example cleanup; it does not authorize removing the live worker
+hook or PWA/offline substrate.
+
+## 2026-07-17 - Zero-Consumer Workers Cluster Verification
+
+- Deleted all three worker modules and removed the sole retired filename from
+  the generic hook documentation. Post-delete source and production-bundle
+  census is **zero** for `dataTransform.worker`, `dagLayout.worker`, and
+  `jsonParse.worker`.
+- The reusable `useWorker` hook and test remain. The built PWA service worker,
+  Workbox imports, `virtual:pwa-register`, and OfflineQueue chain also remain
+  present and were not rebound to any deleted module.
+- Explicit typecheck: **PASS, 14.63 seconds**.
+- Affected `useWorker` test: **1 file / 1 test, PASS, 1.84 seconds**.
+- Scoped lint over the surviving hook/test and protected PWA/offline files:
+  **PASS, 0 diagnostics, 5.95 seconds**.
+- Production build/PWA/postbuild security: **PASS, 34.90 seconds**;
+  3,880 modules and 102 precache entries.
+- Application diff: **1 line added, 380 lines deleted, 3 files deleted**.
+
+The three worker rows may now transition from `delete_pending` to `deleted`
+against census `census-zero-consumer-workers-delete`. Seeded negative
+`DS1-N019` becomes `obsolete_by_deletion` with that same receipt; it is not
+recast as a passing test.

@@ -1,13 +1,16 @@
 ---
 title: PolicyOS Atlas Surface & Frontend Implementation Master Plan
-status: revised - Revision 2 re-derived against the GY-N closure; Phase A may start now; Phase B+ activates on GY-N10 merge
+status: ACTIVE - Revision 3 grounded in Phase-A measured reality; activation satisfied (GY-N10 merged); Phase B unblocked
 owner: team-design
 runtime_co_owner: team-architecture  # producers, bridges, and authz enforcement land in runtime code; named per task plan
 created: 2026-06-10
-revised: 2026-07-16 (Revision 2 - re-derived against the GY-N campaign closure: GY input contract, Cycle Board hero, new slices DS15-DS18, re-stated activation and public gates)
+revised: 2026-07-16 (Revision 3 - Phase A closed & merged: measured denominators of record, thesis sharpened to rebind/strangle, new DS19 strangle wave + DS20 authz enforcement split from DS5, negatives front-loading rule, activation satisfied)
 last_reviewed: 2026-07-16
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 atlas_source_of_truth: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
+phase_a_synthesis: ../../reference/frontend/atlas-phase-a-synthesis.md   # the Revision-3 input package: per-slice confirmed/re-scoped/invalidated + PI-01..PI-24
+phase_a_audit: ../../reference/frontend/atlas-live-application-audit.md  # DS1: the measured reality of record (261-unit ledger, 23 seeded negatives)
+phase_a_adjudication: ../../reference/frontend/atlas-v15-adjudication.md # DS2: 233-unit v15 verdicts; adoption-ledger IDs are the only door for v15 material
 organizing_constitution: ../../system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
 source_design_doc: ../../system-design-decisions/universal-policy-design-target-architecture-and-gap.md
 governed_inventory: ../../../architecture/policy_design_case/cluster_ownership_map.toml
@@ -78,19 +81,47 @@ plan.** The GY plan's next wave (N13a/N13b acquisition execution → N11
 confidence ledger → N12 epochs → Phase-6 learning loop) is exactly the future
 data this plan's later surfaces render.
 
-**Activation gate (re-stated).**
+**Revision 3 (2026-07-16) — grounded in Phase-A measured reality.** Phase A
+(DS0 governing decisions, DS1 exhaustive live-application audit, DS2 v15
+adjudication) is **closed and merged to main** (merge ed74537e8), and GY-N10 is
+**merged to main** (7e035a426, GO-CONFIRMED capstone 6fcbd2c11) — **the
+activation gate is SATISFIED and Phase B is unblocked.** Revision 3 exists for
+one reason: to ground every remaining slice in what the code measurably IS,
+and to make false confidence in the system's current abilities structurally
+impossible. Three consequences:
 
-- **Phase A (DS0–DS2) may start NOW** — its inputs (the v15 archive, the v4/v7
-  brand docs, the live route/feature/authz/cache inventory) are
-  GY-independent, and Phase A does not touch the GY worktree.
-- **Phase B+ activates when the GY-N10 branch merges to main** (the capstone
-  and its sibling artifacts become main-tree data). No further re-derivation
-  ceremony is required — this revision replaces it; if the final N10 audit
-  materially changes the capstone vocabulary, amend the Input Contract before
-  DS3, not during it.
-- Later slices carry **explicit GY gates** (N13a, N13b, N11, N12, first
+1. **The denominators of record are the Phase-A artifacts, never estimates.**
+   The measured reality: 944 TS/TSX files (145,033 LOC); 32 route objects / 29
+   effective patterns; 17 features; **89 shared/UI implementations in 12
+   families (none `stable`)**; 89 OpenAPI operations (45 surface-consumed, 7
+   hook-only, **37 uncalled**); **47 UI-local status definitions**; 29/29
+   mutating operations without action-permission or step-up; two API-client
+   homes; a forgeable browser-side public "signature"; a red structural a11y
+   gate; v15 = 233 adjudicated units with **0 `admit_as_is`, 0 `stable`**. Any
+   task plan that assumes a capability not backed by the DS1 readiness ledger
+   or the DS2 adoption ledger is wrong by construction.
+2. **The Phase-B thesis is sharpened**: not "build a system and migrate the
+   app" but **project governed runtime truth through ONE client/package waist,
+   rebind the useful living families, selectively consume admitted v15
+   material by adoption-ledger ID, and strangle every duplicate or false
+   owner.** The living v4 estate is the transitional production winner until
+   item-specific DS4/DS6 gates close.
+3. **Per-slice re-scoping is defined once** in the
+   [Phase-A synthesis](../../reference/frontend/atlas-phase-a-synthesis.md)
+   (confirmed / re-scoped / invalidated + `PI-01`..`PI-24` per slice) — task
+   plans consume it directly; this roadmap does not restate it.
+
+**Activation status (Revision 3).**
+
+- Phase A: **closed** (DS0/DS1/DS2 merged).
+- Phase B: **ACTIVE** — DS3 (and DS19, which gates only on DS1 evidence) may
+  start now; DS20 starts after DS3.
+- Later slices keep their **explicit GY gates** (N13b, N11, N12, first
   governed promotion, Phase-6 agent) stated per slice and in the start-now
-  ladder below.
+  ladder below. GY-N13a is closed on its branch (census artifact + live-probe
+  journal) pending architect acceptance; its measured result — **all three
+  capstone routes recompute to `not_a_data_gap` (grounding-relation/estimand
+  gaps, not row gaps)** — is already reflected in the DS7/DS15 notes below.
 
 **Execution granularity (roadmap vs task plans).** This document is the
 **roadmap**: strategy, sequencing, doctrine, the dependency DAG, and the
@@ -258,6 +289,20 @@ A deliverable that traces to none of the three generators is out of scope
   public routes; deterministic visual regression; fail-closed error rendering.
 - **"Not yet" is mandatory.** Every slice states what it explicitly does not
   claim, in the slice plan and in the surface readiness ledger.
+- **Seeded negatives are binding task-plan inputs (Revision 3).** DS1 seeded 23
+  red-first negative specs (`N001`–`N023`, indexed in the live-application
+  audit). A slice that owns any of them **must implement its negatives
+  red-first before rebinding or building** — a task plan that starts its
+  positive work with its seeded negatives unwritten is not accepted.
+- **v15 enters only by adoption-ledger ID (Revision 3).** No v15 path may
+  enter a task by package/folder membership; the DS2 ledger row (verdict,
+  maturity, consuming surface, rejected deltas) is the only door, and archive
+  maturity labels never transfer.
+- **The frontend disposition law (Revision 3; the GY-N0 dual).** Every unit of
+  the existing estate is eventually **used-as-is, rebound, or deleted** through
+  the DS19 disposition register — never left as a live parallel owner. A
+  successor closes only when a real consumer exists AND the old owner path is
+  proven strangled (the P27/P28 duals on the glass).
 
 ## Controlled Vocabulary (references, then extends)
 
@@ -370,19 +415,21 @@ roughly chronological; the DAG, not the numbers, governs start order.
 
 | Slice | Theme | Gate / prereqs | Phase |
 | --- | --- | --- | --- |
-| DS0 | Source-of-truth freeze & governing decisions | none (GY-independent) | A |
-| DS1 | Live application audit | DS0 | A |
-| DS2 | Atlas v15 adjudication | DS0 | A |
-| DS3 | Runtime producers & export infrastructure (GY artifact projections) | **GY-N10 merged to main** | B |
-| DS4 | Status-grammar rebinding & test harness (GY vocabulary) | DS3 | B |
-| DS5 | Enforcement waist: lints, audience mapping, cache discipline | DS4; DS1 reports | B |
+| DS0 | Source-of-truth freeze & governing decisions | **CLOSED** (merged) | A |
+| DS1 | Live application audit | **CLOSED** (merged) | A |
+| DS2 | Atlas v15 adjudication | **CLOSED** (merged) | A |
+| DS3 | Runtime producers & export infrastructure (GY artifact projections; one-client consolidation) | activation satisfied — **may start now** | B |
+| DS19 | **False-substrate strangle wave + frontend disposition register (NEW, Rev 3)** | DS1 evidence (merged) — **may start now**, parallel to DS3 | B |
+| DS4 | Status-grammar rebinding & test harness (12 families / 47 statuses) | DS3 | B |
+| DS20 | **Server authorization enforcement (NEW, Rev 3 — split from DS5)** | DS3; parallel to DS4 | B |
+| DS5 | Enforcement waist: lints, audience mapping, cache discipline, flags | DS4; DS20 vocabulary | B |
 | DS6 | Evidence workflow & instrumentation | DS4 | B |
-| DS7 | **Cycle Board** (hero; supersedes "proving-ground board") | DS5 | C |
+| DS7 | **Cycle Board** (hero) | DS5 | C |
 | DS8 | Case & evidence workspace: stage-trace drill-down (strangling) | DS7 | C |
-| DS9 | Human decision integrity | DS8 | C |
+| DS9 | Human decision integrity | DS8; DS20 | C |
 | DS10 | Capability discovery | DS5 + disposition-ledger/census content | C |
-| DS15 | Acquisition routes & data-pool growth surfaces | DS7; read parts after **GY-N13a**, live loop after **GY-N13b** | C |
-| DS16 | Value, uncertainty & derived-data grammar | DS4; value parts live at merge, derived parts after **GY-N13b** | C |
+| DS15 | Acquisition routes & data-pool growth surfaces | DS7; read parts after **GY-N13a accepted**, live loop after **GY-N13b** | C |
+| DS16 | Value, uncertainty & derived-data grammar | DS4; value parts live NOW, derived parts after **GY-N13b** | C |
 | DS17 | Confidence-ledger & risk-spend surface | DS7; **GY-N11 closed** | C/D |
 | DS18 | Epoch & staleness chrome | DS4; **GY-N12 closed** | C/D |
 | DS11 | Trust/docs posture | DS9; DS6 | D |
@@ -391,13 +438,15 @@ roughly chronological; the DAG, not the numbers, governs start order.
 | DS14 | Bounded-agent surface | **Phase-6 bounded-agent contracts closed (O-block)** AND DS9 | D |
 
 ```text
-Phase A (start NOW):        DS0 ─▶ { DS1, DS2 }
-        ───── activation: GY-N10 merged to main ─────
-Phase B (waist):            DS3 ─▶ DS4 ─▶ DS5
-                                    └──▶ DS6  (gates all later `stable` claims)
-Phase C (workspace):        DS5 ─▶ DS7 ─▶ DS8 ─▶ DS9
+Phase A: CLOSED (DS0 ─▶ {DS1, DS2} — merged ed74537e8)
+        ───── activation: SATISFIED (GY-N10 merged 7e035a426) ─────
+Phase B (waist, ACTIVE):    DS3 ─▶ DS4 ─▶ DS5
+                            DS19: now, parallel to DS3 (gates on DS1 evidence only)
+                            DS20: after DS3, parallel to DS4 (feeds DS5, DS9)
+                            DS6: after DS4 (gates all later `stable` claims)
+Phase C (workspace):        DS5 ─▶ DS7 ─▶ DS8 ─▶ DS9 (DS9 also needs DS20)
                             DS10: after DS5 + ledger/census producers
-                            DS15: after DS7 (+N13a read / +N13b live loop)
+                            DS15: after DS7 (+N13a accepted / +N13b live loop)
                             DS16: after DS4 (+N13b for derived-data parts)
                             DS17: after DS7 + GY-N11
                             DS18: after DS4 + GY-N12
@@ -411,20 +460,31 @@ The runtime gates encode the constitutional subordination order: public
 surfaces never outrun the promotion gate; the agent surface never precedes the
 bounded agent.
 
-### Start-Now Ladder (what runs when, against the GY plan)
+### Start-Now Ladder (Revision 3 — what runs when)
 
-| GY milestone | Unblocked surface work |
+| Milestone | Unblocked surface work |
 | --- | --- |
-| **Now** (audit in flight; nothing merged) | DS0, DS1, DS2 — decisions, live-app audit, v15 adjudication. Zero GY coupling; does not touch the GY worktree. |
-| **GY-N10 merged** (imminent) | DS3 producers over the capstone/value-gate/ledger/census artifacts → DS4 grammar rebinding → DS5/DS6 waist → **DS7 Cycle Board on real capstone data** → DS8 stage-trace workspace → DS9; DS10 discovery over the disposition ledger + method/dataset catalogs; DS16's value/uncertainty grammar (ValueOuterSet is live data). |
-| **GY-N13a closed** | DS15 read surfaces: connector scorecard, liveness map, D2 growth backlog ("what the system wants to learn next and why"). |
-| **GY-N13b closed** | DS15 live loop: approve-acquisition CTA → world-growth event → case re-entry rendered truthfully; admission passports and quarantine views; DS16 derived-data provenance (derivation certificates, basis/deflator assumption chips). |
-| **GY-N11 closed** | DS17 δ-budget and risk-spend surfaces (refusal/acquisition instruments first — that is the data that exists). |
-| **GY-N12 closed** | DS18 epoch chrome: `as_of`/epoch/`revalidation_required` badges everywhere; stale-certificate and revision-trigger views. |
-| **First governed promotion** (N9 + N11 + N12 live; per Rule 5 this may be distant) | DS12 public publication → DS13 accountability ledgers. |
-| **Phase-6 O-block closed** | DS14 bounded-agent surface (strangles `features/clerk`). |
+| **Now** (Phase A merged; N10 merged) | **DS3** (producers over capstone/value-gate/ledger/census + the one-client/channel consolidation, PI-01..03) and **DS19** (strangle wave over DS1's zero-consumer evidence) in parallel. |
+| **DS3 closed** | **DS4** (12-family rebinding, 47-status retirement, D2 token adapter) and **DS20** (29-operation server authz + step-up + fixture-identity removal) in parallel; then DS5, DS6. |
+| **DS5 closed** | **DS7 Cycle Board on real capstone data** → DS8 → DS9 (with DS20); DS10; DS16's value/uncertainty grammar (ValueOuterSet is live main-tree data now). |
+| **GY-N13a accepted/merged** | DS15 read surfaces: connector scorecard (12-family liveness), the growth backlog (`ranking_only_not_voi`, 15 `binding_gap` residuals), route projections — noting the routes are currently **structural gaps, not data gaps**. |
+| **GY-N13b closed** | DS15 live loop (approve-acquisition → world-growth → re-entry), passports/quarantine; DS16 derived-data provenance (derivation certificates, basis chips). |
+| **GY-N11 / GY-N12 closed** | DS17 δ-surfaces / DS18 epoch chrome. |
+| **First governed promotion** (per Rule 5, may be distant) | DS12 → DS13. |
+| **Phase-6 O-block closed** | DS14 (strangles `features/clerk`). |
 
 ## Per-Slice Detail
+
+**Phase-A rebaseline binding (Revision 3).** Every slice below is re-scoped by
+the [Phase-A synthesis](../../reference/frontend/atlas-phase-a-synthesis.md)'s
+per-slice **confirmed / re-scoped / invalidated** matrix and its `PI-01`..`PI-24`
+actions — that document is the binding re-scope of record and task plans MUST
+consume their slice's section from it (this roadmap does not restate it;
+Rule 10). Effort posture per the synthesis: DS4/DS5(+DS20)/DS6/DS9/DS12/DS18
+**up** (binding and enforcement are the real work); DS8/DS10/DS14/DS15 **down**
+on greenfield (living substrates exist); DS3 re-cut toward client/channel
+consolidation. `stable` remains unavailable everywhere until DS6 evidence
+exists — the single DS2 `beta` is an evidence method and raises no component.
 
 ### Phase A — Pre-Activation (Layer-3-independent)
 
@@ -569,25 +629,29 @@ is implied by DS0 closure.
 
 #### DS5 — Enforcement Waist: Lints, Audience Mapping, Cache Discipline
 
-- **Goal:** the laws become mechanical.
-- **Gate:** DS4; DS1 reports (authz gaps, cache policy).
+- **Goal:** the laws become mechanical. **(Revision 3 re-cut: the server-side
+  authorization half — per-permission deny, step-up, fixture prohibition,
+  OPA resource binding — moved to DS20; DS1 measured it as systemic (29/29
+  mutating operations) and it must not wait behind the status grammar. DS5
+  consumes DS20's single permission vocabulary.)**
+- **Gate:** DS4; DS20 vocabulary; DS1 reports (cache policy).
 - **Producer & bridge work (in-slice):** the **audience↔permission mapping**
-  projected server-side with deny enforcement; weakest-boundary/status
+  over DS20's server-projected vocabulary; weakest-boundary/status
   composition exposed in the schema where not yet projected; client
   regeneration.
 - **Deliverables:** the `[to build]` lints from laws 8/9/10/12 —
   unauthorized-status-enum lint, no-hand-written-authority-fetch lint (the 9
   known production calls in 5 files are its first targets, with typed exemptions
   for sanctioned auth/flag/telemetry adapters), capability-menu lint,
-  duplicate-label/static-copy lint; **single permission vocabulary** — the
-  server/client duplication (`_ROLE_PERMISSIONS` vs `PERMISSION_KEYS`)
-  collapses to one source projected through the schema; **per-permission deny
-  on mutating endpoints** (DS1 found none on 29/29 POST operations — this is the
-  load-bearing half), resource binding before OPA, production fixture
-  prohibition, and step-up for the high-stakes classes; **cache/staleness rendering rules** implementing the DS1 policy
-  (cached payloads carry as-of; authority actions barred from the offline
-  queue or carrying an explicit revalidation protocol — `useQueuedPromotionDecision`
-  is the first migration); server-side **deny tests** per audience class.
+  duplicate-label/static-copy lint; **cache/staleness rendering rules**
+  implementing the DS1 policy (cached payloads carry as-of; authority actions
+  barred from the offline queue or carrying an explicit revalidation protocol —
+  `useQueuedPromotionDecision` is the first migration; tenant/user/expiry
+  partition on the six authority-like local stores DS1 found); **the D5 flag
+  registry** — one strict exposure registry, unknown-key rejection,
+  wire-or-retire for the four `consumer_missing` flags, rollout hard-separated
+  from authorization; server-side **deny tests** per audience class (over
+  DS20's enforcement).
 - **Laws:** 8, 9, 10, 12; 11 (audience enforcement half).
 - **Negative controls:** a UI-defined status enum turns the lint red; a
   hand-written fetch to an authority endpoint fails CI; a PUBLIC-class request
@@ -641,6 +705,13 @@ is implied by DS0 closure.
   missing link, and the costed route; after GY-N13b, a route that closes
   renders as **movement** ("gap closed by acquisition {date} → case
   re-entered → deeper terminal"), making the flywheel visible.
+  **Revision 3 (the N13a lesson):** the pattern generalizes beyond data
+  fetches — GY-N13a recomputed all three capstone routes as
+  `not_a_data_gap` (grounding-relation / estimand-binding gaps, not row
+  gaps). The board's "missing link" column renders **whatever the typed gap
+  is** (a grounding relation, an owner lever, an estimand binding, OR a data
+  need), each with its owning route — and never launders adjacent row counts
+  into support for a structural gap.
 - **MACHINE twin (in-slice):** typed JSON export on DS3 machinery with a
   parity test.
 - **Laws:** 3, 4, 5, 12; P25 negatives (frontier shown as control-plane
@@ -823,8 +894,14 @@ is implied by DS0 closure.
   **refusal-with-a-path becomes refusal-with-a-button.** The user sees why a
   case is blocked, what closing it costs, and (post-N13b) approves the
   acquisition and watches the world grow and the case re-enter.
-- **Gate:** DS7. Read surfaces after **GY-N13a**; the live loop after
-  **GY-N13b**.
+- **Gate:** DS7. Read surfaces after **GY-N13a is accepted/merged**; the live
+  loop after **GY-N13b**. **Revision 3 reality note:** N13a's census exists
+  (12-family connector scorecard, 18 journaled live probes, the
+  `ranking_only_not_voi` growth backlog with 15 `binding_gap` residuals) and
+  measured that the current capstone routes are structural gaps, not data
+  gaps — DS15's read surfaces render that truth as-is; the "approve
+  acquisition" loop demonstrates on whatever honestly data-shaped gap N13b
+  selects, never on a resurrected stale hypothesis.
 - **Producer & bridge work (in-slice):** projections of the N13a census
   (connector scorecard, liveness map, catalog↔runtime metric resolution, the
   D2 VOI-ranked growth backlog) and, post-N13b, the acquisition execution
@@ -917,6 +994,67 @@ is implied by DS0 closure.
   and §3.5.12-D6 outputs only; scopes without regime data render honest
   `epoch_scope_unresolved`.
 
+### New Slices (Revision 3 — grounded in Phase-A measurements)
+
+#### DS19 — False-Substrate Strangle Wave + Frontend Disposition Register
+
+- **Goal:** shrink every later slice's denominator by deleting what is
+  provably false, and give the whole migration ONE disposition authority — the
+  frontend dual of the GY-N0 disposition ledger: every estate unit is
+  eventually **used-as-is / rebound / deleted**, never a live parallel owner.
+- **Gate:** DS1 evidence (merged) — **may start now, parallel to DS3.**
+- **Deliverables:** the **disposition register** (typed, in
+  `architecture/atlas_surfaces/`, seeded from the DS1 readiness ledger and the
+  DS2 adoption ledger) with per-unit disposition, evidence link, and strangle
+  status; the **first deletion wave** over DS1's zero-consumer/false units —
+  phantom collaboration REST/WS (+ its orphaned feature), orphan onboarding,
+  latent legacy WhatIf, the duplicate Clerk index route, the empty
+  feature-layout owner, the three zero-consumer worker modules, and the
+  browser-side "signing" **call sites that nothing depends on** (the route
+  itself stays frozen for DS12's strangle — deletion here covers only
+  proven-dead paths); a **wire-or-retire disposition** (not implementation)
+  for the 37 uncalled OpenAPI operations and the four `consumer_missing`
+  flags, consumed by DS3/DS5.
+- **Laws:** Rule 10; P06/P27/P28 duals; anti-P13 (deletion is scope reduction,
+  not ceremony).
+- **Negative controls:** every deletion carries its zero-consumer proof
+  (DS1 evidence link + a fresh reference census at deletion time); a deletion
+  without the fresh census is rejected; the register's CI check fails when a
+  unit marked `deleted` still has references or a unit marked `rebound` lacks
+  a successor consumer.
+- **Not yet:** no rebinding (DS4), no producer building (DS3); DS19 deletes
+  and registers only. Anything with ANY live consumer is out of scope for the
+  wave and merely registered.
+
+#### DS20 — Server Authorization Enforcement (split from DS5)
+
+- **Goal:** close the systemic authorization gap DS1 measured — this is
+  today's production security posture, not UI debt, and it gates every
+  authority-bearing surface that follows.
+- **Gate:** DS3 (schema/client regeneration path); runs **parallel to DS4**.
+- **Producer & bridge work (the slice IS server work, co-owned with
+  team-architecture):** **generic action-permission dependency on all 29
+  mutating operations** (a new mutating route cannot ship without one —
+  enforced structurally, not by convention); **step-up authentication** for
+  the high-stakes classes (promotion, production approval, publication,
+  revocation, acquisition approval); **fixture identity prohibition in
+  production mode** (the fail-open UI identity fallback dies with it);
+  **resource binding before OPA evaluation**; the **single permission
+  vocabulary** projected through the schema (collapsing the
+  `_ROLE_PERMISSIONS` / `PERMISSION_KEYS` duplication); client regeneration.
+- **Deliverables:** per-operation **server-side deny tests** (29/29, plus the
+  audience classes); the DS1 seeded negatives N009–N013 implemented red-first;
+  review-effectiveness telemetry hooks on the existing append-only access
+  audit (consumed later by DS9).
+- **Laws:** 9, 11 (enforcement half); the audience-is-access-control doctrine.
+- **Negative controls:** a mutating endpoint without an action-permission
+  dependency fails a structural test; a fixture identity in production mode is
+  refused; an approval without step-up is denied server-side; UI-hides-but-
+  server-allows is proven closed for every DS1-named gap.
+- **Not yet:** no approval-flow UX (DS9 owns mandate/dissent/receipts); no
+  audience mapping lints (DS5); DS20 is the server floor everything else
+  stands on.
+
 ## Tensions (watch these or they go silent)
 
 | # | Tension | Mitigation |
@@ -933,6 +1071,8 @@ is implied by DS0 closure.
 | T10 | Off-contract channels: SSE/WS and `include_in_schema=False` quietly grow a second, untyped API beside the waist | DS3 brings channels under typed/governed contracts or explicit out-of-scope; the DS5 lint battery covers raw `EventSource`/`WebSocket`/fetch construction outside the sanctioned transports |
 | T11 | GY frozen-artifact churn (rebaselines, provenance ripples) vs UI binding stability | producers bind narrow projection hashes (GY §3.5.11) and recomputed structural properties (GY §3.5.10); a rebaseline that changes only provenance must not break a surface contract test |
 | T12 | The refusal-with-a-button loop (DS15) creates product pressure to "make acquisitions succeed" — the surface twin of forcing `useful_design_rate` | Rule 5 on the glass: quarantine and failed passports render as prominently as admissions; the growth backlog shows VOI ranking, not conversion targets; no surface KPI rewards acquisition volume |
+| T13 | DS19's deletion wave removes substrate a later slice silently depended on | every deletion carries a fresh zero-consumer census at deletion time (not only DS1's snapshot); the disposition register is the single authority and its CI check guards `deleted`-with-references |
+| T14 | Post-Phase-A false confidence: task plans quietly assuming June-estimate capabilities | the Phase-A artifacts are the denominators of record; a task plan citing a capability without a DS1/DS2 ledger reference is rejected at review |
 
 ## Health Metrics (instrument these, or the honesty goes silent)
 
@@ -983,6 +1123,10 @@ This plan is closed when all of the following hold:
     acquisition route renders with its costed plan (DS15 read), and — once
     GY-N13b has closed a route — the world-growth re-entry renders truthfully
     with its passports and quarantine honestly shown.
+12. (Revision 3) The disposition register is complete and green: every estate
+    unit carries a disposition, the DS19 deletion wave landed with
+    zero-consumer proofs, no live parallel owner remains, and every DS1
+    seeded negative (N001–N023) is implemented red-first in its owning slice.
 
 Closure converts the surface constitution's Promotion Criteria into fact:
 

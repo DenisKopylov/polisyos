@@ -12,6 +12,11 @@ import pytest
 pytestmark = pytest.mark.integration
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+_DS19_COLLABORATION_UNITS = {
+    "feature-collaboration",
+    "transport-rest-collaboration",
+    "transport-ws-collaboration",
+}
 
 
 def _paths_match(caller_path: str, contract_path: str) -> bool:
@@ -67,6 +72,58 @@ def _dashboard_runtime_transports() -> set[tuple[str, str, str]]:
         for match in channel_pattern.finditer(text):
             transports.add(("CHANNEL", _normalize_template_path(match.group(2)), relative))
     return transports
+
+
+def _ds19_collaboration_strangle_is_merged(repo_root: Path) -> bool:
+    register_path = (
+        repo_root
+        / "architecture"
+        / "atlas_surfaces"
+        / "frontend-disposition-register.json"
+    )
+    if not register_path.is_file():
+        return False
+
+    register = json.loads(register_path.read_text(encoding="utf-8"))
+    assert register["register_id"] == "atlas-ds19-frontend-disposition"
+    assert "deleting server endpoints from a frontend-only decision" in register[
+        "authority"
+    ]["may_not_use_for"]
+    entries = {
+        entry["unit_id"]: entry
+        for entry in register["entries"]
+        if entry.get("unit_id") in _DS19_COLLABORATION_UNITS
+    }
+    assert set(entries) == _DS19_COLLABORATION_UNITS
+    for entry in entries.values():
+        assert entry["disposition"] == "deleted"
+        assert entry["strangle_status"] == "strangled"
+        assert entry["owner_slice"] == "DS19"
+        assert entry["decision_date"] == "2026-07-17"
+    return True
+
+
+def _assert_transport_residual_is_governed(
+    unresolved: set[tuple[str, str, str]],
+    *,
+    ds19_strangle_merged: bool,
+) -> None:
+    if ds19_strangle_merged:
+        assert not unresolved
+        return
+
+    assert unresolved
+    assert all(
+        (
+            path.startswith("/api/v1/collaboration/")
+            and "/features/collaboration/" in f"/{source}"
+        )
+        or (
+            path == "/api/v1/collaboration/live"
+            and source.endswith("/app/realtime/websocketTransport.ts")
+        )
+        for _method, path, source in unresolved
+    )
 
 
 def _capture_generated_client_job_status_call(job_id: str) -> dict[str, object]:
@@ -169,20 +226,48 @@ def test_every_runtime_client_transport_has_openapi_or_governed_channel_contract
         if not matched:
             unresolved.add((method, path, source))
 
-    # DS19 owns the still-unmerged phantom collaboration disposition. Derive the
-    # residual from the callers and forbid any unrelated unmatched transport.
-    assert unresolved
-    assert all(
-        (
-            path.startswith("/api/v1/collaboration/")
-            and "/features/collaboration/" in f"/{source}"
-        )
-        or (
-            path == "/api/v1/collaboration/live"
-            and source.endswith("/app/realtime/websocketTransport.ts")
-        )
-        for _method, path, source in unresolved
+    _assert_transport_residual_is_governed(
+        unresolved,
+        ds19_strangle_merged=_ds19_collaboration_strangle_is_merged(REPO_ROOT),
     )
+
+
+def test_transport_contract_accepts_zero_residual_after_verified_ds19_strangle(
+    tmp_path: Path,
+) -> None:
+    register_path = (
+        tmp_path
+        / "architecture"
+        / "atlas_surfaces"
+        / "frontend-disposition-register.json"
+    )
+    register_path.parent.mkdir(parents=True)
+    register_path.write_text(
+        json.dumps(
+            {
+                "register_id": "atlas-ds19-frontend-disposition",
+                "authority": {
+                    "may_not_use_for": [
+                        "deleting server endpoints from a frontend-only decision"
+                    ]
+                },
+                "entries": [
+                    {
+                        "unit_id": unit_id,
+                        "disposition": "deleted",
+                        "strangle_status": "strangled",
+                        "owner_slice": "DS19",
+                        "decision_date": "2026-07-17",
+                    }
+                    for unit_id in _DS19_COLLABORATION_UNITS
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert _ds19_collaboration_strangle_is_merged(tmp_path)
+    _assert_transport_residual_is_governed(set(), ds19_strangle_merged=True)
 
 
 def test_reference_shell_uses_only_shared_generated_client_home() -> None:

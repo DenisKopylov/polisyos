@@ -17,7 +17,6 @@ import { RouteErrorElement } from "@/app/routes/RouteErrorElement";
 import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
 import { artifactRoute } from "@/features/artifacts/routes.public";
 import { loginRoute } from "@/features/auth";
-import { clerkChatRoute } from "@/features/clerk";
 import { composerRoute } from "@/features/composer";
 import { dashboardRoute } from "@/features/dashboard";
 import { landingRoute } from "@/features/landing";
@@ -200,7 +199,6 @@ export const APP_ROUTES: RouteObject[] = [
           </WorkspaceBoundary>
         ),
       },
-      clerkChatRoute,
       composerRoute,
       ...runsRoutes,
       artifactRoute,

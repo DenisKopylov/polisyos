@@ -2,14 +2,7 @@ import { useCallback, useEffect, useRef } from "react";
 
 /**
  * Generic hook for communicating with a Web Worker.
- *
- * Uses Vite's built-in worker support:
- * ```ts
- * const worker = new Worker(
- *   new URL("./dagLayout.worker.ts", import.meta.url),
- *   { type: "module" },
- * );
- * ```
+ * The caller supplies the typed Worker factory.
  */
 type TypedWorker<TRequest, TResponse> = Omit<
   Worker,

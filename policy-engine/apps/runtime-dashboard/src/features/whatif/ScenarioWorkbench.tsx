@@ -13,24 +13,16 @@ import {
 } from "@/shared/ui/counterfactual";
 import { CounterfactualQuantity } from "@/shared/ui/quantity";
 
-import type { ImpactMetric, ParameterSpec } from "./types";
-import { WhatIfPanel } from "./components/WhatIfPanel";
 import { ScenarioInterventionEditor } from "./ScenarioInterventionEditor";
 import { ScenarioValidationPanel } from "./ScenarioValidationPanel";
 
 type ScenarioWorkbenchProps = {
   runId: string;
-  parameters?: ParameterSpec[];
-  onParametersChange?: (
-    params: Record<string, number>,
-  ) => Promise<ImpactMetric[]> | ImpactMetric[];
   className?: string;
 };
 
 export function ScenarioWorkbench({
   runId,
-  parameters = [],
-  onParametersChange,
   className,
 }: ScenarioWorkbenchProps) {
   const { t } = useI18n();
@@ -128,13 +120,6 @@ export function ScenarioWorkbench({
         </div>
       </div>
 
-      {parameters.length ? (
-        <WhatIfPanel
-          baseRunId={runId}
-          parameters={parameters}
-          onParametersChange={onParametersChange}
-        />
-      ) : null}
     </section>
   );
 }

@@ -11,7 +11,6 @@ Last updated: 2026-05-05
 | `auth/` | Authentication route surfaces. |
 | `causal/` | Causal analysis panels and layouts. |
 | `clerk/` | Clerk-style operator workflow shell. |
-| `collaboration/` | Collaboration hooks and shared state. |
 | `commandPalette/` | Command palette surface. |
 | `composer/` | Scenario/composition workflow. |
 | `dashboard/` | Main dashboard route. |

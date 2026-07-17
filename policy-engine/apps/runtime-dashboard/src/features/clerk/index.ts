@@ -1,5 +1,3 @@
-export { clerkChatRoute } from "./route";
-
 // Components
 export { ChatContainer } from "./components/ChatContainer";
 export { ChatMessage } from "./components/ChatMessage";

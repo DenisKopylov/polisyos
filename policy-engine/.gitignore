@@ -120,3 +120,17 @@ packages/*/node_modules/
 # Local audit bundles and accidental shell redirection artifacts
 *.polisyos-audit.tar.gz
 /=*
+
+# Frontend build outputs under apps/ (post-Phase-2.7 move; mirrors the legacy frontend/ entries)
+apps/runtime-dashboard/dist/
+apps/runtime-dashboard/coverage/
+apps/runtime-dashboard/playwright-report/
+apps/runtime-dashboard/storybook-static/
+apps/runtime-dashboard/test-results/
+apps/runtime-dashboard/.eslintcache
+apps/runtime-reference-shell/dist/
+apps/runtime-reference-shell/coverage/
+packages/*/dist/
+packages/*/coverage/
+packages/*/.eslintcache
+.pnpm-store/

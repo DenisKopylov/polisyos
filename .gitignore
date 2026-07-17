@@ -133,3 +133,9 @@ policy-engine/packages/*/node_modules/
 
 # Local isolated implementation workspaces
 .worktrees/
+
+# pnpm virtual store / package-manager side effects (any checkout depth)
+.pnpm-store/
+**/.pnpm-store/
+.pnpm-state/
+**/.pnpm-debug.log

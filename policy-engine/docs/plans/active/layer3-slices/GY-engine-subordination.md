@@ -1978,10 +1978,25 @@ re-architecting.
   principle applied to data); (5) close the two typed N10 residuals
   (`owner_registration_derivation_missing` → acquired snapshots registered in the
   generated-artifact lifecycle; `journal_raw_evidence_persistence_missing` → journal-first raw
-  evidence persistence); (6) **close ONE N10 capstone route end-to-end** (per the N13a
-  classification: first-vertical local-lift and/or unseen live-fetch): typed requirement →
-  resolved plan → executed acquisition → admitted observations → **cycle re-entry** → a
-  measurably deeper honest terminal recorded against the same `DesignProblem`; (7) the
+  evidence persistence); (6) **close ONE measured, honestly data-shaped gap end-to-end (Rev 18
+  — re-specified by the N13a census under §3.5.10):** the N13a census recomputed all three
+  capstone routes as `not_a_data_gap` (structural grounding-relation / owner-lever / estimand
+  gaps), so the demonstration target moves from the capstone routes to the census's **measured
+  D2 backlog** (15 typed `binding_gap` cycle-demand residuals; 4 supported variables with
+  executable bindings; worldbank.wdi live-proven) — the agent derives the exact target(s) from
+  the census by evidence (one local-lift and/or one live-fetch case): typed requirement →
+  resolved plan → executed acquisition → admitted observations → overlay epoch → the demanding
+  cycle stage re-runs and its gap is **measurably closed** (or reaches an honest typed deeper
+  state). The three capstone routes' structural gaps are typed residuals routed to the
+  **knowledge/grounding acquisition plane** (CG5-class relation/lever acquisition + estimand
+  evidence) — explicitly out of N13b scope, recorded as the next-frontier backlog item.
+  **Two census-discovered enabling items are in scope:** (6a) the missing
+  distribution-field→binding edge (`raw_variable_edge_missing` on all 115 resolved metrics) —
+  the last-mile landing path for fetched rows into canonical variables; (6b) passport
+  schema-check semantics under metadata-only profiles (all 176,249 schema profiles carry zero
+  sampled rows, so `alive_conformant` is unearnable today) — measure-then-validate under
+  quarantine: the first fetch measures the structure, the passport validates against declared
+  metadata + the measured sample, and only then can conformance be earned; (7) the
   **`derived` provenance class + derivation certificates (Rev 17, §3.5.12-D4/D5/D6)**: the
   overlay store admits certified derivations (content-addressed recipe = input hashes ×
   method+version+params × auxiliary inputs), derived rows never masquerade as observed, and the
@@ -1991,8 +2006,9 @@ re-architecting.
   method lanes from ONE cache-hit derivation**, a `basis_mismatch` with no certified transform
   refusing typed into a derivation requirement, and a class-(iv) model output presented as an
   observation failing the passport closed. Done when: the
-  chosen capstone route's re-entry trace shows the gap closed by acquisition (or an honest
-  typed deeper terminal); education's route remains honestly data-independent; the
+  chosen measured gap's re-entry trace shows it closed by acquisition (or an honest typed
+  deeper state); the three capstone routes remain honestly structural (never laundered into
+  data support — the N13a fence stands); the
   overlay/baseline separation is proven by a source flip (mutating the baseline = RED); a
   fabricated fetch response fails the passport closed; the derived acceptance case records one
   derivation / two consumers / cache-hit reuse + the typed `basis_mismatch` refusal; the

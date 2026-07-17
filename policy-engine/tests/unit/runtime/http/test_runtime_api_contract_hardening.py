@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 from importlib.util import find_spec
 from pathlib import Path
 
@@ -114,6 +116,18 @@ def test_generated_runtime_client_includes_mobility_wrappers() -> None:
     assert "getMobilityReportDiagnostics" in names
 
 
+def test_generated_runtime_client_includes_governed_projection_wrappers() -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
+    spec = json.loads(spec_path.read_text(encoding="utf-8"))
+    operations = generate_runtime_client._extract_operations(spec)
+    names = {operation.name for operation in operations}
+
+    assert "listGovernedProjections" in names
+    assert "getGovernedProjection" in names
+    assert "getRuntimeChannelRegistry" in names
+
+
 def test_generated_runtime_js_client_accepts_params_for_body_operations() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
@@ -143,6 +157,66 @@ def test_committed_runtime_client_matches_generator() -> None:
 
     assert committed_ts == expected_ts
     assert committed_js == expected_js
+
+
+def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Path) -> None:
+    result = subprocess.run(
+        [
+            "npx",
+            "--prefix",
+            "apps/runtime-dashboard",
+            "--no-install",
+            "openapi-typescript",
+            str(spec_path),
+            "-o",
+            str(output_path),
+        ],
+        cwd=repo_root,
+        env=os.environ.copy(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+
+
+def test_openapi_typescript_output_matches_committed_shared_types(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
+    generated = tmp_path / "types.ts"
+
+    _render_openapi_typescript(repo_root, spec_path, generated)
+
+    committed = repo_root / "packages" / "runtime-api-client" / "types.ts"
+    assert committed.read_bytes() == generated.read_bytes()
+
+
+def test_schema_and_clients_regenerate_byte_identically_twice(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    first_spec = export_runtime_openapi_schema()
+    second_spec = export_runtime_openapi_schema()
+    first_spec_bytes = (json.dumps(first_spec, indent=2, sort_keys=True) + "\n").encode()
+    second_spec_bytes = (json.dumps(second_spec, indent=2, sort_keys=True) + "\n").encode()
+    assert first_spec_bytes == second_spec_bytes
+
+    first_path = tmp_path / "first.openapi.json"
+    second_path = tmp_path / "second.openapi.json"
+    first_path.write_bytes(first_spec_bytes)
+    second_path.write_bytes(second_spec_bytes)
+    first_types = tmp_path / "first.types.ts"
+    second_types = tmp_path / "second.types.ts"
+    _render_openapi_typescript(repo_root, first_path, first_types)
+    _render_openapi_typescript(repo_root, second_path, second_types)
+    assert first_types.read_bytes() == second_types.read_bytes()
+
+    first_operations = generate_runtime_client._extract_operations(first_spec)
+    second_operations = generate_runtime_client._extract_operations(second_spec)
+    assert generate_runtime_client._render_ts(
+        first_spec, first_operations
+    ) == generate_runtime_client._render_ts(second_spec, second_operations)
+    assert generate_runtime_client._render_js(
+        first_operations
+    ) == generate_runtime_client._render_js(second_operations)
 
 
 def test_bad_request_uses_problem_json_payload(runtime_api_env) -> None:

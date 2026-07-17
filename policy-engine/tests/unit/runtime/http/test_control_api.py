@@ -1681,3 +1681,94 @@ class TestIngestRecordReplay:
         # New Phase 4+5 fields should be present in the response
         assert "record_ref" in body
         assert "input_bindings_ref" in body
+
+
+def test_lex_search_preserves_truth_fields_through_api(
+    runtime_api_env,
+    tmp_path,
+) -> None:
+    import duckdb
+
+    output_dir = tmp_path / "lex-truth-projection"
+    output_dir.mkdir()
+    database = output_dir / "lex_knowledge_graph.duckdb"
+    connection = duckdb.connect(str(database))
+    try:
+        connection.execute(
+            """
+            CREATE TABLE lex_facts (
+                fact_id VARCHAR,
+                subject_en VARCHAR,
+                predicate VARCHAR,
+                object_en VARCHAR,
+                fact_text VARCHAR,
+                confidence DOUBLE,
+                norm_type VARCHAR,
+                source_quote_uk VARCHAR,
+                trust_tier VARCHAR,
+                grounding_status VARCHAR,
+                canonical_status VARCHAR,
+                reference_resolution_status VARCHAR,
+                structure_quality VARCHAR,
+                constraint_type_canon VARCHAR,
+                route_class VARCHAR,
+                fused_confidence DOUBLE,
+                consistency_score DOUBLE,
+                hallucination_flags_json VARCHAR,
+                quality_band VARCHAR,
+                doc_id VARCHAR,
+                doc_family_id VARCHAR,
+                version_id VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR,
+                effective_from VARCHAR,
+                effective_to VARCHAR,
+                temporal_state VARCHAR,
+                temporal_resolution_status VARCHAR,
+                temporal_source_scope VARCHAR,
+                temporal_source_kind VARCHAR,
+                temporal_confidence DOUBLE,
+                temporal_provenance_json VARCHAR,
+                doc_name VARCHAR,
+                doc_reestr_code VARCHAR,
+                provision_anchor VARCHAR,
+                provision_citation VARCHAR
+            )
+            """
+        )
+        connection.execute(
+            """
+            INSERT INTO lex_facts VALUES (
+                'fact-1', 'Worker', 'is entitled to', 'Leave',
+                'Worker is entitled to annual leave', 0.91, 'right',
+                'Працівник має право на щорічну відпустку',
+                'grounded_fact', 'exact_quote', 'canonicalized', 'resolved',
+                'complete', 'entitlement', 'direct_norm', 0.88, 0.97,
+                '[]', 'high', 'doc-1', 'family-1', 'version-2026', 'UA',
+                'labor', '2026-01-01', '', 'effective', 'resolved',
+                'provision', 'official_registry', 0.99,
+                '{"source":"official_registry"}', 'Labor Code', '322-VIII',
+                'article-74', 'Article 74'
+            )
+            """
+        )
+    finally:
+        connection.close()
+
+    response = runtime_api_env["client"].post(
+        "/api/v1/control/lex/search",
+        json={"query": "annual leave", "top_k": 5, "output_dir": str(output_dir)},
+    )
+
+    assert response.status_code == 200
+    item = response.json()["results"][0]
+    assert item["trust_tier"] == "grounded_fact"
+    assert item["grounding_status"] == "exact_quote"
+    assert item["canonical_status"] == "canonicalized"
+    assert item["reference_resolution_status"] == "resolved"
+    assert item["fused_confidence"] == pytest.approx(0.88)
+    assert item["consistency_score"] == pytest.approx(0.97)
+    assert item["hallucination_flags_json"] == "[]"
+    assert item["temporal_state"] == "effective"
+    assert item["temporal_provenance_json"] == '{"source":"official_registry"}'
+    assert item["provision_anchor"] == "article-74"

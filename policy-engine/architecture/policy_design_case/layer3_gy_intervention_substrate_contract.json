@@ -94,7 +94,7 @@
             {
               "knob_id": "budget_allocation_multiplier",
               "law_token": "budget_law",
-              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+              "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
               "status": "blocked",
               "threshold_id": "a5429abb6621acb11ed10b20",
               "threshold_reason": "threshold_violated"
@@ -102,7 +102,7 @@
             {
               "knob_id": "procurement_shock_intensity",
               "law_token": "procurement_decree",
-              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
+              "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
               "status": "blocked",
               "threshold_id": "07baad7c3a120b0363322e71",
               "threshold_reason": "temporal_not_in_force"
@@ -110,7 +110,7 @@
             {
               "knob_id": "tax_relief_rate",
               "law_token": "tax_relief_statute",
-              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
+              "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
               "status": "blocked",
               "threshold_id": "01539d8d9b8cfedb489d689e",
               "threshold_reason": "temporal_not_in_force"
@@ -127,7 +127,7 @@
         "case_id": "law_bound_lever_traces_l3_threshold_and_blocks_violation",
         "detail": {
           "admitted": {
-            "content_hash": "sha256:5a7791659da155d5d512af8d78e32f28b97eefe60ed54e7f0ea532c7cade412e",
+            "content_hash": "sha256:5def293d283a4c2d847f022b96e956993c649ab88084d912a9226ce7b9c426a8",
             "knob": {
               "content_hash": "sha256:0b4b0cd013cd756e96bc5b3aa3b854eb17f93005d9167451ec9c9d5eea2f02d2",
               "domain": {
@@ -168,16 +168,16 @@
               "metric": "percent",
               "normalized_candidate_value": 24.0,
               "normalized_threshold_value": 25.0,
-              "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+              "obligation_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
               "operator": "lte",
-              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+              "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
               "reason": "threshold_satisfied",
               "status": "admitted",
               "temporal_status": "in_force",
               "threshold_id": "a5429abb6621acb11ed10b20",
-              "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+              "threshold_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
             },
-            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
             "status": "admissible",
             "temporal_competence": {
@@ -189,12 +189,12 @@
               "reason": "threshold_version_in_force",
               "stale_after": "",
               "status": "in_force",
-              "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+              "subject_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
             },
             "threshold_id": "a5429abb6621acb11ed10b20"
           },
           "blocked": {
-            "content_hash": "sha256:ebc83b89b8fed936fee6342e9282c7405efff32458cdbe5622db425e918ea41d",
+            "content_hash": "sha256:44f5ca037589207eda025ea681fca51a0273e2a5e7c2ad9e74d27c8f7e11a8b2",
             "knob": {
               "content_hash": "sha256:50f0f133ff76c5386232c39eef2b4abffbd5b3873b6b5d2c622a189f9ff36634",
               "domain": {
@@ -235,16 +235,16 @@
               "metric": "percent",
               "normalized_candidate_value": 26.0,
               "normalized_threshold_value": 25.0,
-              "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+              "obligation_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
               "operator": "lte",
-              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+              "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
               "reason": "threshold_violated",
               "status": "blocked",
               "temporal_status": "in_force",
               "threshold_id": "a5429abb6621acb11ed10b20",
-              "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+              "threshold_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
             },
-            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
             "status": "blocked",
             "temporal_competence": {
@@ -256,7 +256,7 @@
               "reason": "threshold_version_in_force",
               "stale_after": "",
               "status": "in_force",
-              "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+              "subject_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
             },
             "threshold_id": "a5429abb6621acb11ed10b20"
           }
@@ -396,9 +396,9 @@
         "case_id": "free_grow_knob_law_family_routes",
         "detail": {
           "law": {
-            "content_hash": "sha256:58239fae75cf7690ecd83735a85ffb01bf387ea644efc6785ad4aaa89ee3f504",
+            "content_hash": "sha256:ad06b11e5bdbc4a2a02029649ae5c36c931bf59b7ee399d93b08f7743e3fc541",
             "knob": {
-              "content_hash": "sha256:c359e659d97bddaedac671903d3c2a4be802bcba36b51b21959d5e246201b8b4",
+              "content_hash": "sha256:99b78fbd35df2907c417926c0609bcba3e02a630507d2e8b3f9aee00932aeb67",
               "domain": {
                 "kind": "range",
                 "max_value": 0.4,
@@ -408,8 +408,8 @@
               },
               "operator_kind": "future_child_benefit_intensity",
               "owner_resolution": {
-                "atom_content_hash": "sha256:58ce7c0f8edc5d0550e95356270a183ecfa80cc010378fa52b6750196724052c",
-                "atom_id": "atom_58ce7c0f8edc5d05",
+                "atom_content_hash": "sha256:6f0da3bfc28beb86aa85027adf1ba9b7ae541497512677da721148cd0c691db5",
+                "atom_id": "atom_6f0da3bfc28beb86",
                 "target_slot_bindings": [
                   {
                     "entity_scope": "per_cell",
@@ -437,16 +437,16 @@
               "metric": "percent",
               "normalized_candidate_value": 20.0,
               "normalized_threshold_value": 30.0,
-              "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/f2fc95fa00a98353c73f",
+              "obligation_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/f2fc95fa00a98353c73f",
               "operator": "lte",
-              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/2aed0e5df654fce7:body:1/para:0235",
+              "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/2aed0e5df654fce7:body:1/para:0235",
               "reason": "threshold_satisfied",
               "status": "admitted",
               "temporal_status": "in_force",
               "threshold_id": "00000109f781085bd1736cf1",
-              "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/00000109f781085bd1736cf1"
+              "threshold_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/00000109f781085bd1736cf1"
             },
-            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/2aed0e5df654fce7:body:1/para:0235",
+            "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/2aed0e5df654fce7:body:1/para:0235",
             "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
             "status": "admissible",
             "temporal_competence": {
@@ -458,12 +458,12 @@
               "reason": "threshold_version_in_force",
               "stale_after": "",
               "status": "in_force",
-              "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/00000109f781085bd1736cf1"
+              "subject_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/00000109f781085bd1736cf1"
             },
             "threshold_id": "00000109f781085bd1736cf1"
           },
           "lever": {
-            "content_hash": "sha256:c359e659d97bddaedac671903d3c2a4be802bcba36b51b21959d5e246201b8b4",
+            "content_hash": "sha256:99b78fbd35df2907c417926c0609bcba3e02a630507d2e8b3f9aee00932aeb67",
             "domain": {
               "kind": "range",
               "max_value": 0.4,
@@ -473,8 +473,8 @@
             },
             "operator_kind": "future_child_benefit_intensity",
             "owner_resolution": {
-              "atom_content_hash": "sha256:58ce7c0f8edc5d0550e95356270a183ecfa80cc010378fa52b6750196724052c",
-              "atom_id": "atom_58ce7c0f8edc5d05",
+              "atom_content_hash": "sha256:6f0da3bfc28beb86aa85027adf1ba9b7ae541497512677da721148cd0c691db5",
+              "atom_id": "atom_6f0da3bfc28beb86",
               "target_slot_bindings": [
                 {
                   "entity_scope": "per_cell",
@@ -591,7 +591,7 @@
           {
             "knob_id": "budget_allocation_multiplier",
             "law_token": "budget_law",
-            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
             "status": "blocked",
             "threshold_id": "a5429abb6621acb11ed10b20",
             "threshold_reason": "threshold_violated"
@@ -599,7 +599,7 @@
           {
             "knob_id": "procurement_shock_intensity",
             "law_token": "procurement_decree",
-            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
+            "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
             "status": "blocked",
             "threshold_id": "07baad7c3a120b0363322e71",
             "threshold_reason": "temporal_not_in_force"
@@ -607,7 +607,7 @@
           {
             "knob_id": "tax_relief_rate",
             "law_token": "tax_relief_statute",
-            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
+            "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
             "status": "blocked",
             "threshold_id": "01539d8d9b8cfedb489d689e",
             "threshold_reason": "temporal_not_in_force"
@@ -1369,7 +1369,7 @@
         {
           "knob_id": "budget_allocation_multiplier",
           "law_token": "budget_law",
-          "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+          "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
           "status": "blocked",
           "threshold_id": "a5429abb6621acb11ed10b20",
           "threshold_reason": "threshold_violated"
@@ -1377,7 +1377,7 @@
         {
           "knob_id": "procurement_shock_intensity",
           "law_token": "procurement_decree",
-          "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
+          "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
           "status": "blocked",
           "threshold_id": "07baad7c3a120b0363322e71",
           "threshold_reason": "temporal_not_in_force"
@@ -1385,7 +1385,7 @@
         {
           "knob_id": "tax_relief_rate",
           "law_token": "tax_relief_statute",
-          "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
+          "provision_ref": "duckdb://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
           "status": "blocked",
           "threshold_id": "01539d8d9b8cfedb489d689e",
           "threshold_reason": "temporal_not_in_force"

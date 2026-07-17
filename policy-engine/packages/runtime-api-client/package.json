@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "corepack pnpm run typecheck",
-    "generate": "cd ../.. && PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js",
+    "generate": "cd ../.. && npx --prefix apps/runtime-dashboard --no-install openapi-typescript schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts && PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js",
     "contracts:verify": "cd ../.. && PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py",
     "test": "node --test runtimeApiClient.test.mjs",
     "lint": "eslint runtimeApiClient.ts runtimeApiClient.js runtimeApiClient.test.mjs scripts/check-architecture.mjs eslint.config.mjs --max-warnings=0",

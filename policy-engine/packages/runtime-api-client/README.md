@@ -7,14 +7,18 @@ Runtime API v1. It is the lightest consumer surface in the frontend tree: a
 thin wrapper over the OpenAPI contract that exposes read and batch-read runtime
 operations without React, Vite, or dashboard-specific state management.
 
-Do not edit `runtimeApiClient.ts` or `runtimeApiClient.js` by hand. The source
-of truth is the runtime OpenAPI schema and the generator scripts in
-`tools/ops_runners/runtime/`.
+This package is the canonical generated-client home selected by Atlas DS3.
+Do not edit `types.ts`, `runtimeApiClient.ts`, or `runtimeApiClient.js` by hand.
+Their shared source of truth is the runtime OpenAPI schema. The dashboard-local
+generated type file is a downstream compatibility surface, not a second owner.
 
 ## Where to Start
 
 - Generated TypeScript source:
   [`runtimeApiClient.ts`](runtimeApiClient.ts)
+
+- Generated OpenAPI schema types:
+  [`types.ts`](types.ts)
 
 - Generated JavaScript output:
   [`runtimeApiClient.js`](runtimeApiClient.js)
@@ -31,6 +35,7 @@ of truth is the runtime OpenAPI schema and the generator scripts in
 ## Public Entrypoints
 
 - `RuntimeApiClient` class in [`runtimeApiClient.ts`](runtimeApiClient.ts)
+- OpenAPI `paths`, `components`, and `operations` in [`types.ts`](types.ts)
 - Constructor options: `baseUrl`, `headers`, `fetchImpl`
 - Generated method groups for health, runs, debug, artifacts, and control read
   paths in [`runtimeApiClient.ts`](runtimeApiClient.ts)
@@ -77,6 +82,9 @@ of truth is the runtime OpenAPI schema and the generator scripts in
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js`
   `conceptual/manual; regenerates the committed client artifacts`
 
+- `npx --prefix apps/runtime-dashboard --no-install openapi-typescript schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts`
+  `canonical schema-type generation; output remains in the shared package home`
+
 ## Test And Verification
 
 - `pnpm --filter @polisyos/runtime-api-client run lint`
@@ -112,4 +120,4 @@ of truth is the runtime OpenAPI schema and the generator scripts in
 - [`../../docs/reference/api/artifacts.md`](../../docs/reference/api/artifacts.md)
 - [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
 
-Last updated: 2026-04-23
+Last updated: 2026-07-17

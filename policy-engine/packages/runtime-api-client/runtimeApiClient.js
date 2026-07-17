@@ -271,6 +271,27 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
+  async getRuntimeChannelRegistry() {
+    const path = `/api/v1/exports/channel-registry`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async listGovernedProjections() {
+    const path = `/api/v1/exports/governed-projections`;
+    const query = undefined;
+    return this.request('GET', path, query);
+  }
+
+  async getGovernedProjection(params) {
+    const path = `/api/v1/exports/governed-projections/${encodeURIComponent(String(params.projection_id))}`;
+    const query = this.buildQuery({
+      artifact_content_hash: params?.artifact_content_hash,
+      projection_hash: params?.projection_hash,
+    });
+    return this.request('GET', path, query);
+  }
+
   async analyzeFabricImpact(params) {
     const path = `/api/v1/fabric/impact`;
     const query = this.buildQuery({

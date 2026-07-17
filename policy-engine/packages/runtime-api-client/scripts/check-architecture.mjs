@@ -12,11 +12,13 @@ const allowedFiles = new Set([
   "runtimeApiClient.ts",
   "scripts/check-architecture.mjs",
   "tsconfig.json",
+  "types.ts",
 ]);
 
 const expectedImports = new Map([
   ["runtimeApiClient.ts", []],
   ["runtimeApiClient.js", []],
+  ["types.ts", []],
   [
     "runtimeApiClient.test.mjs",
     ["./runtimeApiClient.js", "node:assert/strict", "node:test"],

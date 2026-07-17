@@ -352,6 +352,8 @@ export type AttractorUncertaintySummary = {
   unresolved_items?: Array<string>;
 };
 
+export type AudienceClass = "REVIEWER" | "EXPERT" | "MACHINE";
+
 export type AuthMeResponse = {
   cell_id?: string | null;
   display_name: string;
@@ -680,6 +682,24 @@ export type CausalFrontierSAEResponse = {
   output_bundle?: {
   [key: string]: string;
 };
+};
+
+export type ChannelRegistryEntry = {
+  auth_class: string;
+  channels?: Array<string>;
+  consumers: Array<string>;
+  include_in_schema?: boolean;
+  message_contract: string;
+  owner: string;
+  path_template: string;
+  registry_id: string;
+  status?: string;
+  transport: "sse" | "websocket";
+};
+
+export type ChannelRegistryResponse = {
+  channels: Array<ChannelRegistryEntry>;
+  schema_version?: string;
 };
 
 export type ComparabilityReport = {
@@ -1777,6 +1797,27 @@ export type GovernanceDebugView = {
   verdict?: string | null;
 };
 
+export type GovernedProjectionPacket = {
+  absence_reason?: string | null;
+  as_of: string;
+  authoritative_for: Array<string>;
+  availability: ProjectionAvailability;
+  freshness: ProjectionFreshness;
+  intended_audience: AudienceClass;
+  may_not_use_for: Array<string>;
+  packet_schema_version?: string;
+  payload?: {
+  [key: string]: unknown;
+} | null;
+  projection_hash?: string | null;
+  projection_id: ProjectionId;
+  replay_address?: string | null;
+  source?: ProjectionSourceIdentity | null;
+  source_rule_version?: string | null;
+  source_schema_version?: string | null;
+  stable_address: string;
+};
+
 export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
@@ -1887,22 +1928,54 @@ export type LexSearchResponse = {
 
 export type LexSearchResultItem = {
   action_canon?: string;
+  audit_miss_prone?: boolean;
+  canonical_status?: "canonicalized" | "partially_canonicalized" | "raw";
   condition_text_uk?: string;
   confidence: number;
+  confidence_breakdown_json?: string;
+  consistency_score?: number | null;
+  constraint_type_canon?: string;
+  doc_family_id?: string;
+  doc_id?: string;
   doc_name: string;
   doc_reestr_code: string;
+  effective_from?: string;
+  effective_to?: string;
+  empty_spo_retry_eligible?: boolean;
   exception_text_uk?: string;
   fact_id: string;
   fact_text: string;
+  fused_confidence?: number | null;
+  grounding_status?: "exact_quote" | "quote_without_offsets" | "offsets_without_quote" | "missing_quote";
+  hallucination_flags_json?: string;
+  jurisdiction?: string;
+  legal_unit_subtype?: string;
   norm_type: string;
   norm_type_canon?: string;
   object_name: string;
   predicate: string;
   procedure_text_uk?: string;
+  provision_anchor?: string;
   provision_citation: string;
+  quality_band?: string;
+  reference_bearing?: boolean;
+  reference_resolution_status?: "resolved" | "partial" | "unresolved" | "not_applicable";
+  route_class?: string;
+  similarity: number;
   source_quote_uk?: string;
+  structure_quality?: string;
   subject_name: string;
+  temporal_confidence?: number | null;
+  temporal_provenance_json?: string;
+  temporal_resolution_status?: string;
+  temporal_source_kind?: string;
+  temporal_source_scope?: string;
+  temporal_state?: string;
+  threshold_bearing?: boolean;
   thresholds_json?: string;
+  top_domain?: string;
+  trust_tier?: "search_candidate" | "grounded_fact" | "normative_fact";
+  version_id?: string;
 };
 
 export type LexTriggerRequest = {
@@ -2529,6 +2602,38 @@ export type ProductionApprovalResponse = {
   meta: ApiMeta;
   packet: ProductionApprovalPacket;
   run_id: string;
+};
+
+export type ProjectionAvailability = "available" | "artifact_missing" | "invalid_source";
+
+export type ProjectionCatalogEntry = {
+  authoritative_for: Array<string>;
+  expected_source_path: string;
+  intended_audience: AudienceClass;
+  may_not_use_for: Array<string>;
+  projection_id: ProjectionId;
+  source_policy: "required" | "presence_gated" | "fixture_identity_only";
+  stable_address: string;
+};
+
+export type ProjectionCatalogResponse = {
+  projections: Array<ProjectionCatalogEntry>;
+  schema_version?: string;
+};
+
+export type ProjectionFreshness = {
+  basis: "source_timestamp" | "filesystem_mtime" | "request_observation";
+  observed_at: string;
+  source_as_of?: string | null;
+  state: "observed" | "artifact_missing" | "invalid_source";
+};
+
+export type ProjectionId = "depth-n-cycle-board" | "value-gate" | "generation-cycle-disposition" | "engine-census" | "fork-b-relation-census" | "acquisition-routing-contract" | "n13a-acquisition-census" | "n13a-live-probe-journal" | "capability-reality" | "cluster-ownership" | "layer3-health-metrics" | "legacy-proving-ground" | "surface-readiness";
+
+export type ProjectionSourceIdentity = {
+  artifact_content_hash: string;
+  declared_content_hash?: string | null;
+  relative_path: string;
 };
 
 export type PromotionCandidate = {
@@ -3786,6 +3891,31 @@ export class RuntimeApiClient {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/nodes/${encodeURIComponent(String(params.alias))}`;
     const query = undefined;
     return this.request<NodeDebugResponse>("GET", path, query);
+  }
+
+  async getRuntimeChannelRegistry(): Promise<ChannelRegistryResponse> {
+    const path = `/api/v1/exports/channel-registry`;
+    const query = undefined;
+    return this.request<ChannelRegistryResponse>("GET", path, query);
+  }
+
+  async listGovernedProjections(): Promise<ProjectionCatalogResponse> {
+    const path = `/api/v1/exports/governed-projections`;
+    const query = undefined;
+    return this.request<ProjectionCatalogResponse>("GET", path, query);
+  }
+
+  async getGovernedProjection(params: {
+    projection_id: ProjectionId;
+    artifact_content_hash?: string | null;
+    projection_hash?: string | null;
+  }): Promise<GovernedProjectionPacket> {
+    const path = `/api/v1/exports/governed-projections/${encodeURIComponent(String(params.projection_id))}`;
+    const query = this.buildQuery({
+      artifact_content_hash: params.artifact_content_hash,
+      projection_hash: params.projection_hash,
+    });
+    return this.request<GovernedProjectionPacket>("GET", path, query);
   }
 
   async analyzeFabricImpact(params: {

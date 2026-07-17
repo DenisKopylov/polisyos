@@ -358,7 +358,7 @@
     "wall_time_recorded_by_validator": true,
     "wall_time_reported_outside_byte_stable_artifact": true
   },
-  "contract_content_hash": "sha256:0bd713b94720814f0c087f712583a4fd81186b531500facc290c1cf57c4b7634",
+  "contract_content_hash": "sha256:50bf4086c5eb83654da8499476e3454754e81501303830eeb7521530c098b5e3",
   "decisive_mutation_expectations": [
     {
       "expected_result": "RED",
@@ -1802,16 +1802,16 @@
       "candidate_envelope_content_hash": "sha256:f166f87ec043fac7a927d729880e7478b2714a540e17741c330c2deff11a04a8",
       "candidate_id": "gy_n4.blended_learning_expansion",
       "component_scope_only": true,
-      "context_binding_hash": "sha256:4db7ef9130dcf371b572683dda914480da7805bff6436fec2a512b7695d33013",
+      "context_binding_hash": "sha256:c5251cfc6140784f32253bae2cd78ca0218923b4a36f4cb76d7f2f6b9bd78248",
       "context_source": "content_bound_pack_cycle_substrate_context",
-      "cycle_substrate_context_content_hash": "sha256:a192e3182bc8e95af1cce195d75743767ce1f46fa169ce32f84253ffaa10338d",
+      "cycle_substrate_context_content_hash": "sha256:9f0baf8ce2060104d9774a23433a65d7d8109e26e9dd56f2c4ea8a2501a1f094",
       "data_owner": "N10a_pack_transport_context",
-      "design_problem_ref": "sha256:ab258ef9471f875515200a0a1e9e1de5f4ae88dfc11bb7330d6f137568a19238",
+      "design_problem_ref": "sha256:d53c063711e526f594b0edad9b5b3dd73f151109932ae710526e4c36ac6e0cdd",
       "domain": "education",
       "domain_role": "education",
       "outcome_kind": "transport_receipt",
       "production_value_eligible": false,
-      "proof_content_hash": "sha256:33d3bbc83719304ab4a3fec40538bca9d4eef3a94a2d2dc5332f1c6012dbb9df",
+      "proof_content_hash": "sha256:ef08747d86f4ebbedb559d7d1b9f05d19f84ae88f1617147a215e611e9b5d92c",
       "query_outcome": "years_of_schooling",
       "query_treatment": "gy_n4_blended_learning_expansion",
       "required_target_data": [

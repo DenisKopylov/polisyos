@@ -173,9 +173,10 @@ build/remove dispositions.
 
 ## Export convention and Lex truth bridge
 
-- The governed packet adds common addressing/replay/identity conventions. It links to,
-  but does not clone, existing OpenLineage/PROV lineage exports, artifact packet
-  render/export, or decision-validity exports.
+- The governed packet and existing OpenLineage/PROV, artifact render/export, and
+  decision-validity routes share one canonical projection hasher and replay-address
+  builder. Existing exporters keep their owner payloads and add the typed convention
+  through documented response headers plus a fail-closed `export_projection_hash` pin.
 - Human HTML/PDF/DOCX rendering and `PRINT_AND_EXPORT.md` are out of DS3: DS8/DS12 own
   human export surfaces. DS3 supplies the format-agnostic MACHINE packet only.
 - DS1-N022 is closed at the HTTP/generated-client boundary by a strict HTTP projection

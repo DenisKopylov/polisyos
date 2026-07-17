@@ -93,4 +93,3 @@ def test_channel_registry_rejects_unknown_channel_fields() -> None:
                 "unexpected": "must be forbidden",
             }
         )
-

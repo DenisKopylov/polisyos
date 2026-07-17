@@ -1,0 +1,4668 @@
+{
+  "$schema": "./frontend-disposition-register.schema.json",
+  "schema_version": "1.0",
+  "register_id": "atlas-ds19-frontend-disposition",
+  "as_of": "2026-07-17T10:30:00+03:00",
+  "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+  "authority": {
+    "authoritative_for": [
+      "frontend estate disposition",
+      "frontend strangle status and successor ownership",
+      "fresh deletion-census receipts"
+    ],
+    "may_not_use_for": [
+      "upgrading DS1 readiness or maturity",
+      "rewriting DS2 adoption verdicts",
+      "claiming a pending rebind or retirement is implemented",
+      "deleting server endpoints from a frontend-only decision"
+    ]
+  },
+  "sources": {
+    "ds1": {
+      "path": "architecture/atlas_surfaces/live-application-readiness-ledger.json",
+      "ledger_id": "atlas-ds1-live-application-readiness",
+      "sha256": "sha256:11f4898f547283968f97f8778a2b29cf15520214151ea65b1a69bc6072f3e812",
+      "expected_entries": 261
+    },
+    "ds2": {
+      "path": "architecture/atlas_surfaces/atlas-v15-adoption-ledger.json",
+      "ledger_id": "atlas-v15-ds2-adjudication",
+      "sha256": "sha256:8e253a971d87119c7685efdf64895a364ffb253d19694dbc743dd697b4057545",
+      "expected_entries": 233
+    },
+    "ds0": {
+      "path": "docs/brand/ATLAS_SOURCE_OF_TRUTH.md",
+      "decision_id": "D4",
+      "decision_date": "2026-07-16"
+    }
+  },
+  "seed_policy": {
+    "rules": [
+      "Preserve DS1 order and identity: one root row per DS1 surface_id.",
+      "Map DS1 implemented to use_as_is; map every other unoverridden root to rebind_pending.",
+      "Apply DS19 deletion and wire-or-retire overrides only to mechanically derived source sets.",
+      "Link every DS2 row exactly once as mapped evidence or an explicitly unbound adoption ID."
+    ],
+    "ds1_root_count": 261,
+    "ds2_mapped_count": 173,
+    "ds2_unbound_count": 60
+  },
+  "baseline_debt_manifest_ref": "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json",
+  "ds2_unbound_adoption_ids": [
+    "governance-raci",
+    "governance-rfc",
+    "governance-adr",
+    "governance-adoption-metrics",
+    "governance-deprecation",
+    "governance-exceptions",
+    "governance-release",
+    "governance-operating-model",
+    "figma-component-parity",
+    "figma-variant-parity",
+    "figma-token-sync",
+    "figma-design-qa",
+    "a11y-wcag-2-2-aa-matrix",
+    "a11y-keyboard-interaction-matrix",
+    "a11y-component-a11y-contract",
+    "a11y-release-checklist",
+    "package-archive-identity",
+    "package-source-api",
+    "package-build-toolchain",
+    "package-generated-mirror",
+    "package-migration-docs",
+    "package-verification-release",
+    "adjunct-assets",
+    "adjunct-fonts",
+    "adjunct-landing",
+    "adjunct-preview",
+    "adjunct-embedded-policy-engine",
+    "adjunct-ui-kits",
+    "evidence-best-in-class-summary",
+    "evidence-a11y-static",
+    "evidence-contrast-audit",
+    "evidence-vpat-readiness",
+    "evidence-readiness-matrix",
+    "evidence-readiness-scorecard",
+    "evidence-component-build",
+    "evidence-component-audit",
+    "evidence-viz-build-summary",
+    "evidence-viz-component-audit",
+    "evidence-state-matrix-audit",
+    "evidence-state-matrix-build",
+    "evidence-state-matrix-coverage",
+    "evidence-responsive-audit",
+    "evidence-responsive-build",
+    "evidence-responsive-screen-coverage",
+    "evidence-viz-audit",
+    "evidence-viz-build",
+    "evidence-best-in-class-lint",
+    "evidence-full-verify-current-log",
+    "evidence-full-verify-summary",
+    "evidence-full-verify-log",
+    "evidence-release-consistency",
+    "evidence-verification-report",
+    "evidence-verify-log",
+    "evidence-component-health",
+    "evidence-theming-audit",
+    "evidence-theming-build",
+    "evidence-token-audit",
+    "evidence-token-aggregate-lint",
+    "evidence-token-schema-lint",
+    "evidence-token-static-lint"
+  ],
+  "reference_censuses": [
+    {
+      "census_id": "census-browser-signing-protected-live",
+      "captured_at": "2026-07-17T10:30:00+03:00",
+      "covers_unit_ids": [
+        "derivation-browser-signature"
+      ],
+      "ds1_evidence_ids": [
+        "derivation-browser-signature"
+      ],
+      "result": "protected_live_chain",
+      "probes": [
+        {
+          "kind": "reference_count",
+          "targets": [
+            "buildSignedPublicDecisionPacket(",
+            "verifySignedPublicDecisionPacket(",
+            "public/decisions/:signedId"
+          ],
+          "scan_roots": [
+            "apps/runtime-dashboard/src",
+            "apps/runtime-dashboard/e2e"
+          ],
+          "expected_count": 24,
+          "observed_refs": [
+            "apps/runtime-dashboard/e2e/journeys/trust-framing-negative-traces.spec.ts:182",
+            "apps/runtime-dashboard/src/app/routes/routes.test.tsx:167",
+            "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx:42",
+            "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:80",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:171",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationReadinessPanel.tsx:17",
+            "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts:122",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:212",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:224",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:229",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:239",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:278",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:330",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1395",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1456",
+            "apps/runtime-dashboard/src/features/runs/route.tsx:151",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:120",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:142",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:27",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:36",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:55",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:78",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:97",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12"
+          ]
+        }
+      ]
+    }
+  ],
+  "entries": [
+    {
+      "unit_id": "route-welcome",
+      "evidence_link": {
+        "ds1_entry_id": "route-welcome",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS11",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-public-decision",
+      "evidence_link": {
+        "ds1_entry_id": "route-public-decision",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS12",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-app-layout",
+      "evidence_link": {
+        "ds1_entry_id": "route-app-layout",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-login",
+      "evidence_link": {
+        "ds1_entry_id": "route-login",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-home-mode-aware",
+      "evidence_link": {
+        "ds1_entry_id": "route-home-mode-aware",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-home-clerk-duplicate",
+      "evidence_link": {
+        "ds1_entry_id": "route-home-clerk-duplicate",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "route-compose",
+      "evidence_link": {
+        "ds1_entry_id": "route-compose",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-runs-list",
+      "evidence_link": {
+        "ds1_entry_id": "route-runs-list",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS7",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-runs-compare",
+      "evidence_link": {
+        "ds1_entry_id": "route-runs-compare",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-runs-compare-legacy",
+      "evidence_link": {
+        "ds1_entry_id": "route-runs-compare-legacy",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-report",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-report",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-deck",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-deck",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-detail-layout",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-detail-layout",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-detail-index-redirect",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-detail-index-redirect",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-overview",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-overview",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-causal",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-causal",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-governance",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-governance",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-evidence",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-evidence",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-workflow",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-workflow",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-artifacts",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-artifacts",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-agents",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-agents",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS14",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-run-debug",
+      "evidence_link": {
+        "ds1_entry_id": "route-run-debug",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-artifact",
+      "evidence_link": {
+        "ds1_entry_id": "route-artifact",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-evidence",
+      "evidence_link": {
+        "ds1_entry_id": "route-evidence",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-knowledge",
+      "evidence_link": {
+        "ds1_entry_id": "route-knowledge",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-platform",
+      "evidence_link": {
+        "ds1_entry_id": "route-platform",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "route-redirect-launch",
+      "evidence_link": {
+        "ds1_entry_id": "route-redirect-launch",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_implemented_use_as_is",
+      "rationale": "DS1 records this narrow unit as implemented with its applicable capability links proven; no replacement owner is introduced."
+    },
+    {
+      "unit_id": "route-redirect-sources",
+      "evidence_link": {
+        "ds1_entry_id": "route-redirect-sources",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_implemented_use_as_is",
+      "rationale": "DS1 records this narrow unit as implemented with its applicable capability links proven; no replacement owner is introduced."
+    },
+    {
+      "unit_id": "route-redirect-data",
+      "evidence_link": {
+        "ds1_entry_id": "route-redirect-data",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_implemented_use_as_is",
+      "rationale": "DS1 records this narrow unit as implemented with its applicable capability links proven; no replacement owner is introduced."
+    },
+    {
+      "unit_id": "route-redirect-lex",
+      "evidence_link": {
+        "ds1_entry_id": "route-redirect-lex",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_implemented_use_as_is",
+      "rationale": "DS1 records this narrow unit as implemented with its applicable capability links proven; no replacement owner is introduced."
+    },
+    {
+      "unit_id": "route-redirect-health",
+      "evidence_link": {
+        "ds1_entry_id": "route-redirect-health",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_implemented_use_as_is",
+      "rationale": "DS1 records this narrow unit as implemented with its applicable capability links proven; no replacement owner is introduced."
+    },
+    {
+      "unit_id": "route-catch-all",
+      "evidence_link": {
+        "ds1_entry_id": "route-catch-all",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "reference-shell-runs",
+      "evidence_link": {
+        "ds1_entry_id": "reference-shell-runs",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "reference-shell-timeline",
+      "evidence_link": {
+        "ds1_entry_id": "reference-shell-timeline",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "reference-shell-node-debug",
+      "evidence_link": {
+        "ds1_entry_id": "reference-shell-node-debug",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "reference-shell-artifacts",
+      "evidence_link": {
+        "ds1_entry_id": "reference-shell-artifacts",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-artifacts",
+      "evidence_link": {
+        "ds1_entry_id": "feature-artifacts",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-auth",
+      "evidence_link": {
+        "ds1_entry_id": "feature-auth",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-causal",
+      "evidence_link": {
+        "ds1_entry_id": "feature-causal",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-clerk",
+      "evidence_link": {
+        "ds1_entry_id": "feature-clerk",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS14",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-collaboration",
+      "evidence_link": {
+        "ds1_entry_id": "feature-collaboration",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "feature-command-palette",
+      "evidence_link": {
+        "ds1_entry_id": "feature-command-palette",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-composer",
+      "evidence_link": {
+        "ds1_entry_id": "feature-composer",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-dashboard",
+      "evidence_link": {
+        "ds1_entry_id": "feature-dashboard",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS7",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-evidence",
+      "evidence_link": {
+        "ds1_entry_id": "feature-evidence",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-export",
+      "evidence_link": {
+        "ds1_entry_id": "feature-export",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS12",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-landing",
+      "evidence_link": {
+        "ds1_entry_id": "feature-landing",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS11",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-layout-empty",
+      "evidence_link": {
+        "ds1_entry_id": "feature-layout-empty",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "feature-lex",
+      "evidence_link": {
+        "ds1_entry_id": "feature-lex",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-onboarding-orphan",
+      "evidence_link": {
+        "ds1_entry_id": "feature-onboarding-orphan",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "feature-platform",
+      "evidence_link": {
+        "ds1_entry_id": "feature-platform",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-runs",
+      "evidence_link": {
+        "ds1_entry_id": "feature-runs",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "feature-whatif",
+      "evidence_link": {
+        "ds1_entry_id": "feature-whatif",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-primitives-root",
+      "evidence_link": {
+        "ds1_entry_id": "ui-primitives-root",
+        "ds2_adoption_ids": [
+          "component-button",
+          "component-badge",
+          "component-panel",
+          "component-card",
+          "component-text-field",
+          "component-text-area",
+          "component-select-field",
+          "component-checkbox",
+          "component-switch",
+          "component-tabs",
+          "component-dialog",
+          "component-toast",
+          "component-empty-state",
+          "component-skeleton",
+          "component-card-button",
+          "component-cluster",
+          "component-scroll-area",
+          "component-sidebar-nav",
+          "component-stack",
+          "component-top-bar",
+          "component-visually-hidden"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-compounds-root",
+      "evidence_link": {
+        "ds1_entry_id": "ui-compounds-root",
+        "ds2_adoption_ids": [
+          "component-metric-card",
+          "component-run-card",
+          "component-data-table"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-operator-diagnostics",
+      "evidence_link": {
+        "ds1_entry_id": "ui-operator-diagnostics",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-authored-text",
+      "evidence_link": {
+        "ds1_entry_id": "ui-authored-text",
+        "ds2_adoption_ids": [
+          "i18n-translation-contract",
+          "i18n-rtl-bidi",
+          "i18n-string-expansion",
+          "i18n-locale-formatting",
+          "i18n-pseudo-locales",
+          "i18n-test-matrix",
+          "content-voice-and-tone",
+          "content-terminology",
+          "content-error-taxonomy",
+          "content-microcopy-patterns",
+          "content-trust-copy"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-compounds",
+      "evidence_link": {
+        "ds1_entry_id": "ui-compounds",
+        "ds2_adoption_ids": [
+          "component-form",
+          "component-form-section",
+          "component-field-group",
+          "component-validation-summary",
+          "component-radio-group",
+          "component-checkbox-group",
+          "component-search-field",
+          "component-password-field",
+          "component-secret-field",
+          "component-number-field",
+          "component-range-field",
+          "component-date-field",
+          "component-date-range-field",
+          "component-file-upload",
+          "component-token-input",
+          "component-combobox",
+          "component-character-count",
+          "form-field-anatomy",
+          "form-validation-recovery",
+          "form-input-purpose",
+          "form-evidence-upload",
+          "form-governance-config",
+          "form-scenario-parameters",
+          "form-search-source-selection"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-counterfactual",
+      "evidence_link": {
+        "ds1_entry_id": "ui-counterfactual",
+        "ds2_adoption_ids": [
+          "component-uncertainty-band",
+          "component-causal-graph",
+          "viz-chart-uncertainty-band",
+          "viz-chart-causal-dag"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-patterns",
+      "evidence_link": {
+        "ds1_entry_id": "ui-patterns",
+        "ds2_adoption_ids": [
+          "flow-audit-export",
+          "flow-decision-packet-review",
+          "flow-dispute-appeal",
+          "flow-evidence-intake",
+          "flow-failure-triage",
+          "flow-long-running-jobs",
+          "flow-permission-request"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-quantity",
+      "evidence_link": {
+        "ds1_entry_id": "ui-quantity",
+        "ds2_adoption_ids": [
+          "component-chart-frame",
+          "component-chart-legend",
+          "component-chart-tooltip",
+          "component-sparkline",
+          "component-bar-chart",
+          "component-line-chart",
+          "component-heatmap",
+          "component-chart-data-table",
+          "component-chart-annotation",
+          "component-data-viz-table",
+          "component-data-viz-legend",
+          "viz-chart-line",
+          "viz-chart-sparkline",
+          "viz-chart-bar",
+          "viz-chart-stacked-bar",
+          "viz-chart-distribution",
+          "viz-chart-heatmap",
+          "viz-chart-waterfall",
+          "viz-chart-timeline",
+          "viz-chart-gantt",
+          "viz-chart-funnel",
+          "viz-chart-sankey",
+          "viz-chart-scatter",
+          "viz-chart-map",
+          "viz-contract-grammar-schema",
+          "viz-contract-chart-selection",
+          "viz-contract-visual-encoding",
+          "viz-contract-color-pattern",
+          "viz-contract-accessibility-data-table",
+          "viz-contract-uncertainty-contract",
+          "viz-contract-interaction-tooltips",
+          "viz-contract-responsive-export",
+          "viz-contract-testing-contract",
+          "viz-contract-dashboard-composition"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-responsive",
+      "evidence_link": {
+        "ds1_entry_id": "ui-responsive",
+        "ds2_adoption_ids": [
+          "component-dashboard-shell",
+          "component-dashboard-top-bar",
+          "component-responsive-grid",
+          "component-scroll-region",
+          "component-adaptive-data-region",
+          "component-app-shell",
+          "component-dashboard-grid",
+          "component-dashboard-main",
+          "component-dashboard-sidebar",
+          "component-responsive-data-region",
+          "responsive-window-compact",
+          "responsive-window-medium",
+          "responsive-window-expanded",
+          "responsive-window-large",
+          "responsive-window-extra-large",
+          "responsive-breakpoint-taxonomy",
+          "responsive-shell-navigation",
+          "responsive-layout-dashboard-grid",
+          "responsive-layout-two-pane",
+          "responsive-layout-three-pane",
+          "responsive-layout-supporting-pane",
+          "responsive-layout-scroll-region",
+          "responsive-density",
+          "responsive-touch-targets",
+          "responsive-print-export",
+          "responsive-operator-wall"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-temporal",
+      "evidence_link": {
+        "ds1_entry_id": "ui-temporal",
+        "ds2_adoption_ids": [
+          "component-decision-timeline"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-trust-view",
+      "evidence_link": {
+        "ds1_entry_id": "ui-trust-view",
+        "ds2_adoption_ids": [
+          "component-governance-gate",
+          "component-provenance-graph",
+          "component-provenance-map",
+          "viz-chart-provenance-lineage",
+          "viz-contract-data-quality-provenance",
+          "viz-domain-governance-gates",
+          "viz-domain-evidence-provenance",
+          "viz-domain-causal-impact",
+          "viz-domain-fairness-audit",
+          "viz-domain-decision-packet-export",
+          "security-sensitive-data-display",
+          "security-permission-states",
+          "security-redaction-export",
+          "security-audit-trail",
+          "security-destructive-actions",
+          "security-data-residency"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "ui-tokens",
+      "evidence_link": {
+        "ds1_entry_id": "ui-tokens",
+        "ds2_adoption_ids": [
+          "component-theme-provider",
+          "component-theme-toggle",
+          "component-accessibility-mode-panel",
+          "token-root-component",
+          "token-root-data-viz",
+          "token-root-primitive",
+          "token-root-responsive",
+          "token-root-semantic",
+          "token-root-theme",
+          "token-mode-light",
+          "token-mode-color-safe",
+          "token-mode-comfortable-density",
+          "token-mode-compact-density",
+          "token-mode-condensed-density",
+          "token-mode-dark",
+          "token-mode-forced-colors",
+          "token-mode-high-contrast",
+          "token-mode-large-text",
+          "token-mode-prefers-color-scheme-dark",
+          "token-mode-prefers-contrast",
+          "token-mode-prefers-reduced-motion",
+          "token-mode-print",
+          "token-mode-reduced-motion",
+          "token-mode-reduced-transparency-dark",
+          "token-mode-reduced-transparency-manual",
+          "token-mode-reduced-transparency"
+        ]
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-analyze-attractors",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-analyze-attractors",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "No accepted Atlas consumer exists; endpoint presence must not manufacture an analysis UI.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "No accepted Atlas consumer exists; endpoint presence must not manufacture an analysis UI.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-persist-basin-map",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-persist-basin-map",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "No named surface or action-authority contract consumes this persistence operation.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "No named surface or action-authority contract consumes this persistence operation.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-persist-continuation-branch",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-persist-continuation-branch",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "No accepted Atlas surface consumes this persistence operation.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "No accepted Atlas surface consumes this persistence operation.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-analyze-lyapunov-diagnostics",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-analyze-lyapunov-diagnostics",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "Keep this scientific diagnostic server-only until a governed projection is specified.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "Keep this scientific diagnostic server-only until a governed projection is specified.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-attractor-analysis",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-attractor-analysis",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The read half of this analysis workflow has no independently admitted consumer.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The read half of this analysis workflow has no independently admitted consumer.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-analysis-basin-map",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-analysis-basin-map",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The read half of this basin workflow has no admitted frontend consumer.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The read half of this basin workflow has no admitted frontend consumer.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-analysis-continuation-branch",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-analysis-continuation-branch",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The read half of this continuation workflow has no admitted frontend consumer.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The read half of this continuation workflow has no admitted frontend consumer.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-artifact-batch",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-artifact-batch",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Reuse the existing typed batch producer for governed artifact inspection and packet conventions.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Reuse the existing typed batch producer for governed artifact inspection and packet conventions."
+      }
+    },
+    {
+      "unit_id": "api-op-get-artifact-manifest",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-artifact-manifest",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-artifact-content",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-artifact-content",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-download-artifact-content",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-download-artifact-content",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Reuse existing artifact addressing for governed retrieval rather than creating a second export path.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Reuse existing artifact addressing for governed retrieval rather than creating a second export path."
+      }
+    },
+    {
+      "unit_id": "api-op-get-artifact-lineage",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-artifact-lineage",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-artifact-schema",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-artifact-schema",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-export-bureaucratic-artifact",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-export-bureaucratic-artifact",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Reuse the existing packet export/render producer instead of adding parallel export ownership.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Reuse the existing packet export/render producer instead of adding parallel export ownership."
+      }
+    },
+    {
+      "unit_id": "api-op-render-bureaucratic-artifact",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-render-bureaucratic-artifact",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-auth-me",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-auth-me",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-estimate-causal-frontier-sae",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-estimate-causal-frontier-sae",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "This computation is not the DS7 acquisition frontier and has no named consumer.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "This computation is not the DS7 acquisition frontier and has no named consumer.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-control-capabilities",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-control-capabilities",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-list-binding-profiles",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-binding-profiles",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Expose existing registry-derived binding-profile discovery through the DS3 waist.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Expose existing registry-derived binding-profile discovery through the DS3 waist."
+      }
+    },
+    {
+      "unit_id": "api-op-get-cache-status",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-cache-status",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-search-data-catalog",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-search-data-catalog",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-list-connectors",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-connectors",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS15",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-discover-data-sources",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-discover-data-sources",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS15",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-data-index-stats",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-data-index-stats",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-ingest-data",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-ingest-data",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS15",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-preview-fetch-plan",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-preview-fetch-plan",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS15",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-list-source-profiles",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-source-profiles",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS15",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-list-data-promotion-candidates",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-data-promotion-candidates",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-approve-data-promotion",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-approve-data-promotion",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-reject-data-promotion",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-reject-data-promotion",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-resolve-data-needs",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-resolve-data-needs",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS15",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-packet-decision-validity",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-packet-decision-validity",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Adopt the existing packet-validity read projection through the typed DS3 client.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Adopt the existing packet-validity read projection through the typed DS3 client."
+      }
+    },
+    {
+      "unit_id": "api-op-publish-decision-validity-event",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-publish-decision-validity-event",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Adopt the live-only, principal-bound validity action through the governed DS3 client.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Adopt the live-only, principal-bound validity action through the governed DS3 client."
+      }
+    },
+    {
+      "unit_id": "api-op-get-control-job-status",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-control-job-status",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS14",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-lex-graph-stats",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-lex-graph-stats",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-search-lex-graph",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-search-lex-graph",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-lex-pipeline-status",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-lex-pipeline-status",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-trigger-lex-pipeline",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-trigger-lex-pipeline",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS10",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-list-llm-profiles",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-llm-profiles",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS14",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-list-control-outbox",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-control-outbox",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "Internal delivery substrate is not a product transparency surface.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "Internal delivery substrate is not a product transparency surface.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-launch-run",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-launch-run",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-launch-nl-run",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-launch-nl-run",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS14",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-decision-validity",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-decision-validity",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Adopt the existing run-validity inspection projection through the DS3 waist.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Adopt the existing run-validity inspection projection through the DS3 waist."
+      }
+    },
+    {
+      "unit_id": "api-op-evaluate-run-feedback",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-evaluate-run-feedback",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Adopt governed review-effectiveness evaluation and its event trail through DS3.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Adopt governed review-effectiveness evaluation and its event trail through DS3."
+      }
+    },
+    {
+      "unit_id": "api-op-reissue-run",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-reissue-run",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Adopt the principal-bound reissue action through the generated DS3 contract.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Adopt the principal-bound reissue action through the generated DS3 contract."
+      }
+    },
+    {
+      "unit_id": "api-op-list-control-workers",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-control-workers",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "Internal worker-lease state is runtime infrastructure, not product navigation.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "Internal worker-lease state is runtime infrastructure, not product navigation.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-run-compare",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-compare",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The debug projection lacks a governed product contract and must not become UI authority.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The debug projection lacks a governed product contract and must not become UI authority.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-run-equilibria",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-equilibria",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The debug diagnostic has no named consumer or governed product projection.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The debug diagnostic has no named consumer or governed product projection.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-run-errors",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-errors",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-feedback",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-feedback",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The debug read is not the governed review-effectiveness projection.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The debug read is not the governed review-effectiveness projection.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-governance-debug",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-governance-debug",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-node-debug",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-node-debug",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-analyze-fabric-impact",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-analyze-fabric-impact",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "No named consumer exists; adopting it would create a parallel analytical owner.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "No named consumer exists; adopting it would create a parallel analytical owner.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-fabric-quality-batch",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-fabric-quality-batch",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "No accepted evidence projection names this batch as a consumer dependency.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "No accepted evidence projection names this batch as a consumer dependency.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-fabric-run-replay",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-fabric-run-replay",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Reuse the existing replay producer for version-pinned inspection.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Reuse the existing replay producer for version-pinned inspection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-fabric-source-scorecards",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-fabric-source-scorecards",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Reuse the existing source-scorecard producer through one generated client.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Reuse the existing source-scorecard producer through one generated client."
+      }
+    },
+    {
+      "unit_id": "api-op-get-fabric-trust-batch",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-fabric-trust-batch",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "A trust projection contract is required before frontend adoption.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "A trust projection contract is required before frontend adoption.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-runtime-api-health",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-runtime-api-health",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-lineage-batch",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-lineage-batch",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-lineage",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-lineage",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-export-lineage-openlineage",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-export-lineage-openlineage",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-export-lineage-prov",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-export-lineage-prov",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-compute-mobility-bounds",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-compute-mobility-bounds",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "This domain-specific computation has no admitted universal Atlas surface.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "This domain-specific computation has no admitted universal Atlas surface.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-estimate-mobility",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-estimate-mobility",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "This domain-specific computation has no admitted frontend surface.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "This domain-specific computation has no admitted frontend surface.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-mobility-report",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-mobility-report",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The mobility report family has no named Atlas consumer.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The mobility report family has no named Atlas consumer.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-mobility-report-bounds",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-mobility-report-bounds",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The mobility report detail has no named Atlas consumer.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The mobility report detail has no named Atlas consumer.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-get-mobility-report-diagnostics",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-mobility-report-diagnostics",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The mobility diagnostic has no named Atlas consumer.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The mobility diagnostic has no named Atlas consumer.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-list-runs",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-runs",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS7",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-runs-batch",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-runs-batch",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "Current run list/detail paths cover admitted surfaces; avoid a second read owner.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "Current run list/detail paths cover admitted surfaces; avoid a second read owner.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-compare-runs",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-compare-runs",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-details",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-details",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-agents",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-agents",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS14",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-compare-candidates",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-compare-candidates",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-evidence-context",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-evidence-context",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-fabric-decision-data",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-fabric-decision-data",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-lineage",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-lineage",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-counterfactual-metrics",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-counterfactual-metrics",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-nodes",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-nodes",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-create-run-production-approval",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-create-run-production-approval",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Adopt and harden the existing approval endpoint through the governed DS3 contract.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Adopt and harden the existing approval endpoint through the governed DS3 contract."
+      }
+    },
+    {
+      "unit_id": "api-op-get-run-quantities",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-quantities",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-list-run-scenarios",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-list-run-scenarios",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-create-run-scenario",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-create-run-scenario",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_wire_decision",
+      "rationale": "Use the server-backed scenario lifecycle that survives deletion of the local WhatIf branch.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS3",
+        "rationale": "Use the server-backed scenario lifecycle that survives deletion of the local WhatIf branch."
+      }
+    },
+    {
+      "unit_id": "api-op-get-run-timeline",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-timeline",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-run-workflow",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-run-workflow",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-scenario-manifest",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-scenario-manifest",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-scenario-capabilities",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-scenario-capabilities",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-get-temporal-capabilities",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-get-temporal-capabilities",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS18",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "api-op-health",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-health",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "The root health probe is deployment infrastructure; the dashboard already uses governed /api/v1/health.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "The root health probe is deployment infrastructure; the dashboard already uses governed /api/v1/health.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "api-op-ready",
+      "evidence_link": {
+        "ds1_entry_id": "api-op-ready",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_uncalled_openapi_retire_decision",
+      "rationale": "Deployment readiness is not a product-readiness claim or browser surface.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS3",
+        "rationale": "Deployment readiness is not a product-readiness claim or browser surface.",
+        "retirement_scope": "frontend_adoption",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "raw-fetch-auth-refresh",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-auth-refresh",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "raw-fetch-auth-initial",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-auth-initial",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "raw-fetch-auth-replay",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-auth-replay",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "raw-fetch-flag-manifest",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-flag-manifest",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "raw-fetch-collab-activity",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-collab-activity",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "raw-fetch-collab-comments-get",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-collab-comments-get",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "raw-fetch-collab-comment-post",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-collab-comment-post",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "raw-fetch-collab-resolve",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-collab-resolve",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "raw-fetch-telemetry",
+      "evidence_link": {
+        "ds1_entry_id": "raw-fetch-telemetry",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS12",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-auth-session",
+      "evidence_link": {
+        "ds1_entry_id": "status-auth-session",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-offline-queue-item",
+      "evidence_link": {
+        "ds1_entry_id": "status-offline-queue-item",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-feature-flag",
+      "evidence_link": {
+        "ds1_entry_id": "status-feature-flag",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-runs-live",
+      "evidence_link": {
+        "ds1_entry_id": "status-runs-live",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-causal-edge-identification",
+      "evidence_link": {
+        "ds1_entry_id": "status-causal-edge-identification",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-causal-pipeline-stage",
+      "evidence_link": {
+        "ds1_entry_id": "status-causal-pipeline-stage",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-collaboration-session",
+      "evidence_link": {
+        "ds1_entry_id": "status-collaboration-session",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "status-health-check",
+      "evidence_link": {
+        "ds1_entry_id": "status-health-check",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-share-trust-fixture",
+      "evidence_link": {
+        "ds1_entry_id": "status-share-trust-fixture",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-comparability-api-alias",
+      "evidence_link": {
+        "ds1_entry_id": "status-comparability-api-alias",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-narrative-chapter",
+      "evidence_link": {
+        "ds1_entry_id": "status-narrative-chapter",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-dispute-run",
+      "evidence_link": {
+        "ds1_entry_id": "status-dispute-run",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-publication-argument-node",
+      "evidence_link": {
+        "ds1_entry_id": "status-publication-argument-node",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-stress-scene",
+      "evidence_link": {
+        "ds1_entry_id": "status-stress-scene",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-agent-step",
+      "evidence_link": {
+        "ds1_entry_id": "status-agent-step",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-agent-performance-budget",
+      "evidence_link": {
+        "ds1_entry_id": "status-agent-performance-budget",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-workflow-node",
+      "evidence_link": {
+        "ds1_entry_id": "status-workflow-node",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-governance-pass",
+      "evidence_link": {
+        "ds1_entry_id": "status-governance-pass",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-quantity-provenance",
+      "evidence_link": {
+        "ds1_entry_id": "status-quantity-provenance",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-scenario",
+      "evidence_link": {
+        "ds1_entry_id": "status-scenario",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-verification",
+      "evidence_link": {
+        "ds1_entry_id": "status-verification",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-dispute-quantity",
+      "evidence_link": {
+        "ds1_entry_id": "status-dispute-quantity",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-dispute-trust-view",
+      "evidence_link": {
+        "ds1_entry_id": "status-dispute-trust-view",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-promotion-decision",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-promotion-decision",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-queued-promotion",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-queued-promotion",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-authz-provider",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-authz-provider",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-visual-fixture",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-visual-fixture",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-review-indicators",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-review-indicators",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-review-surface",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-review-surface",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-bureaucratic-block",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-bureaucratic-block",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-bureaucratic-section",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-bureaucratic-section",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-data-freshness",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-data-freshness",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-compliance-badge",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-compliance-badge",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-choreography-stage",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-choreography-stage",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-choreography-transition",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-choreography-transition",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-publication-claim",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-publication-claim",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-publication-ground",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-publication-ground",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-readiness-evidence",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-readiness-evidence",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-readiness-gate",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-readiness-gate",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-readiness-review",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-readiness-review",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-run-narrative",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-run-narrative",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-governance-comparison-left",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-governance-comparison-left",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-governance-comparison-right",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-governance-comparison-right",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-small-multiples",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-small-multiples",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-route-loader",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-route-loader",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-explainability",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-explainability",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "status-inline-counterfactual-badge",
+      "evidence_link": {
+        "ds1_entry_id": "status-inline-counterfactual-badge",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-atlas-v2",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-atlas-v2",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-clerk-mode",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-clerk-mode",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-dark-mode",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-dark-mode",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-lex-knowledge",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-lex-knowledge",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-narrative-view",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-narrative-view",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-platform-health",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-platform-health",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-runs-workspace",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-runs-workspace",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-scenario-composer",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-scenario-composer",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "flag-enable-causal-graph",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-causal-graph",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_consumer_missing_flag_wire_decision",
+      "rationale": "The graph is live outside its declared gate; DS5 must wire one whole-surface exposure gate.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS5",
+        "rationale": "The graph is live outside its declared gate; DS5 must wire one whole-surface exposure gate."
+      }
+    },
+    {
+      "unit_id": "flag-enable-collaboration",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-collaboration",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "retire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_consumer_missing_flag_retire_decision",
+      "rationale": "The orphan collaboration surface is deleted, so its unused flag cannot remain false continuity.",
+      "decision_detail": {
+        "kind": "retire",
+        "consumer_slice": "DS5",
+        "rationale": "The orphan collaboration surface is deleted, so its unused flag cannot remain false continuity.",
+        "retirement_scope": "frontend_exposure_registry",
+        "revisit_condition": "A later accepted slice names a real consumer and an authority-safe projection."
+      }
+    },
+    {
+      "unit_id": "flag-enable-command-palette",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-command-palette",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_consumer_missing_flag_wire_decision",
+      "rationale": "The live palette must consume its existing key as a genuine launch gate.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS5",
+        "rationale": "The live palette must consume its existing key as a genuine launch gate."
+      }
+    },
+    {
+      "unit_id": "flag-enable-what-if-analysis",
+      "evidence_link": {
+        "ds1_entry_id": "flag-enable-what-if-analysis",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "wire_disposition",
+      "strangle_status": "not_applicable",
+      "owner": "team-design",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_consumer_missing_flag_wire_decision",
+      "rationale": "The surviving server-backed workbench needs one real whole-surface exposure gate.",
+      "decision_detail": {
+        "kind": "wire",
+        "consumer_slice": "DS5",
+        "rationale": "The surviving server-backed workbench needs one real whole-surface exposure gate."
+      }
+    },
+    {
+      "unit_id": "flag-auth-review-collaboration",
+      "evidence_link": {
+        "ds1_entry_id": "flag-auth-review-collaboration",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS1",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "transport-openapi-dashboard",
+      "evidence_link": {
+        "ds1_entry_id": "transport-openapi-dashboard",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "transport-openapi-reference-shell",
+      "evidence_link": {
+        "ds1_entry_id": "transport-openapi-reference-shell",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "transport-rest-collaboration",
+      "evidence_link": {
+        "ds1_entry_id": "transport-rest-collaboration",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "transport-sse-runs-global",
+      "evidence_link": {
+        "ds1_entry_id": "transport-sse-runs-global",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "transport-sse-run-detail",
+      "evidence_link": {
+        "ds1_entry_id": "transport-sse-run-detail",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS3",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "transport-ws-review",
+      "evidence_link": {
+        "ds1_entry_id": "transport-ws-review",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "transport-ws-collaboration",
+      "evidence_link": {
+        "ds1_entry_id": "transport-ws-collaboration",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "worker-data-transform",
+      "evidence_link": {
+        "ds1_entry_id": "worker-data-transform",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "worker-dag-layout",
+      "evidence_link": {
+        "ds1_entry_id": "worker-dag-layout",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "worker-json-parse",
+      "evidence_link": {
+        "ds1_entry_id": "worker-json-parse",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "cache-service-worker-static",
+      "evidence_link": {
+        "ds1_entry_id": "cache-service-worker-static",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "offline-queue-promotion-decision",
+      "evidence_link": {
+        "ds1_entry_id": "offline-queue-promotion-decision",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "offline-draft-composer",
+      "evidence_link": {
+        "ds1_entry_id": "offline-draft-composer",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "cache-query-memory",
+      "evidence_link": {
+        "ds1_entry_id": "cache-query-memory",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "cache-local-storage-state",
+      "evidence_link": {
+        "ds1_entry_id": "cache-local-storage-state",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS5",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "cache-clerk-sessions",
+      "evidence_link": {
+        "ds1_entry_id": "cache-clerk-sessions",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS14",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "cache-whatif-scenarios",
+      "evidence_link": {
+        "ds1_entry_id": "cache-whatif-scenarios",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds19_named_zero_consumer_candidate",
+      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+    },
+    {
+      "unit_id": "cache-causal-drafts",
+      "evidence_link": {
+        "ds1_entry_id": "cache-causal-drafts",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "cache-local-disputes",
+      "evidence_link": {
+        "ds1_entry_id": "cache-local-disputes",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "cache-review-attention",
+      "evidence_link": {
+        "ds1_entry_id": "cache-review-attention",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "cache-operator-craft",
+      "evidence_link": {
+        "ds1_entry_id": "cache-operator-craft",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "transport-telemetry-beacon",
+      "evidence_link": {
+        "ds1_entry_id": "transport-telemetry-beacon",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS12",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "transport-sentry",
+      "evidence_link": {
+        "ds1_entry_id": "transport-sentry",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS12",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "derivation-projection-fail-closed",
+      "evidence_link": {
+        "ds1_entry_id": "derivation-projection-fail-closed",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "derivation-browser-signature",
+      "evidence_link": {
+        "ds1_entry_id": "derivation-browser-signature",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS12",
+      "decision_date": "2026-07-17",
+      "seed_rule": "protected_live_consumer_ds12_strangle",
+      "rationale": "Three mounted builders, the public viewer verifier, route, and tests are live; DS12 owns the server-signing strangle and DS19 may not delete this chain.",
+      "reference_census_id": "census-browser-signing-protected-live"
+    },
+    {
+      "unit_id": "derivation-causal-effects",
+      "evidence_link": {
+        "ds1_entry_id": "derivation-causal-effects",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "derivation-composer-readiness",
+      "evidence_link": {
+        "ds1_entry_id": "derivation-composer-readiness",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS9",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "derivation-whatif-validation",
+      "evidence_link": {
+        "ds1_entry_id": "derivation-whatif-validation",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "adjacent-cli-styleguide",
+      "evidence_link": {
+        "ds1_entry_id": "adjacent-cli-styleguide",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "adjacent-print-export",
+      "evidence_link": {
+        "ds1_entry_id": "adjacent-print-export",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS8",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "adjacent-email-og",
+      "evidence_link": {
+        "ds1_entry_id": "adjacent-email-og",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS12",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "evidence-unit-tests",
+      "evidence_link": {
+        "ds1_entry_id": "evidence-unit-tests",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "evidence-stories",
+      "evidence_link": {
+        "ds1_entry_id": "evidence-stories",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "evidence-component-a11y",
+      "evidence_link": {
+        "ds1_entry_id": "evidence-component-a11y",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "evidence-browser-a11y",
+      "evidence_link": {
+        "ds1_entry_id": "evidence-browser-a11y",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "evidence-e2e-journeys",
+      "evidence_link": {
+        "ds1_entry_id": "evidence-e2e-journeys",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "evidence-visual",
+      "evidence_link": {
+        "ds1_entry_id": "evidence-visual",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    },
+    {
+      "unit_id": "evidence-manual-at",
+      "evidence_link": {
+        "ds1_entry_id": "evidence-manual-at",
+        "ds2_adoption_ids": []
+      },
+      "disposition": "rebind_pending",
+      "strangle_status": "pending",
+      "owner": "team-architecture",
+      "owner_slice": "DS6",
+      "decision_date": "2026-07-17",
+      "seed_rule": "ds1_incomplete_rebind_pending",
+      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+    }
+  ],
+  "subunits": [
+    {
+      "unit_id": "feature-whatif::legacy-local-whatif-subgraph",
+      "parent_ds1_entry_id": "feature-whatif",
+      "scope_kind": "dead_subgraph",
+      "scope_refs": [
+        "apps/runtime-dashboard/src/features/whatif/components/WhatIfPanel.tsx",
+        "apps/runtime-dashboard/src/features/whatif/components/ParameterSlider.tsx",
+        "apps/runtime-dashboard/src/features/whatif/components/ImpactPreview.tsx",
+        "apps/runtime-dashboard/src/features/whatif/components/ScenarioSnapshot.tsx",
+        "apps/runtime-dashboard/src/features/whatif/state/useWhatIfStore.ts",
+        "apps/runtime-dashboard/src/features/whatif/types.ts"
+      ],
+      "disposition": "delete_pending",
+      "strangle_status": "pending",
+      "owner": "team-design",
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "rationale": "Only the unreachable local parameter/store branch is a deletion candidate; the server-backed ScenarioWorkbench remains live."
+    },
+    {
+      "unit_id": "route-app-layout::ru-ui-catalog",
+      "parent_ds1_entry_id": "route-app-layout",
+      "scope_kind": "legacy_continuity",
+      "scope_refs": [
+        "apps/runtime-dashboard/src/shared/i18n/locales/ru.json"
+      ],
+      "disposition": "frozen_legacy_continuity",
+      "strangle_status": "not_applicable",
+      "continuity_guard": {
+        "required_path": "apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+        "forbidden_claims": [
+          "Russian is an active selectable UI locale.",
+          "The frozen catalog is a DS19 deletion target."
+        ],
+        "separate_capability": "Read-only Russian source-content rendering is separate from UI locale exposure."
+      },
+      "owner": "team-design",
+      "owner_slice": "DS0",
+      "decision_date": "2026-07-16",
+      "rationale": "Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim."
+    }
+  ],
+  "supplemental_findings": [
+    {
+      "finding_id": "baseline-lint-quantity-debt",
+      "finding_kind": "baseline_lint_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#lint"
+      ],
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "rationale": "The exact 75 policyos/quantity-must-be-wrapped diagnostics are DS4 quantity-family rebinding debt; DS19 admits no new diagnostic."
+    },
+    {
+      "finding_id": "baseline-test-i18n-count-debt",
+      "finding_kind": "baseline_test_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/i18n-count"
+      ],
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "rationale": "Three count-sensitive locale parity failures reproduce on the parent and belong to DS4 quantity/message rebinding."
+    },
+    {
+      "finding_id": "baseline-test-a11y-coverage-debt",
+      "finding_kind": "baseline_test_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/a11y-coverage"
+      ],
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "rationale": "The missing OperatorDiagnosticPanel a11y companion reproduces on the parent and belongs to the DS4 harness repair."
+    },
+    {
+      "finding_id": "baseline-test-temporal-cursor-debt",
+      "finding_kind": "baseline_test_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "evidence_refs": [
+        "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/temporal-cursor"
+      ],
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-17",
+      "rationale": "The time-dependent canonical URL assertion reproduces on the parent and belongs to DS4 temporal primitive verification."
+    },
+    {
+      "finding_id": "dependency-axe-core",
+      "finding_kind": "dependency_declaration",
+      "disposition": "use_as_is",
+      "status": "repaired",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/shared/lib/a11yAudit.ts:71",
+        "apps/runtime-dashboard/package.json#dependencies",
+        "pnpm-lock.yaml#importers/apps/runtime-dashboard"
+      ],
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "repair_commit": "d01eaa572",
+      "rationale": "The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph."
+    },
+    {
+      "finding_id": "dependency-intl-messageformat",
+      "finding_kind": "dependency_declaration",
+      "disposition": "use_as_is",
+      "status": "repaired",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1",
+        "apps/runtime-dashboard/package.json#dependencies",
+        "pnpm-lock.yaml#importers/apps/runtime-dashboard"
+      ],
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "repair_commit": "d01eaa572",
+      "rationale": "The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph."
+    },
+    {
+      "finding_id": "dependency-workbox-core",
+      "finding_kind": "dependency_declaration",
+      "disposition": "use_as_is",
+      "status": "repaired",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/sw.ts:3",
+        "apps/runtime-dashboard/package.json#dependencies",
+        "pnpm-lock.yaml#importers/apps/runtime-dashboard"
+      ],
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "repair_commit": "d01eaa572",
+      "rationale": "The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph."
+    },
+    {
+      "finding_id": "dependency-workbox-precaching",
+      "finding_kind": "dependency_declaration",
+      "disposition": "use_as_is",
+      "status": "repaired",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/sw.ts:4",
+        "apps/runtime-dashboard/package.json#dependencies",
+        "pnpm-lock.yaml#importers/apps/runtime-dashboard"
+      ],
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "repair_commit": "d01eaa572",
+      "rationale": "The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph."
+    },
+    {
+      "finding_id": "dependency-workbox-routing",
+      "finding_kind": "dependency_declaration",
+      "disposition": "use_as_is",
+      "status": "repaired",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/sw.ts:9",
+        "apps/runtime-dashboard/package.json#dependencies",
+        "pnpm-lock.yaml#importers/apps/runtime-dashboard"
+      ],
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "repair_commit": "d01eaa572",
+      "rationale": "The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph."
+    },
+    {
+      "finding_id": "dependency-workbox-window",
+      "finding_kind": "dependency_declaration",
+      "disposition": "use_as_is",
+      "status": "repaired",
+      "evidence_refs": [
+        "apps/runtime-dashboard/package.json#dependencies",
+        "apps/runtime-dashboard/package.json#dependencies",
+        "pnpm-lock.yaml#importers/apps/runtime-dashboard"
+      ],
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "repair_commit": "d01eaa572",
+      "rationale": "The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph."
+    },
+    {
+      "finding_id": "fixture-policy-design-case-audience",
+      "finding_kind": "fixture_contract_drift",
+      "disposition": "use_as_is",
+      "status": "repaired",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/api/validators.test.ts",
+        "apps/runtime-dashboard/src/api/types.ts:7050"
+      ],
+      "owner_slice": "DS19",
+      "decision_date": "2026-07-17",
+      "repair_commit": "d01eaa572",
+      "rationale": "The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed."
+    }
+  ],
+  "seeded_negative_lifecycle": [
+    {
+      "negative_id": "DS1-N001",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:813",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [
+        "derivation-browser-signature"
+      ],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N002",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:814",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N003",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:815",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N004",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:816",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N005",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:817",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N006",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:818",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N007",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:819",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N008",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:820",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N009",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:821",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N010",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:822",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N011",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:823",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N012",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:824",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N013",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:825",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N014",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:826",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N015",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:827",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [
+        "feature-whatif::legacy-local-whatif-subgraph"
+      ],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N016",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:828",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N017",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:829",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [
+        "flag-enable-causal-graph",
+        "flag-enable-collaboration",
+        "flag-enable-command-palette",
+        "flag-enable-what-if-analysis"
+      ],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N018",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:830",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N019",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:831",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [
+        "worker-data-transform",
+        "worker-dag-layout",
+        "worker-json-parse"
+      ],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N020",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:832",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N021",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:833",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [
+        "feature-collaboration",
+        "raw-fetch-collab-activity",
+        "raw-fetch-collab-comment-post",
+        "raw-fetch-collab-comments-get",
+        "raw-fetch-collab-resolve",
+        "status-collaboration-session",
+        "transport-rest-collaboration",
+        "transport-ws-collaboration"
+      ],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N022",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:834",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    },
+    {
+      "negative_id": "DS1-N023",
+      "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:835",
+      "lifecycle": "still_required",
+      "affected_unit_ids": [],
+      "may_count_as_passing_test": false,
+      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+    }
+  ]
+}

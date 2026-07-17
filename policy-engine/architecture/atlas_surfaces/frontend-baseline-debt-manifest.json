@@ -1,0 +1,1307 @@
+{
+  "$schema": "./frontend-baseline-debt.schema.json",
+  "schema_version": "1.0",
+  "manifest_id": "atlas-ds19-frontend-baseline-debt",
+  "captured_at": "2026-07-17T10:22:16+03:00",
+  "baseline_revision": "d01eaa57285c490412599ea65f898d3dbd522b04",
+  "scope": "apps/runtime-dashboard",
+  "authority": {
+    "authoritative_for": [
+      "DS19 baseline-relative lint diagnostic identity set",
+      "DS19 baseline-relative Vitest failure identity set",
+      "DS4 ownership of the measured pre-existing frontend debt"
+    ],
+    "not_authoritative_for": [
+      "suppressing or weakening policyos/quantity-must-be-wrapped",
+      "treating any baseline failure as passing",
+      "admitting new lint diagnostics or Vitest failure identities",
+      "changing application behavior or DS4 repair scope"
+    ]
+  },
+  "baseline_relative_laws": {
+    "lint": {
+      "comparison": "post_identity_set_is_subset_of_baseline_identity_set",
+      "identity_fields": [
+        "path",
+        "rule_id",
+        "severity",
+        "line",
+        "column",
+        "end_line",
+        "end_column",
+        "message_id",
+        "message"
+      ],
+      "removals": "allowed",
+      "additions": "fail"
+    },
+    "vitest": {
+      "comparison": "post_identity_set_is_subset_of_baseline_identity_set",
+      "identity_fields": [
+        "test_file",
+        "test_name",
+        "assertion_line",
+        "assertion_anchor"
+      ],
+      "removals": "allowed",
+      "additions": "fail"
+    },
+    "absolute_green_gates": [
+      "typecheck",
+      "production_build"
+    ]
+  },
+  "lint": {
+    "owner_slice": "DS4",
+    "disposition": "rebind_pending",
+    "command": "corepack pnpm exec eslint src .storybook e2e scripts eslint.config.mjs vite.config.ts vitest.config.ts vitest.a11y.config.ts vitest.storybook.config.ts playwright.config.ts tailwind.config.ts --cache --cache-location ../../_cache/apps/runtime-dashboard/eslint/.eslintcache --max-warnings=0 --format json",
+    "exit_code": 1,
+    "raw_receipt_sha256": "b5398177d4b6059ff4770d1bbc37d98e1879d0f17a81b8c73dac0bb504523ebb",
+    "error_count": 75,
+    "warning_count": 0,
+    "source_file_count": 22,
+    "rule_identity": {
+      "rule_id": "policyos/quantity-must-be-wrapped",
+      "implementation_path": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs",
+      "implementation_sha256": "e0014bd68cdd629307dbc1fad99c41812d6a082486cd558d48ee10648f5802b6",
+      "configuration_path": "apps/runtime-dashboard/eslint.config.mjs",
+      "configuration_sha256": "6653eb0a7475ade10b933623d0d073045731a9ecd48ae202f3b5912f5e20d4e4"
+    },
+    "diagnostic_set": {
+      "hash_algorithm": "sha256",
+      "serialization": "RFC8785_JCS",
+      "payload": "flat_sorted_diagnostics",
+      "sort_key": [
+        "path",
+        "rule_id",
+        "severity",
+        "line",
+        "column",
+        "end_line",
+        "end_column",
+        "message_id",
+        "message"
+      ],
+      "sha256": "539ea30fa03accd34add5ba5f0907d134e4422e3d0b5aa216445079f787cb394"
+    },
+    "files": [
+      {
+        "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
+        "content_sha256": "be6269ebc9c95ef75bbeab975c564ed89a88cfdbd755c45d62791ae024c0d969",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 46,
+            "column": 30,
+            "end_line": 46,
+            "end_column": 36,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.0025\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+        "content_sha256": "ad2f45f674e77fcbef779deced807c9ca7b971bde4ca98e5e28326641277b7c7",
+        "diagnostic_count": 2,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 2
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 161,
+            "column": 17,
+            "end_line": 161,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"24\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 162,
+            "column": 17,
+            "end_line": 162,
+            "end_column": 18,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"9\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+        "content_sha256": "fca05b8125a48be13d97e0ca9619fc645ef6426d3e26a75e7a520abdff52aea7",
+        "diagnostic_count": 2,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 2
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 136,
+            "column": 13,
+            "end_line": 136,
+            "end_column": 14,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"4\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 151,
+            "column": 14,
+            "end_line": 151,
+            "end_column": 16,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"12\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+        "content_sha256": "aba65ef1f6f3ae49736ed5057a5507c56e5aec00a697c97c6aaed68d32f0501b",
+        "diagnostic_count": 2,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 2
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 229,
+            "column": 65,
+            "end_line": 229,
+            "end_column": 68,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"250\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 411,
+            "column": 24,
+            "end_line": 411,
+            "end_column": 25,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
+        "content_sha256": "ba3162d77707ae5c31aa58a3d13345ce56e190d409f22ab3db3f88addacc3bbf",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 264,
+            "column": 9,
+            "end_line": 264,
+            "end_column": 10,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+        "content_sha256": "b067a2adf203d6e9e86e72548914b6dc869f33ee3c664c0b41a051d2123b4c61",
+        "diagnostic_count": 3,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 3
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 323,
+            "column": 18,
+            "end_line": 323,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 329,
+            "column": 16,
+            "end_line": 329,
+            "end_column": 17,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 384,
+            "column": 21,
+            "end_line": 384,
+            "end_column": 22,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+        "content_sha256": "9c39bf37a9edd567546b033c9750d6554fe3c91ae63d5146c328febf17c9a75a",
+        "diagnostic_count": 4,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 60,
+            "column": 20,
+            "end_line": 60,
+            "end_column": 24,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.78\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 66,
+            "column": 16,
+            "end_line": 66,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"1.8\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 71,
+            "column": 17,
+            "end_line": 71,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.6\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 76,
+            "column": 16,
+            "end_line": 76,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"2.1\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        "content_sha256": "3da7ca8855363da5fa45789e840e9ed1ba995dd3d4f6366e647dc16a26bccbda",
+        "diagnostic_count": 5,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 5
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 617,
+            "column": 39,
+            "end_line": 617,
+            "end_column": 40,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 713,
+            "column": 39,
+            "end_line": 713,
+            "end_column": 40,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 788,
+            "column": 52,
+            "end_line": 788,
+            "end_column": 55,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.2\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 788,
+            "column": 58,
+            "end_line": 788,
+            "end_column": 61,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.7\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 851,
+            "column": 18,
+            "end_line": 851,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+        "content_sha256": "2169713b408625ebd6d323589e2e95e0b8f4a57c200fbfe56bcfa946523a7382",
+        "diagnostic_count": 2,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 2
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 420,
+            "column": 26,
+            "end_line": 420,
+            "end_column": 30,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.12\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 428,
+            "column": 28,
+            "end_line": 428,
+            "end_column": 31,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.5\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+        "content_sha256": "7d1088f13aed168a80384728653c2c3621a37741985a6e19f603a54273017f66",
+        "diagnostic_count": 4,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 4
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 188,
+            "column": 13,
+            "end_line": 188,
+            "end_column": 17,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.84\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 190,
+            "column": 15,
+            "end_line": 190,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.67\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 192,
+            "column": 17,
+            "end_line": 192,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.41\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 193,
+            "column": 17,
+            "end_line": 193,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.52\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
+        "content_sha256": "d7e8b5c44ed087cb9c6edfdbd0f6f68694d232250d1a40ba7f65e014e21c6fb1",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 23,
+            "column": 17,
+            "end_line": 23,
+            "end_column": 18,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"3\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/charts/AnimatedNumber.tsx",
+        "content_sha256": "720881f8b023bc4e44bdb48c1b020de1236eb29e5484a1f2390b2931aa7ace38",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/AnimatedNumber.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 25,
+            "column": 28,
+            "end_line": 25,
+            "end_column": 29,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+        "content_sha256": "e11b434ba60e95e5bfacc748e8be02b73e2b97b5e0792135aba7a2a8eadad1b9",
+        "diagnostic_count": 13,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 13
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 347,
+            "column": 20,
+            "end_line": 347,
+            "end_column": 22,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"16\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 359,
+            "column": 19,
+            "end_line": 359,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 360,
+            "column": 19,
+            "end_line": 360,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 361,
+            "column": 19,
+            "end_line": 361,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"16\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 362,
+            "column": 19,
+            "end_line": 362,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 367,
+            "column": 18,
+            "end_line": 367,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"20\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 368,
+            "column": 18,
+            "end_line": 368,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"4\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 375,
+            "column": 19,
+            "end_line": 375,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"80\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 376,
+            "column": 19,
+            "end_line": 376,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 377,
+            "column": 19,
+            "end_line": 377,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"96\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 378,
+            "column": 19,
+            "end_line": 378,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 384,
+            "column": 18,
+            "end_line": 384,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"100\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 385,
+            "column": 18,
+            "end_line": 385,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"4\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
+        "content_sha256": "fb6267f201e7a0bb6a140d686c3a3c057a31709aa962d6e353f8e9c82e5395c2",
+        "diagnostic_count": 7,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 7
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 303,
+            "column": 18,
+            "end_line": 303,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"14\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 310,
+            "column": 18,
+            "end_line": 310,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"120\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 314,
+            "column": 19,
+            "end_line": 314,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"2\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 317,
+            "column": 18,
+            "end_line": 317,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"134\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 324,
+            "column": 18,
+            "end_line": 324,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"240\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 329,
+            "column": 19,
+            "end_line": 329,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"2\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 333,
+            "column": 18,
+            "end_line": 333,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"254\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/charts/ForestPlot.tsx",
+        "content_sha256": "c4df54a07f957851aedbe3b8024e5d4aa0b771ee9bba7ac1b5a74a120b5be651",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/ForestPlot.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 35,
+            "column": 20,
+            "end_line": 35,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/charts/SpecificationCurveChart.tsx",
+        "content_sha256": "585b71eca76079a73a78010b7e13c34417179b6d2d3859fa6c883109e8223bca",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SpecificationCurveChart.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 20,
+            "column": 20,
+            "end_line": 20,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+        "content_sha256": "b50371e15c6db5879b9934df1817e1235af6d499d4f60a6ee86e2c47e641e917",
+        "diagnostic_count": 12,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 12
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 282,
+            "column": 19,
+            "end_line": 282,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 283,
+            "column": 19,
+            "end_line": 283,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 284,
+            "column": 19,
+            "end_line": 284,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"16\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 285,
+            "column": 19,
+            "end_line": 285,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 290,
+            "column": 18,
+            "end_line": 290,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"20\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 291,
+            "column": 18,
+            "end_line": 291,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"4\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 298,
+            "column": 19,
+            "end_line": 298,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"80\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 299,
+            "column": 19,
+            "end_line": 299,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 300,
+            "column": 19,
+            "end_line": 300,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"96\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 301,
+            "column": 19,
+            "end_line": 301,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 307,
+            "column": 18,
+            "end_line": 307,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"100\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 308,
+            "column": 18,
+            "end_line": 308,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"4\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
+        "content_sha256": "fbc749beddf2d469dde522cef40e992576a814fa0726cce70434148e7ed9d459",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 255,
+            "column": 28,
+            "end_line": 255,
+            "end_column": 29,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/ui/compounds/FactorImportanceChart.tsx",
+        "content_sha256": "556b3e9dd15e9afcec54b840cf7bb94acb5ec72bd466f9d3d132ebd01766c7af",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/FactorImportanceChart.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 43,
+            "column": 22,
+            "end_line": 43,
+            "end_column": 24,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"60\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/ui/compounds/SensitivityPlot.tsx",
+        "content_sha256": "3d5ce41e3f0be9023536d32f927eb37b53a2a71b7d0a50bd157dc77f8ba5b532",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/compounds/SensitivityPlot.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 26,
+            "column": 20,
+            "end_line": 26,
+            "end_column": 21,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+        "content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+        "diagnostic_count": 9,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 9
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 7,
+            "column": 13,
+            "end_line": 7,
+            "end_column": 17,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.18\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 16,
+            "column": 16,
+            "end_line": 16,
+            "end_column": 17,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 16,
+            "column": 19,
+            "end_line": 16,
+            "end_column": 20,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 16,
+            "column": 22,
+            "end_line": 16,
+            "end_column": 23,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 16,
+            "column": 25,
+            "end_line": 16,
+            "end_column": 26,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 17,
+            "column": 16,
+            "end_line": 17,
+            "end_column": 19,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0.3\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 17,
+            "column": 21,
+            "end_line": 17,
+            "end_column": 22,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 17,
+            "column": 24,
+            "end_line": 17,
+            "end_column": 25,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+          },
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 17,
+            "column": 27,
+            "end_line": 17,
+            "end_column": 28,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      },
+      {
+        "path": "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+        "content_sha256": "0d73a189276402dea0077c0dde1f10bb1d8c1330eadff8c77a08032212bbf0b6",
+        "diagnostic_count": 1,
+        "rule_counts": [
+          {
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "count": 1
+          }
+        ],
+        "diagnostics": [
+          {
+            "path": "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+            "rule_id": "policyos/quantity-must-be-wrapped",
+            "severity": 2,
+            "line": 44,
+            "column": 39,
+            "end_line": 44,
+            "end_column": 40,
+            "message_id": "decision",
+            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+          }
+        ]
+      }
+    ]
+  },
+  "vitest": {
+    "owner_slice": "DS4",
+    "disposition": "rebind_pending",
+    "command": "corepack pnpm run test:components",
+    "wall_duration_seconds": 181.12,
+    "vitest_duration_seconds": 178.12,
+    "exit_code": 1,
+    "test_files": {
+      "total": 231,
+      "passed": 228,
+      "failed": 3
+    },
+    "tests": {
+      "total": 678,
+      "passed": 673,
+      "failed": 5
+    },
+    "failure_set": {
+      "hash_algorithm": "sha256",
+      "serialization": "RFC8785_JCS",
+      "payload": "flat_sorted_failures",
+      "sort_key": [
+        "test_file",
+        "test_name",
+        "assertion_line",
+        "assertion_anchor"
+      ],
+      "sha256": "6183ee5eeefd8aa108e7cdff148af54038eb0fd44952663b61ecff20950022f6"
+    },
+    "debt_classes": [
+      {
+        "class_id": "i18n-count-message-parity",
+        "owner_slice": "DS4",
+        "disposition": "rebind_pending",
+        "rationale": "Three unchanged locale parity cases expose the same count-sensitive message without ICU plural syntax or an explicit allowlist entry.",
+        "failure_count": 3,
+        "failures": [
+          {
+            "test_file": "apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+            "test_name": "locale catalogs > marks all count-sensitive en messages with ICU plural syntax or an explicit allowlist entry",
+            "assertion_line": 88,
+            "assertion_anchor": "panels.agentPipeline.overBudget must use ICU plural syntax or be justified in COUNT_MESSAGE_ALLOWLIST: expected false to be true"
+          },
+          {
+            "test_file": "apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+            "test_name": "locale catalogs > marks all count-sensitive uk messages with ICU plural syntax or an explicit allowlist entry",
+            "assertion_line": 88,
+            "assertion_anchor": "panels.agentPipeline.overBudget must use ICU plural syntax or be justified in COUNT_MESSAGE_ALLOWLIST: expected false to be true"
+          },
+          {
+            "test_file": "apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
+            "test_name": "locale catalogs > marks all count-sensitive ru messages with ICU plural syntax or an explicit allowlist entry",
+            "assertion_line": 88,
+            "assertion_anchor": "panels.agentPipeline.overBudget must use ICU plural syntax or be justified in COUNT_MESSAGE_ALLOWLIST: expected false to be true"
+          }
+        ]
+      },
+      {
+        "class_id": "shared-ui-a11y-coverage",
+        "owner_slice": "DS4",
+        "disposition": "rebind_pending",
+        "rationale": "The unchanged accessibility coverage census finds OperatorDiagnosticPanel.tsx without a co-located a11y test or explicit allowlist entry.",
+        "failure_count": 1,
+        "failures": [
+          {
+            "test_file": "apps/runtime-dashboard/src/shared/ui/A11yCoverage.a11y.test.tsx",
+            "test_name": "shared/ui accessibility coverage > keeps an a11y test next to every component unless explicitly allowlisted",
+            "assertion_line": 76,
+            "assertion_anchor": "expected [ 'OperatorDiagnosticPanel.tsx' ] to deeply equal []"
+          }
+        ]
+      },
+      {
+        "class_id": "temporal-cursor-canonical-url",
+        "owner_slice": "DS4",
+        "disposition": "rebind_pending",
+        "rationale": "The unchanged TemporalCursorProvider test has a time-sensitive canonical URL expectation; its volatile received value is excluded from the stable failure identity.",
+        "failure_count": 1,
+        "failures": [
+          {
+            "test_file": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.test.tsx",
+            "test_name": "TemporalCursorProvider > commits canonical URL params",
+            "assertion_line": 37,
+            "assertion_anchor": "expected valid_at=2026-04-15T12%3A00%3A00.000Z; received value is time-varying and excluded from canonical identity"
+          }
+        ]
+      }
+    ],
+    "parent_reproduction": {
+      "revision": "7b69337704ad304ec4fa1afb3712f13a493782ba",
+      "command": "corepack pnpm exec vitest run src/shared/i18n/parity.test.ts src/shared/ui/A11yCoverage.a11y.test.tsx src/app/providers/TemporalCursorProvider.test.tsx",
+      "wall_duration_seconds": 1.96,
+      "exit_code": 1,
+      "test_files": {
+        "total": 3,
+        "passed": 0,
+        "failed": 3
+      },
+      "tests": {
+        "total": 8,
+        "passed": 3,
+        "failed": 5
+      },
+      "matches_full_run_failure_set": true
+    }
+  }
+}

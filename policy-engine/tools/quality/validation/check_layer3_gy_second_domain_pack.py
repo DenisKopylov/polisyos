@@ -2634,6 +2634,7 @@ def _build_live_cycle_substrate_context(
         root,
         bundle={"census": census, "pack": projection},
         design_problem=design_problem,
+        intervention_substrate=load_l6_intervention_substrate(root),
     )
 
 
@@ -2649,6 +2650,23 @@ def _build_frozen_cycle_substrate_context(
         root,
         bundle=bundle,
         design_problem=design_problem,
+        intervention_substrate=load_l6_intervention_substrate(root),
+    )
+
+
+def _build_historical_replay_cycle_substrate_context(
+    root: Path,
+    *,
+    bundle: Mapping[str, Any],
+    design_problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Reconstruct frozen candidate evidence without admitting it as current L6."""
+
+    return _build_cycle_substrate_context_from_bundle(
+        root,
+        bundle=bundle,
+        design_problem=design_problem,
+        intervention_substrate=None,
     )
 
 
@@ -2657,6 +2675,7 @@ def _build_cycle_substrate_context_from_bundle(
     *,
     bundle: Mapping[str, Any],
     design_problem: DesignProblem,
+    intervention_substrate: InterventionSubstrateBundle | None,
 ) -> CycleSubstrateContext:
     """Reuse canonical registry/WMR/L6 owners for one verified pack projection."""
 
@@ -2702,7 +2721,7 @@ def _build_cycle_substrate_context_from_bundle(
         repo_root=root,
         design_problem=design_problem,
         world_model_record=world_model_record,
-        intervention_substrate=load_l6_intervention_substrate(root),
+        intervention_substrate=intervention_substrate,
     )
 
 
@@ -2911,10 +2930,19 @@ _HISTORICAL_N4_RECORDING_SOURCE = (
 _HISTORICAL_N4_REPLAY_ISSUES = frozenset(
     {
         "n4_owner_capture_input_binding_mismatch",
+        "n4_owner_historical_replay_problem_ref_mismatch",
         "n4_owner_lever_context_binding_mismatch",
+        "n4_owner_lever_substrate_binding_mismatch",
     }
 )
 _HISTORICAL_N4_REPLAY_BINDING_FIELDS = frozenset(
+    {
+        "design_problem_ref",
+        "substrate_input_content_hash",
+        "cycle_substrate_context_content_hash",
+    }
+)
+_LEGACY_HISTORICAL_N4_REPLAY_BINDING_FIELDS = frozenset(
     {
         "design_problem_ref",
         "cycle_substrate_context_content_hash",
@@ -3014,16 +3042,17 @@ async def _replay_historical_n4_owner_capture(
     historical_problem = DesignProblem.model_validate(
         _mapping(frozen.get("smoke_problem")).get("design_problem")
     )
-    historical_context = _build_frozen_cycle_substrate_context(
+    historical_issues = _historical_n4_owner_capture_issues(
         root,
         bundle=frozen,
-        design_problem=historical_problem,
-    )
-    _require_valid_n4_owner_capture(
-        capture,
+        capture=capture,
         problem=historical_problem,
-        cycle_substrate_context=historical_context,
     )
+    if historical_issues:
+        raise ValueError(
+            "education_n4_owner_capture_invalid:"
+            + ",".join(sorted(set(historical_issues)))
+        )
     if _problem_without_census_provenance(
         historical_problem
     ) != _problem_without_census_provenance(problem):
@@ -3426,8 +3455,15 @@ def _historical_n4_replay_receipt_issues(
         _problem_without_census_provenance(problem)
     ):
         issues.append("n4_owner_historical_replay_problem_semantic_mismatch")
-    if receipt.get("changed_binding_fields") != sorted(
-        _HISTORICAL_N4_REPLAY_BINDING_FIELDS
+    changed_binding_fields = receipt.get("changed_binding_fields")
+    allowed_binding_field_sets = {
+        _LEGACY_HISTORICAL_N4_REPLAY_BINDING_FIELDS,
+        _HISTORICAL_N4_REPLAY_BINDING_FIELDS,
+    }
+    if (
+        not isinstance(changed_binding_fields, list)
+        or changed_binding_fields != sorted(set(changed_binding_fields))
+        or frozenset(changed_binding_fields) not in allowed_binding_field_sets
     ):
         issues.append("n4_owner_historical_replay_binding_fields_mismatch")
     historical_capture_hash = receipt.get("historical_capture_content_hash")
@@ -3492,6 +3528,7 @@ def _n4_owner_capture_issues(
     *,
     problem: DesignProblem,
     cycle_substrate_context: CycleSubstrateContext,
+    expected_context_content_hash: str | None = None,
 ) -> list[str]:
     """Return every capture-integrity and current-owner binding issue."""
 
@@ -3511,6 +3548,10 @@ def _n4_owner_capture_issues(
         problem,
         cycle_substrate_context,
     )
+    if expected_context_content_hash is not None:
+        expected_binding["cycle_substrate_context_content_hash"] = (
+            expected_context_content_hash
+        )
     if binding != expected_binding:
         issues.append("n4_owner_capture_input_binding_mismatch")
     responses = _list_of_mappings(capture.get("responses"))
@@ -3574,6 +3615,45 @@ def _n4_owner_capture_issues(
     except ValueError:
         issues.append("n4_owner_capture_effective_config_invalid")
     return sorted(set(issues))
+
+
+def _historical_n4_owner_capture_issues(
+    root: Path,
+    *,
+    bundle: Mapping[str, Any],
+    capture: Mapping[str, Any],
+    problem: DesignProblem,
+) -> list[str]:
+    """Validate frozen N4 bytes against their trace, not the current L6 identity."""
+
+    trace = _mapping(bundle.get("cycle_trace"))
+    pack = _mapping(bundle.get("pack"))
+    trace_issues: list[dict[str, Any]] = []
+    _validate_artifact_hash(trace, "trace_content_hash", trace_issues)
+    issues = [
+        "n4_owner_historical_trace_invalid:" + str(issue.get("code") or "unknown")
+        for issue in trace_issues
+    ]
+    trace_hash = str(trace.get("trace_content_hash") or "")
+    if pack.get("cycle_trace_content_hash") != trace_hash:
+        issues.append("n4_owner_historical_trace_pack_ref_mismatch")
+    context_hash = str(trace.get("cycle_substrate_context_content_hash") or "")
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", context_hash):
+        issues.append("n4_owner_historical_context_hash_invalid")
+    if issues:
+        return sorted(set(issues))
+
+    historical_context = _build_historical_replay_cycle_substrate_context(
+        root,
+        bundle=bundle,
+        design_problem=problem,
+    )
+    return _n4_owner_capture_issues(
+        capture,
+        problem=problem,
+        cycle_substrate_context=historical_context,
+        expected_context_content_hash=context_hash,
+    )
 
 
 def _require_valid_n4_owner_capture(

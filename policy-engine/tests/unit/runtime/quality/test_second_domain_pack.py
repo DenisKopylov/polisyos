@@ -126,6 +126,33 @@ def test_live_bundle_replays_verified_historical_n4_bytes_on_provenance_drift(
     )
 
 
+def test_historical_n4_capture_validation_uses_frozen_trace_l6_identity(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A canonical rebaseline validates old capture bytes without current-L6 admission."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    problem = DesignProblem.model_validate(
+        frozen["smoke_problem"]["design_problem"]
+    )
+
+    def reject_current_l6_load(_repo_root: Path) -> object:
+        raise AssertionError("historical capture validation loaded the current L6")
+
+    monkeypatch.setattr(
+        second_domain_pack,
+        "load_l6_intervention_substrate",
+        reject_current_l6_load,
+    )
+
+    assert second_domain_pack._historical_n4_owner_capture_issues(
+        REPO_ROOT,
+        bundle=frozen,
+        capture=frozen["cycle_trace"]["n4_owner_capture"],
+        problem=problem,
+    ) == []
+
+
 def test_historical_n4_replay_rejects_rehashed_non_identity_drift(
     live_bundle: dict[str, object],
 ) -> None:
@@ -148,6 +175,9 @@ def test_historical_n4_replay_rejects_rehashed_non_identity_drift(
         REPO_ROOT,
         bundle=live_bundle,
         design_problem=problem,
+        intervention_substrate=second_domain_pack.load_l6_intervention_substrate(
+            REPO_ROOT
+        ),
     )
 
     with pytest.raises(

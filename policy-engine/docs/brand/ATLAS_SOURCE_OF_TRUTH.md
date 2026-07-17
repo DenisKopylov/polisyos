@@ -1,7 +1,7 @@
 ---
 title: Atlas Source-Of-Truth And Governing Decisions
 status: active
-decision_status: accepted_with_pending_owner_ratification
+decision_status: accepted_and_ratified
 owner: team-design
 created: 2026-07-16
 last_reviewed: 2026-07-16
@@ -14,12 +14,12 @@ authoritative_for:
 may_not_use_for:
   - v15 token, component, or pattern admission
   - runtime or surface readiness claims
-  - ratification of the ru locale posture
+  - loosening the ratified D4 posture (ru stays frozen: not used, not deleted)
 master_plan: ../plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 surface_constitution: ../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 ds0_plan: ../plans/active/atlas-slices/DS0-source-of-truth-freeze-and-governing-decisions.md
-pending_owner_ratification:
-  - D4-locale-and-i18n-posture
+ratified_by_owner:
+  - D4-locale-and-i18n-posture (2026-07-16, @DenisKopylov — ru frozen: not used, not deleted)
 ---
 
 # Atlas Source-Of-Truth And Governing Decisions
@@ -50,7 +50,7 @@ reviewed rather than locally patched around it.
 | D1 | Canonical source, supersession, and docs lifecycle | `accepted` | `team-design` | 2026-07-16 |
 | D2 | Token pipeline | `accepted` | `team-design` | 2026-07-16 |
 | D3 | Package home, versioning, and Figma | `accepted` | `team-design` + `team-frontend` | 2026-07-16 |
-| D4 | Locale and i18n posture | `pending_owner_ratification` | `team-design` product owner; implementation `@frontend-owners` | not effective |
+| D4 | Locale and i18n posture | `ratified` (2026-07-16) | `team-design` product owner; implementation `@frontend-owners` | effective — ru frozen, not used, not deleted |
 | D5 | Feature-flag governance | `accepted` | `@architecture-owners`; implementation `@frontend-owners` | 2026-07-16 |
 | D6 | Non-web surface dispositions | `accepted` | owners per row | 2026-07-16 |
 
@@ -261,8 +261,16 @@ conflict-resolution owner; otherwise it remains a projection.
 
 ## D4 - Locale And i18n Posture
 
-**Status: `pending_owner_ratification`. This section is an evidence package and
-recommendation, not an effective product decision.**
+**Status: `ratified` (2026-07-16, product owner `@DenisKopylov`).** The owner
+ratified the recommendation as proposed: `uk` primary Ukraine-facing locale;
+`en` baseline/fallback; **`ru` UI catalog `legacy_continuity_frozen` — not
+used, not deleted** (retained in-tree, excluded from active locale exposure
+and from any public locale-support claim); Russian **source-content
+rendering** (reading Russian-language source documents) remains a separate
+read-only capability; RTL honestly `not_supported`. DS5 implements the
+enforcement mechanics; DS12 may publish exactly this posture and nothing
+stronger. Revisit triggers unchanged (usage evidence, funded translation
+ownership, runtime admission, jurisdictional change).
 
 The 2026-06-11 DS0 draft described `ru` as frozen-but-served, but that text
 predated the current constitution's jurisdictional-surface posture and was not
@@ -325,11 +333,11 @@ current enforceable owner. Implementation owner after ratification:
 
 ### Revisit Condition
 
-Revisit on owner ratification; privacy-safe evidence of active Russian UI
-users; funded translation ownership and semantic-quality gate; runtime
-admission of `ru`; a legal/accessibility/jurisdictional requirement; or a
-material change in the Ukraine-facing public posture. Until then D4 remains
-the sole item in `pending_owner_ratification`.
+Ratification occurred 2026-07-16 (see Status above). Remaining revisit
+triggers: privacy-safe evidence of active Russian UI users; funded translation
+ownership and semantic-quality gate; runtime admission of `ru`; a
+legal/accessibility/jurisdictional requirement; or a material change in the
+Ukraine-facing public posture.
 
 ## D5 - Feature-Flag Governance
 

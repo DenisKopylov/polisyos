@@ -46,17 +46,17 @@ not changed.
 ## Wave reduction measured from the repaired baseline
 
 - Application lines added: **2**
-- Application lines deleted: **2116**
-- Net application LOC reduction: **2114**
-- Application files deleted: **15**
+- Application lines deleted: **2768**
+- Net application LOC reduction: **2766**
+- Application files deleted: **21**
 
 <!-- BEGIN DS19 REGISTER PROJECTION -->
 ### Register statistics
 
 | Disposition | Root units |
 | --- | ---: |
-| `delete_pending` | 7 |
-| `deleted` | 8 |
+| `delete_pending` | 6 |
+| `deleted` | 9 |
 | `rebind_pending` | 200 |
 | `retire_disposition` | 25 |
 | `use_as_is` | 5 |
@@ -70,7 +70,7 @@ DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are evi
 | Cluster | Units | Census result | Disposition | Verification |
 | --- | --- | --- | --- | --- |
 | collaboration | `feature-collaboration`, `raw-fetch-collab-activity`, `raw-fetch-collab-comment-post`, `raw-fetch-collab-comments-get`, `raw-fetch-collab-resolve`, `status-collaboration-session`, `transport-rest-collaboration`, `transport-ws-collaboration` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification` |
-| onboarding | `feature-onboarding-orphan` | not yet captured | `pending` | pending |
+| onboarding | `feature-onboarding-orphan` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---onboarding-cluster-verification` |
 | layout-placeholder | `feature-layout-empty` | not yet captured | `pending` | pending |
 | workers | `worker-dag-layout`, `worker-data-transform`, `worker-json-parse` | not yet captured | `pending` | pending |
 | clerk-index | `route-home-clerk-duplicate` | not yet captured | `pending` | pending |
@@ -233,7 +233,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `feature-landing` | `feature-landing` | 0 | `rebind_pending` | `pending` | `DS11` | `—` |
 | `feature-layout-empty` | `feature-layout-empty` | 0 | `delete_pending` | `pending` | `DS19` | `—` |
 | `feature-lex` | `feature-lex` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
-| `feature-onboarding-orphan` | `feature-onboarding-orphan` | 0 | `delete_pending` | `pending` | `DS19` | `—` |
+| `feature-onboarding-orphan` | `feature-onboarding-orphan` | 0 | `deleted` | `strangled` | `DS19` | `census-onboarding-delete` |
 | `feature-platform` | `feature-platform` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `feature-runs` | `feature-runs` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `feature-whatif` | `feature-whatif` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
@@ -449,6 +449,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `df87559b3 refactor(frontend): delete phantom collaboration substrate`
 - `702256135 feat(frontend): establish DS19 disposition authority`
 - `d01eaa572 chore(frontend): repair dashboard typecheck baseline`
 

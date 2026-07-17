@@ -217,3 +217,47 @@ census plus protected-review fence, then transition all eight rows atomically.
 
 The eight collaboration rows may now transition atomically from
 `delete_pending` to `deleted` against census `census-collaboration-delete`.
+
+## 2026-07-17 - Onboarding Pre-Deletion Census
+
+- Clean cluster start: HEAD `df87559b3`; `feature-onboarding-orphan` is
+  `delete_pending`.
+- Exactly **6 tracked files** exist under the orphan feature. Every
+  `GuidedTour`, `OnboardingProvider`, feature import, and
+  `polisyos.runtime.onboarding` reference is confined to those six files;
+  static/dynamic imports, routes, stories, e2e, manifests, package metadata,
+  and service-worker registrations have **zero external consumers**.
+- The Operator Craft onboarding chain is separate and live: its storage prefix,
+  `reading-onboarding` registry entry, replay event, mounted panel, and tests
+  remain nonzero and protected.
+- No telemetry, locale, feature-index, dependency, or lockfile edit belongs to
+  this unit. The fresh census therefore authorizes deletion of the six-file
+  feature only.
+
+Next checkpoint: delete the six files, prove the legacy identifiers remain
+zero while Operator Craft remains live, and run the cluster gates.
+
+## 2026-07-17 - Onboarding Cluster Verification
+
+- Deleted all **6 files / 652 lines** in the orphan feature, including its
+  test, types, tour catalog, provider, guided-tour component, and barrel.
+- Post-delete census over source, e2e, stories, scripts, package metadata, and
+  packages returned **zero** for every code-owned onboarding identifier. The
+  production bundle and source maps also contain zero retired identifiers.
+- The independent Operator Craft onboarding storage prefix,
+  `reading-onboarding` surface registration/replay path, mounted panel, and
+  tests remain present and protected.
+- Explicit typecheck: **PASS, 77.45 seconds**.
+- Affected tests: **3 files / 23 tests, PASS, 18.13 seconds**
+  (`operatorCraft.test.ts`, `runDetailSurfaces.test.tsx`, and
+  `surfaceRegistry.test.ts`).
+- Scoped lint over the eight protected Operator Craft files and tests:
+  **PASS, 0 diagnostics, 89.75 seconds**.
+- Production build/PWA/postbuild security: **PASS, 73.29 seconds**;
+  3,880 modules and 102 precache entries.
+- Application diff for this cluster: **0 lines added, 652 lines deleted,
+  6 files deleted**. Flags, telemetry, locale catalogs, dependencies,
+  `package.json`, and `pnpm-lock.yaml` are unchanged.
+
+`feature-onboarding-orphan` may now transition atomically from
+`delete_pending` to `deleted` against census `census-onboarding-delete`.

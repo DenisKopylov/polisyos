@@ -26,9 +26,9 @@ from polisyos.core.contracts.control import (
     PromotionCandidate,
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.catalog.resolver_fast_lane import FastLaneResolver
 from polisyos.fabric.catalog.source_bindings import SourceBinding
-from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 
 from .executor import ExecutePlanResult, FetchExecutor
 from .explore_lane import ExploreLaneDiscoverResult, ExploreLaneDiscovery, ExploreLaneLimits
@@ -42,6 +42,8 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.registry import ConnectorRegistry
 
 logger = get_logger(__name__)
+
+_EXECUTABLE_CATALOG_TIERS = frozenset({"fetchable", "transport_ready"})
 
 
 @dataclass(frozen=True)
@@ -733,6 +735,11 @@ class RetrievalService:
                     )
                     bindings = []
                 for binding in bindings:
+                    execution_tier = str(
+                        getattr(binding, "execution_tier", "catalog") or "catalog"
+                    )
+                    if execution_tier not in _EXECUTABLE_CATALOG_TIERS:
+                        continue
                     connector_id = str(getattr(binding, "connector_id", "") or "").strip()
                     request_dataset_id = str(
                         getattr(binding, "request_dataset_id", "") or ""
@@ -753,9 +760,7 @@ class RetrievalService:
                             ),
                             "confidence": _coerce_float(getattr(binding, "confidence", 0.0) or 0.0),
                             "catalog_title": str(getattr(binding, "title", "") or ""),
-                            "execution_tier": str(
-                                getattr(binding, "execution_tier", "catalog") or "catalog"
-                            ),
+                            "execution_tier": execution_tier,
                             "source": str(getattr(binding, "source", "") or ""),
                         }
                     )
@@ -771,6 +776,11 @@ class RetrievalService:
                     logger.debug("Catalog lookup failed for metric %s", need.metric, exc_info=True)
                     continue
                 for result in results:
+                    execution_tier = str(
+                        getattr(result, "execution_tier", "catalog") or "catalog"
+                    )
+                    if execution_tier not in _EXECUTABLE_CATALOG_TIERS:
+                        continue
                     try:
                         target = resolve_target_fn(result.id)
                     except Exception:
@@ -797,7 +807,7 @@ class RetrievalService:
                             "default_filters": _coerce_filter_map(target.default_filters),
                             "confidence": max(0.05, _coerce_float(result.similarity) * 0.8),
                             "catalog_title": result.title,
-                            "execution_tier": getattr(result, "execution_tier", "catalog"),
+                            "execution_tier": execution_tier,
                             "source": getattr(result, "source", ""),
                         }
                     )

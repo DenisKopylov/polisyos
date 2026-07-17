@@ -87,6 +87,25 @@ class _NoneProfileBindingCatalog:
         return [_Binding()]
 
 
+class _CatalogOnlyBindingCatalog:
+    def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+        if metric_name != "gdp":
+            return []
+        return [
+            MetricBindingMatch(
+                metric_id="gdp",
+                catalog_dataset_id="catalog-gdp",
+                distribution_id="dist-gdp-catalog-only",
+                connector_id="worldbank.wdi",
+                profile_id="worldbank_wdi",
+                request_dataset_id="NY.GDP.MKTP.CD",
+                confidence=0.99,
+                execution_tier="catalog",
+                title="GDP catalog metadata only",
+            )
+        ]
+
+
 class _TargetCatalog:
     def find_by_polisyos_metric(self, metric_name: str, *, top_k: int = 20):
         if metric_name != "gdp":
@@ -130,6 +149,20 @@ def test_catalog_resolution_skips_unfetchable_targets(tmp_path) -> None:
     curated_dir.mkdir()
     service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_TargetCatalog())
     plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+    assert plans == []
+    assert candidates == []
+
+
+def test_catalog_resolution_rejects_catalog_only_metric_bindings(tmp_path) -> None:
+    curated_dir = tmp_path / "curated"
+    curated_dir.mkdir()
+    service = RetrievalService(
+        curated_dir=curated_dir,
+        dataset_catalog=_CatalogOnlyBindingCatalog(),
+    )
+
+    plans, candidates = service._resolve_via_catalog([DataNeed(metric="gdp")])
+
     assert plans == []
     assert candidates == []
 

@@ -11,7 +11,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
@@ -1156,11 +1156,13 @@ class RealAcquisitionOwnerGateway:
         repo_root: Path,
         network_counter: AcquisitionNetworkCallCounter | None = None,
         allow_openalex_network: bool = False,
+        dataset_catalog_factory: Callable[[Path, Path], object] | None = None,
         captured_at: datetime | None = None,
     ) -> None:
         self._repo_root = Path(repo_root)
         self._network_counter = network_counter or AcquisitionNetworkCallCounter()
         self._allow_openalex_network = bool(allow_openalex_network)
+        self._dataset_catalog_factory = dataset_catalog_factory
         self._captured_at = _utc(captured_at)
 
     @property
@@ -1193,41 +1195,57 @@ class RealAcquisitionOwnerGateway:
         spec: Mapping[str, Any],
     ) -> AcquisitionOwnerArtifact | None:
         from polisyos.core.contracts.control import DataNeed, DataResolveRequest
-        from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
-        from polisyos.fabric.ingestion.ingestion_providers import (
-            resolve_ingestion_dependencies,
-        )
+        from polisyos.data_forge.read_api import catalog as catalog_read_api
         from polisyos.fabric.retrieval.service import RetrievalService
-
-        del run_orchestrated_ingestion, resolve_ingestion_dependencies
-        curated_dir = self._repo_root / "production_data"
-        service = RetrievalService(
-            curated_dir=curated_dir,
-            cas_root=self._repo_root / ".n7-live-cas",
+        from polisyos.runtime.quality.substrate_registry import (
+            default_substrate_catalog_paths,
         )
+
+        curated_dir = self._repo_root / "production_data"
         families = _required_families_for_spec(spec)
         if not families:
             return None
-        request = DataResolveRequest(
-            data_needs=[
-                DataNeed(
-                    metric=family,
-                    purpose="n7_acquisition_owner_capture",
-                    quality_min=0.7,
-                )
-                for family in families
-            ],
-            mode="hybrid",
-        )
-        response = service.resolve(request)
+        paths = default_substrate_catalog_paths(self._repo_root)
+        factory = self._dataset_catalog_factory or catalog_read_api.DatasetCatalogGraph
+        graph = factory(paths.l1_dcat_path, paths.l1_dcat_path.parent)
+        try:
+            service = RetrievalService(
+                curated_dir=curated_dir,
+                cas_root=self._repo_root / ".n7-live-cas",
+                dataset_catalog=graph,
+            )
+            request = DataResolveRequest(
+                data_needs=[
+                    DataNeed(
+                        metric=family,
+                        purpose="n7_acquisition_owner_capture",
+                        quality_min=0.7,
+                    )
+                    for family in families
+                ],
+                mode="hybrid",
+                allow_explore_fallback=False,
+            )
+            response = service.resolve(request)
+        finally:
+            close = getattr(graph, "close", None)
+            if callable(close):
+                close()
         payload = _fabric_response_payload(
             spec=spec,
             response={
+                "owner_response_kind": "fabric_catalog_resolution",
                 "mode": response.mode,
                 "fetch_plan_count": len(response.fetch_plans),
                 "candidate_count": len(response.candidates),
                 "warnings": response.warnings,
-                "families": families,
+                "families": list(families),
+                "fetch_plans": [
+                    plan.model_dump(mode="json") for plan in response.fetch_plans
+                ],
+                "candidates": [
+                    candidate.model_dump(mode="json") for candidate in response.candidates
+                ],
             },
         )
         return _artifact_from_owner_response(
@@ -2533,6 +2551,8 @@ def _fabric_response_payload(
 
 
 def _owner_response_has_acquired_content(response: Mapping[str, Any]) -> bool:
+    if response.get("owner_response_kind") == "fabric_catalog_resolution":
+        return False
     if "candidate_count" in response or "fetch_plan_count" in response:
         return int(response.get("candidate_count") or 0) > 0 or int(
             response.get("fetch_plan_count") or 0

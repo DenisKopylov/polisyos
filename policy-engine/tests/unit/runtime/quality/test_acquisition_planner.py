@@ -1310,6 +1310,117 @@ def test_real_owner_gateway_records_local_skg_response_without_network() -> None
     assert artifact.payload["acquired_substrate_registrations"]
 
 
+def test_real_owner_gateway_captures_catalog_plans_without_explore_or_execution(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.core.contracts.control import FetchPlan, MetricCandidate
+    from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+    from polisyos.fabric.retrieval.executor import FetchExecutor
+    from polisyos.fabric.retrieval.service import RetrievalService
+    from polisyos.runtime.quality.substrate_registry import default_substrate_catalog_paths
+
+    fixture_graph = build_slice0_fixture_catalog_graph(tmp_path / "fixture-catalog")
+
+    class _OwnedFixtureGraph:
+        def __init__(self) -> None:
+            self.closed = False
+
+        def resolve_metric_bindings(self, metric_name: str, *, top_k: int = 20):
+            assert not self.closed
+            return fixture_graph.resolve_metric_bindings(metric_name, top_k=top_k)
+
+        def close(self) -> None:
+            self.closed = True
+            fixture_graph.close()
+
+    owned_graph = _OwnedFixtureGraph()
+    opened_paths: list[tuple[Path, Path]] = []
+
+    def _catalog_factory(db_path: Path, index_dir: Path) -> object:
+        opened_paths.append((db_path, index_dir))
+        return owned_graph
+
+    def _unexpected_call(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise AssertionError("catalog plan capture must not explore or execute")
+
+    monkeypatch.setattr(RetrievalService, "discover", _unexpected_call)
+    monkeypatch.setattr(FetchExecutor, "preview", _unexpected_call)
+    monkeypatch.setattr(FetchExecutor, "execute", _unexpected_call)
+
+    base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
+    base_spec["requirement_id"] = "data-requirement:catalog-plan-capture"
+    base_spec["claim_id"] = "claim-catalog-plan-capture"
+    base_spec["required_data_families"] = (
+        "msme_credit_access",
+        "fixture_unresolved_metric",
+    )
+    gap = requirement_gaps_from_compiled_specs(data_requirement_specs=(base_spec,))[0]
+    report = plan_requirement_gap_acquisition(
+        run_id="run-n7-catalog-plan-capture",
+        requirement_gaps=(gap,),
+        generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+    )
+    gateway = RealAcquisitionOwnerGateway(
+        repo_root=tmp_path,
+        dataset_catalog_factory=_catalog_factory,
+        captured_at=datetime(2026, 7, 17, tzinfo=UTC),
+    )
+
+    artifact = gateway.acquire(
+        record=report.acquisition_records[0],
+        compiled_requirement_spec=base_spec,
+    )
+
+    assert artifact is not None
+    raw_response = artifact.payload["owner_response"]
+    assert raw_response["owner_response_kind"] == "fabric_catalog_resolution"
+    assert raw_response["families"] == [
+        "msme_credit_access",
+        "fixture_unresolved_metric",
+    ]
+    assert raw_response["fetch_plan_count"] == len(raw_response["fetch_plans"])
+    assert raw_response["candidate_count"] == len(raw_response["candidates"])
+    assert raw_response["fetch_plan_count"] > 0
+    for raw_plan in raw_response["fetch_plans"]:
+        plan = FetchPlan.model_validate(raw_plan)
+        assert raw_plan == plan.model_dump(mode="json")
+        assert plan.source_lane == "catalog"
+        assert plan.metadata["execution_tier"] in {"fetchable", "transport_ready"}
+    for raw_candidate in raw_response["candidates"]:
+        candidate = MetricCandidate.model_validate(raw_candidate)
+        assert raw_candidate == candidate.model_dump(mode="json")
+    assert artifact.payload["acquired_substrate_registrations"] == []
+    assert artifact.payload["candidate_bindings"] == []
+    assert gateway.network_counter.network_calls == 0
+    assert not (tmp_path / ".n7-live-cas").exists()
+
+    canonical_path = default_substrate_catalog_paths(tmp_path).l1_dcat_path
+    assert opened_paths == [(canonical_path, canonical_path.parent)]
+    assert owned_graph.closed is True
+
+    receipt = run_acquisition_closed_loop(
+        run_id="run-n7-catalog-plan-no-world-growth",
+        acquisition_request={
+            "request_kind": "owner_grounding_evidence",
+            "driver": "missing_supporting_data",
+            "cycle_index": 1,
+        },
+        data_requirement_specs=(base_spec,),
+        world_snapshot=AcquisitionWorldSnapshot(world_ref="world://before/catalog-plan"),
+        owner_gateway=RecordedAcquisitionOwnerGateway(
+            artifacts_by_requirement={base_spec["requirement_id"]: artifact}
+        ),
+        generated_at=datetime(2026, 7, 17, tzinfo=UTC),
+    )
+
+    assert receipt.status == "completed_no_results"
+    assert receipt.grown_world_added_slots == ()
+    assert receipt.grown_world_after_ref == "world://before/catalog-plan"
+    assert receipt.world_write_outcomes[0].reason == "owner_response_no_substrate_registrations"
+
+
 def test_n7_lossy_required_data_adapter_is_strangled() -> None:
     multi_gap = RequiredDataGap(
         missing_distributions=("local_tourism_site_traffic", "administrative_tax_receipts"),

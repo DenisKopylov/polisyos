@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:76bd50064498450439e19aeb64f5e6452f1536a14c8a71cb329ad35ac8d3cfce",
+  "gap_report_content_hash": "sha256:fe017fde935810445d88173be1d20547c3712cf5740793918c52e6b4fe1b15ab",
   "gaps": [
     {
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
@@ -357,7 +357,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:1b3a19e55870709111d80ffa5e6a86d2cf9b7cafd299b58d844488d70b1d3e3d",
+      "gap_content_hash": "sha256:a3ed0f3b07ed72361804856d1256af822499daf781d9c45fa268d40ef9a7fe40",
       "gap_id": "n8_transport_tuple_hardcode",
       "owner_evidence": {
         "first_vertical_method_family": "panel",
@@ -390,18 +390,18 @@
             "education_spending",
             "school_quality"
           ],
-          "education_proof_content_hash": "sha256:33d3bbc83719304ab4a3fec40538bca9d4eef3a94a2d2dc5332f1c6012dbb9df",
+          "education_proof_content_hash": "sha256:ef08747d86f4ebbedb559d7d1b9f05d19f84ae88f1617147a215e611e9b5d92c",
           "expected_education_covariates": [
             "education_spending",
             "school_quality"
           ],
           "reason_code": "n8_data_derived_transport_proven",
-          "receipt_ref": "sha256:e38c94fd9ad69830b5bbc2b3a14d29d72a26fb974dfd70ad148719f5bbf7f89c",
+          "receipt_ref": "sha256:9a78ed928978cfd051ad234662e760c28106714f1bb1e5c540f4ef6db0e2febb",
           "unseen_covariates": [
             "watershed_slope"
           ],
           "unseen_proof_content_hash": "sha256:0d22ab48c85451bd6475dfd2f6e83cab699448b4689560c4119bc389d3607aaa",
-          "value_contract_content_hash": "sha256:0bd713b94720814f0c087f712583a4fd81186b531500facc290c1cf57c4b7634"
+          "value_contract_content_hash": "sha256:50bf4086c5eb83654da8499476e3454754e81501303830eeb7521530c098b5e3"
         }
       },
       "status": "closed"
@@ -410,7 +410,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:cce85b8aec085e9f5e51e7ee90a6846bfc9214dcea61acfddcd810ac5bd8e679",
+      "gap_content_hash": "sha256:0c742ff7151aca7ff6beb318c2ea60df3cc3be81a8991fc99cc147a595d62831",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [],
@@ -449,7 +449,7 @@
           "terminal_kind": "acquisition_required",
           "validation_issues": []
         },
-        "trace_content_hash": "sha256:40175c349cf711e0d4dd4967b949c69bba182338055ea049a364aa9d8c125584"
+        "trace_content_hash": "sha256:5e99f6f6da0c03655df76a6cd5575db12cf505c7208b9b49aec9cac82e9027c8"
       },
       "status": "closed"
     }

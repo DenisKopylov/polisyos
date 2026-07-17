@@ -1,28 +1,11 @@
 import { buildRuntimeWebSocketUrl } from "@/api/url";
 import type {
-  CollaborationRealtimeSubscriptionRequest,
   RealtimeSubscription,
   RealtimeSubscriptionHandlers,
   RealtimeTransport,
   ReviewRealtimeSubscriptionRequest,
   WebSocketRealtimeSubscriptionRequest,
 } from "@/app/realtime/types";
-
-function assertNever(value: never): never {
-  throw new Error(`Unhandled realtime channel: ${String(value)}`);
-}
-
-function resolveCollaborationUrl(
-  request: CollaborationRealtimeSubscriptionRequest,
-) {
-  return buildRuntimeWebSocketUrl("/api/v1/collaboration/live", {
-    accent_color: request.participant.accentColor ?? undefined,
-    channel: request.channel,
-    display_name: request.participant.displayName,
-    participant_id: request.participant.participantId,
-    session_id: request.sessionId,
-  });
-}
 
 function resolveReviewUrl(request: ReviewRealtimeSubscriptionRequest) {
   return buildRuntimeWebSocketUrl("/api/v1/review/live", {
@@ -36,19 +19,7 @@ function resolveReviewUrl(request: ReviewRealtimeSubscriptionRequest) {
 }
 
 function resolveWebSocketUrl(request: WebSocketRealtimeSubscriptionRequest) {
-  switch (request.channel) {
-    case "collab.activity":
-    case "collab.comments":
-    case "collab.cursors":
-    case "collab.presence":
-      return resolveCollaborationUrl(request);
-    case "review.cursor":
-    case "review.lock":
-    case "review.presence":
-      return resolveReviewUrl(request);
-    default:
-      return assertNever(request);
-  }
+  return resolveReviewUrl(request);
 }
 
 class WebSocketSubscription implements RealtimeSubscription {

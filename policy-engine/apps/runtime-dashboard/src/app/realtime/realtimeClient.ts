@@ -16,10 +16,6 @@ class DefaultRealtimeClient implements RealtimeTransport {
       case "runs.global":
       case "runs.byId":
         return getSseRealtimeTransport().subscribe(request, handlers);
-      case "collab.activity":
-      case "collab.comments":
-      case "collab.cursors":
-      case "collab.presence":
       case "review.cursor":
       case "review.lock":
       case "review.presence":

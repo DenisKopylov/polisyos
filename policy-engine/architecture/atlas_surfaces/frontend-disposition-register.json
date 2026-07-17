@@ -162,6 +162,68 @@
           ]
         }
       ]
+    },
+    {
+      "census_id": "census-collaboration-delete",
+      "captured_at": "2026-07-17T11:10:00+03:00",
+      "covers_unit_ids": [
+        "feature-collaboration",
+        "raw-fetch-collab-activity",
+        "raw-fetch-collab-comments-get",
+        "raw-fetch-collab-comment-post",
+        "raw-fetch-collab-resolve",
+        "status-collaboration-session",
+        "transport-rest-collaboration",
+        "transport-ws-collaboration"
+      ],
+      "ds1_evidence_ids": [
+        "feature-collaboration",
+        "raw-fetch-collab-activity",
+        "raw-fetch-collab-comments-get",
+        "raw-fetch-collab-comment-post",
+        "raw-fetch-collab-resolve",
+        "status-collaboration-session",
+        "transport-rest-collaboration",
+        "transport-ws-collaboration"
+      ],
+      "result": "zero_consumers",
+      "probes": [
+        {
+          "kind": "path_absent",
+          "targets": [
+            "apps/runtime-dashboard/src/features/collaboration"
+          ],
+          "scan_roots": [],
+          "expected_count": 0,
+          "observed_refs": []
+        },
+        {
+          "kind": "reference_count",
+          "targets": [
+            "@/features/collaboration",
+            "features/collaboration",
+            "/api/v1/collaboration",
+            "collab.activity",
+            "collab.comments",
+            "collab.cursors",
+            "collab.presence",
+            "CollaborationRealtimeSubscriptionRequest"
+          ],
+          "scan_roots": [
+            "apps/runtime-dashboard/src",
+            "apps/runtime-dashboard/e2e",
+            "apps/runtime-dashboard/.storybook",
+            "apps/runtime-dashboard/scripts",
+            "apps/runtime-dashboard/package.json",
+            "packages"
+          ],
+          "expected_count": 0,
+          "observed_refs": []
+        }
+      ],
+      "verification_refs": [
+        "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
+      ]
     }
   ],
   "entries": [
@@ -731,13 +793,14 @@
         "ds1_entry_id": "feature-collaboration",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-collaboration-delete",
       "owner": "team-architecture",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "The fresh DS19 census found no consumer outside the predecessor feature/transport owner; the feature and phantom collaboration substrate are deleted."
     },
     {
       "unit_id": "feature-command-palette",
@@ -2800,13 +2863,14 @@
         "ds1_entry_id": "raw-fetch-collab-activity",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-collaboration-delete",
       "owner": "team-architecture",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "The fresh DS19 census found no consumer outside the predecessor feature/transport owner; the feature and phantom collaboration substrate are deleted."
     },
     {
       "unit_id": "raw-fetch-collab-comments-get",
@@ -2814,13 +2878,14 @@
         "ds1_entry_id": "raw-fetch-collab-comments-get",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-collaboration-delete",
       "owner": "team-architecture",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "The fresh DS19 census found no consumer outside the predecessor feature/transport owner; the feature and phantom collaboration substrate are deleted."
     },
     {
       "unit_id": "raw-fetch-collab-comment-post",
@@ -2828,13 +2893,14 @@
         "ds1_entry_id": "raw-fetch-collab-comment-post",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-collaboration-delete",
       "owner": "team-architecture",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "The fresh DS19 census found no consumer outside the predecessor feature/transport owner; the feature and phantom collaboration substrate are deleted."
     },
     {
       "unit_id": "raw-fetch-collab-resolve",
@@ -2842,13 +2908,14 @@
         "ds1_entry_id": "raw-fetch-collab-resolve",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-collaboration-delete",
       "owner": "team-architecture",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "The fresh DS19 census found no consumer outside the predecessor feature/transport owner; the feature and phantom collaboration substrate are deleted."
     },
     {
       "unit_id": "raw-fetch-telemetry",
@@ -2954,13 +3021,14 @@
         "ds1_entry_id": "status-collaboration-session",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-collaboration-delete",
       "owner": "team-design",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "The fresh DS19 census found no consumer outside the predecessor feature/transport owner; the feature and phantom collaboration substrate are deleted."
     },
     {
       "unit_id": "status-health-check",
@@ -3760,13 +3828,14 @@
         "ds1_entry_id": "transport-rest-collaboration",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-collaboration-delete",
       "owner": "team-architecture",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "The fresh DS19 census found no consumer outside the predecessor feature/transport owner; the feature and phantom collaboration substrate are deleted."
     },
     {
       "unit_id": "transport-sse-runs-global",
@@ -3816,13 +3885,14 @@
         "ds1_entry_id": "transport-ws-collaboration",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-collaboration-delete",
       "owner": "team-architecture",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "The fresh DS19 census found no consumer outside the predecessor feature/transport owner; the feature and phantom collaboration substrate are deleted."
     },
     {
       "unit_id": "worker-data-transform",
@@ -4593,15 +4663,18 @@
     {
       "negative_id": "DS1-N017",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:829",
-      "lifecycle": "still_required",
+      "lifecycle": "partially_reduced",
       "affected_unit_ids": [
         "flag-enable-causal-graph",
         "flag-enable-collaboration",
         "flag-enable-command-palette",
         "flag-enable-what-if-analysis"
       ],
+      "deletion_census_ids": [
+        "census-collaboration-delete"
+      ],
       "may_count_as_passing_test": false,
-      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+      "rationale": "Deleting the orphan collaboration surface removes one formerly reachable feature case, but the other three consumer-missing flags still require DS5 wiring and the collaboration key still requires DS5 retirement."
     },
     {
       "negative_id": "DS1-N018",
@@ -4634,7 +4707,7 @@
     {
       "negative_id": "DS1-N021",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:833",
-      "lifecycle": "still_required",
+      "lifecycle": "partially_reduced",
       "affected_unit_ids": [
         "feature-collaboration",
         "raw-fetch-collab-activity",
@@ -4645,8 +4718,11 @@
         "transport-rest-collaboration",
         "transport-ws-collaboration"
       ],
+      "deletion_census_ids": [
+        "census-collaboration-delete"
+      ],
       "may_count_as_passing_test": false,
-      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+      "rationale": "The five phantom collaboration HTTP/WS paths are deleted, while the real review WebSocket and SSE channels still require DS3 governed contract coverage."
     },
     {
       "negative_id": "DS1-N022",

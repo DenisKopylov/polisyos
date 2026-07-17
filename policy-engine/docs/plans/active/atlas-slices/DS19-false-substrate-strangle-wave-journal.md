@@ -159,3 +159,61 @@ disposition register, or turn baseline-relative results into green gates.
 Next checkpoint: commit this register foundation, then begin collaboration only
 after a new pre-delete census confirms the registered unit still has no live
 consumer and the review WebSocket remains protected.
+
+## 2026-07-17 - Collaboration Pre-Deletion Census
+
+- Clean cluster start: HEAD `702256135`; register state is `delete_pending`
+  for the eight collaboration roots.
+- `git ls-files` resolves exactly **15** files under
+  `apps/runtime-dashboard/src/features/collaboration/**`, including the unit's
+  one test and all local hooks/types/state/components.
+- The fresh literal census over dashboard source, e2e, Storybook/scripts,
+  package manifests, and `packages/**` found **37 unique reference lines** for
+  the code-owned collaboration feature/REST/WS identifiers. Every line is
+  confined to the 15-file orphan feature or the three shared realtime files;
+  **zero lines are a consumer outside those two predecessor owners**.
+- No route registration, dynamic/lazy import, story, e2e, service-worker,
+  Vite/PWA manifest, or package dependency consumes the orphan feature. The
+  feature index has one descriptive row and is part of the deletion unit.
+- Protected sibling census: `/api/v1/review/live`, `review.cursor`,
+  `review.lock`, and `review.presence` remain consumed by
+  `useReviewCollaborationSurface`, Governance, Evidence, and their tests.
+  `enableReviewCollaboration` is distinct and remains untouched.
+- Scope decision: proceed with only the orphan feature, phantom collaboration
+  request/event types, phantom URL/switch dispatch, and feature-index row.
+  Flags, permissions, telemetry, locale catalogs, dependencies, and lockfile
+  remain unchanged and governed by their registered owners.
+
+Next checkpoint: delete this bounded predecessor, run the post-delete zero
+census plus protected-review fence, then transition all eight rows atomically.
+
+## 2026-07-17 - Collaboration Cluster Verification
+
+- Deleted all 15 orphan feature files, including its test, types, state,
+  hooks, component barrel, and feature barrel. Removed only the phantom
+  collaboration channel/request/event types, URL resolver, dispatch arms, and
+  the descriptive feature-index row.
+- Post-delete source census over the same roots returned **zero** for all
+  code-owned feature/REST/WS identifiers. Protected review URL/channel census
+  remained nonzero in the real Governance/Evidence consumers and tests.
+- The first typecheck exposed one consequential narrowing issue: after the
+  collaboration request union vanished, the review-only WebSocket request was
+  no longer narrowed to `never` through a switch default. The resolver was
+  reduced to its single typed review path; no opportunistic refactor occurred.
+- Final explicit typecheck: **PASS, 131.69 seconds**.
+- A concurrent broad Evidence test first hit its existing 15-second timeout
+  under three simultaneous gates. Serial replay of all affected tests then
+  passed: **3 files / 18 tests, 62.49 seconds wall**. This was resource
+  contention, not admitted baseline debt or an application fix.
+- Scoped lint over the three surviving realtime files: **PASS, 0 diagnostics,
+  31.69 seconds**.
+- Production build/PWA/postbuild security: **PASS, 152.91 seconds**;
+  3,880 modules, 102 precache entries. The built manifest, service worker, and
+  assets contain zero retired feature/REST/WS identifiers and retain the real
+  review collaboration chunk/channels.
+- Application diff for this cluster: **2 lines added, 2,116 lines deleted,
+  15 files deleted**. Flags, permissions, telemetry, locale catalogs,
+  dependencies, `package.json`, and `pnpm-lock.yaml` are unchanged.
+
+The eight collaboration rows may now transition atomically from
+`delete_pending` to `deleted` against census `census-collaboration-delete`.

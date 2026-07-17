@@ -1127,6 +1127,9 @@ def validate_register(
     if audit_ids != expected_negatives:
         errors.append("seeded_negative_source_drift")
     for negative_id, row in negative_rows.items():
+        for census_id in row.get("deletion_census_ids", []):
+            if census_id not in censuses:
+                errors.append(f"seeded_negative_census_missing:{negative_id}:{census_id}")
         if row["lifecycle"] == "obsolete_by_deletion":
             if not row.get("deletion_census_ids"):
                 errors.append(f"obsolete_negative_receipt_missing:{negative_id}")

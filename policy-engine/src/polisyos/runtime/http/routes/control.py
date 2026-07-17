@@ -32,7 +32,6 @@ from polisyos.core.contracts.control import (
     LexGraphStatsResponse,
     LexPipelineStatusResponse,
     LexSearchRequest,
-    LexSearchResponse,
     LexTriggerRequest,
     LexTriggerResponse,
     ModelProfilesListResponse,
@@ -57,6 +56,7 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import bad_request, not_found
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
+from polisyos.runtime.http.services.control.lex_search_projection import LexSearchResponse
 from polisyos.runtime.http.services.sae_spatial_service import SAESpatialService
 
 if TYPE_CHECKING:

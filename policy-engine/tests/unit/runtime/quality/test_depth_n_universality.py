@@ -2417,6 +2417,12 @@ def _historical_projection_rebind_fixture() -> tuple[
             {
                 "disposition": "novel_cg3",
                 "reason": "cg2_revalidation_failed",
+                "lever_resolution": {
+                    "lever_id": "cash_transfer",
+                    "content_hash": "sha256:" + "1" * 64,
+                    "context_binding_hash": "sha256:" + "1" * 64,
+                    "substrate_input_content_hash": "sha256:" + "1" * 64,
+                },
                 "bridge_missing_records": [
                     {
                         "record_id": "cg5_ticket_" + "2" * 16,
@@ -2447,6 +2453,7 @@ def _historical_projection_rebind_fixture() -> tuple[
         "role": "first_vertical",
         "model_id": validator.PROOF_MODEL_ID,
         "effective_environment": {},
+        "cycle_substrate_context_content_hash": "sha256:" + "9" * 64,
         "responses": [
             {
                 "prompt_hash": prompt_hash,
@@ -2513,6 +2520,258 @@ def test_historical_n4_projection_rebind_rejects_tamper_and_nonidentity() -> Non
     ]["raw_response"]
     assert "proof_n4_recording_raw_response_hash_mismatch" in (
         validator._historical_n4_projection_rebind_receipt_issues(normalized)
+    )
+
+
+def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> None:
+    """A later path-only context rebase preserves the prior N4 proof chain."""
+
+    validator, recording, first_projection = (
+        _historical_projection_rebind_fixture()
+    )
+    first = validator._normalize_replayed_n4_recording(
+        recording,
+        replayed_projection=first_projection,
+    )
+    context_projection = copy.deepcopy(first_projection)
+    context_projection["exact_call_prompt_hashes"][0] = "sha256:" + "6" * 64
+    context_projection["lever_space_prompt_slice_content_hash"] = (
+        "sha256:" + "7" * 64
+    )
+    bridge = context_projection["grounding_dispositions"][0][
+        "bridge_missing_records"
+    ][0]
+    bridge["record_id"] = "cg5_ticket_" + "8" * 16
+    bridge["content_hash"] = "sha256:" + "8" * 64
+    lever_resolution = context_projection["grounding_dispositions"][0][
+        "lever_resolution"
+    ]
+    lever_resolution["content_hash"] = "sha256:" + "8" * 64
+    lever_resolution["context_binding_hash"] = "sha256:" + "8" * 64
+    lever_resolution["substrate_input_content_hash"] = "sha256:" + "8" * 64
+
+    chained = validator._normalize_replayed_n4_recording(
+        first,
+        replayed_projection=context_projection,
+        context_rebind=("sha256:" + "9" * 64, "sha256:" + "a" * 64),
+    )
+
+    receipt = chained["historical_projection_rebind_receipt"]
+    assert receipt["eligible_issue_set"] == [
+        "domain_run_context_binding_drift",
+        "proof_n4_owner_projection_replay_drift",
+    ]
+    assert receipt["prior_receipt"]["receipt_content_hash"] == first[
+        "historical_projection_rebind_receipt"
+    ]["receipt_content_hash"]
+    assert receipt["historical_context_content_hash"] == "sha256:" + "9" * 64
+    assert receipt["replayed_context_content_hash"] == "sha256:" + "a" * 64
+    assert validator._historical_n4_projection_rebind_receipt_issues(chained) == ()
+    assert validator._recompute_historical_n4_recording_content_hash(chained) == (
+        first["recording_content_hash"]
+    )
+
+    semantic_drift = copy.deepcopy(context_projection)
+    semantic_drift["grounding_dispositions"][0]["disposition"] = "shadow_bound"
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="proof_n4_owner_projection_replay_drift",
+    ):
+        validator._normalize_replayed_n4_recording(
+            first,
+            replayed_projection=semantic_drift,
+            context_rebind=(
+                "sha256:" + "9" * 64,
+                "sha256:" + "a" * 64,
+            ),
+        )
+
+    lever_drift = copy.deepcopy(context_projection)
+    lever_drift["grounding_dispositions"][0]["lever_resolution"][
+        "lever_id"
+    ] = "education_grant"
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="proof_n4_owner_projection_replay_drift",
+    ):
+        validator._normalize_replayed_n4_recording(
+            first,
+            replayed_projection=lever_drift,
+            context_rebind=(
+                "sha256:" + "9" * 64,
+                "sha256:" + "a" * 64,
+            ),
+        )
+
+
+def test_historical_context_rebind_allows_only_content_identity_drift() -> None:
+    """A context rebind cannot hide a terminal or owner-status change."""
+
+    validator = _universality_contract_validator()
+    historical = {
+        "content_hash": "sha256:" + "1" * 64,
+        "cycle_substrate_context_ref": "sha256:" + "2" * 64,
+        "recursive_run_content_hash": "sha256:" + "3" * 64,
+        "generation_cycle_run_id": "generation_cycle_" + "4" * 16,
+        "stage_trace": {
+            "generation": {
+                "status": "generated",
+                "prompt_slice_content_hash": "sha256:" + "5" * 64,
+            },
+            "grounding": {
+                "requirement_gap_id": "gap_" + "1" * 16,
+                "evidence_refs": ["sha256:" + "2" * 64],
+                "metric_id": "employment_rate",
+            },
+        },
+        "terminal_distribution": {
+            "terminal_kind": "acquisition_required",
+            "evidence_kind": "owner_acquisition_route",
+            "decision_grade": "blocked",
+            "count": 1,
+        },
+    }
+    replayed = copy.deepcopy(historical)
+    replayed.update(
+        {
+            "content_hash": "sha256:" + "6" * 64,
+            "cycle_substrate_context_ref": "sha256:" + "7" * 64,
+            "recursive_run_content_hash": "sha256:" + "8" * 64,
+            "generation_cycle_run_id": "generation_cycle_" + "9" * 16,
+        }
+    )
+    replayed["stage_trace"]["generation"]["prompt_slice_content_hash"] = (
+        "sha256:" + "a" * 64
+    )
+    replayed["stage_trace"]["grounding"]["requirement_gap_id"] = (
+        "gap_" + "b" * 16
+    )
+    replayed["stage_trace"]["grounding"]["evidence_refs"][0] = (
+        "sha256:" + "c" * 64
+    )
+
+    assert validator._context_rebind_semantic_diff_paths(
+        historical,
+        replayed,
+    ) == ()
+
+    replayed["terminal_distribution"]["terminal_kind"] = "grounded_admissible"
+    assert validator._context_rebind_semantic_diff_paths(
+        historical,
+        replayed,
+    ) == ("terminal_distribution.terminal_kind",)
+    replayed["terminal_distribution"]["terminal_kind"] = "acquisition_required"
+    replayed["stage_trace"]["grounding"]["metric_id"] = "unemployment_rate"
+    assert validator._context_rebind_semantic_diff_paths(
+        historical,
+        replayed,
+    ) == ("stage_trace.grounding.metric_id",)
+
+
+def test_historical_context_rebind_receipt_binds_route_and_raw_evidence() -> None:
+    """The one-time context migration is replay proof, not a pinned exception."""
+
+    validator = _universality_contract_validator()
+    old_context = "sha256:" + "1" * 64
+    new_context = "sha256:" + "2" * 64
+    recording = {
+        "cycle_substrate_context_content_hash": old_context,
+        "compiled_run_content_hash": "sha256:" + "3" * 64,
+        "compiler_recording": {
+            "recording_content_hash": "sha256:" + "4" * 64,
+        },
+        "n4_recording": {
+            "recording_content_hash": "sha256:" + "5" * 64,
+        },
+    }
+    historical = {
+        "domain_role": "education",
+        "cycle_substrate_context_ref": old_context,
+        "stage_trace": {"value": {"status": "acquisition_required"}},
+        "terminal_distribution": {
+            "terminal_kind": "acquisition_required",
+            "evidence_kind": "owner_acquisition_route",
+            "decision_grade": "blocked",
+            "count": 1,
+        },
+        "content_hash": "sha256:" + "6" * 64,
+    }
+    replayed = copy.deepcopy(historical)
+    replayed["cycle_substrate_context_ref"] = new_context
+    replayed["content_hash"] = "sha256:" + "7" * 64
+
+    receipt = validator._build_historical_context_rebind_receipt(
+        recording,
+        historical_domain_run=historical,
+        replayed_domain_run=replayed,
+        replayed_context_content_hash=new_context,
+        replayed_compiled_run_content_hash="sha256:" + "8" * 64,
+        replayed_n4_recording_content_hash="sha256:" + "9" * 64,
+    )
+
+    assert receipt["eligible_issue_set"] == ["domain_run_context_binding_drift"]
+    assert receipt["historical_context_content_hash"] == old_context
+    assert receipt["replayed_context_content_hash"] == new_context
+    assert receipt["compiler_recording_content_hash"] == "sha256:" + "4" * 64
+    assert receipt["historical_n4_recording_content_hash"] == (
+        "sha256:" + "5" * 64
+    )
+    assert receipt["replayed_n4_recording_content_hash"] == (
+        "sha256:" + "9" * 64
+    )
+    assert receipt["changed_identity_paths"] == [
+        "content_hash",
+        "cycle_substrate_context_ref",
+    ]
+    normalized_recording = copy.deepcopy(recording)
+    normalized_recording["cycle_substrate_context_content_hash"] = new_context
+    normalized_recording["compiled_run_content_hash"] = "sha256:" + "8" * 64
+    normalized_recording["n4_recording"]["recording_content_hash"] = (
+        "sha256:" + "9" * 64
+    )
+    normalized_recording["historical_context_rebind_receipt"] = receipt
+    assert validator._historical_context_rebind_receipt_issues(
+        normalized_recording,
+        replayed_domain_run=replayed,
+    ) == ()
+
+    semantic_drift = copy.deepcopy(replayed)
+    semantic_drift["terminal_distribution"]["decision_grade"] = "admissible"
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="domain_run_context_rebind_semantic_drift",
+    ):
+        validator._build_historical_context_rebind_receipt(
+            recording,
+            historical_domain_run=historical,
+            replayed_domain_run=semantic_drift,
+            replayed_context_content_hash=new_context,
+            replayed_compiled_run_content_hash="sha256:" + "8" * 64,
+            replayed_n4_recording_content_hash="sha256:" + "9" * 64,
+        )
+
+    tampered = copy.deepcopy(normalized_recording)
+    tampered_receipt = tampered["historical_context_rebind_receipt"]
+    tampered_receipt["historical_route_projection"]["terminal_distribution"][
+        "decision_grade"
+    ] = "admissible"
+    tampered_receipt["historical_route_projection_content_hash"] = (
+        validator._semantic_hash(
+            tampered_receipt["historical_route_projection"]
+        )
+    )
+    tampered_receipt["receipt_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in tampered_receipt.items()
+            if key != "receipt_content_hash"
+        }
+    )
+    assert "domain_run_context_rebind_semantic_drift" in (
+        validator._historical_context_rebind_receipt_issues(
+            tampered,
+            replayed_domain_run=replayed,
+        )
     )
 
 
@@ -2590,15 +2849,21 @@ async def test_complete_payload_persists_normalized_recordings(
         role: {"role": role, "recording_content_hash": f"legacy-{role}"}
         for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
     }
+    historical = {
+        role: {"domain_role": role}
+        for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS
+    }
 
     async def _rederive(
         repo_root: Path,
         *,
         role: str,
         recording: dict[str, Any],
+        historical_domain_run: dict[str, Any] | None = None,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         assert repo_root == tmp_path
         assert recording is not source[role]
+        assert historical_domain_run == historical[role]
         run = {
             "terminal_distribution": {
                 "terminal_kind": "acquisition_required",
@@ -2627,6 +2892,7 @@ async def test_complete_payload_persists_normalized_recordings(
     payload = await validator._complete_payload_from_recordings(
         tmp_path,
         recordings=source,
+        historical_domain_runs=historical,
     )
 
     assert {

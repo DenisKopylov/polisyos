@@ -382,3 +382,65 @@ route had **2** index children where the invariant requires **1**; the other
 
 `route-home-clerk-duplicate` may now transition from `delete_pending` to
 `deleted` against census `census-duplicate-clerk-index-delete`.
+
+## 2026-07-17 - WhatIf Dead Parameter Subgraph Pre-Deletion Census
+
+- Clean cluster start: HEAD `42fcabe17`; root
+  `cache-whatif-scenarios` and subunit
+  `feature-whatif::legacy-local-whatif-subgraph` are `delete_pending` against
+  DS1 evidence. The parent `feature-whatif` remains `rebind_pending` for DS8.
+- The candidate is exactly **7 files / 805 lines**: four parameter-panel
+  components, their barrel, the Zustand store, and legacy types. No candidate
+  owns tests or stories.
+- All legacy identifiers and the `polisyos.runtime.whatif` key are confined to
+  those files plus two code-owned edges: re-exports in `whatif/index.ts` and
+  an optional `parameters` branch in `ScenarioWorkbench`. The sole live
+  workbench caller passes only `runId`, so that branch is unreachable. Fresh
+  route, dynamic/lazy import, flag/event, test/story/e2e, package, manifest,
+  and service-worker searches found no other consumer.
+- The API-backed workbench remains live through OverviewTab,
+  `useRunScenarios`, counterfactual metrics, interventions, validation,
+  shell controls, and the counterfactual journey. The
+  `enableWhatIfAnalysis` declaration/default, all locale catalogs (including
+  frozen Russian continuity), shared counterfactual UI, and public signing are
+  protected and untouched.
+- The co-located checker omitted `components/index.ts` from its governed
+  absence list. DS19 will add that seventh path before claiming terminal
+  deletion so the register proof covers the complete owned subgraph.
+
+The fresh census authorizes only the seven-file deletion and removal of the
+unreachable props/branch and obsolete barrel exports.
+
+## 2026-07-17 - WhatIf Dead Parameter Subgraph Cluster Verification
+
+- Deleted all **7 candidate files / 805 lines**, removed the unreachable
+  optional props/branch from ScenarioWorkbench, and removed only the obsolete
+  barrel exports. Total application diff: **0 lines added, 833 lines deleted,
+  7 files deleted**.
+- Post-delete source and production-bundle census is **zero** for every legacy
+  panel/store identifier and `polisyos.runtime.whatif`. The live OverviewTab
+  mount, scenario/metric API hooks, interventions, validation, shell rail,
+  shared controls, flag declaration, locales, and public-signing chain remain.
+- Extended the checker’s code-owned path set with `components/index.ts`, so
+  terminal proof covers all seven deleted files rather than six.
+- Explicit typecheck: **PASS, 18.71 seconds**.
+- Affected counterfactual/layout/run-detail tests: **3 files / 25 tests,
+  PASS, 9.59 seconds**.
+- Scoped lint over the changed workbench/barrel and every protected consumer
+  and journey file touched by the census: **PASS, 0 diagnostics,
+  13.70 seconds**.
+- Production build/PWA/postbuild security: **PASS, 25.50 seconds**;
+  3,871 modules and 101 precache entries. The OverviewTab workbench bundle
+  remains and shrank; retired identifiers are absent.
+- An additional focused Playwright counterfactual journey was attempted but
+  did not execute: the worktree’s pre-existing `.venv` contains no Python
+  executable, so its fixture web server exited before browser startup. This is
+  recorded as infrastructure evidence only and does not replace the 25 green
+  affected tests.
+- No flag, telemetry, locale, dependency, package, lockfile, browser-signing,
+  or public-route file changed.
+
+`cache-whatif-scenarios` and the legacy-local subunit may now transition from
+`delete_pending` to `deleted` against census
+`census-whatif-local-subgraph-delete`. Parent `feature-whatif` remains
+`rebind_pending`; DS1-N015 becomes `partially_reduced`, never a passing test.

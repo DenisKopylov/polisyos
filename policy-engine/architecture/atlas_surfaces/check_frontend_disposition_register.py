@@ -200,6 +200,7 @@ CLUSTER_PROOFS = {
             "apps/runtime-dashboard/src/features/whatif/components/ParameterSlider.tsx",
             "apps/runtime-dashboard/src/features/whatif/components/ImpactPreview.tsx",
             "apps/runtime-dashboard/src/features/whatif/components/ScenarioSnapshot.tsx",
+            "apps/runtime-dashboard/src/features/whatif/components/index.ts",
             "apps/runtime-dashboard/src/features/whatif/state/useWhatIfStore.ts",
             "apps/runtime-dashboard/src/features/whatif/types.ts",
         ],

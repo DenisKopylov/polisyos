@@ -2,7 +2,7 @@
   "$schema": "./frontend-disposition-register.schema.json",
   "schema_version": "1.0",
   "register_id": "atlas-ds19-frontend-disposition",
-  "as_of": "2026-07-17T11:55:00+03:00",
+  "as_of": "2026-07-17T11:51:00+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
   "authority": {
     "authoritative_for": [
@@ -227,7 +227,7 @@
     },
     {
       "census_id": "census-onboarding-delete",
-      "captured_at": "2026-07-17T11:40:00+03:00",
+      "captured_at": "2026-07-17T11:38:00+03:00",
       "covers_unit_ids": [
         "feature-onboarding-orphan"
       ],
@@ -272,7 +272,7 @@
     },
     {
       "census_id": "census-layout-placeholder-delete",
-      "captured_at": "2026-07-17T11:45:00+03:00",
+      "captured_at": "2026-07-17T11:40:00+03:00",
       "covers_unit_ids": [
         "feature-layout-empty"
       ],
@@ -313,7 +313,7 @@
     },
     {
       "census_id": "census-zero-consumer-workers-delete",
-      "captured_at": "2026-07-17T11:50:00+03:00",
+      "captured_at": "2026-07-17T11:43:00+03:00",
       "covers_unit_ids": [
         "worker-data-transform",
         "worker-dag-layout",
@@ -362,7 +362,7 @@
     },
     {
       "census_id": "census-duplicate-clerk-index-delete",
-      "captured_at": "2026-07-17T11:55:00+03:00",
+      "captured_at": "2026-07-17T11:47:00+03:00",
       "covers_unit_ids": [
         "route-home-clerk-duplicate"
       ],
@@ -400,6 +400,60 @@
       ],
       "verification_refs": [
         "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---duplicate-clerk-index-cluster-verification"
+      ]
+    },
+    {
+      "census_id": "census-whatif-local-subgraph-delete",
+      "captured_at": "2026-07-17T11:51:00+03:00",
+      "covers_unit_ids": [
+        "cache-whatif-scenarios",
+        "feature-whatif::legacy-local-whatif-subgraph"
+      ],
+      "ds1_evidence_ids": [
+        "cache-whatif-scenarios",
+        "feature-whatif"
+      ],
+      "result": "zero_consumers",
+      "probes": [
+        {
+          "kind": "path_absent",
+          "targets": [
+            "apps/runtime-dashboard/src/features/whatif/components/WhatIfPanel.tsx",
+            "apps/runtime-dashboard/src/features/whatif/components/ParameterSlider.tsx",
+            "apps/runtime-dashboard/src/features/whatif/components/ImpactPreview.tsx",
+            "apps/runtime-dashboard/src/features/whatif/components/ScenarioSnapshot.tsx",
+            "apps/runtime-dashboard/src/features/whatif/components/index.ts",
+            "apps/runtime-dashboard/src/features/whatif/state/useWhatIfStore.ts",
+            "apps/runtime-dashboard/src/features/whatif/types.ts"
+          ],
+          "scan_roots": [],
+          "expected_count": 0,
+          "observed_refs": []
+        },
+        {
+          "kind": "reference_count",
+          "targets": [
+            "WhatIfPanel",
+            "ParameterSlider",
+            "ImpactPreview",
+            "ScenarioSnapshot",
+            "useWhatIfStore",
+            "polisyos.runtime.whatif"
+          ],
+          "scan_roots": [
+            "apps/runtime-dashboard/src",
+            "apps/runtime-dashboard/e2e",
+            "apps/runtime-dashboard/.storybook",
+            "apps/runtime-dashboard/scripts",
+            "apps/runtime-dashboard/package.json",
+            "packages"
+          ],
+          "expected_count": 0,
+          "observed_refs": []
+        }
+      ],
+      "verification_refs": [
+        "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---whatif-dead-parameter-subgraph-cluster-verification"
       ]
     }
   ],
@@ -4209,13 +4263,14 @@
         "ds1_entry_id": "cache-whatif-scenarios",
         "ds2_adoption_ids": []
       },
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
       "seed_rule": "ds19_named_zero_consumer_candidate",
-      "rationale": "DS1 named this false or zero-consumer substrate for DS19; deletion remains pending until a fresh live census is zero."
+      "rationale": "Fresh DS19 census proved the local WhatIf scenario cache belonged only to an unreachable parameter subgraph, so it was deleted while the API-backed workbench remained live.",
+      "reference_census_id": "census-whatif-local-subgraph-delete"
     },
     {
       "unit_id": "cache-causal-drafts",
@@ -4523,15 +4578,17 @@
         "apps/runtime-dashboard/src/features/whatif/components/ParameterSlider.tsx",
         "apps/runtime-dashboard/src/features/whatif/components/ImpactPreview.tsx",
         "apps/runtime-dashboard/src/features/whatif/components/ScenarioSnapshot.tsx",
+        "apps/runtime-dashboard/src/features/whatif/components/index.ts",
         "apps/runtime-dashboard/src/features/whatif/state/useWhatIfStore.ts",
         "apps/runtime-dashboard/src/features/whatif/types.ts"
       ],
-      "disposition": "delete_pending",
-      "strangle_status": "pending",
+      "disposition": "deleted",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS19",
       "decision_date": "2026-07-17",
-      "rationale": "Only the unreachable local parameter/store branch is a deletion candidate; the server-backed ScenarioWorkbench remains live."
+      "rationale": "Fresh DS19 census proved the seven-file local parameter/store branch and its optional workbench edge unreachable; it was deleted while the server-backed ScenarioWorkbench remained live.",
+      "reference_census_id": "census-whatif-local-subgraph-delete"
     },
     {
       "unit_id": "route-app-layout::ru-ui-catalog",
@@ -4828,12 +4885,15 @@
     {
       "negative_id": "DS1-N015",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:827",
-      "lifecycle": "still_required",
+      "lifecycle": "partially_reduced",
       "affected_unit_ids": [
         "feature-whatif::legacy-local-whatif-subgraph"
       ],
+      "deletion_census_ids": [
+        "census-whatif-local-subgraph-delete"
+      ],
       "may_count_as_passing_test": false,
-      "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
+      "rationale": "Deleting the unpartitioned local WhatIf store removes one named cache case, but Clerk, causal, dispute, review-attention, operator-craft, and composer local-state cases still require their owning slices."
     },
     {
       "negative_id": "DS1-N016",

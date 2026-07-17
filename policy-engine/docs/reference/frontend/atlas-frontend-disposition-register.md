@@ -46,17 +46,16 @@ not changed.
 ## Wave reduction measured from the repaired baseline
 
 - Application lines added: **14**
-- Application lines deleted: **3186**
-- Net application LOC reduction: **3172**
-- Application files deleted: **26**
+- Application lines deleted: **4019**
+- Net application LOC reduction: **4005**
+- Application files deleted: **33**
 
 <!-- BEGIN DS19 REGISTER PROJECTION -->
 ### Register statistics
 
 | Disposition | Root units |
 | --- | ---: |
-| `delete_pending` | 1 |
-| `deleted` | 14 |
+| `deleted` | 15 |
 | `rebind_pending` | 200 |
 | `retire_disposition` | 25 |
 | `use_as_is` | 5 |
@@ -74,7 +73,7 @@ DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are evi
 | layout-placeholder | `feature-layout-empty` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---empty-layout-placeholder-cluster-verification` |
 | workers | `worker-dag-layout`, `worker-data-transform`, `worker-json-parse` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---zero-consumer-workers-cluster-verification` |
 | clerk-index | `route-home-clerk-duplicate` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---duplicate-clerk-index-cluster-verification` |
-| whatif-local | `cache-whatif-scenarios`, `feature-whatif::legacy-local-whatif-subgraph` | not yet captured | `pending` | pending |
+| whatif-local | `cache-whatif-scenarios`, `feature-whatif::legacy-local-whatif-subgraph` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---whatif-dead-parameter-subgraph-cluster-verification` |
 
 ### Wire dispositions — 13 OpenAPI operations
 
@@ -138,7 +137,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 | ID | Kind | Disposition | Owner slice | State/reason |
 | --- | --- | --- | --- | --- |
-| `feature-whatif::legacy-local-whatif-subgraph` | `dead_subgraph` | `delete_pending` | `DS19` | Only the unreachable local parameter/store branch is a deletion candidate; the server-backed ScenarioWorkbench remains live. |
+| `feature-whatif::legacy-local-whatif-subgraph` | `dead_subgraph` | `deleted` | `DS19` | Fresh DS19 census proved the seven-file local parameter/store branch and its optional workbench edge unreachable; it was deleted while the server-backed ScenarioWorkbench remained live. |
 | `route-app-layout::ru-ui-catalog` | `legacy_continuity` | `frozen_legacy_continuity` | `DS0` | Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. |
 | `baseline-lint-quantity-debt` | `baseline_lint_debt` | `rebind_pending` | `DS4` | `open_debt` — The exact 75 policyos/quantity-must-be-wrapped diagnostics are DS4 quantity-family rebinding debt; DS19 admits no new diagnostic. |
 | `baseline-test-i18n-count-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `open_debt` — Three count-sensitive locale parity failures reproduce on the parent and belong to DS4 quantity/message rebinding. |
@@ -170,7 +169,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `DS1-N012` | `still_required` | — | — |
 | `DS1-N013` | `still_required` | — | — |
 | `DS1-N014` | `still_required` | — | — |
-| `DS1-N015` | `still_required` | `feature-whatif::legacy-local-whatif-subgraph` | — |
+| `DS1-N015` | `partially_reduced` | `feature-whatif::legacy-local-whatif-subgraph` | `census-whatif-local-subgraph-delete` |
 | `DS1-N016` | `still_required` | — | — |
 | `DS1-N017` | `partially_reduced` | `flag-enable-causal-graph`, `flag-enable-collaboration`, `flag-enable-command-palette`, `flag-enable-what-if-analysis` | `census-collaboration-delete` |
 | `DS1-N018` | `still_required` | — | — |
@@ -423,7 +422,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `cache-query-memory` | `cache-query-memory` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `cache-local-storage-state` | `cache-local-storage-state` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `cache-clerk-sessions` | `cache-clerk-sessions` | 0 | `rebind_pending` | `pending` | `DS14` | `—` |
-| `cache-whatif-scenarios` | `cache-whatif-scenarios` | 0 | `delete_pending` | `pending` | `DS19` | `—` |
+| `cache-whatif-scenarios` | `cache-whatif-scenarios` | 0 | `deleted` | `strangled` | `DS19` | `census-whatif-local-subgraph-delete` |
 | `cache-causal-drafts` | `cache-causal-drafts` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `cache-local-disputes` | `cache-local-disputes` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `cache-review-attention` | `cache-review-attention` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
@@ -449,6 +448,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `42fcabe17 refactor(frontend): delete duplicate Clerk index route`
 - `b66e77314 refactor(frontend): delete zero-consumer workers`
 - `9b25c0ca0 refactor(frontend): delete empty layout placeholder`
 - `2bbdfac4e refactor(frontend): delete orphan onboarding`

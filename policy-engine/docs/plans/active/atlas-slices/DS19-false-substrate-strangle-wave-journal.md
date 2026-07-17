@@ -261,3 +261,35 @@ zero while Operator Craft remains live, and run the cluster gates.
 
 `feature-onboarding-orphan` may now transition atomically from
 `delete_pending` to `deleted` against census `census-onboarding-delete`.
+
+## 2026-07-17 - Empty Layout Placeholder Pre-Deletion Census
+
+- Clean cluster start: HEAD `2bbdfac4e`; `feature-layout-empty` is
+  `delete_pending`, with DS1 evidence at its sole seven-line placeholder
+  `src/features/layout/components/README.md`.
+- The feature directory contains exactly that README. Fresh static, dynamic,
+  route, string, story, e2e, package, manifest, and service-worker searches
+  found **zero** imports or consumers of `features/layout`.
+- The real application layout owner is separate and live under
+  `src/app/layout`: AppShell, desktop/mobile navigation, runtime banner,
+  shortcuts, and their layout-surface test remain protected.
+
+The zero-consumer census authorizes deletion of the placeholder and its empty
+feature directories only.
+
+## 2026-07-17 - Empty Layout Placeholder Cluster Verification
+
+- Deleted the sole **7-line** placeholder README and removed its now-empty
+  `features/layout/components` and `features/layout` directories.
+- Post-delete census over every DS19 scan root remains at **zero** for
+  `features/layout`; the live `app/layout` owner and its seven files remain.
+- Explicit typecheck: **PASS, 14.96 seconds**.
+- Affected layout-surface test: **1 file / 9 tests, PASS, 4.02 seconds**.
+- Scoped lint over the protected `src/app/layout` owner: **PASS,
+  0 diagnostics, 2.27 seconds**.
+- Production build/PWA/postbuild security: **PASS, 26.22 seconds**;
+  3,880 modules and 102 precache entries.
+- Application diff: **0 lines added, 7 lines deleted, 1 file deleted**.
+
+`feature-layout-empty` may now transition from `delete_pending` to `deleted`
+against census `census-layout-placeholder-delete`.

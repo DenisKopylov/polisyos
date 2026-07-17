@@ -1992,6 +1992,8 @@ export interface components {
             replay_address?: null;
             /** Source */
             source?: null;
+            /** Source Dependency Hash */
+            source_dependency_hash?: null;
             /** Source Rule Version */
             source_rule_version?: null;
             /** Source Schema Version */
@@ -2504,6 +2506,8 @@ export interface components {
             /** Replay Address */
             replay_address: string;
             source: components["schemas"]["ProjectionSourceIdentity"];
+            /** Source Dependency Hash */
+            source_dependency_hash: string;
             /** Source Rule Version */
             source_rule_version?: string | null;
             /** Source Schema Version */
@@ -6129,6 +6133,8 @@ export interface components {
             /** Replay Address */
             replay_address?: null;
             source: components["schemas"]["ProjectionSourceIdentity"];
+            /** Source Dependency Hash */
+            source_dependency_hash?: null;
             /** Source Rule Version */
             source_rule_version?: string | null;
             /** Source Schema Version */
@@ -8230,16 +8236,24 @@ export interface components {
         ProjectionSourceValidation: {
             /** Bound Artifact Content Hash */
             bound_artifact_content_hash: string;
+            /** Bound Dependency Aggregate Identity */
+            bound_dependency_aggregate_identity: string;
+            /** Bound Dependency Count */
+            bound_dependency_count: number;
             /**
              * Issue Codes
              * @default []
              */
             issue_codes: string[];
+            /** Semantic Projection Hash */
+            semantic_projection_hash?: string | null;
+            /** Semantic Projection Hash Rule Version */
+            semantic_projection_hash_rule_version?: string | null;
             /**
              * Status
              * @enum {string}
              */
-            status: "passed" | "failed";
+            status: "passed" | "failed" | "not_run";
             /** Validator Id */
             validator_id: string;
             /** Validator Version */
@@ -15225,6 +15239,7 @@ export interface operations {
             query?: {
                 artifact_content_hash?: string | null;
                 projection_hash?: string | null;
+                source_dependency_hash?: string | null;
                 source_as_of?: string | null;
             };
             header?: never;

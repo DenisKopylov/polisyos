@@ -63,7 +63,8 @@ from polisyos.runtime.http.services.channel_contracts import (
     RunsListSnapshotPage,
     RunsListSnapshotRun,
     RunsLiveSnapshot,
-    validate_runs_live_snapshot,
+    RunsStreamTimeout,
+    validate_runs_channel_data_event,
 )
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 from polisyos.runtime.quality.approval import (
@@ -148,6 +149,22 @@ def _encode_sse(
     lines.append(f"event: {event}")
     lines.append(f"data: {json.dumps(payload, default=_json_default, sort_keys=True)}")
     return "\n".join(lines) + "\n\n"
+
+
+def _encode_validated_runs_sse(
+    payload: object,
+    *,
+    event: str,
+    event_id: str | None = None,
+) -> str:
+    """Validate and encode one data-bearing runs SSE event."""
+
+    validated = validate_runs_channel_data_event(payload, event=event)
+    return _encode_sse(
+        validated.payload.model_dump(mode="json"),
+        event=validated.event,
+        event_id=event_id,
+    )
 
 
 def _payload_signature(payload: dict[str, Any]) -> str:
@@ -640,18 +657,18 @@ async def _stream_payloads(
         if await request.is_disconnected():
             break
         if monotonic() - started_at >= policy.max_duration_seconds:
-            now = datetime.now(UTC).replace(microsecond=0).isoformat()
-            yield _encode_sse(
-                {
-                    "cursor": now,
-                    "generated_at": now,
-                    "reason": "stream_timeout_budget_exhausted",
-                },
+            now = datetime.now(UTC).replace(microsecond=0)
+            yield _encode_validated_runs_sse(
+                RunsStreamTimeout(cursor=now, generated_at=now),
                 event="stream.timeout",
             )
             break
-        snapshot = validate_runs_live_snapshot(builder())
-        payload = snapshot.model_dump(mode="json")
+        snapshot = builder()
+        payload = (
+            snapshot.model_dump(mode="json")
+            if hasattr(snapshot, "model_dump")
+            else cast("dict[str, Any]", snapshot)
+        )
         signature = _payload_signature(payload)
         should_emit = signature != previous_signature
         if should_emit:
@@ -659,7 +676,11 @@ async def _stream_payloads(
             last_emit_at = monotonic()
             sleep_seconds = policy.min_interval_seconds
             event_id = str(payload.get("cursor") or payload.get("generated_at") or "")
-            yield _encode_sse(payload, event="snapshot", event_id=event_id or None)
+            yield _encode_validated_runs_sse(
+                snapshot,
+                event="snapshot",
+                event_id=event_id or None,
+            )
             if payload.get("terminal") is True:
                 break
         elif monotonic() - last_emit_at >= policy.keepalive_seconds:
@@ -1346,10 +1367,13 @@ if router is not None:
             ctx.lineage.assert_run_decision_surface_allowed(
                 run, surface="run_fabric_decision_data"
             )
-            quantities, runtime_coverage, entries = ctx.lineage.build_quantity_inventory_for_run(run)
+            quantities, runtime_coverage, entries = (
+                ctx.lineage.build_quantity_inventory_for_run(run)
+            )
         except LineageSurfaceAdmissionError as exc:
             raise conflict(
-                "Run fabric decision data blocked or downgraded by composed authority surface admission",
+                "Run fabric decision data blocked or downgraded by composed authority "
+                "surface admission",
                 code="authority_surface_admission_blocked",
                 extensions={
                     "run_id": run_id,

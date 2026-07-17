@@ -11,5 +11,12 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["runtimeApiClient.ts", "runtimeApiClient.js", "types.ts"]
+  "include": [
+    "runtimeApiClient.ts",
+    "canonicalRuntimeApiClient.ts",
+    "runtimeApiClient.type-test.ts",
+    "runtimeApiClient.js",
+    "canonicalRuntimeApiClient.js",
+    "types.ts"
+  ]
 }

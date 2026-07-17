@@ -1057,6 +1057,10 @@
             "title": "Source",
             "type": "null"
           },
+          "source_dependency_hash": {
+            "title": "Source Dependency Hash",
+            "type": "null"
+          },
           "source_rule_version": {
             "title": "Source Rule Version",
             "type": "null"
@@ -2441,6 +2445,10 @@
           "source": {
             "$ref": "#/components/schemas/ProjectionSourceIdentity"
           },
+          "source_dependency_hash": {
+            "title": "Source Dependency Hash",
+            "type": "string"
+          },
           "source_rule_version": {
             "anyOf": [
               {
@@ -2478,6 +2486,7 @@
           "stable_address",
           "availability",
           "source",
+          "source_dependency_hash",
           "projection_hash",
           "replay_address",
           "payload"
@@ -11450,6 +11459,10 @@
           "source": {
             "$ref": "#/components/schemas/ProjectionSourceIdentity"
           },
+          "source_dependency_hash": {
+            "title": "Source Dependency Hash",
+            "type": "null"
+          },
           "source_rule_version": {
             "anyOf": [
               {
@@ -16103,6 +16116,15 @@
             "title": "Bound Artifact Content Hash",
             "type": "string"
           },
+          "bound_dependency_aggregate_identity": {
+            "title": "Bound Dependency Aggregate Identity",
+            "type": "string"
+          },
+          "bound_dependency_count": {
+            "minimum": 0.0,
+            "title": "Bound Dependency Count",
+            "type": "integer"
+          },
           "issue_codes": {
             "default": [],
             "items": {
@@ -16111,10 +16133,33 @@
             "title": "Issue Codes",
             "type": "array"
           },
+          "semantic_projection_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Projection Hash"
+          },
+          "semantic_projection_hash_rule_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Semantic Projection Hash Rule Version"
+          },
           "status": {
             "enum": [
               "passed",
-              "failed"
+              "failed",
+              "not_run"
             ],
             "title": "Status",
             "type": "string"
@@ -16132,7 +16177,9 @@
           "validator_id",
           "validator_version",
           "status",
-          "bound_artifact_content_hash"
+          "bound_artifact_content_hash",
+          "bound_dependency_aggregate_identity",
+          "bound_dependency_count"
         ],
         "title": "ProjectionSourceValidation",
         "type": "object"
@@ -36043,10 +36090,10 @@
                             "apps/runtime-dashboard:RunsLiveProvider"
                           ],
                           "include_in_schema": false,
-                          "message_contract": "policyos.runtime.runs_list_snapshot.v1",
+                          "message_contract": "policyos.runtime.runs_channel_data_event.v1",
                           "owner": "polisyos.runtime.http.routes.runs",
                           "path_template": "/api/v1/runs/live",
-                          "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:RunsListSnapshot",
+                          "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent",
                           "registry_id": "runs-list-live",
                           "status": "active",
                           "transport": "sse"
@@ -36059,10 +36106,10 @@
                             "apps/runtime-dashboard:useRunLiveUpdates"
                           ],
                           "include_in_schema": false,
-                          "message_contract": "policyos.runtime.run_detail_snapshot.v1",
+                          "message_contract": "policyos.runtime.runs_channel_data_event.v1",
                           "owner": "polisyos.runtime.http.routes.runs",
                           "path_template": "/api/v1/runs/{run_id}/live",
-                          "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:RunDetailSnapshot",
+                          "producer_contract_ref": "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent",
                           "registry_id": "run-detail-live",
                           "status": "active",
                           "transport": "sse"
@@ -36570,6 +36617,23 @@
           },
           {
             "in": "query",
+            "name": "source_dependency_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Dependency Hash"
+            }
+          },
+          {
+            "in": "query",
             "name": "source_as_of",
             "required": false,
             "schema": {
@@ -36632,7 +36696,7 @@
                       "projection_hash": "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d",
                       "projection_id": "engine-census",
                       "projection_rule_version": "policyos.runtime.governed_projection.v1",
-                      "replay_address": "/api/v1/exports/governed-projections/engine-census?artifact_content_hash=sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb&projection_hash=sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d&source_as_of=2026-02-11T12:00:00Z",
+                      "replay_address": "/api/v1/exports/governed-projections/engine-census?artifact_content_hash=sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb&projection_hash=sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d&source_dependency_hash=sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4&source_as_of=2026-02-11T12:00:00Z",
                       "source": {
                         "artifact_content_hash": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
                         "declared_content_hash": null,
@@ -36640,12 +36704,17 @@
                         "relative_path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json",
                         "validation": {
                           "bound_artifact_content_hash": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                          "bound_dependency_aggregate_identity": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
+                          "bound_dependency_count": 1,
                           "issue_codes": [],
+                          "semantic_projection_hash": "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d",
+                          "semantic_projection_hash_rule_version": "polisyos.pdc.gy_content_hash.v1",
                           "status": "passed",
                           "validator_id": "tools.quality.validation.check_layer3_gy_engine_census:validate",
                           "validator_version": "policyos.policy_design_case.layer3_gy_engine_census.v1"
                         }
                       },
+                      "source_dependency_hash": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
                       "source_rule_version": "policyos.layer3.gy.engine_reality_census.v1",
                       "source_schema_version": "policyos.policy_design_case.layer3_gy_engine_census.v1",
                       "stable_address": "/api/v1/exports/governed-projections/engine-census"

@@ -11,6 +11,8 @@ from polisyos.core.contracts.decision_validity import (  # noqa: TC001 - Pydanti
     DecisionValidityStatus,
 )
 
+RUNS_CHANNEL_DATA_EVENT_CONTRACT = "policyos.runtime.runs_channel_data_event.v1"
+
 
 class _StrictOutboundChannelModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
@@ -84,6 +86,42 @@ class RunDetailSnapshot(_StrictOutboundChannelModel):
 RunsLiveSnapshot = Annotated[
     RunsListSnapshot | RunDetailSnapshot,
     Field(discriminator="contract_id"),
+]
+
+
+class RunsStreamTimeout(_StrictOutboundChannelModel):
+    """Versioned timeout event emitted when a runs stream exhausts its budget."""
+
+    contract_id: Literal["policyos.runtime.runs_stream_timeout"] = (
+        "policyos.runtime.runs_stream_timeout"
+    )
+    schema_version: Literal["policyos.runtime.runs_stream_timeout.v1"] = (
+        "policyos.runtime.runs_stream_timeout.v1"
+    )
+    cursor: AwareDatetime
+    generated_at: AwareDatetime
+    reason: Literal["stream_timeout_budget_exhausted"] = (
+        "stream_timeout_budget_exhausted"
+    )
+
+
+class RunsSnapshotDataEvent(_StrictOutboundChannelModel):
+    """Typed SSE envelope for a runs snapshot data event."""
+
+    event: Literal["snapshot"] = "snapshot"
+    payload: RunsLiveSnapshot
+
+
+class RunsStreamTimeoutDataEvent(_StrictOutboundChannelModel):
+    """Typed SSE envelope for a runs timeout data event."""
+
+    event: Literal["stream.timeout"] = "stream.timeout"
+    payload: RunsStreamTimeout
+
+
+RunsChannelDataEvent = Annotated[
+    RunsSnapshotDataEvent | RunsStreamTimeoutDataEvent,
+    Field(discriminator="event"),
 ]
 
 
@@ -169,6 +207,7 @@ ReviewSnapshot = Annotated[
 ]
 
 _RUNS_LIVE_SNAPSHOT_ADAPTER = TypeAdapter(RunsLiveSnapshot)
+_RUNS_CHANNEL_DATA_EVENT_ADAPTER = TypeAdapter(RunsChannelDataEvent)
 _REVIEW_SNAPSHOT_ADAPTER = TypeAdapter(ReviewSnapshot)
 
 
@@ -176,6 +215,18 @@ def validate_runs_live_snapshot(payload: object) -> RunsLiveSnapshot:
     """Validate one runs SSE snapshot at its final emission boundary."""
 
     return _RUNS_LIVE_SNAPSHOT_ADAPTER.validate_python(payload)
+
+
+def validate_runs_channel_data_event(
+    payload: object,
+    *,
+    event: str,
+) -> RunsChannelDataEvent:
+    """Validate one data-bearing runs SSE event at the emission boundary."""
+
+    return _RUNS_CHANNEL_DATA_EVENT_ADAPTER.validate_python(
+        {"event": event, "payload": payload}
+    )
 
 
 def validate_review_snapshot(payload: object) -> ReviewSnapshot:

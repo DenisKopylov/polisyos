@@ -10,7 +10,7 @@ export default [
   },
   js.configs.recommended,
   {
-    files: ["app.js"],
+    files: ["app.js", "governedProjectionProof.js"],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
@@ -20,7 +20,11 @@ export default [
     },
   },
   {
-    files: ["scripts/**/*.mjs", "eslint.config.mjs"],
+    files: [
+      "governedProjectionProof.test.mjs",
+      "scripts/**/*.mjs",
+      "eslint.config.mjs",
+    ],
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",

@@ -352,15 +352,22 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "validator_version": ("policyos.policy_design_case.layer3_gy_engine_census.v1"),
                 "status": "passed",
                 "bound_artifact_content_hash": _SHA_DATA,
+                "bound_dependency_aggregate_identity": _SHA_BINDINGS,
+                "bound_dependency_count": 1,
+                "semantic_projection_hash": _SHA_PLAN,
+                "semantic_projection_hash_rule_version": (
+                    "polisyos.pdc.gy_content_hash.v1"
+                ),
                 "issue_codes": [],
             },
             "related_artifact_bindings": [],
         },
+        "source_dependency_hash": _SHA_BINDINGS,
         "projection_hash": _SHA_PLAN,
         "replay_address": (
             "/api/v1/exports/governed-projections/engine-census?"
             f"artifact_content_hash={_SHA_DATA}&projection_hash={_SHA_PLAN}&"
-            f"source_as_of={_TS_SAMPLE}"
+            f"source_dependency_hash={_SHA_BINDINGS}&source_as_of={_TS_SAMPLE}"
         ),
         "payload": {
             "row_count": 1,
@@ -383,9 +390,9 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "path_template": "/api/v1/runs/live",
                 "transport": "sse",
                 "channels": [],
-                "message_contract": "policyos.runtime.runs_list_snapshot.v1",
+                "message_contract": "policyos.runtime.runs_channel_data_event.v1",
                 "producer_contract_ref": (
-                    "polisyos.runtime.http.services.channel_contracts:RunsListSnapshot"
+                    "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent"
                 ),
                 "auth_class": "runtime_tenant_access+stream_rate_limit",
                 "consumers": ["apps/runtime-dashboard:RunsLiveProvider"],
@@ -399,9 +406,9 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "path_template": "/api/v1/runs/{run_id}/live",
                 "transport": "sse",
                 "channels": [],
-                "message_contract": "policyos.runtime.run_detail_snapshot.v1",
+                "message_contract": "policyos.runtime.runs_channel_data_event.v1",
                 "producer_contract_ref": (
-                    "polisyos.runtime.http.services.channel_contracts:RunDetailSnapshot"
+                    "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent"
                 ),
                 "auth_class": "runtime_run_tenant_access+stream_rate_limit",
                 "consumers": ["apps/runtime-dashboard:useRunLiveUpdates"],

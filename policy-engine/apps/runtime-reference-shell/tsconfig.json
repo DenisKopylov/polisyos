@@ -11,5 +11,5 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["app.js"]
+  "include": ["app.js", "governedProjectionProof.js"]
 }

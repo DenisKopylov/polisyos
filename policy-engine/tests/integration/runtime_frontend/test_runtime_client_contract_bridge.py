@@ -74,7 +74,7 @@ def _dashboard_runtime_transports() -> set[tuple[str, str, str]]:
     return transports
 
 
-def _ds19_collaboration_strangle_is_merged(repo_root: Path) -> bool:
+def _canonical_ds19_collaboration_register_is_present(repo_root: Path) -> bool:
     register_path = (
         repo_root
         / "architecture"
@@ -106,9 +106,9 @@ def _ds19_collaboration_strangle_is_merged(repo_root: Path) -> bool:
 def _assert_transport_residual_is_governed(
     unresolved: set[tuple[str, str, str]],
     *,
-    ds19_strangle_merged: bool,
+    ds19_register_present: bool,
 ) -> None:
-    if ds19_strangle_merged:
+    if ds19_register_present:
         assert not unresolved
         return
 
@@ -124,6 +124,20 @@ def _assert_transport_residual_is_governed(
         )
         for _method, path, source in unresolved
     )
+
+
+def _ds19_collaboration_integration_state(
+    repo_root: Path,
+    unresolved: set[tuple[str, str, str]],
+) -> str:
+    register_present = _canonical_ds19_collaboration_register_is_present(repo_root)
+    _assert_transport_residual_is_governed(
+        unresolved,
+        ds19_register_present=register_present,
+    )
+    if register_present:
+        return "integrated_zero_residual"
+    return "pre_merge_collaboration_residual"
 
 
 def _capture_generated_client_job_status_call(job_id: str) -> dict[str, object]:
@@ -226,13 +240,14 @@ def test_every_runtime_client_transport_has_openapi_or_governed_channel_contract
         if not matched:
             unresolved.add((method, path, source))
 
-    _assert_transport_residual_is_governed(
-        unresolved,
-        ds19_strangle_merged=_ds19_collaboration_strangle_is_merged(REPO_ROOT),
-    )
+    integration_state = _ds19_collaboration_integration_state(REPO_ROOT, unresolved)
+    if unresolved:
+        assert integration_state == "pre_merge_collaboration_residual"
+    else:
+        assert integration_state == "integrated_zero_residual"
 
 
-def test_transport_contract_accepts_zero_residual_after_verified_ds19_strangle(
+def test_ds19_integration_requires_register_and_zero_callers(
     tmp_path: Path,
 ) -> None:
     register_path = (
@@ -266,19 +281,41 @@ def test_transport_contract_accepts_zero_residual_after_verified_ds19_strangle(
         encoding="utf-8",
     )
 
-    assert _ds19_collaboration_strangle_is_merged(tmp_path)
-    _assert_transport_residual_is_governed(set(), ds19_strangle_merged=True)
+    residual = {
+        (
+            "GET",
+            "/api/v1/collaboration/{dynamic}/comments",
+            "apps/runtime-dashboard/src/features/collaboration/hooks/useComments.ts",
+        )
+    }
+
+    with pytest.raises(AssertionError):
+        _ds19_collaboration_integration_state(tmp_path, residual)
+
+    register_path.unlink()
+    with pytest.raises(AssertionError):
+        _ds19_collaboration_integration_state(tmp_path, set())
 
 
-def test_reference_shell_uses_only_shared_generated_client_home() -> None:
-    shell_source = (REPO_ROOT / "apps" / "runtime-reference-shell" / "app.js").read_text(
-        encoding="utf-8"
-    )
+def test_reference_shell_executes_shared_generated_client_proof() -> None:
+    shell_root = REPO_ROOT / "apps" / "runtime-reference-shell"
+    shell_source = (shell_root / "app.js").read_text(encoding="utf-8")
 
-    assert '../../packages/runtime-api-client/runtimeApiClient.js' in shell_source
+    assert '../../packages/runtime-api-client/canonicalRuntimeApiClient.js' in shell_source
+    assert 'from "./governedProjectionProof.js"' in shell_source
+    assert "await verifyGovernedProjectionCatalog(client)" in shell_source
     assert "runtime-dashboard/src/api/types" not in shell_source
     assert "runtime-dashboard/src/api/client" not in shell_source
-    assert ".listGovernedProjections(" in shell_source
+
+    result = subprocess.run(
+        ["node", "--test", "governedProjectionProof.test.mjs"],
+        cwd=shell_root,
+        env=os.environ.copy(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
 
 
 def test_committed_openapi_preserves_lex_truth_fields() -> None:

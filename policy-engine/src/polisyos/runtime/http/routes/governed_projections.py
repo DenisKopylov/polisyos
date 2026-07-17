@@ -76,6 +76,7 @@ if router is not None:
         request: Request,
         artifact_content_hash: str | None = Query(default=None, max_length=128),
         projection_hash: str | None = Query(default=None, max_length=128),
+        source_dependency_hash: str | None = Query(default=None, max_length=128),
         source_as_of: Annotated[datetime | None, Query()] = None,
     ) -> GovernedProjectionPacket:
         set_authz_resource(
@@ -88,6 +89,7 @@ if router is not None:
                 projection_id,
                 artifact_content_hash=artifact_content_hash,
                 projection_hash=projection_hash,
+                source_dependency_hash=source_dependency_hash,
                 source_as_of=source_as_of,
             )
         except ReplayPinMismatchError as exc:

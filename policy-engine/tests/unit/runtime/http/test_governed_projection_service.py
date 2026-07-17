@@ -109,13 +109,42 @@ def _copy_proving_ground(root: Path) -> None:
 def owner_validator_pass(monkeypatch: pytest.MonkeyPatch) -> None:
     """Stub an already-proven owner receipt for isolated projector semantics."""
 
-    def pass_validation(*, repository_root: Path, definition: Any, loaded: Any) -> Any:
+    def pass_validation(
+        *,
+        repository_root: Path,
+        definition: Any,
+        loaded: Any,
+        payload: BaseModel,
+    ) -> Any:
         del repository_root
+        payload_data = payload.model_dump(mode="json")
+        if definition.projection_id in {
+            ProjectionId.N13A_ACQUISITION_CENSUS,
+            ProjectionId.N13A_LIVE_PROBE_JOURNAL,
+        }:
+            from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
+                semantic_content_hash,
+            )
+
+            projection_hash = semantic_content_hash(payload_data)
+            hash_rule = "policyos.layer3.gy.n13a.acquisition_census.v1"
+        else:
+            from polisyos.pdc import gy_content_hash
+
+            projection_hash = gy_content_hash(payload_data)
+            hash_rule = "polisyos.pdc.gy_content_hash.v1"
+        dependency_bindings = {
+            path: f"file:{content_hash}" for path, content_hash in loaded.component_bindings
+        }
         return MODULE.ProjectionSourceValidation(
             validator_id=definition.owner_validator_id,
             validator_version=definition.owner_validator_version,
             status="passed",
             bound_artifact_content_hash=loaded.content_hash,
+            bound_dependency_aggregate_identity=hash_export_projection(dependency_bindings),
+            bound_dependency_count=len(dependency_bindings),
+            semantic_projection_hash=projection_hash,
+            semantic_projection_hash_rule_version=hash_rule,
         )
 
     monkeypatch.setattr(MODULE, "_run_owner_validation", pass_validation)
@@ -142,20 +171,38 @@ def test_owner_validation_receipt_rejects_forged_aggregate_binding(
     )
     _copy_governed_source(tmp_path, relative_path)
     definition = MODULE._DEFINITION_BY_ID[ProjectionId.ENGINE_CENSUS]
-    loaded = GovernedProjectionService(tmp_path)._load(definition)
+    service = GovernedProjectionService(tmp_path)
+    loaded = service._load(definition)
+    payload = service._project(definition, loaded)
+    dependency_bindings = {
+        path: f"file:{content_hash}" for path, content_hash in loaded.component_bindings
+    }
 
     def forged_worker(*_args: object, **_kwargs: object) -> SimpleNamespace:
         return SimpleNamespace(
             returncode=0,
             stdout=json.dumps(
                 {
-                    "schema_version": ("policyos.runtime.governed_projection.owner_validation.v1"),
+                    "schema_version": ("policyos.runtime.governed_projection.owner_validation.v2"),
                     "projection_id": ProjectionId.ENGINE_CENSUS.value,
                     "validator_id": definition.owner_validator_id,
                     "validator_version": definition.owner_validator_version,
                     "status": "passed",
                     "bound_aggregate_identity": f"sha256:{'0' * 64}",
                     "bound_source_identities": dict(loaded.component_bindings),
+                    "bound_projection_payload_hash": hash_export_projection(
+                        payload.model_dump(mode="json")
+                    ),
+                    "semantic_projection_hash": hash_export_projection(
+                        payload.model_dump(mode="json")
+                    ),
+                    "semantic_projection_hash_rule_version": (
+                        "polisyos.pdc.gy_content_hash.v1"
+                    ),
+                    "dependency_aggregate_identity": hash_export_projection(
+                        dependency_bindings
+                    ),
+                    "dependency_bindings": dependency_bindings,
                     "issue_codes": [],
                 }
             ),
@@ -166,6 +213,7 @@ def test_owner_validation_receipt_rejects_forged_aggregate_binding(
         repository_root=tmp_path,
         definition=definition,
         loaded=loaded,
+        payload=payload,
     )
 
     assert validation.status == "failed"
@@ -196,7 +244,7 @@ def test_projection_packets_require_identity_as_of_and_freshness(
 
 
 def test_available_source_identity_is_content_bound_to_passed_owner_validation() -> None:
-    packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.N13A_ACQUISITION_CENSUS)
+    packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.ENGINE_CENSUS)
 
     assert packet.availability is ProjectionAvailability.AVAILABLE
     assert packet.source is not None
@@ -204,9 +252,12 @@ def test_available_source_identity_is_content_bound_to_passed_owner_validation()
     assert validation.status == "passed"
     assert validation.bound_artifact_content_hash == packet.source.artifact_content_hash
     assert validation.validator_id == (
-        "tools.quality.validation.layer3_gy_n13a_acquisition_census:CensusManifest"
+        "tools.quality.validation.check_layer3_gy_engine_census:validate"
     )
     assert validation.validator_version
+    assert validation.bound_dependency_count > 0
+    assert validation.bound_dependency_aggregate_identity.startswith("sha256:")
+    assert validation.semantic_projection_hash == packet.projection_hash
 
 
 def test_projection_packets_encode_distinct_available_missing_and_invalid_states(
@@ -355,9 +406,181 @@ def test_projection_cache_cannot_be_corrupted_through_returned_nested_payload() 
     second_payload = _payload(second)
 
     assert "cache_corruption_probe" not in second_payload["execution_status_vocabulary"]
-    assert second.projection_hash == hash_export_projection(
-        MODULE._projection_hash_basis(ProjectionId.ENGINE_CENSUS, second_payload)
+    assert second.projection_hash == first.projection_hash
+
+
+def test_owner_validation_cache_revalidates_when_semantic_hasher_bytes_drift(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    relative_path = (
+        "architecture/policy_design_case/layer3_gy_task0_audit/"
+        "layer3_gy_engine_census.json"
     )
+    _copy_governed_source(tmp_path, relative_path)
+    dependency = _write_json(
+        tmp_path,
+        "src/polisyos/pdc/_impl/gy_waist.py",
+        {"value": "first"},
+    )
+    calls = 0
+
+    def worker(*_args: object, **kwargs: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        request = json.loads(str(kwargs["input"]))
+        payload = request["projection_payload"]
+        dependency_bindings = {
+            relative_path: f"file:{MODULE._sha256((tmp_path / relative_path).read_bytes())}",
+            dependency.relative_to(tmp_path).as_posix(): (
+                f"file:{MODULE._sha256(dependency.read_bytes())}"
+            ),
+        }
+        definition = MODULE._DEFINITION_BY_ID[ProjectionId.ENGINE_CENSUS]
+        return SimpleNamespace(
+            returncode=0,
+            stdout=json.dumps(
+                {
+                    "schema_version": (
+                        "policyos.runtime.governed_projection.owner_validation.v2"
+                    ),
+                    "projection_id": ProjectionId.ENGINE_CENSUS.value,
+                    "validator_id": definition.owner_validator_id,
+                    "validator_version": definition.owner_validator_version,
+                    "status": "passed",
+                    "bound_aggregate_identity": hash_export_projection(
+                        request["component_bindings"]
+                    ),
+                    "bound_source_identities": request["component_bindings"],
+                    "bound_projection_payload_hash": hash_export_projection(payload),
+                    "semantic_projection_hash": hash_export_projection(payload),
+                    "semantic_projection_hash_rule_version": (
+                        "polisyos.pdc.gy_content_hash.v1"
+                    ),
+                    "dependency_aggregate_identity": hash_export_projection(
+                        dependency_bindings
+                    ),
+                    "dependency_bindings": dependency_bindings,
+                    "issue_codes": [],
+                }
+            ),
+        )
+
+    monkeypatch.setattr(MODULE.subprocess, "run", worker)
+    service = GovernedProjectionService(tmp_path)
+    first = service.get(ProjectionId.ENGINE_CENSUS)
+    second = service.get(ProjectionId.ENGINE_CENSUS)
+    assert first.availability is ProjectionAvailability.AVAILABLE
+    assert second.availability is ProjectionAvailability.AVAILABLE
+    assert calls == 1
+
+    stat = dependency.stat()
+    dependency.write_text('{"value": "other"}', encoding="utf-8")
+    assert dependency.stat().st_size == stat.st_size
+    os.utime(dependency, ns=(stat.st_atime_ns, stat.st_mtime_ns))
+
+    third = service.get(ProjectionId.ENGINE_CENSUS)
+
+    assert third.availability is ProjectionAvailability.AVAILABLE
+    assert calls == 2
+    assert first.source is not None and third.source is not None
+    assert (
+        first.source.validation.bound_dependency_aggregate_identity
+        != third.source.validation.bound_dependency_aggregate_identity
+    )
+
+
+def test_owner_validation_cache_binds_exact_projected_payload(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    relative_path = (
+        "architecture/policy_design_case/layer3_gy_task0_audit/"
+        "layer3_gy_engine_census.json"
+    )
+    _copy_governed_source(tmp_path, relative_path)
+    definition = MODULE._DEFINITION_BY_ID[ProjectionId.ENGINE_CENSUS]
+    service = GovernedProjectionService(tmp_path)
+    loaded = service._load(definition)
+    first_payload = service._project(definition, loaded)
+    second_payload = first_payload.model_copy(
+        update={"row_count": first_payload.row_count + 1}
+    )
+    calls = 0
+
+    def worker(*_args: object, **kwargs: object) -> SimpleNamespace:
+        nonlocal calls
+        calls += 1
+        request = json.loads(str(kwargs["input"]))
+        payload = request["projection_payload"]
+        dependency_bindings = {
+            path: f"file:{content_hash}"
+            for path, content_hash in loaded.component_bindings
+        }
+        semantic_hash = hash_export_projection(payload)
+        return SimpleNamespace(
+            returncode=0,
+            stdout=json.dumps(
+                {
+                    "schema_version": (
+                        "policyos.runtime.governed_projection.owner_validation.v2"
+                    ),
+                    "projection_id": ProjectionId.ENGINE_CENSUS.value,
+                    "validator_id": definition.owner_validator_id,
+                    "validator_version": definition.owner_validator_version,
+                    "status": "passed",
+                    "bound_aggregate_identity": hash_export_projection(
+                        request["component_bindings"]
+                    ),
+                    "bound_source_identities": request["component_bindings"],
+                    "bound_projection_payload_hash": semantic_hash,
+                    "semantic_projection_hash": semantic_hash,
+                    "semantic_projection_hash_rule_version": (
+                        "polisyos.pdc.gy_content_hash.v1"
+                    ),
+                    "dependency_aggregate_identity": hash_export_projection(
+                        dependency_bindings
+                    ),
+                    "dependency_bindings": dependency_bindings,
+                    "issue_codes": [],
+                }
+            ),
+        )
+
+    monkeypatch.setattr(MODULE.subprocess, "run", worker)
+    first = MODULE._run_owner_validation(
+        repository_root=tmp_path,
+        definition=definition,
+        loaded=loaded,
+        payload=first_payload,
+    )
+    second = MODULE._run_owner_validation(
+        repository_root=tmp_path,
+        definition=definition,
+        loaded=loaded,
+        payload=second_payload,
+    )
+
+    assert calls == 2
+    assert first.semantic_projection_hash != second.semantic_projection_hash
+
+
+def test_replay_identity_and_pin_bind_owner_validation_dependencies(
+    tmp_path: Path,
+    owner_validator_pass: None,
+) -> None:
+    _write_minimal_capstone(tmp_path)
+    service = GovernedProjectionService(tmp_path)
+    packet = service.get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+
+    assert packet.source is not None
+    dependency_hash = packet.source.validation.bound_dependency_aggregate_identity
+    assert "source_dependency_hash=" in (packet.replay_address or "")
+    with pytest.raises(ReplayPinMismatchError, match="source_dependency_hash"):
+        service.get(
+            ProjectionId.DEPTH_N_CYCLE_BOARD,
+            source_dependency_hash=f"sha256:{'0' * 64}",
+        )
 
 
 def test_replay_pin_rejects_artifact_hash_mismatch(
@@ -665,29 +888,54 @@ def test_n13a_census_returns_typed_absence_when_source_is_missing(tmp_path: Path
     assert packet.payload is None
 
 
-def test_n13a_census_projects_present_source() -> None:
+def test_n13a_census_fails_closed_when_recompute_catalog_is_absent() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.N13A_ACQUISITION_CENSUS)
 
-    assert packet.availability is ProjectionAvailability.AVAILABLE
-    assert _payload(packet)["family_scorecards"]
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
     assert packet.source is not None
+    assert packet.payload is None
+    assert packet.source.validation.status == "failed"
+    assert packet.source.validation.issue_codes == (
+        "owner_validator_dependency_missing_catalog",
+    )
     assert packet.source.declared_content_hash is None
-    assert {binding.binding_name for binding in packet.source.related_artifact_bindings} == {
-        "live_probe_journal_content_sha256"
-    }
-    binding = packet.source.related_artifact_bindings[0]
-    census = json.loads(
-        (
-            REPO_ROOT / "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json"
-        ).read_text(encoding="utf-8")
+
+
+def test_n13a_valid_catalog_recomputes_through_service_within_bridge_budget(
+    tmp_path: Path,
+) -> None:
+    catalog_value = os.environ.get("POLISYOS_N13A_PRODUCTION_CATALOG")
+    if not catalog_value:
+        pytest.skip("production catalog is an explicit read-only service witness")
+    catalog = Path(catalog_value)
+    if not catalog.is_file():
+        pytest.skip("configured production catalog is absent")
+    copied_paths = (
+        "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json",
+        "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json",
+        "architecture/policy_design_case/layer3_gy_value_gate_contract.json",
+        "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json",
+        "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json",
     )
-    journal_path = (
-        REPO_ROOT / "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+    for relative_path in copied_paths:
+        _copy_governed_source(tmp_path, relative_path)
+    catalog_relative = (
+        "production_data/datasets_full_phase3full_20260327_183054/"
+        "dataset_catalog.duckdb"
     )
-    assert binding.owner_semantic_hash == census["journal_content_sha256"]
-    assert binding.semantic_hash_rule_version == ("policyos.layer3.gy.n13a.acquisition_census.v1")
-    assert binding.resolved_artifact_content_hash == MODULE._sha256(journal_path.read_bytes())
-    assert binding.owner_semantic_hash != binding.resolved_artifact_content_hash
+    catalog_destination = tmp_path / catalog_relative
+    catalog_destination.parent.mkdir(parents=True, exist_ok=True)
+    catalog_destination.symlink_to(catalog)
+
+    packet = GovernedProjectionService(tmp_path).get(
+        ProjectionId.N13A_ACQUISITION_CENSUS
+    )
+
+    assert packet.availability is ProjectionAvailability.AVAILABLE
+    assert packet.source is not None
+    assert packet.source.validation.status == "passed"
+    assert packet.source.validation.bound_dependency_count > len(copied_paths)
+    assert packet.projection_hash == packet.source.validation.semantic_projection_hash
 
 
 def test_n13a_probe_journal_returns_typed_absence_when_source_is_missing(
@@ -699,11 +947,39 @@ def test_n13a_probe_journal_returns_typed_absence_when_source_is_missing(
     assert packet.payload is None
 
 
-def test_n13a_probe_journal_projects_present_source() -> None:
+def test_n13a_probe_journal_fails_closed_when_recompute_catalog_is_absent() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.N13A_LIVE_PROBE_JOURNAL)
 
-    assert packet.availability is ProjectionAvailability.AVAILABLE
-    assert _payload(packet)["records"]
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
+    assert packet.payload is None
+    assert packet.source is not None
+    assert packet.source.validation.issue_codes == (
+        "owner_validator_dependency_missing_catalog",
+    )
+
+
+def test_n13a_owner_hash_ignores_run_economics_but_replay_binds_changed_bytes(
+    tmp_path: Path,
+    owner_validator_pass: None,
+) -> None:
+    relative_path = "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+    source_path = _copy_governed_source(tmp_path, relative_path)
+    service = GovernedProjectionService(tmp_path)
+    before = service.get(ProjectionId.N13A_LIVE_PROBE_JOURNAL)
+    source = json.loads(source_path.read_text(encoding="utf-8"))
+    source["records"][0]["attempt_wall_time_seconds"] += 0.1
+    source_path.write_text(json.dumps(source, sort_keys=True), encoding="utf-8")
+
+    after = service.get(ProjectionId.N13A_LIVE_PROBE_JOURNAL)
+
+    assert before.source is not None and after.source is not None
+    assert before.source.artifact_content_hash != after.source.artifact_content_hash
+    assert before.projection_hash == after.projection_hash
+    assert before.replay_address != after.replay_address
+    assert (
+        before.source.validation.bound_dependency_aggregate_identity
+        != after.source.validation.bound_dependency_aggregate_identity
+    )
 
 
 def test_capability_reality_projection_uses_reported_readiness(
@@ -937,6 +1213,10 @@ def test_malformed_single_file_sources_return_typed_invalid_source(
     assert packet.availability is ProjectionAvailability.INVALID_SOURCE
     assert packet.source is not None
     assert packet.source.artifact_content_hash.startswith("sha256:")
+    assert packet.source.validation.status == "not_run"
+    assert packet.source.validation.validator_id == (
+        "polisyos.runtime.http.services.governed_projections:source_projection"
+    )
     assert packet.payload is None
 
 

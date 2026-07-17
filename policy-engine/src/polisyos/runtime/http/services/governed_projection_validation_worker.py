@@ -18,7 +18,11 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
-_SCHEMA_VERSION = "policyos.runtime.governed_projection.owner_validation.v1"
+from polisyos.runtime.http.services.governed_projection_dependencies import (
+    DependencyTracker,
+)
+
+_SCHEMA_VERSION = "policyos.runtime.governed_projection.owner_validation.v2"
 _SHA256_PATTERN = re.compile(r"^sha256:[0-9a-f]{64}$")
 
 _DEPTH_PATH = "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
@@ -31,6 +35,12 @@ _FORK_B_PATH = "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_ce
 _ACQUISITION_PATH = "architecture/policy_design_case/layer3_gy_acquisition_contract.json"
 _N13A_CENSUS_PATH = "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json"
 _N13A_JOURNAL_PATH = "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+_N13A_CATALOG_PATH = (
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
+)
+_N13A_SUBSTRATE_PATH = (
+    "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json"
+)
 _CAPABILITY_PATH = "architecture/policy_design_case/capability_reality_report.json"
 _CLUSTER_PATH = "architecture/policy_design_case/cluster_ownership_map.toml"
 _HEALTH_PATH = "architecture/policy_design_case/layer3_health_metric_ledgers.toml"
@@ -62,11 +72,11 @@ _VALIDATOR_METADATA: dict[str, tuple[str, str]] = {
         "policyos.policy_design_case.layer3_gy.acquisition_contract.v1",
     ),
     "n13a-acquisition-census": (
-        "tools.quality.validation.layer3_gy_n13a_acquisition_census:CensusManifest",
+        "tools.quality.validation.check_layer3_gy_n13a_acquisition_census:main",
         "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
     "n13a-live-probe-journal": (
-        "tools.quality.validation.layer3_gy_n13a_acquisition_census:LiveProbeJournal",
+        "tools.quality.validation.check_layer3_gy_n13a_acquisition_census:main",
         "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
     "capability-reality": (
@@ -96,7 +106,7 @@ def _sha256(raw: bytes) -> str:
     return f"sha256:{hashlib.sha256(raw).hexdigest()}"
 
 
-def _aggregate_identity(bindings: Mapping[str, str]) -> str:
+def _aggregate_identity(bindings: Mapping[str, Any]) -> str:
     canonical = json.dumps(
         dict(sorted(bindings.items())),
         ensure_ascii=False,
@@ -284,27 +294,57 @@ def _validate_acquisition(root: Path) -> list[str]:
     return issues
 
 
-def _validate_n13a_census(root: Path) -> list[str]:
-    from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
-        read_census_manifest,
-        read_live_probe_journal,
-        semantic_content_hash,
-    )
+def _validate_n13a_canonical_recompute(root: Path) -> list[str]:
+    catalog_path = root / _N13A_CATALOG_PATH
+    if not catalog_path.is_file():
+        return ["owner_validator_dependency_missing_catalog"]
+    from tools.quality.validation import check_layer3_gy_n13a_acquisition_census
 
-    census = read_census_manifest(root / _N13A_CENSUS_PATH)
-    journal = read_live_probe_journal(root / _N13A_JOURNAL_PATH)
-    if census.journal_content_sha256 != semantic_content_hash(journal):
-        return ["journal_semantic_content_hash_mismatch"]
-    return []
+    output = io.StringIO()
+    owner_root = check_layer3_gy_n13a_acquisition_census.POLICY_ENGINE_ROOT
+    check_layer3_gy_n13a_acquisition_census.POLICY_ENGINE_ROOT = root
+    try:
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(io.StringIO()):
+            return_code = check_layer3_gy_n13a_acquisition_census.main(
+                [
+                    "--catalog-path",
+                    str(catalog_path),
+                    "--source-locator",
+                    _N13A_CATALOG_PATH,
+                    "--capstone-path",
+                    str(root / _DEPTH_PATH),
+                    "--intervention-substrate-path",
+                    str(root / _N13A_SUBSTRATE_PATH),
+                    "--value-gate-path",
+                    str(root / _VALUE_PATH),
+                    "--output",
+                    str(root / _N13A_CENSUS_PATH),
+                    "--probe-journal-path",
+                    str(root / _N13A_JOURNAL_PATH),
+                    "--check",
+                ]
+            )
+    finally:
+        check_layer3_gy_n13a_acquisition_census.POLICY_ENGINE_ROOT = owner_root
+    if return_code == 0:
+        return []
+    for line in reversed(output.getvalue().splitlines()):
+        try:
+            report = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        codes = _extract_issue_codes(report)
+        if codes:
+            return codes
+    return ["n13a_canonical_recompute_failed"]
+
+
+def _validate_n13a_census(root: Path) -> list[str]:
+    return _validate_n13a_canonical_recompute(root)
 
 
 def _validate_n13a_journal(root: Path) -> list[str]:
-    from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
-        read_live_probe_journal,
-    )
-
-    read_live_probe_journal(root / _N13A_JOURNAL_PATH)
-    return []
+    return _validate_n13a_canonical_recompute(root)
 
 
 def _validate_capability(root: Path) -> list[str]:
@@ -383,13 +423,37 @@ _VALIDATORS: dict[str, Callable[[Path], list[str]]] = {
 }
 
 
+def _semantic_projection_hash(
+    projection_id: str,
+    payload: Mapping[str, Any],
+) -> tuple[str, str]:
+    if projection_id in {"n13a-acquisition-census", "n13a-live-probe-journal"}:
+        from tools.quality.validation.layer3_gy_n13a_acquisition_census import (
+            semantic_content_hash,
+        )
+
+        return (
+            semantic_content_hash(payload),
+            "policyos.layer3.gy.n13a.acquisition_census.v1",
+        )
+    from polisyos.pdc import gy_content_hash
+
+    return gy_content_hash(payload), "polisyos.pdc.gy_content_hash.v1"
+
+
 def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
     projection_id = str(request.get("projection_id") or "unknown")
     raw_root = request.get("repository_root")
     raw_bindings = request.get("component_bindings")
+    raw_projection_payload = request.get("projection_payload")
     bindings = (
         {str(key): str(value) for key, value in raw_bindings.items()}
         if isinstance(raw_bindings, Mapping)
+        else {}
+    )
+    projection_payload = (
+        {str(key): value for key, value in raw_projection_payload.items()}
+        if isinstance(raw_projection_payload, Mapping)
         else {}
     )
     validator_id, validator_version = _VALIDATOR_METADATA.get(
@@ -404,35 +468,75 @@ def _validate_request(request: Mapping[str, Any]) -> dict[str, Any]:
         "status": "failed",
         "bound_aggregate_identity": _aggregate_identity(bindings),
         "bound_source_identities": dict(sorted(bindings.items())),
+        "bound_projection_payload_hash": _aggregate_identity(projection_payload),
+        "semantic_projection_hash": None,
+        "semantic_projection_hash_rule_version": None,
+        "dependency_aggregate_identity": _aggregate_identity({}),
+        "dependency_bindings": {},
         "issue_codes": [],
     }
-    if not isinstance(raw_root, str) or not raw_root or not bindings:
+    if (
+        not isinstance(raw_root, str)
+        or not raw_root
+        or not bindings
+        or not isinstance(raw_projection_payload, Mapping)
+    ):
         result["issue_codes"] = ["validation_request_invalid"]
         return result
     root = Path(raw_root).resolve()
-    issues = _verify_components(root, bindings)
-    if issues:
-        result["issue_codes"] = issues
-        return result
-    validator = _VALIDATORS.get(projection_id)
-    if validator is None:
-        result["issue_codes"] = ["owner_validator_unregistered"]
-        return result
-    try:
-        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
-            issues.extend(validator(root))
-    except SystemExit as exc:
-        issues.append(f"owner_validator_system_exit_{exc.code}")
-    except Exception as exc:  # isolate owner validator failures as data
-        error_code = getattr(exc, "code", None)
-        issues.append(str(error_code or type(exc).__name__))
-    after_issues = _verify_components(root, bindings)
-    if after_issues:
-        issues.append("component_changed_during_validation")
-        issues.extend(after_issues)
+    tracker = DependencyTracker(root)
+    for relative_path in bindings:
+        try:
+            tracker.record(root / _safe_relative_path(relative_path))
+        except ValueError:
+            continue
+    issues: list[str] = []
+    semantic_projection_hash: str | None = None
+    semantic_hash_rule: str | None = None
+    with tracker:
+        component_issues = _verify_components(root, bindings)
+        issues.extend(component_issues)
+        validator = _VALIDATORS.get(projection_id)
+        if not issues and validator is None:
+            issues.append("owner_validator_unregistered")
+        if not issues and validator is not None:
+            try:
+                with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(
+                    io.StringIO()
+                ):
+                    issues.extend(validator(root))
+            except SystemExit as exc:
+                issues.append(f"owner_validator_system_exit_{exc.code}")
+            except Exception as exc:  # isolate owner validator failures as data
+                error_code = getattr(exc, "code", None)
+                issues.append(str(error_code or type(exc).__name__))
+        if not component_issues:
+            after_issues = _verify_components(root, bindings)
+            if after_issues:
+                issues.append("component_changed_during_validation")
+                issues.extend(after_issues)
+        if not issues:
+            try:
+                semantic_projection_hash, semantic_hash_rule = _semantic_projection_hash(
+                    projection_id,
+                    projection_payload,
+                )
+            except Exception as exc:  # hash owner failures are typed validation failures
+                issues.append(f"semantic_projection_hash_{type(exc).__name__}")
+    tracker.record_loaded_modules()
+    dependency_bindings, dependency_issues = tracker.receipt()
+    issues.extend(dependency_issues)
     normalized = sorted({str(code) for code in issues if str(code)})
     result["issue_codes"] = normalized
     result["status"] = "passed" if not normalized else "failed"
+    result["semantic_projection_hash"] = (
+        semantic_projection_hash if not normalized else None
+    )
+    result["semantic_projection_hash_rule_version"] = (
+        semantic_hash_rule if not normalized else None
+    )
+    result["dependency_bindings"] = dependency_bindings
+    result["dependency_aggregate_identity"] = _aggregate_identity(dependency_bindings)
     return result
 
 
@@ -453,6 +557,11 @@ def main() -> int:
             "status": "failed",
             "bound_aggregate_identity": _aggregate_identity({}),
             "bound_source_identities": {},
+            "bound_projection_payload_hash": _aggregate_identity({}),
+            "semantic_projection_hash": None,
+            "semantic_projection_hash_rule_version": None,
+            "dependency_aggregate_identity": _aggregate_identity({}),
+            "dependency_bindings": {},
             "issue_codes": [type(exc).__name__],
         }
     sys.stdout.write(json.dumps(result, separators=(",", ":"), sort_keys=True) + "\n")

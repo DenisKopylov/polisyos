@@ -18,14 +18,16 @@ from typing import Annotated, Any, Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validator
 
 from polisyos.runtime.http.services.channel_contracts import (
+    RUNS_CHANNEL_DATA_EVENT_CONTRACT,
     ReviewPresenceSnapshot,
-    RunDetailSnapshot,
-    RunsListSnapshot,
 )
 from polisyos.runtime.http.services.export_replay import (
     EXPORT_REPLAY_CONTRACT,
     build_export_replay_address,
     hash_export_projection,
+)
+from polisyos.runtime.http.services.governed_projection_dependencies import (
+    dependency_manifest_matches,
 )
 
 _PROJECTION_BASE_PATH = "/api/v1/exports/governed-projections"
@@ -85,9 +87,25 @@ class ProjectionSourceValidation(_StrictModel):
 
     validator_id: str
     validator_version: str
-    status: Literal["passed", "failed"]
+    status: Literal["passed", "failed", "not_run"]
     bound_artifact_content_hash: str
+    bound_dependency_aggregate_identity: str
+    bound_dependency_count: int = Field(ge=0)
+    semantic_projection_hash: str | None = None
+    semantic_projection_hash_rule_version: str | None = None
     issue_codes: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _passed_receipt_is_complete(self) -> Self:
+        if self.status == "passed" and (
+            self.bound_dependency_count < 1
+            or self.semantic_projection_hash is None
+            or self.semantic_projection_hash_rule_version is None
+        ):
+            raise ValueError("passed owner validation requires dependency and semantic hashes")
+        if self.status != "passed" and self.semantic_projection_hash is not None:
+            raise ValueError("non-passing owner validation cannot publish a semantic hash")
+        return self
 
 
 class ProjectionSourceIdentity(_StrictModel):
@@ -392,6 +410,7 @@ class AvailableGovernedProjectionPacket(_GovernedProjectionPacketBase):
 
     availability: Literal[ProjectionAvailability.AVAILABLE]
     source: ProjectionSourceIdentity
+    source_dependency_hash: str
     projection_hash: str
     replay_address: str
     payload: ProjectionPayload
@@ -410,6 +429,7 @@ class ArtifactMissingGovernedProjectionPacket(_GovernedProjectionPacketBase):
 
     availability: Literal[ProjectionAvailability.ARTIFACT_MISSING]
     source: None = None
+    source_dependency_hash: None = None
     source_schema_version: None = None
     source_rule_version: None = None
     projection_hash: None = None
@@ -423,6 +443,7 @@ class InvalidGovernedProjectionPacket(_GovernedProjectionPacketBase):
 
     availability: Literal[ProjectionAvailability.INVALID_SOURCE]
     source: ProjectionSourceIdentity
+    source_dependency_hash: None = None
     projection_hash: None = None
     replay_address: None = None
     payload: None = None
@@ -477,8 +498,10 @@ CHANNEL_REGISTRY: tuple[ChannelRegistryEntry, ...] = (
         registry_id="runs-list-live",
         path_template="/api/v1/runs/live",
         transport="sse",
-        message_contract=str(RunsListSnapshot.model_fields["schema_version"].default),
-        producer_contract_ref=("polisyos.runtime.http.services.channel_contracts:RunsListSnapshot"),
+        message_contract=RUNS_CHANNEL_DATA_EVENT_CONTRACT,
+        producer_contract_ref=(
+            "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent"
+        ),
         auth_class="runtime_tenant_access+stream_rate_limit",
         consumers=("apps/runtime-dashboard:RunsLiveProvider",),
         owner="polisyos.runtime.http.routes.runs",
@@ -487,9 +510,9 @@ CHANNEL_REGISTRY: tuple[ChannelRegistryEntry, ...] = (
         registry_id="run-detail-live",
         path_template="/api/v1/runs/{run_id}/live",
         transport="sse",
-        message_contract=str(RunDetailSnapshot.model_fields["schema_version"].default),
+        message_contract=RUNS_CHANNEL_DATA_EVENT_CONTRACT,
         producer_contract_ref=(
-            "polisyos.runtime.http.services.channel_contracts:RunDetailSnapshot"
+            "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent"
         ),
         auth_class="runtime_run_tenant_access+stream_rate_limit",
         consumers=("apps/runtime-dashboard:useRunLiveUpdates",),
@@ -560,14 +583,25 @@ class _LoadedSource:
 class _OwnerValidationWorkerResult(_StrictModel):
     """Strictly decode the isolated owner-validator worker result."""
 
-    schema_version: Literal["policyos.runtime.governed_projection.owner_validation.v1"]
+    schema_version: Literal["policyos.runtime.governed_projection.owner_validation.v2"]
     projection_id: ProjectionId
     validator_id: str
     validator_version: str
     status: Literal["passed", "failed"]
     bound_aggregate_identity: str
     bound_source_identities: dict[str, str]
+    bound_projection_payload_hash: str
+    semantic_projection_hash: str | None
+    semantic_projection_hash_rule_version: str | None
+    dependency_aggregate_identity: str
+    dependency_bindings: dict[str, str]
     issue_codes: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class _OwnerValidationCacheEntry:
+    validation: ProjectionSourceValidation
+    dependency_bindings: tuple[tuple[str, str], ...]
 
 
 class _InvalidProjectionLoadError(ValueError):
@@ -673,7 +707,7 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         (*_COMMON_NOT_PUBLIC, "closeout_pass"),
         "policyos.policy_design_case.gy_n13a.acquisition_census.v1",
         "policyos.layer3.gy.n13a.acquisition_census.v1",
-        "tools.quality.validation.layer3_gy_n13a_acquisition_census:CensusManifest",
+        "tools.quality.validation.check_layer3_gy_n13a_acquisition_census:main",
         "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
     _ProjectionDefinition(
@@ -686,7 +720,7 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
         (*_COMMON_NOT_PUBLIC, "source_success_inference"),
         "policyos.layer3.gy.n13a.live_probe_journal.v1",
         "policyos.layer3.gy.n13a.acquisition_census.v1",
-        "tools.quality.validation.layer3_gy_n13a_acquisition_census:LiveProbeJournal",
+        "tools.quality.validation.check_layer3_gy_n13a_acquisition_census:main",
         "policyos.layer3.gy.n13a.acquisition_census.v1",
     ),
     _ProjectionDefinition(
@@ -780,10 +814,11 @@ _PAYLOAD_MODEL_BY_ID: dict[ProjectionId, type[_StrictModel]] = {
 }
 
 _OWNER_VALIDATION_CACHE: dict[
-    tuple[str, ProjectionId, str, tuple[tuple[str, str], ...]],
-    ProjectionSourceValidation,
+    tuple[str, ProjectionId, str, tuple[tuple[str, str], ...], str],
+    _OwnerValidationCacheEntry,
 ] = {}
 _OWNER_VALIDATION_LOCK = Lock()
+_OWNER_VALIDATION_TIMEOUT_SECONDS = 120
 
 
 def _source_schema_version(source: dict[str, Any]) -> str | None:
@@ -796,16 +831,40 @@ def _source_schema_version(source: dict[str, Any]) -> str | None:
     return None
 
 
-def _failed_source_validation(
-    definition: _ProjectionDefinition,
+def _component_dependency_bindings(loaded: _LoadedSource) -> dict[str, str]:
+    return {path: f"file:{content_hash}" for path, content_hash in loaded.component_bindings}
+
+
+def _not_run_source_validation(
     loaded: _LoadedSource,
     *issue_codes: str,
 ) -> ProjectionSourceValidation:
+    dependency_bindings = _component_dependency_bindings(loaded)
     return ProjectionSourceValidation(
-        validator_id=definition.owner_validator_id,
-        validator_version=definition.owner_validator_version,
+        validator_id="polisyos.runtime.http.services.governed_projections:source_projection",
+        validator_version="policyos.runtime.governed_projection.v1",
+        status="not_run",
+        bound_artifact_content_hash=loaded.content_hash,
+        bound_dependency_aggregate_identity=hash_export_projection(dependency_bindings),
+        bound_dependency_count=len(dependency_bindings),
+        issue_codes=tuple(sorted(set(issue_codes))),
+    )
+
+
+def _owner_bridge_failure(
+    loaded: _LoadedSource,
+    *issue_codes: str,
+) -> ProjectionSourceValidation:
+    dependency_bindings = _component_dependency_bindings(loaded)
+    return ProjectionSourceValidation(
+        validator_id=(
+            "polisyos.runtime.http.services.governed_projection_validation_worker:main"
+        ),
+        validator_version="policyos.runtime.governed_projection.owner_validation.v2",
         status="failed",
         bound_artifact_content_hash=loaded.content_hash,
+        bound_dependency_aggregate_identity=hash_export_projection(dependency_bindings),
+        bound_dependency_count=len(dependency_bindings),
         issue_codes=tuple(sorted(set(issue_codes))),
     )
 
@@ -815,14 +874,14 @@ def _run_owner_validation(
     repository_root: Path,
     definition: _ProjectionDefinition,
     loaded: _LoadedSource,
+    payload: _StrictModel,
 ) -> ProjectionSourceValidation:
     observed_schema = _source_schema_version(loaded.parsed)
     if (
         definition.expected_source_schema_version is not None
         and observed_schema != definition.expected_source_schema_version
     ):
-        return _failed_source_validation(
-            definition,
+        return _not_run_source_validation(
             loaded,
             "source_schema_version_unrecognized",
         )
@@ -831,28 +890,39 @@ def _run_owner_validation(
         definition.expected_source_rule_version is not None
         and observed_rule != definition.expected_source_rule_version
     ):
-        return _failed_source_validation(
-            definition,
+        return _not_run_source_validation(
             loaded,
             "source_rule_version_unrecognized",
         )
+    resolved_root = repository_root.resolve()
+    payload_data = payload.model_dump(mode="json")
+    payload_hash = hash_export_projection(payload_data)
     cache_key = (
-        str(repository_root.resolve()),
+        str(resolved_root),
         definition.projection_id,
         loaded.content_hash,
         loaded.component_bindings,
+        payload_hash,
     )
     cached = _OWNER_VALIDATION_CACHE.get(cache_key)
-    if cached is not None:
-        return cached
+    if cached is not None and dependency_manifest_matches(
+        resolved_root,
+        dict(cached.dependency_bindings),
+    ):
+        return cached.validation
     with _OWNER_VALIDATION_LOCK:
         cached = _OWNER_VALIDATION_CACHE.get(cache_key)
-        if cached is not None:
-            return cached
+        if cached is not None and dependency_manifest_matches(
+            resolved_root,
+            dict(cached.dependency_bindings),
+        ):
+            return cached.validation
+        _OWNER_VALIDATION_CACHE.pop(cache_key, None)
         request = {
             "projection_id": definition.projection_id.value,
-            "repository_root": str(repository_root.resolve()),
+            "repository_root": str(resolved_root),
             "component_bindings": dict(loaded.component_bindings),
+            "projection_payload": payload_data,
         }
         worker_path = Path(__file__).with_name("governed_projection_validation_worker.py")
         environment = os.environ.copy()
@@ -871,39 +941,43 @@ def _run_owner_validation(
                 capture_output=True,
                 check=False,
                 text=True,
-                timeout=60,
+                timeout=_OWNER_VALIDATION_TIMEOUT_SECONDS,
             )
         except (OSError, subprocess.TimeoutExpired) as exc:
-            return _failed_source_validation(
-                definition,
+            return _owner_bridge_failure(
                 loaded,
                 f"owner_validator_{type(exc).__name__}",
             )
         if completed.returncode != 0:
-            return _failed_source_validation(
-                definition,
+            return _owner_bridge_failure(
                 loaded,
                 "owner_validator_process_failed",
             )
         try:
             result = _OwnerValidationWorkerResult.model_validate_json(completed.stdout)
         except (ValueError, TypeError):
-            return _failed_source_validation(
-                definition,
+            return _owner_bridge_failure(
                 loaded,
                 "owner_validator_receipt_invalid",
             )
         expected_bindings = dict(loaded.component_bindings)
+        expected_dependency_bindings = _component_dependency_bindings(loaded)
         receipt_mismatch = (
             result.projection_id is not definition.projection_id
             or result.validator_id != definition.owner_validator_id
             or result.validator_version != definition.owner_validator_version
             or result.bound_aggregate_identity != hash_export_projection(expected_bindings)
             or result.bound_source_identities != expected_bindings
+            or result.bound_projection_payload_hash != payload_hash
+            or result.dependency_aggregate_identity
+            != hash_export_projection(result.dependency_bindings)
+            or any(
+                result.dependency_bindings.get(path) != identity
+                for path, identity in expected_dependency_bindings.items()
+            )
         )
         if receipt_mismatch:
-            return _failed_source_validation(
-                definition,
+            return _owner_bridge_failure(
                 loaded,
                 "owner_validator_receipt_mismatch",
             )
@@ -912,9 +986,19 @@ def _run_owner_validation(
             validator_version=result.validator_version,
             status=result.status,
             bound_artifact_content_hash=loaded.content_hash,
+            bound_dependency_aggregate_identity=result.dependency_aggregate_identity,
+            bound_dependency_count=len(result.dependency_bindings),
+            semantic_projection_hash=result.semantic_projection_hash,
+            semantic_projection_hash_rule_version=(
+                result.semantic_projection_hash_rule_version
+            ),
             issue_codes=result.issue_codes,
         )
-        _OWNER_VALIDATION_CACHE[cache_key] = validation
+        if validation.status == "passed":
+            _OWNER_VALIDATION_CACHE[cache_key] = _OwnerValidationCacheEntry(
+                validation=validation,
+                dependency_bindings=tuple(sorted(result.dependency_bindings.items())),
+            )
         return validation
 
 
@@ -925,7 +1009,7 @@ class GovernedProjectionService:
         self._repository_root = repository_root
         self._path_cache: dict[Path, _FileObservation] = {}
         self._parsed_cache: dict[tuple[str, str], dict[str, Any]] = {}
-        self._projection_cache: dict[tuple[ProjectionId, str], tuple[bytes, str]] = {}
+        self._projection_cache: dict[tuple[ProjectionId, str], bytes] = {}
 
     def catalog(self) -> tuple[ProjectionCatalogEntry, ...]:
         """Return the full denominator without touching artifact bytes."""
@@ -952,6 +1036,7 @@ class GovernedProjectionService:
         *,
         artifact_content_hash: str | None = None,
         projection_hash: str | None = None,
+        source_dependency_hash: str | None = None,
         source_as_of: datetime | None = None,
     ) -> GovernedProjectionPacket:
         """Return one packet and optionally enforce byte and projection replay pins."""
@@ -972,23 +1057,21 @@ class GovernedProjectionService:
                 loaded=exc.loaded,
                 reason=str(exc),
                 observed_at=observed_at,
-                validation=_failed_source_validation(
-                    definition,
+                validation=_not_run_source_validation(
                     exc.loaded,
                     "source_decode_or_composite_load_failed",
                 ),
             )
         else:
             try:
-                payload, resolved_projection_hash = self._project(definition, loaded)
+                payload = self._project(definition, loaded)
             except (InvalidProjectionSourceError, KeyError, TypeError, ValueError) as exc:
                 packet = self._invalid_packet(
                     definition,
                     loaded=loaded,
                     reason=str(exc),
                     observed_at=observed_at,
-                    validation=_failed_source_validation(
-                        definition,
+                    validation=_not_run_source_validation(
                         loaded,
                         "projection_contract_invalid",
                     ),
@@ -998,6 +1081,7 @@ class GovernedProjectionService:
                     repository_root=self._repository_root,
                     definition=definition,
                     loaded=loaded,
+                    payload=payload,
                 )
                 if validation.status != "passed":
                     packet = self._invalid_packet(
@@ -1008,6 +1092,9 @@ class GovernedProjectionService:
                         validation=validation,
                     )
                 else:
+                    resolved_projection_hash = validation.semantic_projection_hash
+                    if resolved_projection_hash is None:  # guarded by the receipt model
+                        raise RuntimeError("passed owner receipt omitted semantic projection hash")
                     as_of, basis = _resolve_as_of(loaded.parsed, loaded.modified_at)
                     source = ProjectionSourceIdentity(
                         relative_path=loaded.relative_path,
@@ -1026,6 +1113,9 @@ class GovernedProjectionService:
                         authoritative_for=definition.authoritative_for,
                         may_not_use_for=definition.may_not_use_for,
                         source=source,
+                        source_dependency_hash=(
+                            validation.bound_dependency_aggregate_identity
+                        ),
                         source_schema_version=_source_schema_version(loaded.parsed),
                         source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
                         projection_hash=resolved_projection_hash,
@@ -1041,6 +1131,9 @@ class GovernedProjectionService:
                             resolved_id,
                             artifact_content_hash=source.artifact_content_hash,
                             projection_hash=resolved_projection_hash,
+                            source_dependency_hash=(
+                                validation.bound_dependency_aggregate_identity
+                            ),
                             source_as_of=as_of,
                         ),
                         payload=payload,
@@ -1049,6 +1142,7 @@ class GovernedProjectionService:
             packet,
             artifact_content_hash=artifact_content_hash,
             projection_hash=projection_hash,
+            source_dependency_hash=source_dependency_hash,
             source_as_of=source_as_of,
         )
         return packet
@@ -1215,13 +1309,12 @@ class GovernedProjectionService:
         self,
         definition: _ProjectionDefinition,
         loaded: _LoadedSource,
-    ) -> tuple[_StrictModel, str]:
+    ) -> _StrictModel:
         cache_key = (definition.projection_id, loaded.content_hash)
         payload_model = _PAYLOAD_MODEL_BY_ID[definition.projection_id]
         cached = self._projection_cache.get(cache_key)
         if cached is not None:
-            payload_json, projection_hash = cached
-            return payload_model.model_validate_json(payload_json), projection_hash
+            return payload_model.model_validate_json(cached)
         projector = _PROJECTORS[definition.projection_id]
         raw_payload = _mapping(
             _json_ready(projector(loaded.parsed)),
@@ -1229,16 +1322,13 @@ class GovernedProjectionService:
         )
         payload = payload_model.model_validate(raw_payload)
         payload_data = payload.model_dump(mode="json")
-        projection_hash = hash_export_projection(
-            _projection_hash_basis(definition.projection_id, payload_data)
-        )
         payload_json = json.dumps(
             payload_data,
             sort_keys=True,
             separators=(",", ":"),
         ).encode("utf-8")
-        self._projection_cache[cache_key] = (payload_json, projection_hash)
-        return payload_model.model_validate_json(payload_json), projection_hash
+        self._projection_cache[cache_key] = payload_json
+        return payload_model.model_validate_json(payload_json)
 
     def _absence_packet(
         self,
@@ -1411,7 +1501,7 @@ def _project_fork_b(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def _project_acquisition_contract(source: dict[str, Any]) -> dict[str, Any]:
-    return _required_projection_fields(
+    projected = _required_projection_fields(
         source,
         "denominators",
         "positive_receipt",
@@ -1423,6 +1513,28 @@ def _project_acquisition_contract(source: dict[str, Any]) -> dict[str, Any]:
         "compute_economics",
         "known_residuals",
     )
+    narrowed = _mapping(
+        _without_acquisition_capture_provenance(projected),
+        "acquisition_projection",
+    )
+    positive_receipt = narrowed.get("positive_receipt")
+    if isinstance(positive_receipt, dict):
+        positive_receipt.pop("content_hash", None)
+    return narrowed
+
+
+def _without_acquisition_capture_provenance(value: object) -> object:
+    """Omit provenance envelopes outside the acquisition receipt projection."""
+
+    if isinstance(value, dict):
+        return {
+            key: _without_acquisition_capture_provenance(item)
+            for key, item in value.items()
+            if key != "capture_provenance"
+        }
+    if isinstance(value, list):
+        return [_without_acquisition_capture_provenance(item) for item in value]
+    return value
 
 
 def _project_n13a_census(source: dict[str, Any]) -> dict[str, Any]:
@@ -1642,55 +1754,6 @@ def _related_artifact_bindings(
     )
 
 
-_PROVENANCE_ONLY_PROJECTION_FIELDS = frozenset(
-    {
-        "capture_wall_time_seconds",
-        "capture_provenance",
-        "as_of",
-        "freshness",
-        "generated",
-        "generated_at",
-        "observed_at",
-        "produced_by",
-        "provenance",
-        "provenance_note",
-        "relative_path",
-        "replay_address",
-        "source_path",
-        "stable_address",
-        "timestamp",
-    }
-)
-
-
-def _projection_hash_basis(
-    projection_id: ProjectionId,
-    payload: dict[str, Any],
-) -> dict[str, Any]:
-    """Return only the declared semantic dependency fields for replay hashing."""
-    basis = _mapping(
-        _without_projection_provenance(payload),
-        "projection_hash_basis",
-    )
-    if projection_id is ProjectionId.ACQUISITION_ROUTING_CONTRACT:
-        positive_receipt = basis.get("positive_receipt")
-        if isinstance(positive_receipt, dict):
-            positive_receipt.pop("content_hash", None)
-    return basis
-
-
-def _without_projection_provenance(value: ProjectionJsonValue) -> ProjectionJsonValue:
-    if isinstance(value, dict):
-        return {
-            key: _without_projection_provenance(item)
-            for key, item in value.items()
-            if key not in _PROVENANCE_ONLY_PROJECTION_FIELDS
-        }
-    if isinstance(value, list):
-        return [_without_projection_provenance(item) for item in value]
-    return value
-
-
 def _resolve_as_of(
     source: dict[str, Any],
     modified_at: datetime,
@@ -1746,6 +1809,7 @@ def _replay_address(
     *,
     artifact_content_hash: str,
     projection_hash: str,
+    source_dependency_hash: str,
     source_as_of: datetime,
 ) -> str:
     return build_export_replay_address(
@@ -1753,6 +1817,7 @@ def _replay_address(
         {
             "artifact_content_hash": artifact_content_hash,
             "projection_hash": projection_hash,
+            "source_dependency_hash": source_dependency_hash,
             "source_as_of": _replay_datetime(source_as_of),
         },
     )
@@ -1763,6 +1828,7 @@ def _enforce_replay_pins(
     *,
     artifact_content_hash: str | None,
     projection_hash: str | None,
+    source_dependency_hash: str | None,
     source_as_of: datetime | None,
 ) -> None:
     actual_artifact_hash = (
@@ -1779,6 +1845,14 @@ def _enforce_replay_pins(
             "projection_hash",
             expected=projection_hash,
             actual=packet.projection_hash,
+        )
+    if source_dependency_hash is not None and source_dependency_hash != (
+        packet.source_dependency_hash
+    ):
+        raise ReplayPinMismatchError(
+            "source_dependency_hash",
+            expected=source_dependency_hash,
+            actual=packet.source_dependency_hash,
         )
     if source_as_of is not None:
         expected_as_of = _normalize_datetime(source_as_of)

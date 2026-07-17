@@ -1,4 +1,5 @@
-import { RuntimeApiClient } from "../../packages/runtime-api-client/runtimeApiClient.js";
+import { RuntimeApiClient } from "../../packages/runtime-api-client/canonicalRuntimeApiClient.js";
+import { verifyGovernedProjectionCatalog } from "./governedProjectionProof.js";
 
 /**
  * @template {typeof HTMLElement} T
@@ -78,7 +79,7 @@ function connectClient(baseUrl) {
   const client = new RuntimeApiClient({ baseUrl: state.baseUrl });
   state.client = client;
   elements.runsState.textContent = `Connected to ${state.baseUrl}`;
-  void verifyGovernedProjectionCatalog(client, state.baseUrl);
+  void renderGovernedProjectionCatalogProof(client, state.baseUrl);
 }
 
 /**
@@ -87,20 +88,17 @@ function connectClient(baseUrl) {
  * @param {RuntimeApiClient} client
  * @param {string} baseUrl
  */
-async function verifyGovernedProjectionCatalog(client, baseUrl) {
-  try {
-    const catalog = await client.listGovernedProjections();
-    if (state.client !== client) {
-      return;
-    }
-    state.governedProjectionCount = catalog.projections.length;
-    elements.runsState.textContent = `Connected to ${baseUrl}; governed projections: ${state.governedProjectionCount}`;
-  } catch (error) {
-    if (state.client !== client) {
-      return;
-    }
+async function renderGovernedProjectionCatalogProof(client, baseUrl) {
+  const proof = await verifyGovernedProjectionCatalog(client);
+  if (state.client !== client) {
+    return;
+  }
+  if (proof.status === "available") {
+    state.governedProjectionCount = proof.projectionCount;
+    elements.runsState.textContent = `Connected to ${baseUrl}; governed projections: ${proof.projectionCount}`;
+  } else {
     state.governedProjectionCount = null;
-    elements.runsState.textContent = `Connected to ${baseUrl}; projection catalog unavailable: ${String(error)}`;
+    elements.runsState.textContent = `Connected to ${baseUrl}; projection catalog unavailable: ${proof.reason}`;
   }
 }
 

@@ -145,7 +145,39 @@ def test_generated_runtime_js_client_accepts_params_for_body_operations() -> Non
         assert f"async {operation_name}(params) {{" in rendered_js
 
 
-def test_committed_runtime_client_matches_generator() -> None:
+def _canonicalize_runtime_client(
+    repo_root: Path,
+    spec_path: Path,
+    client_path: Path,
+    runtime_js_path: Path,
+    output_ts_path: Path,
+    output_js_path: Path,
+) -> None:
+    result = subprocess.run(
+        [
+            "node",
+            "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs",
+            "--openapi",
+            str(spec_path),
+            "--client",
+            str(client_path),
+            "--out-ts",
+            str(output_ts_path),
+            "--runtime-js",
+            str(runtime_js_path),
+            "--out-js",
+            str(output_js_path),
+        ],
+        cwd=repo_root,
+        env=os.environ.copy(),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr or result.stdout
+
+
+def test_committed_runtime_client_matches_package_generation_pipeline(tmp_path: Path) -> None:
     repo_root = Path(__file__).resolve().parents[4]
     spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
     spec = json.loads(spec_path.read_text(encoding="utf-8"))
@@ -159,6 +191,27 @@ def test_committed_runtime_client_matches_generator() -> None:
 
     assert committed_ts == expected_ts
     assert committed_js == expected_js
+
+    generated_ts = tmp_path / "runtimeApiClient.ts"
+    generated_js = tmp_path / "runtimeApiClient.js"
+    canonical_ts = tmp_path / "canonicalRuntimeApiClient.ts"
+    canonical_js = tmp_path / "canonicalRuntimeApiClient.js"
+    generated_ts.write_text(expected_ts, encoding="utf-8")
+    generated_js.write_text(expected_js, encoding="utf-8")
+    _canonicalize_runtime_client(
+        repo_root,
+        spec_path,
+        generated_ts,
+        generated_js,
+        canonical_ts,
+        canonical_js,
+    )
+    assert (client_root / "canonicalRuntimeApiClient.ts").read_bytes() == (
+        canonical_ts.read_bytes()
+    )
+    assert (client_root / "canonicalRuntimeApiClient.js").read_bytes() == (
+        canonical_js.read_bytes()
+    )
 
 
 def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Path) -> None:
@@ -226,12 +279,50 @@ def test_schema_and_clients_regenerate_byte_identically_twice(tmp_path: Path) ->
 
     first_operations = generate_runtime_client._extract_operations(first_spec)
     second_operations = generate_runtime_client._extract_operations(second_spec)
-    assert generate_runtime_client._render_ts(
-        first_spec, first_operations
-    ) == generate_runtime_client._render_ts(second_spec, second_operations)
-    assert generate_runtime_client._render_js(
-        first_operations
-    ) == generate_runtime_client._render_js(second_operations)
+    first_client = tmp_path / "first.runtimeApiClient.ts"
+    second_client = tmp_path / "second.runtimeApiClient.ts"
+    first_client_js = tmp_path / "first.runtimeApiClient.js"
+    second_client_js = tmp_path / "second.runtimeApiClient.js"
+    first_client.write_text(
+        generate_runtime_client._render_ts(first_spec, first_operations),
+        encoding="utf-8",
+    )
+    second_client.write_text(
+        generate_runtime_client._render_ts(second_spec, second_operations),
+        encoding="utf-8",
+    )
+    assert first_client.read_bytes() == second_client.read_bytes()
+    first_client_js.write_text(
+        generate_runtime_client._render_js(first_operations),
+        encoding="utf-8",
+    )
+    second_client_js.write_text(
+        generate_runtime_client._render_js(second_operations),
+        encoding="utf-8",
+    )
+    assert first_client_js.read_bytes() == second_client_js.read_bytes()
+    first_canonical_ts = tmp_path / "first.canonicalRuntimeApiClient.ts"
+    second_canonical_ts = tmp_path / "second.canonicalRuntimeApiClient.ts"
+    first_canonical_js = tmp_path / "first.canonicalRuntimeApiClient.js"
+    second_canonical_js = tmp_path / "second.canonicalRuntimeApiClient.js"
+    _canonicalize_runtime_client(
+        repo_root,
+        first_path,
+        first_client,
+        first_client_js,
+        first_canonical_ts,
+        first_canonical_js,
+    )
+    _canonicalize_runtime_client(
+        repo_root,
+        second_path,
+        second_client,
+        second_client_js,
+        second_canonical_ts,
+        second_canonical_js,
+    )
+    assert first_canonical_ts.read_bytes() == second_canonical_ts.read_bytes()
+    assert first_canonical_js.read_bytes() == second_canonical_js.read_bytes()
 
 
 def test_bad_request_uses_problem_json_payload(runtime_api_env) -> None:

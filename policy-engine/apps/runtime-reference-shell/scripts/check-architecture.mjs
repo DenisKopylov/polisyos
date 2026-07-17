@@ -6,6 +6,8 @@ const allowedFiles = new Set([
   "README.md",
   "app.js",
   "eslint.config.mjs",
+  "governedProjectionProof.js",
+  "governedProjectionProof.test.mjs",
   "index.html",
   "package.json",
   "scripts/check-architecture.mjs",
@@ -14,7 +16,23 @@ const allowedFiles = new Set([
 ]);
 
 const expectedImports = new Map([
-  ["app.js", ["../../packages/runtime-api-client/runtimeApiClient.js"]],
+  [
+    "app.js",
+    [
+      "../../packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "./governedProjectionProof.js",
+    ],
+  ],
+  ["governedProjectionProof.js", []],
+  [
+    "governedProjectionProof.test.mjs",
+    [
+      "../../packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "./governedProjectionProof.js",
+      "node:assert/strict",
+      "node:test",
+    ],
+  ],
   ["scripts/check-architecture.mjs", ["node:fs/promises", "node:path"]],
 ]);
 

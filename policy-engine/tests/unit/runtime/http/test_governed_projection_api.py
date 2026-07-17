@@ -37,6 +37,8 @@ def test_governed_projection_endpoint_uses_runtime_api_env(runtime_api_env) -> N
     assert payload["availability"] == "available"
     assert payload["source"]["artifact_content_hash"].startswith("sha256:")
     assert payload["source"]["validation"]["status"] == "passed"
+    assert payload["source_dependency_hash"].startswith("sha256:")
+    assert payload["source"]["validation"]["bound_dependency_count"] > 0
     assert payload["projection_hash"].startswith("sha256:")
     assert payload["as_of"]
     assert payload["freshness"]["observed_at"]
@@ -55,6 +57,7 @@ def test_governed_projection_endpoint_enforces_replay_time_pin(
         params={
             "artifact_content_hash": current["source"]["artifact_content_hash"],
             "projection_hash": current["projection_hash"],
+            "source_dependency_hash": current["source_dependency_hash"],
             "source_as_of": "2000-01-01T00:00:00Z",
         },
     )
@@ -63,6 +66,18 @@ def test_governed_projection_endpoint_enforces_replay_time_pin(
     assert stale.status_code == 409
     assert stale.json()["code"] == "governed_projection_replay_pin_mismatch"
     assert stale.json()["field"] == "source_as_of"
+
+
+def test_governed_projection_endpoint_enforces_dependency_replay_pin(
+    runtime_api_env,
+) -> None:
+    response = runtime_api_env["client"].get(
+        "/api/v1/exports/governed-projections/engine-census",
+        params={"source_dependency_hash": f"sha256:{'0' * 64}"},
+    )
+
+    assert response.status_code == 409
+    assert response.json()["field"] == "source_dependency_hash"
 
 
 def test_governed_projection_endpoint_preserves_existing_auth_defaults(
@@ -126,6 +141,13 @@ def test_channel_registry_covers_every_active_hidden_runtime_channel(
     assert all(entry["consumers"] for entry in entries)
     assert all(entry["producer_contract_ref"] for entry in entries)
     assert {entry["capability_state"] for entry in entries} == {"verification_missing"}
+    sse_entries = [entry for entry in entries if entry["transport"] == "sse"]
+    assert {entry["message_contract"] for entry in sse_entries} == {
+        "policyos.runtime.runs_channel_data_event.v1"
+    }
+    assert {entry["producer_contract_ref"] for entry in sse_entries} == {
+        "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent"
+    }
 
 
 def test_channel_registry_rejects_unknown_channel_fields() -> None:

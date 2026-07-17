@@ -208,6 +208,7 @@ export type ArtifactMissingGovernedProjectionPacket = {
   projection_rule_version?: string;
   replay_address?: null;
   source?: null;
+  source_dependency_hash?: null;
   source_rule_version?: null;
   source_schema_version?: null;
   stable_address: string;
@@ -442,6 +443,7 @@ export type AvailableGovernedProjectionPacket = {
   projection_rule_version?: string;
   replay_address: string;
   source: ProjectionSourceIdentity;
+  source_dependency_hash: string;
   source_rule_version?: string | null;
   source_schema_version?: string | null;
   stable_address: string;
@@ -2084,6 +2086,7 @@ export type InvalidGovernedProjectionPacket = {
   projection_rule_version?: string;
   replay_address?: null;
   source: ProjectionSourceIdentity;
+  source_dependency_hash?: null;
   source_rule_version?: string | null;
   source_schema_version?: string | null;
   stable_address: string;
@@ -2924,8 +2927,12 @@ export type ProjectionSourceIdentity = {
 
 export type ProjectionSourceValidation = {
   bound_artifact_content_hash: string;
+  bound_dependency_aggregate_identity: string;
+  bound_dependency_count: number;
   issue_codes?: Array<string>;
-  status: "passed" | "failed";
+  semantic_projection_hash?: string | null;
+  semantic_projection_hash_rule_version?: string | null;
+  status: "passed" | "failed" | "not_run";
   validator_id: string;
   validator_version: string;
 };
@@ -4302,12 +4309,14 @@ export class RuntimeApiClient {
     projection_id: ProjectionId;
     artifact_content_hash?: string | null;
     projection_hash?: string | null;
+    source_dependency_hash?: string | null;
     source_as_of?: string | null;
   }): Promise<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket> {
     const path = `/api/v1/exports/governed-projections/${encodeURIComponent(String(params.projection_id))}`;
     const query = this.buildQuery({
       artifact_content_hash: params.artifact_content_hash,
       projection_hash: params.projection_hash,
+      source_dependency_hash: params.source_dependency_hash,
       source_as_of: params.source_as_of,
     });
     return this.request<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket>("GET", path, query);

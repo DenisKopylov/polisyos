@@ -1,4 +1,9 @@
+import type { components } from "./types";
 import { runDetailsSchema } from "./validators";
+
+type ProjectionFixture = Record<string, unknown> & {
+  audience?: components["schemas"]["PolicyDesignCaseProjection"]["audience"];
+};
 
 const projectionMaskingCases = [
   {
@@ -39,6 +44,22 @@ const projectionMaskingCases = [
 ] as const;
 
 function runDetailsPayload(label: string) {
+  const policyDesignCaseProjection: ProjectionFixture = {
+    audience: "public",
+    authority_role: "projection_only",
+    labels: [
+      {
+        authority_role: "projection_only",
+        label,
+        state: "projection_only",
+      },
+    ],
+    may_not_be_used_for: ["scorecard_authority"],
+    primary_state: "projection_only",
+    projection_policy: "reads_policy_design_case_only",
+    states: ["projection_only"],
+  };
+
   return {
     meta: {
       generated_at: "2026-05-19T10:00:00.000Z",
@@ -66,20 +87,7 @@ function runDetailsPayload(label: string) {
         ],
         projection_source: "policy_design_case_projection",
       },
-      policy_design_case_projection: {
-        authority_role: "projection_only",
-        labels: [
-          {
-            authority_role: "projection_only",
-            label,
-            state: "projection_only",
-          },
-        ],
-        may_not_be_used_for: ["scorecard_authority"],
-        primary_state: "projection_only",
-        projection_policy: "reads_policy_design_case_only",
-        states: ["projection_only"],
-      },
+      policy_design_case_projection: policyDesignCaseProjection,
       root_artifacts: [],
       run_id: "run-projection-mask",
       source_kind: "core_run",

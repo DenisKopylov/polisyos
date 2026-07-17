@@ -33,6 +33,9 @@ from polisyos.runtime.http.routes.auth import router as auth_router
 from polisyos.runtime.http.routes.control import router as control_router
 from polisyos.runtime.http.routes.debug import router as debug_router
 from polisyos.runtime.http.routes.fabric import router as fabric_router
+from polisyos.runtime.http.routes.governed_projections import (
+    router as governed_projections_router,
+)
 from polisyos.runtime.http.routes.health import router as health_router
 from polisyos.runtime.http.routes.lineage import router as lineage_router
 from polisyos.runtime.http.routes.mobility import router as mobility_router
@@ -238,6 +241,8 @@ def create_runtime_api_app(
         app.include_router(control_router)
     if review_router is not None:
         app.include_router(review_router)
+    if governed_projections_router is not None:
+        app.include_router(governed_projections_router)
 
     install_runtime_openapi_contract(app)
     return app

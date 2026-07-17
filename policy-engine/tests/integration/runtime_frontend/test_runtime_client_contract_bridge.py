@@ -173,10 +173,14 @@ def test_every_runtime_client_transport_has_openapi_or_governed_channel_contract
     # residual from the callers and forbid any unrelated unmatched transport.
     assert unresolved
     assert all(
-        path.startswith("/api/v1/collaboration/")
-        and "/features/collaboration/" in f"/{source}"
-        or path == "/api/v1/collaboration/live"
-        and source.endswith("/app/realtime/websocketTransport.ts")
+        (
+            path.startswith("/api/v1/collaboration/")
+            and "/features/collaboration/" in f"/{source}"
+        )
+        or (
+            path == "/api/v1/collaboration/live"
+            and source.endswith("/app/realtime/websocketTransport.ts")
+        )
         for _method, path, source in unresolved
     )
 

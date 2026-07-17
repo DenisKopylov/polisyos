@@ -6,7 +6,13 @@ import importlib
 from typing import Any
 
 __all__ = [
+    "AppendOnlyEvidenceJournal",
+    "EvidenceJournalError",
     "FabricBenchmarkReport",
+    "HarnessAuthorizationEvidence",
+    "JournalEventRef",
+    "LiveExecutionAuthorization",
+    "LiveHttpBudget",
     "QuarantineRecord",
     "QuarantineReport",
     "QuarantineReprocessResult",
@@ -19,6 +25,8 @@ __all__ = [
     "benchmark_world_materialization",
     "build_quarantine_report",
     "compare_historical_rows",
+    "derive_harness_authorization_evidence",
+    "derive_live_http_budget",
     "iter_record_batches",
     "list_quarantine_records",
     "load_quarantine_payload",
@@ -29,14 +37,56 @@ __all__ = [
     "persist_historical_semantic_diff_report",
     "persist_quarantine_record",
     "process_stream_dataset",
-    "query_world_table",
     "quarantine_index_path",
+    "query_world_table",
     "register_quarantine_reprocessor",
     "reprocess_quarantine_records",
+    "require_authorized_execution",
     "require_dataframe",
+    "verify_journal_event_ref",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "AppendOnlyEvidenceJournal": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "AppendOnlyEvidenceJournal",
+    ),
+    "EvidenceJournalError": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "EvidenceJournalError",
+    ),
+    "HarnessAuthorizationEvidence": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "HarnessAuthorizationEvidence",
+    ),
+    "JournalEventRef": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "JournalEventRef",
+    ),
+    "LiveExecutionAuthorization": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveExecutionAuthorization",
+    ),
+    "LiveHttpBudget": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveHttpBudget",
+    ),
+    "derive_harness_authorization_evidence": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "derive_harness_authorization_evidence",
+    ),
+    "derive_live_http_budget": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "derive_live_http_budget",
+    ),
+    "require_authorized_execution": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "require_authorized_execution",
+    ),
+    "verify_journal_event_ref": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "verify_journal_event_ref",
+    ),
     "FabricBenchmarkReport": ("polisyos.fabric.data_plane.benchmarks", "FabricBenchmarkReport"),
     "benchmark_partitioned_ingestion": (
         "polisyos.fabric.data_plane.benchmarks",

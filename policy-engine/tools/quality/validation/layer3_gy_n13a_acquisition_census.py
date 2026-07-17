@@ -12,7 +12,6 @@ import asyncio
 import base64
 import hashlib
 import json
-import os
 import time
 from collections import Counter, defaultdict
 from collections.abc import Awaitable, Callable, Mapping, Sequence
@@ -25,6 +24,11 @@ from urllib.parse import urlsplit
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+
+from polisyos.fabric.data_plane.evidence_journal import (
+    append_fsync_jsonl as _append_fsync_jsonl,
+)
+from polisyos.fabric.data_plane.evidence_journal import canonical_json_bytes
 
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n13a.acquisition_census.v1"
 RULE_VERSION = "policyos.layer3.gy.n13a.acquisition_census.v1"
@@ -1460,22 +1464,6 @@ class CensusExecutionFenceError(RuntimeError):
         super().__init__(f"{code}: {detail}")
         self.code = code
         self.detail = detail
-
-
-def canonical_json_bytes(value: object) -> bytes:
-    """Return deterministic UTF-8 JSON bytes with one trailing newline."""
-
-    normalized = _json_value(value)
-    return (
-        json.dumps(
-            normalized,
-            allow_nan=False,
-            ensure_ascii=False,
-            separators=(",", ":"),
-            sort_keys=True,
-        )
-        + "\n"
-    ).encode("utf-8")
 
 
 def semantic_content_hash(value: object) -> str:
@@ -3915,14 +3903,6 @@ def _safe_response_headers(headers: Mapping[str, str]) -> dict[str, str]:
         if normalized in exact or normalized.startswith("x-ratelimit-"):
             safe[normalized] = str(value)
     return dict(sorted(safe.items()))
-
-
-def _append_fsync_jsonl(path: Path, event: Mapping[str, Any]) -> None:
-    payload = canonical_json_bytes(event)
-    with path.open("ab") as handle:
-        handle.write(payload)
-        handle.flush()
-        os.fsync(handle.fileno())
 
 
 def _coerce_plan_filters(value: object) -> dict[str, list[str]]:

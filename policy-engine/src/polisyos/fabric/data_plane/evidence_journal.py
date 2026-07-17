@@ -105,7 +105,10 @@ class LiveHttpBudget(_StrictModel):
 class HarnessAuthorizationEvidence(_StrictModel):
     """N13a E7 harness projection that recomputes whether one carrier is safe."""
 
+    attempt_id: str = Field(min_length=1)
     connector_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
     family_receipt_sha256: str = Field(pattern=_SHA256_PATTERN)
     carrier_receipt_sha256: str = Field(pattern=_SHA256_PATTERN)
     protocol_conformant: bool
@@ -160,8 +163,14 @@ class LiveExecutionAuthorization(_StrictModel):
 
     @model_validator(mode="after")
     def _authorization_is_recomputed(self) -> Self:
+        if self.attempt_id != self.harness.attempt_id:
+            raise ValueError("authorization attempt must match the harness carrier")
         if self.connector_id != self.harness.connector_id:
             raise ValueError("authorization connector must match the harness carrier")
+        if self.profile_id != self.harness.profile_id:
+            raise ValueError("authorization profile must match the harness carrier")
+        if self.request_variables != (self.harness.request_dataset_id,):
+            raise ValueError("authorization variable must match the harness carrier")
         expected = self.harness.safe_dry_run_passed
         if self.authorized != expected:
             raise ValueError("authorization must be recomputed from harness evidence")
@@ -396,6 +405,12 @@ def derive_harness_authorization_evidence(
     connector_id = str(payload.get("connector_id") or "")
     if not connector_id:
         raise EvidenceJournalError("harness_connector_missing", attempt_id)
+    profile_id = str(carrier.get("profile_id") or "")
+    if not profile_id:
+        raise EvidenceJournalError("harness_profile_missing", attempt_id)
+    request_dataset_id = str(carrier.get("request_dataset_id") or "")
+    if not request_dataset_id:
+        raise EvidenceJournalError("harness_request_dataset_missing", attempt_id)
     family_safe = bool(payload.get("safe_dry_run_passed"))
     carrier_outcome = str(carrier.get("outcome") or "")
     carrier_intercepted = bool(carrier.get("transport_intercepted"))
@@ -409,7 +424,10 @@ def derive_harness_authorization_evidence(
         and carrier_outcome in _SAFE_DRY_RUN_OUTCOMES
     )
     return HarnessAuthorizationEvidence(
+        attempt_id=attempt_id,
         connector_id=connector_id,
+        profile_id=profile_id,
+        request_dataset_id=request_dataset_id,
         family_receipt_sha256=content_sha256(payload),
         carrier_receipt_sha256=content_sha256(carrier),
         protocol_conformant=bool(payload.get("protocol_conformant")),
@@ -422,6 +440,74 @@ def derive_harness_authorization_evidence(
         carrier_outcome=carrier_outcome,
         safe_dry_run_passed=expected_safe,
     )
+
+
+def build_live_execution_authorization(
+    *,
+    attempt_id: str,
+    connector_id: str,
+    request_dataset_id: str,
+    request: Mapping[str, Any],
+    schema_contract: Mapping[str, Any],
+    source_profile: SourceProfile,
+    baseline_sha256: str,
+    family_receipt: object,
+    timeout_cap_seconds: float = 15.0,
+    heartbeat_cap_seconds: float = 5.0,
+    max_response_bytes: int,
+    max_decompressed_bytes: int,
+) -> LiveExecutionAuthorization:
+    """Build a one-call authorization from the exact E7-tested carrier.
+
+    The request is content-bound only after its connector, profile, requested
+    dataset, and schema contract are proven identical to the selected carrier
+    and the SourceProfile owner.  A family-level green receipt cannot authorize
+    a sibling carrier.
+    """
+
+    harness = derive_harness_authorization_evidence(
+        family_receipt,
+        attempt_id=attempt_id,
+    )
+    request_connector = request.get("connector_id")
+    request_profile = request.get("profile_id")
+    request_dataset = request.get("request_dataset_id")
+    request_schema = request.get("schema_contract")
+    if (
+        connector_id != harness.connector_id
+        or request_connector != connector_id
+        or source_profile.profile_id != harness.profile_id
+        or request_profile != source_profile.profile_id
+        or request_dataset_id != harness.request_dataset_id
+        or request_dataset != request_dataset_id
+        or request_schema != schema_contract
+        or not schema_contract
+    ):
+        raise EvidenceJournalError(
+            "live_execution_request_contract_drift",
+            attempt_id,
+        )
+    authorization = LiveExecutionAuthorization(
+        attempt_id=attempt_id,
+        connector_id=connector_id,
+        profile_id=source_profile.profile_id,
+        request_variables=(request_dataset_id,),
+        request_sha256=content_sha256(request),
+        schema_contract_sha256=content_sha256(schema_contract),
+        source_profile_sha256=content_sha256(source_profile),
+        baseline_sha256=baseline_sha256,
+        harness=harness,
+        budget=derive_live_http_budget(
+            source_profile,
+            timeout_cap_seconds=timeout_cap_seconds,
+            heartbeat_cap_seconds=heartbeat_cap_seconds,
+            max_response_bytes=max_response_bytes,
+            max_decompressed_bytes=max_decompressed_bytes,
+        ),
+        authorized=harness.safe_dry_run_passed,
+    )
+    require_authorized_execution(authorization, family_receipt=family_receipt)
+    return authorization
 
 
 def require_authorized_execution(
@@ -629,6 +715,7 @@ __all__ = [
     "LiveExecutionAuthorization",
     "LiveHttpBudget",
     "append_fsync_jsonl",
+    "build_live_execution_authorization",
     "canonical_json_bytes",
     "content_sha256",
     "derive_harness_authorization_evidence",

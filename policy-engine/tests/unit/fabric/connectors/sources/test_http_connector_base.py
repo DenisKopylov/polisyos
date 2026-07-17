@@ -116,6 +116,11 @@ class _FakeSession:
         return self._response
 
 
+class _ObserverLimits:
+    max_response_bytes = 1024
+    max_decompressed_bytes = 2048
+
+
 def _run(coro):
     return asyncio.run(coro)
 
@@ -368,3 +373,334 @@ def test_build_auth_headers_supports_bearer() -> None:
     headers = connector._build_auth_headers(handle, {"Accept": "application/json"})
     assert headers["Accept"] == "application/json"
     assert headers["Authorization"] == "Bearer secret-token"
+
+
+def test_raw_http_observer_runs_before_json_parse_with_exact_bounded_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.fabric.connectors.sources.http_base as http_base_module
+
+    connector = _DummyConnector()
+    raw = b'{"rows":[{"value":1}]}'
+    response_headers = {"Content-Type": "application/json", "ETag": '"v1"'}
+    params = {"country": "UA"}
+    events: list[str] = []
+    witnessed: list[tuple[object, ...]] = []
+
+    class _Observer(_ObserverLimits):
+        def before_request(
+            self,
+            connector_id: str,
+            url: str,
+            request_params: dict[str, str],
+        ) -> None:
+            events.append("before_request")
+            witnessed.append((connector_id, url, request_params))
+
+        def on_raw_response(
+            self,
+            connector_id: str,
+            url: str,
+            request_params: dict[str, str],
+            status_code: int,
+            headers: dict[str, str],
+            body: bytes,
+        ) -> None:
+            events.append("raw_response")
+            witnessed.append(
+                (connector_id, url, request_params, status_code, headers, body)
+            )
+
+    original_loads = http_base_module.json.loads
+
+    def _tracked_loads(payload: bytes) -> object:
+        events.append("json_parse")
+        return original_loads(payload)
+
+    monkeypatch.setattr(http_base_module.json, "loads", _tracked_loads)
+
+    body, headers, returned_raw = _run(
+        connector._request_json(
+            _FakeSession(_FakeResponse(200, response_headers, raw)),
+            "https://example.test/data",
+            params=params,
+            connector_id=connector.connector_id,
+            raw_http_response_observer=_Observer(),
+        )
+    )
+
+    assert body == {"rows": [{"value": 1}]}
+    assert headers == response_headers
+    assert returned_raw is raw
+    assert events == ["before_request", "raw_response", "json_parse"]
+    assert witnessed == [
+        (connector.connector_id, "https://example.test/data", params),
+        (
+            connector.connector_id,
+            "https://example.test/data",
+            params,
+            200,
+            response_headers,
+            raw,
+        ),
+    ]
+
+
+def test_raw_http_observer_can_abort_before_network_request() -> None:
+    connector = _DummyConnector()
+    request_attempted = False
+
+    class _NoBudgetObserver(_ObserverLimits):
+        def before_request(
+            self,
+            connector_id: str,
+            url: str,
+            params: dict[str, str],
+        ) -> None:
+            del connector_id, url, params
+            raise RuntimeError("HTTP call budget exhausted")
+
+        def on_raw_response(self, *args: object) -> None:
+            del args
+            pytest.fail("a response cannot exist when the request budget rejects the call")
+
+    class _NoRequestSession:
+        def get(self, *args: object, **kwargs: object) -> _FakeResponse:
+            nonlocal request_attempted
+            del args, kwargs
+            request_attempted = True
+            pytest.fail("session.get ran after the observer rejected the request")
+
+    with pytest.raises(RuntimeError, match="HTTP call budget exhausted"):
+        _run(
+            connector._request_json(
+                _NoRequestSession(),  # type: ignore[arg-type]
+                "https://example.test/data",
+                params={"country": "UA"},
+                connector_id=connector.connector_id,
+                raw_http_response_observer=_NoBudgetObserver(),
+            )
+        )
+
+    assert request_attempted is False
+
+
+@pytest.mark.parametrize("status_code", [429, 503])
+def test_raw_http_observer_journals_non_success_body_before_status_error(
+    status_code: int,
+) -> None:
+    connector = _DummyConnector()
+    raw = b'{"error":"temporary"}'
+    witnessed: list[tuple[int, bytes]] = []
+
+    class _Observer(_ObserverLimits):
+        def before_request(self, *args: object) -> None:
+            del args
+
+        def on_raw_response(
+            self,
+            connector_id: str,
+            url: str,
+            params: dict[str, str],
+            status_code: int,
+            headers: dict[str, str],
+            body: bytes,
+        ) -> None:
+            del connector_id, url, params, headers
+            witnessed.append((status_code, body))
+
+    error_type = RateLimitError if status_code == 429 else FetchError
+    with pytest.raises(error_type) as exc:
+        _run(
+            connector._request_json(
+                _FakeSession(_FakeResponse(status_code, {"Retry-After": "2"}, raw)),
+                "https://example.test/fail",
+                params={"q": "x"},
+                connector_id=connector.connector_id,
+                raw_http_response_observer=_Observer(),
+            )
+        )
+
+    if status_code == 503:
+        assert getattr(exc.value, "status_code", None) == 503
+    else:
+        assert isinstance(exc.value, RateLimitError)
+    assert witnessed == [(status_code, raw)]
+
+
+def test_error_response_body_remains_unread_when_no_observer_is_installed() -> None:
+    connector = _DummyConnector()
+
+    class _UnreadableErrorResponse(_FakeResponse):
+        async def read(self) -> bytes:
+            pytest.fail("legacy error-status handling must not read the response body")
+
+    with pytest.raises(FetchError) as exc:
+        _run(
+            connector._request_json(
+                _FakeSession(_UnreadableErrorResponse(503, {}, b"must-not-read")),
+                "https://example.test/fail",
+                params={},
+                connector_id=connector.connector_id,
+            )
+        )
+
+    assert getattr(exc.value, "status_code", None) == 503
+
+
+def test_raw_http_observer_failure_prevents_json_parsing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.fabric.connectors.sources.http_base as http_base_module
+
+    connector = _DummyConnector()
+
+    class _FailingObserver(_ObserverLimits):
+        def before_request(self, *args: object) -> None:
+            del args
+
+        def on_raw_response(self, *args: object) -> None:
+            del args
+            raise RuntimeError("journal unavailable")
+
+    def _must_not_parse(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        pytest.fail("JSON parsing ran after the raw HTTP observer failed")
+
+    monkeypatch.setattr(http_base_module.json, "loads", _must_not_parse)
+
+    with pytest.raises(RuntimeError, match="journal unavailable"):
+        _run(
+            connector._request_json(
+                _FakeSession(_FakeResponse(200, {}, b'{"ok":true}')),
+                "https://example.test/data",
+                params={},
+                connector_id=connector.connector_id,
+                raw_http_response_observer=_FailingObserver(),
+            )
+        )
+
+
+def test_sources_facade_exports_raw_http_response_observer() -> None:
+    from polisyos.fabric import connectors
+    from polisyos.fabric.connectors import sources
+    from polisyos.fabric.connectors.sources import http_base
+
+    assert sources.RawHTTPResponseObserver is http_base.RawHTTPResponseObserver
+    assert connectors.RawHTTPResponseObserver is http_base.RawHTTPResponseObserver
+
+
+def test_raw_http_observer_tighter_limits_bound_response_read(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    connector = _DummyConnector()
+    observed_limits: list[tuple[int | None, int | None]] = []
+
+    class _TightObserver(_ObserverLimits):
+        max_response_bytes = 3
+        max_decompressed_bytes = 4
+
+        def before_request(self, *args: object) -> None:
+            del args
+
+        def on_raw_response(self, *args: object) -> None:
+            del args
+
+    async def _read_response_body(
+        response: object,
+        *,
+        connector_id: str,
+        url: str,
+        max_response_bytes: int | None = None,
+        max_decompressed_bytes: int | None = None,
+    ) -> bytes:
+        del response, connector_id, url
+        observed_limits.append((max_response_bytes, max_decompressed_bytes))
+        return b"{}"
+
+    monkeypatch.setattr(connector, "_read_response_body", _read_response_body)
+
+    _run(
+        connector._request_json(
+            _FakeSession(_FakeResponse(200, {}, b"{}")),
+            "https://example.test/data",
+            params={},
+            connector_id=connector.connector_id,
+            raw_http_response_observer=_TightObserver(),
+        )
+    )
+
+    assert observed_limits == [(3, 4)]
+
+
+def test_sync_fetch_handle_observer_flows_through_resilient_http_request() -> None:
+    from polisyos.fabric.ingestion.ingestion import _sync_fetch
+
+    raw = b'{"rows":[]}'
+    events: list[str] = []
+    config = ConnectionConfig(url="https://example.test")
+
+    class _Observer(_ObserverLimits):
+        def before_request(self, *args: object) -> None:
+            del args
+            events.append("before_request")
+
+        def on_raw_response(self, *args: object) -> None:
+            assert args[-1] is raw
+            events.append("raw_response")
+
+    observer = _Observer()
+
+    class _RequestingConnector(_DummyConnector):
+        async def _get_session(self, handle: ConnectionHandle) -> _FakeSession:
+            del handle
+            return _FakeSession(_FakeResponse(200, {}, raw))
+
+        async def fetch(
+            self,
+            handle: ConnectionHandle,
+            request: FetchRequest,
+        ) -> FetchResult[list[dict[str, Any]]]:
+            body, _headers, returned_raw = await self._resilient_request_json(
+                handle,
+                "https://example.test/data",
+                params={"dataset": request.dataset_id},
+            )
+            assert body == {"rows": []}
+            assert returned_raw is raw
+            events.append("fetch_result")
+            return await super().fetch(handle, request)
+
+    connector = _RequestingConnector()
+    handle = _run(connector.connect(config))
+
+    class _Registry:
+        async def get_connection(
+            self,
+            connector_id: str,
+            connection_config: ConnectionConfig,
+        ) -> ConnectionHandle:
+            assert connector_id == connector.connector_id
+            assert connection_config is config
+            return handle
+
+        async def release_connection(
+            self,
+            connector_id: str,
+            released_handle: ConnectionHandle,
+        ) -> None:
+            assert connector_id == connector.connector_id
+            assert released_handle is handle
+            assert observer not in released_handle.state.values()
+
+    result = _sync_fetch(
+        _Registry(),  # type: ignore[arg-type]
+        connector.connector_id,
+        connector,
+        FetchRequest(dataset_id="raw.dataset"),
+        connection_config=config,
+        raw_http_response_observer=observer,
+    )
+
+    assert result.row_count == 0
+    assert events == ["before_request", "raw_response", "fetch_result"]

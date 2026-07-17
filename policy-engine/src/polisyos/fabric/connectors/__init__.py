@@ -128,6 +128,7 @@ from polisyos.fabric.connectors.resilience import (
     with_rate_limit,
     with_retry,
 )
+from polisyos.fabric.connectors.sources.http_base import RawHTTPResponseObserver
 
 # Error types and supporting structures
 from polisyos.fabric.connectors.types import (
@@ -251,6 +252,7 @@ __all__ = [
     "RateLimitStatus",
     "RateLimiter",
     "RateLimiterConfig",
+    "RawHTTPResponseObserver",
     "RegistryError",
     "RegistryMetrics",
     "RegistryStats",

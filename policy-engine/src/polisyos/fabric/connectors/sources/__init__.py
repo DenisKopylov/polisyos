@@ -15,7 +15,11 @@ from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
 from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
 from polisyos.fabric.connectors.sources.geojson import GeoJSONConnector
 from polisyos.fabric.connectors.sources.graphql_api import GraphQLConnector
-from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
+from polisyos.fabric.connectors.sources.http_base import (
+    HTTPConnectorBase,
+    HTTPResilienceProfile,
+    RawHTTPResponseObserver,
+)
 from polisyos.fabric.connectors.sources.object_storage import ObjectStorageConnector
 from polisyos.fabric.connectors.sources.opendatasoft import OpendatasoftConnector
 from polisyos.fabric.connectors.sources.rest_json import RestJsonConnector
@@ -42,6 +46,7 @@ __all__ = [
     "HTTPResilienceProfile",
     "ObjectStorageConnector",
     "OpendatasoftConnector",
+    "RawHTTPResponseObserver",
     "RestJsonConnector",
     "SDMXSourceConnector",
     "SPARQLConnector",

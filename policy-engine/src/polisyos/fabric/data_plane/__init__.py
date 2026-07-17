@@ -23,6 +23,7 @@ __all__ = [
     "benchmark_query_execution",
     "benchmark_stream_processing",
     "benchmark_world_materialization",
+    "build_live_execution_authorization",
     "build_quarantine_report",
     "compare_historical_rows",
     "content_sha256",
@@ -47,6 +48,7 @@ __all__ = [
     "resolve_journal_event_ref",
     "resolve_linked_request_event",
     "resolve_raw_response_body",
+    "run_orchestrated_ingestion",
     "verify_journal_event_ref",
 ]
 
@@ -74,6 +76,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LiveHttpBudget": (
         "polisyos.fabric.data_plane.evidence_journal",
         "LiveHttpBudget",
+    ),
+    "build_live_execution_authorization": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "build_live_execution_authorization",
     ),
     "derive_harness_authorization_evidence": (
         "polisyos.fabric.data_plane.evidence_journal",
@@ -191,6 +197,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "process_stream_dataset": ("polisyos.fabric.data_plane.streaming", "process_stream_dataset"),
     "payload_to_dataframe": ("polisyos.fabric.data_plane.tabular", "payload_to_dataframe"),
     "require_dataframe": ("polisyos.fabric.data_plane.tabular", "require_dataframe"),
+    "run_orchestrated_ingestion": (
+        "polisyos.fabric.data_plane.orchestrator",
+        "run_orchestrated_ingestion",
+    ),
 }
 
 

@@ -11,7 +11,9 @@ from polisyos.fabric.data_plane.evidence_journal import (
     EvidenceJournalError,
     HarnessAuthorizationEvidence,
     LiveExecutionAuthorization,
+    build_live_execution_authorization,
     canonical_json_bytes,
+    content_sha256,
     derive_harness_authorization_evidence,
     derive_live_http_budget,
     require_authorized_execution,
@@ -50,6 +52,8 @@ def _harness_receipt(*, safe: bool = True) -> dict[str, object]:
         "dry_run_attempts": (
             {
                 "attempt_id": "n13b-worldbank-cpi-001",
+                "profile_id": "worldbank_wdi",
+                "request_dataset_id": "FP.CPI.TOTL",
                 "outcome": "replay_fixture_missing_after_interception",
                 "transport_intercepted": True,
             },
@@ -66,7 +70,10 @@ def _harness_evidence(*, safe: bool = True) -> HarnessAuthorizationEvidence:
 
 def _forged_harness_evidence() -> HarnessAuthorizationEvidence:
     return HarnessAuthorizationEvidence(
+        attempt_id="n13b-worldbank-cpi-001",
         connector_id="worldbank.wdi",
+        profile_id="worldbank_wdi",
+        request_dataset_id="FP.CPI.TOTL",
         family_receipt_sha256=_HASH,
         carrier_receipt_sha256="sha256:" + "b" * 64,
         protocol_conformant=True,
@@ -99,6 +106,16 @@ def _authorization(*, safe: bool = True) -> LiveExecutionAuthorization:
         ),
         authorized=safe,
     )
+
+
+def _authorization_request() -> dict[str, object]:
+    return {
+        "connector_id": "worldbank.wdi",
+        "profile_id": "worldbank_wdi",
+        "request_dataset_id": "FP.CPI.TOTL",
+        "variable_id": "inflation.cpi",
+        "schema_contract": {"columns": ["country_code", "year", "value"]},
+    }
 
 
 def test_live_execution_authorization_is_one_variable_and_harness_derived() -> None:
@@ -136,6 +153,49 @@ def test_live_execution_authorization_is_one_variable_and_harness_derived() -> N
     )
     with pytest.raises(EvidenceJournalError, match="live_execution_harness_evidence_drift"):
         require_authorized_execution(forged, family_receipt=_harness_receipt())
+
+
+def test_live_execution_authorization_builder_binds_exact_carrier_and_request() -> None:
+    request = _authorization_request()
+    authorization = build_live_execution_authorization(
+        attempt_id="n13b-worldbank-cpi-001",
+        connector_id="worldbank.wdi",
+        request_dataset_id="FP.CPI.TOTL",
+        request=request,
+        schema_contract=request["schema_contract"],
+        source_profile=_source_profile(),
+        baseline_sha256="sha256:" + "f" * 64,
+        family_receipt=_harness_receipt(),
+        max_response_bytes=65_536,
+        max_decompressed_bytes=65_536,
+    )
+
+    assert authorization.request_sha256 == content_sha256(request)
+    assert authorization.request_variables == ("FP.CPI.TOTL",)
+    assert authorization.harness.profile_id == "worldbank_wdi"
+    assert authorization.harness.request_dataset_id == "FP.CPI.TOTL"
+    require_authorized_execution(
+        authorization,
+        family_receipt=_harness_receipt(),
+    )
+
+    wrong_request = {**request, "request_dataset_id": "NY.GDP.MKTP.CD"}
+    with pytest.raises(
+        EvidenceJournalError,
+        match="live_execution_request_contract_drift",
+    ):
+        build_live_execution_authorization(
+            attempt_id="n13b-worldbank-cpi-001",
+            connector_id="worldbank.wdi",
+            request_dataset_id="NY.GDP.MKTP.CD",
+            request=wrong_request,
+            schema_contract=request["schema_contract"],
+            source_profile=_source_profile(),
+            baseline_sha256="sha256:" + "f" * 64,
+            family_receipt=_harness_receipt(),
+            max_response_bytes=65_536,
+            max_decompressed_bytes=65_536,
+        )
 
 
 def test_http_budget_is_derived_from_profile_and_enforces_response_ceiling() -> None:

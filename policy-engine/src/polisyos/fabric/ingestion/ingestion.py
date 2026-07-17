@@ -16,6 +16,7 @@ from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import content_hash
 from polisyos.core.observability import get_metrics, get_tracer
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.cache.policy import (
     PolicyRegistry,
     SmartExpiryPolicy,
@@ -29,6 +30,8 @@ from polisyos.fabric.data_plane.quarantine import (
     QuarantineRecord,
     persist_quarantine_record,
 )
+from polisyos.fabric.data_plane.tabular import payload_to_dataframe
+from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 from polisyos.fabric.evidence import (
     build_evidence_bundle,
     persist_evidence_bundle,
@@ -39,7 +42,6 @@ from polisyos.fabric.ingestion.ingestion_providers import (
     IngestionDependencies,
     resolve_ingestion_dependencies,
 )
-from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.provenance.core import (
     ActivityType,
     AgentType,
@@ -50,8 +52,6 @@ from polisyos.fabric.provenance.core import (
     ProvenanceEntity,
 )
 from polisyos.fabric.provenance.lineage import FabricLineageTracker
-from polisyos.fabric.data_plane.tabular import payload_to_dataframe
-from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
 if TYPE_CHECKING:
@@ -61,9 +61,12 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.contracts.fabric import EvidenceBundleRef
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.fabric.connectors import RawHTTPResponseObserver
 
 logger = get_logger(__name__)
 TransformPipelineFactory = Callable[[], Any]
+PreTransformFetchResultSink = Callable[[str, str, FetchRequest, FetchResult[Any]], None]
+RawFetchResultSink = PreTransformFetchResultSink
 _TRANSFORM_PIPELINE_REGISTRY: dict[str, TransformPipelineFactory] = {}
 
 
@@ -672,6 +675,7 @@ def _sync_fetch(
     request: FetchRequest,
     *,
     connection_config: Any | None = None,
+    raw_http_response_observer: RawHTTPResponseObserver | None = None,
 ) -> FetchResult[Any]:
     async def _do_fetch() -> FetchResult[Any]:
         config = connection_config
@@ -681,10 +685,23 @@ def _sync_fetch(
                 raise ValueError(f"No default_config registered for connector '{connector_id}'")
             config = entry.default_config
         handle = await registry.get_connection(connector_id, config)
+        remove_observer: Callable[[Any], None] | None = None
         try:
+            if raw_http_response_observer is not None:
+                from polisyos.fabric.connectors.sources.http_base import (
+                    _install_raw_http_response_observer,
+                    _remove_raw_http_response_observer,
+                )
+
+                _install_raw_http_response_observer(handle, raw_http_response_observer)
+                remove_observer = _remove_raw_http_response_observer
             return await connector.fetch(handle, request)
         finally:
-            await registry.release_connection(connector_id, handle)
+            try:
+                if remove_observer is not None:
+                    remove_observer(handle)
+            finally:
+                await registry.release_connection(connector_id, handle)
 
     return run_coro_sync(_do_fetch())
 
@@ -813,8 +830,18 @@ def run_connectors_ingestion(
     metrics: MetricsRegistry | None = None,
     store_factory: ArtifactStoreFactory | None = None,
     dependencies: IngestionDependencies | None = None,
+    raw_result_sink: PreTransformFetchResultSink | None = None,
+    raw_http_response_observer: RawHTTPResponseObserver | None = None,
 ) -> EvidenceBundleRef | None:
-    """Canonical connector ingestion entrypoint."""
+    """Run connector ingestion with optional HTTP and normalized-result witnesses.
+
+    Args:
+        raw_result_sink: Receives the connector-normalized ``FetchResult`` immediately
+            after ``fetch`` and before transforms, PII processing, sanitization, or CAS.
+            It is not a raw HTTP-body witness.
+        raw_http_response_observer: Authorizes each HTTP attempt and receives its exact
+            bounded response bytes before HTTP-status or JSON interpretation.
+    """
     spec = _normalize_connector_manifest(connector_manifest)
     if not spec.datasets:
         logger.warning("connector_ingestion: manifest.datasets is empty — nothing to fetch.")
@@ -905,7 +932,10 @@ def run_connectors_ingestion(
                 connector,
                 request,
                 connection_config=connection_config,
+                raw_http_response_observer=raw_http_response_observer,
             )
+            if raw_result_sink is not None:
+                raw_result_sink(connector_id, dataset_id, request, result)
             result, transform_graph, transform_warnings, transform_quarantined = (
                 _apply_transform_pipeline(
                     result,
@@ -1076,6 +1106,8 @@ __all__ = [
     "ConnectorManifestSpec",
     "DatasetFetchSpec",
     "IngestionDependencies",
+    "PreTransformFetchResultSink",
+    "RawFetchResultSink",
     "resolve_ingestion_dependencies",
     "run_connectors_ingestion",
 ]

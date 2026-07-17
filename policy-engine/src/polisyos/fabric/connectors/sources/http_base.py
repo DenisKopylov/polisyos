@@ -5,10 +5,10 @@ from __future__ import annotations
 import asyncio
 import json
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, ClassVar, Generic, TypeVar
+from typing import Any, ClassVar, Generic, Protocol, TypeVar, cast
 
 import aiohttp
 
@@ -41,6 +41,93 @@ from polisyos.fabric.connectors.types import (
 from polisyos.ir.connectors import QualityTier, ResilienceInfo
 
 DataT = TypeVar("DataT")
+_RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY = "_raw_http_response_observer"
+
+
+class RawHTTPResponseObserver(Protocol):
+    """Observe bounded HTTP attempts and exact response bytes before interpretation."""
+
+    @property
+    def max_response_bytes(self) -> int:
+        """Maximum encoded response bytes authorized for this execution."""
+        ...
+
+    @property
+    def max_decompressed_bytes(self) -> int:
+        """Maximum decoded response bytes authorized for this execution."""
+        ...
+
+    def before_request(
+        self,
+        connector_id: str,
+        url: str,
+        params: Mapping[str, str],
+    ) -> None:
+        """Authorize one network attempt before ``session.get`` is called."""
+        ...
+
+    def on_raw_response(
+        self,
+        connector_id: str,
+        url: str,
+        params: Mapping[str, str],
+        status_code: int,
+        response_headers: Mapping[str, str],
+        body: bytes,
+    ) -> None:
+        """Persist one bounded response witness before status or JSON interpretation."""
+        ...
+
+
+def _install_raw_http_response_observer(
+    handle: ConnectionHandle,
+    observer: RawHTTPResponseObserver,
+) -> None:
+    handle.set_state(_RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY, observer)
+
+
+def _remove_raw_http_response_observer(handle: ConnectionHandle) -> None:
+    handle.pop_state(_RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY, None)
+
+
+def _raw_http_response_observer(
+    handle: ConnectionHandle,
+) -> RawHTTPResponseObserver | None:
+    observer = handle.get_state(_RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY)
+    if observer is None:
+        return None
+    return cast("RawHTTPResponseObserver", observer)
+
+
+def _raise_for_http_status(
+    *,
+    connector_id: str,
+    url: str,
+    status_code: int,
+    headers: Mapping[str, str],
+) -> None:
+    if status_code == 429:
+        retry_after = retry_after_seconds(headers)
+        raise RateLimitError(
+            connector_id=connector_id,
+            retry_after=int(retry_after) if retry_after is not None else None,
+            limit_remaining=safe_int(headers.get("X-RateLimit-Remaining")) or 0,
+        )
+    if status_code >= 400:
+        error = FetchError(
+            message=f"HTTP {status_code}",
+            connector_id=connector_id,
+            request_params={"url": url, "status": status_code},
+        )
+        error.status_code = status_code  # type: ignore[attr-defined]
+        raise error
+
+
+def _observer_byte_limit(observer: RawHTTPResponseObserver, field_name: str) -> int:
+    value = getattr(observer, field_name, None)
+    if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+        raise ValueError(f"raw HTTP observer {field_name} must be a positive integer")
+    return value
 
 
 @dataclass(frozen=True, slots=True)
@@ -209,12 +296,15 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
             connector_id: str,
             headers: dict[str, str] | None = None,
         ) -> tuple[Any, dict[str, str], bytes]:
-            request_kwargs = {
+            request_kwargs: dict[str, Any] = {
                 "params": params,
                 "connector_id": connector_id,
             }
             if headers:
                 request_kwargs["headers"] = headers
+            observer = _raw_http_response_observer(handle)
+            if observer is not None:
+                request_kwargs["raw_http_response_observer"] = observer
             return await self._request_json(session, url, **request_kwargs)
 
         wrapped = apply_resilience(
@@ -258,33 +348,55 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
         params: dict[str, str],
         connector_id: str,
         headers: dict[str, str] | None = None,
+        raw_http_response_observer: RawHTTPResponseObserver | None = None,
     ) -> tuple[Any, dict[str, str], bytes]:
+        max_response_bytes = self.resilience_profile.max_response_bytes
+        max_decompressed_bytes = self.resilience_profile.max_decompressed_bytes
+        if raw_http_response_observer is not None:
+            max_response_bytes = min(
+                max_response_bytes,
+                _observer_byte_limit(raw_http_response_observer, "max_response_bytes"),
+            )
+            max_decompressed_bytes = min(
+                max_decompressed_bytes,
+                _observer_byte_limit(
+                    raw_http_response_observer,
+                    "max_decompressed_bytes",
+                ),
+            )
+            raw_http_response_observer.before_request(connector_id, url, dict(params))
         async with session.get(url, params=params, headers=headers) as response:
             headers = dict(response.headers)
-            if response.status == 429:
-                retry_after = retry_after_seconds(headers)
-                raise RateLimitError(
+            if raw_http_response_observer is None:
+                _raise_for_http_status(
                     connector_id=connector_id,
-                    retry_after=int(retry_after) if retry_after is not None else None,
-                    limit_remaining=safe_int(headers.get("X-RateLimit-Remaining")) or 0,
+                    url=url,
+                    status_code=response.status,
+                    headers=headers,
                 )
-
-            if response.status >= 400:
-                error = FetchError(
-                    message=f"HTTP {response.status}",
-                    connector_id=connector_id,
-                    request_params={"url": url, "status": response.status},
-                )
-                error.status_code = response.status  # type: ignore[attr-defined]
-                raise error
-
             raw = await self._read_response_body(
                 response,
                 connector_id=connector_id,
                 url=url,
-                max_response_bytes=self.resilience_profile.max_response_bytes,
-                max_decompressed_bytes=self.resilience_profile.max_decompressed_bytes,
+                max_response_bytes=max_response_bytes,
+                max_decompressed_bytes=max_decompressed_bytes,
             )
+            if raw_http_response_observer is not None:
+                raw_http_response_observer.on_raw_response(
+                    connector_id,
+                    url,
+                    dict(params),
+                    response.status,
+                    dict(headers),
+                    raw,
+                )
+                _raise_for_http_status(
+                    connector_id=connector_id,
+                    url=url,
+                    status_code=response.status,
+                    headers=headers,
+                )
+
             if len(raw) > self.resilience_profile.max_json_bytes:
                 raise FetchError(
                     message=(
@@ -403,4 +515,4 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
         return max((time.monotonic() - started_at_monotonic) * 1000.0, 0.001)
 
 
-__all__ = ["HTTPConnectorBase", "HTTPResilienceProfile"]
+__all__ = ["HTTPConnectorBase", "HTTPResilienceProfile", "RawHTTPResponseObserver"]

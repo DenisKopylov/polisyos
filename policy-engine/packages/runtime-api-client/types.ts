@@ -1586,6 +1586,24 @@ export interface components {
             tenant_scope: string;
         };
         /**
+         * AcquisitionRoutingPayload
+         * @description Acquisition routing contract projection.
+         */
+        AcquisitionRoutingPayload: {
+            compute_economics: components["schemas"]["ProjectionJsonValue"];
+            denominators: components["schemas"]["ProjectionJsonValue"];
+            fail_closed_probes: components["schemas"]["ProjectionJsonValue"];
+            fail_closed_receipt: components["schemas"]["ProjectionJsonValue"];
+            grounding_acquisition_request: components["schemas"]["ProjectionJsonValue"];
+            known_residuals: components["schemas"]["ProjectionJsonValue"];
+            no_result_receipt: components["schemas"]["ProjectionJsonValue"];
+            /** Positive Receipt */
+            positive_receipt: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            recorded_rederive_inputs: components["schemas"]["ProjectionJsonValue"];
+        };
+        /**
          * AgentPipelineAttempt
          * @description Agent pipeline attempt public type.
          */
@@ -1899,6 +1917,63 @@ export interface components {
             schema_name?: string | null;
             /** Schema Version */
             schema_version?: string | null;
+        };
+        /**
+         * ArtifactMissingGovernedProjectionPacket
+         * @description Projection state for an absent governed source.
+         */
+        ArtifactMissingGovernedProjectionPacket: {
+            /** Absence Reason */
+            absence_reason: string;
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Authoritative For */
+            authoritative_for: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            availability: "artifact_missing";
+            /**
+             * Export Replay Contract
+             * @default policyos.runtime.export_replay_binding.v1
+             * @constant
+             */
+            export_replay_contract: "policyos.runtime.export_replay_binding.v1";
+            freshness: components["schemas"]["ProjectionFreshness"];
+            intended_audience: components["schemas"]["AudienceClass"];
+            /** May Not Use For */
+            may_not_use_for: string[];
+            /**
+             * Packet Schema Version
+             * @default policyos.runtime.governed_projection_packet.v1
+             * @constant
+             */
+            packet_schema_version: "policyos.runtime.governed_projection_packet.v1";
+            /** Payload */
+            payload?: null;
+            /** Projection Hash */
+            projection_hash?: null;
+            projection_id: components["schemas"]["ProjectionId"];
+            /**
+             * Projection Rule Version
+             * @default policyos.runtime.governed_projection.v1
+             * @constant
+             */
+            projection_rule_version: "policyos.runtime.governed_projection.v1";
+            /** Replay Address */
+            replay_address?: null;
+            /** Source */
+            source?: null;
+            /** Source Rule Version */
+            source_rule_version?: null;
+            /** Source Schema Version */
+            source_schema_version?: null;
+            /** Stable Address */
+            stable_address: string;
         };
         /**
          * ArtifactRef
@@ -2355,6 +2430,62 @@ export interface components {
             semantic_type?: string | null;
             /** Text */
             text: string;
+        };
+        /**
+         * AvailableGovernedProjectionPacket
+         * @description Projection state with a source-specific typed payload.
+         */
+        AvailableGovernedProjectionPacket: {
+            /** Absence Reason */
+            absence_reason?: null;
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Authoritative For */
+            authoritative_for: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            availability: "available";
+            /**
+             * Export Replay Contract
+             * @default policyos.runtime.export_replay_binding.v1
+             * @constant
+             */
+            export_replay_contract: "policyos.runtime.export_replay_binding.v1";
+            freshness: components["schemas"]["ProjectionFreshness"];
+            intended_audience: components["schemas"]["AudienceClass"];
+            /** May Not Use For */
+            may_not_use_for: string[];
+            /**
+             * Packet Schema Version
+             * @default policyos.runtime.governed_projection_packet.v1
+             * @constant
+             */
+            packet_schema_version: "policyos.runtime.governed_projection_packet.v1";
+            /** Payload */
+            payload: components["schemas"]["DepthNCycleBoardPayload"] | components["schemas"]["ValueGatePayload"] | components["schemas"]["GenerationCycleDispositionPayload"] | components["schemas"]["EngineCensusPayload"] | components["schemas"]["ForkBRelationCensusPayload"] | components["schemas"]["AcquisitionRoutingPayload"] | components["schemas"]["N13AAcquisitionCensusPayload"] | components["schemas"]["N13ALiveProbeJournalPayload"] | components["schemas"]["CapabilityRealityPayload"] | components["schemas"]["ClusterOwnershipPayload"] | components["schemas"]["Layer3HealthMetricsPayload"] | components["schemas"]["LegacyProvingGroundPayload"] | components["schemas"]["SurfaceReadinessPayload"];
+            /** Projection Hash */
+            projection_hash: string;
+            projection_id: components["schemas"]["ProjectionId"];
+            /**
+             * Projection Rule Version
+             * @default policyos.runtime.governed_projection.v1
+             * @constant
+             */
+            projection_rule_version: "policyos.runtime.governed_projection.v1";
+            /** Replay Address */
+            replay_address: string;
+            source: components["schemas"]["ProjectionSourceIdentity"];
+            /** Source Rule Version */
+            source_rule_version?: string | null;
+            /** Source Schema Version */
+            source_schema_version?: string | null;
+            /** Stable Address */
+            stable_address: string;
         };
         /**
          * BasinEstimate
@@ -2918,6 +3049,20 @@ export interface components {
             workspaces?: string[];
         };
         /**
+         * CapabilityRealityPayload
+         * @description Owner-reported capability reality projection.
+         */
+        CapabilityRealityPayload: {
+            blockers: components["schemas"]["ProjectionJsonValue"];
+            capability_claims: components["schemas"]["ProjectionJsonValue"];
+            chain_clusters: components["schemas"]["ProjectionJsonValue"];
+            debt_algebra: components["schemas"]["ProjectionJsonValue"];
+            issues: components["schemas"]["ProjectionJsonValue"];
+            ratchet_integrity_status: components["schemas"]["ProjectionJsonValue"];
+            readiness: components["schemas"]["ProjectionJsonValue"];
+            summary: components["schemas"]["ProjectionJsonValue"];
+        };
+        /**
          * CausalFrontierAreaRecord
          * @description Inline representation of one area-level SAE row.
          */
@@ -3162,6 +3307,27 @@ export interface components {
              * @constant
              */
             schema_version: "policyos.runtime.channel_registry.v1";
+        };
+        /**
+         * ClusterOwnershipPayload
+         * @description Cluster/cell ownership projection.
+         */
+        ClusterOwnershipPayload: {
+            architecture_core: components["schemas"]["ProjectionJsonValue"];
+            capability_chain_steps: components["schemas"]["ProjectionJsonValue"];
+            /** Clusters */
+            clusters: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            handshake_graph: components["schemas"]["ProjectionJsonValue"];
+            open_cell_closure: components["schemas"]["ProjectionJsonValue"];
+            owner: components["schemas"]["ProjectionJsonValue"];
+            purpose: components["schemas"]["ProjectionJsonValue"];
+            ratchet_state_vocabulary: components["schemas"]["ProjectionJsonValue"];
+            required_cell_fields: components["schemas"]["ProjectionJsonValue"];
+            required_clusters: components["schemas"]["ProjectionJsonValue"];
+            status: components["schemas"]["ProjectionJsonValue"];
+            stop_rule: components["schemas"]["ProjectionJsonValue"];
         };
         /**
          * ComparabilityReport
@@ -4609,6 +4775,46 @@ export interface components {
             significance: "improved" | "worsened" | "mixed" | "uncertain" | "not_comparable";
         };
         /**
+         * DepthNCycleBoardPayload
+         * @description Cycle Board dependency projection from the depth-N capstone.
+         */
+        DepthNCycleBoardPayload: {
+            /** Depth Evidence */
+            depth_evidence: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Domain Runs */
+            domain_runs: {
+                [key: string]: components["schemas"]["DepthNDomainRunProjection"];
+            };
+            /** Terminal Distributions */
+            terminal_distributions: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+        };
+        /**
+         * DepthNDomainRunProjection
+         * @description Narrow recorded fields for one depth-N domain run.
+         */
+        DepthNDomainRunProjection: {
+            acquisition_route: components["schemas"]["ProjectionJsonValue"];
+            design_problem_ref: components["schemas"]["ProjectionJsonValue"];
+            domain_role: components["schemas"]["ProjectionJsonValue"];
+            /** Evidence Class */
+            evidence_class: string;
+            /** Evidence Witness */
+            evidence_witness: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            generation_cycle_run_id: components["schemas"]["ProjectionJsonValue"];
+            /** Terminal Distribution */
+            terminal_distribution: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Weakest Links */
+            weakest_links: components["schemas"]["ProjectionJsonValue"][];
+        };
+        /**
          * DerivedArtifact
          * @description Derived artifact public type.
          */
@@ -4664,6 +4870,25 @@ export interface components {
              * @enum {string}
              */
             source_lane: "fastlane" | "explorelane" | "catalog";
+        };
+        /**
+         * EngineCensusPayload
+         * @description Engine census summary without the row table.
+         */
+        EngineCensusPayload: {
+            critical_findings: components["schemas"]["ProjectionJsonValue"];
+            discipline: components["schemas"]["ProjectionJsonValue"];
+            evidence_reproducibility: components["schemas"]["ProjectionJsonValue"];
+            /** Execution Status Vocabulary */
+            execution_status_vocabulary: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            gap_taxonomy_extensions: components["schemas"]["ProjectionJsonValue"];
+            /** Row Count */
+            row_count: number;
+            scope: components["schemas"]["ProjectionJsonValue"];
+            subcensus_summary: components["schemas"]["ProjectionJsonValue"];
+            verb_gap_consistency: components["schemas"]["ProjectionJsonValue"];
         };
         /**
          * EquilibriumBasinInterval
@@ -5491,6 +5716,34 @@ export interface components {
             status: "ok" | "insufficient_coverage" | "error";
         };
         /**
+         * ForkBRelationCensusPayload
+         * @description Fork-B relation census projection without relation rows.
+         */
+        ForkBRelationCensusPayload: {
+            authority: components["schemas"]["ProjectionJsonValue"];
+            certificate_summaries: components["schemas"]["ProjectionJsonValue"];
+            coverage_manifest: components["schemas"]["ProjectionJsonValue"];
+            known_bridge_limits: components["schemas"]["ProjectionJsonValue"];
+            normalization: components["schemas"]["ProjectionJsonValue"];
+            relation_counts: components["schemas"]["ProjectionJsonValue"];
+            relation_denominator_formula: components["schemas"]["ProjectionJsonValue"];
+            transport_floor: components["schemas"]["ProjectionJsonValue"];
+            transport_floor_rule: components["schemas"]["ProjectionJsonValue"];
+        };
+        /**
+         * GenerationCycleDispositionPayload
+         * @description Generation-cycle task and owner disposition projection.
+         */
+        GenerationCycleDispositionPayload: {
+            bridge_artifacts: components["schemas"]["ProjectionJsonValue"];
+            known_residuals: components["schemas"]["ProjectionJsonValue"];
+            method_availability_gate: components["schemas"]["ProjectionJsonValue"];
+            owners: components["schemas"]["ProjectionJsonValue"];
+            parallel_world_reconciliation: components["schemas"]["ProjectionJsonValue"];
+            task_owner_mapping: components["schemas"]["ProjectionJsonValue"];
+            tasks: components["schemas"]["ProjectionJsonValue"];
+        };
+        /**
          * GovernanceDebugResponse
          * @description Response envelope returned by the governance debug endpoint.
          */
@@ -5557,54 +5810,6 @@ export interface components {
             } | null;
             /** Verdict */
             verdict?: string | null;
-        };
-        /**
-         * GovernedProjectionPacket
-         * @description Typed, replayable export packet shared by later MACHINE twins.
-         */
-        GovernedProjectionPacket: {
-            /** Absence Reason */
-            absence_reason?: string | null;
-            /**
-             * As Of
-             * Format: date-time
-             */
-            as_of: string;
-            /** Authoritative For */
-            authoritative_for: string[];
-            availability: components["schemas"]["ProjectionAvailability"];
-            /**
-             * Export Replay Contract
-             * @default policyos.runtime.export_replay_binding.v1
-             * @constant
-             */
-            export_replay_contract: "policyos.runtime.export_replay_binding.v1";
-            freshness: components["schemas"]["ProjectionFreshness"];
-            intended_audience: components["schemas"]["AudienceClass"];
-            /** May Not Use For */
-            may_not_use_for: string[];
-            /**
-             * Packet Schema Version
-             * @default policyos.runtime.governed_projection_packet.v1
-             * @constant
-             */
-            packet_schema_version: "policyos.runtime.governed_projection_packet.v1";
-            /** Payload */
-            payload?: {
-                [key: string]: unknown;
-            } | null;
-            /** Projection Hash */
-            projection_hash?: string | null;
-            projection_id: components["schemas"]["ProjectionId"];
-            /** Replay Address */
-            replay_address?: string | null;
-            source?: components["schemas"]["ProjectionSourceIdentity"] | null;
-            /** Source Rule Version */
-            source_rule_version?: string | null;
-            /** Source Schema Version */
-            source_schema_version?: string | null;
-            /** Stable Address */
-            stable_address: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -5746,6 +5951,62 @@ export interface components {
             role: string;
         };
         /**
+         * InvalidGovernedProjectionPacket
+         * @description Projection state for present bytes that fail source validation.
+         */
+        InvalidGovernedProjectionPacket: {
+            /** Absence Reason */
+            absence_reason: string;
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Authoritative For */
+            authoritative_for: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            availability: "invalid_source";
+            /**
+             * Export Replay Contract
+             * @default policyos.runtime.export_replay_binding.v1
+             * @constant
+             */
+            export_replay_contract: "policyos.runtime.export_replay_binding.v1";
+            freshness: components["schemas"]["ProjectionFreshness"];
+            intended_audience: components["schemas"]["AudienceClass"];
+            /** May Not Use For */
+            may_not_use_for: string[];
+            /**
+             * Packet Schema Version
+             * @default policyos.runtime.governed_projection_packet.v1
+             * @constant
+             */
+            packet_schema_version: "policyos.runtime.governed_projection_packet.v1";
+            /** Payload */
+            payload?: null;
+            /** Projection Hash */
+            projection_hash?: null;
+            projection_id: components["schemas"]["ProjectionId"];
+            /**
+             * Projection Rule Version
+             * @default policyos.runtime.governed_projection.v1
+             * @constant
+             */
+            projection_rule_version: "policyos.runtime.governed_projection.v1";
+            /** Replay Address */
+            replay_address?: null;
+            source: components["schemas"]["ProjectionSourceIdentity"];
+            /** Source Rule Version */
+            source_rule_version?: string | null;
+            /** Source Schema Version */
+            source_schema_version?: string | null;
+            /** Stable Address */
+            stable_address: string;
+        };
+        /**
          * IterationLifecycleView
          * @description Current iteration state with stop reason and latest evaluator verdict.
          */
@@ -5768,6 +6029,31 @@ export interface components {
             state_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /** Stop Reason */
             stop_reason?: ("approved" | "budget_exhausted" | "no_delta" | "guardrail_violation") | null;
+        };
+        /**
+         * Layer3HealthMetricsPayload
+         * @description Recorded health metric ledger projection.
+         */
+        Layer3HealthMetricsPayload: {
+            /** Health Metric Ledgers */
+            health_metric_ledgers: components["schemas"]["ProjectionJsonValue"][];
+        };
+        /**
+         * LegacyProvingGroundPayload
+         * @description Fixture-only identity and semantic expectations.
+         */
+        LegacyProvingGroundPayload: {
+            /**
+             * Fixture Authority
+             * @default fixture_only
+             * @constant
+             */
+            fixture_authority: "fixture_only";
+            /** Fixture Identities */
+            fixture_identities: components["schemas"]["ProvingGroundFixtureIdentity"][];
+            /** Fixture Records */
+            fixture_records: components["schemas"]["ProvingGroundFixtureRecord"][];
+            runtime_outcomes: components["schemas"]["ProvingGroundRuntimeOutcomes"];
         };
         /**
          * LexGraphStatsResponse
@@ -6725,6 +7011,29 @@ export interface components {
             start_offset_days: number;
         };
         /**
+         * N13AAcquisitionCensusPayload
+         * @description N13a census dependency projection.
+         */
+        N13AAcquisitionCensusPayload: {
+            catalog_identity: components["schemas"]["ProjectionJsonValue"];
+            family_scorecards: components["schemas"]["ProjectionJsonValue"];
+            fetch_plan_generation: components["schemas"]["ProjectionJsonValue"];
+            growth_backlog: components["schemas"]["ProjectionJsonValue"];
+            metric_resolutions: components["schemas"]["ProjectionJsonValue"];
+            projection_bindings: components["schemas"]["ProjectionJsonValue"];
+            reverse_demand_residuals: components["schemas"]["ProjectionJsonValue"];
+            route_evidence: components["schemas"]["ProjectionJsonValue"];
+        };
+        /**
+         * N13ALiveProbeJournalPayload
+         * @description N13a live-probe journal dependency projection.
+         */
+        N13ALiveProbeJournalPayload: {
+            family_receipts: components["schemas"]["ProjectionJsonValue"];
+            records: components["schemas"]["ProjectionJsonValue"];
+            selection_plan: components["schemas"]["ProjectionJsonValue"];
+        };
+        /**
          * NaturalLanguageRunRequest
          * @description POST /api/v1/control/runs/nl — NL request triggering agent circuit.
          */
@@ -7635,12 +7944,6 @@ export interface components {
             run_id: string;
         };
         /**
-         * ProjectionAvailability
-         * @description Describe whether a governed source can back a projection.
-         * @enum {string}
-         */
-        ProjectionAvailability: "available" | "artifact_missing" | "invalid_source";
-        /**
          * ProjectionCatalogEntry
          * @description Describe one stable projection without reading its source artifact.
          */
@@ -7704,6 +8007,27 @@ export interface components {
          * @enum {string}
          */
         ProjectionId: "depth-n-cycle-board" | "value-gate" | "generation-cycle-disposition" | "engine-census" | "fork-b-relation-census" | "acquisition-routing-contract" | "n13a-acquisition-census" | "n13a-live-probe-journal" | "capability-reality" | "cluster-ownership" | "layer3-health-metrics" | "legacy-proving-ground" | "surface-readiness";
+        ProjectionJsonValue: string | number | boolean | unknown[] | {
+            [key: string]: unknown;
+        } | null;
+        /**
+         * ProjectionOwnerBinding
+         * @description Name an owner-recorded binding to a different governed artifact.
+         */
+        ProjectionOwnerBinding: {
+            /** Artifact Content Hash */
+            artifact_content_hash: string;
+            /** Binding Name */
+            binding_name: string;
+            /**
+             * Relation
+             * @default related_artifact
+             * @constant
+             */
+            relation: "related_artifact";
+            /** Relative Path */
+            relative_path: string;
+        };
         /**
          * ProjectionSourceIdentity
          * @description Bind a packet to the exact source bytes observed by the producer.
@@ -7713,6 +8037,11 @@ export interface components {
             artifact_content_hash: string;
             /** Declared Content Hash */
             declared_content_hash?: string | null;
+            /**
+             * Related Artifact Bindings
+             * @default []
+             */
+            related_artifact_bindings: components["schemas"]["ProjectionOwnerBinding"][];
             /** Relative Path */
             relative_path: string;
         };
@@ -7794,6 +8123,58 @@ export interface components {
              * @enum {string}
              */
             status: "approved" | "rejected";
+        };
+        /**
+         * ProvingGroundFixtureIdentity
+         * @description Manifest-owned identity for one legacy proving-ground case.
+         */
+        ProvingGroundFixtureIdentity: {
+            /** Authority Levels */
+            authority_levels: string[];
+            /** Case Id */
+            case_id: string;
+            /** Domain */
+            domain: string;
+            /** Split */
+            split: string;
+        };
+        /**
+         * ProvingGroundFixtureRecord
+         * @description Narrow fixture expectation projection without producer metadata.
+         */
+        ProvingGroundFixtureRecord: {
+            case_id: components["schemas"]["ProjectionJsonValue"];
+            claim_evidence_annotations: components["schemas"]["ProjectionJsonValue"];
+            compilation_intent_text: components["schemas"]["ProjectionJsonValue"];
+            concept_spine_refs: components["schemas"]["ProjectionJsonValue"];
+            domain: components["schemas"]["ProjectionJsonValue"];
+            expected_adapter_bindings: components["schemas"]["ProjectionJsonValue"];
+            expected_claim_families: components["schemas"]["ProjectionJsonValue"];
+            expected_closeout_states: components["schemas"]["ProjectionJsonValue"];
+            expected_facets: components["schemas"]["ProjectionJsonValue"];
+            expected_obligation_graph: components["schemas"]["ProjectionJsonValue"];
+            expected_projection_truthfulness: components["schemas"]["ProjectionJsonValue"];
+            expected_requirement_specs: components["schemas"]["ProjectionJsonValue"];
+            expert_adjudication: components["schemas"]["ProjectionJsonValue"];
+            input_intent_ref: components["schemas"]["ProjectionJsonValue"];
+            intent: components["schemas"]["ProjectionJsonValue"];
+            schema_version: components["schemas"]["ProjectionJsonValue"];
+            split: components["schemas"]["ProjectionJsonValue"];
+            title: components["schemas"]["ProjectionJsonValue"];
+        };
+        /**
+         * ProvingGroundRuntimeOutcomes
+         * @description Explicitly absent runtime result slot for fixture-only records.
+         */
+        ProvingGroundRuntimeOutcomes: {
+            /**
+             * Availability
+             * @default artifact_missing
+             * @constant
+             */
+            availability: "artifact_missing";
+            /** Reason */
+            reason: string;
         };
         /**
          * QualityRef
@@ -9340,6 +9721,22 @@ export interface components {
             profiles?: components["schemas"]["SourceProfileInfo"][];
         };
         /**
+         * SurfaceReadinessPayload
+         * @description Owner-versioned surface readiness projection once a live schema exists.
+         */
+        SurfaceReadinessPayload: {
+            /** Authority */
+            authority: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Controlled Vocabulary Source */
+            controlled_vocabulary_source: string;
+            /** Entries */
+            entries: components["schemas"]["ProjectionJsonValue"][];
+            /** Ledger Id */
+            ledger_id: string;
+        };
+        /**
          * TemporalCapabilitiesResponse
          * @description Response envelope for temporal capabilities and gaps.
          */
@@ -9614,6 +10011,36 @@ export interface components {
             msg: string;
             /** Error Type */
             type: string;
+        };
+        /**
+         * ValueGatePayload
+         * @description Value-gate dependency projection.
+         */
+        ValueGatePayload: {
+            acquisition_routing: components["schemas"]["ProjectionJsonValue"];
+            /** Advisor Receipts */
+            advisor_receipts: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Denominators */
+            denominators: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            disposition: components["schemas"]["ProjectionJsonValue"];
+            /** Education Refusal */
+            education_refusal: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Mode Gates */
+            mode_gates: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Production Refusal */
+            production_refusal: {
+                [key: string]: components["schemas"]["ProjectionJsonValue"];
+            };
+            /** Value Outer Set Contract */
+            value_outer_set_contract: components["schemas"]["ProjectionJsonValue"][];
         };
         /**
          * VerificationMetadata
@@ -11067,7 +11494,9 @@ export interface operations {
     };
     render_bureaucratic_artifact: {
         parameters: {
-            query?: never;
+            query?: {
+                export_projection_hash?: string | null;
+            };
             header?: never;
             path: {
                 packet_id: string;
@@ -14563,7 +14992,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GovernedProjectionPacket"];
+                    "application/json": components["schemas"]["AvailableGovernedProjectionPacket"] | components["schemas"]["ArtifactMissingGovernedProjectionPacket"] | components["schemas"]["InvalidGovernedProjectionPacket"];
                 };
             };
             /** @description Malformed request payload or parameters. */

@@ -2,17 +2,17 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import Any
 
 import pytest
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-MODULE_PATH = (
-    REPO_ROOT / "src/polisyos/runtime/http/services/governed_projections.py"
-)
+MODULE_PATH = REPO_ROOT / "src/polisyos/runtime/http/services/governed_projections.py"
 MODULE_NAME = "polisyos.runtime.http.services.governed_projections"
 MODULE_SPEC = spec_from_file_location(MODULE_NAME, MODULE_PATH)
 if MODULE_SPEC is None or MODULE_SPEC.loader is None:
@@ -27,6 +27,7 @@ GovernedProjectionService = MODULE.GovernedProjectionService
 ProjectionAvailability = MODULE.ProjectionAvailability
 ProjectionId = MODULE.ProjectionId
 ReplayPinMismatchError = MODULE.ReplayPinMismatchError
+hash_export_projection = MODULE.hash_export_projection
 
 
 def _write_json(root: Path, relative_path: str, payload: dict[str, Any]) -> Path:
@@ -79,6 +80,30 @@ def _write_minimal_capstone(root: Path, payload: dict[str, Any] | None = None) -
     )
 
 
+def _payload(packet: Any) -> dict[str, Any]:
+    payload = packet.payload
+    assert payload is not None
+    if isinstance(payload, BaseModel):
+        return payload.model_dump(mode="json")
+    assert isinstance(payload, dict)
+    return payload
+
+
+def _copy_governed_source(root: Path, relative_path: str) -> Path:
+    destination = root / relative_path
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(REPO_ROOT / relative_path, destination)
+    return destination
+
+
+def _copy_proving_ground(root: Path) -> None:
+    source_root = REPO_ROOT / "tests/fixtures/universal-corpus"
+    destination_root = root / "tests/fixtures/universal-corpus"
+    destination_root.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source_root / "manifest.json", destination_root / "manifest.json")
+    shutil.copytree(source_root / "cases", destination_root / "cases")
+
+
 def test_runtime_http_import_does_not_read_governed_artifacts(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -88,9 +113,7 @@ def test_runtime_http_import_does_not_read_governed_artifacts(
     monkeypatch.setattr(Path, "read_bytes", fail_read)
     service = GovernedProjectionService(REPO_ROOT)
 
-    assert ProjectionId.DEPTH_N_CYCLE_BOARD in {
-        entry.projection_id for entry in service.catalog()
-    }
+    assert ProjectionId.DEPTH_N_CYCLE_BOARD in {entry.projection_id for entry in service.catalog()}
 
 
 def test_projection_packets_require_identity_as_of_and_freshness(tmp_path: Path) -> None:
@@ -104,12 +127,56 @@ def test_projection_packets_require_identity_as_of_and_freshness(tmp_path: Path)
     assert packet.projection_hash is not None
     assert packet.projection_hash.startswith("sha256:")
     assert packet.export_replay_contract == "policyos.runtime.export_replay_binding.v1"
+    assert packet.projection_rule_version == "policyos.runtime.governed_projection.v1"
     assert packet.as_of is not None
     assert packet.freshness.observed_at is not None
     assert packet.freshness.basis in {"source_timestamp", "filesystem_mtime"}
     assert packet.stable_address.endswith("/depth-n-cycle-board")
     assert "artifact_content_hash=" in (packet.replay_address or "")
     assert "projection_hash=" in (packet.replay_address or "")
+
+
+def test_projection_packets_encode_distinct_available_missing_and_invalid_states(
+    tmp_path: Path,
+) -> None:
+    _write_minimal_capstone(tmp_path)
+    service = GovernedProjectionService(tmp_path)
+    available = service.get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+    missing = service.get(ProjectionId.N13A_ACQUISITION_CENSUS)
+
+    invalid_source = _minimal_capstone()
+    del invalid_source["domain_runs"]["unseen"]["evidence_witness"]
+    _write_minimal_capstone(tmp_path, invalid_source)
+    invalid = service.get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+
+    assert len({type(available), type(missing), type(invalid)}) == 3
+    assert available.source is not None and available.payload is not None
+    assert missing.source is None and missing.payload is None
+    assert invalid.source is not None and invalid.payload is None
+
+
+def test_available_projection_payloads_are_source_specific_strict_models() -> None:
+    service = GovernedProjectionService(REPO_ROOT)
+    available_ids = set(ProjectionId) - {ProjectionId.SURFACE_READINESS}
+
+    packets = [service.get(projection_id) for projection_id in available_ids]
+
+    assert all(packet.availability is ProjectionAvailability.AVAILABLE for packet in packets)
+    assert all(isinstance(packet.payload, BaseModel) for packet in packets)
+    assert len({type(packet.payload) for packet in packets}) == len(available_ids)
+    assert all(packet.projection_rule_version for packet in packets)
+
+
+def test_available_packet_rejects_payload_for_a_different_projection(
+    tmp_path: Path,
+) -> None:
+    _write_minimal_capstone(tmp_path)
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+    mismatched = packet.model_dump(mode="json")
+    mismatched["projection_id"] = ProjectionId.VALUE_GATE.value
+
+    with pytest.raises(ValidationError, match="requires ValueGatePayload"):
+        TypeAdapter(MODULE.GovernedProjectionPacket).validate_python(mismatched)
 
 
 def test_projection_cache_reuses_content_hash_key_until_source_changes(
@@ -141,6 +208,48 @@ def test_projection_cache_reuses_content_hash_key_until_source_changes(
     assert reads == 2
     assert third.source != first.source
     assert third.projection_hash != first.projection_hash
+
+
+def test_path_cache_detects_same_size_rewrite_with_preserved_mtime(
+    tmp_path: Path,
+) -> None:
+    source = _write_minimal_capstone(tmp_path)
+    original_stat = source.stat()
+    service = GovernedProjectionService(tmp_path)
+    before = service.get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+    changed = _minimal_capstone()
+    changed["producer"]["provenance_note"] = "other"
+    replacement = json.dumps(changed, sort_keys=True)
+    assert len(replacement.encode()) == original_stat.st_size
+    source.write_text(replacement, encoding="utf-8")
+    os.utime(
+        source,
+        ns=(original_stat.st_atime_ns, original_stat.st_mtime_ns),
+    )
+
+    after = service.get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+
+    assert before.source is not None and after.source is not None
+    assert before.source.artifact_content_hash != after.source.artifact_content_hash
+    assert before.projection_hash == after.projection_hash
+
+
+def test_projection_cache_cannot_be_corrupted_through_returned_nested_payload() -> None:
+    service = GovernedProjectionService(REPO_ROOT)
+    first = service.get(ProjectionId.ENGINE_CENSUS)
+    first_payload = first.payload
+    assert isinstance(first_payload, BaseModel)
+    vocabulary = first_payload.__dict__["execution_status_vocabulary"]
+    assert isinstance(vocabulary, dict)
+    vocabulary["cache_corruption_probe"] = "must_not_persist"
+
+    second = service.get(ProjectionId.ENGINE_CENSUS)
+    second_payload = _payload(second)
+
+    assert "cache_corruption_probe" not in second_payload["execution_status_vocabulary"]
+    assert second.projection_hash == hash_export_projection(
+        MODULE._projection_hash_basis(ProjectionId.ENGINE_CENSUS, second_payload)
+    )
 
 
 def test_replay_pin_rejects_artifact_hash_mismatch(tmp_path: Path) -> None:
@@ -178,7 +287,7 @@ def test_depth_n_projection_preserves_recorded_validator_outputs_without_rederiv
     _write_minimal_capstone(tmp_path, source)
 
     packet = GovernedProjectionService(tmp_path).get(ProjectionId.DEPTH_N_CYCLE_BOARD)
-    run = packet.payload["domain_runs"]["unseen"]
+    run = _payload(packet)["domain_runs"]["unseen"]
 
     assert run["evidence_class"] == "deliberately_unseen_owner_evidence_class"
     assert run["weakest_links"] == ["deliberately_unseen_owner_weakest_link"]
@@ -204,12 +313,11 @@ def test_depth_n_projection_accepts_unseen_terminal_labels_without_pinning(
     _write_minimal_capstone(tmp_path, _minimal_capstone(terminal_label="contested_new_owner_label"))
 
     packet = GovernedProjectionService(tmp_path).get(ProjectionId.DEPTH_N_CYCLE_BOARD)
-    run = packet.payload["domain_runs"]["unseen"]
+    payload = _payload(packet)
+    run = payload["domain_runs"]["unseen"]
 
     assert run["terminal_distribution"] == {"contested_new_owner_label": 1}
-    assert packet.payload["terminal_distributions"] == {
-        "unseen": {"contested_new_owner_label": 1}
-    }
+    assert payload["terminal_distributions"] == {"unseen": {"contested_new_owner_label": 1}}
 
 
 def test_depth_n_projection_hash_ignores_provenance_only_rebaseline(tmp_path: Path) -> None:
@@ -232,45 +340,82 @@ def test_depth_n_projection_hash_ignores_provenance_only_rebaseline(tmp_path: Pa
 
 def test_value_gate_projection_contains_denominators_receipts_and_outer_set_slots() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.VALUE_GATE)
+    payload = _payload(packet)
 
-    assert packet.payload["denominators"]["registered_method_count"] > 0
-    assert "method_selection_receipt" in packet.payload["education_refusal"]
-    assert "value_receipt" in packet.payload["education_refusal"]
-    assert packet.payload["value_outer_set_contract"]
+    assert payload["denominators"]["registered_method_count"] > 0
+    assert "method_selection_receipt" in payload["education_refusal"]
+    assert "value_receipt" in payload["education_refusal"]
+    assert payload["value_outer_set_contract"]
 
 
 def test_disposition_projection_is_narrow_and_audience_declared() -> None:
-    packet = GovernedProjectionService(REPO_ROOT).get(
-        ProjectionId.GENERATION_CYCLE_DISPOSITION
-    )
+    packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.GENERATION_CYCLE_DISPOSITION)
 
     assert packet.intended_audience is AudienceClass.EXPERT
-    assert "tasks" in packet.payload
-    assert "source_investigation" not in packet.payload
+    payload = _payload(packet)
+    assert "tasks" in payload
+    assert "source_investigation" not in payload
+
+
+def test_disposition_projection_rejects_missing_declared_dependencies(
+    tmp_path: Path,
+) -> None:
+    _write_json(
+        tmp_path,
+        "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
+        {"schema_version": "disposition.v1"},
+    )
+
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.GENERATION_CYCLE_DISPOSITION)
+
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
+    assert packet.payload is None
+    assert "tasks" in (packet.absence_reason or "")
 
 
 def test_engine_census_projection_omits_full_rows() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.ENGINE_CENSUS)
 
-    assert packet.payload["row_count"] > 0
-    assert "rows" not in packet.payload
+    payload = _payload(packet)
+    assert payload["row_count"] > 0
+    assert "rows" not in payload
 
 
 def test_fork_b_projection_omits_relation_table_and_binds_counts() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.FORK_B_RELATION_CENSUS)
 
-    assert packet.payload["relation_counts"]
-    assert "relation_table" not in packet.payload
+    payload = _payload(packet)
+    assert payload["relation_counts"]
+    assert "relation_table" not in payload
 
 
 def test_acquisition_contract_projection_preserves_owner_receipts() -> None:
-    packet = GovernedProjectionService(REPO_ROOT).get(
-        ProjectionId.ACQUISITION_ROUTING_CONTRACT
-    )
+    packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.ACQUISITION_ROUTING_CONTRACT)
 
-    assert "positive_receipt" in packet.payload
-    assert "no_result_receipt" in packet.payload
-    assert "fail_closed_receipt" in packet.payload
+    payload = _payload(packet)
+    assert "positive_receipt" in payload
+    assert "no_result_receipt" in payload
+    assert "fail_closed_receipt" in payload
+
+
+def test_acquisition_projection_hash_ignores_receipt_provenance_rebaseline(
+    tmp_path: Path,
+) -> None:
+    relative_path = "architecture/policy_design_case/layer3_gy_acquisition_contract.json"
+    source_path = _copy_governed_source(tmp_path, relative_path)
+    service = GovernedProjectionService(tmp_path)
+    before = service.get(ProjectionId.ACQUISITION_ROUTING_CONTRACT)
+    source = json.loads(source_path.read_text(encoding="utf-8"))
+    source["positive_receipt"]["generated_at"] = "2099-01-01T00:00:00Z"
+    source_path.write_text(json.dumps(source, sort_keys=True), encoding="utf-8")
+    current = source_path.stat()
+    os.utime(source_path, ns=(current.st_atime_ns, current.st_mtime_ns + 1_000_000))
+
+    after = service.get(ProjectionId.ACQUISITION_ROUTING_CONTRACT)
+
+    assert before.source is not None and after.source is not None
+    assert before.source.artifact_content_hash != after.source.artifact_content_hash
+    assert before.projection_hash == after.projection_hash
 
 
 def test_n13a_census_returns_typed_absence_when_source_is_missing(tmp_path: Path) -> None:
@@ -284,7 +429,12 @@ def test_n13a_census_projects_present_source() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.N13A_ACQUISITION_CENSUS)
 
     assert packet.availability is ProjectionAvailability.AVAILABLE
-    assert packet.payload["family_scorecards"]
+    assert _payload(packet)["family_scorecards"]
+    assert packet.source is not None
+    assert packet.source.declared_content_hash is None
+    assert {binding.binding_name for binding in packet.source.related_artifact_bindings} == {
+        "live_probe_journal_content_sha256"
+    }
 
 
 def test_n13a_probe_journal_returns_typed_absence_when_source_is_missing(
@@ -300,27 +450,29 @@ def test_n13a_probe_journal_projects_present_source() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.N13A_LIVE_PROBE_JOURNAL)
 
     assert packet.availability is ProjectionAvailability.AVAILABLE
-    assert packet.payload["records"]
+    assert _payload(packet)["records"]
 
 
 def test_capability_reality_projection_uses_reported_readiness() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.CAPABILITY_REALITY)
 
-    assert packet.payload["readiness"]
-    assert "summary" in packet.payload
+    payload = _payload(packet)
+    assert payload["readiness"]
+    assert "summary" in payload
 
 
 def test_cluster_ownership_projection_parses_toml_without_reclassifying_cells() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.CLUSTER_OWNERSHIP)
 
-    assert packet.payload["required_clusters"]
-    assert packet.payload["clusters"]
+    payload = _payload(packet)
+    assert payload["required_clusters"]
+    assert payload["clusters"]
 
 
 def test_layer3_health_projection_preserves_freeze_values() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.LAYER3_HEALTH_METRICS)
 
-    metrics = packet.payload["health_metric_ledgers"]
+    metrics = _payload(packet)["health_metric_ledgers"]
     assert metrics
     assert all("freeze_value" in metric for metric in metrics)
 
@@ -328,15 +480,41 @@ def test_layer3_health_projection_preserves_freeze_values() -> None:
 def test_proving_ground_never_promotes_fixture_expectations_to_runtime_outcomes() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.LEGACY_PROVING_GROUND)
 
-    assert packet.payload["fixture_authority"] == "fixture_only"
-    assert packet.payload["runtime_outcomes"]["availability"] == "artifact_missing"
+    payload = _payload(packet)
+    assert payload["fixture_authority"] == "fixture_only"
+    assert payload["runtime_outcomes"]["availability"] == "artifact_missing"
     assert "readiness" in packet.may_not_use_for
 
 
 def test_proving_ground_has_thirteen_fixture_identities() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.LEGACY_PROVING_GROUND)
 
-    assert len(packet.payload["fixture_identities"]) == 13
+    assert len(_payload(packet)["fixture_identities"]) == 13
+
+
+def test_proving_ground_projection_omits_producer_metadata_and_hash_ignores_it(
+    tmp_path: Path,
+) -> None:
+    _copy_proving_ground(tmp_path)
+    service = GovernedProjectionService(tmp_path)
+    before = service.get(ProjectionId.LEGACY_PROVING_GROUND)
+    before_payload = _payload(before)
+    assert all("metadata" not in record for record in before_payload["fixture_records"])
+    assert all("producer_pipeline" not in record for record in before_payload["fixture_records"])
+
+    case_path = next((tmp_path / "tests/fixtures/universal-corpus/cases").glob("*.json"))
+    case = json.loads(case_path.read_text(encoding="utf-8"))
+    case["metadata"] = {"provenance_only_rebaseline": True}
+    case["producer_pipeline"] = [{"provenance_only_rebaseline": True}]
+    case_path.write_text(json.dumps(case, sort_keys=True), encoding="utf-8")
+    current = case_path.stat()
+    os.utime(case_path, ns=(current.st_atime_ns, current.st_mtime_ns + 1_000_000))
+
+    after = service.get(ProjectionId.LEGACY_PROVING_GROUND)
+
+    assert before.source is not None and after.source is not None
+    assert before.source.artifact_content_hash != after.source.artifact_content_hash
+    assert before.projection_hash == after.projection_hash
 
 
 def test_surface_readiness_rejects_example_as_live_authority(tmp_path: Path) -> None:
@@ -356,6 +534,96 @@ def test_surface_readiness_returns_typed_absence_without_live_ledger() -> None:
     packet = GovernedProjectionService(REPO_ROOT).get(ProjectionId.SURFACE_READINESS)
 
     assert packet.availability is ProjectionAvailability.ARTIFACT_MISSING
+    assert packet.payload is None
+
+
+def test_surface_readiness_present_but_fake_is_invalid_source(tmp_path: Path) -> None:
+    _write_json(
+        tmp_path,
+        "architecture/atlas_surfaces/surface-readiness-ledger.json",
+        {},
+    )
+
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.SURFACE_READINESS)
+
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
+    assert packet.payload is None
+    assert "schema_version" in (packet.absence_reason or "")
+
+
+def test_surface_readiness_rejects_revision_2_schema_at_live_path(
+    tmp_path: Path,
+) -> None:
+    destination = tmp_path / "architecture/atlas_surfaces/surface-readiness-ledger.json"
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(
+        REPO_ROOT / "architecture/atlas_surfaces/surface-readiness-ledger.example.json",
+        destination,
+    )
+
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.SURFACE_READINESS)
+
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
+    assert "Revision-3-capable" in (packet.absence_reason or "")
+
+
+@pytest.mark.parametrize(
+    ("projection_id", "relative_path", "raw"),
+    [
+        (
+            ProjectionId.DEPTH_N_CYCLE_BOARD,
+            "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json",
+            b"{not-json",
+        ),
+        (
+            ProjectionId.CLUSTER_OWNERSHIP,
+            "architecture/policy_design_case/cluster_ownership_map.toml",
+            b"invalid = [toml",
+        ),
+    ],
+)
+def test_malformed_single_file_sources_return_typed_invalid_source(
+    tmp_path: Path,
+    projection_id: Any,
+    relative_path: str,
+    raw: bytes,
+) -> None:
+    path = tmp_path / relative_path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(raw)
+
+    packet = GovernedProjectionService(tmp_path).get(projection_id)
+
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
+    assert packet.source is not None
+    assert packet.source.artifact_content_hash.startswith("sha256:")
+    assert packet.payload is None
+
+
+def test_malformed_proving_ground_case_returns_typed_invalid_source(
+    tmp_path: Path,
+) -> None:
+    manifest = {
+        "schema_version": "fixture-manifest.v1",
+        "fixtures": [
+            {
+                "case_id": "case-1",
+                "domain": "test",
+                "split": "test",
+                "authority_levels": ["research"],
+                "path": "cases/case-1.json",
+            }
+        ],
+    }
+    _write_json(tmp_path, "tests/fixtures/universal-corpus/manifest.json", manifest)
+    case_path = tmp_path / "tests/fixtures/universal-corpus/cases/case-1.json"
+    case_path.parent.mkdir(parents=True, exist_ok=True)
+    case_path.write_text("{not-json", encoding="utf-8")
+
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.LEGACY_PROVING_GROUND)
+
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
+    assert packet.source is not None
     assert packet.payload is None
 
 

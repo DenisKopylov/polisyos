@@ -9,9 +9,9 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal
+from typing import Annotated, Any, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validator
 
 from polisyos.runtime.http.services.export_replay import (
     EXPORT_REPLAY_CONTRACT,
@@ -60,12 +60,22 @@ class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class ProjectionOwnerBinding(_StrictModel):
+    """Name an owner-recorded binding to a different governed artifact."""
+
+    binding_name: str
+    relation: Literal["related_artifact"] = "related_artifact"
+    relative_path: str
+    artifact_content_hash: str
+
+
 class ProjectionSourceIdentity(_StrictModel):
     """Bind a packet to the exact source bytes observed by the producer."""
 
     relative_path: str
     artifact_content_hash: str
     declared_content_hash: str | None = None
+    related_artifact_bindings: tuple[ProjectionOwnerBinding, ...] = ()
 
 
 class ProjectionFreshness(_StrictModel):
@@ -89,8 +99,246 @@ class ProjectionCatalogEntry(_StrictModel):
     stable_address: str
 
 
-class GovernedProjectionPacket(_StrictModel):
-    """Typed, replayable export packet shared by later MACHINE twins."""
+type ProjectionJsonValue = Annotated[
+    object,
+    WithJsonSchema(
+        {
+            "anyOf": [
+                {"type": "string"},
+                {"type": "number"},
+                {"type": "boolean"},
+                {"type": "array", "items": {}},
+                {"type": "object", "additionalProperties": True},
+                {"type": "null"},
+            ]
+        }
+    ),
+]
+
+JsonObject = dict[str, ProjectionJsonValue]
+
+
+class DepthNDomainRunProjection(_StrictModel):
+    """Narrow recorded fields for one depth-N domain run."""
+
+    generation_cycle_run_id: ProjectionJsonValue
+    design_problem_ref: ProjectionJsonValue
+    domain_role: ProjectionJsonValue
+    terminal_distribution: JsonObject
+    evidence_class: str
+    evidence_witness: JsonObject
+    weakest_links: tuple[ProjectionJsonValue, ...]
+    acquisition_route: ProjectionJsonValue
+
+
+class DepthNCycleBoardPayload(_StrictModel):
+    """Cycle Board dependency projection from the depth-N capstone."""
+
+    depth_evidence: JsonObject
+    domain_runs: dict[str, DepthNDomainRunProjection]
+    terminal_distributions: JsonObject
+
+
+class ValueGatePayload(_StrictModel):
+    """Value-gate dependency projection."""
+
+    denominators: JsonObject
+    education_refusal: JsonObject
+    production_refusal: JsonObject
+    advisor_receipts: JsonObject
+    value_outer_set_contract: tuple[ProjectionJsonValue, ...]
+    mode_gates: JsonObject
+    acquisition_routing: ProjectionJsonValue
+    disposition: ProjectionJsonValue
+
+
+class GenerationCycleDispositionPayload(_StrictModel):
+    """Generation-cycle task and owner disposition projection."""
+
+    tasks: ProjectionJsonValue
+    owners: ProjectionJsonValue
+    task_owner_mapping: ProjectionJsonValue
+    bridge_artifacts: ProjectionJsonValue
+    method_availability_gate: ProjectionJsonValue
+    known_residuals: ProjectionJsonValue
+    parallel_world_reconciliation: ProjectionJsonValue
+
+
+class EngineCensusPayload(_StrictModel):
+    """Engine census summary without the row table."""
+
+    row_count: int
+    execution_status_vocabulary: JsonObject
+    critical_findings: ProjectionJsonValue
+    subcensus_summary: ProjectionJsonValue
+    gap_taxonomy_extensions: ProjectionJsonValue
+    verb_gap_consistency: ProjectionJsonValue
+    evidence_reproducibility: ProjectionJsonValue
+    discipline: ProjectionJsonValue
+    scope: ProjectionJsonValue
+
+
+class ForkBRelationCensusPayload(_StrictModel):
+    """Fork-B relation census projection without relation rows."""
+
+    relation_counts: ProjectionJsonValue
+    relation_denominator_formula: ProjectionJsonValue
+    authority: ProjectionJsonValue
+    coverage_manifest: ProjectionJsonValue
+    certificate_summaries: ProjectionJsonValue
+    transport_floor: ProjectionJsonValue
+    transport_floor_rule: ProjectionJsonValue
+    known_bridge_limits: ProjectionJsonValue
+    normalization: ProjectionJsonValue
+
+
+class AcquisitionRoutingPayload(_StrictModel):
+    """Acquisition routing contract projection."""
+
+    denominators: ProjectionJsonValue
+    positive_receipt: JsonObject
+    no_result_receipt: ProjectionJsonValue
+    fail_closed_receipt: ProjectionJsonValue
+    fail_closed_probes: ProjectionJsonValue
+    grounding_acquisition_request: ProjectionJsonValue
+    recorded_rederive_inputs: ProjectionJsonValue
+    compute_economics: ProjectionJsonValue
+    known_residuals: ProjectionJsonValue
+
+
+class N13AAcquisitionCensusPayload(_StrictModel):
+    """N13a census dependency projection."""
+
+    catalog_identity: ProjectionJsonValue
+    projection_bindings: ProjectionJsonValue
+    family_scorecards: ProjectionJsonValue
+    metric_resolutions: ProjectionJsonValue
+    route_evidence: ProjectionJsonValue
+    growth_backlog: ProjectionJsonValue
+    fetch_plan_generation: ProjectionJsonValue
+    reverse_demand_residuals: ProjectionJsonValue
+
+
+class N13ALiveProbeJournalPayload(_StrictModel):
+    """N13a live-probe journal dependency projection."""
+
+    selection_plan: ProjectionJsonValue
+    family_receipts: ProjectionJsonValue
+    records: ProjectionJsonValue
+
+
+class CapabilityRealityPayload(_StrictModel):
+    """Owner-reported capability reality projection."""
+
+    summary: ProjectionJsonValue
+    readiness: ProjectionJsonValue
+    capability_claims: ProjectionJsonValue
+    blockers: ProjectionJsonValue
+    issues: ProjectionJsonValue
+    chain_clusters: ProjectionJsonValue
+    ratchet_integrity_status: ProjectionJsonValue
+    debt_algebra: ProjectionJsonValue
+
+
+class ClusterOwnershipPayload(_StrictModel):
+    """Cluster/cell ownership projection."""
+
+    status: ProjectionJsonValue
+    owner: ProjectionJsonValue
+    purpose: ProjectionJsonValue
+    ratchet_state_vocabulary: ProjectionJsonValue
+    required_clusters: ProjectionJsonValue
+    required_cell_fields: ProjectionJsonValue
+    capability_chain_steps: ProjectionJsonValue
+    stop_rule: ProjectionJsonValue
+    open_cell_closure: ProjectionJsonValue
+    handshake_graph: ProjectionJsonValue
+    architecture_core: ProjectionJsonValue
+    clusters: JsonObject
+
+
+class Layer3HealthMetricsPayload(_StrictModel):
+    """Recorded health metric ledger projection."""
+
+    health_metric_ledgers: tuple[ProjectionJsonValue, ...]
+
+
+class ProvingGroundFixtureIdentity(_StrictModel):
+    """Manifest-owned identity for one legacy proving-ground case."""
+
+    case_id: str
+    domain: str
+    split: str
+    authority_levels: tuple[str, ...]
+
+
+class ProvingGroundFixtureRecord(_StrictModel):
+    """Narrow fixture expectation projection without producer metadata."""
+
+    case_id: ProjectionJsonValue
+    title: ProjectionJsonValue
+    domain: ProjectionJsonValue
+    split: ProjectionJsonValue
+    schema_version: ProjectionJsonValue
+    intent: ProjectionJsonValue
+    input_intent_ref: ProjectionJsonValue
+    compilation_intent_text: ProjectionJsonValue
+    concept_spine_refs: ProjectionJsonValue
+    expected_adapter_bindings: ProjectionJsonValue
+    expected_claim_families: ProjectionJsonValue
+    expected_closeout_states: ProjectionJsonValue
+    expected_facets: ProjectionJsonValue
+    expected_obligation_graph: ProjectionJsonValue
+    expected_projection_truthfulness: ProjectionJsonValue
+    expected_requirement_specs: ProjectionJsonValue
+    expert_adjudication: ProjectionJsonValue
+    claim_evidence_annotations: ProjectionJsonValue
+
+
+class ProvingGroundRuntimeOutcomes(_StrictModel):
+    """Explicitly absent runtime result slot for fixture-only records."""
+
+    availability: Literal["artifact_missing"] = "artifact_missing"
+    reason: str
+
+
+class LegacyProvingGroundPayload(_StrictModel):
+    """Fixture-only identity and semantic expectations."""
+
+    fixture_authority: Literal["fixture_only"] = "fixture_only"
+    fixture_identities: tuple[ProvingGroundFixtureIdentity, ...]
+    fixture_records: tuple[ProvingGroundFixtureRecord, ...]
+    runtime_outcomes: ProvingGroundRuntimeOutcomes
+
+
+class SurfaceReadinessPayload(_StrictModel):
+    """Owner-versioned surface readiness projection once a live schema exists."""
+
+    ledger_id: str
+    authority: JsonObject
+    controlled_vocabulary_source: str
+    entries: tuple[ProjectionJsonValue, ...]
+
+
+ProjectionPayload = (
+    DepthNCycleBoardPayload
+    | ValueGatePayload
+    | GenerationCycleDispositionPayload
+    | EngineCensusPayload
+    | ForkBRelationCensusPayload
+    | AcquisitionRoutingPayload
+    | N13AAcquisitionCensusPayload
+    | N13ALiveProbeJournalPayload
+    | CapabilityRealityPayload
+    | ClusterOwnershipPayload
+    | Layer3HealthMetricsPayload
+    | LegacyProvingGroundPayload
+    | SurfaceReadinessPayload
+)
+
+
+class _GovernedProjectionPacketBase(_StrictModel):
+    """Fields common to every typed governed-projection state."""
 
     packet_schema_version: Literal["policyos.runtime.governed_projection_packet.v1"] = (
         "policyos.runtime.governed_projection_packet.v1"
@@ -99,20 +347,67 @@ class GovernedProjectionPacket(_StrictModel):
         EXPORT_REPLAY_CONTRACT
     )
     projection_id: ProjectionId
-    availability: ProjectionAvailability
+    projection_rule_version: Literal["policyos.runtime.governed_projection.v1"] = (
+        "policyos.runtime.governed_projection.v1"
+    )
     intended_audience: AudienceClass
     authoritative_for: tuple[str, ...]
     may_not_use_for: tuple[str, ...]
-    source: ProjectionSourceIdentity | None = None
     source_schema_version: str | None = None
     source_rule_version: str | None = None
-    projection_hash: str | None = None
     as_of: datetime
     freshness: ProjectionFreshness
     stable_address: str
-    replay_address: str | None = None
-    payload: dict[str, Any] | None = None
-    absence_reason: str | None = None
+
+
+class AvailableGovernedProjectionPacket(_GovernedProjectionPacketBase):
+    """Projection state with a source-specific typed payload."""
+
+    availability: Literal[ProjectionAvailability.AVAILABLE]
+    source: ProjectionSourceIdentity
+    projection_hash: str
+    replay_address: str
+    payload: ProjectionPayload
+    absence_reason: None = None
+
+    @model_validator(mode="after")
+    def _payload_matches_projection(self) -> Self:
+        expected_model = _PAYLOAD_MODEL_BY_ID[self.projection_id]
+        if not isinstance(self.payload, expected_model):
+            raise ValueError(f"{self.projection_id.value} requires {expected_model.__name__}")
+        return self
+
+
+class ArtifactMissingGovernedProjectionPacket(_GovernedProjectionPacketBase):
+    """Projection state for an absent governed source."""
+
+    availability: Literal[ProjectionAvailability.ARTIFACT_MISSING]
+    source: None = None
+    source_schema_version: None = None
+    source_rule_version: None = None
+    projection_hash: None = None
+    replay_address: None = None
+    payload: None = None
+    absence_reason: str
+
+
+class InvalidGovernedProjectionPacket(_GovernedProjectionPacketBase):
+    """Projection state for present bytes that fail source validation."""
+
+    availability: Literal[ProjectionAvailability.INVALID_SOURCE]
+    source: ProjectionSourceIdentity
+    projection_hash: None = None
+    replay_address: None = None
+    payload: None = None
+    absence_reason: str
+
+
+GovernedProjectionPacket = Annotated[
+    AvailableGovernedProjectionPacket
+    | ArtifactMissingGovernedProjectionPacket
+    | InvalidGovernedProjectionPacket,
+    Field(discriminator="availability"),
+]
 
 
 class ProjectionCatalogResponse(_StrictModel):
@@ -208,7 +503,7 @@ class _ProjectionDefinition:
 @dataclass(frozen=True, slots=True)
 class _FileObservation:
     relative_path: str
-    signature: tuple[int, int]
+    signature: tuple[int, int, int, int]
     content_hash: str
     raw: bytes
     modified_at: datetime
@@ -221,6 +516,14 @@ class _LoadedSource:
     parsed: dict[str, Any]
     modified_at: datetime
     declared_content_hash: str | None
+
+
+class _InvalidProjectionLoadError(ValueError):
+    """Carry present source identity when decoding or composite loading fails."""
+
+    def __init__(self, loaded: _LoadedSource, reason: str) -> None:
+        self.loaded = loaded
+        super().__init__(reason)
 
 
 _COMMON_NOT_PUBLIC = (
@@ -356,6 +659,22 @@ _DEFINITIONS: tuple[_ProjectionDefinition, ...] = (
 
 _DEFINITION_BY_ID = {definition.projection_id: definition for definition in _DEFINITIONS}
 
+_PAYLOAD_MODEL_BY_ID: dict[ProjectionId, type[_StrictModel]] = {
+    ProjectionId.DEPTH_N_CYCLE_BOARD: DepthNCycleBoardPayload,
+    ProjectionId.VALUE_GATE: ValueGatePayload,
+    ProjectionId.GENERATION_CYCLE_DISPOSITION: GenerationCycleDispositionPayload,
+    ProjectionId.ENGINE_CENSUS: EngineCensusPayload,
+    ProjectionId.FORK_B_RELATION_CENSUS: ForkBRelationCensusPayload,
+    ProjectionId.ACQUISITION_ROUTING_CONTRACT: AcquisitionRoutingPayload,
+    ProjectionId.N13A_ACQUISITION_CENSUS: N13AAcquisitionCensusPayload,
+    ProjectionId.N13A_LIVE_PROBE_JOURNAL: N13ALiveProbeJournalPayload,
+    ProjectionId.CAPABILITY_REALITY: CapabilityRealityPayload,
+    ProjectionId.CLUSTER_OWNERSHIP: ClusterOwnershipPayload,
+    ProjectionId.LAYER3_HEALTH_METRICS: Layer3HealthMetricsPayload,
+    ProjectionId.LEGACY_PROVING_GROUND: LegacyProvingGroundPayload,
+    ProjectionId.SURFACE_READINESS: SurfaceReadinessPayload,
+}
+
 
 class GovernedProjectionService:
     """Project governed files lazily and cache their parsed content by SHA-256."""
@@ -364,9 +683,7 @@ class GovernedProjectionService:
         self._repository_root = repository_root
         self._path_cache: dict[Path, _FileObservation] = {}
         self._parsed_cache: dict[tuple[str, str], dict[str, Any]] = {}
-        self._projection_cache: dict[
-            tuple[ProjectionId, str], tuple[dict[str, Any], str]
-        ] = {}
+        self._projection_cache: dict[tuple[ProjectionId, str], tuple[bytes, str]] = {}
 
     def catalog(self) -> tuple[ProjectionCatalogEntry, ...]:
         """Return the full denominator without touching artifact bytes."""
@@ -399,8 +716,14 @@ class GovernedProjectionService:
         except FileNotFoundError:
             packet = self._absence_packet(
                 definition,
-                availability=ProjectionAvailability.ARTIFACT_MISSING,
                 reason=f"governed source is absent: {definition.source_path}",
+                observed_at=observed_at,
+            )
+        except _InvalidProjectionLoadError as exc:
+            packet = self._invalid_packet(
+                definition,
+                loaded=exc.loaded,
+                reason=str(exc),
                 observed_at=observed_at,
             )
         else:
@@ -419,8 +742,12 @@ class GovernedProjectionService:
                     relative_path=loaded.relative_path,
                     artifact_content_hash=loaded.content_hash,
                     declared_content_hash=loaded.declared_content_hash,
+                    related_artifact_bindings=_related_artifact_bindings(
+                        resolved_id,
+                        loaded.parsed,
+                    ),
                 )
-                packet = GovernedProjectionPacket(
+                packet = AvailableGovernedProjectionPacket(
                     projection_id=resolved_id,
                     availability=ProjectionAvailability.AVAILABLE,
                     intended_audience=definition.intended_audience,
@@ -457,9 +784,36 @@ class GovernedProjectionService:
 
     def _load(self, definition: _ProjectionDefinition) -> _LoadedSource:
         if definition.source_format == "proving_ground":
-            return self._load_proving_ground(definition.source_path)
+            manifest_observation = self._read_file(definition.source_path)
+            manifest: dict[str, Any] = {}
+            try:
+                manifest = self._parse(manifest_observation, "json")
+                return self._load_proving_ground(
+                    definition.source_path,
+                    manifest_observation,
+                    manifest,
+                )
+            except (FileNotFoundError, InvalidProjectionSourceError, ValueError) as exc:
+                loaded = _LoadedSource(
+                    relative_path=definition.source_path,
+                    content_hash=manifest_observation.content_hash,
+                    parsed={"manifest": manifest},
+                    modified_at=manifest_observation.modified_at,
+                    declared_content_hash=None,
+                )
+                raise _InvalidProjectionLoadError(loaded, str(exc)) from exc
         observation = self._read_file(definition.source_path)
-        parsed = self._parse(observation, definition.source_format)
+        try:
+            parsed = self._parse(observation, definition.source_format)
+        except (InvalidProjectionSourceError, ValueError) as exc:
+            loaded = _LoadedSource(
+                relative_path=definition.source_path,
+                content_hash=observation.content_hash,
+                parsed={},
+                modified_at=observation.modified_at,
+                declared_content_hash=None,
+            )
+            raise _InvalidProjectionLoadError(loaded, str(exc)) from exc
         return _LoadedSource(
             relative_path=definition.source_path,
             content_hash=observation.content_hash,
@@ -471,17 +825,27 @@ class GovernedProjectionService:
     def _read_file(self, relative_path: str) -> _FileObservation:
         path = self._repository_root / relative_path
         stat = path.stat()
-        signature = (stat.st_mtime_ns, stat.st_size)
+        signature = (stat.st_ino, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size)
         cached = self._path_cache.get(path)
         if cached is not None and cached.signature == signature:
             return cached
         raw = path.read_bytes()
         stable_stat = path.stat()
-        stable_signature = (stable_stat.st_mtime_ns, stable_stat.st_size)
+        stable_signature = (
+            stable_stat.st_ino,
+            stable_stat.st_mtime_ns,
+            stable_stat.st_ctime_ns,
+            stable_stat.st_size,
+        )
         if stable_signature != signature:
             raw = path.read_bytes()
             stable_stat = path.stat()
-            stable_signature = (stable_stat.st_mtime_ns, stable_stat.st_size)
+            stable_signature = (
+                stable_stat.st_ino,
+                stable_stat.st_mtime_ns,
+                stable_stat.st_ctime_ns,
+                stable_stat.st_size,
+            )
         observation = _FileObservation(
             relative_path=relative_path,
             signature=stable_signature,
@@ -515,9 +879,12 @@ class GovernedProjectionService:
         self._parsed_cache[cache_key] = normalized
         return normalized
 
-    def _load_proving_ground(self, manifest_path: str) -> _LoadedSource:
-        manifest_observation = self._read_file(manifest_path)
-        manifest = self._parse(manifest_observation, "json")
+    def _load_proving_ground(
+        self,
+        manifest_path: str,
+        manifest_observation: _FileObservation,
+        manifest: dict[str, Any],
+    ) -> _LoadedSource:
         fixtures = _required_list(manifest, "fixtures")
         manifest_parent = Path(manifest_path).parent
         cases: list[dict[str, Any]] = []
@@ -532,9 +899,7 @@ class GovernedProjectionService:
             case_observation = self._read_file(relative_case_path)
             case = self._parse(case_observation, "json")
             if case.get("case_id") != fixture_record.get("case_id"):
-                raise InvalidProjectionSourceError(
-                    f"case_id mismatch for {relative_case_path}"
-                )
+                raise InvalidProjectionSourceError(f"case_id mismatch for {relative_case_path}")
             identities.append(
                 {
                     "case_id": fixture_record.get("case_id"),
@@ -563,29 +928,41 @@ class GovernedProjectionService:
         self,
         definition: _ProjectionDefinition,
         loaded: _LoadedSource,
-    ) -> tuple[dict[str, Any], str]:
+    ) -> tuple[_StrictModel, str]:
         cache_key = (definition.projection_id, loaded.content_hash)
+        payload_model = _PAYLOAD_MODEL_BY_ID[definition.projection_id]
         cached = self._projection_cache.get(cache_key)
         if cached is not None:
-            return cached
+            payload_json, projection_hash = cached
+            return payload_model.model_validate_json(payload_json), projection_hash
         projector = _PROJECTORS[definition.projection_id]
-        payload = _mapping(_json_ready(projector(loaded.parsed)), "projection_payload")
-        projection_hash = hash_export_projection(payload)
-        result = (payload, projection_hash)
-        self._projection_cache[cache_key] = result
-        return result
+        raw_payload = _mapping(
+            _json_ready(projector(loaded.parsed)),
+            "projection_payload",
+        )
+        payload = payload_model.model_validate(raw_payload)
+        payload_data = payload.model_dump(mode="json")
+        projection_hash = hash_export_projection(
+            _projection_hash_basis(definition.projection_id, payload_data)
+        )
+        payload_json = json.dumps(
+            payload_data,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        self._projection_cache[cache_key] = (payload_json, projection_hash)
+        return payload_model.model_validate_json(payload_json), projection_hash
 
     def _absence_packet(
         self,
         definition: _ProjectionDefinition,
         *,
-        availability: ProjectionAvailability,
         reason: str,
         observed_at: datetime,
-    ) -> GovernedProjectionPacket:
-        return GovernedProjectionPacket(
+    ) -> ArtifactMissingGovernedProjectionPacket:
+        return ArtifactMissingGovernedProjectionPacket(
             projection_id=definition.projection_id,
-            availability=availability,
+            availability=ProjectionAvailability.ARTIFACT_MISSING,
             intended_audience=definition.intended_audience,
             authoritative_for=definition.authoritative_for,
             may_not_use_for=definition.may_not_use_for,
@@ -606,9 +983,9 @@ class GovernedProjectionService:
         loaded: _LoadedSource,
         reason: str,
         observed_at: datetime,
-    ) -> GovernedProjectionPacket:
+    ) -> InvalidGovernedProjectionPacket:
         as_of, basis = _resolve_as_of(loaded.parsed, loaded.modified_at)
-        return GovernedProjectionPacket(
+        return InvalidGovernedProjectionPacket(
             projection_id=definition.projection_id,
             availability=ProjectionAvailability.INVALID_SOURCE,
             intended_audience=definition.intended_audience,
@@ -618,6 +995,10 @@ class GovernedProjectionService:
                 relative_path=loaded.relative_path,
                 artifact_content_hash=loaded.content_hash,
                 declared_content_hash=loaded.declared_content_hash,
+                related_artifact_bindings=_related_artifact_bindings(
+                    definition.projection_id,
+                    loaded.parsed,
+                ),
             ),
             source_schema_version=_optional_string(loaded.parsed.get("schema_version")),
             source_rule_version=_optional_string(loaded.parsed.get("rule_version")),
@@ -644,12 +1025,11 @@ def _project_depth_n(source: dict[str, Any]) -> dict[str, Any]:
         weakest_links = _required_list(terminal, "blocking_obligations")
         terminal_distribution = _required_mapping(run, "terminal_distribution")
         stage_trace = _required_mapping(run, "stage_trace")
-        acquisition = stage_trace.get("acquisition")
+        acquisition = _required_value(stage_trace, "acquisition")
         projected_runs[str(domain)] = {
-            "generation_cycle_run_id": run.get("generation_cycle_run_id"),
-            "design_problem_ref": run.get("design_problem_ref"),
-            "domain_role": run.get("domain_role"),
-            "run_content_hash": run.get("content_hash"),
+            "generation_cycle_run_id": _required_value(run, "generation_cycle_run_id"),
+            "design_problem_ref": _required_value(run, "design_problem_ref"),
+            "domain_role": _required_value(run, "domain_role"),
             "terminal_distribution": terminal_distribution,
             "evidence_class": evidence_class,
             "evidence_witness": witness,
@@ -671,9 +1051,7 @@ def _project_value_gate(source: dict[str, Any]) -> dict[str, Any]:
         item
         for item in mutations
         if "value_outer_set"
-        in str(
-            _mapping(item, "decisive_mutation_expectations[]").get("mutation_id", "")
-        )
+        in str(_mapping(item, "decisive_mutation_expectations[]").get("mutation_id", ""))
     ]
     if not outer_set_contract:
         raise InvalidProjectionSourceError("missing recorded ValueOuterSet contract proofs")
@@ -682,13 +1060,13 @@ def _project_value_gate(source: dict[str, Any]) -> dict[str, Any]:
         "education_refusal": education,
         "production_refusal": production,
         "advisor_receipts": {
-            "education": education.get("method_selection_receipt"),
-            "production": production.get("method_selection_receipt"),
+            "education": _required_value(education, "method_selection_receipt"),
+            "production": _required_value(production, "method_selection_receipt"),
         },
         "value_outer_set_contract": outer_set_contract,
         "mode_gates": _required_mapping(source, "mode_gates"),
-        "acquisition_routing": source.get("acquisition_routing"),
-        "disposition": source.get("disposition"),
+        "acquisition_routing": _required_value(source, "acquisition_routing"),
+        "disposition": _required_value(source, "disposition"),
     }
 
 
@@ -696,8 +1074,15 @@ def _select(source: dict[str, Any], *fields: str) -> dict[str, Any]:
     return {field: source[field] for field in fields if field in source}
 
 
+def _required_projection_fields(
+    source: dict[str, Any],
+    *fields: str,
+) -> dict[str, Any]:
+    return {field: _required_value(source, field) for field in fields}
+
+
 def _project_disposition(source: dict[str, Any]) -> dict[str, Any]:
-    return _select(
+    return _required_projection_fields(
         source,
         "tasks",
         "owners",
@@ -710,7 +1095,7 @@ def _project_disposition(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def _project_engine_census(source: dict[str, Any]) -> dict[str, Any]:
-    return _select(
+    return _required_projection_fields(
         source,
         "row_count",
         "execution_status_vocabulary",
@@ -725,7 +1110,7 @@ def _project_engine_census(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def _project_fork_b(source: dict[str, Any]) -> dict[str, Any]:
-    return _select(
+    return _required_projection_fields(
         source,
         "relation_counts",
         "relation_denominator_formula",
@@ -740,7 +1125,7 @@ def _project_fork_b(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def _project_acquisition_contract(source: dict[str, Any]) -> dict[str, Any]:
-    return _select(
+    return _required_projection_fields(
         source,
         "denominators",
         "positive_receipt",
@@ -755,7 +1140,7 @@ def _project_acquisition_contract(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def _project_n13a_census(source: dict[str, Any]) -> dict[str, Any]:
-    return _select(
+    return _required_projection_fields(
         source,
         "catalog_identity",
         "projection_bindings",
@@ -769,11 +1154,16 @@ def _project_n13a_census(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def _project_n13a_journal(source: dict[str, Any]) -> dict[str, Any]:
-    return _select(source, "selection_plan", "family_receipts", "records")
+    return _required_projection_fields(
+        source,
+        "selection_plan",
+        "family_receipts",
+        "records",
+    )
 
 
 def _project_capability_reality(source: dict[str, Any]) -> dict[str, Any]:
-    return _select(
+    return _required_projection_fields(
         source,
         "summary",
         "readiness",
@@ -788,7 +1178,7 @@ def _project_capability_reality(source: dict[str, Any]) -> dict[str, Any]:
 
 def _project_cluster_ownership(source: dict[str, Any]) -> dict[str, Any]:
     return {
-        **_select(
+        **_required_projection_fields(
             source,
             "status",
             "owner",
@@ -817,10 +1207,34 @@ def _project_proving_ground(source: dict[str, Any]) -> dict[str, Any]:
     records = _required_list(source, "fixture_records")
     if len(identities) != 13 or len(records) != 13:
         raise InvalidProjectionSourceError("legacy proving ground must contain 13 fixture records")
+    projected_records = [
+        _required_projection_fields(
+            _mapping(record, "fixture_records[]"),
+            "case_id",
+            "title",
+            "domain",
+            "split",
+            "schema_version",
+            "intent",
+            "input_intent_ref",
+            "compilation_intent_text",
+            "concept_spine_refs",
+            "expected_adapter_bindings",
+            "expected_claim_families",
+            "expected_closeout_states",
+            "expected_facets",
+            "expected_obligation_graph",
+            "expected_projection_truthfulness",
+            "expected_requirement_specs",
+            "expert_adjudication",
+            "claim_evidence_annotations",
+        )
+        for record in records
+    ]
     return {
         "fixture_authority": "fixture_only",
         "fixture_identities": identities,
-        "fixture_records": records,
+        "fixture_records": projected_records,
         "runtime_outcomes": {
             "availability": "artifact_missing",
             "reason": "no persisted validator-confirmed 13-case runtime result is named",
@@ -829,12 +1243,19 @@ def _project_proving_ground(source: dict[str, Any]) -> dict[str, Any]:
 
 
 def _project_surface_readiness(source: dict[str, Any]) -> dict[str, Any]:
-    return _select(
-        source,
-        "ledger_id",
-        "authority",
-        "controlled_vocabulary_source",
-        "entries",
+    schema_version = _required_string(source, "schema_version")
+    _required_string(source, "ledger_id")
+    _required_string(source, "as_of")
+    _required_string(source, "controlled_vocabulary_source")
+    authority = _required_mapping(source, "authority")
+    _required_non_empty_string_list(authority, "authoritative_for")
+    _required_non_empty_string_list(authority, "may_not_use_for")
+    entries = _required_list(source, "entries")
+    if not entries:
+        raise InvalidProjectionSourceError("entries must contain at least one record")
+    raise InvalidProjectionSourceError(
+        "surface readiness schema "
+        f"{schema_version!r} is not a registered Revision-3-capable owner schema"
     )
 
 
@@ -867,10 +1288,26 @@ def _required_mapping(source: dict[str, Any], field: str) -> dict[str, Any]:
     return _mapping(source[field], field)
 
 
+def _required_value(source: dict[str, Any], field: str) -> object:
+    if field not in source:
+        raise InvalidProjectionSourceError(f"missing owner-recorded field: {field}")
+    return source[field]
+
+
 def _required_list(source: dict[str, Any], field: str) -> list[Any]:
     value = source.get(field)
     if not isinstance(value, list):
         raise InvalidProjectionSourceError(f"{field} must be an array")
+    return value
+
+
+def _required_non_empty_string_list(
+    source: dict[str, Any],
+    field: str,
+) -> list[str]:
+    value = _required_list(source, field)
+    if not value or any(not isinstance(item, str) or not item for item in value):
+        raise InvalidProjectionSourceError(f"{field} must contain non-empty strings")
     return value
 
 
@@ -890,12 +1327,80 @@ def _declared_content_hash(source: dict[str, Any]) -> str | None:
         "contract_content_hash",
         "content_hash",
         "census_digest",
-        "journal_content_sha256",
     ):
         value = _optional_string(source.get(field))
         if value is not None:
             return value
     return None
+
+
+def _related_artifact_bindings(
+    projection_id: ProjectionId,
+    source: dict[str, Any],
+) -> tuple[ProjectionOwnerBinding, ...]:
+    if projection_id is not ProjectionId.N13A_ACQUISITION_CENSUS:
+        return ()
+    journal_hash = _optional_string(source.get("journal_content_sha256"))
+    if journal_hash is None:
+        return ()
+    return (
+        ProjectionOwnerBinding(
+            binding_name="live_probe_journal_content_sha256",
+            relative_path=(
+                "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+            ),
+            artifact_content_hash=journal_hash,
+        ),
+    )
+
+
+_PROVENANCE_ONLY_PROJECTION_FIELDS = frozenset(
+    {
+        "capture_wall_time_seconds",
+        "as_of",
+        "freshness",
+        "generated",
+        "generated_at",
+        "observed_at",
+        "produced_by",
+        "producer",
+        "provenance",
+        "provenance_note",
+        "relative_path",
+        "replay_address",
+        "source_path",
+        "stable_address",
+        "timestamp",
+    }
+)
+
+
+def _projection_hash_basis(
+    projection_id: ProjectionId,
+    payload: dict[str, Any],
+) -> dict[str, Any]:
+    """Return only the declared semantic dependency fields for replay hashing."""
+    basis = _mapping(
+        _without_projection_provenance(payload),
+        "projection_hash_basis",
+    )
+    if projection_id is ProjectionId.ACQUISITION_ROUTING_CONTRACT:
+        positive_receipt = basis.get("positive_receipt")
+        if isinstance(positive_receipt, dict):
+            positive_receipt.pop("content_hash", None)
+    return basis
+
+
+def _without_projection_provenance(value: ProjectionJsonValue) -> ProjectionJsonValue:
+    if isinstance(value, dict):
+        return {
+            key: _without_projection_provenance(item)
+            for key, item in value.items()
+            if key not in _PROVENANCE_ONLY_PROJECTION_FIELDS
+        }
+    if isinstance(value, list):
+        return [_without_projection_provenance(item) for item in value]
+    return value
 
 
 def _resolve_as_of(

@@ -15,6 +15,8 @@ from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
 from tools.ops_runners.runtime import generate_runtime_client
 
+OPENAPI_TYPESCRIPT_VERSION = "7.13.0"
+
 
 def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     schema = export_runtime_openapi_schema()
@@ -163,10 +165,8 @@ def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Pa
     result = subprocess.run(
         [
             "npx",
-            "--prefix",
-            "apps/runtime-dashboard",
-            "--no-install",
-            "openapi-typescript",
+            "--yes",
+            f"openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}",
             str(spec_path),
             "-o",
             str(output_path),
@@ -178,6 +178,21 @@ def _render_openapi_typescript(repo_root: Path, spec_path: Path, output_path: Pa
         check=False,
     )
     assert result.returncode == 0, result.stderr or result.stdout
+
+
+def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    client_root = repo_root / "packages" / "runtime-api-client"
+    manifest = json.loads((client_root / "package.json").read_text(encoding="utf-8"))
+    readme = (client_root / "README.md").read_text(encoding="utf-8")
+    expected_invocation = f"npx --yes openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}"
+
+    generate_command = manifest["scripts"]["generate"]
+    assert expected_invocation in generate_command
+    assert "apps/runtime-dashboard" not in generate_command
+    assert "--prefix" not in generate_command
+    assert expected_invocation in readme
+    assert "npx --prefix apps/runtime-dashboard" not in readme
 
 
 def test_openapi_typescript_output_matches_committed_shared_types(tmp_path: Path) -> None:

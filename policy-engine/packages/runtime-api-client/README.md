@@ -82,8 +82,9 @@ generated type file is a downstream compatibility surface, not a second owner.
 - `PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js`
   `conceptual/manual; regenerates the committed client artifacts`
 
-- `npx --prefix apps/runtime-dashboard --no-install openapi-typescript schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts`
-  `canonical schema-type generation; output remains in the shared package home`
+- `npx --yes openapi-typescript@7.13.0 schemas/runtime_api_v1.openapi.json -o packages/runtime-api-client/types.ts`
+  Canonical schema-type generation; the exact tool pin is owned by this shared
+  package and does not depend on a dashboard-local installation.
 
 ## Test And Verification
 

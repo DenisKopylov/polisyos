@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from datetime import UTC, datetime, timedelta
+
+from polisyos.runtime.http.services import bureaucratic_rendering
+
 
 def test_bureaucratic_render_returns_draft_ast_with_watermark_and_quantities(
     runtime_api_env,
@@ -125,7 +129,10 @@ def test_bureaucratic_render_and_export_bind_shared_replay_contract(
         render_path,
         json={
             "genre": "expert_vysnovok",
-            "temporal_scope": {"valid_at": "2026-02-11T12:00:00Z"},
+            "temporal_scope": {
+                "valid_at": "2026-02-11T12:00:00Z",
+                "tx_at": "2026-02-11T12:05:00Z",
+            },
         },
     )
     first_export = client.get(export_path, params=export_params)
@@ -136,6 +143,7 @@ def test_bureaucratic_render_and_export_bind_shared_replay_contract(
     assert first_export.status_code == 200, first_export.text
     projection_hash = first_export.headers["x-policyos-export-projection-hash"]
     assert first_export.headers["x-policyos-export-stable-address"].startswith(export_path)
+    assert first_export.headers["x-policyos-export-as-of"] == "2026-02-11T12:00:00+00:00"
 
     replay = client.get(
         export_path,
@@ -150,6 +158,81 @@ def test_bureaucratic_render_and_export_bind_shared_replay_contract(
     assert replay.headers["x-policyos-export-projection-hash"] == projection_hash
     assert mismatch.status_code == 409
     assert mismatch.json()["code"] == "export_replay_pin_mismatch"
+
+
+def test_bureaucratic_render_accepts_current_replay_pin_and_rejects_stale_pin(
+    runtime_api_env,
+    monkeypatch,
+) -> None:
+    class _AdvancingDatetime:
+        calls = 0
+
+        @classmethod
+        def now(cls, tz=None):
+            observed_at = datetime(2026, 2, 11, 12, 10, tzinfo=UTC) + timedelta(seconds=cls.calls)
+            cls.calls += 1
+            return observed_at if tz is None else observed_at.astimezone(tz)
+
+    monkeypatch.setattr(bureaucratic_rendering, "datetime", _AdvancingDatetime)
+    client = runtime_api_env["client"]
+    packet_id = runtime_api_env["quality_artifact_id"]
+    render_path = f"/api/v1/artifacts/{packet_id}/render"
+    body = {
+        "genre": "expert_vysnovok",
+        "temporal_scope": {"valid_at": "2026-02-11T12:00:00Z"},
+    }
+
+    first_render = client.post(render_path, json=body)
+
+    assert first_render.status_code == 200, first_render.text
+    projection_hash = first_render.headers["x-policyos-export-projection-hash"]
+
+    replay = client.post(
+        render_path,
+        params={"export_projection_hash": projection_hash},
+        json=body,
+    )
+    mismatch = client.post(
+        render_path,
+        params={"export_projection_hash": "sha256:" + "0" * 64},
+        json=body,
+    )
+
+    assert replay.status_code == 200
+    assert replay.headers["x-policyos-export-projection-hash"] == projection_hash
+    assert mismatch.status_code == 409
+    assert mismatch.json()["code"] == "export_replay_pin_mismatch"
+
+
+def test_bureaucratic_render_and_export_use_tx_at_when_valid_at_is_absent(
+    runtime_api_env,
+) -> None:
+    client = runtime_api_env["client"]
+    packet_id = runtime_api_env["quality_artifact_id"]
+    render_path = f"/api/v1/artifacts/{packet_id}/render"
+    export_path = f"/api/v1/artifacts/{packet_id}/export"
+    tx_at = "2026-02-11T12:05:00Z"
+
+    render = client.post(
+        render_path,
+        json={
+            "genre": "expert_vysnovok",
+            "temporal_scope": {"tx_at": tx_at},
+        },
+    )
+    export = client.get(
+        export_path,
+        params={
+            "format": "html",
+            "genre": "expert_vysnovok",
+            "tx_at": tx_at,
+        },
+    )
+
+    assert render.status_code == 200, render.text
+    assert render.headers["x-policyos-export-as-of"] == "2026-02-11T12:05:00+00:00"
+    assert export.status_code == 200, export.text
+    assert export.headers["x-policyos-export-as-of"] == "2026-02-11T12:05:00+00:00"
 
 
 def test_bureaucratic_export_pdf_and_docx_packets_are_deterministic_sources(

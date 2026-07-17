@@ -52,6 +52,32 @@ def test_governed_projection_endpoint_preserves_existing_auth_defaults(
     assert response.json()["intended_audience"] == "EXPERT"
 
 
+def test_governed_projection_openapi_encodes_typed_states_and_payloads(
+    runtime_api_env,
+) -> None:
+    schema = runtime_api_env["app"].openapi()
+    response_schema = schema["paths"]["/api/v1/exports/governed-projections/{projection_id}"][
+        "get"
+    ]["responses"]["200"]["content"]["application/json"]["schema"]
+
+    assert response_schema["discriminator"]["propertyName"] == "availability"
+    components = schema["components"]["schemas"]
+    state_refs = {choice["$ref"].rsplit("/", maxsplit=1)[-1] for choice in response_schema["oneOf"]}
+    assert state_refs == {
+        "AvailableGovernedProjectionPacket",
+        "ArtifactMissingGovernedProjectionPacket",
+        "InvalidGovernedProjectionPacket",
+    }
+    available = components["AvailableGovernedProjectionPacket"]
+    payload_choices = available["properties"]["payload"]["anyOf"]
+    assert len(payload_choices) == len(ProjectionId)
+    for choice in payload_choices:
+        payload_ref = choice["$ref"]
+        payload_component = components[payload_ref.rsplit("/", maxsplit=1)[-1]]
+        assert payload_component["additionalProperties"] is False
+        assert payload_component["required"]
+
+
 def test_channel_registry_covers_every_active_hidden_runtime_channel(
     runtime_api_env,
 ) -> None:
@@ -59,8 +85,7 @@ def test_channel_registry_covers_every_active_hidden_runtime_channel(
     hidden_http_paths = {
         route.path
         for route in app.routes
-        if getattr(route, "include_in_schema", True) is False
-        and route.path.startswith("/api/v1/")
+        if getattr(route, "include_in_schema", True) is False and route.path.startswith("/api/v1/")
     }
     websocket_paths = {
         route.path

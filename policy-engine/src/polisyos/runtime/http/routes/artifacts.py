@@ -42,6 +42,11 @@ from polisyos.runtime.http.services.artifact_inspector import ArtifactSurfaceAdm
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.quality.authority import authority_surface_decision
 
+_BUREAUCRATIC_OBSERVATION_TIMESTAMP = re.compile(
+    r"(?<=Дата формування: )\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}"
+    + r"(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})"
+)
+
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
 else:
@@ -413,6 +418,7 @@ if router is not None:
         body: BureaucraticRenderRequest,
         request: Request,
         response: Response,
+        export_projection_hash: str | None = Query(default=None, max_length=128),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> BureaucraticRenderResponse:
         parsed_id = _parse_artifact_id(packet_id)
@@ -462,17 +468,14 @@ if router is not None:
         bind_export_replay_or_conflict(
             request=request,
             response=response,
-            semantic_projection=document.model_dump(
-                mode="json",
-                exclude={"render_timestamp"},
+            semantic_projection=_bureaucratic_replay_projection(
+                document.model_dump(mode="json"),
             ),
-            as_of=(
-                document.temporal_scope.valid_at
-                if document.temporal_scope is not None
-                and document.temporal_scope.valid_at is not None
-                else document.render_timestamp
+            as_of=_bureaucratic_replay_as_of(
+                temporal_scope=document.temporal_scope,
+                observed_at=document.render_timestamp,
             ),
-            requested_projection_hash=None,
+            requested_projection_hash=export_projection_hash,
         )
         return render_response
 
@@ -552,15 +555,20 @@ if router is not None:
                 "trust_view": trust_view,
             },
         )
-        semantic_projection = export.model_dump(mode="json", exclude={"meta"})
-        metadata = dict(semantic_projection["metadata"])
-        render_timestamp = datetime.fromisoformat(str(metadata.pop("render_timestamp")))
-        semantic_projection["metadata"] = metadata
+        semantic_projection = _bureaucratic_replay_projection(
+            export.model_dump(mode="json", exclude={"meta"}),
+        )
+        render_timestamp = datetime.fromisoformat(
+            cast("str", export.metadata["render_timestamp"]),
+        )
         bind_export_replay_or_conflict(
             request=request,
             response=response,
             semantic_projection=semantic_projection,
-            as_of=valid_at or render_timestamp,
+            as_of=_bureaucratic_replay_as_of(
+                temporal_scope=temporal_scope,
+                observed_at=render_timestamp,
+            ),
             requested_projection_hash=export_projection_hash,
         )
         return export
@@ -639,6 +647,33 @@ if router is not None:
             metadata={"representation": "download"},
         )
         return response
+
+
+def _bureaucratic_replay_projection(value: object) -> object:
+    """Remove renderer observation clocks from the semantic replay projection."""
+    if isinstance(value, dict):
+        mapping = cast("dict[str, object]", value)
+        return {
+            key: _bureaucratic_replay_projection(item)
+            for key, item in mapping.items()
+            if key != "render_timestamp"
+        }
+    if isinstance(value, list):
+        return [_bureaucratic_replay_projection(item) for item in value]
+    if isinstance(value, str):
+        return _BUREAUCRATIC_OBSERVATION_TIMESTAMP.sub("observation-time", value)
+    return value
+
+
+def _bureaucratic_replay_as_of(
+    *,
+    temporal_scope: TemporalScope | None,
+    observed_at: datetime,
+) -> datetime:
+    """Resolve replay time by semantic role: validity, transaction, observation."""
+    if temporal_scope is None:
+        return observed_at
+    return temporal_scope.valid_at or temporal_scope.tx_at or observed_at
 
 
 def _parse_artifact_id(value: str) -> ArtifactID:

@@ -50,6 +50,56 @@
         "title": "AccessRef",
         "type": "object"
       },
+      "AcquisitionRoutingPayload": {
+        "additionalProperties": false,
+        "description": "Acquisition routing contract projection.",
+        "properties": {
+          "compute_economics": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "denominators": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "fail_closed_probes": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "fail_closed_receipt": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "grounding_acquisition_request": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "known_residuals": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "no_result_receipt": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "positive_receipt": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Positive Receipt",
+            "type": "object"
+          },
+          "recorded_rederive_inputs": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "denominators",
+          "positive_receipt",
+          "no_result_receipt",
+          "fail_closed_receipt",
+          "fail_closed_probes",
+          "grounding_acquisition_request",
+          "recorded_rederive_inputs",
+          "compute_economics",
+          "known_residuals"
+        ],
+        "title": "AcquisitionRoutingPayload",
+        "type": "object"
+      },
       "AgentPipelineAttempt": {
         "additionalProperties": false,
         "description": "Agent pipeline attempt public type.",
@@ -892,6 +942,108 @@
           "integrity_sha256"
         ],
         "title": "ArtifactManifestView",
+        "type": "object"
+      },
+      "ArtifactMissingGovernedProjectionPacket": {
+        "additionalProperties": false,
+        "description": "Projection state for an absent governed source.",
+        "properties": {
+          "absence_reason": {
+            "title": "Absence Reason",
+            "type": "string"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "authoritative_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "availability": {
+            "const": "artifact_missing",
+            "title": "Availability",
+            "type": "string"
+          },
+          "export_replay_contract": {
+            "const": "policyos.runtime.export_replay_binding.v1",
+            "default": "policyos.runtime.export_replay_binding.v1",
+            "title": "Export Replay Contract",
+            "type": "string"
+          },
+          "freshness": {
+            "$ref": "#/components/schemas/ProjectionFreshness"
+          },
+          "intended_audience": {
+            "$ref": "#/components/schemas/AudienceClass"
+          },
+          "may_not_use_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "packet_schema_version": {
+            "const": "policyos.runtime.governed_projection_packet.v1",
+            "default": "policyos.runtime.governed_projection_packet.v1",
+            "title": "Packet Schema Version",
+            "type": "string"
+          },
+          "payload": {
+            "title": "Payload",
+            "type": "null"
+          },
+          "projection_hash": {
+            "title": "Projection Hash",
+            "type": "null"
+          },
+          "projection_id": {
+            "$ref": "#/components/schemas/ProjectionId"
+          },
+          "projection_rule_version": {
+            "const": "policyos.runtime.governed_projection.v1",
+            "default": "policyos.runtime.governed_projection.v1",
+            "title": "Projection Rule Version",
+            "type": "string"
+          },
+          "replay_address": {
+            "title": "Replay Address",
+            "type": "null"
+          },
+          "source": {
+            "title": "Source",
+            "type": "null"
+          },
+          "source_rule_version": {
+            "title": "Source Rule Version",
+            "type": "null"
+          },
+          "source_schema_version": {
+            "title": "Source Schema Version",
+            "type": "null"
+          },
+          "stable_address": {
+            "title": "Stable Address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "projection_id",
+          "intended_audience",
+          "authoritative_for",
+          "may_not_use_for",
+          "as_of",
+          "freshness",
+          "stable_address",
+          "availability",
+          "absence_reason"
+        ],
+        "title": "ArtifactMissingGovernedProjectionPacket",
         "type": "object"
       },
       "ArtifactRef-Input": {
@@ -2137,6 +2289,164 @@
         "title": "AuthoredText",
         "type": "object"
       },
+      "AvailableGovernedProjectionPacket": {
+        "additionalProperties": false,
+        "description": "Projection state with a source-specific typed payload.",
+        "properties": {
+          "absence_reason": {
+            "title": "Absence Reason",
+            "type": "null"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "authoritative_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "availability": {
+            "const": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "export_replay_contract": {
+            "const": "policyos.runtime.export_replay_binding.v1",
+            "default": "policyos.runtime.export_replay_binding.v1",
+            "title": "Export Replay Contract",
+            "type": "string"
+          },
+          "freshness": {
+            "$ref": "#/components/schemas/ProjectionFreshness"
+          },
+          "intended_audience": {
+            "$ref": "#/components/schemas/AudienceClass"
+          },
+          "may_not_use_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "packet_schema_version": {
+            "const": "policyos.runtime.governed_projection_packet.v1",
+            "default": "policyos.runtime.governed_projection_packet.v1",
+            "title": "Packet Schema Version",
+            "type": "string"
+          },
+          "payload": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DepthNCycleBoardPayload"
+              },
+              {
+                "$ref": "#/components/schemas/ValueGatePayload"
+              },
+              {
+                "$ref": "#/components/schemas/GenerationCycleDispositionPayload"
+              },
+              {
+                "$ref": "#/components/schemas/EngineCensusPayload"
+              },
+              {
+                "$ref": "#/components/schemas/ForkBRelationCensusPayload"
+              },
+              {
+                "$ref": "#/components/schemas/AcquisitionRoutingPayload"
+              },
+              {
+                "$ref": "#/components/schemas/N13AAcquisitionCensusPayload"
+              },
+              {
+                "$ref": "#/components/schemas/N13ALiveProbeJournalPayload"
+              },
+              {
+                "$ref": "#/components/schemas/CapabilityRealityPayload"
+              },
+              {
+                "$ref": "#/components/schemas/ClusterOwnershipPayload"
+              },
+              {
+                "$ref": "#/components/schemas/Layer3HealthMetricsPayload"
+              },
+              {
+                "$ref": "#/components/schemas/LegacyProvingGroundPayload"
+              },
+              {
+                "$ref": "#/components/schemas/SurfaceReadinessPayload"
+              }
+            ],
+            "title": "Payload"
+          },
+          "projection_hash": {
+            "title": "Projection Hash",
+            "type": "string"
+          },
+          "projection_id": {
+            "$ref": "#/components/schemas/ProjectionId"
+          },
+          "projection_rule_version": {
+            "const": "policyos.runtime.governed_projection.v1",
+            "default": "policyos.runtime.governed_projection.v1",
+            "title": "Projection Rule Version",
+            "type": "string"
+          },
+          "replay_address": {
+            "title": "Replay Address",
+            "type": "string"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ProjectionSourceIdentity"
+          },
+          "source_rule_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Rule Version"
+          },
+          "source_schema_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Schema Version"
+          },
+          "stable_address": {
+            "title": "Stable Address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "projection_id",
+          "intended_audience",
+          "authoritative_for",
+          "may_not_use_for",
+          "as_of",
+          "freshness",
+          "stable_address",
+          "availability",
+          "source",
+          "projection_hash",
+          "replay_address",
+          "payload"
+        ],
+        "title": "AvailableGovernedProjectionPacket",
+        "type": "object"
+      },
       "BasinEstimate": {
         "additionalProperties": false,
         "description": "Estimated basin share for one clustered fixed point.",
@@ -3345,6 +3655,48 @@
         "title": "CapabilityManifestResponse",
         "type": "object"
       },
+      "CapabilityRealityPayload": {
+        "additionalProperties": false,
+        "description": "Owner-reported capability reality projection.",
+        "properties": {
+          "blockers": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "capability_claims": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "chain_clusters": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "debt_algebra": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "issues": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "ratchet_integrity_status": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "summary",
+          "readiness",
+          "capability_claims",
+          "blockers",
+          "issues",
+          "chain_clusters",
+          "ratchet_integrity_status",
+          "debt_algebra"
+        ],
+        "title": "CapabilityRealityPayload",
+        "type": "object"
+      },
       "CausalFrontierAreaRecord": {
         "additionalProperties": false,
         "description": "Inline representation of one area-level SAE row.",
@@ -3919,6 +4271,68 @@
           "channels"
         ],
         "title": "ChannelRegistryResponse",
+        "type": "object"
+      },
+      "ClusterOwnershipPayload": {
+        "additionalProperties": false,
+        "description": "Cluster/cell ownership projection.",
+        "properties": {
+          "architecture_core": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "capability_chain_steps": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "clusters": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Clusters",
+            "type": "object"
+          },
+          "handshake_graph": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "open_cell_closure": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "owner": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "ratchet_state_vocabulary": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "required_cell_fields": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "required_clusters": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "stop_rule": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "status",
+          "owner",
+          "purpose",
+          "ratchet_state_vocabulary",
+          "required_clusters",
+          "required_cell_fields",
+          "capability_chain_steps",
+          "stop_rule",
+          "open_cell_closure",
+          "handshake_graph",
+          "architecture_core",
+          "clusters"
+        ],
+        "title": "ClusterOwnershipPayload",
         "type": "object"
       },
       "ComparabilityReport": {
@@ -7970,6 +8384,95 @@
         "title": "DeltaQuantity",
         "type": "object"
       },
+      "DepthNCycleBoardPayload": {
+        "additionalProperties": false,
+        "description": "Cycle Board dependency projection from the depth-N capstone.",
+        "properties": {
+          "depth_evidence": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Depth Evidence",
+            "type": "object"
+          },
+          "domain_runs": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/DepthNDomainRunProjection"
+            },
+            "title": "Domain Runs",
+            "type": "object"
+          },
+          "terminal_distributions": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Terminal Distributions",
+            "type": "object"
+          }
+        },
+        "required": [
+          "depth_evidence",
+          "domain_runs",
+          "terminal_distributions"
+        ],
+        "title": "DepthNCycleBoardPayload",
+        "type": "object"
+      },
+      "DepthNDomainRunProjection": {
+        "additionalProperties": false,
+        "description": "Narrow recorded fields for one depth-N domain run.",
+        "properties": {
+          "acquisition_route": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "design_problem_ref": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "domain_role": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "evidence_class": {
+            "title": "Evidence Class",
+            "type": "string"
+          },
+          "evidence_witness": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Evidence Witness",
+            "type": "object"
+          },
+          "generation_cycle_run_id": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "terminal_distribution": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Terminal Distribution",
+            "type": "object"
+          },
+          "weakest_links": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Weakest Links",
+            "type": "array"
+          }
+        },
+        "required": [
+          "generation_cycle_run_id",
+          "design_problem_ref",
+          "domain_role",
+          "terminal_distribution",
+          "evidence_class",
+          "evidence_witness",
+          "weakest_links",
+          "acquisition_route"
+        ],
+        "title": "DepthNDomainRunProjection",
+        "type": "object"
+      },
       "DerivedArtifact": {
         "additionalProperties": false,
         "description": "Derived artifact public type.",
@@ -8108,6 +8611,57 @@
           "dataset_id"
         ],
         "title": "DiscoveryCandidate",
+        "type": "object"
+      },
+      "EngineCensusPayload": {
+        "additionalProperties": false,
+        "description": "Engine census summary without the row table.",
+        "properties": {
+          "critical_findings": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "discipline": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "evidence_reproducibility": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "execution_status_vocabulary": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Execution Status Vocabulary",
+            "type": "object"
+          },
+          "gap_taxonomy_extensions": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "row_count": {
+            "title": "Row Count",
+            "type": "integer"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "subcensus_summary": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "verb_gap_consistency": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "row_count",
+          "execution_status_vocabulary",
+          "critical_findings",
+          "subcensus_summary",
+          "gap_taxonomy_extensions",
+          "verb_gap_consistency",
+          "evidence_reproducibility",
+          "discipline",
+          "scope"
+        ],
+        "title": "EngineCensusPayload",
         "type": "object"
       },
       "EquilibriumBasinInterval": {
@@ -10010,6 +10564,90 @@
         "title": "FetchPreview",
         "type": "object"
       },
+      "ForkBRelationCensusPayload": {
+        "additionalProperties": false,
+        "description": "Fork-B relation census projection without relation rows.",
+        "properties": {
+          "authority": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "certificate_summaries": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "coverage_manifest": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "known_bridge_limits": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "normalization": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "relation_counts": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "relation_denominator_formula": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "transport_floor": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "transport_floor_rule": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "relation_counts",
+          "relation_denominator_formula",
+          "authority",
+          "coverage_manifest",
+          "certificate_summaries",
+          "transport_floor",
+          "transport_floor_rule",
+          "known_bridge_limits",
+          "normalization"
+        ],
+        "title": "ForkBRelationCensusPayload",
+        "type": "object"
+      },
+      "GenerationCycleDispositionPayload": {
+        "additionalProperties": false,
+        "description": "Generation-cycle task and owner disposition projection.",
+        "properties": {
+          "bridge_artifacts": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "known_residuals": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "method_availability_gate": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "owners": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "parallel_world_reconciliation": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "task_owner_mapping": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "tasks": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "tasks",
+          "owners",
+          "task_owner_mapping",
+          "bridge_artifacts",
+          "method_availability_gate",
+          "known_residuals",
+          "parallel_world_reconciliation"
+        ],
+        "title": "GenerationCycleDispositionPayload",
+        "type": "object"
+      },
       "GovernanceDebugResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the governance debug endpoint.",
@@ -10221,148 +10859,6 @@
           "source_kind"
         ],
         "title": "GovernanceDebugView",
-        "type": "object"
-      },
-      "GovernedProjectionPacket": {
-        "additionalProperties": false,
-        "description": "Typed, replayable export packet shared by later MACHINE twins.",
-        "properties": {
-          "absence_reason": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Absence Reason"
-          },
-          "as_of": {
-            "format": "date-time",
-            "title": "As Of",
-            "type": "string"
-          },
-          "authoritative_for": {
-            "items": {
-              "type": "string"
-            },
-            "title": "Authoritative For",
-            "type": "array"
-          },
-          "availability": {
-            "$ref": "#/components/schemas/ProjectionAvailability"
-          },
-          "export_replay_contract": {
-            "const": "policyos.runtime.export_replay_binding.v1",
-            "default": "policyos.runtime.export_replay_binding.v1",
-            "title": "Export Replay Contract",
-            "type": "string"
-          },
-          "freshness": {
-            "$ref": "#/components/schemas/ProjectionFreshness"
-          },
-          "intended_audience": {
-            "$ref": "#/components/schemas/AudienceClass"
-          },
-          "may_not_use_for": {
-            "items": {
-              "type": "string"
-            },
-            "title": "May Not Use For",
-            "type": "array"
-          },
-          "packet_schema_version": {
-            "const": "policyos.runtime.governed_projection_packet.v1",
-            "default": "policyos.runtime.governed_projection_packet.v1",
-            "title": "Packet Schema Version",
-            "type": "string"
-          },
-          "payload": {
-            "anyOf": [
-              {
-                "additionalProperties": true,
-                "type": "object"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Payload"
-          },
-          "projection_hash": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Projection Hash"
-          },
-          "projection_id": {
-            "$ref": "#/components/schemas/ProjectionId"
-          },
-          "replay_address": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Replay Address"
-          },
-          "source": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ProjectionSourceIdentity"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
-          "source_rule_version": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Rule Version"
-          },
-          "source_schema_version": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Source Schema Version"
-          },
-          "stable_address": {
-            "title": "Stable Address",
-            "type": "string"
-          }
-        },
-        "required": [
-          "projection_id",
-          "availability",
-          "intended_audience",
-          "authoritative_for",
-          "may_not_use_for",
-          "as_of",
-          "freshness",
-          "stable_address"
-        ],
-        "title": "GovernedProjectionPacket",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -10668,6 +11164,122 @@
         "title": "InputRef",
         "type": "object"
       },
+      "InvalidGovernedProjectionPacket": {
+        "additionalProperties": false,
+        "description": "Projection state for present bytes that fail source validation.",
+        "properties": {
+          "absence_reason": {
+            "title": "Absence Reason",
+            "type": "string"
+          },
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "authoritative_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "availability": {
+            "const": "invalid_source",
+            "title": "Availability",
+            "type": "string"
+          },
+          "export_replay_contract": {
+            "const": "policyos.runtime.export_replay_binding.v1",
+            "default": "policyos.runtime.export_replay_binding.v1",
+            "title": "Export Replay Contract",
+            "type": "string"
+          },
+          "freshness": {
+            "$ref": "#/components/schemas/ProjectionFreshness"
+          },
+          "intended_audience": {
+            "$ref": "#/components/schemas/AudienceClass"
+          },
+          "may_not_use_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "packet_schema_version": {
+            "const": "policyos.runtime.governed_projection_packet.v1",
+            "default": "policyos.runtime.governed_projection_packet.v1",
+            "title": "Packet Schema Version",
+            "type": "string"
+          },
+          "payload": {
+            "title": "Payload",
+            "type": "null"
+          },
+          "projection_hash": {
+            "title": "Projection Hash",
+            "type": "null"
+          },
+          "projection_id": {
+            "$ref": "#/components/schemas/ProjectionId"
+          },
+          "projection_rule_version": {
+            "const": "policyos.runtime.governed_projection.v1",
+            "default": "policyos.runtime.governed_projection.v1",
+            "title": "Projection Rule Version",
+            "type": "string"
+          },
+          "replay_address": {
+            "title": "Replay Address",
+            "type": "null"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ProjectionSourceIdentity"
+          },
+          "source_rule_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Rule Version"
+          },
+          "source_schema_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Schema Version"
+          },
+          "stable_address": {
+            "title": "Stable Address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "projection_id",
+          "intended_audience",
+          "authoritative_for",
+          "may_not_use_for",
+          "as_of",
+          "freshness",
+          "stable_address",
+          "availability",
+          "source",
+          "absence_reason"
+        ],
+        "title": "InvalidGovernedProjectionPacket",
+        "type": "object"
+      },
       "IterationLifecycleView": {
         "additionalProperties": false,
         "description": "Current iteration state with stop reason and latest evaluator verdict.",
@@ -10750,6 +11362,60 @@
           }
         },
         "title": "IterationLifecycleView",
+        "type": "object"
+      },
+      "Layer3HealthMetricsPayload": {
+        "additionalProperties": false,
+        "description": "Recorded health metric ledger projection.",
+        "properties": {
+          "health_metric_ledgers": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Health Metric Ledgers",
+            "type": "array"
+          }
+        },
+        "required": [
+          "health_metric_ledgers"
+        ],
+        "title": "Layer3HealthMetricsPayload",
+        "type": "object"
+      },
+      "LegacyProvingGroundPayload": {
+        "additionalProperties": false,
+        "description": "Fixture-only identity and semantic expectations.",
+        "properties": {
+          "fixture_authority": {
+            "const": "fixture_only",
+            "default": "fixture_only",
+            "title": "Fixture Authority",
+            "type": "string"
+          },
+          "fixture_identities": {
+            "items": {
+              "$ref": "#/components/schemas/ProvingGroundFixtureIdentity"
+            },
+            "title": "Fixture Identities",
+            "type": "array"
+          },
+          "fixture_records": {
+            "items": {
+              "$ref": "#/components/schemas/ProvingGroundFixtureRecord"
+            },
+            "title": "Fixture Records",
+            "type": "array"
+          },
+          "runtime_outcomes": {
+            "$ref": "#/components/schemas/ProvingGroundRuntimeOutcomes"
+          }
+        },
+        "required": [
+          "fixture_identities",
+          "fixture_records",
+          "runtime_outcomes"
+        ],
+        "title": "LegacyProvingGroundPayload",
         "type": "object"
       },
       "LexGraphStatsResponse": {
@@ -12744,6 +13410,70 @@
           }
         },
         "title": "MonitoringWindow",
+        "type": "object"
+      },
+      "N13AAcquisitionCensusPayload": {
+        "additionalProperties": false,
+        "description": "N13a census dependency projection.",
+        "properties": {
+          "catalog_identity": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "family_scorecards": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "fetch_plan_generation": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "growth_backlog": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "metric_resolutions": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "projection_bindings": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "reverse_demand_residuals": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "route_evidence": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "catalog_identity",
+          "projection_bindings",
+          "family_scorecards",
+          "metric_resolutions",
+          "route_evidence",
+          "growth_backlog",
+          "fetch_plan_generation",
+          "reverse_demand_residuals"
+        ],
+        "title": "N13AAcquisitionCensusPayload",
+        "type": "object"
+      },
+      "N13ALiveProbeJournalPayload": {
+        "additionalProperties": false,
+        "description": "N13a live-probe journal dependency projection.",
+        "properties": {
+          "family_receipts": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "records": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "selection_plan": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "selection_plan",
+          "family_receipts",
+          "records"
+        ],
+        "title": "N13ALiveProbeJournalPayload",
         "type": "object"
       },
       "NaturalLanguageRunRequest": {
@@ -14794,16 +15524,6 @@
         "title": "ProductionApprovalResponse",
         "type": "object"
       },
-      "ProjectionAvailability": {
-        "description": "Describe whether a governed source can back a projection.",
-        "enum": [
-          "available",
-          "artifact_missing",
-          "invalid_source"
-        ],
-        "title": "ProjectionAvailability",
-        "type": "string"
-      },
       "ProjectionCatalogEntry": {
         "additionalProperties": false,
         "description": "Describe one stable projection without reading its source artifact.",
@@ -14950,6 +15670,61 @@
         "title": "ProjectionId",
         "type": "string"
       },
+      "ProjectionJsonValue": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          },
+          {
+            "items": {},
+            "type": "array"
+          },
+          {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "ProjectionOwnerBinding": {
+        "additionalProperties": false,
+        "description": "Name an owner-recorded binding to a different governed artifact.",
+        "properties": {
+          "artifact_content_hash": {
+            "title": "Artifact Content Hash",
+            "type": "string"
+          },
+          "binding_name": {
+            "title": "Binding Name",
+            "type": "string"
+          },
+          "relation": {
+            "const": "related_artifact",
+            "default": "related_artifact",
+            "title": "Relation",
+            "type": "string"
+          },
+          "relative_path": {
+            "title": "Relative Path",
+            "type": "string"
+          }
+        },
+        "required": [
+          "binding_name",
+          "relative_path",
+          "artifact_content_hash"
+        ],
+        "title": "ProjectionOwnerBinding",
+        "type": "object"
+      },
       "ProjectionSourceIdentity": {
         "additionalProperties": false,
         "description": "Bind a packet to the exact source bytes observed by the producer.",
@@ -14968,6 +15743,14 @@
               }
             ],
             "title": "Declared Content Hash"
+          },
+          "related_artifact_bindings": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/ProjectionOwnerBinding"
+            },
+            "title": "Related Artifact Bindings",
+            "type": "array"
           },
           "relative_path": {
             "title": "Relative Path",
@@ -15149,6 +15932,142 @@
           "message"
         ],
         "title": "PromotionDecisionResponse",
+        "type": "object"
+      },
+      "ProvingGroundFixtureIdentity": {
+        "additionalProperties": false,
+        "description": "Manifest-owned identity for one legacy proving-ground case.",
+        "properties": {
+          "authority_levels": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authority Levels",
+            "type": "array"
+          },
+          "case_id": {
+            "title": "Case Id",
+            "type": "string"
+          },
+          "domain": {
+            "title": "Domain",
+            "type": "string"
+          },
+          "split": {
+            "title": "Split",
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "domain",
+          "split",
+          "authority_levels"
+        ],
+        "title": "ProvingGroundFixtureIdentity",
+        "type": "object"
+      },
+      "ProvingGroundFixtureRecord": {
+        "additionalProperties": false,
+        "description": "Narrow fixture expectation projection without producer metadata.",
+        "properties": {
+          "case_id": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "claim_evidence_annotations": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "compilation_intent_text": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "concept_spine_refs": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "domain": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "expected_adapter_bindings": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "expected_claim_families": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "expected_closeout_states": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "expected_facets": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "expected_obligation_graph": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "expected_projection_truthfulness": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "expected_requirement_specs": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "expert_adjudication": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "input_intent_ref": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "intent": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "schema_version": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "split": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "title": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          }
+        },
+        "required": [
+          "case_id",
+          "title",
+          "domain",
+          "split",
+          "schema_version",
+          "intent",
+          "input_intent_ref",
+          "compilation_intent_text",
+          "concept_spine_refs",
+          "expected_adapter_bindings",
+          "expected_claim_families",
+          "expected_closeout_states",
+          "expected_facets",
+          "expected_obligation_graph",
+          "expected_projection_truthfulness",
+          "expected_requirement_specs",
+          "expert_adjudication",
+          "claim_evidence_annotations"
+        ],
+        "title": "ProvingGroundFixtureRecord",
+        "type": "object"
+      },
+      "ProvingGroundRuntimeOutcomes": {
+        "additionalProperties": false,
+        "description": "Explicitly absent runtime result slot for fixture-only records.",
+        "properties": {
+          "availability": {
+            "const": "artifact_missing",
+            "default": "artifact_missing",
+            "title": "Availability",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ProvingGroundRuntimeOutcomes",
         "type": "object"
       },
       "QualityRef": {
@@ -19245,6 +20164,42 @@
         "title": "SourceProfilesListResponse",
         "type": "object"
       },
+      "SurfaceReadinessPayload": {
+        "additionalProperties": false,
+        "description": "Owner-versioned surface readiness projection once a live schema exists.",
+        "properties": {
+          "authority": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Authority",
+            "type": "object"
+          },
+          "controlled_vocabulary_source": {
+            "title": "Controlled Vocabulary Source",
+            "type": "string"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "ledger_id": {
+            "title": "Ledger Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ledger_id",
+          "authority",
+          "controlled_vocabulary_source",
+          "entries"
+        ],
+        "title": "SurfaceReadinessPayload",
+        "type": "object"
+      },
       "TemporalCapabilitiesResponse": {
         "additionalProperties": false,
         "description": "Response envelope for temporal capabilities and gaps.",
@@ -20057,6 +21012,72 @@
           "type"
         ],
         "title": "ValidationError",
+        "type": "object"
+      },
+      "ValueGatePayload": {
+        "additionalProperties": false,
+        "description": "Value-gate dependency projection.",
+        "properties": {
+          "acquisition_routing": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "advisor_receipts": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Advisor Receipts",
+            "type": "object"
+          },
+          "denominators": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Denominators",
+            "type": "object"
+          },
+          "disposition": {
+            "$ref": "#/components/schemas/ProjectionJsonValue"
+          },
+          "education_refusal": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Education Refusal",
+            "type": "object"
+          },
+          "mode_gates": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Mode Gates",
+            "type": "object"
+          },
+          "production_refusal": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Production Refusal",
+            "type": "object"
+          },
+          "value_outer_set_contract": {
+            "items": {
+              "$ref": "#/components/schemas/ProjectionJsonValue"
+            },
+            "title": "Value Outer Set Contract",
+            "type": "array"
+          }
+        },
+        "required": [
+          "denominators",
+          "education_refusal",
+          "production_refusal",
+          "advisor_receipts",
+          "value_outer_set_contract",
+          "mode_gates",
+          "acquisition_routing",
+          "disposition"
+        ],
+        "title": "ValueGatePayload",
         "type": "object"
       },
       "VerificationMetadata": {
@@ -24580,6 +25601,23 @@
             "schema": {
               "title": "Packet Id",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "export_projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Export Projection Hash"
             }
           }
         ],
@@ -35008,7 +36046,26 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GovernedProjectionPacket"
+                  "discriminator": {
+                    "mapping": {
+                      "artifact_missing": "#/components/schemas/ArtifactMissingGovernedProjectionPacket",
+                      "available": "#/components/schemas/AvailableGovernedProjectionPacket",
+                      "invalid_source": "#/components/schemas/InvalidGovernedProjectionPacket"
+                    },
+                    "propertyName": "availability"
+                  },
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/AvailableGovernedProjectionPacket"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ArtifactMissingGovernedProjectionPacket"
+                    },
+                    {
+                      "$ref": "#/components/schemas/InvalidGovernedProjectionPacket"
+                    }
+                  ],
+                  "title": "Response Get Governed Projection"
                 }
               }
             },

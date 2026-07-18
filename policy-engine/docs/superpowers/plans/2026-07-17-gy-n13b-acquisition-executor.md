@@ -27,7 +27,32 @@ can never enter the observed overlay.
 Pydantic v2 strict DTOs, existing L5 and alignment owners, pytest, Ruff, generated JSON/DuckDB
 artifacts.
 
-**Status (2026-07-17):** `in_progress`
+**Status (2026-07-18):** `stopped_by_evidence` — not closed or merge-authorized. The local-lift
+denominator has no admissible owner binding, and both exact live carriers ended in quarantine
+terminals. Per the binding stop law, no overlay epoch, world-growth claim, or derivation acceptance
+case may be manufactured. Execution ledger:
+`docs/superpowers/journals/2026-07-18-gy-n13b-acquisition-executor.md`.
+
+## Stop-law receipt
+
+- Local-lift: `0/15` census residuals admissible; terminal
+  `no_admissible_local_binding`. The 100 household cells lack owner-proven currency/basis/base-year,
+  source-snapshot, and rights evidence. The 11,574 corrected-firm rows are derived, have no D5
+  certificate or catalog alignment to `cells.distress_score`, and only 80 rows / 19 agents overlap
+  the firm owner at any period (zero at matching periods).
+- Live-fetch attempt 001 (`UKR`, 2013): one call, 85 raw bytes, HTTP 200, owner-derived terminal
+  `quarantined_live_raw_response_shape_drift`; the response declared zero rows and was not repaired.
+- Live-fetch attempt 002 (`UKR`, 2000–2024): one call, zero response bytes, owner timeout after
+  15.766 seconds, terminal `failed_retry_exhausted_error`.
+- Quarantine/admission: one raw CAS object, zero normalized observations, zero passports, zero
+  admitted rows, no overlay file, and baseline availability for `government.balance` remains
+  `0 datasets / 0 bindings / 0 observations`.
+- Baseline identity before and after both attempts is unchanged:
+  `sha256:4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7`.
+- Resumption requires new owner evidence, not another blind retry: either a content-bound local
+  rights + unit/basis declaration for a demanded residual, or a new exact E7-authorized live carrier
+  whose country coverage and semantic edge remain admissible. Until then Workstreams 7–9 remain
+  incomplete and the branch must not be reported as GY-N13b closed.
 
 ## Landing and isolation receipt
 

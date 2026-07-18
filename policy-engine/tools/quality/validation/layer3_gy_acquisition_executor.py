@@ -7,24 +7,42 @@ vocabulary.  It never executes a connector merely to select a target.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import re
+import socket
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, Literal, Self
+from unittest.mock import patch
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts import ArtifactID, FileSystemCAS
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
     VariablePairAlignmentScore,  # noqa: TC001 - Pydantic resolves this at runtime.
 )
 from polisyos.fabric.connectors.sources._contracts import WDI_GENERIC_SCHEMA
-from polisyos.fabric.data_plane import canonical_json_bytes, content_sha256
+from polisyos.fabric.data_plane import (
+    JournalEventRef,
+    LiveAttemptTerminal,
+    LiveMetadataExecutionAuthorization,
+    LiveMetadataHarnessReceipt,
+    LiveTransportTrace,
+    build_live_metadata_execution_authorization,
+    canonical_json_bytes,
+    content_sha256,
+    resolve_journal_event_ref,
+    resolve_live_attempt_terminals,
+    resolve_live_transport_trace,
+    resolve_raw_response_body,
+)
 
 TARGET_SELECTION_SCHEMA_VERSION = "policyos.layer3.gy.n13b.live_target_selection.v1"
 _EXECUTABLE_TIERS = frozenset({"fetchable", "transport_ready"})
@@ -38,6 +56,37 @@ DEFAULT_TARGET_AUTHORITY_PROVISION = Path(
 DEFAULT_TARGET_HARNESS_RECEIPT = Path(
     "architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json"
 )
+DEFAULT_R1_FORENSIC_RECEIPT = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json"
+)
+DEFAULT_METADATA_PROBE_OWNER = Path(
+    "architecture/policy_design_case/"
+    "layer3_gy_n13b_worldbank_government_balance_metadata_owner.json"
+)
+DEFAULT_METADATA_EXECUTION_EVIDENCE = Path(
+    "architecture/policy_design_case/"
+    "layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json"
+)
+DEFAULT_CARRIER_LIVENESS_UPDATE = Path(
+    "architecture/policy_design_case/"
+    "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json"
+)
+
+
+class CarrierDataDisposition(StrEnum):
+    """Typed R1 outcome recomputed only from paid response bytes."""
+
+    CARRIER_RETIRED_OR_INVALID = "carrier_retired_or_invalid"
+    NO_DATA_FOR_SCOPE = "no_data_for_scope"
+    RESPONSE_SHAPE_UNCLASSIFIED = "response_shape_unclassified"
+
+
+class IndicatorMetadataDisposition(StrEnum):
+    """Typed exact-indicator disposition derived after metadata journaling."""
+
+    CARRIER_CURRENT = "carrier_current"
+    CARRIER_RETIRED_OR_INVALID = "carrier_retired_or_invalid"
+    RESPONSE_SHAPE_UNCLASSIFIED = "response_shape_unclassified"
 
 
 class AcquisitionSelectionError(RuntimeError):
@@ -50,6 +99,934 @@ class AcquisitionSelectionError(RuntimeError):
 
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+class WorldBankDataResponseClassification(_StrictModel):
+    """R1 response classification bound to exact immutable bytes."""
+
+    body_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    byte_count: int = Field(ge=0)
+    disposition: CarrierDataDisposition
+    row_count: int | None = Field(default=None, ge=0)
+    api_message_count: int = Field(ge=0)
+
+
+class WorldBankIndicatorMetadataClassification(_StrictModel):
+    """Current/retired metadata result with only owner-declared fields."""
+
+    body_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    byte_count: int = Field(ge=0)
+    disposition: IndicatorMetadataDisposition
+    indicator_id: str = Field(min_length=1)
+    source_id: str | None = None
+    source_name: str | None = None
+    unit: str | None = None
+    coverage_start: str | None = None
+    coverage_end: str | None = None
+    declared_coverage: str = Field(min_length=1)
+    api_message_count: int = Field(ge=0)
+
+
+class R1AttemptForensicProjection(_StrictModel):
+    """Narrow verified projection of one already-paid data attempt."""
+
+    attempt_id: str = Field(min_length=1)
+    request_sequence: int = Field(ge=1)
+    request_event_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    request_dataset_id: str = Field(min_length=1)
+    terminal_event_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    terminal_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    terminal_outcome: str = Field(min_length=1)
+    terminal_failure_code: str = Field(min_length=1)
+    raw_evidence_event_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    raw_body_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    raw_byte_count: int | None = Field(default=None, ge=0)
+    http_status_code: int | None = Field(default=None, ge=100, le=599)
+    max_elapsed_seconds: float = Field(ge=0.0)
+    projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _attempt_projection_is_recomputed(self) -> Self:
+        raw_values = (
+            self.raw_evidence_event_sha256,
+            self.raw_body_sha256,
+            self.raw_byte_count,
+        )
+        if any(value is None for value in raw_values) != all(value is None for value in raw_values):
+            raise ValueError("R1 raw evidence projection must be complete or absent")
+        if self.http_status_code is not None and self.raw_body_sha256 is None:
+            raise ValueError("R1 HTTP status requires raw evidence")
+        if self.projection_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("R1 attempt projection identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the exact attempt projection without its self-hash."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "projection_sha256"
+        }
+
+
+class R1ForensicReceipt(_StrictModel):
+    """E10 receipt binding the paid journal prefix, CAS bytes, and R1 class."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.r1_forensics.v1"] = (
+        "policyos.layer3.gy.n13b.r1_forensics.v1"
+    )
+    journal_ref: str = Field(min_length=1)
+    journal_prefix_byte_length: int = Field(gt=0)
+    journal_prefix_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    cas_blob_ref: str = Field(min_length=1)
+    cas_manifest_ref: str = Field(min_length=1)
+    cas_blob_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    request_dataset_id: str = Field(min_length=1)
+    attempts: tuple[R1AttemptForensicProjection, ...] = Field(min_length=1)
+    decisive_attempt_id: str = Field(min_length=1)
+    classification: WorldBankDataResponseClassification
+    receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _receipt_is_recomputed(self) -> Self:
+        attempt_ids = tuple(attempt.attempt_id for attempt in self.attempts)
+        if len(attempt_ids) != len(set(attempt_ids)):
+            raise ValueError("R1 attempt denominator must be unique")
+        if tuple(attempt.request_sequence for attempt in self.attempts) != tuple(
+            sorted(attempt.request_sequence for attempt in self.attempts)
+        ):
+            raise ValueError("R1 attempts must preserve journal order")
+        decisive = tuple(
+            attempt for attempt in self.attempts if attempt.attempt_id == self.decisive_attempt_id
+        )
+        if (
+            len(decisive) != 1
+            or decisive[0].raw_body_sha256 != self.classification.body_sha256
+            or decisive[0].raw_byte_count != self.classification.byte_count
+            or self.cas_blob_sha256 != self.classification.body_sha256
+        ):
+            raise ValueError("R1 decisive bytes must bind journal, CAS, and classification")
+        if any(attempt.request_dataset_id != self.request_dataset_id for attempt in self.attempts):
+            raise ValueError("R1 attempt denominator must preserve the exact carrier")
+        if self.receipt_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("R1 forensic receipt identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the immutable forensic projection without its self-hash."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "receipt_sha256"
+        }
+
+
+class MetadataProbeOwner(_StrictModel):
+    """Exact zero-network owner needed to authorize one metadata call."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.metadata_probe_owner.v1"] = (
+        "policyos.layer3.gy.n13b.metadata_probe_owner.v1"
+    )
+    r1_receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    baseline_ref: str = Field(min_length=1)
+    baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    request: dict[str, Any]
+    harness: LiveMetadataHarnessReceipt
+    authorization: LiveMetadataExecutionAuthorization
+    owner_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _owner_is_recomputed(self) -> Self:
+        if (
+            self.authorization.harness != self.harness
+            or self.authorization.request_sha256 != content_sha256(self.request)
+            or self.authorization.baseline_sha256 != self.baseline_sha256
+            or self.request.get("variable_id") != self.harness.request_variable
+            or self.request.get("request_variables") != [self.harness.request_variable]
+            or self.request.get("call_class") != "indicator_metadata"
+        ):
+            raise ValueError("metadata probe owner projections must preserve exact scope")
+        if self.owner_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("metadata probe owner identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the timestamp-free metadata owner projection."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "owner_sha256"
+        }
+
+
+class MetadataProbeExecutionEvidence(_StrictModel):
+    """Reopened journal/CAS projection for the single bounded R2 call."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.metadata_probe_evidence.v1"] = (
+        "policyos.layer3.gy.n13b.metadata_probe_evidence.v1"
+    )
+    owner_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    attempt_id: str = Field(min_length=1)
+    baseline_before_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    baseline_after_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    request_ref: JournalEventRef
+    raw_evidence_ref: JournalEventRef | None = None
+    raw_artifact_id: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    raw_body_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    raw_byte_count: int | None = Field(default=None, ge=0)
+    classification: WorldBankIndicatorMetadataClassification | None = None
+    transport_trace: LiveTransportTrace | None = None
+    terminal: LiveAttemptTerminal
+    call_count: int = Field(ge=0, le=1)
+    quarantine: Literal[True] = True
+    response_admitted: Literal[False] = False
+    evidence_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _evidence_is_recomputed(self) -> Self:
+        if self.baseline_before_sha256 != self.baseline_after_sha256:
+            raise ValueError("metadata probe cannot mutate the epoch-0 baseline")
+        if (
+            self.request_ref.event_kind != "request"
+            or self.terminal.attempt_id != self.attempt_id
+            or self.terminal.request_ref != self.request_ref
+        ):
+            raise ValueError("metadata evidence owner/request projection is invalid")
+        raw_values = (
+            self.raw_evidence_ref,
+            self.raw_artifact_id,
+            self.raw_body_sha256,
+            self.raw_byte_count,
+            self.classification,
+            self.transport_trace,
+        )
+        if any(value is None for value in raw_values) != all(value is None for value in raw_values):
+            raise ValueError("metadata raw evidence projection must be complete or absent")
+        if self.raw_evidence_ref is None:
+            if self.terminal.raw_evidence_ref is not None:
+                raise ValueError("metadata terminal raw response cannot be omitted")
+        else:
+            assert self.classification is not None
+            assert self.transport_trace is not None
+            if (
+                self.raw_evidence_ref.event_kind != "raw_response"
+                or self.terminal.raw_evidence_ref != self.raw_evidence_ref
+                or self.raw_artifact_id != self.classification.body_sha256
+                or self.raw_body_sha256 != self.classification.body_sha256
+                or self.raw_byte_count != self.classification.byte_count
+                or self.transport_trace.raw_evidence_ref != self.raw_evidence_ref
+                or self.transport_trace.call_count != self.call_count
+            ):
+                raise ValueError("metadata raw evidence identities must agree")
+        if self.evidence_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("metadata execution evidence identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the exact evidence projection without its self-hash."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "evidence_sha256"
+        }
+
+
+def classify_worldbank_data_response(body: bytes) -> WorldBankDataResponseClassification:
+    """Classify paid World Bank data bytes into the exact R1 vocabulary."""
+
+    body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
+    try:
+        payload = json.loads(body)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        payload = None
+    messages = _worldbank_api_messages(payload)
+    disposition = CarrierDataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    row_count: int | None = None
+    if messages:
+        disposition = CarrierDataDisposition.CARRIER_RETIRED_OR_INVALID
+    elif (
+        isinstance(payload, list)
+        and len(payload) == 2
+        and isinstance(payload[0], Mapping)
+        and _nonbool_int(payload[0].get("total")) == 0
+        and payload[1] is None
+    ):
+        disposition = CarrierDataDisposition.NO_DATA_FOR_SCOPE
+        row_count = 0
+    return WorldBankDataResponseClassification(
+        body_sha256=body_sha,
+        byte_count=len(body),
+        disposition=disposition,
+        row_count=row_count,
+        api_message_count=len(messages),
+    )
+
+
+def classify_worldbank_indicator_metadata(
+    body: bytes,
+    *,
+    indicator_id: str,
+) -> WorldBankIndicatorMetadataClassification:
+    """Classify an exact metadata response without inferring missing coverage."""
+
+    requested = str(indicator_id).strip()
+    if not requested:
+        raise AcquisitionSelectionError("metadata_indicator_id_missing")
+    body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
+    try:
+        payload = json.loads(body)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        payload = None
+    messages = _worldbank_api_messages(payload)
+    disposition = IndicatorMetadataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    record: Mapping[str, object] | None = None
+    if messages:
+        disposition = IndicatorMetadataDisposition.CARRIER_RETIRED_OR_INVALID
+    elif isinstance(payload, list) and len(payload) == 2 and isinstance(payload[0], Mapping):
+        total = _nonbool_int(payload[0].get("total"))
+        rows = payload[1]
+        if total == 0 and rows in (None, []):
+            disposition = IndicatorMetadataDisposition.CARRIER_RETIRED_OR_INVALID
+        elif total == 1 and isinstance(rows, list) and len(rows) == 1:
+            candidate = rows[0]
+            if isinstance(candidate, Mapping) and candidate.get("id") == requested:
+                disposition = IndicatorMetadataDisposition.CARRIER_CURRENT
+                record = candidate
+    source = record.get("source") if record is not None else None
+    source_mapping = source if isinstance(source, Mapping) else {}
+    coverage_start = _optional_owner_string(record, "coverageStart", "coverage_start")
+    coverage_end = _optional_owner_string(record, "coverageEnd", "coverage_end")
+    declared_coverage = (
+        f"{coverage_start or 'open'}:{coverage_end or 'open'}"
+        if coverage_start is not None or coverage_end is not None
+        else "not_declared_by_indicator_metadata_endpoint"
+    )
+    return WorldBankIndicatorMetadataClassification(
+        body_sha256=body_sha,
+        byte_count=len(body),
+        disposition=disposition,
+        indicator_id=requested,
+        source_id=_optional_string(source_mapping.get("id")),
+        source_name=_optional_string(source_mapping.get("value")),
+        unit=_optional_string(record.get("unit")) if record is not None else None,
+        coverage_start=coverage_start,
+        coverage_end=coverage_end,
+        declared_coverage=declared_coverage,
+        api_message_count=len(messages),
+    )
+
+
+def derive_r1_forensic_receipt(
+    *,
+    journal_path: Path,
+    cas_root: Path,
+    request_dataset_id: str,
+) -> R1ForensicReceipt:
+    """Reopen the already-paid data attempts and bind decisive bytes to CAS."""
+
+    journal_path = Path(journal_path)
+    cas_root = Path(cas_root)
+    terminals = {
+        terminal.attempt_id: terminal for terminal in resolve_live_attempt_terminals(journal_path)
+    }
+    records = _canonical_journal_projection(journal_path)
+    metadata_cutoffs = tuple(
+        ref.sequence
+        for ref, event, _payload in records
+        if event.get("event_kind") == "request"
+        and isinstance(event.get("request"), Mapping)
+        and event["request"].get("call_class") == "indicator_metadata"
+    )
+    cutoff = min(metadata_cutoffs, default=10**18)
+    request_records = tuple(
+        (ref, event)
+        for ref, event, _payload in records
+        if ref.sequence < cutoff
+        and event.get("event_kind") == "request"
+        and isinstance(event.get("request"), Mapping)
+        and event["request"].get("request_dataset_id") == request_dataset_id
+        and event["request"].get("call_class", "data_fetch") == "data_fetch"
+    )
+    if not request_records:
+        raise AcquisitionSelectionError("r1_data_attempt_denominator_empty", request_dataset_id)
+    terminal_event_by_attempt = {
+        str(event.get("attempt_id")): (ref, event)
+        for ref, event, _payload in records
+        if event.get("event_kind") == "live_attempt_terminal"
+    }
+    projections: list[R1AttemptForensicProjection] = []
+    classified_bodies: list[tuple[str, bytes, WorldBankDataResponseClassification]] = []
+    terminal_end_offsets: list[int] = []
+    for request_ref, request_event in request_records:
+        attempt_id = str(request_event.get("attempt_id") or "")
+        terminal = terminals.get(attempt_id)
+        terminal_event = terminal_event_by_attempt.get(attempt_id)
+        if terminal is None or terminal_event is None:
+            raise AcquisitionSelectionError("r1_attempt_terminal_unresolved", attempt_id)
+        terminal_ref, terminal_payload = terminal_event
+        terminal_end_offsets.append(terminal_ref.byte_offset + terminal_ref.byte_length)
+        heartbeat_elapsed = tuple(
+            float(event["heartbeat"]["elapsed_seconds"])
+            for _ref, event, _payload in records
+            if event.get("attempt_id") == attempt_id
+            and event.get("event_kind") == "heartbeat"
+            and isinstance(event.get("heartbeat"), Mapping)
+            and isinstance(event["heartbeat"].get("elapsed_seconds"), (int, float))
+            and not isinstance(event["heartbeat"].get("elapsed_seconds"), bool)
+        )
+        raw_body: bytes | None = None
+        raw_body_sha: str | None = None
+        raw_byte_count: int | None = None
+        if terminal.raw_evidence_ref is not None:
+            raw_body = resolve_raw_response_body(terminal.raw_evidence_ref)
+            raw_body_sha = f"sha256:{hashlib.sha256(raw_body).hexdigest()}"
+            raw_byte_count = len(raw_body)
+            classified_bodies.append(
+                (attempt_id, raw_body, classify_worldbank_data_response(raw_body))
+            )
+        values: dict[str, object] = {
+            "attempt_id": attempt_id,
+            "request_sequence": request_ref.sequence,
+            "request_event_sha256": request_ref.event_sha256,
+            "request_dataset_id": request_dataset_id,
+            "terminal_event_sha256": terminal_ref.event_sha256,
+            "terminal_sha256": terminal.terminal_sha256,
+            "terminal_outcome": terminal.outcome_code,
+            "terminal_failure_code": terminal.failure_code,
+            "raw_evidence_event_sha256": (
+                terminal.raw_evidence_ref.event_sha256
+                if terminal.raw_evidence_ref is not None
+                else None
+            ),
+            "raw_body_sha256": raw_body_sha,
+            "raw_byte_count": raw_byte_count,
+            "http_status_code": terminal.http_status_code,
+            "max_elapsed_seconds": max(heartbeat_elapsed, default=0.0),
+        }
+        projections.append(
+            R1AttemptForensicProjection(
+                **values,
+                projection_sha256=content_sha256(values),
+            )
+        )
+        if terminal_payload.get("terminal_sha256") != terminal.terminal_sha256:
+            raise AcquisitionSelectionError("r1_terminal_projection_drift", attempt_id)
+    decisive = tuple(
+        item
+        for item in classified_bodies
+        if item[2].disposition is CarrierDataDisposition.NO_DATA_FOR_SCOPE
+    )
+    if len(decisive) != 1:
+        raise AcquisitionSelectionError(
+            "r1_decisive_response_unresolved",
+            f"{request_dataset_id}:{len(decisive)}",
+        )
+    decisive_attempt_id, decisive_body, classification = decisive[0]
+    if not cas_root.is_dir():
+        raise AcquisitionSelectionError("r1_cas_unresolved", cas_root.as_posix())
+    artifact_id = ArtifactID.model_validate(classification.body_sha256)
+    store = FileSystemCAS(cas_root, ownership_enforced=False)
+    cas_body = store.get_bytes(artifact_id)
+    if cas_body != decisive_body:
+        raise AcquisitionSelectionError("r1_cas_body_drift", classification.body_sha256)
+    blob_path, manifest_path = store.get_paths(artifact_id)
+    prefix_length = max(terminal_end_offsets)
+    prefix = journal_path.read_bytes()[:prefix_length]
+    values = {
+        "schema_version": "policyos.layer3.gy.n13b.r1_forensics.v1",
+        "journal_ref": _stable_repo_ref(journal_path),
+        "journal_prefix_byte_length": prefix_length,
+        "journal_prefix_sha256": f"sha256:{hashlib.sha256(prefix).hexdigest()}",
+        "cas_blob_ref": _stable_repo_ref(blob_path),
+        "cas_manifest_ref": _stable_repo_ref(manifest_path),
+        "cas_blob_sha256": classification.body_sha256,
+        "request_dataset_id": request_dataset_id,
+        "attempts": tuple(projections),
+        "decisive_attempt_id": decisive_attempt_id,
+        "classification": classification,
+    }
+    return R1ForensicReceipt(
+        **values,
+        receipt_sha256=content_sha256(values),
+    )
+
+
+def derive_metadata_probe_owner(
+    *,
+    r1_receipt: R1ForensicReceipt,
+    baseline_path: Path,
+    fixture_root: Path,
+) -> MetadataProbeOwner:
+    """Derive exact E7/E5 authorization for the one R2 metadata call."""
+
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    r1 = R1ForensicReceipt.model_validate(r1_receipt.model_dump(mode="python"))
+    baseline_path = Path(baseline_path)
+    if not baseline_path.is_file():
+        raise AcquisitionSelectionError("metadata_baseline_unresolved", baseline_path.as_posix())
+    baseline_sha = bytes_sha256(baseline_path.read_bytes())
+    profile_id = "worldbank_wdi"
+    profile = SourceProfileRegistry.get_instance().get(profile_id)
+    if profile is None or str(profile.connector_family) != "worldbank":
+        raise AcquisitionSelectionError("metadata_source_profile_unresolved", profile_id)
+    attempt_prefix = r1.decisive_attempt_id.rsplit("-", 1)[0]
+    attempt_id = f"{attempt_prefix}-metadata-001"
+    harness = derive_worldbank_metadata_harness_receipt(
+        attempt_id=attempt_id,
+        indicator_id=r1.request_dataset_id,
+        profile_id=profile_id,
+        fixture_root=fixture_root,
+    )
+    schema_contract = {
+        "schema_contract_ref": "fabric://worldbank.wdi.indicator_metadata@1.0.0",
+        "call_class": "indicator_metadata",
+        "expected_envelope": "worldbank_indicator_metadata",
+        "declared_record_fields": ["id", "name", "source", "unit"],
+        "conformance_stage": "quarantine_characterization",
+    }
+    request: dict[str, Any] = {
+        "call_class": "indicator_metadata",
+        "connector_id": "worldbank.wdi",
+        "profile_id": profile_id,
+        "variable_id": r1.request_dataset_id,
+        "request_variables": [r1.request_dataset_id],
+        "endpoint_url": harness.endpoint_url,
+        "params": harness.params,
+        "schema_contract": schema_contract,
+        "source_lane": "shadow_characterization",
+        "response_admitted": False,
+    }
+    decisive_attempt = next(
+        attempt for attempt in r1.attempts if attempt.attempt_id == r1.decisive_attempt_id
+    )
+    authorization = build_live_metadata_execution_authorization(
+        request=request,
+        schema_contract=schema_contract,
+        source_profile=profile,
+        baseline_sha256=baseline_sha,
+        harness_receipt=harness,
+        paid_success_elapsed_seconds=decisive_attempt.max_elapsed_seconds,
+        timeout_multiplier=2,
+        heartbeat_cap_seconds=3.0,
+        max_response_bytes=16_384,
+        max_decompressed_bytes=16_384,
+    )
+    values: dict[str, object] = {
+        "schema_version": "policyos.layer3.gy.n13b.metadata_probe_owner.v1",
+        "r1_receipt_sha256": r1.receipt_sha256,
+        "baseline_ref": _stable_repo_ref(baseline_path),
+        "baseline_sha256": baseline_sha,
+        "request": request,
+        "harness": harness,
+        "authorization": authorization,
+    }
+    return MetadataProbeOwner(
+        **values,
+        owner_sha256=content_sha256(values),
+    )
+
+
+def derive_metadata_probe_execution_evidence(
+    *,
+    owner: MetadataProbeOwner,
+    r1_receipt: R1ForensicReceipt,
+    journal_path: Path,
+    cas_root: Path,
+    baseline_path: Path,
+) -> tuple[MetadataProbeExecutionEvidence, object]:
+    """Reopen R2 evidence and derive its N13a D3 carrier update."""
+
+    from tools.quality.validation import layer3_gy_n13a_acquisition_census as census
+
+    owner = MetadataProbeOwner.model_validate(owner.model_dump(mode="python"))
+    r1 = R1ForensicReceipt.model_validate(r1_receipt.model_dump(mode="python"))
+    if owner.r1_receipt_sha256 != r1.receipt_sha256:
+        raise AcquisitionSelectionError("metadata_r1_receipt_drift", owner.owner_sha256)
+    baseline_path = Path(baseline_path)
+    baseline_sha = bytes_sha256(baseline_path.read_bytes())
+    if baseline_sha != owner.baseline_sha256:
+        raise AcquisitionSelectionError("metadata_baseline_mutation", baseline_path.as_posix())
+    records = _canonical_journal_projection(Path(journal_path))
+    attempt_id = owner.authorization.attempt_id
+    terminals = {
+        terminal.attempt_id: terminal
+        for terminal in resolve_live_attempt_terminals(Path(journal_path))
+    }
+    terminal = terminals.get(attempt_id)
+    if terminal is None:
+        raise AcquisitionSelectionError("metadata_attempt_terminal_unresolved", attempt_id)
+    request_events = tuple(
+        (ref, event)
+        for ref, event, _payload in records
+        if event.get("event_kind") == "request" and event.get("attempt_id") == attempt_id
+    )
+    if len(request_events) != 1:
+        raise AcquisitionSelectionError("metadata_request_unresolved", attempt_id)
+    request_ref, request_event = request_events[0]
+    if (
+        request_event.get("request") != owner.request
+        or request_event.get("request_sha256") != content_sha256(owner.request)
+        or request_ref != terminal.request_ref
+    ):
+        raise AcquisitionSelectionError("metadata_request_projection_drift", attempt_id)
+    heartbeat_elapsed = tuple(
+        float(event["heartbeat"]["elapsed_seconds"])
+        for _ref, event, _payload in records
+        if event.get("event_kind") == "heartbeat"
+        and event.get("attempt_id") == attempt_id
+        and isinstance(event.get("heartbeat"), Mapping)
+        and isinstance(event["heartbeat"].get("elapsed_seconds"), (int, float))
+        and not isinstance(event["heartbeat"].get("elapsed_seconds"), bool)
+    )
+    call_count = sum(
+        event.get("event_kind") == "transport_attempt" and event.get("attempt_id") == attempt_id
+        for _ref, event, _payload in records
+    )
+    if call_count > 1:
+        raise AcquisitionSelectionError("metadata_call_budget_exceeded", attempt_id)
+    raw_ref = terminal.raw_evidence_ref
+    classification: WorldBankIndicatorMetadataClassification | None = None
+    transport_trace: LiveTransportTrace | None = None
+    raw_body: bytes | None = None
+    raw_body_sha: str | None = None
+    raw_byte_count: int | None = None
+    raw_artifact_id: str | None = None
+    store = FileSystemCAS(Path(cas_root), ownership_enforced=False)
+    if raw_ref is not None:
+        raw_body = resolve_raw_response_body(raw_ref)
+        classification = classify_worldbank_indicator_metadata(
+            raw_body,
+            indicator_id=r1.request_dataset_id,
+        )
+        classification_events = tuple(
+            event
+            for _ref, event, _payload in records
+            if event.get("event_kind") == "classification" and event.get("attempt_id") == attempt_id
+        )
+        if (
+            len(classification_events) != 1
+            or classification_events[0].get("evidence_event_sha256") != raw_ref.event_sha256
+            or classification_events[0].get("classification")
+            != classification.model_dump(mode="json")
+        ):
+            raise AcquisitionSelectionError("metadata_classification_drift", attempt_id)
+        raw_body_sha = classification.body_sha256
+        raw_byte_count = len(raw_body)
+        raw_artifact_id = raw_body_sha
+        if store.get_bytes(ArtifactID.model_validate(raw_artifact_id)) != raw_body:
+            raise AcquisitionSelectionError("metadata_cas_body_drift", attempt_id)
+        transport_trace = resolve_live_transport_trace(raw_ref)
+    elif any(
+        event.get("event_kind") == "classification" and event.get("attempt_id") == attempt_id
+        for _ref, event, _payload in records
+    ):
+        raise AcquisitionSelectionError("metadata_classification_without_raw", attempt_id)
+    values: dict[str, object] = {
+        "schema_version": "policyos.layer3.gy.n13b.metadata_probe_evidence.v1",
+        "owner_sha256": owner.owner_sha256,
+        "attempt_id": attempt_id,
+        "baseline_before_sha256": owner.baseline_sha256,
+        "baseline_after_sha256": baseline_sha,
+        "request_ref": request_ref,
+        "raw_evidence_ref": raw_ref,
+        "raw_artifact_id": raw_artifact_id,
+        "raw_body_sha256": raw_body_sha,
+        "raw_byte_count": raw_byte_count,
+        "classification": classification,
+        "transport_trace": transport_trace,
+        "terminal": terminal,
+        "call_count": call_count,
+        "quarantine": True,
+        "response_admitted": False,
+    }
+    execution_evidence = MetadataProbeExecutionEvidence(
+        **values,
+        evidence_sha256=content_sha256(values),
+    )
+    data_attempts = tuple(
+        census.RecurringCarrierAttemptEvidence(
+            attempt_id=attempt.attempt_id,
+            call_class="data_fetch",
+            request_dataset_id=attempt.request_dataset_id,
+            request_event_sha256=attempt.request_event_sha256,
+            raw_evidence_event_sha256=attempt.raw_evidence_event_sha256,
+            terminal_sha256=attempt.terminal_sha256,
+            terminal_outcome=attempt.terminal_outcome,
+            raw_body_sha256=attempt.raw_body_sha256,
+            http_status_code=attempt.http_status_code,
+            max_elapsed_seconds=attempt.max_elapsed_seconds,
+        )
+        for attempt in r1.attempts
+    )
+    metadata_attempt = census.RecurringCarrierAttemptEvidence(
+        attempt_id=attempt_id,
+        call_class="indicator_metadata",
+        request_dataset_id=r1.request_dataset_id,
+        request_event_sha256=request_ref.event_sha256,
+        raw_evidence_event_sha256=(raw_ref.event_sha256 if raw_ref is not None else None),
+        terminal_sha256=terminal.terminal_sha256,
+        terminal_outcome=terminal.outcome_code,
+        raw_body_sha256=raw_body_sha,
+        http_status_code=terminal.http_status_code,
+        max_elapsed_seconds=max(heartbeat_elapsed, default=0.0),
+    )
+    with duckdb.connect(str(baseline_path), read_only=True) as connection:
+        tiers = tuple(
+            str(row[0])
+            for row in connection.execute(
+                """
+                SELECT DISTINCT execution_tier
+                FROM ds_metric_bindings
+                WHERE connector_id = ? AND request_dataset_id = ?
+                ORDER BY execution_tier
+                """,
+                [owner.request["connector_id"], r1.request_dataset_id],
+            ).fetchall()
+        )
+    if len(tiers) != 1:
+        raise AcquisitionSelectionError(
+            "metadata_execution_tier_unresolved",
+            f"{r1.request_dataset_id}:{tiers}",
+        )
+    decisive_body = store.get_bytes(ArtifactID.model_validate(r1.cas_blob_sha256))
+    carrier_update = census.derive_recurring_carrier_liveness_update(
+        connector_id=str(owner.request["connector_id"]),
+        request_dataset_id=r1.request_dataset_id,
+        execution_tier=tiers[0],
+        data_attempts=data_attempts,
+        decisive_data_body=decisive_body,
+        metadata_attempt=metadata_attempt,
+        metadata_body=raw_body,
+    )
+    return execution_evidence, carrier_update
+
+
+def _canonical_journal_projection(
+    journal_path: Path,
+) -> tuple[tuple[JournalEventRef, dict[str, Any], bytes], ...]:
+    payloads = journal_path.read_bytes().splitlines(keepends=True)
+    if not payloads or b"".join(payloads) != journal_path.read_bytes():
+        raise AcquisitionSelectionError("r1_journal_not_canonical", journal_path.as_posix())
+    records: list[tuple[JournalEventRef, dict[str, Any], bytes]] = []
+    offset = 0
+    for expected_sequence, payload in enumerate(payloads, start=1):
+        try:
+            event = json.loads(payload)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise AcquisitionSelectionError(
+                "r1_journal_not_canonical",
+                journal_path.as_posix(),
+            ) from exc
+        if (
+            not isinstance(event, dict)
+            or event.get("sequence") != expected_sequence
+            or canonical_json_bytes(event) != payload
+            or not isinstance(event.get("event_kind"), str)
+        ):
+            raise AcquisitionSelectionError(
+                "r1_journal_not_canonical",
+                journal_path.as_posix(),
+            )
+        ref = JournalEventRef(
+            journal_path=journal_path.as_posix(),
+            sequence=expected_sequence,
+            event_kind=str(event["event_kind"]),
+            event_sha256=f"sha256:{hashlib.sha256(payload).hexdigest()}",
+            byte_offset=offset,
+            byte_length=len(payload),
+        )
+        resolve_journal_event_ref(ref)
+        records.append((ref, event, payload))
+        offset += len(payload)
+    return tuple(records)
+
+
+def _stable_repo_ref(path: Path) -> str:
+    resolved = Path(path).resolve()
+    policy_root = Path(__file__).resolve().parents[3]
+    try:
+        relative = resolved.relative_to(policy_root)
+    except ValueError:
+        parts = resolved.parts
+        policy_indexes = tuple(index for index, part in enumerate(parts) if part == "policy-engine")
+        if policy_indexes:
+            candidate = Path(*parts[policy_indexes[-1] + 1 :])
+            if candidate.parts and candidate.parts[0] == "production_data":
+                return f"repo://{candidate.as_posix()}"
+        return resolved.as_posix()
+    return f"repo://{relative.as_posix()}"
+
+
+def derive_worldbank_metadata_harness_receipt(
+    *,
+    attempt_id: str,
+    indicator_id: str,
+    profile_id: str,
+    fixture_root: Path,
+) -> LiveMetadataHarnessReceipt:
+    """Exercise the exact metadata method under REPLAY with zero network escape."""
+
+    return asyncio.run(
+        _derive_worldbank_metadata_harness_receipt_async(
+            attempt_id=attempt_id,
+            indicator_id=indicator_id,
+            profile_id=profile_id,
+            fixture_root=fixture_root,
+        )
+    )
+
+
+async def _derive_worldbank_metadata_harness_receipt_async(
+    *,
+    attempt_id: str,
+    indicator_id: str,
+    profile_id: str,
+    fixture_root: Path,
+) -> LiveMetadataHarnessReceipt:
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.fabric.connectors.testing.simulator import (
+        APISimulator,
+        MissingFixtureError,
+        SimulatorMode,
+    )
+
+    profile = SourceProfileRegistry.get_instance().get(profile_id)
+    if profile is None or str(profile.connector_family) != "worldbank":
+        raise AcquisitionSelectionError("metadata_source_profile_unresolved", profile_id)
+    connector = WorldBankConnector()
+    config = resolve_connection_config(profile)
+    endpoint = f"{profile.base_url.rstrip('/')}/indicator/{indicator_id}"
+    params = {"format": "json", "page": "1", "per_page": "1"}
+    simulator = APISimulator(
+        mode=SimulatorMode.REPLAY,
+        fixture_root=Path(fixture_root),
+        connector_id=connector.connector_id,
+        dataset_id=f"indicator-metadata-{indicator_id}",
+        max_call_log_entries=10,
+    )
+    blocked_escapes: list[str] = []
+    captured: BaseException | None = None
+    completed = False
+
+    def block_network(*_: Any, **__: Any) -> None:
+        blocked_escapes.append(attempt_id)
+        raise AcquisitionSelectionError("metadata_harness_network_escape", attempt_id)
+
+    handle: Any | None = None
+    with (
+        patch.object(socket.socket, "connect", new=block_network),
+        patch.object(socket.socket, "connect_ex", new=block_network),
+        patch.object(socket, "create_connection", new=block_network),
+    ):
+        try:
+            handle = await connector.connect(config)
+            async with simulator:
+                await connector.fetch_indicator_metadata_raw(handle, indicator_id)
+            completed = True
+        except BaseException as exc:  # noqa: BLE001 - typed E7 boundary
+            captured = exc
+        finally:
+            if handle is not None:
+                try:
+                    await connector.disconnect(handle)
+                except BaseException as exc:  # noqa: BLE001 - typed E7 boundary
+                    if captured is None:
+                        captured = exc
+    intercepted = simulator.call_count > 0
+    if blocked_escapes:
+        outcome = "network_escape_blocked"
+    elif completed and intercepted:
+        outcome = "metadata_result_validated"
+    elif isinstance(captured, MissingFixtureError) and intercepted:
+        outcome = "replay_fixture_missing_after_interception"
+    elif intercepted:
+        outcome = "intercepted_response_rejected"
+    else:
+        outcome = "pretransport_rejected"
+    values: dict[str, object] = {
+        "schema_version": "polisyos.fabric.live_metadata_harness_receipt.v1",
+        "attempt_id": attempt_id,
+        "connector_id": connector.connector_id,
+        "profile_id": profile_id,
+        "request_variable": indicator_id,
+        "call_class": "indicator_metadata",
+        "endpoint_url": endpoint,
+        "params": params,
+        "simulator_mode": "replay",
+        "simulator_call_count": simulator.call_count,
+        "transport_intercepted": intercepted,
+        "network_escape_attempt_count": len(blocked_escapes),
+        "actual_network_call_count": 0,
+        "outcome": outcome,
+        "safe_dry_run_passed": (
+            simulator.call_count == 1
+            and intercepted
+            and not blocked_escapes
+            and outcome
+            in {
+                "metadata_result_validated",
+                "replay_fixture_missing_after_interception",
+            }
+        ),
+    }
+    return LiveMetadataHarnessReceipt(
+        **values,
+        receipt_sha256=content_sha256(values),
+    )
+
+
+def _worldbank_api_messages(payload: object) -> tuple[object, ...]:
+    containers: list[object] = []
+    if isinstance(payload, Mapping):
+        containers.append(payload.get("message"))
+    elif isinstance(payload, list) and payload and isinstance(payload[0], Mapping):
+        containers.append(payload[0].get("message"))
+    messages: list[object] = []
+    for value in containers:
+        if isinstance(value, list):
+            messages.extend(value)
+        elif value is not None:
+            messages.append(value)
+    return tuple(messages)
+
+
+def _nonbool_int(value: object) -> int | None:
+    if isinstance(value, bool):
+        return None
+    try:
+        return int(str(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def _optional_string(value: object) -> str | None:
+    if value is None:
+        return None
+    normalized = str(value).strip()
+    return normalized or None
+
+
+def _optional_owner_string(
+    record: Mapping[str, object] | None,
+    *keys: str,
+) -> str | None:
+    if record is None:
+        return None
+    for key in keys:
+        value = _optional_string(record.get(key))
+        if value is not None:
+            return value
+    return None
 
 
 @dataclass(frozen=True)
@@ -904,17 +1881,33 @@ def _read_mapping(path: Path, *, code: str) -> dict[str, object]:
 
 
 __all__ = [
+    "DEFAULT_CARRIER_LIVENESS_UPDATE",
+    "DEFAULT_METADATA_EXECUTION_EVIDENCE",
+    "DEFAULT_METADATA_PROBE_OWNER",
+    "DEFAULT_R1_FORENSIC_RECEIPT",
     "DEFAULT_TARGET_AUTHORITY_PROVISION",
     "DEFAULT_TARGET_AUTHORITY_REGISTRY",
     "DEFAULT_TARGET_HARNESS_RECEIPT",
     "AcquisitionSelectionError",
+    "CarrierDataDisposition",
+    "IndicatorMetadataDisposition",
     "LiveTargetSelection",
+    "MetadataProbeExecutionEvidence",
+    "MetadataProbeOwner",
+    "R1AttemptForensicProjection",
+    "R1ForensicReceipt",
     "TargetAuthorityOwners",
     "build_selected_live_authority_entry",
     "bytes_sha256",
+    "classify_worldbank_data_response",
+    "classify_worldbank_indicator_metadata",
     "derive_live_attempt_id",
     "derive_live_target_selection",
+    "derive_metadata_probe_execution_evidence",
+    "derive_metadata_probe_owner",
+    "derive_r1_forensic_receipt",
     "derive_target_authority_owners",
     "derive_target_family_receipt",
+    "derive_worldbank_metadata_harness_receipt",
     "target_harness_receipt_path",
 ]

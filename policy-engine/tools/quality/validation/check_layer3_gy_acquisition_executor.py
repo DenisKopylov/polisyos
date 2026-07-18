@@ -4,24 +4,38 @@
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import os
+import re
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.fabric.data_plane import canonical_json_bytes
+from polisyos.fabric.data_plane import (
+    AppendOnlyEvidenceJournal,
+    canonical_json_bytes,
+)
 from polisyos.runtime.quality.acquisition_executor import (
     LiveCatalogExecutionConstraints,
     execute_live_catalog_acquisition,
 )
 from tools.quality.validation.layer3_gy_acquisition_executor import (
+    DEFAULT_CARRIER_LIVENESS_UPDATE,
+    DEFAULT_METADATA_EXECUTION_EVIDENCE,
+    DEFAULT_METADATA_PROBE_OWNER,
+    DEFAULT_R1_FORENSIC_RECEIPT,
     DEFAULT_TARGET_AUTHORITY_PROVISION,
     DEFAULT_TARGET_AUTHORITY_REGISTRY,
     DEFAULT_TARGET_HARNESS_RECEIPT,
     bytes_sha256,
+    classify_worldbank_indicator_metadata,
     derive_live_attempt_id,
     derive_live_target_selection,
+    derive_metadata_probe_execution_evidence,
+    derive_metadata_probe_owner,
+    derive_r1_forensic_receipt,
     derive_target_authority_owners,
     derive_target_family_receipt,
 )
@@ -59,6 +73,10 @@ def main() -> int:
     mode.add_argument("--check-target-owners", action="store_true")
     mode.add_argument("--write-target-owners", action="store_true")
     mode.add_argument("--execute-live", action="store_true")
+    mode.add_argument("--check-resumption-owners", action="store_true")
+    mode.add_argument("--write-resumption-owners", action="store_true")
+    mode.add_argument("--execute-metadata", action="store_true")
+    mode.add_argument("--check-metadata-evidence", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -93,6 +111,149 @@ def main() -> int:
     )
     if owners.payloads() != second.payloads():
         raise RuntimeError("target_owner_derivation_not_byte_stable")
+
+    r1, metadata_owner = _recompute_resumption_owners(
+        catalog_path=args.catalog_path,
+    )
+    second_r1, second_metadata_owner = _recompute_resumption_owners(
+        catalog_path=args.catalog_path,
+    )
+    resumption_payloads = _resumption_owner_payloads(r1, metadata_owner)
+    if resumption_payloads != _resumption_owner_payloads(
+        second_r1,
+        second_metadata_owner,
+    ):
+        raise RuntimeError("resumption_owner_derivation_not_byte_stable")
+
+    if args.execute_metadata:
+        _check_payloads(resumption_payloads, label="resumption_owner")
+        evidence_path = POLICY_ENGINE_ROOT / DEFAULT_METADATA_EXECUTION_EVIDENCE
+        update_path = POLICY_ENGINE_ROOT / DEFAULT_CARRIER_LIVENESS_UPDATE
+        require_new_live_execution_outputs(
+            journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+            cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+            evidence_path=evidence_path,
+            attempt_id=metadata_owner.authorization.attempt_id,
+        )
+        if update_path.exists():
+            raise RuntimeError(f"live_execution_output_already_exists:{update_path.as_posix()}")
+        _execute_metadata_probe(
+            owner=metadata_owner,
+            journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+            cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+        )
+        evidence, carrier_update = derive_metadata_probe_execution_evidence(
+            owner=metadata_owner,
+            r1_receipt=r1,
+            journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+            cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+            baseline_path=args.catalog_path,
+        )
+        _write_replace_bytes(
+            evidence_path,
+            canonical_json_bytes(evidence.model_dump(mode="json")),
+        )
+        _write_replace_bytes(
+            update_path,
+            canonical_json_bytes(carrier_update.model_dump(mode="json")),
+        )
+        print(
+            json.dumps(
+                {
+                    "status": "metadata_evidence_written",
+                    "attempt_id": evidence.attempt_id,
+                    "call_count": evidence.call_count,
+                    "terminal_outcome": evidence.terminal.outcome_code,
+                    "metadata_disposition": (
+                        evidence.classification.disposition
+                        if evidence.classification is not None
+                        else "metadata_transport_terminal"
+                    ),
+                    "carrier_disposition": carrier_update.carrier_disposition,
+                    "timeout_cap_seconds": (
+                        metadata_owner.authorization.budget.timeout_cap_seconds
+                    ),
+                    "evidence_file_sha256": bytes_sha256(evidence_path.read_bytes()),
+                    "carrier_update_file_sha256": bytes_sha256(update_path.read_bytes()),
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.check_metadata_evidence:
+        _check_payloads(resumption_payloads, label="resumption_owner")
+        evidence, carrier_update = derive_metadata_probe_execution_evidence(
+            owner=metadata_owner,
+            r1_receipt=r1,
+            journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+            cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+            baseline_path=args.catalog_path,
+        )
+        evidence_payloads = {
+            DEFAULT_METADATA_EXECUTION_EVIDENCE: canonical_json_bytes(
+                evidence.model_dump(mode="json")
+            ),
+            DEFAULT_CARRIER_LIVENESS_UPDATE: canonical_json_bytes(
+                carrier_update.model_dump(mode="json")
+            ),
+        }
+        _check_payloads(evidence_payloads, label="metadata_evidence")
+        print(
+            json.dumps(
+                {
+                    "status": "ok",
+                    "metadata_disposition": (
+                        evidence.classification.disposition
+                        if evidence.classification is not None
+                        else "metadata_transport_terminal"
+                    ),
+                    "carrier_disposition": carrier_update.carrier_disposition,
+                    "byte_stable_passes": 2,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.write_resumption_owners:
+        for relative, payload in resumption_payloads.items():
+            _write_replace_bytes(POLICY_ENGINE_ROOT / relative, payload)
+        print(
+            json.dumps(
+                {
+                    "status": "written",
+                    "r1_disposition": r1.classification.disposition,
+                    "metadata_attempt_id": metadata_owner.authorization.attempt_id,
+                    "timeout_cap_seconds": (
+                        metadata_owner.authorization.budget.timeout_cap_seconds
+                    ),
+                    "byte_stable_passes": 2,
+                    "live_network_calls": 0,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.check_resumption_owners:
+        _check_payloads(resumption_payloads, label="resumption_owner")
+        print(
+            json.dumps(
+                {
+                    "status": "ok",
+                    "r1_disposition": r1.classification.disposition,
+                    "metadata_attempt_id": metadata_owner.authorization.attempt_id,
+                    "timeout_cap_seconds": (
+                        metadata_owner.authorization.budget.timeout_cap_seconds
+                    ),
+                    "byte_stable_passes": 2,
+                    "live_network_calls": 0,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
 
     if args.execute_live:
         _check_target_owner_payloads(owners)
@@ -243,6 +404,135 @@ def _recompute_target_owners(
         receipt_owner_ref=f"repo://{DEFAULT_TARGET_HARNESS_RECEIPT.as_posix()}",
         country_codes=("UKR",),
     )
+
+
+def _recompute_resumption_owners(*, catalog_path: Path) -> tuple[Any, Any]:
+    r1 = derive_r1_forensic_receipt(
+        journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+        cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+        request_dataset_id="GC.BAL.CASH.CD",
+    )
+    metadata_owner = derive_metadata_probe_owner(
+        r1_receipt=r1,
+        baseline_path=catalog_path,
+        fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
+    )
+    return r1, metadata_owner
+
+
+def _resumption_owner_payloads(r1: Any, metadata_owner: Any) -> dict[Path, bytes]:
+    return {
+        DEFAULT_R1_FORENSIC_RECEIPT: canonical_json_bytes(r1.model_dump(mode="json")),
+        DEFAULT_METADATA_PROBE_OWNER: canonical_json_bytes(metadata_owner.model_dump(mode="json")),
+    }
+
+
+def _check_payloads(payloads: dict[Path, bytes], *, label: str) -> None:
+    for relative, expected in payloads.items():
+        path = POLICY_ENGINE_ROOT / relative
+        if not path.is_file():
+            raise RuntimeError(f"{label}_artifact_missing:{relative}")
+        if path.read_bytes() != expected:
+            raise RuntimeError(f"{label}_artifact_drift:{relative}")
+
+
+def _execute_metadata_probe(
+    *,
+    owner: Any,
+    journal_path: Path,
+    cas_root: Path,
+) -> None:
+    """Spend the single authorized metadata call and terminal-close its evidence."""
+
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
+    from polisyos.fabric.connectors.sources.http_base import (
+        _install_raw_http_response_observer,
+        _remove_raw_http_response_observer,
+    )
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.runtime.quality.acquisition_executor import _LiveHTTPExecutionObserver
+
+    profile = SourceProfileRegistry.get_instance().get(owner.authorization.profile_id)
+    if profile is None or str(profile.connector_family) != "worldbank":
+        raise RuntimeError("metadata_source_profile_unresolved")
+    journal = AppendOnlyEvidenceJournal(journal_path)
+    request_ref = journal.append_request(
+        attempt_id=owner.authorization.attempt_id,
+        request=owner.request,
+    )
+    observer = _LiveHTTPExecutionObserver(
+        journal=journal,
+        request_ref=request_ref,
+        authorization=owner.authorization,
+        artifact_store=FileSystemCAS(cas_root, ownership_enforced=False),
+        expected_connector_id=owner.authorization.connector_id,
+        expected_url=str(owner.request["endpoint_url"]),
+        expected_params={str(key): str(value) for key, value in owner.request["params"].items()},
+    )
+    connector = WorldBankConnector()
+    config = replace(
+        resolve_connection_config(profile),
+        timeout_seconds=max(1, int(owner.authorization.budget.timeout_seconds)),
+        max_retries=1,
+        max_connections=1,
+    )
+    captured_error: BaseException | None = None
+
+    async def execute() -> None:
+        nonlocal captured_error
+        handle: Any | None = None
+        try:
+            handle = await connector.connect(config)
+            _install_raw_http_response_observer(handle, observer)
+            await connector.fetch_indicator_metadata_raw(
+                handle,
+                owner.authorization.request_variable,
+            )
+        except BaseException as exc:  # noqa: BLE001 - terminal-closed live boundary
+            captured_error = exc
+        finally:
+            if handle is not None:
+                _remove_raw_http_response_observer(handle)
+                try:
+                    await connector.disconnect(handle)
+                except BaseException as exc:  # noqa: BLE001 - terminal-closed boundary
+                    if captured_error is None:
+                        captured_error = exc
+
+    asyncio.run(execute())
+    classification = None
+    if observer.raw_evidence_ref is not None and observer.raw_body is not None:
+        classification = classify_worldbank_indicator_metadata(
+            observer.raw_body,
+            indicator_id=owner.authorization.request_variable,
+        )
+        journal.append_classification(
+            attempt_id=owner.authorization.attempt_id,
+            evidence_ref=observer.raw_evidence_ref,
+            classification=classification.model_dump(mode="json"),
+        )
+    if captured_error is not None:
+        failure_code = _metadata_failure_code(captured_error)
+    elif classification is None:
+        failure_code = "metadata_raw_response_missing"
+    elif classification.disposition == "response_shape_unclassified":
+        failure_code = "metadata_response_shape_unclassified"
+    else:
+        failure_code = "metadata_characterization_complete"
+    journal.append_failure_terminal(
+        attempt_id=owner.authorization.attempt_id,
+        request_ref=request_ref,
+        raw_evidence_ref=observer.raw_evidence_ref,
+        failure_code=failure_code,
+    )
+
+
+def _metadata_failure_code(exc: BaseException) -> str:
+    value = getattr(exc, "code", None) or type(exc).__name__
+    normalized = re.sub(r"[^a-z0-9]+", "_", str(value).lower()).strip("_")
+    return f"metadata_{normalized or 'transport_error'}"[:120]
 
 
 def _write_replace_bytes(path: Path, payload: bytes) -> None:

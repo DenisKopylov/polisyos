@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Mapping
 from typing import Any
 
@@ -153,3 +154,52 @@ def test_worldbank_connector_calls_the_shared_projection_owner(
 def test_worldbank_projection_is_exported_through_stable_facades() -> None:
     assert connectors.normalize_worldbank_records is normalize_worldbank_records
     assert sources_normalize_worldbank_records is normalize_worldbank_records
+
+
+def test_worldbank_indicator_metadata_uses_the_exact_distinct_call_class(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    connector = WorldBankConnector()
+    calls: list[tuple[str, dict[str, str], str | None]] = []
+    raw = b'[{"page":1,"pages":1,"per_page":"1","total":1},[{"id":"GC.BAL.CASH.CD"}]]'
+
+    async def _request(
+        handle: object,
+        url: str,
+        *,
+        params: dict[str, str],
+        connector_id: str | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> tuple[object, dict[str, str], bytes]:
+        del handle, headers
+        calls.append((url, params, connector_id))
+        return (
+            [{"page": 1, "pages": 1, "per_page": "1", "total": 1}, [{"id": "GC.BAL.CASH.CD"}]],
+            {"Content-Type": "application/json"},
+            raw,
+        )
+
+    monkeypatch.setattr(connector, "_resilient_request_json", _request)
+    monkeypatch.setattr(connector, "_base_url", lambda _handle: connector._BASE_URL)
+
+    body, headers, returned_raw = asyncio.run(
+        connector.fetch_indicator_metadata_raw(object(), "GC.BAL.CASH.CD")
+    )
+
+    assert calls == [
+        (
+            "https://api.worldbank.org/v2/indicator/GC.BAL.CASH.CD",
+            {"format": "json", "page": "1", "per_page": "1"},
+            "worldbank.wdi",
+        )
+    ]
+    assert body[1][0]["id"] == "GC.BAL.CASH.CD"
+    assert headers["Content-Type"] == "application/json"
+    assert returned_raw == raw
+
+
+def test_worldbank_indicator_metadata_refuses_batched_or_unsafe_ids() -> None:
+    connector = WorldBankConnector()
+
+    with pytest.raises(ValueError, match="exactly one indicator"):
+        asyncio.run(connector.fetch_indicator_metadata_raw(object(), "A;B"))

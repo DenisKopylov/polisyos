@@ -14,6 +14,8 @@ __all__ = [
     "LiveAttemptTerminal",
     "LiveExecutionAuthorization",
     "LiveHttpBudget",
+    "LiveMetadataExecutionAuthorization",
+    "LiveMetadataHarnessReceipt",
     "LiveTransportTrace",
     "QuarantineRecord",
     "QuarantineReport",
@@ -26,6 +28,7 @@ __all__ = [
     "benchmark_stream_processing",
     "benchmark_world_materialization",
     "build_live_execution_authorization",
+    "build_live_metadata_execution_authorization",
     "build_quarantine_report",
     "canonical_json_bytes",
     "compare_historical_rows",
@@ -83,6 +86,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.fabric.data_plane.evidence_journal",
         "LiveExecutionAuthorization",
     ),
+    "LiveMetadataExecutionAuthorization": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveMetadataExecutionAuthorization",
+    ),
+    "LiveMetadataHarnessReceipt": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveMetadataHarnessReceipt",
+    ),
     "LiveHttpBudget": (
         "polisyos.fabric.data_plane.evidence_journal",
         "LiveHttpBudget",
@@ -94,6 +105,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "build_live_execution_authorization": (
         "polisyos.fabric.data_plane.evidence_journal",
         "build_live_execution_authorization",
+    ),
+    "build_live_metadata_execution_authorization": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "build_live_metadata_execution_authorization",
     ),
     "derive_harness_authorization_evidence": (
         "polisyos.fabric.data_plane.evidence_journal",

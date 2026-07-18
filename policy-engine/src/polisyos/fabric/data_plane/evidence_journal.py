@@ -11,6 +11,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import math
 import os
 import re
 from collections.abc import Mapping, Sequence
@@ -330,6 +331,101 @@ class LiveExecutionAuthorization(_StrictModel):
         expected = self.harness.safe_dry_run_passed
         if self.authorized != expected:
             raise ValueError("authorization must be recomputed from harness evidence")
+        return self
+
+
+class LiveMetadataHarnessReceipt(_StrictModel):
+    """E7 receipt for one intercepted metadata call class and exact variable."""
+
+    schema_version: Literal["polisyos.fabric.live_metadata_harness_receipt.v1"] = (
+        "polisyos.fabric.live_metadata_harness_receipt.v1"
+    )
+    attempt_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    request_variable: str = Field(min_length=1)
+    call_class: Literal["indicator_metadata"] = "indicator_metadata"
+    endpoint_url: str = Field(pattern=r"^https://")
+    params: dict[str, str]
+    simulator_mode: Literal["replay"] = "replay"
+    simulator_call_count: int = Field(ge=0)
+    transport_intercepted: bool
+    network_escape_attempt_count: int = Field(ge=0)
+    actual_network_call_count: Literal[0] = 0
+    outcome: Literal[
+        "metadata_result_validated",
+        "replay_fixture_missing_after_interception",
+        "intercepted_response_rejected",
+        "network_escape_blocked",
+        "pretransport_rejected",
+    ]
+    safe_dry_run_passed: bool
+    receipt_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _receipt_is_recomputed(self) -> Self:
+        safe_outcomes = {
+            "metadata_result_validated",
+            "replay_fixture_missing_after_interception",
+        }
+        expected_safe = (
+            self.simulator_call_count == 1
+            and self.transport_intercepted
+            and self.network_escape_attempt_count == 0
+            and self.actual_network_call_count == 0
+            and self.outcome in safe_outcomes
+        )
+        if self.safe_dry_run_passed != expected_safe:
+            raise ValueError("metadata safe dry-run status must be recomputed")
+        if self.receipt_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("metadata harness identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the exact E7 evidence projection defining the receipt."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "receipt_sha256"
+        }
+
+
+class LiveMetadataExecutionAuthorization(_StrictModel):
+    """Content-bound authorization for one metadata variable and one call."""
+
+    schema_version: Literal["polisyos.fabric.live_metadata_execution_authorization.v1"] = (
+        "polisyos.fabric.live_metadata_execution_authorization.v1"
+    )
+    attempt_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    request_variable: str = Field(min_length=1)
+    call_class: Literal["indicator_metadata"] = "indicator_metadata"
+    request_sha256: str = Field(pattern=_SHA256_PATTERN)
+    schema_contract_sha256: str = Field(pattern=_SHA256_PATTERN)
+    source_profile_sha256: str = Field(pattern=_SHA256_PATTERN)
+    baseline_sha256: str = Field(pattern=_SHA256_PATTERN)
+    harness: LiveMetadataHarnessReceipt
+    budget: LiveHttpBudget
+    timeout_derivation: dict[str, object]
+    authorized: bool
+
+    @model_validator(mode="after")
+    def _authorization_is_recomputed(self) -> Self:
+        if (
+            self.attempt_id != self.harness.attempt_id
+            or self.connector_id != self.harness.connector_id
+            or self.profile_id != self.harness.profile_id
+            or self.request_variable != self.harness.request_variable
+            or self.call_class != self.harness.call_class
+        ):
+            raise ValueError("metadata authorization must match the exact E7 carrier")
+        expected_cap = self.timeout_derivation.get("derived_timeout_cap_seconds")
+        if expected_cap != self.budget.timeout_cap_seconds:
+            raise ValueError("metadata timeout must be recomputed from paid latency")
+        if self.authorized != self.harness.safe_dry_run_passed:
+            raise ValueError("metadata authorization must be recomputed from E7 evidence")
         return self
 
 
@@ -1180,6 +1276,84 @@ def build_live_execution_authorization(
     return authorization
 
 
+def build_live_metadata_execution_authorization(
+    *,
+    request: Mapping[str, Any],
+    schema_contract: Mapping[str, Any],
+    source_profile: SourceProfile,
+    baseline_sha256: str,
+    harness_receipt: LiveMetadataHarnessReceipt,
+    paid_success_elapsed_seconds: float,
+    timeout_multiplier: int,
+    heartbeat_cap_seconds: float,
+    max_response_bytes: int,
+    max_decompressed_bytes: int,
+) -> LiveMetadataExecutionAuthorization:
+    """Authorize one metadata call from exact E7 and measured E5 evidence."""
+
+    harness = LiveMetadataHarnessReceipt.model_validate(harness_receipt.model_dump(mode="python"))
+    request_variable = request.get("variable_id")
+    request_variables = request.get("request_variables")
+    if (
+        request.get("call_class") != "indicator_metadata"
+        or request.get("connector_id") != harness.connector_id
+        or request.get("profile_id") != harness.profile_id
+        or request_variable != harness.request_variable
+        or request_variables != [harness.request_variable]
+        or request.get("schema_contract") != schema_contract
+        or not schema_contract
+        or source_profile.profile_id != harness.profile_id
+    ):
+        raise EvidenceJournalError(
+            "live_metadata_request_contract_drift",
+            harness.attempt_id,
+        )
+    if (
+        isinstance(paid_success_elapsed_seconds, bool)
+        or paid_success_elapsed_seconds <= 0
+        or isinstance(timeout_multiplier, bool)
+        or timeout_multiplier < 1
+    ):
+        raise EvidenceJournalError(
+            "live_metadata_timeout_evidence_invalid",
+            harness.attempt_id,
+        )
+    derived_cap = float(math.ceil(paid_success_elapsed_seconds * timeout_multiplier))
+    timeout_derivation = {
+        "method": "ceil_paid_success_elapsed_x_multiplier_capped_by_source_profile",
+        "paid_success_elapsed_seconds": paid_success_elapsed_seconds,
+        "timeout_multiplier": timeout_multiplier,
+        "source_profile_timeout_seconds": float(source_profile.timeout_seconds),
+        "derived_timeout_cap_seconds": derived_cap,
+    }
+    authorization = LiveMetadataExecutionAuthorization(
+        attempt_id=harness.attempt_id,
+        connector_id=harness.connector_id,
+        profile_id=harness.profile_id,
+        request_variable=harness.request_variable,
+        request_sha256=content_sha256(request),
+        schema_contract_sha256=content_sha256(schema_contract),
+        source_profile_sha256=content_sha256(source_profile),
+        baseline_sha256=baseline_sha256,
+        harness=harness,
+        budget=derive_live_http_budget(
+            source_profile,
+            timeout_cap_seconds=derived_cap,
+            heartbeat_cap_seconds=heartbeat_cap_seconds,
+            max_response_bytes=max_response_bytes,
+            max_decompressed_bytes=max_decompressed_bytes,
+        ),
+        timeout_derivation=timeout_derivation,
+        authorized=harness.safe_dry_run_passed,
+    )
+    if not authorization.authorized:
+        raise EvidenceJournalError(
+            "live_metadata_execution_not_authorized",
+            harness.attempt_id,
+        )
+    return authorization
+
+
 def require_authorized_execution(
     authorization: LiveExecutionAuthorization,
     *,
@@ -1745,9 +1919,12 @@ __all__ = [
     "LiveAttemptTerminal",
     "LiveExecutionAuthorization",
     "LiveHttpBudget",
+    "LiveMetadataExecutionAuthorization",
+    "LiveMetadataHarnessReceipt",
     "LiveTransportTrace",
     "append_fsync_jsonl",
     "build_live_execution_authorization",
+    "build_live_metadata_execution_authorization",
     "canonical_json_bytes",
     "content_sha256",
     "derive_harness_authorization_evidence",

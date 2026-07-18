@@ -192,6 +192,29 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
                 },
             )
 
+    async def fetch_indicator_metadata_raw(
+        self,
+        handle: ConnectionHandle,
+        indicator_id: str,
+    ) -> tuple[Any, dict[str, str], bytes]:
+        """Fetch one exact indicator-metadata envelope without interpreting it.
+
+        The operation is a distinct characterization call class. It returns the
+        decoded object and the untouched response bytes so a journal-first owner
+        can classify current/retired/unknown status after persistence.
+        """
+
+        normalized = self._normalize_indicator_batch(indicator_id)
+        if ";" in normalized:
+            raise ValueError("indicator metadata requires exactly one indicator")
+        base_url = self._base_url(handle)
+        return await self._resilient_request_json(
+            handle,
+            f"{base_url}/indicator/{normalized}",
+            params={"format": "json", "page": "1", "per_page": "1"},
+            connector_id=self.connector_id,
+        )
+
     async def fetch(
         self,
         handle: ConnectionHandle,

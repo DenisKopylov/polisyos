@@ -1281,10 +1281,7 @@ def test_growth_backlog_ranks_full_residual_denominator_without_claiming_voi() -
     assert tuple(row.ranking_score for row in backlog) == (1.0, 0.75, 0.0)
     assert backlog[0].route_demand == 2.0
     assert backlog[0].binding_confidence == 0.5
-    assert all(
-        row.voi_owner_fit == "metric_residual_granularity_not_supported"
-        for row in backlog
-    )
+    assert all(row.voi_owner_fit == "metric_residual_granularity_not_supported" for row in backlog)
     assert all(row.voi_owner_integration == "routed_to_gy_n13b" for row in backlog)
 
 
@@ -2253,9 +2250,7 @@ def test_probe_family_denominator_rejects_a_hardcoded_subset(
         per_family=2,
         source_locator="fixture/catalog.duckdb",
     )
-    hardcoded_subset = plan.model_copy(
-        update={"sampling_receipts": plan.sampling_receipts[:-1]}
-    )
+    hardcoded_subset = plan.model_copy(update={"sampling_receipts": plan.sampling_receipts[:-1]})
 
     with pytest.raises(census.CatalogContractError) as exc_info:
         census.validate_probe_family_denominator(source, hardcoded_subset)
@@ -2643,6 +2638,125 @@ def test_scorecards_recompute_counts_and_executable_tier_decay() -> None:
         )
 
 
+def test_recurring_carrier_liveness_recomputes_disposition_and_tier_decay() -> None:
+    census = _census()
+    data_body = (
+        b'[{"page":0,"pages":0,"per_page":0,"total":0,"sourceid":null,"lastupdated":null},null]'
+    )
+    metadata_body = (
+        b'[{"page":1,"pages":1,"per_page":"1","total":1},'
+        b'[{"id":"GC.BAL.CASH.CD","name":"Cash balance",'
+        b'"source":{"id":"2","value":"World Development Indicators"}}]]'
+    )
+    data_attempts = (
+        census.RecurringCarrierAttemptEvidence(
+            attempt_id="gy-n13b-data-001",
+            call_class="data_fetch",
+            request_dataset_id="GC.BAL.CASH.CD",
+            request_event_sha256="sha256:" + "1" * 64,
+            raw_evidence_event_sha256="sha256:" + "2" * 64,
+            terminal_sha256="sha256:" + "3" * 64,
+            terminal_outcome="quarantined_live_raw_response_shape_drift",
+            raw_body_sha256="sha256:" + hashlib.sha256(data_body).hexdigest(),
+            http_status_code=200,
+            max_elapsed_seconds=6.945391583998571,
+        ),
+        census.RecurringCarrierAttemptEvidence(
+            attempt_id="gy-n13b-data-002",
+            call_class="data_fetch",
+            request_dataset_id="GC.BAL.CASH.CD",
+            request_event_sha256="sha256:" + "4" * 64,
+            raw_evidence_event_sha256=None,
+            terminal_sha256="sha256:" + "5" * 64,
+            terminal_outcome="failed_retry_exhausted_error",
+            raw_body_sha256=None,
+            http_status_code=None,
+            max_elapsed_seconds=15.766325374999724,
+        ),
+    )
+    metadata_attempt = census.RecurringCarrierAttemptEvidence(
+        attempt_id="gy-n13b-metadata-001",
+        call_class="indicator_metadata",
+        request_dataset_id="GC.BAL.CASH.CD",
+        request_event_sha256="sha256:" + "6" * 64,
+        raw_evidence_event_sha256="sha256:" + "7" * 64,
+        terminal_sha256="sha256:" + "8" * 64,
+        terminal_outcome="quarantined_metadata_characterization_complete",
+        raw_body_sha256="sha256:" + hashlib.sha256(metadata_body).hexdigest(),
+        http_status_code=200,
+        max_elapsed_seconds=1.25,
+    )
+
+    receipt = census.derive_recurring_carrier_liveness_update(
+        connector_id="worldbank.wdi",
+        request_dataset_id="GC.BAL.CASH.CD",
+        execution_tier="transport_ready",
+        data_attempts=data_attempts,
+        decisive_data_body=data_body,
+        metadata_attempt=metadata_attempt,
+        metadata_body=metadata_body,
+    )
+
+    assert receipt.data_disposition == "no_data_for_scope"
+    assert receipt.metadata_disposition == "carrier_current"
+    assert receipt.carrier_disposition == "carrier_current_no_data_for_scope"
+    assert receipt.tier_decay_findings == (
+        "execution_tier_decay:transport_ready:carrier_current_no_data_for_scope:"
+        "carrier=GC.BAL.CASH.CD",
+    )
+    with pytest.raises(ValidationError, match="carrier disposition must be recomputed"):
+        census.RecurringCarrierLivenessUpdate.model_validate(
+            {
+                **receipt.model_dump(mode="python"),
+                "carrier_disposition": census.RecurringCarrierDisposition.CARRIER_LIVE_WITH_DATA,
+            }
+        )
+
+
+def test_recurring_carrier_liveness_records_retired_metadata_without_laundering() -> None:
+    census = _census()
+    data_body = b'[{"page":0,"pages":0,"per_page":0,"total":0},null]'
+    metadata_body = b'[{"page":0,"pages":0,"per_page":0,"total":0},null]'
+    data_attempt = census.RecurringCarrierAttemptEvidence(
+        attempt_id="data-001",
+        call_class="data_fetch",
+        request_dataset_id="GC.BAL.CASH.CD",
+        request_event_sha256="sha256:" + "1" * 64,
+        raw_evidence_event_sha256="sha256:" + "2" * 64,
+        terminal_sha256="sha256:" + "3" * 64,
+        terminal_outcome="quarantined_shape_drift",
+        raw_body_sha256="sha256:" + hashlib.sha256(data_body).hexdigest(),
+        http_status_code=200,
+        max_elapsed_seconds=1.0,
+    )
+    metadata_attempt = census.RecurringCarrierAttemptEvidence(
+        attempt_id="metadata-001",
+        call_class="indicator_metadata",
+        request_dataset_id="GC.BAL.CASH.CD",
+        request_event_sha256="sha256:" + "4" * 64,
+        raw_evidence_event_sha256="sha256:" + "5" * 64,
+        terminal_sha256="sha256:" + "6" * 64,
+        terminal_outcome="quarantined_metadata_characterization_complete",
+        raw_body_sha256="sha256:" + hashlib.sha256(metadata_body).hexdigest(),
+        http_status_code=200,
+        max_elapsed_seconds=1.0,
+    )
+
+    receipt = census.derive_recurring_carrier_liveness_update(
+        connector_id="worldbank.wdi",
+        request_dataset_id="GC.BAL.CASH.CD",
+        execution_tier="transport_ready",
+        data_attempts=(data_attempt,),
+        decisive_data_body=data_body,
+        metadata_attempt=metadata_attempt,
+        metadata_body=metadata_body,
+    )
+
+    assert receipt.metadata_disposition == "carrier_retired_or_invalid"
+    assert receipt.carrier_disposition == "carrier_retired_or_invalid"
+    assert "carrier_live_with_data" not in receipt.tier_decay_findings[0]
+
+
 def test_metadata_only_schema_contract_can_never_claim_conformant() -> None:
     census = _census()
     record = _probe_record(census)
@@ -2768,6 +2882,4 @@ def test_production_census_writer_is_byte_stable_and_checker_recomputes(
 
     assert first == second
     assert report["status"] == "pass"
-    assert report["artifact_sha256"] == (
-        "sha256:" + hashlib.sha256(first).hexdigest()
-    )
+    assert report["artifact_sha256"] == ("sha256:" + hashlib.sha256(first).hexdigest())

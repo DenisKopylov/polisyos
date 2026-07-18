@@ -1,13 +1,19 @@
 from __future__ import annotations
 
 import json
+import shutil
 from pathlib import Path
+from typing import Any
 
 import duckdb
 import pytest
 
 from tools.quality.validation import check_layer3_gy_acquisition_executor as checker
 from tools.quality.validation import layer3_gy_acquisition_executor as executor
+
+_EMPTY_WDI_PAGE = (
+    b'[{"page":0,"pages":0,"per_page":0,"total":0,"sourceid":null,"lastupdated":null},null]'
+)
 
 
 def _write_json(path: Path, value: object) -> Path:
@@ -390,6 +396,205 @@ def test_live_execution_output_fence_requires_a_new_attempt_carrier(
             evidence_path=evidence,
             attempt_id="attempt-001",
         )
+
+
+def test_paid_worldbank_data_body_is_classified_without_inference() -> None:
+    empty = executor.classify_worldbank_data_response(_EMPTY_WDI_PAGE)
+    retired = executor.classify_worldbank_data_response(
+        b'[{"message":[{"id":"175","key":"Invalid indicator","value":"retired"}]}]'
+    )
+    unknown = executor.classify_worldbank_data_response(b'{"total":0}')
+
+    assert empty.disposition == "no_data_for_scope"
+    assert empty.row_count == 0
+    assert retired.disposition == "carrier_retired_or_invalid"
+    assert unknown.disposition == "response_shape_unclassified"
+
+
+def test_indicator_metadata_classification_binds_identity_and_declared_coverage() -> None:
+    current = executor.classify_worldbank_indicator_metadata(
+        b'[{"page":1,"pages":1,"per_page":"1","total":1},'
+        b'[{"id":"GC.BAL.CASH.CD","name":"Cash balance",'
+        b'"source":{"id":"2","value":"World Development Indicators"},'
+        b'"sourceNote":"Owner note","unit":"current US$"}]]',
+        indicator_id="GC.BAL.CASH.CD",
+    )
+    retired = executor.classify_worldbank_indicator_metadata(
+        b'[{"page":0,"pages":0,"per_page":0,"total":0},null]',
+        indicator_id="GC.BAL.CASH.CD",
+    )
+
+    assert current.disposition == "carrier_current"
+    assert current.indicator_id == "GC.BAL.CASH.CD"
+    assert current.source_id == "2"
+    assert current.declared_coverage == "not_declared_by_indicator_metadata_endpoint"
+    assert retired.disposition == "carrier_retired_or_invalid"
+
+
+def test_metadata_e7_receipt_intercepts_exact_carrier_without_network(tmp_path: Path) -> None:
+    receipt = executor.derive_worldbank_metadata_harness_receipt(
+        attempt_id="gy-n13b-worldbank-wdi-government-balance-usd-metadata-001",
+        indicator_id="GC.BAL.CASH.CD",
+        profile_id="worldbank_wdi",
+        fixture_root=tmp_path / "missing-replay-fixtures",
+    )
+
+    assert receipt.call_class == "indicator_metadata"
+    assert receipt.request_variable == "GC.BAL.CASH.CD"
+    assert receipt.simulator_call_count == 1
+    assert receipt.transport_intercepted is True
+    assert receipt.network_escape_attempt_count == 0
+    assert receipt.actual_network_call_count == 0
+    assert receipt.safe_dry_run_passed is True
+
+
+def test_r1_forensic_receipt_reopens_paid_journal_and_cas() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    receipt = executor.derive_r1_forensic_receipt(
+        journal_path=(
+            repo_root / "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
+        ),
+        cas_root=repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas",
+        request_dataset_id="GC.BAL.CASH.CD",
+    )
+
+    assert receipt.classification.disposition == "no_data_for_scope"
+    assert receipt.classification.byte_count == 85
+    assert receipt.decisive_attempt_id.endswith("-001")
+    assert len(receipt.attempts) == 2
+    assert receipt.attempts[0].max_elapsed_seconds == pytest.approx(6.945391583998571)
+    assert receipt.attempts[1].max_elapsed_seconds == pytest.approx(15.766325374999724)
+    assert receipt.cas_blob_sha256 == receipt.classification.body_sha256
+    assert receipt.journal_prefix_byte_length > 0
+
+
+def test_metadata_probe_owner_derives_timeout_from_paid_latency(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    r1 = executor.derive_r1_forensic_receipt(
+        journal_path=(
+            repo_root / "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
+        ),
+        cas_root=repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas",
+        request_dataset_id="GC.BAL.CASH.CD",
+    )
+
+    baseline_path = tmp_path / "catalog.duckdb"
+    baseline_path.write_bytes(b"immutable-catalog-fixture")
+    owner = executor.derive_metadata_probe_owner(
+        r1_receipt=r1,
+        baseline_path=baseline_path,
+        fixture_root=tmp_path / "missing-replay-fixtures",
+    )
+
+    assert owner.request["call_class"] == "indicator_metadata"
+    assert owner.request["request_variables"] == ["GC.BAL.CASH.CD"]
+    assert owner.authorization.budget.call_budget == 1
+    assert owner.authorization.budget.variable_budget == 1
+    assert owner.authorization.budget.timeout_cap_seconds == 14.0
+    assert owner.authorization.timeout_derivation["paid_success_elapsed_seconds"] == pytest.approx(
+        6.945391583998571
+    )
+    with pytest.raises(ValueError, match="metadata probe owner identity must be recomputed"):
+        executor.MetadataProbeOwner.model_validate(
+            {
+                **owner.model_dump(mode="python"),
+                "owner_sha256": "sha256:" + "0" * 64,
+            }
+        )
+
+
+def test_metadata_one_shot_journals_raw_before_classification_and_updates_d3(
+    selection_inputs: tuple[Path, Path, Path],
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.fabric.connectors.sources.http_base import _raw_http_response_observer
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    catalog, _census, _substrate = selection_inputs
+    repo_root = Path(__file__).resolve().parents[3]
+    source_journal = (
+        repo_root / "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
+    )
+    source_cas = repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas"
+    journal = tmp_path / "journal.jsonl"
+    cas_root = tmp_path / "cas"
+    shutil.copy2(source_journal, journal)
+    shutil.copytree(source_cas, cas_root)
+    r1 = executor.derive_r1_forensic_receipt(
+        journal_path=journal,
+        cas_root=cas_root,
+        request_dataset_id="GC.BAL.CASH.CD",
+    )
+    owner = executor.derive_metadata_probe_owner(
+        r1_receipt=r1,
+        baseline_path=catalog,
+        fixture_root=tmp_path / "missing-replay-fixtures",
+    )
+    body = (
+        b'[{"page":1,"pages":1,"per_page":"1","total":1},'
+        b'[{"id":"GC.BAL.CASH.CD","name":"Cash balance",'
+        b'"source":{"id":"2","value":"World Development Indicators"},'
+        b'"unit":"current US$"}]]'
+    )
+
+    async def fake_metadata(
+        _self: WorldBankConnector,
+        handle: Any,
+        _indicator_id: str,
+    ) -> tuple[Any, dict[str, str], bytes]:
+        observer = _raw_http_response_observer(handle)
+        assert observer is not None
+        params = {"format": "json", "page": "1", "per_page": "1"}
+        observer.before_request("worldbank.wdi", owner.request["endpoint_url"], params)
+        observer.on_response_headers(
+            "worldbank.wdi",
+            owner.request["endpoint_url"],
+            params,
+            200,
+            {"Content-Type": "application/json"},
+        )
+        observer.on_body_progress(
+            "worldbank.wdi",
+            owner.request["endpoint_url"],
+            params,
+            len(body),
+        )
+        observer.on_raw_response(
+            "worldbank.wdi",
+            owner.request["endpoint_url"],
+            params,
+            200,
+            {"Content-Type": "application/json"},
+            body,
+        )
+        return json.loads(body), {"Content-Type": "application/json"}, body
+
+    monkeypatch.setattr(WorldBankConnector, "fetch_indicator_metadata_raw", fake_metadata)
+    checker._execute_metadata_probe(owner=owner, journal_path=journal, cas_root=cas_root)
+
+    evidence, update = executor.derive_metadata_probe_execution_evidence(
+        owner=owner,
+        r1_receipt=r1,
+        journal_path=journal,
+        cas_root=cas_root,
+        baseline_path=catalog,
+    )
+
+    assert evidence.call_count == 1
+    assert evidence.classification is not None
+    assert evidence.classification.disposition == "carrier_current"
+    attempt_kinds = [
+        event["event_kind"]
+        for event in (json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines())
+        if event.get("attempt_id") == owner.authorization.attempt_id
+    ]
+    assert attempt_kinds.index("raw_response") < attempt_kinds.index("classification")
+    assert attempt_kinds[-1] == "live_attempt_terminal"
+    assert update.carrier_disposition == "carrier_current_no_data_for_scope"
+    assert update.metadata_attempt.raw_evidence_event_sha256 == (
+        evidence.raw_evidence_ref.event_sha256
+    )
 
 
 def test_second_attempt_gets_a_distinct_exact_harness_receipt(

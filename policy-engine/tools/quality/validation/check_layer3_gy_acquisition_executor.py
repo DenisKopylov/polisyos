@@ -45,6 +45,10 @@ from tools.quality.validation.layer3_gy_acquisition_executor import (
     derive_target_authority_owners,
     derive_target_family_receipt,
 )
+from tools.quality.validation.layer3_gy_n13b_acceptance import (
+    DEFAULT_ACCEPTANCE_INPUT_SELECTION,
+    derive_acceptance_input_selection,
+)
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_CENSUS_PATH = (
@@ -71,6 +75,21 @@ DEFAULT_RAW_JOURNAL = Path(
 DEFAULT_CAS_ROOT = Path("architecture/policy_design_case/layer3_gy_acquisition_cas")
 
 
+def _paid_success_elapsed_seconds(receipt: Any) -> float:
+    """Return the longest successful raw-response latency in the paid R1 prefix."""
+
+    candidates = tuple(
+        float(attempt.max_elapsed_seconds)
+        for attempt in receipt.attempts
+        if attempt.raw_body_sha256 is not None
+        and attempt.http_status_code is not None
+        and 200 <= attempt.http_status_code < 300
+    )
+    if not candidates:
+        raise RuntimeError("acceptance_paid_success_latency_missing")
+    return max(candidates)
+
+
 def main() -> int:
     """Run the requested offline target-owner lifecycle mode."""
 
@@ -89,6 +108,8 @@ def main() -> int:
     mode.add_argument("--execute-d6-metadata", action="store_true")
     mode.add_argument("--check-d6-metadata-evidence", action="store_true")
     mode.add_argument("--write-d6-metadata-evidence", action="store_true")
+    mode.add_argument("--check-acceptance-inputs", action="store_true")
+    mode.add_argument("--write-acceptance-inputs", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -136,6 +157,71 @@ def main() -> int:
         second_metadata_owner,
     ):
         raise RuntimeError("resumption_owner_derivation_not_byte_stable")
+
+    if args.check_acceptance_inputs or args.write_acceptance_inputs:
+        paid_success_elapsed = _paid_success_elapsed_seconds(r1)
+        acceptance = derive_acceptance_input_selection(
+            catalog_path=args.catalog_path,
+            census_path=args.census_path,
+            r1_paid_success_elapsed_seconds=paid_success_elapsed,
+        )
+        second_acceptance = derive_acceptance_input_selection(
+            catalog_path=args.catalog_path,
+            census_path=args.census_path,
+            r1_paid_success_elapsed_seconds=paid_success_elapsed,
+        )
+        payload = canonical_json_bytes(acceptance.model_dump(mode="json"))
+        if payload != canonical_json_bytes(second_acceptance.model_dump(mode="json")):
+            raise RuntimeError("acceptance_input_selection_not_byte_stable")
+        payloads = {DEFAULT_ACCEPTANCE_INPUT_SELECTION: payload}
+        if args.write_acceptance_inputs:
+            _write_replace_bytes(
+                POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_INPUT_SELECTION,
+                payload,
+            )
+            status = "acceptance_inputs_written"
+        else:
+            _check_payloads(payloads, label="acceptance_input_selection")
+            status = "ok"
+        print(
+            json.dumps(
+                {
+                    "status": status,
+                    "disposition": acceptance.disposition,
+                    "all_local_series_group_count": (acceptance.all_local_series_group_count),
+                    "local_monetary_denominator_count": (
+                        acceptance.local_monetary_denominator_count
+                    ),
+                    "eligible_local_nominal_count": (acceptance.eligible_local_nominal_count),
+                    "inflation_binding_denominator_count": (
+                        acceptance.inflation_binding_denominator_count
+                    ),
+                    "eligible_deflator_count": acceptance.eligible_deflator_count,
+                    "selected_nominal_dataset_id": (
+                        acceptance.selected_nominal.dataset_id
+                        if acceptance.selected_nominal is not None
+                        else None
+                    ),
+                    "selected_deflator_request_dataset_id": (
+                        acceptance.selected_deflator.request_dataset_id
+                        if acceptance.selected_deflator is not None
+                        else None
+                    ),
+                    "request_years": [
+                        acceptance.request_start_year,
+                        acceptance.request_end_year,
+                    ],
+                    "derived_timeout_cap_seconds": (acceptance.derived_timeout_cap_seconds),
+                    "byte_stable_passes": 2,
+                    "live_network_calls": 0,
+                    "artifact_file_sha256": (
+                        bytes_sha256(payload) if args.write_acceptance_inputs else None
+                    ),
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
 
     if any(
         (

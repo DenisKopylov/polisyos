@@ -146,6 +146,12 @@ _EXPORTS = {
     "default_acquisition_overlay_path": (
         "polisyos.data_forge.domains.catalog.knowledge.overlay"
     ),
+    "derive_catalog_unit_from_text": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "derive_license_disposition": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "build_catalog_schema_registry": _CATALOG_DOMAIN,
     "catalog_source_modules_from_registry": _CATALOG_DOMAIN,
     "compose_confidence_chain": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
@@ -161,6 +167,9 @@ _EXPORTS = {
     "load_catalog_shadow_bundle": _CATALOG_DOMAIN,
     "load_catalog_source_registry": _CATALOG_DOMAIN,
     "load_seed_alignments": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+    "normalize_acquisition_unit": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "open_catalog_read_session": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "plan_catalog_source_stage_contracts": _CATALOG_DOMAIN,
     "plan_catalog_source_modules": _CATALOG_DOMAIN,

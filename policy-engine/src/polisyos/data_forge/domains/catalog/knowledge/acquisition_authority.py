@@ -1046,7 +1046,7 @@ class CanonicalAcquisitionAuthority:
                 expected_trust_registry_sha256=(self.local_rights_trust_anchor_sha256),
             )
         self._require_landing_identifiers_new(entry)
-        disposition = _license_disposition(license_id)
+        disposition = derive_license_disposition(license_id)
         if disposition is not LicenseDisposition.ADMISSIBLE_OPEN:
             raise AcquisitionAuthorityError("license_not_admissible", license_id)
         l5 = self._resolve_l5(
@@ -1722,16 +1722,16 @@ class CanonicalAcquisitionAuthority:
         ) = values
         if str(execution_tier) not in {"fetchable", "transport_ready"}:
             raise AcquisitionAuthorityError("catalog_execution_tier_not_executable")
-        catalog_unit = _catalog_unit_from_text(f"{title or ''} {description or ''}")
+        catalog_unit = derive_catalog_unit_from_text(f"{title or ''} {description or ''}")
         if catalog_unit is None:
             raise AcquisitionAuthorityError("catalog_unit_unresolved")
-        if _normalized_unit(entry.raw_unit) != catalog_unit:
+        if normalize_acquisition_unit(entry.raw_unit) != catalog_unit:
             raise AcquisitionAuthorityError(
                 "catalog_unit_mismatch",
                 f"{entry.raw_unit}:{catalog_unit}",
             )
         if entry.unit_transform == "identity" and (
-            _normalized_unit(entry.canonical_unit) != catalog_unit
+            normalize_acquisition_unit(entry.canonical_unit) != catalog_unit
         ):
             raise AcquisitionAuthorityError("catalog_identity_unit_mismatch")
 
@@ -2012,7 +2012,9 @@ class CanonicalAcquisitionAuthority:
         )
 
 
-def _license_disposition(value: str) -> LicenseDisposition:
+def derive_license_disposition(value: str) -> LicenseDisposition:
+    """Derive one license disposition from the canonical narrow policy."""
+
     normalized = value.strip().lower().replace("_", "-")
     if normalized in {
         "cc-by-4.0",
@@ -2027,7 +2029,7 @@ def _license_disposition(value: str) -> LicenseDisposition:
     return LicenseDisposition.UNCLEAR
 
 
-def _normalized_unit(value: str) -> str:
+def normalize_acquisition_unit(value: str) -> str:
     """Normalize the narrow catalog units admitted by the acquisition owner."""
 
     text = value.strip().casefold().replace("_", " ").replace("-", " ")
@@ -2045,7 +2047,7 @@ def _normalized_unit(value: str) -> str:
     return aliases.get(text, text.replace(" ", "_"))
 
 
-def _catalog_unit_from_text(value: str) -> str | None:
+def derive_catalog_unit_from_text(value: str) -> str | None:
     """Derive a source unit from catalog-owned title and description text.
 
     This deliberately recognizes unit families, not indicator IDs. Ambiguous or
@@ -2383,5 +2385,8 @@ __all__ = [
     "build_live_source_execution_evidence",
     "build_local_rights_trust_registry",
     "build_local_source_rights_declaration",
+    "derive_catalog_unit_from_text",
+    "derive_license_disposition",
+    "normalize_acquisition_unit",
     "verify_local_source_rights",
 ]

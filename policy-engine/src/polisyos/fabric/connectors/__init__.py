@@ -90,6 +90,7 @@ from polisyos.fabric.connectors.pool import (
     PoolStats,
 )
 from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 
 # Registry Architecture (Phase 2.2)
 from polisyos.fabric.connectors.registry import (
@@ -131,6 +132,7 @@ from polisyos.fabric.connectors.resilience import (
     with_retry,
 )
 from polisyos.fabric.connectors.sources.http_base import RawHTTPResponseObserver
+from polisyos.fabric.connectors.sources.world_bank import normalize_worldbank_records
 
 # Error types and supporting structures
 from polisyos.fabric.connectors.types import (
@@ -293,9 +295,11 @@ __all__ = [
     "get_registry",
     "is_retryable_error",
     "make_schema_hash_provider",
+    "normalize_worldbank_records",
     "requires_any_capability",
     # === Capability Utilities ===
     "requires_capability",
+    "resolve_connection_config",
     "resolve_resilience_config",
     "validate_connector_governance_metadata",
     # === Validation Helpers ===

@@ -31,7 +31,10 @@ from polisyos.fabric.connectors.sources.ukons import UKONSConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.who import WHOConnector
-from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+from polisyos.fabric.connectors.sources.world_bank import (
+    WorldBankConnector,
+    normalize_worldbank_records,
+)
 from polisyos.fabric.connectors.sources.wvs import WVSConnector
 
 __all__ = [
@@ -58,4 +61,5 @@ __all__ = [
     "WHOConnector",
     "WVSConnector",
     "WorldBankConnector",
+    "normalize_worldbank_records",
 ]

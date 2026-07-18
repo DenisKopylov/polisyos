@@ -128,3 +128,18 @@ A read-only review caught and corrected the following before the first commit:
 - Added HTTP-layer production-approval principal/scorecard/signature negatives while retaining honest DS9 `artifact_missing`/`consumer_missing` labels for exposure receipts and final server signing.
 - Corrected the DS19 register location and limited the handoff to N009-N013/auth rows rather than rewriting orthogonal operation dispositions.
 - Corrected Python support to 3.14.x; added the Runtime HTTP README obligation and an out-of-fence release/public-surface handoff.
+
+## 2026-07-18 — Post-plan live ownership API correction
+
+Task-4 read-only exploration found that the committed plan overclaimed generic tenant ownership for identifiers that today's container cannot verify. Trustworthy ownership resolution currently exists for runs and content-backed/run-linked CAS artifacts. Promotion candidates are globally stored without a tenant field; basin/continuation IDs are logical target strings; lineage ownership is resolvable only for supported artifact/run/scenario forms; fabric child selectors and several analytical IDs are not ownership facts.
+
+The plan is corrected before source implementation under P32:
+
+- Binding source and binding authority are separate typed values.
+- Only server-resolved run/artifact facts may say `ownership_verified`.
+- Resolved-but-unscoped selectors retain `content_resolved_unscoped`; caller tenant is never substituted as owner.
+- New logical targets are candidate slots, not existing/conflict-checked objects.
+- Request composites are exact body/selector bindings, not authority claims.
+- Unknown owned IDs and unsupported lineage forms deny; supported limited bindings remain visibly limited to OPA, the action dependency, and audit.
+
+This preserves the required pre-OPA resource binding without manufacturing evidence or making legitimate create/optional request modes impossible.

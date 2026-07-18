@@ -163,41 +163,43 @@ Pytest appends the square-bracketed Case ID from the table to each function name
 
 The dependency executes before body validation in the deny cases, proving an invalid/minimal body cannot bypass or obscure admission. Authorized cases call the live app with valid minimal payloads, route resources, service fixtures, exact permission, and fresh step-up where applicable; each must reach the real handler and return its documented 2xx response while emitting an allow audit event. A 404/409/422/5xx response is not accepted as the authorized proof.
 
-Each requirement also declares a typed `ResourceBindingSpec`. Its closed source variants are `existing_path` (required existing parent, ownership-resolved), `existing_batch` (required non-empty set, every item ownership-resolved), `new_target` (verified existing parent/tenant plus a not-yet-authoritative target slot; an existing conflicting target denies), `optional_existing_or_collection` (resolve when supplied, otherwise bind the verified tenant collection), `typed_body_composite` (canonical semantic fields plus body digest, without pretending new/external IDs are already owned), and `tenant_collection` (verified tenant + route kind + body digest). This prevents both fail-open generic resources and fail-closed rejection of legitimate create/optional-mode requests.
+Each requirement also declares a typed `ResourceBindingSpec`. Live-API review showed that only runs and content-backed CAS artifacts currently have trustworthy tenant-ownership resolvers; promotion, logical analysis, generic lineage, and several derived selectors do not. DS20 therefore separates binding source from binding authority instead of laundering a request ID into tenant ownership (P32).
 
-The pre-OPA binder reads at most the configured JSON-body ceiling, validates JSON, applies the route's variant, canonicalizes unordered sets, resolves only fields declared as existing through the installed runtime container, includes the verified tenant and a SHA-256 of the exact request bytes, and replays the identical bytes downstream. Request-carried tenant claims never establish ownership. A field is required only when its route's request schema and binding variant require it. Malformed bodies, unknown/cross-tenant **existing** identifiers, excessive bodies, duplicate/conflicting identifiers, or an empty `existing_batch` deny before OPA; optional/new-target modes bind their collection/parent instead. Where the existing `AuthzInput` has no composite field, the canonical binding is encoded as a versioned digest in `resource_artifact_id`, with the route-specific kind in `resource_kind`; it is never replaced by the generic `http_resource` default.
+The closed source variants are `owned_existing_path`, `owned_existing_batch`, `resolved_selector`, `resolved_selector_batch`, `candidate_target_slot`, `owned_parent_or_request_composite`, `request_composite`, and `tenant_collection`. The frozen result carries one of `ownership_verified`, `content_resolved_unscoped`, `candidate`, `request_bound`, or `tenant_collection`. `ownership_verified` is available only after server-side resolution and exact tenant comparison. `content_resolved_unscoped` proves the object/selector exists and content-binds its digest but explicitly does **not** claim tenant ownership; the OPA resource kind and audit event retain that limitation. `candidate` binds a new target slot relative to a verified parent/tenant where available, without inventing conflict detection. This prevents both fail-open generic resources and fail-closed rejection of legitimate create/optional-mode requests.
+
+The pre-OPA binder first performs exact action-permission preflight so malformed/unknown resources cannot become an oracle. It then reads at most the configured JSON-body ceiling, validates JSON, applies the route's variant, canonicalizes unordered sets, resolves only facts supported by the installed runtime container, includes the binding-authority label and SHA-256 of the exact request bytes, and replays the identical bytes downstream. Request-carried tenant claims never establish ownership. A field is required only when its request schema and binding variant require it. Malformed bodies, unknown/cross-tenant **owned** identifiers, excessive bodies, duplicate identifiers where forbidden, or an empty owned batch deny before OPA; request/candidate modes bind their honest limited authority instead. Where the existing `AuthzInput` has no composite/authority field, the versioned digest is encoded in `resource_artifact_id` and the authority label in the route-specific `resource_kind`; it is never replaced by generic `http_resource` or caller-tenant-as-owner.
 
 | # | Case ID | Method and path | Permission | Resource binding before OPA | Step-up |
 |---:|---|---|---|---|---|
 | 1 | `analyze-attractors` | `POST /api/v1/analysis/attractors` | `analysis.execute` | `tenant_collection`: `runtime.analysis.attractors` + body digest | — |
 | 2 | `analyze-lyapunov` | `POST /api/v1/analysis/lyapunov` | `analysis.execute` | `tenant_collection`: `runtime.analysis.lyapunov` + body digest | — |
-| 3 | `persist-basin-map` | `POST /api/v1/analysis/basin-map` | `analysis.execute` | `new_target`: optional `analysis_id`, new `basin_id`, body digest | — |
-| 4 | `persist-continuation-branch` | `POST /api/v1/analysis/continuation` | `analysis.execute` | `new_target`: optional `analysis_id`, new `branch_id`, body digest | — |
-| 5 | `get-artifact-batch` | `POST /api/v1/artifacts/batch` | `artifacts.batch.read` | `existing_batch`: canonical `artifact_ids` | — |
-| 6 | `render-bureaucratic-artifact` | `POST /api/v1/artifacts/{packet_id}/render` | `artifacts.render` | `existing_path`: `packet_id` + body digest | — |
+| 3 | `persist-basin-map` | `POST /api/v1/analysis/basin-map` | `analysis.execute` | `candidate_target_slot`: logical analysis/basin selectors + body digest; no ownership claim | — |
+| 4 | `persist-continuation-branch` | `POST /api/v1/analysis/continuation` | `analysis.execute` | `candidate_target_slot`: logical analysis/branch selectors + body digest; no ownership claim | — |
+| 5 | `get-artifact-batch` | `POST /api/v1/artifacts/batch` | `artifacts.batch.read` | `owned_existing_batch`: canonical content-backed `artifact_ids` | — |
+| 6 | `render-bureaucratic-artifact` | `POST /api/v1/artifacts/{packet_id}/render` | `artifacts.render` | `owned_existing_path`: content-backed `packet_id` + body digest | — |
 | 7 | `launch-run` | `POST /api/v1/control/runs` | `runs.launch` | `tenant_collection`: `runtime.run_collection` + body digest | — |
-| 8 | `evaluate-run-feedback` | `POST /api/v1/control/runs/{run_id}/feedback/evaluate` | `runs.feedback.evaluate` | `existing_path`: `run_id` | — |
+| 8 | `evaluate-run-feedback` | `POST /api/v1/control/runs/{run_id}/feedback/evaluate` | `runs.feedback.evaluate` | `owned_existing_path`: `run_id` | — |
 | 9 | `launch-nl-run` | `POST /api/v1/control/runs/nl` | `runs.launch` | `tenant_collection`: `runtime.run_collection` + body digest | — |
-| 10 | `reissue-run` | `POST /api/v1/control/runs/{run_id}/reissue` | `runs.reissue` | `existing_path`: `run_id` | `revocation` |
-| 11 | `publish-decision-validity-event` | `POST /api/v1/control/decision-validity/events` | `decisions.validity.publish` | `typed_body_composite`: source/dependency/dedupe fields + digest | `publication` |
-| 12 | `ingest-data` | `POST /api/v1/control/data/ingest` | `evidence.acquire` | `typed_body_composite`: optional binding/dataset/fetch-plan fields + digest | `acquisition_approval` |
-| 13 | `resolve-data-needs` | `POST /api/v1/control/data/resolve` | `evidence.resolve` | `typed_body_composite`: canonical data-need tuples + digest | — |
-| 14 | `discover-data-sources` | `POST /api/v1/control/data/discover` | `evidence.discover` | `typed_body_composite`: canonical data-need tuples + digest | — |
-| 15 | `preview-fetch-plan` | `POST /api/v1/control/data/preview` | `evidence.preview` | `typed_body_composite`: fetch-plan fields + digest | — |
-| 16 | `estimate-causal-frontier-sae` | `POST /api/v1/control/analytics/sae/causal-frontier` | `evidence.sae.analyze` | `typed_body_composite`: optional areas/exposure + digest | — |
-| 17 | `approve-data-promotion` | `POST /api/v1/control/data/promotion/{promotion_id}/approve` | `evidence.promotions.approve` | `existing_path`: `promotion_id` | `promotion` |
-| 18 | `reject-data-promotion` | `POST /api/v1/control/data/promotion/{promotion_id}/reject` | `evidence.promotions.reject` | `existing_path`: `promotion_id` | `promotion` |
+| 10 | `reissue-run` | `POST /api/v1/control/runs/{run_id}/reissue` | `runs.reissue` | `owned_existing_path`: `run_id` | `revocation` |
+| 11 | `publish-decision-validity-event` | `POST /api/v1/control/decision-validity/events` | `decisions.validity.publish` | `request_composite`: source/dependency/dedupe fields + digest | `publication` |
+| 12 | `ingest-data` | `POST /api/v1/control/data/ingest` | `evidence.acquire` | `request_composite`: optional binding/dataset/fetch-plan fields + digest | `acquisition_approval` |
+| 13 | `resolve-data-needs` | `POST /api/v1/control/data/resolve` | `evidence.resolve` | `request_composite`: canonical data-need tuples + digest | — |
+| 14 | `discover-data-sources` | `POST /api/v1/control/data/discover` | `evidence.discover` | `request_composite`: canonical data-need tuples + digest | — |
+| 15 | `preview-fetch-plan` | `POST /api/v1/control/data/preview` | `evidence.preview` | `request_composite`: fetch-plan fields + digest | — |
+| 16 | `estimate-causal-frontier-sae` | `POST /api/v1/control/analytics/sae/causal-frontier` | `evidence.sae.analyze` | `request_composite`: optional areas/exposure + digest | — |
+| 17 | `approve-data-promotion` | `POST /api/v1/control/data/promotion/{promotion_id}/approve` | `evidence.promotions.approve` | `resolved_selector`: candidate content digest, explicitly tenant-unscoped | `promotion` |
+| 18 | `reject-data-promotion` | `POST /api/v1/control/data/promotion/{promotion_id}/reject` | `evidence.promotions.reject` | `resolved_selector`: candidate content digest, explicitly tenant-unscoped | `promotion` |
 | 19 | `trigger-lex-pipeline` | `POST /api/v1/control/lex/trigger` | `knowledge.trigger` | `tenant_collection`: `runtime.lex_workspace` + body digest | — |
 | 20 | `search-lex-graph` | `POST /api/v1/control/lex/search` | `knowledge.search` | `tenant_collection`: `runtime.lex_workspace` + query digest | — |
-| 21 | `get-fabric-quality-batch` | `POST /api/v1/fabric/quality/batch` | `fabric.quality.read` | `optional_existing_or_collection`: optional run/data IDs | — |
-| 22 | `get-fabric-trust-batch` | `POST /api/v1/fabric/trust/batch` | `fabric.trust.read` | `optional_existing_or_collection`: optional run/data IDs | — |
-| 23 | `analyze-fabric-impact` | `POST /api/v1/fabric/impact` | `fabric.impact.analyze` | `optional_existing_or_collection`: optional run/lineage/contract IDs | — |
-| 24 | `get-lineage-batch` | `POST /api/v1/lineage/batch` | `lineage.batch.read` | `existing_batch`: canonical `lineage_ids` | — |
+| 21 | `get-fabric-quality-batch` | `POST /api/v1/fabric/quality/batch` | `fabric.quality.read` | `owned_parent_or_request_composite`: owned run when present; child selectors remain request-bound | — |
+| 22 | `get-fabric-trust-batch` | `POST /api/v1/fabric/trust/batch` | `fabric.trust.read` | `owned_parent_or_request_composite`: owned run when present; child selectors remain request-bound | — |
+| 23 | `analyze-fabric-impact` | `POST /api/v1/fabric/impact` | `fabric.impact.analyze` | `owned_parent_or_request_composite`: owned run when present; otherwise limited selector digest | — |
+| 24 | `get-lineage-batch` | `POST /api/v1/lineage/batch` | `lineage.batch.read` | `resolved_selector_batch`: resolve supported artifact/run/scenario forms; unknown form denies | — |
 | 25 | `estimate-mobility` | `POST /api/v1/mobility/estimate` | `mobility.analyze` | `tenant_collection`: `runtime.mobility_estimate` + body digest | — |
 | 26 | `compute-mobility-bounds` | `POST /api/v1/mobility/bounds` | `mobility.analyze` | `tenant_collection`: `runtime.mobility_bounds` + body digest | — |
-| 27 | `get-runs-batch` | `POST /api/v1/runs/batch` | `runs.batch.read` | `existing_batch`: canonical `run_ids` | — |
-| 28 | `create-run-production-approval` | `POST /api/v1/runs/{run_id}/production-approval` | `runs.production_approval.create` | `existing_path`: `run_id`; existing scorecard when supplied + digest | `production_approval` |
-| 29 | `create-run-scenario` | `POST /api/v1/runs/{run_id}/scenarios` | `scenarios.create` | `new_target`: existing parent `run_id`, new scenario `id`, digest | — |
+| 27 | `get-runs-batch` | `POST /api/v1/runs/batch` | `runs.batch.read` | `owned_existing_batch`: canonical `run_ids` | — |
+| 28 | `create-run-production-approval` | `POST /api/v1/runs/{run_id}/production-approval` | `runs.production_approval.create` | `owned_existing_path`: owned `run_id`; scorecard content must bind to that run | `production_approval` |
+| 29 | `create-run-scenario` | `POST /api/v1/runs/{run_id}/scenarios` | `scenarios.create` | `candidate_target_slot`: owned parent run + revisioned scenario slot/body digest | — |
 
 Structural spine tests:
 
@@ -244,7 +246,8 @@ Tests:
 - `test_bound_resource_contains_concrete_path_identifier`
 - `test_body_resource_binding_is_available_to_opa_and_body_reaches_handler_unchanged`
 - `test_batch_resource_binding_is_order_independent_and_contains_every_identifier`
-- `test_body_resource_binding_rejects_cross_tenant_identifier_before_opa`
+- `test_owned_body_resource_binding_rejects_cross_tenant_identifier_before_opa`
+- `test_unscoped_selector_binding_never_claims_caller_tenant_ownership`
 - `test_missing_declared_body_resource_field_denies_before_opa`
 - `test_route_cannot_rebind_resource_after_opa_decision`
 

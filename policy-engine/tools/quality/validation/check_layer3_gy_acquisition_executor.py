@@ -46,7 +46,10 @@ from tools.quality.validation.layer3_gy_acquisition_executor import (
     derive_target_family_receipt,
 )
 from tools.quality.validation.layer3_gy_n13b_acceptance import (
+    DEFAULT_ACCEPTANCE_AUTHORITY_OWNER,
+    DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS,
     DEFAULT_ACCEPTANCE_INPUT_SELECTION,
+    derive_acceptance_authority_owners,
     derive_acceptance_input_selection,
 )
 
@@ -110,6 +113,8 @@ def main() -> int:
     mode.add_argument("--write-d6-metadata-evidence", action="store_true")
     mode.add_argument("--check-acceptance-inputs", action="store_true")
     mode.add_argument("--write-acceptance-inputs", action="store_true")
+    mode.add_argument("--check-acceptance-authority", action="store_true")
+    mode.add_argument("--write-acceptance-authority", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -217,6 +222,87 @@ def main() -> int:
                     "artifact_file_sha256": (
                         bytes_sha256(payload) if args.write_acceptance_inputs else None
                     ),
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.check_acceptance_authority or args.write_acceptance_authority:
+        paid_success_elapsed = _paid_success_elapsed_seconds(r1)
+        acceptance = derive_acceptance_input_selection(
+            catalog_path=args.catalog_path,
+            census_path=args.census_path,
+            r1_paid_success_elapsed_seconds=paid_success_elapsed,
+        )
+        _check_payloads(
+            {
+                DEFAULT_ACCEPTANCE_INPUT_SELECTION: canonical_json_bytes(
+                    acceptance.model_dump(mode="json")
+                )
+            },
+            label="acceptance_input_selection",
+        )
+        base_owners = _recompute_target_owners(
+            catalog_path=args.catalog_path,
+            l5_path=args.l5_path,
+            census_path=args.census_path,
+            substrate_path=args.substrate_path,
+            attempt_count=len(r1.attempts),
+        )
+        acceptance_owners = derive_acceptance_authority_owners(
+            acceptance,
+            base_owners=base_owners,
+            catalog_path=args.catalog_path,
+            baseline_owner_ref=DEFAULT_CATALOG_OWNER_REF,
+            l5_path=args.l5_path,
+            l5_owner_ref=DEFAULT_L5_OWNER_REF,
+            fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
+        )
+        second_acceptance_owners = derive_acceptance_authority_owners(
+            acceptance,
+            base_owners=base_owners,
+            catalog_path=args.catalog_path,
+            baseline_owner_ref=DEFAULT_CATALOG_OWNER_REF,
+            l5_path=args.l5_path,
+            l5_owner_ref=DEFAULT_L5_OWNER_REF,
+            fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
+        )
+        payloads = acceptance_owners.payloads()
+        if payloads != second_acceptance_owners.payloads():
+            raise RuntimeError("acceptance_authority_derivation_not_byte_stable")
+        if args.write_acceptance_authority:
+            for relative in (
+                DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS,
+                DEFAULT_TARGET_AUTHORITY_REGISTRY,
+                DEFAULT_TARGET_AUTHORITY_PROVISION,
+                DEFAULT_ACCEPTANCE_AUTHORITY_OWNER,
+            ):
+                _write_replace_bytes(POLICY_ENGINE_ROOT / relative, payloads[relative])
+            status = "acceptance_authority_written"
+        else:
+            _check_payloads(payloads, label="acceptance_authority")
+            status = "ok"
+        print(
+            json.dumps(
+                {
+                    "status": status,
+                    "entry_id": acceptance_owners.entry.entry_id,
+                    "attempt_id": acceptance_owners.owner.live_attempt_id,
+                    "request_dataset_id": (
+                        acceptance.execution_selection.request_dataset_id
+                        if acceptance.execution_selection is not None
+                        else None
+                    ),
+                    "registry_entry_count": (acceptance_owners.owner.registry_entry_count),
+                    "live_harness_receipt_count": (
+                        acceptance_owners.owner.live_harness_receipt_count
+                    ),
+                    "registry_content_sha256": (acceptance_owners.registry.content_sha256),
+                    "provision_id": acceptance_owners.provision.provision_id,
+                    "harness_content_sha256": (acceptance_owners.owner.live_harness_content_sha256),
+                    "byte_stable_passes": 2,
+                    "live_network_calls": 0,
                 },
                 sort_keys=True,
             )
@@ -614,6 +700,8 @@ def main() -> int:
         )
         return 0
     if args.write_target_owners:
+        if (POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_AUTHORITY_OWNER).exists():
+            raise RuntimeError("historic_target_owner_shrink_forbidden")
         payloads = owners.payloads()
         receipt_paths = sorted(
             (
@@ -874,12 +962,49 @@ def _write_replace_bytes(path: Path, payload: bytes) -> None:
 
 
 def _check_target_owner_payloads(owners: Any) -> None:
-    for relative, expected in owners.payloads().items():
+    payloads = owners.payloads()
+    for relative, expected in payloads.items():
+        if relative in {
+            DEFAULT_TARGET_AUTHORITY_REGISTRY,
+            DEFAULT_TARGET_AUTHORITY_PROVISION,
+        }:
+            continue
         path = POLICY_ENGINE_ROOT / relative
         if not path.is_file():
             raise RuntimeError(f"target_owner_artifact_missing:{relative}")
         if path.read_bytes() != expected:
             raise RuntimeError(f"target_owner_artifact_drift:{relative}")
+    registry_path = POLICY_ENGINE_ROOT / DEFAULT_TARGET_AUTHORITY_REGISTRY
+    provision_path = POLICY_ENGINE_ROOT / DEFAULT_TARGET_AUTHORITY_PROVISION
+    try:
+        registry = data_forge_read_api.catalog.AcquisitionAuthorityRegistry.model_validate_json(
+            registry_path.read_bytes()
+        )
+        provision = data_forge_read_api.catalog.AcquisitionAuthorityProvision.model_validate_json(
+            provision_path.read_bytes()
+        )
+    except (OSError, ValueError) as exc:
+        raise RuntimeError("target_owner_canonical_extension_invalid") from exc
+    if (
+        registry.baseline_content_sha256 != owners.registry.baseline_content_sha256
+        or registry.l5_measurement_registry_sha256 != owners.registry.l5_measurement_registry_sha256
+        or provision.baseline_content_sha256 != owners.provision.baseline_content_sha256
+        or provision.l5_measurement_registry_content_sha256
+        != owners.provision.l5_measurement_registry_content_sha256
+    ):
+        raise RuntimeError("target_owner_canonical_anchor_drift")
+    current_entries = {entry.entry_id: entry for entry in registry.entries}
+    if any(current_entries.get(entry.entry_id) != entry for entry in owners.registry.entries):
+        raise RuntimeError("target_owner_canonical_entry_missing")
+    current_receipts = {
+        (receipt.entry_id, receipt.attempt_id): receipt
+        for receipt in provision.live_harness_receipts
+    }
+    if any(
+        current_receipts.get((receipt.entry_id, receipt.attempt_id)) != receipt
+        for receipt in owners.provision.live_harness_receipts
+    ):
+        raise RuntimeError("target_owner_canonical_harness_missing")
 
 
 def require_new_live_execution_outputs(

@@ -13,6 +13,7 @@ import json
 import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal, Self
@@ -21,14 +22,25 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.fabric.data_plane import content_sha256
-from tools.quality.validation.layer3_gy_acquisition_executor import LiveTargetSelection
+from polisyos.fabric.data_plane import canonical_json_bytes, content_sha256
+from tools.quality.validation.layer3_gy_acquisition_executor import (
+    DEFAULT_TARGET_AUTHORITY_PROVISION,
+    DEFAULT_TARGET_AUTHORITY_REGISTRY,
+    LiveTargetSelection,
+    bytes_sha256,
+    derive_live_attempt_id,
+    derive_target_authority_owners,
+    derive_target_family_receipt,
+)
 
 DEFAULT_ACCEPTANCE_INPUT_SELECTION = Path(
     "architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json"
 )
 DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS = Path(
     "architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json"
+)
+DEFAULT_ACCEPTANCE_AUTHORITY_OWNER = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json"
 )
 
 _EXECUTABLE_TIERS = frozenset({"fetchable", "transport_ready"})
@@ -324,6 +336,69 @@ class AcceptanceInputSelection(_StrictModel):
         }
 
 
+class AcceptanceAuthorityOwner(_StrictModel):
+    """Projection binding the selected CPI carrier to the canonical authority graph."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.acceptance_authority.v1"] = (
+        "policyos.layer3.gy.n13b.acceptance_authority.v1"
+    )
+    input_selection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    input_selection_file_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    l5_measurement_registry_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_entry_id: str = Field(pattern=r"^acquisition-authority:sha256:[0-9a-f]{64}$")
+    live_attempt_id: str = Field(min_length=1)
+    live_harness_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    combined_registry_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    combined_provision_id: str = Field(
+        pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$"
+    )
+    registry_entry_count: int = Field(ge=2)
+    live_harness_receipt_count: int = Field(ge=2)
+    owner_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _owner_is_content_bound(self) -> Self:
+        if self.owner_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("acceptance authority owner identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the authority projection without its self-hash."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "owner_sha256"
+        }
+
+
+@dataclass(frozen=True)
+class AcceptanceAuthorityOwners:
+    """Byte-stable canonical authority extension and its exact E7 receipt."""
+
+    input_selection: AcceptanceInputSelection
+    entry: Any
+    family_receipt: Any
+    registry: Any
+    provision: Any
+    owner: AcceptanceAuthorityOwner
+    family_receipt_bytes: bytes
+    registry_bytes: bytes
+    provision_bytes: bytes
+    owner_bytes: bytes
+
+    def payloads(self) -> dict[Path, bytes]:
+        """Return the canonical owner payloads in repository-relative locations."""
+
+        return {
+            DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS: self.family_receipt_bytes,
+            DEFAULT_TARGET_AUTHORITY_REGISTRY: self.registry_bytes,
+            DEFAULT_TARGET_AUTHORITY_PROVISION: self.provision_bytes,
+            DEFAULT_ACCEPTANCE_AUTHORITY_OWNER: self.owner_bytes,
+        }
+
+
 def derive_acceptance_input_selection(
     *,
     catalog_path: Path,
@@ -427,6 +502,106 @@ def derive_acceptance_input_selection(
     return AcceptanceInputSelection(
         **values,
         selection_sha256=content_sha256(_json_values(values)),
+    )
+
+
+def derive_acceptance_authority_owners(
+    selection: AcceptanceInputSelection,
+    *,
+    base_owners: Any,
+    catalog_path: Path,
+    baseline_owner_ref: str,
+    l5_path: Path,
+    l5_owner_ref: str,
+    fixture_root: Path,
+) -> AcceptanceAuthorityOwners:
+    """Extend the canonical registry/provision with one exact CPI live carrier."""
+
+    selected = AcceptanceInputSelection.model_validate(selection.model_dump(mode="python"))
+    if selected.disposition != "admissible_pair" or selected.execution_selection is None:
+        raise AcceptanceSelectionError("acceptance_authority_inputs_inadmissible")
+    base_entries = tuple(base_owners.registry.entries)
+    if not base_entries:
+        raise AcceptanceSelectionError("acceptance_base_authority_empty")
+    receipt = derive_target_family_receipt(
+        selected.execution_selection,
+        catalog_path=Path(catalog_path),
+        fixture_root=Path(fixture_root),
+    )
+    single = derive_target_authority_owners(
+        selected.execution_selection,
+        family_receipt=receipt,
+        baseline_path=Path(catalog_path),
+        baseline_owner_ref=baseline_owner_ref,
+        l5_path=Path(l5_path),
+        l5_owner_ref=l5_owner_ref,
+        receipt_owner_ref=f"repo://{DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS.as_posix()}",
+        country_codes=("UKR",),
+    )
+    if single.entry.entry_id in {entry.entry_id for entry in base_entries}:
+        raise AcceptanceSelectionError("acceptance_authority_entry_collision")
+    baseline_sha = _file_sha256(Path(catalog_path))
+    l5_sha = _file_sha256(Path(l5_path))
+    if (
+        base_owners.registry.baseline_content_sha256 != baseline_sha
+        or base_owners.registry.l5_measurement_registry_sha256 != l5_sha
+    ):
+        raise AcceptanceSelectionError("acceptance_base_authority_owner_drift")
+    registry = data_forge_read_api.catalog.build_authority_registry(
+        baseline_content_sha256=baseline_sha,
+        l5_measurement_registry_sha256=l5_sha,
+        entries=(*base_entries, single.entry),
+    )
+    family_receipt_bytes = canonical_json_bytes(receipt.model_dump(mode="json"))
+    live_receipts = [
+        item.model_dump(mode="json") for item in base_owners.provision.live_harness_receipts
+    ]
+    live_receipts.append(
+        {
+            "entry_id": single.entry.entry_id,
+            "attempt_id": derive_live_attempt_id(selected.execution_selection),
+            "receipt_owner_ref": (f"repo://{DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS.as_posix()}"),
+            "receipt_content_sha256": bytes_sha256(family_receipt_bytes),
+        }
+    )
+    live_receipts.sort(key=lambda item: (str(item["attempt_id"]), str(item["entry_id"])))
+    provision = data_forge_read_api.catalog.build_acquisition_authority_provision(
+        baseline_owner_ref=baseline_owner_ref,
+        baseline_content_sha256=baseline_sha,
+        l5_measurement_registry_owner_ref=l5_owner_ref,
+        l5_measurement_registry_content_sha256=l5_sha,
+        live_harness_receipts=tuple(live_receipts),
+    )
+    selection_bytes = canonical_json_bytes(selected.model_dump(mode="json"))
+    owner_values: dict[str, object] = {
+        "schema_version": "policyos.layer3.gy.n13b.acceptance_authority.v1",
+        "input_selection_sha256": selected.selection_sha256,
+        "input_selection_file_sha256": bytes_sha256(selection_bytes),
+        "baseline_sha256": baseline_sha,
+        "l5_measurement_registry_sha256": l5_sha,
+        "authority_entry_id": single.entry.entry_id,
+        "live_attempt_id": derive_live_attempt_id(selected.execution_selection),
+        "live_harness_content_sha256": bytes_sha256(family_receipt_bytes),
+        "combined_registry_content_sha256": registry.content_sha256,
+        "combined_provision_id": provision.provision_id,
+        "registry_entry_count": len(registry.entries),
+        "live_harness_receipt_count": len(provision.live_harness_receipts),
+    }
+    owner = AcceptanceAuthorityOwner(
+        **owner_values,
+        owner_sha256=content_sha256(owner_values),
+    )
+    return AcceptanceAuthorityOwners(
+        input_selection=selected,
+        entry=single.entry,
+        family_receipt=receipt,
+        registry=registry,
+        provision=provision,
+        owner=owner,
+        family_receipt_bytes=family_receipt_bytes,
+        registry_bytes=canonical_json_bytes(registry.model_dump(mode="json")),
+        provision_bytes=canonical_json_bytes(provision.model_dump(mode="json")),
+        owner_bytes=canonical_json_bytes(owner.model_dump(mode="json")),
     )
 
 

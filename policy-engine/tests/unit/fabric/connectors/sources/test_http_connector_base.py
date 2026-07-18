@@ -590,6 +590,190 @@ def test_raw_http_observer_reports_headers_and_progress_before_raw_body() -> Non
     ]
 
 
+def test_raw_http_observer_emits_periodic_waiting_until_response_headers() -> None:
+    connector = _DummyConnector()
+
+    async def _exercise() -> None:
+        release_headers = asyncio.Event()
+        two_waiting_heartbeats = asyncio.Event()
+        events: list[str] = []
+
+        class _DelayedResponse(_FakeResponse):
+            async def __aenter__(self) -> _FakeResponse:
+                await release_headers.wait()
+                return self
+
+        class _Observer(_ObserverLimits):
+            heartbeat_interval_seconds = 0.001
+
+            def before_request(self, *args: object) -> None:
+                del args
+                events.append("before_request")
+
+            def on_waiting(self, *args: object) -> None:
+                assert isinstance(args[-1], float)
+                events.append("waiting")
+                if events.count("waiting") == 2:
+                    two_waiting_heartbeats.set()
+
+            def on_response_headers(self, *args: object) -> None:
+                del args
+                events.append("response_headers")
+
+            def on_body_progress(self, *args: object) -> None:
+                del args
+                events.append("body_progress")
+
+            def on_raw_response(self, *args: object) -> None:
+                del args
+                events.append("raw_response")
+
+        task = asyncio.create_task(
+            connector._request_json(
+                _FakeSession(_DelayedResponse(200, {}, b"{}")),
+                "https://example.test/waiting",
+                params={"country": "UA"},
+                connector_id=connector.connector_id,
+                raw_http_response_observer=_Observer(),
+            )
+        )
+        await asyncio.wait_for(two_waiting_heartbeats.wait(), timeout=1.0)
+        release_headers.set()
+        await task
+        waiting_count = events.count("waiting")
+        await asyncio.sleep(0.005)
+
+        assert events[:3] == ["before_request", "waiting", "waiting"]
+        assert events[waiting_count + 1 :] == [
+            "response_headers",
+            "body_progress",
+            "raw_response",
+        ]
+        assert events.count("waiting") == waiting_count
+        assert not [
+            pending
+            for pending in asyncio.all_tasks()
+            if pending is not asyncio.current_task() and not pending.done()
+        ]
+
+    _run(_exercise())
+
+
+def test_raw_http_waiting_heartbeat_cancels_with_delayed_request() -> None:
+    connector = _DummyConnector()
+
+    async def _exercise() -> None:
+        waiting_seen = asyncio.Event()
+        entry_cancelled = asyncio.Event()
+        waiting_count = 0
+
+        class _DelayedResponse(_FakeResponse):
+            async def __aenter__(self) -> _FakeResponse:
+                try:
+                    await asyncio.Event().wait()
+                except asyncio.CancelledError:
+                    entry_cancelled.set()
+                    raise
+                raise AssertionError("unreachable")
+
+        class _Observer(_ObserverLimits):
+            heartbeat_interval_seconds = 0.001
+
+            def before_request(self, *args: object) -> None:
+                del args
+
+            def on_waiting(self, *args: object) -> None:
+                nonlocal waiting_count
+                del args
+                waiting_count += 1
+                waiting_seen.set()
+
+            def on_raw_response(self, *args: object) -> None:
+                del args
+                pytest.fail("a cancelled request cannot produce raw evidence")
+
+        task = asyncio.create_task(
+            connector._request_json(
+                _FakeSession(_DelayedResponse(200, {}, b"{}")),
+                "https://example.test/cancel",
+                params={},
+                connector_id=connector.connector_id,
+                raw_http_response_observer=_Observer(),
+            )
+        )
+        await asyncio.wait_for(waiting_seen.wait(), timeout=1.0)
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        await asyncio.wait_for(entry_cancelled.wait(), timeout=1.0)
+        count_after_cancel = waiting_count
+        await asyncio.sleep(0.005)
+
+        assert waiting_count == count_after_cancel
+        assert not [
+            pending
+            for pending in asyncio.all_tasks()
+            if pending is not asyncio.current_task() and not pending.done()
+        ]
+
+    _run(_exercise())
+
+
+def test_raw_http_waiting_heartbeat_stops_when_response_entry_fails() -> None:
+    connector = _DummyConnector()
+
+    async def _exercise() -> None:
+        waiting_seen = asyncio.Event()
+        fail_entry = asyncio.Event()
+        waiting_count = 0
+
+        class _FailingResponse(_FakeResponse):
+            async def __aenter__(self) -> _FakeResponse:
+                await fail_entry.wait()
+                raise RuntimeError("response headers unavailable")
+
+        class _Observer(_ObserverLimits):
+            heartbeat_interval_seconds = 0.001
+
+            def before_request(self, *args: object) -> None:
+                del args
+
+            def on_waiting(self, *args: object) -> None:
+                nonlocal waiting_count
+                del args
+                waiting_count += 1
+                waiting_seen.set()
+
+            def on_raw_response(self, *args: object) -> None:
+                del args
+                pytest.fail("a failed request cannot produce raw evidence")
+
+        task = asyncio.create_task(
+            connector._request_json(
+                _FakeSession(_FailingResponse(200, {}, b"{}")),
+                "https://example.test/fail-before-headers",
+                params={},
+                connector_id=connector.connector_id,
+                raw_http_response_observer=_Observer(),
+            )
+        )
+        await asyncio.wait_for(waiting_seen.wait(), timeout=1.0)
+        fail_entry.set()
+        with pytest.raises(RuntimeError, match="response headers unavailable"):
+            await task
+        count_after_error = waiting_count
+        await asyncio.sleep(0.005)
+
+        assert waiting_count == count_after_error
+        assert not [
+            pending
+            for pending in asyncio.all_tasks()
+            if pending is not asyncio.current_task() and not pending.done()
+        ]
+
+    _run(_exercise())
+
+
 def test_error_response_body_remains_unread_when_no_observer_is_installed() -> None:
     connector = _DummyConnector()
 

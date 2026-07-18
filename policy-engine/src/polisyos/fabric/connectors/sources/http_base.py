@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 import time
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
@@ -45,7 +46,12 @@ _RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY = "_raw_http_response_observer"
 
 
 class RawHTTPResponseObserver(Protocol):
-    """Observe bounded HTTP attempts and exact response bytes before interpretation."""
+    """Observe bounded HTTP attempts and exact bytes before interpretation.
+
+    An observer may additionally expose a positive ``heartbeat_interval_seconds``
+    value and an ``on_waiting(connector_id, url, params, elapsed_seconds)`` callback.
+    The runtime invokes that optional pair periodically until response headers arrive.
+    """
 
     @property
     def max_response_bytes(self) -> int:
@@ -128,6 +134,67 @@ def _observer_byte_limit(observer: RawHTTPResponseObserver, field_name: str) -> 
     if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
         raise ValueError(f"raw HTTP observer {field_name} must be a positive integer")
     return value
+
+
+def _start_waiting_heartbeat(
+    observer: RawHTTPResponseObserver | None,
+    *,
+    connector_id: str,
+    url: str,
+    params: Mapping[str, str],
+) -> asyncio.Task[None] | None:
+    """Start optional E9 progress evidence while response headers are pending."""
+
+    if observer is None:
+        return None
+    callback = getattr(observer, "on_waiting", None)
+    interval = getattr(observer, "heartbeat_interval_seconds", None)
+    if not callable(callback) or interval is None:
+        return None
+    if (
+        isinstance(interval, bool)
+        or not isinstance(interval, (int, float))
+        or not math.isfinite(float(interval))
+        or interval <= 0
+    ):
+        raise ValueError(
+            "raw HTTP observer heartbeat_interval_seconds must be a positive finite number"
+        )
+    normalized_params = dict(params)
+
+    async def _emit() -> None:
+        started_at = time.monotonic()
+        while True:
+            await asyncio.sleep(float(interval))
+            callback(
+                connector_id,
+                url,
+                dict(normalized_params),
+                max(time.monotonic() - started_at, 0.0),
+            )
+
+    return asyncio.create_task(
+        _emit(),
+        name=f"fabric-http-waiting:{connector_id}",
+    )
+
+
+async def _stop_waiting_heartbeat(task: asyncio.Task[None] | None) -> None:
+    """Cancel and reap one optional waiting task without hiding observer failures."""
+
+    if task is None:
+        return
+    caller_task = asyncio.current_task()
+    caller_cancellations = caller_task.cancelling() if caller_task is not None else 0
+    cancellation_requested = task.cancel() if not task.done() else False
+    try:
+        await task
+    except asyncio.CancelledError:
+        caller_was_cancelled = (
+            caller_task is not None and caller_task.cancelling() > caller_cancellations
+        )
+        if not cancellation_requested or caller_was_cancelled:
+            raise
 
 
 @dataclass(frozen=True, slots=True)
@@ -365,104 +432,117 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
                 ),
             )
             raw_http_response_observer.before_request(connector_id, url, dict(params))
-        async with session.get(url, params=params, headers=headers) as response:
-            headers = dict(response.headers)
-            on_progress: Callable[[int], None] | None = None
-            if raw_http_response_observer is not None:
-                response_headers_observer = getattr(
-                    raw_http_response_observer,
-                    "on_response_headers",
-                    None,
-                )
-                if callable(response_headers_observer):
-                    response_headers_observer(
-                        connector_id,
-                        url,
-                        dict(params),
-                        response.status,
-                        dict(headers),
+        waiting_heartbeat = _start_waiting_heartbeat(
+            raw_http_response_observer,
+            connector_id=connector_id,
+            url=url,
+            params=params,
+        )
+        try:
+            async with session.get(url, params=params, headers=headers) as response:
+                try:
+                    await _stop_waiting_heartbeat(waiting_heartbeat)
+                finally:
+                    waiting_heartbeat = None
+                headers = dict(response.headers)
+                on_progress: Callable[[int], None] | None = None
+                if raw_http_response_observer is not None:
+                    response_headers_observer = getattr(
+                        raw_http_response_observer,
+                        "on_response_headers",
+                        None,
                     )
-                body_progress_observer = getattr(
-                    raw_http_response_observer,
-                    "on_body_progress",
-                    None,
-                )
-                if callable(body_progress_observer):
-
-                    def _report_progress(bytes_read: int) -> None:
-                        body_progress_observer(
+                    if callable(response_headers_observer):
+                        response_headers_observer(
                             connector_id,
                             url,
                             dict(params),
-                            bytes_read,
+                            response.status,
+                            dict(headers),
+                        )
+                    body_progress_observer = getattr(
+                        raw_http_response_observer,
+                        "on_body_progress",
+                        None,
+                    )
+                    if callable(body_progress_observer):
+
+                        def _report_progress(bytes_read: int) -> None:
+                            body_progress_observer(
+                                connector_id,
+                                url,
+                                dict(params),
+                                bytes_read,
+                            )
+
+                        on_progress = _report_progress
+                if raw_http_response_observer is None:
+                    _raise_for_http_status(
+                        connector_id=connector_id,
+                        url=url,
+                        status_code=response.status,
+                        headers=headers,
+                    )
+                before_classification: Callable[[bytes], None] | None = None
+                if raw_http_response_observer is not None:
+
+                    def _persist_raw_before_classification(body: bytes) -> None:
+                        raw_http_response_observer.on_raw_response(
+                            connector_id,
+                            url,
+                            dict(params),
+                            response.status,
+                            dict(headers),
+                            body,
                         )
 
-                    on_progress = _report_progress
-            if raw_http_response_observer is None:
-                _raise_for_http_status(
+                    before_classification = _persist_raw_before_classification
+                raw = await self._read_response_body(
+                    response,
                     connector_id=connector_id,
                     url=url,
-                    status_code=response.status,
-                    headers=headers,
+                    max_response_bytes=max_response_bytes,
+                    max_decompressed_bytes=max_decompressed_bytes,
+                    before_classification=before_classification,
+                    on_progress=on_progress,
                 )
-            before_classification: Callable[[bytes], None] | None = None
-            if raw_http_response_observer is not None:
-
-                def _persist_raw_before_classification(body: bytes) -> None:
-                    raw_http_response_observer.on_raw_response(
-                        connector_id,
-                        url,
-                        dict(params),
-                        response.status,
-                        dict(headers),
-                        body,
+                if raw_http_response_observer is not None:
+                    _raise_for_http_status(
+                        connector_id=connector_id,
+                        url=url,
+                        status_code=response.status,
+                        headers=headers,
                     )
 
-                before_classification = _persist_raw_before_classification
-            raw = await self._read_response_body(
-                response,
-                connector_id=connector_id,
-                url=url,
-                max_response_bytes=max_response_bytes,
-                max_decompressed_bytes=max_decompressed_bytes,
-                before_classification=before_classification,
-                on_progress=on_progress,
-            )
-            if raw_http_response_observer is not None:
-                _raise_for_http_status(
-                    connector_id=connector_id,
-                    url=url,
-                    status_code=response.status,
-                    headers=headers,
-                )
-
-            if len(raw) > self.resilience_profile.max_json_bytes:
-                raise FetchError(
-                    message=(
-                        "JSON response body exceeds safe limit "
-                        f"({len(raw)} > {self.resilience_profile.max_json_bytes} bytes)"
-                    ),
-                    connector_id=connector_id,
-                    request_params={"url": url},
-                )
-            try:
-                body = json.loads(raw)
-            except json.JSONDecodeError as exc:
-                raise FetchError(
-                    message=f"Invalid JSON response: {exc}",
-                    connector_id=connector_id,
-                    request_params={"url": url},
-                ) from exc
-            if isinstance(body, list) and len(body) > self.resilience_profile.max_rows:
-                raise FetchError(
-                    message=(
-                        "JSON response row count exceeds safe limit "
-                        f"({len(body)} > {self.resilience_profile.max_rows})"
-                    ),
-                    connector_id=connector_id,
-                    request_params={"url": url},
-                )
-            return body, headers, raw
+                if len(raw) > self.resilience_profile.max_json_bytes:
+                    raise FetchError(
+                        message=(
+                            "JSON response body exceeds safe limit "
+                            f"({len(raw)} > {self.resilience_profile.max_json_bytes} bytes)"
+                        ),
+                        connector_id=connector_id,
+                        request_params={"url": url},
+                    )
+                try:
+                    body = json.loads(raw)
+                except json.JSONDecodeError as exc:
+                    raise FetchError(
+                        message=f"Invalid JSON response: {exc}",
+                        connector_id=connector_id,
+                        request_params={"url": url},
+                    ) from exc
+                if isinstance(body, list) and len(body) > self.resilience_profile.max_rows:
+                    raise FetchError(
+                        message=(
+                            "JSON response row count exceeds safe limit "
+                            f"({len(body)} > {self.resilience_profile.max_rows})"
+                        ),
+                        connector_id=connector_id,
+                        request_params={"url": url},
+                    )
+                return body, headers, raw
+        finally:
+            await _stop_waiting_heartbeat(waiting_heartbeat)
 
     async def _read_response_body(
         self,

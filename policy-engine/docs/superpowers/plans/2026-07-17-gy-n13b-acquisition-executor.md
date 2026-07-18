@@ -63,11 +63,15 @@ artifacts.
   `avg(corrected_exit_bias) -> cells.distress_score` shortcut. Both sources are derived and lack the
   required D5 certificates and license/ToS evidence. The recomputed local result is therefore
   `no_admissible_local_binding`, with no write and no epoch.
-- The live D2 target is `government.balance`, N13a backlog rank 8. The exact catalog carrier is
-  World Bank WDI `GC.BAL.CASH.GD.ZS`: dataset `659b22c5ea8c8fea6ec9`, distribution
-  `4b5ba470bab393cba7d1`, CC-BY-4.0, `transport_ready`, binding `gov_balance` confidence `.87`, and
-  exact non-proxy source alignment confidence `.85`. The missing edge is the generic normalized
-  connector field `value -> government.balance`; closing it is the measured world-growth event.
+- The live D2 target is `government.balance`, N13a backlog rank 8. Evidence scrutiny rejected the
+  initial `GC.BAL.CASH.GD.ZS` hypothesis: that carrier is percent of GDP, while the demanding L6
+  world slot is owner-typed in USD. The compatible catalog carrier is World Bank WDI
+  `GC.BAL.CASH.CD`: dataset `295e06c73f2cbd166d2c`, distribution `11d00e4786011c8fc113`,
+  CC-BY-4.0, `transport_ready`, and binding `gov_balance` confidence `.87`. It has no baseline
+  `ds_variable_alignments` row, so it is the honest `raw_variable_edge_missing` case: the generic
+  existing alignment scorer derives the non-pinned `gov_balance -> government.balance` confidence,
+  while catalog title/description evidence derives the USD unit. The measured normalized edge is
+  `value -> government.balance`; any percent-GDP substitution remains `basis_mismatch`.
 - Separate one-variable WDI attempts for CPI (`FP.CPI.TOTL`) and nominal GDP in current LCU
   (`NY.GDP.MKTP.CN`) may supply the certified real-terms acceptance case. Each target needs its own
   exact E7 carrier receipt; a family-level green receipt cannot authorize it.

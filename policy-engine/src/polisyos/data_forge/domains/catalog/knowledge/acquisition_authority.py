@@ -11,6 +11,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from enum import StrEnum
@@ -32,6 +33,7 @@ from .overlay import (
     MetricFieldBinding,
     build_metric_field_binding,
 )
+from .variable_alignment import score_variable_pair
 
 ArtifactID = artifacts.ArtifactID
 ArtifactStore = artifacts.ArtifactStore
@@ -1664,33 +1666,44 @@ class CanonicalAcquisitionAuthority:
     ]:
         con = duckdb.connect(str(self.baseline_path), read_only=True)
         try:
-            row = con.execute(
+            rows = con.execute(
                 """
                 SELECT d.source, d.agency, d.title, d.description,
                        d.access_license, d.execution_tier,
                        x.connector_type, x.profile_id, x.source_locator,
-                       b.request_dataset_id, b.metric_id, b.confidence,
-                       a.raw_variable, a.canonical_var, a.method,
-                       a.confidence, a.evidence, a.is_proxy, a.proxy_penalty
+                       b.request_dataset_id, b.metric_id, b.confidence
                 FROM ds_datasets d
                 JOIN ds_distributions x ON x.dataset_id = d.id
                 JOIN ds_metric_bindings b
                   ON b.dataset_id = d.id AND b.distribution_id = x.id
-                JOIN ds_variable_alignments a ON a.dataset_id = d.id
                 WHERE d.id = ? AND x.id = ? AND b.metric_id = ?
-                  AND a.raw_variable = ? AND a.canonical_var = ?
+                  AND b.request_dataset_id = ?
                 """,
                 [
                     entry.source_catalog_dataset_id,
                     entry.source_catalog_distribution_id,
                     entry.upstream_metric_id,
                     entry.catalog_raw_variable,
+                ],
+            ).fetchall()
+            if len(rows) != 1:
+                raise AcquisitionAuthorityError("catalog_authority_edge_unresolved")
+            values = rows[0]
+            alignment_rows = con.execute(
+                """
+                SELECT raw_variable, canonical_var, method, confidence,
+                       evidence, is_proxy, proxy_penalty
+                FROM ds_variable_alignments
+                WHERE dataset_id = ? AND raw_variable = ? AND canonical_var = ?
+                """,
+                [
+                    entry.source_catalog_dataset_id,
+                    entry.catalog_raw_variable,
                     entry.upstream_metric_id,
                 ],
             ).fetchall()
-            if len(row) != 1:
-                raise AcquisitionAuthorityError("catalog_authority_edge_unresolved")
-            values = row[0]
+            if len(alignment_rows) > 1:
+                raise AcquisitionAuthorityError("catalog_authority_edge_ambiguous")
         finally:
             con.close()
         (
@@ -1706,18 +1719,59 @@ class CanonicalAcquisitionAuthority:
             request_dataset_id,
             metric_id,
             binding_confidence,
-            catalog_raw_variable,
-            canonical_var,
-            alignment_method,
-            alignment_confidence,
-            alignment_evidence,
-            is_proxy,
-            proxy_penalty,
         ) = values
         if str(execution_tier) not in {"fetchable", "transport_ready"}:
             raise AcquisitionAuthorityError("catalog_execution_tier_not_executable")
-        if float(entry.alignment_confidence) > float(alignment_confidence) + 1e-9:
-            raise AcquisitionAuthorityError("authority_alignment_inflated")
+        catalog_unit = _catalog_unit_from_text(f"{title or ''} {description or ''}")
+        if catalog_unit is None:
+            raise AcquisitionAuthorityError("catalog_unit_unresolved")
+        if _normalized_unit(entry.raw_unit) != catalog_unit:
+            raise AcquisitionAuthorityError(
+                "catalog_unit_mismatch",
+                f"{entry.raw_unit}:{catalog_unit}",
+            )
+        if entry.unit_transform == "identity" and (
+            _normalized_unit(entry.canonical_unit) != catalog_unit
+        ):
+            raise AcquisitionAuthorityError("catalog_identity_unit_mismatch")
+
+        if alignment_rows:
+            (
+                catalog_raw_variable,
+                canonical_var,
+                alignment_method,
+                alignment_confidence,
+                alignment_evidence,
+                is_proxy,
+                proxy_penalty,
+            ) = alignment_rows[0]
+            if float(entry.alignment_confidence) > float(alignment_confidence) + 1e-9:
+                raise AcquisitionAuthorityError("authority_alignment_inflated")
+            catalog_alignment_status = "owner_alignment_resolved"
+            generic_alignment_score = None
+        else:
+            owner_score = score_variable_pair(
+                left_name=entry.target_variable,
+                right_name=str(metric_id),
+                left_unit=entry.canonical_unit,
+                right_unit=entry.raw_unit,
+            )
+            if (
+                entry.alignment_method != "semantic"
+                or abs(float(entry.alignment_confidence) - owner_score.overall_score) > 1e-9
+            ):
+                raise AcquisitionAuthorityError("authority_alignment_owner_drift")
+            if float(entry.alignment_confidence) > float(binding_confidence) + 1e-9:
+                raise AcquisitionAuthorityError("authority_alignment_inflated")
+            catalog_raw_variable = entry.catalog_raw_variable
+            canonical_var = entry.upstream_metric_id
+            alignment_method = "semantic"
+            alignment_confidence = owner_score.overall_score
+            alignment_evidence = ";".join(owner_score.evidence)
+            is_proxy = entry.is_proxy
+            proxy_penalty = entry.proxy_penalty
+            catalog_alignment_status = "registry_last_mile_owner_scored"
+            generic_alignment_score = owner_score.model_dump(mode="json")
         projection = {
             "source_catalog_dataset_id": entry.source_catalog_dataset_id,
             "source_catalog_distribution_id": entry.source_catalog_distribution_id,
@@ -1735,6 +1789,9 @@ class CanonicalAcquisitionAuthority:
             "binding_confidence": binding_confidence,
             "catalog_raw_variable": catalog_raw_variable,
             "canonical_var": canonical_var,
+            "catalog_unit": catalog_unit,
+            "catalog_alignment_status": catalog_alignment_status,
+            "generic_alignment_score": generic_alignment_score,
             "alignment_method": alignment_method,
             "alignment_confidence": alignment_confidence,
             "alignment_evidence": alignment_evidence,
@@ -1968,6 +2025,55 @@ def _license_disposition(value: str) -> LicenseDisposition:
     if normalized in {"all-rights-reserved", "proprietary", "restricted"}:
         return LicenseDisposition.RESTRICTED
     return LicenseDisposition.UNCLEAR
+
+
+def _normalized_unit(value: str) -> str:
+    """Normalize the narrow catalog units admitted by the acquisition owner."""
+
+    text = value.strip().casefold().replace("_", " ").replace("-", " ")
+    text = " ".join(text.split())
+    aliases = {
+        "$": "usd",
+        "current usd": "usd",
+        "current us dollars": "usd",
+        "percent of gdp": "percent_gdp",
+        "% of gdp": "percent_gdp",
+        "lcu": "local_currency",
+        "current lcu": "local_currency",
+        "price index": "index",
+    }
+    return aliases.get(text, text.replace(" ", "_"))
+
+
+def _catalog_unit_from_text(value: str) -> str | None:
+    """Derive a source unit from catalog-owned title and description text.
+
+    This deliberately recognizes unit families, not indicator IDs. Ambiguous or
+    absent units fail closed so a registry row cannot mint its own unit authority.
+    """
+
+    text = " ".join(value.casefold().replace("\u00a0", " ").split())
+    candidates: set[str] = set()
+    if ("%" in text or "percent" in text) and "gdp" in text:
+        candidates.add("percent_gdp")
+    if any(
+        token in text
+        for token in (
+            "current us$",
+            "current us $",
+            "current usd",
+            "current u.s. dollar",
+            "current us dollar",
+        )
+    ):
+        candidates.add("usd")
+    if "current lcu" in text or "current local currenc" in text:
+        candidates.add("local_currency")
+    if "price index" in text or re.search(r"\bindex\s*\([^)]*=\s*100\)", text):
+        candidates.add("index")
+    if len(candidates) != 1:
+        return None
+    return candidates.pop()
 
 
 def _normalized_result_row_count(data: object) -> int:

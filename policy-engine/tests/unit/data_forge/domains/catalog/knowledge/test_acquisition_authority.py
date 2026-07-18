@@ -34,6 +34,9 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     CatalogAcquisitionOverlay,
     OverlayAdmissionError,
 )
+from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+    score_variable_pair,
+)
 from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
 from polisyos.fabric.connectors import resolve_connection_config
 from polisyos.fabric.connectors.cache.store import ResultSerializer
@@ -254,6 +257,96 @@ def _entry():
         country_codes=("UKR",),
         temporal_start="2020",
         temporal_end="2024",
+    )
+
+
+def _unaligned_usd_entry() -> AcquisitionAuthorityEntry:
+    """Build the generic last-mile edge for a catalog row without field alignment."""
+
+    score = score_variable_pair(
+        left_name="government.balance",
+        right_name="gov_balance",
+        left_unit="usd",
+        right_unit="usd",
+    )
+    values = _entry().model_dump(mode="python", exclude={"entry_id"})
+    values["schema_columns"] = tuple(
+        AuthoritySchemaColumn.model_validate(column) for column in values["schema_columns"]
+    )
+    values.update(
+        {
+            "catalog_raw_variable": "GC.BAL.CASH.CD",
+            "raw_unit": "usd",
+            "canonical_unit": "usd",
+            "alignment_method": "semantic",
+            "alignment_confidence": score.overall_score,
+            "evidence_refs": (
+                "repo://production_data/catalog.duckdb#ds_metric_bindings/gov_balance",
+                "repo://src/polisyos/data_forge/domains/catalog/knowledge/"
+                "variable_alignment.py#score_variable_pair",
+            ),
+            "title": "Acquired fiscal balance in current US dollars",
+            "description": "Owner-measured government cash balance in current US dollars.",
+        }
+    )
+    return build_authority_entry(**values)
+
+
+def _unaligned_usd_resolver(
+    repo_root: Path,
+    *,
+    source_title: str = "Fiscal balance, cash surplus/deficit (current US$)",
+    authority_entry: AcquisitionAuthorityEntry | None = None,
+) -> tuple[CanonicalAcquisitionAuthority, AcquisitionAuthorityEntry]:
+    baseline = _baseline(repo_root)
+    con = duckdb.connect(str(baseline))
+    try:
+        con.execute(
+            "DELETE FROM ds_variable_alignments WHERE dataset_id = ?", ["source-worldbank-balance"]
+        )
+        con.execute(
+            "UPDATE ds_datasets SET title = ?, description = ? WHERE id = ?",
+            [
+                source_title,
+                "Cash surplus or deficit in the unit named by the source title.",
+                "source-worldbank-balance",
+            ],
+        )
+        con.execute(
+            "UPDATE ds_distributions SET source_locator = ? WHERE id = ?",
+            ["GC.BAL.CASH.CD", "source-worldbank-balance-json"],
+        )
+        con.execute(
+            "UPDATE ds_metric_bindings SET request_dataset_id = ? WHERE dataset_id = ?",
+            ["GC.BAL.CASH.CD", "source-worldbank-balance"],
+        )
+    finally:
+        con.close()
+    l5 = _write_l5(repo_root)
+    entry = authority_entry or _unaligned_usd_entry()
+    registry = build_authority_registry(
+        baseline_content_sha256=_sha(baseline),
+        l5_measurement_registry_sha256=_sha(l5),
+        entries=(entry,),
+    )
+    registry_path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    registry_path.write_text(
+        json.dumps(registry.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    _write_provision(
+        repo_root,
+        baseline=baseline,
+        l5_path=l5,
+        baseline_owner_ref="repo://catalog/catalog.duckdb",
+    )
+    return (
+        CanonicalAcquisitionAuthority.from_provision(
+            repo_root=repo_root,
+            baseline_path=baseline,
+        ),
+        entry,
     )
 
 
@@ -624,6 +717,56 @@ def test_authority_resolves_catalog_license_l5_and_registration(tmp_path: Path) 
     assert resolved.license_authority_ref == (
         "repo://catalog/catalog.duckdb#ds_datasets/source-worldbank-balance/access_license"
     )
+
+
+def test_authority_derives_missing_catalog_field_edge_through_generic_alignment(
+    tmp_path: Path,
+) -> None:
+    resolver, entry = _unaligned_usd_resolver(tmp_path)
+
+    resolved = resolver.resolve(entry.entry_id)
+
+    expected_score = score_variable_pair(
+        left_name="government.balance",
+        right_name="gov_balance",
+        left_unit="usd",
+        right_unit="usd",
+    )
+    assert resolved.registration.request_dataset_id == "GC.BAL.CASH.CD"
+    assert resolved.field_binding.canonical_variable == "government.balance"
+    assert resolved.field_binding.alignment_method == "semantic"
+    assert resolved.field_binding.alignment_confidence == expected_score.overall_score
+    assert resolved.field_binding.calibrated_alignment_confidence == pytest.approx(
+        0.5 + (0.5 * expected_score.overall_score)
+    )
+
+
+def test_authority_rejects_missing_edge_alignment_inflation_and_catalog_unit_mismatch(
+    tmp_path: Path,
+) -> None:
+    entry = _unaligned_usd_entry()
+    values = entry.model_dump(mode="python", exclude={"entry_id"})
+    values["schema_columns"] = tuple(
+        AuthoritySchemaColumn.model_validate(column) for column in values["schema_columns"]
+    )
+    values["alignment_confidence"] = float(entry.alignment_confidence) + 0.01
+    inflated = build_authority_entry(**values)
+    resolver, inflated = _unaligned_usd_resolver(
+        tmp_path / "inflated",
+        authority_entry=inflated,
+    )
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match="authority_alignment_owner_drift",
+    ):
+        resolver.resolve(inflated.entry_id)
+
+    mismatch, entry = _unaligned_usd_resolver(
+        tmp_path / "unit-mismatch",
+        source_title="Cash surplus/deficit (% of GDP)",
+    )
+    with pytest.raises(AcquisitionAuthorityError, match="catalog_unit_mismatch"):
+        mismatch.resolve(entry.entry_id)
 
 
 def test_live_license_ref_uses_logical_owner_for_external_baseline(

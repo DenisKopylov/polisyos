@@ -1,6 +1,6 @@
 import { type InputHTMLAttributes, type ReactNode, useId } from "react";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 export type SegmentedOption<T extends string> = {
   description?: ReactNode;

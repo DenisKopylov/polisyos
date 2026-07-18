@@ -137,8 +137,8 @@
           "observed_refs": [
             "apps/runtime-dashboard/e2e/journeys/trust-framing-negative-traces.spec.ts:182",
             "apps/runtime-dashboard/src/app/routes/routes.test.tsx:167",
-            "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx:43",
-            "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:81",
+            "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx:42",
+            "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:80",
             "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:171",
             "apps/runtime-dashboard/src/features/runs/components/PublicationReadinessPanel.tsx:17",
             "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts:122",

@@ -1,7 +1,6 @@
 import { cn, formatDate } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Card, Button, Badge } from "@polisyos/atlas-ui";
-import { Input } from "@/shared/ui/primitives";
+import { Badge, Button, Card, Input } from "@polisyos/atlas-ui";
 
 import {
   useClerkHistory,

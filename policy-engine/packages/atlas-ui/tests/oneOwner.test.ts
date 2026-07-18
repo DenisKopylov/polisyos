@@ -33,6 +33,21 @@ const FOUNDATION_FAMILIES = {
   Text: ["Text", "TextPresentationProvider"],
 } as const;
 
+const FORM_FAMILIES = {
+  Checkbox: ["Checkbox"],
+  Input: ["Input"],
+  Label: ["Label"],
+  Radio: ["Radio"],
+  SegmentedControl: ["SegmentedControl"],
+  Select: ["Select"],
+  Slider: ["Slider"],
+  Switch: ["Switch"],
+  Textarea: ["Textarea"],
+  ToggleButton: ["ToggleButton"],
+} as const;
+
+type PrimitiveFamilies = Record<string, readonly string[]>;
+
 function walkTypeScriptFiles(directory: string): string[] {
   if (!fs.existsSync(directory)) {
     return [];
@@ -131,10 +146,13 @@ function packageReexports({ file, source }: SourceUnit): string[] {
   });
 }
 
-function foundationOwnershipViolations(units: SourceUnit[]): string[] {
+function ownershipViolations(
+  families: PrimitiveFamilies,
+  units: SourceUnit[],
+): string[] {
   const violations: string[] = [];
 
-  for (const [family, symbols] of Object.entries(FOUNDATION_FAMILIES)) {
+  for (const [family, symbols] of Object.entries(families)) {
     const owners = units
       .filter(({ source }) => {
         const names = exportedNames(source);
@@ -170,7 +188,8 @@ describe("foundation primitive ownership", () => {
       path.join(dashboardRoot, "src/shared/components"),
     ];
     const files = roots.flatMap(walkTypeScriptFiles);
-    const violations = foundationOwnershipViolations(
+    const violations = ownershipViolations(
+      FOUNDATION_FAMILIES,
       files.map((file) => sourceUnit(file)),
     );
 
@@ -238,11 +257,52 @@ describe("foundation primitive ownership", () => {
       ),
     );
 
-    expect(foundationOwnershipViolations(units)).toEqual(
+    expect(ownershipViolations(FOUNDATION_FAMILIES, units)).toEqual(
       expect.arrayContaining([
         "package re-export: apps/runtime-dashboard/src/shared/ui/FoundationCompatibilityShim.ts -> @polisyos/atlas-ui",
         `package re-export: apps/runtime-dashboard/src/shared/ui/RelativeFoundationCompatibilityShim.ts -> ${relativePackageSpecifier}`,
       ]),
     );
+  });
+});
+
+describe("form primitive ownership", () => {
+  it("rejects a duplicate form primitive owner while the old path still exports it", () => {
+    const roots = [
+      path.join(packageRoot, "src/primitives"),
+      path.join(dashboardRoot, "src/shared/ui"),
+      path.join(dashboardRoot, "src/shared/components"),
+    ];
+    const files = roots.flatMap(walkTypeScriptFiles);
+    const violations = ownershipViolations(
+      FORM_FAMILIES,
+      files.map((file) => sourceUnit(file)),
+    );
+
+    const legacyBarrel = path.join(
+      dashboardRoot,
+      "src/shared/ui/primitives/index.ts",
+    );
+    if (fs.existsSync(legacyBarrel)) {
+      const legacyUnit = sourceUnit(legacyBarrel);
+      for (const statement of legacyUnit.source.statements) {
+        const moduleSpecifier = ts.isExportDeclaration(statement)
+          ? statement.moduleSpecifier
+          : undefined;
+        if (
+          moduleSpecifier &&
+          ts.isStringLiteral(moduleSpecifier) &&
+          Object.keys(FORM_FAMILIES).some(
+            (family) => moduleSpecifier.text === `../${family}`,
+          )
+        ) {
+          violations.push(
+            `legacy export: ${statement.getText(legacyUnit.source)}`,
+          );
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
   });
 });

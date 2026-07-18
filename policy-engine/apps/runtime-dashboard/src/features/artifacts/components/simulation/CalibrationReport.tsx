@@ -12,7 +12,8 @@ import {
 
 import type { CalibrationModel } from "@/shared/lib/domain/simulation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Select, chartTheme } from "@/shared/ui";
+import { Select } from "@polisyos/atlas-ui";
+import { chartTheme } from "@/shared/ui";
 
 type CalibrationReportProps = {
   calibration: CalibrationModel | null;

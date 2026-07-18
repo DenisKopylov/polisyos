@@ -19,8 +19,8 @@ import {
 import { ReadingViewToggle } from "@/features/artifacts/reading-view/ReadingViewToggle";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { type BadgeTone, Button } from "@polisyos/atlas-ui";
-import { DecisionCard, ProvenanceStrip, Select, chartTheme } from "@/shared/ui";
+import { type BadgeTone, Button, Select } from "@polisyos/atlas-ui";
+import { DecisionCard, ProvenanceStrip, chartTheme } from "@/shared/ui";
 import { UncertaintyBand } from "@/shared/charts";
 import { EvidenceSigil } from "@/shared/brand/EvidenceSigil";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";

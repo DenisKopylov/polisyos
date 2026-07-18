@@ -1,5 +1,5 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { SegmentedControl, Select, ToggleButton } from "@/shared/ui";
+import { SegmentedControl, Select, ToggleButton } from "@polisyos/atlas-ui";
 
 type UncertaintyOverlayProps = {
   enabled: boolean;

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Select } from "@/shared/ui/Select";
+import { Select } from "@polisyos/atlas-ui";
 
 const meta = {
   title: "Shared UI/Select",

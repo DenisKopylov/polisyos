@@ -21,7 +21,9 @@ import {
   Button,
   Card,
   EmptyState,
+  Input,
   PanelSkeleton,
+  Select,
 } from "@polisyos/atlas-ui";
 import {
   copyRow,
@@ -29,8 +31,6 @@ import {
   exportCsv,
   exportJson,
   FilterPanel,
-  Input,
-  Select,
   VirtualTable,
   VIRTUALIZATION_THRESHOLD,
 } from "@/shared/ui";

@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Textarea } from "./Textarea";
+import { Textarea } from "@polisyos/atlas-ui";
 
 describe("Textarea accessibility", () => {
   it("has no detectable accessibility violations", async () => {

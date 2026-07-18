@@ -7,7 +7,7 @@ import { getBlockedRunCount, useRunsSample } from "@/features/runs";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
-import { SegmentedControl } from "@/shared/ui";
+import { SegmentedControl } from "@polisyos/atlas-ui";
 
 function ModeToggle() {
   const { t } = useI18n();

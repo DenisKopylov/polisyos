@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { expect, userEvent, within } from "storybook/test";
 
-import { SegmentedControl } from "@/shared/ui/SegmentedControl";
+import { SegmentedControl } from "@polisyos/atlas-ui";
 
 const WORKSPACE_OPTIONS = [
   {

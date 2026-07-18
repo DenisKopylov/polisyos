@@ -18,9 +18,11 @@ import {
   Button,
   Card,
   EmptyState,
+  Input,
+  Label,
   PanelSkeleton,
+  Select,
 } from "@polisyos/atlas-ui";
-import { Input, Label, Select } from "@/shared/ui";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
   CausalGraphCanvas,

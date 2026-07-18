@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { Search } from "lucide-react";
 import * as atlasUi from "@polisyos/atlas-ui";
 
@@ -46,5 +47,44 @@ describe("foundation primitive migration", () => {
     expect(screen.getByLabelText("Search")).toBeInTheDocument();
     expect(screen.getByTestId("page-skeleton")).toBeInTheDocument();
     expect(screen.getByText("Runtime evidence")).toBeInTheDocument();
+  });
+
+  it("preserves form labels focus and validation after direct package migration", async () => {
+    const user = userEvent.setup();
+
+    expect(Object.keys(atlasUi)).toEqual(
+      expect.arrayContaining([
+        "Checkbox",
+        "Input",
+        "Label",
+        "Radio",
+        "SegmentedControl",
+        "Select",
+        "Slider",
+        "Switch",
+        "Textarea",
+        "ToggleButton",
+      ]),
+    );
+
+    render(
+      <form aria-label="Policy form">
+        <atlasUi.Label htmlFor="policy-title">Policy title</atlasUi.Label>
+        <atlasUi.Input id="policy-title" name="title" required />
+        <atlasUi.Checkbox aria-label="Include evidence" />
+      </form>,
+    );
+
+    const title = screen.getByRole("textbox", { name: "Policy title" });
+    expect(title).toBeInvalid();
+
+    await user.click(screen.getByText("Policy title"));
+    expect(title).toHaveFocus();
+
+    await user.type(title, "Evidence-backed policy");
+    expect(title).toBeValid();
+    expect(
+      screen.getByRole("checkbox", { name: "Include evidence" }),
+    ).toBeInTheDocument();
   });
 });

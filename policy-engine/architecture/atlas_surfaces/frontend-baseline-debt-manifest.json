@@ -82,7 +82,7 @@
         "message_id",
         "message"
       ],
-      "sha256": "878834bb60af1ca3e5336fcfe648bbe2e78a7541bf6a55be3f3c0fac17730757"
+      "sha256": "3a0af02a1ba643962e83096bdcddc46dd5a637f4c4060c0a7309279f259e1648"
     },
     "files": [
       {
@@ -181,7 +181,7 @@
       },
       {
         "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-        "content_sha256": "12cd62cee5eef912517b1aef061feb2b205a7bd8b919293faad6d4e67881bcf8",
+        "content_sha256": "2c0049c0c139e6ae61d102bac3134d98f8b3bd3a294afcb2dd08e59b4576d943",
         "diagnostic_count": 2,
         "rule_counts": [
           {
@@ -194,9 +194,9 @@
             "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
             "rule_id": "policyos/quantity-must-be-wrapped",
             "severity": 2,
-            "line": 228,
+            "line": 224,
             "column": 65,
-            "end_line": 228,
+            "end_line": 224,
             "end_column": 68,
             "message_id": "decision",
             "message": "Decision numeric literal \"250\" must be emitted as QuantityValue and rendered through <Quantity>."
@@ -205,9 +205,9 @@
             "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
             "rule_id": "policyos/quantity-must-be-wrapped",
             "severity": 2,
-            "line": 410,
+            "line": 406,
             "column": 24,
-            "end_line": 410,
+            "end_line": 406,
             "end_column": 25,
             "message_id": "decision",
             "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."

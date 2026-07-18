@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import type { NodeDebugPayload, RunNodesPayload } from "@/api/validators";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
-import { Badge } from "@polisyos/atlas-ui";
-import { JsonPreview, Select } from "@/shared/ui";
+import { Badge, Select } from "@polisyos/atlas-ui";
+import { JsonPreview } from "@/shared/ui";
 
 function statusKind(status: string) {
   const normalized = status.toLowerCase();

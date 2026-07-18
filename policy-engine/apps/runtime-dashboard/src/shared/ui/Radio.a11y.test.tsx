@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Radio } from "./Radio";
+import { Radio } from "@polisyos/atlas-ui";
 
 describe("Radio accessibility", () => {
   it("has no detectable accessibility violations", async () => {

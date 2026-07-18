@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Checkbox } from "@/shared/ui/Checkbox";
+import { Checkbox } from "@polisyos/atlas-ui";
 
 const meta = {
   title: "Shared UI/Checkbox",

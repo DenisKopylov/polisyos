@@ -14,8 +14,12 @@ import {
 import MetricValidationComparisonTable from "@/features/artifacts/components/MetricValidationComparisonTable";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { UncertaintyBand } from "@/shared/charts";
-import { Select, chartTheme } from "@/shared/ui";
-import type { SimulationMetric, TimeSeries } from "@/shared/lib/domain/simulation";
+import { Select } from "@polisyos/atlas-ui";
+import { chartTheme } from "@/shared/ui";
+import type {
+  SimulationMetric,
+  TimeSeries,
+} from "@/shared/lib/domain/simulation";
 import type {
   MetricValidationComparisonRow,
   MetricValidationFamilyAdjustment,

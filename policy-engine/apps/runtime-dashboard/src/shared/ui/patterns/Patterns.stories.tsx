@@ -1,17 +1,17 @@
 import { useId, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Badge, Button, Card } from "@polisyos/atlas-ui";
 import {
+  Badge,
+  Button,
+  Card,
   Checkbox,
-  DetailLayout,
-  FilterPanel,
   Radio,
-  SearchableList,
   SegmentedControl,
   Switch,
   ToggleButton,
-} from "@/shared/ui";
+} from "@polisyos/atlas-ui";
+import { DetailLayout, FilterPanel, SearchableList } from "@/shared/ui";
 
 const meta = {
   title: "Design System/Patterns",

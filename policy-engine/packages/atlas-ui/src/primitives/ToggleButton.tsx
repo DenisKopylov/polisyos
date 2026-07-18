@@ -5,7 +5,7 @@ import {
   type ReactNode,
 } from "react";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 type ToggleButtonProps = Omit<
   ButtonHTMLAttributes<HTMLButtonElement>,

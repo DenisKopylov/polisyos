@@ -1,7 +1,7 @@
 import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 const Label = forwardRef<
   HTMLLabelElement,

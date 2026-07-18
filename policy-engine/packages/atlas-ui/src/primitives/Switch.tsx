@@ -1,7 +1,7 @@
 import { forwardRef, type ComponentPropsWithoutRef } from "react";
 import * as SwitchPrimitive from "@radix-ui/react-switch";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 const Switch = forwardRef<
   HTMLButtonElement,

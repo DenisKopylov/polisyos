@@ -4,7 +4,7 @@ import {
   type AuthorshipHighlightMode,
 } from "@/shared/ui/authored-text";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { SegmentedControl } from "@/shared/ui";
+import { SegmentedControl } from "@polisyos/atlas-ui";
 
 const AUTHORSHIP_OPTIONS =
   AUTHORSHIP_HIGHLIGHT_MODES satisfies readonly AuthorshipHighlightMode[];

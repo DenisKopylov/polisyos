@@ -30,15 +30,17 @@ import {
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 import { Glyph } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
-import { Badge, Button, PanelSkeleton } from "@polisyos/atlas-ui";
 import {
-  ApiErrorAlert,
+  Badge,
+  Button,
   Input,
   Label,
+  PanelSkeleton,
   Radio,
   Select,
   Textarea,
-} from "@/shared/ui";
+} from "@polisyos/atlas-ui";
+import { ApiErrorAlert } from "@/shared/ui";
 import {
   buildNaturalLanguageLaunchRequest,
   buildWorkflowLaunchRequest,

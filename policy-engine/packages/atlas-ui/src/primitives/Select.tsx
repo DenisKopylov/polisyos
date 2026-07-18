@@ -1,6 +1,6 @@
 import { forwardRef, type SelectHTMLAttributes } from "react";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 type NativeSelectProps = SelectHTMLAttributes<HTMLSelectElement>;
 

@@ -37,15 +37,11 @@ import {
 import { useDebouncedValue } from "@/shared/lib/hooks";
 import { useAlertDialog } from "@/app/providers/AlertDialogProvider";
 import { useToast } from "@/app/providers/ToastProvider";
-import { Button, Card } from "@polisyos/atlas-ui";
+import { Button, Card, Input, Label, Select, Switch } from "@polisyos/atlas-ui";
 import {
   ApiErrorAlert,
   exportCsv,
   exportJson,
-  Input,
-  Label,
-  Select,
-  Switch,
   VirtualList,
   VIRTUALIZATION_THRESHOLD,
 } from "@/shared/ui";

@@ -229,3 +229,101 @@ now also has explicit prop, style, and ref-forwarding acceptance coverage.
   journal, and required DS19 baseline-anchor maintenance. Backend, schema,
   generated-client, v15, Russian locale, master-plan, CI, and other-worktree
   paths remain untouched.
+
+## 2026-07-18 — DS4-C02 form primitive migration
+
+### Red-first receipt and owner decision
+
+- Before any positive source edit, the exact `oneOwner` C02 test failed with
+  twenty intended findings: ten dashboard implementation owners plus ten
+  legacy primitive-barrel exports, with all ten package owners absent.
+- Before any positive source edit, the exact dashboard `primitiveMigration`
+  C02 test failed because the package runtime surface exposed none of
+  `Checkbox`, `Input`, `Label`, `Radio`, `SegmentedControl`, `Select`,
+  `Slider`, `Switch`, `Textarea`, or `ToggleButton`.
+- The existing implementations were migrated rather than redesigned. Their
+  native validity and refs, Radix props, generic string option values, and
+  toggle cancellation semantics remain the acceptance contract. No authority
+  vocabulary, status union, or semantic classification entered the package.
+
+### Implementation
+
+- Moved all ten form/control owners into `@polisyos/atlas-ui`, exported them
+  only through the package root, migrated dashboard consumers/tests/stories to
+  direct package imports, deleted the dashboard implementation files, and
+  removed the ten legacy barrel exports without a compatibility shim.
+- Rebound the existing native Trust View input in
+  `BureaucraticArtifactView` to package `Checkbox`; its consumer test proves
+  the `atlas-checkbox` owner and the existing query-state transition together.
+- Generalized the C01 AST owner scanner across named primitive families while
+  retaining its duplicate-owner and package re-export negatives. The package
+  public-surface gate now accounts for the ten additional runtime exports.
+- Added behavior coverage for label/required validity, forwarded native refs,
+  Checkbox change, Radio grouping, Select/Textarea validity, generic opaque
+  segmented values, disabled segmented suppression, Radix Switch/Slider
+  props, and ToggleButton cancellation/default button posture. Added package
+  axe coverage for the whole form family and the required ResizeObserver test
+  harness support used by Radix Slider.
+- Added only the already-locked Radix Label, Slider, and Switch dependencies
+  to the package importer. The unrelated `third-party-web` lockfile resolution
+  movement produced by lockfile regeneration was restored before the frozen
+  install receipt.
+- `ui-primitives-root` remains `rebind_pending`/`pending` until C03; no DS19
+  state or denominator changed. Import movement refreshed only the
+  `DataIntelligencePanel` baseline content hash/diagnostic anchors and the two
+  protected browser-signing census line anchors; lint remains 75 identities
+  and the protected census remains 24 references.
+
+### Verification receipt
+
+| Gate                                      | Result                                                                                                                                                |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| frozen install                            | PASS; lockfile up to date; only three existing Radix resolutions added to the `packages/atlas-ui` importer                                            |
+| atlas-ui lint/typecheck/test/architecture | PASS; 6 files / 13 tests; 20 source files inspected                                                                                                   |
+| dashboard typecheck and production build  | PASS; 3,873 modules, 101 PWA precache entries, postbuild security and package Tailwind-source proof green                                             |
+| exact C02 migration test                  | PASS; 1 file / 2 tests, including label focus and required validity through direct package imports                                                    |
+| affected dashboard unit tests             | PASS; 7 files / 18 tests; separate BureaucraticArtifactView structural a11y test PASS                                                                 |
+| migrated dashboard a11y tests             | PASS; 10 files / 10 tests through the existing shared-UI a11y contour                                                                                 |
+| dashboard full lint JSON                  | inherited 75 errors in 22 files, zero warnings, only `policyos/quantity-must-be-wrapped`; baseline subset comparator PASS after honest anchor refresh |
+| dashboard architecture                    | inherited 36 exact violations, no C02 class added                                                                                                     |
+| disposition register                      | PASS with source-byte binding, current lint identities, and corruption probes; 261 roots, 200 `rebind_pending`, 23 seeded negatives, and 7 censuses   |
+
+The first full-lint run correctly caught four new `import/no-duplicates`
+reports in two consumers after the mechanical path migration. Their package
+imports were consolidated, and the fresh final lint receipt returned to the
+exact inherited 75-identity set. C02 runs affected tests at the cluster
+boundary; the next full Vitest baseline comparison remains the C05 wave
+boundary required by the committed cadence.
+
+### Fence receipt
+
+- Retired-owner and shared-barrel scans return no form-family consumer,
+  test, story, or compatibility path; the package owner test is green.
+- The C02 diff is confined to dashboard sources, `packages/atlas-ui`, the
+  bounded package-importer lockfile hunk, DS4 journal, and required DS19
+  manifest/census anchors. Backend, schemas, generated client, v15 archive,
+  frozen Russian locale, master plan, CI, and other worktrees are untouched.
+
+## 2026-07-18 — C03 clean-boundary preflight stop
+
+- A read-only AST/import census after C02 found living production consumers
+  for `Command`, `Dialog`, `Popover`, and `Tooltip`.
+- The same census found no production consumer for `DropdownMenu`,
+  `ScrollArea`, `Separator`, `Sheet`, or `Tabs`; their only current consumers
+  are owner-local tests/stories and the legacy barrel. Those are not the live
+  consumer evidence required by the committed C01-C03 one-owner strangle law.
+- This is structural rather than a search artifact: the run page's apparent
+  tabs are route navigation links; `BottomSheet` is the gesture/snap family
+  assigned to C17 rather than a `Sheet` consumer; no product dropdown-menu
+  use exists; and generic overflow/divider markup is not evidence that the
+  dormant `ScrollArea` or `Separator` owner is consumed.
+- Migrating the five dormant owners would therefore create a package-only
+  component universe and conflict with the DS2 `component-tabs` and
+  `component-scroll-area` rows, which require living consumer evidence before
+  adoption. Inventing replacement consumers would exceed the approved rebind
+  scope and could change navigation or interaction semantics.
+- No C03 production, register, or manifest edit was made. The proposed re-cut
+  is C03a for the four consumed families, with aggregate
+  `ui-primitives-root` retained as `rebind_pending`/`pending`; the architect
+  must adjudicate the dormant five as retirement/use-as-is or name their real
+  consumers before the aggregate row can be strangled.

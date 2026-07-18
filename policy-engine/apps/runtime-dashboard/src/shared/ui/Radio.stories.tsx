@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Radio } from "@/shared/ui/Radio";
+import { Radio } from "@polisyos/atlas-ui";
 
 const meta = {
   title: "Shared UI/Radio",

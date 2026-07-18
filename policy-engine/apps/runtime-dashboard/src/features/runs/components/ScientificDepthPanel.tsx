@@ -16,8 +16,7 @@ import {
   formatNumber,
   formatPercent,
 } from "@/shared/lib/utils";
-import { Badge, Button } from "@polisyos/atlas-ui";
-import { Slider } from "@/shared/ui/Slider";
+import { Badge, Button, Slider } from "@polisyos/atlas-ui";
 
 const IDENTIFIABILITY_STATES: IdentifiabilityState[] = [
   "point",

@@ -2,13 +2,14 @@
 plan_id: atlas-ds4-status-grammar-rebinding
 title: "DS4 - Status-Grammar Rebinding And Test Harness"
 type: slice-plan
-status: blocked_before_implementation - architect decision required
+status: in_progress - architect-authorized authority-neutral partial re-cut
 created: 2026-07-18
 revised: 2026-07-18
 last_verified: 2026-07-18
 stability: executable_after_c00
 slice: DS4
 baseline_commit: 71f438ad52f668e1feb7510652ff5fd3b735bd62
+execution_base_commit: 61d354f62023460a45c60c913976cdfc4b779cf5
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 surface_constitution: ../../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 ds0_record: ../../../brand/ATLAS_SOURCE_OF_TRUTH.md
@@ -36,8 +37,9 @@ depends_on:
 > `superpowers:test-driven-development` for every behavior change,
 > `superpowers:subagent-driven-development` for independent family clusters,
 > and `superpowers:verification-before-completion` before every cluster commit.
-> Do not start production cluster DS4-C01 until DS4-C00 is resolved in the
-> canonical owner. Do not merge or push; close with an architect-review handoff.
+> DS4-C00 is resolved by the architect-authorized authority-neutral partial
+> re-cut recorded below. Do not merge or push; close with an architect-review
+> handoff.
 
 **Goal:** Make the runtime's authority vocabulary the only semantic source on
 the glass by rebinding the living dashboard families, retiring UI-local
@@ -62,8 +64,9 @@ ESLint, JSON Schema, DTCG JSON, and repository architecture guardrails.
 ## Binding fence and no-merge posture
 
 - Worktree: `.worktrees/atlas-ds4`; branch:
-  `codex/atlas-ds4-status-grammar`; base:
-  `71f438ad52f668e1feb7510652ff5fd3b735bd62`.
+  `codex/atlas-ds4-status-grammar`; measured baseline:
+  `71f438ad52f668e1feb7510652ff5fd3b735bd62`; C01 execution base:
+  `61d354f62023460a45c60c913976cdfc4b779cf5`.
 - Writable: `apps/runtime-dashboard/**`, new `packages/atlas-ui/**`,
   `architecture/atlas_surfaces/**`, `docs/plans/active/atlas-slices/DS4-*`,
   `docs/reference/frontend/**`, and this single DS4 journal.
@@ -126,6 +129,40 @@ the owner and expected denominator; the branch will not silently relabel it.
 owner-declared known-core/opaque-extension contracts with composition and novel
 value tests, or an explicit partial re-cut. Until then the truthful slice state is
 `blocked_before_implementation`, and only this plan/journal cluster may land.
+
+### C00 resolution — architect-authorized authority-neutral partial re-cut
+
+The architect selected the explicit partial re-cut. C01-C20 may execute using
+existing typed contracts and neutral presentation swap modules; only the
+missing waist vocabularies remain deferred. Open terminal and evidence labels
+remain opaque end-to-end: the dashboard may pass and display them verbatim in a
+neutral posture and must not order, recolor, compose, or promote them. This
+does not authorize a frontend authority vocabulary and does not make DS4
+complete.
+
+For each absent vocabulary there will be exactly one future normalization
+module. It must pass owner labels through opaquely, return only the explicit
+presentation-only `unrecognized` classification for values outside a declared
+owner contract, and export no vocabulary constants. The assigned singular
+owners are cache-age in C09, decision-grade in C14, and CGF disposition in C19
+with real-panel proof. A different owner mapping requires an explicit topology
+finding and this plan/journal amendment; it cannot be introduced ad hoc by a
+consumer.
+
+C05 owns a dedicated typed DS4 waist-debt register under
+`architecture/atlas_surfaces/`. It will contain exactly three DS5-waist-owned
+rows, each labeled `bridge_missing` and `surface_missing` with its exact
+generated-client anchor. Those non-estate gaps must not mutate the measured
+261-entry DS1/DS19 denominator. C20/final closure flags all three for
+architect insertion into the master inherited-debt table.
+
+The architect also resolved the test-debt denominator: C09 classifies the
+temporal cursor root cause and repairs test-clock injection unless product
+semantics are genuinely wrong; C12 repairs the `OperatorDiagnosticPanel` a11y
+census; the three locale-parity identities remain untouched. The final expected
+Vitest denominator is three failures in one file. `ui-primitives-root` remains
+`rebind_pending`/`pending` through C01 and crosses its committed aggregate
+transition boundary only in C03.
 
 ## Measured baseline receipt
 
@@ -508,16 +545,16 @@ successor/consumer evidence.
 
 The evidence primitives are assembled by rebinding first:
 
-| Primitive              | Owning cluster | One owner / source family                                                                                                            | Build decision                                                           |
-| ---------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ |
-| `AuthorityBadge`       | C12            | package wrapper over package `Badge`; semantic posture supplied only by an owner-declared known core, with opaque extensions neutral | new define-once shell, blocked at C00 for missing composition vocabulary |
-| `CandidateFrame`       | C14            | dashboard `DecisionCard` + C10-authored-text posture                                                                                 | rebind; never infer human review                                         |
-| `BlockerCard`          | C14            | dashboard `NegativeCertificateCard` + C12 `OperatorDiagnosticPanel`                                                                  | rebind                                                                   |
-| `EnvelopeChip`         | C12            | `@polisyos/atlas-ui`                                                                                                                 | genuinely new define-once primitive                                      |
-| `EvidenceLink`         | C12            | `@polisyos/atlas-ui`                                                                                                                 | genuinely new define-once primitive                                      |
-| `ProvenancePopover`    | C06            | existing dashboard quantity family                                                                                                   | rebind; no duplicate package owner                                       |
-| `TimeSemanticsLabel`   | C09            | dashboard temporal/trust families using typed `ProjectionFreshness`                                                                  | rebind for declared semantics only                                       |
-| `WeakestLinkExplainer` | C14            | dashboard diagnostic/certificate families                                                                                            | rebind; display producer-supplied weakest link verbatim, never recompute |
+| Primitive              | Owning cluster | One owner / source family                                                                                                            | Build decision                                                                        |
+| ---------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `AuthorityBadge`       | C12            | package wrapper over package `Badge`; semantic posture supplied only by an owner-declared known core, with opaque extensions neutral | new define-once shell under the authorized neutral re-cut; no local closed vocabulary |
+| `CandidateFrame`       | C14            | dashboard `DecisionCard` + C10-authored-text posture                                                                                 | rebind; never infer human review                                                      |
+| `BlockerCard`          | C14            | dashboard `NegativeCertificateCard` + C12 `OperatorDiagnosticPanel`                                                                  | rebind                                                                                |
+| `EnvelopeChip`         | C12            | `@polisyos/atlas-ui`                                                                                                                 | genuinely new define-once primitive                                                   |
+| `EvidenceLink`         | C12            | `@polisyos/atlas-ui`                                                                                                                 | genuinely new define-once primitive                                                   |
+| `ProvenancePopover`    | C06            | existing dashboard quantity family                                                                                                   | rebind; no duplicate package owner                                                    |
+| `TimeSemanticsLabel`   | C09            | dashboard temporal/trust families using typed `ProjectionFreshness`                                                                  | rebind for declared semantics only                                                    |
+| `WeakestLinkExplainer` | C14            | dashboard diagnostic/certificate families                                                                                            | rebind; display producer-supplied weakest link verbatim, never recompute              |
 
 `fixture_only` is not a new local vocabulary. Its canonical type is the indexed
 generated type
@@ -706,7 +743,8 @@ Then prove:
 - status inventory reconciles the 47 DS1 rows and a revived local authority enum
   fails generically;
 - quantity is 75 -> N with every remainder itemized; target zero;
-- temporal-cursor is closed; a11y denominator follows the C00 decision;
+- temporal-cursor and OperatorDiagnosticPanel a11y identities are closed;
+  Vitest moves from five failures to the three untouched i18n parity identities;
 - architecture is 36 -> N with every remainder itemized; target zero;
 - all nine token gaps have closed/open evidence and no unproved sunset claim;
 - visual/a11y/semantic negatives exercise runtime properties, not markers;

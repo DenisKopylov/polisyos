@@ -2,7 +2,7 @@ import { axe } from "vitest-axe";
 
 import { renderWithProviders } from "@/test/render";
 
-import { Button } from "./Button";
+import { Button } from "@polisyos/atlas-ui";
 
 describe("Button accessibility", () => {
   it("has no detectable accessibility violations as a link action", async () => {

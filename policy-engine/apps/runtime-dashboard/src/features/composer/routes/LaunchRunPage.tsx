@@ -14,7 +14,8 @@ import { cn, formatNumber } from "@/shared/lib/utils";
 import { Glyph } from "@/shared/brand/Glyph";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
-import { Badge, Button, ProvenanceStrip } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
+import { ProvenanceStrip } from "@/shared/ui";
 import { parseComposerSearchParams } from "../domain/searchParams";
 import {
   NaturalLanguageComposerSection,

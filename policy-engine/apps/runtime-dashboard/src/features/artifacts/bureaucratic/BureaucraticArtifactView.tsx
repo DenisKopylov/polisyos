@@ -4,7 +4,7 @@ import { Download, FileCheck2, Printer } from "lucide-react";
 import { useBureaucraticRender } from "@/api/hooks/useBureaucraticRender";
 import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
-import { Button } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
 
 import {
   type BureaucraticDocumentAST,
@@ -138,11 +138,7 @@ export function BureaucraticArtifactView({
   );
 }
 
-function RendererForGenre({
-  document,
-}: {
-  document: BureaucraticDocumentAST;
-}) {
+function RendererForGenre({ document }: { document: BureaucraticDocumentAST }) {
   if (document.genre === "zakonoproekt") {
     return <ZakonoproektRenderer document={document} />;
   }

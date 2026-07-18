@@ -42,11 +42,9 @@ import {
   PageErrorBoundary,
   PanelErrorBoundary,
 } from "@/shared/components/ErrorBoundary";
+import { Badge, Button, Card } from "@polisyos/atlas-ui";
 import {
   ApiErrorAlert,
-  Badge,
-  Button,
-  Card,
   DetailLayout,
   OperatorDiagnosticPanel,
   ProvenanceStrip,

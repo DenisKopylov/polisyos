@@ -2,8 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { RuntimeApiRequestError } from "@/api/http";
 import { ApiErrorAlert } from "@/shared/ui/ApiErrorAlert";
-import { Button } from "@/shared/ui/Button";
-import { EmptyState } from "@/shared/ui/EmptyState";
+import { Button, EmptyState } from "@polisyos/atlas-ui";
 
 const meta = {
   title: "Shared UI/Feedback",

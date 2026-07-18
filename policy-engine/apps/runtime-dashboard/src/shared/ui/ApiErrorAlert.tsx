@@ -1,3 +1,5 @@
+import { Text, type AsyncSectionErrorPresentation } from "@polisyos/atlas-ui";
+
 import { RuntimeApiRequestError } from "@/api/http";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 
@@ -13,9 +15,17 @@ export function ApiErrorAlert({ error, title }: ApiErrorAlertProps) {
   if (error instanceof RuntimeApiRequestError) {
     return (
       <div className="atlas-error">
-        <p className="text-danger font-semibold">{resolvedTitle}</p>
-        <p className="text-danger mt-1">{error.detail}</p>
-        <p className="text-danger/80 mt-2 font-mono text-xs">
+        <Text as="p" typography={false} className="text-danger font-semibold">
+          {resolvedTitle}
+        </Text>
+        <Text as="p" typography={false} className="text-danger mt-1">
+          {error.detail}
+        </Text>
+        <Text
+          as="p"
+          typography={false}
+          className="text-danger/80 mt-2 font-mono text-xs"
+        >
           <span>
             {t("shared.ui.apiErrorAlert.status", { status: error.status })}
           </span>{" "}
@@ -30,15 +40,26 @@ export function ApiErrorAlert({ error, title }: ApiErrorAlertProps) {
               </span>
             </>
           ) : null}
-        </p>
+        </Text>
       </div>
     );
   }
 
   return (
     <div className="atlas-error text-danger">
-      <p className="font-semibold">{resolvedTitle}</p>
-      <p className="mt-1">{String(error)}</p>
+      <Text as="p" typography={false} className="font-semibold">
+        {resolvedTitle}
+      </Text>
+      <Text as="p" typography={false} className="mt-1">
+        {String(error)}
+      </Text>
     </div>
   );
+}
+
+export function renderApiErrorAlert({
+  error,
+  title,
+}: AsyncSectionErrorPresentation) {
+  return <ApiErrorAlert error={error} title={title} />;
 }

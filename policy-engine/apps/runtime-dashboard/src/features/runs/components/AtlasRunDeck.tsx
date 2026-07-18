@@ -1,6 +1,6 @@
 import type { RunDeckSnapshot } from "@/features/runs/domain/compare";
 import { AtlasBrand } from "@/shared/brand/AtlasBrand";
-import { Badge, Button } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
 
 export type AtlasRunDeckSlideId =
   | "cover"

@@ -10,7 +10,7 @@ import {
 } from "@/app/providers/temporal-scope";
 import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
 import { useMaybeReducedMotionPreference } from "@/shared/a11y";
-import { Button } from "@/shared/ui/primitives";
+import { Button } from "@polisyos/atlas-ui";
 import { cn } from "@/shared/lib/utils";
 import { TemporalCursorMarker } from "./TemporalCursorMarker";
 import { TemporalLegend } from "./TemporalLegend";

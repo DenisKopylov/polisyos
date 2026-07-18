@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
 
-import { Badge, Card } from "@/shared/ui/primitives";
-import type { BadgeKind } from "@/shared/ui/Badge";
+import { Badge, Card, type BadgeTone } from "@polisyos/atlas-ui";
 
 export type DecisionCardDiagnostic = {
-  kind?: BadgeKind;
+  kind?: BadgeTone;
   label: string;
 };
 
@@ -12,9 +11,9 @@ type DecisionCardProps = {
   title: string;
   subtitle?: ReactNode;
   verdict: ReactNode;
-  verdictKind?: BadgeKind;
+  verdictKind?: BadgeTone;
   confidence?: ReactNode;
-  confidenceKind?: BadgeKind;
+  confidenceKind?: BadgeTone;
   summary?: ReactNode;
   diagnostics?: DecisionCardDiagnostic[];
   meta?: Array<{

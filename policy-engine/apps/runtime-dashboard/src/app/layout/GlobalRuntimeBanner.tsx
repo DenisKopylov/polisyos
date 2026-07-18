@@ -1,5 +1,5 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Button } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
 import { useRuntimeApiIncident } from "@/app/providers/RuntimeApiProvider";
 
 function resolveBannerTone(status: number) {

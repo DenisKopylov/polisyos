@@ -1,8 +1,6 @@
 import type React from "react";
 
-import { cn } from "@/shared/lib/utils";
-
-/* ── Base block ── */
+import { cn } from "../lib/cn";
 
 export function SkeletonBlock({
   className,
@@ -21,8 +19,6 @@ export function SkeletonBlock({
   );
 }
 
-/* ── Semantic variants ── */
-
 export function SkeletonText({
   lines = 3,
   className,
@@ -36,10 +32,10 @@ export function SkeletonText({
       aria-hidden="true"
       data-testid="skeleton-text"
     >
-      {Array.from({ length: lines }, (_, i) => (
+      {Array.from({ length: lines }, (_, index) => (
         <SkeletonBlock
-          key={i}
-          className={cn("h-4", i === lines - 1 ? "w-3/5" : "w-full")}
+          key={index}
+          className={cn("h-4", index === lines - 1 ? "w-3/5" : "w-full")}
         />
       ))}
     </div>
@@ -55,11 +51,11 @@ export function SkeletonChart({ className }: { className?: string }) {
     >
       <SkeletonBlock className="mb-3 h-4 w-32" />
       <div className="flex items-end gap-1.5 pt-2" style={{ height: 120 }}>
-        {[40, 65, 55, 80, 70, 90, 50, 75, 85, 60].map((h, i) => (
+        {[40, 65, 55, 80, 70, 90, 50, 75, 85, 60].map((height, index) => (
           <SkeletonBlock
-            key={i}
+            key={index}
             className="flex-1 rounded-sm"
-            style={{ height: `${h}%` }}
+            style={{ height: `${height}%` }}
           />
         ))}
       </div>
@@ -106,19 +102,19 @@ export function SkeletonTable({
       data-testid="skeleton-table"
     >
       <div className="border-border flex gap-3 border-b p-3">
-        {Array.from({ length: cols }, (_, i) => (
-          <SkeletonBlock key={i} className="h-4 flex-1" />
+        {Array.from({ length: cols }, (_, index) => (
+          <SkeletonBlock key={index} className="h-4 flex-1" />
         ))}
       </div>
-      {Array.from({ length: rows }, (_, r) => (
+      {Array.from({ length: rows }, (_, row) => (
         <div
-          key={r}
+          key={row}
           className="border-border flex gap-3 border-b p-3 last:border-0"
         >
-          {Array.from({ length: cols }, (_, c) => (
+          {Array.from({ length: cols }, (_, column) => (
             <SkeletonBlock
-              key={c}
-              className={cn("h-4 flex-1", c === 0 && "w-2/3 flex-none")}
+              key={column}
+              className={cn("h-4 flex-1", column === 0 && "w-2/3 flex-none")}
             />
           ))}
         </div>
@@ -126,8 +122,6 @@ export function SkeletonTable({
     </div>
   );
 }
-
-/* ── Legacy composites (backward-compatible) ── */
 
 export function PageSkeleton() {
   return (

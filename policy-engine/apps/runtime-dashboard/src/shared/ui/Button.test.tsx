@@ -2,7 +2,7 @@
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-import { Button } from "./Button";
+import { Button } from "@polisyos/atlas-ui";
 
 describe("Button", () => {
   it("renders as router link when `to` is provided", () => {

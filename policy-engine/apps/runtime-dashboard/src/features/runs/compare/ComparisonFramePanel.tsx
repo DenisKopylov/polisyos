@@ -1,7 +1,7 @@
 import { AlertTriangle, CheckCircle2, CircleSlash } from "lucide-react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge } from "@/shared/ui";
+import { Badge } from "@polisyos/atlas-ui";
 
 import { comparabilityTone } from "./compare-math";
 import type { ComparabilityReport, ComparisonFrame } from "./compare-types";

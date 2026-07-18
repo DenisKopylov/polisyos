@@ -1,7 +1,7 @@
 import type { components } from "@/api/types";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Badge } from "./Badge";
+import { Badge } from "@polisyos/atlas-ui";
 
 type ControlOperatorDiagnostic = NonNullable<
   components["schemas"]["ControlJobResponse"]["operator_diagnostic"]

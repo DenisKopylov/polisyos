@@ -19,7 +19,8 @@ import {
 import { BureaucraticArtifactView } from "@/features/artifacts/bureaucratic/BureaucraticArtifactView";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatBytes, formatDate } from "@/shared/lib/utils";
-import { ApiErrorAlert, Card, EmptyState, LineageGraph } from "@/shared/ui";
+import { Card, EmptyState } from "@polisyos/atlas-ui";
+import { ApiErrorAlert, LineageGraph } from "@/shared/ui";
 
 const PREVIEW_LIMITS = [64 * 1024, 256 * 1024, 1024 * 1024, 2_000_000] as const;
 

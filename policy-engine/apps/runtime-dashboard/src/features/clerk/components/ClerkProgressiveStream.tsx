@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Badge } from "@/shared/ui/primitives";
+import { Badge } from "@polisyos/atlas-ui";
 import { AuthoredText } from "@/shared/ui/authored-text";
 
 type ClerkProgressiveStreamProps = {

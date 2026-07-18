@@ -2,8 +2,7 @@ import type { ReactNode } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Badge, Card } from "@/shared/ui/primitives";
-import type { BadgeKind } from "@/shared/ui/Badge";
+import { Badge, Card, type BadgeTone } from "@polisyos/atlas-ui";
 
 export type BlockingType = string;
 
@@ -23,7 +22,7 @@ type NegativeCertificateCardProps = {
   className?: string;
 };
 
-const FEASIBILITY_KIND: Record<string, BadgeKind> = {
+const FEASIBILITY_KIND: Record<string, BadgeTone> = {
   high: "ok",
   medium: "warn",
   low: "fail",
@@ -38,7 +37,7 @@ export function NegativeCertificateCard({
   className,
 }: NegativeCertificateCardProps) {
   const { t } = useI18n();
-  const blockingLabels: Record<string, { label: string; kind: BadgeKind }> = {
+  const blockingLabels: Record<string, { label: string; kind: BadgeTone }> = {
     identification_failure: {
       kind: "fail",
       label: t(

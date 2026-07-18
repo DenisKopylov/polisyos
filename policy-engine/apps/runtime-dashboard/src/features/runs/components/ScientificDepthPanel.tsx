@@ -10,8 +10,13 @@ import {
 } from "@/features/runs/domain/scientificDepth";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { cn, formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
-import { Badge, Button } from "@/shared/ui";
+import {
+  cn,
+  formatDate,
+  formatNumber,
+  formatPercent,
+} from "@/shared/lib/utils";
+import { Badge, Button } from "@polisyos/atlas-ui";
 import { Slider } from "@/shared/ui/Slider";
 
 const IDENTIFIABILITY_STATES: IdentifiabilityState[] = [

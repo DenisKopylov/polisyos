@@ -5,8 +5,7 @@ import {
   type OperatorDiagnosticView,
 } from "@/shared/ui/OperatorDiagnosticPanel";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge } from "@/shared/ui";
-import type { BadgeKind } from "@/shared/ui/Badge";
+import { Badge, type BadgeTone } from "@polisyos/atlas-ui";
 
 type ControlFailureEnvelope = components["schemas"]["ControlFailureEnvelope"];
 type ControlJobResponse = components["schemas"]["ControlJobResponse"];
@@ -227,7 +226,7 @@ function evidencePathFromJob(
   );
 }
 
-function qualityBadgeKind(status: string | null | undefined): BadgeKind {
+function qualityBadgeKind(status: string | null | undefined): BadgeTone {
   if (status === "fail") {
     return "fail";
   }
@@ -240,7 +239,7 @@ function qualityBadgeKind(status: string | null | undefined): BadgeKind {
   return "neutral";
 }
 
-function approvalBadgeKind(readiness: ApprovalReadiness): BadgeKind {
+function approvalBadgeKind(readiness: ApprovalReadiness): BadgeTone {
   if (readiness.eligible === true || readiness.state === "approval_ready") {
     return "ok";
   }
@@ -253,7 +252,7 @@ function approvalBadgeKind(readiness: ApprovalReadiness): BadgeKind {
   return "neutral";
 }
 
-function gateBadgeKind(status: string | null | undefined): BadgeKind {
+function gateBadgeKind(status: string | null | undefined): BadgeTone {
   if (status === "fail") {
     return "fail";
   }
@@ -265,7 +264,7 @@ function gateBadgeKind(status: string | null | undefined): BadgeKind {
 
 function performanceIssueBadgeKind(
   status: string | null | undefined,
-): BadgeKind {
+): BadgeTone {
   if (status === "fail" || status === "failed") {
     return "fail";
   }
@@ -278,7 +277,7 @@ function performanceIssueBadgeKind(
 function calibrationBadgeKind(
   status: string | null | undefined,
   signalCodes: string[],
-): BadgeKind {
+): BadgeTone {
   if (
     status === "fail" ||
     signalCodes.some((code) => code.includes("_fail_"))

@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vite",
     "dev:mock": "VITE_USE_MOCKS=true vite",
-    "build": "corepack pnpm run typecheck && vite build && node ./scripts/postbuild-security.mjs",
+    "build": "corepack pnpm run typecheck && vite build && node ./scripts/postbuild-security.mjs && node ./scripts/check-atlas-ui-tailwind-source.mjs",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build --output-dir ../../_build/apps/runtime-dashboard/storybook-static",
@@ -75,6 +75,7 @@
     "prepare": "LEFTHOOK_CONFIG=policy-engine/apps/runtime-dashboard/lefthook.yml lefthook install --force"
   },
   "dependencies": {
+    "@polisyos/atlas-ui": "workspace:*",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",

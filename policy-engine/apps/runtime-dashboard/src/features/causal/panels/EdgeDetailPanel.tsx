@@ -1,6 +1,6 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Card } from "@/shared/ui/primitives";
+import { Card } from "@polisyos/atlas-ui";
 import { GradedErrorBar } from "@/shared/charts";
 import { MethodologyBadge } from "@/shared/ui/compounds";
 

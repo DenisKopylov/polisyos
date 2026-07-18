@@ -1,10 +1,8 @@
 import { useId, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { Badge, Button, Card } from "@polisyos/atlas-ui";
 import {
-  Badge,
-  Button,
-  Card,
   Checkbox,
   DetailLayout,
   FilterPanel,

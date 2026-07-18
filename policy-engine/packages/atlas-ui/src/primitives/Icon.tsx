@@ -1,8 +1,8 @@
-import { forwardRef, type SVGAttributes } from "react";
-import type { LucideIcon, LucideProps } from "lucide-react";
 import { cva, type VariantProps } from "class-variance-authority";
+import type { LucideIcon, LucideProps } from "lucide-react";
+import { forwardRef, type SVGAttributes } from "react";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 export const iconVariants = cva("shrink-0", {
   variants: {
@@ -14,14 +14,11 @@ export const iconVariants = cva("shrink-0", {
       xl: "size-8",
     },
   },
-  defaultVariants: {
-    size: "md",
-  },
+  defaultVariants: { size: "md" },
 });
 
 export type IconSize = NonNullable<VariantProps<typeof iconVariants>["size"]>;
-
-type IconProps = {
+export type IconProps = {
   icon: LucideIcon;
   size?: IconSize;
   className?: string;
@@ -41,7 +38,7 @@ export const Icon = forwardRef<SVGSVGElement, IconProps>(
 );
 Icon.displayName = "Icon";
 
-type SpinnerProps = {
+export type SpinnerProps = {
   size?: IconSize;
   className?: string;
 } & SVGAttributes<SVGSVGElement>;

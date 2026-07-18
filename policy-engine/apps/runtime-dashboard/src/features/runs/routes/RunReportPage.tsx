@@ -18,14 +18,8 @@ import {
 import { buildRunDeckHref } from "@/features/runs/domain/searchParams";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatNumber } from "@/shared/lib/utils";
-import {
-  ApiErrorAlert,
-  Button,
-  Card,
-  copyShareLink,
-  EmptyState,
-  exportJson,
-} from "@/shared/ui";
+import { Button, Card, EmptyState } from "@polisyos/atlas-ui";
+import { ApiErrorAlert, copyShareLink, exportJson } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 function RunReportContent({ runId }: { runId: string }) {

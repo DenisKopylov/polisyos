@@ -1,3 +1,5 @@
+import { Slot } from "@radix-ui/react-slot";
+import { cva, type VariantProps } from "class-variance-authority";
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
@@ -6,10 +8,8 @@ import type {
 } from "react";
 import { forwardRef } from "react";
 import { Link, type LinkProps } from "react-router-dom";
-import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 export const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 rounded-[var(--radius-pill)] font-extrabold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
@@ -35,10 +35,7 @@ export const buttonVariants = cva(
         icon: "size-[var(--control-height-icon)]",
       },
     },
-    defaultVariants: {
-      variant: "ghost",
-      size: "md",
-    },
+    defaultVariants: { variant: "ghost", size: "md" },
   },
 );
 
@@ -60,13 +57,11 @@ type CommonButtonProps = VariantProps<typeof buttonVariants> & {
 
 type NativeButtonProps = CommonButtonProps &
   ButtonHTMLAttributes<HTMLButtonElement> & { to?: never; href?: never };
-
 type RouterButtonProps = CommonButtonProps &
   Omit<LinkProps, "className" | "children"> & {
     to: LinkProps["to"];
     href?: never;
   };
-
 type AnchorButtonProps = CommonButtonProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "className" | "children"> & {
     href: string;
@@ -106,7 +101,6 @@ function ButtonComponent(
     variant = "ghost",
     asChild,
   } = props;
-
   const resolvedClassName = cn(
     buttonVariants({ variant, size }),
     fullWidth && "w-full",
@@ -115,17 +109,17 @@ function ButtonComponent(
 
   if ("to" in props && props.to !== undefined) {
     const {
-      children: _c,
-      className: _cl,
-      fullWidth: _fw,
-      leading: _l,
-      size: _s,
-      trailing: _t,
-      variant: _v,
-      asChild: _a,
+      children: _children,
+      className: _className,
+      fullWidth: _fullWidth,
+      leading: _leading,
+      size: _size,
+      trailing: _trailing,
+      variant: _variant,
+      asChild: _asChild,
       to,
       ...linkProps
-    } = props as RouterButtonProps;
+    } = props;
     return (
       <Link
         ref={ref as ForwardedRef<HTMLAnchorElement>}
@@ -142,17 +136,17 @@ function ButtonComponent(
 
   if ("href" in props && props.href !== undefined) {
     const {
-      children: _c,
-      className: _cl,
-      fullWidth: _fw,
+      children: _children,
+      className: _className,
+      fullWidth: _fullWidth,
       href,
-      leading: _l,
-      size: _s,
-      trailing: _t,
-      variant: _v,
-      asChild: _a,
+      leading: _leading,
+      size: _size,
+      trailing: _trailing,
+      variant: _variant,
+      asChild: _asChild,
       ...anchorProps
-    } = props as AnchorButtonProps;
+    } = props;
     return (
       <a
         ref={ref as ForwardedRef<HTMLAnchorElement>}
@@ -168,21 +162,20 @@ function ButtonComponent(
   }
 
   const {
-    children: _c,
-    className: _cl,
-    fullWidth: _fw,
-    leading: _l,
-    size: _s,
-    trailing: _t,
-    variant: _v,
-    asChild: _a,
+    children: _children,
+    className: _className,
+    fullWidth: _fullWidth,
+    leading: _leading,
+    size: _size,
+    trailing: _trailing,
+    variant: _variant,
+    asChild: _asChild,
     ...buttonProps
-  } = props as NativeButtonProps;
-
-  const Comp = asChild ? Slot : "button";
+  } = props;
+  const Component = asChild ? Slot : "button";
 
   return (
-    <Comp
+    <Component
       ref={ref as ForwardedRef<HTMLButtonElement>}
       className={resolvedClassName}
       {...buttonProps}
@@ -194,10 +187,9 @@ function ButtonComponent(
           {children}
         </ButtonInner>
       )}
-    </Comp>
+    </Component>
   );
 }
 
 export const Button = forwardRef(ButtonComponent);
-
 Button.displayName = "Button";

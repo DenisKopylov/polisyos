@@ -13,7 +13,8 @@ import {
 import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatNumber, formatPercent } from "@/shared/lib/utils";
-import { Badge, Slider } from "@/shared/ui";
+import { Badge } from "@polisyos/atlas-ui";
+import { Slider } from "@/shared/ui";
 
 export function AmbientTelemetryHud({
   activeTab,

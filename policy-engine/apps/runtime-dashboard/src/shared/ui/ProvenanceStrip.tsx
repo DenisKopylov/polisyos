@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from "react";
+import { Text } from "@polisyos/atlas-ui";
 
 import { cn } from "@/shared/lib/utils";
 import { Glyph, type GlyphSize } from "@/shared/brand/Glyph";
@@ -73,14 +74,16 @@ export function ProvenanceStrip({
       )}
     >
       {title ? (
-        <span
+        <Text
+          as="span"
+          typography={false}
           className={cn(
             "text-muted font-semibold tracking-[0.2em] uppercase",
             LABEL_SIZE[density],
           )}
         >
           {title}
-        </span>
+        </Text>
       ) : null}
       <ul
         className={cn(
@@ -106,12 +109,14 @@ export function ProvenanceStrip({
               strokeStyle={item.strokeStyle ?? "solid"}
               title={item.label}
             />
-            <span
+            <Text
+              as="span"
+              typography={false}
               className={cn("text-muted font-medium", ITEM_LABEL_SIZE[density])}
               title={item.detail}
             >
               {item.label}
-            </span>
+            </Text>
           </li>
         ))}
       </ul>

@@ -7,7 +7,7 @@ import {
   formatNumber,
   formatPercent,
 } from "@/shared/lib/utils";
-import { Badge, Card, EmptyState } from "@/shared/ui";
+import { Badge, Card, EmptyState } from "@polisyos/atlas-ui";
 
 function burnKind(burn: number) {
   if (burn >= 0.85) return "fail";

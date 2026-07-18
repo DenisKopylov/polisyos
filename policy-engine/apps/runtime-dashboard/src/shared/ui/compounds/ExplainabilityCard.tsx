@@ -2,8 +2,8 @@ import { useState, type ReactNode } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Badge, Button, Card } from "@/shared/ui/primitives";
-import type { BadgeKind } from "@/shared/ui/Badge";
+import { Badge, Button, Card, type BadgeTone } from "@polisyos/atlas-ui";
+
 import { ConfidenceGauge } from "@/shared/charts";
 
 export type ExplainabilityLevel = "glance" | "summary" | "deep";
@@ -39,7 +39,7 @@ type ExplainabilityCardProps = {
   className?: string;
 };
 
-const VERDICT_KIND: Record<ExplainabilityVerdict["status"], BadgeKind> = {
+const VERDICT_KIND: Record<ExplainabilityVerdict["status"], BadgeTone> = {
   approved: "ok",
   rejected: "fail",
   review: "warn",

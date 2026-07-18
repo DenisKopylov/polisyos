@@ -2,7 +2,13 @@ import { useEffect } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Card, CardContent, CardHeader, CardTitle, Text } from "@/shared/ui";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Text,
+} from "@polisyos/atlas-ui";
 
 function LocaleSetter() {
   const { setLocale } = useI18n();

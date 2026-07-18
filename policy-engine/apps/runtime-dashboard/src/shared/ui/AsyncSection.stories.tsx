@@ -1,9 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { AsyncSection } from "@/shared/ui/AsyncSection";
-import { Card } from "@/shared/ui/Card";
-import { EmptyState } from "@/shared/ui/EmptyState";
-import { PanelSkeleton } from "@/shared/ui/Skeleton";
+import {
+  AsyncSection,
+  Card,
+  EmptyState,
+  PanelSkeleton,
+} from "@polisyos/atlas-ui";
+import { renderApiErrorAlert } from "./ApiErrorAlert";
 
 const meta = {
   title: "Shared UI/AsyncSection",
@@ -11,6 +14,7 @@ const meta = {
   tags: ["autodocs"],
   args: {
     query: { isLoading: false, isError: false },
+    renderError: renderApiErrorAlert,
     children: null,
   },
 } satisfies Meta<typeof AsyncSection>;
@@ -25,7 +29,10 @@ export const Success: Story = {
     children: null,
   },
   render: () => (
-    <AsyncSection query={{ isLoading: false, isError: false }}>
+    <AsyncSection
+      query={{ isLoading: false, isError: false }}
+      renderError={renderApiErrorAlert}
+    >
       <Card>
         <h3 className="text-xl font-semibold">Live data rendered</h3>
         <p className="text-muted mt-2 text-sm">
@@ -44,6 +51,7 @@ export const Loading: Story = {
   render: () => (
     <AsyncSection
       query={{ isLoading: true }}
+      renderError={renderApiErrorAlert}
       loading={<PanelSkeleton rows={4} />}
     >
       <div />
@@ -59,6 +67,7 @@ export const Empty: Story = {
   render: () => (
     <AsyncSection
       query={{ isLoading: false, isError: false }}
+      renderError={renderApiErrorAlert}
       empty
       emptyState={
         <EmptyState

@@ -10,7 +10,8 @@ import {
 } from "@/features/runs/domain/disputes";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatNumber } from "@/shared/lib/utils";
-import { Badge, Button, Card, Input, Label, Select } from "@/shared/ui";
+import { Badge, Button, Card } from "@polisyos/atlas-ui";
+import { Input, Label, Select } from "@/shared/ui";
 
 function statusKind(status: DisputeStatus) {
   if (status === "resolved") return "ok";

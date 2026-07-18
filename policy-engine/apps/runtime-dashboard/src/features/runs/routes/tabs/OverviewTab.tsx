@@ -31,7 +31,7 @@ import {
   markUiMilestone,
   measureUiLatency,
 } from "@/shared/telemetry/performance";
-import { Badge, Card, EmptyState, PanelSkeleton } from "@/shared/ui";
+import { Badge, Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 import { AuthoredText } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";

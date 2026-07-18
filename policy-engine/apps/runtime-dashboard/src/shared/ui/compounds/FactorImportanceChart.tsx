@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
 import { cn } from "@/shared/lib/utils";
-import { Card } from "@/shared/ui/primitives";
+import { Card } from "@polisyos/atlas-ui";
 import { chartTheme, chartDefaults } from "@/shared/charts/theme";
 import { ChartDataTable } from "@/shared/charts/accessibility";
 

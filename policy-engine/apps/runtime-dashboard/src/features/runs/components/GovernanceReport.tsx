@@ -6,7 +6,8 @@ import {
   summarizeGovernanceIssues,
   type GovernanceIssueSeverity,
 } from "@/shared/lib/domain/governance";
-import { Badge, JsonPreview } from "@/shared/ui";
+import { Badge } from "@polisyos/atlas-ui";
+import { JsonPreview } from "@/shared/ui";
 
 function severityKind(severity: GovernanceIssueSeverity) {
   if (severity === "blocker") {

@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 
 import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
-import { PageSkeleton } from "@/shared/ui";
+import { PageSkeleton } from "@polisyos/atlas-ui";
 
 const RunDetailLayout = lazy(() =>
   import("@/features/runs/routes.public").then((module) => ({

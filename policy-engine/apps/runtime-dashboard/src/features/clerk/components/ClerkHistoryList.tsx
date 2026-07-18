@@ -1,7 +1,7 @@
 import { useRuns } from "@/api/hooks/useRuns";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate } from "@/shared/lib/utils";
-import { Badge, Button, Card } from "@/shared/ui";
+import { Badge, Button, Card } from "@polisyos/atlas-ui";
 
 function statusToBadgeKind(status: string | undefined) {
   if (!status) return "neutral" as const;

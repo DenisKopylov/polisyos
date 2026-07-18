@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
-import { Button } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
 import { useChatStore } from "../state/useChatStore";
 import { useClerkNlRun } from "../hooks/useClerkNlRun";
 import { useConversationContext } from "../hooks/useConversationContext";

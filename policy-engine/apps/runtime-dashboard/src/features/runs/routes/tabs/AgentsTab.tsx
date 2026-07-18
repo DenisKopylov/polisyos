@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { useSuspenseRunAgents } from "@/api/hooks/useRunAgents";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { PanelSkeleton } from "@/shared/ui";
+import { PanelSkeleton } from "@polisyos/atlas-ui";
 
 const AgentPipelinePanel = lazy(
   () => import("@/features/runs/components/AgentPipelinePanel"),

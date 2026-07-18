@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Button, Card, EmptyState } from "@/shared/ui/primitives";
+import { Button, Card, EmptyState } from "@polisyos/atlas-ui";
 
 export type EvidenceChainItem = {
   artifactId: string;

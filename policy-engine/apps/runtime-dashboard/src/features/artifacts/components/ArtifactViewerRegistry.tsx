@@ -11,7 +11,8 @@ import {
   toDisplayLabel,
 } from "@/shared/lib/parsing";
 import { formatNumber } from "@/shared/lib/utils";
-import { Badge, JsonPreview } from "@/shared/ui";
+import { Badge } from "@polisyos/atlas-ui";
+import { JsonPreview } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 const DecisionCardView = lazy(() => import("./DecisionCardView"));

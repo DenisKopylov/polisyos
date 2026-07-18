@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/primitives";
+import { Button } from "@polisyos/atlas-ui";
 
 import { useDashboardLayoutStore } from "../state/useDashboardLayoutStore";
 

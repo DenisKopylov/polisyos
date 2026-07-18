@@ -4,8 +4,13 @@ import type {
 } from "../domain/productionSlice";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { cn, formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
-import { Badge, Card, EmptyState } from "@/shared/ui";
+import {
+  cn,
+  formatDate,
+  formatDuration,
+  formatNumber,
+} from "@/shared/lib/utils";
+import { Badge, Card, EmptyState } from "@polisyos/atlas-ui";
 
 function stateKind(state: FreshnessState) {
   if (state === "ok") return "ok";

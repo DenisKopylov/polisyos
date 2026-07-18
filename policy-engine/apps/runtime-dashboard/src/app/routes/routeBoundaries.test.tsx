@@ -48,7 +48,7 @@ vi.mock("@/shared/components/ErrorBoundary", () => ({
   PageErrorBoundary: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@/shared/ui", () => ({
+vi.mock("@polisyos/atlas-ui", () => ({
   Card: ({ children }: { children: ReactNode }) => (
     <div data-testid="card">{children}</div>
   ),

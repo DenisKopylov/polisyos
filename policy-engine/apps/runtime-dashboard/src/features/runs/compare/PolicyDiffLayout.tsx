@@ -8,7 +8,7 @@ import {
 import { Link2Off, LinkIcon } from "lucide-react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Button } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
 
 type PolicyDiffLayoutProps = {
   leftPane: ReactNode;

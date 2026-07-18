@@ -19,10 +19,9 @@ import {
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { DEFAULT_LEX_OUTPUT_DIR } from "@/shared/lib/constants";
 import { cn, formatNumber } from "@/shared/lib/utils";
+import { Button, Card } from "@polisyos/atlas-ui";
 import {
   ApiErrorAlert,
-  Button,
-  Card,
   copyShareLink,
   exportCsv,
   exportJson,

@@ -18,7 +18,7 @@ import type {
 } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
-import { Badge, Button } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
 
 function nodeKind(node: ArgumentMapNode) {
   if (node.status === "certified") {

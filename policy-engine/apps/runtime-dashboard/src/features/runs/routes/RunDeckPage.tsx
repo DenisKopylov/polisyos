@@ -30,14 +30,8 @@ import {
   exportElementAsImage,
   triggerPrint,
 } from "@/shared/export/printExport";
-import {
-  ApiErrorAlert,
-  Button,
-  Card,
-  copyShareLink,
-  EmptyState,
-  exportJson,
-} from "@/shared/ui";
+import { Button, Card, EmptyState } from "@polisyos/atlas-ui";
+import { ApiErrorAlert, copyShareLink, exportJson } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 function RunDeckContent({ runId }: { runId: string }) {

@@ -2,7 +2,8 @@ import { startTransition, useDeferredValue, useMemo } from "react";
 import type { ReactNode } from "react";
 
 import { cn } from "@/shared/lib/utils";
-import { EmptyState, Input } from "@/shared/ui/primitives";
+import { EmptyState } from "@polisyos/atlas-ui";
+import { Input } from "@/shared/ui/primitives";
 
 type SearchableListProps<Item> = {
   items: Item[];

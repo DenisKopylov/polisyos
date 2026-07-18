@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Card } from "@/shared/ui/Card";
+import { Card } from "@polisyos/atlas-ui";
 import { MetricCard } from "@/shared/ui/MetricCard";
 
 const meta = {

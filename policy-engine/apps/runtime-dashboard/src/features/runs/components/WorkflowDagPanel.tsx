@@ -6,7 +6,8 @@ import {
   type WorkflowNodeView,
 } from "@/shared/lib/domain/workflow";
 import { formatDuration, formatNumber } from "@/shared/lib/utils";
-import { Badge, EmptyState, chartTheme } from "@/shared/ui";
+import { Badge, EmptyState } from "@polisyos/atlas-ui";
+import { chartTheme } from "@/shared/ui";
 
 type WorkflowDagPanelProps = {
   payload: unknown;

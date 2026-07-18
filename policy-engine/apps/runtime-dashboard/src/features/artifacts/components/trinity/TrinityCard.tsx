@@ -5,7 +5,7 @@ import TrinityDiff from "@/features/artifacts/components/trinity/TrinityDiff";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { parseTrinityBundle } from "@/shared/lib/domain/trinity";
 import { asRecord } from "@/shared/lib/parsing";
-import { Card } from "@/shared/ui";
+import { Card } from "@polisyos/atlas-ui";
 
 type TrinityCardProps = {
   payload: unknown;

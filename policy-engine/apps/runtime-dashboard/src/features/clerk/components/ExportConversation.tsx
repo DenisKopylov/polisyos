@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 
 import { cn, formatDate } from "@/shared/lib/utils";
-import { Button } from "@/shared/ui/primitives";
+import { Button } from "@polisyos/atlas-ui";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 
 import { useChatStore, type ChatMessage } from "../state/useChatStore";

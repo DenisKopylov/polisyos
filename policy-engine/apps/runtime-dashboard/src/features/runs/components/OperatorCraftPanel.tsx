@@ -36,7 +36,8 @@ import {
   formatNumber,
   formatPercent,
 } from "@/shared/lib/utils";
-import { Badge, Button, Slider, Textarea } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
+import { Slider, Textarea } from "@/shared/ui";
 
 const MAX_VISIBLE_HIDDEN_CLAIMS = 3;
 

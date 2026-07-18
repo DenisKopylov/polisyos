@@ -36,11 +36,9 @@ import {
   markUiMilestone,
   measureUiLatency,
 } from "@/shared/telemetry/performance";
+import { Badge, Button, Card } from "@polisyos/atlas-ui";
 import {
   ApiErrorAlert,
-  Badge,
-  Button,
-  Card,
   DataFreshnessBadge,
   EvidenceChain,
   ProvenanceStrip,

@@ -1,6 +1,6 @@
 import { expectNoA11yViolations } from "@/test/a11y";
 
-import { Badge } from "./Badge";
+import { Badge } from "@polisyos/atlas-ui";
 
 describe("Badge accessibility", () => {
   it("has no detectable accessibility violations", async () => {

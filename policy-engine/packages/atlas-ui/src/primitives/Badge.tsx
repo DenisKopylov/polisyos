@@ -1,7 +1,7 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "../lib/cn";
 
 export const badgeVariants = cva(
   "inline-flex items-center justify-center rounded-[var(--radius-pill)] px-3 py-2 text-xs font-extrabold tracking-[0.05em] uppercase transition-colors",
@@ -16,15 +16,14 @@ export const badgeVariants = cva(
         outline: "border border-border text-foreground",
       },
     },
-    defaultVariants: {
-      kind: "neutral",
-    },
+    defaultVariants: { kind: "neutral" },
   },
 );
 
-export type BadgeKind = NonNullable<VariantProps<typeof badgeVariants>["kind"]>;
+/** Presentation-only tone. It carries no runtime status or authority semantics. */
+export type BadgeTone = NonNullable<VariantProps<typeof badgeVariants>["kind"]>;
 
-type BadgeProps = VariantProps<typeof badgeVariants> & {
+export type BadgeProps = VariantProps<typeof badgeVariants> & {
   className?: string;
   children: ReactNode;
 } & HTMLAttributes<HTMLSpanElement>;

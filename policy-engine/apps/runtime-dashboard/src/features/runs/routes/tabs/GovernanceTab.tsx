@@ -20,7 +20,7 @@ import {
   markUiMilestone,
   measureUiLatency,
 } from "@/shared/telemetry/performance";
-import { PanelSkeleton } from "@/shared/ui";
+import { PanelSkeleton } from "@polisyos/atlas-ui";
 
 const GovernanceReport = lazy(
   () => import("@/features/runs/components/GovernanceReport"),

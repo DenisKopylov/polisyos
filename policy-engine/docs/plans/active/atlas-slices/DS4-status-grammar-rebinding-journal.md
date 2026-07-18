@@ -1,13 +1,14 @@
 ---
 title: "DS4 Status-Grammar Rebinding Journal"
 type: execution-journal
-status: blocked_before_implementation
+status: in_progress - architect-authorized authority-neutral partial re-cut
 created: 2026-07-18
 revised: 2026-07-18
 slice: DS4
 plan: ./DS4-status-grammar-rebinding.md
 branch: codex/atlas-ds4-status-grammar
 baseline_commit: 71f438ad52f668e1feb7510652ff5fd3b735bd62
+execution_base_commit: 61d354f62023460a45c60c913976cdfc4b779cf5
 ---
 
 # DS4 Status-Grammar Rebinding Journal
@@ -119,3 +120,112 @@ and a11y yields 5 -> 3.
   seeded negatives.
 - Production source, generated client, DS2 ledger, DS19 register, baseline
   manifest, and lockfile remain unchanged. C00 contains documentation only.
+
+## 2026-07-18 — DS4-C01 foundation primitive migration
+
+### Authorization, clean base, and pattern pass
+
+- The architect resolved C00 with an authority-neutral partial re-cut: C01-C20
+  may execute using existing typed contracts and neutral presentation swap
+  modules, while the missing waist vocabularies remain deferred. The C01
+  execution base was clean `61d354f62023460a45c60c913976cdfc4b779cf5` on
+  `codex/atlas-ds4-status-grammar`; the measured `71f438ad52f668e1feb7510652ff5fd3b735bd62`
+  baseline receipt remains historical evidence, not the C01 checkout base.
+- C01 keeps terminal and evidence labels opaque end-to-end. It adds no
+  authority/status vocabulary, composition rule, CGF disposition, decision
+  grade, or cache-age classification.
+- Relevant patterns were P05/P06/P10/P15 (authority and presentation boundary),
+  P27/P28 (one owner and strangled legacy), and P29/P33 (behavioral,
+  adversarial ownership and surface proof). The correct C01 shape is one
+  package owner, direct consumers, deleted predecessors, package import fence,
+  and red/green consumer tests.
+
+### Architect rulings carried into execution
+
+- Each absent vocabulary receives exactly one future normalization module. It
+  passes owner labels opaquely, returns only presentation-only `unrecognized`
+  outside an owner-declared contract, and exports no vocabulary constants:
+  cache-age C09, decision-grade C14, and CGF disposition C19 with real-panel
+  proof.
+- C05 will create the dedicated typed DS4 waist-debt register with exactly
+  three DS5-waist-owned rows, each `bridge_missing` and `surface_missing` with
+  its exact generated-client anchor. The rows do not enter the 261-entry
+  DS1/DS19 estate; C20/final closure flags them for architect insertion into
+  the master inherited-debt table.
+- C09 owns temporal-cursor root-cause classification and test-clock injection
+  repair unless product semantics are wrong. C12 owns the
+  `OperatorDiagnosticPanel` a11y census. The three i18n parity identities are
+  untouched; the end-state expectation is three failures in one file.
+
+### Red-first receipt
+
+All required tests were added before deleting the old owners and exited RED
+for their intended behavioral reasons:
+
+- `oneOwner` found the eight old `shared/ui` exports, the duplicate
+  `shared/components/Skeleton.tsx` owner, and legacy primitive-barrel exports.
+- `publicSurface` expected 25 supported runtime exports and received the empty
+  package surface.
+- `primitiveMigration` expected package foundations and received the empty
+  package surface.
+
+### C01 implementation
+
+- Created private `@polisyos/atlas-ui@0.1.0` with root-only exports and local
+  typecheck, test, lint, and architecture scripts. Its architecture gate parses
+  actual import/export specifiers and rejects dashboard/app/API/backend/client
+  edges.
+- Moved the eight foundation families into the package, deleted their dashboard
+  owners and the duplicate `shared/components/Skeleton` owner/test, and removed
+  legacy primitive-barrel exports. Dashboard consumers now import directly from
+  `@polisyos/atlas-ui`.
+- Inverted `AsyncSection` through its typed dashboard error-presentation slot;
+  `LocaleProvider` configures package `TextPresentationProvider`; `BadgeTone`
+  is documented presentation-only; `ApiErrorAlert` and `ProvenanceStrip`
+  remain dashboard-owned consumers of package `Text`.
+- Added the dashboard stylesheet's explicit Tailwind v4 package source and a
+  post-build behavioral gate. The gate derives two package-exclusive class
+  candidates and verifies their utilities exist in the generated CSS, so the
+  source edge cannot be satisfied by a marker-only assertion.
+- `ui-primitives-root` remains `rebind_pending`/`pending`; no DS19 root state
+  or 261-entry denominator changed in C01. Mechanical import line movement
+  refreshed only the affected baseline-lint content hashes/diagnostic anchors
+  and two protected-live census line anchors; the debt count and census count
+  remain 75 diagnostics and 24 references.
+
+### Verification receipt
+
+| Gate                                      | Result                                                                                                                                                |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| frozen install                            | PASS; lockfile up to date                                                                                                                             |
+| atlas-ui lint/typecheck/test/architecture | PASS; 4 files / 7 tests; 10 source files inspected                                                                                                    |
+| dashboard typecheck                       | PASS                                                                                                                                                  |
+| dashboard foundation component tests      | PASS; 6 files / 11 tests, including `primitiveMigration`                                                                                              |
+| route-boundary migration regression       | PASS; 1 file / 6 tests after retargeting the retired-owner test double to `@polisyos/atlas-ui`; product semantics unchanged                           |
+| dashboard a11y component coverage         | PASS; 10 files / 10 tests for the moved-family paths; the separate inherited `OperatorDiagnosticPanel` census remains C12-owned                       |
+| dashboard full lint JSON                  | inherited 75 errors in 22 files, zero warnings; only `policyos/quantity-must-be-wrapped`; baseline subset comparator PASS after honest anchor refresh |
+| dashboard architecture                    | inherited 36 exact violations, no C01 class added                                                                                                     |
+| dashboard full Vitest JSON                | inherited 5 failures only; 668 / 673 tests pass and the baseline failure-set comparator is PASS                                                       |
+| Vite build + postbuild gates              | PASS; 3,873 modules, 101 PWA precache entries; two package-exclusive Tailwind candidates present in generated CSS                                     |
+| disposition register                      | PASS with source-byte binding and corruption probes; 261 roots, 200 `rebind_pending`, 23 seeded negatives, 7 censuses                                 |
+
+The Tailwind source proof was red-first during review: before adding the
+explicit package `@source`, the built CSS omitted both
+`h-[var(--control-height-sm)]` and `w-3/5`. The same build gate passed only
+after the package source entered the real Tailwind scan graph.
+The anti-shim re-review added a synthetic wildcard re-export corruption; it
+failed against the original owner scanner, then passed after export-declaration
+resolution became part of the generic ownership invariant. Button `asChild`
+now also has explicit prop, style, and ref-forwarding acceptance coverage.
+
+### Lockfile and fence receipt
+
+- `corepack pnpm install --lockfile-only` was inspected and the unrelated
+  `third-party-web` 0.29.0 -> 0.29.2 package/snapshot movement was restored.
+  The final semantic diff contains only the `packages/atlas-ui` importer and
+  the dashboard `@polisyos/atlas-ui: workspace:*` link.
+- The C01 diff is restricted to dashboard sources/package declaration,
+  `packages/atlas-ui`, the bounded workspace lockfile importer, DS4 plan and
+  journal, and required DS19 baseline-anchor maintenance. Backend, schema,
+  generated-client, v15, Russian locale, master-plan, CI, and other-worktree
+  paths remain untouched.

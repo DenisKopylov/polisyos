@@ -9,7 +9,7 @@ import {
   formatDuration,
   formatNumber,
 } from "@/shared/lib/utils";
-import { Badge, EmptyState } from "@/shared/ui";
+import { Badge, EmptyState } from "@polisyos/atlas-ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 type AgentPipelinePanelProps = {

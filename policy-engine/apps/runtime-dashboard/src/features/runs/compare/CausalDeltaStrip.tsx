@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge } from "@/shared/ui";
+import { Badge } from "@polisyos/atlas-ui";
 
 import { saliencePercent, significanceTone, topDeltas } from "./compare-math";
 import type { DeltaQuantity } from "./compare-types";

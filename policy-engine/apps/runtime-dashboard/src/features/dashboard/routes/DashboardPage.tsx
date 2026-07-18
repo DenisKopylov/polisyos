@@ -32,19 +32,22 @@ import {
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 import { DEFAULT_LEX_OUTPUT_DIR } from "@/shared/lib/constants";
-import { formatDuration, formatNumber, formatPercent } from "@/shared/lib/utils";
+import {
+  formatDuration,
+  formatNumber,
+  formatPercent,
+} from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
 import {
-  type BadgeKind,
+  type BadgeTone,
   Badge,
   Button,
   Card,
-  DataFreshnessBadge,
   EmptyState,
   MetricsSkeleton,
   PanelSkeleton,
-  chartTheme,
-} from "@/shared/ui";
+} from "@polisyos/atlas-ui";
+import { DataFreshnessBadge, chartTheme } from "@/shared/ui";
 
 function formatStatusLabel(value: string) {
   return value
@@ -100,7 +103,7 @@ function DashboardHeroContent() {
   );
   const decisionQueue = useMemo(() => getDecisionQueue(runs), [runs]);
   const avgDurationMs = useMemo(() => getAverageRunDuration(runs), [runs]);
-  const healthKind: BadgeKind =
+  const healthKind: BadgeTone =
     healthQuery.data?.status === "ok"
       ? "ok"
       : healthQuery.data?.status

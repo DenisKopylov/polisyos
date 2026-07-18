@@ -1,6 +1,6 @@
 import { cn } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge, Button } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
 import { AuthoredText } from "@/shared/ui/authored-text";
 import type { ChatMessage as ChatMessageType } from "../state/useChatStore";
 import { ChatStreamIndicator } from "./ChatStreamIndicator";

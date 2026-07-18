@@ -82,7 +82,7 @@
         "message_id",
         "message"
       ],
-      "sha256": "539ea30fa03accd34add5ba5f0907d134e4422e3d0b5aa216445079f787cb394"
+      "sha256": "878834bb60af1ca3e5336fcfe648bbe2e78a7541bf6a55be3f3c0fac17730757"
     },
     "files": [
       {
@@ -181,7 +181,7 @@
       },
       {
         "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-        "content_sha256": "aba65ef1f6f3ae49736ed5057a5507c56e5aec00a697c97c6aaed68d32f0501b",
+        "content_sha256": "12cd62cee5eef912517b1aef061feb2b205a7bd8b919293faad6d4e67881bcf8",
         "diagnostic_count": 2,
         "rule_counts": [
           {
@@ -194,9 +194,9 @@
             "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
             "rule_id": "policyos/quantity-must-be-wrapped",
             "severity": 2,
-            "line": 229,
+            "line": 228,
             "column": 65,
-            "end_line": 229,
+            "end_line": 228,
             "end_column": 68,
             "message_id": "decision",
             "message": "Decision numeric literal \"250\" must be emitted as QuantityValue and rendered through <Quantity>."
@@ -205,9 +205,9 @@
             "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
             "rule_id": "policyos/quantity-must-be-wrapped",
             "severity": 2,
-            "line": 411,
+            "line": 410,
             "column": 24,
-            "end_line": 411,
+            "end_line": 410,
             "end_column": 25,
             "message_id": "decision",
             "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
@@ -240,7 +240,7 @@
       },
       {
         "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-        "content_sha256": "b067a2adf203d6e9e86e72548914b6dc869f33ee3c664c0b41a051d2123b4c61",
+        "content_sha256": "9354624bfa7fbc627d8c135634ac7534a12071d4d8ea5a75e2eafcad0bbe69c2",
         "diagnostic_count": 3,
         "rule_counts": [
           {
@@ -1014,7 +1014,7 @@
       },
       {
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/FactorImportanceChart.tsx",
-        "content_sha256": "556b3e9dd15e9afcec54b840cf7bb94acb5ec72bd466f9d3d132ebd01766c7af",
+        "content_sha256": "f2bd4d4eaf16ffe9880744e6d62ef6d241406a4b9a8ae9ab9f4f18353bcc2691",
         "diagnostic_count": 1,
         "rule_counts": [
           {
@@ -1038,7 +1038,7 @@
       },
       {
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/SensitivityPlot.tsx",
-        "content_sha256": "3d5ce41e3f0be9023536d32f927eb37b53a2a71b7d0a50bd157dc77f8ba5b532",
+        "content_sha256": "16bc80b188058c52402bd38d5e7ab1f4185e91a09e9fb2d354eaa4a9005571bd",
         "diagnostic_count": 1,
         "rule_counts": [
           {

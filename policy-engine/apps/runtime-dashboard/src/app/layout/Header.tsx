@@ -18,7 +18,7 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { SUPPORTED_LOCALES } from "@/shared/i18n/locale";
 import { formatTime } from "@/shared/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
-import { Badge, Button } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
 import { TrustViewToggle } from "@/shared/ui/trust-view";
 
 function resolveHealthBadge(

@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatRelativeTime } from "@/shared/lib/utils";
-import { Badge } from "@/shared/ui/primitives";
+import { Badge } from "@polisyos/atlas-ui";
 
 type DataFreshnessBadgeProps = {
   generatedAt?: string | null;

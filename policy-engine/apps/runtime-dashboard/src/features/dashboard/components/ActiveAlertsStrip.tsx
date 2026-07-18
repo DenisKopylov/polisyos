@@ -1,5 +1,5 @@
 import { cn } from "@/shared/lib/utils";
-import { Badge } from "@/shared/ui/Badge";
+import { Badge } from "@polisyos/atlas-ui";
 
 // ---------------------------------------------------------------------------
 // Types

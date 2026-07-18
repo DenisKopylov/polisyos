@@ -20,18 +20,21 @@ import {
   Badge,
   Button,
   Card,
+  EmptyState,
+  PanelSkeleton,
+} from "@polisyos/atlas-ui";
+import {
   copyRow,
   copyShareLink,
-  EmptyState,
   exportCsv,
   exportJson,
   FilterPanel,
   Input,
-  PanelSkeleton,
   Select,
   VirtualTable,
   VIRTUALIZATION_THRESHOLD,
 } from "@/shared/ui";
+import { renderApiErrorAlert } from "@/shared/ui/ApiErrorAlert";
 
 function statusKind(status: string) {
   const normalized = status.toLowerCase();
@@ -680,6 +683,7 @@ export default function RunsList() {
 
       <AsyncSection
         query={runsQuery}
+        renderError={renderApiErrorAlert}
         loading={<PanelSkeleton rows={6} />}
         errorTitle={t("pages.runs.loadError")}
         empty={displayedRuns.length === 0}

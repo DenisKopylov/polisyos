@@ -11,7 +11,7 @@ import { MetricCard } from "@/features/runs/components/MetricCard";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatBytes } from "@/shared/lib/utils";
 import { FeatureAsyncBoundary } from "@/shared/components/FeatureAsyncBoundary";
-import { EmptyState, PanelSkeleton } from "@/shared/ui";
+import { EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 
 function ArtifactPreviewContent({ artifactId }: { artifactId: string }) {
   const { t, label } = useI18n();

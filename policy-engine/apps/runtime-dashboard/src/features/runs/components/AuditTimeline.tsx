@@ -4,7 +4,8 @@ import type {
   AuditTrailEntry,
   AuditTrailSeverity,
 } from "@/features/runs/domain/compare";
-import { Button, StatusTimeline } from "@/shared/ui";
+import { Button } from "@polisyos/atlas-ui";
+import { StatusTimeline } from "@/shared/ui";
 
 type AuditTimelineProps = {
   entries: AuditTrailEntry[];

@@ -1,14 +1,13 @@
 import { cn } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge, Button, Card } from "@/shared/ui/primitives";
-import type { BadgeKind } from "@/shared/ui/Badge";
+import { Badge, Button, Card, type BadgeTone } from "@polisyos/atlas-ui";
 
 export type ProvenanceStep = {
   id: string;
   label: string;
   type: "data" | "method" | "result" | "governance";
   detail?: string;
-  status?: BadgeKind;
+  status?: BadgeTone;
   statusLabel?: string;
   href?: string;
   timestamp?: string;

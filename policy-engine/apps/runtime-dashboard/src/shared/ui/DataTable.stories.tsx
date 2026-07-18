@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Badge } from "@/shared/ui/Badge";
+import { Badge } from "@polisyos/atlas-ui";
 import { DataTable } from "@/shared/ui/DataTable";
 
 const rows = [

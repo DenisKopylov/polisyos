@@ -20,7 +20,7 @@ import {
 } from "@/features/runs/domain/publicSectorReadiness";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
-import { Badge, Button } from "@/shared/ui";
+import { Badge, Button } from "@polisyos/atlas-ui";
 
 function statusKind(status: ReadinessSeverity) {
   if (status === "pass") return "ok";

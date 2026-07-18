@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { Text } from "./Text";
 
-type EmptyStateProps = {
+export type EmptyStateProps = {
   title: string;
   body: string;
   actions?: ReactNode;

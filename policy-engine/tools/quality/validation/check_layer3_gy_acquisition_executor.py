@@ -5,24 +5,36 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import hashlib
 import json
 import os
 import re
 import tempfile
 from dataclasses import replace
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from polisyos.core import artifacts
+from polisyos.core.contracts.control import DataNeed, DataResolveRequest
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.fabric.data_plane import (
     AppendOnlyEvidenceJournal,
     canonical_json_bytes,
+    content_sha256,
 )
+from polisyos.fabric.retrieval.service import RetrievalService
 from polisyos.runtime.quality.acquisition_executor import (
     LiveAcquisitionExecutionError,
     LiveCatalogExecutionConstraints,
     execute_live_catalog_acquisition,
+)
+from polisyos.runtime.quality.acquisition_planner import (
+    l1_variable_availability_requirement_gap,
+    plan_requirement_gap_acquisition,
+)
+from polisyos.runtime.quality.data_state_substrate import (
+    l1_dcat_variable_availability,
 )
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_CARRIER_LIVENESS_UPDATE,
@@ -35,6 +47,8 @@ from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_TARGET_AUTHORITY_PROVISION,
     DEFAULT_TARGET_AUTHORITY_REGISTRY,
     DEFAULT_TARGET_HARNESS_RECEIPT,
+    D6RouteSelection,
+    MetadataProbeExecutionEvidence,
     bytes_sha256,
     classify_worldbank_indicator_metadata,
     derive_d6_metadata_probe_execution_evidence,
@@ -63,6 +77,13 @@ from tools.quality.validation.layer3_gy_n13b_acceptance import (
     derive_acceptance_live_execution_receipt,
     materialize_acceptance_case,
     verify_persisted_acceptance_case,
+)
+from tools.quality.validation.layer3_gy_n13b_reentry import (
+    DEFAULT_N13B_REENTRY_TRACE,
+    N7CatalogResolutionProjection,
+    N13bReentryTrace,
+    OverlayStateProjection,
+    build_reentry_trace,
 )
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
@@ -133,6 +154,8 @@ def main() -> int:
     mode.add_argument("--write-acceptance-fallback", action="store_true")
     mode.add_argument("--check-acceptance-case", action="store_true")
     mode.add_argument("--write-acceptance-case", action="store_true")
+    mode.add_argument("--check-reentry", action="store_true")
+    mode.add_argument("--write-reentry", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -330,6 +353,64 @@ def main() -> int:
                     "byte_stable_passes": 2,
                     "live_network_calls": 0,
                     "remaining_resumption_call_budget": 3,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.check_reentry or args.write_reentry:
+        reentry = _recompute_n13b_reentry_trace(
+            catalog_path=args.catalog_path,
+            substrate_path=args.substrate_path,
+        )
+        second_reentry = _recompute_n13b_reentry_trace(
+            catalog_path=args.catalog_path,
+            substrate_path=args.substrate_path,
+        )
+        payload = canonical_json_bytes(reentry.model_dump(mode="json"))
+        if payload != canonical_json_bytes(second_reentry.model_dump(mode="json")):
+            raise RuntimeError("n13b_reentry_trace_not_byte_stable")
+        if args.write_reentry:
+            _write_replace_bytes(
+                POLICY_ENGINE_ROOT / DEFAULT_N13B_REENTRY_TRACE,
+                payload,
+            )
+            status = "n13b_reentry_written"
+        else:
+            _check_payloads(
+                {DEFAULT_N13B_REENTRY_TRACE: payload},
+                label="n13b_reentry",
+            )
+            status = "ok"
+        print(
+            json.dumps(
+                {
+                    "status": status,
+                    "target_variable": reentry.target_variable,
+                    "reentry_disposition": reentry.reentry_disposition,
+                    "availability_before": (reentry.availability_before.model_dump(mode="json")),
+                    "availability_after": (reentry.availability_after.model_dump(mode="json")),
+                    "availability_count_delta": reentry.availability_count_delta,
+                    "world_growth_status": reentry.world_growth_status,
+                    "world_growth_event_count": reentry.world_growth_event_count,
+                    "overlay_epoch_count": reentry.overlay_state.epoch_count,
+                    "overlay_admitted_observation_count": (
+                        reentry.overlay_state.admitted_observation_count
+                    ),
+                    "catalog_fetch_plan_count": (reentry.catalog_resolution.fetch_plan_count),
+                    "catalog_fetch_plan_execution_count": (
+                        reentry.catalog_resolution.fetch_plan_execution_count
+                    ),
+                    "planner_terminal_disposition": (
+                        reentry.planner_report_projection["acquisition_records"][0][
+                            "terminal_disposition"
+                        ]
+                    ),
+                    "remaining_resumption_call_budget": (reentry.remaining_resumption_call_budget),
+                    "trace_sha256": reentry.trace_sha256,
+                    "byte_stable_passes": 2,
+                    "live_network_calls": 0,
                 },
                 sort_keys=True,
             )
@@ -1061,6 +1142,210 @@ def main() -> int:
     }
     print(json.dumps(report, sort_keys=True))
     return 0
+
+
+def _stream_file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return f"sha256:{digest.hexdigest()}"
+
+
+def _recompute_n13b_reentry_trace(
+    *,
+    catalog_path: Path,
+    substrate_path: Path,
+) -> N13bReentryTrace:
+    try:
+        route = D6RouteSelection.model_validate_json(
+            (POLICY_ENGINE_ROOT / DEFAULT_D6_ROUTE_SELECTION).read_bytes()
+        )
+        primary = MetadataProbeExecutionEvidence.model_validate_json(
+            (POLICY_ENGINE_ROOT / DEFAULT_D6_PRIMARY_METADATA_EVIDENCE).read_bytes()
+        )
+        acceptance = AcceptanceCaseReceipt.model_validate_json(
+            (POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_CASE).read_bytes()
+        )
+    except (OSError, ValueError) as exc:
+        raise RuntimeError("n13b_reentry_source_artifact_invalid") from exc
+    baseline_sha = _stream_file_sha256(Path(catalog_path))
+    if baseline_sha != route.baseline_sha256:
+        raise RuntimeError("n13b_reentry_baseline_drift")
+    substrate = json.loads(Path(substrate_path).read_text(encoding="utf-8"))
+    substrate_projection = _substrate_slot_projection(
+        substrate,
+        target_variable=route.target_variable,
+    )
+    if content_sha256(substrate_projection) != route.substrate_slot_projection_sha256:
+        raise RuntimeError("n13b_reentry_substrate_projection_drift")
+
+    catalog_repo_root = _catalog_repo_root(Path(catalog_path))
+    overlay_path = POLICY_ENGINE_ROOT / (
+        "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
+    )
+    baseline_only_overlay = POLICY_ENGINE_ROOT / (".tmp/gy-n13b-reentry-baseline-only.duckdb")
+    if baseline_only_overlay.exists():
+        raise RuntimeError("n13b_reentry_baseline_scratch_collision")
+    availability_before = l1_dcat_variable_availability(
+        catalog_repo_root,
+        route.target_variable,
+        overlay_path=baseline_only_overlay,
+    )
+    availability_after = l1_dcat_variable_availability(
+        catalog_repo_root,
+        route.target_variable,
+        overlay_path=overlay_path,
+    )
+    design_ref = content_sha256(substrate_projection)
+    candidate_id = "gy-n13b-government-balance-reentry"
+    candidate_hash = content_sha256({"candidate_id": candidate_id, "design_ref": design_ref})
+    gap = l1_variable_availability_requirement_gap(
+        candidate_id=candidate_id,
+        candidate_content_hash=candidate_hash,
+        design_problem_ref=design_ref,
+        availability=availability_after,
+        authority_level="research",
+    )
+    planner = plan_requirement_gap_acquisition(
+        run_id=candidate_id,
+        requirement_gaps=(gap,),
+        generated_at=datetime(2026, 7, 18, tzinfo=UTC),
+    )
+    catalog_resolution = _resolve_reentry_catalog(
+        catalog_path=Path(catalog_path),
+        catalog_repo_root=catalog_repo_root,
+        overlay_path=overlay_path,
+        target_variable=route.target_variable,
+    )
+    return build_reentry_trace(
+        baseline_sha256=baseline_sha,
+        substrate_slot_projection=substrate_projection,
+        d6_route=route,
+        primary_metadata_evidence=primary,
+        acceptance_case=acceptance,
+        availability_before=availability_before,
+        availability_after=availability_after,
+        requirement_gap=gap,
+        planner_report=planner,
+        catalog_resolution=catalog_resolution,
+        overlay_state=_overlay_state_projection(overlay_path),
+    )
+
+
+def _substrate_slot_projection(
+    value: object,
+    *,
+    target_variable: str,
+) -> dict[str, object]:
+    units: set[str] = set()
+
+    def visit(item: object) -> None:
+        if isinstance(item, dict):
+            if item.get("slot_id") == target_variable and isinstance(item.get("unit"), str):
+                normalized = data_forge_read_api.catalog.normalize_acquisition_unit(item["unit"])
+                if normalized:
+                    units.add(normalized)
+            for nested in item.values():
+                visit(nested)
+        elif isinstance(item, list | tuple):
+            for nested in item:
+                visit(nested)
+
+    visit(value)
+    if not units:
+        raise RuntimeError("n13b_reentry_substrate_slot_unresolved")
+    return {"slot_id": target_variable, "units": tuple(sorted(units))}
+
+
+def _catalog_repo_root(catalog_path: Path) -> Path:
+    resolved = Path(catalog_path).resolve()
+    for parent in resolved.parents:
+        if parent.name == "production_data":
+            return parent.parent
+    raise RuntimeError("n13b_reentry_catalog_repo_root_unresolved")
+
+
+def _resolve_reentry_catalog(
+    *,
+    catalog_path: Path,
+    catalog_repo_root: Path,
+    overlay_path: Path,
+    target_variable: str,
+) -> N7CatalogResolutionProjection:
+    scratch_root = POLICY_ENGINE_ROOT / ".tmp"
+    scratch_root.mkdir(parents=True, exist_ok=True)
+    graph = data_forge_read_api.catalog.DatasetCatalogGraph(
+        catalog_path,
+        catalog_path.parent,
+        overlay_path=overlay_path,
+    )
+    try:
+        with tempfile.TemporaryDirectory(
+            prefix="gy-n13b-reentry-resolve-",
+            dir=scratch_root,
+        ) as temporary:
+            service = RetrievalService(
+                curated_dir=catalog_repo_root / "production_data",
+                cas_root=Path(temporary) / "cas",
+                dataset_catalog=graph,
+            )
+            outcome = service.resolve(
+                DataResolveRequest(
+                    data_needs=[
+                        DataNeed(
+                            metric=target_variable,
+                            purpose="gy_n13b_demanding_stage_reentry",
+                            quality_min=0.7,
+                        )
+                    ],
+                    mode="hybrid",
+                    allow_explore_fallback=False,
+                )
+            )
+    finally:
+        graph.close()
+    return N7CatalogResolutionProjection(
+        target_variable=target_variable,
+        mode=outcome.mode,
+        fetch_plan_count=len(outcome.fetch_plans),
+        candidate_count=len(outcome.candidates),
+        warnings=tuple(outcome.warnings),
+        fetch_plan_execution_count=0,
+    )
+
+
+def _overlay_state_projection(path: Path) -> OverlayStateProjection:
+    overlay = Path(path)
+    overlay_ref = "repo://architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
+    if not overlay.exists():
+        return OverlayStateProjection(
+            overlay_ref=overlay_ref,
+            exists=False,
+            content_sha256=None,
+            epoch_count=0,
+            registration_count=0,
+            admitted_observation_count=0,
+        )
+    import duckdb
+
+    con = duckdb.connect(str(overlay), read_only=True)
+    try:
+        epoch_count = int(con.execute("SELECT count(*) FROM acquisition_epochs").fetchone()[0])
+        registration_count = int(
+            con.execute("SELECT count(*) FROM acquisition_registrations").fetchone()[0]
+        )
+        observation_count = int(con.execute("SELECT count(*) FROM ds_observations").fetchone()[0])
+    finally:
+        con.close()
+    return OverlayStateProjection(
+        overlay_ref=overlay_ref,
+        exists=True,
+        content_sha256=_stream_file_sha256(overlay),
+        epoch_count=epoch_count,
+        registration_count=registration_count,
+        admitted_observation_count=observation_count,
+    )
 
 
 def _recompute_target_owners(

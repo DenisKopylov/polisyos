@@ -940,12 +940,15 @@ def _require_constraints_within_authority_scope(
             constraints.country_code,
         )
     try:
-        owner_start = int(str(entry.temporal_start)[:4])
-        owner_end = int(str(entry.temporal_end)[:4])
-    except (TypeError, ValueError) as exc:
+        owner_start, owner_end = data_forge_read_api.catalog.resolve_live_temporal_bounds(
+            entry
+        )
+    except Exception as exc:
         raise LiveAcquisitionExecutionError(
             "live_authority_temporal_scope_invalid",
         ) from exc
+    if owner_start is None or owner_end is None:
+        return
     if constraints.start_year < owner_start or constraints.end_year > owner_end:
         raise LiveAcquisitionExecutionError(
             "live_request_outside_authority_period",

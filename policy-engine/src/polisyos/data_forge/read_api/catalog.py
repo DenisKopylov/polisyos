@@ -174,6 +174,9 @@ _EXPORTS = {
     "plan_catalog_source_stage_contracts": _CATALOG_DOMAIN,
     "plan_catalog_source_modules": _CATALOG_DOMAIN,
     "resolve_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
+    "resolve_live_temporal_bounds": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "score_variable_pair": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
     "select_catalog_source_modules": _CATALOG_DOMAIN,
     "validate_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",

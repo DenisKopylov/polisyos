@@ -2133,18 +2133,40 @@ def _live_date_scope_is_admissible(
         or not date_end[:4].isdigit()
         or date_start[4:] != "-01-01"
         or date_end[4:] != "-12-31"
-        or entry.temporal_start is None
-        or entry.temporal_end is None
     ):
         return False
     try:
         start_year = int(date_start[:4])
         end_year = int(date_end[:4])
-        owner_start = int(str(entry.temporal_start)[:4])
-        owner_end = int(str(entry.temporal_end)[:4])
-    except (TypeError, ValueError):
+        owner_start, owner_end = resolve_live_temporal_bounds(entry)
+    except (TypeError, ValueError, AcquisitionAuthorityError):
         return False
+    if owner_start is None or owner_end is None:
+        return start_year <= end_year
     return owner_start <= start_year <= end_year <= owner_end
+
+
+def resolve_live_temporal_bounds(
+    entry: AcquisitionAuthorityEntry,
+) -> tuple[int | None, int | None]:
+    """Resolve optional catalog temporal bounds without inventing closed scope."""
+
+    if entry.temporal_start is None and entry.temporal_end is None:
+        return None, None
+    if entry.temporal_start is None or entry.temporal_end is None:
+        raise AcquisitionAuthorityError("live_authority_temporal_scope_invalid")
+    start_text = entry.temporal_start.strip()
+    end_text = entry.temporal_end.strip()
+    if not re.match(r"^\d{4}(?:$|[-T])", start_text) or not re.match(
+        r"^\d{4}(?:$|[-T])",
+        end_text,
+    ):
+        raise AcquisitionAuthorityError("live_authority_temporal_scope_invalid")
+    owner_start = int(start_text[:4])
+    owner_end = int(end_text[:4])
+    if owner_end < owner_start:
+        raise AcquisitionAuthorityError("live_authority_temporal_scope_invalid")
+    return owner_start, owner_end
 
 
 def _live_year_is_in_scope(
@@ -2388,5 +2410,6 @@ __all__ = [
     "derive_catalog_unit_from_text",
     "derive_license_disposition",
     "normalize_acquisition_unit",
+    "resolve_live_temporal_bounds",
     "verify_local_source_rights",
 ]

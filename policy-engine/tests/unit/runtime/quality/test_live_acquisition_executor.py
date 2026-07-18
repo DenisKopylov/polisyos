@@ -18,6 +18,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
+from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.fabric.connectors import (
     ResultSerializer,
     SourceProfileRegistry,
@@ -437,9 +438,10 @@ def _run(
     *,
     scenario: str = "success",
     constraints: LiveCatalogExecutionConstraints | None = None,
+    authority_entry: object | None = None,
 ) -> tuple[object, object, _OrchestratedWorldBankStub, Path]:
     repo_root = tmp_path / "repo"
-    entry = _entry()
+    entry = authority_entry or _entry()
     receipt = _family_receipt(scenario=scenario)
     receipt_provision = _write_family_receipt(
         repo_root,
@@ -479,6 +481,20 @@ def _run(
         cas_root=tmp_path / "cas",
     )
     return authority, result, stub, journal_path
+
+
+def _entry_with_temporal_scope(
+    temporal_start: str | None,
+    temporal_end: str | None,
+) -> object:
+    values = _entry().model_dump(mode="python", exclude={"entry_id"})
+    values["schema_columns"] = tuple(
+        catalog_read_api.AuthoritySchemaColumn.model_validate(column)
+        for column in values["schema_columns"]
+    )
+    values["temporal_start"] = temporal_start
+    values["temporal_end"] = temporal_end
+    return catalog_read_api.build_authority_entry(**values)
 
 
 def test_live_executor_uses_orchestration_and_returns_reopenable_one_call_evidence(
@@ -664,6 +680,34 @@ def test_live_executor_rejects_request_outside_owner_temporal_scope(
         _run(tmp_path, monkeypatch, constraints=outside)
 
     _assert_error_code(exc_info.value, "live_request_outside_authority_period")
+
+
+def test_live_executor_accepts_request_when_catalog_temporal_bounds_are_open(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, evidence, stub, _ = _run(
+        tmp_path,
+        monkeypatch,
+        authority_entry=_entry_with_temporal_scope(None, None),
+    )
+
+    assert evidence.call_count == 1
+    assert len(stub.calls) == 1
+
+
+def test_live_executor_rejects_half_declared_temporal_authority_scope(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    with pytest.raises(Exception) as exc_info:
+        _run(
+            tmp_path,
+            monkeypatch,
+            authority_entry=_entry_with_temporal_scope(None, "2024"),
+        )
+
+    _assert_error_code(exc_info.value, "live_authority_temporal_scope_invalid")
 
 
 def test_live_executor_rejects_country_outside_owner_scope(

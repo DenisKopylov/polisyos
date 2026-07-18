@@ -36,6 +36,17 @@ _HEARTBEAT_PHASES = frozenset(
         "body_progress",
     }
 )
+_LIVE_HEARTBEAT_PHASE_ORDER = {
+    "attempt_started": 0,
+    "waiting": 1,
+    "response_headers": 2,
+    "body_progress": 3,
+}
+_REQUIRED_LIVE_HEARTBEAT_PHASES = (
+    "attempt_started",
+    "response_headers",
+    "body_progress",
+)
 
 
 class EvidenceJournalError(RuntimeError):
@@ -99,6 +110,69 @@ class LiveHttpBudget(_StrictModel):
             raise ValueError("heartbeat interval must be derived from the timeout budget")
         if self.max_decompressed_bytes > self.max_response_bytes:
             raise ValueError("decompressed response cap cannot exceed the raw response cap")
+        return self
+
+
+class LiveTransportTrace(_StrictModel):
+    """Content-derived proof of exactly one journaled live HTTP attempt."""
+
+    schema_version: Literal["polisyos.fabric.live_transport_trace.v1"] = (
+        "polisyos.fabric.live_transport_trace.v1"
+    )
+    attempt_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    url: str = Field(min_length=1)
+    params: dict[str, object]
+    params_sha256: str = Field(pattern=_SHA256_PATTERN)
+    request_ref: JournalEventRef
+    transport_attempt_ref: JournalEventRef
+    heartbeat_refs: tuple[JournalEventRef, ...] = Field(min_length=3)
+    heartbeat_phases: tuple[str, ...] = Field(min_length=3)
+    raw_evidence_ref: JournalEventRef
+    call_count: Literal[1] = 1
+    trace_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _projection_is_content_derived(self) -> Self:
+        refs = (
+            self.request_ref,
+            self.transport_attempt_ref,
+            *self.heartbeat_refs,
+            self.raw_evidence_ref,
+        )
+        if len({ref.journal_path for ref in refs}) != 1:
+            raise ValueError("transport trace refs must share one journal")
+        if [ref.sequence for ref in refs] != sorted(ref.sequence for ref in refs):
+            raise ValueError("transport trace refs must preserve journal order")
+        if self.request_ref.event_kind != "request":
+            raise ValueError("transport trace request ref is invalid")
+        if self.transport_attempt_ref.event_kind != "transport_attempt":
+            raise ValueError("transport trace attempt ref is invalid")
+        if any(ref.event_kind != "heartbeat" for ref in self.heartbeat_refs):
+            raise ValueError("transport trace heartbeat ref is invalid")
+        if self.raw_evidence_ref.event_kind != "raw_response":
+            raise ValueError("transport trace raw ref is invalid")
+        if len(self.heartbeat_refs) != len(self.heartbeat_phases):
+            raise ValueError("transport trace heartbeat projection is incomplete")
+        if not _live_heartbeat_phases_are_valid(self.heartbeat_phases):
+            raise ValueError("transport trace heartbeat phases are invalid")
+        if self.params_sha256 != content_sha256(self.params):
+            raise ValueError("transport trace params identity is invalid")
+        expected_trace_sha = _live_transport_trace_sha256(
+            attempt_id=self.attempt_id,
+            connector_id=self.connector_id,
+            url=self.url,
+            params=self.params,
+            params_sha256=self.params_sha256,
+            request_ref=self.request_ref,
+            transport_attempt_ref=self.transport_attempt_ref,
+            heartbeat_refs=self.heartbeat_refs,
+            heartbeat_phases=self.heartbeat_phases,
+            raw_evidence_ref=self.raw_evidence_ref,
+            call_count=self.call_count,
+        )
+        if self.trace_sha256 != expected_trace_sha:
+            raise ValueError("transport trace identity must be recomputed")
         return self
 
 
@@ -199,6 +273,50 @@ def content_sha256(value: object) -> str:
     return f"sha256:{hashlib.sha256(canonical_json_bytes(value)).hexdigest()}"
 
 
+def _live_heartbeat_phases_are_valid(phases: Sequence[str]) -> bool:
+    if any(phase not in _LIVE_HEARTBEAT_PHASE_ORDER for phase in phases):
+        return False
+    ranks = [_LIVE_HEARTBEAT_PHASE_ORDER[phase] for phase in phases]
+    if ranks != sorted(ranks):
+        return False
+    return all(phases.count(required) == 1 for required in _REQUIRED_LIVE_HEARTBEAT_PHASES[:2]) and (
+        phases.count("body_progress") >= 1
+    )
+
+
+def _live_transport_trace_sha256(
+    *,
+    attempt_id: str,
+    connector_id: str,
+    url: str,
+    params: Mapping[str, object],
+    params_sha256: str,
+    request_ref: JournalEventRef,
+    transport_attempt_ref: JournalEventRef,
+    heartbeat_refs: Sequence[JournalEventRef],
+    heartbeat_phases: Sequence[str],
+    raw_evidence_ref: JournalEventRef,
+    call_count: int,
+) -> str:
+    return content_sha256(
+        {
+            "attempt_id": attempt_id,
+            "connector_id": connector_id,
+            "url": url,
+            "params": dict(params),
+            "params_sha256": params_sha256,
+            "request_event_sha256": request_ref.event_sha256,
+            "transport_event_sha256": transport_attempt_ref.event_sha256,
+            "heartbeat_event_sha256s": tuple(
+                ref.event_sha256 for ref in heartbeat_refs
+            ),
+            "heartbeat_phases": tuple(heartbeat_phases),
+            "raw_evidence_event_sha256": raw_evidence_ref.event_sha256,
+            "call_count": call_count,
+        }
+    )
+
+
 def append_fsync_jsonl(path: Path, event: Mapping[str, Any]) -> JournalEventRef:
     """Append one canonical JSONL event, flush it, fsync it, and return its ref."""
 
@@ -273,6 +391,203 @@ def resolve_raw_response_body(ref: JournalEventRef) -> bytes:
     if actual_hash != expected_hash or expected_size != len(body):
         raise EvidenceJournalError("raw_response_body_identity_drift", ref.event_sha256)
     return body
+
+
+def resolve_live_transport_trace(ref: JournalEventRef) -> LiveTransportTrace:
+    """Reopen a canonical journal and derive an exact one-call transport proof."""
+
+    if ref.event_kind != "raw_response":
+        raise EvidenceJournalError("raw_response_event_required", ref.event_kind)
+    records = _read_canonical_journal(Path(ref.journal_path))
+    raw_matches = [(event_ref, event) for event_ref, event in records if event_ref == ref]
+    if len(raw_matches) != 1:
+        raise EvidenceJournalError("journal_event_ref_unresolved", ref.event_sha256)
+    raw_ref, raw_event = raw_matches[0]
+    attempt_id = raw_event.get("attempt_id")
+    raw_payload = raw_event.get("raw_response")
+    if not isinstance(attempt_id, str) or not attempt_id.strip():
+        raise EvidenceJournalError("live_transport_attempt_id_invalid", ref.event_sha256)
+    if not isinstance(raw_payload, Mapping):
+        raise EvidenceJournalError("raw_response_payload_missing", ref.event_sha256)
+    transport_sha = raw_payload.get("transport_event_sha256")
+    if not isinstance(transport_sha, str):
+        raise EvidenceJournalError("live_transport_link_required", attempt_id)
+
+    transport_records = [
+        (event_ref, event)
+        for event_ref, event in records
+        if event.get("event_kind") == "transport_attempt"
+    ]
+    call_count = len(transport_records)
+    if call_count != 1:
+        raise EvidenceJournalError(
+            "live_transport_call_count_invalid",
+            f"{attempt_id}:{call_count}",
+        )
+    transport_ref, transport_event = transport_records[0]
+    if (
+        transport_event.get("attempt_id") != attempt_id
+        or transport_ref.event_sha256 != transport_sha
+    ):
+        raise EvidenceJournalError("live_transport_link_invalid", attempt_id)
+    transport_payload = transport_event.get("transport_attempt")
+    if not isinstance(transport_payload, Mapping):
+        raise EvidenceJournalError("live_transport_attempt_invalid", attempt_id)
+
+    request_sha = raw_payload.get("request_event_sha256")
+    transport_request_sha = transport_payload.get("request_event_sha256")
+    request_records = [
+        (event_ref, event)
+        for event_ref, event in records
+        if event.get("event_kind") == "request"
+        and event.get("attempt_id") == attempt_id
+        and event_ref.event_sha256 == request_sha
+    ]
+    if (
+        not isinstance(request_sha, str)
+        or transport_request_sha != request_sha
+        or len(request_records) != 1
+    ):
+        raise EvidenceJournalError("live_transport_request_link_invalid", attempt_id)
+    request_ref, request_event = request_records[0]
+    request_payload = request_event.get("request")
+    if (
+        not isinstance(request_payload, Mapping)
+        or request_event.get("request_sha256") != content_sha256(request_payload)
+    ):
+        raise EvidenceJournalError("live_transport_request_link_invalid", attempt_id)
+    if not request_ref.sequence < transport_ref.sequence < raw_ref.sequence:
+        raise EvidenceJournalError("live_transport_order_invalid", attempt_id)
+
+    connector_id = transport_payload.get("connector_id")
+    url = transport_payload.get("url")
+    params = transport_payload.get("params")
+    params_sha = transport_payload.get("params_sha256")
+    if (
+        not isinstance(connector_id, str)
+        or not connector_id.strip()
+        or not isinstance(url, str)
+        or not url.strip()
+        or not isinstance(params, Mapping)
+        or not isinstance(params_sha, str)
+        or params_sha != content_sha256(params)
+    ):
+        raise EvidenceJournalError("live_transport_attempt_invalid", attempt_id)
+    normalized_params = {str(key): value for key, value in params.items()}
+
+    heartbeat_records = [
+        (event_ref, event)
+        for event_ref, event in records
+        if event.get("event_kind") == "heartbeat"
+        and event.get("attempt_id") == attempt_id
+    ]
+    if not heartbeat_records or any(
+        not transport_ref.sequence < event_ref.sequence < raw_ref.sequence
+        for event_ref, _ in heartbeat_records
+    ):
+        raise EvidenceJournalError("live_transport_heartbeat_invalid", attempt_id)
+    heartbeat_refs: list[JournalEventRef] = []
+    heartbeat_phases: list[str] = []
+    previous_progress = 0
+    previous_elapsed = 0.0
+    for heartbeat_ref, heartbeat_event in heartbeat_records:
+        heartbeat = heartbeat_event.get("heartbeat")
+        if not isinstance(heartbeat, Mapping):
+            raise EvidenceJournalError("live_transport_heartbeat_invalid", attempt_id)
+        phase = heartbeat.get("phase")
+        progress = heartbeat.get("progress_bytes")
+        elapsed = heartbeat.get("elapsed_seconds")
+        if (
+            not isinstance(phase, str)
+            or not isinstance(progress, int)
+            or isinstance(progress, bool)
+            or not isinstance(elapsed, (int, float))
+            or isinstance(elapsed, bool)
+            or progress < previous_progress
+            or float(elapsed) < previous_elapsed
+        ):
+            raise EvidenceJournalError("live_transport_heartbeat_invalid", attempt_id)
+        heartbeat_refs.append(heartbeat_ref)
+        heartbeat_phases.append(phase)
+        previous_progress = progress
+        previous_elapsed = float(elapsed)
+    if not _live_heartbeat_phases_are_valid(heartbeat_phases):
+        raise EvidenceJournalError("live_transport_heartbeat_invalid", attempt_id)
+    body = resolve_raw_response_body(raw_ref)
+    if previous_progress != len(body):
+        raise EvidenceJournalError("live_transport_heartbeat_invalid", attempt_id)
+
+    heartbeat_ref_tuple = tuple(heartbeat_refs)
+    heartbeat_phase_tuple = tuple(heartbeat_phases)
+    trace_sha = _live_transport_trace_sha256(
+        attempt_id=attempt_id,
+        connector_id=connector_id,
+        url=url,
+        params=normalized_params,
+        params_sha256=params_sha,
+        request_ref=request_ref,
+        transport_attempt_ref=transport_ref,
+        heartbeat_refs=heartbeat_ref_tuple,
+        heartbeat_phases=heartbeat_phase_tuple,
+        raw_evidence_ref=raw_ref,
+        call_count=call_count,
+    )
+    return LiveTransportTrace(
+        attempt_id=attempt_id,
+        connector_id=connector_id,
+        url=url,
+        params=normalized_params,
+        params_sha256=params_sha,
+        request_ref=request_ref,
+        transport_attempt_ref=transport_ref,
+        heartbeat_refs=heartbeat_ref_tuple,
+        heartbeat_phases=heartbeat_phase_tuple,
+        raw_evidence_ref=raw_ref,
+        call_count=call_count,
+        trace_sha256=trace_sha,
+    )
+
+
+def _read_canonical_journal(
+    path: Path,
+) -> list[tuple[JournalEventRef, dict[str, Any]]]:
+    """Reopen and verify every canonical JSONL event in sequence order."""
+
+    if not path.is_file():
+        raise EvidenceJournalError("journal_event_ref_unresolved", path.as_posix())
+    journal_bytes = path.read_bytes()
+    payloads = journal_bytes.splitlines(keepends=True)
+    if not payloads or b"".join(payloads) != journal_bytes:
+        raise EvidenceJournalError("journal_not_canonical", path.as_posix())
+    records: list[tuple[JournalEventRef, dict[str, Any]]] = []
+    byte_offset = 0
+    for expected_sequence, payload in enumerate(payloads, start=1):
+        try:
+            event = json.loads(payload)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise EvidenceJournalError(
+                "journal_not_canonical",
+                path.as_posix(),
+            ) from exc
+        if (
+            not isinstance(event, dict)
+            or canonical_json_bytes(event) != payload
+            or event.get("sequence") != expected_sequence
+            or not isinstance(event.get("event_kind"), str)
+            or not str(event["event_kind"]).strip()
+        ):
+            raise EvidenceJournalError("journal_not_canonical", path.as_posix())
+        event_ref = JournalEventRef(
+            journal_path=path.as_posix(),
+            sequence=expected_sequence,
+            event_kind=str(event["event_kind"]),
+            event_sha256=f"sha256:{hashlib.sha256(payload).hexdigest()}",
+            byte_offset=byte_offset,
+            byte_length=len(payload),
+        )
+        records.append((event_ref, event))
+        byte_offset += len(payload)
+    return records
 
 
 def _read_verified_journal_event(ref: JournalEventRef) -> dict[str, Any]:
@@ -543,6 +858,7 @@ class AppendOnlyEvidenceJournal:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._sequence = 0
         self._requests: dict[str, JournalEventRef] = {}
+        self._transport_attempts: dict[str, list[JournalEventRef]] = {}
         self._raw_evidence: dict[str, JournalEventRef] = {}
         self._heartbeat_state: dict[str, tuple[int, float]] = {}
 
@@ -590,6 +906,44 @@ class AppendOnlyEvidenceJournal:
         self._requests[attempt_id] = ref
         return ref
 
+    def append_transport_attempt(
+        self,
+        *,
+        attempt_id: str,
+        request_ref: JournalEventRef,
+        connector_id: str,
+        url: str,
+        params: Mapping[str, object],
+    ) -> JournalEventRef:
+        """Persist each actual HTTP attempt, including retries, before transport."""
+
+        expected_request = self._requests.get(attempt_id)
+        if expected_request != request_ref or not verify_journal_event_ref(request_ref):
+            raise EvidenceJournalError("request_evidence_ref_invalid", attempt_id)
+        if not connector_id.strip():
+            raise EvidenceJournalError("transport_connector_missing", attempt_id)
+        if not url.strip():
+            raise EvidenceJournalError("transport_url_missing", attempt_id)
+        try:
+            params_sha = content_sha256(params)
+        except (TypeError, ValueError) as exc:
+            raise EvidenceJournalError("transport_params_invalid", attempt_id) from exc
+        ref = self._append(
+            "transport_attempt",
+            {
+                "attempt_id": attempt_id,
+                "transport_attempt": {
+                    "request_event_sha256": request_ref.event_sha256,
+                    "connector_id": connector_id,
+                    "url": url,
+                    "params": dict(params),
+                    "params_sha256": params_sha,
+                },
+            },
+        )
+        self._transport_attempts.setdefault(attempt_id, []).append(ref)
+        return ref
+
     def append_heartbeat(
         self,
         *,
@@ -632,6 +986,7 @@ class AppendOnlyEvidenceJournal:
         *,
         attempt_id: str,
         request_ref: JournalEventRef,
+        transport_ref: JournalEventRef | None = None,
         payload: bytes,
         status_code: int | None,
         response_headers: Mapping[str, str],
@@ -648,18 +1003,32 @@ class AppendOnlyEvidenceJournal:
             raise EvidenceJournalError("response_budget_exceeded", attempt_id)
         if status_code is not None and not 100 <= status_code <= 599:
             raise EvidenceJournalError("response_status_invalid", str(status_code))
+        if transport_ref is not None:
+            attempts = self._transport_attempts.get(attempt_id, [])
+            if transport_ref not in attempts or not verify_journal_event_ref(transport_ref):
+                raise EvidenceJournalError("transport_evidence_ref_invalid", attempt_id)
+            transport_event = resolve_journal_event_ref(transport_ref)
+            transport = transport_event.get("transport_attempt")
+            if (
+                not isinstance(transport, Mapping)
+                or transport.get("request_event_sha256") != request_ref.event_sha256
+            ):
+                raise EvidenceJournalError("transport_evidence_ref_invalid", attempt_id)
+        raw_response: dict[str, object] = {
+            "request_event_sha256": request_ref.event_sha256,
+            "status_code": status_code,
+            "response_headers": dict(sorted(response_headers.items())),
+            "bounded_body_base64": base64.b64encode(payload).decode("ascii"),
+            "body_sha256": f"sha256:{hashlib.sha256(payload).hexdigest()}",
+            "bytes_read": len(payload),
+        }
+        if transport_ref is not None:
+            raw_response["transport_event_sha256"] = transport_ref.event_sha256
         ref = self._append(
             "raw_response",
             {
                 "attempt_id": attempt_id,
-                "raw_response": {
-                    "request_event_sha256": request_ref.event_sha256,
-                    "status_code": status_code,
-                    "response_headers": dict(sorted(response_headers.items())),
-                    "bounded_body_base64": base64.b64encode(payload).decode("ascii"),
-                    "body_sha256": f"sha256:{hashlib.sha256(payload).hexdigest()}",
-                    "bytes_read": len(payload),
-                },
+                "raw_response": raw_response,
             },
         )
         self._raw_evidence[attempt_id] = ref
@@ -714,6 +1083,7 @@ __all__ = [
     "JournalEventRef",
     "LiveExecutionAuthorization",
     "LiveHttpBudget",
+    "LiveTransportTrace",
     "append_fsync_jsonl",
     "build_live_execution_authorization",
     "canonical_json_bytes",
@@ -723,6 +1093,7 @@ __all__ = [
     "require_authorized_execution",
     "resolve_journal_event_ref",
     "resolve_linked_request_event",
+    "resolve_live_transport_trace",
     "resolve_raw_response_body",
     "verify_journal_event_ref",
 ]

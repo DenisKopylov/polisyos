@@ -13,6 +13,7 @@ __all__ = [
     "JournalEventRef",
     "LiveExecutionAuthorization",
     "LiveHttpBudget",
+    "LiveTransportTrace",
     "QuarantineRecord",
     "QuarantineReport",
     "QuarantineReprocessResult",
@@ -48,6 +49,7 @@ __all__ = [
     "require_dataframe",
     "resolve_journal_event_ref",
     "resolve_linked_request_event",
+    "resolve_live_transport_trace",
     "resolve_raw_response_body",
     "run_orchestrated_ingestion",
     "verify_journal_event_ref",
@@ -77,6 +79,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LiveHttpBudget": (
         "polisyos.fabric.data_plane.evidence_journal",
         "LiveHttpBudget",
+    ),
+    "LiveTransportTrace": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveTransportTrace",
     ),
     "build_live_execution_authorization": (
         "polisyos.fabric.data_plane.evidence_journal",
@@ -109,6 +115,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "resolve_linked_request_event": (
         "polisyos.fabric.data_plane.evidence_journal",
         "resolve_linked_request_event",
+    ),
+    "resolve_live_transport_trace": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_live_transport_trace",
     ),
     "resolve_raw_response_body": (
         "polisyos.fabric.data_plane.evidence_journal",

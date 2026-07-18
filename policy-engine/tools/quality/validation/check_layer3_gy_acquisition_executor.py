@@ -23,6 +23,7 @@ from polisyos.runtime.quality.acquisition_executor import (
 )
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_CARRIER_LIVENESS_UPDATE,
+    DEFAULT_D6_PRIMARY_METADATA_EVIDENCE,
     DEFAULT_D6_PRIMARY_METADATA_OWNER,
     DEFAULT_D6_ROUTE_SELECTION,
     DEFAULT_METADATA_EXECUTION_EVIDENCE,
@@ -33,6 +34,7 @@ from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_TARGET_HARNESS_RECEIPT,
     bytes_sha256,
     classify_worldbank_indicator_metadata,
+    derive_d6_metadata_probe_execution_evidence,
     derive_d6_metadata_probe_owner,
     derive_d6_route_selection,
     derive_live_attempt_id,
@@ -84,6 +86,9 @@ def main() -> int:
     mode.add_argument("--write-metadata-evidence", action="store_true")
     mode.add_argument("--check-d6-route-owners", action="store_true")
     mode.add_argument("--write-d6-route-owners", action="store_true")
+    mode.add_argument("--execute-d6-metadata", action="store_true")
+    mode.add_argument("--check-d6-metadata-evidence", action="store_true")
+    mode.add_argument("--write-d6-metadata-evidence", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -132,7 +137,15 @@ def main() -> int:
     ):
         raise RuntimeError("resumption_owner_derivation_not_byte_stable")
 
-    if args.write_d6_route_owners or args.check_d6_route_owners:
+    if any(
+        (
+            args.write_d6_route_owners,
+            args.check_d6_route_owners,
+            args.execute_d6_metadata,
+            args.check_d6_metadata_evidence,
+            args.write_d6_metadata_evidence,
+        )
+    ):
         d6_selection, d6_metadata_owner = _recompute_d6_route_owners(
             catalog_path=args.catalog_path,
             census_path=args.census_path,
@@ -170,6 +183,105 @@ def main() -> int:
             },
             label="metadata_evidence",
         )
+        if args.execute_d6_metadata:
+            _check_payloads(d6_payloads, label="d6_route_owner")
+            evidence_path = POLICY_ENGINE_ROOT / DEFAULT_D6_PRIMARY_METADATA_EVIDENCE
+            require_new_live_execution_outputs(
+                journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+                cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+                evidence_path=evidence_path,
+                attempt_id=d6_metadata_owner.authorization.attempt_id,
+            )
+            _execute_metadata_probe(
+                owner=d6_metadata_owner,
+                journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+                cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+            )
+            evidence = derive_d6_metadata_probe_execution_evidence(
+                owner=d6_metadata_owner,
+                selection=d6_selection,
+                journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+                cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+                baseline_path=args.catalog_path,
+            )
+            _write_replace_bytes(
+                evidence_path,
+                canonical_json_bytes(evidence.model_dump(mode="json")),
+            )
+            print(
+                json.dumps(
+                    {
+                        "status": "d6_metadata_evidence_written",
+                        "attempt_id": evidence.attempt_id,
+                        "call_count": evidence.call_count,
+                        "terminal_outcome": evidence.terminal.outcome_code,
+                        "metadata_disposition": (
+                            evidence.classification.disposition
+                            if evidence.classification is not None
+                            else "metadata_transport_terminal"
+                        ),
+                        "metadata_source_id": (
+                            evidence.classification.source_id
+                            if evidence.classification is not None
+                            else None
+                        ),
+                        "baseline_before_sha256": evidence.baseline_before_sha256,
+                        "baseline_after_sha256": evidence.baseline_after_sha256,
+                        "evidence_file_sha256": bytes_sha256(evidence_path.read_bytes()),
+                    },
+                    sort_keys=True,
+                )
+            )
+            return 0
+        if args.check_d6_metadata_evidence or args.write_d6_metadata_evidence:
+            _check_payloads(d6_payloads, label="d6_route_owner")
+            evidence = derive_d6_metadata_probe_execution_evidence(
+                owner=d6_metadata_owner,
+                selection=d6_selection,
+                journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+                cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+                baseline_path=args.catalog_path,
+            )
+            second_evidence = derive_d6_metadata_probe_execution_evidence(
+                owner=d6_metadata_owner,
+                selection=d6_selection,
+                journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+                cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+                baseline_path=args.catalog_path,
+            )
+            payload = canonical_json_bytes(evidence.model_dump(mode="json"))
+            if payload != canonical_json_bytes(second_evidence.model_dump(mode="json")):
+                raise RuntimeError("d6_metadata_evidence_derivation_not_byte_stable")
+            evidence_payloads = {DEFAULT_D6_PRIMARY_METADATA_EVIDENCE: payload}
+            if args.write_d6_metadata_evidence:
+                _write_replace_bytes(
+                    POLICY_ENGINE_ROOT / DEFAULT_D6_PRIMARY_METADATA_EVIDENCE,
+                    payload,
+                )
+                status = "written"
+            else:
+                _check_payloads(evidence_payloads, label="d6_metadata_evidence")
+                status = "ok"
+            print(
+                json.dumps(
+                    {
+                        "status": status,
+                        "metadata_disposition": (
+                            evidence.classification.disposition
+                            if evidence.classification is not None
+                            else "metadata_transport_terminal"
+                        ),
+                        "metadata_source_id": (
+                            evidence.classification.source_id
+                            if evidence.classification is not None
+                            else None
+                        ),
+                        "byte_stable_passes": 2,
+                    },
+                    sort_keys=True,
+                )
+            )
+            return 0
         if args.write_d6_route_owners:
             for relative, payload in d6_payloads.items():
                 _write_replace_bytes(POLICY_ENGINE_ROOT / relative, payload)

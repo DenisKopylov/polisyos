@@ -78,6 +78,10 @@ DEFAULT_D6_PRIMARY_METADATA_OWNER = Path(
     "architecture/policy_design_case/"
     "layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json"
 )
+DEFAULT_D6_PRIMARY_METADATA_EVIDENCE = Path(
+    "architecture/policy_design_case/"
+    "layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json"
+)
 
 
 class CarrierDataDisposition(StrEnum):
@@ -550,6 +554,16 @@ class D6MetadataProbeOwner(_StrictModel):
             for key, value in self.model_dump(mode="json").items()
             if key != "owner_sha256"
         }
+
+
+@dataclass(frozen=True)
+class _ReopenedMetadataProbe:
+    """Shared journal/CAS reopening result for either metadata call owner."""
+
+    evidence: MetadataProbeExecutionEvidence
+    records: tuple[tuple[JournalEventRef, dict[str, Any], bytes], ...]
+    heartbeat_elapsed: tuple[float, ...]
+    raw_body: bytes | None
 
 
 def classify_worldbank_data_response(body: bytes) -> WorldBankDataResponseClassification:
@@ -1122,22 +1136,16 @@ def derive_d6_metadata_probe_owner(
     )
 
 
-def derive_metadata_probe_execution_evidence(
+def _reopen_metadata_probe_execution_evidence(
     *,
-    owner: MetadataProbeOwner,
-    r1_receipt: R1ForensicReceipt,
+    owner: MetadataProbeOwner | D6MetadataProbeOwner,
+    indicator_id: str,
     journal_path: Path,
     cas_root: Path,
     baseline_path: Path,
-) -> tuple[MetadataProbeExecutionEvidence, object]:
-    """Reopen R2 evidence and derive its N13a D3 carrier update."""
+) -> _ReopenedMetadataProbe:
+    """Reopen one metadata attempt through the shared journal/CAS evidence owner."""
 
-    from tools.quality.validation import layer3_gy_n13a_acquisition_census as census
-
-    owner = MetadataProbeOwner.model_validate(owner.model_dump(mode="python"))
-    r1 = R1ForensicReceipt.model_validate(r1_receipt.model_dump(mode="python"))
-    if owner.r1_receipt_sha256 != r1.receipt_sha256:
-        raise AcquisitionSelectionError("metadata_r1_receipt_drift", owner.owner_sha256)
     baseline_path = Path(baseline_path)
     baseline_sha = bytes_sha256(baseline_path.read_bytes())
     if baseline_sha != owner.baseline_sha256:
@@ -1192,7 +1200,7 @@ def derive_metadata_probe_execution_evidence(
         raw_body = resolve_raw_response_body(raw_ref)
         classification = classify_worldbank_indicator_metadata(
             raw_body,
-            indicator_id=r1.request_dataset_id,
+            indicator_id=indicator_id,
         )
         classification_events = tuple(
             event
@@ -1235,10 +1243,73 @@ def derive_metadata_probe_execution_evidence(
         "quarantine": True,
         "response_admitted": False,
     }
-    execution_evidence = MetadataProbeExecutionEvidence(
-        **values,
-        evidence_sha256=content_sha256(values),
+    return _ReopenedMetadataProbe(
+        evidence=MetadataProbeExecutionEvidence(
+            **values,
+            evidence_sha256=content_sha256(values),
+        ),
+        records=records,
+        heartbeat_elapsed=heartbeat_elapsed,
+        raw_body=raw_body,
     )
+
+
+def derive_d6_metadata_probe_execution_evidence(
+    *,
+    owner: D6MetadataProbeOwner,
+    selection: D6RouteSelection,
+    journal_path: Path,
+    cas_root: Path,
+    baseline_path: Path,
+) -> MetadataProbeExecutionEvidence:
+    """Reopen the D6 primary metadata call without admitting its response."""
+
+    resolved_owner = D6MetadataProbeOwner.model_validate(owner.model_dump(mode="python"))
+    selected = D6RouteSelection.model_validate(selection.model_dump(mode="python"))
+    if resolved_owner.route_selection_sha256 != selected.selection_sha256:
+        raise AcquisitionSelectionError("d6_metadata_route_selection_drift")
+    reopened = _reopen_metadata_probe_execution_evidence(
+        owner=resolved_owner,
+        indicator_id=selected.primary.request_dataset_id,
+        journal_path=journal_path,
+        cas_root=cas_root,
+        baseline_path=baseline_path,
+    )
+    return reopened.evidence
+
+
+def derive_metadata_probe_execution_evidence(
+    *,
+    owner: MetadataProbeOwner,
+    r1_receipt: R1ForensicReceipt,
+    journal_path: Path,
+    cas_root: Path,
+    baseline_path: Path,
+) -> tuple[MetadataProbeExecutionEvidence, object]:
+    """Reopen R2 evidence and derive its N13a D3 carrier update."""
+
+    from tools.quality.validation import layer3_gy_n13a_acquisition_census as census
+
+    owner = MetadataProbeOwner.model_validate(owner.model_dump(mode="python"))
+    r1 = R1ForensicReceipt.model_validate(r1_receipt.model_dump(mode="python"))
+    if owner.r1_receipt_sha256 != r1.receipt_sha256:
+        raise AcquisitionSelectionError("metadata_r1_receipt_drift", owner.owner_sha256)
+    reopened = _reopen_metadata_probe_execution_evidence(
+        owner=owner,
+        indicator_id=r1.request_dataset_id,
+        journal_path=journal_path,
+        cas_root=cas_root,
+        baseline_path=baseline_path,
+    )
+    execution_evidence = reopened.evidence
+    attempt_id = execution_evidence.attempt_id
+    request_ref = execution_evidence.request_ref
+    raw_ref = execution_evidence.raw_evidence_ref
+    terminal = execution_evidence.terminal
+    raw_body_sha = execution_evidence.raw_body_sha256
+    raw_body = reopened.raw_body
+    heartbeat_elapsed = reopened.heartbeat_elapsed
+    store = FileSystemCAS(Path(cas_root), ownership_enforced=False)
     data_attempts = tuple(
         census.RecurringCarrierAttemptEvidence(
             attempt_id=attempt.attempt_id,
@@ -2624,6 +2695,7 @@ def _read_mapping(path: Path, *, code: str) -> dict[str, object]:
 
 __all__ = [
     "DEFAULT_CARRIER_LIVENESS_UPDATE",
+    "DEFAULT_D6_PRIMARY_METADATA_EVIDENCE",
     "DEFAULT_D6_PRIMARY_METADATA_OWNER",
     "DEFAULT_D6_ROUTE_SELECTION",
     "DEFAULT_METADATA_EXECUTION_EVIDENCE",
@@ -2648,6 +2720,7 @@ __all__ = [
     "bytes_sha256",
     "classify_worldbank_data_response",
     "classify_worldbank_indicator_metadata",
+    "derive_d6_metadata_probe_execution_evidence",
     "derive_d6_metadata_probe_owner",
     "derive_d6_route_selection",
     "derive_live_attempt_id",

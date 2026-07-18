@@ -104,9 +104,7 @@ def _complete_trace(path: Path):
 def test_live_transport_trace_is_recomputed_from_exact_canonical_events(
     tmp_path: Path,
 ) -> None:
-    journal, request_ref, transport_ref, raw_ref = _complete_trace(
-        tmp_path / "live.jsonl"
-    )
+    journal, request_ref, transport_ref, raw_ref = _complete_trace(tmp_path / "live.jsonl")
 
     trace = resolve_live_transport_trace(raw_ref)
 
@@ -150,7 +148,7 @@ def test_second_transport_attempt_is_persisted_but_trace_fails_closed(
         resolve_live_transport_trace(raw_ref)
 
 
-def test_sibling_attempt_name_cannot_evade_the_one_call_fence(tmp_path: Path) -> None:
+def test_distinct_attempt_does_not_invalidate_prior_one_call_trace(tmp_path: Path) -> None:
     journal, _, _, raw_ref = _complete_trace(tmp_path / "renamed-retry.jsonl")
     sibling_request_ref = journal.append_request(
         attempt_id="attempt-live-retry",
@@ -171,11 +169,9 @@ def test_sibling_attempt_name_cannot_evade_the_one_call_fence(tmp_path: Path) ->
     assert sibling_request_ref.sequence == 7
     assert sibling_transport_ref.sequence == 8
     assert journal.path.read_bytes().count(b"\n") == 8
-    with pytest.raises(
-        EvidenceJournalError,
-        match="live_transport_call_count_invalid.*attempt-live:2",
-    ):
-        resolve_live_transport_trace(raw_ref)
+    trace = resolve_live_transport_trace(raw_ref)
+    assert trace.attempt_id == "attempt-live"
+    assert trace.call_count == 1
 
 
 @pytest.mark.parametrize(
@@ -281,9 +277,7 @@ def test_local_raw_evidence_remains_valid_without_a_transport_attempt(
         budget=_budget(),
     )
 
-    assert resolve_journal_event_ref(raw_ref)["raw_response"].get(
-        "transport_event_sha256"
-    ) is None
+    assert resolve_journal_event_ref(raw_ref)["raw_response"].get("transport_event_sha256") is None
     with pytest.raises(EvidenceJournalError, match="live_transport_link_required"):
         resolve_live_transport_trace(raw_ref)
 

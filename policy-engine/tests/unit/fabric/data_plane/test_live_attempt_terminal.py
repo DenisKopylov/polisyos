@@ -134,6 +134,61 @@ def test_terminal_is_unique_and_closes_the_attempt(tmp_path: Path) -> None:
         )
 
 
+def test_closed_journal_reopens_and_appends_a_distinct_attempt(tmp_path: Path) -> None:
+    path = tmp_path / "recurring.jsonl"
+    first = AppendOnlyEvidenceJournal(path)
+    first_request = _request(first, "attempt-1")
+    first.append_failure_terminal(
+        attempt_id="attempt-1",
+        request_ref=first_request,
+        failure_code="transport_timeout",
+    )
+    first_attempt_bytes = path.read_bytes()
+
+    reopened = AppendOnlyEvidenceJournal(path)
+    second_request = _request(reopened, "attempt-2")
+    reopened.append_failure_terminal(
+        attempt_id="attempt-2",
+        request_ref=second_request,
+        failure_code="network_unreachable",
+    )
+
+    assert second_request.sequence == 3
+    assert path.read_bytes().startswith(first_attempt_bytes)
+    assert [terminal.attempt_id for terminal in resolve_live_attempt_terminals(path)] == [
+        "attempt-1",
+        "attempt-2",
+    ]
+    with pytest.raises(EvidenceJournalError, match="duplicate_attempt_request"):
+        _request(reopened, "attempt-1")
+
+
+def test_journal_reopen_rejects_incomplete_or_tampered_history(tmp_path: Path) -> None:
+    incomplete_path = tmp_path / "incomplete.jsonl"
+    incomplete = AppendOnlyEvidenceJournal(incomplete_path)
+    _request(incomplete)
+    with pytest.raises(EvidenceJournalError, match="live_attempt_terminal_missing"):
+        AppendOnlyEvidenceJournal(incomplete_path)
+
+    tampered_path = tmp_path / "tampered.jsonl"
+    tampered = AppendOnlyEvidenceJournal(tampered_path)
+    request_ref = _request(tampered)
+    tampered.append_failure_terminal(
+        attempt_id="attempt-1",
+        request_ref=request_ref,
+        failure_code="transport_timeout",
+    )
+    tampered_path.write_bytes(
+        tampered_path.read_bytes().replace(
+            b'"failure_code":"transport_timeout"',
+            b'"failure_code":"network_timeout"',
+            1,
+        )
+    )
+    with pytest.raises(EvidenceJournalError, match="live_terminal_identity_drift"):
+        AppendOnlyEvidenceJournal(tampered_path)
+
+
 def test_terminal_resolution_rejects_a_fabricated_outcome(tmp_path: Path) -> None:
     path = tmp_path / "fabricated.jsonl"
     journal = AppendOnlyEvidenceJournal(path)

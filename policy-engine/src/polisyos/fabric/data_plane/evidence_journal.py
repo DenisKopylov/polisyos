@@ -775,7 +775,7 @@ def resolve_live_transport_trace(ref: JournalEventRef) -> LiveTransportTrace:
     transport_records = [
         (event_ref, event)
         for event_ref, event in records
-        if event.get("event_kind") == "transport_attempt"
+        if event.get("event_kind") == "transport_attempt" and event.get("attempt_id") == attempt_id
     ]
     call_count = len(transport_records)
     if call_count != 1:
@@ -1204,12 +1204,18 @@ def require_authorized_execution(
 
 
 class AppendOnlyEvidenceJournal:
-    """Single-run owner for request, heartbeat, raw evidence, and classification."""
+    """Recurring owner for request, heartbeat, raw evidence, and classification.
+
+    A non-empty journal is appendable only after every prior attempt is
+    terminal-closed and the complete canonical history is content-verified.
+    This preserves paid evidence across recurring runs without allowing an
+    incomplete or edited history to authorize another carrier.
+    """
 
     def __init__(self, path: Path) -> None:
         self.path = Path(path)
-        if self.path.exists() and self.path.stat().st_size:
-            raise EvidenceJournalError("journal_not_empty", self.path.as_posix())
+        if self.path.exists() and not self.path.is_file():
+            raise EvidenceJournalError("journal_not_canonical", self.path.as_posix())
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self._sequence = 0
         self._requests: dict[str, JournalEventRef] = {}
@@ -1217,17 +1223,204 @@ class AppendOnlyEvidenceJournal:
         self._raw_evidence: dict[str, JournalEventRef] = {}
         self._terminals: dict[str, JournalEventRef] = {}
         self._heartbeat_state: dict[str, tuple[int, float]] = {}
+        if self.path.exists() and self.path.stat().st_size:
+            self._reopen_completed_history()
+        self._expected_journal_sha256 = self._current_journal_sha256()
 
     def _append(self, event_kind: str, payload: Mapping[str, Any]) -> JournalEventRef:
-        self._sequence += 1
-        return append_fsync_jsonl(
+        if self._current_journal_sha256() != self._expected_journal_sha256:
+            raise EvidenceJournalError("journal_changed_since_open", self.path.as_posix())
+        next_sequence = self._sequence + 1
+        ref = append_fsync_jsonl(
             self.path,
             {
-                "sequence": self._sequence,
+                "sequence": next_sequence,
                 "event_kind": event_kind,
                 **dict(payload),
             },
         )
+        self._sequence = next_sequence
+        self._expected_journal_sha256 = self._current_journal_sha256()
+        return ref
+
+    def _current_journal_sha256(self) -> str:
+        payload = self.path.read_bytes() if self.path.is_file() else b""
+        return f"sha256:{hashlib.sha256(payload).hexdigest()}"
+
+    def _reopen_completed_history(self) -> None:
+        records = _read_canonical_journal(self.path)
+        terminals = resolve_live_attempt_terminals(self.path)
+        terminal_refs = {
+            str(event["attempt_id"]): event_ref
+            for event_ref, event in records
+            if event.get("event_kind") == "live_attempt_terminal"
+        }
+        self._sequence = records[-1][0].sequence
+        for terminal in terminals:
+            self._requests[terminal.attempt_id] = terminal.request_ref
+            if terminal.raw_evidence_ref is not None:
+                self._raw_evidence[terminal.attempt_id] = terminal.raw_evidence_ref
+            self._terminals[terminal.attempt_id] = terminal_refs[terminal.attempt_id]
+
+        for event_ref, event in records:
+            attempt_id = event.get("attempt_id")
+            event_kind = event.get("event_kind")
+            if not isinstance(attempt_id, str) or attempt_id not in self._requests:
+                raise EvidenceJournalError(
+                    "journal_attempt_unresolved",
+                    str(attempt_id),
+                )
+            if event_kind == "request":
+                self._validate_reopened_request(event_ref, event)
+            elif event_kind == "transport_attempt":
+                self._validate_reopened_transport(event_ref, event)
+            elif event_kind == "heartbeat":
+                self._validate_reopened_heartbeat(event_ref, event)
+            elif event_kind == "raw_response":
+                if self._raw_evidence.get(attempt_id) != event_ref:
+                    raise EvidenceJournalError("raw_evidence_ref_invalid", attempt_id)
+            elif event_kind == "classification":
+                self._validate_reopened_classification(event_ref, event)
+            elif event_kind == "live_attempt_terminal":
+                if self._terminals.get(attempt_id) != event_ref:
+                    raise EvidenceJournalError("duplicate_live_attempt_terminal", attempt_id)
+            else:
+                raise EvidenceJournalError(
+                    "journal_event_kind_unsupported",
+                    str(event_kind),
+                )
+
+        for attempt_id, attempts in self._transport_attempts.items():
+            if len(attempts) != 1:
+                raise EvidenceJournalError(
+                    "live_transport_call_count_invalid",
+                    f"{attempt_id}:{len(attempts)}",
+                )
+        for raw_ref in self._raw_evidence.values():
+            raw_event = resolve_journal_event_ref(raw_ref)
+            raw_payload = raw_event.get("raw_response")
+            if (
+                isinstance(raw_payload, Mapping)
+                and raw_payload.get("transport_event_sha256") is not None
+            ):
+                resolve_live_transport_trace(raw_ref)
+
+    def _validate_reopened_request(
+        self,
+        event_ref: JournalEventRef,
+        event: Mapping[str, Any],
+    ) -> None:
+        attempt_id = str(event["attempt_id"])
+        request = event.get("request")
+        if (
+            set(event) != {"sequence", "event_kind", "attempt_id", "request", "request_sha256"}
+            or self._requests.get(attempt_id) != event_ref
+            or not isinstance(request, Mapping)
+            or event.get("request_sha256") != content_sha256(request)
+        ):
+            raise EvidenceJournalError("request_evidence_ref_invalid", attempt_id)
+        variable = request.get("variable_id")
+        variables = request.get("request_variables")
+        one_variable = isinstance(variable, str) and bool(variable.strip())
+        if isinstance(variables, Sequence) and not isinstance(
+            variables,
+            (str, bytes, bytearray),
+        ):
+            one_variable = len(variables) == 1 and bool(str(variables[0]).strip())
+        schema_contract = request.get("schema_contract")
+        if not one_variable or not isinstance(schema_contract, Mapping) or not schema_contract:
+            raise EvidenceJournalError("journal_request_contract_invalid", attempt_id)
+
+    def _validate_reopened_transport(
+        self,
+        event_ref: JournalEventRef,
+        event: Mapping[str, Any],
+    ) -> None:
+        attempt_id = str(event["attempt_id"])
+        transport = event.get("transport_attempt")
+        request_ref = self._requests[attempt_id]
+        terminal_ref = self._terminals[attempt_id]
+        if (
+            set(event) != {"sequence", "event_kind", "attempt_id", "transport_attempt"}
+            or not isinstance(transport, Mapping)
+            or set(transport)
+            != {
+                "request_event_sha256",
+                "connector_id",
+                "url",
+                "params",
+                "params_sha256",
+            }
+            or transport.get("request_event_sha256") != request_ref.event_sha256
+            or not isinstance(transport.get("connector_id"), str)
+            or not str(transport["connector_id"]).strip()
+            or not isinstance(transport.get("url"), str)
+            or not str(transport["url"]).strip()
+            or not isinstance(transport.get("params"), Mapping)
+            or transport.get("params_sha256") != content_sha256(transport["params"])
+            or not request_ref.sequence < event_ref.sequence < terminal_ref.sequence
+        ):
+            raise EvidenceJournalError("transport_evidence_ref_invalid", attempt_id)
+        self._transport_attempts.setdefault(attempt_id, []).append(event_ref)
+
+    def _validate_reopened_heartbeat(
+        self,
+        event_ref: JournalEventRef,
+        event: Mapping[str, Any],
+    ) -> None:
+        attempt_id = str(event["attempt_id"])
+        heartbeat = event.get("heartbeat")
+        request_ref = self._requests[attempt_id]
+        terminal_ref = self._terminals[attempt_id]
+        raw_ref = self._raw_evidence.get(attempt_id)
+        if (
+            set(event) != {"sequence", "event_kind", "attempt_id", "heartbeat"}
+            or not isinstance(heartbeat, Mapping)
+            or set(heartbeat) != {"phase", "progress_bytes", "elapsed_seconds"}
+            or heartbeat.get("phase") not in _HEARTBEAT_PHASES
+            or not isinstance(heartbeat.get("progress_bytes"), int)
+            or isinstance(heartbeat.get("progress_bytes"), bool)
+            or int(heartbeat["progress_bytes"]) < 0
+            or not isinstance(heartbeat.get("elapsed_seconds"), (int, float))
+            or isinstance(heartbeat.get("elapsed_seconds"), bool)
+            or float(heartbeat["elapsed_seconds"]) < 0
+            or not request_ref.sequence < event_ref.sequence < terminal_ref.sequence
+            or (raw_ref is not None and event_ref.sequence >= raw_ref.sequence)
+        ):
+            raise EvidenceJournalError("heartbeat_evidence_invalid", attempt_id)
+        progress = int(heartbeat["progress_bytes"])
+        elapsed = float(heartbeat["elapsed_seconds"])
+        previous_progress, previous_elapsed = self._heartbeat_state.get(
+            attempt_id,
+            (0, 0.0),
+        )
+        if progress < previous_progress or elapsed < previous_elapsed:
+            raise EvidenceJournalError("heartbeat_evidence_invalid", attempt_id)
+        self._heartbeat_state[attempt_id] = (progress, elapsed)
+
+    def _validate_reopened_classification(
+        self,
+        event_ref: JournalEventRef,
+        event: Mapping[str, Any],
+    ) -> None:
+        attempt_id = str(event["attempt_id"])
+        raw_ref = self._raw_evidence.get(attempt_id)
+        terminal_ref = self._terminals[attempt_id]
+        if (
+            set(event)
+            != {
+                "sequence",
+                "event_kind",
+                "attempt_id",
+                "evidence_event_sha256",
+                "classification",
+            }
+            or raw_ref is None
+            or event.get("evidence_event_sha256") != raw_ref.event_sha256
+            or not isinstance(event.get("classification"), Mapping)
+            or not raw_ref.sequence < event_ref.sequence < terminal_ref.sequence
+        ):
+            raise EvidenceJournalError("classification_evidence_invalid", attempt_id)
 
     def append_request(
         self,

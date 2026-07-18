@@ -1697,10 +1697,7 @@ def _derive_rejection_codes(
         codes.update(f"schema:{code}" for code in schema_validation.drift_codes)
     if not source_authority_verified:
         codes.add("source_authority_unverified")
-    if observation_class is ObservationProvenanceClass.DERIVED:
-        codes.add("derived_cannot_enter_observed_overlay")
-    if observation_class is ObservationProvenanceClass.MODEL_OUTPUT:
-        codes.add("model_output_not_observation")
+    codes.update(derive_observation_provenance_rejections(observation_class))
     if field_binding.is_proxy and observation_class is ObservationProvenanceClass.OBSERVED:
         codes.add("proxy_cannot_masquerade_as_observed")
     if observation_class is ObservationProvenanceClass.PROXY and not field_binding.is_proxy:
@@ -1708,6 +1705,19 @@ def _derive_rejection_codes(
     if field_binding.is_proxy and field_binding.proxy_penalty <= 0.0:
         codes.add("proxy_penalty_missing")
     return tuple(sorted(codes))
+
+
+def derive_observation_provenance_rejections(
+    observation_class: ObservationProvenanceClass,
+) -> tuple[str, ...]:
+    """Derive fail-closed observed-overlay rejections from provenance class."""
+
+    provenance = ObservationProvenanceClass(observation_class)
+    if provenance is ObservationProvenanceClass.DERIVED:
+        return ("derived_cannot_enter_observed_overlay",)
+    if provenance is ObservationProvenanceClass.MODEL_OUTPUT:
+        return ("model_output_not_observation",)
+    return ()
 
 
 def _derive_status(
@@ -1799,6 +1809,7 @@ __all__ = [
     "PIIScanEvidence",
     "build_admission_passport",
     "build_metadata_schema_profile",
+    "derive_observation_provenance_rejections",
     "measure_quarantined_sample",
     "persist_acquisition_quarantine",
     "revalidate_admission_passport",

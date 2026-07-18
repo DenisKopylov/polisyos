@@ -29,9 +29,32 @@ from polisyos.runtime.quality.acquisition_executor import (
     ObservationProvenanceClass,
     build_admission_passport,
     build_metadata_schema_profile,
+    derive_observation_provenance_rejections,
     persist_acquisition_quarantine,
     revalidate_admission_passport,
 )
+
+
+@pytest.mark.parametrize(
+    ("observation_class", "expected"),
+    [
+        (ObservationProvenanceClass.OBSERVED, ()),
+        (ObservationProvenanceClass.PROXY, ()),
+        (
+            ObservationProvenanceClass.DERIVED,
+            ("derived_cannot_enter_observed_overlay",),
+        ),
+        (
+            ObservationProvenanceClass.MODEL_OUTPUT,
+            ("model_output_not_observation",),
+        ),
+    ],
+)
+def test_observation_provenance_rejections_are_structural(
+    observation_class: ObservationProvenanceClass,
+    expected: tuple[str, ...],
+) -> None:
+    assert derive_observation_provenance_rejections(observation_class) == expected
 
 
 def _sha(path: Path) -> str:

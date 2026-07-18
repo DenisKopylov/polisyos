@@ -8,10 +8,12 @@ import asyncio
 import json
 import os
 import re
+import tempfile
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
+from polisyos.core import artifacts
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.fabric.data_plane import (
     AppendOnlyEvidenceJournal,
@@ -48,13 +50,19 @@ from tools.quality.validation.layer3_gy_acquisition_executor import (
 )
 from tools.quality.validation.layer3_gy_n13b_acceptance import (
     DEFAULT_ACCEPTANCE_AUTHORITY_OWNER,
+    DEFAULT_ACCEPTANCE_CASE,
     DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS,
+    DEFAULT_ACCEPTANCE_FALLBACK_SELECTION,
     DEFAULT_ACCEPTANCE_INPUT_SELECTION,
     DEFAULT_ACCEPTANCE_LIVE_EXECUTION,
+    AcceptanceCaseReceipt,
     AcceptanceLiveExecutionReceipt,
     derive_acceptance_authority_owners,
+    derive_acceptance_fallback_selection,
     derive_acceptance_input_selection,
     derive_acceptance_live_execution_receipt,
+    materialize_acceptance_case,
+    verify_persisted_acceptance_case,
 )
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
@@ -121,6 +129,10 @@ def main() -> int:
     mode.add_argument("--write-acceptance-authority", action="store_true")
     mode.add_argument("--execute-acceptance-deflator", action="store_true")
     mode.add_argument("--check-acceptance-execution", action="store_true")
+    mode.add_argument("--check-acceptance-fallback", action="store_true")
+    mode.add_argument("--write-acceptance-fallback", action="store_true")
+    mode.add_argument("--check-acceptance-case", action="store_true")
+    mode.add_argument("--write-acceptance-case", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -168,6 +180,161 @@ def main() -> int:
         second_metadata_owner,
     ):
         raise RuntimeError("resumption_owner_derivation_not_byte_stable")
+
+    if any(
+        (
+            args.check_acceptance_fallback,
+            args.write_acceptance_fallback,
+            args.check_acceptance_case,
+            args.write_acceptance_case,
+        )
+    ):
+        acceptance, live_receipt = _recompute_acceptance_terminal_context(
+            catalog_path=args.catalog_path,
+            l5_path=args.l5_path,
+            census_path=args.census_path,
+            substrate_path=args.substrate_path,
+            r1=r1,
+        )
+        fallback = derive_acceptance_fallback_selection(
+            input_selection=acceptance,
+            live_execution=live_receipt,
+            catalog_path=args.catalog_path,
+        )
+        second_fallback = derive_acceptance_fallback_selection(
+            input_selection=acceptance,
+            live_execution=live_receipt,
+            catalog_path=args.catalog_path,
+        )
+        fallback_payload = canonical_json_bytes(fallback.model_dump(mode="json"))
+        if fallback_payload != canonical_json_bytes(second_fallback.model_dump(mode="json")):
+            raise RuntimeError("acceptance_fallback_not_byte_stable")
+        if args.check_acceptance_fallback or args.write_acceptance_fallback:
+            if args.write_acceptance_fallback:
+                _write_replace_bytes(
+                    POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_FALLBACK_SELECTION,
+                    fallback_payload,
+                )
+                status = "acceptance_fallback_written"
+            else:
+                _check_payloads(
+                    {DEFAULT_ACCEPTANCE_FALLBACK_SELECTION: fallback_payload},
+                    label="acceptance_fallback",
+                )
+                status = "ok"
+            print(
+                json.dumps(
+                    {
+                        "status": status,
+                        "disposition": fallback.disposition,
+                        "all_local_series_group_count": (fallback.all_local_series_group_count),
+                        "local_index_denominator_count": (fallback.local_index_denominator_count),
+                        "eligible_local_deflator_count": (fallback.eligible_local_deflator_count),
+                        "selected_deflator": (
+                            fallback.selected_deflator.raw_variable
+                            if fallback.selected_deflator is not None
+                            else None
+                        ),
+                        "exact_overlap_years": fallback.exact_overlap_years,
+                        "recipe_base_year": fallback.recipe_base_year,
+                        "selection_sha256": fallback.selection_sha256,
+                        "byte_stable_passes": 2,
+                        "live_network_calls": 0,
+                    },
+                    sort_keys=True,
+                )
+            )
+            return 0
+
+        _check_payloads(
+            {DEFAULT_ACCEPTANCE_FALLBACK_SELECTION: fallback_payload},
+            label="acceptance_fallback",
+        )
+        case_path = POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_CASE
+        cas_root = POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT
+        scratch_root = POLICY_ENGINE_ROOT / ".tmp"
+        scratch_root.mkdir(parents=True, exist_ok=True)
+        if args.write_acceptance_case:
+            if case_path.exists():
+                raise RuntimeError("acceptance_case_output_already_exists")
+            receipt = materialize_acceptance_case(
+                input_selection=acceptance,
+                fallback_selection=fallback,
+                store=artifacts.FileSystemCAS(cas_root),
+            )
+            verify_persisted_acceptance_case(
+                artifacts.FileSystemCAS(cas_root),
+                receipt,
+            )
+            with tempfile.TemporaryDirectory(
+                prefix="gy-n13b-acceptance-case-",
+                dir=scratch_root,
+            ) as temporary:
+                second_receipt = materialize_acceptance_case(
+                    input_selection=acceptance,
+                    fallback_selection=fallback,
+                    store=artifacts.FileSystemCAS(Path(temporary) / "cas"),
+                )
+            payload = canonical_json_bytes(receipt.model_dump(mode="json"))
+            if payload != canonical_json_bytes(second_receipt.model_dump(mode="json")):
+                raise RuntimeError("acceptance_case_not_byte_stable")
+            _write_replace_bytes(case_path, payload)
+            status = "acceptance_case_written"
+        else:
+            try:
+                receipt = AcceptanceCaseReceipt.model_validate_json(case_path.read_bytes())
+            except (OSError, ValueError) as exc:
+                raise RuntimeError("acceptance_case_invalid") from exc
+            verify_persisted_acceptance_case(
+                artifacts.FileSystemCAS(cas_root),
+                receipt,
+            )
+            scratch_receipts = []
+            for ordinal in range(2):
+                with tempfile.TemporaryDirectory(
+                    prefix=f"gy-n13b-acceptance-check-{ordinal}-",
+                    dir=scratch_root,
+                ) as temporary:
+                    scratch_receipts.append(
+                        materialize_acceptance_case(
+                            input_selection=acceptance,
+                            fallback_selection=fallback,
+                            store=artifacts.FileSystemCAS(Path(temporary) / "cas"),
+                        )
+                    )
+            payload = canonical_json_bytes(scratch_receipts[0].model_dump(mode="json"))
+            if payload != canonical_json_bytes(scratch_receipts[1].model_dump(mode="json")):
+                raise RuntimeError("acceptance_case_not_byte_stable")
+            _check_payloads(
+                {DEFAULT_ACCEPTANCE_CASE: payload},
+                label="acceptance_case",
+            )
+            status = "ok"
+        print(
+            json.dumps(
+                {
+                    "status": status,
+                    "disposition": receipt.disposition,
+                    "recipe_id": receipt.recipe.recipe_id,
+                    "derived_artifact_id": receipt.derived_artifact_id,
+                    "certificate_artifact_id": receipt.certificate_artifact_id,
+                    "effective_authority": str(receipt.certificate.effective_authority),
+                    "first_materialization_cache_hit": (receipt.first_materialization_cache_hit),
+                    "second_materialization_cache_hit": (receipt.second_materialization_cache_hit),
+                    "consumer_method_ids": [item.consumer_method_id for item in receipt.consumers],
+                    "basis_mismatch_refusal_code": (receipt.basis_mismatch_refusal_code),
+                    "model_output_observation_rejection_codes": (
+                        receipt.model_output_observation_rejection_codes
+                    ),
+                    "receipt_sha256": receipt.receipt_sha256,
+                    "byte_stable_passes": 2,
+                    "live_network_calls": 0,
+                    "remaining_resumption_call_budget": 3,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
 
     if args.check_acceptance_inputs or args.write_acceptance_inputs:
         paid_success_elapsed = _paid_success_elapsed_seconds(r1)
@@ -947,6 +1114,69 @@ def _recompute_resumption_owners(*, catalog_path: Path) -> tuple[Any, Any]:
         fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
     )
     return r1, metadata_owner
+
+
+def _recompute_acceptance_terminal_context(
+    *,
+    catalog_path: Path,
+    l5_path: Path,
+    census_path: Path,
+    substrate_path: Path,
+    r1: Any,
+) -> tuple[Any, AcceptanceLiveExecutionReceipt]:
+    paid_success_elapsed = _paid_success_elapsed_seconds(r1)
+    acceptance = derive_acceptance_input_selection(
+        catalog_path=catalog_path,
+        census_path=census_path,
+        r1_paid_success_elapsed_seconds=paid_success_elapsed,
+    )
+    _check_payloads(
+        {
+            DEFAULT_ACCEPTANCE_INPUT_SELECTION: canonical_json_bytes(
+                acceptance.model_dump(mode="json")
+            )
+        },
+        label="acceptance_input_selection",
+    )
+    base_owners = _recompute_target_owners(
+        catalog_path=catalog_path,
+        l5_path=l5_path,
+        census_path=census_path,
+        substrate_path=substrate_path,
+        attempt_count=len(r1.attempts),
+    )
+    acceptance_owners = derive_acceptance_authority_owners(
+        acceptance,
+        base_owners=base_owners,
+        catalog_path=catalog_path,
+        baseline_owner_ref=DEFAULT_CATALOG_OWNER_REF,
+        l5_path=l5_path,
+        l5_owner_ref=DEFAULT_L5_OWNER_REF,
+        fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
+    )
+    _check_payloads(acceptance_owners.payloads(), label="acceptance_authority")
+    try:
+        frozen_live = AcceptanceLiveExecutionReceipt.model_validate_json(
+            (POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_LIVE_EXECUTION).read_bytes()
+        )
+    except (OSError, ValueError) as exc:
+        raise RuntimeError("acceptance_execution_evidence_invalid") from exc
+    live_receipt = derive_acceptance_live_execution_receipt(
+        selection=acceptance,
+        authority_owner=acceptance_owners.owner,
+        journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+        baseline_path=catalog_path,
+        live_source_execution=frozen_live.live_source_execution,
+    )
+    _check_payloads(
+        {
+            DEFAULT_ACCEPTANCE_LIVE_EXECUTION: canonical_json_bytes(
+                live_receipt.model_dump(mode="json")
+            )
+        },
+        label="acceptance_execution",
+    )
+    return acceptance, live_receipt
 
 
 def _resumption_owner_payloads(r1: Any, metadata_owner: Any) -> dict[Path, bytes]:

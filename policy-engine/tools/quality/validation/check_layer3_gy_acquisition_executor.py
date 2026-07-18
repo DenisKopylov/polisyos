@@ -66,19 +66,30 @@ def main() -> int:
     parser.add_argument("--country-code", default="UKR")
     parser.add_argument("--start-year", type=int)
     parser.add_argument("--end-year", type=int)
+    parser.add_argument("--attempt-count", type=int, default=1)
+    parser.add_argument("--attempt-ordinal", type=int, default=1)
+    parser.add_argument("--page-size", type=int, default=10)
     args = parser.parse_args()
+    if args.attempt_count < 1:
+        parser.error("--attempt-count must be at least 1")
+    if not 1 <= args.attempt_ordinal <= args.attempt_count:
+        parser.error("--attempt-ordinal must be within --attempt-count")
+    if args.page_size < 1:
+        parser.error("--page-size must be at least 1")
 
     owners = _recompute_target_owners(
         catalog_path=args.catalog_path,
         l5_path=args.l5_path,
         census_path=args.census_path,
         substrate_path=args.substrate_path,
+        attempt_count=args.attempt_count,
     )
     second = _recompute_target_owners(
         catalog_path=args.catalog_path,
         l5_path=args.l5_path,
         census_path=args.census_path,
         substrate_path=args.substrate_path,
+        attempt_count=args.attempt_count,
     )
     if owners.payloads() != second.payloads():
         raise RuntimeError("target_owner_derivation_not_byte_stable")
@@ -90,10 +101,15 @@ def main() -> int:
         journal_path = POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL
         cas_root = POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT
         evidence_path = POLICY_ENGINE_ROOT / DEFAULT_LIVE_EXECUTION_EVIDENCE
+        attempt_id = derive_live_attempt_id(
+            owners.selection,
+            attempt_ordinal=args.attempt_ordinal,
+        )
         require_new_live_execution_outputs(
             journal_path=journal_path,
             cas_root=cas_root,
             evidence_path=evidence_path,
+            attempt_id=attempt_id,
         )
         authority = data_forge_read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
             repo_root=POLICY_ENGINE_ROOT,
@@ -103,12 +119,12 @@ def main() -> int:
         evidence = execute_live_catalog_acquisition(
             authority=authority,
             entry_id=owners.entry.entry_id,
-            attempt_id=derive_live_attempt_id(owners.selection),
+            attempt_id=attempt_id,
             constraints=LiveCatalogExecutionConstraints(
                 country_code=args.country_code,
                 start_year=args.start_year,
                 end_year=args.end_year,
-                page_size=10,
+                page_size=args.page_size,
                 max_response_bytes=65_536,
                 max_decompressed_bytes=65_536,
                 timeout_cap_seconds=15.0,
@@ -141,12 +157,25 @@ def main() -> int:
         )
         return 0
     if args.write_target_owners:
+        payloads = owners.payloads()
+        receipt_paths = sorted(
+            (
+                relative
+                for relative in payloads
+                if relative
+                not in {
+                    DEFAULT_TARGET_AUTHORITY_REGISTRY,
+                    DEFAULT_TARGET_AUTHORITY_PROVISION,
+                }
+            ),
+            key=Path.as_posix,
+        )
         for relative in (
-            DEFAULT_TARGET_HARNESS_RECEIPT,
+            *receipt_paths,
             DEFAULT_TARGET_AUTHORITY_REGISTRY,
             DEFAULT_TARGET_AUTHORITY_PROVISION,
         ):
-            _write_replace_bytes(POLICY_ENGINE_ROOT / relative, owners.payloads()[relative])
+            _write_replace_bytes(POLICY_ENGINE_ROOT / relative, payloads[relative])
         status = "written"
     else:
         _check_target_owner_payloads(owners)
@@ -154,7 +183,10 @@ def main() -> int:
 
     report: dict[str, Any] = {
         "status": status,
-        "attempt_id": derive_live_attempt_id(owners.selection),
+        "attempt_ids": [
+            derive_live_attempt_id(owners.selection, attempt_ordinal=ordinal)
+            for ordinal in range(1, args.attempt_count + 1)
+        ],
         "target_variable": owners.selection.target_variable,
         "request_dataset_id": owners.selection.request_dataset_id,
         "entry_id": owners.entry.entry_id,
@@ -180,20 +212,30 @@ def _recompute_target_owners(
     l5_path: Path,
     census_path: Path,
     substrate_path: Path,
+    attempt_count: int,
 ) -> Any:
+    if attempt_count < 1:
+        raise RuntimeError("target_owner_attempt_count_invalid")
     selection = derive_live_target_selection(
         catalog_path=catalog_path,
         census_path=census_path,
         substrate_path=substrate_path,
     )
-    receipt = derive_target_family_receipt(
-        selection,
-        catalog_path=catalog_path,
-        fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
+    receipts = tuple(
+        derive_target_family_receipt(
+            selection,
+            catalog_path=catalog_path,
+            fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
+            attempt_ordinal=ordinal,
+        )
+        for ordinal in range(1, attempt_count + 1)
     )
     return derive_target_authority_owners(
         selection,
-        family_receipt=receipt,
+        family_receipt=receipts[0],
+        additional_family_receipts=tuple(
+            (ordinal, receipts[ordinal - 1]) for ordinal in range(2, attempt_count + 1)
+        ),
         baseline_path=catalog_path,
         baseline_owner_ref=DEFAULT_CATALOG_OWNER_REF,
         l5_path=l5_path,
@@ -227,14 +269,34 @@ def require_new_live_execution_outputs(
     journal_path: Path,
     cas_root: Path,
     evidence_path: Path,
+    attempt_id: str,
 ) -> None:
     """Fence a live attempt from overwriting or appending to prior evidence."""
 
-    existing = tuple(
-        path.as_posix() for path in (journal_path, cas_root, evidence_path) if path.exists()
-    )
-    if existing:
-        raise RuntimeError("live_execution_output_already_exists:" + ",".join(existing))
+    collisions: list[str] = []
+    if evidence_path.exists():
+        collisions.append(evidence_path.as_posix())
+    if cas_root.exists() and not cas_root.is_dir():
+        collisions.append(cas_root.as_posix())
+    if journal_path.exists():
+        if not journal_path.is_file():
+            collisions.append(journal_path.as_posix())
+        else:
+            try:
+                events = [
+                    json.loads(line)
+                    for line in journal_path.read_text(encoding="utf-8").splitlines()
+                    if line.strip()
+                ]
+            except Exception as exc:
+                raise RuntimeError("live_execution_journal_unreadable") from exc
+            if any(
+                isinstance(event, dict) and event.get("attempt_id") == attempt_id
+                for event in events
+            ):
+                collisions.append(f"{journal_path.as_posix()}#{attempt_id}")
+    if collisions:
+        raise RuntimeError("live_execution_output_already_exists:" + ",".join(collisions))
 
 
 if __name__ == "__main__":

@@ -62,17 +62,21 @@ class TargetAuthorityOwners:
     provision: Any
     family_receipt: Any
     family_receipt_bytes: bytes
+    additional_family_receipts: tuple[Any, ...]
+    additional_family_receipt_payloads: tuple[tuple[Path, bytes], ...]
     registry_bytes: bytes
     provision_bytes: bytes
 
     def payloads(self) -> dict[Path, bytes]:
         """Return canonical repository-relative owner payloads."""
 
-        return {
+        payloads = {
             DEFAULT_TARGET_AUTHORITY_REGISTRY: self.registry_bytes,
             DEFAULT_TARGET_AUTHORITY_PROVISION: self.provision_bytes,
             DEFAULT_TARGET_HARNESS_RECEIPT: self.family_receipt_bytes,
         }
+        payloads.update(dict(self.additional_family_receipt_payloads))
+        return payloads
 
 
 class LiveTargetSelection(_StrictModel):
@@ -376,14 +380,20 @@ def build_selected_live_authority_entry(
     )
 
 
-def derive_live_attempt_id(selection: LiveTargetSelection) -> str:
+def derive_live_attempt_id(
+    selection: LiveTargetSelection,
+    *,
+    attempt_ordinal: int = 1,
+) -> str:
     """Derive the stable one-variable attempt identity from selected evidence."""
 
     selected = LiveTargetSelection.model_validate(selection.model_dump(mode="python"))
+    if isinstance(attempt_ordinal, bool) or not 1 <= attempt_ordinal <= 999:
+        raise AcquisitionSelectionError("live_attempt_ordinal_invalid")
     family = re.sub(r"[^a-z0-9]+", "-", selected.connector_id.casefold()).strip("-")
     target = re.sub(r"[^a-z0-9]+", "-", selected.target_variable.casefold()).strip("-")
     unit = re.sub(r"[^a-z0-9]+", "-", selected.canonical_unit.casefold()).strip("-")
-    return f"gy-n13b-{family}-{target}-{unit}-001"
+    return f"gy-n13b-{family}-{target}-{unit}-{attempt_ordinal:03d}"
 
 
 def derive_target_family_receipt(
@@ -391,6 +401,7 @@ def derive_target_family_receipt(
     *,
     catalog_path: Path,
     fixture_root: Path,
+    attempt_ordinal: int = 1,
 ) -> Any:
     """Run the exact selected carrier through the N13a zero-network E7 owner."""
 
@@ -463,7 +474,10 @@ def derive_target_family_receipt(
     quality_bucket = census.derive_quality_bucket(quality)
     stratum_id = f"{row[8]}:{quality_bucket}"
     candidate = census.ProbeCandidate(
-        attempt_id=derive_live_attempt_id(selected),
+        attempt_id=derive_live_attempt_id(
+            selected,
+            attempt_ordinal=attempt_ordinal,
+        ),
         connector_id=str(row[3]),
         metric_id=str(row[0]),
         dataset_id=str(row[1]),
@@ -534,6 +548,7 @@ def derive_target_authority_owners(
     selection: LiveTargetSelection,
     *,
     family_receipt: object,
+    additional_family_receipts: tuple[tuple[int, object], ...] = (),
     baseline_path: Path,
     baseline_owner_ref: str,
     l5_path: Path,
@@ -548,16 +563,47 @@ def derive_target_authority_owners(
     selected = LiveTargetSelection.model_validate(selection.model_dump(mode="python"))
     receipt = census.ConnectorFamilyReceipt.model_validate(family_receipt)
     expected_attempt_id = derive_live_attempt_id(selected)
-    if (
-        receipt.connector_id != selected.connector_id
-        or not receipt.safe_dry_run_passed
-        or receipt.carrier_denominator != 1
-        or len(receipt.dry_run_attempts) != 1
-        or receipt.dry_run_attempts[0].attempt_id != expected_attempt_id
-        or receipt.dry_run_attempts[0].request_dataset_id != selected.request_dataset_id
-    ):
-        raise AcquisitionSelectionError("target_harness_owner_projection_drift")
+    _validate_target_family_receipt(
+        selected,
+        receipt,
+        attempt_ordinal=1,
+    )
     family_receipt_bytes = canonical_json_bytes(receipt.model_dump(mode="json"))
+    additional_receipts: list[Any] = []
+    additional_payloads: list[tuple[Path, bytes]] = []
+    receipt_provisions: list[dict[str, str]] = [
+        {
+            "entry_id": "",
+            "attempt_id": expected_attempt_id,
+            "receipt_owner_ref": receipt_owner_ref,
+            "receipt_content_sha256": bytes_sha256(family_receipt_bytes),
+        }
+    ]
+    ordinals = tuple(ordinal for ordinal, _ in additional_family_receipts)
+    if ordinals != tuple(sorted(set(ordinals))) or any(ordinal <= 1 for ordinal in ordinals):
+        raise AcquisitionSelectionError("additional_harness_attempt_ordinals_invalid")
+    for ordinal, raw_receipt in additional_family_receipts:
+        resolved_receipt = census.ConnectorFamilyReceipt.model_validate(raw_receipt)
+        _validate_target_family_receipt(
+            selected,
+            resolved_receipt,
+            attempt_ordinal=ordinal,
+        )
+        receipt_bytes = canonical_json_bytes(resolved_receipt.model_dump(mode="json"))
+        receipt_path = target_harness_receipt_path(ordinal)
+        additional_receipts.append(resolved_receipt)
+        additional_payloads.append((receipt_path, receipt_bytes))
+        receipt_provisions.append(
+            {
+                "entry_id": "",
+                "attempt_id": derive_live_attempt_id(
+                    selected,
+                    attempt_ordinal=ordinal,
+                ),
+                "receipt_owner_ref": f"repo://{receipt_path.as_posix()}",
+                "receipt_content_sha256": bytes_sha256(receipt_bytes),
+            }
+        )
     l5_family_id = _derive_l5_family_id(Path(l5_path))
     entry = build_selected_live_authority_entry(
         selected,
@@ -571,19 +617,14 @@ def derive_target_authority_owners(
         l5_measurement_registry_sha256=l5_sha256,
         entries=(entry,),
     )
+    for provision in receipt_provisions:
+        provision["entry_id"] = entry.entry_id
     provision = data_forge_read_api.catalog.build_acquisition_authority_provision(
         baseline_owner_ref=baseline_owner_ref,
         baseline_content_sha256=baseline_sha256,
         l5_measurement_registry_owner_ref=l5_owner_ref,
         l5_measurement_registry_content_sha256=l5_sha256,
-        live_harness_receipts=(
-            {
-                "entry_id": entry.entry_id,
-                "attempt_id": expected_attempt_id,
-                "receipt_owner_ref": receipt_owner_ref,
-                "receipt_content_sha256": bytes_sha256(family_receipt_bytes),
-            },
-        ),
+        live_harness_receipts=tuple(receipt_provisions),
     )
     return TargetAuthorityOwners(
         selection=selected,
@@ -592,6 +633,8 @@ def derive_target_authority_owners(
         provision=provision,
         family_receipt=receipt,
         family_receipt_bytes=family_receipt_bytes,
+        additional_family_receipts=tuple(additional_receipts),
+        additional_family_receipt_payloads=tuple(additional_payloads),
         registry_bytes=canonical_json_bytes(registry.model_dump(mode="json")),
         provision_bytes=canonical_json_bytes(provision.model_dump(mode="json")),
     )
@@ -601,6 +644,41 @@ def bytes_sha256(payload: bytes) -> str:
     """Return the raw file identity used by provision receipts."""
 
     return f"sha256:{hashlib.sha256(payload).hexdigest()}"
+
+
+def target_harness_receipt_path(attempt_ordinal: int) -> Path:
+    """Return the canonical receipt path for one exact live attempt."""
+
+    if isinstance(attempt_ordinal, bool) or not 1 <= attempt_ordinal <= 999:
+        raise AcquisitionSelectionError("live_attempt_ordinal_invalid")
+    if attempt_ordinal == 1:
+        return DEFAULT_TARGET_HARNESS_RECEIPT
+    return DEFAULT_TARGET_HARNESS_RECEIPT.with_name(
+        DEFAULT_TARGET_HARNESS_RECEIPT.stem
+        + f"_attempt_{attempt_ordinal:03d}"
+        + DEFAULT_TARGET_HARNESS_RECEIPT.suffix
+    )
+
+
+def _validate_target_family_receipt(
+    selection: LiveTargetSelection,
+    receipt: Any,
+    *,
+    attempt_ordinal: int,
+) -> None:
+    expected_attempt_id = derive_live_attempt_id(
+        selection,
+        attempt_ordinal=attempt_ordinal,
+    )
+    if (
+        receipt.connector_id != selection.connector_id
+        or not receipt.safe_dry_run_passed
+        or receipt.carrier_denominator != 1
+        or len(receipt.dry_run_attempts) != 1
+        or receipt.dry_run_attempts[0].attempt_id != expected_attempt_id
+        or receipt.dry_run_attempts[0].request_dataset_id != selection.request_dataset_id
+    ):
+        raise AcquisitionSelectionError("target_harness_owner_projection_drift")
 
 
 def _read_catalog_candidates(
@@ -838,4 +916,5 @@ __all__ = [
     "derive_live_target_selection",
     "derive_target_authority_owners",
     "derive_target_family_receipt",
+    "target_harness_receipt_path",
 ]

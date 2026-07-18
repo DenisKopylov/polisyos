@@ -368,12 +368,77 @@ def test_live_execution_output_fence_requires_a_new_attempt_carrier(
         journal_path=journal,
         cas_root=cas_root,
         evidence_path=evidence,
+        attempt_id="attempt-002",
     )
-    journal.write_text("existing", encoding="utf-8")
+    journal.write_text(
+        json.dumps({"attempt_id": "attempt-001", "event_kind": "request"}) + "\n",
+        encoding="utf-8",
+    )
+    cas_root.mkdir()
+
+    checker.require_new_live_execution_outputs(
+        journal_path=journal,
+        cas_root=cas_root,
+        evidence_path=evidence,
+        attempt_id="attempt-002",
+    )
 
     with pytest.raises(RuntimeError, match="live_execution_output_already_exists"):
         checker.require_new_live_execution_outputs(
             journal_path=journal,
             cas_root=cas_root,
             evidence_path=evidence,
+            attempt_id="attempt-001",
         )
+
+
+def test_second_attempt_gets_a_distinct_exact_harness_receipt(
+    selection_inputs: tuple[Path, Path, Path],
+    tmp_path: Path,
+) -> None:
+    catalog, census, substrate = selection_inputs
+    selection = executor.derive_live_target_selection(
+        catalog_path=catalog,
+        census_path=census,
+        substrate_path=substrate,
+    )
+
+    receipt = executor.derive_target_family_receipt(
+        selection,
+        catalog_path=catalog,
+        fixture_root=tmp_path / "fixtures-that-do-not-exist",
+        attempt_ordinal=2,
+    )
+
+    carrier = receipt.dry_run_attempts[0]
+    assert carrier.attempt_id == executor.derive_live_attempt_id(
+        selection,
+        attempt_ordinal=2,
+    )
+    assert carrier.request_dataset_id == selection.request_dataset_id
+    assert receipt.safe_dry_run_passed is True
+
+    first_receipt = executor.derive_target_family_receipt(
+        selection,
+        catalog_path=catalog,
+        fixture_root=tmp_path / "fixtures-that-do-not-exist",
+    )
+    l5_path = _write_json(
+        tmp_path / "measurement_registry.json",
+        {"coverage_rules": {"macro_state": 0.95}, "trust_tiers": {}},
+    )
+    owners = executor.derive_target_authority_owners(
+        selection,
+        family_receipt=first_receipt,
+        additional_family_receipts=((2, receipt),),
+        baseline_path=catalog,
+        baseline_owner_ref="repo://fixture/catalog.duckdb",
+        l5_path=l5_path,
+        l5_owner_ref="repo://fixture/measurement_registry.json",
+        receipt_owner_ref="repo://fixture/live-harness.json",
+        country_codes=("UKR",),
+    )
+
+    assert len(owners.provision.live_harness_receipts) == 2
+    assert owners.provision.live_harness_receipts[1].attempt_id.endswith("-002")
+    assert executor.target_harness_receipt_path(2) in owners.payloads()

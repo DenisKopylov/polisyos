@@ -219,6 +219,10 @@ def _authority(
     provision = catalog_read_api.build_acquisition_authority_provision(
         baseline_owner_ref="repo://catalog/catalog.duckdb",
         baseline_content_sha256=_sha(baseline),
+        l5_measurement_registry_owner_ref=(
+            "repo://" + DEFAULT_L5_MEASUREMENT_REGISTRY.as_posix()
+        ),
+        l5_measurement_registry_content_sha256=_sha(l5),
         local_rights_trust_anchor_sha256=_sha(trust_path),
     )
     provision_path = (

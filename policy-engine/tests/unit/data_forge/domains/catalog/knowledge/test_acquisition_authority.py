@@ -99,11 +99,16 @@ def _write_provision(
     repo_root: Path,
     *,
     baseline: Path,
+    l5_path: Path,
     baseline_owner_ref: str,
 ) -> Path:
     provision = build_acquisition_authority_provision(
         baseline_owner_ref=baseline_owner_ref,
         baseline_content_sha256=_sha(baseline),
+        l5_measurement_registry_owner_ref=(
+            "repo://" + DEFAULT_L5_MEASUREMENT_REGISTRY.as_posix()
+        ),
+        l5_measurement_registry_content_sha256=_sha(l5_path),
     )
     path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_PROVISION
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -292,6 +297,7 @@ def _resolver(
     _write_provision(
         repo_root,
         baseline=baseline,
+        l5_path=l5,
         baseline_owner_ref="repo://catalog/catalog.duckdb",
     )
     return (
@@ -545,6 +551,7 @@ def test_live_license_ref_uses_logical_owner_for_external_baseline(
     _write_provision(
         repo_root,
         baseline=baseline,
+        l5_path=l5,
         baseline_owner_ref=(
             "repo://production_data/snapshot/dataset_catalog.duckdb"
         ),
@@ -916,7 +923,7 @@ def test_authority_rejects_catalog_license_and_owner_byte_drift(tmp_path: Path) 
     resolver.l5_path.write_text("{}", encoding="utf-8")
     with pytest.raises(
         AcquisitionAuthorityError,
-        match="l5_measurement_registry_content_drift",
+        match="provision_l5_identity_drift",
     ):
         resolver.resolve(entry.entry_id)
 

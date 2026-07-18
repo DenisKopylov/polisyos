@@ -176,6 +176,10 @@ class AcquisitionAuthorityProvision(_StrictModel):
     )
     baseline_owner_ref: str = Field(pattern=r"^(repo|provision)://[^\s]+$")
     baseline_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    l5_measurement_registry_owner_ref: str = Field(
+        pattern=r"^(repo|provision)://[^\s]+$"
+    )
+    l5_measurement_registry_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     local_rights_trust_anchor_sha256: str | None = Field(
         default=None,
         pattern=_SHA256_PATTERN,
@@ -722,6 +726,7 @@ class CanonicalAcquisitionAuthority:
         *,
         repo_root: Path,
         baseline_path: Path,
+        l5_measurement_registry_path: Path,
         provision: AcquisitionAuthorityProvision,
         provision_content_sha256: str,
         _construction_token: object,
@@ -730,9 +735,11 @@ class CanonicalAcquisitionAuthority:
             raise TypeError("use CanonicalAcquisitionAuthority.from_provision")
         self.repo_root = Path(repo_root).resolve()
         self.baseline_path = Path(baseline_path).resolve()
+        self.l5_path = Path(l5_measurement_registry_path).resolve()
         self.provision = provision
         self.provision_content_sha256 = provision_content_sha256
         self.baseline_owner_ref = provision.baseline_owner_ref
+        self.l5_owner_ref = provision.l5_measurement_registry_owner_ref
         self.local_rights_trust_anchor_sha256 = (
             provision.local_rights_trust_anchor_sha256
         )
@@ -740,7 +747,6 @@ class CanonicalAcquisitionAuthority:
         self.local_rights_trust_path = (
             self.repo_root / DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY
         )
-        self.l5_path = self.repo_root / DEFAULT_L5_MEASUREMENT_REGISTRY
 
     @classmethod
     def from_provision(
@@ -748,6 +754,7 @@ class CanonicalAcquisitionAuthority:
         *,
         repo_root: Path,
         baseline_path: Path,
+        l5_measurement_registry_path: Path | None = None,
     ) -> CanonicalAcquisitionAuthority:
         """Load the canonical provision receipt; callers cannot choose its anchors."""
 
@@ -758,9 +765,19 @@ class CanonicalAcquisitionAuthority:
         baseline = Path(baseline_path).resolve()
         if _file_sha256(baseline) != provision.baseline_content_sha256:
             raise AcquisitionAuthorityError("provision_baseline_identity_drift")
+        l5_path = (
+            Path(l5_measurement_registry_path).resolve()
+            if l5_measurement_registry_path is not None
+            else (root / DEFAULT_L5_MEASUREMENT_REGISTRY).resolve()
+        )
+        if _file_sha256(l5_path) != (
+            provision.l5_measurement_registry_content_sha256
+        ):
+            raise AcquisitionAuthorityError("provision_l5_identity_drift")
         return cls(
             repo_root=root,
             baseline_path=baseline,
+            l5_measurement_registry_path=l5_path,
             provision=provision,
             provision_content_sha256=provision_content_sha256,
             _construction_token=_PROVISION_CONSTRUCTION_TOKEN,
@@ -858,6 +875,10 @@ class CanonicalAcquisitionAuthority:
             raise AcquisitionAuthorityError("acquisition_authority_provision_drift")
         if _file_sha256(self.baseline_path) != provision.baseline_content_sha256:
             raise AcquisitionAuthorityError("provision_baseline_identity_drift")
+        if _file_sha256(self.l5_path) != (
+            provision.l5_measurement_registry_content_sha256
+        ):
+            raise AcquisitionAuthorityError("provision_l5_identity_drift")
 
     def _require_landing_identifiers_new(
         self,
@@ -1465,14 +1486,13 @@ class CanonicalAcquisitionAuthority:
         if not eligible:
             raise AcquisitionAuthorityError("l5_trust_tier_unresolved", family_id)
         _, trust_cap, trust_multiplier, tier_id, row = max(eligible)
-        relative = self.l5_path.relative_to(self.repo_root).as_posix()
         return ResolvedL5Trust(
             family_id=family_id,
             tier=str(row.get("tier") or tier_id),
             trust_cap=trust_cap,
             trust_multiplier=trust_multiplier,
-            authority_ref=f"repo://{relative}#/trust_tiers/{tier_id}",
-            owner_ref=f"repo://{relative}",
+            authority_ref=f"{self.l5_owner_ref}#/trust_tiers/{tier_id}",
+            owner_ref=self.l5_owner_ref,
             owner_content_sha256=owner_hash,
         )
 

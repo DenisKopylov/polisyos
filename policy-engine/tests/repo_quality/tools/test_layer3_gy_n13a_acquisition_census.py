@@ -2757,6 +2757,63 @@ def test_recurring_carrier_liveness_records_retired_metadata_without_laundering(
     assert "carrier_live_with_data" not in receipt.tier_decay_findings[0]
 
 
+def test_recurring_carrier_liveness_exposes_catalog_source_profile_mismatch() -> None:
+    census = _census()
+    data_body = b'[{"page":0,"pages":0,"per_page":0,"total":0},null]'
+    metadata_body = (
+        b'[{"page":1,"pages":1,"per_page":"1","total":1},'
+        b'[{"id":"GC.BAL.CASH.CD",'
+        b'"source":{"id":"11","value":"Africa Development Indicators"}}]]'
+    )
+    data_attempt = census.RecurringCarrierAttemptEvidence(
+        attempt_id="data-001",
+        call_class="data_fetch",
+        request_dataset_id="GC.BAL.CASH.CD",
+        request_event_sha256="sha256:" + "1" * 64,
+        raw_evidence_event_sha256="sha256:" + "2" * 64,
+        terminal_sha256="sha256:" + "3" * 64,
+        terminal_outcome="quarantined_shape_drift",
+        raw_body_sha256="sha256:" + hashlib.sha256(data_body).hexdigest(),
+        http_status_code=200,
+        max_elapsed_seconds=1.0,
+    )
+    metadata_attempt = census.RecurringCarrierAttemptEvidence(
+        attempt_id="metadata-001",
+        call_class="indicator_metadata",
+        request_dataset_id="GC.BAL.CASH.CD",
+        request_event_sha256="sha256:" + "4" * 64,
+        raw_evidence_event_sha256="sha256:" + "5" * 64,
+        terminal_sha256="sha256:" + "6" * 64,
+        terminal_outcome="quarantined_metadata_characterization_complete",
+        raw_body_sha256="sha256:" + hashlib.sha256(metadata_body).hexdigest(),
+        http_status_code=200,
+        max_elapsed_seconds=1.0,
+    )
+
+    receipt = census.derive_recurring_carrier_liveness_update(
+        connector_id="worldbank.wdi",
+        request_dataset_id="GC.BAL.CASH.CD",
+        execution_tier="transport_ready",
+        data_attempts=(data_attempt,),
+        decisive_data_body=data_body,
+        metadata_attempt=metadata_attempt,
+        metadata_body=metadata_body,
+        catalog_source_names=("Africa Development Indicators",),
+        profile_source_descriptors=(
+            "World Bank WDI",
+            "World Development Indicators via World Bank API v2",
+        ),
+        source_selector_declared=False,
+    )
+
+    assert receipt.metadata_disposition == "carrier_current"
+    assert receipt.metadata_source_id == "11"
+    assert receipt.metadata_source_name == "Africa Development Indicators"
+    assert receipt.carrier_disposition == "carrier_current_source_profile_mismatch"
+    assert receipt.missing_request_levers == ("source_selector:11",)
+    assert "carrier_current_no_data_for_scope" not in receipt.tier_decay_findings[0]
+
+
 def test_metadata_only_schema_contract_can_never_claim_conformant() -> None:
     census = _census()
     record = _probe_record(census)

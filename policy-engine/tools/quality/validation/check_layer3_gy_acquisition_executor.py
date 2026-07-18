@@ -77,6 +77,7 @@ def main() -> int:
     mode.add_argument("--write-resumption-owners", action="store_true")
     mode.add_argument("--execute-metadata", action="store_true")
     mode.add_argument("--check-metadata-evidence", action="store_true")
+    mode.add_argument("--write-metadata-evidence", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -181,9 +182,16 @@ def main() -> int:
         )
         return 0
 
-    if args.check_metadata_evidence:
+    if args.check_metadata_evidence or args.write_metadata_evidence:
         _check_payloads(resumption_payloads, label="resumption_owner")
         evidence, carrier_update = derive_metadata_probe_execution_evidence(
+            owner=metadata_owner,
+            r1_receipt=r1,
+            journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+            cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+            baseline_path=args.catalog_path,
+        )
+        second_evidence, second_carrier_update = derive_metadata_probe_execution_evidence(
             owner=metadata_owner,
             r1_receipt=r1,
             journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
@@ -198,11 +206,26 @@ def main() -> int:
                 carrier_update.model_dump(mode="json")
             ),
         }
-        _check_payloads(evidence_payloads, label="metadata_evidence")
+        if evidence_payloads != {
+            DEFAULT_METADATA_EXECUTION_EVIDENCE: canonical_json_bytes(
+                second_evidence.model_dump(mode="json")
+            ),
+            DEFAULT_CARRIER_LIVENESS_UPDATE: canonical_json_bytes(
+                second_carrier_update.model_dump(mode="json")
+            ),
+        }:
+            raise RuntimeError("metadata_evidence_derivation_not_byte_stable")
+        if args.write_metadata_evidence:
+            for relative, payload in evidence_payloads.items():
+                _write_replace_bytes(POLICY_ENGINE_ROOT / relative, payload)
+            status = "written"
+        else:
+            _check_payloads(evidence_payloads, label="metadata_evidence")
+            status = "ok"
         print(
             json.dumps(
                 {
-                    "status": "ok",
+                    "status": status,
                     "metadata_disposition": (
                         evidence.classification.disposition
                         if evidence.classification is not None

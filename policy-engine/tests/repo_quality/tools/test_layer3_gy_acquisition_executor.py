@@ -80,7 +80,8 @@ def selection_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
             temporal_end VARCHAR,
             access_license VARCHAR,
             access_auth_required BOOLEAN,
-            execution_tier VARCHAR
+            execution_tier VARCHAR,
+            themes JSON
         )
         """
     )
@@ -171,8 +172,13 @@ def selection_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
     ) in rows:
         con.execute(
             "INSERT INTO ds_datasets VALUES (?, 'worldbank', 'World Bank', ?, ?, NULL, NULL, "
-            "'CC-BY-4.0', FALSE, 'transport_ready')",
-            [dataset_id, title, description],
+            "'CC-BY-4.0', FALSE, 'transport_ready', ?)",
+            [
+                dataset_id,
+                title,
+                description,
+                json.dumps(["World Development Indicators"]),
+            ],
         )
         con.execute(
             "INSERT INTO ds_distributions VALUES (?, ?, 'https://api.worldbank.org/v2', "
@@ -526,6 +532,7 @@ def test_metadata_one_shot_journals_raw_before_classification_and_updates_d3(
         cas_root=cas_root,
         request_dataset_id="GC.BAL.CASH.CD",
     )
+    journal.write_bytes(journal.read_bytes()[: r1.journal_prefix_byte_length])
     owner = executor.derive_metadata_probe_owner(
         r1_receipt=r1,
         baseline_path=catalog,

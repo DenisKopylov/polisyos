@@ -217,6 +217,7 @@ class RecurringCarrierDisposition(StrEnum):
 
     CARRIER_LIVE_WITH_DATA = "carrier_live_with_data"
     CARRIER_CURRENT_NO_DATA_FOR_SCOPE = "carrier_current_no_data_for_scope"
+    CARRIER_CURRENT_SOURCE_PROFILE_MISMATCH = "carrier_current_source_profile_mismatch"
     CARRIER_RETIRED_OR_INVALID = "carrier_retired_or_invalid"
     RESPONSE_SHAPE_UNCLASSIFIED = "response_shape_unclassified"
     METADATA_TRANSPORT_TERMINAL = "metadata_transport_terminal"
@@ -1295,7 +1296,13 @@ class RecurringCarrierLivenessUpdate(_StrictBoundaryModel):
     )
     metadata_byte_count: int | None = Field(default=None, ge=0)
     metadata_disposition: RecurringCarrierMetadataDisposition
+    metadata_source_id: str | None = None
+    metadata_source_name: str | None = None
+    catalog_source_names: tuple[str, ...]
+    profile_source_descriptors: tuple[str, ...]
+    source_selector_declared: bool
     carrier_disposition: RecurringCarrierDisposition
+    missing_request_levers: tuple[str, ...]
     tier_decay_findings: tuple[str, ...]
     receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
@@ -1337,12 +1344,26 @@ class RecurringCarrierLivenessUpdate(_StrictBoundaryModel):
             or self.metadata_attempt.raw_body_sha256 != self.metadata_body_sha256
         ):
             raise ValueError("metadata bytes must bind the paid metadata attempt")
+        if self.catalog_source_names != tuple(sorted(set(self.catalog_source_names))):
+            raise ValueError("catalog source names must be unique and sorted")
+        if self.profile_source_descriptors != tuple(sorted(set(self.profile_source_descriptors))):
+            raise ValueError("profile source descriptors must be unique and sorted")
         expected_carrier = _derive_recurring_carrier_disposition(
             data_disposition=self.data_disposition,
             metadata_disposition=self.metadata_disposition,
+            metadata_source_name=self.metadata_source_name,
+            catalog_source_names=self.catalog_source_names,
+            profile_source_descriptors=self.profile_source_descriptors,
         )
         if self.carrier_disposition is not expected_carrier:
             raise ValueError("carrier disposition must be recomputed")
+        expected_levers = _derive_recurring_missing_request_levers(
+            carrier_disposition=expected_carrier,
+            metadata_source_id=self.metadata_source_id,
+            source_selector_declared=self.source_selector_declared,
+        )
+        if self.missing_request_levers != expected_levers:
+            raise ValueError("missing request levers must be recomputed")
         expected_decay = _derive_recurring_tier_decay(
             execution_tier=self.execution_tier,
             request_dataset_id=self.request_dataset_id,
@@ -3013,6 +3034,9 @@ def derive_recurring_carrier_liveness_update(
     decisive_data_body: bytes,
     metadata_attempt: RecurringCarrierAttemptEvidence,
     metadata_body: bytes | None,
+    catalog_source_names: Sequence[str] = (),
+    profile_source_descriptors: Sequence[str] = (),
+    source_selector_declared: bool = False,
 ) -> RecurringCarrierLivenessUpdate:
     """Recompute one D3 carrier update from journal/CAS-bound response bytes."""
 
@@ -3039,6 +3063,8 @@ def derive_recurring_carrier_liveness_update(
         metadata_body_sha: str | None = None
         metadata_byte_count: int | None = None
         metadata_disposition = RecurringCarrierMetadataDisposition.METADATA_TRANSPORT_TERMINAL
+        metadata_source_id: str | None = None
+        metadata_source_name: str | None = None
     else:
         metadata_body_sha = _bytes_sha256(metadata_body)
         metadata_byte_count = len(metadata_body)
@@ -3046,9 +3072,22 @@ def derive_recurring_carrier_liveness_update(
             metadata_body,
             indicator_id=request_dataset_id,
         )
+        metadata_source_id, metadata_source_name = _recurring_worldbank_metadata_source(
+            metadata_body,
+            indicator_id=request_dataset_id,
+        )
+    normalized_catalog_sources = tuple(
+        sorted({str(value).strip() for value in catalog_source_names if str(value).strip()})
+    )
+    normalized_profile_descriptors = tuple(
+        sorted({str(value).strip() for value in profile_source_descriptors if str(value).strip()})
+    )
     carrier_disposition = _derive_recurring_carrier_disposition(
         data_disposition=data_disposition,
         metadata_disposition=metadata_disposition,
+        metadata_source_name=metadata_source_name,
+        catalog_source_names=normalized_catalog_sources,
+        profile_source_descriptors=normalized_profile_descriptors,
     )
     values: dict[str, object] = {
         "schema_version": "policyos.layer3.gy.n13a.recurring_carrier_liveness.v1",
@@ -3064,7 +3103,17 @@ def derive_recurring_carrier_liveness_update(
         "metadata_body_sha256": metadata_body_sha,
         "metadata_byte_count": metadata_byte_count,
         "metadata_disposition": metadata_disposition,
+        "metadata_source_id": metadata_source_id,
+        "metadata_source_name": metadata_source_name,
+        "catalog_source_names": normalized_catalog_sources,
+        "profile_source_descriptors": normalized_profile_descriptors,
+        "source_selector_declared": source_selector_declared,
         "carrier_disposition": carrier_disposition,
+        "missing_request_levers": _derive_recurring_missing_request_levers(
+            carrier_disposition=carrier_disposition,
+            metadata_source_id=metadata_source_id,
+            source_selector_declared=source_selector_declared,
+        ),
         "tier_decay_findings": _derive_recurring_tier_decay(
             execution_tier=execution_tier,
             request_dataset_id=request_dataset_id,
@@ -5044,6 +5093,32 @@ def _classify_recurring_worldbank_metadata(
     return RecurringCarrierMetadataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
 
 
+def _recurring_worldbank_metadata_source(
+    body: bytes,
+    *,
+    indicator_id: str,
+) -> tuple[str | None, str | None]:
+    try:
+        payload = json.loads(body)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None, None
+    if not (
+        isinstance(payload, list)
+        and len(payload) == 2
+        and isinstance(payload[1], list)
+        and len(payload[1]) == 1
+        and isinstance(payload[1][0], Mapping)
+        and payload[1][0].get("id") == indicator_id
+    ):
+        return None, None
+    source = payload[1][0].get("source")
+    if not isinstance(source, Mapping):
+        return None, None
+    source_id = str(source.get("id") or "").strip() or None
+    source_name = str(source.get("value") or "").strip() or None
+    return source_id, source_name
+
+
 def _recurring_worldbank_messages(payload: object) -> tuple[object, ...]:
     containers: list[object] = []
     if isinstance(payload, Mapping):
@@ -5072,6 +5147,9 @@ def _derive_recurring_carrier_disposition(
     *,
     data_disposition: RecurringCarrierDataDisposition,
     metadata_disposition: RecurringCarrierMetadataDisposition,
+    metadata_source_name: str | None,
+    catalog_source_names: Sequence[str],
+    profile_source_descriptors: Sequence[str],
 ) -> RecurringCarrierDisposition:
     if metadata_disposition is RecurringCarrierMetadataDisposition.CARRIER_RETIRED_OR_INVALID:
         return RecurringCarrierDisposition.CARRIER_RETIRED_OR_INVALID
@@ -5079,11 +5157,42 @@ def _derive_recurring_carrier_disposition(
         return RecurringCarrierDisposition.METADATA_TRANSPORT_TERMINAL
     if metadata_disposition is not RecurringCarrierMetadataDisposition.CARRIER_CURRENT:
         return RecurringCarrierDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    normalized_source = str(metadata_source_name or "").strip().casefold()
+    catalog_matches = not catalog_source_names or (
+        bool(normalized_source)
+        and any(normalized_source == value.strip().casefold() for value in catalog_source_names)
+    )
+    if not catalog_matches:
+        return RecurringCarrierDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    profile_matches = not profile_source_descriptors or (
+        bool(normalized_source)
+        and any(
+            normalized_source in descriptor.strip().casefold()
+            for descriptor in profile_source_descriptors
+        )
+    )
+    if not profile_matches:
+        return RecurringCarrierDisposition.CARRIER_CURRENT_SOURCE_PROFILE_MISMATCH
     if data_disposition is RecurringCarrierDataDisposition.DATA_PRESENT:
         return RecurringCarrierDisposition.CARRIER_LIVE_WITH_DATA
     if data_disposition is RecurringCarrierDataDisposition.NO_DATA_FOR_SCOPE:
         return RecurringCarrierDisposition.CARRIER_CURRENT_NO_DATA_FOR_SCOPE
     return RecurringCarrierDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+
+
+def _derive_recurring_missing_request_levers(
+    *,
+    carrier_disposition: RecurringCarrierDisposition,
+    metadata_source_id: str | None,
+    source_selector_declared: bool,
+) -> tuple[str, ...]:
+    if (
+        carrier_disposition is RecurringCarrierDisposition.CARRIER_CURRENT_SOURCE_PROFILE_MISMATCH
+        and metadata_source_id is not None
+        and not source_selector_declared
+    ):
+        return (f"source_selector:{metadata_source_id}",)
+    return ()
 
 
 def _derive_recurring_tier_decay(

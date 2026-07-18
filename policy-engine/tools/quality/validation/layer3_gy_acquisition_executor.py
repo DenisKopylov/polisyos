@@ -779,23 +779,61 @@ def derive_metadata_probe_execution_evidence(
         max_elapsed_seconds=max(heartbeat_elapsed, default=0.0),
     )
     with duckdb.connect(str(baseline_path), read_only=True) as connection:
-        tiers = tuple(
-            str(row[0])
-            for row in connection.execute(
+        carrier_owner_rows = tuple(
+            connection.execute(
                 """
-                SELECT DISTINCT execution_tier
-                FROM ds_metric_bindings
-                WHERE connector_id = ? AND request_dataset_id = ?
-                ORDER BY execution_tier
+                SELECT binding.execution_tier,
+                       dataset.themes,
+                       distribution.connector_params,
+                       binding.default_filters
+                FROM ds_metric_bindings AS binding
+                JOIN ds_datasets AS dataset ON dataset.id = binding.dataset_id
+                JOIN ds_distributions AS distribution
+                  ON distribution.id = binding.distribution_id
+                WHERE binding.connector_id = ? AND binding.request_dataset_id = ?
+                ORDER BY binding.dataset_id, binding.distribution_id
                 """,
                 [owner.request["connector_id"], r1.request_dataset_id],
             ).fetchall()
         )
+    tiers = tuple(sorted({str(row[0]) for row in carrier_owner_rows}))
     if len(tiers) != 1:
         raise AcquisitionSelectionError(
             "metadata_execution_tier_unresolved",
             f"{r1.request_dataset_id}:{tiers}",
         )
+    catalog_source_names = tuple(
+        sorted(
+            {
+                str(value).strip()
+                for _tier, themes, _params, _filters in carrier_owner_rows
+                for value in _string_values(themes)
+                if str(value).strip()
+            }
+        )
+    )
+    source_selector_declared = any(
+        any(key in {"source", "source_id"} for key in _mapping_keys(value))
+        for _tier, _themes, params, filters in carrier_owner_rows
+        for value in (params, filters)
+    )
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    profile = SourceProfileRegistry.get_instance().get(owner.authorization.profile_id)
+    if profile is None:
+        raise AcquisitionSelectionError(
+            "metadata_source_profile_unresolved",
+            owner.authorization.profile_id,
+        )
+    profile_source_descriptors = tuple(
+        sorted(
+            {
+                str(value).strip()
+                for value in (profile.display_name, profile.description)
+                if str(value).strip()
+            }
+        )
+    )
     decisive_body = store.get_bytes(ArtifactID.model_validate(r1.cas_blob_sha256))
     carrier_update = census.derive_recurring_carrier_liveness_update(
         connector_id=str(owner.request["connector_id"]),
@@ -805,6 +843,9 @@ def derive_metadata_probe_execution_evidence(
         decisive_data_body=decisive_body,
         metadata_attempt=metadata_attempt,
         metadata_body=raw_body,
+        catalog_source_names=catalog_source_names,
+        profile_source_descriptors=profile_source_descriptors,
+        source_selector_declared=source_selector_declared,
     )
     return execution_evidence, carrier_update
 
@@ -1027,6 +1068,35 @@ def _optional_owner_string(
         if value is not None:
             return value
     return None
+
+
+def _string_values(value: object) -> tuple[str, ...]:
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return tuple(str(item) for item in value)
+    if isinstance(value, str):
+        try:
+            decoded = json.loads(value)
+        except json.JSONDecodeError:
+            return (value,)
+        if isinstance(decoded, Sequence) and not isinstance(
+            decoded,
+            (str, bytes, bytearray),
+        ):
+            return tuple(str(item) for item in decoded)
+        return (str(decoded),)
+    return ()
+
+
+def _mapping_keys(value: object) -> frozenset[str]:
+    decoded = value
+    if isinstance(value, str):
+        try:
+            decoded = json.loads(value)
+        except json.JSONDecodeError:
+            return frozenset()
+    if not isinstance(decoded, Mapping):
+        return frozenset()
+    return frozenset(str(key).strip().casefold() for key in decoded)
 
 
 @dataclass(frozen=True)

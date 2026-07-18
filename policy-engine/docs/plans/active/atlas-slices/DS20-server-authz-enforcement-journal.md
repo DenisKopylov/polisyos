@@ -252,3 +252,94 @@ The Task-4 OpenAPI action/resource projection changed the canonical contract, so
 ```
 
 The post-regeneration runtime-contract checker passed, the generated client TypeScript typecheck passed, and its architecture checker passed.
+
+## 2026-07-18 — Task 5 step-up, fixture prohibition, and authorization-audit receipt
+
+Task 5 closes the high-stakes authentication and fixture-identity portions of the
+server security floor. The closed step-up vocabulary contains exactly five classes
+and maps exactly six live operations: acquisition approval, promotion approve and
+reject, decision-validity publication, run reissue/revocation, and production
+approval. Every mapped operation carries one direct `StepUpDependency` after its
+action dependency; app construction, lifespan startup, late-route preflight, and the
+OpenAPI projection reject missing, duplicate, marker-only, misordered, unexpected,
+or mismatched declarations.
+
+The external assertion verifier now requires an explicit trusted algorithm set,
+issuer, audience, active non-revoked key ID, and a static verification key or JWKS
+source. A signed proof is accepted only when its subject, tenant, method, canonical
+route, action permission, resource ID/digest/kind/authority, exact request-body hash,
+step-up class, and (for production approval) persisted scorecard reference and
+content hash all match the frozen authorization context. Freshness, future issuance,
+expiration, base-user MFA, assertion MFA/assurance, human-principal type, and unique
+assertion ID all fail closed. The replay producer is the existing control-plane
+store: SQLite and PostgreSQL use one unique hashed assertion ID in a transaction;
+two independent SQLite store instances racing on the same assertion produced one
+winner and one denial.
+
+An adversarial review found a structural execution bypass after the first green
+implementation: replacing `APIRoute.app` preserved all dependency markers but
+skipped FastAPI dependency execution, returned `200`, and performed the probe
+mutation without a step-up header. That witness is permanent. Middleware now seals
+the exact dependency objects during preflight and executes the bound action proof
+and, where mapped, the step-up proof after OPA allow but before dispatch to any route
+application. FastAPI's later dependency pass reuses those exact proofs without a
+second replay consumption. A successful unsafe response additionally requires the
+bound action proof and exact live step-up context. The marker-preserving replacement
+probe now returns `403 step_up_required` with no mutation receipt.
+
+Production approval no longer accepts self-asserted reviewer authority: override
+identity must equal the verified effective subject, client-authored signatures deny
+before OPA, the exact persisted scorecard bytes are normalized and hashed into the
+step-up context, and a replay or missing/invalid step-up cannot persist a second
+approval packet. Exact-body and exact-scorecard hashes are independently recomputed
+in tests; wrong scorecard reference/hash signed claims deny.
+
+Fixture identity is now confined to the development profile. Explicit or
+environment-requested fixture identity aborts research, governed, and production
+startup; an identity provider cannot smuggle the reserved fixture issuer through
+HTTP or review WebSocket verification; `/auth/me` requires verified claims even if
+a route-local fixture fallback is requested; empty verified roles remain empty; and
+a fixture principal cannot request a non-development execution profile. The old
+safe-read shadow service identity synthesis is removed.
+
+Authorization decisions append one strict
+`polisyos.runtime.authorization_audit.v1` event to the existing access-audit trail;
+there is no second log. Permission, binder, OPA deny/timeout/unavailable, missing
+identity, and step-up denials are covered, as are lower- and high-stakes allows.
+Bearer material, step-up assertions, and request-body values are absent from the
+closed event shape. An allow-path append failure blocks handler execution with 503;
+a denial-path append failure preserves the original denial.
+
+Red-first receipts include permission-only production approval persisting a packet,
+the route-application structural bypass returning 200 and mutating, fixture claims
+crossing non-development/provider boundaries, missing authorization audit events,
+and client-authored override identity/signature reaching approval. All are now
+green. The complete Task-5/adjacent scoped set collected and passed 163 tests across
+the step-up, fixture, audit, action-authz, control-store/hardening, auth, and review
+collaboration modules. Changed-file Ruff and `git diff --check` pass; the seven
+changed authorization/security modules report zero basedpyright errors. A focused
+review of the pre-dispatch repair found no remaining double-execution, audit-order,
+or replay defect.
+
+The step-up OpenAPI extension changed only the canonical schema projection; the
+generated client bytes otherwise remained stable. Two full serial DS3 pipeline runs
+were byte-identical:
+
+```text
+4fba08981fd1e151e27541200148f75b1e3795d0ed6dd5f15931596c28905e52  schemas/runtime_api_v1.openapi.json
+137ba30652cc89ff37317d055ab63704e0ccdfdb705e618851fb7ed2f015e644  packages/runtime-api-client/types.ts
+82e61027952eaad307a9f1685e23449c8911235ed269203969025ec34dc0ad94  packages/runtime-api-client/runtimeApiClient.ts
+7a1094444cf72ab1ba7b6daf11bc85f4e07c289ac21c84b516724cff0f8e3945  packages/runtime-api-client/runtimeApiClient.js
+45a31882719cc949f6e1d453b8a6033ee2047f76deec1f184cb8ce95a9bcdd2d  packages/runtime-api-client/canonicalRuntimeApiClient.ts
+6d7465160421459492cbef22102f4f9abc1e777803706b9730e2ebfe511e9568  packages/runtime-api-client/canonicalRuntimeApiClient.js
+```
+
+The canonical runtime-contract checker and generated-client TypeScript typecheck
+both pass. `main` remains `d5f83a26b`; merge-tree inspection is conflict-free.
+GY-N13b advanced to `3438bf2e6` and still has no branch-only
+`src/polisyos/runtime/http/**` path, so the stop-on-overlap rule has not fired.
+
+Task 6 must convert the 31 legacy HTTP expectations invalidated by Tasks 4/5 to
+authz-aware fixtures or explicit fail-closed assertions (15 action/resource-binding
+changes plus 16 high-stakes ingest/promotion step-up changes). They are DS20-caused,
+not inherited baseline debt, and cannot remain classified as inherited at closure.

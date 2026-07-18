@@ -7,8 +7,10 @@ import json
 import re
 import sqlite3
 import threading
+import time
 from collections.abc import Callable, Iterator
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 from types import SimpleNamespace
 from typing import Any, Protocol, TypeGuard, cast
 
@@ -153,6 +155,50 @@ def _claims(
 
 def _fixture_bearer(suffix: str) -> str:
     return f"token-{suffix}"
+
+
+def _install_bound_test_step_up(client) -> str:
+    """Install a test-only external verifier and atomic one-use store."""
+    from polisyos.runtime.http.security import RuntimeSecurityConfig
+    from polisyos.runtime.http.step_up import StepUpAssertionVerification
+
+    class _Verifier:
+        def verify(self, encoded_assertion: str, verification_context):
+            now = int(time.time())
+            return StepUpAssertionVerification(
+                context=verification_context,
+                assertion_id=hashlib.sha256(encoded_assertion.encode()).hexdigest(),
+                issuer="https://step-up.test",
+                audience="polisyos-runtime-step-up",
+                issued_at=now - 1,
+                expires_at=now + 60,
+                assurance="fresh_mfa",
+            )
+
+    class _ReplayStore:
+        def __init__(self) -> None:
+            self._consumed: set[str] = set()
+            self._lock = threading.Lock()
+
+        def consume_step_up_assertion(self, *, assertion_id: str, expires_at: int) -> bool:
+            del expires_at
+            with self._lock:
+                if assertion_id in self._consumed:
+                    return False
+                self._consumed.add(assertion_id)
+                return True
+
+    container = client.app.state.runtime_container
+    security = container.runtime_security
+    assert isinstance(security, RuntimeSecurityConfig)
+    configured = replace(
+        security,
+        step_up_verifier=_Verifier(),
+        step_up_replay_store=_ReplayStore(),
+    )
+    container.runtime_security = configured
+    client.app.state.runtime_security = configured
+    return "test-only-external-step-up"
 
 
 _UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
@@ -1345,12 +1391,14 @@ def test_production_approval_ignores_client_overlay_output_path(
         ),
     )
     attacker_path = tmp_path / "attacker-controlled-evidence"
+    step_up_assertion = _install_bound_test_step_up(client)
 
     response = client.post(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}/production-approval",
         headers={
             "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
+            "X-PolicyOS-Step-Up": step_up_assertion,
         },
         json={
             "quality_scorecard": {
@@ -1415,12 +1463,14 @@ def test_production_approval_never_executes_persisted_scorecard_output_path(
             roles=frozenset({PolicyOSRole.ADMIN}),
         ),
     )
+    step_up_assertion = _install_bound_test_step_up(client)
 
     response = client.post(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}/production-approval",
         headers={
             "Authorization": f"Bearer {claims_bearer}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
+            "X-PolicyOS-Step-Up": step_up_assertion,
         },
         json={"quality_scorecard_ref": str(scorecard_ref.artifact_id)},
     )
@@ -1988,6 +2038,7 @@ def test_resolved_promotion_selector_never_claims_caller_tenant(
             jti="jwt-unscoped-promotion",
         ),
     )
+    step_up_assertion = _install_bound_test_step_up(client)
     with client:
         control = client.app.state._control_service
         retrieval = control._retrieval
@@ -2006,6 +2057,7 @@ def test_resolved_promotion_selector_never_claims_caller_tenant(
             headers={
                 "Authorization": f"Bearer {claims_bearer}",
                 "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": step_up_assertion,
             },
             json={"reason": "verify limited authority"},
         )
@@ -2167,6 +2219,7 @@ def test_delegated_effective_scope_governs_binding_and_execution_policy(
 ) -> None:
     import polisyos.runtime.http.authz_middleware as authz_middleware_module
     from polisyos.core.security.tenant_context import get_current_access_scope_or_none
+    from polisyos.runtime.http.step_up import StepUpClass, require_step_up
 
     class _ScopeCaptureOPA:
         def __init__(self) -> None:
@@ -2202,6 +2255,7 @@ def test_delegated_effective_scope_governs_binding_and_execution_policy(
             resource_kind="runtime.ds20.delegation_admin_probe",
         ),
     )
+    admin_only_step_up = require_step_up(StepUpClass.PRODUCTION_APPROVAL)
     manager = DelegationTokenManager(
         signing_key="ds20-delegation-secret-at-least-32-bytes",
         ttl_seconds=60,
@@ -2273,7 +2327,7 @@ def test_delegated_effective_scope_governs_binding_and_execution_policy(
 
     @app.post(
         "/api/v1/ds20/delegation-admin-only-probe",
-        dependencies=[Depends(admin_only_dependency)],
+        dependencies=[Depends(admin_only_dependency), Depends(admin_only_step_up)],
     )
     def _delegation_admin_only_probe() -> dict[str, bool]:
         admin_only_mutation["executed"] = True

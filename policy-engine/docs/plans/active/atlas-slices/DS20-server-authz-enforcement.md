@@ -403,7 +403,7 @@ Do not stage or commit the red structural test. Leave it as the executable faili
 - Modify `src/polisyos/runtime/http/access_audit.py`
 - Modify `src/polisyos/runtime/http/app.py`
 - Modify `src/polisyos/runtime/http/authz_middleware.py`
-- Modify `src/polisyos/runtime/http/jwt_middleware.py`
+- Modify `src/polisyos/runtime/http/jwt_auth_middleware.py`
 - Modify `src/polisyos/runtime/http/fail_closed_middleware.py`
 - Modify `src/polisyos/runtime/http/security.py`
 - Modify `src/polisyos/runtime/http/routes/auth.py`
@@ -429,7 +429,7 @@ Do not stage or commit the red structural test. Leave it as the executable faili
   src/polisyos/runtime/http/access_audit.py \
   src/polisyos/runtime/http/app.py \
   src/polisyos/runtime/http/authz_middleware.py \
-  src/polisyos/runtime/http/jwt_middleware.py \
+  src/polisyos/runtime/http/jwt_auth_middleware.py \
   src/polisyos/runtime/http/fail_closed_middleware.py \
   src/polisyos/runtime/http/security.py \
   src/polisyos/runtime/http/routes/auth.py \

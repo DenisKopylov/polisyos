@@ -14,7 +14,17 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
-from polisyos.runtime.http.errors import forbidden, unauthorized
+from polisyos.runtime.http.access_audit import (
+    RuntimeAuthorizationAuditError,
+    RuntimeAuthorizationOutcome,
+    emit_runtime_authorization_audit,
+)
+from polisyos.runtime.http.errors import (
+    RuntimeHTTPError,
+    forbidden,
+    service_unavailable,
+    unauthorized,
+)
 from polisyos.runtime.http.permissions import RuntimePermission, permissions_for_roles
 
 if TYPE_CHECKING:
@@ -60,6 +70,16 @@ else:
 
 _UNSAFE_HTTP_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _VERIFICATION_STATE_FIELD = "action_permission_verification"
+
+
+@dataclass(frozen=True, slots=True)
+class MatchedAuthorizationRoute:
+    """Frozen route identity shared by action, binding, step-up, and audit."""
+
+    method: str
+    path_template: str
+    name: str
+    path_parameters: tuple[tuple[str, str], ...]
 
 
 def principal_from_access_scope(
@@ -336,7 +356,39 @@ class ActionPermissionDependency:
         self,
         request: Request,
     ) -> ActionPermissionVerification | BoundActionPermissionVerification:
-        """Authorize ``request`` or raise a typed fail-closed HTTP error."""
+        """Authorize and append the terminal decision before handler execution."""
+        try:
+            verification = self._authorize(request)
+        except RuntimeHTTPError as exc:
+            emit_runtime_authorization_audit(
+                request,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason=exc.code or exc.error,
+                raise_on_failure=False,
+            )
+            raise
+        if (
+            type(verification) is BoundActionPermissionVerification
+            and getattr(request.state, "authz_step_up_requirement", None) is None
+        ):
+            try:
+                emit_runtime_authorization_audit(
+                    request,
+                    outcome=RuntimeAuthorizationOutcome.ALLOW,
+                    raise_on_failure=True,
+                )
+            except RuntimeAuthorizationAuditError as exc:
+                raise service_unavailable(
+                    "Authorization audit is unavailable; mutation denied",
+                    code="authorization_audit_unavailable",
+                ) from exc
+        return verification
+
+    def _authorize(
+        self,
+        request: Request,
+    ) -> ActionPermissionVerification | BoundActionPermissionVerification:
+        """Return the exact route proof or raise a typed fail-closed error."""
         state = getattr(request, "state", object())
         scope = getattr(state, "authz_effective_scope", None)
         if not isinstance(scope, AccessScope):
@@ -634,6 +686,7 @@ __all__ = [
     "ActionPermissionDependency",
     "ActionPermissionVerification",
     "BoundActionPermissionVerification",
+    "MatchedAuthorizationRoute",
     "ResourceBindingSource",
     "ResourceBindingSpec",
     "RouteAuthorizationRequirement",

@@ -29042,7 +29042,8 @@
             "fetch_plans"
           ],
           "source": "request_composite"
-        }
+        },
+        "x-polisyos-step-up-class": "acquisition_approval"
       }
     },
     "/api/v1/control/data/preview": {
@@ -30023,7 +30024,8 @@
           "path_parameter": "promotion_id",
           "resource_kind": "runtime.evidence.promotion.approve",
           "source": "resolved_selector"
-        }
+        },
+        "x-polisyos-step-up-class": "promotion"
       }
     },
     "/api/v1/control/data/promotion/{promotion_id}/reject": {
@@ -30274,7 +30276,8 @@
           "path_parameter": "promotion_id",
           "resource_kind": "runtime.evidence.promotion.reject",
           "source": "resolved_selector"
-        }
+        },
+        "x-polisyos-step-up-class": "promotion"
       }
     },
     "/api/v1/control/data/resolve": {
@@ -31126,7 +31129,8 @@
             "dedupe_key"
           ],
           "source": "request_composite"
-        }
+        },
+        "x-polisyos-step-up-class": "publication"
       }
     },
     "/api/v1/control/jobs/{job_id}": {
@@ -34168,7 +34172,8 @@
           "path_parameter": "run_id",
           "resource_kind": "runtime.run.reissue",
           "source": "owned_existing_path"
-        }
+        },
+        "x-polisyos-step-up-class": "revocation"
       }
     },
     "/api/v1/control/workers": {
@@ -47738,7 +47743,8 @@
           "path_parameter": "run_id",
           "resource_kind": "runtime.run.production_approval",
           "source": "owned_existing_path"
-        }
+        },
+        "x-polisyos-step-up-class": "production_approval"
       }
     },
     "/api/v1/runs/{run_id}/quantities": {

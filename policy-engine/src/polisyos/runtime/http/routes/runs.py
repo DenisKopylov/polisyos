@@ -14,6 +14,7 @@ from time import monotonic
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.contracts.control import (
+    ProductionApprovalOverrideRequest,
     ProductionApprovalRequest,
     ProductionApprovalResponse,
 )
@@ -58,7 +59,7 @@ from polisyos.runtime.http.dependencies import (
     require_access_scope,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, conflict
+from polisyos.runtime.http.errors import bad_request, conflict, forbidden
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
     production_approval_scorecard_from_bound_request,
@@ -74,6 +75,11 @@ from polisyos.runtime.http.services.channel_contracts import (
     validate_runs_channel_data_event,
 )
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
+from polisyos.runtime.http.step_up import (
+    StepUpAssertionVerification,
+    StepUpClass,
+    require_step_up,
+)
 from polisyos.runtime.quality.approval import (
     build_production_approval_packet,
     persist_production_approval_packet,
@@ -120,6 +126,39 @@ _CREATE_PRODUCTION_APPROVAL_AUTHZ = require_action_permission(
         path_parameter="run_id",
     ),
 )
+_CREATE_PRODUCTION_APPROVAL_STEP_UP = require_step_up(
+    StepUpClass.PRODUCTION_APPROVAL,
+)
+
+
+def _validated_production_approval_override(
+    request: Request,
+    body: ProductionApprovalRequest,
+) -> ProductionApprovalOverrideRequest | None:
+    """Bind override attribution to the verified step-up subject."""
+    override = body.override
+    if override is None:
+        return None
+    verification = getattr(request.state, "step_up_verification", None)
+    if (
+        type(verification) is not StepUpAssertionVerification
+        or verification.context.step_up_class is not StepUpClass.PRODUCTION_APPROVAL
+    ):
+        raise forbidden(
+            "Production approval override lacks a bound step-up proof",
+            code="production_approval_override_step_up_unbound",
+        )
+    if override.reviewer_identity != verification.context.subject:
+        raise forbidden(
+            "Override reviewer identity must equal the verified step-up subject",
+            code="production_approval_override_identity_mismatch",
+        )
+    if override.signature is not None:
+        raise forbidden(
+            "Client-asserted approval signatures are not authority",
+            code="production_approval_client_signature_forbidden",
+        )
+    return override
 
 
 @dataclass(frozen=True)
@@ -726,7 +765,10 @@ if router is not None:
         "/{run_id}/production-approval",
         response_model=ProductionApprovalResponse,
         operation_id="create_run_production_approval",
-        dependencies=[Depends(_CREATE_PRODUCTION_APPROVAL_AUTHZ)],
+        dependencies=[
+            Depends(_CREATE_PRODUCTION_APPROVAL_AUTHZ),
+            Depends(_CREATE_PRODUCTION_APPROVAL_STEP_UP),
+        ],
     )
     def create_run_production_approval(
         run_id: str,
@@ -755,7 +797,7 @@ if router is not None:
         )
         packet = build_production_approval_packet(
             scorecard=scorecard,
-            override=body.override,
+            override=_validated_production_approval_override(request, body),
             artifact_ownership=artifact_ownership,
         )
         persisted = persist_production_approval_packet(

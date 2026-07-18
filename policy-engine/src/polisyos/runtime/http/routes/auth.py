@@ -65,7 +65,7 @@ if router is not None:
                 code="missing_user_claims",
             )
 
-        roles = claims.roles or frozenset({PolicyOSRole.VIEWER})
+        roles = claims.roles
         permissions = permissions_for_roles(roles)
         return AuthMeResponse(
             meta=build_meta(request),

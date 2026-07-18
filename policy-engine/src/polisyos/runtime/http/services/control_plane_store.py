@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+import hashlib
 import json
 import os
 import sqlite3
@@ -1104,6 +1105,47 @@ class ControlPlaneStore:
                     return cursor.rowcount == 1
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
+            return cur.rowcount == 1
+
+    def consume_step_up_assertion(
+        self,
+        *,
+        assertion_id: str,
+        expires_at: int,
+    ) -> bool:
+        """Atomically consume one external assertion identifier until expiry."""
+        if not isinstance(assertion_id, str) or not assertion_id.strip():
+            raise ValueError("assertion_id must be a non-empty string")
+        if type(expires_at) is not int:
+            raise TypeError("expires_at must be an integer epoch timestamp")
+        now = int(_utc_now().timestamp())
+        if expires_at <= now:
+            return False
+        assertion_digest = hashlib.sha256(assertion_id.encode("utf-8")).hexdigest()
+        insert_sql = """
+            INSERT INTO runtime_step_up_replays (
+                assertion_digest, expires_at, consumed_at
+            ) VALUES (?, ?, ?)
+            ON CONFLICT (assertion_digest) DO NOTHING
+        """
+        params = (assertion_digest, expires_at, now)
+        if self.backend == "sqlite":
+            with self._lock:
+                with self._sqlite_connection() as conn:
+                    conn.execute("BEGIN IMMEDIATE")
+                    conn.execute(
+                        "DELETE FROM runtime_step_up_replays WHERE expires_at <= ?",
+                        (now,),
+                    )
+                    cursor = conn.execute(insert_sql, params)
+                    conn.commit()
+                    return cursor.rowcount == 1
+        with self._postgres_cursor() as cur:
+            cur.execute(
+                "DELETE FROM runtime_step_up_replays WHERE expires_at <= %s",
+                (now,),
+            )
+            cur.execute(self._translate_sql(insert_sql), params)
             return cur.rowcount == 1
 
     def create_job(
@@ -2338,6 +2380,11 @@ class ControlPlaneStore:
                         manifest_hash TEXT NOT NULL,
                         updated_at TEXT NOT NULL
                     );
+                    CREATE TABLE IF NOT EXISTS runtime_step_up_replays (
+                        assertion_digest TEXT PRIMARY KEY,
+                        expires_at INTEGER NOT NULL,
+                        consumed_at INTEGER NOT NULL
+                    );
                     CREATE INDEX IF NOT EXISTS idx_control_jobs_state_created_at
                         ON control_jobs(state, created_at);
                     CREATE INDEX IF NOT EXISTS idx_control_jobs_pipeline_id
@@ -2357,6 +2404,8 @@ class ControlPlaneStore:
                         ON control_dead_letter_jobs(acknowledged_at, failed_at);
                     CREATE INDEX IF NOT EXISTS idx_runtime_scenario_heads_baseline_run
                         ON runtime_scenario_heads(baseline_run_id, scenario_id);
+                    CREATE INDEX IF NOT EXISTS idx_runtime_step_up_replays_expires_at
+                        ON runtime_step_up_replays(expires_at);
                     """
                 )
                 conn.commit()
@@ -2486,6 +2535,15 @@ class ControlPlaneStore:
             )
             cur.execute(
                 """
+                CREATE TABLE IF NOT EXISTS runtime_step_up_replays (
+                    assertion_digest TEXT PRIMARY KEY,
+                    expires_at BIGINT NOT NULL,
+                    consumed_at BIGINT NOT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_control_worker_leases_expires_at
                 ON control_worker_leases(lease_expires_at)
                 """
@@ -2525,6 +2583,12 @@ class ControlPlaneStore:
                 """
                 CREATE INDEX IF NOT EXISTS idx_runtime_scenario_heads_baseline_run
                 ON runtime_scenario_heads(baseline_run_id, scenario_id)
+                """
+            )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_runtime_step_up_replays_expires_at
+                ON runtime_step_up_replays(expires_at)
                 """
             )
 

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import os
-from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
@@ -20,9 +19,14 @@ from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitBreakerConfig,
     CircuitOpenError,
 )
+from polisyos.runtime.http.access_audit import (
+    RuntimeAuthorizationOutcome,
+    emit_runtime_authorization_audit,
+)
 from polisyos.runtime.http.authorization import (
     ActionPermissionVerification,
     BoundActionPermissionVerification,
+    MatchedAuthorizationRoute,
     RouteAuthorizationRequirement,
     get_route_action_permission_dependency,
 )
@@ -82,16 +86,6 @@ _SENSITIVE_POLICY_HEADERS = frozenset(
     }
 )
 _DEFAULT_BODY_CEILING = 1024 * 1024
-
-
-@dataclass(frozen=True, slots=True)
-class MatchedAuthorizationRoute:
-    """Frozen route identity used by action, binding, step-up, and audit."""
-
-    method: str
-    path_template: str
-    name: str
-    path_parameters: tuple[tuple[str, str], ...]
 
 
 class AuthzMiddleware:
@@ -219,6 +213,12 @@ class AuthzMiddleware:
                             max_body_bytes=self._body_ceiling,
                         )
                     except RuntimeHTTPError as exc:
+                        emit_runtime_authorization_audit(
+                            matched_request,
+                            outcome=RuntimeAuthorizationOutcome.DENY,
+                            denial_reason=exc.code or exc.error,
+                            raise_on_failure=False,
+                        )
                         await _response_for_runtime_error(matched_request, exc)(
                             scope,
                             receive,
@@ -278,6 +278,12 @@ class AuthzMiddleware:
                 await opa_response(scope, receive, send)
                 return
 
+        if unsafe and bound_resource is not None:
+            dependency_error = self._execute_bound_authorization_dependencies(request)
+            if dependency_error is not None:
+                await dependency_error(scope, downstream_receive, send)
+                return
+
         scope_token = set_current_access_scope(effective_scope)
         try:
             downstream_send = _shadow_header_sender(send) if shadow_deny else send
@@ -329,8 +335,14 @@ class AuthzMiddleware:
         request: Request,
         route: APIRoute,
     ) -> Response | None:
+        from polisyos.runtime.http.step_up import get_route_step_up_dependency
+
         try:
             dependency = get_route_action_permission_dependency(cast("Any", route))
+            step_up_dependency = get_route_step_up_dependency(
+                cast("Any", route),
+                action_dependency=dependency,
+            )
         except RuntimeError as exc:
             return self._problem(
                 request,
@@ -347,11 +359,17 @@ class AuthzMiddleware:
                 code="authorization_dependency_overridden",
                 detail="The route action-permission dependency is overridden",
             )
-        try:
-            _ = dependency(request)
-        except RuntimeHTTPError as exc:
-            return _response_for_runtime_error(request, exc)
-
+        if (
+            step_up_dependency is not None
+            and isinstance(overrides, dict)
+            and step_up_dependency in overrides
+        ):
+            return self._problem(
+                request,
+                status_code=503,
+                code="authorization_dependency_overridden",
+                detail="The route step-up dependency is overridden",
+            )
         requirement = dependency.requirement
         path_parameters = tuple(
             sorted((str(key), str(value)) for key, value in request.path_params.items())
@@ -363,6 +381,59 @@ class AuthzMiddleware:
             path_parameters=path_parameters,
         )
         request.state.authz_route_requirement = requirement
+        request.state.authz_step_up_requirement = (
+            step_up_dependency.requirement if step_up_dependency is not None else None
+        )
+        request.state.authz_action_dependency = dependency
+        request.state.authz_step_up_dependency = step_up_dependency
+        try:
+            _ = dependency(request)
+        except RuntimeHTTPError as exc:
+            return _response_for_runtime_error(request, exc)
+        return None
+
+    def _execute_bound_authorization_dependencies(
+        self,
+        request: Request,
+    ) -> Response | None:
+        """Execute the sealed route gates before any route application can run."""
+        from polisyos.runtime.http.authorization import ActionPermissionDependency
+        from polisyos.runtime.http.step_up import (
+            StepUpAssertionVerification,
+            StepUpDependency,
+        )
+
+        action_dependency = getattr(request.state, "authz_action_dependency", None)
+        step_up_dependency = getattr(request.state, "authz_step_up_dependency", None)
+        if type(action_dependency) is not ActionPermissionDependency:
+            return self._problem(
+                request,
+                status_code=503,
+                code="authorization_contract_violation",
+                detail="The matched route action dependency was not sealed",
+            )
+        try:
+            action_verification = action_dependency(request)
+            if type(action_verification) is not BoundActionPermissionVerification:
+                raise RuntimeError(
+                    "The action dependency did not consume the frozen resource"
+                )
+            if step_up_dependency is None:
+                return None
+            if type(step_up_dependency) is not StepUpDependency:
+                raise RuntimeError("The matched route step-up dependency was not sealed")
+            step_up_verification = step_up_dependency(request)
+            if type(step_up_verification) is not StepUpAssertionVerification:
+                raise RuntimeError("The step-up dependency returned an invalid proof")
+        except RuntimeHTTPError as exc:
+            return _response_for_runtime_error(request, exc)
+        except RuntimeError as exc:
+            return self._problem(
+                request,
+                status_code=503,
+                code="authorization_contract_violation",
+                detail=str(exc),
+            )
         return None
 
     def _freeze_binding(
@@ -400,12 +471,21 @@ class AuthzMiddleware:
         """Reject a handler response if any frozen authorization state changed."""
         rejected = False
         response_started = False
+        successful_response: bool | None = None
 
         async def _send(message: Message) -> None:
-            nonlocal rejected, response_started
+            nonlocal rejected, response_started, successful_response
             if rejected:
                 return
-            if not self._binding_is_intact(request, binding):
+            message_type = message.get("type")
+            status = message.get("status") if message_type == "http.response.start" else None
+            if isinstance(status, int):
+                successful_response = status < 400
+            if not self._binding_is_intact(
+                request,
+                binding,
+                require_executed_dependencies=successful_response is not False,
+            ):
                 rejected = True
                 if response_started:
                     raise RuntimeError(
@@ -418,7 +498,7 @@ class AuthzMiddleware:
                     detail="The frozen authorization resource changed during mutation",
                 )(scope, receive, failure_send)
                 return
-            if message.get("type") == "http.response.start":
+            if message_type == "http.response.start":
                 response_started = True
             await downstream_send(message)
 
@@ -428,23 +508,44 @@ class AuthzMiddleware:
     def _binding_is_intact(
         request: Request,
         binding: BoundAuthorizationResource,
+        *,
+        require_executed_dependencies: bool,
     ) -> bool:
         state = request.state
         verification = getattr(state, "action_permission_verification", None)
         # A base proof is valid only when downstream middleware or request
         # validation short-circuits before FastAPI executes route dependencies.
         # Any reached handler necessarily upgrades it to the bound proof.
-        permission_proof_matches = bool(
-            (
-                type(verification) is BoundActionPermissionVerification
-                and verification.bound_resource is binding
-                and verification.verification.requirement is binding.requirement
-            )
-            or (
-                type(verification) is ActionPermissionVerification
-                and verification.requirement is binding.requirement
-            )
+        bound_permission_proof = bool(
+            type(verification) is BoundActionPermissionVerification
+            and verification.bound_resource is binding
+            and verification.verification.requirement is binding.requirement
         )
+        preflight_permission_proof = bool(
+            type(verification) is ActionPermissionVerification
+            and verification.requirement is binding.requirement
+        )
+        permission_proof_matches = (
+            bound_permission_proof
+            if require_executed_dependencies
+            else bound_permission_proof or preflight_permission_proof
+        )
+        if require_executed_dependencies and getattr(
+            state,
+            "authz_step_up_requirement",
+            None,
+        ) is not None:
+            from polisyos.runtime.http.step_up import (
+                step_up_verification_matches_request,
+            )
+
+            if type(verification) is not BoundActionPermissionVerification:
+                return False
+            if not step_up_verification_matches_request(
+                request,
+                action_verification=verification,
+            ):
+                return False
         return bool(
             permission_proof_matches
             and getattr(state, "authz_bound_resource", None) is binding
@@ -525,13 +626,6 @@ class AuthzMiddleware:
         if not isinstance(scope, AccessScope):
             ambient_scope = get_current_access_scope_or_none()
             scope = ambient_scope if isinstance(ambient_scope, AccessScope) else None
-        if scope is None and not unsafe and not self._enforce:
-            scope = AccessScope.for_service(
-                tenant_id=str(getattr(request.state, "tenant_id", "")),
-                cell_id=getattr(request.state, "cell_id", None),
-                spiffe_id=peer_spiffe_id,
-            )
-            provenance = "shadow_service_fallback"
         if scope is not None:
             routed_cell_id = getattr(request.state, "cell_id", None)
             if routed_cell_id and scope.cell_id and routed_cell_id != scope.cell_id:
@@ -593,6 +687,12 @@ class AuthzMiddleware:
                 )
             )
         except TimeoutError:
+            emit_runtime_authorization_audit(
+                request,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason="authz_dependency_timeout",
+                raise_on_failure=False,
+            )
             clear_request_auth_context(request.state)
             return (
                 self._problem(
@@ -604,6 +704,12 @@ class AuthzMiddleware:
                 False,
             )
         except CircuitOpenError:
+            emit_runtime_authorization_audit(
+                request,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason="authz_dependency_unavailable",
+                raise_on_failure=False,
+            )
             clear_request_auth_context(request.state)
             return (
                 self._problem(
@@ -620,6 +726,12 @@ class AuthzMiddleware:
         request.state.authz_allowed_columns = _extract_allowed_columns(result.audit_entry)
         if "OPA_UNREACHABLE" in result.reasons:
             self._opa_breaker.record_failure()
+            emit_runtime_authorization_audit(
+                request,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason="authz_dependency_unavailable",
+                raise_on_failure=False,
+            )
             clear_request_auth_context(request.state)
             return (
                 self._problem(
@@ -633,6 +745,12 @@ class AuthzMiddleware:
         if result.is_allowed:
             return None, False
         if fail_closed or (self._enforce and not self._shadow_mode):
+            emit_runtime_authorization_audit(
+                request,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason="authorization_denied",
+                raise_on_failure=False,
+            )
             clear_request_auth_context(request.state)
             return (
                 problem_response(

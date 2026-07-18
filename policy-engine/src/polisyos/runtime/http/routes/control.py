@@ -64,9 +64,11 @@ from polisyos.runtime.http.errors import bad_request, not_found
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
+from polisyos.runtime.http.security import is_fixture_identity_claims
 from polisyos.runtime.http.services.control.lex_search_projection import LexSearchResponse
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.http.services.sae_spatial_service import SAESpatialService
+from polisyos.runtime.http.step_up import StepUpClass, require_step_up
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
@@ -210,6 +212,11 @@ _SEARCH_LEX_AUTHZ = require_action_permission(
         resource_kind="runtime.lex_workspace.search",
     ),
 )
+_REISSUE_RUN_STEP_UP = require_step_up(StepUpClass.REVOCATION)
+_PUBLISH_DECISION_VALIDITY_STEP_UP = require_step_up(StepUpClass.PUBLICATION)
+_INGEST_DATA_STEP_UP = require_step_up(StepUpClass.ACQUISITION_APPROVAL)
+_APPROVE_PROMOTION_STEP_UP = require_step_up(StepUpClass.PROMOTION)
+_REJECT_PROMOTION_STEP_UP = require_step_up(StepUpClass.PROMOTION)
 
 
 def _get_control_service(request: Request) -> ControlPlaneService:
@@ -221,10 +228,13 @@ def _get_control_service(request: Request) -> ControlPlaneService:
 
 
 def _get_principal(request: Request) -> RuntimePrincipal:
+    claims = getattr(request.state, "user_claims", None)
     effective_scope = getattr(request.state, "authz_effective_scope", None)
     if isinstance(effective_scope, AccessScope):
-        return RuntimePrincipal.from_access_scope(effective_scope)
-    claims = getattr(request.state, "user_claims", None)
+        return RuntimePrincipal.from_access_scope(
+            effective_scope,
+            fixture_identity=is_fixture_identity_claims(claims),
+        )
     return RuntimePrincipal.from_user_claims(claims)
 
 
@@ -346,7 +356,7 @@ async def launch_nl_run(
     response_model=FeedbackActionResponse,
     operation_id="reissue_run",
     summary="Create a human-gated reissue run",
-    dependencies=[Depends(_REISSUE_RUN_AUTHZ)],
+    dependencies=[Depends(_REISSUE_RUN_AUTHZ), Depends(_REISSUE_RUN_STEP_UP)],
 )
 def reissue_run(
     run_id: str,
@@ -463,7 +473,10 @@ if router is not None:
         response_model=DecisionValidityEventResponse,
         operation_id="publish_decision_validity_event",
         summary="Publish a durable decision invalidation event",
-        dependencies=[Depends(_PUBLISH_DECISION_VALIDITY_AUTHZ)],
+        dependencies=[
+            Depends(_PUBLISH_DECISION_VALIDITY_AUTHZ),
+            Depends(_PUBLISH_DECISION_VALIDITY_STEP_UP),
+        ],
     )
     def publish_decision_validity_event(
         body: DecisionValidityEventRequest,
@@ -571,7 +584,7 @@ if router is not None:
         response_model=IngestResponse,
         operation_id="ingest_data",
         summary="Trigger data collection from connectors",
-        dependencies=[Depends(_INGEST_DATA_AUTHZ)],
+        dependencies=[Depends(_INGEST_DATA_AUTHZ), Depends(_INGEST_DATA_STEP_UP)],
     )
     def ingest_data(
         body: IngestRequest,
@@ -759,7 +772,10 @@ if router is not None:
         response_model=PromotionDecisionResponse,
         operation_id="approve_data_promotion",
         summary="Approve PromotionLane candidate",
-        dependencies=[Depends(_APPROVE_PROMOTION_AUTHZ)],
+        dependencies=[
+            Depends(_APPROVE_PROMOTION_AUTHZ),
+            Depends(_APPROVE_PROMOTION_STEP_UP),
+        ],
     )
     def approve_data_promotion(
         promotion_id: str,
@@ -784,7 +800,10 @@ if router is not None:
         response_model=PromotionDecisionResponse,
         operation_id="reject_data_promotion",
         summary="Reject PromotionLane candidate",
-        dependencies=[Depends(_REJECT_PROMOTION_AUTHZ)],
+        dependencies=[
+            Depends(_REJECT_PROMOTION_AUTHZ),
+            Depends(_REJECT_PROMOTION_STEP_UP),
+        ],
     )
     def reject_data_promotion(
         promotion_id: str,

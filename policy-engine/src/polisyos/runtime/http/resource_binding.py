@@ -477,6 +477,7 @@ def _bind_owned_existing_path(
     resolved_context_kind: str | None = None
     resolved_context: bytes | None = None
     if spec.resource_kind == "runtime.run.production_approval":
+        _validate_production_approval_override_authority(body, scope=scope)
         resolved = resolve_production_approval_scorecard(
             body=body,
             control_service=resolve_control_service(request),
@@ -500,6 +501,33 @@ def _bind_owned_existing_path(
         resolved_context_kind=resolved_context_kind,
         resolved_context=resolved_context,
     )
+
+
+def _validate_production_approval_override_authority(
+    body: Mapping[str, Any],
+    *,
+    scope: AccessScope,
+) -> None:
+    """Reject client-authored override identity or signature before OPA."""
+    raw_override = body.get("override")
+    if raw_override is None:
+        return
+    if not isinstance(raw_override, Mapping):
+        raise bad_request(
+            "Production approval override must be an object",
+            code="production_approval_override_invalid",
+        )
+    reviewer_identity = raw_override.get("reviewer_identity")
+    if reviewer_identity != scope.user_sub:
+        raise forbidden(
+            "Override reviewer identity must equal the verified effective subject",
+            code="production_approval_override_identity_mismatch",
+        )
+    if raw_override.get("signature") is not None:
+        raise forbidden(
+            "Client-asserted approval signatures are not authority",
+            code="production_approval_client_signature_forbidden",
+        )
 
 
 def _bind_owned_existing_batch(

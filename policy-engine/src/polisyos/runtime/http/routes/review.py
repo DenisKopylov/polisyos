@@ -29,6 +29,7 @@ from polisyos.runtime.http.errors import (
 from polisyos.runtime.http.security import (
     RuntimeSecurityConfig,
     build_fixture_identity_claims,
+    is_fixture_identity_claims,
 )
 
 if TYPE_CHECKING:
@@ -116,6 +117,12 @@ async def _authenticate_review_socket(websocket: WebSocket) -> _ReviewSocketSecu
             return None
         except (AttributeError, KeyError, RuntimeError, TypeError, ValueError):
             await websocket.close(code=4401, reason="Invalid bearer token")
+            return None
+        if is_fixture_identity_claims(claims):
+            await websocket.close(
+                code=4401,
+                reason="Fixture identity is development-only",
+            )
             return None
     elif config.allow_fixture_identity:
         claims = build_fixture_identity_claims()
@@ -299,7 +306,7 @@ if router is not None:
         hub = _get_review_collaboration_hub(websocket)
         participant_value = (
             participant_id
-            if _get_runtime_security_config(websocket).allow_fixture_identity and participant_id
+            if is_fixture_identity_claims(security_ctx.claims) and participant_id
             else security_ctx.claims.sub
         )
         session = hub.build_session(

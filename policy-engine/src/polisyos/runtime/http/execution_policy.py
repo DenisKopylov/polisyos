@@ -16,6 +16,7 @@ from polisyos.core.contracts.control import (
     PolicyFlags,
 )
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+from polisyos.runtime.http.security import is_fixture_identity_claims
 
 if TYPE_CHECKING:
     from polisyos.core.security.access_scope import AccessScope
@@ -59,6 +60,7 @@ class RuntimePrincipal:
     cell_id: str | None = None
     roles: frozenset[str] = frozenset()
     authenticated: bool = False
+    fixture_identity: bool = False
 
     @property
     def is_privileged(self) -> bool:
@@ -76,10 +78,16 @@ class RuntimePrincipal:
             cell_id=claims.cell_id,
             roles=frozenset(role.value for role in claims.roles),
             authenticated=True,
+            fixture_identity=is_fixture_identity_claims(claims),
         )
 
     @classmethod
-    def from_access_scope(cls, scope: AccessScope | None) -> RuntimePrincipal:
+    def from_access_scope(
+        cls,
+        scope: AccessScope | None,
+        *,
+        fixture_identity: bool = False,
+    ) -> RuntimePrincipal:
         """Convert the effective verified scope into the execution-policy principal."""
         if scope is None:
             return cls()
@@ -92,6 +100,7 @@ class RuntimePrincipal:
             cell_id=scope.cell_id,
             roles=frozenset(role.value for role in scope.roles),
             authenticated=True,
+            fixture_identity=fixture_identity,
         )
 
 
@@ -241,6 +250,11 @@ class RuntimeExecutionPolicyResolver:
         effective: ExecutionProfile = requested or self._default_profile
         if self._profile_rank(effective) < self._profile_rank(self._default_profile):
             effective = self._default_profile
+        if actor.fixture_identity and effective != "dev":
+            raise ExecutionProfileError(
+                "fixture_identity_profile_forbidden",
+                "Development fixture identity cannot request a non-development profile.",
+            )
 
         if flags.allow_mock_fallback and not actor.is_privileged:
             raise PolicyFlagForbiddenError(

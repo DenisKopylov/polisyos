@@ -148,6 +148,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
 
+    from ...step_up import StepUpReplayStore
     from ..control_registry_providers import ControlRegistryProviders
     from ..scenario_heads import ScenarioHeadStore
 
@@ -245,6 +246,11 @@ class ControlPlaneService(
     def scenario_head_store(self) -> ScenarioHeadStore:
         """Expose the narrow durable scenario-head authority to the runtime container."""
         return cast("ScenarioHeadStore", self._control_store)
+
+    @property
+    def step_up_replay_store(self) -> StepUpReplayStore:
+        """Expose the narrow durable one-use assertion store."""
+        return cast("StepUpReplayStore", self._control_store)
 
     def close(self) -> None:
         """Stop embedded workers and release durable control-plane resources."""

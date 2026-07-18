@@ -22,6 +22,11 @@ from polisyos.core.contracts.runtime import (
     BureaucraticRenderResponse,
     TemporalScope,
 )
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
@@ -31,6 +36,7 @@ from polisyos.runtime.http.dependencies import (
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import bad_request, conflict, not_acceptable, not_found
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.response_policies import (
     add_artifact_link_relations,
     build_artifact_etag,
@@ -67,6 +73,22 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
+_GET_ARTIFACT_BATCH_AUTHZ = require_action_permission(
+    RuntimePermission.ARTIFACTS_BATCH_READ,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_BATCH,
+        resource_kind="runtime.artifact.batch",
+        body_field="artifact_ids",
+    ),
+)
+_RENDER_BUREAUCRATIC_ARTIFACT_AUTHZ = require_action_permission(
+    RuntimePermission.ARTIFACTS_RENDER,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.artifact.bureaucratic_render",
+        path_parameter="packet_id",
+    ),
+)
 
 
 if router is not None:
@@ -75,6 +97,7 @@ if router is not None:
         "/batch",
         response_model=ArtifactBatchResponse,
         operation_id="get_artifact_batch",
+        dependencies=[Depends(_GET_ARTIFACT_BATCH_AUTHZ)],
     )
     def get_artifact_batch(
         body: ArtifactBatchRequest,
@@ -412,6 +435,7 @@ if router is not None:
         response_model=BureaucraticRenderResponse,
         operation_id="render_bureaucratic_artifact",
         responses={200: {"headers": EXPORT_REPLAY_RESPONSE_HEADERS}},
+        dependencies=[Depends(_RENDER_BUREAUCRATIC_ARTIFACT_AUTHZ)],
     )
     def render_bureaucratic_artifact(
         packet_id: str,

@@ -143,3 +143,112 @@ The plan is corrected before source implementation under P32:
 - Unknown owned IDs and unsupported lineage forms deny; supported limited bindings remain visibly limited to OPA, the action dependency, and audit.
 
 This preserves the required pre-OPA resource binding without manufacturing evidence or making legitimate create/optional request modes impossible.
+
+## 2026-07-18 — Task 4 action permission and pre-OPA binding receipt
+
+The red-first structural spine observed all expected failures before implementation:
+
+- all 29 live unsafe routes lacked a genuine action dependency;
+- missing, duplicate, marker-only, and synthetic sibling declarations failed the app contract;
+- the OpenAPI action/resource extensions were absent;
+- a late unguarded mutation reached neither a reliable construction failure nor a typed resource;
+- an owned run batch reached OPA as the legacy generic `http_resource`;
+- required selector, disjunctive selector, parent, and handler-rebind adversarial tests failed.
+
+Task 4 now installs one exact `ActionPermissionDependency` and one frozen `ResourceBindingSpec` on every live unsafe route. App construction and lifespan validation enumerate the live FastAPI router; middleware repeats the check for late-added routes and executes the exact declared dependency before reading or resolving the body. The downstream FastAPI dependency must consume the same frozen resource object before a handler response is emitted. Middleware and validation short-circuits retain the preflight proof without pretending the handler dependency ran. A handler-side replacement is rejected with `authorization_binding_integrity_violation`.
+
+The binder now has closed source/authority variants; exact bounded body capture/replay; required fields, DNF alternatives, and required-parent constraints; run/artifact ownership lookup; limited candidate/request/unscoped authority; duplicate-preserving batch digests; and versioned resource URNs. Unsupported lineage forms, unknown owned identifiers, cross-tenant resources, malformed JSON, duplicate JSON keys, non-finite values, and oversized bodies deny before OPA. Duplicate batch occurrences remain a valid response-order-preserving API contract and are protected from digest collision by the exact body hash.
+
+Focused verification:
+
+```text
+.venv/bin/pytest tests/unit/runtime/http/test_runtime_api_authz.py \
+  tests/unit/runtime/http/test_runtime_permission_vocabulary.py -q
+.....................................
+
+.venv/bin/ruff check <Task-4 changed Python files>
+All checks passed!
+
+.venv/bin/basedpyright --outputjson \
+  src/polisyos/runtime/http/authorization.py \
+  src/polisyos/runtime/http/authz_middleware.py \
+  src/polisyos/runtime/http/resource_binding.py
+0 errors
+```
+
+The first full scoped HTTP run found 26 failures. Four middleware short-circuit regressions (idempotency replay, request-rate limiting, rate-limit telemetry, and CSRF) and one duplicate-preserving artifact-batch regression were corrected without bypassing action preflight or binding. A `--lf` rerun leaves 21 classified failures:
+
+- the same six baseline-red node IDs recorded above (one architecture debt and five control-plane fixture-drift nodes); and
+- 15 intentional fail-closed disposition changes in read-only legacy tests: four production-approval fixture-analyst calls, seven decision-validity/publication fixture-analyst calls, one empty-ingest pre-OPA selector rejection, one nonexistent-promotion rejection, and two unknown-lineage rejections.
+
+Those 15 tests assert the pre-DS20 insecure behavior: an analyst fixture performing admin-only mutations, malformed resource selectors reaching handler validation, or unknown resources reaching mutation handlers. They are not made green by weakening the new checks. Task 6 supplies the explicit authorized/unauthorized/absent-identity matrix; the legacy tests require an owner-approved authz-aware fixture/disposition update outside this slice's authz-test-only edits.
+
+The GY-N13b branch advanced to `7d6239707`; its branch-only diff still has no `src/polisyos/runtime/http/**` path, so no parallel-writer collision exists at this checkpoint. `main` remains `d5f83a26b`.
+
+One cross-fence limitation is classified rather than hidden: promotion binding hashes the resolved candidate and correctly labels it `content_resolved_unscoped`, but the public retrieval mutation API has no expected-version/digest compare-and-set. A concurrent candidate change between OPA and the handler therefore cannot be closed atomically without modifying the read-only Fabric retrieval service. DS20 does not reach into its private lock or claim atomic closure; architect review must assign the compare-and-set producer repair before this limitation can be declared closed.
+
+### Task 4 adversarial review corrections
+
+The first Task-4 reviews were blocked and produced four in-fence repairs:
+
+- Production approval now resolves the persisted scorecard, rejects a scorecard whose durable `run_id` differs from the owned path run, hashes the normalized scorecard into the OPA resource, freezes its canonical bytes, and makes the handler consume that exact snapshot. The old post-OPA resolver was removed.
+- Batch bindings exclude raw body order from the authorization-resource digest while retaining the exact body hash for audit/replay. Canonical selector multisets make forward and reverse batches identical; every occurrence is still resolved and a cross-tenant member denies before OPA.
+- The exact raw query string is hashed into every authorization resource, so temporal/branch/snapshot mutation semantics cannot share an OPA resource merely because path and body match.
+- Scenario creation resolves the actual canonical target slot before OPA, detects a persisted ID owned by another baseline run, freezes the authorized revision, and performs an atomic repository compare-and-save. A forced write between OPA and the handler returns `scenario_authorization_binding_changed` rather than overwriting the authorized slot.
+
+Durable adversarial coverage also proves byte-identical downstream body replay; duplicate-key and invalid-UTF-8 rejection; encoded-body rejection; body-ceiling rejection; cross-run scorecard rejection; query-sensitive resource IDs; cross-run scenario collision rejection; and post-policy scenario revision race rejection. The focused authorization/vocabulary suite is now 49/49 green, the scenario API suite is 11/11 green, changed-file Ruff is green, and the four authorization/binding modules report zero basedpyright errors.
+
+A second inherited authority limitation is recorded under P32 rather than silently changed: the existing production-approval adapter marks a content-addressed persisted scorecard identity as verified, but the HTTP-visible artifact contract does not expose verifier provenance that distinguishes an authoritative quality producer from a tenant-authored artifact. DS20 preserves that pre-existing eligibility behavior while adding permission, resource, and (in Task 5) step-up enforcement. Architect review must assign the verifier-provenance producer/contract repair; DS20 does not falsely claim that CAS presence alone proves scorecard authority.
+
+### Task 4 second adversarial review: fail-closed execution authority
+
+A second security review reproduced four additional in-fence gaps. All four now have durable negatives and structural repairs:
+
+- Unsafe OPA denies no longer inherit the read-path shadow/enforcement toggle. Every unsafe request treats an OPA deny as terminal `403 authorization_denied`, including `authz_enforce=False` and shadow mode; neither handler executes.
+- Delegated identity is now the single effective principal through action preflight, resource resolution/CAS access, OPA, handler execution policy, and audit attribution. A delegated analyst carried by an outer admin token is denied the admin-only mock-fallback flag, and the binding/OPA probes observe the delegated analyst rather than the outer JWT principal.
+- Production approval never interprets either client overlay data or persisted scorecard data as a host-filesystem write command. The HTTP route persists only to the configured CAS; both overlay and artifact-authored `quality_evidence_bundle_path` probes leave the attacker path absent. Persisted scorecards also have explicit wrong/absent schema negatives that deny before OPA and packet persistence.
+- Scenario revision compare-and-save is no longer process-local. The existing dual-backend `ControlPlaneStore` now owns a transactional `runtime_scenario_heads` logical-head table. Revision zero is insert-only; later writes are conditional on the exact immutable baseline run and expected revision; every accepted update advances exactly one revision. The immutable scenario artifact is written first, but only the successful SQL head CAS makes it authoritative. Repository reads, lists, collision checks, and fresh-context hydration resolve the head's exact artifact and verify kind, schema, scenario id, baseline run, revision, and manifest hash. Losing or legacy unheaded CAS objects are never selected.
+
+Scenario CAS proof includes two independent SQLite store instances racing for one create (one winner), two complete runtime apps binding the same expected revision before OPA (one `200`, one `409`), baseline-run rebinding denial, corrupted-head content denial before OPA, durable-head-store absence denial before OPA, fresh-context survival, and an unheaded conflicting candidate remaining invisible. The PostgreSQL path uses the same insert-only/conditional-update linearization statements and schema, but this workstation has no configured `POLISYOS_CONTROL_POSTGRES_DSN`; no local PostgreSQL execution receipt is claimed. CI/architect review must execute the existing backend variant with a real DSN rather than accepting a mocked SQL-string proof.
+
+Focused verification after these repairs:
+
+```text
+uv run --extra runtime --extra ml pytest -q \
+  tests/unit/runtime/http/test_runtime_api_authz.py \
+  tests/unit/runtime/http/test_scenarios_api.py \
+  tests/unit/runtime/http/test_control_plane_store.py
+all selected tests passed
+
+uv run ruff check <all Task-4 changed Python files>
+All checks passed!
+
+git diff --check
+clean
+```
+
+`main` remains `d5f83a26b`. GY-N13b advanced through `17639f540`; its branch-only diff still contains no `src/polisyos/runtime/http/**` path, so the stop-on-overlap rule has not fired.
+
+### Task 4 final review closure
+
+The final Task-4 review found and closed two proof/authority gaps:
+
+- Delegation now has an exact action-preflight negative: an outer ADMIN token delegated to an ANALYST is denied an ADMIN-only production-approval permission before resource binding, OPA, or handler execution. The same test inspects the existing append-only mutation audit and proves that a rejected managed control mutation records `delegated-analyst`, not the outer administrator, as actor.
+- A persisted scenario using the generated default scenario ID can no longer be hidden by an ephemeral list projection. The durable SQL head wins, and a route-level test proves the list contains exactly one matching scenario with the persisted revision and manifest hash.
+
+The re-review passed both targeted tests. The combined authorization, scenario API, and control-plane-store suites passed after these corrections, as did changed-file Ruff and `git diff --check`.
+
+A fresh serial scoped HTTP run retained the same 21 classified failures recorded above: the six inherited baseline nodes and the 15 legacy expectations invalidated by fail-closed authorization/resource binding. No additional failure class appeared. This receipt does not convert those intentional legacy expectation changes into regressions or weaken authorization to satisfy them.
+
+The Task-4 OpenAPI action/resource projection changed the canonical contract, so the DS3 pipeline was replayed twice in full. Both runs produced byte-identical files with these SHA-256 receipts:
+
+```text
+3048cb03cedb82760605f0fd15e7ff8fa4939878b7d28d3e6573f25f8dce3c6a  schemas/runtime_api_v1.openapi.json
+137ba30652cc89ff37317d055ab63704e0ccdfdb705e618851fb7ed2f015e644  packages/runtime-api-client/types.ts
+82e61027952eaad307a9f1685e23449c8911235ed269203969025ec34dc0ad94  packages/runtime-api-client/runtimeApiClient.ts
+7a1094444cf72ab1ba7b6daf11bc85f4e07c289ac21c84b516724cff0f8e3945  packages/runtime-api-client/runtimeApiClient.js
+45a31882719cc949f6e1d453b8a6033ee2047f76deec1f184cb8ce95a9bcdd2d  packages/runtime-api-client/canonicalRuntimeApiClient.ts
+6d7465160421459492cbef22102f4f9abc1e777803706b9730e2ebfe511e9568  packages/runtime-api-client/canonicalRuntimeApiClient.js
+```
+
+The post-regeneration runtime-contract checker passed, the generated client TypeScript typecheck passed, and its architecture checker passed.

@@ -22,6 +22,15 @@ _AUTH_STATE_FIELDS = (
     "authz_reasons",
     "authz_allowed_columns",
     "authz_resource",
+    "authz_bound_resource",
+    "authz_action_bound_resource",
+    "authz_resource_frozen",
+    "authz_body_sha256",
+    "authz_matched_route",
+    "authz_route_requirement",
+    "authz_effective_scope",
+    "authz_scope_provenance",
+    "action_permission_verification",
 )
 
 

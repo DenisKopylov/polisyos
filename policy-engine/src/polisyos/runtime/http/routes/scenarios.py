@@ -16,6 +16,11 @@ from polisyos.core.contracts.runtime import (
     ScenarioManifestResponse,
     TemporalScope,
 )
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
@@ -24,8 +29,10 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.response_policies import add_run_link_relations
 from polisyos.runtime.http.errors import conflict
+from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.resource_binding import scenario_target_from_bound_request
+from polisyos.runtime.http.response_policies import add_run_link_relations
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
@@ -54,6 +61,15 @@ OptionalDateTimeQuery = Annotated[datetime | None, Query()]
 OptionalTQuery = Annotated[datetime | None, Query(alias="t")]
 OptionalStringQuery = Annotated[str | None, Query()]
 RequiredScenarioIdQuery = Annotated[str, Query(min_length=1)]
+_CREATE_RUN_SCENARIO_AUTHZ = require_action_permission(
+    RuntimePermission.SCENARIOS_CREATE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.CANDIDATE_TARGET_SLOT,
+        resource_kind="runtime.run.scenario.candidate",
+        path_parameter="run_id",
+        selector_fields=("id",),
+    ),
+)
 
 
 @router.get(
@@ -119,6 +135,7 @@ def list_run_scenarios(
     "/runs/{run_id}/scenarios",
     response_model=ScenarioManifestResponse,
     operation_id="create_run_scenario",
+    dependencies=[Depends(_CREATE_RUN_SCENARIO_AUTHZ)],
 )
 def create_run_scenario(
     run_id: str,
@@ -152,11 +169,18 @@ def create_run_scenario(
         tenant_id=run.details.tenant_id,
         kind="runtime.run_scenario_create",
     )
+    authorized_scenario_id, expected_revision = scenario_target_from_bound_request(
+        request,
+        run=run,
+        requested_id=body.id,
+    )
     manifest = ctx.scenarios.create_for_run(
         run=run,
         request=body,
         temporal_scope=temporal_scope,
         regime_shift_forecast_bundle_ref=regime_shift_forecast_bundle_ref,
+        authorized_scenario_id=authorized_scenario_id,
+        expected_revision=expected_revision,
     )
     record_data_access_audit(
         request,
@@ -449,7 +473,9 @@ def _scenario_manifest_etag(
         "manifest_hash": manifest.manifest_hash,
         "revision": manifest.revision,
         "scenario_id": manifest.id,
-        "scope": temporal_scope.model_dump(mode="json") if temporal_scope is not None else "current",
+        "scope": temporal_scope.model_dump(mode="json")
+        if temporal_scope is not None
+        else "current",
     }
     digest = hashlib.sha256(json.dumps(payload, sort_keys=True).encode("utf-8")).hexdigest()
     return f'W/"scenario-manifest-{digest[:24]}"'

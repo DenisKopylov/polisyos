@@ -124,6 +124,7 @@ def build_runtime_api_context(
         lineage_service=lineage,
         temporal_service=temporal,
         store=store,
+        require_durable_heads=True,
     )
     artifacts = ArtifactInspectorService(
         store=store,
@@ -201,7 +202,9 @@ def set_authz_resource(
     kind: str,
     artifact_id: str | None = None,
 ) -> None:  # pragma: no cover
-    """Attach resource metadata consumed by authz middleware and audit logging."""
+    """Attach legacy resource metadata without replacing a frozen pre-OPA binding."""
+    if getattr(request.state, "authz_resource_frozen", False):
+        return
     request.state.authz_resource = {
         "tenant_id": tenant_id or "",
         "kind": kind,
@@ -237,8 +240,11 @@ def record_data_access_audit(
         scope.tenant_id if scope is not None else getattr(request.state, "tenant_id", None)
     )
     claims = getattr(request.state, "user_claims", None)
+    effective_scope = getattr(request.state, "authz_effective_scope", None)
     actor = (
-        getattr(claims, "sub", None)
+        getattr(effective_scope, "user_sub", None)
+        or getattr(effective_scope, "spiffe_id", None)
+        or getattr(claims, "sub", None)
         or getattr(request.state, "authenticated_tenant_id", None)
         or "anonymous"
     )

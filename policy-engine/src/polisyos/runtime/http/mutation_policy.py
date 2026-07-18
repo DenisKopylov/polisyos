@@ -618,8 +618,11 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
         response_hash: str | None,
     ) -> None:
         claims = getattr(request.state, "user_claims", None)
+        effective_scope = getattr(request.state, "authz_effective_scope", None)
         actor = (
-            getattr(claims, "sub", None)
+            getattr(effective_scope, "user_sub", None)
+            or getattr(effective_scope, "spiffe_id", None)
+            or getattr(claims, "sub", None)
             or getattr(request.state, "authenticated_tenant_id", None)
             or "anonymous"
         )

@@ -13,6 +13,11 @@ from polisyos.core.contracts.runtime import (
     MobilityEstimateResponse,
     MobilityReportResponse,
 )
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
@@ -22,6 +27,7 @@ from polisyos.runtime.http.dependencies import (
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import bad_request, not_found
+from polisyos.runtime.http.permissions import RuntimePermission
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Request
@@ -41,6 +47,20 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
+_ESTIMATE_MOBILITY_AUTHZ = require_action_permission(
+    RuntimePermission.MOBILITY_ANALYZE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.mobility_estimate",
+    ),
+)
+_COMPUTE_MOBILITY_BOUNDS_AUTHZ = require_action_permission(
+    RuntimePermission.MOBILITY_ANALYZE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.mobility_bounds",
+    ),
+)
 
 
 if router is not None:
@@ -49,6 +69,7 @@ if router is not None:
         "/estimate",
         response_model=MobilityEstimateResponse,
         operation_id="estimate_mobility",
+        dependencies=[Depends(_ESTIMATE_MOBILITY_AUTHZ)],
     )
     def estimate_mobility(
         body: MobilityEstimateRequest,
@@ -81,6 +102,7 @@ if router is not None:
         "/bounds",
         response_model=MobilityBoundsResponse,
         operation_id="compute_mobility_bounds",
+        dependencies=[Depends(_COMPUTE_MOBILITY_BOUNDS_AUTHZ)],
     )
     def compute_mobility_bounds(
         body: MobilityBoundsRequest,

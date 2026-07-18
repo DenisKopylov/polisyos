@@ -34,6 +34,7 @@ from polisyos.runtime.http.services.control.response_shapes import (
     _operator_diagnostic_from_quality_payload,
     build_control_job_projection_shape,
 )
+from polisyos.runtime.http.services.scenario_heads import ScenarioHeadRecord
 from polisyos.runtime.quality.diagnostic_events import (
     DiagnosticEvent,
     DiagnosticEventContractError,
@@ -994,6 +995,117 @@ class ControlPlaneStore:
         else:
             raise RuntimeError(f"Unsupported control-plane store backend: {backend!r}")
 
+    def get_scenario_head(self, scenario_id: str) -> ScenarioHeadRecord | None:
+        """Return the durable authority row for one scenario id."""
+        row = self._fetchone(
+            """
+            SELECT scenario_id, baseline_run_id, revision, artifact_ref,
+                   manifest_hash, updated_at
+            FROM runtime_scenario_heads
+            WHERE scenario_id = ?
+            """,
+            (scenario_id,),
+        )
+        return self._row_to_scenario_head(row) if row is not None else None
+
+    def list_scenario_heads(
+        self,
+        *,
+        baseline_run_id: str | None = None,
+    ) -> list[ScenarioHeadRecord]:
+        """List durable scenario authority rows in deterministic id order."""
+        if baseline_run_id is None:
+            rows = self._fetchall(
+                """
+                SELECT scenario_id, baseline_run_id, revision, artifact_ref,
+                       manifest_hash, updated_at
+                FROM runtime_scenario_heads
+                ORDER BY scenario_id ASC
+                """,
+                (),
+            )
+        else:
+            rows = self._fetchall(
+                """
+                SELECT scenario_id, baseline_run_id, revision, artifact_ref,
+                       manifest_hash, updated_at
+                FROM runtime_scenario_heads
+                WHERE baseline_run_id = ?
+                ORDER BY scenario_id ASC
+                """,
+                (baseline_run_id,),
+            )
+        return [self._row_to_scenario_head(row) for row in rows]
+
+    def compare_and_set_scenario_head(
+        self,
+        *,
+        scenario_id: str,
+        baseline_run_id: str,
+        expected_revision: int,
+        new_revision: int,
+        artifact_ref: str,
+        manifest_hash: str,
+    ) -> bool:
+        """Atomically create or advance one scenario authority row.
+
+        Revision zero is an insert-only expectation. Later revisions update only
+        the exact existing baseline binding and revision. Every accepted write
+        advances the head by exactly one revision.
+        """
+        if (
+            type(expected_revision) is not int
+            or type(new_revision) is not int
+            or expected_revision < 0
+            or new_revision != expected_revision + 1
+        ):
+            return False
+
+        updated_at = _iso(_utc_now())
+        if expected_revision == 0:
+            sql = """
+                INSERT INTO runtime_scenario_heads (
+                    scenario_id, baseline_run_id, revision, artifact_ref,
+                    manifest_hash, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (scenario_id) DO NOTHING
+            """
+            params = (
+                scenario_id,
+                baseline_run_id,
+                new_revision,
+                artifact_ref,
+                manifest_hash,
+                updated_at,
+            )
+        else:
+            sql = """
+                UPDATE runtime_scenario_heads
+                SET revision = ?, artifact_ref = ?, manifest_hash = ?, updated_at = ?
+                WHERE scenario_id = ?
+                  AND baseline_run_id = ?
+                  AND revision = ?
+            """
+            params = (
+                new_revision,
+                artifact_ref,
+                manifest_hash,
+                updated_at,
+                scenario_id,
+                baseline_run_id,
+                expected_revision,
+            )
+
+        if self.backend == "sqlite":
+            with self._lock:
+                with self._sqlite_connection() as conn:
+                    cursor = conn.execute(sql, params)
+                    conn.commit()
+                    return cursor.rowcount == 1
+        with self._postgres_cursor() as cur:
+            cur.execute(self._translate_sql(sql), params)
+            return cur.rowcount == 1
+
     def create_job(
         self,
         *,
@@ -1908,6 +2020,19 @@ class ControlPlaneStore:
             updated_at=_parse_dt(row["updated_at"]) or _utc_now(),
         )
 
+    def _row_to_scenario_head(self, row: Any) -> ScenarioHeadRecord:
+        updated_at = _parse_dt(row["updated_at"])
+        if updated_at is None:
+            raise RuntimeError("Scenario head has no valid updated_at authority timestamp")
+        return ScenarioHeadRecord(
+            scenario_id=str(row["scenario_id"]),
+            baseline_run_id=str(row["baseline_run_id"]),
+            revision=int(row["revision"]),
+            artifact_ref=str(row["artifact_ref"]),
+            manifest_hash=str(row["manifest_hash"]),
+            updated_at=updated_at,
+        )
+
     def _row_to_outbox_record(self, row: Any) -> ControlOutboxRecord:
         payload_json = row["payload_json"] if "payload_json" in row.keys() else "{}"
         return ControlOutboxRecord(
@@ -2205,6 +2330,14 @@ class ControlPlaneStore:
                         acknowledged_at TEXT,
                         acknowledged_by TEXT
                     );
+                    CREATE TABLE IF NOT EXISTS runtime_scenario_heads (
+                        scenario_id TEXT PRIMARY KEY,
+                        baseline_run_id TEXT NOT NULL,
+                        revision INTEGER NOT NULL CHECK (revision > 0),
+                        artifact_ref TEXT NOT NULL,
+                        manifest_hash TEXT NOT NULL,
+                        updated_at TEXT NOT NULL
+                    );
                     CREATE INDEX IF NOT EXISTS idx_control_jobs_state_created_at
                         ON control_jobs(state, created_at);
                     CREATE INDEX IF NOT EXISTS idx_control_jobs_pipeline_id
@@ -2222,6 +2355,8 @@ class ControlPlaneStore:
                         ON control_diagnostic_events(run_id, job_id, row_id);
                     CREATE INDEX IF NOT EXISTS idx_control_dead_letter_ack_failed_at
                         ON control_dead_letter_jobs(acknowledged_at, failed_at);
+                    CREATE INDEX IF NOT EXISTS idx_runtime_scenario_heads_baseline_run
+                        ON runtime_scenario_heads(baseline_run_id, scenario_id);
                     """
                 )
                 conn.commit()
@@ -2339,6 +2474,18 @@ class ControlPlaneStore:
             )
             cur.execute(
                 """
+                CREATE TABLE IF NOT EXISTS runtime_scenario_heads (
+                    scenario_id TEXT PRIMARY KEY,
+                    baseline_run_id TEXT NOT NULL,
+                    revision INTEGER NOT NULL CHECK (revision > 0),
+                    artifact_ref TEXT NOT NULL,
+                    manifest_hash TEXT NOT NULL,
+                    updated_at TIMESTAMPTZ NOT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_control_worker_leases_expires_at
                 ON control_worker_leases(lease_expires_at)
                 """
@@ -2372,6 +2519,12 @@ class ControlPlaneStore:
                 """
                 CREATE INDEX IF NOT EXISTS idx_control_dead_letter_ack_failed_at
                 ON control_dead_letter_jobs(acknowledged_at, failed_at)
+                """
+            )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_runtime_scenario_heads_baseline_run
+                ON runtime_scenario_heads(baseline_run_id, scenario_id)
                 """
             )
 

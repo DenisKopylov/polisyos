@@ -149,6 +149,7 @@ if TYPE_CHECKING:
     from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
 
     from ..control_registry_providers import ControlRegistryProviders
+    from ..scenario_heads import ScenarioHeadStore
 
 
 # ---------------------------------------------------------------------------
@@ -239,6 +240,11 @@ class ControlPlaneService(
                 handler=self._process_control_job,
             )
             self._worker.start()
+
+    @property
+    def scenario_head_store(self) -> ScenarioHeadStore:
+        """Expose the narrow durable scenario-head authority to the runtime container."""
+        return cast("ScenarioHeadStore", self._control_store)
 
     def close(self) -> None:
         """Stop embedded workers and release durable control-plane resources."""

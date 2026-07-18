@@ -44,6 +44,12 @@ from polisyos.core.contracts.control import (
     WorkflowRunRequest,
 )
 from polisyos.core.contracts.runtime import FeedbackActionResponse
+from polisyos.core.security.access_scope import AccessScope
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
 from polisyos.runtime.http.container import resolve_control_service
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
@@ -56,6 +62,7 @@ from polisyos.runtime.http.dependencies import (
 )
 from polisyos.runtime.http.errors import bad_request, not_found
 from polisyos.runtime.http.execution_policy import RuntimePrincipal
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
 from polisyos.runtime.http.services.control.lex_search_projection import LexSearchResponse
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
@@ -83,6 +90,126 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
+_LAUNCH_RUN_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_LAUNCH,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.run_collection",
+    ),
+)
+_EVALUATE_RUN_FEEDBACK_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_FEEDBACK_EVALUATE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.feedback_evaluation",
+        path_parameter="run_id",
+        allow_empty_body=True,
+    ),
+)
+_LAUNCH_NL_RUN_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_LAUNCH,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.run_collection.nl",
+    ),
+)
+_REISSUE_RUN_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REISSUE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.reissue",
+        path_parameter="run_id",
+        allow_empty_body=True,
+    ),
+)
+_PUBLISH_DECISION_VALIDITY_AUTHZ = require_action_permission(
+    RuntimePermission.DECISIONS_VALIDITY_PUBLISH,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.decision_validity.event",
+        selector_fields=("source_ref", "dependency_keys", "dedupe_key"),
+    ),
+)
+_INGEST_DATA_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_ACQUIRE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.evidence.acquisition",
+        selector_fields=(
+            "binding_profile_id",
+            "connection_profile",
+            "datasets",
+            "fetch_plans",
+        ),
+        required_selector_alternatives=(("datasets",), ("fetch_plans",)),
+    ),
+)
+_RESOLVE_DATA_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_RESOLVE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.evidence.resolve",
+        selector_fields=("data_needs",),
+        required_selector_fields=("data_needs",),
+    ),
+)
+_DISCOVER_DATA_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_DISCOVER,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.evidence.discover",
+        selector_fields=("data_needs",),
+        required_selector_fields=("data_needs",),
+    ),
+)
+_PREVIEW_DATA_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_PREVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.evidence.preview",
+        selector_fields=("fetch_plan",),
+        required_selector_fields=("fetch_plan",),
+    ),
+)
+_ESTIMATE_SAE_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_SAE_ANALYZE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.evidence.sae_causal_frontier",
+        selector_fields=("bundle_dir", "areas", "edges", "exposure", "output_dir"),
+        required_selector_alternatives=(("bundle_dir",), ("areas", "edges")),
+    ),
+)
+_APPROVE_PROMOTION_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_PROMOTIONS_APPROVE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.RESOLVED_SELECTOR,
+        resource_kind="runtime.evidence.promotion.approve",
+        path_parameter="promotion_id",
+    ),
+)
+_REJECT_PROMOTION_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_PROMOTIONS_REJECT,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.RESOLVED_SELECTOR,
+        resource_kind="runtime.evidence.promotion.reject",
+        path_parameter="promotion_id",
+    ),
+)
+_TRIGGER_LEX_AUTHZ = require_action_permission(
+    RuntimePermission.KNOWLEDGE_TRIGGER,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.lex_workspace.trigger",
+    ),
+)
+_SEARCH_LEX_AUTHZ = require_action_permission(
+    RuntimePermission.KNOWLEDGE_SEARCH,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.lex_workspace.search",
+    ),
+)
 
 
 def _get_control_service(request: Request) -> ControlPlaneService:
@@ -94,6 +221,9 @@ def _get_control_service(request: Request) -> ControlPlaneService:
 
 
 def _get_principal(request: Request) -> RuntimePrincipal:
+    effective_scope = getattr(request.state, "authz_effective_scope", None)
+    if isinstance(effective_scope, AccessScope):
+        return RuntimePrincipal.from_access_scope(effective_scope)
     claims = getattr(request.state, "user_claims", None)
     return RuntimePrincipal.from_user_claims(claims)
 
@@ -113,6 +243,7 @@ def _artifact_ref(artifact_id: str | None, *, kind: str, media_type: str) -> Art
     response_model=RunLaunchResponse,
     operation_id="launch_run",
     summary="Launch a workflow run",
+    dependencies=[Depends(_LAUNCH_RUN_AUTHZ)],
 )
 def launch_run(
     body: WorkflowRunRequest,
@@ -144,6 +275,7 @@ def launch_run(
     response_model=FeedbackActionResponse,
     operation_id="evaluate_run_feedback",
     summary="Evaluate post-deployment monitoring for a run",
+    dependencies=[Depends(_EVALUATE_RUN_FEEDBACK_AUTHZ)],
 )
 def evaluate_run_feedback(
     run_id: str,
@@ -189,6 +321,7 @@ def evaluate_run_feedback(
     response_model=RunLaunchResponse,
     operation_id="launch_nl_run",
     summary="Launch a natural-language run via agent circuit",
+    dependencies=[Depends(_LAUNCH_NL_RUN_AUTHZ)],
 )
 async def launch_nl_run(
     body: NaturalLanguageRunRequest,
@@ -213,6 +346,7 @@ async def launch_nl_run(
     response_model=FeedbackActionResponse,
     operation_id="reissue_run",
     summary="Create a human-gated reissue run",
+    dependencies=[Depends(_REISSUE_RUN_AUTHZ)],
 )
 def reissue_run(
     run_id: str,
@@ -329,6 +463,7 @@ if router is not None:
         response_model=DecisionValidityEventResponse,
         operation_id="publish_decision_validity_event",
         summary="Publish a durable decision invalidation event",
+        dependencies=[Depends(_PUBLISH_DECISION_VALIDITY_AUTHZ)],
     )
     def publish_decision_validity_event(
         body: DecisionValidityEventRequest,
@@ -436,6 +571,7 @@ if router is not None:
         response_model=IngestResponse,
         operation_id="ingest_data",
         summary="Trigger data collection from connectors",
+        dependencies=[Depends(_INGEST_DATA_AUTHZ)],
     )
     def ingest_data(
         body: IngestRequest,
@@ -455,6 +591,7 @@ if router is not None:
         response_model=DataResolveResponse,
         operation_id="resolve_data_needs",
         summary="Resolve DataNeeds into FetchPlans",
+        dependencies=[Depends(_RESOLVE_DATA_AUTHZ)],
     )
     def resolve_data_needs(
         body: DataResolveRequest,
@@ -474,6 +611,7 @@ if router is not None:
         response_model=DataDiscoverResponse,
         operation_id="discover_data_sources",
         summary="Run bounded ExploreLane discovery",
+        dependencies=[Depends(_DISCOVER_DATA_AUTHZ)],
     )
     def discover_data_sources(
         body: DataDiscoverRequest,
@@ -493,6 +631,7 @@ if router is not None:
         response_model=DataPreviewResponse,
         operation_id="preview_fetch_plan",
         summary="Preview FetchPlan with quality gate",
+        dependencies=[Depends(_PREVIEW_DATA_AUTHZ)],
     )
     def preview_fetch_plan(
         body: DataPreviewRequest,
@@ -512,6 +651,7 @@ if router is not None:
         response_model=CausalFrontierSAEResponse,
         operation_id="estimate_causal_frontier_sae",
         summary="Run boundary-constrained causal-frontier small-area estimation",
+        dependencies=[Depends(_ESTIMATE_SAE_AUTHZ)],
     )
     def estimate_causal_frontier_sae(
         body: CausalFrontierSAERequest,
@@ -619,6 +759,7 @@ if router is not None:
         response_model=PromotionDecisionResponse,
         operation_id="approve_data_promotion",
         summary="Approve PromotionLane candidate",
+        dependencies=[Depends(_APPROVE_PROMOTION_AUTHZ)],
     )
     def approve_data_promotion(
         promotion_id: str,
@@ -643,6 +784,7 @@ if router is not None:
         response_model=PromotionDecisionResponse,
         operation_id="reject_data_promotion",
         summary="Reject PromotionLane candidate",
+        dependencies=[Depends(_REJECT_PROMOTION_AUTHZ)],
     )
     def reject_data_promotion(
         promotion_id: str,
@@ -759,6 +901,7 @@ if router is not None:
         response_model=LexTriggerResponse,
         operation_id="trigger_lex_pipeline",
         summary="Start Lex batch pipeline in background",
+        dependencies=[Depends(_TRIGGER_LEX_AUTHZ)],
     )
     def trigger_lex_pipeline(
         body: LexTriggerRequest,
@@ -820,6 +963,7 @@ if router is not None:
         response_model=LexSearchResponse,
         operation_id="search_lex_graph",
         summary="Search Lex knowledge graph facts",
+        dependencies=[Depends(_SEARCH_LEX_AUTHZ)],
     )
     def search_lex_graph(
         body: LexSearchRequest,

@@ -15,6 +15,11 @@ from polisyos.core.contracts.foundry import (
     ContinuationBranchRef,
     DerivedArtifact,
 )
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     enforce_artifact_tenant_access,
@@ -23,6 +28,7 @@ from polisyos.runtime.http.dependencies import (
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import bad_request, not_found
+from polisyos.runtime.http.permissions import RuntimePermission
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Request
@@ -42,8 +48,38 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
-_RUNTIME_CONTEXT_DEPENDENCY = (
-    Depends(get_runtime_api_context) if Depends is not None else None
+_RUNTIME_CONTEXT_DEPENDENCY = Depends(get_runtime_api_context) if Depends is not None else None
+_ANALYZE_ATTRACTORS_AUTHZ = require_action_permission(
+    RuntimePermission.ANALYSIS_EXECUTE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.analysis.attractors",
+    ),
+)
+_ANALYZE_LYAPUNOV_AUTHZ = require_action_permission(
+    RuntimePermission.ANALYSIS_EXECUTE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.analysis.lyapunov",
+    ),
+)
+_PERSIST_BASIN_MAP_AUTHZ = require_action_permission(
+    RuntimePermission.ANALYSIS_EXECUTE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.CANDIDATE_TARGET_SLOT,
+        resource_kind="runtime.analysis.basin_map.candidate",
+        selector_fields=("basin_id", "analysis_id"),
+        required_selector_fields=("basin_id",),
+    ),
+)
+_PERSIST_CONTINUATION_AUTHZ = require_action_permission(
+    RuntimePermission.ANALYSIS_EXECUTE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.CANDIDATE_TARGET_SLOT,
+        resource_kind="runtime.analysis.continuation.candidate",
+        selector_fields=("branch_id", "analysis_id", "branch_kind"),
+        required_selector_fields=("branch_id", "branch_kind"),
+    ),
 )
 
 
@@ -53,6 +89,7 @@ if router is not None:
         "/attractors",
         response_model=AttractorAnalysisResponse,
         operation_id="analyze_attractors",
+        dependencies=[Depends(_ANALYZE_ATTRACTORS_AUTHZ)],
     )
     def analyze_attractors(
         body: AttractorAnalysisRequest,
@@ -65,6 +102,7 @@ if router is not None:
         "/lyapunov",
         response_model=AttractorAnalysisResponse,
         operation_id="analyze_lyapunov_diagnostics",
+        dependencies=[Depends(_ANALYZE_LYAPUNOV_AUTHZ)],
     )
     def analyze_lyapunov_diagnostics(
         body: AttractorAnalysisRequest,
@@ -78,6 +116,7 @@ if router is not None:
         "/basin-map",
         response_model=BasinMapRef,
         operation_id="persist_basin_map",
+        dependencies=[Depends(_PERSIST_BASIN_MAP_AUTHZ)],
     )
     def persist_basin_map(
         body: BasinMap,
@@ -105,6 +144,7 @@ if router is not None:
         "/continuation",
         response_model=ContinuationBranchRef,
         operation_id="persist_continuation_branch",
+        dependencies=[Depends(_PERSIST_CONTINUATION_AUTHZ)],
     )
     def persist_continuation_branch(
         body: ContinuationBranch,

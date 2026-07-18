@@ -7,7 +7,7 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.contracts.control import (
     EXECUTION_PROFILE_ORDER,
@@ -16,6 +16,9 @@ from polisyos.core.contracts.control import (
     PolicyFlags,
 )
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+
+if TYPE_CHECKING:
+    from polisyos.core.security.access_scope import AccessScope
 
 _PRIVILEGED_ROLES = frozenset({PolicyOSRole.ADMIN, PolicyOSRole.SERVICE, PolicyOSRole.SYSTEM})
 
@@ -72,6 +75,22 @@ class RuntimePrincipal:
             tenant_id=claims.tenant_id,
             cell_id=claims.cell_id,
             roles=frozenset(role.value for role in claims.roles),
+            authenticated=True,
+        )
+
+    @classmethod
+    def from_access_scope(cls, scope: AccessScope | None) -> RuntimePrincipal:
+        """Convert the effective verified scope into the execution-policy principal."""
+        if scope is None:
+            return cls()
+        subject = scope.user_sub or scope.spiffe_id
+        if not subject or not scope.tenant_id:
+            return cls()
+        return cls(
+            subject=subject,
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            roles=frozenset(role.value for role in scope.roles),
             authenticated=True,
         )
 

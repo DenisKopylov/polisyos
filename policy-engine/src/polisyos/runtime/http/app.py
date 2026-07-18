@@ -9,6 +9,10 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.runtime.http.authorization import (
+    assert_mutating_route_authorization_contract,
+    install_route_authorization_openapi_contract,
+)
 from polisyos.runtime.http.authz_middleware import AuthzMiddleware
 from polisyos.runtime.http.cell_router_middleware import CellRouterMiddleware
 from polisyos.runtime.http.container import (
@@ -140,6 +144,7 @@ def create_runtime_api_app(
 
     @asynccontextmanager
     async def _runtime_lifespan(app: Any) -> AsyncIterator[None]:
+        assert_mutating_route_authorization_contract(app)
         _assert_runtime_security_middleware_order(
             app,
             security_middlewares_enabled=security_middlewares_enabled,
@@ -183,6 +188,13 @@ def create_runtime_api_app(
         )
 
     if not security_middlewares_enabled:
+        app.add_middleware(
+            AuthzMiddleware,
+            runtime_app=app,
+            opa_client=None,
+            enforce=True,
+            shadow_mode=False,
+        )
         app.add_middleware(FailClosedAccessScopeMiddleware)
         if fixture_identity_enabled:
             app.add_middleware(DevelopmentFixtureIdentityMiddleware)
@@ -197,6 +209,7 @@ def create_runtime_api_app(
         # Register authz first so JWT/cell routing run before authorization checks.
         app.add_middleware(
             AuthzMiddleware,
+            runtime_app=app,
             opa_client=opa_client,
             enforce=authz_enforce,
             shadow_mode=authz_shadow_mode,
@@ -244,7 +257,9 @@ def create_runtime_api_app(
     if governed_projections_router is not None:
         app.include_router(governed_projections_router)
 
+    assert_mutating_route_authorization_contract(app)
     install_runtime_openapi_contract(app)
+    install_route_authorization_openapi_contract(app)
     return app
 
 

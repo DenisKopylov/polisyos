@@ -15,6 +15,11 @@ from polisyos.core.contracts.runtime import (
     TemporalScope,
     VerificationMetadata,
 )
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
@@ -24,6 +29,7 @@ from polisyos.runtime.http.dependencies import (
     set_authz_resource,
 )
 from polisyos.runtime.http.errors import bad_request, conflict
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
@@ -48,6 +54,14 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
+_GET_LINEAGE_BATCH_AUTHZ = require_action_permission(
+    RuntimePermission.LINEAGE_BATCH_READ,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.RESOLVED_SELECTOR_BATCH,
+        resource_kind="runtime.lineage.batch",
+        body_field="lineage_ids",
+    ),
+)
 
 
 if router is not None:
@@ -108,6 +122,7 @@ if router is not None:
         "/batch",
         response_model=LineageBatchResponse,
         operation_id="get_lineage_batch",
+        dependencies=[Depends(_GET_LINEAGE_BATCH_AUTHZ)],
     )
     def get_lineage_batch(
         body: LineageBatchRequest,
@@ -368,9 +383,7 @@ def _with_trust_metadata(
 ) -> LineageGraphView:
     dispute_status = "disputed" if lineage.status == "disputed" else "none"
     verification_method = (
-        "lineage_id_resolution"
-        if lineage.status == "untraced"
-        else "lineage_hash_match"
+        "lineage_id_resolution" if lineage.status == "untraced" else "lineage_hash_match"
     )
     return lineage.model_copy(
         update={
@@ -378,9 +391,7 @@ def _with_trust_metadata(
                 hash=lineage.hash,
                 verification_status=lineage.status,
                 verified_by=(
-                    None
-                    if lineage.status == "untraced"
-                    else "PolicyOSLineageVerifier@1.0"
+                    None if lineage.status == "untraced" else "PolicyOSLineageVerifier@1.0"
                 ),
                 verified_at=_latest_lineage_timestamp(lineage),
                 verification_method=verification_method,

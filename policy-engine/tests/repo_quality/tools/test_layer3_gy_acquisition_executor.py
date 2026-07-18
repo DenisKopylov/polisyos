@@ -86,6 +86,7 @@ def selection_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
             connector_type VARCHAR,
             profile_id VARCHAR,
             source_locator VARCHAR,
+            connector_params JSON,
             quality_score DOUBLE,
             parser_supported BOOLEAN
         )
@@ -103,6 +104,19 @@ def selection_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
             confidence DOUBLE,
             default_filters JSON,
             execution_tier VARCHAR
+        )
+        """
+    )
+    con.execute(
+        """
+        CREATE TABLE ds_schema_profiles (
+            distribution_id VARCHAR,
+            dataset_id VARCHAR,
+            columns_json JSON,
+            sample_row_count INTEGER,
+            preview_sample_hash VARCHAR,
+            inference_mode VARCHAR,
+            parser_mode VARCHAR
         )
         """
     )
@@ -155,13 +169,27 @@ def selection_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
         )
         con.execute(
             "INSERT INTO ds_distributions VALUES (?, ?, 'https://api.worldbank.org/v2', "
-            "'worldbank.wdi', 'worldbank_wdi', 'fixture', ?, TRUE)",
-            [distribution_id, dataset_id, quality],
+            "'worldbank.wdi', 'worldbank_wdi', 'fixture', ?, ?, TRUE)",
+            [distribution_id, dataset_id, json.dumps({"indicator_id": indicator}), quality],
         )
         con.execute(
             "INSERT INTO ds_metric_bindings VALUES (?, ?, ?, 'worldbank.wdi', "
             "'worldbank_wdi', ?, ?, '{}', 'transport_ready')",
             [metric, dataset_id, distribution_id, indicator, confidence],
+        )
+        con.execute(
+            "INSERT INTO ds_schema_profiles VALUES (?, ?, ?, 0, NULL, "
+            "'metadata_only', 'api_tabular')",
+            [
+                distribution_id,
+                dataset_id,
+                json.dumps(
+                    [
+                        {"name": indicator, "inference_source": "metadata"},
+                        {"name": "SURPLUS", "inference_source": "metadata"},
+                    ]
+                ),
+            ],
         )
     con.close()
     return catalog, census, substrate
@@ -243,3 +271,86 @@ def test_authority_entry_uses_owner_schema_and_generic_alignment(
         "year",
     )
     assert entry.schema_contract_ref == "fabric://worldbank.wdi.generic@2.0.0"
+
+
+def test_target_specific_harness_replays_exact_selected_carrier_without_network(
+    selection_inputs: tuple[Path, Path, Path],
+    tmp_path: Path,
+) -> None:
+    catalog, census, substrate = selection_inputs
+    selection = executor.derive_live_target_selection(
+        catalog_path=catalog,
+        census_path=census,
+        substrate_path=substrate,
+    )
+
+    receipt = executor.derive_target_family_receipt(
+        selection,
+        catalog_path=catalog,
+        fixture_root=tmp_path / "fixtures-that-do-not-exist",
+    )
+
+    assert receipt.connector_id == "worldbank.wdi"
+    assert receipt.safe_dry_run_passed is True
+    assert receipt.simulator_network_calls == 0
+    assert receipt.network_escape_attempt_count == 0
+    assert receipt.carrier_denominator == 1
+    assert len(receipt.dry_run_attempts) == 1
+    carrier = receipt.dry_run_attempts[0]
+    assert carrier.attempt_id == executor.derive_live_attempt_id(selection)
+    assert carrier.request_dataset_id == "GC.BAL.CASH.CD"
+    assert carrier.connector_fetch_invoked is True
+    assert carrier.transport_intercepted is True
+
+
+def test_target_authority_owners_are_byte_stable_and_bind_exact_harness(
+    selection_inputs: tuple[Path, Path, Path],
+    tmp_path: Path,
+) -> None:
+    catalog, census, substrate = selection_inputs
+    l5_path = _write_json(
+        tmp_path / "measurement_registry.json",
+        {
+            "coverage_rules": {"macro_state": 0.95, "labor_market": 0.7},
+            "trust_tiers": {},
+        },
+    )
+    selection = executor.derive_live_target_selection(
+        catalog_path=catalog,
+        census_path=census,
+        substrate_path=substrate,
+    )
+    receipt = executor.derive_target_family_receipt(
+        selection,
+        catalog_path=catalog,
+        fixture_root=tmp_path / "fixtures-that-do-not-exist",
+    )
+
+    first = executor.derive_target_authority_owners(
+        selection,
+        family_receipt=receipt,
+        baseline_path=catalog,
+        baseline_owner_ref="repo://fixture/catalog.duckdb",
+        l5_path=l5_path,
+        l5_owner_ref="repo://fixture/measurement_registry.json",
+        receipt_owner_ref="repo://fixture/live-harness.json",
+        country_codes=("UKR",),
+    )
+    second = executor.derive_target_authority_owners(
+        selection,
+        family_receipt=receipt,
+        baseline_path=catalog,
+        baseline_owner_ref="repo://fixture/catalog.duckdb",
+        l5_path=l5_path,
+        l5_owner_ref="repo://fixture/measurement_registry.json",
+        receipt_owner_ref="repo://fixture/live-harness.json",
+        country_codes=("UKR",),
+    )
+
+    assert first.payloads() == second.payloads()
+    assert first.entry.l5_family_id == "macro_state"
+    assert first.registry.entries == (first.entry,)
+    provision = first.provision.live_harness_receipts[0]
+    assert provision.entry_id == first.entry.entry_id
+    assert provision.attempt_id == executor.derive_live_attempt_id(selection)
+    assert provision.receipt_content_sha256 == executor.bytes_sha256(first.family_receipt_bytes)

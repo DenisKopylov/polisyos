@@ -3520,6 +3520,12 @@ def _quality_bucket(score: float) -> str:
     return "q75_100"
 
 
+def derive_quality_bucket(score: float) -> str:
+    """Return the N13a owner bucket for one measured distribution quality."""
+
+    return _quality_bucket(score)
+
+
 def _probe_stratum_sort_key(stratum_id: str) -> tuple[int, int, str]:
     tier, bucket = stratum_id.split(":", maxsplit=1)
     tier_order = {"transport_ready": 0, "fetchable": 1, "catalog": 2}
@@ -3558,12 +3564,40 @@ def _schema_profile_from_catalog_row(
 ) -> SchemaProfileContract | None:
     if row[15] is None:
         return None
-    raw_columns: object = row[15]
+    return derive_schema_profile_contract(
+        distribution_id=str(row[2]),
+        dataset_id=str(row[1]),
+        profile_id=str(row[4]),
+        columns_json=row[15],
+        sample_row_count=int(row[16] or 0),
+        preview_sample_hash=str(row[17]) if row[17] is not None else None,
+        inference_mode=str(row[18] or "metadata_only"),
+        parser_mode=str(row[19] or "metadata_only"),
+    )
+
+
+def derive_schema_profile_contract(
+    *,
+    distribution_id: str,
+    dataset_id: str,
+    profile_id: str,
+    columns_json: object,
+    sample_row_count: int,
+    preview_sample_hash: str | None,
+    inference_mode: str,
+    parser_mode: str,
+) -> SchemaProfileContract:
+    """Project one owner catalog schema-profile row into the C1 contract."""
+
+    raw_columns: object = columns_json
     if isinstance(raw_columns, str):
         try:
             raw_columns = json.loads(raw_columns)
         except json.JSONDecodeError as exc:
-            raise CatalogContractError("probe_schema_profile_columns_invalid", str(row[2])) from exc
+            raise CatalogContractError(
+                "probe_schema_profile_columns_invalid",
+                distribution_id,
+            ) from exc
     columns: list[str] = []
     if isinstance(raw_columns, Sequence) and not isinstance(raw_columns, (str, bytes, bytearray)):
         for item in raw_columns:
@@ -3576,14 +3610,14 @@ def _schema_profile_from_catalog_row(
     elif isinstance(raw_columns, Mapping):
         columns.extend(str(key) for key in raw_columns)
     return SchemaProfileContract(
-        distribution_id=str(row[2]),
-        dataset_id=str(row[1]),
-        profile_id=str(row[4]),
+        distribution_id=distribution_id,
+        dataset_id=dataset_id,
+        profile_id=profile_id,
         columns=tuple(sorted(set(columns))),
-        sample_row_count=int(row[16] or 0),
-        preview_sample_hash=str(row[17]) if row[17] is not None else None,
-        inference_mode=str(row[18] or "metadata_only"),
-        parser_mode=str(row[19] or "metadata_only"),
+        sample_row_count=sample_row_count,
+        preview_sample_hash=preview_sample_hash,
+        inference_mode=inference_mode,
+        parser_mode=parser_mode,
     )
 
 

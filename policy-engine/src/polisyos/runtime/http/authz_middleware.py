@@ -4,7 +4,12 @@ from __future__ import annotations
 
 import asyncio
 import os
-from typing import TYPE_CHECKING, Any, cast
+from contextlib import suppress
+from dataclasses import dataclass
+from functools import partial
+from typing import TYPE_CHECKING, Any, Never, cast
+
+from anyio import to_thread
 
 from polisyos.common.logger import get_logger
 from polisyos.core.security.access_scope import AccessScope
@@ -21,7 +26,7 @@ from polisyos.fabric.connectors.resilience.circuit_breaker import (
 )
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationOutcome,
-    emit_runtime_authorization_audit,
+    emit_runtime_authorization_audit_async,
 )
 from polisyos.runtime.http.authorization import (
     ActionPermissionVerification,
@@ -39,7 +44,10 @@ from polisyos.runtime.http.resource_binding import (
     BoundAuthorizationResource,
     bind_authorization_resource,
 )
-from polisyos.runtime.http.security import clear_request_auth_context
+from polisyos.runtime.http.security import (
+    AUTHORIZATION_STATE_FIELDS,
+    clear_request_auth_context,
+)
 
 logger = get_logger("polisyos.security.authz")
 
@@ -86,6 +94,185 @@ _SENSITIVE_POLICY_HEADERS = frozenset(
     }
 )
 _DEFAULT_BODY_CEILING = 1024 * 1024
+_SEALED_AUTHORIZATION_STATE_FIELDS = frozenset(AUTHORIZATION_STATE_FIELDS) | {
+    "runtime_authorization_audit_emitted",
+    "runtime_authorization_audit_terminal",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class _AuthorizationFailure:
+    """Pair one fail-closed response with its durable denial reason."""
+
+    response: Response
+    reason: str
+
+
+@dataclass(slots=True)
+class _AuthorizationStateSeal:
+    """Track any attempted mutation of protected authorization state."""
+
+    violated: bool = False
+
+
+class _AuthorizationStateMutationError(RuntimeError):
+    """Signal an attempted handler-side mutation of sealed authority state."""
+
+
+class _FrozenAuthorizationDict(dict[str, object]):
+    """Dictionary-shaped immutable value retained for legacy read consumers."""
+
+    def __init__(
+        self,
+        value: dict[str, object],
+        *,
+        seal: _AuthorizationStateSeal,
+    ) -> None:
+        super().__init__(
+            {
+                key: _freeze_authorization_value(item, seal=seal)
+                for key, item in value.items()
+            }
+        )
+        self._seal = seal
+
+    def _reject(self) -> Never:
+        self._seal.violated = True
+        raise _AuthorizationStateMutationError(
+            "frozen authorization resource cannot be mutated"
+        )
+
+    def __setitem__(self, key: str, value: object) -> None:
+        del key, value
+        self._reject()
+
+    def __delitem__(self, key: str) -> None:
+        del key
+        self._reject()
+
+    def clear(self) -> None:
+        self._reject()
+
+    def pop(self, key: str, default: object = None) -> object:
+        del key, default
+        self._reject()
+
+    def popitem(self) -> tuple[str, object]:
+        self._reject()
+
+    def setdefault(self, key: str, default: object = None) -> object:
+        del key, default
+        self._reject()
+
+    def update(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        self._reject()
+
+    def __ior__(self, value: object) -> _FrozenAuthorizationDict:
+        del value
+        self._reject()
+
+
+class _SealedAuthorizationState(dict[str, object]):
+    """ASGI state mapping that rejects protected authority-field replacement."""
+
+    def __init__(
+        self,
+        value: dict[str, object],
+        *,
+        seal: _AuthorizationStateSeal,
+    ) -> None:
+        super().__init__(
+            {
+                key: (
+                    _freeze_authorization_value(item, seal=seal)
+                    if _is_sealed_authorization_field(key)
+                    else item
+                )
+                for key, item in value.items()
+            }
+        )
+        self._seal = seal
+
+    def _reject(self, key: str) -> Never:
+        self._seal.violated = True
+        raise _AuthorizationStateMutationError(
+            f"authorization state field {key!r} is sealed"
+        )
+
+    def __setitem__(self, key: str, value: object) -> None:
+        if _is_sealed_authorization_field(key):
+            self._reject(key)
+        super().__setitem__(key, value)
+
+    def __delitem__(self, key: str) -> None:
+        if _is_sealed_authorization_field(key):
+            self._reject(key)
+        super().__delitem__(key)
+
+    def clear(self) -> None:
+        self._reject("<bulk-clear>")
+
+    def pop(self, key: str, default: object = None) -> object:
+        if _is_sealed_authorization_field(key):
+            self._reject(key)
+        return super().pop(key, default)
+
+    def popitem(self) -> tuple[str, object]:
+        self._reject("<bulk-popitem>")
+
+    def setdefault(self, key: str, default: object = None) -> object:
+        if _is_sealed_authorization_field(key):
+            self._reject(key)
+        return super().setdefault(key, default)
+
+    def update(self, *args: object, **kwargs: object) -> None:
+        del args, kwargs
+        self._reject("<bulk-update>")
+
+    def __ior__(self, value: object) -> _SealedAuthorizationState:
+        del value
+        self._reject("<bulk-update>")
+
+
+def _is_sealed_authorization_field(key: str) -> bool:
+    return bool(
+        key in _SEALED_AUTHORIZATION_STATE_FIELDS
+        or key.startswith("authz_")
+        or key.startswith("runtime_authorization_audit_")
+    )
+
+
+def _freeze_authorization_value(
+    value: object,
+    *,
+    seal: _AuthorizationStateSeal,
+) -> object:
+    if isinstance(value, dict):
+        return _FrozenAuthorizationDict(value, seal=seal)
+    if isinstance(value, list):
+        return tuple(_freeze_authorization_value(item, seal=seal) for item in value)
+    if isinstance(value, set):
+        return frozenset(_freeze_authorization_value(item, seal=seal) for item in value)
+    return value
+
+
+def _seal_authorization_state(
+    scope: Scope,
+    *,
+    receive: Receive,
+) -> tuple[Request, _AuthorizationStateSeal]:
+    state = scope.get("state")
+    if not isinstance(state, dict):
+        raise _AuthorizationStateMutationError(
+            "ASGI authorization state is unavailable for sealing"
+        )
+    seal = _AuthorizationStateSeal()
+    scope["state"] = _SealedAuthorizationState(
+        cast("dict[str, object]", state),
+        seal=seal,
+    )
+    return Request(scope, receive=receive), seal
 
 
 class AuthzMiddleware:
@@ -166,15 +353,32 @@ class AuthzMiddleware:
             unsafe=unsafe,
         )
         if denied is not None:
-            await denied(scope, receive, send)
+            await self._send_failure(
+                request,
+                denied,
+                scope=scope,
+                receive=receive,
+                send=send,
+            )
             return
         if effective_scope is None:
-            await self._problem(
+            failure = _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=401 if unsafe else 403,
+                    code="missing_access_scope",
+                    detail="No authenticated access scope found in request context",
+                ),
+                reason="missing_access_scope",
+            )
+            await self._send_failure(
                 request,
-                status_code=401 if unsafe else 403,
-                code="missing_access_scope",
-                detail="No authenticated access scope found in request context",
-            )(scope, receive, send)
+                failure,
+                scope=scope,
+                receive=receive,
+                send=send,
+                audit=unsafe,
+            )
             return
 
         request.state.access_scope = effective_scope
@@ -192,9 +396,21 @@ class AuthzMiddleware:
                     matched_scope = dict(scope)
                     matched_scope.update(child_scope)
                     matched_request = Request(matched_scope, receive=receive)
-                    preflight_error = self._preflight_action_dependency(matched_request, route)
+                    preflight_error = await to_thread.run_sync(
+                        partial(
+                            self._preflight_action_dependency,
+                            matched_request,
+                            route,
+                        )
+                    )
                     if preflight_error is not None:
-                        await preflight_error(scope, receive, send)
+                        await self._send_failure(
+                            matched_request,
+                            preflight_error,
+                            scope=scope,
+                            receive=receive,
+                            send=send,
+                        )
                         return
                     try:
                         body_bytes, downstream_receive = await _capture_and_replay_body(
@@ -206,33 +422,50 @@ class AuthzMiddleware:
                             "RouteAuthorizationRequirement",
                             matched_request.state.authz_route_requirement,
                         )
-                        bound_resource = bind_authorization_resource(
-                            matched_request,
-                            requirement,
-                            body_bytes,
-                            max_body_bytes=self._body_ceiling,
+                        bound_resource = await to_thread.run_sync(
+                            partial(
+                                bind_authorization_resource,
+                                matched_request,
+                                requirement,
+                                body_bytes,
+                                max_body_bytes=self._body_ceiling,
+                            )
                         )
                     except RuntimeHTTPError as exc:
-                        emit_runtime_authorization_audit(
+                        await self._send_failure(
                             matched_request,
-                            outcome=RuntimeAuthorizationOutcome.DENY,
-                            denial_reason=exc.code or exc.error,
-                            raise_on_failure=False,
-                        )
-                        await _response_for_runtime_error(matched_request, exc)(
-                            scope,
-                            receive,
-                            send,
+                            _AuthorizationFailure(
+                                response=_response_for_runtime_error(
+                                    matched_request,
+                                    exc,
+                                ),
+                                reason=exc.code or exc.error,
+                            ),
+                            scope=scope,
+                            receive=receive,
+                            send=send,
                         )
                         return
                     self._freeze_binding(matched_request, bound_resource)
                 elif self._path_has_unsafe_route(scope):
-                    await self._problem(
+                    await self._send_failure(
                         request,
-                        status_code=503,
-                        code="authorization_contract_violation",
-                        detail="Unsafe route could not be matched to one authorized operation",
-                    )(scope, receive, send)
+                        _AuthorizationFailure(
+                            response=self._problem(
+                                request,
+                                status_code=503,
+                                code="authorization_contract_violation",
+                                detail=(
+                                    "Unsafe route could not be matched to one "
+                                    "authorized operation"
+                                ),
+                            ),
+                            reason="authorization_contract_violation",
+                        ),
+                        scope=scope,
+                        receive=receive,
+                        send=send,
+                    )
                     return
                 else:
                     await self._app(scope, receive, send)
@@ -244,12 +477,24 @@ class AuthzMiddleware:
         if self._opa is not None:
             resource = self._opa_resource(request, bound_resource=bound_resource, unsafe=unsafe)
             if resource is None:
-                await self._problem(
+                await self._send_failure(
                     request,
-                    status_code=503,
-                    code="authorization_resource_unbound",
-                    detail="Unsafe request reached policy evaluation without a frozen resource",
-                )(scope, receive, send)
+                    _AuthorizationFailure(
+                        response=self._problem(
+                            request,
+                            status_code=503,
+                            code="authorization_resource_unbound",
+                            detail=(
+                                "Unsafe request reached policy evaluation without a "
+                                "frozen resource"
+                            ),
+                        ),
+                        reason="authorization_resource_unbound",
+                    ),
+                    scope=scope,
+                    receive=receive,
+                    send=send,
+                )
                 return
             authz_input = AuthzInput.for_http_request(
                 request_method=method,
@@ -279,24 +524,62 @@ class AuthzMiddleware:
                 return
 
         if unsafe and bound_resource is not None:
-            dependency_error = self._execute_bound_authorization_dependencies(request)
+            dependency_error = await to_thread.run_sync(
+                partial(self._execute_bound_authorization_dependencies, request)
+            )
             if dependency_error is not None:
-                await dependency_error(scope, downstream_receive, send)
+                await self._send_failure(
+                    request,
+                    dependency_error,
+                    scope=scope,
+                    receive=downstream_receive,
+                    send=send,
+                )
                 return
 
         scope_token = set_current_access_scope(effective_scope)
         try:
             downstream_send = _shadow_header_sender(send) if shadow_deny else send
+            downstream_request = request
+            state_seal: _AuthorizationStateSeal | None = None
             if unsafe and bound_resource is not None:
+                downstream_request, state_seal = _seal_authorization_state(
+                    scope,
+                    receive=downstream_receive,
+                )
                 downstream_send = self._binding_integrity_sender(
-                    request,
+                    downstream_request,
                     binding=bound_resource,
+                    state_seal=state_seal,
                     scope=scope,
                     receive=downstream_receive,
                     downstream_send=downstream_send,
                     failure_send=send,
                 )
-            await self._app(scope, downstream_receive, downstream_send)
+            try:
+                await self._app(scope, downstream_receive, downstream_send)
+            except _AuthorizationStateMutationError:
+                if unsafe and bound_resource is not None:
+                    await self._send_failure(
+                        downstream_request,
+                        _AuthorizationFailure(
+                            response=self._problem(
+                                downstream_request,
+                                status_code=503,
+                                code="authorization_binding_integrity_violation",
+                                detail=(
+                                    "The frozen authorization resource changed during "
+                                    "mutation"
+                                ),
+                            ),
+                            reason="authorization_binding_integrity_violation",
+                        ),
+                        scope=scope,
+                        receive=downstream_receive,
+                        send=send,
+                    )
+                    return
+                raise
         finally:
             reset_current_access_scope(scope_token)
 
@@ -334,7 +617,7 @@ class AuthzMiddleware:
         self,
         request: Request,
         route: APIRoute,
-    ) -> Response | None:
+    ) -> _AuthorizationFailure | None:
         from polisyos.runtime.http.step_up import get_route_step_up_dependency
 
         try:
@@ -344,31 +627,40 @@ class AuthzMiddleware:
                 action_dependency=dependency,
             )
         except RuntimeError as exc:
-            return self._problem(
-                request,
-                status_code=503,
-                code="authorization_contract_violation",
-                detail=str(exc),
+            return _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_contract_violation",
+                    detail=str(exc),
+                ),
+                reason="authorization_contract_violation",
             )
 
         overrides = getattr(self._runtime_app, "dependency_overrides", {})
         if isinstance(overrides, dict) and dependency in overrides:
-            return self._problem(
-                request,
-                status_code=503,
-                code="authorization_dependency_overridden",
-                detail="The route action-permission dependency is overridden",
+            return _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_dependency_overridden",
+                    detail="The route action-permission dependency is overridden",
+                ),
+                reason="authorization_dependency_overridden",
             )
         if (
             step_up_dependency is not None
             and isinstance(overrides, dict)
             and step_up_dependency in overrides
         ):
-            return self._problem(
-                request,
-                status_code=503,
-                code="authorization_dependency_overridden",
-                detail="The route step-up dependency is overridden",
+            return _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_dependency_overridden",
+                    detail="The route step-up dependency is overridden",
+                ),
+                reason="authorization_dependency_overridden",
             )
         requirement = dependency.requirement
         path_parameters = tuple(
@@ -389,13 +681,16 @@ class AuthzMiddleware:
         try:
             _ = dependency(request)
         except RuntimeHTTPError as exc:
-            return _response_for_runtime_error(request, exc)
+            return _AuthorizationFailure(
+                response=_response_for_runtime_error(request, exc),
+                reason=exc.code or exc.error,
+            )
         return None
 
     def _execute_bound_authorization_dependencies(
         self,
         request: Request,
-    ) -> Response | None:
+    ) -> _AuthorizationFailure | None:
         """Execute the sealed route gates before any route application can run."""
         from polisyos.runtime.http.authorization import ActionPermissionDependency
         from polisyos.runtime.http.step_up import (
@@ -406,11 +701,14 @@ class AuthzMiddleware:
         action_dependency = getattr(request.state, "authz_action_dependency", None)
         step_up_dependency = getattr(request.state, "authz_step_up_dependency", None)
         if type(action_dependency) is not ActionPermissionDependency:
-            return self._problem(
-                request,
-                status_code=503,
-                code="authorization_contract_violation",
-                detail="The matched route action dependency was not sealed",
+            return _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_contract_violation",
+                    detail="The matched route action dependency was not sealed",
+                ),
+                reason="authorization_contract_violation",
             )
         try:
             action_verification = action_dependency(request)
@@ -426,13 +724,19 @@ class AuthzMiddleware:
             if type(step_up_verification) is not StepUpAssertionVerification:
                 raise RuntimeError("The step-up dependency returned an invalid proof")
         except RuntimeHTTPError as exc:
-            return _response_for_runtime_error(request, exc)
+            return _AuthorizationFailure(
+                response=_response_for_runtime_error(request, exc),
+                reason=exc.code or exc.error,
+            )
         except RuntimeError as exc:
-            return self._problem(
-                request,
-                status_code=503,
-                code="authorization_contract_violation",
-                detail=str(exc),
+            return _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=503,
+                    code="authorization_contract_violation",
+                    detail=str(exc),
+                ),
+                reason="authorization_contract_violation",
             )
         return None
 
@@ -463,6 +767,7 @@ class AuthzMiddleware:
         request: Request,
         *,
         binding: BoundAuthorizationResource,
+        state_seal: _AuthorizationStateSeal,
         scope: Scope,
         receive: Receive,
         downstream_send: Send,
@@ -484,6 +789,7 @@ class AuthzMiddleware:
             if not self._binding_is_intact(
                 request,
                 binding,
+                state_seal=state_seal,
                 require_executed_dependencies=successful_response is not False,
             ):
                 rejected = True
@@ -491,12 +797,24 @@ class AuthzMiddleware:
                     raise RuntimeError(
                         "authorization binding changed after response emission began"
                     )
-                await self._problem(
+                await self._send_failure(
                     request,
-                    status_code=503,
-                    code="authorization_binding_integrity_violation",
-                    detail="The frozen authorization resource changed during mutation",
-                )(scope, receive, failure_send)
+                    _AuthorizationFailure(
+                        response=self._problem(
+                            request,
+                            status_code=503,
+                            code="authorization_binding_integrity_violation",
+                            detail=(
+                                "The frozen authorization resource changed during "
+                                "mutation"
+                            ),
+                        ),
+                        reason="authorization_binding_integrity_violation",
+                    ),
+                    scope=scope,
+                    receive=receive,
+                    send=failure_send,
+                )
                 return
             if message_type == "http.response.start":
                 response_started = True
@@ -509,6 +827,7 @@ class AuthzMiddleware:
         request: Request,
         binding: BoundAuthorizationResource,
         *,
+        state_seal: _AuthorizationStateSeal,
         require_executed_dependencies: bool,
     ) -> bool:
         state = request.state
@@ -547,7 +866,8 @@ class AuthzMiddleware:
             ):
                 return False
         return bool(
-            permission_proof_matches
+            not state_seal.violated
+            and permission_proof_matches
             and getattr(state, "authz_bound_resource", None) is binding
             and getattr(state, "authz_action_bound_resource", None) is binding
             and getattr(state, "authz_resource_frozen", False) is True
@@ -561,7 +881,7 @@ class AuthzMiddleware:
         *,
         peer_spiffe_id: str,
         unsafe: bool,
-    ) -> tuple[AccessScope | None, str, Response | None]:
+    ) -> tuple[AccessScope | None, str, _AuthorizationFailure | None]:
         scope = getattr(request.state, "access_scope", None)
         provenance = _scope_provenance(request, scope)
         delegation_token = request.headers.get(self._delegation_header, "")
@@ -687,7 +1007,7 @@ class AuthzMiddleware:
                 )
             )
         except TimeoutError:
-            emit_runtime_authorization_audit(
+            await emit_runtime_authorization_audit_async(
                 request,
                 outcome=RuntimeAuthorizationOutcome.DENY,
                 denial_reason="authz_dependency_timeout",
@@ -704,7 +1024,7 @@ class AuthzMiddleware:
                 False,
             )
         except CircuitOpenError:
-            emit_runtime_authorization_audit(
+            await emit_runtime_authorization_audit_async(
                 request,
                 outcome=RuntimeAuthorizationOutcome.DENY,
                 denial_reason="authz_dependency_unavailable",
@@ -726,7 +1046,7 @@ class AuthzMiddleware:
         request.state.authz_allowed_columns = _extract_allowed_columns(result.audit_entry)
         if "OPA_UNREACHABLE" in result.reasons:
             self._opa_breaker.record_failure()
-            emit_runtime_authorization_audit(
+            await emit_runtime_authorization_audit_async(
                 request,
                 outcome=RuntimeAuthorizationOutcome.DENY,
                 denial_reason="authz_dependency_unavailable",
@@ -745,7 +1065,7 @@ class AuthzMiddleware:
         if result.is_allowed:
             return None, False
         if fail_closed or (self._enforce and not self._shadow_mode):
-            emit_runtime_authorization_audit(
+            await emit_runtime_authorization_audit_async(
                 request,
                 outcome=RuntimeAuthorizationOutcome.DENY,
                 denial_reason="authorization_denied",
@@ -785,17 +1105,41 @@ class AuthzMiddleware:
         reason: str,
         detail: str,
         fail_closed: bool,
-    ) -> Response | None:
+    ) -> _AuthorizationFailure | None:
         if fail_closed or (self._enforce and not self._shadow_mode):
-            clear_request_auth_context(request.state)
-            return self._problem(
-                request,
-                status_code=403,
-                code=reason,
-                detail=detail,
+            return _AuthorizationFailure(
+                response=self._problem(
+                    request,
+                    status_code=403,
+                    code=reason,
+                    detail=detail,
+                ),
+                reason=reason,
             )
         logger.warning("AUTHZ_SHADOW_GUARD %s", {"error": reason, "detail": detail})
         return None
+
+    async def _send_failure(
+        self,
+        request: Request,
+        failure: _AuthorizationFailure,
+        *,
+        scope: Scope,
+        receive: Receive,
+        send: Send,
+        audit: bool = True,
+    ) -> None:
+        """Emit one idempotent denial and send its fail-closed response."""
+        if audit:
+            await emit_runtime_authorization_audit_async(
+                request,
+                outcome=RuntimeAuthorizationOutcome.DENY,
+                denial_reason=failure.reason,
+                raise_on_failure=False,
+            )
+        with suppress(_AuthorizationStateMutationError):
+            clear_request_auth_context(request.state)
+        await failure.response(scope, receive, send)
 
     def _problem(
         self,

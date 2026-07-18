@@ -8,8 +8,10 @@ import threading
 import time
 import uuid
 from enum import StrEnum
+from functools import partial
 from typing import TYPE_CHECKING, Any, Literal
 
+from anyio import to_thread
 from pydantic import BaseModel, ConfigDict
 
 from polisyos.common.serialization import fast_json_dumps
@@ -88,11 +90,13 @@ def emit_runtime_authorization_audit(
     step_up_outcome: Literal["verified", "denied", "unresolved"] | None = None,
     raise_on_failure: bool,
 ) -> bool:
-    """Append one idempotent terminal mutation decision to ``access.jsonl``.
+    """Append one idempotent terminal authorization admission to ``access.jsonl``.
 
     The request body and all bearer/step-up assertion material are deliberately
     absent from this contract. An allow-path append failure raises so a handler
-    cannot execute without its authorization receipt.
+    cannot execute without its authorization receipt. The allow outcome records
+    admission under the immutable bound context; it is not a handler-success
+    assertion.
     """
     if not isinstance(outcome, RuntimeAuthorizationOutcome):
         raise TypeError("outcome must be a RuntimeAuthorizationOutcome")
@@ -190,10 +194,32 @@ def emit_runtime_authorization_audit(
     return True
 
 
+async def emit_runtime_authorization_audit_async(
+    request: Request,
+    *,
+    outcome: RuntimeAuthorizationOutcome,
+    denial_reason: str = "",
+    step_up_outcome: Literal["verified", "denied", "unresolved"] | None = None,
+    raise_on_failure: bool,
+) -> bool:
+    """Append one decision without running durable audit I/O on the ASGI loop."""
+    return await to_thread.run_sync(
+        partial(
+            emit_runtime_authorization_audit,
+            request,
+            outcome=outcome,
+            denial_reason=denial_reason,
+            step_up_outcome=step_up_outcome,
+            raise_on_failure=raise_on_failure,
+        )
+    )
+
+
 __all__ = [
     "RuntimeAuthorizationAuditError",
     "RuntimeAuthorizationAuditEvent",
     "RuntimeAuthorizationOutcome",
     "RuntimeDataAccessAuditTrail",
     "emit_runtime_authorization_audit",
+    "emit_runtime_authorization_audit_async",
 ]

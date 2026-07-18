@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import time
 from dataclasses import replace
 from typing import Any
 
+import httpx
 import pytest
 
 try:  # pragma: no cover - optional dependency guard
-    from fastapi import Depends
+    from fastapi import Depends, Request
 except ModuleNotFoundError:  # pragma: no cover
     pytest.skip("fastapi is not installed", allow_module_level=True)
 
@@ -18,6 +20,7 @@ from polisyos.runtime.http.authorization import (
     ResourceBindingSpec,
     require_action_permission,
 )
+from polisyos.runtime.http.authz_middleware import AuthzMiddleware
 from polisyos.runtime.http.permissions import RuntimePermission
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
@@ -157,6 +160,108 @@ def test_authorization_deny_is_appended_to_existing_access_audit_trail(
     assert event["denial_reason"] == "action_permission_denied"
     assert event["permission"] == "runs.launch"
     assert event["resource_digest"] == ""
+
+
+def test_invalid_delegation_denial_emits_one_terminal_audit(
+    runtime_api_env,
+) -> None:
+    client, bearer = _secure_probe_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        suffix="invalid-delegation-audit",
+    )
+    audit = _CaptureAudit()
+    _install_audit(client, audit)
+    executed: list[bool] = []
+    _add_low_stakes_probe(client, executed, suffix="invalid-delegation-audit")
+
+    response = client.post(
+        "/api/v1/ds20/audit/invalid-delegation-audit",
+        headers={
+            **_headers(runtime_api_env, bearer),
+            "X-PolicyOS-Context": "unverified-delegation",
+            "l5d-client-id": "spiffe://polisyos.test/delegator",
+        },
+        json={},
+    )
+
+    assert response.status_code == 403, response.json()
+    assert response.json()["code"] == "delegation_not_configured"
+    assert executed == []
+    assert len(audit.entries) == 1
+    assert audit.entries[0]["outcome"] == "deny"
+    assert audit.entries[0]["denial_reason"] == "delegation_not_configured"
+
+
+def test_dependency_override_denial_emits_one_terminal_audit(
+    runtime_api_env,
+) -> None:
+    client, bearer = _secure_probe_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        suffix="override-audit",
+    )
+    audit = _CaptureAudit()
+    _install_audit(client, audit)
+    action = require_action_permission(
+        RuntimePermission.RUNS_LAUNCH,
+        ResourceBindingSpec(
+            source=ResourceBindingSource.TENANT_COLLECTION,
+            resource_kind="runtime.ds20.audit.override",
+        ),
+    )
+    executed: list[bool] = []
+
+    @client.app.post(
+        "/api/v1/ds20/audit/override",
+        dependencies=[Depends(action)],
+    )
+    def _probe() -> dict[str, bool]:
+        executed.append(True)
+        return {"mutated": True}
+
+    client.app.dependency_overrides[action] = lambda: None
+    response = client.post(
+        "/api/v1/ds20/audit/override",
+        headers=_headers(runtime_api_env, bearer),
+        json={},
+    )
+
+    assert response.status_code == 503, response.json()
+    assert response.json()["code"] == "authorization_dependency_overridden"
+    assert executed == []
+    assert len(audit.entries) == 1
+    assert audit.entries[0]["outcome"] == "deny"
+    assert audit.entries[0]["denial_reason"] == "authorization_dependency_overridden"
+
+
+def test_unbound_resource_denial_emits_one_terminal_audit(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client, bearer = _secure_probe_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        suffix="unbound-resource-audit",
+    )
+    audit = _CaptureAudit()
+    _install_audit(client, audit)
+    executed: list[bool] = []
+    _add_low_stakes_probe(client, executed, suffix="unbound-resource-audit")
+    monkeypatch.setattr(AuthzMiddleware, "_opa_resource", lambda *args, **kwargs: None)
+
+    response = client.post(
+        "/api/v1/ds20/audit/unbound-resource-audit",
+        headers=_headers(runtime_api_env, bearer),
+        json={},
+    )
+
+    assert response.status_code == 503, response.json()
+    assert response.json()["code"] == "authorization_resource_unbound"
+    assert executed == []
+    assert len(audit.entries) == 1
+    assert audit.entries[0]["outcome"] == "deny"
+    assert audit.entries[0]["denial_reason"] == "authorization_resource_unbound"
 
 
 def test_missing_identity_denial_is_appended_without_unbound_authority_claims(
@@ -486,3 +591,114 @@ def test_high_stakes_action_denies_when_access_audit_append_fails(
     assert response.status_code == 503, response.json()
     assert response.json()["code"] == "authorization_audit_unavailable"
     assert executed == []
+
+
+@pytest.mark.parametrize(
+    "mutation_kind",
+    [
+        pytest.param("replace_binding", id="replace-binding"),
+        pytest.param("mutate_resource", id="mutate-resource"),
+        pytest.param("clear_state", id="clear-state"),
+    ],
+)
+def test_handler_cannot_mutate_sealed_authorization_state(
+    runtime_api_env,
+    mutation_kind: str,
+) -> None:
+    client, bearer = _secure_probe_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        suffix=f"sealed-{mutation_kind}",
+    )
+    audit = _CaptureAudit()
+    _install_audit(client, audit)
+    action = require_action_permission(
+        RuntimePermission.RUNS_LAUNCH,
+        ResourceBindingSpec(
+            source=ResourceBindingSource.TENANT_COLLECTION,
+            resource_kind=f"runtime.ds20.audit.sealed.{mutation_kind}",
+        ),
+    )
+    executed: list[bool] = []
+
+    @client.app.post(
+        f"/api/v1/ds20/audit/sealed-{mutation_kind}",
+        dependencies=[Depends(action)],
+    )
+    def _probe(request: Request) -> dict[str, bool]:
+        if mutation_kind == "replace_binding":
+            request.state.authz_bound_resource = object()
+        elif mutation_kind == "mutate_resource":
+            request.state.authz_resource["kind"] = "attacker-controlled"
+        else:
+            request.scope["state"].clear()
+        executed.append(True)
+        return {"mutated": True}
+
+    response = client.post(
+        f"/api/v1/ds20/audit/sealed-{mutation_kind}",
+        headers=_headers(runtime_api_env, bearer),
+        json={},
+    )
+
+    assert response.status_code == 503, response.json()
+    assert response.json()["code"] == "authorization_binding_integrity_violation"
+    assert executed == []
+    assert len(audit.entries) == 1
+    # The one durable event is the truthful admission decision. The attempted
+    # handler-side state change is rejected before it can alter that decision.
+    assert audit.entries[0]["outcome"] == "allow"
+
+
+def test_blocking_authorization_resolver_does_not_stall_event_loop(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http import authz_middleware as authz_middleware_module
+
+    client, bearer = _secure_probe_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        suffix="resolver-offload",
+    )
+    _install_audit(client, _CaptureAudit())
+    executed: list[bool] = []
+    _add_low_stakes_probe(client, executed, suffix="resolver-offload")
+    original_bind = authz_middleware_module.bind_authorization_resource
+
+    def _blocking_bind(*args, **kwargs):
+        time.sleep(0.35)
+        return original_bind(*args, **kwargs)
+
+    monkeypatch.setattr(
+        authz_middleware_module,
+        "bind_authorization_resource",
+        _blocking_bind,
+    )
+
+    async def _exercise() -> tuple[httpx.Response, httpx.Response, float]:
+        transport = httpx.ASGITransport(app=client.app, raise_app_exceptions=False)
+        async with httpx.AsyncClient(
+            transport=transport,
+            base_url="http://testserver",
+        ) as async_client:
+            started = time.monotonic()
+            mutation_task = asyncio.create_task(
+                async_client.post(
+                    "/api/v1/ds20/audit/resolver-offload",
+                    headers=_headers(runtime_api_env, bearer),
+                    json={},
+                )
+            )
+            await asyncio.sleep(0.02)
+            health = await async_client.get("/health")
+            health_elapsed = time.monotonic() - started
+            mutation = await mutation_task
+        return health, mutation, health_elapsed
+
+    health, mutation, health_elapsed = asyncio.run(_exercise())
+
+    assert health.status_code == 200, health.text
+    assert health_elapsed < 0.20
+    assert mutation.status_code == 200, mutation.text
+    assert executed == [True]

@@ -5,6 +5,8 @@ from __future__ import annotations
 from datetime import datetime  # noqa: TC003 - FastAPI inspects runtime annotations.
 from typing import TYPE_CHECKING, Any, cast
 
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import (
     LineageBatchRequest,
@@ -12,6 +14,7 @@ from polisyos.core.contracts.runtime import (
     LineageExportResponse,
     LineageGraphView,
     LineageResponse,
+    ScenarioManifest,
     TemporalScope,
     VerificationMetadata,
 )
@@ -28,13 +31,16 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, conflict
+from polisyos.runtime.http.errors import bad_request, conflict, forbidden
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.resource_binding import lineage_batch_from_bound_request
 from polisyos.runtime.http.routes._export_replay import bind_export_replay_or_conflict
 from polisyos.runtime.http.services.export_replay import EXPORT_REPLAY_RESPONSE_HEADERS
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from fastapi import APIRouter, Depends, Query, Request, Response
 else:
     try:  # pragma: no cover - optional runtime dependency
@@ -136,6 +142,23 @@ if router is not None:
         scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> LineageBatchResponse:
+        authorized_lineage_ids, scenario_manifest_payloads = (
+            lineage_batch_from_bound_request(
+                request,
+                ctx=ctx,
+                requested_lineage_ids=body.lineage_ids,
+            )
+        )
+        try:
+            scenario_manifests = {
+                lineage_id: ScenarioManifest.model_validate(payload)
+                for lineage_id, payload in scenario_manifest_payloads.items()
+            }
+        except ValidationError as exc:
+            raise forbidden(
+                "The authorized scenario lineage manifest is invalid",
+                code="authorization_binding_context_invalid",
+            ) from exc
         temporal_scope = _resolve_lineage_temporal_scope(
             ctx,
             lineage_id="lineage.batch",
@@ -150,7 +173,7 @@ if router is not None:
         )
         tenant_ids = [
             tenant_id
-            for lineage_id in body.lineage_ids
+            for lineage_id in authorized_lineage_ids
             if (tenant_id := _enforce_lineage_scope(lineage_id, request=request, ctx=ctx))
         ]
         set_authz_resource(
@@ -161,7 +184,8 @@ if router is not None:
         try:
             lineages = _build_runtime_lineage_batch(
                 ctx,
-                body.lineage_ids,
+                list(authorized_lineage_ids),
+                scenario_manifests=scenario_manifests,
                 temporal_scope=temporal_scope,
             )
         except LineageSurfaceAdmissionError as exc:
@@ -349,6 +373,7 @@ def _build_runtime_lineage_batch(
     ctx: RuntimeApiContext,
     lineage_ids: list[str],
     *,
+    scenario_manifests: Mapping[str, ScenarioManifest],
     temporal_scope: TemporalScope | None = None,
 ) -> list[LineageGraphView]:
     scenario_lineage_by_id: dict[str, LineageGraphView] = {}
@@ -356,7 +381,21 @@ def _build_runtime_lineage_batch(
     for lineage_id in lineage_ids:
         if ctx.scenarios.is_scenario_lineage(lineage_id):
             if lineage_id not in scenario_lineage_by_id:
-                scenario_lineage_by_id[lineage_id] = ctx.scenarios.build_lineage(lineage_id)
+                manifest = scenario_manifests.get(lineage_id)
+                if manifest is None:
+                    raise forbidden(
+                        "The scenario lineage is absent from its authorized context",
+                        code="authorization_binding_context_mismatch",
+                    )
+                try:
+                    scenario_lineage_by_id[lineage_id] = (
+                        ctx.scenarios.build_lineage_for_manifest(lineage_id, manifest)
+                    )
+                except ValueError as exc:
+                    raise forbidden(
+                        "The scenario lineage differs from its authorized manifest",
+                        code="authorization_binding_context_invalid",
+                    ) from exc
         elif lineage_id not in runtime_ids:
             runtime_ids.append(lineage_id)
 

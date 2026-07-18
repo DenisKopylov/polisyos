@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationOutcome,
-    emit_runtime_authorization_audit,
+    emit_runtime_authorization_audit_async,
 )
 from polisyos.runtime.http.errors import problem_response
 
@@ -54,7 +54,7 @@ class FailClosedAccessScopeMiddleware(_BaseHTTPMiddleware):
         scope = getattr(request.state, "access_scope", None)
         if scope is None:
             if request.method.upper() in _UNSAFE_METHODS:
-                emit_runtime_authorization_audit(
+                await emit_runtime_authorization_audit_async(
                     request,
                     outcome=RuntimeAuthorizationOutcome.DENY,
                     denial_reason="missing_access_scope",

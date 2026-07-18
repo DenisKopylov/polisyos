@@ -14,6 +14,7 @@ import os
 from collections.abc import Mapping
 from dataclasses import dataclass
 from enum import StrEnum
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core import artifacts, canon
@@ -31,6 +32,7 @@ from polisyos.runtime.http.container import (
 from polisyos.runtime.http.dependencies import RuntimeAccessScope as AccessScope
 from polisyos.runtime.http.errors import (
     bad_request,
+    conflict,
     forbidden,
     service_unavailable,
     unauthorized,
@@ -50,6 +52,7 @@ if TYPE_CHECKING:
 
     from polisyos.runtime.http.dependencies import RuntimeApiContext
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
+    from polisyos.runtime.http.services.scenario_heads import ScenarioHeadRecord
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import Request
@@ -62,6 +65,7 @@ _MAX_BATCH_ITEMS = 100
 _ABSENT_SELECTOR = '{"present":false}'
 _RESOLVED_CONTEXT_CANON = canon.CanonSpec(forbid_floats=False)
 _SCENARIO_TARGET_CONTEXT_KIND = "runtime.scenario.target.v1"
+_LINEAGE_BATCH_CONTEXT_KIND = "runtime.lineage.batch.v1"
 
 
 class _ResolverKind(StrEnum):
@@ -205,6 +209,18 @@ class BoundAuthorizationResource:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class _ResolvedLineageSelector:
+    """Carry one pre-policy lineage resolution into the frozen batch context."""
+
+    requested_id: str
+    canonical_id: str
+    tenant_id: str
+    content_digest: str
+    scenario_head: Mapping[str, object] | None = None
+    scenario_manifest: Mapping[str, Any] | None = None
+
+
 def get_bound_resource_context(
     request: Request,
     *,
@@ -234,6 +250,160 @@ def get_bound_resource_context(
             code="authorization_binding_context_invalid",
         )
     return payload
+
+
+def lineage_batch_from_bound_request(
+    request: Request,
+    *,
+    ctx: RuntimeApiContext,
+    requested_lineage_ids: Sequence[str],
+) -> tuple[tuple[str, ...], Mapping[str, Mapping[str, Any]]]:
+    """Consume and revalidate the exact pre-policy lineage batch snapshot.
+
+    Scenario manifests are returned from the immutable authorization context,
+    never re-resolved after OPA. The current durable head must still equal the
+    authorized head; a concurrent change therefore fails before route effects.
+    """
+    context = get_bound_resource_context(
+        request,
+        expected_kind=_LINEAGE_BATCH_CONTEXT_KIND,
+    )
+    if context.get("context_version") != _LINEAGE_BATCH_CONTEXT_KIND:
+        raise forbidden(
+            "The lineage authorization context has an unsupported version",
+            code="authorization_binding_context_invalid",
+        )
+    raw_entries = context.get("entries")
+    if not isinstance(raw_entries, list):
+        raise forbidden(
+            "The lineage authorization context has no resolved entries",
+            code="authorization_binding_context_invalid",
+        )
+
+    entries: list[Mapping[str, Any]] = []
+    for raw_entry in raw_entries:
+        if not isinstance(raw_entry, Mapping):
+            raise forbidden(
+                "The lineage authorization context contains an invalid entry",
+                code="authorization_binding_context_invalid",
+            )
+        requested_id = raw_entry.get("requested_lineage_id")
+        canonical_id = raw_entry.get("lineage_id")
+        content_digest = raw_entry.get("content_digest")
+        values = (requested_id, canonical_id, content_digest)
+        if any(
+            not isinstance(value, str) or not value or value != value.strip()
+            for value in values
+        ):
+            raise forbidden(
+                "The lineage authorization context contains an invalid identifier",
+                code="authorization_binding_context_invalid",
+            )
+        try:
+            _validate_sha256(cast("str", content_digest), field_name="content_digest")
+        except ValueError as exc:
+            raise forbidden(
+                "The lineage authorization context contains an invalid digest",
+                code="authorization_binding_context_invalid",
+            ) from exc
+        entries.append(raw_entry)
+
+    expected_requested = sorted(requested_lineage_ids)
+    actual_requested = sorted(
+        cast("str", entry["requested_lineage_id"]) for entry in entries
+    )
+    if actual_requested != expected_requested:
+        raise forbidden(
+            "The request lineage batch differs from its authorized context",
+            code="authorization_binding_context_mismatch",
+        )
+
+    entries_by_requested: dict[str, list[Mapping[str, Any]]] = {}
+    for entry in entries:
+        requested_id = cast("str", entry["requested_lineage_id"])
+        entries_by_requested.setdefault(requested_id, []).append(entry)
+
+    canonical_ids: list[str] = []
+    scenario_manifests: dict[str, Mapping[str, Any]] = {}
+    for requested_id in requested_lineage_ids:
+        matching = entries_by_requested.get(requested_id)
+        if not matching:
+            raise forbidden(
+                "The request lineage batch has no authorized resolution",
+                code="authorization_binding_context_mismatch",
+            )
+        entry = matching.pop()
+        canonical_id = cast("str", entry["lineage_id"])
+        content_digest = cast("str", entry["content_digest"])
+        canonical_ids.append(canonical_id)
+
+        scenario_head = entry.get("scenario_head")
+        scenario_manifest = entry.get("scenario_manifest")
+        if not canonical_id.startswith("scenario:"):
+            if scenario_head is not None or scenario_manifest is not None:
+                raise forbidden(
+                    "A non-scenario lineage entry carries scenario authority",
+                    code="authorization_binding_context_invalid",
+                )
+            continue
+        if not isinstance(scenario_head, Mapping) or not isinstance(
+            scenario_manifest,
+            Mapping,
+        ):
+            raise forbidden(
+                "A scenario lineage entry has no frozen head and manifest",
+                code="authorization_binding_context_invalid",
+            )
+        remainder = canonical_id.removeprefix("scenario:")
+        if ":" not in remainder:
+            raise forbidden(
+                "A scenario lineage entry has an invalid canonical identifier",
+                code="authorization_binding_context_invalid",
+            )
+        scenario_id, _lineage_kind = remainder.rsplit(":", 1)
+        if (
+            scenario_manifest.get("id") != scenario_id
+            or scenario_manifest.get("baseline_run_id")
+            != scenario_head.get("baseline_run_id")
+            or scenario_manifest.get("revision") != scenario_head.get("revision")
+            or scenario_manifest.get("manifest_hash")
+            != scenario_head.get("manifest_hash")
+            or scenario_head.get("scenario_id") != scenario_id
+            or _digest_payload(
+                {
+                    "lineage_id": canonical_id,
+                    "manifest": dict(scenario_manifest),
+                }
+            )
+            != content_digest
+        ):
+            raise forbidden(
+                "A scenario lineage entry is not content-bound to its head",
+                code="authorization_binding_context_invalid",
+            )
+
+        current_head = ctx.scenarios.get_persisted_head_or_none(scenario_id)
+        if current_head is None or _scenario_head_context(current_head) != dict(
+            scenario_head
+        ):
+            raise conflict(
+                "Scenario changed after authorization binding",
+                code="scenario_authorization_binding_changed",
+            )
+        prior_manifest = scenario_manifests.get(canonical_id)
+        if prior_manifest is not None and dict(prior_manifest) != dict(scenario_manifest):
+            raise forbidden(
+                "Duplicate scenario lineage entries disagree on authorized content",
+                code="authorization_binding_context_invalid",
+            )
+        scenario_manifests[canonical_id] = MappingProxyType(dict(scenario_manifest))
+
+    if any(entries for entries in entries_by_requested.values()):
+        raise forbidden(
+            "The lineage authorization context contains unused resolutions",
+            code="authorization_binding_context_mismatch",
+        )
+    return tuple(canonical_ids), MappingProxyType(scenario_manifests)
 
 
 def scenario_target_from_bound_request(
@@ -646,7 +816,7 @@ def _bind_resolved_selector_batch(
         )
     ctx = _require_runtime_context(request)
     resolved = [_resolve_lineage_selector(ctx, scope, lineage_id) for lineage_id in values]
-    tenants = {tenant_id for _canonical_id, tenant_id, _digest in resolved}
+    tenants = {item.tenant_id for item in resolved}
     if len(tenants) != 1:
         raise forbidden(
             "Lineage batch does not resolve to one verified tenant",
@@ -656,13 +826,38 @@ def _bind_resolved_selector_batch(
         sorted(
             [
                 {
-                    "lineage_id": canonical_id,
-                    "content_digest": digest,
+                    "lineage_id": item.canonical_id,
+                    "content_digest": item.content_digest,
                 }
-                for canonical_id, _tenant_id, digest in resolved
+                for item in resolved
             ],
             key=lambda item: (item["lineage_id"], item["content_digest"]),
         )
+    )
+    context_entries: list[dict[str, Any]] = []
+    for item in resolved:
+        context_entry: dict[str, Any] = {
+            "requested_lineage_id": item.requested_id,
+            "lineage_id": item.canonical_id,
+            "content_digest": item.content_digest,
+        }
+        if item.scenario_head is not None and item.scenario_manifest is not None:
+            context_entry["scenario_head"] = dict(item.scenario_head)
+            context_entry["scenario_manifest"] = dict(item.scenario_manifest)
+        context_entries.append(context_entry)
+    context_entries.sort(
+        key=lambda item: (
+            item["requested_lineage_id"],
+            item["lineage_id"],
+            item["content_digest"],
+        )
+    )
+    context = canon.to_canonical_bytes(
+        {
+            "context_version": _LINEAGE_BATCH_CONTEXT_KIND,
+            "entries": context_entries,
+        },
+        spec=_RESOLVED_CONTEXT_CANON,
     )
     selectors = ((field_name, _canonical_json(canonical_entries)),)
     return _build_bound_resource(
@@ -673,6 +868,8 @@ def _bind_resolved_selector_batch(
         body_sha256=body_sha256,
         selectors=selectors,
         include_body_in_digest=False,
+        resolved_context_kind=_LINEAGE_BATCH_CONTEXT_KIND,
+        resolved_context=context,
     )
 
 
@@ -826,7 +1023,7 @@ def _resolve_lineage_selector(
     ctx: RuntimeApiContext,
     scope: AccessScope,
     lineage_id: str,
-) -> tuple[str, str, str]:
+) -> _ResolvedLineageSelector:
     artifact_candidate = lineage_id.removeprefix("artifact:")
     try:
         artifact_id = artifacts.ArtifactID.model_validate(artifact_candidate)
@@ -835,7 +1032,41 @@ def _resolve_lineage_selector(
     if artifact_id is not None:
         canonical_id, tenant_id = _resolve_owned_artifact(ctx, scope, str(artifact_id))
         canonical_lineage_id = f"artifact:{canonical_id}"
-        return canonical_lineage_id, tenant_id, canonical_id
+        return _ResolvedLineageSelector(
+            requested_id=lineage_id,
+            canonical_id=canonical_lineage_id,
+            tenant_id=tenant_id,
+            content_digest=canonical_id,
+        )
+
+    if lineage_id.startswith("run:"):
+        remainder = lineage_id.removeprefix("run:")
+        if ":" not in remainder:
+            raise forbidden(
+                "Run lineage selector has an unsupported form",
+                code="authorization_binding_lineage_unsupported",
+            )
+        run_id, lineage_kind = remainder.rsplit(":", 1)
+        run_id = _required_string(run_id, field_name="run_id")
+        lineage_kind = _required_string(lineage_kind, field_name="lineage kind")
+        if lineage_kind != "telemetry":
+            raise forbidden(
+                "Run lineage selector has an unsupported kind",
+                code="authorization_binding_lineage_unsupported",
+            )
+        canonical_run_id, tenant_id = _resolve_owned_run(ctx, scope, run_id)
+        canonical_id = f"run:{canonical_run_id}:telemetry"
+        return _ResolvedLineageSelector(
+            requested_id=lineage_id,
+            canonical_id=canonical_id,
+            tenant_id=tenant_id,
+            content_digest=_digest_payload(
+                {
+                    "lineage_id": canonical_id,
+                    "run_id": canonical_run_id,
+                }
+            ),
+        )
 
     if lineage_id.startswith("scenario:"):
         remainder = lineage_id.removeprefix("scenario:")
@@ -847,13 +1078,13 @@ def _resolve_lineage_selector(
         scenario_id, lineage_kind = remainder.rsplit(":", 1)
         scenario_id = _required_string(scenario_id, field_name="scenario_id")
         lineage_kind = _required_string(lineage_kind, field_name="lineage kind")
-        try:
-            manifest = ctx.scenarios.get_manifest(scenario_id)
-        except Exception as exc:
+        head = ctx.scenarios.get_persisted_head_or_none(scenario_id)
+        if head is None:
             raise forbidden(
                 "Scenario lineage selector could not be resolved",
                 code="authorization_binding_lineage_unresolved",
-            ) from exc
+            )
+        manifest = ctx.scenarios.get_persisted_manifest_for_head(head)
         _canonical_run_id, tenant_id = _resolve_owned_run(
             ctx,
             scope,
@@ -866,12 +1097,30 @@ def _resolve_lineage_selector(
                 "manifest": manifest.model_dump(mode="json"),
             }
         )
-        return canonical_id, tenant_id, content_digest
+        return _ResolvedLineageSelector(
+            requested_id=lineage_id,
+            canonical_id=canonical_id,
+            tenant_id=tenant_id,
+            content_digest=content_digest,
+            scenario_head=_scenario_head_context(head),
+            scenario_manifest=manifest.model_dump(mode="json"),
+        )
 
     raise forbidden(
         "Lineage selector has an unsupported or unresolved form",
         code="authorization_binding_lineage_unsupported",
     )
+
+
+def _scenario_head_context(head: ScenarioHeadRecord) -> dict[str, object]:
+    return {
+        "scenario_id": head.scenario_id,
+        "baseline_run_id": head.baseline_run_id,
+        "revision": head.revision,
+        "artifact_ref": head.artifact_ref,
+        "manifest_hash": head.manifest_hash,
+        "updated_at": head.updated_at.isoformat(),
+    }
 
 
 def _resolve_owned_run(
@@ -1236,6 +1485,7 @@ __all__ = [
     "BoundAuthorizationResource",
     "bind_authorization_resource",
     "get_bound_resource_context",
+    "lineage_batch_from_bound_request",
     "production_approval_scorecard_from_bound_request",
     "scenario_target_from_bound_request",
 ]

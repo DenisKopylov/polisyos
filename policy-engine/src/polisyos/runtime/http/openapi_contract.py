@@ -10,6 +10,8 @@ from polisyos.runtime.http._openapi_contract_helpers import (
     iter_openapi_operations,
     runtime_problem_example,
 )
+from polisyos.runtime.http.permissions import permissions_for_roles
+from polisyos.runtime.http.security import PolicyOSRole
 
 _ARTIFACT_ID_SAMPLE = "sha256:" + "a" * 64
 _SHA_PLAN = "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
@@ -21,6 +23,9 @@ _SHA_LINEAGE = "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d
 _RUN_ID_SAMPLE = "R_core_api_001"
 _REQUEST_ID_SAMPLE = "req_0123456789abcdef"
 _TS_SAMPLE = "2026-02-11T12:00:00Z"
+_ANALYST_PERMISSION_EXAMPLE = [
+    permission.value for permission in permissions_for_roles([PolicyOSRole.ANALYST])
+]
 _META_CORE_RUN = {
     "request_id": _REQUEST_ID_SAMPLE,
     "generated_at": _TS_SAMPLE,
@@ -443,19 +448,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "principal_type": "user",
         "cell_id": "cell-a",
         "roles": ["analyst"],
-        "permissions": [
-            "dashboard.view",
-            "evidence.promotions.approve",
-            "evidence.promotions.reject",
-            "evidence.review",
-            "evidence.view",
-            "knowledge.view",
-            "mode.analyst",
-            "platform.view",
-            "runs.launch",
-            "runs.review",
-            "runs.view",
-        ],
+        "permissions": _ANALYST_PERMISSION_EXAMPLE,
         "mfa_verified": True,
         "feature_overrides": {
             "enableReviewCollaboration": False,

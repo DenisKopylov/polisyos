@@ -16,7 +16,7 @@ from polisyos.core.security.tenant_context import (
 )
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationOutcome,
-    emit_runtime_authorization_audit,
+    emit_runtime_authorization_audit_async,
 )
 from polisyos.runtime.http.errors import problem_response
 from polisyos.runtime.http.security import (
@@ -63,10 +63,10 @@ _PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
 _UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
 
-def _audit_identity_denial(request: _Request, *, reason: str) -> None:
+async def _audit_identity_denial(request: _Request, *, reason: str) -> None:
     if request.method.upper() not in _UNSAFE_METHODS:
         return
-    emit_runtime_authorization_audit(
+    await emit_runtime_authorization_audit_async(
         request,
         outcome=RuntimeAuthorizationOutcome.DENY,
         denial_reason=reason,
@@ -118,7 +118,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
 
         auth_header = request.headers.get("authorization", "")
         if not auth_header.startswith("Bearer "):
-            _audit_identity_denial(request, reason="missing_bearer_token")
+            await _audit_identity_denial(request, reason="missing_bearer_token")
             clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
@@ -131,7 +131,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
 
         token = auth_header[7:].strip()
         if not token:
-            _audit_identity_denial(request, reason="missing_bearer_token")
+            await _audit_identity_denial(request, reason="missing_bearer_token")
             clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
@@ -150,7 +150,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
         except MFARequiredError as exc:
             self._metrics.record_identity_failure(reason="mfa_required", provider="keycloak")
             logger.warning("JWT rejected due to missing MFA: %s", exc)
-            _audit_identity_denial(request, reason="mfa_required")
+            await _audit_identity_denial(request, reason="mfa_required")
             clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,
@@ -163,7 +163,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
         except TokenValidationError as exc:
             self._metrics.record_identity_failure(reason="invalid_token", provider="keycloak")
             logger.warning("JWT authentication failed: %s", exc)
-            _audit_identity_denial(request, reason="invalid_token")
+            await _audit_identity_denial(request, reason="invalid_token")
             clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
@@ -176,7 +176,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
         except (AttributeError, KeyError, RuntimeError, TypeError, ValueError) as exc:
             self._metrics.record_identity_failure(reason="identity_error", provider="keycloak")
             logger.exception("Unexpected JWT authentication error")
-            _audit_identity_denial(request, reason="invalid_token")
+            await _audit_identity_denial(request, reason="invalid_token")
             clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
@@ -192,7 +192,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
                 reason="fixture_identity_forbidden",
                 provider="keycloak",
             )
-            _audit_identity_denial(request, reason="fixture_identity_forbidden")
+            await _audit_identity_denial(request, reason="fixture_identity_forbidden")
             clear_request_auth_context(request.state)
             return problem_response(
                 status_code=401,
@@ -205,7 +205,7 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
 
         header_tenant = request.headers.get(self._tenant_header)
         if header_tenant and header_tenant != claims.tenant_id:
-            _audit_identity_denial(request, reason="tenant_binding_mismatch")
+            await _audit_identity_denial(request, reason="tenant_binding_mismatch")
             clear_request_auth_context(request.state)
             return problem_response(
                 status_code=403,

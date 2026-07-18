@@ -431,12 +431,23 @@ class ScenarioService:
         parsed = _parse_scenario_lineage_id(lineage_id)
         if parsed is None:
             return _unresolved_scenario_lineage(lineage_id)
-        scenario_id, lineage_kind = parsed
+        scenario_id, _lineage_kind = parsed
         try:
             manifest = self.get_manifest(scenario_id)
         except Exception:
             return _unresolved_scenario_lineage(lineage_id)
+        return self.build_lineage_for_manifest(lineage_id, manifest)
 
+    def build_lineage_for_manifest(
+        self,
+        lineage_id: str,
+        manifest: ScenarioManifest,
+    ) -> LineageGraphView:
+        """Build scenario lineage from one already-authorized immutable manifest."""
+        parsed = _parse_scenario_lineage_id(lineage_id)
+        if parsed is None or parsed[0] != manifest.id:
+            raise ValueError("lineage_id must identify the supplied scenario manifest")
+        _scenario_id, lineage_kind = parsed
         nodes = _scenario_lineage_nodes(
             manifest=manifest,
             lineage_id=lineage_id,

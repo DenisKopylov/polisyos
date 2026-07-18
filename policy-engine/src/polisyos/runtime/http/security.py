@@ -11,7 +11,7 @@ from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
 _FIXTURE_IDENTITY_ENV = "POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY"
 _FIXTURE_IDENTITY_ISSUER = "polisyos://fixture-identity"
 
-_AUTH_STATE_FIELDS = (
+AUTHORIZATION_STATE_FIELDS = (
     "user_claims",
     "authenticated_tenant_id",
     "access_scope",
@@ -111,7 +111,7 @@ def is_fixture_identity_claims(value: object) -> bool:
 
 def clear_request_auth_context(state: Any) -> None:
     """Remove auth-derived state so deny paths cannot leak trusted context."""
-    for field_name in _AUTH_STATE_FIELDS:
+    for field_name in AUTHORIZATION_STATE_FIELDS:
         if hasattr(state, field_name):
             try:
                 delattr(state, field_name)
@@ -120,6 +120,7 @@ def clear_request_auth_context(state: Any) -> None:
 
 
 __all__ = [
+    "AUTHORIZATION_STATE_FIELDS",
     "PolicyOSRole",
     "RuntimeSecurityConfig",
     "RuntimeStepUpAssertionVerifier",

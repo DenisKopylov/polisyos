@@ -104,6 +104,7 @@ def _write_provision(
     baseline: Path,
     l5_path: Path,
     baseline_owner_ref: str,
+    live_harness_receipts: tuple[dict[str, str], ...] = (),
 ) -> Path:
     provision = build_acquisition_authority_provision(
         baseline_owner_ref=baseline_owner_ref,
@@ -112,6 +113,7 @@ def _write_provision(
             "repo://" + DEFAULT_L5_MEASUREMENT_REGISTRY.as_posix()
         ),
         l5_measurement_registry_content_sha256=_sha(l5_path),
+        live_harness_receipts=live_harness_receipts,
     )
     path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_PROVISION
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -267,10 +269,86 @@ def _entry():
         l5_family_id="macro_state",
         title="Acquired government balance",
         description="Owner-validated World Bank government balance observations.",
-        country_codes=("UA",),
+        country_codes=("UKR",),
         temporal_start="2020",
         temporal_end="2024",
     )
+
+
+def _family_receipt(attempt_id: str) -> dict[str, object]:
+    outcome = "replay_fixture_missing_after_interception"
+    return {
+        "connector_id": "worldbank.wdi",
+        "component_id": "worldbank.wdi@1.0.0",
+        "connector_class": (
+            "polisyos.fabric.connectors.sources.world_bank.WorldBankConnector"
+        ),
+        "protocol_violations": [],
+        "protocol_conformant": True,
+        "harness_checks_passed": [
+            "capability_gated_methods_present",
+            "connect_returns_unique_sessions",
+            "core_methods_are_async",
+            "disconnect_idempotent",
+            "protocol_compliance",
+            "required_class_attributes",
+        ],
+        "harness_check_failures": [],
+        "carrier_denominator": 1,
+        "carrier_attempt_count": 1,
+        "dry_run_attempts": [
+            {
+                "attempt_id": attempt_id,
+                "profile_id": "worldbank_wdi",
+                "source_profile_family": "worldbank",
+                "request_dataset_id": "GC.BAL.CASH.GD.ZS",
+                "fetch_request_key": "sha256:" + "1" * 64,
+                "connection_config_content_sha256": "sha256:" + "2" * 64,
+                "connector_fetch_invoked": True,
+                "fetch_completed": False,
+                "outcome": outcome,
+                "finding_code": outcome,
+                "failure_type": (
+                    "polisyos.fabric.connectors.testing.simulator."
+                    "MissingFixtureError"
+                ),
+                "simulator_mode": "replay",
+                "simulator_call_count": 1,
+                "transport_intercepted": True,
+                "network_escape_attempt_count": 0,
+                "actual_network_call_count": 0,
+            }
+        ],
+        "outcome_counts": {outcome: 1},
+        "safe_dry_run_passed": True,
+        "simulator_mode": "replay",
+        "simulator_intercepted": True,
+        "simulator_call_count": 1,
+        "network_escape_attempt_count": 0,
+        "simulator_network_calls": 0,
+    }
+
+
+def _write_family_receipt(
+    repo_root: Path,
+    *,
+    entry_id: str,
+    attempt_id: str,
+    receipt: dict[str, object],
+    receipt_path: str = "evidence/worldbank-wdi-live-harness.json",
+) -> dict[str, str]:
+    path = repo_root / receipt_path
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(receipt, sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+    return {
+        "entry_id": entry_id,
+        "attempt_id": attempt_id,
+        "receipt_owner_ref": f"repo://{receipt_path}",
+        "receipt_content_sha256": _sha(path),
+    }
 
 
 def _resolver(
@@ -278,6 +356,7 @@ def _resolver(
     *,
     license_id: str = "CC-BY-4.0",
     authority_entry: AcquisitionAuthorityEntry | None = None,
+    live_harness_receipts: tuple[dict[str, str], ...] = (),
 ):
     baseline = _baseline(repo_root, license_id=license_id)
     l5 = _write_l5(repo_root)
@@ -302,6 +381,7 @@ def _resolver(
         baseline=baseline,
         l5_path=l5,
         baseline_owner_ref="repo://catalog/catalog.duckdb",
+        live_harness_receipts=live_harness_receipts,
     )
     return (
         CanonicalAcquisitionAuthority.from_provision(
@@ -317,7 +397,21 @@ def _live_execution_fixture(tmp_path: Path):
 
     from polisyos.data_forge.domains.catalog.knowledge import acquisition_authority
 
-    resolver, entry = _resolver(tmp_path / "repo")
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    attempt_id = "n13b-worldbank-government-balance-001"
+    family_receipt = _family_receipt(attempt_id)
+    receipt_provision = _write_family_receipt(
+        repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=attempt_id,
+        receipt=family_receipt,
+    )
+    resolver, entry = _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=(receipt_provision,),
+    )
     resolved = resolver.resolve(entry.entry_id)
     store = FileSystemCAS(tmp_path / "cas")
     raw_body = json.dumps(
@@ -376,25 +470,6 @@ def _live_execution_fixture(tmp_path: Path):
         "date_end": "2024-12-31",
         "page_size": 1000,
         "schema_contract": entry.schema_projection(),
-    }
-    attempt_id = "n13b-worldbank-government-balance-001"
-    family_receipt = {
-        "connector_id": "worldbank.wdi",
-        "protocol_conformant": True,
-        "harness_checks_passed": ["protocol_compliance"],
-        "harness_check_failures": [],
-        "safe_dry_run_passed": True,
-        "simulator_intercepted": True,
-        "network_escape_attempt_count": 0,
-        "dry_run_attempts": [
-            {
-                "attempt_id": attempt_id,
-                "profile_id": "worldbank_wdi",
-                "request_dataset_id": "GC.BAL.CASH.GD.ZS",
-                "outcome": "replay_fixture_missing_after_interception",
-                "transport_intercepted": True,
-            }
-        ],
     }
     profile = SourceProfileRegistry.get_instance().get("worldbank_wdi")
     assert profile is not None
@@ -624,6 +699,205 @@ def test_live_execution_evidence_reopens_raw_and_normalized_carriers(
     assert evidence.page_count == 1
 
 
+def test_live_harness_receipt_resolves_exact_owner_bytes(tmp_path: Path) -> None:
+    resolver, entry, _, evidence, family_receipt, _ = _live_execution_fixture(tmp_path)
+
+    resolved = resolver.resolve_live_harness_receipt(
+        entry.entry_id,
+        evidence.authorization.attempt_id,
+    )
+
+    assert resolved.family_receipt == family_receipt
+    assert resolved.receipt_owner_ref == (
+        "repo://evidence/worldbank-wdi-live-harness.json"
+    )
+    assert resolved.receipt_content_sha256 == _sha(
+        resolver.repo_root / "evidence/worldbank-wdi-live-harness.json"
+    )
+    assert resolved.connection_config_content_sha256 == "sha256:" + "2" * 64
+    assert resolved.fetch_request_key == "sha256:" + "1" * 64
+    assert resolved.source_profile_family == "worldbank"
+
+
+def test_live_harness_receipt_rejects_file_drift(tmp_path: Path) -> None:
+    resolver, entry, _, evidence, family_receipt, _ = _live_execution_fixture(tmp_path)
+    path = resolver.repo_root / "evidence/worldbank-wdi-live-harness.json"
+    path.write_text(
+        json.dumps(
+            {**family_receipt, "connector_class": "forged.ReplacementConnector"},
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match="live_harness_receipt_content_drift",
+    ):
+        resolver.resolve_live_harness_receipt(
+            entry.entry_id,
+            evidence.authorization.attempt_id,
+        )
+
+
+def test_live_harness_receipt_rejects_path_escape(tmp_path: Path) -> None:
+    resolver, entry = _resolver(tmp_path)
+
+    with pytest.raises(ValidationError, match="live harness receipt owner ref"):
+        build_acquisition_authority_provision(
+            baseline_owner_ref=resolver.provision.baseline_owner_ref,
+            baseline_content_sha256=_sha(resolver.baseline_path),
+            l5_measurement_registry_owner_ref=resolver.provision.l5_measurement_registry_owner_ref,
+            l5_measurement_registry_content_sha256=_sha(resolver.l5_path),
+            live_harness_receipts=(
+                {
+                    "entry_id": entry.entry_id,
+                    "attempt_id": "n13b-worldbank-government-balance-001",
+                    "receipt_owner_ref": "repo://../outside.json",
+                    "receipt_content_sha256": "sha256:" + "0" * 64,
+                },
+            ),
+        )
+
+
+@pytest.mark.parametrize(
+    ("entry_id", "attempt_id", "error_code"),
+    [
+        (
+            "acquisition-authority:sha256:" + "0" * 64,
+            "n13b-worldbank-government-balance-001",
+            "authority_entry_unresolved",
+        ),
+        (
+            _entry().entry_id,
+            "n13b-worldbank-government-balance-999",
+            "live_harness_receipt_provision_unresolved",
+        ),
+    ],
+)
+def test_live_harness_receipt_rejects_entry_or_attempt_mismatch(
+    tmp_path: Path,
+    entry_id: str,
+    attempt_id: str,
+    error_code: str,
+) -> None:
+    resolver, _, _, _, _, _ = _live_execution_fixture(tmp_path)
+
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match=error_code,
+    ):
+        resolver.resolve_live_harness_receipt(entry_id, attempt_id)
+
+
+def test_live_harness_receipt_rejects_reduced_shaped_green_payload(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    attempt_id = "n13b-worldbank-government-balance-001"
+    shaped_green: dict[str, object] = {
+        "connector_id": "worldbank.wdi",
+        "protocol_conformant": True,
+        "harness_checks_passed": ["protocol_compliance"],
+        "harness_check_failures": [],
+        "safe_dry_run_passed": True,
+        "simulator_intercepted": True,
+        "network_escape_attempt_count": 0,
+        "dry_run_attempts": [
+            {
+                "attempt_id": attempt_id,
+                "profile_id": "worldbank_wdi",
+                "request_dataset_id": "GC.BAL.CASH.GD.ZS",
+                "outcome": "replay_fixture_missing_after_interception",
+                "transport_intercepted": True,
+            }
+        ],
+    }
+    receipt_provision = _write_family_receipt(
+        repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=attempt_id,
+        receipt=shaped_green,
+    )
+    resolver, _ = _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=(receipt_provision,),
+    )
+
+    with pytest.raises(AcquisitionAuthorityError, match="live_harness_receipt_invalid"):
+        resolver.resolve_live_harness_receipt(entry.entry_id, attempt_id)
+
+
+@pytest.mark.parametrize(
+    "missing_fields",
+    [
+        ("connection_config_content_sha256",),
+        ("connection_config_content_sha256", "fetch_request_key"),
+    ],
+)
+def test_live_harness_receipt_requires_selected_request_and_config_bindings(
+    tmp_path: Path,
+    missing_fields: tuple[str, ...],
+) -> None:
+    repo_root = tmp_path / "repo"
+    entry = _entry()
+    attempt_id = "n13b-worldbank-government-balance-001"
+    family_receipt = _family_receipt(attempt_id)
+    carrier = dict(family_receipt["dry_run_attempts"][0])
+    for field in missing_fields:
+        carrier.pop(field)
+    family_receipt["dry_run_attempts"] = [carrier]
+    receipt_provision = _write_family_receipt(
+        repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=attempt_id,
+        receipt=family_receipt,
+    )
+    resolver, _ = _resolver(
+        repo_root,
+        authority_entry=entry,
+        live_harness_receipts=(receipt_provision,),
+    )
+
+    with pytest.raises(AcquisitionAuthorityError, match="live_harness_receipt_invalid"):
+        resolver.resolve_live_harness_receipt(entry.entry_id, attempt_id)
+
+
+def test_live_harness_receipt_rejects_coordinated_owner_mutation(
+    tmp_path: Path,
+) -> None:
+    resolver, entry, _, evidence, family_receipt, _ = _live_execution_fixture(tmp_path)
+    mutated = {
+        **family_receipt,
+        "connector_class": "forged.ReplacementConnector",
+    }
+    receipt_provision = _write_family_receipt(
+        resolver.repo_root,
+        entry_id=entry.entry_id,
+        attempt_id=evidence.authorization.attempt_id,
+        receipt=mutated,
+    )
+    _write_provision(
+        resolver.repo_root,
+        baseline=resolver.baseline_path,
+        l5_path=resolver.l5_path,
+        baseline_owner_ref=resolver.provision.baseline_owner_ref,
+        live_harness_receipts=(receipt_provision,),
+    )
+
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match="acquisition_authority_provision_drift",
+    ):
+        resolver.resolve_live_harness_receipt(
+            entry.entry_id,
+            evidence.authorization.attempt_id,
+        )
+
+
 def test_live_passport_measures_normalized_snapshot_and_retains_raw_carrier(
     tmp_path: Path,
 ) -> None:
@@ -763,6 +1037,57 @@ def test_live_execution_rejects_mutated_family_receipt(tmp_path: Path) -> None:
 
     with pytest.raises(AcquisitionAuthorityError, match="live_source_execution_invalid"):
         resolver.resolve_live_source_execution(entry.entry_id, mutated, store)
+
+
+def test_live_execution_rejects_caller_fabricated_shaped_green_receipt(
+    tmp_path: Path,
+) -> None:
+    resolver, entry, store, evidence, _, _ = _live_execution_fixture(tmp_path)
+    request_event = resolve_linked_request_event(evidence.raw_evidence_ref)
+    request = dict(request_event["request"])
+    shaped_green = {
+        "connector_id": "worldbank.wdi",
+        "protocol_conformant": True,
+        "harness_checks_passed": ["protocol_compliance"],
+        "harness_check_failures": [],
+        "safe_dry_run_passed": True,
+        "simulator_intercepted": True,
+        "network_escape_attempt_count": 0,
+        "dry_run_attempts": [
+            {
+                "attempt_id": evidence.authorization.attempt_id,
+                "profile_id": "worldbank_wdi",
+                "request_dataset_id": "GC.BAL.CASH.GD.ZS",
+                "outcome": "replay_fixture_missing_after_interception",
+                "transport_intercepted": True,
+            }
+        ],
+    }
+    profile = SourceProfileRegistry.get_instance().get("worldbank_wdi")
+    assert profile is not None
+    forged_authorization = build_live_execution_authorization(
+        attempt_id=evidence.authorization.attempt_id,
+        connector_id=evidence.authorization.connector_id,
+        request_dataset_id=evidence.authorization.request_variables[0],
+        request=request,
+        schema_contract=entry.schema_projection(),
+        source_profile=profile,
+        baseline_sha256=evidence.baseline_before_sha256,
+        family_receipt=shaped_green,
+        max_response_bytes=evidence.authorization.budget.max_response_bytes,
+        max_decompressed_bytes=evidence.authorization.budget.max_decompressed_bytes,
+    )
+    forged = _rebuild_live_evidence(
+        evidence,
+        authorization=forged_authorization,
+        family_receipt=shaped_green,
+    )
+
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match="live_harness_receipt_evidence_drift",
+    ):
+        resolver.resolve_live_source_execution(entry.entry_id, forged, store)
 
 
 def test_live_passport_rejects_source_watermark_not_bound_to_raw_body(

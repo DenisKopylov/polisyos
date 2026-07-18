@@ -87,6 +87,9 @@ _EXPORTS = {
     "LiveSourceExecutionEvidence": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
+    "LiveHarnessReceiptProvisionEntry": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "LocalSourceRightsDeclaration": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -103,6 +106,9 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "ResolvedL5Trust": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "ResolvedLiveHarnessReceipt": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "MetricFieldBinding": "polisyos.data_forge.domains.catalog.knowledge.overlay",

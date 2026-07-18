@@ -11,6 +11,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from enum import StrEnum
 from pathlib import Path
@@ -165,6 +166,27 @@ class LocalRightsTrustRegistry(_StrictModel):
         return self
 
 
+class LiveHarnessReceiptProvisionEntry(_StrictModel):
+    """One canonical E7 receipt owner bound to an entry and live attempt."""
+
+    entry_id: str = Field(pattern=r"^acquisition-authority:sha256:[0-9a-f]{64}$")
+    attempt_id: str = Field(pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]+$")
+    receipt_owner_ref: str = Field(pattern=r"^repo://[^\s]+$")
+    receipt_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _owner_ref_is_repo_relative(self) -> Self:
+        relative = Path(self.receipt_owner_ref.removeprefix("repo://"))
+        if relative.is_absolute() or ".." in relative.parts or not relative.parts:
+            raise ValueError("live harness receipt owner ref must be repo-relative")
+        return self
+
+    def relative_path(self) -> Path:
+        """Return the validated repository-relative owner path."""
+
+        return Path(self.receipt_owner_ref.removeprefix("repo://"))
+
+
 class AcquisitionAuthorityProvision(_StrictModel):
     """Separately produced trust anchor for acquisition authority resolution."""
 
@@ -184,8 +206,10 @@ class AcquisitionAuthorityProvision(_StrictModel):
         default=None,
         pattern=_SHA256_PATTERN,
     )
+    live_harness_receipts: tuple[LiveHarnessReceiptProvisionEntry, ...] = ()
     authority_purpose: Literal[
-        "resolve_baseline_and_local_rights_trust_only"
+        "resolve_baseline_and_local_rights_trust_only",
+        "resolve_acquisition_owners_and_live_harness_receipts",
     ] = "resolve_baseline_and_local_rights_trust_only"
     may_not_use_for: tuple[
         Literal["acquisition_registry_self_authorization"]
@@ -193,6 +217,21 @@ class AcquisitionAuthorityProvision(_StrictModel):
 
     @model_validator(mode="after")
     def _identity_is_recomputed(self) -> Self:
+        receipt_keys = tuple(
+            (entry.entry_id, entry.attempt_id)
+            for entry in self.live_harness_receipts
+        )
+        if receipt_keys != tuple(sorted(set(receipt_keys))):
+            raise ValueError(
+                "live harness receipt provisions must be unique and sorted"
+            )
+        expected_purpose = (
+            "resolve_acquisition_owners_and_live_harness_receipts"
+            if self.live_harness_receipts
+            else "resolve_baseline_and_local_rights_trust_only"
+        )
+        if self.authority_purpose != expected_purpose:
+            raise ValueError("acquisition authority purpose must derive from owners")
         expected = "acquisition-authority-provision:" + (
             fabric_data_plane.content_sha256(self.identity_payload())
         )
@@ -203,11 +242,17 @@ class AcquisitionAuthorityProvision(_StrictModel):
     def identity_payload(self) -> dict[str, object]:
         """Return the trust projection defining this provision receipt."""
 
-        return {
+        payload = {
             key: value
             for key, value in self.model_dump(mode="json").items()
             if key != "provision_id"
         }
+        # Preserve the identity of pre-E7/local-only fixture provisions.  The
+        # empty default authorizes no live execution and therefore contributes
+        # no authority-bearing content.
+        if not self.live_harness_receipts:
+            payload.pop("live_harness_receipts")
+        return payload
 
 
 class LocalSourceRightsDeclaration(_StrictModel):
@@ -462,6 +507,214 @@ class ResolvedL5Trust(_StrictModel):
     owner_content_sha256: str = Field(pattern=_SHA256_PATTERN)
 
 
+class _HarnessDryRunOutcome(StrEnum):
+    """N13a dry-run outcomes accepted at the runtime evidence boundary."""
+
+    REPLAY_FIXTURE_MISSING = "replay_fixture_missing_after_interception"
+    FETCH_RESULT_VALIDATED = "fetch_result_validated"
+    FETCH_COMPLETED_WITHOUT_INTERCEPTION = "fetch_completed_without_interception"
+    INTERCEPTED_RESPONSE_REJECTED = "intercepted_response_rejected"
+    CONNECTOR_OWNER_MISSING = "connector_owner_missing"
+    CONNECTOR_PROTOCOL_INVALID = "connector_protocol_invalid"
+    SOURCE_PROFILE_MISSING = "source_profile_missing"
+    SOURCE_PROFILE_MISMATCH = "source_profile_mismatch"
+    PRETRANSPORT_REJECTED = "pretransport_rejected"
+    NETWORK_ESCAPE_BLOCKED = "network_escape_blocked"
+
+
+class _StrictHarnessModel(BaseModel):
+    """Exact runtime projection of the frozen N13a receipt contract."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+
+class _HarnessDryRunAttempt(_StrictHarnessModel):
+    """One actual connector carrier attempt under the E7 simulator fence."""
+
+    attempt_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    source_profile_family: str | None = None
+    request_dataset_id: str = Field(min_length=1)
+    fetch_request_key: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    connection_config_content_sha256: str | None = Field(
+        default=None,
+        pattern=_SHA256_PATTERN,
+    )
+    connector_fetch_invoked: bool
+    fetch_completed: bool
+    outcome: _HarnessDryRunOutcome
+    finding_code: str | None = None
+    failure_type: str | None = None
+    simulator_mode: Literal["replay"]
+    simulator_call_count: int = Field(ge=0)
+    transport_intercepted: bool
+    network_escape_attempt_count: int = Field(ge=0)
+    actual_network_call_count: Literal[0]
+
+    @model_validator(mode="after")
+    def _outcome_is_recomputed(self) -> Self:
+        reached_simulator = self.simulator_call_count > 0
+        if self.transport_intercepted != reached_simulator:
+            raise ValueError("transport interception must derive from simulator calls")
+        if self.outcome in {
+            _HarnessDryRunOutcome.REPLAY_FIXTURE_MISSING,
+            _HarnessDryRunOutcome.FETCH_RESULT_VALIDATED,
+            _HarnessDryRunOutcome.INTERCEPTED_RESPONSE_REJECTED,
+        }:
+            if not self.connector_fetch_invoked or not reached_simulator:
+                raise ValueError("simulator outcomes require an intercepted fetch")
+        elif reached_simulator:
+            raise ValueError("pretransport outcomes cannot claim simulator calls")
+        completed = self.outcome in {
+            _HarnessDryRunOutcome.FETCH_RESULT_VALIDATED,
+            _HarnessDryRunOutcome.FETCH_COMPLETED_WITHOUT_INTERCEPTION,
+        }
+        if self.fetch_completed != completed:
+            raise ValueError("fetch completion must derive from dry-run outcome")
+        if self.outcome is _HarnessDryRunOutcome.NETWORK_ESCAPE_BLOCKED:
+            if self.network_escape_attempt_count < 1:
+                raise ValueError("network escape outcome requires an escape attempt")
+        elif self.network_escape_attempt_count:
+            raise ValueError("escape attempts require the matching typed outcome")
+        if (self.failure_type is not None) != (not self.fetch_completed):
+            raise ValueError("failure type must derive from dry-run outcome")
+        if (self.finding_code is not None) != (
+            self.outcome is not _HarnessDryRunOutcome.FETCH_RESULT_VALIDATED
+        ):
+            raise ValueError("finding code must derive from dry-run outcome")
+        request_built = self.fetch_request_key is not None
+        config_built = self.connection_config_content_sha256 is not None
+        if request_built != config_built:
+            raise ValueError("request and connection-config evidence must co-resolve")
+        if self.connector_fetch_invoked and not request_built:
+            raise ValueError("invoked connector requires request and config evidence")
+        return self
+
+
+_REQUIRED_HARNESS_CHECKS = frozenset(
+    {
+        "capability_gated_methods_present",
+        "connect_returns_unique_sessions",
+        "core_methods_are_async",
+        "disconnect_idempotent",
+        "protocol_compliance",
+        "required_class_attributes",
+    }
+)
+
+
+class _HarnessFamilyReceipt(_StrictHarnessModel):
+    """Full N13a connector-family receipt revalidated at live authorization."""
+
+    connector_id: str = Field(min_length=1)
+    component_id: str | None = None
+    connector_class: str | None = None
+    protocol_violations: tuple[str, ...]
+    protocol_conformant: bool
+    harness_checks_passed: tuple[str, ...]
+    harness_check_failures: tuple[str, ...]
+    carrier_denominator: int = Field(ge=1)
+    carrier_attempt_count: int = Field(ge=1)
+    dry_run_attempts: tuple[_HarnessDryRunAttempt, ...]
+    outcome_counts: dict[_HarnessDryRunOutcome, int]
+    safe_dry_run_passed: bool
+    simulator_mode: Literal["replay"]
+    simulator_intercepted: bool
+    simulator_call_count: int = Field(ge=0)
+    network_escape_attempt_count: int = Field(ge=0)
+    simulator_network_calls: Literal[0]
+
+    @model_validator(mode="after")
+    def _status_is_recomputed(self) -> Self:
+        owner_resolved = self.component_id is not None and self.connector_class is not None
+        if (self.component_id is None) != (self.connector_class is None):
+            raise ValueError("component id and connector class must co-resolve")
+        expected_protocol = owner_resolved and not self.protocol_violations
+        if self.protocol_conformant != expected_protocol:
+            raise ValueError("protocol status must derive from owner validation")
+        passed = self.harness_checks_passed
+        failures = self.harness_check_failures
+        if passed != tuple(sorted(set(passed))):
+            raise ValueError("passed harness checks must be unique and sorted")
+        if failures != tuple(sorted(set(failures))):
+            raise ValueError("failed harness checks must be unique and sorted")
+        if set(passed) & set(failures):
+            raise ValueError("harness checks cannot both pass and fail")
+        if owner_resolved and set(passed) | set(failures) != _REQUIRED_HARNESS_CHECKS:
+            raise ValueError("every public harness check requires a typed result")
+        if not owner_resolved and (passed or failures):
+            raise ValueError("missing owners cannot claim harness execution")
+        attempt_ids = tuple(item.attempt_id for item in self.dry_run_attempts)
+        if attempt_ids != tuple(sorted(set(attempt_ids))):
+            raise ValueError("dry-run attempts must be unique and sorted")
+        if self.carrier_attempt_count != len(self.dry_run_attempts):
+            raise ValueError("carrier count must equal nested dry-run attempts")
+        if self.carrier_denominator != self.carrier_attempt_count:
+            raise ValueError("every selected carrier requires a dry-run attempt")
+        expected_outcomes = dict(
+            sorted(
+                Counter(item.outcome for item in self.dry_run_attempts).items(),
+                key=lambda item: item[0],
+            )
+        )
+        if self.outcome_counts != expected_outcomes:
+            raise ValueError("outcome counts must derive from dry-run attempts")
+        simulator_calls = sum(
+            item.simulator_call_count for item in self.dry_run_attempts
+        )
+        if self.simulator_call_count != simulator_calls:
+            raise ValueError("family simulator calls must sum carrier attempts")
+        escape_attempts = sum(
+            item.network_escape_attempt_count for item in self.dry_run_attempts
+        )
+        if self.network_escape_attempt_count != escape_attempts:
+            raise ValueError("family escape attempts must sum carrier attempts")
+        if self.simulator_intercepted != (simulator_calls > 0):
+            raise ValueError("family interception must derive from simulator calls")
+        safe_outcome = any(
+            item.outcome
+            in {
+                _HarnessDryRunOutcome.REPLAY_FIXTURE_MISSING,
+                _HarnessDryRunOutcome.FETCH_RESULT_VALIDATED,
+            }
+            for item in self.dry_run_attempts
+        )
+        expected_safe = (
+            expected_protocol
+            and not failures
+            and set(passed) == _REQUIRED_HARNESS_CHECKS
+            and safe_outcome
+            and self.simulator_intercepted
+            and self.network_escape_attempt_count == 0
+        )
+        if self.safe_dry_run_passed != expected_safe:
+            raise ValueError("safe dry-run status must derive from harness evidence")
+        return self
+
+
+class ResolvedLiveHarnessReceipt(_StrictModel):
+    """Canonical E7 family receipt and selected carrier owner projection."""
+
+    entry_id: str = Field(pattern=r"^acquisition-authority:sha256:[0-9a-f]{64}$")
+    attempt_id: str = Field(min_length=1)
+    receipt_owner_ref: str = Field(pattern=r"^repo://[^\s]+$")
+    receipt_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    family_receipt: dict[str, Any]
+    family_receipt_sha256: str = Field(pattern=_SHA256_PATTERN)
+    carrier_receipt_sha256: str = Field(pattern=_SHA256_PATTERN)
+    source_profile_family: str = Field(min_length=1)
+    connection_config_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    fetch_request_key: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _content_identity_is_recomputed(self) -> Self:
+        if self.family_receipt_sha256 != fabric_data_plane.content_sha256(
+            self.family_receipt
+        ):
+            raise ValueError("live harness family identity must be recomputed")
+        return self
+
+
 class ResolvedAcquisitionAuthority(_StrictModel):
     """Independent owner result consumed by passport and overlay admission."""
 
@@ -628,16 +881,33 @@ def build_acquisition_authority_provision(
 ) -> AcquisitionAuthorityProvision:
     """Build the separately persisted resolver provision without a pinned id."""
 
+    normalized = dict(values)
+    receipt_values = normalized.get("live_harness_receipts")
+    if receipt_values is not None:
+        if not isinstance(receipt_values, Sequence) or isinstance(
+            receipt_values,
+            (str, bytes, bytearray),
+        ):
+            raise ValueError("live harness receipt provisions must be a sequence")
+        normalized["live_harness_receipts"] = tuple(
+            LiveHarnessReceiptProvisionEntry.model_validate(item)
+            for item in receipt_values
+        )
+        if normalized["live_harness_receipts"]:
+            normalized.setdefault(
+                "authority_purpose",
+                "resolve_acquisition_owners_and_live_harness_receipts",
+            )
     provisional = AcquisitionAuthorityProvision.model_construct(
         provision_id="acquisition-authority-provision:sha256:" + "0" * 64,
-        **values,
+        **normalized,
     )
     return AcquisitionAuthorityProvision(
         provision_id=(
             "acquisition-authority-provision:"
             + fabric_data_plane.content_sha256(provisional.identity_payload())
         ),
-        **values,
+        **normalized,
     )
 
 
@@ -929,6 +1199,105 @@ class CanonicalAcquisitionAuthority:
         source_path = self.repo_root / str(resolved.entry.local_source_path)
         return source_path.read_bytes() == body
 
+    def resolve_live_harness_receipt(
+        self,
+        entry_id: str,
+        attempt_id: str,
+    ) -> ResolvedLiveHarnessReceipt:
+        """Reopen the provisioned full N13a receipt for one exact live carrier."""
+
+        resolved = self.resolve(entry_id)
+        if resolved.entry.source_lane != "live_fetch":
+            raise AcquisitionAuthorityError("live_source_lane_required")
+        return self._resolve_live_harness_receipt(resolved, attempt_id)
+
+    def _resolve_live_harness_receipt(
+        self,
+        resolved: ResolvedAcquisitionAuthority,
+        attempt_id: str,
+    ) -> ResolvedLiveHarnessReceipt:
+        provisions = tuple(
+            provision
+            for provision in self.provision.live_harness_receipts
+            if provision.entry_id == resolved.entry.entry_id
+            and provision.attempt_id == attempt_id
+        )
+        if len(provisions) != 1:
+            raise AcquisitionAuthorityError(
+                "live_harness_receipt_provision_unresolved",
+                f"{resolved.entry.entry_id}:{attempt_id}",
+            )
+        provision = provisions[0]
+        receipt_path = _resolve_repo_file(
+            self.repo_root,
+            provision.relative_path(),
+            code="live_harness_receipt_path",
+        )
+        if _file_sha256(receipt_path) != provision.receipt_content_sha256:
+            raise AcquisitionAuthorityError("live_harness_receipt_content_drift")
+        raw = receipt_path.read_bytes()
+        try:
+            receipt = _HarnessFamilyReceipt.model_validate_json(raw)
+            payload_value = json.loads(raw)
+            if not isinstance(payload_value, Mapping):
+                raise TypeError("family receipt must be a JSON object")
+            payload = {str(key): value for key, value in payload_value.items()}
+        except Exception as exc:
+            raise AcquisitionAuthorityError(
+                "live_harness_receipt_invalid",
+                type(exc).__name__,
+            ) from exc
+        carriers = tuple(
+            carrier
+            for carrier in receipt.dry_run_attempts
+            if carrier.attempt_id == attempt_id
+        )
+        if len(carriers) != 1:
+            raise AcquisitionAuthorityError("live_harness_receipt_carrier_mismatch")
+        carrier = carriers[0]
+        if (
+            carrier.fetch_request_key is None
+            or carrier.connection_config_content_sha256 is None
+            or carrier.source_profile_family is None
+        ):
+            raise AcquisitionAuthorityError(
+                "live_harness_receipt_carrier_binding_missing"
+            )
+        try:
+            harness = fabric_data_plane.derive_harness_authorization_evidence(
+                payload,
+                attempt_id=attempt_id,
+            )
+        except Exception as exc:
+            raise AcquisitionAuthorityError(
+                "live_harness_receipt_carrier_invalid",
+                type(exc).__name__,
+            ) from exc
+        registration = resolved.registration
+        if (
+            not harness.safe_dry_run_passed
+            or harness.connector_id != registration.connector_id
+            or harness.profile_id != registration.source_profile_id
+            or harness.request_dataset_id != registration.request_dataset_id
+        ):
+            raise AcquisitionAuthorityError(
+                "live_harness_receipt_owner_projection_drift"
+            )
+        return ResolvedLiveHarnessReceipt(
+            entry_id=resolved.entry.entry_id,
+            attempt_id=attempt_id,
+            receipt_owner_ref=provision.receipt_owner_ref,
+            receipt_content_sha256=provision.receipt_content_sha256,
+            family_receipt=payload,
+            family_receipt_sha256=fabric_data_plane.content_sha256(payload),
+            carrier_receipt_sha256=harness.carrier_receipt_sha256,
+            source_profile_family=carrier.source_profile_family,
+            connection_config_content_sha256=(
+                carrier.connection_config_content_sha256
+            ),
+            fetch_request_key=carrier.fetch_request_key,
+        )
+
     def resolve_live_source_execution(
         self,
         entry_id: str,
@@ -1035,10 +1404,26 @@ class CanonicalAcquisitionAuthority:
         ):
             raise AcquisitionAuthorityError("live_baseline_identity_drift")
         try:
+            canonical_receipt = self._resolve_live_harness_receipt(
+                resolved,
+                proof.authorization.attempt_id,
+            )
+            if (
+                proof.family_receipt != canonical_receipt.family_receipt
+                or proof.family_receipt_sha256
+                != canonical_receipt.family_receipt_sha256
+                or proof.authorization.harness.family_receipt_sha256
+                != canonical_receipt.family_receipt_sha256
+            ):
+                raise AcquisitionAuthorityError(
+                    "live_harness_receipt_evidence_drift"
+                )
             fabric_data_plane.require_authorized_execution(
                 proof.authorization,
-                family_receipt=proof.family_receipt,
+                family_receipt=canonical_receipt.family_receipt,
             )
+        except AcquisitionAuthorityError:
+            raise
         except Exception as exc:
             raise AcquisitionAuthorityError(
                 "live_harness_authorization_invalid",
@@ -1781,6 +2166,7 @@ __all__ = [
     "AuthoritySchemaColumn",
     "CanonicalAcquisitionAuthority",
     "LicenseDisposition",
+    "LiveHarnessReceiptProvisionEntry",
     "LiveSourceExecutionEvidence",
     "LocalRightsTrustRegistry",
     "LocalRightsTrustedAuthority",
@@ -1788,6 +2174,7 @@ __all__ = [
     "LocalSourceRightsReceipt",
     "ResolvedAcquisitionAuthority",
     "ResolvedL5Trust",
+    "ResolvedLiveHarnessReceipt",
     "build_acquisition_authority_provision",
     "build_authority_entry",
     "build_authority_registry",

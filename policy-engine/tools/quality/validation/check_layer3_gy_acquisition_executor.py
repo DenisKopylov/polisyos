@@ -9,6 +9,12 @@ import os
 from pathlib import Path
 from typing import Any
 
+from polisyos.data_forge import read_api as data_forge_read_api
+from polisyos.fabric.data_plane import canonical_json_bytes
+from polisyos.runtime.quality.acquisition_executor import (
+    LiveCatalogExecutionConstraints,
+    execute_live_catalog_acquisition,
+)
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_TARGET_AUTHORITY_PROVISION,
     DEFAULT_TARGET_AUTHORITY_REGISTRY,
@@ -36,6 +42,13 @@ DEFAULT_L5_OWNER_REF = (
     "ukraine_server_support_20260410/runtime_calibration_internals/"
     "calibration/d2/measurement_registry.json"
 )
+DEFAULT_LIVE_EXECUTION_EVIDENCE = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_live_execution_evidence.json"
+)
+DEFAULT_RAW_JOURNAL = Path(
+    "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
+)
+DEFAULT_CAS_ROOT = Path("architecture/policy_design_case/layer3_gy_acquisition_cas")
 
 
 def main() -> int:
@@ -45,10 +58,14 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--check-target-owners", action="store_true")
     mode.add_argument("--write-target-owners", action="store_true")
+    mode.add_argument("--execute-live", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
     parser.add_argument("--substrate-path", type=Path, default=DEFAULT_SUBSTRATE_PATH)
+    parser.add_argument("--country-code", default="UKR")
+    parser.add_argument("--start-year", type=int)
+    parser.add_argument("--end-year", type=int)
     args = parser.parse_args()
 
     owners = _recompute_target_owners(
@@ -66,6 +83,63 @@ def main() -> int:
     if owners.payloads() != second.payloads():
         raise RuntimeError("target_owner_derivation_not_byte_stable")
 
+    if args.execute_live:
+        _check_target_owner_payloads(owners)
+        if args.start_year is None or args.end_year is None:
+            parser.error("--execute-live requires --start-year and --end-year")
+        journal_path = POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL
+        cas_root = POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT
+        evidence_path = POLICY_ENGINE_ROOT / DEFAULT_LIVE_EXECUTION_EVIDENCE
+        require_new_live_execution_outputs(
+            journal_path=journal_path,
+            cas_root=cas_root,
+            evidence_path=evidence_path,
+        )
+        authority = data_forge_read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
+            repo_root=POLICY_ENGINE_ROOT,
+            baseline_path=args.catalog_path,
+            l5_measurement_registry_path=args.l5_path,
+        )
+        evidence = execute_live_catalog_acquisition(
+            authority=authority,
+            entry_id=owners.entry.entry_id,
+            attempt_id=derive_live_attempt_id(owners.selection),
+            constraints=LiveCatalogExecutionConstraints(
+                country_code=args.country_code,
+                start_year=args.start_year,
+                end_year=args.end_year,
+                page_size=10,
+                max_response_bytes=65_536,
+                max_decompressed_bytes=65_536,
+                timeout_cap_seconds=15.0,
+                heartbeat_cap_seconds=3.0,
+            ),
+            journal_path=journal_path,
+            cas_root=cas_root,
+        )
+        _write_replace_bytes(
+            evidence_path,
+            canonical_json_bytes(evidence.model_dump(mode="json")),
+        )
+        print(
+            json.dumps(
+                {
+                    "status": "live_evidence_written",
+                    "attempt_id": evidence.authorization.attempt_id,
+                    "entry_id": owners.entry.entry_id,
+                    "call_count": evidence.call_count,
+                    "variable_count": evidence.variable_count,
+                    "page_count": evidence.page_count,
+                    "raw_body_sha256": evidence.raw_body_sha256,
+                    "baseline_before_sha256": evidence.baseline_before_sha256,
+                    "baseline_after_sha256": evidence.baseline_after_sha256,
+                    "journal_file_sha256": bytes_sha256(journal_path.read_bytes()),
+                    "evidence_file_sha256": bytes_sha256(evidence_path.read_bytes()),
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
     if args.write_target_owners:
         for relative in (
             DEFAULT_TARGET_HARNESS_RECEIPT,
@@ -75,12 +149,7 @@ def main() -> int:
             _write_replace_bytes(POLICY_ENGINE_ROOT / relative, owners.payloads()[relative])
         status = "written"
     else:
-        for relative, expected in owners.payloads().items():
-            path = POLICY_ENGINE_ROOT / relative
-            if not path.is_file():
-                raise RuntimeError(f"target_owner_artifact_missing:{relative}")
-            if path.read_bytes() != expected:
-                raise RuntimeError(f"target_owner_artifact_drift:{relative}")
+        _check_target_owner_payloads(owners)
         status = "ok"
 
     report: dict[str, Any] = {
@@ -142,6 +211,30 @@ def _write_replace_bytes(path: Path, payload: bytes) -> None:
         handle.flush()
         os.fsync(handle.fileno())
     os.replace(temporary, path)
+
+
+def _check_target_owner_payloads(owners: Any) -> None:
+    for relative, expected in owners.payloads().items():
+        path = POLICY_ENGINE_ROOT / relative
+        if not path.is_file():
+            raise RuntimeError(f"target_owner_artifact_missing:{relative}")
+        if path.read_bytes() != expected:
+            raise RuntimeError(f"target_owner_artifact_drift:{relative}")
+
+
+def require_new_live_execution_outputs(
+    *,
+    journal_path: Path,
+    cas_root: Path,
+    evidence_path: Path,
+) -> None:
+    """Fence a live attempt from overwriting or appending to prior evidence."""
+
+    existing = tuple(
+        path.as_posix() for path in (journal_path, cas_root, evidence_path) if path.exists()
+    )
+    if existing:
+        raise RuntimeError("live_execution_output_already_exists:" + ",".join(existing))
 
 
 if __name__ == "__main__":

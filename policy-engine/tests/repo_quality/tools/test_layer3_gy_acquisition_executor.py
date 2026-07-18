@@ -6,6 +6,7 @@ from pathlib import Path
 import duckdb
 import pytest
 
+from tools.quality.validation import check_layer3_gy_acquisition_executor as checker
 from tools.quality.validation import layer3_gy_acquisition_executor as executor
 
 
@@ -354,3 +355,25 @@ def test_target_authority_owners_are_byte_stable_and_bind_exact_harness(
     assert provision.entry_id == first.entry.entry_id
     assert provision.attempt_id == executor.derive_live_attempt_id(selection)
     assert provision.receipt_content_sha256 == executor.bytes_sha256(first.family_receipt_bytes)
+
+
+def test_live_execution_output_fence_requires_a_new_attempt_carrier(
+    tmp_path: Path,
+) -> None:
+    journal = tmp_path / "journal.jsonl"
+    cas_root = tmp_path / "cas"
+    evidence = tmp_path / "evidence.json"
+
+    checker.require_new_live_execution_outputs(
+        journal_path=journal,
+        cas_root=cas_root,
+        evidence_path=evidence,
+    )
+    journal.write_text("existing", encoding="utf-8")
+
+    with pytest.raises(RuntimeError, match="live_execution_output_already_exists"):
+        checker.require_new_live_execution_outputs(
+            journal_path=journal,
+            cas_root=cas_root,
+            evidence_path=evidence,
+        )

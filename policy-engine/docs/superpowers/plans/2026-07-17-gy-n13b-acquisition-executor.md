@@ -33,6 +33,11 @@ terminals. Per the binding stop law, no overlay epoch, world-growth claim, or de
 case may be manufactured. Execution ledger:
 `docs/superpowers/journals/2026-07-18-gy-n13b-acquisition-executor.md`.
 
+**Authorized continuation:** the historical stop remains valid. The evidence-driven resumption is
+sequenced in
+`docs/superpowers/plans/2026-07-18-gy-n13b-resumption-contract-closure.md`; it begins from the paid
+CAS bytes and does not reopen completed green workstreams.
+
 ## Stop-law receipt
 
 - Local-lift: `0/15` census residuals admissible; terminal

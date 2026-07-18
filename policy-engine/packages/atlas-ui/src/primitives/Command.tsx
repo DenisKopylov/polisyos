@@ -2,12 +2,12 @@ import {
   forwardRef,
   type ComponentPropsWithoutRef,
   type HTMLAttributes,
+  type ReactNode,
 } from "react";
 import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
 
-import { cn } from "@/shared/lib/utils";
-import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "../lib/cn";
 import { Dialog, DialogContent, DialogTitle } from "./Dialog";
 
 const Command = forwardRef<
@@ -25,19 +25,25 @@ const Command = forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-type CommandDialogProps = ComponentPropsWithoutRef<typeof Dialog>;
+type CommandDialogProps = ComponentPropsWithoutRef<typeof Dialog> & {
+  closeLabel?: ReactNode;
+  title?: ReactNode;
+};
 
-function CommandDialog({ children, ...props }: CommandDialogProps) {
-  const { t } = useI18n();
+function CommandDialog({
+  children,
+  closeLabel = "Close",
+  title = "Command palette",
+  ...props
+}: CommandDialogProps) {
   return (
     <Dialog {...props}>
       <DialogContent
         aria-describedby={undefined}
         className="overflow-hidden p-0"
+        closeLabel={closeLabel}
       >
-        <DialogTitle className="sr-only">
-          {t("shared.ui.command.paletteTitle")}
-        </DialogTitle>
+        <DialogTitle className="sr-only">{title}</DialogTitle>
         <Command className="[&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
           {children}
         </Command>
@@ -151,11 +157,11 @@ function CommandShortcut({
 export {
   Command,
   CommandDialog,
-  CommandInput,
-  CommandList,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
-  CommandShortcut,
+  CommandList,
   CommandSeparator,
+  CommandShortcut,
 };

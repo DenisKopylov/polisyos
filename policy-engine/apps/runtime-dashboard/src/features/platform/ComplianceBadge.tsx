@@ -2,11 +2,7 @@ import { Shield } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/shared/ui/primitives";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@polisyos/atlas-ui";
 
 type ComplianceBadgeProps = {
   className?: string;

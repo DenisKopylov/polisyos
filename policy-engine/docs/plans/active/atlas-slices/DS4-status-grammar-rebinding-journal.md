@@ -327,3 +327,69 @@ boundary required by the committed cadence.
   `ui-primitives-root` retained as `rebind_pending`/`pending`; the architect
   must adjudicate the dormant five as retirement/use-as-is or name their real
   consumers before the aggregate row can be strangled.
+
+## 2026-07-18 — DS4-C03a living overlay primitive migration
+
+### Red-first receipt and pattern pass
+
+- Before any positive production edit, the exact overlay `oneOwner` assertion
+  failed with the intended eight findings: the four dashboard implementation
+  owners and four legacy primitive-barrel exports, while all four package
+  owners were absent.
+- Before any positive production edit, the exact dashboard
+  `primitiveMigration` assertion failed because the package runtime surface
+  exposed none of the Command/Dialog/Popover/Tooltip families.
+- Relevant risks were P06/P27/P28 (canonical ownership and complete legacy
+  strangle), P29/P33 (behavioral owner and portal proof), and P10 (semantic
+  interaction coverage). The correct pattern is one package owner, direct
+  consumers, no compatibility export, real focus/dismissal/portal tests, and
+  package-local behavior plus axe coverage.
+
+### Implementation
+
+- Moved the four existing implementations into `@polisyos/atlas-ui`, retained
+  their Radix/cmdk props, refs, class semantics, portal behavior, focus
+  management, and dismissal behavior, and kept the Command-to-Dialog edge
+  wholly inside the package.
+- Added optional package-boundary `title` and `closeLabel` presentation props;
+  the living CommandPalette and provenance dialog supply their existing
+  localized catalog strings, so the package has no dashboard/i18n dependency.
+- Migrated every living Command/Dialog/Popover/Tooltip consumer and the four
+  dashboard a11y tests to direct package imports. Deleted the four dashboard
+  owners and their legacy barrel exports; no wildcard, relative package
+  re-export, or compatibility shim remains.
+- Added package behavior, public-surface, one-owner, and WCAG AA axe coverage
+  for all four families. Added only the already-resolved Radix Dialog,
+  Popover, Tooltip, and cmdk dependencies to the atlas-ui importer.
+- Left `DropdownMenu`, `ScrollArea`, `Separator`, `Sheet`, and `Tabs` untouched.
+  Aggregate `ui-primitives-root` remains `rebind_pending`; C03b owns its mixed
+  disposition and no DS19 denominator or register state changed in C03a.
+
+### Verification receipt
+
+| Gate                                      | Result                                                                                                                         |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| frozen install                            | PASS; lockfile up to date; atlas-ui importer-only additions with zero package/snapshot resolution movement                     |
+| atlas-ui lint/typecheck/test/architecture | PASS; 24 source files inspected; 8 test files / 22 tests                                                                       |
+| exact C03a owner and migration tests      | PASS; real Dialog focus/Escape restoration, Popover outside dismissal, Tooltip Escape dismissal, and body portals              |
+| affected dashboard behavior and a11y      | PASS; 6 files / 45 behavior tests and 7 files / 7 WCAG AA axe tests                                                            |
+| dashboard typecheck and production build  | PASS; 3,873 modules, 101 PWA precache entries, postbuild security, and package Tailwind-source proof                           |
+| dashboard full lint JSON                  | exact inherited 75 errors in 22 files, zero warnings, only `policyos/quantity-must-be-wrapped`; baseline comparator PASS       |
+| dashboard architecture                    | exact inherited 36 identities; no C03a class added                                                                             |
+| disposition register                      | PASS with source-byte verification and corruption probes; 261 roots, 200 `rebind_pending`, 23 seeded negatives, and 7 censuses |
+
+The first full-lint run exposed two `import/no-duplicates` reports in
+`GovernancePassGrid` after Tooltip moved beside its existing package Card
+import. Consolidating that single import returned the exact inherited lint
+identity set; no new lint, architecture, Vitest, or register debt was
+manifested.
+
+### Fence receipt
+
+- Retired-owner/import and anti-shim scans are empty for all four families;
+  generic one-owner, public-surface, package architecture, and package
+  Tailwind-source gates are green.
+- The C03a diff is confined to dashboard sources, `packages/atlas-ui`, the
+  bounded atlas-ui lockfile importer hunk, and this DS4 journal. Backend,
+  schemas, generated client, v15 archive, frozen Russian locale, master plan,
+  CI, registers, debt manifests, and other worktrees remain untouched.

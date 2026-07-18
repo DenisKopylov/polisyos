@@ -46,6 +46,34 @@ const FORM_FAMILIES = {
   ToggleButton: ["ToggleButton"],
 } as const;
 
+const OVERLAY_FAMILIES = {
+  Command: [
+    "Command",
+    "CommandDialog",
+    "CommandEmpty",
+    "CommandGroup",
+    "CommandInput",
+    "CommandItem",
+    "CommandList",
+    "CommandSeparator",
+    "CommandShortcut",
+  ],
+  Dialog: [
+    "Dialog",
+    "DialogClose",
+    "DialogContent",
+    "DialogDescription",
+    "DialogFooter",
+    "DialogHeader",
+    "DialogOverlay",
+    "DialogPortal",
+    "DialogTitle",
+    "DialogTrigger",
+  ],
+  Popover: ["Popover", "PopoverAnchor", "PopoverContent", "PopoverTrigger"],
+  Tooltip: ["Tooltip", "TooltipContent", "TooltipProvider", "TooltipTrigger"],
+} as const;
+
 type PrimitiveFamilies = Record<string, readonly string[]>;
 
 function walkTypeScriptFiles(directory: string): string[] {
@@ -293,6 +321,47 @@ describe("form primitive ownership", () => {
           moduleSpecifier &&
           ts.isStringLiteral(moduleSpecifier) &&
           Object.keys(FORM_FAMILIES).some(
+            (family) => moduleSpecifier.text === `../${family}`,
+          )
+        ) {
+          violations.push(
+            `legacy export: ${statement.getText(legacyUnit.source)}`,
+          );
+        }
+      }
+    }
+
+    expect(violations).toEqual([]);
+  });
+});
+
+describe("overlay primitive ownership", () => {
+  it("rejects a duplicate overlay primitive owner while the old path still exports it", () => {
+    const roots = [
+      path.join(packageRoot, "src/primitives"),
+      path.join(dashboardRoot, "src/shared/ui"),
+      path.join(dashboardRoot, "src/shared/components"),
+    ];
+    const files = roots.flatMap(walkTypeScriptFiles);
+    const violations = ownershipViolations(
+      OVERLAY_FAMILIES,
+      files.map((file) => sourceUnit(file)),
+    );
+
+    const legacyBarrel = path.join(
+      dashboardRoot,
+      "src/shared/ui/primitives/index.ts",
+    );
+    if (fs.existsSync(legacyBarrel)) {
+      const legacyUnit = sourceUnit(legacyBarrel);
+      for (const statement of legacyUnit.source.statements) {
+        const moduleSpecifier = ts.isExportDeclaration(statement)
+          ? statement.moduleSpecifier
+          : undefined;
+        if (
+          moduleSpecifier &&
+          ts.isStringLiteral(moduleSpecifier) &&
+          Object.keys(OVERLAY_FAMILIES).some(
             (family) => moduleSpecifier.text === `../${family}`,
           )
         ) {

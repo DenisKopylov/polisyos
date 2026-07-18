@@ -6,7 +6,7 @@ import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
 import type { MessageValues } from "@/shared/i18n/messages/icu-messages";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/ui/Popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@polisyos/atlas-ui";
 
 import { formatQuantityValue } from "./quantity-format";
 import { ProvenanceDeepDiveDialog } from "./ProvenanceDeepDiveDialog";

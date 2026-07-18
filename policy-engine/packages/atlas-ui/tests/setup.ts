@@ -12,6 +12,13 @@ if (typeof globalThis.ResizeObserver === "undefined") {
   globalThis.ResizeObserver = TestResizeObserver;
 }
 
+if (
+  typeof HTMLElement !== "undefined" &&
+  !HTMLElement.prototype.scrollIntoView
+) {
+  HTMLElement.prototype.scrollIntoView = () => undefined;
+}
+
 if (typeof HTMLCanvasElement !== "undefined") {
   Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
     value: vi.fn(() => null),

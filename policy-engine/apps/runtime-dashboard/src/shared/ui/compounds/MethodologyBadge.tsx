@@ -4,7 +4,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/shared/ui/Tooltip";
+} from "@polisyos/atlas-ui";
 
 export type MethodologyKey = string;
 

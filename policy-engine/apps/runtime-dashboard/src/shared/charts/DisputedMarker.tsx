@@ -5,7 +5,7 @@ import {
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/shared/ui/Tooltip";
+} from "@polisyos/atlas-ui";
 
 import type { DisputeSummary } from "./types";
 import { uncertaintyTokens } from "./uncertainty-tokens";

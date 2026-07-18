@@ -11,7 +11,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/shared/ui/Dialog";
+} from "@polisyos/atlas-ui";
 
 import type {
   LineageGraphNode,
@@ -40,7 +40,10 @@ export function ProvenanceDeepDiveDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[86vh] max-w-4xl overflow-y-auto">
+      <DialogContent
+        className="max-h-[86vh] max-w-4xl overflow-y-auto"
+        closeLabel={t("common.close")}
+      >
         <DialogHeader>
           <DialogTitle>{t("shared.ui.quantity.deepDive.title")}</DialogTitle>
           <DialogDescription>

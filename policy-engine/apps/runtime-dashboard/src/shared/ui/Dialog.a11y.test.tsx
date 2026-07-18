@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./Dialog";
+} from "@polisyos/atlas-ui";
 
 describe("Dialog accessibility", () => {
   it("has no detectable accessibility violations when open", async () => {

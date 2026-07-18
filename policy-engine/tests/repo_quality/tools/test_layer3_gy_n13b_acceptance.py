@@ -6,6 +6,8 @@ from pathlib import Path
 import duckdb
 import pytest
 
+from polisyos.core import artifacts
+from polisyos.fabric.data_plane import content_sha256
 from tools.quality.validation import layer3_gy_n13b_acceptance as acceptance
 
 
@@ -276,6 +278,58 @@ def _fixture_census(path: Path) -> Path:
     return path
 
 
+def _add_local_cpi(catalog_path: Path) -> None:
+    con = duckdb.connect(str(catalog_path))
+    con.execute(
+        "INSERT INTO ds_variable_alignments VALUES (?, ?, ?, ?, ?, ?, ?)",
+        ("cpi-dataset", "FP.CPI.TOTL", "inflation", "exact", 0.98, False, 0.0),
+    )
+    con.executemany(
+        "INSERT INTO ds_observations VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        (
+            (
+                f"cpi-{year}",
+                "cpi-dataset",
+                "FP.CPI.TOTL",
+                "inflation",
+                "UA",
+                year,
+                value,
+                "2026-03-28",
+                "FP.CPI.TOTL",
+                "worldbank_v2",
+            )
+            for year, value in ((2018, 90.0), (2019, 95.0), (2020, 100.0))
+        ),
+    )
+    con.close()
+
+
+def _fixture_live_terminal(
+    selection: acceptance.AcceptanceInputSelection,
+) -> acceptance.AcceptanceLiveExecutionReceipt:
+    frozen_path = Path(__file__).resolve().parents[3] / acceptance.DEFAULT_ACCEPTANCE_LIVE_EXECUTION
+    terminal = acceptance.AcceptanceLiveExecutionReceipt.model_validate_json(
+        frozen_path.read_bytes()
+    ).terminal
+    values = {
+        "schema_version": "policyos.layer3.gy.n13b.acceptance_live_execution.v1",
+        "input_selection_sha256": selection.selection_sha256,
+        "authority_owner_sha256": "sha256:" + "1" * 64,
+        "attempt_id": terminal.attempt_id,
+        "disposition": "live_execution_terminal",
+        "call_count": 1,
+        "terminal": terminal.model_dump(mode="json"),
+        "live_source_execution": None,
+        "baseline_before_sha256": selection.baseline_sha256,
+        "baseline_after_sha256": selection.baseline_sha256,
+    }
+    return acceptance.AcceptanceLiveExecutionReceipt(
+        **values,
+        receipt_sha256=content_sha256(values),
+    )
+
+
 def test_acceptance_selector_covers_both_denominators_and_derives_one_pair(
     tmp_path: Path,
 ) -> None:
@@ -329,3 +383,72 @@ def test_acceptance_selection_rejects_pinned_terminal_and_carrier_labels(
     carrier["eligible"] = False
     with pytest.raises(ValueError, match="rejection codes"):
         acceptance.DeflatorCarrierDisposition.model_validate(carrier)
+
+
+def test_local_fallback_covers_every_index_series_and_selects_exact_cpi(
+    tmp_path: Path,
+) -> None:
+    catalog = _fixture_catalog(tmp_path / "catalog.duckdb")
+    _add_local_cpi(catalog)
+    selection = acceptance.derive_acceptance_input_selection(
+        catalog_path=catalog,
+        census_path=_fixture_census(tmp_path / "census.json"),
+        r1_paid_success_elapsed_seconds=6.945391583998571,
+    )
+    fallback = acceptance.derive_acceptance_fallback_selection(
+        input_selection=selection,
+        live_execution=_fixture_live_terminal(selection),
+        catalog_path=catalog,
+    )
+
+    assert fallback.all_local_series_group_count == 3
+    assert fallback.local_index_denominator_count == 1
+    assert fallback.eligible_local_deflator_count == 1
+    assert fallback.selected_deflator is not None
+    assert fallback.selected_deflator.raw_variable == "FP.CPI.TOTL"
+    assert fallback.exact_overlap_years == (2018, 2019, 2020)
+    assert fallback.recipe_base_year == 2019
+    assert fallback.recipe_base_year_selection == "median_exact_overlap_year"
+
+    pinned = fallback.model_dump(mode="python")
+    pinned["recipe_base_year"] = 2018
+    with pytest.raises(ValueError, match="median exact overlap"):
+        acceptance.AcceptanceFallbackSelection.model_validate(pinned)
+
+
+def test_acceptance_case_materializes_once_then_runs_two_cached_consumers(
+    tmp_path: Path,
+) -> None:
+    catalog = _fixture_catalog(tmp_path / "catalog.duckdb")
+    _add_local_cpi(catalog)
+    selection = acceptance.derive_acceptance_input_selection(
+        catalog_path=catalog,
+        census_path=_fixture_census(tmp_path / "census.json"),
+        r1_paid_success_elapsed_seconds=6.945391583998571,
+    )
+    fallback = acceptance.derive_acceptance_fallback_selection(
+        input_selection=selection,
+        live_execution=_fixture_live_terminal(selection),
+        catalog_path=catalog,
+    )
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+
+    receipt = acceptance.materialize_acceptance_case(
+        input_selection=selection,
+        fallback_selection=fallback,
+        store=store,
+    )
+
+    assert receipt.first_materialization_cache_hit is False
+    assert receipt.second_materialization_cache_hit is True
+    assert receipt.certificate.observation_class == "derived"
+    assert receipt.certificate.effective_authority <= min(
+        item.effective_score for item in receipt.certificate.input_authorities
+    )
+    assert {row.consumer_method_id for row in receipt.consumers} == {
+        "forecasting.univariate.exponential_smoothing@1.0.0",
+        "forecasting.univariate.theta@1.0.0",
+    }
+    assert receipt.basis_mismatch_refusal_code == "basis_mismatch"
+    assert receipt.model_output_observation_rejection_codes == ("model_output_not_observation",)
+    acceptance.verify_persisted_acceptance_case(store, receipt)

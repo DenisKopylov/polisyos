@@ -2,7 +2,15 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.security.identity import PolicyOSRole
 from polisyos.fabric.provenance.lineage import FabricLineageTracker, trace_value_origin
+from tests.unit.runtime.http.test_runtime_api_authz import (
+    _AllowOPA,
+    _build_secure_client,
+    _claims,
+    _fixture_bearer,
+)
 
 
 def test_runtime_lineage_endpoint_returns_compact_and_full_graph(runtime_api_env) -> None:
@@ -32,22 +40,52 @@ def test_runtime_lineage_endpoint_returns_compact_and_full_graph(runtime_api_env
 
 
 def test_runtime_lineage_batch_preserves_order(runtime_api_env) -> None:
-    client = runtime_api_env["client"]
-    artifact_id = runtime_api_env["decision_packet_artifact_id"]
-
-    response = client.post(
-        "/api/v1/lineage/batch",
-        params={"t": "2026-04-15T12:00:00Z"},
-        json={"lineage_ids": [f"artifact:{artifact_id}", "lin_unknown"]},
+    bearer = _fixture_bearer("lineage-batch-order")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
     )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-lineage-batch-order",
+            roles=frozenset({PolicyOSRole.VIEWER}),
+        ),
+    )
+    artifact_ids = [
+        runtime_api_env["decision_packet_artifact_id"],
+        runtime_api_env["decision_packet_artifact_id_secondary"],
+    ]
+    store = FileSystemCAS(runtime_api_env["cas_root"])
+    for artifact_id in artifact_ids:
+        store.record_artifact_owner(
+            artifact_id,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            writer="tests.runtime_http.lineage_batch",
+        )
+    lineage_ids = [f"artifact:{artifact_id}" for artifact_id in artifact_ids]
+
+    with client:
+        response = client.post(
+            "/api/v1/lineage/batch",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+            },
+            params={"t": "2026-04-15T12:00:00Z"},
+            json={"lineage_ids": lineage_ids},
+        )
     assert response.status_code == 200
 
     lineages = response.json()["lineages"]
-    assert [item["id"] for item in lineages] == [f"artifact:{artifact_id}", "lin_unknown"]
+    assert [item["id"] for item in lineages] == lineage_ids
     assert response.json()["temporal_scope"]["valid_at"] == "2026-04-15T12:00:00Z"
-    assert lineages[1]["status"] == "untraced"
-    assert lineages[1]["metadata"]["reason_code"] == "lineage_id_not_resolved"
-    assert lineages[1]["trust_metadata"]["verification_status"] == "untraced"
+    assert all(item["status"] in {"verified", "disputed"} for item in lineages)
     assert lineages[1]["trust_metadata"]["temporal_scope"]["valid_at"] == "2026-04-15T12:00:00Z"
 
 

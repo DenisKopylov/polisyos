@@ -30,6 +30,7 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.contracts.runtime import ScenarioCreateRequest, ScenarioManifest
+from polisyos.core.run.context import RunContext
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.authz import AuthzDecision, AuthzResult
 from polisyos.core.security.cell import CellSpec, CellTier, TenantSpec
@@ -287,6 +288,77 @@ _EXPECTED_MUTATING_PERMISSIONS = {
     ): RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE,
     ("POST", "/api/v1/runs/{run_id}/scenarios"): RuntimePermission.SCENARIOS_CREATE,
 }
+_MUTATING_OPERATION_CASE_IDS = {
+    ("POST", "/api/v1/analysis/attractors"): "analyze-attractors",
+    ("POST", "/api/v1/analysis/basin-map"): "persist-basin-map",
+    ("POST", "/api/v1/analysis/continuation"): "persist-continuation-branch",
+    ("POST", "/api/v1/analysis/lyapunov"): "analyze-lyapunov",
+    ("POST", "/api/v1/artifacts/batch"): "get-artifact-batch",
+    ("POST", "/api/v1/artifacts/{packet_id}/render"): (
+        "render-bureaucratic-artifact"
+    ),
+    ("POST", "/api/v1/control/analytics/sae/causal-frontier"): (
+        "estimate-causal-frontier-sae"
+    ),
+    ("POST", "/api/v1/control/data/discover"): "discover-data-sources",
+    ("POST", "/api/v1/control/data/ingest"): "ingest-data",
+    ("POST", "/api/v1/control/data/preview"): "preview-fetch-plan",
+    ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"): (
+        "approve-data-promotion"
+    ),
+    ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"): (
+        "reject-data-promotion"
+    ),
+    ("POST", "/api/v1/control/data/resolve"): "resolve-data-needs",
+    ("POST", "/api/v1/control/decision-validity/events"): (
+        "publish-decision-validity-event"
+    ),
+    ("POST", "/api/v1/control/lex/search"): "search-lex-graph",
+    ("POST", "/api/v1/control/lex/trigger"): "trigger-lex-pipeline",
+    ("POST", "/api/v1/control/runs"): "launch-run",
+    ("POST", "/api/v1/control/runs/nl"): "launch-nl-run",
+    ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"): (
+        "evaluate-run-feedback"
+    ),
+    ("POST", "/api/v1/control/runs/{run_id}/reissue"): "reissue-run",
+    ("POST", "/api/v1/fabric/impact"): "analyze-fabric-impact",
+    ("POST", "/api/v1/fabric/quality/batch"): "get-fabric-quality-batch",
+    ("POST", "/api/v1/fabric/trust/batch"): "get-fabric-trust-batch",
+    ("POST", "/api/v1/lineage/batch"): "get-lineage-batch",
+    ("POST", "/api/v1/mobility/bounds"): "compute-mobility-bounds",
+    ("POST", "/api/v1/mobility/estimate"): "estimate-mobility",
+    ("POST", "/api/v1/runs/batch"): "get-runs-batch",
+    ("POST", "/api/v1/runs/{run_id}/production-approval"): (
+        "create-run-production-approval"
+    ),
+    ("POST", "/api/v1/runs/{run_id}/scenarios"): "create-run-scenario",
+}
+_HIGH_STAKES_MUTATING_OPERATIONS = (
+    ("POST", "/api/v1/control/data/ingest"),
+    ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"),
+    ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"),
+    ("POST", "/api/v1/control/decision-validity/events"),
+    ("POST", "/api/v1/control/runs/{run_id}/reissue"),
+    ("POST", "/api/v1/runs/{run_id}/production-approval"),
+)
+
+
+def _mutation_operation_params() -> tuple[object, ...]:
+    assert set(_MUTATING_OPERATION_CASE_IDS) == set(_EXPECTED_MUTATING_OPERATIONS)
+    return tuple(
+        pytest.param(operation, id=_MUTATING_OPERATION_CASE_IDS[operation])
+        for operation in _EXPECTED_MUTATING_OPERATIONS
+    )
+
+
+def _high_stakes_mutation_params() -> tuple[object, ...]:
+    assert set(_HIGH_STAKES_MUTATING_OPERATIONS).issubset(
+        _MUTATING_OPERATION_CASE_IDS
+    )
+    return tuple(
+        pytest.param(operation, id=_MUTATING_OPERATION_CASE_IDS[operation])
+        for operation in _HIGH_STAKES_MUTATING_OPERATIONS
+    )
 
 
 class _ExecutableActionPermissionDependency(Protocol):
@@ -386,6 +458,369 @@ def _scenario_create_body(*, scenario_id: str, quantity: dict[str, Any]) -> dict
     }
 
 
+def _align_decision_packet_owner(runtime_api_env, *, cell_id: str) -> None:
+    store = FileSystemCAS(runtime_api_env["cas_root"])
+    store.record_artifact_owner(
+        runtime_api_env["decision_packet_artifact_id"],
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=cell_id,
+        writer="tests.ds20.authorized_matrix",
+    )
+
+
+def _create_production_scorecard(runtime_api_env, *, cell_id: str) -> str:
+    store = FileSystemCAS(runtime_api_env["cas_root"])
+    scorecard_ref = store.put_json(
+        {
+            "schema_version": "policyos.quality_scorecard.v1",
+            "run_id": runtime_api_env["core_run_id"],
+            "quality_status": "pass",
+            "performance_status": "pass",
+            "conflict_status": "pass",
+            "approval_state": "approval_ready",
+            "quality_gates": [],
+            "evidence_refs": {},
+        },
+        ArtifactWriteOptions(
+            kind="runtime.quality_scorecard",
+            media_type="application/json",
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    store.record_artifact_owner(
+        scorecard_ref.artifact_id,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=cell_id,
+        writer="tests.ds20.authorized_matrix",
+    )
+    return str(scorecard_ref.artifact_id)
+
+
+def _create_authorized_matrix_run(
+    runtime_api_env,
+    *,
+    cell_id: str,
+    run_id: str,
+) -> str:
+    store = FileSystemCAS(runtime_api_env["cas_root"])
+    registry_ref = store.put_json(
+        {"registry": {}, "purpose": "ds20-authorized-operation-matrix"},
+        ArtifactWriteOptions(
+            kind="core.registry_bundle",
+            media_type="application/json",
+        ),
+    )
+    run = RunContext.start(
+        store=store,
+        registry_bundle=registry_ref,
+        run_id=run_id,
+        run_dir=runtime_api_env["cas_root"] / "runs" / run_id,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=cell_id,
+    )
+    run.finalize()
+    return run_id
+
+
+def _causal_frontier_body() -> dict[str, Any]:
+    return {
+        "areas": [
+            {
+                "area_id": f"area_{index}",
+                "direct_estimate": estimate,
+                "direct_variance": 0.15,
+                "policy_indicator": 1.0 if index >= 4 else 0.0,
+                "covariates": {"trend": float(index) / 7.0},
+            }
+            for index, estimate in enumerate(
+                [0.8, 1.0, 1.2, 1.4, 2.8, 3.0, 3.2, 3.4]
+            )
+        ],
+        "edges": [
+            {
+                "src_area_id": f"area_{index}",
+                "dst_area_id": f"area_{index + 1}",
+                "weight": 1.0,
+                "adjacency_type": "contiguity",
+                "frontier_flag": index == 3,
+                "frontier_type": "policy",
+                "frontier_source": "ds20-authorization-matrix",
+            }
+            for index in range(7)
+        ],
+        "metadata": {
+            "frontier_semantics": "declared_policy_frontier",
+            "transportability_required": False,
+        },
+        "lambda_spatial": 20.0,
+        "component_ridge": 1e-4,
+        "persist_artifacts": False,
+        "governance_profile": "strict",
+    }
+
+
+def _data_need() -> dict[str, Any]:
+    return {
+        "metric": "us.macro.gdp_nominal",
+        "geography": "USA",
+        "granularity": "annual",
+        "quality_min": 0.6,
+        "purpose": "ds20 authorization admission",
+    }
+
+
+def _fetch_plan() -> dict[str, Any]:
+    return {
+        "plan_id": "plan_ds20_authorized_matrix",
+        "metric_id": "us.macro.gdp_nominal",
+        "connector_id": "missing.connector",
+        "dataset_id": "missing.dataset",
+        "profile_id": None,
+        "filters": {},
+        "date_start": None,
+        "date_end": None,
+        "granularity": "annual",
+        "quality_min": 0.6,
+        "source_lane": "fastlane",
+        "persist_payload": False,
+        "max_preview_rows": 10,
+        "fallbacks": [],
+        "metadata": {},
+    }
+
+
+def _authorized_mutation_request(
+    operation: tuple[str, str],
+    runtime_api_env,
+    *,
+    cell_id: str,
+    client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> tuple[str, dict[str, Any] | None]:
+    case_id = _MUTATING_OPERATION_CASE_IDS[operation]
+    run_id = runtime_api_env["core_run_id"]
+    packet_id = runtime_api_env["decision_packet_artifact_id"]
+    default_path = _operation_path(operation[1], runtime_api_env)
+
+    if case_id == "analyze-attractors":
+        return default_path, {
+            "variable_ids": ["x"],
+            "trajectory": [[0.0] for _ in range(10)],
+            "persist_artifact": False,
+        }
+    if case_id == "persist-basin-map":
+        return default_path, {
+            "basin_id": "basin_ds20_authorized_matrix",
+            "state_projection": {"variables": ["x"], "reduced_dimension": 1},
+            "sampling_method": "authorization_fixture",
+        }
+    if case_id == "persist-continuation-branch":
+        return default_path, {
+            "branch_id": "branch_ds20_authorized_matrix",
+            "branch_kind": "equilibrium",
+        }
+    if case_id == "analyze-lyapunov":
+        return default_path, {
+            "variable_ids": ["x"],
+            "trajectory": [[0.0] for _ in range(10)],
+            "largest_lyapunov_exponent": -0.1,
+            "persist_artifact": False,
+        }
+    if case_id == "get-artifact-batch":
+        _align_decision_packet_owner(runtime_api_env, cell_id=cell_id)
+        return default_path, {"artifact_ids": [packet_id]}
+    if case_id == "render-bureaucratic-artifact":
+        _align_decision_packet_owner(runtime_api_env, cell_id=cell_id)
+        return f"/api/v1/artifacts/{packet_id}/render", {"genre": "expert_vysnovok"}
+    if case_id == "estimate-causal-frontier-sae":
+        return default_path, _causal_frontier_body()
+    if case_id == "discover-data-sources":
+        return default_path, {
+            "data_needs": [_data_need()],
+            "max_sources_per_query": 2,
+            "max_discovery_calls_per_source": 3,
+            "max_candidates_total": 5,
+            "time_budget_ms": 1000,
+            "cost_budget_usd": 0,
+        }
+    if case_id == "ingest-data":
+        monkeypatch.setattr(
+            "polisyos.fabric.ingestion.run_connectors_ingestion",
+            lambda *args, **kwargs: None,
+        )
+        return default_path, {
+            "datasets": [
+                {
+                    "connector_id": "worldbank.wdi",
+                    "dataset_id": "NY.GDP.MKTP.CD",
+                    "filters": {"country": ["USA"]},
+                }
+            ],
+            "source": "ds20-authorization-matrix",
+            "license_name": "open",
+        }
+    if case_id == "preview-fetch-plan":
+        return default_path, {"fetch_plan": _fetch_plan(), "allow_fallback": True}
+    if case_id in {"approve-data-promotion", "reject-data-promotion"}:
+        promotion_id = f"promotion-ds20-{case_id}"
+        retrieval = client.app.state._control_service._retrieval
+        candidate = PromotionCandidate(
+            promotion_id=promotion_id,
+            metric_id="metric.ds20.authorized",
+            connector_id="connector.ds20",
+            dataset_id="dataset.ds20",
+            confidence=0.9,
+        )
+        with retrieval._state_lock:
+            retrieval._store_promotion_candidate_locked(candidate)
+        return (
+            default_path.replace("promotion-ds20-authz-probe", promotion_id),
+            {"reason": "DS20 authorized operation proof"},
+        )
+    if case_id == "resolve-data-needs":
+        return default_path, {
+            "data_needs": [_data_need()],
+            "mode": "hybrid",
+            "allow_explore_fallback": True,
+        }
+    if case_id == "publish-decision-validity-event":
+        return default_path, {
+            "trigger_type": "source_invalidation",
+            "status": "stale",
+            "reason": "ds20_authorization_matrix",
+            "dependency_keys": ["source::gazette::ds20"],
+            "source_ref": "source://gazette/ds20",
+            "payload": {
+                "invalidation_domain": "source",
+                "new_evidence_refs": ["sha256:" + "c" * 64],
+                "change_reason": "DS20 authorized publication proof",
+            },
+        }
+    if case_id == "search-lex-graph":
+        return default_path, {
+            "query": "authorization",
+            "top_k": 5,
+            "output_dir": str(runtime_api_env["cas_root"] / "lex-ds20-search"),
+        }
+    if case_id == "trigger-lex-pipeline":
+        return default_path, {
+            "cards_path": str(runtime_api_env["cas_root"] / "lex-ds20-cards"),
+            "texts_path": str(runtime_api_env["cas_root"] / "lex-ds20-texts"),
+            "output_dir": str(runtime_api_env["cas_root"] / "lex-ds20-output"),
+            "llm_model": "simulated-qwen",
+        }
+    if case_id == "launch-run":
+        return default_path, {
+            "mode": "workflow",
+            "data_source": {
+                "data_snapshot_ref": runtime_api_env["root_artifact_id"]
+            },
+            "checkpoint_policy": "strict",
+            "params": {"seed": 42},
+        }
+    if case_id == "launch-nl-run":
+        return default_path, {
+            "request": "Study healthcare policy effects",
+            "llm_model": "claude-sonnet-4-5-20250929",
+        }
+    if case_id in {"evaluate-run-feedback", "reissue-run"}:
+        synthetic_run_id = _create_authorized_matrix_run(
+            runtime_api_env,
+            cell_id=cell_id,
+            run_id=f"R_ds20_{case_id.replace('-', '_')}",
+        )
+        client.app.state.runtime_container.runtime_api_context.run_index.refresh(
+            force=True
+        )
+        if case_id == "evaluate-run-feedback":
+            feedback = client.app.state.runtime_container.runtime_api_context.feedback
+            monkeypatch.setattr(
+                feedback,
+                "evaluate_run_feedback",
+                lambda run: (
+                    None,
+                    runtime_api_env["root_artifact_id"],
+                    runtime_api_env["child_artifact_id"],
+                    runtime_api_env["workflow_report_artifact_id"],
+                ),
+            )
+        else:
+            from polisyos.runtime.http.services.feedback import (
+                FeedbackService,
+                PreparedReissue,
+            )
+
+            monkeypatch.setattr(
+                FeedbackService,
+                "prepare_reissue",
+                lambda service, run: PreparedReissue(
+                    reissued_run_id="R_ds20_reissued",
+                    state_payload={
+                        "run_id": "R_ds20_reissued",
+                        "inputs": {},
+                        "params": {},
+                        "budgets": {},
+                        "execution_profile": None,
+                    },
+                    monitoring_report_ref=None,
+                    compare_report_ref=None,
+                    reissue_plan_ref=None,
+                ),
+            )
+        suffix = "feedback/evaluate" if case_id == "evaluate-run-feedback" else "reissue"
+        return f"/api/v1/control/runs/{synthetic_run_id}/{suffix}", None
+    if case_id in {
+        "analyze-fabric-impact",
+        "get-fabric-quality-batch",
+        "get-fabric-trust-batch",
+        "get-lineage-batch",
+    }:
+        _align_decision_packet_owner(runtime_api_env, cell_id=cell_id)
+        if case_id == "analyze-fabric-impact":
+            return default_path, {
+                "run_id": run_id,
+                "lineage_ids": [f"artifact:{packet_id}"],
+            }
+        if case_id == "get-lineage-batch":
+            return default_path, {"lineage_ids": [f"artifact:{packet_id}"]}
+        return default_path, {"run_id": run_id}
+    if case_id == "compute-mobility-bounds":
+        return default_path, {
+            "observed_joint_matrix": [[0.5, 0.0], [0.0, 0.5]],
+            "row_marginals": [0.5, 0.5],
+            "column_marginals": [0.5, 0.5],
+            "persist_artifact": False,
+        }
+    if case_id == "estimate-mobility":
+        return default_path, {
+            "mode": "complete_case",
+            "n_classes": 2,
+            "origin_classes": [0, 1],
+            "destination_classes": [0, 1],
+            "persist_artifact": False,
+        }
+    if case_id == "get-runs-batch":
+        return default_path, {"run_ids": [run_id]}
+    if case_id == "create-run-production-approval":
+        scorecard_ref = _create_production_scorecard(runtime_api_env, cell_id=cell_id)
+        return default_path, {"quality_scorecard_ref": scorecard_ref}
+    if case_id == "create-run-scenario":
+        quantity_response = runtime_api_env["client"].get(
+            f"/api/v1/runs/{run_id}/quantities"
+        )
+        assert quantity_response.status_code == 200
+        quantity = next(
+            item
+            for item in quantity_response.json()["quantities"]
+            if item["metric_id"] == "policy_cost"
+        )
+        return default_path, _scenario_create_body(
+            scenario_id="scn_ds20_authorized_matrix",
+            quantity=quantity,
+        )
+    raise AssertionError(f"No authorized request fixture for {operation!r}")
+
+
 def _is_action_permission_denial(response) -> bool:
     if response.status_code != 403:
         return False
@@ -461,6 +896,247 @@ def _build_permissionless_client(runtime_api_env):
         ),
     )
     return client, claims_bearer
+
+
+class _AuthorizationAuditCapture:
+    def __init__(self) -> None:
+        self.entries: list[dict[str, Any]] = []
+
+    def append(self, entry: dict[str, Any]) -> None:
+        self.entries.append(entry)
+
+
+def _install_authorization_audit_capture(client) -> _AuthorizationAuditCapture:
+    audit = _AuthorizationAuditCapture()
+    client.app.state.runtime_container.runtime_access_audit = audit
+    client.app.state.runtime_access_audit = audit
+    return audit
+
+
+@pytest.mark.parametrize("operation", _mutation_operation_params())
+def test_mutating_operation_without_permission_is_denied_403(
+    operation: tuple[str, str],
+    runtime_api_env,
+) -> None:
+    method, route_path = operation
+    permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
+    opa = _CaptureOPA()
+    bearer = _fixture_bearer(
+        f"matrix-no-permission-{_MUTATING_OPERATION_CASE_IDS[operation]}"
+    )
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti=f"jwt-no-permission-{_MUTATING_OPERATION_CASE_IDS[operation]}",
+            roles=frozenset(),
+        ),
+    )
+    audit = _install_authorization_audit_capture(client)
+
+    response = client.request(
+        method,
+        _operation_path(route_path, runtime_api_env),
+        headers={
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+        },
+        json={},
+    )
+
+    assert response.status_code == 403, response.json()
+    assert response.json()["code"] == "action_permission_denied"
+    assert opa.inputs == []
+    assert len(audit.entries) == 1
+    assert audit.entries[0]["outcome"] == "deny"
+    assert audit.entries[0]["denial_reason"] == "action_permission_denied"
+    assert audit.entries[0]["permission"] == permission.value
+
+
+@pytest.mark.parametrize("operation", _mutation_operation_params())
+def test_mutating_operation_without_identity_is_denied_401(
+    operation: tuple[str, str],
+    runtime_api_env,
+) -> None:
+    method, route_path = operation
+    opa = _CaptureOPA()
+    client, _cell, _provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    audit = _install_authorization_audit_capture(client)
+
+    response = client.request(
+        method,
+        _operation_path(route_path, runtime_api_env),
+        headers={"X-Tenant-ID": runtime_api_env["tenant_a"]},
+        json={},
+    )
+
+    assert response.status_code == 401, response.json()
+    assert response.json()["code"] == "missing_bearer_token"
+    assert opa.inputs == []
+    assert len(audit.entries) == 1
+    assert audit.entries[0]["outcome"] == "deny"
+    assert audit.entries[0]["denial_reason"] == "missing_bearer_token"
+    assert audit.entries[0]["subject"] == "anonymous"
+
+
+@pytest.mark.parametrize("operation", _mutation_operation_params())
+def test_mutating_operation_authorized_request_reaches_handler(
+    operation: tuple[str, str],
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.step_up import HIGH_STAKES_PERMISSION_CLASSES
+
+    method, _route_path = operation
+    permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
+    case_id = _MUTATING_OPERATION_CASE_IDS[operation]
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    opa = _CaptureOPA()
+    bearer = _fixture_bearer(f"matrix-authorized-{case_id}")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti=f"jwt-authorized-{case_id}",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
+
+    with client:
+        audit = _install_authorization_audit_capture(client)
+        request_path, body = _authorized_mutation_request(
+            operation,
+            runtime_api_env,
+            cell_id=cell.cell_id,
+            client=client,
+            monkeypatch=monkeypatch,
+        )
+        expected_step_up = HIGH_STAKES_PERMISSION_CLASSES.get(permission)
+        if expected_step_up is not None:
+            headers["X-PolicyOS-Step-Up"] = _install_bound_test_step_up(client)
+        request_options = {} if body is None else {"json": body}
+
+        response = client.request(
+            method,
+            request_path,
+            headers=headers,
+            **request_options,
+        )
+
+    assert response.status_code == 200, response.text
+    assert isinstance(response.json(), dict)
+    assert len(opa.inputs) == 1
+    assert opa.inputs[0].request_method == method
+    assert opa.inputs[0].resource_kind
+    assert opa.inputs[0].resource_artifact_id
+    authorization_events = [
+        entry
+        for entry in audit.entries
+        if entry.get("event_type") == "runtime.authorization.decision"
+    ]
+    assert len(authorization_events) == 1
+    event = authorization_events[0]
+    assert event["outcome"] == "allow"
+    assert event["permission"] == permission.value
+    assert event["resource_id"] == opa.inputs[0].resource_artifact_id
+    assert event["resource_digest"].startswith("sha256:")
+    if expected_step_up is None:
+        assert event["step_up_class"] == ""
+        assert event["step_up_outcome"] == "not_required"
+    else:
+        assert event["step_up_class"] == expected_step_up.value
+        assert event["step_up_outcome"] == "verified"
+
+
+@pytest.mark.parametrize("operation", _high_stakes_mutation_params())
+def test_high_stakes_mutating_operation_without_step_up_is_denied(
+    operation: tuple[str, str],
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.step_up import HIGH_STAKES_PERMISSION_CLASSES
+
+    method, _route_path = operation
+    permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
+    expected_step_up = HIGH_STAKES_PERMISSION_CLASSES[permission]
+    case_id = _MUTATING_OPERATION_CASE_IDS[operation]
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    opa = _CaptureOPA()
+    bearer = _fixture_bearer(f"matrix-no-step-up-{case_id}")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti=f"jwt-no-step-up-{case_id}",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+
+    with client:
+        audit = _install_authorization_audit_capture(client)
+        request_path, body = _authorized_mutation_request(
+            operation,
+            runtime_api_env,
+            cell_id=cell.cell_id,
+            client=client,
+            monkeypatch=monkeypatch,
+        )
+        request_options = {} if body is None else {"json": body}
+        response = client.request(
+            method,
+            request_path,
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+            },
+            **request_options,
+        )
+
+    assert response.status_code == 403, response.text
+    assert response.json()["code"] == "step_up_required"
+    assert len(opa.inputs) == 1
+    authorization_events = [
+        entry
+        for entry in audit.entries
+        if entry.get("event_type") == "runtime.authorization.decision"
+    ]
+    assert len(authorization_events) == 1
+    event = authorization_events[0]
+    assert event["outcome"] == "deny"
+    assert event["denial_reason"] == "step_up_required"
+    assert event["permission"] == permission.value
+    assert event["step_up_class"] == expected_step_up.value
+    assert event["step_up_outcome"] == "denied"
 
 
 def test_mutating_routes_have_exactly_one_action_permission_dependency(

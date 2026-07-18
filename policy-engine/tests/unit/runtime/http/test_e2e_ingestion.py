@@ -11,8 +11,17 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+
+from polisyos.core.security.identity import PolicyOSRole
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 from polisyos.fabric.connectors.registry import ConnectorRegistry
+from tests.unit.runtime.http.test_runtime_api_authz import (
+    _AllowOPA,
+    _build_secure_client,
+    _claims,
+    _fixture_bearer,
+    _install_bound_test_step_up,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -23,6 +32,34 @@ def _bootstrap_real_registry():
     yield
     ConnectorRegistry.reset_instance()
     SourceProfileRegistry.reset_instance()
+
+
+@pytest.fixture
+def secured_ingestion_request(runtime_api_env, request: pytest.FixtureRequest):
+    """Provide genuine analyst authorization and one fresh bound step-up."""
+    bearer = _fixture_bearer(f"e2e-ingestion-{request.node.name}")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti=f"jwt-e2e-ingestion-{request.node.name}",
+            roles=frozenset({PolicyOSRole.ANALYST}),
+        ),
+    )
+    with client:
+        step_up = f"{_install_bound_test_step_up(client)}-{bearer}"
+        yield client, {
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+            "X-PolicyOS-Step-Up": step_up,
+        }
 
 
 # ---------------------------------------------------------------------------
@@ -121,8 +158,8 @@ class TestE2ESourceProfiles:
 
 
 class TestE2EIngestionDispatch:
-    def test_ingest_with_worldbank_profile(self, runtime_api_env):
-        client = runtime_api_env["client"]
+    def test_ingest_with_worldbank_profile(self, secured_ingestion_request):
+        client, headers = secured_ingestion_request
         with patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
@@ -140,11 +177,12 @@ class TestE2EIngestionDispatch:
                     "source": "test",
                     "license_name": "open",
                 },
+                headers=headers,
             )
         assert resp.status_code == 200
 
-    def test_ingest_with_sdmx_ecb_profile(self, runtime_api_env):
-        client = runtime_api_env["client"]
+    def test_ingest_with_sdmx_ecb_profile(self, secured_ingestion_request):
+        client, headers = secured_ingestion_request
         with patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
@@ -162,13 +200,14 @@ class TestE2EIngestionDispatch:
                     "source": "test",
                     "license_name": "open",
                 },
+                headers=headers,
             )
         assert resp.status_code == 200
 
-    def test_ingest_without_profile_uses_default_config(self, runtime_api_env):
+    def test_ingest_without_profile_uses_default_config(self, secured_ingestion_request):
         """When no connection_profile is specified, the connector should use
         its default_config (wired from source profiles during bootstrap)."""
-        client = runtime_api_env["client"]
+        client, headers = secured_ingestion_request
         with patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
@@ -185,6 +224,7 @@ class TestE2EIngestionDispatch:
                     "source": "test",
                     "license_name": "open",
                 },
+                headers=headers,
             )
         assert resp.status_code == 200
 
@@ -200,9 +240,9 @@ class TestE2EIngestionDispatch:
         ],
     )
     def test_ingest_all_wave1_connectors(
-        self, runtime_api_env, connector_id, dataset_id, profile_id
+        self, secured_ingestion_request, connector_id, dataset_id, profile_id
     ):
-        client = runtime_api_env["client"]
+        client, headers = secured_ingestion_request
         with patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
@@ -220,6 +260,7 @@ class TestE2EIngestionDispatch:
                     "source": "test",
                     "license_name": "open",
                 },
+                headers=headers,
             )
         assert resp.status_code == 200, (
             f"Ingestion failed for {connector_id} with profile {profile_id}: "

@@ -13,7 +13,15 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityEvaluation,
     DecisionValidityStatus,
 )
+from polisyos.core.security.identity import PolicyOSRole
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from tests.unit.runtime.http.test_runtime_api_authz import (
+    _AllowOPA,
+    _build_secure_client,
+    _claims,
+    _fixture_bearer,
+    _install_bound_test_step_up,
+)
 
 
 def _put_json(store: FileSystemCAS, payload, *, kind: str):
@@ -29,7 +37,22 @@ def _put_json(store: FileSystemCAS, payload, *, kind: str):
 
 
 def test_publish_decision_validity_event_updates_registered_packets(runtime_api_env) -> None:
-    client = runtime_api_env["client"]
+    bearer = _fixture_bearer("decision-validity-publication")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-decision-validity-publication",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
     store = FileSystemCAS(runtime_api_env["cas_root"])
     service = DecisionValidityService(store)
     envelope = DecisionValidityEnvelope(
@@ -61,7 +84,7 @@ def test_publish_decision_validity_event_updates_registered_packets(runtime_api_
     store.record_artifact_owner(
         packet_ref.artifact_id,
         tenant_id=runtime_api_env["tenant_a"],
-        cell_id=runtime_api_env["cell_a"],
+        cell_id=cell.cell_id,
         writer="tests.runtime_http.decision_validity",
     )
     service.register_decision_packet(
@@ -70,17 +93,23 @@ def test_publish_decision_validity_event_updates_registered_packets(runtime_api_
         baseline=baseline,
     )
 
-    response = client.post(
-        "/api/v1/control/decision-validity/events",
-        json={
-            "trigger_type": "law_change",
-            "status": "requires_human_review",
-            "reason": "fixture_api_law_changed",
-            "dependency_keys": ["norm::api_fixture"],
-            "source_ref": "law://fixture/api",
-            "occurred_at": datetime(2026, 3, 12, 14, 0, tzinfo=UTC).isoformat(),
-        },
-    )
+    with client:
+        response = client.post(
+            "/api/v1/control/decision-validity/events",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
+            },
+            json={
+                "trigger_type": "law_change",
+                "status": "requires_human_review",
+                "reason": "fixture_api_law_changed",
+                "dependency_keys": ["norm::api_fixture"],
+                "source_ref": "law://fixture/api",
+                "occurred_at": datetime(2026, 3, 12, 14, 0, tzinfo=UTC).isoformat(),
+            },
+        )
 
     assert response.status_code == 200
     body = response.json()

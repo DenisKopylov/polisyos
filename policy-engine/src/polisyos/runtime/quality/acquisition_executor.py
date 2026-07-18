@@ -187,6 +187,10 @@ class AdmissionPassport(_StrictModel):
     source_lane: Literal["local_lift", "live_fetch"]
     observation_class: ObservationProvenanceClass
     authority_entry_id: str = Field(min_length=1)
+    authority_provision_id: str = Field(
+        pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$"
+    )
+    authority_provision_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     authority_registry_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     upstream_catalog_projection_sha256: str = Field(pattern=_SHA256_PATTERN)
     baseline_content_sha256: str = Field(pattern=_SHA256_PATTERN)
@@ -490,11 +494,8 @@ def build_admission_passport(
         license_id=license_id,
         normalized_license_id=normalized_license,
         disposition=LicenseDisposition(resolved.license_disposition.value),
-        authority_ref=(
-            f"repo://architecture/policy_design_case/"
-            f"layer3_gy_n13b_acquisition_registry.json#/{entry.entry_id}"
-        ),
-        authority_content_sha256=resolved.registry_content_sha256,
+        authority_ref=resolved.license_authority_ref,
+        authority_content_sha256=resolved.license_authority_content_sha256,
     )
     l5_evidence = L5TrustEvidence(
         family_id=resolved.l5_trust.family_id,
@@ -523,6 +524,10 @@ def build_admission_passport(
         "source_lane": entry.source_lane,
         "observation_class": observation_class,
         "authority_entry_id": entry.entry_id,
+        "authority_provision_id": resolved.authority_provision_id,
+        "authority_provision_content_sha256": (
+            resolved.authority_provision_content_sha256
+        ),
         "authority_registry_content_sha256": resolved.registry_content_sha256,
         "upstream_catalog_projection_sha256": (
             resolved.upstream_catalog_projection_sha256
@@ -622,7 +627,11 @@ def revalidate_admission_passport(
     except Exception as exc:
         raise ValueError("acquisition_authority_unresolved") from exc
     if (
-        resolved.registry_content_sha256 != passport.authority_registry_content_sha256
+        resolved.authority_provision_id != passport.authority_provision_id
+        or resolved.authority_provision_content_sha256
+        != passport.authority_provision_content_sha256
+        or resolved.registry_content_sha256
+        != passport.authority_registry_content_sha256
         or resolved.baseline_content_sha256 != passport.baseline_content_sha256
         or resolved.upstream_catalog_projection_sha256
         != passport.upstream_catalog_projection_sha256
@@ -657,10 +666,16 @@ def revalidate_admission_passport(
     raw_body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
     if passport.source_watermark != raw_body_sha:
         raise ValueError("source_watermark_content_drift")
-    if resolved.license_id != passport.license_evidence.license_id or (
-        resolved.license_disposition.value != passport.license_evidence.disposition.value
+    if (
+        resolved.license_id != passport.license_evidence.license_id
+        or resolved.license_disposition.value
+        != passport.license_evidence.disposition.value
+        or resolved.license_authority_ref
+        != passport.license_evidence.authority_ref
+        or resolved.license_authority_content_sha256
+        != passport.license_evidence.authority_content_sha256
     ):
-        raise ValueError("license_disposition_drift")
+        raise ValueError("license_authority_drift")
     l5_projection = (
         resolved.l5_trust.family_id,
         resolved.l5_trust.tier,

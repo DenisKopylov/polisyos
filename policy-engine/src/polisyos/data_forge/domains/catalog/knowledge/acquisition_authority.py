@@ -8,6 +8,7 @@ measurement registry every time an entry is used.
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
@@ -17,6 +18,8 @@ from typing import Any, Literal, Self
 
 import duckdb
 import pandas as pd
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon, contracts
@@ -44,11 +47,29 @@ canonical_json_bytes = fabric_data_plane.canonical_json_bytes
 from_canonical_bytes = canon.from_canonical_bytes
 
 ACQUISITION_AUTHORITY_SCHEMA_VERSION = "polisyos.data_forge.acquisition_authority.v1"
+ACQUISITION_AUTHORITY_PROVISION_SCHEMA_VERSION = (
+    "polisyos.data_forge.acquisition_authority_provision.v1"
+)
 LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION = (
     "polisyos.data_forge.live_source_execution_evidence.v1"
 )
+LOCAL_SOURCE_RIGHTS_RECEIPT_SCHEMA_VERSION = (
+    "polisyos.data_forge.local_source_rights_receipt.v1"
+)
+LOCAL_SOURCE_RIGHTS_DECLARATION_SCHEMA_VERSION = (
+    "polisyos.data_forge.local_source_rights_declaration.v1"
+)
+LOCAL_RIGHTS_TRUST_REGISTRY_SCHEMA_VERSION = (
+    "polisyos.data_forge.local_rights_trust_registry.v1"
+)
 DEFAULT_ACQUISITION_AUTHORITY_REGISTRY = Path(
     "architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json"
+)
+DEFAULT_ACQUISITION_AUTHORITY_PROVISION = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json"
+)
+DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_local_rights_trust.json"
 )
 DEFAULT_L5_MEASUREMENT_REGISTRY = Path(
     "production_data/canonical/local_data_20260501/"
@@ -56,6 +77,7 @@ DEFAULT_L5_MEASUREMENT_REGISTRY = Path(
     "calibration/d2/measurement_registry.json"
 )
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
+_PROVISION_CONSTRUCTION_TOKEN = object()
 
 
 class AcquisitionAuthorityError(RuntimeError):
@@ -92,6 +114,202 @@ class AuthoritySchemaColumn(_StrictModel):
         return self
 
 
+class LocalRightsTrustedAuthority(_StrictModel):
+    """One signature trust root for independently owned local-source rights."""
+
+    authority_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._-]+$")
+    rights_authority: str = Field(min_length=1)
+    authority_ref: str = Field(pattern=r"^https://[^\s]+$")
+    ed25519_public_key_base64: str = Field(min_length=1)
+    admissible_license_ids: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _trust_root_is_decisive(self) -> Self:
+        if self.admissible_license_ids != tuple(
+            sorted(set(self.admissible_license_ids))
+        ):
+            raise ValueError("trusted license ids must be unique and sorted")
+        try:
+            key = base64.b64decode(self.ed25519_public_key_base64, validate=True)
+            Ed25519PublicKey.from_public_bytes(key)
+        except Exception as exc:
+            raise ValueError("trusted Ed25519 public key is invalid") from exc
+        return self
+
+
+class LocalRightsTrustRegistry(_StrictModel):
+    """Content-derived trust roots used only for signed local rights evidence."""
+
+    schema_version: Literal[
+        "polisyos.data_forge.local_rights_trust_registry.v1"
+    ] = LOCAL_RIGHTS_TRUST_REGISTRY_SCHEMA_VERSION
+    authorities: tuple[LocalRightsTrustedAuthority, ...]
+    content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _registry_is_recomputed(self) -> Self:
+        ids = tuple(authority.authority_id for authority in self.authorities)
+        if ids != tuple(sorted(set(ids))):
+            raise ValueError("local rights trust roots must be unique and sorted")
+        expected = fabric_data_plane.content_sha256(
+            {
+                "schema_version": self.schema_version,
+                "authorities": [
+                    authority.model_dump(mode="json")
+                    for authority in self.authorities
+                ],
+            }
+        )
+        if self.content_sha256 != expected:
+            raise ValueError("local rights trust registry identity must be recomputed")
+        return self
+
+
+class AcquisitionAuthorityProvision(_StrictModel):
+    """Separately produced trust anchor for acquisition authority resolution."""
+
+    schema_version: Literal[
+        "polisyos.data_forge.acquisition_authority_provision.v1"
+    ] = ACQUISITION_AUTHORITY_PROVISION_SCHEMA_VERSION
+    provision_id: str = Field(
+        pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$"
+    )
+    baseline_owner_ref: str = Field(pattern=r"^(repo|provision)://[^\s]+$")
+    baseline_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    local_rights_trust_anchor_sha256: str | None = Field(
+        default=None,
+        pattern=_SHA256_PATTERN,
+    )
+    authority_purpose: Literal[
+        "resolve_baseline_and_local_rights_trust_only"
+    ] = "resolve_baseline_and_local_rights_trust_only"
+    may_not_use_for: tuple[
+        Literal["acquisition_registry_self_authorization"]
+    ] = ("acquisition_registry_self_authorization",)
+
+    @model_validator(mode="after")
+    def _identity_is_recomputed(self) -> Self:
+        expected = "acquisition-authority-provision:" + (
+            fabric_data_plane.content_sha256(self.identity_payload())
+        )
+        if self.provision_id != expected:
+            raise ValueError("acquisition authority provision identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the trust projection defining this provision receipt."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "provision_id"
+        }
+
+
+class LocalSourceRightsDeclaration(_StrictModel):
+    """Owner-supplied, content-derived declaration for one local source."""
+
+    schema_version: Literal[
+        "polisyos.data_forge.local_source_rights_declaration.v1"
+    ] = LOCAL_SOURCE_RIGHTS_DECLARATION_SCHEMA_VERSION
+    declaration_id: str = Field(
+        pattern=r"^local-rights-declaration:sha256:[0-9a-f]{64}$"
+    )
+    source_path: str = Field(min_length=1)
+    source_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    license_id: str = Field(min_length=1)
+    authority_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._-]+$")
+    rights_authority: str = Field(min_length=1)
+    authority_ref: str = Field(pattern=r"^https://[^\s]+$")
+    signature_base64: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _identity_and_path_are_recomputed(self) -> Self:
+        path = Path(self.source_path)
+        if path.is_absolute() or ".." in path.parts:
+            raise ValueError("local rights declaration path must be repo-relative")
+        try:
+            signature = base64.b64decode(self.signature_base64, validate=True)
+        except Exception as exc:
+            raise ValueError("local rights declaration signature is invalid") from exc
+        if len(signature) != 64:
+            raise ValueError("local rights declaration signature is invalid")
+        expected = "local-rights-declaration:" + fabric_data_plane.content_sha256(
+            self.identity_payload()
+        )
+        if self.declaration_id != expected:
+            raise ValueError("local rights declaration identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the projection defining this owner declaration."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "declaration_id"
+        }
+
+    def signed_payload(self) -> dict[str, object]:
+        """Return exact bytes that the owner signature must cover."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key not in {"declaration_id", "signature_base64"}
+        }
+
+
+class LocalSourceRightsReceipt(_StrictModel):
+    """Verifier-produced evidence binding a source to an owner declaration."""
+
+    schema_version: Literal[
+        "polisyos.data_forge.local_source_rights_receipt.v1"
+    ] = LOCAL_SOURCE_RIGHTS_RECEIPT_SCHEMA_VERSION
+    receipt_id: str = Field(pattern=r"^local-rights:sha256:[0-9a-f]{64}$")
+    source_path: str = Field(min_length=1)
+    source_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    license_id: str = Field(min_length=1)
+    authority_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._-]+$")
+    rights_authority: str = Field(min_length=1)
+    authority_ref: str = Field(pattern=r"^https://[^\s]+$")
+    rights_document_path: str = Field(min_length=1)
+    rights_document_sha256: str = Field(pattern=_SHA256_PATTERN)
+    rights_declaration_id: str = Field(
+        pattern=r"^local-rights-declaration:sha256:[0-9a-f]{64}$"
+    )
+    trust_registry_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    public_key_sha256: str = Field(pattern=_SHA256_PATTERN)
+    verifier_ref: Literal[
+        "polisyos.data_forge.verify_local_source_rights/v1"
+    ] = "polisyos.data_forge.verify_local_source_rights/v1"
+    verification_method: Literal["content_bound_owner_document"] = (
+        "content_bound_owner_document"
+    )
+
+    @model_validator(mode="after")
+    def _identity_and_paths_are_recomputed(self) -> Self:
+        for value in (self.source_path, self.rights_document_path):
+            path = Path(value)
+            if path.is_absolute() or ".." in path.parts:
+                raise ValueError("local rights receipt paths must be repo-relative")
+        expected = "local-rights:" + fabric_data_plane.content_sha256(
+            self.identity_payload()
+        )
+        if self.receipt_id != expected:
+            raise ValueError("local rights receipt identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the projection defining this rights receipt."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "receipt_id"
+        }
+
+
 class AcquisitionAuthorityEntry(_StrictModel):
     """Registry-owned last-mile edge whose upstream facts remain owner-resolved."""
 
@@ -123,6 +341,11 @@ class AcquisitionAuthorityEntry(_StrictModel):
     local_source_path: str | None = None
     local_source_sha256: str | None = Field(default=None, pattern=_SHA256_PATTERN)
     local_license_id: str | None = None
+    local_rights_receipt_path: str | None = None
+    local_rights_receipt_sha256: str | None = Field(
+        default=None,
+        pattern=_SHA256_PATTERN,
+    )
     title: str = Field(min_length=1)
     description: str = Field(min_length=1)
     country_codes: tuple[str, ...] = Field(min_length=1)
@@ -153,12 +376,23 @@ class AcquisitionAuthorityEntry(_StrictModel):
         )
         if self.source_lane == "live_fetch" and not all(live_fields):
             raise ValueError("live authority entry requires its complete catalog edge")
+        local_fields = (
+            self.local_source_path,
+            self.local_source_sha256,
+            self.local_license_id,
+            self.local_rights_receipt_path,
+            self.local_rights_receipt_sha256,
+        )
+        if self.source_lane == "live_fetch" and any(local_fields):
+            raise ValueError("live authority entry cannot carry local authority fields")
+        if self.source_lane == "local_lift" and any(live_fields):
+            raise ValueError("local authority entry cannot carry live catalog fields")
         if self.source_lane == "local_lift" and not (
-            self.local_source_path
-            and self.local_source_sha256
-            and self.local_license_id
+            all(local_fields)
         ):
-            raise ValueError("local authority entry requires content and license evidence")
+            raise ValueError(
+                "local authority entry requires independent content-bound rights evidence"
+            )
         if self.entry_id != "acquisition-authority:" + fabric_data_plane.content_sha256(
             self.identity_payload()
         ):
@@ -228,12 +462,18 @@ class ResolvedAcquisitionAuthority(_StrictModel):
     """Independent owner result consumed by passport and overlay admission."""
 
     entry: AcquisitionAuthorityEntry
+    authority_provision_id: str = Field(
+        pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$"
+    )
+    authority_provision_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     registry_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     baseline_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     field_binding: MetricFieldBinding
     registration: AcquisitionDatasetRegistration
     license_id: str
     license_disposition: LicenseDisposition
+    license_authority_ref: str = Field(min_length=1)
+    license_authority_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     l5_trust: ResolvedL5Trust
     upstream_catalog_projection_sha256: str = Field(pattern=_SHA256_PATTERN)
     effective_authority_score: float = Field(ge=0.0, le=1.0)
@@ -369,6 +609,88 @@ def build_authority_entry(**values: object) -> AcquisitionAuthorityEntry:
     )
 
 
+def build_acquisition_authority_provision(
+    **values: object,
+) -> AcquisitionAuthorityProvision:
+    """Build the separately persisted resolver provision without a pinned id."""
+
+    provisional = AcquisitionAuthorityProvision.model_construct(
+        provision_id="acquisition-authority-provision:sha256:" + "0" * 64,
+        **values,
+    )
+    return AcquisitionAuthorityProvision(
+        provision_id=(
+            "acquisition-authority-provision:"
+            + fabric_data_plane.content_sha256(provisional.identity_payload())
+        ),
+        **values,
+    )
+
+
+def build_local_source_rights_declaration(
+    **values: object,
+) -> LocalSourceRightsDeclaration:
+    """Format an owner declaration; authority is earned only when it is resolved."""
+
+    provisional = LocalSourceRightsDeclaration.model_construct(
+        declaration_id="local-rights-declaration:sha256:" + "0" * 64,
+        **values,
+    )
+    return LocalSourceRightsDeclaration(
+        declaration_id=(
+            "local-rights-declaration:"
+            + fabric_data_plane.content_sha256(provisional.identity_payload())
+        ),
+        **values,
+    )
+
+
+def build_local_rights_trust_registry(
+    *,
+    authorities: tuple[LocalRightsTrustedAuthority, ...],
+) -> LocalRightsTrustRegistry:
+    """Build a byte-stable registry from separately provisioned public keys."""
+
+    ordered = tuple(sorted(authorities, key=lambda item: item.authority_id))
+    projection = {
+        "schema_version": LOCAL_RIGHTS_TRUST_REGISTRY_SCHEMA_VERSION,
+        "authorities": [item.model_dump(mode="json") for item in ordered],
+    }
+    return LocalRightsTrustRegistry(
+        authorities=ordered,
+        content_sha256=fabric_data_plane.content_sha256(projection),
+    )
+
+
+def verify_local_source_rights(
+    *,
+    repo_root: Path,
+    source_path: str,
+    rights_document_path: str,
+    trust_registry_path: str = DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY.as_posix(),
+) -> LocalSourceRightsReceipt:
+    """Reopen source and owner declaration bytes and derive a verifier receipt."""
+
+    root = Path(repo_root).resolve()
+    source_relative = _safe_repo_relative_path(source_path, code="local_source_path")
+    document_relative = _safe_repo_relative_path(
+        rights_document_path,
+        code="local_rights_document_path",
+    )
+    trust_relative = _safe_repo_relative_path(
+        trust_registry_path,
+        code="local_rights_trust_registry_path",
+    )
+    receipt, _, _ = _derive_local_source_rights_receipt(
+        root=root,
+        source_relative=source_relative,
+        document_relative=document_relative,
+        trust_relative=trust_relative,
+        expected_trust_file_sha256=None,
+    )
+    return receipt
+
+
 def build_authority_registry(
     *,
     baseline_content_sha256: str,
@@ -395,24 +717,85 @@ def build_authority_registry(
 class CanonicalAcquisitionAuthority:
     """Resolver that reopens every decisive owner instead of trusting callers."""
 
-    def __init__(self, *, repo_root: Path, baseline_path: Path) -> None:
+    def __init__(
+        self,
+        *,
+        repo_root: Path,
+        baseline_path: Path,
+        provision: AcquisitionAuthorityProvision,
+        provision_content_sha256: str,
+        _construction_token: object,
+    ) -> None:
+        if _construction_token is not _PROVISION_CONSTRUCTION_TOKEN:
+            raise TypeError("use CanonicalAcquisitionAuthority.from_provision")
         self.repo_root = Path(repo_root).resolve()
         self.baseline_path = Path(baseline_path).resolve()
+        self.provision = provision
+        self.provision_content_sha256 = provision_content_sha256
+        self.baseline_owner_ref = provision.baseline_owner_ref
+        self.local_rights_trust_anchor_sha256 = (
+            provision.local_rights_trust_anchor_sha256
+        )
         self.registry_path = self.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
+        self.local_rights_trust_path = (
+            self.repo_root / DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY
+        )
         self.l5_path = self.repo_root / DEFAULT_L5_MEASUREMENT_REGISTRY
+
+    @classmethod
+    def from_provision(
+        cls,
+        *,
+        repo_root: Path,
+        baseline_path: Path,
+    ) -> CanonicalAcquisitionAuthority:
+        """Load the canonical provision receipt; callers cannot choose its anchors."""
+
+        root = Path(repo_root).resolve()
+        provision, provision_content_sha256 = _load_authority_provision(
+            root / DEFAULT_ACQUISITION_AUTHORITY_PROVISION
+        )
+        baseline = Path(baseline_path).resolve()
+        if _file_sha256(baseline) != provision.baseline_content_sha256:
+            raise AcquisitionAuthorityError("provision_baseline_identity_drift")
+        return cls(
+            repo_root=root,
+            baseline_path=baseline,
+            provision=provision,
+            provision_content_sha256=provision_content_sha256,
+            _construction_token=_PROVISION_CONSTRUCTION_TOKEN,
+        )
 
     def resolve(self, entry_id: str) -> ResolvedAcquisitionAuthority:
         """Resolve one entry against fresh registry, catalog, license, and L5 bytes."""
 
+        self._require_provision_unchanged()
         registry = self._load_registry()
         matches = [entry for entry in registry.entries if entry.entry_id == entry_id]
         if len(matches) != 1:
             raise AcquisitionAuthorityError("authority_entry_unresolved", entry_id)
         entry = matches[0]
         if entry.source_lane == "live_fetch":
-            projection, license_id, registration = self._resolve_live_catalog(entry)
+            (
+                projection,
+                license_id,
+                license_authority_ref,
+                license_authority_sha256,
+                registration,
+            ) = self._resolve_live_catalog(entry)
         else:
-            projection, license_id, registration = self._resolve_local_source(entry)
+            (
+                projection,
+                license_id,
+                license_authority_ref,
+                license_authority_sha256,
+                registration,
+            ) = self._resolve_local_source(
+                entry,
+                expected_trust_registry_sha256=(
+                    self.local_rights_trust_anchor_sha256
+                ),
+            )
         self._require_landing_identifiers_new(entry)
         disposition = _license_disposition(license_id)
         if disposition is not LicenseDisposition.ADMISSIBLE_OPEN:
@@ -452,16 +835,29 @@ class CanonicalAcquisitionAuthority:
         )
         return ResolvedAcquisitionAuthority(
             entry=entry,
+            authority_provision_id=self.provision.provision_id,
+            authority_provision_content_sha256=self.provision_content_sha256,
             registry_content_sha256=registry.content_sha256,
             baseline_content_sha256=registry.baseline_content_sha256,
             field_binding=binding,
             registration=registration,
             license_id=license_id,
             license_disposition=disposition,
+            license_authority_ref=license_authority_ref,
+            license_authority_content_sha256=license_authority_sha256,
             l5_trust=l5,
             upstream_catalog_projection_sha256=fabric_data_plane.content_sha256(projection),
             effective_authority_score=score,
         )
+
+    def _require_provision_unchanged(self) -> None:
+        provision, content_sha256 = _load_authority_provision(
+            self.repo_root / DEFAULT_ACQUISITION_AUTHORITY_PROVISION
+        )
+        if provision != self.provision or content_sha256 != self.provision_content_sha256:
+            raise AcquisitionAuthorityError("acquisition_authority_provision_drift")
+        if _file_sha256(self.baseline_path) != provision.baseline_content_sha256:
+            raise AcquisitionAuthorityError("provision_baseline_identity_drift")
 
     def _require_landing_identifiers_new(
         self,
@@ -776,7 +1172,13 @@ class CanonicalAcquisitionAuthority:
     def _resolve_live_catalog(
         self,
         entry: AcquisitionAuthorityEntry,
-    ) -> tuple[dict[str, object], str, AcquisitionDatasetRegistration]:
+    ) -> tuple[
+        dict[str, object],
+        str,
+        str,
+        str,
+        AcquisitionDatasetRegistration,
+    ]:
         con = duckdb.connect(str(self.baseline_path), read_only=True)
         try:
             row = con.execute(
@@ -893,12 +1295,36 @@ class CanonicalAcquisitionAuthority:
             temporal_end=entry.temporal_end,
             field_binding=placeholder,
         )
-        return projection, str(license_id), registration
+        license_projection = {
+            "dataset_id": entry.source_catalog_dataset_id,
+            "access_license": str(license_id),
+        }
+        if self.baseline_owner_ref is None:
+            raise AcquisitionAuthorityError("baseline_owner_ref_unprovisioned")
+        return (
+            projection,
+            str(license_id),
+            (
+                f"{self.baseline_owner_ref}"
+                "#ds_datasets/"
+                f"{entry.source_catalog_dataset_id}/access_license"
+            ),
+            fabric_data_plane.content_sha256(license_projection),
+            registration,
+        )
 
     def _resolve_local_source(
         self,
         entry: AcquisitionAuthorityEntry,
-    ) -> tuple[dict[str, object], str, AcquisitionDatasetRegistration]:
+        *,
+        expected_trust_registry_sha256: str | None,
+    ) -> tuple[
+        dict[str, object],
+        str,
+        str,
+        str,
+        AcquisitionDatasetRegistration,
+    ]:
         relative = Path(str(entry.local_source_path))
         if relative.is_absolute() or ".." in relative.parts:
             raise AcquisitionAuthorityError("local_source_path_unsafe")
@@ -908,6 +1334,45 @@ class CanonicalAcquisitionAuthority:
         source_hash = _file_sha256(source_path)
         if source_hash != entry.local_source_sha256:
             raise AcquisitionAuthorityError("local_source_content_drift")
+        receipt_relative = Path(str(entry.local_rights_receipt_path))
+        if receipt_relative.is_absolute() or ".." in receipt_relative.parts:
+            raise AcquisitionAuthorityError("local_rights_receipt_path_unsafe")
+        receipt_path = (self.repo_root / receipt_relative).resolve()
+        if not receipt_path.is_relative_to(self.repo_root):
+            raise AcquisitionAuthorityError("local_rights_receipt_path_unsafe")
+        if _file_sha256(receipt_path) != entry.local_rights_receipt_sha256:
+            raise AcquisitionAuthorityError("local_rights_receipt_content_drift")
+        try:
+            rights = LocalSourceRightsReceipt.model_validate_json(
+                receipt_path.read_bytes()
+            )
+        except Exception as exc:
+            raise AcquisitionAuthorityError(
+                "local_rights_receipt_invalid",
+                type(exc).__name__,
+            ) from exc
+        if not expected_trust_registry_sha256:
+            raise AcquisitionAuthorityError("local_rights_trust_anchor_unprovisioned")
+        trust_relative = DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY
+        document_relative = _safe_repo_relative_path(
+            rights.rights_document_path,
+            code="local_rights_document_path",
+        )
+        recomputed_rights, declaration, trust_registry = (
+            _derive_local_source_rights_receipt(
+                root=self.repo_root,
+                source_relative=relative,
+                document_relative=document_relative,
+                trust_relative=trust_relative,
+                expected_trust_file_sha256=expected_trust_registry_sha256,
+            )
+        )
+        if (
+            rights != recomputed_rights
+            or rights.source_content_sha256 != source_hash
+            or rights.license_id != entry.local_license_id
+        ):
+            raise AcquisitionAuthorityError("local_rights_receipt_recomputation_drift")
         placeholder = build_metric_field_binding(
             dataset_id=entry.landing_dataset_id,
             distribution_id=entry.landing_distribution_id,
@@ -939,7 +1404,7 @@ class CanonicalAcquisitionAuthority:
             description=entry.description,
             metric_id=entry.target_variable,
             execution_tier="transport_ready",
-            access_license=str(entry.local_license_id),
+            access_license=rights.license_id,
             country_codes=entry.country_codes,
             temporal_start=entry.temporal_start,
             temporal_end=entry.temporal_end,
@@ -948,8 +1413,20 @@ class CanonicalAcquisitionAuthority:
         projection = {
             "local_source_path": relative.as_posix(),
             "local_source_sha256": source_hash,
+            "local_rights_receipt_id": rights.receipt_id,
+            "local_rights_receipt_sha256": entry.local_rights_receipt_sha256,
+            "local_rights_document_sha256": rights.rights_document_sha256,
+            "local_rights_declaration_id": declaration.declaration_id,
+            "local_rights_trust_registry_sha256": trust_registry.content_sha256,
+            "local_rights_public_key_sha256": rights.public_key_sha256,
         }
-        return projection, str(entry.local_license_id), registration
+        return (
+            projection,
+            rights.license_id,
+            f"repo://{document_relative.as_posix()}",
+            rights.rights_document_sha256,
+            registration,
+        )
 
     def _resolve_l5(
         self,
@@ -1066,6 +1543,180 @@ def _file_sha256(path: Path) -> str:
     return f"sha256:{digest.hexdigest()}"
 
 
+def _load_authority_provision(
+    path: Path,
+) -> tuple[AcquisitionAuthorityProvision, str]:
+    if not path.is_file():
+        raise AcquisitionAuthorityError(
+            "acquisition_authority_provision_missing",
+            path.as_posix(),
+        )
+    raw = path.read_bytes()
+    try:
+        provision = AcquisitionAuthorityProvision.model_validate_json(raw)
+    except Exception as exc:
+        raise AcquisitionAuthorityError(
+            "acquisition_authority_provision_invalid",
+            type(exc).__name__,
+        ) from exc
+    return provision, f"sha256:{hashlib.sha256(raw).hexdigest()}"
+
+
+def _derive_local_source_rights_receipt(
+    *,
+    root: Path,
+    source_relative: Path,
+    document_relative: Path,
+    trust_relative: Path,
+    expected_trust_file_sha256: str | None,
+) -> tuple[
+    LocalSourceRightsReceipt,
+    LocalSourceRightsDeclaration,
+    LocalRightsTrustRegistry,
+]:
+    """Single behavioral verifier shared by receipt writing and admission."""
+
+    if document_relative == source_relative:
+        raise AcquisitionAuthorityError("local_rights_document_is_source")
+    source = _resolve_repo_file(root, source_relative, code="local_source_path")
+    document = _resolve_repo_file(
+        root,
+        document_relative,
+        code="local_rights_document_path",
+    )
+    source_sha = _file_sha256(source)
+    document_sha = _file_sha256(document)
+    try:
+        declaration = LocalSourceRightsDeclaration.model_validate_json(
+            document.read_bytes()
+        )
+    except Exception as exc:
+        raise AcquisitionAuthorityError(
+            "local_rights_document_invalid",
+            type(exc).__name__,
+        ) from exc
+    if (
+        declaration.source_path != source_relative.as_posix()
+        or declaration.source_content_sha256 != source_sha
+    ):
+        raise AcquisitionAuthorityError("local_rights_document_source_drift")
+    trust_path = _resolve_repo_file(
+        root,
+        trust_relative,
+        code="local_rights_trust_registry_path",
+    )
+    trust_registry = _load_local_rights_trust_registry(
+        trust_path,
+        expected_file_sha256=expected_trust_file_sha256,
+    )
+    trusted = _verify_local_rights_declaration(
+        declaration,
+        trust_registry=trust_registry,
+    )
+    public_key = base64.b64decode(
+        trusted.ed25519_public_key_base64,
+        validate=True,
+    )
+    values: dict[str, object] = {
+        "source_path": source_relative.as_posix(),
+        "source_content_sha256": source_sha,
+        "license_id": declaration.license_id,
+        "authority_id": declaration.authority_id,
+        "rights_authority": declaration.rights_authority,
+        "authority_ref": declaration.authority_ref,
+        "rights_document_path": document_relative.as_posix(),
+        "rights_document_sha256": document_sha,
+        "rights_declaration_id": declaration.declaration_id,
+        "trust_registry_content_sha256": trust_registry.content_sha256,
+        "public_key_sha256": f"sha256:{hashlib.sha256(public_key).hexdigest()}",
+    }
+    provisional = LocalSourceRightsReceipt.model_construct(
+        receipt_id="local-rights:sha256:" + "0" * 64,
+        **values,
+    )
+    receipt = LocalSourceRightsReceipt(
+        receipt_id=(
+            "local-rights:"
+            + fabric_data_plane.content_sha256(provisional.identity_payload())
+        ),
+        **values,
+    )
+    return receipt, declaration, trust_registry
+
+
+def _load_local_rights_trust_registry(
+    path: Path,
+    *,
+    expected_file_sha256: str | None = None,
+) -> LocalRightsTrustRegistry:
+    if not path.is_file():
+        raise AcquisitionAuthorityError(
+            "local_rights_trust_registry_missing",
+            path.as_posix(),
+        )
+    try:
+        registry = LocalRightsTrustRegistry.model_validate_json(path.read_bytes())
+    except Exception as exc:
+        raise AcquisitionAuthorityError(
+            "local_rights_trust_registry_invalid",
+            type(exc).__name__,
+        ) from exc
+    actual = _file_sha256(path)
+    if expected_file_sha256 is not None and actual != expected_file_sha256:
+        raise AcquisitionAuthorityError("local_rights_trust_registry_content_drift")
+    return registry
+
+
+def _verify_local_rights_declaration(
+    declaration: LocalSourceRightsDeclaration,
+    *,
+    trust_registry: LocalRightsTrustRegistry,
+) -> LocalRightsTrustedAuthority:
+    matches = tuple(
+        authority
+        for authority in trust_registry.authorities
+        if authority.authority_id == declaration.authority_id
+    )
+    if len(matches) != 1:
+        raise AcquisitionAuthorityError("local_rights_signing_authority_unresolved")
+    trusted = matches[0]
+    if (
+        declaration.rights_authority != trusted.rights_authority
+        or declaration.authority_ref != trusted.authority_ref
+        or declaration.license_id not in trusted.admissible_license_ids
+    ):
+        raise AcquisitionAuthorityError("local_rights_signing_authority_drift")
+    try:
+        public_key = base64.b64decode(
+            trusted.ed25519_public_key_base64,
+            validate=True,
+        )
+        signature = base64.b64decode(declaration.signature_base64, validate=True)
+        Ed25519PublicKey.from_public_bytes(public_key).verify(
+            signature,
+            canonical_json_bytes(declaration.signed_payload()),
+        )
+    except (InvalidSignature, ValueError) as exc:
+        raise AcquisitionAuthorityError("local_rights_signature_invalid") from exc
+    return trusted
+
+
+def _safe_repo_relative_path(value: str, *, code: str) -> Path:
+    path = Path(value)
+    if path.is_absolute() or ".." in path.parts:
+        raise AcquisitionAuthorityError(f"{code}_unsafe")
+    return path
+
+
+def _resolve_repo_file(root: Path, relative: Path, *, code: str) -> Path:
+    resolved = (root / relative).resolve()
+    if not resolved.is_relative_to(root):
+        raise AcquisitionAuthorityError(f"{code}_unsafe")
+    if not resolved.is_file():
+        raise AcquisitionAuthorityError(f"{code}_missing", resolved.as_posix())
+    return resolved
+
+
 def _mapping(value: object) -> Mapping[str, object]:
     if not isinstance(value, Mapping):
         raise AcquisitionAuthorityError("authority_mapping_required")
@@ -1073,19 +1724,34 @@ def _mapping(value: object) -> Mapping[str, object]:
 
 
 __all__ = [
+    "ACQUISITION_AUTHORITY_PROVISION_SCHEMA_VERSION",
     "ACQUISITION_AUTHORITY_SCHEMA_VERSION",
+    "DEFAULT_ACQUISITION_AUTHORITY_PROVISION",
     "DEFAULT_ACQUISITION_AUTHORITY_REGISTRY",
+    "DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY",
     "LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION",
+    "LOCAL_RIGHTS_TRUST_REGISTRY_SCHEMA_VERSION",
+    "LOCAL_SOURCE_RIGHTS_DECLARATION_SCHEMA_VERSION",
+    "LOCAL_SOURCE_RIGHTS_RECEIPT_SCHEMA_VERSION",
     "AcquisitionAuthorityEntry",
     "AcquisitionAuthorityError",
+    "AcquisitionAuthorityProvision",
     "AcquisitionAuthorityRegistry",
     "AuthoritySchemaColumn",
     "CanonicalAcquisitionAuthority",
     "LicenseDisposition",
     "LiveSourceExecutionEvidence",
+    "LocalRightsTrustRegistry",
+    "LocalRightsTrustedAuthority",
+    "LocalSourceRightsDeclaration",
+    "LocalSourceRightsReceipt",
     "ResolvedAcquisitionAuthority",
     "ResolvedL5Trust",
+    "build_acquisition_authority_provision",
     "build_authority_entry",
     "build_authority_registry",
     "build_live_source_execution_evidence",
+    "build_local_rights_trust_registry",
+    "build_local_source_rights_declaration",
+    "verify_local_source_rights",
 ]

@@ -16,6 +16,7 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import (
+    DEFAULT_ACQUISITION_AUTHORITY_PROVISION,
     DEFAULT_ACQUISITION_AUTHORITY_REGISTRY,
     DEFAULT_L5_MEASUREMENT_REGISTRY,
     AcquisitionAuthorityEntry,
@@ -24,6 +25,7 @@ from polisyos.data_forge.domains.catalog.knowledge.acquisition_authority import 
     CanonicalAcquisitionAuthority,
     LicenseDisposition,
     LiveSourceExecutionEvidence,
+    build_acquisition_authority_provision,
     build_authority_entry,
     build_authority_registry,
     build_live_source_execution_evidence,
@@ -85,6 +87,29 @@ def _write_l5(repo_root: Path) -> Path:
                     },
                 },
             },
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_provision(
+    repo_root: Path,
+    *,
+    baseline: Path,
+    baseline_owner_ref: str,
+) -> Path:
+    provision = build_acquisition_authority_provision(
+        baseline_owner_ref=baseline_owner_ref,
+        baseline_content_sha256=_sha(baseline),
+    )
+    path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_PROVISION
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            provision.model_dump(mode="json"),
             sort_keys=True,
             separators=(",", ":"),
         ),
@@ -264,7 +289,18 @@ def _resolver(
         ),
         encoding="utf-8",
     )
-    return CanonicalAcquisitionAuthority(repo_root=repo_root, baseline_path=baseline), entry
+    _write_provision(
+        repo_root,
+        baseline=baseline,
+        baseline_owner_ref="repo://catalog/catalog.duckdb",
+    )
+    return (
+        CanonicalAcquisitionAuthority.from_provision(
+            repo_root=repo_root,
+            baseline_path=baseline,
+        ),
+        entry,
+    )
 
 
 def _live_execution_fixture(tmp_path: Path):
@@ -478,6 +514,52 @@ def test_authority_resolves_catalog_license_l5_and_registration(tmp_path: Path) 
     assert resolved.l5_trust.family_id == "macro_state"
     assert resolved.l5_trust.trust_cap == 1.0
     assert resolved.effective_authority_score == 0.8
+    assert resolved.license_authority_ref == (
+        "repo://catalog/catalog.duckdb#ds_datasets/"
+        "source-worldbank-balance/access_license"
+    )
+
+
+def test_live_license_ref_uses_logical_owner_for_external_baseline(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "worktree"
+    baseline = _baseline(tmp_path / "main-tree")
+    l5 = _write_l5(repo_root)
+    entry = _entry()
+    registry = build_authority_registry(
+        baseline_content_sha256=_sha(baseline),
+        l5_measurement_registry_sha256=_sha(l5),
+        entries=(entry,),
+    )
+    path = repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            registry.model_dump(mode="json"),
+            sort_keys=True,
+            separators=(",", ":"),
+        ),
+        encoding="utf-8",
+    )
+    _write_provision(
+        repo_root,
+        baseline=baseline,
+        baseline_owner_ref=(
+            "repo://production_data/snapshot/dataset_catalog.duckdb"
+        ),
+    )
+    resolver = CanonicalAcquisitionAuthority.from_provision(
+        repo_root=repo_root,
+        baseline_path=baseline,
+    )
+
+    resolved = resolver.resolve(entry.entry_id)
+
+    assert resolved.license_authority_ref == (
+        "repo://production_data/snapshot/dataset_catalog.duckdb"
+        "#ds_datasets/source-worldbank-balance/access_license"
+    )
 
 
 def test_live_execution_evidence_reopens_raw_and_normalized_carriers(
@@ -861,6 +943,15 @@ def test_authority_rejects_self_authored_and_invented_exact_edges() -> None:
         }
     )
     with pytest.raises(ValidationError, match="exact authority alignment"):
+        build_authority_entry(**values)
+
+    values = _entry().model_dump(mode="python", exclude={"entry_id"})
+    values["schema_columns"] = tuple(
+        AuthoritySchemaColumn.model_validate(column)
+        for column in values["schema_columns"]
+    )
+    values["local_source_path"] = "evidence/should-not-travel.json"
+    with pytest.raises(ValidationError, match="cannot carry local authority fields"):
         build_authority_entry(**values)
 
 

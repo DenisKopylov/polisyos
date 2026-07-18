@@ -55,20 +55,24 @@ artifacts.
 - The frozen N13a denominator is 19 cycle-demand variables: four already executable and 15
   `binding_gap` residuals. All three capstone routes are `not_a_data_gap`; their structural blockers
   are immutable control witnesses, not demonstration targets.
-- The rank-1 residual `avg_hh_income_uah` has 100 calibrated household cells but no currency,
-  nominal/real basis, or base-year authority. Its honest local-lift terminal is `basis_mismatch`; it
-  must not be admitted merely because values exist.
-- The first admissible local world-growth candidate is `cells.distress_score`: it is a measured
-  N13a `binding_gap`, is demanded by the L6 world-slot projection, and the existing S1 owner already
-  computes it generically from all 11,574 `corrected_firm_panels.parquet` rows via
-  `corrected_exit_bias`. The world-slot owner declares unit `ratio`, and source values are bounded
-  `[0,1]`. N13b will add the missing data registry edge; no per-metric branch is permitted in code.
-- No census residual has a live executable binding. The live lane therefore cannot claim D2 gap
-  closure. One N13a-authorized World Bank attempt for CPI/deflator data may prove live
-  resolve->ingestion->passport->overlay and supply the derived-data auxiliary input, but it remains
-  a plumbing/world-growth witness rather than a capstone-route closure.
-- If owner validation disproves the distress mapping or the World Bank call becomes unsafe, record a
-  typed deeper terminal. Do not weaken admission to force closure.
+- The full 15-row local denominator has no owner-admissible lift. The 100 calibrated household cells
+  lack currency, nominal/real basis, base year, source-snapshot identity, and rights authority; both
+  income residuals terminate `basis_mismatch`. The 11,574 corrected firm rows encode
+  `ln(1 + debt_amount) / max(ln(1 + debt_amount))`, not an observed distress construct. Only 80 rows
+  / 19 agents overlap the firm-fundamentals owner, and no catalog alignment validates the S1
+  `avg(corrected_exit_bias) -> cells.distress_score` shortcut. Both sources are derived and lack the
+  required D5 certificates and license/ToS evidence. The recomputed local result is therefore
+  `no_admissible_local_binding`, with no write and no epoch.
+- The live D2 target is `government.balance`, N13a backlog rank 8. The exact catalog carrier is
+  World Bank WDI `GC.BAL.CASH.GD.ZS`: dataset `659b22c5ea8c8fea6ec9`, distribution
+  `4b5ba470bab393cba7d1`, CC-BY-4.0, `transport_ready`, binding `gov_balance` confidence `.87`, and
+  exact non-proxy source alignment confidence `.85`. The missing edge is the generic normalized
+  connector field `value -> government.balance`; closing it is the measured world-growth event.
+- Separate one-variable WDI attempts for CPI (`FP.CPI.TOTL`) and nominal GDP in current LCU
+  (`NY.GDP.MKTP.CN`) may supply the certified real-terms acceptance case. Each target needs its own
+  exact E7 carrier receipt; a family-level green receipt cannot authorize it.
+- If the World Bank call becomes unsafe or measured schema/basis validation fails, record a typed
+  deeper terminal. Do not weaken admission to force closure.
 
 ## Global constraints and stop law
 
@@ -204,36 +208,40 @@ artifacts.
 - [ ] Prove baseline bytes are identical before/after and removing the real union turns RED.
 - [ ] Focused tests + Ruff. Commit: `feat: expose acquisition epochs through L1 catalog reads`.
 
-## Workstream 5 — Execute the local-lift demonstration
+## Workstream 5 — Freeze the full-denominator local-lift terminal
 
-- [ ] Add the measured data registry edge from the existing corrected-firm-panel field
-  `corrected_exit_bias` to `cells.distress_score`, unit `ratio`, with exact source/dataset/schema and
-  L5 authority refs. Code remains generic over all registered edges.
-- [ ] RED tests reject cross-dataset edges, missing fields, out-of-range ratios, field-name-only
-  self-attestation, incomplete source rows, and hardcoded target branches.
-- [ ] Execute one local source query over the full 11,574-row denominator, measure schema and range,
-  derive the passport, and append canonical aggregate observation rows at epoch 1.
-- [ ] Recompute N13a-style demand supply before/after and call the actual L1 availability consumer.
-  Re-run the demanding L6/world-slot availability stage. Record closure or a typed deeper state.
-- [ ] Execute rank-1 `avg_hh_income_uah` as a separate no-write attempt and require the honest
-  `basis_mismatch` terminal.
-- [ ] Focused tests + Ruff. Commit: `feat: execute local acquisition world growth`.
+- [ ] Recompute catalog binding/alignment/observation counts for all 15 N13a residuals; the
+  denominator must remain 15 even though every result is terminal.
+- [ ] Record measured source identities, row/grain coverage, owner joins, construct provenance,
+  basis fields, derivation status, and license/ToS evidence for corrected firms and household cells.
+- [ ] Require the typed terminal `no_admissible_local_binding`: 0/15 admissible, no passport, no
+  overlay write, no epoch. Distress includes `field_alignment_owner_missing`,
+  `derived_provenance_certificate_missing`, `construct_validity_below_floor`,
+  `cell_grain_coverage_insufficient`, `license_unclear`, and
+  `source_snapshot_identity_missing`; household additionally includes `basis_mismatch`.
+- [ ] Close the P32 class in the local authority resolver: a caller-provided `local_license_id`
+  cannot mint rights authority; admission requires a signed owner declaration plus a content-bound
+  rights receipt whose trust anchor comes from the separately registered canonical acquisition
+  provision. Absence or coordinated substitution fails closed.
+- [ ] Focused tests + Ruff. Commit: `fix: fail closed on unauthoritative local acquisition evidence`.
 
 ## Workstream 6 — Execute one bounded live-fetch lane
 
 - [ ] RED tests prove missing N13a authorization, second variable/call, unsafe license, absent
   profile, no raw journal, fabricated response, metadata-only conformance, and orchestration bypass
   all fail closed.
-- [ ] Resolve one World Bank CPI/deflator plan from the real catalog; narrow the request to Ukraine
-  and a declared period through request-side filters only. Run the N13a harness/simulator gate before
-  spending the call.
+- [ ] Resolve the World Bank government-balance plan from the real catalog; narrow the request to
+  Ukraine and a declared period through request-side filters only. Run a target-specific N13a
+  harness/simulator gate before spending the call.
 - [ ] Execute via `run_orchestrated_ingestion` into a dedicated CAS, produce a `DataSnapshot`,
   measure the first fetched sample under quarantine, then validate the complete passport. Admit only
   if the measured `country_code/year/value` structure, unit/basis, license, PII, checksum, watermark,
   and L5 cap all pass.
-- [ ] Record call count, bytes, wall time, heartbeats, CAS/snapshot refs, quarantine census, and
-  before/after baseline hash. Never claim this already-supported metric closes a D2 residual or a
-  capstone route.
+- [ ] Admit the normalized `value -> government.balance` last-mile registry edge only after the
+  complete passport, then prove the L1 availability requirement changes from unavailable to
+  available and its N7 gap constructor refuses to recreate the closed gap. Record call count, bytes,
+  wall time, heartbeats, CAS/snapshot refs, quarantine census, and before/after baseline hash. The
+  three N10 capstone routes remain unchanged.
 - [ ] Focused tests + Ruff. Commit: `feat: execute bounded live catalog acquisition`.
 
 ## Workstream 7 — Derived provenance and real-terms acceptance

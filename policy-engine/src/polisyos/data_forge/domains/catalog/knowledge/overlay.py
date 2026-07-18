@@ -807,6 +807,8 @@ def _validate_passport_owner_evidence(
             "acquisition_authority_unresolved", type(exc).__name__
         ) from exc
     authority_projection = (
+        str(getattr(resolved, "authority_provision_id", "")),
+        str(getattr(resolved, "authority_provision_content_sha256", "")),
         str(getattr(resolved, "registry_content_sha256", "")),
         str(getattr(resolved, "baseline_content_sha256", "")),
         str(getattr(resolved, "upstream_catalog_projection_sha256", "")),
@@ -814,6 +816,8 @@ def _validate_passport_owner_evidence(
         getattr(resolved, "field_binding", None),
     )
     embedded_projection = (
+        str(passport.authority_provision_id),
+        str(passport.authority_provision_content_sha256),
         str(passport.authority_registry_content_sha256),
         str(passport.baseline_content_sha256),
         str(passport.upstream_catalog_projection_sha256),
@@ -863,8 +867,12 @@ def _validate_passport_owner_evidence(
         != str(getattr(license_evidence, "license_id", ""))
         or _enum_value(resolved_license)
         != _enum_value(getattr(license_evidence, "disposition", ""))
+        or str(getattr(resolved, "license_authority_ref", ""))
+        != str(getattr(license_evidence, "authority_ref", ""))
+        or str(getattr(resolved, "license_authority_content_sha256", ""))
+        != str(getattr(license_evidence, "authority_content_sha256", ""))
     ):
-        raise OverlayAdmissionError("license_disposition_drift")
+        raise OverlayAdmissionError("license_authority_drift")
     resolved_l5 = getattr(resolved, "l5_trust", None)
     embedded_l5 = passport.l5_trust
     l5_projection = (

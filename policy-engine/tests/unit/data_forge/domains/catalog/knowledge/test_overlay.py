@@ -27,6 +27,11 @@ def _sha256(path: Path) -> str:
 def test_overlay_owner_is_available_through_the_canonical_read_api() -> None:
     assert catalog_read_api.CatalogAcquisitionOverlay is CatalogAcquisitionOverlay
     assert callable(catalog_read_api.open_catalog_read_session)
+    assert callable(catalog_read_api.verify_local_source_rights)
+    assert callable(catalog_read_api.build_local_rights_trust_registry)
+    assert callable(catalog_read_api.build_acquisition_authority_provision)
+    assert catalog_read_api.AcquisitionAuthorityProvision is not None
+    assert catalog_read_api.LocalRightsTrustRegistry is not None
     assert Path(
         "architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb"
     ) == catalog_read_api.DEFAULT_ACQUISITION_OVERLAY_PATH
@@ -219,6 +224,29 @@ def test_overlay_admits_passport_rows_at_new_epoch_without_mutating_baseline(
     finally:
         con.close()
 
+    overlay.close()
+
+
+def test_overlay_reopens_license_authority_instead_of_trusting_passport(
+    tmp_path: Path,
+) -> None:
+    passport, store, authority, _ = _valid_passport(tmp_path / "evidence")
+    overlay = CatalogAcquisitionOverlay(
+        authority.baseline_path,
+        tmp_path / "overlay.duckdb",
+    )
+    overlay.initialize()
+    forged_license = passport.license_evidence.model_copy(
+        update={"authority_content_sha256": "sha256:" + "0" * 64}
+    )
+    forged = passport.model_copy(update={"license_evidence": forged_license})
+
+    with pytest.raises(OverlayAdmissionError, match="license_authority_drift"):
+        overlay.admit_epoch(
+            passport=forged,
+            artifact_store=store,
+            authority=authority,
+        )
     overlay.close()
 
 

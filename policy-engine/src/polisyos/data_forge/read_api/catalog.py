@@ -48,6 +48,12 @@ _EXPORTS = {
     "DEFAULT_ACQUISITION_OVERLAY_PATH": (
         "polisyos.data_forge.domains.catalog.knowledge.overlay"
     ),
+    "DEFAULT_ACQUISITION_AUTHORITY_PROVISION": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "DatasetRegistry": "polisyos.data_forge.domains.catalog.knowledge.registry",
     "DatasetSearchResult": "polisyos.data_forge.domains.catalog.knowledge.types",
     "MetricBindingMatch": "polisyos.data_forge.domains.catalog.knowledge.types",
@@ -63,6 +69,9 @@ _EXPORTS = {
     "AcquisitionAuthorityEntry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
+    "AcquisitionAuthorityProvision": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "AcquisitionAuthorityError": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -76,6 +85,18 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "LiveSourceExecutionEvidence": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "LocalSourceRightsDeclaration": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "LocalSourceRightsReceipt": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "LocalRightsTrustedAuthority": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "LocalRightsTrustRegistry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "ResolvedAcquisitionAuthority": (
@@ -100,10 +121,19 @@ _EXPORTS = {
     "build_authority_entry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
+    "build_acquisition_authority_provision": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "build_authority_registry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "build_live_source_execution_evidence": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "build_local_source_rights_declaration": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "build_local_rights_trust_registry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "build_metric_field_binding": "polisyos.data_forge.domains.catalog.knowledge.overlay",
@@ -132,6 +162,9 @@ _EXPORTS = {
     "score_variable_pair": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
     "select_catalog_source_modules": _CATALOG_DOMAIN,
     "validate_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
+    "verify_local_source_rights": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
 }
 
 

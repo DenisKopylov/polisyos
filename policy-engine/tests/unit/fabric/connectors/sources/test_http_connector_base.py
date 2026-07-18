@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any, ClassVar
 
@@ -528,6 +529,67 @@ def test_raw_http_observer_journals_non_success_body_before_status_error(
     assert witnessed == [(status_code, raw)]
 
 
+def test_raw_http_observer_journals_exact_body_before_pii_classification() -> None:
+    connector = _DummyConnector()
+    raw = b'{"email":"alice@example.com"}'
+    witnessed: list[bytes] = []
+
+    class _Observer(_ObserverLimits):
+        def before_request(self, *args: object) -> None:
+            del args
+
+        def on_raw_response(self, *args: object) -> None:
+            witnessed.append(args[-1])  # type: ignore[arg-type]
+
+    with pytest.raises(FetchError, match="secret/PII"):
+        _run(
+            connector._request_json(
+                _FakeSession(_FakeResponse(200, {}, raw)),
+                "https://example.test/pii",
+                params={},
+                connector_id=connector.connector_id,
+                raw_http_response_observer=_Observer(),
+            )
+        )
+
+    assert witnessed == [raw]
+
+
+def test_raw_http_observer_reports_headers_and_progress_before_raw_body() -> None:
+    connector = _DummyConnector()
+    raw = b'{"ok":true}'
+    events: list[tuple[str, object]] = []
+
+    class _Observer(_ObserverLimits):
+        def before_request(self, *args: object) -> None:
+            del args
+
+        def on_response_headers(self, *args: object) -> None:
+            events.append(("headers", args[-1]))
+
+        def on_body_progress(self, *args: object) -> None:
+            events.append(("progress", args[-1]))
+
+        def on_raw_response(self, *args: object) -> None:
+            events.append(("raw", args[-1]))
+
+    _run(
+        connector._request_json(
+            _FakeSession(_FakeResponse(200, {"ETag": "v1"}, raw)),
+            "https://example.test/progress",
+            params={},
+            connector_id=connector.connector_id,
+            raw_http_response_observer=_Observer(),
+        )
+    )
+
+    assert events == [
+        ("headers", {"ETag": "v1"}),
+        ("progress", len(raw)),
+        ("raw", raw),
+    ]
+
+
 def test_error_response_body_remains_unread_when_no_observer_is_installed() -> None:
     connector = _DummyConnector()
 
@@ -613,9 +675,13 @@ def test_raw_http_observer_tighter_limits_bound_response_read(
         url: str,
         max_response_bytes: int | None = None,
         max_decompressed_bytes: int | None = None,
+        before_classification: Callable[[bytes], None] | None = None,
+        on_progress: Callable[[int], None] | None = None,
     ) -> bytes:
-        del response, connector_id, url
+        del response, connector_id, url, on_progress
         observed_limits.append((max_response_bytes, max_decompressed_bytes))
+        if before_classification is not None:
+            before_classification(b"{}")
         return b"{}"
 
     monkeypatch.setattr(connector, "_read_response_body", _read_response_body)

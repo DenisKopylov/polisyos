@@ -367,6 +367,37 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
             raw_http_response_observer.before_request(connector_id, url, dict(params))
         async with session.get(url, params=params, headers=headers) as response:
             headers = dict(response.headers)
+            on_progress: Callable[[int], None] | None = None
+            if raw_http_response_observer is not None:
+                response_headers_observer = getattr(
+                    raw_http_response_observer,
+                    "on_response_headers",
+                    None,
+                )
+                if callable(response_headers_observer):
+                    response_headers_observer(
+                        connector_id,
+                        url,
+                        dict(params),
+                        response.status,
+                        dict(headers),
+                    )
+                body_progress_observer = getattr(
+                    raw_http_response_observer,
+                    "on_body_progress",
+                    None,
+                )
+                if callable(body_progress_observer):
+
+                    def _report_progress(bytes_read: int) -> None:
+                        body_progress_observer(
+                            connector_id,
+                            url,
+                            dict(params),
+                            bytes_read,
+                        )
+
+                    on_progress = _report_progress
             if raw_http_response_observer is None:
                 _raise_for_http_status(
                     connector_id=connector_id,
@@ -374,22 +405,30 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
                     status_code=response.status,
                     headers=headers,
                 )
+            before_classification: Callable[[bytes], None] | None = None
+            if raw_http_response_observer is not None:
+
+                def _persist_raw_before_classification(body: bytes) -> None:
+                    raw_http_response_observer.on_raw_response(
+                        connector_id,
+                        url,
+                        dict(params),
+                        response.status,
+                        dict(headers),
+                        body,
+                    )
+
+                before_classification = _persist_raw_before_classification
             raw = await self._read_response_body(
                 response,
                 connector_id=connector_id,
                 url=url,
                 max_response_bytes=max_response_bytes,
                 max_decompressed_bytes=max_decompressed_bytes,
+                before_classification=before_classification,
+                on_progress=on_progress,
             )
             if raw_http_response_observer is not None:
-                raw_http_response_observer.on_raw_response(
-                    connector_id,
-                    url,
-                    dict(params),
-                    response.status,
-                    dict(headers),
-                    raw,
-                )
                 _raise_for_http_status(
                     connector_id=connector_id,
                     url=url,
@@ -433,6 +472,8 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
         url: str,
         max_response_bytes: int | None = None,
         max_decompressed_bytes: int | None = None,
+        before_classification: Callable[[bytes], None] | None = None,
+        on_progress: Callable[[int], None] | None = None,
     ) -> bytes:
         """Read a response body in bounded chunks instead of one blind read."""
         return await read_bounded_response_body(
@@ -442,6 +483,8 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
             max_response_bytes=max_response_bytes,
             max_decompressed_bytes=max_decompressed_bytes,
             chunk_size=self._READ_CHUNK_SIZE,
+            before_classification=before_classification,
+            on_progress=on_progress,
         )
 
     @staticmethod

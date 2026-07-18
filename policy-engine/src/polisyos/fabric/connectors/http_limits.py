@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import Any
 
 from polisyos.core import scan_secret_and_pii
@@ -27,6 +28,8 @@ async def read_bounded_response_body(
     max_response_bytes: int | None,
     max_decompressed_bytes: int | None,
     chunk_size: int = DEFAULT_READ_CHUNK_SIZE,
+    before_classification: Callable[[bytes], None] | None = None,
+    on_progress: Callable[[int], None] | None = None,
 ) -> bytes:
     """Read an aiohttp-style response body with explicit byte ceilings."""
 
@@ -57,7 +60,11 @@ async def read_bounded_response_body(
                 max_response_bytes=max_response_bytes,
                 max_decompressed_bytes=max_decompressed_bytes,
             )
+            if on_progress is not None:
+                on_progress(len(raw))
         payload = bytes(raw)
+        if before_classification is not None:
+            before_classification(payload)
         _raise_if_secret_pii_found(payload, connector_id=connector_id, url=url)
         return payload
 
@@ -69,6 +76,10 @@ async def read_bounded_response_body(
         max_response_bytes=max_response_bytes,
         max_decompressed_bytes=max_decompressed_bytes,
     )
+    if on_progress is not None:
+        on_progress(len(fallback))
+    if before_classification is not None:
+        before_classification(fallback)
     _raise_if_secret_pii_found(fallback, connector_id=connector_id, url=url)
     return fallback
 

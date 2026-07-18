@@ -12,6 +12,7 @@ import base64
 import hashlib
 import json
 import os
+import re
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Self
@@ -22,6 +23,24 @@ if TYPE_CHECKING:
     from polisyos.fabric.connectors.profiles.models import SourceProfile
 
 _SHA256_PATTERN = r"^sha256:[0-9a-f]{64}$"
+_SAFE_TERMINAL_CODE_PATTERN = r"^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$"
+_SAFE_TERMINAL_CODE = re.compile(_SAFE_TERMINAL_CODE_PATTERN)
+_LIVE_ATTEMPT_TERMINAL_EVENT_KEYS = frozenset(
+    {
+        "sequence",
+        "event_kind",
+        "schema_version",
+        "attempt_id",
+        "request_event_sha256",
+        "raw_evidence_event_sha256",
+        "failure_code",
+        "outcome_code",
+        "http_status_code",
+        "quarantine",
+        "response_admitted",
+        "terminal_sha256",
+    }
+)
 _SAFE_DRY_RUN_OUTCOMES = frozenset(
     {
         "fetch_result_validated",
@@ -176,6 +195,69 @@ class LiveTransportTrace(_StrictModel):
         return self
 
 
+class LiveAttemptTerminal(_StrictModel):
+    """Resolved quarantine terminal derived from one exact live-attempt journal.
+
+    Instances returned by :func:`resolve_live_attempt_terminal` have reopened
+    and content-verified every referenced event. Constructing this DTO alone
+    does not confer evidence authority.
+    """
+
+    schema_version: Literal["polisyos.fabric.live_attempt_terminal.v1"] = (
+        "polisyos.fabric.live_attempt_terminal.v1"
+    )
+    attempt_id: str = Field(min_length=1)
+    outcome_code: str = Field(
+        min_length=1,
+        max_length=140,
+        pattern=_SAFE_TERMINAL_CODE_PATTERN,
+    )
+    failure_code: str = Field(
+        min_length=1,
+        max_length=120,
+        pattern=_SAFE_TERMINAL_CODE_PATTERN,
+    )
+    request_ref: JournalEventRef
+    raw_evidence_ref: JournalEventRef | None = None
+    http_status_code: int | None = Field(default=None, ge=100, le=599)
+    quarantine: Literal[True] = True
+    response_admitted: Literal[False] = False
+    terminal_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _terminal_is_evidence_derived(self) -> Self:
+        if self.request_ref.event_kind != "request":
+            raise ValueError("live terminal request ref is invalid")
+        if self.raw_evidence_ref is None:
+            if self.http_status_code is not None:
+                raise ValueError("live terminal status requires raw evidence")
+        else:
+            if self.raw_evidence_ref.event_kind != "raw_response":
+                raise ValueError("live terminal raw ref is invalid")
+            if self.raw_evidence_ref.journal_path != self.request_ref.journal_path:
+                raise ValueError("live terminal refs must share one journal")
+            if self.raw_evidence_ref.sequence <= self.request_ref.sequence:
+                raise ValueError("live terminal raw evidence must follow its request")
+        expected_outcome = _derive_live_attempt_outcome(
+            failure_code=self.failure_code,
+            http_status_code=self.http_status_code,
+            raw_response_present=self.raw_evidence_ref is not None,
+        )
+        if self.outcome_code != expected_outcome:
+            raise ValueError("live terminal outcome must be evidence-derived")
+        expected_sha = _live_attempt_terminal_sha256(
+            attempt_id=self.attempt_id,
+            request_ref=self.request_ref,
+            raw_evidence_ref=self.raw_evidence_ref,
+            failure_code=self.failure_code,
+            outcome_code=self.outcome_code,
+            http_status_code=self.http_status_code,
+        )
+        if self.terminal_sha256 != expected_sha:
+            raise ValueError("live terminal identity must be recomputed")
+        return self
+
+
 class HarnessAuthorizationEvidence(_StrictModel):
     """N13a E7 harness projection that recomputes whether one carrier is safe."""
 
@@ -273,15 +355,93 @@ def content_sha256(value: object) -> str:
     return f"sha256:{hashlib.sha256(canonical_json_bytes(value)).hexdigest()}"
 
 
+def _derive_live_attempt_outcome(
+    *,
+    failure_code: str,
+    http_status_code: int | None,
+    raw_response_present: bool,
+) -> str:
+    """Derive an open, syntax-safe outcome from paid journal evidence."""
+
+    if _SAFE_TERMINAL_CODE.fullmatch(failure_code) is None:
+        raise ValueError("live terminal failure code is unsafe")
+    if http_status_code in {401, 403}:
+        return "auth_required"
+    if http_status_code == 429:
+        return "rate_limited"
+    if http_status_code in {408, 504}:
+        return "timeout"
+    if http_status_code is not None and http_status_code >= 400:
+        return "http_error"
+
+    tokens = frozenset(failure_code.split("_"))
+    if tokens & {"auth", "credential", "credentials", "permission"}:
+        return "auth_required"
+    if "rate" in tokens and "limit" in tokens:
+        return "rate_limited"
+    if tokens & {"license", "licence", "terms", "tos"}:
+        return "license_unclear"
+    if tokens & {"timeout", "timedout"}:
+        return "timeout"
+    if tokens & {"network", "dns", "tls", "connect", "connection"}:
+        return "network_unreachable"
+    if tokens & {"budget", "quota"}:
+        return "budget_exhausted"
+    if tokens & {"header", "headers", "contenttype"}:
+        return "response_rejected"
+    if tokens & {"pii", "privacy"}:
+        return "pii_restricted"
+    if tokens & {"checksum", "integrity", "watermark"}:
+        return "integrity_failed"
+    if raw_response_present and tokens & {"schema", "profile", "field", "fields"}:
+        return "alive_schema_drift"
+    if raw_response_present and tokens & {
+        "normalization",
+        "normalize",
+        "transform",
+        "coercion",
+        "units",
+    }:
+        return "normalization_failed"
+    prefix = "quarantined" if raw_response_present else "failed"
+    return f"{prefix}_{failure_code}"
+
+
+def _live_attempt_terminal_sha256(
+    *,
+    attempt_id: str,
+    request_ref: JournalEventRef,
+    raw_evidence_ref: JournalEventRef | None,
+    failure_code: str,
+    outcome_code: str,
+    http_status_code: int | None,
+) -> str:
+    return content_sha256(
+        {
+            "schema_version": "polisyos.fabric.live_attempt_terminal.v1",
+            "attempt_id": attempt_id,
+            "request_event_sha256": request_ref.event_sha256,
+            "raw_evidence_event_sha256": (
+                raw_evidence_ref.event_sha256 if raw_evidence_ref is not None else None
+            ),
+            "failure_code": failure_code,
+            "outcome_code": outcome_code,
+            "http_status_code": http_status_code,
+            "quarantine": True,
+            "response_admitted": False,
+        }
+    )
+
+
 def _live_heartbeat_phases_are_valid(phases: Sequence[str]) -> bool:
     if any(phase not in _LIVE_HEARTBEAT_PHASE_ORDER for phase in phases):
         return False
     ranks = [_LIVE_HEARTBEAT_PHASE_ORDER[phase] for phase in phases]
     if ranks != sorted(ranks):
         return False
-    return all(phases.count(required) == 1 for required in _REQUIRED_LIVE_HEARTBEAT_PHASES[:2]) and (
-        phases.count("body_progress") >= 1
-    )
+    return all(
+        phases.count(required) == 1 for required in _REQUIRED_LIVE_HEARTBEAT_PHASES[:2]
+    ) and (phases.count("body_progress") >= 1)
 
 
 def _live_transport_trace_sha256(
@@ -307,9 +467,7 @@ def _live_transport_trace_sha256(
             "params_sha256": params_sha256,
             "request_event_sha256": request_ref.event_sha256,
             "transport_event_sha256": transport_attempt_ref.event_sha256,
-            "heartbeat_event_sha256s": tuple(
-                ref.event_sha256 for ref in heartbeat_refs
-            ),
+            "heartbeat_event_sha256s": tuple(ref.event_sha256 for ref in heartbeat_refs),
             "heartbeat_phases": tuple(heartbeat_phases),
             "raw_evidence_event_sha256": raw_evidence_ref.event_sha256,
             "call_count": call_count,
@@ -393,6 +551,207 @@ def resolve_raw_response_body(ref: JournalEventRef) -> bytes:
     return body
 
 
+def resolve_live_attempt_terminal(ref: JournalEventRef) -> LiveAttemptTerminal:
+    """Reopen one journal and resolve its unique terminal for an attempt."""
+
+    if ref.event_kind != "live_attempt_terminal":
+        raise EvidenceJournalError("live_attempt_terminal_event_required", ref.event_kind)
+    records = _read_canonical_journal(Path(ref.journal_path))
+    return _resolve_live_attempt_terminal(ref, records)
+
+
+def resolve_live_attempt_terminals(path: Path) -> tuple[LiveAttemptTerminal, ...]:
+    """Resolve the full request denominator, requiring one terminal per attempt."""
+
+    records = _read_canonical_journal(Path(path))
+    request_records = [
+        (event_ref, event) for event_ref, event in records if event.get("event_kind") == "request"
+    ]
+    request_ids: list[str] = []
+    for _request_ref, event in request_records:
+        attempt_id = event.get("attempt_id")
+        if not isinstance(attempt_id, str) or not attempt_id.strip():
+            raise EvidenceJournalError("live_terminal_request_link_invalid", str(attempt_id))
+        request_ids.append(attempt_id)
+    if len(request_ids) != len(set(request_ids)):
+        raise EvidenceJournalError("duplicate_attempt_request")
+
+    terminal_records = [
+        (event_ref, event)
+        for event_ref, event in records
+        if event.get("event_kind") == "live_attempt_terminal"
+    ]
+    terminals_by_attempt: dict[str, list[JournalEventRef]] = {}
+    for terminal_ref, event in terminal_records:
+        attempt_id = event.get("attempt_id")
+        if not isinstance(attempt_id, str) or not attempt_id.strip():
+            raise EvidenceJournalError("live_attempt_terminal_invalid", str(attempt_id))
+        terminals_by_attempt.setdefault(attempt_id, []).append(terminal_ref)
+    duplicate_ids = sorted(
+        attempt_id for attempt_id, refs in terminals_by_attempt.items() if len(refs) != 1
+    )
+    if duplicate_ids:
+        raise EvidenceJournalError(
+            "duplicate_live_attempt_terminal",
+            ",".join(duplicate_ids),
+        )
+    missing_ids = sorted(set(request_ids) - terminals_by_attempt.keys())
+    if missing_ids:
+        raise EvidenceJournalError(
+            "live_attempt_terminal_missing",
+            ",".join(missing_ids),
+        )
+    orphan_ids = sorted(terminals_by_attempt.keys() - set(request_ids))
+    if orphan_ids:
+        raise EvidenceJournalError(
+            "live_terminal_request_link_invalid",
+            ",".join(orphan_ids),
+        )
+    return tuple(
+        _resolve_live_attempt_terminal(terminals_by_attempt[attempt_id][0], records)
+        for attempt_id in request_ids
+    )
+
+
+def _resolve_live_attempt_terminal(
+    ref: JournalEventRef,
+    records: Sequence[tuple[JournalEventRef, dict[str, Any]]],
+) -> LiveAttemptTerminal:
+    terminal_matches = [(event_ref, event) for event_ref, event in records if event_ref == ref]
+    if len(terminal_matches) != 1:
+        raise EvidenceJournalError("journal_event_ref_unresolved", ref.event_sha256)
+    terminal_ref, event = terminal_matches[0]
+    attempt_id = event.get("attempt_id")
+    if (
+        set(event) != _LIVE_ATTEMPT_TERMINAL_EVENT_KEYS
+        or not isinstance(attempt_id, str)
+        or not attempt_id.strip()
+    ):
+        raise EvidenceJournalError("live_attempt_terminal_invalid", ref.event_sha256)
+
+    sibling_terminals = [
+        event_ref
+        for event_ref, candidate in records
+        if candidate.get("event_kind") == "live_attempt_terminal"
+        and candidate.get("attempt_id") == attempt_id
+    ]
+    if len(sibling_terminals) != 1:
+        raise EvidenceJournalError("duplicate_live_attempt_terminal", attempt_id)
+
+    request_sha = event.get("request_event_sha256")
+    attempt_requests = [
+        (event_ref, candidate)
+        for event_ref, candidate in records
+        if candidate.get("event_kind") == "request" and candidate.get("attempt_id") == attempt_id
+    ]
+    if (
+        not isinstance(request_sha, str)
+        or len(attempt_requests) != 1
+        or attempt_requests[0][0].event_sha256 != request_sha
+    ):
+        raise EvidenceJournalError("live_terminal_request_link_invalid", attempt_id)
+    request_ref, request_event = attempt_requests[0]
+    request_payload = request_event.get("request")
+    if (
+        not isinstance(request_payload, Mapping)
+        or request_event.get("request_sha256") != content_sha256(request_payload)
+        or request_ref.sequence >= terminal_ref.sequence
+    ):
+        raise EvidenceJournalError("live_terminal_request_link_invalid", attempt_id)
+
+    raw_records = [
+        (event_ref, candidate)
+        for event_ref, candidate in records
+        if candidate.get("event_kind") == "raw_response"
+        and candidate.get("attempt_id") == attempt_id
+    ]
+    if len(raw_records) > 1:
+        raise EvidenceJournalError("duplicate_raw_evidence", attempt_id)
+    raw_sha = event.get("raw_evidence_event_sha256")
+    raw_ref: JournalEventRef | None = None
+    http_status_code: int | None = None
+    if raw_records:
+        if not isinstance(raw_sha, str):
+            raise EvidenceJournalError("live_terminal_raw_link_required", attempt_id)
+        candidate_ref, raw_event = raw_records[0]
+        if candidate_ref.event_sha256 != raw_sha:
+            raise EvidenceJournalError("live_terminal_raw_link_invalid", attempt_id)
+        raw_payload = raw_event.get("raw_response")
+        if (
+            not isinstance(raw_payload, Mapping)
+            or raw_payload.get("request_event_sha256") != request_ref.event_sha256
+            or not request_ref.sequence < candidate_ref.sequence < terminal_ref.sequence
+        ):
+            raise EvidenceJournalError("live_terminal_raw_link_invalid", attempt_id)
+        resolve_raw_response_body(candidate_ref)
+        status = raw_payload.get("status_code")
+        if status is not None and (
+            not isinstance(status, int) or isinstance(status, bool) or not 100 <= status <= 599
+        ):
+            raise EvidenceJournalError("live_terminal_raw_link_invalid", attempt_id)
+        raw_ref = candidate_ref
+        http_status_code = status
+    elif raw_sha is not None:
+        raise EvidenceJournalError("live_terminal_raw_link_invalid", attempt_id)
+
+    stored_status = event.get("http_status_code")
+    if stored_status != http_status_code:
+        raise EvidenceJournalError("live_terminal_http_status_drift", attempt_id)
+    failure_code = event.get("failure_code")
+    if (
+        not isinstance(failure_code, str)
+        or len(failure_code) > 120
+        or _SAFE_TERMINAL_CODE.fullmatch(failure_code) is None
+    ):
+        raise EvidenceJournalError("live_terminal_failure_code_invalid", attempt_id)
+    outcome_code = event.get("outcome_code")
+    expected_outcome = _derive_live_attempt_outcome(
+        failure_code=failure_code,
+        http_status_code=http_status_code,
+        raw_response_present=raw_ref is not None,
+    )
+    if outcome_code != expected_outcome:
+        raise EvidenceJournalError("live_terminal_outcome_drift", attempt_id)
+    if (
+        event.get("schema_version") != "polisyos.fabric.live_attempt_terminal.v1"
+        or event.get("quarantine") is not True
+        or event.get("response_admitted") is not False
+    ):
+        raise EvidenceJournalError("live_attempt_terminal_invalid", attempt_id)
+
+    later_attempt_events = [
+        candidate_ref
+        for candidate_ref, candidate in records
+        if candidate.get("attempt_id") == attempt_id
+        and candidate_ref.sequence > terminal_ref.sequence
+    ]
+    if later_attempt_events:
+        raise EvidenceJournalError("live_attempt_event_after_terminal", attempt_id)
+
+    terminal_sha = event.get("terminal_sha256")
+    expected_sha = _live_attempt_terminal_sha256(
+        attempt_id=attempt_id,
+        request_ref=request_ref,
+        raw_evidence_ref=raw_ref,
+        failure_code=failure_code,
+        outcome_code=expected_outcome,
+        http_status_code=http_status_code,
+    )
+    if terminal_sha != expected_sha:
+        raise EvidenceJournalError("live_terminal_identity_drift", attempt_id)
+    return LiveAttemptTerminal(
+        attempt_id=attempt_id,
+        outcome_code=expected_outcome,
+        failure_code=failure_code,
+        request_ref=request_ref,
+        raw_evidence_ref=raw_ref,
+        http_status_code=http_status_code,
+        quarantine=True,
+        response_admitted=False,
+        terminal_sha256=expected_sha,
+    )
+
+
 def resolve_live_transport_trace(ref: JournalEventRef) -> LiveTransportTrace:
     """Reopen a canonical journal and derive an exact one-call transport proof."""
 
@@ -451,10 +810,9 @@ def resolve_live_transport_trace(ref: JournalEventRef) -> LiveTransportTrace:
         raise EvidenceJournalError("live_transport_request_link_invalid", attempt_id)
     request_ref, request_event = request_records[0]
     request_payload = request_event.get("request")
-    if (
-        not isinstance(request_payload, Mapping)
-        or request_event.get("request_sha256") != content_sha256(request_payload)
-    ):
+    if not isinstance(request_payload, Mapping) or request_event.get(
+        "request_sha256"
+    ) != content_sha256(request_payload):
         raise EvidenceJournalError("live_transport_request_link_invalid", attempt_id)
     if not request_ref.sequence < transport_ref.sequence < raw_ref.sequence:
         raise EvidenceJournalError("live_transport_order_invalid", attempt_id)
@@ -478,8 +836,7 @@ def resolve_live_transport_trace(ref: JournalEventRef) -> LiveTransportTrace:
     heartbeat_records = [
         (event_ref, event)
         for event_ref, event in records
-        if event.get("event_kind") == "heartbeat"
-        and event.get("attempt_id") == attempt_id
+        if event.get("event_kind") == "heartbeat" and event.get("attempt_id") == attempt_id
     ]
     if not heartbeat_records or any(
         not transport_ref.sequence < event_ref.sequence < raw_ref.sequence
@@ -663,9 +1020,7 @@ def derive_live_http_budget(
     """Derive one-call limits from the actual Fabric source-profile owner."""
 
     profile_timeout = float(profile.timeout_seconds)
-    rate_limit_rps = (
-        float(profile.rate_limit_rps) if profile.rate_limit_rps is not None else None
-    )
+    rate_limit_rps = float(profile.rate_limit_rps) if profile.rate_limit_rps is not None else None
     requests_per_hour = (
         int(profile.requests_per_hour) if profile.requests_per_hour is not None else None
     )
@@ -860,6 +1215,7 @@ class AppendOnlyEvidenceJournal:
         self._requests: dict[str, JournalEventRef] = {}
         self._transport_attempts: dict[str, list[JournalEventRef]] = {}
         self._raw_evidence: dict[str, JournalEventRef] = {}
+        self._terminals: dict[str, JournalEventRef] = {}
         self._heartbeat_state: dict[str, tuple[int, float]] = {}
 
     def _append(self, event_kind: str, payload: Mapping[str, Any]) -> JournalEventRef:
@@ -886,9 +1242,7 @@ class AppendOnlyEvidenceJournal:
         variable = request.get("variable_id")
         variables = request.get("request_variables")
         one_variable = isinstance(variable, str) and bool(variable.strip())
-        if isinstance(variables, Sequence) and not isinstance(
-            variables, (str, bytes, bytearray)
-        ):
+        if isinstance(variables, Sequence) and not isinstance(variables, (str, bytes, bytearray)):
             one_variable = len(variables) == 1 and bool(str(variables[0]).strip())
         if not one_variable:
             raise EvidenceJournalError("one_variable_request_required", attempt_id)
@@ -917,6 +1271,8 @@ class AppendOnlyEvidenceJournal:
     ) -> JournalEventRef:
         """Persist each actual HTTP attempt, including retries, before transport."""
 
+        if attempt_id in self._terminals:
+            raise EvidenceJournalError("attempt_already_terminal", attempt_id)
         expected_request = self._requests.get(attempt_id)
         if expected_request != request_ref or not verify_journal_event_ref(request_ref):
             raise EvidenceJournalError("request_evidence_ref_invalid", attempt_id)
@@ -954,6 +1310,8 @@ class AppendOnlyEvidenceJournal:
     ) -> JournalEventRef:
         """Persist one monotone progress event for an active attempt."""
 
+        if attempt_id in self._terminals:
+            raise EvidenceJournalError("attempt_already_terminal", attempt_id)
         if attempt_id not in self._requests:
             raise EvidenceJournalError("heartbeat_request_missing", attempt_id)
         if attempt_id in self._raw_evidence:
@@ -994,6 +1352,8 @@ class AppendOnlyEvidenceJournal:
     ) -> JournalEventRef:
         """Persist bounded response bytes before any classification consumes them."""
 
+        if attempt_id in self._terminals:
+            raise EvidenceJournalError("attempt_already_terminal", attempt_id)
         expected_request = self._requests.get(attempt_id)
         if expected_request != request_ref or not verify_journal_event_ref(request_ref):
             raise EvidenceJournalError("request_evidence_ref_invalid", attempt_id)
@@ -1043,6 +1403,8 @@ class AppendOnlyEvidenceJournal:
     ) -> JournalEventRef:
         """Persist a classification only after resolving its raw response bytes."""
 
+        if attempt_id in self._terminals:
+            raise EvidenceJournalError("attempt_already_terminal", attempt_id)
         expected = self._raw_evidence.get(attempt_id)
         if expected is None or evidence_ref.event_kind != "raw_response":
             raise EvidenceJournalError("raw_evidence_required", attempt_id)
@@ -1056,6 +1418,112 @@ class AppendOnlyEvidenceJournal:
                 "classification": dict(classification),
             },
         )
+
+    def append_failure_terminal(
+        self,
+        *,
+        attempt_id: str,
+        request_ref: JournalEventRef,
+        failure_code: str,
+        raw_evidence_ref: JournalEventRef | None = None,
+    ) -> JournalEventRef:
+        """Close one failed live attempt with an evidence-derived quarantine terminal.
+
+        The caller supplies only the observed failure code. The owner derives the
+        outcome from that syntax-safe code and, when present, the exact journaled
+        HTTP status. Any response already persisted for the attempt must travel
+        with the terminal; response bytes can never be classified by omission.
+        """
+
+        if attempt_id in self._terminals:
+            raise EvidenceJournalError("duplicate_live_attempt_terminal", attempt_id)
+        expected_request = self._requests.get(attempt_id)
+        if expected_request != request_ref or not verify_journal_event_ref(request_ref):
+            raise EvidenceJournalError("live_terminal_request_link_invalid", attempt_id)
+        request_event = resolve_journal_event_ref(request_ref)
+        request_payload = request_event.get("request")
+        if (
+            request_event.get("attempt_id") != attempt_id
+            or not isinstance(request_payload, Mapping)
+            or request_event.get("request_sha256") != content_sha256(request_payload)
+        ):
+            raise EvidenceJournalError("live_terminal_request_link_invalid", attempt_id)
+        if (
+            not isinstance(failure_code, str)
+            or len(failure_code) > 120
+            or _SAFE_TERMINAL_CODE.fullmatch(failure_code) is None
+        ):
+            raise EvidenceJournalError("live_terminal_failure_code_invalid", attempt_id)
+
+        expected_raw = self._raw_evidence.get(attempt_id)
+        http_status_code: int | None = None
+        if expected_raw is not None:
+            if raw_evidence_ref is None:
+                raise EvidenceJournalError("live_terminal_raw_link_required", attempt_id)
+            if expected_raw != raw_evidence_ref or not verify_journal_event_ref(raw_evidence_ref):
+                raise EvidenceJournalError("live_terminal_raw_link_invalid", attempt_id)
+            raw_event = resolve_journal_event_ref(raw_evidence_ref)
+            raw_payload = raw_event.get("raw_response")
+            if (
+                raw_event.get("attempt_id") != attempt_id
+                or not isinstance(raw_payload, Mapping)
+                or raw_payload.get("request_event_sha256") != request_ref.event_sha256
+            ):
+                raise EvidenceJournalError("live_terminal_raw_link_invalid", attempt_id)
+            resolve_raw_response_body(raw_evidence_ref)
+            status = raw_payload.get("status_code")
+            if status is not None and (
+                not isinstance(status, int) or isinstance(status, bool) or not 100 <= status <= 599
+            ):
+                raise EvidenceJournalError("live_terminal_raw_link_invalid", attempt_id)
+            http_status_code = status
+        elif raw_evidence_ref is not None:
+            raise EvidenceJournalError("live_terminal_raw_link_invalid", attempt_id)
+
+        outcome_code = _derive_live_attempt_outcome(
+            failure_code=failure_code,
+            http_status_code=http_status_code,
+            raw_response_present=raw_evidence_ref is not None,
+        )
+        terminal_sha = _live_attempt_terminal_sha256(
+            attempt_id=attempt_id,
+            request_ref=request_ref,
+            raw_evidence_ref=raw_evidence_ref,
+            failure_code=failure_code,
+            outcome_code=outcome_code,
+            http_status_code=http_status_code,
+        )
+        LiveAttemptTerminal(
+            attempt_id=attempt_id,
+            outcome_code=outcome_code,
+            failure_code=failure_code,
+            request_ref=request_ref,
+            raw_evidence_ref=raw_evidence_ref,
+            http_status_code=http_status_code,
+            quarantine=True,
+            response_admitted=False,
+            terminal_sha256=terminal_sha,
+        )
+        ref = self._append(
+            "live_attempt_terminal",
+            {
+                "schema_version": "polisyos.fabric.live_attempt_terminal.v1",
+                "attempt_id": attempt_id,
+                "request_event_sha256": request_ref.event_sha256,
+                "raw_evidence_event_sha256": (
+                    raw_evidence_ref.event_sha256 if raw_evidence_ref is not None else None
+                ),
+                "failure_code": failure_code,
+                "outcome_code": outcome_code,
+                "http_status_code": http_status_code,
+                "quarantine": True,
+                "response_admitted": False,
+                "terminal_sha256": terminal_sha,
+            },
+        )
+        self._terminals[attempt_id] = ref
+        resolve_live_attempt_terminal(ref)
+        return ref
 
 
 def _json_value(value: object) -> object:
@@ -1081,6 +1549,7 @@ __all__ = [
     "EvidenceJournalError",
     "HarnessAuthorizationEvidence",
     "JournalEventRef",
+    "LiveAttemptTerminal",
     "LiveExecutionAuthorization",
     "LiveHttpBudget",
     "LiveTransportTrace",
@@ -1093,6 +1562,8 @@ __all__ = [
     "require_authorized_execution",
     "resolve_journal_event_ref",
     "resolve_linked_request_event",
+    "resolve_live_attempt_terminal",
+    "resolve_live_attempt_terminals",
     "resolve_live_transport_trace",
     "resolve_raw_response_body",
     "verify_journal_event_ref",

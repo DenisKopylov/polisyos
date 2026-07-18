@@ -710,7 +710,7 @@ def execute_live_catalog_acquisition(
         max_connections=1,
     )
     try:
-        return _execute_authorized_live_acquisition(
+        evidence = _execute_authorized_live_acquisition(
             authority=authority,
             entry_id=entry_id,
             resolved=resolved,
@@ -725,6 +725,23 @@ def execute_live_catalog_acquisition(
             connection_config=connection_config,
             cas_root=cas_root,
         )
+        journal.append_classification(
+            attempt_id=attempt_id,
+            evidence_ref=evidence.raw_evidence_ref,
+            classification={
+                "state": "measured_pending_passport",
+                "live_source_execution_content_sha256": evidence.content_sha256,
+                "normalized_data_artifact_id": str(evidence.normalized_data_artifact_id),
+                "response_admitted": False,
+            },
+        )
+        journal.append_failure_terminal(
+            attempt_id=attempt_id,
+            request_ref=request_ref,
+            raw_evidence_ref=evidence.raw_evidence_ref,
+            failure_code="measured_pending_passport",
+        )
+        return evidence
     except Exception as exc:
         failure_code = _live_failure_code(exc)
         try:
@@ -940,9 +957,7 @@ def _require_constraints_within_authority_scope(
             constraints.country_code,
         )
     try:
-        owner_start, owner_end = data_forge_read_api.catalog.resolve_live_temporal_bounds(
-            entry
-        )
+        owner_start, owner_end = data_forge_read_api.catalog.resolve_live_temporal_bounds(entry)
     except Exception as exc:
         raise LiveAcquisitionExecutionError(
             "live_authority_temporal_scope_invalid",

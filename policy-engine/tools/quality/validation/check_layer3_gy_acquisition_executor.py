@@ -18,6 +18,7 @@ from polisyos.fabric.data_plane import (
     canonical_json_bytes,
 )
 from polisyos.runtime.quality.acquisition_executor import (
+    LiveAcquisitionExecutionError,
     LiveCatalogExecutionConstraints,
     execute_live_catalog_acquisition,
 )
@@ -49,8 +50,11 @@ from tools.quality.validation.layer3_gy_n13b_acceptance import (
     DEFAULT_ACCEPTANCE_AUTHORITY_OWNER,
     DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS,
     DEFAULT_ACCEPTANCE_INPUT_SELECTION,
+    DEFAULT_ACCEPTANCE_LIVE_EXECUTION,
+    AcceptanceLiveExecutionReceipt,
     derive_acceptance_authority_owners,
     derive_acceptance_input_selection,
+    derive_acceptance_live_execution_receipt,
 )
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
@@ -115,6 +119,8 @@ def main() -> int:
     mode.add_argument("--write-acceptance-inputs", action="store_true")
     mode.add_argument("--check-acceptance-authority", action="store_true")
     mode.add_argument("--write-acceptance-authority", action="store_true")
+    mode.add_argument("--execute-acceptance-deflator", action="store_true")
+    mode.add_argument("--check-acceptance-execution", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -303,6 +309,145 @@ def main() -> int:
                     "harness_content_sha256": (acceptance_owners.owner.live_harness_content_sha256),
                     "byte_stable_passes": 2,
                     "live_network_calls": 0,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+
+    if args.execute_acceptance_deflator or args.check_acceptance_execution:
+        paid_success_elapsed = _paid_success_elapsed_seconds(r1)
+        acceptance = derive_acceptance_input_selection(
+            catalog_path=args.catalog_path,
+            census_path=args.census_path,
+            r1_paid_success_elapsed_seconds=paid_success_elapsed,
+        )
+        _check_payloads(
+            {
+                DEFAULT_ACCEPTANCE_INPUT_SELECTION: canonical_json_bytes(
+                    acceptance.model_dump(mode="json")
+                )
+            },
+            label="acceptance_input_selection",
+        )
+        base_owners = _recompute_target_owners(
+            catalog_path=args.catalog_path,
+            l5_path=args.l5_path,
+            census_path=args.census_path,
+            substrate_path=args.substrate_path,
+            attempt_count=len(r1.attempts),
+        )
+        acceptance_owners = derive_acceptance_authority_owners(
+            acceptance,
+            base_owners=base_owners,
+            catalog_path=args.catalog_path,
+            baseline_owner_ref=DEFAULT_CATALOG_OWNER_REF,
+            l5_path=args.l5_path,
+            l5_owner_ref=DEFAULT_L5_OWNER_REF,
+            fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
+        )
+        _check_payloads(acceptance_owners.payloads(), label="acceptance_authority")
+        if acceptance.execution_selection is None:
+            raise RuntimeError("acceptance_execution_selection_missing")
+        evidence_path = POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_LIVE_EXECUTION
+        journal_path = POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL
+        cas_root = POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT
+        live_evidence: Any | None
+        if args.execute_acceptance_deflator:
+            require_new_live_execution_outputs(
+                journal_path=journal_path,
+                cas_root=cas_root,
+                evidence_path=evidence_path,
+                attempt_id=acceptance_owners.owner.live_attempt_id,
+            )
+            authority = data_forge_read_api.catalog.CanonicalAcquisitionAuthority.from_provision(
+                repo_root=POLICY_ENGINE_ROOT,
+                baseline_path=args.catalog_path,
+                l5_measurement_registry_path=args.l5_path,
+            )
+            try:
+                live_evidence = execute_live_catalog_acquisition(
+                    authority=authority,
+                    entry_id=acceptance_owners.entry.entry_id,
+                    attempt_id=acceptance_owners.owner.live_attempt_id,
+                    constraints=LiveCatalogExecutionConstraints(
+                        country_code="UKR",
+                        start_year=int(acceptance.request_start_year),
+                        end_year=int(acceptance.request_end_year),
+                        page_size=int(acceptance.request_page_size),
+                        max_response_bytes=65_536,
+                        max_decompressed_bytes=65_536,
+                        timeout_cap_seconds=(acceptance.derived_timeout_cap_seconds),
+                        heartbeat_cap_seconds=3.0,
+                    ),
+                    journal_path=journal_path,
+                    cas_root=cas_root,
+                )
+            except LiveAcquisitionExecutionError:
+                live_evidence = None
+            receipt = derive_acceptance_live_execution_receipt(
+                selection=acceptance,
+                authority_owner=acceptance_owners.owner,
+                journal_path=journal_path,
+                baseline_path=args.catalog_path,
+                live_source_execution=live_evidence,
+            )
+            _write_replace_bytes(
+                evidence_path,
+                canonical_json_bytes(receipt.model_dump(mode="json")),
+            )
+            status = "acceptance_execution_written"
+        else:
+            try:
+                frozen = AcceptanceLiveExecutionReceipt.model_validate_json(
+                    evidence_path.read_bytes()
+                )
+            except (OSError, ValueError) as exc:
+                raise RuntimeError("acceptance_execution_evidence_invalid") from exc
+            receipt = derive_acceptance_live_execution_receipt(
+                selection=acceptance,
+                authority_owner=acceptance_owners.owner,
+                journal_path=journal_path,
+                baseline_path=args.catalog_path,
+                live_source_execution=frozen.live_source_execution,
+            )
+            payload = canonical_json_bytes(receipt.model_dump(mode="json"))
+            second = derive_acceptance_live_execution_receipt(
+                selection=acceptance,
+                authority_owner=acceptance_owners.owner,
+                journal_path=journal_path,
+                baseline_path=args.catalog_path,
+                live_source_execution=frozen.live_source_execution,
+            )
+            if payload != canonical_json_bytes(second.model_dump(mode="json")):
+                raise RuntimeError("acceptance_execution_not_byte_stable")
+            _check_payloads(
+                {DEFAULT_ACCEPTANCE_LIVE_EXECUTION: payload},
+                label="acceptance_execution",
+            )
+            status = "ok"
+        print(
+            json.dumps(
+                {
+                    "status": status,
+                    "disposition": receipt.disposition,
+                    "attempt_id": receipt.attempt_id,
+                    "call_count": receipt.call_count,
+                    "terminal_outcome": receipt.terminal.outcome_code,
+                    "terminal_failure_code": receipt.terminal.failure_code,
+                    "raw_body_sha256": (
+                        receipt.live_source_execution.get("raw_body_sha256")
+                        if isinstance(receipt.live_source_execution, dict)
+                        else getattr(
+                            receipt.live_source_execution,
+                            "raw_body_sha256",
+                            None,
+                        )
+                    ),
+                    "baseline_before_sha256": receipt.baseline_before_sha256,
+                    "baseline_after_sha256": receipt.baseline_after_sha256,
+                    "remaining_resumption_call_budget": 3,
+                    "byte_stable_passes": 2,
                 },
                 sort_keys=True,
             )

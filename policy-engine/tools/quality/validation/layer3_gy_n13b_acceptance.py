@@ -22,7 +22,12 @@ import duckdb
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.data_forge import read_api as data_forge_read_api
-from polisyos.fabric.data_plane import canonical_json_bytes, content_sha256
+from polisyos.fabric.data_plane import (
+    LiveAttemptTerminal,
+    canonical_json_bytes,
+    content_sha256,
+    resolve_live_attempt_terminals,
+)
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_TARGET_AUTHORITY_PROVISION,
     DEFAULT_TARGET_AUTHORITY_REGISTRY,
@@ -41,6 +46,9 @@ DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS = Path(
 )
 DEFAULT_ACCEPTANCE_AUTHORITY_OWNER = Path(
     "architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json"
+)
+DEFAULT_ACCEPTANCE_LIVE_EXECUTION = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json"
 )
 
 _EXECUTABLE_TIERS = frozenset({"fetchable", "transport_ready"})
@@ -373,6 +381,60 @@ class AcceptanceAuthorityOwner(_StrictModel):
         }
 
 
+class AcceptanceLiveExecutionReceipt(_StrictModel):
+    """Reopened journal/CAS result for the single authorized CPI data call."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.acceptance_live_execution.v1"] = (
+        "policyos.layer3.gy.n13b.acceptance_live_execution.v1"
+    )
+    input_selection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    authority_owner_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    attempt_id: str = Field(min_length=1)
+    disposition: Literal["measured_pending_passport", "live_execution_terminal"]
+    call_count: int = Field(ge=0)
+    terminal: LiveAttemptTerminal
+    live_source_execution: Any | None
+    baseline_before_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    baseline_after_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _receipt_is_recomputed(self) -> Self:
+        if self.terminal.attempt_id != self.attempt_id:
+            raise ValueError("acceptance terminal must preserve the authorized attempt")
+        if self.baseline_before_sha256 != self.baseline_after_sha256:
+            raise ValueError("acceptance live call must preserve immutable epoch zero")
+        if self.live_source_execution is None:
+            if self.disposition != "live_execution_terminal":
+                raise ValueError("missing live evidence must remain a typed terminal")
+        else:
+            evidence = data_forge_read_api.catalog.LiveSourceExecutionEvidence.model_validate(
+                self.live_source_execution
+            )
+            if (
+                self.disposition != "measured_pending_passport"
+                or self.terminal.failure_code != "measured_pending_passport"
+                or evidence.authorization.attempt_id != self.attempt_id
+                or evidence.call_count != self.call_count
+                or evidence.raw_evidence_ref != self.terminal.raw_evidence_ref
+                or evidence.baseline_before_sha256 != self.baseline_before_sha256
+                or evidence.baseline_after_sha256 != self.baseline_after_sha256
+            ):
+                raise ValueError("acceptance live evidence graph is not content-bound")
+        if self.receipt_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("acceptance live execution identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the execution receipt without its self-hash."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "receipt_sha256"
+        }
+
+
 @dataclass(frozen=True)
 class AcceptanceAuthorityOwners:
     """Byte-stable canonical authority extension and its exact E7 receipt."""
@@ -602,6 +664,60 @@ def derive_acceptance_authority_owners(
         registry_bytes=canonical_json_bytes(registry.model_dump(mode="json")),
         provision_bytes=canonical_json_bytes(provision.model_dump(mode="json")),
         owner_bytes=canonical_json_bytes(owner.model_dump(mode="json")),
+    )
+
+
+def derive_acceptance_live_execution_receipt(
+    *,
+    selection: AcceptanceInputSelection,
+    authority_owner: AcceptanceAuthorityOwner,
+    journal_path: Path,
+    baseline_path: Path,
+    live_source_execution: Any | None,
+) -> AcceptanceLiveExecutionReceipt:
+    """Reopen the exact one-call journal outcome and bind optional Fabric evidence."""
+
+    selected = AcceptanceInputSelection.model_validate(selection.model_dump(mode="python"))
+    owner = AcceptanceAuthorityOwner.model_validate(authority_owner.model_dump(mode="python"))
+    if selected.execution_selection is None:
+        raise AcceptanceSelectionError("acceptance_execution_selection_missing")
+    attempt_id = derive_live_attempt_id(selected.execution_selection)
+    if owner.live_attempt_id != attempt_id:
+        raise AcceptanceSelectionError("acceptance_execution_authority_drift")
+    terminals = resolve_live_attempt_terminals(Path(journal_path))
+    matches = tuple(terminal for terminal in terminals if terminal.attempt_id == attempt_id)
+    if len(matches) != 1:
+        raise AcceptanceSelectionError(
+            "acceptance_live_terminal_unresolved",
+            attempt_id,
+        )
+    terminal = matches[0]
+    call_count = _journal_transport_call_count(Path(journal_path), attempt_id=attempt_id)
+    baseline_sha = _file_sha256(Path(baseline_path))
+    evidence: Any | None = None
+    disposition: Literal["measured_pending_passport", "live_execution_terminal"]
+    if live_source_execution is None:
+        disposition = "live_execution_terminal"
+    else:
+        evidence = data_forge_read_api.catalog.LiveSourceExecutionEvidence.model_validate(
+            live_source_execution
+        )
+        disposition = "measured_pending_passport"
+    values: dict[str, object] = {
+        "schema_version": "policyos.layer3.gy.n13b.acceptance_live_execution.v1",
+        "input_selection_sha256": selected.selection_sha256,
+        "authority_owner_sha256": owner.owner_sha256,
+        "attempt_id": attempt_id,
+        "disposition": disposition,
+        "call_count": call_count,
+        "terminal": terminal,
+        "live_source_execution": evidence,
+        "baseline_before_sha256": selected.baseline_sha256,
+        "baseline_after_sha256": baseline_sha,
+    }
+    return AcceptanceLiveExecutionReceipt(
+        **values,
+        receipt_sha256=content_sha256(_json_values(values)),
     )
 
 
@@ -1056,6 +1172,24 @@ def _point_projection_sha256(points: Sequence[Mapping[str, object] | LocalNomina
     return content_sha256(payload)
 
 
+def _journal_transport_call_count(path: Path, *, attempt_id: str) -> int:
+    try:
+        lines = Path(path).read_bytes().splitlines(keepends=True)
+    except OSError as exc:
+        raise AcceptanceSelectionError("acceptance_journal_unreadable") from exc
+    count = 0
+    for line in lines:
+        try:
+            event = json.loads(line)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise AcceptanceSelectionError("acceptance_journal_not_canonical") from exc
+        if not isinstance(event, Mapping) or canonical_json_bytes(event) != line:
+            raise AcceptanceSelectionError("acceptance_journal_not_canonical")
+        if event.get("attempt_id") == attempt_id and event.get("event_kind") == "transport_attempt":
+            count += 1
+    return count
+
+
 def _string_values(value: object) -> tuple[str, ...]:
     if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         return tuple(str(item) for item in value)
@@ -1101,12 +1235,19 @@ def _file_sha256(path: Path) -> str:
 
 
 __all__ = [
+    "DEFAULT_ACCEPTANCE_AUTHORITY_OWNER",
     "DEFAULT_ACCEPTANCE_DEFLATOR_HARNESS",
     "DEFAULT_ACCEPTANCE_INPUT_SELECTION",
+    "DEFAULT_ACCEPTANCE_LIVE_EXECUTION",
+    "AcceptanceAuthorityOwner",
+    "AcceptanceAuthorityOwners",
     "AcceptanceInputSelection",
+    "AcceptanceLiveExecutionReceipt",
     "AcceptanceSelectionError",
     "DeflatorCarrierDisposition",
     "LocalNominalDisposition",
     "LocalNominalPoint",
+    "derive_acceptance_authority_owners",
     "derive_acceptance_input_selection",
+    "derive_acceptance_live_execution_receipt",
 ]

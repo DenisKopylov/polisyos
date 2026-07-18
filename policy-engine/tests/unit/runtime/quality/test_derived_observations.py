@@ -424,6 +424,40 @@ def test_recipe_certificate_and_derived_class_cannot_be_pinned(tmp_path: Path) -
         type(materialized.series).model_validate(series_payload)
 
 
+def test_derivation_recipe_identity_rejects_parameter_tamper(tmp_path: Path) -> None:
+    store, nominal_ref, deflator_ref = _source_artifacts(tmp_path / "cas")
+    recipe = build_cpi_derivation_recipe(
+        store,
+        nominal_ref=nominal_ref,
+        deflator_ref=deflator_ref,
+        output_variable_id="gdp_real_lcu_2020",
+        output_basis=_real_basis(deflator_ref),
+        assumptions=_assumptions(),
+    )
+    payload = recipe.model_dump(mode="python")
+    payload["output_variable_id"] = "forged_output"
+
+    with pytest.raises(ValidationError, match="identity"):
+        type(recipe).model_validate(payload)
+
+
+def test_derivation_recipe_identity_rejects_input_hash_tamper(tmp_path: Path) -> None:
+    store, nominal_ref, deflator_ref = _source_artifacts(tmp_path / "cas")
+    recipe = build_cpi_derivation_recipe(
+        store,
+        nominal_ref=nominal_ref,
+        deflator_ref=deflator_ref,
+        output_variable_id="gdp_real_lcu_2020",
+        output_basis=_real_basis(deflator_ref),
+        assumptions=_assumptions(),
+    )
+    payload = recipe.model_dump(mode="python")
+    payload["nominal_input"]["artifact_id"] = "sha256:" + "0" * 64
+
+    with pytest.raises(ValidationError, match="identity"):
+        type(recipe).model_validate(payload)
+
+
 def test_recipe_reopens_every_manifest_input_graph_edge(tmp_path: Path) -> None:
     store, nominal_ref, deflator_ref = _source_artifacts(tmp_path / "cas")
     recipe = build_cpi_derivation_recipe(

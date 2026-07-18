@@ -14,6 +14,7 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
 )
 from polisyos.data_forge.read_api import catalog as catalog_read_api
 from polisyos.runtime.quality.acquisition_executor import (
+    AdmissionStatus,
     ObservationProvenanceClass,
     build_admission_passport,
 )
@@ -273,6 +274,15 @@ def test_overlay_refuses_quarantine_derived_model_and_epochless_rows(tmp_path: P
     with pytest.raises(ValidationError):
         type(passport)(**{**passport.model_dump(mode="python"), "epoch_id": 0})
 
+    epochless = passport.model_copy(update={"epoch_id": 0})
+    epochless = epochless.model_copy(update={"passport_id": epochless.recomputed_passport_id()})
+    with pytest.raises(OverlayAdmissionError, match="epoch_stamp_required"):
+        overlay.admit_epoch(
+            passport=epochless,
+            artifact_store=store,
+            authority=authority,
+        )
+
     overlay.close()
 
 
@@ -302,6 +312,49 @@ def test_overlay_revalidates_raw_and_cas_evidence_instead_of_trusting_passport_f
         assert con.execute("select count(*) from ds_observations").fetchone()[0] == 0
     finally:
         con.close()
+    overlay.close()
+
+
+def test_overlay_rejects_forged_source_watermark_after_passport_rebind(
+    tmp_path: Path,
+) -> None:
+    passport, store, authority, _ = _valid_passport(tmp_path / "evidence")
+    overlay = CatalogAcquisitionOverlay(
+        authority.baseline_path,
+        tmp_path / "overlay.duckdb",
+    )
+    overlay.initialize()
+    forged = passport.model_copy(update={"source_watermark": "sha256:" + "0" * 64})
+    forged = forged.model_copy(update={"passport_id": forged.recomputed_passport_id()})
+
+    with pytest.raises(OverlayAdmissionError, match="source_watermark_content_drift"):
+        overlay.admit_epoch(
+            passport=forged,
+            artifact_store=store,
+            authority=authority,
+        )
+
+    overlay.close()
+
+
+def test_overlay_refuses_quarantined_status_with_complete_owner_evidence(
+    tmp_path: Path,
+) -> None:
+    passport, store, authority, _ = _valid_passport(tmp_path / "evidence")
+    overlay = CatalogAcquisitionOverlay(
+        authority.baseline_path,
+        tmp_path / "overlay.duckdb",
+    )
+    overlay.initialize()
+    quarantined = passport.model_copy(update={"status": AdmissionStatus.QUARANTINED})
+
+    with pytest.raises(OverlayAdmissionError, match="passport_not_admitted"):
+        overlay.admit_epoch(
+            passport=quarantined,
+            artifact_store=store,
+            authority=authority,
+        )
+
     overlay.close()
 
 

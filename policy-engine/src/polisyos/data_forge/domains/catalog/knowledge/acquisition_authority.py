@@ -54,15 +54,11 @@ ACQUISITION_AUTHORITY_PROVISION_SCHEMA_VERSION = (
 LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION = (
     "polisyos.data_forge.live_source_execution_evidence.v1"
 )
-LOCAL_SOURCE_RIGHTS_RECEIPT_SCHEMA_VERSION = (
-    "polisyos.data_forge.local_source_rights_receipt.v1"
-)
+LOCAL_SOURCE_RIGHTS_RECEIPT_SCHEMA_VERSION = "polisyos.data_forge.local_source_rights_receipt.v1"
 LOCAL_SOURCE_RIGHTS_DECLARATION_SCHEMA_VERSION = (
     "polisyos.data_forge.local_source_rights_declaration.v1"
 )
-LOCAL_RIGHTS_TRUST_REGISTRY_SCHEMA_VERSION = (
-    "polisyos.data_forge.local_rights_trust_registry.v1"
-)
+LOCAL_RIGHTS_TRUST_REGISTRY_SCHEMA_VERSION = "polisyos.data_forge.local_rights_trust_registry.v1"
 DEFAULT_ACQUISITION_AUTHORITY_REGISTRY = Path(
     "architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json"
 )
@@ -126,9 +122,7 @@ class LocalRightsTrustedAuthority(_StrictModel):
 
     @model_validator(mode="after")
     def _trust_root_is_decisive(self) -> Self:
-        if self.admissible_license_ids != tuple(
-            sorted(set(self.admissible_license_ids))
-        ):
+        if self.admissible_license_ids != tuple(sorted(set(self.admissible_license_ids))):
             raise ValueError("trusted license ids must be unique and sorted")
         try:
             key = base64.b64decode(self.ed25519_public_key_base64, validate=True)
@@ -141,9 +135,9 @@ class LocalRightsTrustedAuthority(_StrictModel):
 class LocalRightsTrustRegistry(_StrictModel):
     """Content-derived trust roots used only for signed local rights evidence."""
 
-    schema_version: Literal[
-        "polisyos.data_forge.local_rights_trust_registry.v1"
-    ] = LOCAL_RIGHTS_TRUST_REGISTRY_SCHEMA_VERSION
+    schema_version: Literal["polisyos.data_forge.local_rights_trust_registry.v1"] = (
+        LOCAL_RIGHTS_TRUST_REGISTRY_SCHEMA_VERSION
+    )
     authorities: tuple[LocalRightsTrustedAuthority, ...]
     content_sha256: str = Field(pattern=_SHA256_PATTERN)
 
@@ -156,8 +150,7 @@ class LocalRightsTrustRegistry(_StrictModel):
             {
                 "schema_version": self.schema_version,
                 "authorities": [
-                    authority.model_dump(mode="json")
-                    for authority in self.authorities
+                    authority.model_dump(mode="json") for authority in self.authorities
                 ],
             }
         )
@@ -190,17 +183,13 @@ class LiveHarnessReceiptProvisionEntry(_StrictModel):
 class AcquisitionAuthorityProvision(_StrictModel):
     """Separately produced trust anchor for acquisition authority resolution."""
 
-    schema_version: Literal[
-        "polisyos.data_forge.acquisition_authority_provision.v1"
-    ] = ACQUISITION_AUTHORITY_PROVISION_SCHEMA_VERSION
-    provision_id: str = Field(
-        pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$"
+    schema_version: Literal["polisyos.data_forge.acquisition_authority_provision.v1"] = (
+        ACQUISITION_AUTHORITY_PROVISION_SCHEMA_VERSION
     )
+    provision_id: str = Field(pattern=r"^acquisition-authority-provision:sha256:[0-9a-f]{64}$")
     baseline_owner_ref: str = Field(pattern=r"^(repo|provision)://[^\s]+$")
     baseline_content_sha256: str = Field(pattern=_SHA256_PATTERN)
-    l5_measurement_registry_owner_ref: str = Field(
-        pattern=r"^(repo|provision)://[^\s]+$"
-    )
+    l5_measurement_registry_owner_ref: str = Field(pattern=r"^(repo|provision)://[^\s]+$")
     l5_measurement_registry_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     local_rights_trust_anchor_sha256: str | None = Field(
         default=None,
@@ -211,20 +200,17 @@ class AcquisitionAuthorityProvision(_StrictModel):
         "resolve_baseline_and_local_rights_trust_only",
         "resolve_acquisition_owners_and_live_harness_receipts",
     ] = "resolve_baseline_and_local_rights_trust_only"
-    may_not_use_for: tuple[
-        Literal["acquisition_registry_self_authorization"]
-    ] = ("acquisition_registry_self_authorization",)
+    may_not_use_for: tuple[Literal["acquisition_registry_self_authorization"]] = (
+        "acquisition_registry_self_authorization",
+    )
 
     @model_validator(mode="after")
     def _identity_is_recomputed(self) -> Self:
         receipt_keys = tuple(
-            (entry.entry_id, entry.attempt_id)
-            for entry in self.live_harness_receipts
+            (entry.entry_id, entry.attempt_id) for entry in self.live_harness_receipts
         )
         if receipt_keys != tuple(sorted(set(receipt_keys))):
-            raise ValueError(
-                "live harness receipt provisions must be unique and sorted"
-            )
+            raise ValueError("live harness receipt provisions must be unique and sorted")
         expected_purpose = (
             "resolve_acquisition_owners_and_live_harness_receipts"
             if self.live_harness_receipts
@@ -258,12 +244,10 @@ class AcquisitionAuthorityProvision(_StrictModel):
 class LocalSourceRightsDeclaration(_StrictModel):
     """Owner-supplied, content-derived declaration for one local source."""
 
-    schema_version: Literal[
-        "polisyos.data_forge.local_source_rights_declaration.v1"
-    ] = LOCAL_SOURCE_RIGHTS_DECLARATION_SCHEMA_VERSION
-    declaration_id: str = Field(
-        pattern=r"^local-rights-declaration:sha256:[0-9a-f]{64}$"
+    schema_version: Literal["polisyos.data_forge.local_source_rights_declaration.v1"] = (
+        LOCAL_SOURCE_RIGHTS_DECLARATION_SCHEMA_VERSION
     )
+    declaration_id: str = Field(pattern=r"^local-rights-declaration:sha256:[0-9a-f]{64}$")
     source_path: str = Field(min_length=1)
     source_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     license_id: str = Field(min_length=1)
@@ -312,9 +296,9 @@ class LocalSourceRightsDeclaration(_StrictModel):
 class LocalSourceRightsReceipt(_StrictModel):
     """Verifier-produced evidence binding a source to an owner declaration."""
 
-    schema_version: Literal[
-        "polisyos.data_forge.local_source_rights_receipt.v1"
-    ] = LOCAL_SOURCE_RIGHTS_RECEIPT_SCHEMA_VERSION
+    schema_version: Literal["polisyos.data_forge.local_source_rights_receipt.v1"] = (
+        LOCAL_SOURCE_RIGHTS_RECEIPT_SCHEMA_VERSION
+    )
     receipt_id: str = Field(pattern=r"^local-rights:sha256:[0-9a-f]{64}$")
     source_path: str = Field(min_length=1)
     source_content_sha256: str = Field(pattern=_SHA256_PATTERN)
@@ -324,17 +308,13 @@ class LocalSourceRightsReceipt(_StrictModel):
     authority_ref: str = Field(pattern=r"^https://[^\s]+$")
     rights_document_path: str = Field(min_length=1)
     rights_document_sha256: str = Field(pattern=_SHA256_PATTERN)
-    rights_declaration_id: str = Field(
-        pattern=r"^local-rights-declaration:sha256:[0-9a-f]{64}$"
-    )
+    rights_declaration_id: str = Field(pattern=r"^local-rights-declaration:sha256:[0-9a-f]{64}$")
     trust_registry_content_sha256: str = Field(pattern=_SHA256_PATTERN)
     public_key_sha256: str = Field(pattern=_SHA256_PATTERN)
-    verifier_ref: Literal[
+    verifier_ref: Literal["polisyos.data_forge.verify_local_source_rights/v1"] = (
         "polisyos.data_forge.verify_local_source_rights/v1"
-    ] = "polisyos.data_forge.verify_local_source_rights/v1"
-    verification_method: Literal["content_bound_owner_document"] = (
-        "content_bound_owner_document"
     )
+    verification_method: Literal["content_bound_owner_document"] = "content_bound_owner_document"
 
     @model_validator(mode="after")
     def _identity_and_paths_are_recomputed(self) -> Self:
@@ -342,9 +322,7 @@ class LocalSourceRightsReceipt(_StrictModel):
             path = Path(value)
             if path.is_absolute() or ".." in path.parts:
                 raise ValueError("local rights receipt paths must be repo-relative")
-        expected = "local-rights:" + fabric_data_plane.content_sha256(
-            self.identity_payload()
-        )
+        expected = "local-rights:" + fabric_data_plane.content_sha256(self.identity_payload())
         if self.receipt_id != expected:
             raise ValueError("local rights receipt identity must be recomputed")
         return self
@@ -353,9 +331,7 @@ class LocalSourceRightsReceipt(_StrictModel):
         """Return the projection defining this rights receipt."""
 
         return {
-            key: value
-            for key, value in self.model_dump(mode="json").items()
-            if key != "receipt_id"
+            key: value for key, value in self.model_dump(mode="json").items() if key != "receipt_id"
         }
 
 
@@ -409,8 +385,7 @@ class AcquisitionAuthorityEntry(_StrictModel):
         if self.raw_field not in names:
             raise ValueError("authority raw field must travel in the schema contract")
         if self.alignment_method == "exact" and (
-            self.raw_field != self.target_variable
-            or abs(self.alignment_confidence - 1.0) > 1e-9
+            self.raw_field != self.target_variable or abs(self.alignment_confidence - 1.0) > 1e-9
         ):
             raise ValueError("exact authority alignment requires an identical variable")
         if any(ref.startswith(("self://", "inline://")) for ref in self.evidence_refs):
@@ -436,9 +411,7 @@ class AcquisitionAuthorityEntry(_StrictModel):
             raise ValueError("live authority entry cannot carry local authority fields")
         if self.source_lane == "local_lift" and any(live_fields):
             raise ValueError("local authority entry cannot carry live catalog fields")
-        if self.source_lane == "local_lift" and not (
-            all(local_fields)
-        ):
+        if self.source_lane == "local_lift" and not (all(local_fields)):
             raise ValueError(
                 "local authority entry requires independent content-bound rights evidence"
             )
@@ -452,9 +425,7 @@ class AcquisitionAuthorityEntry(_StrictModel):
         """Return the narrow projection defining this last-mile entry."""
 
         return {
-            key: value
-            for key, value in self.model_dump(mode="json").items()
-            if key != "entry_id"
+            key: value for key, value in self.model_dump(mode="json").items() if key != "entry_id"
         }
 
     def schema_projection(self) -> dict[str, object]:
@@ -659,14 +630,10 @@ class _HarnessFamilyReceipt(_StrictHarnessModel):
         )
         if self.outcome_counts != expected_outcomes:
             raise ValueError("outcome counts must derive from dry-run attempts")
-        simulator_calls = sum(
-            item.simulator_call_count for item in self.dry_run_attempts
-        )
+        simulator_calls = sum(item.simulator_call_count for item in self.dry_run_attempts)
         if self.simulator_call_count != simulator_calls:
             raise ValueError("family simulator calls must sum carrier attempts")
-        escape_attempts = sum(
-            item.network_escape_attempt_count for item in self.dry_run_attempts
-        )
+        escape_attempts = sum(item.network_escape_attempt_count for item in self.dry_run_attempts)
         if self.network_escape_attempt_count != escape_attempts:
             raise ValueError("family escape attempts must sum carrier attempts")
         if self.simulator_intercepted != (simulator_calls > 0):
@@ -708,9 +675,7 @@ class ResolvedLiveHarnessReceipt(_StrictModel):
 
     @model_validator(mode="after")
     def _content_identity_is_recomputed(self) -> Self:
-        if self.family_receipt_sha256 != fabric_data_plane.content_sha256(
-            self.family_receipt
-        ):
+        if self.family_receipt_sha256 != fabric_data_plane.content_sha256(self.family_receipt):
             raise ValueError("live harness family identity must be recomputed")
         return self
 
@@ -739,9 +704,9 @@ class ResolvedAcquisitionAuthority(_StrictModel):
 class LiveSourceExecutionEvidence(_StrictModel):
     """Content-derived proof binding raw HTTP and normalized Fabric carriers."""
 
-    schema_version: Literal[
-        "polisyos.data_forge.live_source_execution_evidence.v1"
-    ] = LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION
+    schema_version: Literal["polisyos.data_forge.live_source_execution_evidence.v1"] = (
+        LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION
+    )
     authorization: LiveExecutionAuthorization
     family_receipt: dict[str, Any]
     family_receipt_sha256: str = Field(pattern=_SHA256_PATTERN)
@@ -793,9 +758,7 @@ class LiveSourceExecutionEvidence(_StrictModel):
             raise ValueError("live execution baseline must remain immutable")
         if self.raw_body_sha256 != self.normalized_result_content_sha256:
             raise ValueError("normalized result must version the exact raw HTTP body")
-        if self.content_sha256 != fabric_data_plane.content_sha256(
-            self.identity_payload()
-        ):
+        if self.content_sha256 != fabric_data_plane.content_sha256(self.identity_payload()):
             raise ValueError("live execution evidence identity must be recomputed")
         return self
 
@@ -839,9 +802,7 @@ def build_live_source_execution_evidence(
         "raw_artifact_id": ArtifactID.model_validate(raw_artifact_id),
         "evidence_bundle_ref": evidence_bundle_ref,
         "data_snapshot_ref": data_snapshot_ref,
-        "normalized_data_artifact_id": ArtifactID.model_validate(
-            normalized_data_artifact_id
-        ),
+        "normalized_data_artifact_id": ArtifactID.model_validate(normalized_data_artifact_id),
         "call_count": transport_trace.call_count,
         "variable_count": variable_count,
         "page_count": page_count,
@@ -856,9 +817,7 @@ def build_live_source_execution_evidence(
     )
     return LiveSourceExecutionEvidence(
         **values,
-        content_sha256=fabric_data_plane.content_sha256(
-            provisional.identity_payload()
-        ),
+        content_sha256=fabric_data_plane.content_sha256(provisional.identity_payload()),
     )
 
 
@@ -890,8 +849,7 @@ def build_acquisition_authority_provision(
         ):
             raise ValueError("live harness receipt provisions must be a sequence")
         normalized["live_harness_receipts"] = tuple(
-            LiveHarnessReceiptProvisionEntry.model_validate(item)
-            for item in receipt_values
+            LiveHarnessReceiptProvisionEntry.model_validate(item) for item in receipt_values
         )
         if normalized["live_harness_receipts"]:
             normalized.setdefault(
@@ -1020,13 +978,9 @@ class CanonicalAcquisitionAuthority:
         self.provision_content_sha256 = provision_content_sha256
         self.baseline_owner_ref = provision.baseline_owner_ref
         self.l5_owner_ref = provision.l5_measurement_registry_owner_ref
-        self.local_rights_trust_anchor_sha256 = (
-            provision.local_rights_trust_anchor_sha256
-        )
+        self.local_rights_trust_anchor_sha256 = provision.local_rights_trust_anchor_sha256
         self.registry_path = self.repo_root / DEFAULT_ACQUISITION_AUTHORITY_REGISTRY
-        self.local_rights_trust_path = (
-            self.repo_root / DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY
-        )
+        self.local_rights_trust_path = self.repo_root / DEFAULT_LOCAL_RIGHTS_TRUST_REGISTRY
 
     @classmethod
     def from_provision(
@@ -1050,9 +1004,7 @@ class CanonicalAcquisitionAuthority:
             if l5_measurement_registry_path is not None
             else (root / DEFAULT_L5_MEASUREMENT_REGISTRY).resolve()
         )
-        if _file_sha256(l5_path) != (
-            provision.l5_measurement_registry_content_sha256
-        ):
+        if _file_sha256(l5_path) != (provision.l5_measurement_registry_content_sha256):
             raise AcquisitionAuthorityError("provision_l5_identity_drift")
         return cls(
             repo_root=root,
@@ -1089,9 +1041,7 @@ class CanonicalAcquisitionAuthority:
                 registration,
             ) = self._resolve_local_source(
                 entry,
-                expected_trust_registry_sha256=(
-                    self.local_rights_trust_anchor_sha256
-                ),
+                expected_trust_registry_sha256=(self.local_rights_trust_anchor_sha256),
             )
         self._require_landing_identifiers_new(entry)
         disposition = _license_disposition(license_id)
@@ -1124,9 +1074,7 @@ class CanonicalAcquisitionAuthority:
         score = round(
             min(
                 l5.trust_cap,
-                binding.calibrated_alignment_confidence
-                * proxy_factor
-                * l5.trust_multiplier,
+                binding.calibrated_alignment_confidence * proxy_factor * l5.trust_multiplier,
             ),
             6,
         )
@@ -1155,9 +1103,7 @@ class CanonicalAcquisitionAuthority:
             raise AcquisitionAuthorityError("acquisition_authority_provision_drift")
         if _file_sha256(self.baseline_path) != provision.baseline_content_sha256:
             raise AcquisitionAuthorityError("provision_baseline_identity_drift")
-        if _file_sha256(self.l5_path) != (
-            provision.l5_measurement_registry_content_sha256
-        ):
+        if _file_sha256(self.l5_path) != (provision.l5_measurement_registry_content_sha256):
             raise AcquisitionAuthorityError("provision_l5_identity_drift")
 
     def _require_landing_identifiers_new(
@@ -1219,8 +1165,7 @@ class CanonicalAcquisitionAuthority:
         provisions = tuple(
             provision
             for provision in self.provision.live_harness_receipts
-            if provision.entry_id == resolved.entry.entry_id
-            and provision.attempt_id == attempt_id
+            if provision.entry_id == resolved.entry.entry_id and provision.attempt_id == attempt_id
         )
         if len(provisions) != 1:
             raise AcquisitionAuthorityError(
@@ -1248,9 +1193,7 @@ class CanonicalAcquisitionAuthority:
                 type(exc).__name__,
             ) from exc
         carriers = tuple(
-            carrier
-            for carrier in receipt.dry_run_attempts
-            if carrier.attempt_id == attempt_id
+            carrier for carrier in receipt.dry_run_attempts if carrier.attempt_id == attempt_id
         )
         if len(carriers) != 1:
             raise AcquisitionAuthorityError("live_harness_receipt_carrier_mismatch")
@@ -1260,9 +1203,7 @@ class CanonicalAcquisitionAuthority:
             or carrier.connection_config_content_sha256 is None
             or carrier.source_profile_family is None
         ):
-            raise AcquisitionAuthorityError(
-                "live_harness_receipt_carrier_binding_missing"
-            )
+            raise AcquisitionAuthorityError("live_harness_receipt_carrier_binding_missing")
         try:
             harness = fabric_data_plane.derive_harness_authorization_evidence(
                 payload,
@@ -1280,9 +1221,7 @@ class CanonicalAcquisitionAuthority:
             or harness.profile_id != registration.source_profile_id
             or harness.request_dataset_id != registration.request_dataset_id
         ):
-            raise AcquisitionAuthorityError(
-                "live_harness_receipt_owner_projection_drift"
-            )
+            raise AcquisitionAuthorityError("live_harness_receipt_owner_projection_drift")
         return ResolvedLiveHarnessReceipt(
             entry_id=resolved.entry.entry_id,
             attempt_id=attempt_id,
@@ -1292,9 +1231,7 @@ class CanonicalAcquisitionAuthority:
             family_receipt_sha256=fabric_data_plane.content_sha256(payload),
             carrier_receipt_sha256=harness.carrier_receipt_sha256,
             source_profile_family=carrier.source_profile_family,
-            connection_config_content_sha256=(
-                carrier.connection_config_content_sha256
-            ),
+            connection_config_content_sha256=(carrier.connection_config_content_sha256),
             fetch_request_key=carrier.fetch_request_key,
         )
 
@@ -1323,9 +1260,7 @@ class CanonicalAcquisitionAuthority:
                 raise AcquisitionAuthorityError("live_source_lane_required")
             self._verify_live_owner_projection(resolved, proof)
             self._verify_live_journal_carrier(resolved, proof)
-            raw_body = fabric_data_plane.resolve_raw_response_body(
-                proof.raw_evidence_ref
-            )
+            raw_body = fabric_data_plane.resolve_raw_response_body(proof.raw_evidence_ref)
             raw_hash = f"sha256:{hashlib.sha256(raw_body).hexdigest()}"
             if raw_hash != proof.raw_body_sha256:
                 raise AcquisitionAuthorityError("live_raw_body_identity_drift")
@@ -1410,14 +1345,28 @@ class CanonicalAcquisitionAuthority:
             )
             if (
                 proof.family_receipt != canonical_receipt.family_receipt
-                or proof.family_receipt_sha256
-                != canonical_receipt.family_receipt_sha256
+                or proof.family_receipt_sha256 != canonical_receipt.family_receipt_sha256
                 or proof.authorization.harness.family_receipt_sha256
                 != canonical_receipt.family_receipt_sha256
             ):
-                raise AcquisitionAuthorityError(
-                    "live_harness_receipt_evidence_drift"
-                )
+                raise AcquisitionAuthorityError("live_harness_receipt_evidence_drift")
+            profile = SourceProfileRegistry.get_instance().get(
+                resolved.registration.source_profile_id
+            )
+            if profile is None:
+                raise AcquisitionAuthorityError("live_source_profile_unresolved")
+            if canonical_receipt.source_profile_family != str(profile.connector_family):
+                raise AcquisitionAuthorityError("live_harness_profile_family_drift")
+            base_config = fabric_connectors.resolve_connection_config(profile)
+            if canonical_receipt.connection_config_content_sha256 != (
+                fabric_data_plane.content_sha256(base_config.to_dict(redact=True))
+            ):
+                raise AcquisitionAuthorityError("live_harness_connection_config_drift")
+            dry_run_request = fabric_connectors.FetchRequest(
+                dataset_id=resolved.registration.request_dataset_id
+            )
+            if canonical_receipt.fetch_request_key != dry_run_request.request_key:
+                raise AcquisitionAuthorityError("live_harness_fetch_request_drift")
             fabric_data_plane.require_authorized_execution(
                 proof.authorization,
                 family_receipt=canonical_receipt.family_receipt,
@@ -1434,19 +1383,13 @@ class CanonicalAcquisitionAuthority:
         if (
             authorization.connector_id != registration.connector_id
             or authorization.profile_id != registration.source_profile_id
-            or authorization.request_variables
-            != (registration.request_dataset_id,)
+            or authorization.request_variables != (registration.request_dataset_id,)
         ):
             raise AcquisitionAuthorityError("live_authorization_catalog_drift")
-        profile = SourceProfileRegistry.get_instance().get(
-            registration.source_profile_id
-        )
+        profile = SourceProfileRegistry.get_instance().get(registration.source_profile_id)
         if profile is None:
             raise AcquisitionAuthorityError("live_source_profile_unresolved")
-        if (
-            fabric_data_plane.content_sha256(profile)
-            != authorization.source_profile_sha256
-        ):
+        if fabric_data_plane.content_sha256(profile) != authorization.source_profile_sha256:
             raise AcquisitionAuthorityError("live_source_profile_identity_drift")
 
     def _verify_live_journal_carrier(
@@ -1457,9 +1400,7 @@ class CanonicalAcquisitionAuthority:
         request_event = fabric_data_plane.resolve_journal_event_ref(proof.request_ref)
         raw_event = fabric_data_plane.resolve_journal_event_ref(proof.raw_evidence_ref)
         try:
-            transport_trace = fabric_data_plane.resolve_live_transport_trace(
-                proof.raw_evidence_ref
-            )
+            transport_trace = fabric_data_plane.resolve_live_transport_trace(proof.raw_evidence_ref)
         except Exception as exc:
             raise AcquisitionAuthorityError(
                 "live_transport_trace_invalid",
@@ -1467,9 +1408,7 @@ class CanonicalAcquisitionAuthority:
             ) from exc
         if transport_trace != proof.transport_trace:
             raise AcquisitionAuthorityError("live_transport_trace_drift")
-        linked_request = fabric_data_plane.resolve_linked_request_event(
-            proof.raw_evidence_ref
-        )
+        linked_request = fabric_data_plane.resolve_linked_request_event(proof.raw_evidence_ref)
         if linked_request != request_event:
             raise AcquisitionAuthorityError("live_request_raw_link_drift")
         if (
@@ -1482,15 +1421,20 @@ class CanonicalAcquisitionAuthority:
             raise AcquisitionAuthorityError("live_raw_response_missing")
         if raw_projection.get("request_event_sha256") != proof.request_ref.event_sha256:
             raise AcquisitionAuthorityError("live_request_event_ref_drift")
+        status_code = raw_projection.get("status_code")
+        if (
+            isinstance(status_code, bool)
+            or not isinstance(status_code, int)
+            or not 200 <= status_code < 300
+        ):
+            raise AcquisitionAuthorityError("live_http_status_not_success")
         request_value = request_event.get("request")
         if not isinstance(request_value, Mapping):
             raise AcquisitionAuthorityError("live_request_missing")
         request = {str(key): value for key, value in request_value.items()}
         if (
-            request_event.get("request_sha256")
-            != fabric_data_plane.content_sha256(request)
-            or request_event.get("request_sha256")
-            != proof.authorization.request_sha256
+            request_event.get("request_sha256") != fabric_data_plane.content_sha256(request)
+            or request_event.get("request_sha256") != proof.authorization.request_sha256
         ):
             raise AcquisitionAuthorityError("live_request_identity_drift")
         entry = resolved.entry
@@ -1505,10 +1449,49 @@ class CanonicalAcquisitionAuthority:
             "connector_id": registration.connector_id,
             "profile_id": registration.source_profile_id,
             "request_dataset_id": registration.request_dataset_id,
+            "request_variables": [registration.request_dataset_id],
             "schema_contract": entry.schema_projection(),
         }
         if any(request.get(key) != value for key, value in expected.items()):
             raise AcquisitionAuthorityError("live_request_owner_projection_drift")
+        filters = request.get("filters")
+        date_start = request.get("date_start")
+        date_end = request.get("date_end")
+        page_size = request.get("page_size")
+        if (
+            not isinstance(filters, Mapping)
+            or set(filters) != {"country"}
+            or not isinstance(filters.get("country"), Sequence)
+            or isinstance(filters.get("country"), (str, bytes, bytearray))
+            or len(filters["country"]) != 1
+            or str(filters["country"][0]) not in entry.country_codes
+            or not isinstance(date_start, str)
+            or not isinstance(date_end, str)
+            or not _live_date_scope_is_admissible(entry, date_start, date_end)
+            or isinstance(page_size, bool)
+            or not isinstance(page_size, int)
+            or not 0 < page_size <= 20_000
+        ):
+            raise AcquisitionAuthorityError("live_request_scope_invalid")
+        profile = SourceProfileRegistry.get_instance().get(registration.source_profile_id)
+        if profile is None:
+            raise AcquisitionAuthorityError("live_source_profile_unresolved")
+        if registration.connector_id != "worldbank.wdi":
+            raise AcquisitionAuthorityError("live_transport_owner_missing")
+        country_code = str(filters["country"][0])
+        expected_url = (
+            profile.base_url.rstrip("/")
+            + f"/country/{country_code}/indicator/"
+            + registration.request_dataset_id
+        )
+        expected_params = {
+            "date": f"{date_start[:4]}:{date_end[:4]}",
+            "format": "json",
+            "page": "1",
+            "per_page": str(page_size),
+        }
+        if transport_trace.url != expected_url or transport_trace.params != expected_params:
+            raise AcquisitionAuthorityError("live_transport_owner_projection_drift")
         if (
             fabric_data_plane.content_sha256(entry.schema_projection())
             != proof.authorization.schema_contract_sha256
@@ -1525,21 +1508,94 @@ class CanonicalAcquisitionAuthority:
         if not contract.startswith("fabric://") or "@" not in contract:
             raise AcquisitionAuthorityError("live_schema_contract_ref_invalid")
         schema_id, schema_version = contract.removeprefix("fabric://").rsplit("@", 1)
-        if (
-            result.schema_id != schema_id
-            or result.schema_version != schema_version
-        ):
+        if result.schema_id != schema_id or result.schema_version != schema_version:
             raise AcquisitionAuthorityError("live_normalized_schema_contract_drift")
         if (
             result.version.content_hash != proof.raw_body_sha256
-            or result.version.content_hash
-            != proof.normalized_result_content_sha256
+            or result.version.content_hash != proof.normalized_result_content_sha256
         ):
             raise AcquisitionAuthorityError("live_normalized_raw_version_drift")
         if result.has_more or result.next_page_token is not None:
             raise AcquisitionAuthorityError("live_result_not_one_page")
         if result.row_count != _normalized_result_row_count(result.data):
             raise AcquisitionAuthorityError("live_normalized_row_count_drift")
+        try:
+            raw_payload = json.loads(
+                fabric_data_plane.resolve_raw_response_body(proof.raw_evidence_ref)
+            )
+        except Exception as exc:
+            raise AcquisitionAuthorityError(
+                "live_raw_response_not_json",
+                type(exc).__name__,
+            ) from exc
+        if (
+            not isinstance(raw_payload, list)
+            or len(raw_payload) < 2
+            or not isinstance(raw_payload[0], Mapping)
+            or not isinstance(raw_payload[1], list)
+            or any(not isinstance(row, Mapping) for row in raw_payload[1])
+        ):
+            raise AcquisitionAuthorityError("live_raw_response_shape_drift")
+        request_event = fabric_data_plane.resolve_journal_event_ref(proof.request_ref)
+        request_value = request_event.get("request")
+        if not isinstance(request_value, Mapping):
+            raise AcquisitionAuthorityError("live_request_missing")
+        request = {str(key): value for key, value in request_value.items()}
+        filters = request.get("filters")
+        if not isinstance(filters, Mapping):
+            raise AcquisitionAuthorityError("live_request_scope_invalid")
+        countries = filters.get("country")
+        if (
+            not isinstance(countries, Sequence)
+            or isinstance(countries, (str, bytes, bytearray))
+            or len(countries) != 1
+        ):
+            raise AcquisitionAuthorityError("live_request_scope_invalid")
+        country_code = str(countries[0])
+        date_start = str(request.get("date_start") or "")
+        date_end = str(request.get("date_end") or "")
+        page_size = request.get("page_size")
+        metadata = raw_payload[0]
+        raw_rows = raw_payload[1]
+        try:
+            metadata_values = (
+                int(str(metadata.get("page"))),
+                int(str(metadata.get("pages"))),
+                int(str(metadata.get("per_page"))),
+                int(str(metadata.get("total"))),
+            )
+        except (TypeError, ValueError) as exc:
+            raise AcquisitionAuthorityError("live_raw_page_metadata_drift") from exc
+        if metadata_values != (1, 1, page_size, len(raw_rows)):
+            raise AcquisitionAuthorityError("live_raw_page_metadata_drift")
+        expected_frame = fabric_connectors.normalize_worldbank_records(
+            raw_rows,
+            resolved.registration.request_dataset_id,
+        )
+        if isinstance(result.data, pd.DataFrame):
+            actual_frame = result.data
+        elif isinstance(result.data, Sequence) and not isinstance(
+            result.data,
+            (str, bytes, bytearray),
+        ):
+            actual_frame = pd.DataFrame(result.data)
+        else:
+            raise AcquisitionAuthorityError("live_normalized_payload_unsupported")
+        if list(actual_frame.columns) != list(
+            expected_frame.columns
+        ) or not actual_frame.reset_index(drop=True).equals(expected_frame.reset_index(drop=True)):
+            raise AcquisitionAuthorityError("live_normalized_raw_projection_drift")
+        if any(
+            row.get("indicator_id") != resolved.registration.request_dataset_id
+            or row.get("country_code") != country_code
+            or not _live_year_is_in_scope(
+                row.get("year"),
+                date_start=date_start,
+                date_end=date_end,
+            )
+            for row in expected_frame.to_dict(orient="records")
+        ):
+            raise AcquisitionAuthorityError("live_normalized_scope_drift")
 
     @staticmethod
     def _reopen_artifact(
@@ -1770,9 +1826,7 @@ class CanonicalAcquisitionAuthority:
         if _file_sha256(receipt_path) != entry.local_rights_receipt_sha256:
             raise AcquisitionAuthorityError("local_rights_receipt_content_drift")
         try:
-            rights = LocalSourceRightsReceipt.model_validate_json(
-                receipt_path.read_bytes()
-            )
+            rights = LocalSourceRightsReceipt.model_validate_json(receipt_path.read_bytes())
         except Exception as exc:
             raise AcquisitionAuthorityError(
                 "local_rights_receipt_invalid",
@@ -1785,14 +1839,12 @@ class CanonicalAcquisitionAuthority:
             rights.rights_document_path,
             code="local_rights_document_path",
         )
-        recomputed_rights, declaration, trust_registry = (
-            _derive_local_source_rights_receipt(
-                root=self.repo_root,
-                source_relative=relative,
-                document_relative=document_relative,
-                trust_relative=trust_relative,
-                expected_trust_file_sha256=expected_trust_registry_sha256,
-            )
+        recomputed_rights, declaration, trust_registry = _derive_local_source_rights_receipt(
+            root=self.repo_root,
+            source_relative=relative,
+            document_relative=document_relative,
+            trust_relative=trust_relative,
+            expected_trust_file_sha256=expected_trust_registry_sha256,
         )
         if (
             rights != recomputed_rights
@@ -1959,6 +2011,53 @@ def _normalized_fetch_result_body(result: FetchResult[Any]) -> bytes:
     return canonical_json_bytes(payload)
 
 
+def _live_date_scope_is_admissible(
+    entry: AcquisitionAuthorityEntry,
+    date_start: str,
+    date_end: str,
+) -> bool:
+    """Recompute whether one whole-year request lies within owner authority."""
+
+    if (
+        len(date_start) != 10
+        or len(date_end) != 10
+        or not date_start[:4].isdigit()
+        or not date_end[:4].isdigit()
+        or date_start[4:] != "-01-01"
+        or date_end[4:] != "-12-31"
+        or entry.temporal_start is None
+        or entry.temporal_end is None
+    ):
+        return False
+    try:
+        start_year = int(date_start[:4])
+        end_year = int(date_end[:4])
+        owner_start = int(str(entry.temporal_start)[:4])
+        owner_end = int(str(entry.temporal_end)[:4])
+    except (TypeError, ValueError):
+        return False
+    return owner_start <= start_year <= end_year <= owner_end
+
+
+def _live_year_is_in_scope(
+    value: object,
+    *,
+    date_start: str,
+    date_end: str,
+) -> bool:
+    """Return whether one normalized observation year belongs to the request."""
+
+    if isinstance(value, bool):
+        return False
+    try:
+        year = int(str(value))
+        start_year = int(date_start[:4])
+        end_year = int(date_end[:4])
+    except (TypeError, ValueError):
+        return False
+    return start_year <= year <= end_year
+
+
 def _file_sha256(path: Path) -> str:
     if not path.is_file():
         raise AcquisitionAuthorityError("authority_source_missing", path.as_posix())
@@ -2013,9 +2112,7 @@ def _derive_local_source_rights_receipt(
     source_sha = _file_sha256(source)
     document_sha = _file_sha256(document)
     try:
-        declaration = LocalSourceRightsDeclaration.model_validate_json(
-            document.read_bytes()
-        )
+        declaration = LocalSourceRightsDeclaration.model_validate_json(document.read_bytes())
     except Exception as exc:
         raise AcquisitionAuthorityError(
             "local_rights_document_invalid",
@@ -2062,8 +2159,7 @@ def _derive_local_source_rights_receipt(
     )
     receipt = LocalSourceRightsReceipt(
         receipt_id=(
-            "local-rights:"
-            + fabric_data_plane.content_sha256(provisional.identity_payload())
+            "local-rights:" + fabric_data_plane.content_sha256(provisional.identity_payload())
         ),
         **values,
     )

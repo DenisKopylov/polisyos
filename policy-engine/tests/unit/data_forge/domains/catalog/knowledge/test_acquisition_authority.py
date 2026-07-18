@@ -35,6 +35,7 @@ from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     OverlayAdmissionError,
 )
 from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+from polisyos.fabric.connectors import resolve_connection_config
 from polisyos.fabric.connectors.cache.store import ResultSerializer
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 from polisyos.fabric.data_plane.evidence_journal import (
@@ -49,6 +50,7 @@ from polisyos.fabric.data_plane.evidence_journal import (
 from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
 from polisyos.ir.connectors import (
     DataVersion,
+    FetchRequest,
     FetchResult,
     QualityTier,
     VersionStrategy,
@@ -109,9 +111,7 @@ def _write_provision(
     provision = build_acquisition_authority_provision(
         baseline_owner_ref=baseline_owner_ref,
         baseline_content_sha256=_sha(baseline),
-        l5_measurement_registry_owner_ref=(
-            "repo://" + DEFAULT_L5_MEASUREMENT_REGISTRY.as_posix()
-        ),
+        l5_measurement_registry_owner_ref=("repo://" + DEFAULT_L5_MEASUREMENT_REGISTRY.as_posix()),
         l5_measurement_registry_content_sha256=_sha(l5_path),
         live_harness_receipts=live_harness_receipts,
     )
@@ -236,35 +236,17 @@ def _entry():
         aggregation_method="identity",
         valid_min=-100.0,
         valid_max=100.0,
-        evidence_refs=(
-            "duckdb://production_data/dataset_catalog.duckdb#/gov_balance",
-        ),
+        evidence_refs=("duckdb://production_data/dataset_catalog.duckdb#/gov_balance",),
         schema_contract_ref="fabric://worldbank.wdi.generic@2.0.0",
         schema_columns=(
-            AuthoritySchemaColumn(
-                name="country_code", logical_types=("string",), nullable=False
-            ),
-            AuthoritySchemaColumn(
-                name="country_name", logical_types=("string",), nullable=False
-            ),
-            AuthoritySchemaColumn(
-                name="decimal", logical_types=("integer",), nullable=False
-            ),
-            AuthoritySchemaColumn(
-                name="indicator_id", logical_types=("string",), nullable=False
-            ),
-            AuthoritySchemaColumn(
-                name="indicator_name", logical_types=("string",), nullable=False
-            ),
-            AuthoritySchemaColumn(
-                name="unit", logical_types=("string",), nullable=False
-            ),
-            AuthoritySchemaColumn(
-                name="value", logical_types=("null", "number"), nullable=True
-            ),
-            AuthoritySchemaColumn(
-                name="year", logical_types=("integer",), nullable=False
-            ),
+            AuthoritySchemaColumn(name="country_code", logical_types=("string",), nullable=False),
+            AuthoritySchemaColumn(name="country_name", logical_types=("string",), nullable=False),
+            AuthoritySchemaColumn(name="decimal", logical_types=("integer",), nullable=False),
+            AuthoritySchemaColumn(name="indicator_id", logical_types=("string",), nullable=False),
+            AuthoritySchemaColumn(name="indicator_name", logical_types=("string",), nullable=False),
+            AuthoritySchemaColumn(name="unit", logical_types=("string",), nullable=False),
+            AuthoritySchemaColumn(name="value", logical_types=("null", "number"), nullable=True),
+            AuthoritySchemaColumn(name="year", logical_types=("integer",), nullable=False),
         ),
         l5_family_id="macro_state",
         title="Acquired government balance",
@@ -277,12 +259,12 @@ def _entry():
 
 def _family_receipt(attempt_id: str) -> dict[str, object]:
     outcome = "replay_fixture_missing_after_interception"
+    profile = SourceProfileRegistry.get_instance().get("worldbank_wdi")
+    assert profile is not None
     return {
         "connector_id": "worldbank.wdi",
         "component_id": "worldbank.wdi@1.0.0",
-        "connector_class": (
-            "polisyos.fabric.connectors.sources.world_bank.WorldBankConnector"
-        ),
+        "connector_class": ("polisyos.fabric.connectors.sources.world_bank.WorldBankConnector"),
         "protocol_violations": [],
         "protocol_conformant": True,
         "harness_checks_passed": [
@@ -302,15 +284,16 @@ def _family_receipt(attempt_id: str) -> dict[str, object]:
                 "profile_id": "worldbank_wdi",
                 "source_profile_family": "worldbank",
                 "request_dataset_id": "GC.BAL.CASH.GD.ZS",
-                "fetch_request_key": "sha256:" + "1" * 64,
-                "connection_config_content_sha256": "sha256:" + "2" * 64,
+                "fetch_request_key": FetchRequest(dataset_id="GC.BAL.CASH.GD.ZS").request_key,
+                "connection_config_content_sha256": content_sha256(
+                    resolve_connection_config(profile).to_dict(redact=True)
+                ),
                 "connector_fetch_invoked": True,
                 "fetch_completed": False,
                 "outcome": outcome,
                 "finding_code": outcome,
                 "failure_type": (
-                    "polisyos.fabric.connectors.testing.simulator."
-                    "MissingFixtureError"
+                    "polisyos.fabric.connectors.testing.simulator.MissingFixtureError"
                 ),
                 "simulator_mode": "replay",
                 "simulator_call_count": 1,
@@ -392,7 +375,11 @@ def _resolver(
     )
 
 
-def _live_execution_fixture(tmp_path: Path):
+def _live_execution_fixture(
+    tmp_path: Path,
+    *,
+    carrier_updates: dict[str, object] | None = None,
+):
     """Build one fully content-bound, network-free WDI execution fixture."""
 
     from polisyos.data_forge.domains.catalog.knowledge import acquisition_authority
@@ -401,6 +388,10 @@ def _live_execution_fixture(tmp_path: Path):
     entry = _entry()
     attempt_id = "n13b-worldbank-government-balance-001"
     family_receipt = _family_receipt(attempt_id)
+    if carrier_updates:
+        carrier = dict(family_receipt["dry_run_attempts"][0])
+        carrier.update(carrier_updates)
+        family_receipt["dry_run_attempts"] = [carrier]
     receipt_provision = _write_family_receipt(
         repo_root,
         entry_id=entry.entry_id,
@@ -465,6 +456,7 @@ def _live_execution_fixture(tmp_path: Path):
         "connector_id": resolved.registration.connector_id,
         "profile_id": resolved.registration.source_profile_id,
         "request_dataset_id": resolved.registration.request_dataset_id,
+        "request_variables": [resolved.registration.request_dataset_id],
         "filters": {"country": ["UKR"]},
         "date_start": "2023-01-01",
         "date_end": "2024-12-31",
@@ -492,10 +484,7 @@ def _live_execution_fixture(tmp_path: Path):
         attempt_id=attempt_id,
         request_ref=request_ref,
         connector_id="worldbank.wdi",
-        url=(
-            "https://api.worldbank.org/v2/country/UKR/indicator/"
-            "GC.BAL.CASH.GD.ZS"
-        ),
+        url=("https://api.worldbank.org/v2/country/UKR/indicator/GC.BAL.CASH.GD.ZS"),
         params={
             "date": "2023:2024",
             "format": "json",
@@ -633,8 +622,7 @@ def test_authority_resolves_catalog_license_l5_and_registration(tmp_path: Path) 
     assert resolved.l5_trust.trust_cap == 1.0
     assert resolved.effective_authority_score == 0.8
     assert resolved.license_authority_ref == (
-        "repo://catalog/catalog.duckdb#ds_datasets/"
-        "source-worldbank-balance/access_license"
+        "repo://catalog/catalog.duckdb#ds_datasets/source-worldbank-balance/access_license"
     )
 
 
@@ -664,9 +652,7 @@ def test_live_license_ref_uses_logical_owner_for_external_baseline(
         repo_root,
         baseline=baseline,
         l5_path=l5,
-        baseline_owner_ref=(
-            "repo://production_data/snapshot/dataset_catalog.duckdb"
-        ),
+        baseline_owner_ref=("repo://production_data/snapshot/dataset_catalog.duckdb"),
     )
     resolver = CanonicalAcquisitionAuthority.from_provision(
         repo_root=repo_root,
@@ -708,15 +694,48 @@ def test_live_harness_receipt_resolves_exact_owner_bytes(tmp_path: Path) -> None
     )
 
     assert resolved.family_receipt == family_receipt
-    assert resolved.receipt_owner_ref == (
-        "repo://evidence/worldbank-wdi-live-harness.json"
-    )
+    assert resolved.receipt_owner_ref == ("repo://evidence/worldbank-wdi-live-harness.json")
     assert resolved.receipt_content_sha256 == _sha(
         resolver.repo_root / "evidence/worldbank-wdi-live-harness.json"
     )
-    assert resolved.connection_config_content_sha256 == "sha256:" + "2" * 64
-    assert resolved.fetch_request_key == "sha256:" + "1" * 64
+    profile = SourceProfileRegistry.get_instance().get("worldbank_wdi")
+    assert profile is not None
+    assert resolved.connection_config_content_sha256 == content_sha256(
+        resolve_connection_config(profile).to_dict(redact=True)
+    )
+    assert resolved.fetch_request_key == FetchRequest(dataset_id="GC.BAL.CASH.GD.ZS").request_key
     assert resolved.source_profile_family == "worldbank"
+
+
+@pytest.mark.parametrize(
+    ("carrier_updates", "error_code"),
+    [
+        (
+            {"connection_config_content_sha256": "sha256:" + "0" * 64},
+            "live_harness_connection_config_drift",
+        ),
+        (
+            {"fetch_request_key": "sha256:" + "0" * 64},
+            "live_harness_fetch_request_drift",
+        ),
+        (
+            {"source_profile_family": "forged"},
+            "live_harness_profile_family_drift",
+        ),
+    ],
+)
+def test_live_execution_recomputes_selected_harness_runtime_bindings(
+    tmp_path: Path,
+    carrier_updates: dict[str, object],
+    error_code: str,
+) -> None:
+    resolver, entry, store, evidence, _, _ = _live_execution_fixture(
+        tmp_path,
+        carrier_updates=carrier_updates,
+    )
+
+    with pytest.raises(AcquisitionAuthorityError, match=error_code):
+        resolver.resolve_live_source_execution(entry.entry_id, evidence, store)
 
 
 def test_live_harness_receipt_rejects_file_drift(tmp_path: Path) -> None:
@@ -930,11 +949,14 @@ def test_live_passport_measures_normalized_snapshot_and_retains_raw_carrier(
     assert passport.source_watermark == evidence.raw_body_sha256
     assert passport.raw_evidence_ref == evidence.raw_evidence_ref
     assert passport.source_authority_verified is True
-    assert revalidate_admission_passport(
-        passport,
-        artifact_store=store,
-        authority=resolver,
-    ) == passport
+    assert (
+        revalidate_admission_passport(
+            passport,
+            artifact_store=store,
+            authority=resolver,
+        )
+        == passport
+    )
 
 
 def test_live_overlay_derives_only_from_reopened_normalized_snapshot(
@@ -964,9 +986,10 @@ def test_live_overlay_derives_only_from_reopened_normalized_snapshot(
     assert receipt.admitted_observation_count == 2
     con = duckdb.connect(str(overlay.overlay_path), read_only=True)
     try:
-        assert con.execute(
-            "SELECT value FROM ds_observations ORDER BY year"
-        ).fetchall() == [(-18.2,), (-17.1,)]
+        assert con.execute("SELECT value FROM ds_observations ORDER BY year").fetchall() == [
+            (-18.2,),
+            (-17.1,),
+        ]
     finally:
         con.close()
         overlay.close()
@@ -1022,12 +1045,161 @@ def _rebuild_live_evidence(
         "baseline_before_sha256": evidence.baseline_before_sha256,
         "baseline_after_sha256": evidence.baseline_after_sha256,
         "raw_body_sha256": evidence.raw_body_sha256,
-        "normalized_result_content_sha256": (
-            evidence.normalized_result_content_sha256
-        ),
+        "normalized_result_content_sha256": (evidence.normalized_result_content_sha256),
     }
     values.update(updates)
     return build_live_source_execution_evidence(**values)  # type: ignore[arg-type]
+
+
+def _rebind_live_request_and_transport(
+    tmp_path: Path,
+    evidence: LiveSourceExecutionEvidence,
+    family_receipt: dict[str, object],
+    *,
+    mutation: str,
+) -> LiveSourceExecutionEvidence:
+    request_event = resolve_linked_request_event(evidence.raw_evidence_ref)
+    request = dict(request_event["request"])
+    url = "https://api.worldbank.org/v2/country/UKR/indicator/GC.BAL.CASH.GD.ZS"
+    params = {
+        "date": "2023:2024",
+        "format": "json",
+        "page": "1",
+        "per_page": "1000",
+    }
+    if mutation == "request_variables":
+        request["request_variables"] = ["FP.CPI.TOTL"]
+    elif mutation == "country":
+        request["filters"] = {"country": ["POL"]}
+        url = url.replace("/UKR/", "/POL/")
+    elif mutation == "date":
+        request["date_start"] = "2019-01-01"
+        params["date"] = "2019:2024"
+    elif mutation == "page_size":
+        request["page_size"] = 0
+        params["per_page"] = "0"
+    elif mutation == "url":
+        url = url.replace("api.worldbank.org", "attacker.invalid")
+    elif mutation == "params":
+        params["date"] = "2022:2024"
+    else:  # pragma: no cover - test helper contract
+        raise AssertionError(mutation)
+
+    profile = SourceProfileRegistry.get_instance().get("worldbank_wdi")
+    assert profile is not None
+    authorization = build_live_execution_authorization(
+        attempt_id=evidence.authorization.attempt_id,
+        connector_id=evidence.authorization.connector_id,
+        request_dataset_id=evidence.authorization.request_variables[0],
+        request=request,
+        schema_contract=request["schema_contract"],
+        source_profile=profile,
+        baseline_sha256=evidence.baseline_before_sha256,
+        family_receipt=family_receipt,
+        max_response_bytes=evidence.authorization.budget.max_response_bytes,
+        max_decompressed_bytes=evidence.authorization.budget.max_decompressed_bytes,
+    )
+    journal = AppendOnlyEvidenceJournal(tmp_path / f"mutated-{mutation}.jsonl")
+    request_ref = journal.append_request(
+        attempt_id=authorization.attempt_id,
+        request=request,
+    )
+    transport_ref = journal.append_transport_attempt(
+        attempt_id=authorization.attempt_id,
+        request_ref=request_ref,
+        connector_id=authorization.connector_id,
+        url=url,
+        params=params,
+    )
+    raw_body = resolve_raw_response_body(evidence.raw_evidence_ref)
+    journal.append_heartbeat(
+        attempt_id=authorization.attempt_id,
+        phase="attempt_started",
+        progress_bytes=0,
+        elapsed_seconds=0.0,
+    )
+    journal.append_heartbeat(
+        attempt_id=authorization.attempt_id,
+        phase="response_headers",
+        progress_bytes=0,
+        elapsed_seconds=0.1,
+    )
+    journal.append_heartbeat(
+        attempt_id=authorization.attempt_id,
+        phase="body_progress",
+        progress_bytes=len(raw_body),
+        elapsed_seconds=0.2,
+    )
+    raw_ref = journal.append_raw_evidence(
+        attempt_id=authorization.attempt_id,
+        request_ref=request_ref,
+        transport_ref=transport_ref,
+        payload=raw_body,
+        status_code=200,
+        response_headers={"content-type": "application/json"},
+        budget=authorization.budget,
+    )
+    return _rebuild_live_evidence(
+        evidence,
+        authorization=authorization,
+        request_ref=request_ref,
+        raw_evidence_ref=raw_ref,
+        transport_trace=resolve_live_transport_trace(raw_ref),
+    )
+
+
+def _rebind_normalized_result(
+    store: FileSystemCAS,
+    evidence: LiveSourceExecutionEvidence,
+    result: FetchResult,
+    *,
+    field_name: str,
+) -> LiveSourceExecutionEvidence:
+    frame = result.data.copy()
+    replacements = {
+        "value": -999.0,
+        "unit": "percentage points",
+        "decimal": 7,
+        "indicator_name": "Fabricated government balance",
+    }
+    frame.loc[0, field_name] = replacements[field_name]
+    mutated_result = result.model_copy(update={"data": frame})
+    serialized, media_type = ResultSerializer.serialize(mutated_result)
+    data_ref = store.put_bytes(
+        serialized,
+        ArtifactWriteOptions(
+            kind="fabric.connector_cache.payload",
+            media_type=media_type,
+        ),
+    )
+    evidence_bundle_ref = persist_evidence_bundle(
+        store,
+        build_evidence_bundle(
+            sources=[data_ref],
+            notes=["adversarial normalized projection"],
+        ),
+    )
+    snapshot = DataSnapshot(
+        data_ref=data_ref,
+        evidence_ref=evidence_bundle_ref,
+        stats={"datasets_fetched": 1, "source": "orchestrated_ingestion:test"},
+        notes=["fabric.data_plane.orchestrator", "datasets=1"],
+    )
+    snapshot_artifact = store.put_json(
+        snapshot,
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    return _rebuild_live_evidence(
+        evidence,
+        evidence_bundle_ref=evidence_bundle_ref,
+        data_snapshot_ref=DataSnapshotRef(artifact_id=snapshot_artifact.artifact_id),
+        normalized_data_artifact_id=data_ref.artifact_id,
+    )
 
 
 def test_live_execution_rejects_mutated_family_receipt(tmp_path: Path) -> None:
@@ -1090,6 +1262,57 @@ def test_live_execution_rejects_caller_fabricated_shaped_green_receipt(
         resolver.resolve_live_source_execution(entry.entry_id, forged, store)
 
 
+@pytest.mark.parametrize(
+    ("mutation", "error_code"),
+    [
+        ("request_variables", "live_request_owner_projection_drift"),
+        ("country", "live_request_scope_invalid"),
+        ("date", "live_request_scope_invalid"),
+        ("page_size", "live_request_scope_invalid"),
+        ("url", "live_transport_owner_projection_drift"),
+        ("params", "live_transport_owner_projection_drift"),
+    ],
+)
+def test_live_execution_authority_rederives_request_and_transport_scope(
+    tmp_path: Path,
+    mutation: str,
+    error_code: str,
+) -> None:
+    resolver, entry, store, evidence, family_receipt, _ = _live_execution_fixture(tmp_path)
+    forged = _rebind_live_request_and_transport(
+        tmp_path,
+        evidence,
+        family_receipt,
+        mutation=mutation,
+    )
+
+    with pytest.raises(AcquisitionAuthorityError, match=error_code):
+        resolver.resolve_live_source_execution(entry.entry_id, forged, store)
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    ["value", "unit", "decimal", "indicator_name"],
+)
+def test_live_execution_authority_rederives_all_normalized_fields_from_raw(
+    tmp_path: Path,
+    field_name: str,
+) -> None:
+    resolver, entry, store, evidence, _, result = _live_execution_fixture(tmp_path)
+    forged = _rebind_normalized_result(
+        store,
+        evidence,
+        result,
+        field_name=field_name,
+    )
+
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match="live_normalized_raw_projection_drift",
+    ):
+        resolver.resolve_live_source_execution(entry.entry_id, forged, store)
+
+
 def test_live_passport_rejects_source_watermark_not_bound_to_raw_body(
     tmp_path: Path,
 ) -> None:
@@ -1102,9 +1325,7 @@ def test_live_passport_rejects_source_watermark_not_bound_to_raw_body(
         authority=resolver,
         live_source_execution=evidence,
     )
-    forged = passport.model_copy(
-        update={"source_watermark": "sha256:" + "0" * 64}
-    )
+    forged = passport.model_copy(update={"source_watermark": "sha256:" + "0" * 64})
 
     with pytest.raises(ValueError, match="source_watermark_content_drift"):
         revalidate_admission_passport(
@@ -1139,9 +1360,7 @@ def test_live_execution_rejects_wrong_snapshot_ref(tmp_path: Path) -> None:
     resolver, entry, store, evidence, _, _ = _live_execution_fixture(tmp_path)
     mutated = _rebuild_live_evidence(
         evidence,
-        data_snapshot_ref=DataSnapshotRef(
-            artifact_id=evidence.evidence_bundle_ref.artifact_id
-        ),
+        data_snapshot_ref=DataSnapshotRef(artifact_id=evidence.evidence_bundle_ref.artifact_id),
     )
 
     with pytest.raises(
@@ -1156,9 +1375,7 @@ def test_live_execution_recomputes_one_dataset_from_snapshot(tmp_path: Path) -> 
     snapshot = DataSnapshot.model_validate(
         from_canonical_bytes(store.get_bytes(evidence.data_snapshot_ref.artifact_id))
     )
-    expanded = snapshot.model_copy(
-        update={"stats": {**snapshot.stats, "datasets_fetched": 2}}
-    )
+    expanded = snapshot.model_copy(update={"stats": {**snapshot.stats, "datasets_fetched": 2}})
     expanded_ref = store.put_json(
         expanded,
         ArtifactWriteOptions(
@@ -1207,10 +1424,7 @@ def test_live_execution_recomputes_one_call_from_complete_journal(
             "transport_attempt": {
                 "request_event_sha256": retry_request_ref.event_sha256,
                 "connector_id": "worldbank.wdi",
-                "url": (
-                    "https://api.worldbank.org/v2/country/UKR/indicator/"
-                    "GC.BAL.CASH.GD.ZS"
-                ),
+                "url": ("https://api.worldbank.org/v2/country/UKR/indicator/GC.BAL.CASH.GD.ZS"),
                 "params": {"page": "1"},
                 "params_sha256": content_sha256({"page": "1"}),
             },
@@ -1226,9 +1440,7 @@ def test_live_execution_recomputes_one_call_from_complete_journal(
 
 def test_live_execution_recomputes_one_page_from_fetch_result(tmp_path: Path) -> None:
     resolver, entry, store, evidence, _, expected = _live_execution_fixture(tmp_path)
-    paged = expected.model_copy(
-        update={"has_more": True, "next_page_token": "page-2"}
-    )
+    paged = expected.model_copy(update={"has_more": True, "next_page_token": "page-2"})
     serialized, media_type = ResultSerializer.serialize(paged)
     data_ref = store.put_bytes(
         serialized,
@@ -1259,9 +1471,7 @@ def test_live_execution_recomputes_one_page_from_fetch_result(tmp_path: Path) ->
     mutated = _rebuild_live_evidence(
         evidence,
         evidence_bundle_ref=evidence_bundle_ref,
-        data_snapshot_ref=DataSnapshotRef(
-            artifact_id=snapshot_artifact.artifact_id
-        ),
+        data_snapshot_ref=DataSnapshotRef(artifact_id=snapshot_artifact.artifact_id),
         normalized_data_artifact_id=data_ref.artifact_id,
     )
 
@@ -1289,9 +1499,7 @@ def test_live_execution_recomputes_one_variable_from_request(tmp_path: Path) -> 
         baseline_sha256=evidence.baseline_before_sha256,
         family_receipt=receipt,
         max_response_bytes=evidence.authorization.budget.max_response_bytes,
-        max_decompressed_bytes=(
-            evidence.authorization.budget.max_decompressed_bytes
-        ),
+        max_decompressed_bytes=(evidence.authorization.budget.max_decompressed_bytes),
     )
     journal = AppendOnlyEvidenceJournal(tmp_path / "wrong-variable-journal.jsonl")
     request_ref = journal.append_request(
@@ -1302,10 +1510,7 @@ def test_live_execution_recomputes_one_variable_from_request(tmp_path: Path) -> 
         attempt_id=authorization.attempt_id,
         request_ref=request_ref,
         connector_id="worldbank.wdi",
-        url=(
-            "https://api.worldbank.org/v2/country/UKR/indicator/"
-            "GC.BAL.CASH.GD.ZS"
-        ),
+        url=("https://api.worldbank.org/v2/country/UKR/indicator/GC.BAL.CASH.GD.ZS"),
         params={"format": "json", "page": "1", "per_page": "1000"},
     )
     raw_body = resolve_raw_response_body(evidence.raw_evidence_ref)
@@ -1368,8 +1573,7 @@ def test_authority_rejects_catalog_license_and_owner_byte_drift(tmp_path: Path) 
 def test_authority_rejects_self_authored_and_invented_exact_edges() -> None:
     values = _entry().model_dump(mode="python", exclude={"entry_id"})
     values["schema_columns"] = tuple(
-        AuthoritySchemaColumn.model_validate(column)
-        for column in values["schema_columns"]
+        AuthoritySchemaColumn.model_validate(column) for column in values["schema_columns"]
     )
     values["evidence_refs"] = ("self://invented",)
     with pytest.raises(ValidationError, match="cannot be self-authored"):
@@ -1377,8 +1581,7 @@ def test_authority_rejects_self_authored_and_invented_exact_edges() -> None:
 
     values = _entry().model_dump(mode="python", exclude={"entry_id"})
     values["schema_columns"] = tuple(
-        AuthoritySchemaColumn.model_validate(column)
-        for column in values["schema_columns"]
+        AuthoritySchemaColumn.model_validate(column) for column in values["schema_columns"]
     )
     values.update(
         {
@@ -1391,8 +1594,7 @@ def test_authority_rejects_self_authored_and_invented_exact_edges() -> None:
 
     values = _entry().model_dump(mode="python", exclude={"entry_id"})
     values["schema_columns"] = tuple(
-        AuthoritySchemaColumn.model_validate(column)
-        for column in values["schema_columns"]
+        AuthoritySchemaColumn.model_validate(column) for column in values["schema_columns"]
     )
     values["local_source_path"] = "evidence/should-not-travel.json"
     with pytest.raises(ValidationError, match="cannot carry local authority fields"):
@@ -1404,8 +1606,7 @@ def test_authority_rejects_landing_identifier_collision_with_epoch_zero(
 ) -> None:
     values = _entry().model_dump(mode="python", exclude={"entry_id"})
     values["schema_columns"] = tuple(
-        AuthoritySchemaColumn.model_validate(column)
-        for column in values["schema_columns"]
+        AuthoritySchemaColumn.model_validate(column) for column in values["schema_columns"]
     )
     values["landing_dataset_id"] = "source-worldbank-balance"
     collision = build_authority_entry(**values)

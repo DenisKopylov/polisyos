@@ -654,3 +654,132 @@ def test_second_attempt_gets_a_distinct_exact_harness_receipt(
     assert len(owners.provision.live_harness_receipts) == 2
     assert owners.provision.live_harness_receipts[1].attempt_id.endswith("-002")
     assert executor.target_harness_receipt_path(2) in owners.payloads()
+
+
+def test_d6_route_selector_derives_ratio_times_scale_from_owner_denominators(
+    selection_inputs: tuple[Path, Path, Path],
+) -> None:
+    catalog, census, substrate = selection_inputs
+    con = duckdb.connect(str(catalog))
+    try:
+        con.execute(
+            "UPDATE ds_datasets SET themes = ? WHERE id = 'percent-dataset'",
+            [json.dumps(["WDI Database Archives"])],
+        )
+        con.execute(
+            "INSERT INTO ds_datasets VALUES "
+            "('gdp-dataset', 'worldbank', 'World Bank', 'GDP (current US$)', "
+            "'Gross domestic product in current United States dollars.', NULL, NULL, "
+            "'CC-BY-4.0', FALSE, 'transport_ready', ?)",
+            [json.dumps(["World Development Indicators"])],
+        )
+        con.execute(
+            "INSERT INTO ds_distributions VALUES "
+            "('gdp-dist', 'gdp-dataset', 'https://api.worldbank.org/v2', "
+            "'worldbank.wdi', 'worldbank_wdi', 'fixture', ?, 1.0, TRUE)",
+            [json.dumps({"indicator_id": "NY.GDP.MKTP.CD"})],
+        )
+        con.execute(
+            "INSERT INTO ds_metric_bindings VALUES "
+            "('gdp', 'gdp-dataset', 'gdp-dist', 'worldbank.wdi', "
+            "'worldbank_wdi', 'NY.GDP.MKTP.CD', 0.87, '{}', 'transport_ready')"
+        )
+    finally:
+        con.close()
+    repo_root = Path(__file__).resolve().parents[3]
+    r1 = executor.derive_r1_forensic_receipt(
+        journal_path=(
+            repo_root / "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
+        ),
+        cas_root=repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas",
+        request_dataset_id="GC.BAL.CASH.CD",
+    )
+
+    selection = executor.derive_d6_route_selection(
+        catalog_path=catalog,
+        census_path=census,
+        substrate_path=substrate,
+        r1_receipt=r1,
+        carrier_liveness_path=(
+            repo_root / "architecture/policy_design_case/"
+            "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json"
+        ),
+    )
+
+    assert selection.target_variable == "government.balance"
+    assert selection.required_output_unit == "usd"
+    assert selection.route_disposition == "derivation_requirement"
+    assert selection.transform_method_id == "percent_of_gdp_times_current_usd_exact_year"
+    assert selection.primary.request_dataset_id == "GC.BAL.CASH.GD.ZS"
+    assert selection.primary.unit == "percent_gdp"
+    assert selection.primary_candidate_denominator == 1
+    assert selection.auxiliary.request_dataset_id == "NY.GDP.MKTP.CD"
+    assert selection.auxiliary.unit == "usd"
+    assert selection.auxiliary_candidate_denominator == 1
+    assert selection.primary_requires_source_characterization is True
+    assert selection.selection_sha256 == executor.content_sha256(selection.identity_payload())
+
+
+def test_d6_metadata_owner_binds_route_and_paid_latency(
+    selection_inputs: tuple[Path, Path, Path],
+    tmp_path: Path,
+) -> None:
+    catalog, census, substrate = selection_inputs
+    con = duckdb.connect(str(catalog))
+    try:
+        con.execute(
+            "UPDATE ds_datasets SET themes = ? WHERE id = 'percent-dataset'",
+            [json.dumps(["WDI Database Archives"])],
+        )
+        con.execute(
+            "INSERT INTO ds_datasets VALUES "
+            "('gdp-dataset', 'worldbank', 'World Bank', 'GDP (current US$)', "
+            "'Gross domestic product in current United States dollars.', NULL, NULL, "
+            "'CC-BY-4.0', FALSE, 'transport_ready', ?)",
+            [json.dumps(["World Development Indicators"])],
+        )
+        con.execute(
+            "INSERT INTO ds_distributions VALUES "
+            "('gdp-dist', 'gdp-dataset', 'https://api.worldbank.org/v2', "
+            "'worldbank.wdi', 'worldbank_wdi', 'fixture', ?, 1.0, TRUE)",
+            [json.dumps({"indicator_id": "NY.GDP.MKTP.CD"})],
+        )
+        con.execute(
+            "INSERT INTO ds_metric_bindings VALUES "
+            "('gdp', 'gdp-dataset', 'gdp-dist', 'worldbank.wdi', "
+            "'worldbank_wdi', 'NY.GDP.MKTP.CD', 0.87, '{}', 'transport_ready')"
+        )
+    finally:
+        con.close()
+    repo_root = Path(__file__).resolve().parents[3]
+    r1 = executor.derive_r1_forensic_receipt(
+        journal_path=(
+            repo_root / "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
+        ),
+        cas_root=repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas",
+        request_dataset_id="GC.BAL.CASH.CD",
+    )
+    selection = executor.derive_d6_route_selection(
+        catalog_path=catalog,
+        census_path=census,
+        substrate_path=substrate,
+        r1_receipt=r1,
+        carrier_liveness_path=(
+            repo_root / "architecture/policy_design_case/"
+            "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json"
+        ),
+    )
+
+    owner = executor.derive_d6_metadata_probe_owner(
+        selection=selection,
+        r1_receipt=r1,
+        baseline_path=catalog,
+        fixture_root=tmp_path / "missing-replay-fixtures",
+    )
+
+    assert owner.route_selection_sha256 == selection.selection_sha256
+    assert owner.request["request_variables"] == ["GC.BAL.CASH.GD.ZS"]
+    assert owner.authorization.budget.timeout_cap_seconds == 14.0
+    assert owner.authorization.call_class == "indicator_metadata"
+    assert owner.harness.actual_network_call_count == 0
+    assert owner.harness.safe_dry_run_passed is True

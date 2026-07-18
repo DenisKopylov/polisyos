@@ -71,6 +71,13 @@ DEFAULT_CARRIER_LIVENESS_UPDATE = Path(
     "architecture/policy_design_case/"
     "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json"
 )
+DEFAULT_D6_ROUTE_SELECTION = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json"
+)
+DEFAULT_D6_PRIMARY_METADATA_OWNER = Path(
+    "architecture/policy_design_case/"
+    "layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json"
+)
 
 
 class CarrierDataDisposition(StrEnum):
@@ -335,6 +342,213 @@ class MetadataProbeExecutionEvidence(_StrictModel):
             key: value
             for key, value in self.model_dump(mode="json").items()
             if key != "evidence_sha256"
+        }
+
+
+class D6CatalogCarrier(_StrictModel):
+    """One catalog-owned carrier scored for a single certified D6 transform role."""
+
+    role: Literal["primary_ratio", "auxiliary_scale"]
+    dataset_id: str = Field(min_length=1)
+    distribution_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
+    metric_id: str = Field(min_length=1)
+    source: str = Field(min_length=1)
+    agency: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    description: str
+    themes: tuple[str, ...]
+    access_license: str = Field(min_length=1)
+    execution_tier: Literal["fetchable", "transport_ready"]
+    binding_confidence: float = Field(ge=0.0, le=1.0)
+    distribution_quality_score: float = Field(ge=0.0, le=1.0)
+    unit: Literal["percent_gdp", "usd"]
+    connector_params: dict[str, Any]
+    default_filters: dict[str, list[str]]
+    source_selector_declared: bool
+    identifier_anchor: str = Field(min_length=1)
+    title_anchor: str = Field(min_length=1)
+    anchor_unit: str = Field(min_length=1)
+    identifier_alignment: VariablePairAlignmentScore
+    title_alignment: VariablePairAlignmentScore
+    rank_score: float = Field(ge=0.0)
+    projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _carrier_projection_is_recomputed(self) -> Self:
+        if self.themes != tuple(sorted(set(self.themes))):
+            raise ValueError("D6 carrier themes must be unique and sorted")
+        owner_unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(
+            f"{self.title} {self.description}"
+        )
+        if owner_unit != self.unit:
+            raise ValueError("D6 carrier unit must be recomputed from catalog text")
+        expected_selector = any(
+            key.casefold() in {"source", "source_id"}
+            for mapping in (self.connector_params, self.default_filters)
+            for key in mapping
+        )
+        if self.source_selector_declared != expected_selector:
+            raise ValueError("D6 source-selector status must derive from catalog config")
+        identifier_alignment = data_forge_read_api.catalog.score_variable_pair(
+            left_name=self.identifier_anchor,
+            right_name=self.request_dataset_id,
+            left_unit=self.anchor_unit,
+            right_unit=self.unit,
+        )
+        title_alignment = data_forge_read_api.catalog.score_variable_pair(
+            left_name=self.title_anchor,
+            right_name=self.title,
+            left_unit=self.anchor_unit,
+            right_unit=self.unit,
+        )
+        if (
+            self.identifier_alignment != identifier_alignment
+            or self.title_alignment != title_alignment
+        ):
+            raise ValueError("D6 carrier alignment must be recomputed by its owner")
+        expected_rank = round(
+            identifier_alignment.overall_score + title_alignment.overall_score,
+            6,
+        )
+        if abs(self.rank_score - expected_rank) > 1e-9:
+            raise ValueError("D6 carrier rank must derive from owner alignment scores")
+        if self.projection_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("D6 carrier projection identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the narrow catalog/score projection without its self-hash."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "projection_sha256"
+        }
+
+
+class D6RouteSelection(_StrictModel):
+    """Evidence-derived one-transform route from a paid basis mismatch."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.d6_route_selection.v1"] = (
+        "policyos.layer3.gy.n13b.d6_route_selection.v1"
+    )
+    baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    census_backlog_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    substrate_slot_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    r1_receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    carrier_liveness_receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    target_variable: str = Field(min_length=1)
+    backlog_rank: int = Field(ge=1)
+    demand_sources: tuple[str, ...] = Field(min_length=1)
+    required_output_unit: Literal["usd"]
+    failed_request_dataset_id: str = Field(min_length=1)
+    failed_metric_id: str = Field(min_length=1)
+    failed_carrier_disposition: Literal[
+        "carrier_current_no_data_for_scope",
+        "carrier_current_source_profile_mismatch",
+        "carrier_retired_or_invalid",
+    ]
+    failed_missing_request_levers: tuple[str, ...]
+    route_disposition: Literal["derivation_requirement"]
+    transform_method_id: Literal["percent_of_gdp_times_current_usd_exact_year"]
+    transform_method_version: Literal["1.0.0"]
+    transform_formula: Literal["output_usd = primary_percent_gdp / 100 * auxiliary_gdp_usd"]
+    primary_catalog_denominator: int = Field(ge=1)
+    primary_candidate_denominator: int = Field(ge=1)
+    primary_rejected_counts: dict[str, int]
+    auxiliary_catalog_denominator: int = Field(ge=1)
+    auxiliary_candidate_denominator: int = Field(ge=1)
+    auxiliary_rejected_counts: dict[str, int]
+    primary: D6CatalogCarrier
+    auxiliary: D6CatalogCarrier
+    primary_requires_source_characterization: bool
+    selection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _route_is_recomputed(self) -> Self:
+        if self.demand_sources != tuple(sorted(set(self.demand_sources))):
+            raise ValueError("D6 demand sources must be unique and sorted")
+        if any(value < 0 for value in self.primary_rejected_counts.values()):
+            raise ValueError("D6 primary rejection counts must be nonnegative")
+        if any(value < 0 for value in self.auxiliary_rejected_counts.values()):
+            raise ValueError("D6 auxiliary rejection counts must be nonnegative")
+        if (
+            self.primary_candidate_denominator + sum(self.primary_rejected_counts.values())
+            != self.primary_catalog_denominator
+            or self.auxiliary_candidate_denominator + sum(self.auxiliary_rejected_counts.values())
+            != self.auxiliary_catalog_denominator
+        ):
+            raise ValueError("D6 candidate outcomes must cover both complete denominators")
+        if (
+            self.primary.role != "primary_ratio"
+            or self.primary.metric_id != self.failed_metric_id
+            or self.primary.unit != "percent_gdp"
+            or self.auxiliary.role != "auxiliary_scale"
+            or self.auxiliary.metric_id != "gdp"
+            or self.auxiliary.unit != "usd"
+            or self.required_output_unit != "usd"
+        ):
+            raise ValueError("D6 ratio-times-scale basis edge is not certified")
+        expected_characterization = not self.primary.source_selector_declared and any(
+            "archive" in theme.casefold() or "africa development indicators" in theme.casefold()
+            for theme in self.primary.themes
+        )
+        if self.primary_requires_source_characterization != expected_characterization:
+            raise ValueError("D6 primary characterization gate must derive from source owners")
+        if self.selection_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("D6 route selection identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the projection defining the D6 route selection."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "selection_sha256"
+        }
+
+
+class D6MetadataProbeOwner(_StrictModel):
+    """One zero-network owner for characterizing the selected D6 primary carrier."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.d6_metadata_probe_owner.v1"] = (
+        "policyos.layer3.gy.n13b.d6_metadata_probe_owner.v1"
+    )
+    route_selection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    r1_receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    baseline_ref: str = Field(min_length=1)
+    baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    request: dict[str, Any]
+    harness: LiveMetadataHarnessReceipt
+    authorization: LiveMetadataExecutionAuthorization
+    owner_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _owner_is_recomputed(self) -> Self:
+        if (
+            self.authorization.harness != self.harness
+            or self.authorization.request_sha256 != content_sha256(self.request)
+            or self.authorization.baseline_sha256 != self.baseline_sha256
+            or self.request.get("variable_id") != self.harness.request_variable
+            or self.request.get("request_variables") != [self.harness.request_variable]
+            or self.request.get("call_class") != "indicator_metadata"
+        ):
+            raise ValueError("D6 metadata owner projections must preserve exact scope")
+        if self.owner_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("D6 metadata owner identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the timestamp-free D6 metadata owner projection."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "owner_sha256"
         }
 
 
@@ -629,6 +843,280 @@ def derive_metadata_probe_owner(
         "authorization": authorization,
     }
     return MetadataProbeOwner(
+        **values,
+        owner_sha256=content_sha256(values),
+    )
+
+
+def derive_d6_route_selection(
+    *,
+    catalog_path: Path,
+    census_path: Path,
+    substrate_path: Path,
+    r1_receipt: R1ForensicReceipt,
+    carrier_liveness_path: Path,
+) -> D6RouteSelection:
+    """Derive the one-transform fiscal route from paid and catalog owner evidence."""
+
+    from tools.quality.validation import layer3_gy_n13a_acquisition_census as census_owner
+
+    r1 = R1ForensicReceipt.model_validate(r1_receipt.model_dump(mode="python"))
+    if r1.classification.disposition not in {
+        CarrierDataDisposition.NO_DATA_FOR_SCOPE,
+        CarrierDataDisposition.CARRIER_RETIRED_OR_INVALID,
+    }:
+        raise AcquisitionSelectionError(
+            "d6_failed_carrier_disposition_unresolved",
+            r1.classification.disposition.value,
+        )
+    carrier_path = Path(carrier_liveness_path)
+    try:
+        carrier_update = census_owner.RecurringCarrierLivenessUpdate.model_validate_json(
+            carrier_path.read_bytes()
+        )
+    except (OSError, ValueError) as exc:
+        raise AcquisitionSelectionError(
+            "d6_carrier_liveness_invalid",
+            carrier_path.as_posix(),
+        ) from exc
+    if carrier_update.request_dataset_id != r1.request_dataset_id:
+        raise AcquisitionSelectionError("d6_carrier_liveness_target_drift")
+    if carrier_update.carrier_disposition.value not in {
+        "carrier_current_no_data_for_scope",
+        "carrier_current_source_profile_mismatch",
+        "carrier_retired_or_invalid",
+    }:
+        raise AcquisitionSelectionError(
+            "d6_carrier_not_terminal_for_direct_basis",
+            carrier_update.carrier_disposition.value,
+        )
+
+    catalog_path = Path(catalog_path)
+    if not catalog_path.is_file():
+        raise AcquisitionSelectionError("d6_catalog_unresolved", catalog_path.as_posix())
+    baseline_sha = bytes_sha256(catalog_path.read_bytes())
+    with duckdb.connect(str(catalog_path), read_only=True) as con:
+        failed_rows = con.execute(
+            """
+            SELECT DISTINCT b.metric_id, b.connector_id, b.profile_id,
+                            d.title, d.description
+            FROM ds_metric_bindings b
+            JOIN ds_datasets d ON d.id = b.dataset_id
+            WHERE b.request_dataset_id = ?
+            ORDER BY b.metric_id, b.connector_id, b.profile_id, d.title, d.description
+            """,
+            [r1.request_dataset_id],
+        ).fetchall()
+    failed_owner_rows = tuple(
+        row
+        for row in failed_rows
+        if data_forge_read_api.catalog.derive_catalog_unit_from_text(
+            f"{row[3] or ''} {row[4] or ''}"
+        )
+        == "usd"
+    )
+    failed_owner_keys = {
+        (str(row[0]), str(row[1]), str(row[2]), str(row[3]), str(row[4] or ""))
+        for row in failed_owner_rows
+    }
+    if len(failed_owner_keys) != 1:
+        raise AcquisitionSelectionError(
+            "d6_failed_catalog_owner_ambiguous",
+            str(len(failed_owner_keys)),
+        )
+    failed_metric, connector_id, profile_id, failed_title, _failed_description = next(
+        iter(failed_owner_keys)
+    )
+
+    census = _read_mapping(Path(census_path), code="n13a_census")
+    substrate = _read_mapping(Path(substrate_path), code="intervention_substrate")
+    backlog = _growth_backlog(census)
+    slot_units = _slot_units(substrate)
+    target_candidates: list[tuple[tuple[object, ...], str, dict[str, object]]] = []
+    for variable_id, row in backlog.items():
+        units = slot_units.get(variable_id, ())
+        if row.get("gap_kind") != "binding_gap" or units != ("usd",):
+            continue
+        score = data_forge_read_api.catalog.score_variable_pair(
+            left_name=variable_id,
+            right_name=failed_metric,
+            left_unit="usd",
+            right_unit="usd",
+        )
+        target_candidates.append(
+            (
+                (int(row["rank"]), -score.overall_score, variable_id),
+                variable_id,
+                row,
+            )
+        )
+    if not target_candidates:
+        raise AcquisitionSelectionError("d6_demanded_usd_gap_denominator_empty")
+    target_candidates.sort(key=lambda item: item[0])
+    _target_key, target_variable, backlog_row = target_candidates[0]
+
+    primary_rows = _read_d6_catalog_denominator(
+        catalog_path,
+        connector_id=connector_id,
+        metric_id=failed_metric,
+    )
+    primary, primary_rejected, primary_count = _select_d6_carrier(
+        rows=primary_rows,
+        role="primary_ratio",
+        required_unit="percent_gdp",
+        identifier_anchor=r1.request_dataset_id,
+        title_anchor=failed_title,
+        anchor_unit="usd",
+    )
+    auxiliary_metric = _d6_auxiliary_metric_for_basis(primary.unit)
+    auxiliary_rows = _read_d6_catalog_denominator(
+        catalog_path,
+        connector_id=connector_id,
+        metric_id=auxiliary_metric,
+    )
+    auxiliary, auxiliary_rejected, auxiliary_count = _select_d6_carrier(
+        rows=auxiliary_rows,
+        role="auxiliary_scale",
+        required_unit="usd",
+        identifier_anchor=auxiliary_metric,
+        title_anchor="gross domestic product current us dollars",
+        anchor_unit="usd",
+    )
+    if primary.profile_id != profile_id or auxiliary.profile_id != profile_id:
+        raise AcquisitionSelectionError("d6_profile_owner_mismatch")
+
+    backlog_projection = {
+        "variable_id": target_variable,
+        "rank": int(backlog_row["rank"]),
+        "gap_kind": str(backlog_row["gap_kind"]),
+        "demand_sources": tuple(sorted(str(item) for item in backlog_row["demand_sources"])),
+    }
+    substrate_projection = {
+        "slot_id": target_variable,
+        "units": slot_units[target_variable],
+    }
+    values: dict[str, object] = {
+        "schema_version": "policyos.layer3.gy.n13b.d6_route_selection.v1",
+        "baseline_sha256": baseline_sha,
+        "census_backlog_projection_sha256": content_sha256(backlog_projection),
+        "substrate_slot_projection_sha256": content_sha256(substrate_projection),
+        "r1_receipt_sha256": r1.receipt_sha256,
+        "carrier_liveness_receipt_sha256": carrier_update.receipt_sha256,
+        "target_variable": target_variable,
+        "backlog_rank": int(backlog_row["rank"]),
+        "demand_sources": tuple(sorted(str(item) for item in backlog_row["demand_sources"])),
+        "required_output_unit": "usd",
+        "failed_request_dataset_id": r1.request_dataset_id,
+        "failed_metric_id": failed_metric,
+        "failed_carrier_disposition": carrier_update.carrier_disposition.value,
+        "failed_missing_request_levers": carrier_update.missing_request_levers,
+        "route_disposition": "derivation_requirement",
+        "transform_method_id": "percent_of_gdp_times_current_usd_exact_year",
+        "transform_method_version": "1.0.0",
+        "transform_formula": ("output_usd = primary_percent_gdp / 100 * auxiliary_gdp_usd"),
+        "primary_catalog_denominator": len(primary_rows),
+        "primary_candidate_denominator": primary_count,
+        "primary_rejected_counts": dict(sorted(primary_rejected.items())),
+        "auxiliary_catalog_denominator": len(auxiliary_rows),
+        "auxiliary_candidate_denominator": auxiliary_count,
+        "auxiliary_rejected_counts": dict(sorted(auxiliary_rejected.items())),
+        "primary": primary,
+        "auxiliary": auxiliary,
+        "primary_requires_source_characterization": (
+            not primary.source_selector_declared
+            and any(
+                "archive" in theme.casefold() or "africa development indicators" in theme.casefold()
+                for theme in primary.themes
+            )
+        ),
+    }
+    return D6RouteSelection(
+        **values,
+        selection_sha256=content_sha256(values),
+    )
+
+
+def derive_d6_metadata_probe_owner(
+    *,
+    selection: D6RouteSelection,
+    r1_receipt: R1ForensicReceipt,
+    baseline_path: Path,
+    fixture_root: Path,
+) -> D6MetadataProbeOwner:
+    """Derive the E7/E5 owner for one D6-primary metadata characterization."""
+
+    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+
+    selected = D6RouteSelection.model_validate(selection.model_dump(mode="python"))
+    r1 = R1ForensicReceipt.model_validate(r1_receipt.model_dump(mode="python"))
+    if selected.r1_receipt_sha256 != r1.receipt_sha256:
+        raise AcquisitionSelectionError("d6_metadata_r1_receipt_drift")
+    if not selected.primary_requires_source_characterization:
+        raise AcquisitionSelectionError("d6_metadata_characterization_not_required")
+    baseline_path = Path(baseline_path)
+    baseline_sha = bytes_sha256(baseline_path.read_bytes())
+    if baseline_sha != selected.baseline_sha256:
+        raise AcquisitionSelectionError("d6_metadata_baseline_drift")
+    profile = SourceProfileRegistry.get_instance().get(selected.primary.profile_id)
+    if profile is None or str(profile.connector_family) != "worldbank":
+        raise AcquisitionSelectionError(
+            "d6_metadata_source_profile_unresolved",
+            selected.primary.profile_id,
+        )
+    target_slug = re.sub(r"[^a-z0-9]+", "-", selected.target_variable.casefold()).strip("-")
+    attempt_id = f"gy-n13b-worldbank-wdi-{target_slug}-percent-gdp-metadata-001"
+    harness = derive_worldbank_metadata_harness_receipt(
+        attempt_id=attempt_id,
+        indicator_id=selected.primary.request_dataset_id,
+        profile_id=selected.primary.profile_id,
+        fixture_root=fixture_root,
+    )
+    schema_contract = {
+        "schema_contract_ref": "fabric://worldbank.wdi.indicator_metadata@1.0.0",
+        "call_class": "indicator_metadata",
+        "expected_envelope": "worldbank_indicator_metadata",
+        "declared_record_fields": ["id", "name", "source", "unit"],
+        "conformance_stage": "quarantine_characterization",
+    }
+    request: dict[str, Any] = {
+        "call_class": "indicator_metadata",
+        "connector_id": selected.primary.connector_id,
+        "profile_id": selected.primary.profile_id,
+        "variable_id": selected.primary.request_dataset_id,
+        "request_variables": [selected.primary.request_dataset_id],
+        "endpoint_url": harness.endpoint_url,
+        "params": harness.params,
+        "schema_contract": schema_contract,
+        "source_lane": "shadow_characterization",
+        "response_admitted": False,
+        "route_selection_sha256": selected.selection_sha256,
+    }
+    decisive_attempt = next(
+        attempt for attempt in r1.attempts if attempt.attempt_id == r1.decisive_attempt_id
+    )
+    authorization = build_live_metadata_execution_authorization(
+        request=request,
+        schema_contract=schema_contract,
+        source_profile=profile,
+        baseline_sha256=baseline_sha,
+        harness_receipt=harness,
+        paid_success_elapsed_seconds=decisive_attempt.max_elapsed_seconds,
+        timeout_multiplier=2,
+        heartbeat_cap_seconds=3.0,
+        max_response_bytes=16_384,
+        max_decompressed_bytes=16_384,
+    )
+    values: dict[str, object] = {
+        "schema_version": "policyos.layer3.gy.n13b.d6_metadata_probe_owner.v1",
+        "route_selection_sha256": selected.selection_sha256,
+        "r1_receipt_sha256": r1.receipt_sha256,
+        "baseline_ref": _stable_repo_ref(baseline_path),
+        "baseline_sha256": baseline_sha,
+        "request": request,
+        "harness": harness,
+        "authorization": authorization,
+    }
+    return D6MetadataProbeOwner(
         **values,
         owner_sha256=content_sha256(values),
     )
@@ -1835,6 +2323,190 @@ def _growth_backlog(census: Mapping[str, object]) -> dict[str, dict[str, object]
     return rows
 
 
+def _read_d6_catalog_denominator(
+    catalog_path: Path,
+    *,
+    connector_id: str,
+    metric_id: str,
+) -> tuple[dict[str, object], ...]:
+    """Return every catalog row in one D6 role denominator, before filtering."""
+
+    with duckdb.connect(str(catalog_path), read_only=True) as con:
+        rows = con.execute(
+            """
+            SELECT b.dataset_id, b.distribution_id, b.connector_id, b.profile_id,
+                   b.request_dataset_id, b.metric_id, b.confidence,
+                   b.default_filters, b.execution_tier,
+                   d.source, d.agency, d.title, d.description, d.themes,
+                   d.access_license, d.access_auth_required,
+                   x.connector_params, x.quality_score, x.parser_supported
+            FROM ds_metric_bindings b
+            JOIN ds_datasets d ON d.id = b.dataset_id
+            JOIN ds_distributions x
+              ON x.id = b.distribution_id AND x.dataset_id = b.dataset_id
+            WHERE b.connector_id = ? AND b.metric_id = ?
+            ORDER BY b.dataset_id, b.distribution_id, b.request_dataset_id
+            """,
+            [connector_id, metric_id],
+        ).fetchall()
+    if not rows:
+        raise AcquisitionSelectionError(
+            "d6_catalog_role_denominator_empty",
+            f"{connector_id}:{metric_id}",
+        )
+    fields = (
+        "dataset_id",
+        "distribution_id",
+        "connector_id",
+        "profile_id",
+        "request_dataset_id",
+        "metric_id",
+        "binding_confidence",
+        "default_filters",
+        "execution_tier",
+        "source",
+        "agency",
+        "title",
+        "description",
+        "themes",
+        "access_license",
+        "access_auth_required",
+        "connector_params",
+        "distribution_quality_score",
+        "parser_supported",
+    )
+    return tuple(dict(zip(fields, row, strict=True)) for row in rows)
+
+
+def _d6_auxiliary_metric_for_basis(unit: str) -> str:
+    """Return the declared auxiliary role for the only N13b single transform."""
+
+    if unit != "percent_gdp":
+        raise AcquisitionSelectionError("d6_transform_basis_unsupported", unit)
+    return "gdp"
+
+
+def _select_d6_carrier(
+    *,
+    rows: Sequence[Mapping[str, object]],
+    role: Literal["primary_ratio", "auxiliary_scale"],
+    required_unit: Literal["percent_gdp", "usd"],
+    identifier_anchor: str,
+    title_anchor: str,
+    anchor_unit: str,
+) -> tuple[D6CatalogCarrier, Counter[str], int]:
+    """Classify a complete role denominator and select its owner-scored carrier."""
+
+    rejected: Counter[str] = Counter()
+    candidates: list[D6CatalogCarrier] = []
+    for row in rows:
+        execution_tier = str(row.get("execution_tier") or "")
+        access_license = str(row.get("access_license") or "")
+        title = str(row.get("title") or "")
+        description = str(row.get("description") or "")
+        unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(f"{title} {description}")
+        if execution_tier not in _EXECUTABLE_TIERS:
+            rejected["execution_tier_not_executable"] += 1
+            continue
+        if (
+            data_forge_read_api.catalog.derive_license_disposition(access_license).value
+            != "admissible_open"
+        ):
+            rejected["license_not_admissible"] += 1
+            continue
+        if bool(row.get("access_auth_required")):
+            rejected["auth_required"] += 1
+            continue
+        if not bool(row.get("parser_supported")):
+            rejected["parser_unsupported"] += 1
+            continue
+        if unit != required_unit:
+            rejected[f"basis_not_{required_unit}"] += 1
+            continue
+        connector_params = _json_object(row.get("connector_params"))
+        default_filters = _d6_filter_map(row.get("default_filters"))
+        identifier_alignment = data_forge_read_api.catalog.score_variable_pair(
+            left_name=identifier_anchor,
+            right_name=str(row["request_dataset_id"]),
+            left_unit=anchor_unit,
+            right_unit=required_unit,
+        )
+        title_alignment = data_forge_read_api.catalog.score_variable_pair(
+            left_name=title_anchor,
+            right_name=title,
+            left_unit=anchor_unit,
+            right_unit=required_unit,
+        )
+        values: dict[str, object] = {
+            "role": role,
+            "dataset_id": str(row["dataset_id"]),
+            "distribution_id": str(row["distribution_id"]),
+            "connector_id": str(row["connector_id"]),
+            "profile_id": str(row["profile_id"]),
+            "request_dataset_id": str(row["request_dataset_id"]),
+            "metric_id": str(row["metric_id"]),
+            "source": str(row.get("source") or ""),
+            "agency": str(row.get("agency") or ""),
+            "title": title,
+            "description": description,
+            "themes": tuple(sorted(set(_string_values(row.get("themes"))))),
+            "access_license": access_license,
+            "execution_tier": execution_tier,
+            "binding_confidence": float(row.get("binding_confidence") or 0.0),
+            "distribution_quality_score": float(row.get("distribution_quality_score") or 0.0),
+            "unit": required_unit,
+            "connector_params": connector_params,
+            "default_filters": default_filters,
+            "source_selector_declared": any(
+                key.casefold() in {"source", "source_id"}
+                for mapping in (connector_params, default_filters)
+                for key in mapping
+            ),
+            "identifier_anchor": identifier_anchor,
+            "title_anchor": title_anchor,
+            "anchor_unit": anchor_unit,
+            "identifier_alignment": identifier_alignment,
+            "title_alignment": title_alignment,
+            "rank_score": round(
+                identifier_alignment.overall_score + title_alignment.overall_score,
+                6,
+            ),
+        }
+        candidates.append(
+            D6CatalogCarrier(
+                **values,
+                projection_sha256=content_sha256(values),
+            )
+        )
+    if not candidates:
+        raise AcquisitionSelectionError(
+            "d6_eligible_role_denominator_empty",
+            role,
+        )
+    candidates.sort(
+        key=lambda carrier: (
+            -carrier.rank_score,
+            -carrier.binding_confidence,
+            -carrier.distribution_quality_score,
+            carrier.dataset_id,
+            carrier.distribution_id,
+            carrier.request_dataset_id,
+        )
+    )
+    return candidates[0], rejected, len(candidates)
+
+
+def _d6_filter_map(value: object) -> dict[str, list[str]]:
+    parsed = _json_object(value)
+    normalized: dict[str, list[str]] = {}
+    for key, raw in parsed.items():
+        if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes, bytearray)):
+            normalized[str(key)] = [str(item) for item in raw]
+        else:
+            normalized[str(key)] = [str(raw)]
+    return normalized
+
+
 def _live_family_denominator(census: Mapping[str, object]) -> tuple[str, ...]:
     raw = census.get("family_scorecards")
     if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
@@ -1952,6 +2624,8 @@ def _read_mapping(path: Path, *, code: str) -> dict[str, object]:
 
 __all__ = [
     "DEFAULT_CARRIER_LIVENESS_UPDATE",
+    "DEFAULT_D6_PRIMARY_METADATA_OWNER",
+    "DEFAULT_D6_ROUTE_SELECTION",
     "DEFAULT_METADATA_EXECUTION_EVIDENCE",
     "DEFAULT_METADATA_PROBE_OWNER",
     "DEFAULT_R1_FORENSIC_RECEIPT",
@@ -1960,6 +2634,9 @@ __all__ = [
     "DEFAULT_TARGET_HARNESS_RECEIPT",
     "AcquisitionSelectionError",
     "CarrierDataDisposition",
+    "D6CatalogCarrier",
+    "D6MetadataProbeOwner",
+    "D6RouteSelection",
     "IndicatorMetadataDisposition",
     "LiveTargetSelection",
     "MetadataProbeExecutionEvidence",
@@ -1971,6 +2648,8 @@ __all__ = [
     "bytes_sha256",
     "classify_worldbank_data_response",
     "classify_worldbank_indicator_metadata",
+    "derive_d6_metadata_probe_owner",
+    "derive_d6_route_selection",
     "derive_live_attempt_id",
     "derive_live_target_selection",
     "derive_metadata_probe_execution_evidence",

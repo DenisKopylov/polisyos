@@ -23,6 +23,8 @@ from polisyos.runtime.quality.acquisition_executor import (
 )
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_CARRIER_LIVENESS_UPDATE,
+    DEFAULT_D6_PRIMARY_METADATA_OWNER,
+    DEFAULT_D6_ROUTE_SELECTION,
     DEFAULT_METADATA_EXECUTION_EVIDENCE,
     DEFAULT_METADATA_PROBE_OWNER,
     DEFAULT_R1_FORENSIC_RECEIPT,
@@ -31,6 +33,8 @@ from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_TARGET_HARNESS_RECEIPT,
     bytes_sha256,
     classify_worldbank_indicator_metadata,
+    derive_d6_metadata_probe_owner,
+    derive_d6_route_selection,
     derive_live_attempt_id,
     derive_live_target_selection,
     derive_metadata_probe_execution_evidence,
@@ -78,6 +82,8 @@ def main() -> int:
     mode.add_argument("--execute-metadata", action="store_true")
     mode.add_argument("--check-metadata-evidence", action="store_true")
     mode.add_argument("--write-metadata-evidence", action="store_true")
+    mode.add_argument("--check-d6-route-owners", action="store_true")
+    mode.add_argument("--write-d6-route-owners", action="store_true")
     parser.add_argument("--catalog-path", type=Path, required=True)
     parser.add_argument("--l5-path", type=Path, required=True)
     parser.add_argument("--census-path", type=Path, default=DEFAULT_CENSUS_PATH)
@@ -125,6 +131,75 @@ def main() -> int:
         second_metadata_owner,
     ):
         raise RuntimeError("resumption_owner_derivation_not_byte_stable")
+
+    if args.write_d6_route_owners or args.check_d6_route_owners:
+        d6_selection, d6_metadata_owner = _recompute_d6_route_owners(
+            catalog_path=args.catalog_path,
+            census_path=args.census_path,
+            substrate_path=args.substrate_path,
+            r1=r1,
+        )
+        second_d6_selection, second_d6_metadata_owner = _recompute_d6_route_owners(
+            catalog_path=args.catalog_path,
+            census_path=args.census_path,
+            substrate_path=args.substrate_path,
+            r1=r1,
+        )
+        d6_payloads = _d6_route_owner_payloads(d6_selection, d6_metadata_owner)
+        if d6_payloads != _d6_route_owner_payloads(
+            second_d6_selection,
+            second_d6_metadata_owner,
+        ):
+            raise RuntimeError("d6_route_owner_derivation_not_byte_stable")
+        _check_payloads(resumption_payloads, label="resumption_owner")
+        r2_evidence, r2_carrier_update = derive_metadata_probe_execution_evidence(
+            owner=metadata_owner,
+            r1_receipt=r1,
+            journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+            cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+            baseline_path=args.catalog_path,
+        )
+        _check_payloads(
+            {
+                DEFAULT_METADATA_EXECUTION_EVIDENCE: canonical_json_bytes(
+                    r2_evidence.model_dump(mode="json")
+                ),
+                DEFAULT_CARRIER_LIVENESS_UPDATE: canonical_json_bytes(
+                    r2_carrier_update.model_dump(mode="json")
+                ),
+            },
+            label="metadata_evidence",
+        )
+        if args.write_d6_route_owners:
+            for relative, payload in d6_payloads.items():
+                _write_replace_bytes(POLICY_ENGINE_ROOT / relative, payload)
+            status = "written"
+        else:
+            _check_payloads(d6_payloads, label="d6_route_owner")
+            status = "ok"
+        print(
+            json.dumps(
+                {
+                    "status": status,
+                    "route_disposition": d6_selection.route_disposition,
+                    "target_variable": d6_selection.target_variable,
+                    "primary_request_dataset_id": (d6_selection.primary.request_dataset_id),
+                    "auxiliary_request_dataset_id": (d6_selection.auxiliary.request_dataset_id),
+                    "primary_candidate_denominator": (d6_selection.primary_candidate_denominator),
+                    "auxiliary_candidate_denominator": (
+                        d6_selection.auxiliary_candidate_denominator
+                    ),
+                    "metadata_attempt_id": (d6_metadata_owner.authorization.attempt_id),
+                    "timeout_cap_seconds": (
+                        d6_metadata_owner.authorization.budget.timeout_cap_seconds
+                    ),
+                    "byte_stable_passes": 2,
+                    "live_network_calls": 0,
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
 
     if args.execute_metadata:
         _check_payloads(resumption_payloads, label="resumption_owner")
@@ -447,6 +522,38 @@ def _resumption_owner_payloads(r1: Any, metadata_owner: Any) -> dict[Path, bytes
     return {
         DEFAULT_R1_FORENSIC_RECEIPT: canonical_json_bytes(r1.model_dump(mode="json")),
         DEFAULT_METADATA_PROBE_OWNER: canonical_json_bytes(metadata_owner.model_dump(mode="json")),
+    }
+
+
+def _recompute_d6_route_owners(
+    *,
+    catalog_path: Path,
+    census_path: Path,
+    substrate_path: Path,
+    r1: Any,
+) -> tuple[Any, Any]:
+    selection = derive_d6_route_selection(
+        catalog_path=catalog_path,
+        census_path=census_path,
+        substrate_path=substrate_path,
+        r1_receipt=r1,
+        carrier_liveness_path=POLICY_ENGINE_ROOT / DEFAULT_CARRIER_LIVENESS_UPDATE,
+    )
+    metadata_owner = derive_d6_metadata_probe_owner(
+        selection=selection,
+        r1_receipt=r1,
+        baseline_path=catalog_path,
+        fixture_root=POLICY_ENGINE_ROOT / ".tmp/gy-n13b-no-replay-fixtures",
+    )
+    return selection, metadata_owner
+
+
+def _d6_route_owner_payloads(selection: Any, metadata_owner: Any) -> dict[Path, bytes]:
+    return {
+        DEFAULT_D6_ROUTE_SELECTION: canonical_json_bytes(selection.model_dump(mode="json")),
+        DEFAULT_D6_PRIMARY_METADATA_OWNER: canonical_json_bytes(
+            metadata_owner.model_dump(mode="json")
+        ),
     }
 
 

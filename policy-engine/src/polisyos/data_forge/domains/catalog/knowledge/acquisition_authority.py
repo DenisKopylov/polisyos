@@ -494,6 +494,7 @@ class LiveSourceExecutionEvidence(_StrictModel):
     family_receipt_sha256: str = Field(pattern=_SHA256_PATTERN)
     request_ref: JournalEventRef
     raw_evidence_ref: JournalEventRef
+    transport_trace: fabric_data_plane.LiveTransportTrace
     raw_artifact_id: ArtifactID
     evidence_bundle_ref: EvidenceBundleRef
     data_snapshot_ref: DataSnapshotRef
@@ -525,6 +526,14 @@ class LiveSourceExecutionEvidence(_StrictModel):
         ):
             raise ValueError("live execution journal refs must form one ordered carrier")
         if (
+            self.transport_trace.request_ref != self.request_ref
+            or self.transport_trace.raw_evidence_ref != self.raw_evidence_ref
+            or self.transport_trace.attempt_id != self.authorization.attempt_id
+            or self.transport_trace.connector_id != self.authorization.connector_id
+            or self.call_count != self.transport_trace.call_count
+        ):
+            raise ValueError("live execution transport trace must bind the carrier")
+        if (
             self.baseline_before_sha256 != self.baseline_after_sha256
             or self.baseline_before_sha256 != self.authorization.baseline_sha256
         ):
@@ -553,11 +562,11 @@ def build_live_source_execution_evidence(
     family_receipt: Mapping[str, Any],
     request_ref: JournalEventRef,
     raw_evidence_ref: JournalEventRef,
+    transport_trace: fabric_data_plane.LiveTransportTrace,
     raw_artifact_id: str | ArtifactID,
     evidence_bundle_ref: EvidenceBundleRef,
     data_snapshot_ref: DataSnapshotRef,
     normalized_data_artifact_id: str | ArtifactID,
-    call_count: int,
     variable_count: int,
     page_count: int,
     baseline_before_sha256: str,
@@ -573,13 +582,14 @@ def build_live_source_execution_evidence(
         "family_receipt_sha256": fabric_data_plane.content_sha256(family_receipt),
         "request_ref": request_ref,
         "raw_evidence_ref": raw_evidence_ref,
+        "transport_trace": transport_trace,
         "raw_artifact_id": ArtifactID.model_validate(raw_artifact_id),
         "evidence_bundle_ref": evidence_bundle_ref,
         "data_snapshot_ref": data_snapshot_ref,
         "normalized_data_artifact_id": ArtifactID.model_validate(
             normalized_data_artifact_id
         ),
-        "call_count": call_count,
+        "call_count": transport_trace.call_count,
         "variable_count": variable_count,
         "page_count": page_count,
         "baseline_before_sha256": baseline_before_sha256,
@@ -983,7 +993,7 @@ class CanonicalAcquisitionAuthority:
             if evidence_bundle.sources != [snapshot.data_ref]:
                 raise AcquisitionAuthorityError("live_evidence_bundle_source_drift")
             if snapshot.stats.get("datasets_fetched") != 1:
-                raise AcquisitionAuthorityError("live_snapshot_not_one_call")
+                raise AcquisitionAuthorityError("live_snapshot_dataset_count_invalid")
 
             normalized_bytes = self._reopen_artifact_ref(
                 artifact_store,
@@ -1061,6 +1071,17 @@ class CanonicalAcquisitionAuthority:
     ) -> None:
         request_event = fabric_data_plane.resolve_journal_event_ref(proof.request_ref)
         raw_event = fabric_data_plane.resolve_journal_event_ref(proof.raw_evidence_ref)
+        try:
+            transport_trace = fabric_data_plane.resolve_live_transport_trace(
+                proof.raw_evidence_ref
+            )
+        except Exception as exc:
+            raise AcquisitionAuthorityError(
+                "live_transport_trace_invalid",
+                type(exc).__name__,
+            ) from exc
+        if transport_trace != proof.transport_trace:
+            raise AcquisitionAuthorityError("live_transport_trace_drift")
         linked_request = fabric_data_plane.resolve_linked_request_event(
             proof.raw_evidence_ref
         )

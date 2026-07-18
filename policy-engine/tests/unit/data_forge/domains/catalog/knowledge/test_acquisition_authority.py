@@ -39,8 +39,11 @@ from polisyos.fabric.connectors.cache.store import ResultSerializer
 from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 from polisyos.fabric.data_plane.evidence_journal import (
     AppendOnlyEvidenceJournal,
+    append_fsync_jsonl,
     build_live_execution_authorization,
+    content_sha256,
     resolve_linked_request_event,
+    resolve_live_transport_trace,
     resolve_raw_response_body,
 )
 from polisyos.fabric.evidence import build_evidence_bundle, persist_evidence_bundle
@@ -410,9 +413,43 @@ def _live_execution_fixture(tmp_path: Path):
     )
     journal = AppendOnlyEvidenceJournal(tmp_path / "journal.jsonl")
     request_ref = journal.append_request(attempt_id=attempt_id, request=request)
+    transport_ref = journal.append_transport_attempt(
+        attempt_id=attempt_id,
+        request_ref=request_ref,
+        connector_id="worldbank.wdi",
+        url=(
+            "https://api.worldbank.org/v2/country/UKR/indicator/"
+            "GC.BAL.CASH.GD.ZS"
+        ),
+        params={
+            "date": "2023:2024",
+            "format": "json",
+            "page": "1",
+            "per_page": "1000",
+        },
+    )
+    journal.append_heartbeat(
+        attempt_id=attempt_id,
+        phase="attempt_started",
+        progress_bytes=0,
+        elapsed_seconds=0.0,
+    )
+    journal.append_heartbeat(
+        attempt_id=attempt_id,
+        phase="response_headers",
+        progress_bytes=0,
+        elapsed_seconds=0.1,
+    )
+    journal.append_heartbeat(
+        attempt_id=attempt_id,
+        phase="body_progress",
+        progress_bytes=len(raw_body),
+        elapsed_seconds=0.2,
+    )
     raw_ref = journal.append_raw_evidence(
         attempt_id=attempt_id,
         request_ref=request_ref,
+        transport_ref=transport_ref,
         payload=raw_body,
         status_code=200,
         response_headers={"content-type": "application/json"},
@@ -493,11 +530,11 @@ def _live_execution_fixture(tmp_path: Path):
         family_receipt=family_receipt,
         request_ref=request_ref,
         raw_evidence_ref=raw_ref,
+        transport_trace=resolve_live_transport_trace(raw_ref),
         raw_artifact_id=str(raw_artifact.artifact_id),
         evidence_bundle_ref=evidence_bundle_ref,
         data_snapshot_ref=snapshot_ref,
         normalized_data_artifact_id=str(data_ref.artifact_id),
-        call_count=1,
         variable_count=1,
         page_count=1,
         baseline_before_sha256=baseline_sha256,
@@ -701,11 +738,11 @@ def _rebuild_live_evidence(
         "family_receipt": evidence.family_receipt,
         "request_ref": evidence.request_ref,
         "raw_evidence_ref": evidence.raw_evidence_ref,
+        "transport_trace": evidence.transport_trace,
         "raw_artifact_id": evidence.raw_artifact_id,
         "evidence_bundle_ref": evidence.evidence_bundle_ref,
         "data_snapshot_ref": evidence.data_snapshot_ref,
         "normalized_data_artifact_id": evidence.normalized_data_artifact_id,
-        "call_count": evidence.call_count,
         "variable_count": evidence.variable_count,
         "page_count": evidence.page_count,
         "baseline_before_sha256": evidence.baseline_before_sha256,
@@ -789,7 +826,7 @@ def test_live_execution_rejects_wrong_snapshot_ref(tmp_path: Path) -> None:
         resolver.resolve_live_source_execution(entry.entry_id, mutated, store)
 
 
-def test_live_execution_recomputes_one_call_from_snapshot(tmp_path: Path) -> None:
+def test_live_execution_recomputes_one_dataset_from_snapshot(tmp_path: Path) -> None:
     resolver, entry, store, evidence, _, _ = _live_execution_fixture(tmp_path)
     snapshot = DataSnapshot.model_validate(
         from_canonical_bytes(store.get_bytes(evidence.data_snapshot_ref.artifact_id))
@@ -813,9 +850,53 @@ def test_live_execution_recomputes_one_call_from_snapshot(tmp_path: Path) -> Non
 
     with pytest.raises(
         AcquisitionAuthorityError,
-        match="live_snapshot_not_one_call",
+        match="live_snapshot_dataset_count_invalid",
     ):
         resolver.resolve_live_source_execution(entry.entry_id, mutated, store)
+
+
+def test_live_execution_recomputes_one_call_from_complete_journal(
+    tmp_path: Path,
+) -> None:
+    resolver, entry, store, evidence, _, _ = _live_execution_fixture(tmp_path)
+    retry_request = {
+        "variable_id": "government.balance",
+        "schema_contract": {"columns": ["value"]},
+    }
+    retry_request_ref = append_fsync_jsonl(
+        Path(evidence.request_ref.journal_path),
+        {
+            "sequence": evidence.raw_evidence_ref.sequence + 1,
+            "event_kind": "request",
+            "attempt_id": "renamed-retry",
+            "request": retry_request,
+            "request_sha256": content_sha256(retry_request),
+        },
+    )
+    append_fsync_jsonl(
+        Path(evidence.request_ref.journal_path),
+        {
+            "sequence": retry_request_ref.sequence + 1,
+            "event_kind": "transport_attempt",
+            "attempt_id": "renamed-retry",
+            "transport_attempt": {
+                "request_event_sha256": retry_request_ref.event_sha256,
+                "connector_id": "worldbank.wdi",
+                "url": (
+                    "https://api.worldbank.org/v2/country/UKR/indicator/"
+                    "GC.BAL.CASH.GD.ZS"
+                ),
+                "params": {"page": "1"},
+                "params_sha256": content_sha256({"page": "1"}),
+            },
+        },
+    )
+
+    with pytest.raises(
+        AcquisitionAuthorityError,
+        match="live_transport_trace_invalid",
+    ):
+        resolver.resolve_live_source_execution(entry.entry_id, evidence, store)
 
 
 def test_live_execution_recomputes_one_page_from_fetch_result(tmp_path: Path) -> None:
@@ -892,10 +973,40 @@ def test_live_execution_recomputes_one_variable_from_request(tmp_path: Path) -> 
         attempt_id=authorization.attempt_id,
         request=request,
     )
+    transport_ref = journal.append_transport_attempt(
+        attempt_id=authorization.attempt_id,
+        request_ref=request_ref,
+        connector_id="worldbank.wdi",
+        url=(
+            "https://api.worldbank.org/v2/country/UKR/indicator/"
+            "GC.BAL.CASH.GD.ZS"
+        ),
+        params={"format": "json", "page": "1", "per_page": "1000"},
+    )
+    raw_body = resolve_raw_response_body(evidence.raw_evidence_ref)
+    journal.append_heartbeat(
+        attempt_id=authorization.attempt_id,
+        phase="attempt_started",
+        progress_bytes=0,
+        elapsed_seconds=0.0,
+    )
+    journal.append_heartbeat(
+        attempt_id=authorization.attempt_id,
+        phase="response_headers",
+        progress_bytes=0,
+        elapsed_seconds=0.1,
+    )
+    journal.append_heartbeat(
+        attempt_id=authorization.attempt_id,
+        phase="body_progress",
+        progress_bytes=len(raw_body),
+        elapsed_seconds=0.2,
+    )
     raw_ref = journal.append_raw_evidence(
         attempt_id=authorization.attempt_id,
         request_ref=request_ref,
-        payload=resolve_raw_response_body(evidence.raw_evidence_ref),
+        transport_ref=transport_ref,
+        payload=raw_body,
         status_code=200,
         response_headers={"content-type": "application/json"},
         budget=authorization.budget,
@@ -905,6 +1016,7 @@ def test_live_execution_recomputes_one_variable_from_request(tmp_path: Path) -> 
         authorization=authorization,
         request_ref=request_ref,
         raw_evidence_ref=raw_ref,
+        transport_trace=resolve_live_transport_trace(raw_ref),
     )
 
     with pytest.raises(

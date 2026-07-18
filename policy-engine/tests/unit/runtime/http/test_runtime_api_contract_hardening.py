@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import subprocess
 from importlib.util import find_spec
 from pathlib import Path
@@ -13,6 +14,7 @@ if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
 
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
+from polisyos.runtime.http.permissions import RuntimePermission
 from tools.ops_runners.runtime import generate_runtime_client
 
 OPENAPI_TYPESCRIPT_VERSION = "7.13.0"
@@ -257,6 +259,26 @@ def test_openapi_typescript_output_matches_committed_shared_types(tmp_path: Path
 
     committed = repo_root / "packages" / "runtime-api-client" / "types.ts"
     assert committed.read_bytes() == generated.read_bytes()
+
+
+def test_generated_client_permission_union_matches_server_openapi_enum() -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    schema = json.loads(
+        (repo_root / "schemas" / "runtime_api_v1.openapi.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    server_permissions = [permission.value for permission in RuntimePermission]
+    openapi_permissions = schema["components"]["schemas"]["RuntimePermission"]["enum"]
+    generated_types = (
+        repo_root / "packages" / "runtime-api-client" / "types.ts"
+    ).read_text(encoding="utf-8")
+    match = re.search(r'^\s*RuntimePermission:\s*([^;]+);$', generated_types, re.MULTILINE)
+
+    assert match is not None
+    generated_permissions = re.findall(r'"([^"]+)"', match.group(1))
+    assert openapi_permissions == server_permissions
+    assert generated_permissions == server_permissions
 
 
 def test_schema_and_clients_regenerate_byte_identically_twice(tmp_path: Path) -> None:

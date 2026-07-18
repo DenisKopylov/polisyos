@@ -75,6 +75,9 @@ _EXPORTS = {
     "CanonicalAcquisitionAuthority": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
+    "LiveSourceExecutionEvidence": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
     "ResolvedAcquisitionAuthority": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -98,6 +101,9 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "build_authority_registry": (
+        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
+    ),
+    "build_live_source_execution_evidence": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "build_metric_field_binding": "polisyos.data_forge.domains.catalog.knowledge.overlay",

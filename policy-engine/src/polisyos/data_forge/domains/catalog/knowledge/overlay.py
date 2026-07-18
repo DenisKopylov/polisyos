@@ -266,6 +266,13 @@ class _CanonicalAuthority(Protocol):
 
     def verify_source_body(self, entry_id: str, body: bytes) -> bool: ...
 
+    def resolve_live_source_body(
+        self,
+        entry_id: str,
+        evidence: object,
+        artifact_store: object,
+    ) -> bytes: ...
+
 
 class _Passport(Protocol):
     epoch_id: int
@@ -273,6 +280,7 @@ class _Passport(Protocol):
     status: object
     observation_class: object
     variable_id: str
+    source_lane: str
     authority_entry_id: str
     authority_registry_content_sha256: str
     upstream_catalog_projection_sha256: str
@@ -291,6 +299,7 @@ class _Passport(Protocol):
     dataset_version: str
     rejection_codes: tuple[str, ...]
     schema_validation: object
+    live_source_execution: object | None
     source_authority_verified: bool
 
     def recomputed_passport_id(self) -> str: ...
@@ -458,7 +467,7 @@ class CatalogAcquisitionOverlay:
         if not self._initialized:
             raise OverlayAdmissionError("overlay_not_initialized")
         before = self._require_baseline_unchanged()
-        raw_body = _validate_passport_owner_evidence(
+        source_body = _validate_passport_owner_evidence(
             passport,
             artifact_store=artifact_store,
             authority=authority,
@@ -488,7 +497,7 @@ class CatalogAcquisitionOverlay:
         if registration.metric_id != str(passport.variable_id):
             raise OverlayAdmissionError("registration_variable_drift")
         rows = derive_canonical_observations(
-            raw_body,
+            source_body,
             passport=passport,
             registration=registration,
         )
@@ -773,12 +782,12 @@ def _validate_passport_owner_evidence(
         raise OverlayAdmissionError("raw_cas_evidence_unresolved")
     if not passport.cas_evidence_verified:
         raise OverlayAdmissionError("raw_cas_evidence_not_verified")
+    raw_body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
+    if str(passport.source_watermark) != raw_body_sha:
+        raise OverlayAdmissionError("source_watermark_content_drift")
     profile = passport.measured_profile
     if profile is None:
         raise OverlayAdmissionError("measured_profile_missing")
-    body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
-    if getattr(profile, "sample_content_sha256", None) != body_sha:
-        raise OverlayAdmissionError("measured_profile_content_drift")
     if getattr(profile, "raw_evidence_event_sha256", None) != raw_ref.event_sha256:
         raise OverlayAdmissionError("measured_profile_event_drift")
     scan = scan_secret_and_pii(
@@ -813,6 +822,40 @@ def _validate_passport_owner_evidence(
     )
     if authority_projection != embedded_projection:
         raise OverlayAdmissionError("acquisition_authority_drift")
+    resolved_entry = getattr(resolved, "entry", None)
+    resolved_source_lane = str(getattr(resolved_entry, "source_lane", ""))
+    passport_source_lane = str(passport.source_lane)
+    if resolved_source_lane != passport_source_lane:
+        raise OverlayAdmissionError("acquisition_source_lane_drift")
+    if passport_source_lane == "live_fetch":
+        live_source_execution = passport.live_source_execution
+        if live_source_execution is None:
+            raise OverlayAdmissionError("live_source_execution_evidence_required")
+        try:
+            source_body = authority.resolve_live_source_body(
+                str(passport.authority_entry_id),
+                live_source_execution,
+                artifact_store,
+            )
+        except Exception as exc:
+            raise OverlayAdmissionError(
+                "live_source_execution_unresolved",
+                type(exc).__name__,
+            ) from exc
+        source_authority_verified = True
+    elif passport_source_lane == "local_lift":
+        if passport.live_source_execution is not None:
+            raise OverlayAdmissionError("local_lift_live_execution_evidence_forbidden")
+        source_body = body
+        source_authority_verified = authority.verify_source_body(
+            str(passport.authority_entry_id),
+            body,
+        )
+    else:
+        raise OverlayAdmissionError("acquisition_source_lane_invalid")
+    source_body_sha = f"sha256:{hashlib.sha256(source_body).hexdigest()}"
+    if getattr(profile, "sample_content_sha256", None) != source_body_sha:
+        raise OverlayAdmissionError("measured_profile_content_drift")
     license_evidence = passport.license_evidence
     resolved_license = getattr(resolved, "license_disposition", None)
     if (
@@ -841,8 +884,9 @@ def _validate_passport_owner_evidence(
         str(getattr(embedded_l5, "owner_ref", "")),
     ):
         raise OverlayAdmissionError("l5_trust_evidence_drift")
-    if not passport.source_authority_verified or not authority.verify_source_body(
-        str(passport.authority_entry_id), body
+    if (
+        not passport.source_authority_verified
+        or not source_authority_verified
     ):
         raise OverlayAdmissionError("source_authority_unverified")
     schema_validation = passport.schema_validation
@@ -850,8 +894,7 @@ def _validate_passport_owner_evidence(
         raise OverlayAdmissionError("schema_contract_not_conformant")
     request_event = resolve_linked_request_event(raw_ref)
     request = request_event.get("request")
-    entry = getattr(resolved, "entry", None)
-    schema_projection = getattr(entry, "schema_projection", None)
+    schema_projection = getattr(resolved_entry, "schema_projection", None)
     if (
         not isinstance(request, Mapping)
         or not callable(schema_projection)
@@ -866,7 +909,7 @@ def _validate_passport_owner_evidence(
         raise OverlayAdmissionError("passport_identity_drift")
     if tuple(recomputed_rejections()) != tuple(passport.rejection_codes):
         raise OverlayAdmissionError("passport_rejection_drift")
-    return body
+    return source_body
 
 
 def derive_canonical_observations(

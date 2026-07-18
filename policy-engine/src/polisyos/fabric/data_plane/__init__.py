@@ -25,6 +25,7 @@ __all__ = [
     "benchmark_world_materialization",
     "build_live_execution_authorization",
     "build_quarantine_report",
+    "canonical_json_bytes",
     "compare_historical_rows",
     "content_sha256",
     "derive_harness_authorization_evidence",
@@ -92,6 +93,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "content_sha256": (
         "polisyos.fabric.data_plane.evidence_journal",
         "content_sha256",
+    ),
+    "canonical_json_bytes": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "canonical_json_bytes",
     ),
     "require_authorized_execution": (
         "polisyos.fabric.data_plane.evidence_journal",

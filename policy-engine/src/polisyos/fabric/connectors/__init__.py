@@ -30,6 +30,7 @@ from polisyos.fabric.connectors.cache import (
     PolicyRegistry,
     PrefetchJob,
     PrefetchScheduler,
+    ResultSerializer,
     SchemaChangeInvalidationTrigger,
     SizeBoundedPolicy,
     SmartExpiryPolicy,
@@ -88,6 +89,7 @@ from polisyos.fabric.connectors.pool import (
     PoolExhaustedError,
     PoolStats,
 )
+from polisyos.fabric.connectors.profiles import SourceProfileRegistry
 
 # Registry Architecture (Phase 2.2)
 from polisyos.fabric.connectors.registry import (
@@ -257,6 +259,7 @@ __all__ = [
     "RegistryMetrics",
     "RegistryStats",
     "ResilienceConfig",
+    "ResultSerializer",
     "RetryExhaustedError",
     # === Resilience Layer (Phase 2.9) ===
     "RetryPolicy",
@@ -266,6 +269,7 @@ __all__ = [
     "SmartExpiryPolicy",
     # === Protocol & Core Types ===
     "SourceConnector",
+    "SourceProfileRegistry",
     "StaticDataPolicy",
     "TTLPolicy",
     "TrustLevel",

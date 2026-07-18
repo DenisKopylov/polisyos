@@ -10,14 +10,17 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from enum import StrEnum
 from pathlib import Path
-from typing import Literal, Self
+from typing import Any, Literal, Self
 
 import duckdb
+import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import artifacts, canon, contracts
+from polisyos.fabric import connectors as fabric_connectors
 from polisyos.fabric import data_plane as fabric_data_plane
 
 from .overlay import (
@@ -26,7 +29,24 @@ from .overlay import (
     build_metric_field_binding,
 )
 
+ArtifactID = artifacts.ArtifactID
+ArtifactStore = artifacts.ArtifactStore
+DataSnapshot = contracts.DataSnapshot
+DataSnapshotRef = contracts.DataSnapshotRef
+EvidenceBundle = contracts.EvidenceBundle
+EvidenceBundleRef = contracts.EvidenceBundleRef
+FetchResult = fabric_connectors.FetchResult
+JournalEventRef = fabric_data_plane.JournalEventRef
+LiveExecutionAuthorization = fabric_data_plane.LiveExecutionAuthorization
+ResultSerializer = fabric_connectors.ResultSerializer
+SourceProfileRegistry = fabric_connectors.SourceProfileRegistry
+canonical_json_bytes = fabric_data_plane.canonical_json_bytes
+from_canonical_bytes = canon.from_canonical_bytes
+
 ACQUISITION_AUTHORITY_SCHEMA_VERSION = "polisyos.data_forge.acquisition_authority.v1"
+LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION = (
+    "polisyos.data_forge.live_source_execution_evidence.v1"
+)
 DEFAULT_ACQUISITION_AUTHORITY_REGISTRY = Path(
     "architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json"
 )
@@ -219,6 +239,122 @@ class ResolvedAcquisitionAuthority(_StrictModel):
     effective_authority_score: float = Field(ge=0.0, le=1.0)
 
 
+class LiveSourceExecutionEvidence(_StrictModel):
+    """Content-derived proof binding raw HTTP and normalized Fabric carriers."""
+
+    schema_version: Literal[
+        "polisyos.data_forge.live_source_execution_evidence.v1"
+    ] = LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION
+    authorization: LiveExecutionAuthorization
+    family_receipt: dict[str, Any]
+    family_receipt_sha256: str = Field(pattern=_SHA256_PATTERN)
+    request_ref: JournalEventRef
+    raw_evidence_ref: JournalEventRef
+    raw_artifact_id: ArtifactID
+    evidence_bundle_ref: EvidenceBundleRef
+    data_snapshot_ref: DataSnapshotRef
+    normalized_data_artifact_id: ArtifactID
+    call_count: Literal[1]
+    variable_count: Literal[1]
+    page_count: Literal[1]
+    baseline_before_sha256: str = Field(pattern=_SHA256_PATTERN)
+    baseline_after_sha256: str = Field(pattern=_SHA256_PATTERN)
+    raw_body_sha256: str = Field(pattern=_SHA256_PATTERN)
+    normalized_result_content_sha256: str = Field(pattern=_SHA256_PATTERN)
+    content_sha256: str = Field(pattern=_SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _identity_and_decisive_links_are_recomputed(self) -> Self:
+        receipt_hash = fabric_data_plane.content_sha256(self.family_receipt)
+        if (
+            self.family_receipt_sha256 != receipt_hash
+            or self.authorization.harness.family_receipt_sha256 != receipt_hash
+        ):
+            raise ValueError("live execution family receipt identity must be recomputed")
+        if self.request_ref.event_kind != "request":
+            raise ValueError("live execution request ref must address a request event")
+        if self.raw_evidence_ref.event_kind != "raw_response":
+            raise ValueError("live execution raw ref must address a raw-response event")
+        if (
+            self.request_ref.journal_path != self.raw_evidence_ref.journal_path
+            or self.request_ref.sequence >= self.raw_evidence_ref.sequence
+        ):
+            raise ValueError("live execution journal refs must form one ordered carrier")
+        if (
+            self.baseline_before_sha256 != self.baseline_after_sha256
+            or self.baseline_before_sha256 != self.authorization.baseline_sha256
+        ):
+            raise ValueError("live execution baseline must remain immutable")
+        if self.raw_body_sha256 != self.normalized_result_content_sha256:
+            raise ValueError("normalized result must version the exact raw HTTP body")
+        if self.content_sha256 != fabric_data_plane.content_sha256(
+            self.identity_payload()
+        ):
+            raise ValueError("live execution evidence identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return every decisive field except the derived evidence identity."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "content_sha256"
+        }
+
+
+def build_live_source_execution_evidence(
+    *,
+    authorization: LiveExecutionAuthorization,
+    family_receipt: Mapping[str, Any],
+    request_ref: JournalEventRef,
+    raw_evidence_ref: JournalEventRef,
+    raw_artifact_id: str | ArtifactID,
+    evidence_bundle_ref: EvidenceBundleRef,
+    data_snapshot_ref: DataSnapshotRef,
+    normalized_data_artifact_id: str | ArtifactID,
+    call_count: int,
+    variable_count: int,
+    page_count: int,
+    baseline_before_sha256: str,
+    baseline_after_sha256: str,
+    raw_body_sha256: str,
+    normalized_result_content_sha256: str,
+) -> LiveSourceExecutionEvidence:
+    """Build strict dual-carrier evidence without accepting a caller-pinned identity."""
+
+    values = {
+        "authorization": authorization,
+        "family_receipt": dict(family_receipt),
+        "family_receipt_sha256": fabric_data_plane.content_sha256(family_receipt),
+        "request_ref": request_ref,
+        "raw_evidence_ref": raw_evidence_ref,
+        "raw_artifact_id": ArtifactID.model_validate(raw_artifact_id),
+        "evidence_bundle_ref": evidence_bundle_ref,
+        "data_snapshot_ref": data_snapshot_ref,
+        "normalized_data_artifact_id": ArtifactID.model_validate(
+            normalized_data_artifact_id
+        ),
+        "call_count": call_count,
+        "variable_count": variable_count,
+        "page_count": page_count,
+        "baseline_before_sha256": baseline_before_sha256,
+        "baseline_after_sha256": baseline_after_sha256,
+        "raw_body_sha256": raw_body_sha256,
+        "normalized_result_content_sha256": normalized_result_content_sha256,
+    }
+    provisional = LiveSourceExecutionEvidence.model_construct(
+        **values,
+        content_sha256="sha256:" + "0" * 64,
+    )
+    return LiveSourceExecutionEvidence(
+        **values,
+        content_sha256=fabric_data_plane.content_sha256(
+            provisional.identity_payload()
+        ),
+    )
+
+
 def build_authority_entry(**values: object) -> AcquisitionAuthorityEntry:
     """Build one content-bound authority entry without accepting a pinned id."""
 
@@ -365,6 +501,260 @@ class CanonicalAcquisitionAuthority:
             return False
         source_path = self.repo_root / str(resolved.entry.local_source_path)
         return source_path.read_bytes() == body
+
+    def resolve_live_source_execution(
+        self,
+        entry_id: str,
+        evidence: LiveSourceExecutionEvidence,
+        artifact_store: ArtifactStore,
+    ) -> FetchResult[Any]:
+        """Reopen and verify both carriers of one authorized live execution.
+
+        The raw HTTP response remains the journal/CAS evidence carrier.  The
+        normalized ``FetchResult`` is accepted only through the exact
+        ``DataSnapshot.data_ref`` produced by Fabric orchestration.  No caller
+        supplied rows participate in this decision.
+        """
+
+        try:
+            proof = LiveSourceExecutionEvidence.model_validate(
+                evidence.model_dump(mode="json")
+                if isinstance(evidence, LiveSourceExecutionEvidence)
+                else evidence
+            )
+            resolved = self.resolve(entry_id)
+            if resolved.entry.source_lane != "live_fetch":
+                raise AcquisitionAuthorityError("live_source_lane_required")
+            self._verify_live_owner_projection(resolved, proof)
+            self._verify_live_journal_carrier(resolved, proof)
+            raw_body = fabric_data_plane.resolve_raw_response_body(
+                proof.raw_evidence_ref
+            )
+            raw_hash = f"sha256:{hashlib.sha256(raw_body).hexdigest()}"
+            if raw_hash != proof.raw_body_sha256:
+                raise AcquisitionAuthorityError("live_raw_body_identity_drift")
+            raw_cas = self._reopen_artifact(
+                artifact_store,
+                proof.raw_artifact_id,
+                expected_kind="fabric.acquisition.raw_evidence",
+            )
+            if raw_cas != raw_body:
+                raise AcquisitionAuthorityError("live_raw_journal_cas_mismatch")
+
+            evidence_bundle = EvidenceBundle.model_validate(
+                from_canonical_bytes(
+                    self._reopen_artifact_ref(
+                        artifact_store,
+                        proof.evidence_bundle_ref,
+                        expected_kind="fabric.evidence_bundle",
+                    )
+                )
+            )
+            snapshot = DataSnapshot.model_validate(
+                from_canonical_bytes(
+                    self._reopen_artifact_ref(
+                        artifact_store,
+                        proof.data_snapshot_ref,
+                        expected_kind="fabric.data_snapshot",
+                    )
+                )
+            )
+            if snapshot.evidence_ref != proof.evidence_bundle_ref:
+                raise AcquisitionAuthorityError("live_snapshot_evidence_ref_drift")
+            if snapshot.data_ref.artifact_id != proof.normalized_data_artifact_id:
+                raise AcquisitionAuthorityError("live_snapshot_data_ref_drift")
+            if evidence_bundle.sources != [snapshot.data_ref]:
+                raise AcquisitionAuthorityError("live_evidence_bundle_source_drift")
+            if snapshot.stats.get("datasets_fetched") != 1:
+                raise AcquisitionAuthorityError("live_snapshot_not_one_call")
+
+            normalized_bytes = self._reopen_artifact_ref(
+                artifact_store,
+                snapshot.data_ref,
+            )
+            result = ResultSerializer.deserialize(normalized_bytes)
+            self._verify_live_normalized_result(resolved, proof, result)
+            return result
+        except AcquisitionAuthorityError:
+            raise
+        except Exception as exc:
+            raise AcquisitionAuthorityError(
+                "live_source_execution_invalid",
+                type(exc).__name__,
+            ) from exc
+
+    def resolve_live_source_body(
+        self,
+        entry_id: str,
+        evidence: LiveSourceExecutionEvidence,
+        artifact_store: ArtifactStore,
+    ) -> bytes:
+        """Return deterministic normalized rows after full dual-carrier verification."""
+
+        result = self.resolve_live_source_execution(entry_id, evidence, artifact_store)
+        return _normalized_fetch_result_body(result)
+
+    def _verify_live_owner_projection(
+        self,
+        resolved: ResolvedAcquisitionAuthority,
+        proof: LiveSourceExecutionEvidence,
+    ) -> None:
+        actual_baseline = _file_sha256(self.baseline_path)
+        if (
+            actual_baseline != resolved.baseline_content_sha256
+            or actual_baseline != proof.baseline_before_sha256
+            or actual_baseline != proof.baseline_after_sha256
+            or actual_baseline != proof.authorization.baseline_sha256
+        ):
+            raise AcquisitionAuthorityError("live_baseline_identity_drift")
+        try:
+            fabric_data_plane.require_authorized_execution(
+                proof.authorization,
+                family_receipt=proof.family_receipt,
+            )
+        except Exception as exc:
+            raise AcquisitionAuthorityError(
+                "live_harness_authorization_invalid",
+                type(exc).__name__,
+            ) from exc
+        registration = resolved.registration
+        authorization = proof.authorization
+        if (
+            authorization.connector_id != registration.connector_id
+            or authorization.profile_id != registration.source_profile_id
+            or authorization.request_variables
+            != (registration.request_dataset_id,)
+        ):
+            raise AcquisitionAuthorityError("live_authorization_catalog_drift")
+        profile = SourceProfileRegistry.get_instance().get(
+            registration.source_profile_id
+        )
+        if profile is None:
+            raise AcquisitionAuthorityError("live_source_profile_unresolved")
+        if (
+            fabric_data_plane.content_sha256(profile)
+            != authorization.source_profile_sha256
+        ):
+            raise AcquisitionAuthorityError("live_source_profile_identity_drift")
+
+    def _verify_live_journal_carrier(
+        self,
+        resolved: ResolvedAcquisitionAuthority,
+        proof: LiveSourceExecutionEvidence,
+    ) -> None:
+        request_event = fabric_data_plane.resolve_journal_event_ref(proof.request_ref)
+        raw_event = fabric_data_plane.resolve_journal_event_ref(proof.raw_evidence_ref)
+        linked_request = fabric_data_plane.resolve_linked_request_event(
+            proof.raw_evidence_ref
+        )
+        if linked_request != request_event:
+            raise AcquisitionAuthorityError("live_request_raw_link_drift")
+        if (
+            raw_event.get("attempt_id") != proof.authorization.attempt_id
+            or request_event.get("attempt_id") != proof.authorization.attempt_id
+        ):
+            raise AcquisitionAuthorityError("live_attempt_identity_drift")
+        raw_projection = raw_event.get("raw_response")
+        if not isinstance(raw_projection, Mapping):
+            raise AcquisitionAuthorityError("live_raw_response_missing")
+        if raw_projection.get("request_event_sha256") != proof.request_ref.event_sha256:
+            raise AcquisitionAuthorityError("live_request_event_ref_drift")
+        request_value = request_event.get("request")
+        if not isinstance(request_value, Mapping):
+            raise AcquisitionAuthorityError("live_request_missing")
+        request = {str(key): value for key, value in request_value.items()}
+        if (
+            request_event.get("request_sha256")
+            != fabric_data_plane.content_sha256(request)
+            or request_event.get("request_sha256")
+            != proof.authorization.request_sha256
+        ):
+            raise AcquisitionAuthorityError("live_request_identity_drift")
+        entry = resolved.entry
+        registration = resolved.registration
+        expected = {
+            "authority_entry_id": entry.entry_id,
+            "authority_registry_content_sha256": resolved.registry_content_sha256,
+            "variable_id": entry.target_variable,
+            "source_lane": "live_fetch",
+            "dataset_id": entry.landing_dataset_id,
+            "distribution_id": entry.landing_distribution_id,
+            "connector_id": registration.connector_id,
+            "profile_id": registration.source_profile_id,
+            "request_dataset_id": registration.request_dataset_id,
+            "schema_contract": entry.schema_projection(),
+        }
+        if any(request.get(key) != value for key, value in expected.items()):
+            raise AcquisitionAuthorityError("live_request_owner_projection_drift")
+        if (
+            fabric_data_plane.content_sha256(entry.schema_projection())
+            != proof.authorization.schema_contract_sha256
+        ):
+            raise AcquisitionAuthorityError("live_request_schema_contract_drift")
+
+    def _verify_live_normalized_result(
+        self,
+        resolved: ResolvedAcquisitionAuthority,
+        proof: LiveSourceExecutionEvidence,
+        result: FetchResult[Any],
+    ) -> None:
+        contract = resolved.entry.schema_contract_ref
+        if not contract.startswith("fabric://") or "@" not in contract:
+            raise AcquisitionAuthorityError("live_schema_contract_ref_invalid")
+        schema_id, schema_version = contract.removeprefix("fabric://").rsplit("@", 1)
+        if (
+            result.schema_id != schema_id
+            or result.schema_version != schema_version
+        ):
+            raise AcquisitionAuthorityError("live_normalized_schema_contract_drift")
+        if (
+            result.version.content_hash != proof.raw_body_sha256
+            or result.version.content_hash
+            != proof.normalized_result_content_sha256
+        ):
+            raise AcquisitionAuthorityError("live_normalized_raw_version_drift")
+        if result.has_more or result.next_page_token is not None:
+            raise AcquisitionAuthorityError("live_result_not_one_page")
+        if result.row_count != _normalized_result_row_count(result.data):
+            raise AcquisitionAuthorityError("live_normalized_row_count_drift")
+
+    @staticmethod
+    def _reopen_artifact(
+        artifact_store: ArtifactStore,
+        artifact_id: ArtifactID,
+        *,
+        expected_kind: str | None = None,
+    ) -> bytes:
+        if not artifact_store.has(artifact_id):
+            raise AcquisitionAuthorityError("live_artifact_unresolved", str(artifact_id))
+        manifest = artifact_store.get_manifest(artifact_id)
+        if expected_kind is not None and manifest.kind != expected_kind:
+            raise AcquisitionAuthorityError("live_artifact_kind_drift", manifest.kind)
+        return artifact_store.get_bytes(artifact_id)
+
+    @classmethod
+    def _reopen_artifact_ref(
+        cls,
+        artifact_store: ArtifactStore,
+        ref: object,
+        *,
+        expected_kind: str | None = None,
+    ) -> bytes:
+        artifact_id = getattr(ref, "artifact_id", None)
+        kind = getattr(ref, "kind", None)
+        media_type = getattr(ref, "media_type", None)
+        if not isinstance(artifact_id, ArtifactID):
+            raise AcquisitionAuthorityError("live_artifact_ref_invalid")
+        manifest = artifact_store.get_manifest(artifact_id)
+        if manifest.kind != kind or manifest.media_type != media_type:
+            raise AcquisitionAuthorityError("live_artifact_ref_manifest_drift")
+        if expected_kind is not None and kind != expected_kind:
+            raise AcquisitionAuthorityError("live_artifact_kind_drift", str(kind))
+        return cls._reopen_artifact(
+            artifact_store,
+            artifact_id,
+            expected_kind=expected_kind,
+        )
 
     def _load_registry(self) -> AcquisitionAuthorityRegistry:
         if not self.registry_path.is_file():
@@ -625,6 +1015,47 @@ def _license_disposition(value: str) -> LicenseDisposition:
     return LicenseDisposition.UNCLEAR
 
 
+def _normalized_result_row_count(data: object) -> int:
+    if isinstance(data, pd.DataFrame):
+        return len(data.index)
+    if isinstance(data, Mapping):
+        return 1
+    if isinstance(data, Sequence) and not isinstance(data, (str, bytes, bytearray)):
+        return len(data)
+    raise AcquisitionAuthorityError(
+        "live_normalized_payload_unsupported",
+        type(data).__name__,
+    )
+
+
+def _normalized_fetch_result_body(result: FetchResult[Any]) -> bytes:
+    data = result.data
+    if isinstance(data, pd.DataFrame):
+        # Round through pandas' JSON encoder so numpy scalars and timestamps
+        # become plain JSON values before canonicalization.
+        payload: object = json.loads(
+            data.to_json(
+                orient="records",
+                date_format="iso",
+                date_unit="us",
+                double_precision=15,
+            )
+        )
+    elif isinstance(data, Mapping):
+        payload = dict(data)
+    elif isinstance(data, Sequence) and not isinstance(
+        data,
+        (str, bytes, bytearray),
+    ):
+        payload = list(data)
+    else:
+        raise AcquisitionAuthorityError(
+            "live_normalized_payload_unsupported",
+            type(data).__name__,
+        )
+    return canonical_json_bytes(payload)
+
+
 def _file_sha256(path: Path) -> str:
     if not path.is_file():
         raise AcquisitionAuthorityError("authority_source_missing", path.as_posix())
@@ -644,14 +1075,17 @@ def _mapping(value: object) -> Mapping[str, object]:
 __all__ = [
     "ACQUISITION_AUTHORITY_SCHEMA_VERSION",
     "DEFAULT_ACQUISITION_AUTHORITY_REGISTRY",
+    "LIVE_SOURCE_EXECUTION_EVIDENCE_SCHEMA_VERSION",
     "AcquisitionAuthorityEntry",
     "AcquisitionAuthorityError",
     "AcquisitionAuthorityRegistry",
     "AuthoritySchemaColumn",
     "CanonicalAcquisitionAuthority",
     "LicenseDisposition",
+    "LiveSourceExecutionEvidence",
     "ResolvedAcquisitionAuthority",
     "ResolvedL5Trust",
     "build_authority_entry",
     "build_authority_registry",
+    "build_live_source_execution_evidence",
 ]

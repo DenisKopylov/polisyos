@@ -26,6 +26,7 @@ MetricFieldBinding = data_forge_read_api.catalog.MetricFieldBinding
 ObservationProvenanceClass = data_forge_read_api.catalog.ObservationProvenanceClass
 AcquisitionDatasetRegistration = data_forge_read_api.catalog.AcquisitionDatasetRegistration
 ResolvedAcquisitionAuthority = data_forge_read_api.catalog.ResolvedAcquisitionAuthority
+LiveSourceExecutionEvidence = data_forge_read_api.catalog.LiveSourceExecutionEvidence
 content_sha256 = fabric_data_plane.content_sha256
 resolve_linked_request_event = fabric_data_plane.resolve_linked_request_event
 resolve_raw_response_body = fabric_data_plane.resolve_raw_response_body
@@ -202,12 +203,27 @@ class AdmissionPassport(_StrictModel):
     dataset_version: str
     l5_trust: L5TrustEvidence
     schema_validation: SchemaValidationEvidence
+    live_source_execution: LiveSourceExecutionEvidence | None = None
     source_authority_verified: bool
     status: AdmissionStatus
     rejection_codes: tuple[str, ...]
 
     @model_validator(mode="after")
     def _passport_is_recomputed(self) -> Self:
+        if self.source_lane == "live_fetch":
+            if self.live_source_execution is None:
+                raise ValueError("live source execution evidence is required")
+            live = self.live_source_execution
+            if (
+                live.raw_evidence_ref != self.raw_evidence_ref
+                or str(live.raw_artifact_id) != self.raw_artifact_id
+                or live.baseline_after_sha256 != self.baseline_content_sha256
+                or live.raw_body_sha256 != self.source_watermark
+                or live.normalized_result_content_sha256 != self.dataset_version
+            ):
+                raise ValueError("live source execution evidence must bind the passport")
+        elif self.live_source_execution is not None:
+            raise ValueError("local-lift passport cannot carry live execution evidence")
         expected_rejections = self.recomputed_rejection_codes()
         if self.rejection_codes != expected_rejections:
             raise ValueError("rejection codes must be recomputed from decisive evidence")
@@ -270,6 +286,13 @@ class _CanonicalAuthority(Protocol):
 
     def verify_source_body(self, entry_id: str, body: bytes) -> bool: ...
 
+    def resolve_live_source_body(
+        self,
+        entry_id: str,
+        evidence: object,
+        artifact_store: object,
+    ) -> bytes: ...
+
 
 def measure_quarantined_sample(
     raw_evidence_ref: JournalEventRef,
@@ -281,6 +304,27 @@ def measure_quarantined_sample(
     """Measure columns and row count from exact journaled response bytes."""
 
     body = resolve_raw_response_body(raw_evidence_ref)
+    return _measure_quarantined_body(
+        body,
+        raw_evidence_ref=raw_evidence_ref,
+        dataset_id=dataset_id,
+        distribution_id=distribution_id,
+        source_profile_id=source_profile_id,
+        parser_mode="owner_response_json",
+    )
+
+
+def _measure_quarantined_body(
+    body: bytes,
+    *,
+    raw_evidence_ref: JournalEventRef,
+    dataset_id: str,
+    distribution_id: str,
+    source_profile_id: str,
+    parser_mode: str,
+) -> MeasuredSchemaProfile:
+    """Measure one quarantined carrier chosen by the canonical lane owner."""
+
     try:
         payload = json.loads(body)
     except (UnicodeDecodeError, json.JSONDecodeError) as exc:
@@ -313,7 +357,7 @@ def measure_quarantined_sample(
         "sample_content_sha256": f"sha256:{hashlib.sha256(body).hexdigest()}",
         "raw_evidence_event_sha256": raw_evidence_ref.event_sha256,
         "inference_mode": "measured_quarantine",
-        "parser_mode": "owner_response_json",
+        "parser_mode": parser_mode,
     }
     return MeasuredSchemaProfile(
         measurement_id="measurement:" + content_sha256(values),
@@ -356,6 +400,7 @@ def build_admission_passport(
     artifact_store: _ArtifactStore,
     raw_artifact_id: str,
     authority: _CanonicalAuthority,
+    live_source_execution: LiveSourceExecutionEvidence | None = None,
 ) -> AdmissionPassport:
     """Resolve canonical owners and derive a measured admission passport."""
 
@@ -375,12 +420,34 @@ def build_admission_passport(
     except Exception as exc:
         raise ValueError("acquisition_authority_unresolved") from exc
     entry = resolved.entry
-    measured_profile = measure_quarantined_sample(
-        raw_evidence_ref,
-        dataset_id=entry.landing_dataset_id,
-        distribution_id=entry.landing_distribution_id,
-        source_profile_id=resolved.registration.source_profile_id,
-    )
+    if entry.source_lane == "live_fetch":
+        if live_source_execution is None:
+            raise ValueError("live_source_execution_evidence_required")
+        try:
+            normalized_body = authority.resolve_live_source_body(
+                entry_id,
+                live_source_execution,
+                artifact_store,
+            )
+        except Exception as exc:
+            raise ValueError("live_source_execution_unresolved") from exc
+        measured_profile = _measure_quarantined_body(
+            normalized_body,
+            raw_evidence_ref=raw_evidence_ref,
+            dataset_id=entry.landing_dataset_id,
+            distribution_id=entry.landing_distribution_id,
+            source_profile_id=resolved.registration.source_profile_id,
+            parser_mode="fabric_normalized_fetch_result",
+        )
+    else:
+        if live_source_execution is not None:
+            raise ValueError("local_lift_live_execution_evidence_forbidden")
+        measured_profile = measure_quarantined_sample(
+            raw_evidence_ref,
+            dataset_id=entry.landing_dataset_id,
+            distribution_id=entry.landing_distribution_id,
+            source_profile_id=resolved.registration.source_profile_id,
+        )
     schema_validation = _validate_request_and_measured_schema(
         request_event=request_event,
         request=request,
@@ -389,7 +456,11 @@ def build_admission_passport(
     )
     source_authority_verified = bool(
         schema_validation.conformant
-        and authority.verify_source_body(entry_id, body)
+        and (
+            live_source_execution is not None
+            if entry.source_lane == "live_fetch"
+            else authority.verify_source_body(entry_id, body)
+        )
     )
     raw_verified = True
     cas_verified = _cas_bytes_match(
@@ -440,6 +511,11 @@ def build_admission_passport(
         else ObservationProvenanceClass.OBSERVED
     )
     body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
+    dataset_version = (
+        live_source_execution.normalized_result_content_sha256
+        if live_source_execution is not None
+        else resolved.upstream_catalog_projection_sha256
+    )
     values: dict[str, object] = {
         "schema_version": PASSPORT_SCHEMA_VERSION,
         "epoch_id": epoch_id,
@@ -462,9 +538,10 @@ def build_admission_passport(
         "license_evidence": license_evidence,
         "pii_scan": pii_evidence,
         "source_watermark": body_sha,
-        "dataset_version": resolved.upstream_catalog_projection_sha256,
+        "dataset_version": dataset_version,
         "l5_trust": l5_evidence,
         "schema_validation": schema_validation,
+        "live_source_execution": live_source_execution,
         "source_authority_verified": source_authority_verified,
     }
     rejection_codes = _derive_rejection_codes(
@@ -477,7 +554,7 @@ def build_admission_passport(
         license_evidence=license_evidence,
         pii_scan=pii_evidence,
         source_watermark=body_sha,
-        dataset_version=resolved.upstream_catalog_projection_sha256,
+        dataset_version=dataset_version,
         l5_trust=l5_evidence,
         schema_validation=schema_validation,
         source_authority_verified=source_authority_verified,
@@ -524,9 +601,6 @@ def revalidate_admission_passport(
         raise ValueError("raw_cas_evidence_unresolved")
     if not passport.cas_evidence_verified:
         raise ValueError("raw_cas_evidence_not_verified")
-    body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
-    if passport.measured_profile.sample_content_sha256 != body_sha:
-        raise ValueError("measured_profile_content_drift")
     if (
         passport.measured_profile.raw_evidence_event_sha256
         != passport.raw_evidence_ref.event_sha256
@@ -554,8 +628,35 @@ def revalidate_admission_passport(
         != passport.upstream_catalog_projection_sha256
         or resolved.registration != passport.registration
         or resolved.field_binding != passport.field_binding
+        or resolved.entry.source_lane != passport.source_lane
     ):
         raise ValueError("acquisition_authority_drift")
+    if passport.source_lane == "live_fetch":
+        if passport.live_source_execution is None:
+            raise ValueError("live_source_execution_evidence_required")
+        try:
+            measurement_body = authority.resolve_live_source_body(
+                passport.authority_entry_id,
+                passport.live_source_execution,
+                artifact_store,
+            )
+        except Exception as exc:
+            raise ValueError("live_source_execution_unresolved") from exc
+        source_authority_verified = True
+    else:
+        if passport.live_source_execution is not None:
+            raise ValueError("local_lift_live_execution_evidence_forbidden")
+        measurement_body = body
+        source_authority_verified = authority.verify_source_body(
+            passport.authority_entry_id,
+            body,
+        )
+    measurement_sha = f"sha256:{hashlib.sha256(measurement_body).hexdigest()}"
+    if passport.measured_profile.sample_content_sha256 != measurement_sha:
+        raise ValueError("measured_profile_content_drift")
+    raw_body_sha = f"sha256:{hashlib.sha256(body).hexdigest()}"
+    if passport.source_watermark != raw_body_sha:
+        raise ValueError("source_watermark_content_drift")
     if resolved.license_id != passport.license_evidence.license_id or (
         resolved.license_disposition.value != passport.license_evidence.disposition.value
     ):
@@ -590,9 +691,7 @@ def revalidate_admission_passport(
     )
     if schema_validation != passport.schema_validation:
         raise ValueError("schema_validation_evidence_drift")
-    if authority.verify_source_body(passport.authority_entry_id, body) != (
-        passport.source_authority_verified
-    ):
+    if source_authority_verified != passport.source_authority_verified:
         raise ValueError("source_authority_evidence_drift")
     return AdmissionPassport.model_validate(passport.model_dump(mode="python"))
 

@@ -7,7 +7,7 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, Protocol, cast
 
 from polisyos.core.contracts.control import (
     EXECUTION_PROFILE_ORDER,
@@ -15,11 +15,31 @@ from polisyos.core.contracts.control import (
     ExecutionProfile,
     PolicyFlags,
 )
-from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
-from polisyos.runtime.http.security import is_fixture_identity_claims
+from polisyos.runtime.http.security import (
+    PolicyOSRole,
+    UserIdentityClaims,
+    is_fixture_identity_claims,
+)
 
-if TYPE_CHECKING:
-    from polisyos.core.security.access_scope import AccessScope
+
+class _RuntimeAccessScope(Protocol):
+    """Structural view needed to derive an execution principal."""
+
+    @property
+    def tenant_id(self) -> str: ...
+
+    @property
+    def cell_id(self) -> str | None: ...
+
+    @property
+    def user_sub(self) -> str: ...
+
+    @property
+    def spiffe_id(self) -> str: ...
+
+    @property
+    def roles(self) -> frozenset[PolicyOSRole]: ...
+
 
 _PRIVILEGED_ROLES = frozenset({PolicyOSRole.ADMIN, PolicyOSRole.SERVICE, PolicyOSRole.SYSTEM})
 
@@ -84,7 +104,7 @@ class RuntimePrincipal:
     @classmethod
     def from_access_scope(
         cls,
-        scope: AccessScope | None,
+        scope: _RuntimeAccessScope | None,
         *,
         fixture_identity: bool = False,
     ) -> RuntimePrincipal:

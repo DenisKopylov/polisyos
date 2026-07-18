@@ -120,9 +120,11 @@ def clear_request_auth_context(state: Any) -> None:
 
 
 __all__ = [
+    "PolicyOSRole",
     "RuntimeSecurityConfig",
     "RuntimeStepUpAssertionVerifier",
     "RuntimeStepUpReplayStore",
+    "UserIdentityClaims",
     "build_fixture_identity_claims",
     "clear_request_auth_context",
     "is_fixture_identity_claims",

@@ -12,13 +12,12 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
-from polisyos.core.security.access_scope import AccessScope
-from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationAuditError,
     RuntimeAuthorizationOutcome,
     emit_runtime_authorization_audit,
 )
+from polisyos.runtime.http.dependencies import RuntimeAccessScope as AccessScope
 from polisyos.runtime.http.errors import (
     RuntimeHTTPError,
     forbidden,
@@ -26,6 +25,7 @@ from polisyos.runtime.http.errors import (
     unauthorized,
 )
 from polisyos.runtime.http.permissions import RuntimePermission, permissions_for_roles
+from polisyos.runtime.http.security import PolicyOSRole, UserIdentityClaims
 
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence

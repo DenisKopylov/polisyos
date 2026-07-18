@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
-from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core import artifacts
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
@@ -268,7 +268,7 @@ class ScenarioRepository:
                 code="scenario_artifact_store_unavailable",
             )
         try:
-            artifact_id = ArtifactID.model_validate(head.artifact_ref)
+            artifact_id = artifacts.ArtifactID.model_validate(head.artifact_ref)
             sidecar = self._store.get_manifest(artifact_id)
             payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
             scenario = ScenarioManifest.model_validate(payload)

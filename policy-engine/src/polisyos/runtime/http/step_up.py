@@ -10,7 +10,6 @@ from enum import StrEnum
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
-from polisyos.core.security.access_scope import AccessScope
 from polisyos.runtime.http.access_audit import (
     RuntimeAuthorizationAuditError,
     RuntimeAuthorizationOutcome,
@@ -24,6 +23,7 @@ from polisyos.runtime.http.authorization import (
     iter_route_dependency_calls,
 )
 from polisyos.runtime.http.container import resolve_control_service
+from polisyos.runtime.http.dependencies import RuntimeAccessScope as AccessScope
 from polisyos.runtime.http.errors import RuntimeHTTPError, forbidden, service_unavailable
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import BoundAuthorizationResource

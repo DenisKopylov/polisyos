@@ -16,9 +16,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, cast
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
-from polisyos.core.security.access_scope import AccessScope
+from polisyos.core import artifacts, canon
 from polisyos.runtime.http.authorization import (
     ActionPermissionVerification,
     ResourceBindingSource,
@@ -30,6 +28,7 @@ from polisyos.runtime.http.container import (
     resolve_control_service,
     resolve_runtime_api_context,
 )
+from polisyos.runtime.http.dependencies import RuntimeAccessScope as AccessScope
 from polisyos.runtime.http.errors import (
     bad_request,
     forbidden,
@@ -61,7 +60,7 @@ else:
 _DEFAULT_MAX_BODY_BYTES = 1024 * 1024
 _MAX_BATCH_ITEMS = 100
 _ABSENT_SELECTOR = '{"present":false}'
-_RESOLVED_CONTEXT_CANON = CanonSpec(forbid_floats=False)
+_RESOLVED_CONTEXT_CANON = canon.CanonSpec(forbid_floats=False)
 _SCENARIO_TARGET_CONTEXT_KIND = "runtime.scenario.target.v1"
 
 
@@ -223,7 +222,7 @@ def get_bound_resource_context(
             code="authorization_binding_context_missing",
         )
     try:
-        payload = from_canonical_bytes(bound.resolved_context)
+        payload = canon.from_canonical_bytes(bound.resolved_context)
     except (TypeError, ValueError) as exc:
         raise forbidden(
             "The resolved authorization context is invalid",
@@ -747,7 +746,7 @@ def _bind_candidate_target(
                         ("head_manifest_hash", _canonical_json(head.manifest_hash)),
                     )
                 )
-            context = to_canonical_bytes(
+            context = canon.to_canonical_bytes(
                 {
                     "context_version": _SCENARIO_TARGET_CONTEXT_KIND,
                     "run_id": canonical_parent,
@@ -830,7 +829,7 @@ def _resolve_lineage_selector(
 ) -> tuple[str, str, str]:
     artifact_candidate = lineage_id.removeprefix("artifact:")
     try:
-        artifact_id = ArtifactID.model_validate(artifact_candidate)
+        artifact_id = artifacts.ArtifactID.model_validate(artifact_candidate)
     except (TypeError, ValueError):
         artifact_id = None
     if artifact_id is not None:
@@ -909,7 +908,7 @@ def _resolve_owned_artifact(
 ) -> tuple[str, str]:
     raw = _required_string(value, field_name="artifact_id")
     try:
-        artifact_id = ArtifactID.model_validate(raw)
+        artifact_id = artifacts.ArtifactID.model_validate(raw)
     except (TypeError, ValueError) as exc:
         raise bad_request(
             "Artifact resource identifier is invalid",
@@ -1183,7 +1182,7 @@ def _sha256(value: bytes) -> str:
 
 def _validate_sha256(value: str, *, field_name: str) -> None:
     try:
-        _ = ArtifactID.model_validate(value)
+        _ = artifacts.ArtifactID.model_validate(value)
     except (TypeError, ValueError) as exc:
         raise ValueError(f"{field_name} must be a canonical SHA-256 digest") from exc
 

@@ -5,19 +5,13 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.ownership import ArtifactOwnershipError
-from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
+from polisyos.core import artifacts, canon
 from polisyos.runtime.http.errors import bad_request, forbidden
 
-if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
-
-
 _CONTEXT_KIND = "runtime.production_approval.scorecard.v1"
-_CANON_SPEC = CanonSpec(forbid_floats=False)
+_CANON_SPEC = canon.CanonSpec(forbid_floats=False)
 _SCORECARD_ARTIFACT_KIND = "runtime.quality_scorecard"
 _SCORECARD_SCHEMA_VERSION = "policyos.quality_scorecard.v1"
 
@@ -38,7 +32,7 @@ def resolve_production_approval_scorecard(
     body: Mapping[str, Any],
     control_service: object | None,
     run_id: str,
-    store: ArtifactStore,
+    store: artifacts.ArtifactStore,
 ) -> ResolvedProductionApprovalScorecard:
     """Resolve one persisted scorecard and reject cross-run attribution."""
     explicit_ref = _string_or_none(body.get("quality_scorecard_ref"))
@@ -108,14 +102,14 @@ def _scorecard_ref_from_payload(scorecard: Mapping[str, Any] | None) -> str | No
 
 
 def _load_scorecard_artifact(
-    store: ArtifactStore,
+    store: artifacts.ArtifactStore,
     ref: str,
 ) -> dict[str, Any] | None:
     try:
-        artifact_id = ArtifactID.model_validate(ref)
+        artifact_id = artifacts.ArtifactID.model_validate(ref)
         manifest = store.get_manifest(artifact_id)
-        payload = from_canonical_bytes(store.get_bytes(artifact_id))
-    except ArtifactOwnershipError as exc:
+        payload = canon.from_canonical_bytes(store.get_bytes(artifact_id))
+    except artifacts.ArtifactOwnershipError as exc:
         raise forbidden(
             "The quality scorecard belongs to a different tenant",
             code="authorization_binding_scorecard_tenant_mismatch",
@@ -165,9 +159,9 @@ def _freeze_scorecard(
     scorecard["scorecard_identity_verified"] = True
     scorecard["scorecard_ref_source"] = "runtime_cas"
     scorecard["run_id"] = run_id
-    payload_bytes = to_canonical_bytes(scorecard, spec=_CANON_SPEC)
+    payload_bytes = canon.to_canonical_bytes(scorecard, spec=_CANON_SPEC)
     payload_sha256 = "sha256:" + hashlib.sha256(payload_bytes).hexdigest()
-    context_bytes = to_canonical_bytes(
+    context_bytes = canon.to_canonical_bytes(
         {
             "context_version": _CONTEXT_KIND,
             "run_id": run_id,

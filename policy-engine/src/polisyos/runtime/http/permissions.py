@@ -6,7 +6,7 @@ from enum import StrEnum
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 
-from polisyos.core.security.identity import PolicyOSRole
+from polisyos.runtime.http.security import PolicyOSRole
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping

@@ -44,13 +44,15 @@ from polisyos.core.contracts.control import (
     WorkflowRunRequest,
 )
 from polisyos.core.contracts.runtime import FeedbackActionResponse
-from polisyos.core.security.access_scope import AccessScope
 from polisyos.runtime.http.authorization import (
     ResourceBindingSource,
     ResourceBindingSpec,
     require_action_permission,
 )
 from polisyos.runtime.http.container import resolve_control_service
+from polisyos.runtime.http.dependencies import (
+    RuntimeAccessScope as AccessScope,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,

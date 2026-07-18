@@ -33,6 +33,10 @@ from .services.scenarios import ScenarioService
 from .services.temporal import TemporalService
 from .services.timeline import TimelineService
 
+# Runtime HTTP modules consume the verified scope through this local boundary so
+# they do not proliferate imports of Core's internal identity implementation.
+RuntimeAccessScope = AccessScope
+
 if TYPE_CHECKING:
     from pathlib import Path
 

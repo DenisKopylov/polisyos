@@ -12,6 +12,7 @@ import { TelemetryProvider } from "../../app/providers/TelemetryProvider";
 import { CounterfactualProvider } from "../../app/providers/CounterfactualProvider";
 import { TemporalCursorProvider } from "../../app/providers/TemporalCursorProvider";
 import { TrustViewProvider } from "../../app/providers/TrustViewProvider";
+import { QuantityRuntimeProvider } from "../../app/providers/QuantityRuntimeProvider";
 import { DensityProvider } from "../../app/providers/DensityProvider";
 import { ThemeProvider } from "../../app/providers/ThemeProvider";
 import { usePreferencesStore } from "../../app/state/usePreferencesStore";
@@ -62,30 +63,32 @@ export function AppProviders({ children }: PropsWithChildren) {
                 <TemporalCursorProvider>
                   <CounterfactualProvider>
                     <TrustViewProvider>
-                      <ToastProvider>
-                        <AlertDialogProvider>
-                          <AuthSessionProvider>
-                            <AuthzProvider>
-                              <NetworkStatusProvider>
-                                <OfflineQueueProvider>
-                                  <FeatureFlagProvider>
-                                    <InterfaceModeProvider>
-                                      <DensityProvider>
-                                        <ThemeProvider>
-                                          <PersistentAuthorshipProvider>
-                                            {children}
-                                            <ContrastEnforcer />
-                                          </PersistentAuthorshipProvider>
-                                        </ThemeProvider>
-                                      </DensityProvider>
-                                    </InterfaceModeProvider>
-                                  </FeatureFlagProvider>
-                                </OfflineQueueProvider>
-                              </NetworkStatusProvider>
-                            </AuthzProvider>
-                          </AuthSessionProvider>
-                        </AlertDialogProvider>
-                      </ToastProvider>
+                      <QuantityRuntimeProvider>
+                        <ToastProvider>
+                          <AlertDialogProvider>
+                            <AuthSessionProvider>
+                              <AuthzProvider>
+                                <NetworkStatusProvider>
+                                  <OfflineQueueProvider>
+                                    <FeatureFlagProvider>
+                                      <InterfaceModeProvider>
+                                        <DensityProvider>
+                                          <ThemeProvider>
+                                            <PersistentAuthorshipProvider>
+                                              {children}
+                                              <ContrastEnforcer />
+                                            </PersistentAuthorshipProvider>
+                                          </ThemeProvider>
+                                        </DensityProvider>
+                                      </InterfaceModeProvider>
+                                    </FeatureFlagProvider>
+                                  </OfflineQueueProvider>
+                                </NetworkStatusProvider>
+                              </AuthzProvider>
+                            </AuthSessionProvider>
+                          </AlertDialogProvider>
+                        </ToastProvider>
+                      </QuantityRuntimeProvider>
                     </TrustViewProvider>
                   </CounterfactualProvider>
                 </TemporalCursorProvider>

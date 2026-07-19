@@ -165,6 +165,33 @@ const trustFramingCases = [
 }[];
 
 describe("PublicationPacketPanel trust framing", () => {
+  it("renders missing threshold evaluation as unavailable instead of measured zeros", () => {
+    const packet = buildSignedPublicDecisionPacket({
+      decisionView: baseDecisionView,
+      evidenceContext: tracedEvidenceContext,
+      runId: "threshold-unavailable",
+    });
+
+    renderWithProviders(<PublicationPacketPanel packet={packet} publicMode />, {
+      initialEntries: [packet.publicUrlPath],
+    });
+
+    const thresholdPanel = screen.getByTestId("threshold-contract-panel");
+
+    expect(
+      within(thresholdPanel).getByTestId("threshold-evaluation-unavailable"),
+    ).toHaveTextContent("Unknown");
+    expect(
+      within(thresholdPanel).queryByTestId("threshold-near-count"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(thresholdPanel).queryByTestId("threshold-above-count"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(thresholdPanel).queryByTestId("threshold-below-count"),
+    ).not.toBeInTheDocument();
+  });
+
   it.each(trustFramingCases)(
     "renders a visible non-authority caveat for $scenario",
     ({ input, scenario }) => {

@@ -158,7 +158,7 @@ export type ReadingOnboardingSnapshot = {
 export type ThresholdImpact = {
   hiddenClaims: Array<{
     label: string;
-    score: number;
+    score: SignedPublicDecisionPacket["confidenceLadder"][number]["score"];
     targetRef: string;
   }>;
   hiddenCount: number;
@@ -819,7 +819,10 @@ export function buildThresholdImpact(input: {
   const threshold = rounded(input.threshold);
   const claims = input.packet.confidenceLadder;
   const hiddenClaims = claims
-    .filter((claim) => claim.score < threshold)
+    .filter(
+      (claim) =>
+        typeof claim.score.point === "number" && claim.score.point < threshold,
+    )
     .map((claim) => ({
       label: claim.label,
       score: claim.score,

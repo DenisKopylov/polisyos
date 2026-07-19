@@ -247,13 +247,17 @@ function parseBounds(
       continue;
     }
 
-    const match = key.match(/^(.*)_(lower|upper|point|ci_level)$/);
-    if (!match) {
+    const match = key.match(
+      /^(?<metricId>.*)_(?<suffix>lower|upper|point|ci_level)$/,
+    );
+    if (!match?.groups) {
       continue;
     }
 
-    const metricId = match[1];
-    const suffix = match[2];
+    const { metricId, suffix } = match.groups;
+    if (!metricId || !suffix) {
+      continue;
+    }
     const current = out[metricId] ?? {
       lower: null,
       upper: null,

@@ -133,32 +133,34 @@
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e"
           ],
-          "expected_count": 24,
+      "expected_count": 26,
           "observed_refs": [
             "apps/runtime-dashboard/e2e/journeys/trust-framing-negative-traces.spec.ts:182",
             "apps/runtime-dashboard/src/app/routes/routes.test.tsx:167",
             "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx:42",
-            "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:80",
-            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:171",
+        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:81",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:169",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:198",
             "apps/runtime-dashboard/src/features/runs/components/PublicationReadinessPanel.tsx:17",
-            "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts:122",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:212",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:224",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:229",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:239",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:278",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:330",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1395",
-            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1456",
+        "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts:123",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:234",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:246",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:251",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:275",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:314",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:366",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1496",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1557",
             "apps/runtime-dashboard/src/features/runs/route.tsx:151",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:120",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:142",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:27",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:36",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:55",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:78",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:97",
-            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12"
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:101",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:124",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:146",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:31",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:40",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:59",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:82",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12",
+        "apps/runtime-dashboard/src/test/contracts/quantityDecisionProducerHarness.tsx:169"
           ]
         }
       ]
@@ -1587,12 +1589,20 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-quantity-generated-waist-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/index.ts",
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 rebinds the living quantity family to generated QuantityValue and lineage types, preserves non-scalar absence, and proves real decision producers render through the single dashboard owner."
     },
     {
       "unit_id": "ui-responsive",
@@ -3592,12 +3602,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "quantity-independent-owner-metadata",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 deletes the composite quantity provenance status and renders generated lineage, freshness, verification, and dispute fields independently."
     },
     {
       "unit_id": "status-scenario",
@@ -3606,12 +3623,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "runtime-scenario-ref-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx",
+          "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 removes the local scenario-status union; CounterfactualMetric now carries the generated ScenarioRef status directly."
     },
     {
       "unit_id": "status-verification",
@@ -3620,12 +3644,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "runtime-lineage-verification-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 replaces the closed verification clone with a type derived from the generated lineage owner and proves its independent presentation."
     },
     {
       "unit_id": "status-dispute-quantity",
@@ -3634,12 +3665,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "runtime-verification-metadata-dispute-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+          "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-19",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C06 removes the quantity-local dispute union and renders the generated VerificationMetadata dispute field without composite status minting."
     },
     {
       "unit_id": "status-dispute-trust-view",

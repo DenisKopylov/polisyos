@@ -140,6 +140,44 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         errors = checker.validate_inventory(mutation, debt)
         self.assertIn("removed_source_survives:status-collaboration-session", errors)
 
+    def test_allows_a_retired_definition_when_its_owner_file_remains(self) -> None:
+        inventory, _debt = _artifacts()
+        row = next(
+            entry
+            for entry in inventory["entries"]
+            if entry["unit_id"] == "status-quantity-provenance"
+        )
+
+        source = Path(row["source_span"]["path"])
+        self.assertEqual("retired", row["current_definition_state"])
+        self.assertTrue((checker.REPO_ROOT / source).exists())
+        errors = checker._validate_live_scan(inventory, checker._scan())
+
+        self.assertEqual([], errors)
+
+    def test_rejects_a_revived_retired_semantic_definition(self) -> None:
+        inventory, debt = _artifacts()
+        row = next(
+            entry
+            for entry in inventory["semantic_exemptions"]
+            if entry["candidate_id"] == "semantic-lineage-freshness"
+        )
+        self.assertEqual("retired", row["current_definition_state"])
+        errors = checker.validate_inventory(
+            inventory,
+            debt,
+            source_overrides={
+                row["source_span"]["path"]: (
+                    'export type LineageFreshness = "current" | "stale" | "unknown";\n'
+                )
+            },
+        )
+
+        self.assertIn(
+            "unregistered_status_definition:quantity.types.ts:LineageFreshness",
+            errors,
+        )
+
     def test_rejects_same_set_binding_to_the_wrong_generated_field(self) -> None:
         inventory, debt = _artifacts()
         mutation = copy.deepcopy(inventory)
@@ -151,6 +189,26 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         row["owner_type"]["query"] = 'VerificationMetadata["verification_status"]'
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
         self.assertIn("generated_query_drift:status-scenario", errors)
+
+    def test_rejects_a_self_consistent_anchor_that_misstates_the_local_source_owner(self) -> None:
+        inventory, debt = _artifacts()
+        mutation = copy.deepcopy(inventory)
+        row = next(
+            entry
+            for entry in mutation["entries"]
+            if entry["unit_id"] == "status-verification"
+        )
+        row["owner_type"]["query"] = 'VerificationMetadata["verification_status"]'
+        row["generated_anchor"] = {
+            "export_symbol": "VerificationMetadata",
+            "canonical_line": 1000,
+            "schema_line": 10334,
+            "field": "verification_status",
+        }
+
+        errors = checker.validate_inventory(mutation, debt, live_probes=False)
+
+        self.assertIn("generated_source_binding_drift:status-verification", errors)
 
     def test_rejects_denominator_and_generated_anchor_drift(self) -> None:
         inventory, debt = _artifacts()
@@ -185,12 +243,19 @@ class StatusRetirementInventoryTests(unittest.TestCase):
     def test_rejects_an_unregistered_semantic_union_outside_the_status_denominator(self) -> None:
         inventory, debt = _artifacts()
         mutation = copy.deepcopy(inventory)
-        mutation["semantic_exemptions"] = []
+        removed = next(
+            entry
+            for entry in mutation["semantic_exemptions"]
+            if entry["current_definition_state"] == "present"
+            and entry["source_span"].get("declaration_name")
+        )
+        mutation["semantic_exemptions"].remove(removed)
 
         errors = checker.validate_inventory(mutation, debt)
 
         self.assertIn(
-            "unregistered_semantic_definition:LineageFreshness",
+            "unregistered_semantic_definition:"
+            + removed["source_span"]["declaration_name"],
             errors,
         )
 

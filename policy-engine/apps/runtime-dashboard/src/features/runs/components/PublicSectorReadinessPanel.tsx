@@ -20,6 +20,7 @@ import {
 } from "@/features/runs/domain/publicSectorReadiness";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
+import { Quantity } from "@/shared/ui/quantity";
 import { Badge, Button } from "@polisyos/atlas-ui";
 
 function statusKind(status: ReadinessSeverity) {
@@ -320,6 +321,9 @@ export function PublicSectorReadinessPanel({
                   </Badge>
                 </div>
                 <div className="mt-2 grid gap-2 text-sm md:grid-cols-3">
+                  <span data-quantity-metric-id={group.primaryDelta.metric_id}>
+                    <Quantity value={group.primaryDelta} variant="dense" />
+                  </span>
                   <span>
                     {t("phase34.fairness.ratio", {
                       value: formatNumber(group.disparateImpactRatio, {

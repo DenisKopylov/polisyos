@@ -19,12 +19,39 @@ export function formatQuantityValue(
   options: QuantityFormatOptions = {},
 ): FormattedQuantity {
   const value = formatPoint(quantity.point, options);
-  const unit = options.showUnit === false ? "" : formatUnit(quantity.unit);
+  const formatOwnsUnit =
+    options.format === "percent" || options.format === "currency";
+  const unit =
+    options.showUnit === false || formatOwnsUnit
+      ? ""
+      : formatUnit(quantity.unit);
   return {
     value,
     unit,
     text: unit ? `${value} ${unit}` : value,
   };
+}
+
+export function finiteInterval(
+  value: readonly unknown[] | null | undefined,
+): readonly [number, number] | null {
+  if (value?.length !== 2) {
+    return null;
+  }
+  const [lower, upper] = value;
+  if (
+    typeof lower !== "number" ||
+    !Number.isFinite(lower) ||
+    typeof upper !== "number" ||
+    !Number.isFinite(upper)
+  ) {
+    return null;
+  }
+  return [lower, upper];
+}
+
+export function finitePoint(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 export function formatUnit(unit: UnitRef): string {
@@ -39,10 +66,10 @@ export function formatUnit(unit: UnitRef): string {
 }
 
 function formatPoint(
-  value: number | null,
+  value: number | null | undefined,
   options: QuantityFormatOptions,
 ): string {
-  if (value === null || !Number.isFinite(value)) {
+  if (!finitePoint(value)) {
     return "-";
   }
 

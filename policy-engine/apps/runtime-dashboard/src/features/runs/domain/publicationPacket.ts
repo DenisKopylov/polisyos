@@ -4,6 +4,8 @@ import type {
 } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 import {
   DEFAULT_PROJECTION_USE_LIMITS,
   detectProjectionMaskingCases,
@@ -73,6 +75,7 @@ export type DeterministicExplanation = {
   label: string;
   narrative: string;
   parts: DeterministicExplanationPart[];
+  quantity: QuantityValueOutput;
   subjectRef: string;
 };
 
@@ -97,7 +100,7 @@ export type ConfidenceLadderItem = {
   label: string;
   reason: string;
   rung: ConfidenceLadderRung;
-  score: number;
+  score: QuantityValueOutput;
   targetRef: string;
 };
 
@@ -145,12 +148,12 @@ export type ThresholdEdgeCase = {
 };
 
 export type ThresholdMicrocontract = {
-  aboveCount: number;
-  belowCount: number;
+  aboveCount: number | null;
+  belowCount: number | null;
   calibrationCaveat: string;
   edgeCases: ThresholdEdgeCase[];
   epsilon: number;
-  nearLineCount: number;
+  nearLineCount: number | null;
   policyRef: string;
   threshold: number;
 };
@@ -248,7 +251,7 @@ export type SignedPublicDecisionPacket = PublicDecisionPacket & {
 };
 
 export type PublicDecisionPacketInput = {
-  decisionScore?: number | null;
+  decisionScore?: QuantityValueOutput | null;
   decisionView?: DecisionCardViewModel | null;
   evidenceContext?: RunEvidenceContext | null;
   governanceIssues?: GovernanceIssueView[];
@@ -462,6 +465,29 @@ function clamp(value: number, min = 0, max = 1) {
   return Math.max(min, Math.min(max, value));
 }
 
+function quantityPoint(value: QuantityValueOutput | null | undefined) {
+  return typeof value?.point === "number" && Number.isFinite(value.point)
+    ? value.point
+    : null;
+}
+
+function publicationQuantity(input: {
+  label: string;
+  metricId: string;
+  point: number | null | undefined;
+  reasonCode: string;
+  unit?: QuantityValueOutput["unit"];
+}): QuantityValueOutput {
+  return untracedDecisionQuantity({
+    label: input.label,
+    metricId: input.metricId,
+    point: input.point,
+    reasonCode: input.reasonCode,
+    trackingIssue: "ATLAS-DS4-C06",
+    unit: input.unit ?? { code: "1", display: "ratio", system: "ucum" },
+  });
+}
+
 function stringValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
@@ -614,7 +640,7 @@ function buildArgumentMap(input: {
     .filter((ref): ref is string => Boolean(ref))
     .map((ref, index) => publicRef(ref, `artifact-${index + 1}`));
   const rootClaimId = `claim:${input.decision.runId}:verdict`;
-  const primaryMetric = input.metrics[0];
+  const [primaryMetric] = input.metrics;
   const nodes: ArgumentMapNode[] = [
     {
       detail: input.decision.policySummary,
@@ -710,7 +736,7 @@ function buildConfidenceLadder(input: {
   governanceIssues: GovernanceIssueView[];
   metrics: DecisionMetric[];
 }): ConfidenceLadderItem[] {
-  const primaryMetric = input.metrics[0];
+  const [primaryMetric] = input.metrics;
   const evidenceCount = [
     input.evidenceContext?.evidenceBundleRef,
     input.evidenceContext?.dataSnapshotRef,
@@ -730,7 +756,12 @@ function buildConfidenceLadder(input: {
           )} is the first published decision-bearing metric.`
         : "The verdict is the strongest available public claim.",
       rung: "strongest_claim",
-      score: clamp(confidenceScore(input.decision) + 0.08),
+      score: publicationQuantity({
+        label: "Strongest claim confidence",
+        metricId: "public.confidence_ladder.strongest_claim.score",
+        point: clamp(confidenceScore(input.decision) + 0.08),
+        reasonCode: "public_projection_confidence_score",
+      }),
       targetRef: primaryMetric
         ? metricRef(primaryMetric, 0)
         : input.decision.runId,
@@ -743,7 +774,12 @@ function buildConfidenceLadder(input: {
           ? `${issueCount} public rebuttal reference(s) reduce confidence.`
           : "Evidence backing is the weakest link when public artifact coverage is sparse.",
       rung: "weakest_link",
-      score: clamp(issueCount > 0 ? 0.22 : 0.48 + evidenceCount * 0.08),
+      score: publicationQuantity({
+        label: "Weakest link confidence",
+        metricId: "public.confidence_ladder.weakest_link.score",
+        point: clamp(issueCount > 0 ? 0.22 : 0.48 + evidenceCount * 0.08),
+        reasonCode: "public_projection_confidence_score",
+      }),
       targetRef: issueCount > 0 ? "rebuttal:governance" : "backing:evidence",
     },
     {
@@ -754,7 +790,12 @@ function buildConfidenceLadder(input: {
           ? "At least one governance issue remains visible in the public packet."
           : "No public governance dispute is attached.",
       rung: "disputed",
-      score: issueCount > 0 ? 0.18 : 0.92,
+      score: publicationQuantity({
+        label: "Disputed confidence",
+        metricId: "public.confidence_ladder.disputed.score",
+        point: issueCount > 0 ? 0.18 : 0.92,
+        reasonCode: "public_projection_confidence_score",
+      }),
       targetRef: "rebuttal:governance",
     },
     {
@@ -765,7 +806,12 @@ function buildConfidenceLadder(input: {
           ? "No public evidence artifact ref is available."
           : `${evidenceCount} public evidence artifact ref(s) are available.`,
       rung: "untraced",
-      score: evidenceCount === 0 ? 0.12 : 0.76,
+      score: publicationQuantity({
+        label: "Untraced evidence confidence",
+        metricId: "public.confidence_ladder.untraced.score",
+        point: evidenceCount === 0 ? 0.12 : 0.76,
+        reasonCode: "public_projection_confidence_score",
+      }),
       targetRef: "backing:evidence",
     },
     {
@@ -774,7 +820,12 @@ function buildConfidenceLadder(input: {
       reason:
         "The decision verdict is the public claim with the widest impact.",
       rung: "high_blast_radius",
-      score: clamp(confidenceScore(input.decision)),
+      score: publicationQuantity({
+        label: "High blast-radius confidence",
+        metricId: "public.confidence_ladder.high_blast_radius.score",
+        point: clamp(confidenceScore(input.decision)),
+        reasonCode: "public_projection_confidence_score",
+      }),
       targetRef: input.decision.runId,
     },
     {
@@ -785,7 +836,12 @@ function buildConfidenceLadder(input: {
           ? "The decision packet explicitly reports low confidence."
           : "No low-confidence claim is the primary public claim.",
       rung: "low_confidence",
-      score: input.decision.confidence === "LOW" ? 0.2 : 0.7,
+      score: publicationQuantity({
+        label: "Low-confidence claim score",
+        metricId: "public.confidence_ladder.low_confidence.score",
+        point: input.decision.confidence === "LOW" ? 0.2 : 0.7,
+        reasonCode: "public_projection_confidence_score",
+      }),
       targetRef: input.decision.runId,
     },
   ];
@@ -838,20 +894,46 @@ function buildDeterministicExplanations(input: {
   evidenceContext?: RunEvidenceContext | null;
   metrics: DecisionMetric[];
 }): DeterministicExplanation[] {
+  const fallbackQuantity = publicationQuantity({
+    label: "Decision score fallback",
+    metricId: "public.decision_metric.fallback",
+    point: null,
+    reasonCode: "public_packet_without_decision_metric",
+    unit: { code: "1", display: "value", system: "ucum" },
+  });
   const metrics = input.metrics.length
-    ? input.metrics
+    ? input.metrics.map((metric, index) => {
+        const label = metricLabel(metric, index);
+        return {
+          metric,
+          quantity: publicationQuantity({
+            label,
+            metricId: `public.decision_metric.${index + 1}`,
+            point: metric.value,
+            reasonCode: "public_projection_without_runtime_quantity",
+            unit: {
+              code: metric.unit || "1",
+              display: metric.unit || "value",
+              system: "ucum",
+            },
+          }),
+        };
+      })
     : [
         {
-          ciLevel: null,
-          ciLower: null,
-          ciUpper: null,
-          formatted: "0.00",
-          name: "Decision score",
-          unit: "",
-          value: 0,
-        } satisfies DecisionMetric,
+          metric: {
+            ciLevel: null,
+            ciLower: null,
+            ciUpper: null,
+            formatted: "Unknown",
+            name: "Decision score",
+            unit: "",
+            value: quantityPoint(fallbackQuantity) ?? Number.NaN,
+          } satisfies DecisionMetric,
+          quantity: fallbackQuantity,
+        },
       ];
-  return metrics.slice(0, 4).map((metric, index) => {
+  return metrics.slice(0, 4).map(({ metric, quantity }, index) => {
     const hasInterval = metric.ciLower !== null && metric.ciUpper !== null;
     const intervalShare = hasInterval ? 0.25 : 0.1;
     const provenanceShare = input.evidenceContext?.evidenceBundleRef
@@ -895,6 +977,7 @@ function buildDeterministicExplanations(input: {
             "not published",
         },
       ],
+      quantity,
       subjectRef: metricRef(metric, index),
     };
   });
@@ -1060,18 +1143,36 @@ function buildCoverageCaveat(
 }
 
 function buildThresholdMicrocontract(input: {
-  decisionScore?: number | null;
+  decisionScore?: QuantityValueOutput | null;
   decisionView?: DecisionCardViewModel | null;
   runId: string;
 }): ThresholdMicrocontract {
   const threshold = 0.7;
   const epsilon = 0.05;
-  const score = clamp(input.decisionScore ?? 0.52);
+  const score = quantityPoint(input.decisionScore);
+  const policyRef = `policy:${publicRef(
+    input.decisionView?.runId ?? input.runId,
+    input.runId,
+  )}`;
+  if (score === null) {
+    return {
+      aboveCount: null,
+      belowCount: null,
+      calibrationCaveat:
+        "Decision threshold proximity is unavailable because no decision score was produced.",
+      edgeCases: [],
+      epsilon,
+      nearLineCount: null,
+      policyRef,
+      threshold,
+    };
+  }
+  const boundedScore = clamp(score);
   const rows = input.decisionView?.distributional?.breakdowns.flatMap(
     (breakdown) => breakdown.rows,
   );
   const edgeCases = (rows?.length ? rows : []).slice(0, 6).map((row, index) => {
-    const pseudoScore = clamp(score + row.primaryDelta * 0.2);
+    const pseudoScore = clamp(boundedScore + row.primaryDelta * 0.2);
     return {
       distance: Number(Math.abs(pseudoScore - threshold).toFixed(3)),
       id: `threshold-edge:${index + 1}`,
@@ -1090,7 +1191,7 @@ function buildThresholdMicrocontract(input: {
     edgeCases,
     epsilon,
     nearLineCount: nearCases.length,
-    policyRef: `policy:${publicRef(input.decisionView?.runId ?? input.runId, input.runId)}`,
+    policyRef,
     threshold,
   };
 }

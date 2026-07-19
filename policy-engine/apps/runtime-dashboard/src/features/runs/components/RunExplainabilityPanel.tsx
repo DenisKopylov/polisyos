@@ -24,17 +24,9 @@ import {
   type AttributionStep,
 } from "@/shared/ui/compounds/AttributionWaterfall";
 import {
-  TrustCalibrationDisplay,
-  type CalibrationRecord,
-} from "@/shared/ui/compounds/TrustCalibrationDisplay";
-import {
   EvidenceCoverageRadar,
   type EvidenceCoverage,
 } from "@/shared/ui/compounds/EvidenceCoverageRadar";
-import {
-  SensitivityPlot,
-  type SensitivityPoint,
-} from "@/shared/ui/compounds/SensitivityPlot";
 import {
   FactorImportanceChart,
   type ImportanceFactor,
@@ -45,38 +37,50 @@ import {
 } from "@/shared/ui/compounds/ReasoningChainDisplay";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { Card } from "@polisyos/atlas-ui";
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 
 type RunExplainabilityPanelProps = {
   summary: RunInspectorSummary;
   level?: ExplainabilityLevel;
 };
 
-type TrustCalibrationAdapter = {
-  calibrationRecords: CalibrationRecord[];
-  counterArguments: string[];
-  historicalAccuracy: number;
-  limitations: string[];
-  methodology: string;
-  totalPastAnalyses: number;
-};
-
 type AttributionAdapter = {
-  baseValue: number;
+  baseValue: QuantityValueOutput;
   contributions: AttributionStep[];
 };
 
-type SensitivityAdapter = {
-  breakdownGamma?: number;
-  points: SensitivityPoint[];
-  referenceValue: number;
-};
+export function buildRunExplainabilityDecisionQuantities(
+  summary: Pick<RunInspectorSummary, "decisionView">,
+): {
+  attributionBaseline: QuantityValueOutput;
+} {
+  const time = { valid_at: summary.decisionView?.generatedAt ?? null };
+  return {
+    attributionBaseline: untracedDecisionQuantity({
+      label: "Attribution baseline",
+      metricId: "run.attribution.baseline",
+      point: 0,
+      reasonCode: "explainability_baseline_without_runtime_quantity",
+      time,
+      trackingIssue: "ATLAS-DS4-C06",
+    }),
+  };
+}
 
 function clamp01(value: number | null | undefined) {
   if (typeof value !== "number" || Number.isNaN(value)) {
     return 0;
   }
   return Math.max(0, Math.min(1, value));
+}
+
+function decisionScorePoint(value: number | null | undefined): number | null {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+  return clamp01(value);
 }
 
 function normalizeVerdictStatus(
@@ -104,9 +108,16 @@ function factorDirection(value: number): ImportanceFactor["direction"] {
 
 function buildExplainabilityVerdict(
   summary: RunInspectorSummary,
-): ExplainabilityVerdict {
+): ExplainabilityVerdict | null {
+  if (summary.decisionScore.lineage.status !== "verified") {
+    return null;
+  }
+  const confidence = decisionScorePoint(summary.decisionScore.point);
+  if (confidence === null) {
+    return null;
+  }
   return {
-    confidence: clamp01(summary.decisionScore),
+    confidence,
     status: normalizeVerdictStatus(
       summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
     ),
@@ -265,51 +276,9 @@ function buildExplainabilityGovernance(
   };
 }
 
-function buildTrustCalibrationData(
-  summary: RunInspectorSummary,
-): TrustCalibrationAdapter {
-  const accuracy = clamp01(summary.decisionScore);
-  const calibrationRecords: CalibrationRecord[] = [
-    {
-      actualCoverage: clamp01(accuracy * 0.82 + 0.08),
-      expectedCoverage: 0.5,
-      level: 0.5,
-    },
-    {
-      actualCoverage: clamp01(accuracy * 0.9 + 0.04),
-      expectedCoverage: 0.8,
-      level: 0.8,
-    },
-    {
-      actualCoverage: clamp01(accuracy),
-      expectedCoverage: 0.95,
-      level: 0.95,
-    },
-  ];
-
-  return {
-    calibrationRecords,
-    counterArguments: summary.governanceIssues
-      .filter((issue) => issue.severity === "blocker")
-      .map((issue) => issue.message)
-      .slice(0, 3),
-    historicalAccuracy: accuracy,
-    limitations: [
-      ...(summary.pipeline?.preflight?.diagnostics ?? []).map(
-        (diagnostic) => diagnostic.message,
-      ),
-      ...(summary.pipeline?.reproducibility?.why_partial ?? []),
-      ...(summary.evidenceContext?.warnings ?? []),
-    ].slice(0, 4),
-    methodology:
-      summary.pipeline?.source ??
-      summary.pipeline?.evaluator?.verdict ??
-      "PolicyOS",
-    totalPastAnalyses: Math.max(summary.pipeline?.total_attempts ?? 1, 1),
-  };
-}
-
 function buildAttribution(summary: RunInspectorSummary): AttributionAdapter {
+  const { attributionBaseline } =
+    buildRunExplainabilityDecisionQuantities(summary);
   const metricContributions = (summary.decisionView?.keyMetrics ?? [])
     .slice(0, 5)
     .map<AttributionStep>((metric) => ({
@@ -320,13 +289,13 @@ function buildAttribution(summary: RunInspectorSummary): AttributionAdapter {
 
   if (metricContributions.length > 0) {
     return {
-      baseValue: 0,
+      baseValue: attributionBaseline,
       contributions: metricContributions,
     };
   }
 
   return {
-    baseValue: 0,
+    baseValue: attributionBaseline,
     contributions: (summary.impactRows ?? []).map((row) => ({
       detail: row.display,
       label: row.label,
@@ -364,24 +333,6 @@ function buildEvidenceCoverage(summary: RunInspectorSummary): {
             ? 0.25
             : 0.55,
     },
-  };
-}
-
-function buildSensitivity(summary: RunInspectorSummary): SensitivityAdapter {
-  const score = clamp01(summary.decisionScore);
-  const points: SensitivityPoint[] = [1, 1.5, 2, 2.5].map((gamma, index) => {
-    const spread = 0.05 + index * 0.03;
-    return {
-      gamma,
-      lowerBound: score - spread,
-      upperBound: score + spread,
-    };
-  });
-
-  return {
-    breakdownGamma: summary.blockerCount > 0 ? 1.5 : 2.5,
-    points,
-    referenceValue: 0,
   };
 }
 
@@ -528,16 +479,11 @@ export function RunExplainabilityPanel({
     () => buildExplainabilityGovernance(governancePasses, summary),
     [governancePasses, summary],
   );
-  const trustCalibration = useMemo(
-    () => buildTrustCalibrationData(summary),
-    [summary],
-  );
   const attribution = useMemo(() => buildAttribution(summary), [summary]);
   const evidenceCoverage = useMemo(
     () => buildEvidenceCoverage(summary),
     [summary],
   );
-  const sensitivity = useMemo(() => buildSensitivity(summary), [summary]);
   const importanceFactors = useMemo(
     () => buildImportanceFactors(summary),
     [summary],
@@ -550,13 +496,18 @@ export function RunExplainabilityPanel({
 
   return (
     <div className="space-y-4">
-      <ExplainabilityCard
-        governance={governance}
-        keyFactors={explainabilityFactors}
-        level={level}
-        methodology={trustCalibration.methodology}
-        verdict={explainabilityVerdict}
-      />
+      {explainabilityVerdict ? (
+        <ExplainabilityCard
+          governance={governance}
+          keyFactors={explainabilityFactors}
+          level={level}
+          methodology={summary.pipeline?.source ?? undefined}
+          verdict={explainabilityVerdict}
+        />
+      ) : null}
+      <div data-quantity-metric-id={summary.decisionScore.metric_id}>
+        <Quantity value={summary.decisionScore} variant="dense" />
+      </div>
 
       {level !== "glance" && (
         <div className="grid gap-4 lg:grid-cols-2">
@@ -577,20 +528,6 @@ export function RunExplainabilityPanel({
               <GovernancePassGrid passes={governancePasses} />
             </Card>
           )}
-
-          <Card className="p-4">
-            <p className="mb-3 text-xs font-semibold">
-              {t("shared.ui.trustCalibrationDisplay.title")}
-            </p>
-            <TrustCalibrationDisplay
-              calibrationRecords={trustCalibration.calibrationRecords}
-              counterArguments={trustCalibration.counterArguments}
-              historicalAccuracy={trustCalibration.historicalAccuracy}
-              limitations={trustCalibration.limitations}
-              methodology={trustCalibration.methodology}
-              totalPastAnalyses={trustCalibration.totalPastAnalyses}
-            />
-          </Card>
 
           {attribution.contributions.length > 0 && (
             <Card className="p-4">
@@ -615,17 +552,6 @@ export function RunExplainabilityPanel({
             <EvidenceCoverageRadar
               benchmark={evidenceCoverage.benchmark}
               coverage={evidenceCoverage.coverage}
-            />
-          </Card>
-
-          <Card className="p-4">
-            <p className="mb-3 text-xs font-semibold">
-              {t("pages.runs.explainability.sensitivityAnalysis")}
-            </p>
-            <SensitivityPlot
-              breakdownGamma={sensitivity.breakdownGamma}
-              points={sensitivity.points}
-              referenceValue={sensitivity.referenceValue}
             />
           </Card>
 

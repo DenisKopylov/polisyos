@@ -2,8 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { buildSignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 import PublicDecisionViewerPage from "./PublicDecisionViewerPage";
+
+const testDecisionScore = () =>
+  untracedDecisionQuantity({ metricId: "test.decision_score", point: 0.74 });
 
 vi.mock("@/shared/i18n/LocaleProvider", () => ({
   useI18n: () => ({
@@ -25,7 +29,7 @@ const projectionMaskingCases = [
 describe("PublicDecisionViewerPage", () => {
   it("renders a verified signed public decision without API context", async () => {
     const packet = buildSignedPublicDecisionPacket({
-      decisionScore: 0.74,
+      decisionScore: testDecisionScore(),
       runId: "public-run",
     });
 
@@ -53,7 +57,7 @@ describe("PublicDecisionViewerPage", () => {
 
   it("renders projection-only publishable claims as blocked in the public viewer", async () => {
     const packet = buildSignedPublicDecisionPacket({
-      decisionScore: 0.74,
+      decisionScore: testDecisionScore(),
       policyDesignCaseProjection: {
         authority_role: "projection_only",
         labels: [
@@ -95,7 +99,7 @@ describe("PublicDecisionViewerPage", () => {
     "renders %s masking labels as blocked in the public viewer",
     async (caseId, label) => {
       const packet = buildSignedPublicDecisionPacket({
-        decisionScore: 0.74,
+        decisionScore: testDecisionScore(),
         policyDesignCaseProjection: {
           authority_role: "projection_only",
           labels: [

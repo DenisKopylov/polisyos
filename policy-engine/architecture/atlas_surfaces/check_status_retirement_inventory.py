@@ -7,6 +7,7 @@ import argparse
 import copy
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from collections import Counter
@@ -127,6 +128,26 @@ def _semantic_key(entry: Mapping[str, Any]) -> tuple[Any, ...]:
     )
 
 
+def _definition_identity(entry: Mapping[str, Any]) -> tuple[Any, ...]:
+    """Identify an authored definition independently of line-number movement."""
+    span = entry["source_span"]
+    return (
+        entry["definition_kind"],
+        span["path"],
+        span.get("declaration_name"),
+        span.get("field_name"),
+    )
+
+
+def _fact_identity(fact: Mapping[str, Any]) -> tuple[Any, ...]:
+    return (
+        fact["kind"],
+        fact["path"],
+        fact.get("declarationName"),
+        fact.get("fieldName"),
+    )
+
+
 def _semantic_name(fact: Mapping[str, Any]) -> str:
     return str(fact.get("declarationName") or fact.get("fieldName") or "unknown")
 
@@ -217,6 +238,9 @@ def _validate_denominators(inventory: Mapping[str, Any]) -> list[str]:
     deleted = sum(
         entry["current_definition_state"] == "deleted" for entry in entries
     )
+    retired = sum(
+        entry["current_definition_state"] == "retired" for entry in entries
+    )
     actual = {
         "ds1_rows": len(entries),
         "ds1_named": named,
@@ -224,6 +248,7 @@ def _validate_denominators(inventory: Mapping[str, Any]) -> list[str]:
         "current_named": current_named,
         "current_inline": current_inline,
         "current_total": current_named + current_inline,
+        "retired_definitions": retired,
         "already_deleted": deleted,
     }
     if inventory["denominators"] != actual:
@@ -255,6 +280,15 @@ def _validate_generated_anchors(inventory: Mapping[str, Any]) -> list[str]:
         expected_query = f'{symbol}["{field}"]' if field else symbol
         if entry["owner_type"].get("query") != expected_query:
             errors.append(f"generated_query_drift:{unit_id}")
+        source_path = REPO_ROOT / entry["source_span"]["path"]
+        if (
+            '["' in entry.get("type_expression", "")
+            and "@polisyos/runtime-api-client"
+            in source_path.read_text(encoding="utf-8")
+        ):
+            source_query = _resolve_local_generated_query(entry)
+            if source_query != expected_query:
+                errors.append(f"generated_source_binding_drift:{unit_id}")
         if not (1 <= canonical_line <= len(canonical_lines)) or (
             f"export type {symbol}" not in canonical_lines[canonical_line - 1]
         ):
@@ -266,6 +300,52 @@ def _validate_generated_anchors(inventory: Mapping[str, Any]) -> list[str]:
         ):
             errors.append(f"generated_anchor_drift:{unit_id}")
     return errors
+
+
+def _resolve_local_generated_query(entry: Mapping[str, Any]) -> str | None:
+    """Resolve a local indexed alias back to its generated-client export."""
+    expression = str(entry.get("type_expression", "")).strip()
+    indexed = re.fullmatch(r'([A-Za-z_$][\w$]*)\["([^"\n]+)"\]', expression)
+    if indexed is None:
+        return None
+    base, field = indexed.groups()
+    source_path = REPO_ROOT / entry["source_span"]["path"]
+    source = source_path.read_text(encoding="utf-8")
+
+    generated_imports: dict[str, str] = {}
+    for match in re.finditer(
+        r'import\s+type\s*\{(?P<body>.*?)\}\s*from\s*'
+        r'["\']@polisyos/runtime-api-client["\']\s*;',
+        source,
+        flags=re.DOTALL,
+    ):
+        for raw_item in match.group("body").split(","):
+            item = raw_item.strip()
+            if not item:
+                continue
+            parts = re.fullmatch(
+                r'([A-Za-z_$][\w$]*)(?:\s+as\s+([A-Za-z_$][\w$]*))?',
+                item,
+            )
+            if parts is None:
+                continue
+            symbol, alias = parts.groups()
+            generated_imports[alias or symbol] = symbol
+
+    local_aliases = {
+        alias: target
+        for alias, target in re.findall(
+            r'export\s+type\s+([A-Za-z_$][\w$]*)\s*=\s*'
+            r'([A-Za-z_$][\w$]*)\s*;',
+            source,
+        )
+    }
+    visited: set[str] = set()
+    while base in local_aliases and base not in visited:
+        visited.add(base)
+        base = local_aliases[base]
+    symbol = generated_imports.get(base)
+    return f'{symbol}["{field}"]' if symbol else None
 
 
 def _validate_refs_and_removals(inventory: Mapping[str, Any]) -> list[str]:
@@ -305,16 +385,35 @@ def _validate_refs_and_removals(inventory: Mapping[str, Any]) -> list[str]:
     return errors
 
 
-def _validate_live_scan(inventory: Mapping[str, Any]) -> list[str]:
+def _validate_live_scan(
+    inventory: Mapping[str, Any], scan: Mapping[str, Any] | None = None
+) -> list[str]:
     errors: list[str] = []
-    scan = _scan()
+    if scan is None:
+        scan = _scan()
     facts = {_entry_key_from_fact(fact): fact for fact in scan["definitions"]}
     present_entries = {
         _entry_key(entry): entry
         for entry in inventory["entries"]
         if entry["current_definition_state"] == "present"
     }
-    for key in sorted(set(facts) - set(present_entries), key=str):
+    retired_entries = {
+        _definition_identity(entry): entry
+        for entry in inventory["entries"]
+        if entry["current_definition_state"] == "retired"
+    }
+    retired_fact_keys = {
+        key
+        for key, fact in facts.items()
+        if _fact_identity(fact) in retired_entries
+    }
+    for key in sorted(retired_fact_keys, key=str):
+        entry = retired_entries[_fact_identity(facts[key])]
+        errors.append(f"retired_status_definition_survives:{entry['unit_id']}")
+    for key in sorted(
+        set(facts) - set(present_entries) - retired_fact_keys,
+        key=str,
+    ):
         fact = facts[key]
         name = fact.get("declarationName") or fact.get("fieldName") or "unknown"
         errors.append(
@@ -367,6 +466,7 @@ def _validate_semantic_candidates(
         return ["semantic_exemptions_invalid"]
 
     registered: dict[tuple[Any, ...], Mapping[str, Any]] = {}
+    retired: dict[tuple[Any, ...], Mapping[str, Any]] = {}
     candidate_ids: Counter[str] = Counter()
     for row in registered_rows:
         if not isinstance(row, Mapping):
@@ -379,9 +479,11 @@ def _validate_semantic_candidates(
         except (KeyError, TypeError):
             errors.append(f"semantic_exemption_invalid:{candidate_id}")
             continue
-        if key in registered:
+        state = row.get("current_definition_state")
+        target = retired if state == "retired" else registered
+        if key in registered or key in retired:
             errors.append(f"semantic_definition_join_duplicate:{candidate_id}")
-        registered[key] = row
+        target[key] = row
         if row.get("does_not_change_ds1_denominator") is not True:
             errors.append(f"semantic_denominator_barrier_missing:{candidate_id}")
 
@@ -389,7 +491,24 @@ def _validate_semantic_candidates(
         if count > 1:
             errors.append(f"semantic_candidate_id_duplicate:{candidate_id}:{count}")
 
-    for key in sorted(set(candidates) - set(registered), key=str):
+    retired_identities = {
+        _definition_identity(row): row for row in retired.values()
+    }
+    retired_candidate_keys = {
+        key
+        for key, fact in candidates.items()
+        if _fact_identity(fact) in retired_identities
+    }
+    for key in sorted(retired_candidate_keys, key=str):
+        row = retired_identities[_fact_identity(candidates[key])]
+        errors.append(
+            "retired_semantic_definition_survives:"
+            + str(row.get("candidate_id", "unknown"))
+        )
+    for key in sorted(
+        set(candidates) - set(registered) - retired_candidate_keys,
+        key=str,
+    ):
         errors.append(
             f"unregistered_semantic_definition:{_semantic_name(candidates[key])}"
         )

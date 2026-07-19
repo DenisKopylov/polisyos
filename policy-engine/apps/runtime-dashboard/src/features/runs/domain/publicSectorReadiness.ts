@@ -1,6 +1,8 @@
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 
 import type { DisputeRecord } from "./disputes";
 
@@ -72,6 +74,7 @@ export type FairnessAuditGroup = {
   groupId: string;
   groupLabel: string;
   isProtected: boolean;
+  primaryDelta: QuantityValueOutput;
   referenceShare: number;
   selectionShare: number;
   status: ReadinessSeverity;
@@ -410,14 +413,32 @@ export function buildFairnessAuditView(input: {
     ) ?? [];
   const evidenceAvailable = rows.length > 0 || fairnessIssues.length > 0;
   const sourceRows = rows.length
-    ? rows
+    ? rows.map((row, index) => ({
+        ...row,
+        primaryDelta: untracedDecisionQuantity({
+          label: `${row.cohortLabel} primary delta`,
+          metricId: `fairness.primary_delta.${index + 1}`,
+          point: row.primaryDelta,
+          reasonCode: "fairness_projection_without_runtime_quantity",
+          time: { valid_at: input.decisionView?.generatedAt ?? null },
+          trackingIssue: "ATLAS-DS4-C06",
+          unit: { code: "1", display: "ratio", system: "ucum" },
+        }),
+      }))
     : fairnessIssues.length
       ? fairnessIssues.map((issue) => ({
           cohortLabel: issue.passId ?? issue.code,
           direction: "negative",
           isVulnerable: true,
           populationShare: 0.25,
-          primaryDelta: -0.12,
+          primaryDelta: untracedDecisionQuantity({
+            label: "Fairness issue fallback delta",
+            metricId: "fairness.primary_delta.issue_fallback",
+            point: -0.12,
+            reasonCode: "governance_issue_without_fairness_quantity",
+            trackingIssue: "ATLAS-DS4-C06",
+            unit: { code: "1", display: "ratio", system: "ucum" },
+          }),
         }))
       : [
           {
@@ -425,14 +446,29 @@ export function buildFairnessAuditView(input: {
             direction: "negative",
             isVulnerable: true,
             populationShare: 1,
-            primaryDelta: -0.5,
+            primaryDelta: untracedDecisionQuantity({
+              label: "Missing fairness evidence delta",
+              metricId: "fairness.primary_delta.missing_evidence",
+              point: -0.5,
+              reasonCode: "missing_fairness_evidence",
+              trackingIssue: "ATLAS-DS4-C06",
+              unit: { code: "1", display: "ratio", system: "ucum" },
+            }),
           },
         ];
-  const selectionShares = sourceRows.map((row) =>
-    clamp(0.5 + row.primaryDelta, 0.02, 0.98),
-  );
+  const selectionShares = sourceRows.map((row) => {
+    const point =
+      typeof row.primaryDelta.point === "number"
+        ? row.primaryDelta.point
+        : null;
+    return point === null ? 0.5 : clamp(0.5 + point, 0.02, 0.98);
+  });
   const referenceShare = Math.max(...selectionShares, 0.5);
   const groups = sourceRows.map<FairnessAuditGroup>((row, index) => {
+    const primaryDeltaPoint =
+      typeof row.primaryDelta.point === "number"
+        ? row.primaryDelta.point
+        : null;
     const selectionShare = selectionShares[index] ?? 0.5;
     const disparateImpactRatio = selectionShare / referenceShare;
     const issueOverride = fairnessIssues.some(isBlockingIssue);
@@ -446,13 +482,15 @@ export function buildFairnessAuditView(input: {
           : "pass";
     return {
       calibrationDelta:
-        Math.abs(row.primaryDelta) * (row.isVulnerable ? 1.4 : 1),
+        Math.abs(primaryDeltaPoint ?? Number.NaN) *
+        (row.isVulnerable ? 1.4 : 1),
       ciLower: clamp(disparateImpactRatio - (row.isVulnerable ? 0.11 : 0.07)),
       ciUpper: clamp(disparateImpactRatio + 0.08),
       disparateImpactRatio,
       groupId: `fairness:${index + 1}`,
       groupLabel: row.cohortLabel,
       isProtected: row.isVulnerable || issueOverride,
+      primaryDelta: row.primaryDelta,
       referenceShare,
       selectionShare,
       status,

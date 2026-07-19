@@ -1,6 +1,11 @@
 import type { RunTimelinePayload, RunErrorsPayload } from "@/api/validators";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 import type { RunDetailSummary } from "@/features/runs/routes/useRunDetailSummary";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import type {
+  LegacyProvingGroundPayload,
+  QuantityValueOutput,
+} from "@polisyos/runtime-api-client";
 
 type ComparisonRow = {
   label: string;
@@ -26,9 +31,12 @@ export type RunReportSnapshot = {
   blockerCount: number;
   decisionConfidence: string | null;
   decisionHeadline: string;
-  decisionScore: number;
+  decisionScore: QuantityValueOutput;
   governanceIssues: GovernanceIssueView[];
-  impactRows: RunDetailSummary["impactRows"];
+  impactRows: Array<{
+    label: string;
+    quantity: QuantityValueOutput;
+  }>;
   mainUncertainty: string;
   primaryVerdict: string | null;
   runId: string | null;
@@ -42,6 +50,7 @@ export type RunReportSnapshot = {
 };
 
 export type RunDeckSnapshot = {
+  fixture_authority?: LegacyProvingGroundPayload["fixture_authority"];
   close: {
     commentWindow: string;
     downstreamDependencies: string[];
@@ -59,11 +68,20 @@ export type RunDeckSnapshot = {
     title: string;
   };
   metrics: {
-    cards: Array<{
-      label: string;
-      tone: "neutral" | "ok" | "warn";
-      value: string;
-    }>;
+    cards: Array<
+      | {
+          kind: "quantity";
+          label: string;
+          quantity: QuantityValueOutput;
+          tone: "neutral" | "ok" | "warn";
+        }
+      | {
+          kind: "text";
+          label: string;
+          tone: "neutral" | "ok" | "warn";
+          value: string;
+        }
+    >;
     title: string;
   };
   report: RunReportSnapshot;
@@ -98,8 +116,14 @@ function formatPercent(value: number | null | undefined) {
   return `${Math.round(value * 100)}%`;
 }
 
-function formatScore(value: number) {
-  return value.toFixed(2);
+function quantityPoint(value: QuantityValueOutput): number | null {
+  return typeof value.point === "number" && Number.isFinite(value.point)
+    ? value.point
+    : null;
+}
+
+function formatScore(value: QuantityValueOutput) {
+  return quantityPoint(value)?.toFixed(2) ?? "unavailable";
 }
 
 function pickStrongestEvidence(summary: RunDetailSummary) {
@@ -167,27 +191,48 @@ function resolveMainUncertainty(
 }
 
 function buildDeckMetrics(report: RunReportSnapshot) {
-  const impactCard =
-    report.impactRows?.[0]?.display ??
-    `${report.blockerCount > 0 ? "-" : "+"}${Math.round(report.decisionScore * 100)} bps`;
+  const [primaryImpact] = report.impactRows;
+  const decisionScorePoint = quantityPoint(report.decisionScore);
+  const impactQuantity =
+    primaryImpact?.quantity ??
+    untracedDecisionQuantity({
+      label: "Impact delta fallback",
+      metricId: "run.impact_delta.fallback",
+      point:
+        decisionScorePoint === null
+          ? null
+          : (report.blockerCount > 0 ? -1 : 1) * decisionScorePoint * 100,
+      reasonCode: "impact_delta_fallback_from_decision_score",
+      trackingIssue: "ATLAS-DS4-C06",
+      unit: { code: "[bp]", display: "bps", system: "ucum" },
+    });
 
   return [
     {
+      kind: "quantity" as const,
       label: "Decision score",
-      tone: report.decisionScore >= 0.7 ? ("ok" as const) : ("warn" as const),
-      value: formatScore(report.decisionScore),
+      quantity: report.decisionScore,
+      tone:
+        decisionScorePoint === null
+          ? ("neutral" as const)
+          : decisionScorePoint >= 0.7
+            ? ("ok" as const)
+            : ("warn" as const),
     },
     {
+      kind: "text" as const,
       label: "Blocker state",
       tone: report.blockerCount === 0 ? ("ok" as const) : ("warn" as const),
       value: String(report.blockerCount),
     },
     {
+      kind: "quantity" as const,
       label: "Impact delta",
+      quantity: impactQuantity,
       tone: "neutral" as const,
-      value: impactCard,
     },
     {
+      kind: "text" as const,
       label: "Artifact continuity",
       tone: "neutral" as const,
       value: String(report.artifactRefs.length),
@@ -230,12 +275,19 @@ export function buildRunComparison(
   baseSummary: RunDetailSummary,
   targetSummary: RunDetailSummary,
 ): ComparisonRow[] {
+  const baseDecisionScore = quantityPoint(baseSummary.decisionScore);
+  const targetDecisionScore = quantityPoint(targetSummary.decisionScore);
   return [
     {
       label: "Decision score",
-      base: baseSummary.decisionScore.toFixed(2),
-      target: targetSummary.decisionScore.toFixed(2),
-      delta: `${targetSummary.decisionScore >= baseSummary.decisionScore ? "+" : ""}${(targetSummary.decisionScore - baseSummary.decisionScore).toFixed(2)}`,
+      base: baseDecisionScore?.toFixed(2) ?? "unavailable",
+      target: targetDecisionScore?.toFixed(2) ?? "unavailable",
+      delta:
+        baseDecisionScore === null || targetDecisionScore === null
+          ? "unavailable"
+          : `${targetDecisionScore >= baseDecisionScore ? "+" : ""}${(
+              targetDecisionScore - baseDecisionScore
+            ).toFixed(2)}`,
     },
     {
       label: "Governance blockers",
@@ -348,7 +400,17 @@ export function buildRunReportSnapshot(
     decisionHeadline: summary.decisionHeadline,
     decisionScore: summary.decisionScore,
     governanceIssues: summary.governanceIssues,
-    impactRows: summary.impactRows ?? [],
+    impactRows: (summary.impactRows ?? []).map((row, index) => ({
+      label: row.label,
+      quantity: untracedDecisionQuantity({
+        label: row.label,
+        metricId: `run.impact_delta.${index + 1}`,
+        point: row.value,
+        reasonCode: "run_impact_without_runtime_quantity",
+        time: { valid_at: summary.decisionView?.generatedAt ?? null },
+        trackingIssue: "ATLAS-DS4-C06",
+      }),
+    })),
     mainUncertainty: resolveMainUncertainty(summary, auditTrail),
     primaryVerdict: resolvePrimaryVerdict(summary),
     runId: summary.run?.run_id ?? null,

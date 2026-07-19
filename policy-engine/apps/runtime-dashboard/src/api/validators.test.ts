@@ -1,5 +1,8 @@
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
+import type { z } from "zod";
+
 import type { components } from "./types";
-import { runDetailsSchema } from "./validators";
+import { quantityValueSchema, runDetailsSchema } from "./validators";
 
 type ProjectionFixture = Record<string, unknown> & {
   audience?: components["schemas"]["PolicyDesignCaseProjection"]["audience"];
@@ -100,6 +103,43 @@ function runDetailsPayload(label: string) {
 }
 
 describe("runtime API validators", () => {
+  it("matches the canonical quantity output type bidirectionally", () => {
+    expectTypeOf<
+      z.output<typeof quantityValueSchema>
+    >().toEqualTypeOf<QuantityValueOutput>();
+    const quantity = canonicalQuantity();
+    expect(quantityValueSchema.parse(quantity)).toEqual(quantity);
+  });
+
+  it("rejects quantity uncertainty that omits canonical owner fields", () => {
+    const quantity = canonicalQuantity();
+
+    expect(
+      quantityValueSchema.safeParse({
+        ...quantity,
+        uncertainty: { ci_95: [40, 44] },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("preserves canonical quantity uncertainty without client defaults", () => {
+    const quantity = canonicalQuantity();
+
+    expect(quantityValueSchema.parse(quantity).uncertainty).toEqual({
+      ci_95: [40, 44],
+      disputed: false,
+      identifiability: "estimated",
+    });
+  });
+
+  it("accepts a canonical quantity whose optional point is absent", () => {
+    const { point: _point, ...quantityWithoutPoint } = canonicalQuantity();
+
+    expect(quantityValueSchema.parse(quantityWithoutPoint)).not.toHaveProperty(
+      "point",
+    );
+  });
+
   it.each(projectionMaskingCases)(
     "fails closed at the API boundary when projection labels mask $caseId evidence",
     ({ code, label }) => {
@@ -231,3 +271,23 @@ describe("runtime API validators", () => {
     );
   });
 });
+
+function canonicalQuantity() {
+  return {
+    lineage: {
+      freshness: "current" as const,
+      id: "lineage:decision-score",
+      status: "verified" as const,
+    },
+    metric_id: "decision-score",
+    point: 42,
+    quantity_class: "decision" as const,
+    time: null,
+    uncertainty: {
+      ci_95: [40, 44] as [number, number],
+      disputed: false,
+      identifiability: "estimated" as const,
+    },
+    unit: { code: "score", system: "unit" },
+  };
+}

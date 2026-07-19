@@ -210,7 +210,8 @@ describe("useRunDetailSummary", () => {
     expect(result.current.runReady).toBe(false);
     expect(result.current.artifactRefs).toEqual([]);
     expect(result.current.blockerCount).toBe(0);
-    expect(result.current.decisionScore).toBe(0.52);
+    expect(result.current.decisionScore.point).toBeNull();
+    expect(result.current.decisionScoreStyle).toEqual({});
     expect(result.current.transportStatus).toBe("not_available");
     expect(result.current.primaryDecisionArtifactId).toBeNull();
   });
@@ -353,10 +354,8 @@ describe("useRunDetailSummary", () => {
     expect(result.current.decisionHeadline).toBe(
       "pages.runs.verdict.approveWithConditions",
     );
-    expect(result.current.decisionScore).toBe(0.84);
-    expect(result.current.decisionScoreStyle).toMatchObject({
-      "--score-angle": "284deg",
-    });
+    expect(result.current.decisionScore.point).toBeNull();
+    expect(result.current.decisionScoreStyle).toEqual({});
     expect(result.current.impactRows).toEqual([
       {
         display: "+1.5",
@@ -423,7 +422,7 @@ describe("useRunDetailSummary", () => {
     const { result } = renderHook(() => useRunDetailSummary("run-2", t));
 
     expect(result.current.decisionHeadline).toBe("pages.runs.verdict.reject");
-    expect(result.current.decisionScore).toBe(1);
+    expect(result.current.decisionScore.point).toBe(1);
     expect(result.current.impactRows).toEqual([
       {
         display: "99ms",

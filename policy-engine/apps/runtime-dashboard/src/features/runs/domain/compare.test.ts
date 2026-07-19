@@ -4,11 +4,15 @@ import {
   buildRunDeckSnapshot,
   buildRunReportSnapshot,
 } from "./compare";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+
+const score = (point: number | null) =>
+  untracedDecisionQuantity({ metricId: "test.decision_score", point });
 
 describe("run comparison helpers", () => {
   it("builds comparison rows from two summaries", () => {
     const baseSummary = {
-      decisionScore: 0.52,
+      decisionScore: score(0.52),
       blockerCount: 2,
       artifactRefs: [{ artifact_id: "a-1" }],
       evidenceContext: {
@@ -17,7 +21,7 @@ describe("run comparison helpers", () => {
       },
     } as never;
     const targetSummary = {
-      decisionScore: 0.74,
+      decisionScore: score(0.74),
       blockerCount: 1,
       artifactRefs: [{ artifact_id: "a-1" }, { artifact_id: "a-2" }],
       evidenceContext: {
@@ -81,7 +85,7 @@ describe("run comparison helpers", () => {
       artifactRefs: [{ artifact_id: "artifact-1", kind: "decision_card" }],
       blockerCount: 1,
       decisionHeadline: "Approve with conditions",
-      decisionScore: 0.81,
+      decisionScore: score(0.81),
       decisionView: {
         confidence: "HIGH",
         verdict: "APPROVE",
@@ -138,5 +142,23 @@ describe("run comparison helpers", () => {
     expect(deck.cover.title).toContain("run-1");
     expect(deck.metrics.cards).toHaveLength(4);
     expect(deck.evidence.provenance).toContain("world-bank");
+
+    const unknownReport = buildRunReportSnapshot(
+      {
+        ...(summary as unknown as Record<string, unknown>),
+        decisionScore: score(null),
+      } as never,
+      [],
+    );
+    const unknownDeck = buildRunDeckSnapshot(
+      {
+        ...(summary as unknown as Record<string, unknown>),
+        decisionScore: score(null),
+      } as never,
+      unknownReport,
+    );
+    expect(
+      unknownDeck.metrics.cards.find((card) => card.label === "Decision score"),
+    ).toMatchObject({ tone: "neutral" });
   });
 });

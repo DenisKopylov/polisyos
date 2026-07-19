@@ -1,5 +1,6 @@
 import type { RunDeckSnapshot } from "@/features/runs/domain/compare";
 import { AtlasBrand } from "@/shared/brand/AtlasBrand";
+import { Quantity } from "@/shared/ui/quantity";
 import { Badge, Button } from "@polisyos/atlas-ui";
 
 export type AtlasRunDeckSlideId =
@@ -121,6 +122,15 @@ export function AtlasRunDeck({
           <p className="atlas-deck-cover__subtitle">{deck.cover.subtitle}</p>
           <p className="atlas-deck-cover__headline">{deck.verdict.headline}</p>
           <div className="atlas-deck-pill-row">
+            {deck.fixture_authority !== undefined ? (
+              <Badge
+                data-fixture-authority={deck.fixture_authority}
+                data-testid="atlas-fixture-authority"
+                kind="warn"
+              >
+                {deck.fixture_authority}
+              </Badge>
+            ) : null}
             <Badge kind="neutral">{deck.verdict.status}</Badge>
             <Badge kind={deck.report.blockerCount === 0 ? "ok" : "warn"}>
               {deck.verdict.blockers}
@@ -164,11 +174,31 @@ export function AtlasRunDeck({
           {deck.metrics.cards.map((card) => (
             <div key={card.label} className="atlas-deck-stat">
               <span>{card.label}</span>
-              <strong>{card.value}</strong>
+              <strong>
+                {card.kind === "quantity" ? (
+                  <span data-quantity-metric-id={card.quantity.metric_id}>
+                    <Quantity value={card.quantity} variant="dense" />
+                  </span>
+                ) : (
+                  card.value
+                )}
+              </strong>
               <Badge kind={card.tone}>{card.tone}</Badge>
             </div>
           ))}
         </div>
+        {deck.report.impactRows.length > 0 ? (
+          <div className="atlas-deck-grid atlas-deck-grid--metrics mt-4">
+            {deck.report.impactRows.map((row) => (
+              <div key={row.label} className="atlas-deck-stat">
+                <span>{row.label}</span>
+                <strong>
+                  <Quantity value={row.quantity} variant="dense" />
+                </strong>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </DeckSlide>
 
       <DeckSlide

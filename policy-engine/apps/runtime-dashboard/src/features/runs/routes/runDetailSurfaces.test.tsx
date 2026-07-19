@@ -6,6 +6,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { FALLBACK_CAPABILITY_MANIFEST } from "@/shared/lib/capabilities";
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 const {
   renderArtifactViewerMock,
@@ -324,7 +325,10 @@ function createSummary(overrides: Record<string, unknown> = {}) {
     decisionArtifact: { kind: "decision_card", mode: "preview" },
     decisionArtifactQuery: { error: null, isError: false, isLoading: false },
     decisionHeadline: "Decision headline",
-    decisionScore: 0.82,
+    decisionScore: untracedDecisionQuantity({
+      metricId: "test.decision_score",
+      point: 0.82,
+    }),
     decisionScoreStyle: { "--score-angle": "278deg" },
     decisionView: {
       confidence: "HIGH",
@@ -697,7 +701,10 @@ describe("run detail surfaces", () => {
             ? [{ artifact_id: "artifact-3", kind: "decision_card" }]
             : [{ artifact_id: "artifact-1", kind: "decision_card" }],
         blockerCount: runId === "run-2" ? 1 : 2,
-        decisionScore: runId === "run-2" ? 0.63 : 0.82,
+        decisionScore: untracedDecisionQuantity({
+          metricId: "test.decision_score",
+          point: runId === "run-2" ? 0.63 : 0.82,
+        }),
         evidenceContext: {
           dataNeeds: [{ metric: runId === "run-2" ? "GDP" : "Inflation" }],
           fetchPlans: runId === "run-2" ? [] : [{ planId: "plan-1" }],

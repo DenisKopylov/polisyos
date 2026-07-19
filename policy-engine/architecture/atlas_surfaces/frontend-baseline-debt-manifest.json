@@ -1,6 +1,6 @@
 {
   "$schema": "./frontend-baseline-debt.schema.json",
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "manifest_id": "atlas-ds19-frontend-baseline-debt",
   "captured_at": "2026-07-17T10:22:16+03:00",
   "baseline_revision": "d01eaa57285c490412599ea65f898d3dbd522b04",
@@ -9,7 +9,9 @@
     "authoritative_for": [
       "DS19 baseline-relative lint diagnostic identity set",
       "DS19 baseline-relative Vitest failure identity set",
-      "DS4 ownership of the measured pre-existing frontend debt"
+      "DS4 ownership of the measured pre-existing frontend debt",
+      "DS4 baseline-relative custom architecture violation identity set",
+      "DS4 immutable origin and typed resolution lifecycle"
     ],
     "not_authoritative_for": [
       "suppressing or weakening policyos/quantity-must-be-wrapped",
@@ -46,20 +48,30 @@
       "removals": "allowed",
       "additions": "fail"
     },
-    "absolute_green_gates": [
-      "typecheck",
-      "production_build"
-    ]
+    "absolute_green_gates": ["typecheck", "production_build"],
+    "architecture": {
+      "comparison": "post_identity_set_is_subset_of_baseline_identity_set",
+      "identity_fields": [
+        "source_path",
+        "source_content_sha256",
+        "line",
+        "specifier",
+        "resolved_target_path",
+        "rule_id",
+        "message"
+      ],
+      "removals": "allowed",
+      "additions": "fail"
+    }
   },
   "lint": {
     "owner_slice": "DS4",
     "disposition": "rebind_pending",
     "command": "corepack pnpm exec eslint src .storybook e2e scripts eslint.config.mjs vite.config.ts vitest.config.ts vitest.a11y.config.ts vitest.storybook.config.ts playwright.config.ts tailwind.config.ts --cache --cache-location ../../_cache/apps/runtime-dashboard/eslint/.eslintcache --max-warnings=0 --format json",
     "exit_code": 1,
-    "raw_receipt_sha256": "b5398177d4b6059ff4770d1bbc37d98e1879d0f17a81b8c73dac0bb504523ebb",
-    "error_count": 75,
+    "error_count": 55,
     "warning_count": 0,
-    "source_file_count": 22,
+    "source_file_count": 15,
     "rule_identity": {
       "rule_id": "policyos/quantity-must-be-wrapped",
       "implementation_path": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs",
@@ -82,7 +94,7 @@
         "message_id",
         "message"
       ],
-      "sha256": "3a0af02a1ba643962e83096bdcddc46dd5a637f4c4060c0a7309279f259e1648"
+      "sha256": "aba60346da4513a6e7c1bc6efb01f0d48a67c036145e1b99fdf796364d021b82"
     },
     "files": [
       {
@@ -211,293 +223,6 @@
             "end_column": 25,
             "message_id": "decision",
             "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
-        "content_sha256": "ba3162d77707ae5c31aa58a3d13345ce56e190d409f22ab3db3f88addacc3bbf",
-        "diagnostic_count": 1,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 1
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 264,
-            "column": 9,
-            "end_line": 264,
-            "end_column": 10,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-        "content_sha256": "9354624bfa7fbc627d8c135634ac7534a12071d4d8ea5a75e2eafcad0bbe69c2",
-        "diagnostic_count": 3,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 3
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 323,
-            "column": 18,
-            "end_line": 323,
-            "end_column": 19,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 329,
-            "column": 16,
-            "end_line": 329,
-            "end_column": 17,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 384,
-            "column": 21,
-            "end_line": 384,
-            "end_column": 22,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
-        "content_sha256": "9c39bf37a9edd567546b033c9750d6554fe3c91ae63d5146c328febf17c9a75a",
-        "diagnostic_count": 4,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 4
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 60,
-            "column": 20,
-            "end_line": 60,
-            "end_column": 24,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.78\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 66,
-            "column": 16,
-            "end_line": 66,
-            "end_column": 19,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"1.8\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 71,
-            "column": 17,
-            "end_line": 71,
-            "end_column": 20,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.6\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 76,
-            "column": 16,
-            "end_line": 76,
-            "end_column": 19,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"2.1\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-        "content_sha256": "3da7ca8855363da5fa45789e840e9ed1ba995dd3d4f6366e647dc16a26bccbda",
-        "diagnostic_count": 5,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 5
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 617,
-            "column": 39,
-            "end_line": 617,
-            "end_column": 40,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 713,
-            "column": 39,
-            "end_line": 713,
-            "end_column": 40,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 788,
-            "column": 52,
-            "end_line": 788,
-            "end_column": 55,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.2\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 788,
-            "column": 58,
-            "end_line": 788,
-            "end_column": 61,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.7\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 851,
-            "column": 18,
-            "end_line": 851,
-            "end_column": 19,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "content_sha256": "2169713b408625ebd6d323589e2e95e0b8f4a57c200fbfe56bcfa946523a7382",
-        "diagnostic_count": 2,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 2
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 420,
-            "column": 26,
-            "end_line": 420,
-            "end_column": 30,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.12\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 428,
-            "column": 28,
-            "end_line": 428,
-            "end_column": 31,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.5\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
-        "content_sha256": "7d1088f13aed168a80384728653c2c3621a37741985a6e19f603a54273017f66",
-        "diagnostic_count": 4,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 4
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 188,
-            "column": 13,
-            "end_line": 188,
-            "end_column": 17,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.84\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 190,
-            "column": 15,
-            "end_line": 190,
-            "end_column": 19,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.67\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 192,
-            "column": 17,
-            "end_line": 192,
-            "end_column": 21,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.41\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 193,
-            "column": 17,
-            "end_line": 193,
-            "end_column": 21,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.52\" must be emitted as QuantityValue and rendered through <Quantity>."
           }
         ]
       },
@@ -989,30 +714,6 @@
         ]
       },
       {
-        "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
-        "content_sha256": "fbc749beddf2d469dde522cef40e992576a814fa0726cce70434148e7ed9d459",
-        "diagnostic_count": 1,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 1
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 255,
-            "column": 28,
-            "end_line": 255,
-            "end_column": 29,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/FactorImportanceChart.tsx",
         "content_sha256": "f2bd4d4eaf16ffe9880744e6d62ef6d241406a4b9a8ae9ab9f4f18353bcc2691",
         "diagnostic_count": 1,
@@ -1196,6 +897,544 @@
           }
         ]
       }
+    ],
+    "identity_set_sha256": "1f4be7759c1bfd269449e3303f03de3c876e5feec37e9798f9ced9838d251bd3",
+    "immutable_origin": {
+      "owner_slice": "DS4",
+      "disposition": "rebind_pending",
+      "command": "corepack pnpm exec eslint src .storybook e2e scripts eslint.config.mjs vite.config.ts vitest.config.ts vitest.a11y.config.ts vitest.storybook.config.ts playwright.config.ts tailwind.config.ts --cache --cache-location ../../_cache/apps/runtime-dashboard/eslint/.eslintcache --max-warnings=0 --format json",
+      "exit_code": 1,
+      "raw_receipt_sha256": "b5398177d4b6059ff4770d1bbc37d98e1879d0f17a81b8c73dac0bb504523ebb",
+      "error_count": 75,
+      "warning_count": 0,
+      "source_file_count": 22,
+      "rule_identity": {
+        "rule_id": "policyos/quantity-must-be-wrapped",
+        "implementation_path": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs",
+        "implementation_sha256": "e0014bd68cdd629307dbc1fad99c41812d6a082486cd558d48ee10648f5802b6",
+        "configuration_path": "apps/runtime-dashboard/eslint.config.mjs",
+        "configuration_sha256": "6653eb0a7475ade10b933623d0d073045731a9ecd48ae202f3b5912f5e20d4e4"
+      },
+      "diagnostic_set": {
+        "hash_algorithm": "sha256",
+        "serialization": "RFC8785_JCS",
+        "payload": "flat_sorted_diagnostics",
+        "sort_key": [
+          "path",
+          "rule_id",
+          "severity",
+          "line",
+          "column",
+          "end_line",
+          "end_column",
+          "message_id",
+          "message"
+        ],
+        "sha256": "3a0af02a1ba643962e83096bdcddc46dd5a637f4c4060c0a7309279f259e1648"
+      },
+      "identity_set_sha256": "1b22f061e6b5cf61bc0f085c9927ccb5e9e899351d242503957e212f853e5830"
+    },
+    "resolutions": [
+      {
+        "origin_identity_sha256": "02370144d8d340e3a4bf507ca756f2f6c4f9533f90bfc0a55198947f8847318a",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+          "source_content_sha256": "7d1088f13aed168a80384728653c2c3621a37741985a6e19f603a54273017f66",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 188,
+          "column": 13,
+          "end_line": 188,
+          "end_column": 17,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.84\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "authority_guess_removed",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "8feb8adbb5429d746d6efcba46ee2c68dc9b790a27332b0a2bfe2454f8edd4d6",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+          "source_content_sha256": "7d1088f13aed168a80384728653c2c3621a37741985a6e19f603a54273017f66",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 190,
+          "column": 15,
+          "end_line": 190,
+          "end_column": 19,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.67\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "authority_guess_removed",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "abbe360fbc7c6f62dedd7192dc5823b0b21fa09e9427df4871e2805a01d23215",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+          "source_content_sha256": "9354624bfa7fbc627d8c135634ac7534a12071d4d8ea5a75e2eafcad0bbe69c2",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 329,
+          "column": 16,
+          "end_line": 329,
+          "end_column": 17,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "b6a5e13e4c4a4e86f6a3d99e82cd10902955500ea2259a4675bfa301ccc58d39",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+          "source_content_sha256": "9c39bf37a9edd567546b033c9750d6554fe3c91ae63d5146c328febf17c9a75a",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 66,
+          "column": 16,
+          "end_line": 66,
+          "end_column": 19,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"1.8\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "e0a5392c404d55df0fc864d02a7f6522271a922729f5a125f581b6c179c81b57",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+          "source_content_sha256": "9c39bf37a9edd567546b033c9750d6554fe3c91ae63d5146c328febf17c9a75a",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 76,
+          "column": 16,
+          "end_line": 76,
+          "end_column": 19,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"2.1\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "9393d5a31b38d60f3a921cc3ba5eebfe22a68985837f7aa65a437c1d8b98f049",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+          "source_content_sha256": "9c39bf37a9edd567546b033c9750d6554fe3c91ae63d5146c328febf17c9a75a",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 71,
+          "column": 17,
+          "end_line": 71,
+          "end_column": 20,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.6\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "ff2ff321d6bba4045346cd15fd1887dd4c4a8b81c629bb8959cdd134ec10a6f0",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+          "source_content_sha256": "7d1088f13aed168a80384728653c2c3621a37741985a6e19f603a54273017f66",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 192,
+          "column": 17,
+          "end_line": 192,
+          "end_column": 21,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.41\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "authority_guess_removed",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "35a5c9256918707e839bd539ffb6d9751869ffc755f64023c523fbb9818bfa96",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+          "source_content_sha256": "7d1088f13aed168a80384728653c2c3621a37741985a6e19f603a54273017f66",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 193,
+          "column": 17,
+          "end_line": 193,
+          "end_column": 21,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.52\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "authority_guess_removed",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "0d81818fcd52eda3995b8fce1ff24cdaea0b8f899d9365d7e180c460d914f7e7",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+          "source_content_sha256": "9354624bfa7fbc627d8c135634ac7534a12071d4d8ea5a75e2eafcad0bbe69c2",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 323,
+          "column": 18,
+          "end_line": 323,
+          "end_column": 19,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "bee08eee783ad69350f72b0bf9c860d2a6689cd6bb3b51126095009ceb9fd8cf",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+          "source_content_sha256": "3da7ca8855363da5fa45789e840e9ed1ba995dd3d4f6366e647dc16a26bccbda",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 851,
+          "column": 18,
+          "end_line": 851,
+          "end_column": 19,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "f9d4814f1332e73a7f811071798bb617b3f198a8fb7077b2750b76d516549c01",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+          "source_content_sha256": "9c39bf37a9edd567546b033c9750d6554fe3c91ae63d5146c328febf17c9a75a",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 60,
+          "column": 20,
+          "end_line": 60,
+          "end_column": 24,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.78\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "509c3af6d61019e7b7a42adf92a83bbc52829c794fd53620fc82bc4d94dadb74",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+          "source_content_sha256": "9354624bfa7fbc627d8c135634ac7534a12071d4d8ea5a75e2eafcad0bbe69c2",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 384,
+          "column": 21,
+          "end_line": 384,
+          "end_column": 22,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "authority_guess_removed",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "4159737e7aac6623c40d68894cff3363d4532f1378c48141c463396799d768a9",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+          "source_content_sha256": "2169713b408625ebd6d323589e2e95e0b8f4a57c200fbfe56bcfa946523a7382",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 420,
+          "column": 26,
+          "end_line": 420,
+          "end_column": 30,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.12\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "bd0e66ff5e9de113bd2bf864167311a008479403a87033a901e730ece7cd40aa",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
+          "source_content_sha256": "fbc749beddf2d469dde522cef40e992576a814fa0726cce70434148e7ed9d459",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 255,
+          "column": 28,
+          "end_line": 255,
+          "end_column": 29,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "non_authority_control",
+        "classification": "parser_control",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/simulation.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/lib/domain/simulation.test.ts"
+      },
+      {
+        "origin_identity_sha256": "4b9c4586ac6aa14f97e0b28129e18894fd948ff2f8239740a24a4648b8df690b",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+          "source_content_sha256": "2169713b408625ebd6d323589e2e95e0b8f4a57c200fbfe56bcfa946523a7382",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 428,
+          "column": 28,
+          "end_line": 428,
+          "end_column": 31,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.5\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "8482ebdbd4284bcd7e89873532213eb62498251879f3b429b3a13224c22317a2",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+          "source_content_sha256": "3da7ca8855363da5fa45789e840e9ed1ba995dd3d4f6366e647dc16a26bccbda",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 617,
+          "column": 39,
+          "end_line": 617,
+          "end_column": 40,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "non_authority_control",
+        "classification": "collection_control",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts"
+      },
+      {
+        "origin_identity_sha256": "806203c0b86eaad911b6bfcdc06e5f4163d3db497f8f414783775f9c95868730",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+          "source_content_sha256": "3da7ca8855363da5fa45789e840e9ed1ba995dd3d4f6366e647dc16a26bccbda",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 713,
+          "column": 39,
+          "end_line": 713,
+          "end_column": 40,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "non_authority_control",
+        "classification": "collection_control",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts"
+      },
+      {
+        "origin_identity_sha256": "a087e0dcec79486c3419290f370839fe8b5240fc8973a71cdbc8635511d89ffe",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+          "source_content_sha256": "3da7ca8855363da5fa45789e840e9ed1ba995dd3d4f6366e647dc16a26bccbda",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 788,
+          "column": 52,
+          "end_line": 788,
+          "end_column": 55,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.2\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "5a087cf841a615005c06081e5e38f22a2f4d3d0b44e6d3ff2bb8b55a83781662",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+          "source_content_sha256": "3da7ca8855363da5fa45789e840e9ed1ba995dd3d4f6366e647dc16a26bccbda",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 788,
+          "column": 58,
+          "end_line": 788,
+          "end_column": 61,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.7\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "a39c144cc0ffc387903478af1ffde79e47923484b4b265e2621c3740d9d120c7",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
+          "source_content_sha256": "ba3162d77707ae5c31aa58a3d13345ce56e190d409f22ab3db3f88addacc3bbf",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 264,
+          "column": 9,
+          "end_line": 264,
+          "end_column": 10,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C06",
+        "semantic_kind": "decision_bearing",
+        "classification": "quantity_enveloped",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/evidence/components/ConnectorCharacterCards.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+      }
     ]
   },
   "vitest": {
@@ -1303,5 +1542,558 @@
       },
       "matches_full_run_failure_set": true
     }
+  },
+  "architecture": {
+    "owner_slice": "DS4",
+    "disposition": "rebind_pending",
+    "command": "node ./scripts/check-architecture.mjs --format=json",
+    "producer": "runtime-dashboard-custom-import-boundary",
+    "producer_path": "apps/runtime-dashboard/scripts/check-architecture.mjs",
+    "producer_sha256": "e4dfa233f2e7c504a585688c8dbf976a9cd60c3e1baa7eb5c4898f2749cf7e98",
+    "exit_code": 1,
+    "violation_count": 23,
+    "source_file_count": 20,
+    "identity_set_sha256": "0c1af527b601fc373749ff0f9f7da9090e1d15b204b03d850bad8c800ea6e960",
+    "violations": [
+      {
+        "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
+        "source_content_sha256": "df8e3785d0baa2e30af4cf68567c2fe33dc736adfc0babd64d268241e1bfc4b3",
+        "line": 9,
+        "specifier": "@/features/runs/api/useRunsSample",
+        "resolved_target_path": "apps/runtime-dashboard/src/features/runs/api/useRunsSample.ts",
+        "rule_id": "app-no-feature-internals",
+        "message": "app layer can import features only through their public index.ts barrel.",
+        "display": "src/app/workspaces.ts:9 -> @/features/runs/api/useRunsSample :: app layer can import features only through their public index.ts barrel."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/charts/UncertaintyDisplay.tsx",
+        "source_content_sha256": "68f4fb2e6e001670a246472028682f6780ffa5bd4882e5e5888c9b431c6bd981",
+        "line": 3,
+        "specifier": "@/app/providers/useTrustView",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/charts/UncertaintyDisplay.tsx:3 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/charts/uncertainty-rendering.ts",
+        "source_content_sha256": "89dc2873a3137887ed30527315a098e9f47b204e0585ab2bbcd55435b386d085",
+        "line": 1,
+        "specifier": "@/app/providers/useTrustView",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/charts/uncertainty-rendering.ts:1 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
+        "source_content_sha256": "3221de2dcdb919465fecd79111103efe3a39cd47e7056b67484d62ad6cc89374",
+        "line": 11,
+        "specifier": "@/app/providers/useTrustView",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/authored-text/AuthoredText.tsx:11 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+        "source_content_sha256": "028a0482d5380565a74bf39741bb3ff6c8c4cc03401f4e9e966fcf8aa8cebd27",
+        "line": 3,
+        "specifier": "@/app/providers/scenario-scope",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/scenario-scope.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/counterfactual/CounterfactualBadge.tsx:3 -> @/app/providers/scenario-scope :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx",
+        "source_content_sha256": "b5ec7a9512e3f33d79c8013083ac8de956131af3ecb21fea4500a889fbd228fe",
+        "line": 6,
+        "specifier": "@/app/providers/CounterfactualProvider",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/CounterfactualProvider.tsx",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/counterfactual/CounterfactualControls.test.tsx:6 -> @/app/providers/CounterfactualProvider :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx",
+        "source_content_sha256": "f5184704efb4a5d181becdfaa806144cdc280df0318c11a98fde43f9766fa0a0",
+        "line": 1,
+        "specifier": "@/app/providers/scenario-scope",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/scenario-scope.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx:1 -> @/app/providers/scenario-scope :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx",
+        "source_content_sha256": "f5184704efb4a5d181becdfaa806144cdc280df0318c11a98fde43f9766fa0a0",
+        "line": 2,
+        "specifier": "@/app/providers/useCounterfactual",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useCounterfactual.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx:2 -> @/app/providers/useCounterfactual :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx",
+        "source_content_sha256": "8a28e09762966110a3ecce11c931ca93388ee5057e064244fe467dae24fafe57",
+        "line": 2,
+        "specifier": "@/app/providers/useCounterfactual",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useCounterfactual.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/counterfactual/ScenarioPicker.tsx:2 -> @/app/providers/useCounterfactual :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.a11y.test.tsx",
+        "source_content_sha256": "d2bca8ca8682ee9b2d1a2424b5ff00df808e12c203d85386218e73cd720a900e",
+        "line": 12,
+        "specifier": "@/app/providers/TemporalCursorProvider",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/temporal/TemporalScrubber.a11y.test.tsx:12 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.stories.tsx",
+        "source_content_sha256": "9d585a7842f49786388ce620c6d9f001ff07ec10f41c99a2db62414662027cc9",
+        "line": 8,
+        "specifier": "@/app/providers/TemporalCursorProvider",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/temporal/TemporalScrubber.stories.tsx:8 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+        "source_content_sha256": "de62fa6a9da93c714d610af224a869e5f85673dbc8ad60ce8f9fe6c9b0bfb17d",
+        "line": 11,
+        "specifier": "@/app/providers/TemporalCursorProvider",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/temporal/TemporalScrubber.test.tsx:11 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.tsx",
+        "source_content_sha256": "41c274c782f6d0a201626b938b73cc5cdbb4154f563ac033955dc49bfbd8b93d",
+        "line": 10,
+        "specifier": "@/app/providers/temporal-scope",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/temporal/TemporalScrubber.tsx:10 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.tsx",
+        "source_content_sha256": "41c274c782f6d0a201626b938b73cc5cdbb4154f563ac033955dc49bfbd8b93d",
+        "line": 11,
+        "specifier": "@/app/providers/useTemporalCursor",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/temporal/TemporalScrubber.tsx:11 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/useTemporalRange.ts",
+        "source_content_sha256": "02eaabdbd358de3b54a5aad9e58efe126b3bd2289da77ddf9438a83ed01144fb",
+        "line": 4,
+        "specifier": "@/app/providers/useTemporalCursor",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/temporal/useTemporalRange.ts:4 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/withTemporalCursor.tsx",
+        "source_content_sha256": "b99d17039e799677a94e67a2198f9c7aa9d62c80d78bc5f7f1b99859f85f6c8c",
+        "line": 6,
+        "specifier": "@/app/providers/useTemporalCursor",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/temporal/withTemporalCursor.tsx:6 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx",
+        "source_content_sha256": "41417a18b25dec081c4e3818876596863092efd59692ea9aee5ac57cdaed3317",
+        "line": 4,
+        "specifier": "@/app/providers/useTrustView",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/trust-view/HashChip.tsx:4 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx",
+        "source_content_sha256": "971918beb108b5902df4aaec7ebe6b4857f275c415b949bf69abd2b826fb6ca8",
+        "line": 5,
+        "specifier": "@/app/providers/TrustViewProvider",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/trust-view/TrustInspector.test.tsx:5 -> @/app/providers/TrustViewProvider :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx",
+        "source_content_sha256": "971918beb108b5902df4aaec7ebe6b4857f275c415b949bf69abd2b826fb6ca8",
+        "line": 6,
+        "specifier": "@/app/providers/useTrustView",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/trust-view/TrustInspector.test.tsx:6 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+        "source_content_sha256": "b4c31a28600b2708febd9dbaeaa327a685c54d17925e9db2a6ebaa90d988583b",
+        "line": 4,
+        "specifier": "@/app/providers/useTrustView",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/trust-view/TrustInspector.tsx:4 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+        "source_content_sha256": "4c176e5b7b689327d2bcc97690015297dcd92718a5d5c6bc8f6e12d9051eeaad",
+        "line": 6,
+        "specifier": "@/app/providers/useTrustView",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/trust-view/TrustMetadata.tsx:6 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.test.tsx",
+        "source_content_sha256": "8be900c11354088f55d6681c16c720939de4ab2c0480fd3b49929f5a9837202c",
+        "line": 5,
+        "specifier": "@/app/providers/TrustViewProvider",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/trust-view/TrustViewToggle.test.tsx:5 -> @/app/providers/TrustViewProvider :: shared layer cannot depend on app or features."
+      },
+      {
+        "source_path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.tsx",
+        "source_content_sha256": "eff181653d5a4ce6a56ff38fa64cab7086f94b42c786287b18c19341d2aca78e",
+        "line": 3,
+        "specifier": "@/app/providers/useTrustView",
+        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+        "rule_id": "shared-no-app-or-features",
+        "message": "shared layer cannot depend on app or features.",
+        "display": "src/shared/ui/trust-view/TrustViewToggle.tsx:3 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+      }
+    ],
+    "immutable_origin": {
+      "producer": "runtime-dashboard-custom-import-boundary",
+      "producer_path": "apps/runtime-dashboard/scripts/check-architecture.mjs",
+      "producer_sha256": "e4dfa233f2e7c504a585688c8dbf976a9cd60c3e1baa7eb5c4898f2749cf7e98",
+      "violation_count": 36,
+      "source_file_count": 28,
+      "identity_set_sha256": "4c803817e489b2194e7967d2c24988b87bc56b9f4a7e09ac542a9582f25a5588"
+    },
+    "resolutions": [
+      {
+        "origin_identity_sha256": "fd247a1bfcc8054cb3ac1adec6e836dfc5d0b3acc8ab6c69fb40f3314020ccf6",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx",
+          "source_content_sha256": "5e768f6cdd977d50c6cd4236bcf0a3871f082c1a750ecad959fbae69222cecea",
+          "line": 3,
+          "specifier": "@/app/providers/temporal-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/CounterfactualQuantity.tsx:3 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "1818b3947d060cbe708b1c3833c587ff56bb237ed04e24634c5495500b095039",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/ProvenanceDeepDiveDialog.tsx",
+          "source_content_sha256": "f7742ba43a6b50fc1fb0135a63fe7f3a26065fe37766702e12228b277cd85e69",
+          "line": 4,
+          "specifier": "@/app/providers/temporal-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/ProvenanceDeepDiveDialog.tsx:4 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "e2e7e7bb951ee36cacdffc71cd9e17565a3c107d64b4c7e3b896c29be7cbe94d",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/ProvenanceDeepDiveDialog.tsx",
+          "source_content_sha256": "f7742ba43a6b50fc1fb0135a63fe7f3a26065fe37766702e12228b277cd85e69",
+          "line": 5,
+          "specifier": "@/app/providers/temporal-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/ProvenanceDeepDiveDialog.tsx:5 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "dfdcd57a188db5115ac7c24081be6e80d6577db77eef438926feaa9acab22ee0",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+          "source_content_sha256": "86c18e360426959cd1aa153778e130ecba96d9f7510df4b3ce8b4dfc4c0dee50",
+          "line": 4,
+          "specifier": "@/app/providers/temporal-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/ProvenancePopover.tsx:4 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "2917d700e402b20cdca56294c82047f58c48b7280979b17223c888661ed6c99f",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+          "source_content_sha256": "86c18e360426959cd1aa153778e130ecba96d9f7510df4b3ce8b4dfc4c0dee50",
+          "line": 5,
+          "specifier": "@/app/providers/useTemporalCursor",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/ProvenancePopover.tsx:5 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "01241115a6a6e7b5460ae3238d6b64560631e08c46c9feb0cb41237d8258c993",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx",
+          "source_content_sha256": "cefc99e4824009445d8ff0523f96c0310648eb86c8661175d41e44076cc7b15c",
+          "line": 7,
+          "specifier": "@/app/providers/TrustViewProvider",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/Quantity.test.tsx:7 -> @/app/providers/TrustViewProvider :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "16458da24bac5679c64d709d581142c7ad011e15308b057df2ad083a90f58234",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "source_content_sha256": "32a45e396d67a67023554dd0518850b82aaf0451ffccaf77bc2a587a00b75c16",
+          "line": 16,
+          "specifier": "@/app/providers/temporal-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/Quantity.tsx:16 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "314cfcf203374f7a287cd5364792d28a645bbfc908d1d858b9570fc0fc99468a",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "source_content_sha256": "32a45e396d67a67023554dd0518850b82aaf0451ffccaf77bc2a587a00b75c16",
+          "line": 17,
+          "specifier": "@/app/providers/useTrustView",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/Quantity.tsx:17 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "97c490d452d4db7dee93d09cec466d5fd5e810120e67dfb0eb3b80612f20a498",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.test.tsx",
+          "source_content_sha256": "656dab74d2441f2de4bc3c49e35f0565712e6792dca1cf7f33c8e2e5b4b0448c",
+          "line": 5,
+          "specifier": "@/app/providers/TrustViewProvider",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/fabric-decision-data.test.tsx:5 -> @/app/providers/TrustViewProvider :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "516420a00058c89bf26ef1a5d56f133d0e433fbc945d960b2860071891fde70b",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+          "source_content_sha256": "8e2838b51726b135585cadfca035c966f2767c565ba40ab4add182735d084654",
+          "line": 13,
+          "specifier": "@/app/providers/temporal-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/useLineage.ts:13 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "9ad8de944d19c1df946c6a87b2874843af575768c4c99ae7b8a91ad6df8f7431",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineage.ts",
+          "source_content_sha256": "8e2838b51726b135585cadfca035c966f2767c565ba40ab4add182735d084654",
+          "line": 14,
+          "specifier": "@/app/providers/useTemporalCursor",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/useLineage.ts:14 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "042b4bc7705f3831151e7f01693c3f45cd3cadffd506b6198da2e78152dc7332",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts",
+          "source_content_sha256": "176bebe51344f55735dff4dcdf8e2eed1391a418d6487c2b1dabb7be01d21a60",
+          "line": 10,
+          "specifier": "@/app/providers/temporal-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/useLineageBatch.ts:10 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "5d61d00eb9186cd782e9ca1afc38d35a68d732f6f920213e28463863ddfdf05a",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts",
+          "source_content_sha256": "176bebe51344f55735dff4dcdf8e2eed1391a418d6487c2b1dabb7be01d21a60",
+          "line": 11,
+          "specifier": "@/app/providers/useTemporalCursor",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/quantity/useLineageBatch.ts:11 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C06",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      }
+    ]
   }
 }

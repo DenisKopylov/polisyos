@@ -41,6 +41,38 @@ BASELINE_SCHEMA_PATH = ATLAS_DIR / "frontend-baseline-debt.schema.json"
 REPORT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-frontend-disposition-register.md"
 AUDIT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-live-application-audit.md"
 
+LINT_ORIGIN_COUNT = 75
+LINT_ORIGIN_FILE_COUNT = 22
+LINT_ORIGIN_DIAGNOSTIC_SHA256 = (
+    "3a0af02a1ba643962e83096bdcddc46dd5a637f4c4060c0a7309279f259e1648"
+)
+LINT_ORIGIN_IDENTITY_SHA256 = (
+    "1b22f061e6b5cf61bc0f085c9927ccb5e9e899351d242503957e212f853e5830"
+)
+LINT_ORIGIN_RAW_RECEIPT_SHA256 = (
+    "b5398177d4b6059ff4770d1bbc37d98e1879d0f17a81b8c73dac0bb504523ebb"
+)
+LINT_ORIGIN_RULE_SHA256 = (
+    "e0014bd68cdd629307dbc1fad99c41812d6a082486cd558d48ee10648f5802b6"
+)
+LINT_ORIGIN_CONFIG_SHA256 = (
+    "6653eb0a7475ade10b933623d0d073045731a9ecd48ae202f3b5912f5e20d4e4"
+)
+ARCHITECTURE_ORIGIN_COUNT = 36
+ARCHITECTURE_ORIGIN_FILE_COUNT = 28
+ARCHITECTURE_ORIGIN_IDENTITY_SHA256 = (
+    "4c803817e489b2194e7967d2c24988b87bc56b9f4a7e09ac542a9582f25a5588"
+)
+ARCHITECTURE_IDENTITY_FIELDS = (
+    "source_path",
+    "source_content_sha256",
+    "line",
+    "specifier",
+    "resolved_target_path",
+    "rule_id",
+    "message",
+)
+
 DECISION_DATE = "2026-07-17"
 REGISTER_AS_OF = "2026-07-17T10:30:00+03:00"
 REPAIR_COMMIT = "d01eaa572"
@@ -1447,6 +1479,81 @@ def _canonical_sha256(value: Any) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _lint_identity_rows(
+    lint: Mapping[str, Any],
+) -> list[tuple[str, dict[str, Any]]]:
+    """Return stable IDs and enriched identities for the active lint rows."""
+    rows: list[dict[str, Any]] = []
+    for file_entry in lint["files"]:
+        for diagnostic in file_entry["diagnostics"]:
+            identity = {
+                "path": file_entry["path"],
+                "source_content_sha256": file_entry["content_sha256"],
+                **diagnostic,
+            }
+            rows.append(identity)
+    rows.sort(key=lambda row: json.dumps(row, sort_keys=True, separators=(",", ":")))
+    return [(_canonical_sha256(row), row) for row in rows]
+
+
+def _architecture_identity(row: Mapping[str, Any]) -> dict[str, Any]:
+    """Discard presentation text while retaining the exact architecture edge."""
+    return {field: row.get(field) for field in ARCHITECTURE_IDENTITY_FIELDS}
+
+
+def _architecture_identity_rows(
+    architecture: Mapping[str, Any],
+) -> list[tuple[str, dict[str, Any]]]:
+    rows = [_architecture_identity(row) for row in architecture["violations"]]
+    rows.sort(key=lambda row: json.dumps(row, sort_keys=True, separators=(",", ":")))
+    return [(_canonical_sha256(row), row) for row in rows]
+
+
+def _resolution_partition_errors(
+    *,
+    label: str,
+    active_rows: Sequence[tuple[str, Mapping[str, Any]]],
+    resolutions: Sequence[Mapping[str, Any]],
+    origin_count: int,
+    origin_identity_sha256: str,
+    identity_from_resolution: Any,
+) -> list[str]:
+    """Prove active and resolved rows are one disjoint immutable-origin partition."""
+    errors: list[str] = []
+    active_ids = [identity_id for identity_id, _row in active_rows]
+    stored_resolution_ids = [row["origin_identity_sha256"] for row in resolutions]
+    if len(set(active_ids)) != len(active_ids):
+        errors.append(f"{label}_active_identity_duplicate")
+    if len(set(stored_resolution_ids)) != len(stored_resolution_ids):
+        errors.append(f"{label}_resolution_identity_duplicate")
+    if set(active_ids) & set(stored_resolution_ids):
+        errors.append(f"{label}_partition_overlap")
+
+    resolved_rows: list[Mapping[str, Any]] = []
+    for resolution in resolutions:
+        identity = identity_from_resolution(resolution["origin_identity"])
+        identity_id = _canonical_sha256(identity)
+        if identity_id != resolution["origin_identity_sha256"]:
+            errors.append(
+                f"{label}_resolution_identity_hash_drift:"
+                f"{resolution['origin_identity_sha256']}"
+            )
+        resolved_rows.append(identity)
+
+    union_rows = [row for _identity_id, row in active_rows] + resolved_rows
+    if len(union_rows) < origin_count:
+        errors.append(f"{label}_partition_missing_identity")
+    elif len(union_rows) > origin_count:
+        errors.append(f"{label}_partition_extra_identity")
+    union_rows = sorted(
+        union_rows,
+        key=lambda row: json.dumps(row, sort_keys=True, separators=(",", ":")),
+    )
+    if _canonical_sha256(union_rows) != origin_identity_sha256:
+        errors.append(f"{label}_origin_identity_set_hash_drift")
+    return errors
+
+
 def _flatten_lint_diagnostics(baseline: Mapping[str, Any]) -> list[dict[str, Any]]:
     sort_key = baseline["lint"]["diagnostic_set"]["sort_key"]
     return sorted(
@@ -1474,20 +1581,26 @@ def _flatten_vitest_failures(baseline: Mapping[str, Any]) -> list[dict[str, Any]
 def validate_baseline_manifest(
     baseline: Mapping[str, Any], *, verify_source_bytes: bool = False
 ) -> list[str]:
-    """Validate the baseline's typed counts, canonical hashes, and provenance."""
+    """Validate immutable origins, active debt, resolutions, and provenance."""
     errors = _schema_errors(baseline, BASELINE_SCHEMA_PATH)
     if errors:
         return errors
+
     lint = baseline["lint"]
     diagnostics = _flatten_lint_diagnostics(baseline)
-    if len(diagnostics) != lint["error_count"] or lint["error_count"] != 75:
-        errors.append("lint_baseline_error_count_drift")
+    if len(diagnostics) != lint["error_count"]:
+        errors.append("lint_active_error_count_drift")
     if lint["warning_count"] != 0:
-        errors.append("lint_baseline_warning_count_drift")
-    if len(lint["files"]) != lint["source_file_count"] or len(lint["files"]) != 22:
-        errors.append("lint_baseline_file_count_drift")
+        errors.append("lint_active_warning_count_drift")
+    if len(lint["files"]) != lint["source_file_count"]:
+        errors.append("lint_active_file_count_drift")
     if _canonical_sha256(diagnostics) != lint["diagnostic_set"]["sha256"]:
-        errors.append("lint_baseline_payload_hash_drift")
+        errors.append("lint_active_payload_hash_drift")
+    active_lint_rows = _lint_identity_rows(lint)
+    if _canonical_sha256([row for _identity_id, row in active_lint_rows]) != lint[
+        "identity_set_sha256"
+    ]:
+        errors.append("lint_active_identity_set_hash_drift")
     for file_entry in lint["files"]:
         if file_entry["diagnostic_count"] != len(file_entry["diagnostics"]):
             errors.append(f"lint_file_count_drift:{file_entry['path']}")
@@ -1509,9 +1622,64 @@ def validate_baseline_manifest(
         if verify_source_bytes:
             path = REPO_ROOT / file_entry["path"]
             if not path.exists():
-                errors.append(f"lint_baseline_source_missing:{file_entry['path']}")
+                errors.append(f"lint_active_source_missing:{file_entry['path']}")
             elif hashlib.sha256(path.read_bytes()).hexdigest() != file_entry["content_sha256"]:
-                errors.append(f"lint_baseline_source_hash_drift:{file_entry['path']}")
+                errors.append(f"lint_active_source_hash_drift:{file_entry['path']}")
+
+    origin = lint["immutable_origin"]
+    if (
+        origin["error_count"] != LINT_ORIGIN_COUNT
+        or origin["source_file_count"] != LINT_ORIGIN_FILE_COUNT
+        or origin["diagnostic_set"]["sha256"] != LINT_ORIGIN_DIAGNOSTIC_SHA256
+        or origin["identity_set_sha256"] != LINT_ORIGIN_IDENTITY_SHA256
+        or origin["raw_receipt_sha256"] != LINT_ORIGIN_RAW_RECEIPT_SHA256
+        or origin["rule_identity"]["implementation_sha256"]
+        != LINT_ORIGIN_RULE_SHA256
+        or origin["rule_identity"]["configuration_sha256"]
+        != LINT_ORIGIN_CONFIG_SHA256
+    ):
+        errors.append("lint_immutable_origin_anchor_drift")
+    errors.extend(
+        _resolution_partition_errors(
+            label="lint",
+            active_rows=active_lint_rows,
+            resolutions=lint["resolutions"],
+            origin_count=LINT_ORIGIN_COUNT,
+            origin_identity_sha256=LINT_ORIGIN_IDENTITY_SHA256,
+            identity_from_resolution=lambda row: dict(row),
+        )
+    )
+    c06_classifications = Counter(
+        row["classification"]
+        for row in lint["resolutions"]
+        if row["cluster_id"] == "C06"
+    )
+    if c06_classifications != {
+        "quantity_enveloped": 12,
+        "authority_guess_removed": 5,
+        "collection_control": 2,
+        "parser_control": 1,
+    }:
+        errors.append("lint_c06_resolution_classification_drift")
+    for resolution in lint["resolutions"]:
+        identity_id = resolution["origin_identity_sha256"]
+        if (
+            resolution["cluster_id"] == "C06"
+            and resolution["semantic_kind"] == "decision_bearing"
+            and resolution["closure_test_ref"]
+            != "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+        ):
+            errors.append(f"lint_c06_semantic_closure_drift:{identity_id}")
+        references = [
+            *resolution["implementation_refs"],
+            *resolution["consumer_refs"],
+            resolution["closure_test_ref"],
+        ]
+        for reference in references:
+            issue = _reference_resolution_error(reference)
+            if issue:
+                errors.append(f"lint_resolution_{issue}:{identity_id}")
+
     rule = lint["rule_identity"]
     for path_key, hash_key in (
         ("implementation_path", "implementation_sha256"),
@@ -1520,6 +1688,66 @@ def validate_baseline_manifest(
         path = REPO_ROOT / rule[path_key]
         if not path.exists() or hashlib.sha256(path.read_bytes()).hexdigest() != rule[hash_key]:
             errors.append(f"lint_rule_input_hash_drift:{rule[path_key]}")
+
+    architecture = baseline["architecture"]
+    architecture_rows = _architecture_identity_rows(architecture)
+    if len(architecture_rows) != architecture["violation_count"]:
+        errors.append("architecture_active_violation_count_drift")
+    if len({row["source_path"] for row in architecture["violations"]}) != architecture[
+        "source_file_count"
+    ]:
+        errors.append("architecture_active_file_count_drift")
+    if _canonical_sha256([row for _identity_id, row in architecture_rows]) != architecture[
+        "identity_set_sha256"
+    ]:
+        errors.append("architecture_active_identity_set_hash_drift")
+    architecture_origin = architecture["immutable_origin"]
+    if (
+        architecture_origin["violation_count"] != ARCHITECTURE_ORIGIN_COUNT
+        or architecture_origin["source_file_count"] != ARCHITECTURE_ORIGIN_FILE_COUNT
+        or architecture_origin["identity_set_sha256"]
+        != ARCHITECTURE_ORIGIN_IDENTITY_SHA256
+    ):
+        errors.append("architecture_immutable_origin_anchor_drift")
+    errors.extend(
+        _resolution_partition_errors(
+            label="architecture",
+            active_rows=architecture_rows,
+            resolutions=architecture["resolutions"],
+            origin_count=ARCHITECTURE_ORIGIN_COUNT,
+            origin_identity_sha256=ARCHITECTURE_ORIGIN_IDENTITY_SHA256,
+            identity_from_resolution=_architecture_identity,
+        )
+    )
+    producer_path = REPO_ROOT / architecture["producer_path"]
+    if (
+        not producer_path.exists()
+        or hashlib.sha256(producer_path.read_bytes()).hexdigest()
+        != architecture["producer_sha256"]
+        or architecture["producer_sha256"]
+        != architecture_origin["producer_sha256"]
+    ):
+        errors.append("architecture_producer_hash_drift")
+    for resolution in architecture["resolutions"]:
+        identity_id = resolution["origin_identity_sha256"]
+        references = [
+            *resolution["implementation_refs"],
+            *resolution["consumer_refs"],
+            resolution["closure_test_ref"],
+        ]
+        for reference in references:
+            issue = _reference_resolution_error(reference)
+            if issue:
+                errors.append(f"architecture_resolution_{issue}:{identity_id}")
+    if verify_source_bytes:
+        for row in architecture["violations"]:
+            path = REPO_ROOT / row["source_path"]
+            if not path.exists():
+                errors.append(f"architecture_active_source_missing:{row['source_path']}")
+            elif hashlib.sha256(path.read_bytes()).hexdigest() != row[
+                "source_content_sha256"
+            ]:
+                errors.append(f"architecture_active_source_hash_drift:{row['source_path']}")
 
     failures = _flatten_vitest_failures(baseline)
     if len(failures) != baseline["vitest"]["tests"]["failed"] or len(failures) != 5:
@@ -1603,6 +1831,40 @@ def compare_lint_results(
                 + ":"
                 + str(identity[4])
             )
+    for identity, count in baseline_counter.items():
+        if count > current_counter[identity]:
+            errors.append(
+                "lint_expected_diagnostic_missing:"
+                + str(identity[0])
+                + ":"
+                + str(identity[2])
+                + ":"
+                + str(identity[4])
+            )
+    return errors
+
+
+def compare_architecture_results(
+    baseline: Mapping[str, Any], raw_results_path: Path
+) -> list[str]:
+    """Require the live custom architecture stage to equal the active set."""
+    raw = json.loads(raw_results_path.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict) or not isinstance(raw.get("violations"), list):
+        return ["architecture_results_shape_invalid"]
+    expected = Counter(
+        identity_id
+        for identity_id, _row in _architecture_identity_rows(baseline["architecture"])
+    )
+    current = Counter(
+        _canonical_sha256(_architecture_identity(row)) for row in raw["violations"]
+    )
+    errors: list[str] = []
+    for identity_id, count in current.items():
+        if count > expected[identity_id]:
+            errors.append(f"architecture_new_violation:{identity_id}")
+    for identity_id, count in expected.items():
+        if count > current[identity_id]:
+            errors.append(f"architecture_expected_violation_missing:{identity_id}")
     return errors
 
 
@@ -2128,6 +2390,56 @@ def validate_register(
     return errors
 
 
+def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
+    """Prove the immutable-origin lifecycle rejects disappearance and laundering."""
+    probes: list[tuple[str, dict[str, Any]]] = []
+
+    missing_lint = copy.deepcopy(baseline)
+    missing_lint["lint"]["resolutions"].pop()
+    probes.append(("lint-missing-resolution", missing_lint))
+
+    overlapping_lint = copy.deepcopy(baseline)
+    active_id, active_row = _lint_identity_rows(overlapping_lint["lint"])[0]
+    overlapping_lint["lint"]["resolutions"][0]["origin_identity_sha256"] = active_id
+    overlapping_lint["lint"]["resolutions"][0]["origin_identity"] = active_row
+    probes.append(("lint-active-resolved-overlap", overlapping_lint))
+
+    moved_lint = copy.deepcopy(baseline)
+    moved_lint["lint"]["resolutions"][0]["origin_identity"]["line"] += 1
+    probes.append(("lint-moved-origin-identity", moved_lint))
+
+    fabricated_ref = copy.deepcopy(baseline)
+    fabricated_ref["lint"]["resolutions"][0]["implementation_refs"][0] = (
+        "apps/runtime-dashboard/src/fabricated-successor.ts"
+    )
+    probes.append(("lint-fabricated-successor", fabricated_ref))
+
+    empty_without_resolutions = copy.deepcopy(baseline)
+    empty_lint = empty_without_resolutions["lint"]
+    empty_lint.update(
+        {
+            "disposition": "resolved",
+            "exit_code": 0,
+            "error_count": 0,
+            "source_file_count": 0,
+            "files": [],
+            "identity_set_sha256": _canonical_sha256([]),
+        }
+    )
+    empty_lint["diagnostic_set"]["sha256"] = _canonical_sha256([])
+    probes.append(("lint-empty-active-incomplete-resolutions", empty_without_resolutions))
+
+    missing_architecture = copy.deepcopy(baseline)
+    missing_architecture["architecture"]["resolutions"].pop()
+    probes.append(("architecture-missing-resolution", missing_architecture))
+
+    failures: list[str] = []
+    for name, mutation in probes:
+        if not validate_baseline_manifest(mutation):
+            failures.append(name)
+    return failures
+
+
 def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     probes: list[tuple[str, dict[str, Any]]] = []
 
@@ -2595,6 +2907,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         type=Path,
         help="compare a Vitest JSON result against the baseline failed-test set",
     )
+    parser.add_argument(
+        "--architecture-results",
+        type=Path,
+        help="compare custom architecture JSON against the active debt set",
+    )
     args = parser.parse_args(argv)
 
     if args.write_seed:
@@ -2622,12 +2939,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         errors.extend(compare_lint_results(baseline, args.lint_results))
     if args.vitest_results:
         errors.extend(compare_vitest_results(baseline, args.vitest_results))
+    if args.architecture_results:
+        errors.extend(compare_architecture_results(baseline, args.architecture_results))
     if errors:
         for error in errors:
             print(error, file=sys.stderr)
         return 1
     if args.corruption_probes:
-        failures = _corruption_probes(data)
+        failures = [
+            *_corruption_probes(data),
+            *_baseline_corruption_probes(baseline),
+        ]
         if failures:
             print("corruption probes escaped: " + ", ".join(failures), file=sys.stderr)
             return 1

@@ -30,6 +30,7 @@ import {
   type ReadingOnboardingStepId,
 } from "@/features/runs/domain/operatorCraft";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { Quantity } from "@/shared/ui/quantity";
 import {
   cn,
   formatDate,
@@ -300,8 +301,15 @@ export function OperatorCraftPanel({
                       className="border-line bg-background/55 flex items-center justify-between gap-3 rounded-xl border px-3 py-2 text-sm"
                     >
                       <span className="min-w-0 truncate">{claim.label}</span>
-                      <span className="text-muted font-mono">
-                        {formatPercent(claim.score)}
+                      <span
+                        className="text-muted font-mono"
+                        data-quantity-metric-id={claim.score.metric_id}
+                      >
+                        <Quantity
+                          format="percent"
+                          value={claim.score}
+                          variant="dense"
+                        />
                       </span>
                     </div>
                   ))

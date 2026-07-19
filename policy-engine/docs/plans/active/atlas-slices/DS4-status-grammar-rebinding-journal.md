@@ -458,18 +458,18 @@ manifested.
 
 ### Verification receipt
 
-| Gate | Result |
-| --- | --- |
-| focused register behavior | PASS; 14 tests, including wrong-root, count-drift, revived/renamed-owner, package-only resurrection, blob-drift, marker-only/shadowed successor evidence, and all required import-form probes |
-| disposition register | PASS with source-byte verification and corruption probes; 261 roots, 8 censuses, 200 `rebind_pending`, 15 deleted, 25 retire, 5 `use_as_is`, 16 wire, 23 negatives, 11 findings |
-| atlas-ui lint/typecheck/test/architecture | PASS; 8 files / 22 tests and 24 source files inspected |
-| retained primitive a11y | PASS for `ScrollArea` and `Tabs` |
-| structural a11y census | honestly RED only for the inherited `OperatorDiagnosticPanel.tsx` identity assigned to C12; no C03b identity was added |
-| dashboard primitive migration | PASS; 1 file / 3 tests |
-| dashboard typecheck and production build | PASS; 3,867 modules and 101 PWA precache entries; postbuild security and package Tailwind-source checks pass |
-| dashboard full lint JSON | exact inherited 75 errors in 22 files, zero warnings, only `policyos/quantity-must-be-wrapped`; baseline subset comparator PASS |
-| dashboard architecture | exact inherited 36 identities; no C03b edge added |
-| frozen install | PASS with the committed lockfile unchanged |
+| Gate                                      | Result                                                                                                                                                                                        |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| focused register behavior                 | PASS; 14 tests, including wrong-root, count-drift, revived/renamed-owner, package-only resurrection, blob-drift, marker-only/shadowed successor evidence, and all required import-form probes |
+| disposition register                      | PASS with source-byte verification and corruption probes; 261 roots, 8 censuses, 200 `rebind_pending`, 15 deleted, 25 retire, 5 `use_as_is`, 16 wire, 23 negatives, 11 findings               |
+| atlas-ui lint/typecheck/test/architecture | PASS; 8 files / 22 tests and 24 source files inspected                                                                                                                                        |
+| retained primitive a11y                   | PASS for `ScrollArea` and `Tabs`                                                                                                                                                              |
+| structural a11y census                    | honestly RED only for the inherited `OperatorDiagnosticPanel.tsx` identity assigned to C12; no C03b identity was added                                                                        |
+| dashboard primitive migration             | PASS; 1 file / 3 tests                                                                                                                                                                        |
+| dashboard typecheck and production build  | PASS; 3,867 modules and 101 PWA precache entries; postbuild security and package Tailwind-source checks pass                                                                                  |
+| dashboard full lint JSON                  | exact inherited 75 errors in 22 files, zero warnings, only `policyos/quantity-must-be-wrapped`; baseline subset comparator PASS                                                               |
+| dashboard architecture                    | exact inherited 36 identities; no C03b edge added                                                                                                                                             |
+| frozen install                            | PASS with the committed lockfile unchanged                                                                                                                                                    |
 
 ### Fence receipt
 
@@ -516,7 +516,7 @@ manifested.
 
 - Added the one-way package topology
   `tokens/{source,modes}/*.tokens.json -> src/tokens/project.ts ->
-  src/generated/{tokens.css,tokens.ts,tailwind.ts,figma.json,manifest.json}`.
+src/generated/{tokens.css,tokens.ts,tailwind.ts,figma.json,manifest.json}`.
   All twelve sources are valid DTCG 2025.10 documents with structured standard
   values; CSS behavior lives only in `org.polisyos.atlas` projection metadata.
   Both generation and checking run the pinned official schema first. The
@@ -558,18 +558,18 @@ manifested.
 
 ### Verification receipt
 
-| Gate | Result |
-| --- | --- |
-| frozen install and lock proof | PASS; six workspaces already current; `pnpm-lock.yaml` and dashboard dependency declarations byte-identical to C03b |
-| deterministic projection | PASS; official DTCG 2025.10 schema precedes generate/check; regenerate leaves all five artifacts exact; source/output/manifest/unregistered-sibling, malformed composite/metadata/name, CSS-equivalence, alpha/`none`, cubic-bound, and direct-writer corruptions fail |
-| atlas-ui gates | PASS; typecheck, lint, architecture (27 source files), and 10 test files / 50 tests |
-| dashboard owner/parity tests | PASS; 3 files / 22 tests, including ordered contextual nine-gap parity, the source-order adversary, four sentinel owner bindings, and the partial-mock route regression |
-| dashboard design/a11y token gates | PASS; Atlas-v4 238-pair drift, motion, print, reduced-motion, contrast, and color-blind checks |
-| dashboard typecheck and production build | PASS; 3,868 modules, postbuild security, package Tailwind-source proof, and 101 PWA precache entries |
-| dashboard full lint JSON | exact inherited 75 errors in 22 files, zero warnings, only `policyos/quantity-must-be-wrapped`; baseline comparator PASS |
-| dashboard full Vitest | PASS baseline-relative after a two-worker run: 228 files / 688 tests, 225 files / 683 tests pass, and only the five inherited identities remain; an earlier host-starved attempt and its focused-green timeout are non-receipts |
-| dashboard architecture | exact inherited 36 identities after moving the parity harness outside runtime `src`; zero C04 edge added |
-| disposition register | PASS with source-byte verification and corruption probes; 261 roots, 8 censuses, 200 `rebind_pending`, and 23 seeded negatives |
+| Gate                                     | Result                                                                                                                                                                                                                                                                 |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| frozen install and lock proof            | PASS; six workspaces already current; `pnpm-lock.yaml` and dashboard dependency declarations byte-identical to C03b                                                                                                                                                    |
+| deterministic projection                 | PASS; official DTCG 2025.10 schema precedes generate/check; regenerate leaves all five artifacts exact; source/output/manifest/unregistered-sibling, malformed composite/metadata/name, CSS-equivalence, alpha/`none`, cubic-bound, and direct-writer corruptions fail |
+| atlas-ui gates                           | PASS; typecheck, lint, architecture (27 source files), and 10 test files / 50 tests                                                                                                                                                                                    |
+| dashboard owner/parity tests             | PASS; 3 files / 22 tests, including ordered contextual nine-gap parity, the source-order adversary, four sentinel owner bindings, and the partial-mock route regression                                                                                                |
+| dashboard design/a11y token gates        | PASS; Atlas-v4 238-pair drift, motion, print, reduced-motion, contrast, and color-blind checks                                                                                                                                                                         |
+| dashboard typecheck and production build | PASS; 3,868 modules, postbuild security, package Tailwind-source proof, and 101 PWA precache entries                                                                                                                                                                   |
+| dashboard full lint JSON                 | exact inherited 75 errors in 22 files, zero warnings, only `policyos/quantity-must-be-wrapped`; baseline comparator PASS                                                                                                                                               |
+| dashboard full Vitest                    | PASS baseline-relative after a two-worker run: 228 files / 688 tests, 225 files / 683 tests pass, and only the five inherited identities remain; an earlier host-starved attempt and its focused-green timeout are non-receipts                                        |
+| dashboard architecture                   | exact inherited 36 identities after moving the parity harness outside runtime `src`; zero C04 edge added                                                                                                                                                               |
+| disposition register                     | PASS with source-byte verification and corruption probes; 261 roots, 8 censuses, 200 `rebind_pending`, and 23 seeded negatives                                                                                                                                         |
 
 ### Fence receipt
 
@@ -664,3 +664,101 @@ focused lint/typecheck/tests, and `git diff --check`.
   dependency manifests, debt manifests, and DS19 register are unchanged.
 - Backend `src/**`, schemas, generated runtime client, v15 archive, frozen
   Russian locale, master plan, main, and other worktrees remain untouched.
+
+## 2026-07-19 — DS4-C06 quantity contract and first debt reduction
+
+### Red-first and independent-review receipt
+
+- The planned quantity tests first failed on the local `QuantityValue` owner,
+  unwrapped producer literals, missing app/runtime bridge, and an inaccessible
+  incomparable outer-set presentation. The manifest-derived producer test
+  joined every C06 identity to an implementation and a rendered consumer; the
+  architecture negative failed while shared quantity code still reached app
+  providers.
+- Independent review found seven additional semantic defects before commit:
+  confidence labels converted to invented scores, an absent publication score
+  defaulted to `0.52`, opaque Fabric extensions promoted into canonical
+  uncertainty, non-scalar accessible names collapsed to unknown, null deck
+  scores received warning posture, the inventory named the wrong generated
+  owner, and closure evidence could point at an unrelated existing test. Each
+  received a failing behavioral test before repair.
+- The review also found synthetic calibration and sensitivity derived from one
+  untraced score. Those surfaces are now absent until a typed producer exists;
+  an untraced numeric score renders only through `Quantity` and cannot produce
+  an authority-colored confidence gauge, calibration record, or sensitivity
+  chart.
+- A final bounded re-review caught the remaining unavailable-threshold counts
+  rendering as three measured zeros. Red-first domain and rendered negatives
+  now require nullable counts, one explicit unknown presentation, and no
+  measured-count nodes when the producer omits a decision score. Independent
+  re-review reports no remaining C06 finding.
+
+### Implementation and ownership
+
+- Rebound the living dashboard quantity family in place to generated
+  `QuantityValueOutput`, `QuantityUncertainty`, lineage, temporal, unit,
+  scenario, and verification types. `VerificationStatus` is now source-bound
+  to `PolisyosCoreContractsRuntimeLineageRefOutput["status"]`; a self-consistent
+  but false `VerificationMetadata` anchor fails the inventory checker.
+- Added the app-owned `QuantityRuntimeProvider` and the API-clean
+  `QuantityRuntimeBridge`. The bridge carries typed lineage fetch, batch,
+  export, trust, and temporal behavior without importing app/API owners from
+  the shared quantity family. Runtime parsing rejects malformed owner payloads
+  and never returns a synthetic success value.
+- `Quantity` preserves `point: null`, requires a distinct accessible label for
+  supplied non-scalar content, keeps verification/freshness/dispute cues
+  independent, and never collapses a valid falsy React node by truthiness.
+  Fabric conversion consumes only generated fields; opaque `uncertainty`,
+  freshness, and quantity-class extensions cannot mint authority.
+- Decision producers across evidence, explainability attribution, deck,
+  readiness, publication, summary, and simulation now emit generated quantity
+  envelopes and render through the one dashboard owner. Five guessed authority
+  values are classified honestly as `authority_guess_removed`, twelve values
+  are `quantity_enveloped`, and the three non-authority identities remain two
+  collection controls plus one parser control.
+- Unknown publication scores yield an explicit unavailable threshold contract
+  with no cohort classification. Confidence labels remain opaque labels and do
+  not become numeric scores. Null deck scores use neutral posture; only known
+  sub-threshold values warn.
+- Typed fixture authority comes from the deck contract and is visibly marked;
+  tests do not infer fixture posture from reason-code strings. The live
+  `ui-quantity` register row is strangled to
+  `dashboard-quantity-generated-waist-rebind` with the barrel, `Quantity`, and
+  manifest-derived producer test as consumer evidence.
+
+### Debt and status deltas
+
+| Owned denominator                   |        Before |           C06 | Evidence                                                                  |
+| ----------------------------------- | ------------: | ------------: | ------------------------------------------------------------------------- |
+| quantity lint identities            | 75 / 22 files | 55 / 15 files | exact active multiset comparator; 20 immutable-origin resolutions         |
+| architecture identities             | 36 / 28 files | 23 / 20 files | 13 exact shared-to-app resolutions; custom producer JSON comparator       |
+| current authored status definitions |            46 |            43 | `ProvenanceStatus`, `ScenarioStatus`, and `DisputeStatus` retired         |
+| status retirement supplement        |            14 |            14 | local `LineageFreshness` retired and generated lineage freshness retained |
+
+The C06 resolution artifact content-binds all twelve envelopes and five
+removed guesses to
+`quantityDecisionProducers.test.tsx`; swapping any row to an unrelated existing
+test fails. Deck fixture rows name `AtlasRunDeck`, not the dormant route, as the
+actual consumer. The rule and immutable 75/36 origins remain unchanged.
+
+### Verification receipt
+
+| Gate                                     | Result                                                                                                                                                      |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| dashboard typecheck and production build | PASS; app/node/tools green, 3,871 modules, postbuild security, atlas-ui Tailwind-source proof, 101 PWA entries                                              |
+| affected behavior                        | PASS; 20 files / 141 tests, including generated validator parity, provider integration, producer census, unknown/no-mint negatives, and provenance behavior |
+| structural a11y                          | PASS; `Quantity` and `AttributionWaterfall`, including status/freshness/dispute and non-scalar naming                                                       |
+| full lint JSON                           | exact 55 errors in 15 files, zero warnings, only `policyos/quantity-must-be-wrapped`; exact comparator PASS                                                 |
+| architecture JSON                        | exact 23 identities in 20 files; 22 `shared-no-app-or-features` plus one `app-no-feature-internals`; exact comparator PASS                                  |
+| status inventory                         | PASS; 47 DS1 rows, 43 current definitions, 14 supplements, 3 DS5 waist rows; source-bound anchors and corruption probes green                               |
+| disposition register                     | PASS with source-byte verification and corruption probes; 261 roots, 8 censuses, 200 pending dispositions, 23 seeded negatives                              |
+
+### Fence receipt
+
+- C06 changes are confined to `apps/runtime-dashboard/**`, owned
+  `architecture/atlas_surfaces/**`, the generated DS19 reference report, and
+  this DS4 journal. `packages/atlas-ui` and dependency/lock inputs are
+  unchanged in C06.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client was consumed read-only.

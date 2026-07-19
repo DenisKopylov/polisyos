@@ -44,12 +44,6 @@ function RunReportContent({ runId }: { runId: string }) {
     () => buildRunReportSnapshot(summary, auditTrail),
     [auditTrail, summary],
   );
-  const decisionScoreQuantity = untracedDecisionQuantity({
-    point: summary.decisionScore,
-    metricId: "report_decision_score",
-    label: t("pages.runs.report.decisionScore"),
-    time: { valid_at: summary.decisionView?.generatedAt },
-  });
   const blockerCountQuantity = untracedDecisionQuantity({
     point: summary.blockerCount,
     metricId: "report_blocker_count",
@@ -131,7 +125,7 @@ function RunReportContent({ runId }: { runId: string }) {
             </p>
             <p className="mt-2 text-2xl font-semibold">
               <Quantity
-                value={decisionScoreQuantity}
+                value={summary.decisionScore}
                 precision={2}
                 variant="hero"
               />

@@ -2,8 +2,10 @@ import { useMemo } from "react";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
+import { Quantity } from "@/shared/ui/quantity";
 import { Card } from "@polisyos/atlas-ui";
 import { WaterfallChart, type WaterfallStep } from "@/shared/charts";
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 
 export type AttributionStep = {
   label: string;
@@ -12,7 +14,7 @@ export type AttributionStep = {
 };
 
 type AttributionWaterfallProps = {
-  baseValue: number;
+  baseValue: QuantityValueOutput;
   baseLabel?: string;
   contributions: AttributionStep[];
   totalLabel?: string;
@@ -36,13 +38,23 @@ export function AttributionWaterfall({
   const resolvedTotalLabel =
     totalLabel || t("shared.ui.attributionWaterfall.totalLabel");
   const resolvedTitle = title ?? t("shared.ui.attributionWaterfall.title");
+  const basePoint =
+    typeof baseValue.point === "number" && Number.isFinite(baseValue.point)
+      ? baseValue.point
+      : null;
   const finalValue =
-    baseValue + contributions.reduce((sum, c) => sum + c.value, 0);
+    basePoint === null
+      ? null
+      : basePoint + contributions.reduce((sum, c) => sum + c.value, 0);
 
   const steps: WaterfallStep[] = [
-    { label: resolvedBaseLabel, value: baseValue, isTotal: true },
+    ...(basePoint === null
+      ? []
+      : [{ label: resolvedBaseLabel, value: basePoint, isTotal: true }]),
     ...contributions.map((c) => ({ label: c.label, value: c.value })),
-    { label: resolvedTotalLabel, value: finalValue, isTotal: true },
+    ...(finalValue === null
+      ? []
+      : [{ label: resolvedTotalLabel, value: finalValue, isTotal: true }]),
   ];
 
   const sorted = useMemo(
@@ -77,7 +89,9 @@ export function AttributionWaterfall({
             <tr className="border-line bg-surface/50 border-b">
               <td className="px-4 py-2.5 font-semibold">{resolvedBaseLabel}</td>
               <td className="px-4 py-2.5 text-end font-mono font-semibold">
-                {baseValue.toFixed(4)}
+                <span data-quantity-metric-id={baseValue.metric_id}>
+                  <Quantity value={baseValue} variant="dense" />
+                </span>
               </td>
               <td className="hidden px-4 py-2.5 md:table-cell" />
             </tr>
@@ -109,13 +123,15 @@ export function AttributionWaterfall({
                 </td>
               </tr>
             ))}
-            <tr className="bg-surface/50">
-              <td className="px-4 py-2.5 font-bold">{resolvedTotalLabel}</td>
-              <td className="px-4 py-2.5 text-end font-mono font-bold">
-                {finalValue.toFixed(4)}
-              </td>
-              <td className="hidden px-4 py-2.5 md:table-cell" />
-            </tr>
+            {finalValue !== null ? (
+              <tr className="bg-surface/50">
+                <td className="px-4 py-2.5 font-bold">{resolvedTotalLabel}</td>
+                <td className="px-4 py-2.5 text-end font-mono font-bold">
+                  {finalValue.toFixed(4)}
+                </td>
+                <td className="hidden px-4 py-2.5 md:table-cell" />
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </div>

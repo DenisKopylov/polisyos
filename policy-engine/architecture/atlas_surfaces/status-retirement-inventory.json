@@ -1,6 +1,6 @@
 {
   "$schema": "./status-retirement-inventory.schema.json",
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "inventory_id": "atlas-ds4-status-retirement",
   "as_of": "2026-07-19T19:30:00+03:00",
   "authority": {
@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:30c5ee0f21a708a6e3b1e08c0753ccb2409ce54b1e14b5287ce8f6c1b12c2e04"
+      "sha256": "sha256:26101aeeda3506fc8623d8ad06c4bc556cb13cfdb9f330a83aa3a7bdc80cc97e"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -33,9 +33,10 @@
     "ds1_rows": 47,
     "ds1_named": 23,
     "ds1_inline": 24,
-    "current_named": 22,
+    "current_named": 19,
     "current_inline": 24,
-    "current_total": 46,
+    "current_total": 43,
+    "retired_definitions": 3,
     "already_deleted": 1
   },
   "entries": [
@@ -585,8 +586,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-        "start_line": 22,
-        "end_line": 26,
+        "start_line": 24,
+        "end_line": 28,
         "declaration_name": "ArgumentNodeStatus"
       },
       "literal_members": ["certified", "contested", "open", "rebutted"],
@@ -594,7 +595,7 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-          "line": 34,
+          "line": 36,
           "kind": "prop"
         }
       ],
@@ -853,7 +854,7 @@
     {
       "unit_id": "status-quantity-provenance",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
         "start_line": 36,
@@ -912,7 +913,7 @@
     {
       "unit_id": "status-scenario",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
         "start_line": 140,
@@ -954,61 +955,41 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
-        "start_line": 1,
-        "end_line": 5,
+        "start_line": 43,
+        "end_line": 43,
         "declaration_name": "VerificationStatus"
       },
-      "literal_members": ["disputed", "pending", "untraced", "verified"],
-      "type_expression": "| \"verified\"\n  | \"pending\"\n  | \"disputed\"\n  | \"untraced\"",
+      "literal_members": [],
+      "type_expression": "LineageRef[\"status\"]",
       "consumers": [
         {
-          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
-          "line": 10,
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+          "line": 18,
           "kind": "import"
         },
         {
-          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
-          "line": 25,
-          "kind": "prop"
-        },
-        {
-          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
-          "line": 199,
-          "kind": "prop"
-        },
-        {
-          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
-          "line": 200,
-          "kind": "prop"
-        },
-        {
-          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
-          "line": 201,
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.tsx",
+          "line": 279,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
-          "line": 33,
+          "line": 32,
           "kind": "import"
         },
         {
           "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
-          "line": 36,
+          "line": 51,
           "kind": "prop"
         },
         {
-          "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
-          "line": 28,
-          "kind": "prop"
-        },
-        {
-          "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
           "line": 61,
           "kind": "prop"
         },
         {
-          "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
-          "line": 92,
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 308,
           "kind": "prop"
         },
         {
@@ -1030,10 +1011,10 @@
       "owner_type": {
         "kind": "generated_indexed",
         "module": "@polisyos/runtime-api-client",
-        "query": "VerificationMetadata[\"verification_status\"]"
+        "query": "PolisyosCoreContractsRuntimeLineageRefOutput[\"status\"]"
       },
       "classification": "lattice_derived",
-      "replacement": "VerificationMetadata verification status",
+      "replacement": "generated QuantityValue lineage status",
       "authority_purpose": "authority",
       "target_cluster": "C06",
       "verification_refs": [
@@ -1041,16 +1022,16 @@
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
       ],
       "generated_anchor": {
-        "export_symbol": "VerificationMetadata",
-        "canonical_line": 1000,
-        "schema_line": 10334,
-        "field": "verification_status"
+        "export_symbol": "PolisyosCoreContractsRuntimeLineageRefOutput",
+        "canonical_line": 1006,
+        "schema_line": 10404,
+        "field": "status"
       }
     },
     {
       "unit_id": "status-dispute-quantity",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
         "start_line": 8,
@@ -1643,8 +1624,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-        "start_line": 131,
-        "end_line": 131,
+        "start_line": 134,
+        "end_line": 134,
         "field_name": "status"
       },
       "literal_members": ["high", "low", "medium"],
@@ -1652,22 +1633,22 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
-          "line": 369,
+          "line": 377,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
-          "line": 371,
+          "line": 379,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-          "line": 1001,
+          "line": 1084,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-          "line": 1052,
+          "line": 1135,
           "kind": "prop"
         }
       ],
@@ -1692,8 +1673,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-        "start_line": 136,
-        "end_line": 136,
+        "start_line": 139,
+        "end_line": 139,
         "field_name": "status"
       },
       "literal_members": ["caveat", "clear"],
@@ -1701,22 +1682,22 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
-          "line": 351,
+          "line": 359,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
-          "line": 353,
+          "line": 361,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
-          "line": 864,
+          "line": 867,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
-          "line": 201,
+          "line": 205,
           "kind": "test"
         }
       ],
@@ -1741,8 +1722,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "start_line": 119,
-        "end_line": 119,
+        "start_line": 122,
+        "end_line": 122,
         "field_name": "status"
       },
       "literal_members": ["active", "clear", "unlock_pending"],
@@ -1750,22 +1731,22 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
-          "line": 441,
+          "line": 445,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
-          "line": 442,
+          "line": 446,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-          "line": 575,
+          "line": 613,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-          "line": 609,
+          "line": 647,
           "kind": "prop"
         }
       ],
@@ -1790,8 +1771,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "start_line": 150,
-        "end_line": 150,
+        "start_line": 153,
+        "end_line": 153,
         "field_name": "status"
       },
       "literal_members": ["active", "replacement", "revoked", "superseded"],
@@ -1799,12 +1780,12 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
-          "line": 476,
+          "line": 480,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
-          "line": 477,
+          "line": 481,
           "kind": "prop"
         }
       ],
@@ -1833,8 +1814,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "start_line": 157,
-        "end_line": 157,
+        "start_line": 160,
+        "end_line": 160,
         "field_name": "currentStatus"
       },
       "literal_members": ["active", "revoked", "superseded"],
@@ -1842,7 +1823,7 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
-          "line": 464,
+          "line": 468,
           "kind": "prop"
         },
         {
@@ -1852,12 +1833,12 @@
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-          "line": 844,
+          "line": 882,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-          "line": 1020,
+          "line": 1058,
           "kind": "prop"
         }
       ],
@@ -2128,7 +2109,7 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-          "line": 84,
+          "line": 88,
           "kind": "prop"
         },
         {
@@ -2205,6 +2186,7 @@
   "semantic_exemptions": [
     {
       "candidate_id": "semantic-projection-authority-boundary",
+      "current_definition_state": "present",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed.ts",
@@ -2226,6 +2208,7 @@
     },
     {
       "candidate_id": "semantic-lineage-freshness",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
@@ -2237,7 +2220,7 @@
       "type_expression": "\"current\" | \"stale\" | \"unknown\"",
       "disposition": "retirement_debt",
       "target_cluster": "C06",
-      "rationale": "Generated VerificationMetadata freshness owns this vocabulary; the local clone retires with quantity.",
+      "rationale": "Generated QuantityValue LineageRef freshness owns this vocabulary; the local clone retires with quantity.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
@@ -2246,6 +2229,7 @@
     },
     {
       "candidate_id": "semantic-status-timeline-tone",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx",
@@ -2267,6 +2251,7 @@
     },
     {
       "candidate_id": "semantic-chart-identifiability",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/charts/types.ts",
@@ -2287,6 +2272,7 @@
     },
     {
       "candidate_id": "semantic-decision-verdict",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/decision.ts",
@@ -2307,6 +2293,7 @@
     },
     {
       "candidate_id": "semantic-evidence-focus",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/evidence.ts",
@@ -2327,6 +2314,7 @@
     },
     {
       "candidate_id": "semantic-production-freshness",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
@@ -2347,11 +2335,12 @@
     },
     {
       "candidate_id": "semantic-public-projection-state",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-        "start_line": 194,
-        "end_line": 201,
+        "start_line": 197,
+        "end_line": 204,
         "declaration_name": "PublicProjectionState"
       },
       "literal_members": [
@@ -2375,6 +2364,7 @@
     },
     {
       "candidate_id": "semantic-evidence-wallet-kind",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
@@ -2401,11 +2391,12 @@
     },
     {
       "candidate_id": "semantic-readiness-section-id",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "start_line": 22,
-        "end_line": 29,
+        "start_line": 24,
+        "end_line": 31,
         "declaration_name": "ReadinessSectionId"
       },
       "literal_members": [
@@ -2429,11 +2420,12 @@
     },
     {
       "candidate_id": "semantic-readiness-severity",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "start_line": 31,
-        "end_line": 31,
+        "start_line": 33,
+        "end_line": 33,
         "declaration_name": "ReadinessSeverity"
       },
       "literal_members": ["block", "pass", "warn"],
@@ -2449,6 +2441,7 @@
     },
     {
       "candidate_id": "semantic-scientific-identifiability",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
@@ -2469,6 +2462,7 @@
     },
     {
       "candidate_id": "semantic-share-fixture-state",
+      "current_definition_state": "present",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/export/social/email-fixtures.ts",
@@ -2490,6 +2484,7 @@
     },
     {
       "candidate_id": "semantic-interaction-authority-purpose",
+      "current_definition_state": "present",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.ts",

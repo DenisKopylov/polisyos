@@ -1,8 +1,6 @@
 import { ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import type { TemporalScope } from "@/app/providers/temporal-scope";
-import { toApiTemporalParams } from "@/app/providers/temporal-scope";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 import {
@@ -17,6 +15,7 @@ import type {
   LineageGraphNode,
   LineageGraphView,
   QuantityValue,
+  TemporalRef,
 } from "./quantity.types";
 
 type ProvenanceDeepDiveDialogProps = {
@@ -24,7 +23,7 @@ type ProvenanceDeepDiveDialogProps = {
   onOpenChange: (open: boolean) => void;
   quantity: QuantityValue;
   lineage?: LineageGraphView | null;
-  temporalScope?: TemporalScope | null;
+  temporalScope?: TemporalRef | null;
 };
 
 export function ProvenanceDeepDiveDialog({
@@ -228,17 +227,24 @@ function artifactIdFromNode(node: LineageGraphNode) {
 
 function withTemporalQuery(
   href: string,
-  temporalScope: TemporalScope | null | undefined,
+  temporalScope: TemporalRef | null | undefined,
 ) {
   if (!href) {
     return "";
   }
-  const params = toApiTemporalParams(temporalScope);
   const query = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value) {
-      query.set(key, value);
+  Object.entries(temporalScope ?? {}).forEach(([key, value]) => {
+    if (!value) {
+      return;
     }
+    if (key === "valid_at" || key === "tx_at") {
+      const instant = new Date(value);
+      if (!Number.isNaN(instant.getTime())) {
+        query.set(key, instant.toISOString());
+      }
+      return;
+    }
+    query.set(key, value);
   });
   const suffix = query.toString();
   if (!suffix) {

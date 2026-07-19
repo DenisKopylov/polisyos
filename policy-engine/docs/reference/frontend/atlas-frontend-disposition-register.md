@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **639**
-- Application lines deleted: **6325**
-- Net application LOC reduction: **5686**
+- Application lines added: **2834**
+- Application lines deleted: **7126**
+- Net application LOC reduction: **4292**
 - Application files deleted: **63**
 
 ## Wave-end full verification
@@ -309,7 +309,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-patterns` | `ui-patterns` | 7 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `strangled` | `DS4` | `dashboard-quantity-generated-waist-rebind` |
 | `ui-responsive` | `ui-responsive` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-temporal` | `ui-temporal` | 1 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-trust-view` | `ui-trust-view` | 16 | `rebind_pending` | `pending` | `DS4` | `—` |
@@ -430,10 +430,10 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-agent-performance-budget` | `status-agent-performance-budget` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-workflow-node` | `status-workflow-node` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-governance-pass` | `status-governance-pass` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-quantity-provenance` | `status-quantity-provenance` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-scenario` | `status-scenario` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-verification` | `status-verification` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-dispute-quantity` | `status-dispute-quantity` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-quantity-provenance` | `status-quantity-provenance` | 0 | `rebind_pending` | `strangled` | `DS4` | `quantity-independent-owner-metadata` |
+| `status-scenario` | `status-scenario` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-scenario-ref-status` |
+| `status-verification` | `status-verification` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-lineage-verification-status` |
+| `status-dispute-quantity` | `status-dispute-quantity` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-verification-metadata-dispute-status` |
 | `status-dispute-trust-view` | `status-dispute-trust-view` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-promotion-decision` | `status-inline-promotion-decision` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-queued-promotion` | `status-inline-queued-promotion` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -514,6 +514,9 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `e57b241a0 test(dashboard): govern the status retirement inventory`
+- `5127af28d feat(atlas-ui): project ratified DTCG token parity`
+- `a2c9ae8b0 chore(dashboard): retire dormant overlay primitives`
 - `caa1ee6e3 feat(atlas-ui): migrate living overlay primitives`
 - `2dbf604e0 feat(atlas-ui): migrate form primitives`
 - `018328d68 feat(atlas-ui): migrate foundation primitives`

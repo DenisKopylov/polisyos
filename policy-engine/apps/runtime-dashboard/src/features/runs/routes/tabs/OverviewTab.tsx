@@ -49,17 +49,6 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
   const readingViewHref = isDecisionPacket
     ? buildArtifactHref(artifactId, { tab: "content", view: "reading" })
     : null;
-  const decisionScoreQuantity = untracedDecisionQuantity({
-    point: summary.decisionScore,
-    metricId: "overview_decision_score",
-    label: t("pages.runs.report.decisionScore"),
-    time: {
-      valid_at:
-        summary.decisionView?.generatedAt ??
-        summary.run?.finished_at ??
-        summary.run?.started_at,
-    },
-  });
 
   useEffect(() => {
     markUiMilestone("runs.overview.decision.ready", {
@@ -112,13 +101,13 @@ function DecisionPanelContent({ artifactId }: { artifactId: string }) {
           />
           <MetricCard
             label={t("pages.runs.score", {
-              score: formatNumber(summary.decisionScore, {
+              score: formatNumber(summary.decisionScore.point, {
                 maximumFractionDigits: 2,
               }),
             })}
             value={
               <Quantity
-                value={decisionScoreQuantity}
+                value={summary.decisionScore}
                 format="percent"
                 precision={0}
               />

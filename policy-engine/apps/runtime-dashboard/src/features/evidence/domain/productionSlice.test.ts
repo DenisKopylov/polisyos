@@ -136,14 +136,22 @@ describe("Phase 3.2 production slice adapters", () => {
       derivedFactCount: 2,
       governing: false,
       profileIds: ["macro-profile"],
-      state: "ok",
+      state: expect.objectContaining({
+        authorityPurpose: "diagnostic_display",
+        label: "ok",
+        purpose: "interaction_only",
+      }),
     });
     expect(
       view.threads.find((thread) => thread.connectorId === "tax-ledger"),
     ).toMatchObject({
       derivedFactCount: 1,
       governing: true,
-      state: "fail",
+      state: expect.objectContaining({
+        authorityPurpose: "diagnostic_display",
+        label: "fail",
+        purpose: "interaction_only",
+      }),
     });
   });
 
@@ -185,7 +193,11 @@ describe("Phase 3.2 production slice adapters", () => {
     });
 
     expect(cards[0]).toMatchObject({
-      errorBudgetBurn: 1,
+      errorBudgetBurn: expect.objectContaining({
+        metric_id: "connector.offline.error_budget_burn",
+        point: 1,
+        quantity_class: "decision",
+      }),
       lastGreenPull: null,
       latencyP50Ms: null,
       latencyP95Ms: null,
@@ -211,7 +223,11 @@ describe("Phase 3.2 production slice adapters", () => {
     ]);
     expect(braid.threads[0]).toMatchObject({
       profileIds: ["macro-profile"],
-      state: "ok",
+      state: expect.objectContaining({
+        authorityPurpose: "diagnostic_display",
+        label: "ok",
+        purpose: "interaction_only",
+      }),
       volume: 4,
     });
     expect(cards[0]).toMatchObject({

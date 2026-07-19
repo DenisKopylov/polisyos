@@ -47,7 +47,7 @@ describe("ProvenanceDeepDiveDialog", () => {
         onOpenChange={() => undefined}
         quantity={quantity}
         lineage={lineage}
-        temporalScope={{ validAt: "2026-04-15T12:00:00Z" }}
+        temporalScope={{ valid_at: "2026-04-15T12:00:00Z" }}
       />,
     );
 

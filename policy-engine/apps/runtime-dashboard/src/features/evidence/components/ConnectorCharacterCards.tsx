@@ -1,15 +1,12 @@
 import type { ConnectorCharacterCard } from "../domain/productionSlice";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import {
-  formatDate,
-  formatDuration,
-  formatNumber,
-  formatPercent,
-} from "@/shared/lib/utils";
+import { formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
+import { Quantity } from "@/shared/ui/quantity";
 import { Badge, Card, EmptyState } from "@polisyos/atlas-ui";
 
-function burnKind(burn: number) {
+function burnKind(burn: number | null) {
+  if (burn === null) return "neutral";
   if (burn >= 0.85) return "fail";
   if (burn >= 0.6) return "warn";
   return "ok";
@@ -44,94 +41,111 @@ export function ConnectorCharacterCards({
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {cards.map((card) => (
-          <article
-            key={card.connectorId}
-            className="border-line bg-surface/80 space-y-4 rounded-2xl border p-4"
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h4 className="text-base font-semibold">{card.connectorId}</h4>
-                <p className="text-muted mt-1 text-xs">
-                  {t("phase32.connectors.namespaceVersion", {
-                    namespace: card.namespace,
-                    version: card.version,
-                  })}
-                </p>
-              </div>
-              <Badge kind={card.loaded ? "ok" : "fail"}>
-                {card.loaded
-                  ? t("phase32.connectors.loaded")
-                  : t("phase32.connectors.unavailable")}
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="compact-metric">
-                <span>{t("phase32.connectors.latencyP50")}</span>
-                <strong>{formatDuration(card.latencyP50Ms)}</strong>
-              </div>
-              <div className="compact-metric">
-                <span>{t("phase32.connectors.latencyP95")}</span>
-                <strong>{formatDuration(card.latencyP95Ms)}</strong>
-              </div>
-              <div className="compact-metric">
-                <span>{t("phase32.connectors.cost")}</span>
-                <strong>{card.costTier}</strong>
-              </div>
-              <div className="compact-metric">
-                <span>{t("phase32.connectors.retry")}</span>
-                <strong>{card.retryProfile}</strong>
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-2 flex items-center justify-between gap-2">
-                <span className="text-muted text-xs font-semibold uppercase">
-                  {t("phase32.connectors.errorBudget")}
-                </span>
-                <Badge kind={burnKind(card.errorBudgetBurn)}>
-                  {formatPercent(card.errorBudgetBurn, {
-                    maximumFractionDigits: 0,
-                  })}
+        {cards.map((card) => {
+          const burnPoint =
+            typeof card.errorBudgetBurn.point === "number"
+              ? card.errorBudgetBurn.point
+              : null;
+          return (
+            <article
+              key={card.connectorId}
+              className="border-line bg-surface/80 space-y-4 rounded-2xl border p-4"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h4 className="text-base font-semibold">
+                    {card.connectorId}
+                  </h4>
+                  <p className="text-muted mt-1 text-xs">
+                    {t("phase32.connectors.namespaceVersion", {
+                      namespace: card.namespace,
+                      version: card.version,
+                    })}
+                  </p>
+                </div>
+                <Badge kind={card.loaded ? "ok" : "fail"}>
+                  {card.loaded
+                    ? t("phase32.connectors.loaded")
+                    : t("phase32.connectors.unavailable")}
                 </Badge>
               </div>
-              <div className="bg-line h-2 overflow-hidden rounded-full">
-                <div
-                  className="bg-accent h-full rounded-full"
-                  style={{
-                    width: `${Math.round(card.errorBudgetBurn * 100)}%`,
-                  }}
-                />
-              </div>
-            </div>
 
-            <div className="text-muted grid gap-1 text-xs">
-              <span>
-                {t("phase32.connectors.datasets", {
-                  value: formatNumber(card.datasetCount),
-                })}
-              </span>
-              <span>
-                {t("phase32.connectors.profiles", {
-                  value: formatNumber(card.profileCount),
-                })}
-              </span>
-              <span>
-                {t("phase32.connectors.facts", {
-                  value: formatNumber(card.factsThroughConnector),
-                })}
-              </span>
-              <span>
-                {t("phase32.connectors.lastGreen", {
-                  date: card.lastGreenPull
-                    ? formatDate(card.lastGreenPull)
-                    : t("common.unavailable"),
-                })}
-              </span>
-            </div>
-          </article>
-        ))}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="compact-metric">
+                  <span>{t("phase32.connectors.latencyP50")}</span>
+                  <strong>{formatDuration(card.latencyP50Ms)}</strong>
+                </div>
+                <div className="compact-metric">
+                  <span>{t("phase32.connectors.latencyP95")}</span>
+                  <strong>{formatDuration(card.latencyP95Ms)}</strong>
+                </div>
+                <div className="compact-metric">
+                  <span>{t("phase32.connectors.cost")}</span>
+                  <strong>{card.costTier}</strong>
+                </div>
+                <div className="compact-metric">
+                  <span>{t("phase32.connectors.retry")}</span>
+                  <strong>{card.retryProfile}</strong>
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <span className="text-muted text-xs font-semibold uppercase">
+                    {t("phase32.connectors.errorBudget")}
+                  </span>
+                  <span
+                    data-quantity-metric-id={card.errorBudgetBurn.metric_id}
+                  >
+                    <Quantity
+                      format="percent"
+                      precision={0}
+                      value={card.errorBudgetBurn}
+                      variant="dense"
+                    />
+                  </span>
+                </div>
+                <div className="bg-line h-2 overflow-hidden rounded-full">
+                  <div
+                    className="bg-accent h-full rounded-full"
+                    style={{
+                      width:
+                        burnPoint === null
+                          ? "0%"
+                          : `${Math.round(burnPoint * 100)}%`,
+                    }}
+                    data-kind={burnKind(burnPoint)}
+                  />
+                </div>
+              </div>
+
+              <div className="text-muted grid gap-1 text-xs">
+                <span>
+                  {t("phase32.connectors.datasets", {
+                    value: formatNumber(card.datasetCount),
+                  })}
+                </span>
+                <span>
+                  {t("phase32.connectors.profiles", {
+                    value: formatNumber(card.profileCount),
+                  })}
+                </span>
+                <span>
+                  {t("phase32.connectors.facts", {
+                    value: formatNumber(card.factsThroughConnector),
+                  })}
+                </span>
+                <span>
+                  {t("phase32.connectors.lastGreen", {
+                    date: card.lastGreenPull
+                      ? formatDate(card.lastGreenPull)
+                      : t("common.unavailable"),
+                  })}
+                </span>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </Card>
   );

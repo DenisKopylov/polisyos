@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+import type {
+  QuantityUncertainty,
+  QuantityValueOutput,
+} from "@polisyos/runtime-api-client";
+
 import type { components } from "./types";
 import {
   normalizeApiProjectionFailClosed,
@@ -20,16 +25,15 @@ const cursorPageSchema = z.object({
   total: z.number().nullable().optional(),
 });
 
-const temporalScopeSchema = z
-  .object({
-    valid_at: z.string().nullable().optional(),
-    tx_at: z.string().nullable().optional(),
-    branch: z.string().nullable().optional(),
-    snapshot_id: z.string().nullable().optional(),
-    scenario_id: z.string().nullable().optional(),
-  })
-  .nullable()
-  .optional();
+const temporalRefSchema = z.object({
+  valid_at: z.string().nullable().optional(),
+  tx_at: z.string().nullable().optional(),
+  branch: z.string().nullable().optional(),
+  snapshot_id: z.string().nullable().optional(),
+  scenario_id: z.string().nullable().optional(),
+});
+
+const temporalScopeSchema = temporalRefSchema.nullable().optional();
 
 const temporalRangeSchema = z.object({
   earliest: z.string().nullable().optional(),
@@ -575,14 +579,12 @@ const quantityUncertaintySchema = z.object({
   ci_95: z.tuple([z.number(), z.number()]).nullable().optional(),
   quantiles: z.record(z.string(), z.number()).optional(),
   method: z.string().nullable().optional(),
-  identifiability: z
-    .enum(["identified", "estimated", "assumed", "unknown"])
-    .optional(),
-  disputed: z.boolean().optional(),
-});
+  identifiability: z.enum(["identified", "estimated", "assumed", "unknown"]),
+  disputed: z.boolean(),
+}) satisfies z.ZodType<QuantityUncertainty>;
 
 export const quantityValueSchema = z.object({
-  point: z.number().nullable(),
+  point: z.number().nullable().optional(),
   unit: unitRefSchema,
   metric_id: z.string().nullable().optional(),
   lineage: lineageRefSchema,
@@ -590,7 +592,7 @@ export const quantityValueSchema = z.object({
   time: temporalScopeSchema,
   quantity_class: z.enum(["decision", "telemetry", "layout", "debug"]),
   label: z.string().nullable().optional(),
-});
+}) satisfies z.ZodType<QuantityValueOutput>;
 
 const comparabilityReportSchema = z.object({
   status: z.enum(["compatible", "warning", "blocked"]),
@@ -1241,7 +1243,7 @@ const fabricDecisionDataSchema = z.object({
   quality: fabricQualityRefSchema,
   lineage: fabricLineageRefSchema,
   access: fabricAccessRefSchema,
-  time: temporalScopeSchema,
+  time: temporalRefSchema,
   replay: fabricReplayRefSchema,
   gaps: z.array(fabricTypedGapSchema).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),

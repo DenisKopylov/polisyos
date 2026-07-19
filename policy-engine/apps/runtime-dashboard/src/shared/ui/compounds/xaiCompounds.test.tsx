@@ -50,6 +50,7 @@ vi.mock("@/shared/charts/accessibility", () => ({
 
 import { screen, fireEvent } from "@testing-library/react";
 import { renderWithProviders } from "@/test/render";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 import { ExplainabilityCard } from "./ExplainabilityCard";
 import { GovernancePassGrid } from "./GovernancePassGrid";
@@ -186,7 +187,10 @@ describe("AttributionWaterfall", () => {
   it("renders base, contributions, and final total", () => {
     renderWithProviders(
       <AttributionWaterfall
-        baseValue={0.5}
+        baseValue={untracedDecisionQuantity({
+          metricId: "test.attribution_baseline",
+          point: 0.5,
+        })}
         contributions={[
           { label: "Education", value: 0.12 },
           { label: "Income", value: -0.03 },
@@ -204,7 +208,10 @@ describe("AttributionWaterfall", () => {
   it("renders the waterfall chart", () => {
     renderWithProviders(
       <AttributionWaterfall
-        baseValue={1}
+        baseValue={untracedDecisionQuantity({
+          metricId: "test.attribution_baseline",
+          point: 1,
+        })}
         contributions={[{ label: "A", value: 0.1 }]}
       />,
     );

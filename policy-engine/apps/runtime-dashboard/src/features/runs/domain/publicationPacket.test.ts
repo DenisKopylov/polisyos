@@ -1,6 +1,7 @@
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 import {
   buildPublicDecisionPacket,
@@ -9,6 +10,9 @@ import {
   signPublicDecisionPacket,
   verifySignedPublicDecisionPacket,
 } from "./publicationPacket";
+
+const testDecisionScore = (point: number) =>
+  untracedDecisionQuantity({ metricId: "test.decision_score", point });
 
 const decisionView: DecisionCardViewModel = {
   confidence: "HIGH",
@@ -175,7 +179,7 @@ function issue(): GovernanceIssueView {
 describe("publication packet domain", () => {
   it("builds E1-E6 and F1-F5 publication surfaces from public inputs", () => {
     const packet = buildPublicDecisionPacket({
-      decisionScore: 0.72,
+      decisionScore: testDecisionScore(0.72),
       decisionView,
       evidenceContext,
       governanceIssues: [issue()],
@@ -208,9 +212,27 @@ describe("publication packet domain", () => {
     ]);
   });
 
+  it("keeps threshold evaluation unavailable when the producer omits a decision score", () => {
+    const packet = buildPublicDecisionPacket({
+      decisionView,
+      evidenceContext,
+      governanceIssues: [],
+      runId: "run-without-score",
+    });
+
+    expect(packet.thresholdContract).toMatchObject({
+      aboveCount: null,
+      belowCount: null,
+      calibrationCaveat:
+        "Decision threshold proximity is unavailable because no decision score was produced.",
+      edgeCases: [],
+      nearLineCount: null,
+    });
+  });
+
   it("signs and verifies immutable public packets without privileged context", () => {
     const signed = buildSignedPublicDecisionPacket({
-      decisionScore: 0.72,
+      decisionScore: testDecisionScore(0.72),
       decisionView,
       evidenceContext,
       governanceIssues: [issue()],
@@ -235,9 +257,23 @@ describe("publication packet domain", () => {
     });
   });
 
+  it("preserves an absent public decision metric as unknown instead of zero", () => {
+    const packet = buildPublicDecisionPacket({
+      decisionView: { ...decisionView, keyMetrics: [] },
+      evidenceContext: null,
+      governanceIssues: [],
+      runId: "run-without-public-metric",
+    });
+    const [fallback] = packet.deterministicExplanations;
+
+    expect(fallback?.quantity.point).toBeNull();
+    expect(fallback?.narrative).toContain("Unknown");
+    expect(fallback?.narrative).not.toContain("is 0.00");
+  });
+
   it("blocks publishable Policy Design Case projection labels without making dashboard state authoritative", () => {
     const signed = buildSignedPublicDecisionPacket({
-      decisionScore: 0.72,
+      decisionScore: testDecisionScore(0.72),
       decisionView,
       evidenceContext,
       governanceIssues: [issue()],
@@ -276,7 +312,7 @@ describe("publication packet domain", () => {
 
   it("fails closed when projection-only labels claim publishable authority", () => {
     const signed = buildSignedPublicDecisionPacket({
-      decisionScore: 0.72,
+      decisionScore: testDecisionScore(0.72),
       decisionView,
       evidenceContext,
       governanceIssues: [issue()],
@@ -328,7 +364,7 @@ describe("publication packet domain", () => {
     "fails closed when projection labels mask $caseId evidence",
     ({ code, label }) => {
       const signed = buildSignedPublicDecisionPacket({
-        decisionScore: 0.72,
+        decisionScore: testDecisionScore(0.72),
         decisionView,
         evidenceContext,
         governanceIssues: [issue()],
@@ -371,7 +407,7 @@ describe("publication packet domain", () => {
 
   it("keeps private governance text out of the signed public model", () => {
     const packet = buildPublicDecisionPacket({
-      decisionScore: 0.72,
+      decisionScore: testDecisionScore(0.72),
       decisionView: {
         ...decisionView,
         keyMetrics: [
@@ -400,7 +436,7 @@ describe("publication packet domain", () => {
 
   it("uses stable signatures for stable packet content", () => {
     const packet = buildPublicDecisionPacket({
-      decisionScore: 0.72,
+      decisionScore: testDecisionScore(0.72),
       decisionView,
       evidenceContext,
       runId: "run-35",

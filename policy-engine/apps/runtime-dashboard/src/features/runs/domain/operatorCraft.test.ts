@@ -1,5 +1,6 @@
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 import { buildSignedPublicDecisionPacket } from "./publicationPacket";
 import {
@@ -120,7 +121,10 @@ const evidenceContext: RunEvidenceContext = {
 
 function packet() {
   return buildSignedPublicDecisionPacket({
-    decisionScore: 0.72,
+    decisionScore: untracedDecisionQuantity({
+      metricId: "test.decision_score",
+      point: 0.72,
+    }),
     decisionView,
     evidenceContext,
     governanceIssues: [

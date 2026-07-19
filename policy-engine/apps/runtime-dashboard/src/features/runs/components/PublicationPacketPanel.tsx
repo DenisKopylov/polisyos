@@ -18,6 +18,7 @@ import type {
 } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
+import { Quantity } from "@/shared/ui/quantity";
 import { Badge, Button } from "@polisyos/atlas-ui";
 
 function nodeKind(node: ArgumentMapNode) {
@@ -31,10 +32,12 @@ function nodeKind(node: ArgumentMapNode) {
 }
 
 function ladderKind(item: ConfidenceLadderItem) {
-  if (item.score >= 0.7) {
+  const score = item.score.point;
+  if (typeof score !== "number") return "neutral";
+  if (score >= 0.7) {
     return "ok";
   }
-  if (item.score >= 0.4) {
+  if (score >= 0.4) {
     return "warn";
   }
   return "fail";
@@ -247,11 +250,13 @@ export function PublicationPacketPanel({
                     <p className="font-semibold">{item.label}</p>
                     <p className="text-muted mt-1 text-sm">{item.reason}</p>
                   </div>
-                  <Badge kind={ladderKind(item)}>
-                    {formatNumber(item.score, {
-                      maximumFractionDigits: 2,
-                    })}
-                  </Badge>
+                  <span data-quantity-metric-id={item.score.metric_id}>
+                    <Quantity
+                      value={item.score}
+                      precision={2}
+                      variant="dense"
+                    />
+                  </span>
                 </div>
                 <p className="text-muted mt-2 font-mono text-xs">
                   {t(`phase35.ladder.rung.${item.rung}`)} / {item.targetRef}
@@ -280,6 +285,9 @@ export function PublicationPacketPanel({
               className="border-line bg-background/55 rounded-xl border p-3"
             >
               <p className="font-semibold">{explanation.label}</p>
+              <span data-quantity-metric-id={explanation.quantity.metric_id}>
+                <Quantity value={explanation.quantity} variant="dense" />
+              </span>
               <p className="text-muted mt-1 text-sm">{explanation.narrative}</p>
               <div className="mt-3 grid gap-2 sm:grid-cols-3">
                 {explanation.parts.map((part) => (
@@ -405,26 +413,46 @@ export function PublicationPacketPanel({
           <p className="text-muted mt-2 text-sm">
             {packet.thresholdContract.calibrationCaveat}
           </p>
-          <div className="mt-4 grid gap-2 sm:grid-cols-3">
-            <div className="compact-metric">
-              <span>{t("phase35.threshold.near")}</span>
-              <strong>
-                {formatNumber(packet.thresholdContract.nearLineCount)}
-              </strong>
+          {packet.thresholdContract.nearLineCount === null ||
+          packet.thresholdContract.aboveCount === null ||
+          packet.thresholdContract.belowCount === null ? (
+            <div
+              className="compact-metric mt-4"
+              data-testid="threshold-evaluation-unavailable"
+            >
+              <span>{t("common.unknown")}</span>
             </div>
-            <div className="compact-metric">
-              <span>{t("phase35.threshold.above")}</span>
-              <strong>
-                {formatNumber(packet.thresholdContract.aboveCount)}
-              </strong>
+          ) : (
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              <div
+                className="compact-metric"
+                data-testid="threshold-near-count"
+              >
+                <span>{t("phase35.threshold.near")}</span>
+                <strong>
+                  {formatNumber(packet.thresholdContract.nearLineCount)}
+                </strong>
+              </div>
+              <div
+                className="compact-metric"
+                data-testid="threshold-above-count"
+              >
+                <span>{t("phase35.threshold.above")}</span>
+                <strong>
+                  {formatNumber(packet.thresholdContract.aboveCount)}
+                </strong>
+              </div>
+              <div
+                className="compact-metric"
+                data-testid="threshold-below-count"
+              >
+                <span>{t("phase35.threshold.below")}</span>
+                <strong>
+                  {formatNumber(packet.thresholdContract.belowCount)}
+                </strong>
+              </div>
             </div>
-            <div className="compact-metric">
-              <span>{t("phase35.threshold.below")}</span>
-              <strong>
-                {formatNumber(packet.thresholdContract.belowCount)}
-              </strong>
-            </div>
-          </div>
+          )}
           <div className="mt-3 space-y-2">
             {packet.thresholdContract.edgeCases.map((edge) => (
               <div

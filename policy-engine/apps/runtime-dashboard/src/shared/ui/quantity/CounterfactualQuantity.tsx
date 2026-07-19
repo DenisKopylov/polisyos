@@ -1,18 +1,17 @@
 import type { ComponentPropsWithoutRef } from "react";
 
-import type { TemporalScope } from "@/app/providers/temporal-scope";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 import { CounterfactualBadge } from "@/shared/ui/counterfactual/CounterfactualBadge";
 import { CounterfactualDelta } from "@/shared/ui/counterfactual/CounterfactualDelta";
 
 import { Quantity } from "./Quantity";
-import type { CounterfactualMetric } from "./quantity.types";
+import type { CounterfactualMetric, TemporalRef } from "./quantity.types";
 
 type CounterfactualQuantityProps = {
   value: CounterfactualMetric;
   variant?: "inline" | "table" | "hero" | "dense";
-  temporalScope?: TemporalScope | null;
+  temporalScope?: TemporalRef | null;
 } & Omit<ComponentPropsWithoutRef<"span">, "children" | "value">;
 
 export function CounterfactualQuantity({

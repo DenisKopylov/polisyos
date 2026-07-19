@@ -296,12 +296,6 @@ function RunInspectorContent() {
     focus: summary.primaryDecisionArtifactId ? "artifact" : "overview",
     runId,
   });
-  const decisionScoreQuantity = untracedDecisionQuantity({
-    point: summary.decisionScore,
-    metricId: "run_decision_score",
-    label: t("pages.runs.report.decisionScore"),
-    time: { valid_at: decisionPacketTimestamp },
-  });
   const evaluatorScoreQuantity = untracedDecisionQuantity({
     point: summary.pipeline?.evaluator?.scores?.total_score,
     metricId: "evaluator_total_score",
@@ -350,7 +344,7 @@ function RunInspectorContent() {
             <h2>{summary.decisionHeadline}</h2>
             <div className="score-ring" style={summary.decisionScoreStyle}>
               <Quantity
-                value={decisionScoreQuantity}
+                value={summary.decisionScore}
                 precision={2}
                 variant="hero"
               />
@@ -634,8 +628,11 @@ function RunInspectorContent() {
                             <span className="text-sm font-semibold">
                               {row.label}
                             </span>
-                            <span className="text-muted font-mono text-sm">
-                              {row.display}
+                            <span
+                              className="text-muted font-mono text-sm"
+                              data-quantity-metric-id={row.quantity.metric_id}
+                            >
+                              <Quantity value={row.quantity} variant="dense" />
                             </span>
                           </div>
                         ))

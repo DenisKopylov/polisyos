@@ -17,7 +17,7 @@
   ],
   "properties": {
     "$schema": { "const": "./status-retirement-inventory.schema.json" },
-    "schema_version": { "const": "1.0" },
+    "schema_version": { "const": "1.1" },
     "inventory_id": { "const": "atlas-ds4-status-retirement" },
     "as_of": { "type": "string", "format": "date-time" },
     "authority": { "$ref": "#/$defs/authority" },
@@ -56,6 +56,7 @@
         "current_named",
         "current_inline",
         "current_total",
+        "retired_definitions",
         "already_deleted"
       ],
       "properties": {
@@ -65,6 +66,11 @@
         "current_named": { "type": "integer", "minimum": 0, "maximum": 23 },
         "current_inline": { "type": "integer", "minimum": 0, "maximum": 24 },
         "current_total": { "type": "integer", "minimum": 0, "maximum": 47 },
+        "retired_definitions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 47
+        },
         "already_deleted": { "type": "integer", "minimum": 1, "maximum": 47 }
       }
     },
@@ -191,6 +197,7 @@
       "additionalProperties": false,
       "required": [
         "candidate_id",
+        "current_definition_state",
         "definition_kind",
         "source_span",
         "literal_members",
@@ -206,6 +213,7 @@
           "type": "string",
           "pattern": "^semantic-[a-z0-9-]+$"
         },
+        "current_definition_state": { "enum": ["present", "retired"] },
         "definition_kind": { "enum": ["named", "inline"] },
         "source_span": { "$ref": "#/$defs/sourceSpan" },
         "literal_members": {
@@ -273,7 +281,9 @@
       "properties": {
         "unit_id": { "type": "string", "pattern": "^status-[a-z0-9-]+$" },
         "definition_kind": { "enum": ["named", "inline", "deleted"] },
-        "current_definition_state": { "enum": ["present", "deleted"] },
+        "current_definition_state": {
+          "enum": ["present", "retired", "deleted"]
+        },
         "source_span": { "$ref": "#/$defs/sourceSpan" },
         "literal_members": {
           "type": "array",

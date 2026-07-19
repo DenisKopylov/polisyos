@@ -1,4 +1,5 @@
 export * from "./Quantity";
+export * from "./QuantityRuntimeBridge";
 export * from "./CounterfactualQuantity";
 export * from "./ProvenanceDeepDiveDialog";
 export * from "./ProvenanceMiniGraph";

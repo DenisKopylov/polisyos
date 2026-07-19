@@ -4,6 +4,7 @@ import {
   useRef,
   useState,
   type ComponentPropsWithoutRef,
+  type ReactNode,
 } from "react";
 import {
   AlertTriangle,
@@ -13,54 +14,54 @@ import {
   ShieldQuestion,
 } from "lucide-react";
 
-import type { TemporalScope } from "@/app/providers/temporal-scope";
-import { useMaybeTrustView } from "@/app/providers/useTrustView";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import {
-  TrustMetadata,
-  trustMetadataFromLineage,
-} from "@/shared/ui/trust-view";
 
 import {
+  finiteInterval,
+  finitePoint,
   formatQuantityValue,
   type QuantityFormatOptions,
 } from "./quantity-format";
 import { ProvenancePopover } from "./ProvenancePopover";
+import { useQuantityRuntimeBridge } from "./QuantityRuntimeBridge";
 import type {
+  LineageFreshness,
   QuantityValue,
   TemporalRef,
   VerificationStatus,
 } from "./quantity.types";
 
-type QuantityProvenanceStatus = VerificationStatus | "stale";
-
-type QuantityProps = {
+type QuantityBaseProps = {
   value: QuantityValue;
   format?: QuantityFormatOptions["format"];
   locale?: string;
   precision?: number;
   variant?: "inline" | "table" | "hero" | "dense";
   provenanceMode?: "auto" | "always" | "off";
-  temporalScope?: TemporalScope | null;
+  temporalScope?: TemporalRef | null;
 } & Omit<ComponentPropsWithoutRef<"button">, "children" | "value">;
 
-const STATUS_CLASS: Record<QuantityProvenanceStatus, string> = {
+type QuantityProps = QuantityBaseProps &
+  (
+    | { absentValue?: undefined; absentValueLabel?: never }
+    | { absentValue: ReactNode; absentValueLabel: string }
+  );
+
+const STATUS_CLASS: Record<VerificationStatus, string> = {
   verified:
     "border-[color-mix(in_srgb,var(--color-status-approved)_28%,transparent)] bg-[color-mix(in_srgb,var(--color-status-approved)_8%,transparent)]",
   pending:
     "border-[color-mix(in_srgb,var(--color-status-pending)_34%,transparent)] bg-[color-mix(in_srgb,var(--color-status-pending)_10%,transparent)]",
   disputed:
     "border-[color-mix(in_srgb,var(--color-status-rejected)_28%,transparent)] bg-[color-mix(in_srgb,var(--color-status-rejected)_8%,transparent)]",
-  stale: "border-border bg-[color-mix(in_srgb,var(--muted)_14%,transparent)]",
   untraced: "border-border bg-[color-mix(in_srgb,var(--muted)_8%,transparent)]",
 };
 
-const DOT_CLASS: Record<QuantityProvenanceStatus, string> = {
+const DOT_CLASS: Record<VerificationStatus, string> = {
   verified: "text-[var(--color-status-approved)]",
   pending: "text-[var(--color-status-pending)]",
   disputed: "text-[var(--color-status-rejected)]",
-  stale: "text-muted-foreground",
   untraced: "text-muted-foreground",
 };
 
@@ -82,6 +83,8 @@ export function Quantity({
   variant = "inline",
   provenanceMode = "auto",
   temporalScope,
+  absentValue,
+  absentValueLabel,
   className,
   "aria-label": ariaLabel,
   onBlur,
@@ -92,7 +95,7 @@ export function Quantity({
   ...rest
 }: QuantityProps) {
   const { t, locale: activeLocale } = useI18n();
-  const trustView = useMaybeTrustView();
+  const runtime = useQuantityRuntimeBridge();
   const [open, setOpen] = useState(false);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -101,13 +104,24 @@ export function Quantity({
     locale: locale ?? activeLocale,
     maximumFractionDigits: precision,
   });
-  const status = resolveProvenanceStatus(value);
+  const hasScalarPoint = finitePoint(value.point);
+  const hasAbsentPresentation =
+    absentValue !== undefined && absentValue !== null;
+  const presentation = hasScalarPoint
+    ? "scalar"
+    : hasAbsentPresentation
+      ? "non-scalar"
+      : "unknown";
+  const formattedText = hasScalarPoint
+    ? formatted.text
+    : hasAbsentPresentation
+      ? absentValueLabel
+      : t("common.unknown");
   const resolvedAriaLabel =
     ariaLabel ??
     buildQuantityA11yDescription({
-      formattedText: formatted.text,
+      formattedText,
       quantity: value,
-      status,
       t,
     });
   const provenanceEnabled =
@@ -116,18 +130,9 @@ export function Quantity({
       value.quantity_class !== "layout" &&
       value.quantity_class !== "debug");
   const trustMode =
-    provenanceEnabled && trustView?.mode !== "off"
-      ? trustView?.density === "condensed"
-        ? "compact"
-        : trustView?.mode
+    provenanceEnabled && runtime.trustMode !== "off"
+      ? runtime.trustMode
       : "off";
-  const trustMetadata = trustMetadataFromLineage({
-    fallbackTemporalScope: value.time ?? temporalScopeToRef(temporalScope),
-    freshness: value.lineage.freshness,
-    hash: value.lineage.hash,
-    status: value.lineage.status,
-    trustMetadata: value.lineage.trust_metadata,
-  });
 
   const clearTimers = useCallback(() => {
     if (openTimer.current) {
@@ -173,19 +178,33 @@ export function Quantity({
 
   const content = (
     <>
-      <span className="tabular-nums">{formatted.value}</span>
-      {formatted.unit ? (
+      <span className="tabular-nums">
+        {hasScalarPoint
+          ? formatted.value
+          : (absentValue ?? t("common.unknown"))}
+      </span>
+      {hasScalarPoint && formatted.unit ? (
         <span className="text-muted-foreground text-xs font-medium">
           {formatted.unit}
         </span>
       ) : null}
-      <StatusCue status={status} />
+      <StatusCue status={value.lineage.status} />
+      <FreshnessCue freshness={value.lineage.freshness} />
+      {value.uncertainty?.disputed ? (
+        <AlertTriangle
+          className="size-3.5 text-[var(--color-status-rejected)]"
+          data-testid="quantity-uncertainty-disputed"
+          aria-hidden="true"
+        />
+      ) : null}
     </>
   );
 
   const baseClass = cn(
     "focus-visible:ring-ring inline-flex items-center gap-1.5 rounded-md border align-baseline leading-none font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none",
-    STATUS_CLASS[status],
+    STATUS_CLASS[value.lineage.status],
+    value.uncertainty?.disputed &&
+      "ring-1 ring-[color-mix(in_srgb,var(--color-status-rejected)_45%,transparent)]",
     VARIANT_CLASS[variant],
     provenanceEnabled && "cursor-help",
     className,
@@ -198,8 +217,9 @@ export function Quantity({
         data-lineage-id={value.lineage.id}
         data-lineage-status={value.lineage.status}
         data-lineage-freshness={value.lineage.freshness}
-        data-provenance-status={status}
         data-quantity-class={value.quantity_class}
+        data-quantity-metric-id={value.metric_id ?? undefined}
+        data-quantity-presentation={presentation}
         data-testid="quantity"
         className={baseClass}
       >
@@ -217,8 +237,9 @@ export function Quantity({
       data-lineage-id={value.lineage.id}
       data-lineage-status={value.lineage.status}
       data-lineage-freshness={value.lineage.freshness}
-      data-provenance-status={status}
       data-quantity-class={value.quantity_class}
+      data-quantity-metric-id={value.metric_id ?? undefined}
+      data-quantity-presentation={presentation}
       data-testid="quantity"
       className={baseClass}
       onBlur={onBlur}
@@ -265,6 +286,11 @@ export function Quantity({
     return popover;
   }
 
+  const trustMetadata = runtime.renderTrustMetadata?.(value, trustMode);
+  if (!trustMetadata) {
+    return popover;
+  }
+
   return (
     <span
       data-trust-collapse="inspector"
@@ -274,19 +300,12 @@ export function Quantity({
       )}
     >
       {popover}
-      <TrustMetadata
-        hash={value.lineage.hash}
-        label={value.label ?? value.metric_id}
-        metadata={trustMetadata}
-        mode={trustMode}
-        subjectId={value.lineage.id}
-        subjectKind="quantity"
-      />
+      {trustMetadata}
     </span>
   );
 }
 
-function StatusCue({ status }: { status: QuantityProvenanceStatus }) {
+function StatusCue({ status }: { status: VerificationStatus }) {
   const iconClass = cn("size-3.5", DOT_CLASS[status]);
   if (status === "verified") {
     return <CheckCircle2 className={iconClass} aria-hidden="true" />;
@@ -303,27 +322,26 @@ function StatusCue({ status }: { status: QuantityProvenanceStatus }) {
   return <CircleHelp className={iconClass} aria-hidden="true" />;
 }
 
-function resolveProvenanceStatus(
-  value: QuantityValue,
-): QuantityProvenanceStatus {
-  if (value.uncertainty?.disputed || value.lineage.status === "disputed") {
-    return "disputed";
+function FreshnessCue({ freshness }: { freshness: LineageFreshness }) {
+  if (freshness === "current") {
+    return null;
   }
-  if (value.lineage.freshness === "stale") {
-    return "stale";
-  }
-  return value.lineage.status;
+  return (
+    <CircleHelp
+      className="text-muted-foreground size-3.5"
+      data-lineage-freshness-cue={freshness}
+      aria-hidden="true"
+    />
+  );
 }
 
 function buildQuantityA11yDescription({
   formattedText,
   quantity,
-  status,
   t,
 }: {
   formattedText: string;
   quantity: QuantityValue;
-  status: QuantityProvenanceStatus;
   t: (
     path: string,
     vars?: Record<string, string | number | null | undefined>,
@@ -331,34 +349,32 @@ function buildQuantityA11yDescription({
 }) {
   const label =
     quantity.label ?? quantity.metric_id ?? t("shared.ui.quantity.valueLabel");
-  const interval = quantity.uncertainty?.ci_95;
-  if (interval) {
-    return t("shared.ui.quantity.aria.withCi95", {
-      label,
-      value: formattedText,
-      lower: interval[0],
-      upper: interval[1],
-      status: t(`shared.ui.quantity.status.${status}`),
-    });
+  const interval = finiteInterval(quantity.uncertainty?.ci_95);
+  const description = interval
+    ? t("shared.ui.quantity.aria.withCi95", {
+        label,
+        value: formattedText,
+        lower: interval[0],
+        upper: interval[1],
+        status: t(`shared.ui.quantity.status.${quantity.lineage.status}`),
+      })
+    : t("shared.ui.quantity.aria.withoutCi", {
+        label,
+        value: formattedText,
+        status: t(`shared.ui.quantity.status.${quantity.lineage.status}`),
+      });
+  const qualifiers: string[] = [];
+  if (quantity.lineage.freshness !== "current") {
+    const freshness =
+      quantity.lineage.freshness === "stale"
+        ? t("shared.ui.quantity.status.stale")
+        : t("common.unknown");
+    qualifiers.push(
+      `${t("shared.ui.quantity.deepDive.freshness")} ${freshness}`,
+    );
   }
-  return t("shared.ui.quantity.aria.withoutCi", {
-    label,
-    value: formattedText,
-    status: t(`shared.ui.quantity.status.${status}`),
-  });
-}
-
-function temporalScopeToRef(
-  scope: TemporalScope | null | undefined,
-): TemporalRef | null {
-  if (!scope) {
-    return null;
+  if (quantity.uncertainty?.disputed) {
+    qualifiers.push(t("shared.ui.quantity.status.disputed"));
   }
-  return {
-    branch: scope.branch ?? null,
-    scenario_id: scope.scenarioId ?? null,
-    snapshot_id: scope.snapshotId ?? null,
-    tx_at: scope.txAt ?? null,
-    valid_at: scope.validAt ?? null,
-  };
+  return [description, ...qualifiers].join(", ");
 }

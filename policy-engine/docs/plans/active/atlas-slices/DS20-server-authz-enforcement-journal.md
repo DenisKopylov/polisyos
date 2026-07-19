@@ -528,3 +528,130 @@ Final collision inspection found `main` unchanged at `d5f83a26b`. GY-N13b advanc
 to `72e20ff8b` and still has zero branch-only `src/polisyos/runtime/http/**` paths.
 The current-base `git merge-tree` preview emitted no conflicts. The branch remains
 unmerged for architect review.
+
+## 2026-07-19 — DS20-B cross-fence closure
+
+The architect-ratified extension was frozen in `45f7733cd` before cross-fence
+implementation. Its closeout verdicts are:
+
+| Blocker | Verdict | Evidence |
+|---|---|---|
+| B1 Rego bridge | `closed` | Canonical policy consumes the exact server action/resource envelope; vocabulary and behavioral decision parity are executable. |
+| B2 ops probe identity | `closed` | Canary and debug probe use strict deployment composition, dedicated minimal-grant principals, and injected short-lived bearers; no fixture or allow-all bypass remains. |
+| B3 promotion CAS | `typed-limitation` | N13b owns the exact Fabric producer; no Fabric path changed. The authorize→mutate interval remains unbounded and non-atomic. |
+| B4 verifier provenance | `closed` | Non-development bootstrap accepts only the exact deployment-factory bundle and rejects protocol-shaped/test verifiers. The external IdP contract is documented. |
+| B5 PostgreSQL proof | `environment-blocked` | Four real-PG-only proofs exist with no SQLite fallback, but this host has no DSN, `pg_isready`, or reachable Docker daemon. |
+
+### B1 red/green and parity
+
+OPA 1.15.2's pre-edit 20-test harness was green while three new truthful DS20
+witnesses were red: unscoped ingestion, same-tenant launch, and unscoped promotion
+were all denied by the legacy tenant/role policy. The repair adds one deny-by-default
+action-permission module and composes it into the canonical decision. The final
+`opa check --strict ops/policy/policies` plus
+`opa test --fail-on-empty -v ops/policy/policies` receipt is 45/45 passed.
+
+The Rego vocabulary-parity test extracts the policy's declared values and requires
+exact equality with all 33 `RuntimePermission` values. The decision-parity suite
+builds the same sealed OPA input through the live server types and compares server
+expectation with Rego for the principal × operation × resource matrix. Unknown
+permission, resource class, binding authority, authorization source, extra grant,
+and missing action contract all deny. A marker-only or allow-by-omission policy
+cannot satisfy the suite.
+
+The Helm chart mirror at `ops/cloud/helm/polisyos-cell/policies/**` was explicitly
+outside the grant. It is now stale relative to canonical Rego and remains an honest
+deployment `bridge_missing`/`verification_missing` limitation for its owner.
+
+### B2/B4 deployment producer and probe consumers
+
+`DeploymentSecurityConfig` resolves issuer, audience, trusted asymmetric algorithms,
+JWKS URI/key rotation, OPA endpoint, cell routing, service-principal grants, step-up
+freshness, replay storage, and source provenance through the deployment path. The
+factory binds the exact managed-principal key
+`(issuer, audience, subject, tenant, cell)` to canonical enum grants. Unknown
+principals, grants, algorithms, keys, sources, and cells fail closed. An exact
+factory-produced bundle is required in non-development profiles; directly composed
+collaborators or test verifiers abort bootstrap.
+
+The canary requires `POLISYOS_RUNTIME_CANARY_BEARER_TOKEN` and uses only
+`runs.launch` plus `runs.view`. The debug probe requires
+`POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN` and uses only `runs.view`. Both tokens are
+sanitized from diagnostics. The production-chain debug witness uses a genuine RS256
+JWT and canonical Rego: bad signature returns 401, the exact principal without the
+required grant returns 403, and the exact `runs.view` grant reaches the protected
+missing-run handler and returns 404. The runbook names the external IdP fields,
+Keycloak `realm_access.roles` / `resource_access[polisyos-runtime].roles`, and MFA
+`acr`/`amr`; a client-authored `mfa_verified` boolean is not accepted as provenance.
+
+The guardrail initially exposed six new deep imports. The repair moved the OPA input
+implementation onto the existing authorization-middleware edge and left
+`opa_input.py` as an exact typed alias. The deployment root now consumes exact
+runtime re-exports from the middleware modules that already owned the cell and
+identity edges. `cell_router_middleware.py` and `jwt_auth_middleware.py` are therefore
+recorded in the plan's existing-HTTP-fence guardrail addendum. No dynamic import,
+core file, guardrail exception, or baseline update was used. Independent review
+confirmed exact class identity/AST equivalence and no new architecture bypass.
+
+### B3 ownership stop and quantified limitation
+
+N13b ref `72e20ff8b` changes
+`src/polisyos/fabric/retrieval/service.py`, the exact promotion mutation owner. The
+mandatory ownership stop therefore fired even though the merge tree is textually
+clean. No Fabric facade or storage file was edited. The race begins when the HTTP
+binder copies the promotion candidate and ends only when the Fabric retrieval
+service acquires its mutation lock. It spans OPA, step-up, scheduler delay, and has
+no enforced upper bound; the lock releases before downstream persistence. A
+post-mutation comparison plus 409 would detect some drift but could not roll back the
+already-authoritative mutation, so DS20-B does not present that as CAS. The handoff
+is a generic revision-CAS primitive at the public Fabric facade, owned by N13b/Fabric.
+
+### B5 executable real-PostgreSQL proof and environment block
+
+`test_runtime_postgres_linearizability.py` provisions one unique schema per test and
+uses independent durable store/app instances. Its four properties are: exactly one
+winner consumes a step-up assertion; two scenario CAS writers produce one mutation
+and one 409; a corrupted durable head denies before OPA; and a fresh app ignores an
+unheaded CAS artifact. Connection/provisioning failures alone become explicit
+`environment_blocked` skips; assertion/property failures remain failures.
+
+This workstation has no `POLISYOS_TEST_PG_DSN`, no `pg_isready`, and Docker reports
+that its daemon is unreachable. The final focused run therefore has four explicit
+PG skips. Cloud reproduction is:
+
+```text
+POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py
+```
+
+The SQLite proofs remain labeled interim; no unexecuted PostgreSQL property is
+claimed true.
+
+### Final serialized verification receipts
+
+- OPA strict plus Rego harness: 45/45 passed.
+- DS20-B focused set: 75 selected, 70 passed, five explicit skips (four B5 plus the
+  existing optional debug-probe PostgreSQL integration).
+- Original focused DS20 gate after the import-boundary repair: 268/268 passed.
+- Original scoped HTTP denominator after the same repair: exactly six inherited
+  failures and two inherited skips, with the same node identities and no additional
+  failure. The previously isolated order-sensitive SSE observation did not recur.
+- Runtime API contract checker: passed.
+- Runtime client TypeScript, architecture, four JavaScript tests, and ESLint: passed.
+- Changed-file Ruff: only two inherited `SIM114` findings at canary lines 1117/1119,
+  both blamed to `5c4823ee7c`; all task code passes with that inherited rule excluded.
+- Task enforcement/deployment/test basedpyright: zero errors. A wider scan of both
+  legacy probe scripts reports 26 diagnostics, all blamed to pre-DS20 lines and none
+  in a DS20-B hunk.
+- `git diff --check`: passed.
+- Runtime schema/client diff against `9b5e4f69c`: empty. All six prior hashes are
+  unchanged, so DS20-B required no regeneration.
+- Architecture guardrail: zero DS20-B additions; exactly five inherited DS3 deep
+  imports remain and three DS20 removals are unclaimed improvement. The baseline file
+  is byte-untouched.
+- `git merge-tree --write-tree HEAD main` and the N13b equivalent both exit zero.
+  N13b has no textual overlap with DS20-B, while its semantic ownership of the Fabric
+  producer remains the B3 stop condition.
+
+All implementation-task re-reviews approved with no remaining Critical, Important,
+or Minor finding. The branch remains unmerged for the final whole-branch review and
+architect disposition.

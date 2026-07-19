@@ -2,8 +2,9 @@
 
 ## Disposition
 
-**Writable-fence implementation: complete. Merge/deployment disposition: NO-GO
-pending architect review and the cross-fence policy/consumer repairs below.**
+**HTTP floor and DS20-B implementation: complete. Merge/deployment disposition:
+NO-GO pending architect review of the B3 typed limitation, the B5
+environment-blocked PostgreSQL proof, and the out-of-fence Helm policy mirror.**
 
 DS20 closes the measured HTTP-layer security floor: every live unsafe operation is
 admitted only through verified identity, one exact server-owned action permission,
@@ -12,10 +13,20 @@ single-use step-up assertion. Absence, ambiguity, dependency tampering, audit fa
 and unverifiable resource authority all fail closed. No UI state, fixture fallback,
 coarse role, offline path, or coarse OPA allow substitutes for the action proof.
 
-The branch is intentionally unmerged. Canonical Rego/Helm policies and two production
-tool consumers have not yet adopted the DS20 contract; claiming production readiness
-would therefore be false even though unauthorized HTTP mutation is structurally
-blocked.
+The branch is intentionally unmerged. Canonical Rego and both production-tool
+consumers now adopt the DS20 contract through genuine deployment identity. The Helm
+chart's separate policy mirror is still stale because it was explicitly outside the
+extended fence. Promotion still lacks an atomic Fabric compare-and-set producer, and
+the durable PostgreSQL properties have executable proofs but no real-DSN receipt in
+this environment. Claiming full production readiness would therefore still be false.
+
+| DS20-B blocker | Verdict |
+|---|---|
+| B1 Rego bridge | `closed` — exact 33-value vocabulary and behavioral server/Rego parity |
+| B2 ops identity | `closed` — genuine minimal-grant deployment principals for both probes |
+| B3 promotion CAS | `typed-limitation` — N13b owns the missing public Fabric CAS producer |
+| B4 verifier provenance | `closed` — factory-only non-development composition and documented IdP provenance |
+| B5 PostgreSQL proof | `environment-blocked` — executable real-PG harness, no local DSN/daemon |
 
 ## Live denominator and structural proof
 
@@ -180,7 +191,9 @@ The authoritative register is outside the DS20 fence and was not edited.
   in its complete module, and in this repeat; it is not added to the baseline.
 - Thirty-one legacy mutation tests were converted to authenticated/step-up-aware or
   explicit early-deny expectations. No auth check was weakened to make them green.
-- Changed-file Ruff: passed.
+- Changed-file Ruff: baseline-relative passed. The only strict findings are two
+  inherited `SIM114` branches in the canary, both blamed to `5c4823ee7c`; all task
+  Python files pass with that inherited rule excluded.
 - Canonical runtime API contract checker: passed.
 - Generated runtime client TypeScript typecheck: passed.
 - Generated runtime client architecture check: passed.
@@ -195,6 +208,27 @@ The authoritative register is outside the DS20 fence and was not edited.
 - Architecture guardrail: baseline-red, not DS20-green. Five inherited DS3 additions
   remain, while DS20 removes three stale baseline edges. No DS20-added deep-import
   edge remains; baseline sync is outside the fence.
+
+DS20-B's fresh closeout receipts add:
+
+- OPA 1.15.2 strict check and canonical Rego harness: 45/45 passed.
+- Rego/server vocabulary parity: exact equality with all 33 canonical permissions.
+- Rego/server decision parity: live server inputs and the principal × operation ×
+  resource matrix agree, including unknown-value and no-contract denials.
+- DS20-B focused gate: 75 selected, 70 passed, five explicit skips. Four skips are
+  the real-PostgreSQL proofs below; one is the pre-existing optional debug-probe
+  PostgreSQL integration.
+- Focused DS20 denominator after the final import-boundary repair: 268/268 passed.
+- Scoped HTTP denominator after the same repair: exactly the six inherited failures
+  and two inherited skips listed below; no SSE recurrence and no new failure.
+- Runtime contract checker: passed. Runtime client TypeScript, architecture, four
+  JavaScript tests, and ESLint: passed.
+- Task enforcement/deployment/test basedpyright gate: zero errors. A deliberately
+  wider scan of the two modified legacy probe scripts reports 26 diagnostics, every
+  one blamed to pre-DS20 lines; no diagnostic lands in a DS20-B hunk.
+- Schema and generated-client bytes are unchanged from `9b5e4f69c`; regeneration was
+  therefore neither required nor performed in DS20-B. The six hashes below remain
+  exact.
 
 The six inherited scoped failures are unchanged:
 
@@ -230,40 +264,81 @@ f94c87d56cf1cc3658c3c9330bd202fc2061fc2debad16a407d0aabf322cb0cb  schemas/runtim
   and race probes are retained, and excluded failures were rerun in isolation before
   classification.
 
-Remaining capability labels are explicit: policy adoption is `bridge_missing` plus
-`semantic_test_missing`; production tools are `consumer_missing` plus
-`verification_missing`; promotion compare-and-set is `bridge_missing`; scorecard
-verifier provenance and DS9 decision-integrity artifacts are `artifact_missing`.
+Remaining capability labels are explicit: the out-of-fence Helm mirror is
+`bridge_missing` plus `verification_missing`; promotion compare-and-set remains
+`bridge_missing`; the local real-PostgreSQL receipt is `verification_missing`; and
+DS9 decision-integrity/scorecard-authority artifacts remain `artifact_missing`.
+Canonical policy adoption, deployment verifier composition, and both production
+probe consumers are closed in DS20-B.
 
 ## Cross-fence blockers and required handoffs
 
-### Architect/policy owner — blocks production admission
+### B1 canonical policy bridge — closed; Helm deployment mirror limited
 
-OPA 1.15.2 against both `ops/policy/policies/**` and the Helm bundle denies truthful
-DS20 inputs for ingestion, same-tenant run launch, and promotion. The old policies do
-not consume the new action/resource/tenant-authority contract. Fabricating resource
-ownership in HTTP or bypassing the deny is forbidden. The policy lane must implement
-the vocabulary/resource contract and add exact allow/deny semantic tests.
+Canonical `ops/policy/policies/**` now consumes the exact action permission,
+resource class, binding authority, authorization source, tenant, and principal grant
+contract. Unknown permissions, resources, authorities, sources, or principal grants
+deny by default. The Rego vocabulary is exactly equal to the 33-value server enum,
+and the behavioral decision-parity suite exercises live server envelopes rather than
+marker strings.
 
-### Production tooling owner — blocks existing canaries
+The chart mirror under `ops/cloud/helm/polisyos-cell/policies/**` was explicitly
+read-only and is now stale relative to canonical Rego. Deployment remains a typed
+`bridge_missing`/`verification_missing` limitation until the chart owner mirrors and
+tests the canonical bundle; DS20-B neither edits it nor claims it green.
 
-- `tools/ops_runners/runtime/local_production_canary.py:2375` and `:2538` request
-  development fixture identity in production and now fail before network I/O.
-- `tools/quality/testing/local_prod_debug_probe.py:536` constructs a production app
-  without a step-up verifier and now fails at bootstrap.
-- Update the corresponding tests and
-  `docs/runbooks/local-production-debugging.md:199` with genuine identity and verifier
-  wiring; do not restore fixtures or optional verification.
+### B2 production probe identity — closed
 
-### Fabric/quality producer owners — authority limitations
+The canary and local-production debug probe no longer request fixture identity or an
+allow-all policy. Both compose the strict deployment security factory and require a
+deployment-injected short-lived bearer for dedicated service principals. The canary
+principal is limited to `runs.launch` and `runs.view`; the debug principal is limited
+to `runs.view`. Behavioral tests prove bad signature returns 401, a genuine principal
+without the exact grant returns 403, and the exact debug grant reaches the protected
+missing-run witness and returns 404 after canonical OPA evaluation.
 
-- Promotion retrieval lacks expected-digest/version compare-and-set, leaving a
-  content-resolved-unscoped post-OPA race that HTTP cannot atomically close.
+### B4 verifier provenance — closed
+
+Non-development application construction accepts only the exact factory-produced
+deployment bundle. Issuer, audience, algorithms, JWKS/key rotation, cell routing,
+OPA endpoint, service-principal grants, replay storage, freshness bounds, and
+non-secret configuration provenance resolve through the typed deployment path.
+Protocol-shaped/test verifiers are structurally refused outside development. The
+runbook records the external IdP contract, including Keycloak role claims and MFA
+`acr`/`amr`; a client-authored MFA boolean is not authority.
+
+### B3 Fabric promotion CAS — typed limitation
+
+- N13b ref `72e20ff8b` owns the exact Fabric producer
+  `src/polisyos/fabric/retrieval/service.py`, so the mandated owner-overlap stop fired
+  before any Fabric edit. Both merge-tree previews are textually clean, but textual
+  cleanliness does not waive owner discipline.
+- Promotion retrieval still lacks expected-digest/version compare-and-set. The race
+  begins when HTTP copies the candidate for pre-OPA binding and ends only when the
+  retrieval service acquires its mutation lock. It spans OPA, step-up, scheduling,
+  and has no enforced upper bound; the lock also releases before downstream
+  persistence. No HTTP-only post-check can make that mutation atomic.
+- Verdict: `typed-limitation` / `bridge_missing`. The Fabric/N13b owner must expose a
+  generic revision-CAS primitive at its public facade before authorize→mutate can be
+  claimed atomic.
+
+### B5 real PostgreSQL proof — environment-blocked
+
+- Four real-PostgreSQL-only tests use independent store/app instances and unique
+  schemas. They prove exactly one step-up replay winner, one scenario mutation plus
+  one 409, corrupted-head denial before OPA, and rejection of an unheaded CAS artifact
+  by a fresh app. There is no SQLite fallback in these tests.
+- This host has no `POLISYOS_TEST_PG_DSN`, no `pg_isready`, and no reachable Docker
+  daemon. All four tests therefore skip explicitly as `environment_blocked`; no
+  PostgreSQL property is claimed true without execution.
+- Reproduction command:
+  `POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py`.
+
+### Remaining quality/decision-integrity authority limitation
+
 - Persisted production scorecards expose CAS identity but not verifier provenance.
   A producer/contract repair must prove quality authority; CAS presence or
   self-attestation is insufficient.
-- PostgreSQL replay/scenario paths require a real-DSN execution receipt; only the
-  shared SQLite semantics ran locally.
 
 ### DS5 and DS4
 
@@ -291,12 +366,18 @@ The new internal Python modules were not added to the package public facade.
 - Worktree: `/Users/deniskopylov/polisyos/.worktrees/atlas-ds20`
 - Branch: `codex/atlas-ds20-server-authz`
 - Base at worktree creation: `d5f83a26b`
-- Writable paths remained inside runtime HTTP, schema/generated client, scoped HTTP
-  tests, and DS20 plan/journal/closure documents.
-- `apps/**`, runtime quality, policy bundles, production tools, architecture baselines,
-  and the DS19 register were read-only.
+- Writable paths remained inside the original runtime HTTP/DS20 test/doc fence and
+  the amendment's exact canonical Rego, probe, runbook, and PostgreSQL-test list.
+  The two middleware re-export files are existing-HTTP-fence wiring paths recorded
+  in the amendment's guardrail addendum; they add no new core edge.
+- `apps/**`, runtime quality, Fabric, GY artifacts/validators, Helm, architecture
+  baselines, and the DS19 register were read-only.
 - Closeout `main` remains `d5f83a26b`; N13b is `72e20ff8b` with zero branch-only
   runtime HTTP paths.
-- The current-base `git merge-tree` preview emitted no conflict output.
-- Final fence stat: `57 files changed, 14958 insertions(+), 867 deletions(-)`.
+- `git merge-tree --write-tree HEAD main` and the corresponding N13b preview both
+  exit zero. N13b has no textual path overlap with DS20-B, while its semantic
+  ownership of the Fabric CAS producer is preserved as B3's stop condition.
+- DS20-B changes no schema/client bytes and makes no Fabric, Helm, app, GY, or
+  architecture-baseline edit.
+- Final fence stat: `72 files changed, 19062 insertions(+), 912 deletions(-)`.
 - No merge, push, or pull request is authorized by this slice.

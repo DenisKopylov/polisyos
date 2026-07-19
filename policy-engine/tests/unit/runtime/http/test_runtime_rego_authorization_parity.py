@@ -15,8 +15,10 @@ from typing import TYPE_CHECKING, Any, cast
 import pytest
 from fastapi.routing import APIRoute
 
+from polisyos.core.contracts.control import RunLaunchResponse
+from polisyos.core.contracts.runtime import ApiMeta
 from polisyos.core.security.access_scope import AccessScope
-from polisyos.core.security.authz import AuthzInput
+from polisyos.core.security.authz import AuthzDecision, AuthzInput, AuthzResult
 from polisyos.core.security.identity import PIIAccessLevel
 from polisyos.runtime.http.authorization import (
     ActionPermissionVerification,
@@ -356,6 +358,8 @@ class _DecisionInputMutation(StrEnum):
     KNOWN_ACTION_WRONG_RESOURCE = "known_action_wrong_resource"
     UNKNOWN_RESOURCE = "unknown_resource"
     UNKNOWN_AUTHORITY = "unknown_authority"
+    UNKNOWN_SOURCE = "unknown_source"
+    UNKNOWN_GRANT = "unknown_grant"
     CROSS_TENANT = "cross_tenant"
     FABRICATED_TENANT = "fabricated_tenant"
 
@@ -536,7 +540,8 @@ def _mutate_live_server_input(
     if mutation is _DecisionInputMutation.NONE:
         return candidate
     if mutation is _DecisionInputMutation.UNKNOWN_ACTION:
-        candidate["action"]["permission"] = "runs.launch.synonym"
+        permission = str(candidate["action"]["permission"])
+        candidate["action"]["permission"] = f"{permission}.synonym"
     elif mutation is _DecisionInputMutation.MALFORMED_ACTION:
         candidate["action"] = "runs.launch"
     elif mutation is _DecisionInputMutation.KNOWN_ACTION_WRONG_RESOURCE:
@@ -547,6 +552,11 @@ def _mutate_live_server_input(
     elif mutation is _DecisionInputMutation.UNKNOWN_AUTHORITY:
         candidate["resource"]["binding_authority"] = "self_asserted"
         candidate["resource"]["kind"] = "runtime.run_collection.self_asserted"
+    elif mutation is _DecisionInputMutation.UNKNOWN_SOURCE:
+        candidate["identity"]["authorization_source"] = "self_asserted"
+    elif mutation is _DecisionInputMutation.UNKNOWN_GRANT:
+        permission = str(candidate["action"]["permission"])
+        candidate["identity"]["permissions"].append(f"{permission}.synonym")
     elif mutation is _DecisionInputMutation.CROSS_TENANT:
         candidate["resource"]["tenant_id"] = "tenant-b"
     elif mutation is _DecisionInputMutation.FABRICATED_TENANT:
@@ -554,6 +564,153 @@ def _mutate_live_server_input(
     else:  # pragma: no cover - closed enum exhaustiveness guard
         raise AssertionError(f"unsupported mutation: {mutation.value}")
     return candidate
+
+
+class _CanonicalRegoBoundaryOPA:
+    def __init__(self, mutation: _DecisionInputMutation) -> None:
+        self.mutation: _DecisionInputMutation = mutation
+        self.inputs: list[RuntimeActionAuthzInput] = []
+        self.evaluated_payloads: list[dict[str, Any]] = []
+
+    async def check(self, authz_input: AuthzInput) -> AuthzResult:
+        assert type(authz_input) is RuntimeActionAuthzInput
+        self.inputs.append(authz_input)
+        payload = _mutate_live_server_input(authz_input.to_opa_input(), self.mutation)
+        self.evaluated_payloads.append(payload)
+        allowed = bool(
+            _opa_eval(
+                "data.polisyos.authz.decision.allow",
+                input_value=payload,
+            )
+        )
+        reasons = tuple(
+            sorted(
+                cast(
+                    "list[str]",
+                    _opa_eval(
+                        "data.polisyos.authz.decision.deny_reasons",
+                        input_value=payload,
+                    ),
+                )
+            )
+        )
+        return AuthzResult(
+            decision=AuthzDecision.ALLOW if allowed else AuthzDecision.DENY,
+            policy="polisyos/authz/decision",
+            reasons=reasons,
+        )
+
+
+class _HandlerProbeControlService:
+    def __init__(self) -> None:
+        self.effects: list[str] = []
+
+    def launch_workflow_run(
+        self,
+        body: object,
+        *,
+        request_id: str,
+        principal: object,
+    ) -> RunLaunchResponse:
+        del body, principal
+        self.effects.append(request_id)
+        return RunLaunchResponse(
+            meta=ApiMeta(request_id=request_id),
+            status="accepted",
+            run_id="R_rego_live_parity",
+            job_id="job-rego-live-parity",
+            effective_execution_profile="dev",
+            message="Canonical Rego allowed the live handler invocation.",
+        )
+
+
+def _live_route_for_permission(app: object, permission: RuntimePermission) -> APIRoute:
+    matches: list[APIRoute] = []
+    for candidate in cast("Any", app).routes:
+        if not isinstance(candidate, APIRoute):
+            continue
+        if "POST" not in candidate.methods or "{" in candidate.path:
+            continue
+        requirement = get_route_authorization_requirement(cast("Any", candidate))
+        if requirement.permission is permission:
+            matches.append(candidate)
+    assert matches, permission.value
+    return min(matches, key=lambda candidate: len(candidate.path))
+
+
+def test_live_request_and_canonical_rego_agree_before_handler_side_effect(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.routes import control as control_routes
+
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    opa = _CanonicalRegoBoundaryOPA(_DecisionInputMutation.NONE)
+    bearer = _fixture_bearer("rego-live-handler-parity")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-rego-live-handler-parity",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+    route = _live_route_for_permission(client.app, RuntimePermission.RUNS_LAUNCH)
+    probe_service = _HandlerProbeControlService()
+
+    def _probe_control_service(_request: object) -> _HandlerProbeControlService:
+        return probe_service
+
+    monkeypatch.setattr(control_routes, "_get_control_service", _probe_control_service)
+    cases = (
+        (_DecisionInputMutation.NONE, 200, True),
+        (_DecisionInputMutation.UNKNOWN_ACTION, 403, False),
+        (_DecisionInputMutation.UNKNOWN_RESOURCE, 403, False),
+        (_DecisionInputMutation.UNKNOWN_AUTHORITY, 403, False),
+        (_DecisionInputMutation.UNKNOWN_SOURCE, 403, False),
+        (_DecisionInputMutation.UNKNOWN_GRANT, 403, False),
+    )
+
+    with client:
+        for mutation, expected_status, reaches_handler in cases:
+            opa.mutation = mutation
+            effects_before = len(probe_service.effects)
+            response = client.post(
+                route.path,
+                headers={
+                    "Authorization": f"Bearer {bearer}",
+                    "X-Tenant-ID": runtime_api_env["tenant_a"],
+                },
+                json={
+                    "mode": "workflow",
+                    "data_source": {
+                        "data_snapshot_ref": runtime_api_env["root_artifact_id"],
+                    },
+                    "checkpoint_policy": "strict",
+                    "params": {"seed": 42},
+                },
+            )
+
+            assert response.status_code == expected_status, (mutation, response.text)
+            assert (len(probe_service.effects) == effects_before + 1) is reaches_handler
+            if not reaches_handler:
+                assert response.json()["code"] == "authorization_denied"
+
+    assert len(opa.inputs) == len(cases)
+    assert len(probe_service.effects) == 1
+    assert all(type(authz_input) is RuntimeActionAuthzInput for authz_input in opa.inputs)
+    assert all(payload["request"]["path"] == route.path for payload in opa.evaluated_payloads)
+    assert all(
+        authz_input.to_opa_input()["action"] == {"permission": "runs.launch"}
+        for authz_input in opa.inputs
+    )
 
 
 @pytest.mark.parametrize("case", _DECISION_PARITY_CASES, ids=lambda case: case.name)

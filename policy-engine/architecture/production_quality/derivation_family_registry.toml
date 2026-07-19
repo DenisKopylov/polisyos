@@ -1,0 +1,62 @@
+[[catalog_selection_policies]]
+policy_id = "price_index_exact_year_rebase.acceptance_and_proof"
+family_id = "price_index_exact_year_rebase"
+method_version = "1.0.0"
+purposes = ["derived_acceptance", "universality_proof"]
+country_code = "UA"
+output_variable_id_template = "{amount_canonical_variable}_real_usd_{reference_year}"
+
+[[catalog_selection_policies.roles]]
+role = "amount"
+catalog_unit = "usd"
+semantic_anchor = "gross domestic product nominal current usd"
+owner_metric_id = "gdp"
+owner_canonical_variable = "gdp"
+minimum_alignment_confidence = 0.8
+allow_proxy = false
+require_executable_binding = true
+executable_connectors = []
+required_themes = []
+forbidden_theme_fragments = []
+required_text_fragments = ["current"]
+forbidden_text_fragments = ["per capita", "seas. adj", "seasonally adjusted"]
+
+[[catalog_selection_policies.roles]]
+role = "index"
+catalog_unit = "index"
+semantic_anchor = "consumer price index reference base"
+owner_metric_id = "inflation"
+owner_canonical_variable = "inflation"
+minimum_alignment_confidence = 0.8
+allow_proxy = false
+require_executable_binding = true
+executable_connectors = ["worldbank.wdi"]
+required_themes = ["World Development Indicators"]
+forbidden_theme_fragments = ["archive"]
+required_text_fragments = ["consumer price index"]
+forbidden_text_fragments = ["annual %"]
+reference_value_pattern = "\\b((?:19|20)\\d{2})\\s*=\\s*100\\b"
+
+[[families]]
+family_id = "price_index_exact_year_rebase"
+method_id = "arithmetic.exact_year.index_rebase"
+method_version = "1.0.0"
+year_domain_role = "amount"
+input_specs = [
+  { role = "amount", basis = { quantity_kind = "monetary_flow", unit = "usd", attributes = [{ name = "currency", value = "USD" }, { name = "price_basis", value = "current" }] }, value_constraints = [] },
+  { role = "index", basis = { quantity_kind = "price_index_level", unit = "index", attributes = [] }, value_constraints = ["positive"] },
+]
+output_basis = { quantity_kind = "monetary_flow", unit = "usd", attributes = [{ name = "currency", value = "USD" }, { name = "price_basis", value = "constant" }, { name = "reference_year", value = "${reference_year}" }] }
+parameter_rules = [
+  { name = "reference_year", operator = "lower_median_common_year", input_roles = ["amount", "index"] },
+]
+output_parameter_bindings = [
+  { parameter_name = "reference_year", output_attribute = "reference_year" },
+]
+expression = { operator = "divide", operands = [{ operator = "multiply", operands = [{ operator = "current_value", role = "amount" }, { operator = "value_at_parameter", role = "index", parameter_name = "reference_year" }] }, { operator = "current_value", role = "index" }] }
+assumption_rules = [
+  { name = "formula", literal_value = "amount_t * index_reference_year / index_t" },
+  { name = "index_choice_rule", literal_value = "highest owner-alignment score among admissible exact-year index-level series" },
+  { name = "reference_year", parameter_name = "reference_year" },
+  { name = "year_join", literal_value = "exact; no interpolation" },
+]

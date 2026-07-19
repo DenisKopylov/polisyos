@@ -42,12 +42,31 @@ _EXPORTS = {
     "CatalogSourceStage": _CATALOG_DOMAIN,
     "CatalogSourceStageContract": _CATALOG_DOMAIN,
     "CatalogSourceSummary": _CATALOG_DOMAIN,
+    "CatalogSelectionCandidateEvaluation": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
+    "CatalogSelectionCandidateEvidence": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
+    "CatalogSelectionError": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
+    "CatalogSelectionPolicyConfig": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
+    "CatalogSelectionRejectionCode": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
+    "CatalogSelectionRoleConfig": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
     "CatalogStageManifest": _CATALOG_DOMAIN,
     "DatasetCatalogGraph": "polisyos.data_forge.domains.catalog.knowledge.search",
-    "DatasetCatalogStore": "polisyos.data_forge.domains.catalog.knowledge.store",
-    "DEFAULT_ACQUISITION_OVERLAY_PATH": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
+    "DerivationCatalogSelectionOwner": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
     ),
+    "DatasetCatalogStore": "polisyos.data_forge.domains.catalog.knowledge.store",
+    "DEFAULT_ACQUISITION_OVERLAY_PATH": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "DEFAULT_ACQUISITION_AUTHORITY_PROVISION": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -57,14 +76,10 @@ _EXPORTS = {
     "DatasetRegistry": "polisyos.data_forge.domains.catalog.knowledge.registry",
     "DatasetSearchResult": "polisyos.data_forge.domains.catalog.knowledge.types",
     "MetricBindingMatch": "polisyos.data_forge.domains.catalog.knowledge.types",
-    "AcquisitionDatasetRegistration": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "AcquisitionDatasetRegistration": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "BaselineIdentity": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "BaselineMutationError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-    "CanonicalAcquisitionObservation": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "CanonicalAcquisitionObservation": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "CatalogAcquisitionOverlay": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "AcquisitionAuthorityEntry": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
@@ -105,16 +120,12 @@ _EXPORTS = {
     "ResolvedAcquisitionAuthority": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
-    "ResolvedL5Trust": (
-        "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
-    ),
+    "ResolvedL5Trust": ("polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"),
     "ResolvedLiveHarnessReceipt": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "MetricFieldBinding": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-    "ObservationProvenanceClass": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "ObservationProvenanceClass": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "OverlayAdmissionError": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "OverlayAdmissionReceipt": "polisyos.data_forge.domains.catalog.knowledge.overlay",
     "PStarZResult": "polisyos.data_forge.domains.catalog.knowledge.types",
@@ -143,9 +154,7 @@ _EXPORTS = {
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
     "build_metric_field_binding": "polisyos.data_forge.domains.catalog.knowledge.overlay",
-    "default_acquisition_overlay_path": (
-        "polisyos.data_forge.domains.catalog.knowledge.overlay"
-    ),
+    "default_acquisition_overlay_path": ("polisyos.data_forge.domains.catalog.knowledge.overlay"),
     "derive_catalog_unit_from_text": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
@@ -154,6 +163,12 @@ _EXPORTS = {
     ),
     "build_catalog_schema_registry": _CATALOG_DOMAIN,
     "catalog_source_modules_from_registry": _CATALOG_DOMAIN,
+    "catalog_selection_candidate_rank": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
+    "catalog_selection_policies_for_purpose": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
     "compose_confidence_chain": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
     "compose_confidence_harmonic": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
     "compare_catalog_shadow_bundles": _CATALOG_DOMAIN,
@@ -166,6 +181,9 @@ _EXPORTS = {
     "load_catalog_readiness_package": _CATALOG_DOMAIN,
     "load_catalog_shadow_bundle": _CATALOG_DOMAIN,
     "load_catalog_source_registry": _CATALOG_DOMAIN,
+    "load_derivation_catalog_selection": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
     "load_seed_alignments": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
     "normalize_acquisition_unit": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
@@ -177,7 +195,13 @@ _EXPORTS = {
     "resolve_live_temporal_bounds": (
         "polisyos.data_forge.domains.catalog.knowledge.acquisition_authority"
     ),
+    "resolve_catalog_selection_policy": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
     "score_variable_pair": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
+    "evaluate_catalog_selection_candidate": (
+        "polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection"
+    ),
     "select_catalog_source_modules": _CATALOG_DOMAIN,
     "validate_proxy": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
     "verify_local_source_rights": (
@@ -214,8 +238,10 @@ def build_slice0_fixture_catalog_graph(graph_root: str | Path | None = None) -> 
         module_name=__name__,
         namespace=globals(),
     )
-    root = Path(graph_root) if graph_root is not None else Path(
-        tempfile.mkdtemp(prefix="polisyos-gy-slice0-catalog-")
+    root = (
+        Path(graph_root)
+        if graph_root is not None
+        else Path(tempfile.mkdtemp(prefix="polisyos-gy-slice0-catalog-"))
     )
     root.mkdir(parents=True, exist_ok=True)
     db_path = root / "catalog.duckdb"
@@ -453,38 +479,38 @@ def build_slice0_fixture_catalog_graph(graph_root: str | Path | None = None) -> 
             ],
         ),
         DatasetRecord(
-                    id="tourism_attraction_reviews",
-                    title="Tourism attraction review snippets and local development traffic",
-                    description=(
-                        "Unverified local tourism review text and attraction traffic snippets; "
-                        "negative control for MSME credit access despite mentioning Ukraine."
-                    ),
-                    publisher="Example Reviews",
-                    themes=["tourism", "local-development"],
-                    keywords=["ukraine", "tourism", "attraction", "traffic", "reviews"],
-                    source="web_reviews",
-                    source_portal="reviews",
-                    dataset_id="tourism_reviews",
-                    source_dataset_id="tourism_reviews",
-                    execution_tier="discovery_only",
-                    update_frequency="unknown",
-                    polisyos_metrics=["tourism_visits"],
-                    variables=["place", "review_text"],
-                    spatial="UA",
-                    coverage=DatasetCoverage(countries=["UA"], granularity="review"),
-                    preferred_distribution_id="dist-tourism-reviews",
-                    distributions=[
-                        DistributionRecord(
-                            id="dist-tourism-reviews",
-                            connector_type="rest.json",
-                            source_locator="https://example.test/tourism",
-                            profile_id="rest_json",
-                            parser_supported=False,
-                            machine_readable=False,
-                            quality_score=0.2,
-                        )
-                    ],
-                ),
+            id="tourism_attraction_reviews",
+            title="Tourism attraction review snippets and local development traffic",
+            description=(
+                "Unverified local tourism review text and attraction traffic snippets; "
+                "negative control for MSME credit access despite mentioning Ukraine."
+            ),
+            publisher="Example Reviews",
+            themes=["tourism", "local-development"],
+            keywords=["ukraine", "tourism", "attraction", "traffic", "reviews"],
+            source="web_reviews",
+            source_portal="reviews",
+            dataset_id="tourism_reviews",
+            source_dataset_id="tourism_reviews",
+            execution_tier="discovery_only",
+            update_frequency="unknown",
+            polisyos_metrics=["tourism_visits"],
+            variables=["place", "review_text"],
+            spatial="UA",
+            coverage=DatasetCoverage(countries=["UA"], granularity="review"),
+            preferred_distribution_id="dist-tourism-reviews",
+            distributions=[
+                DistributionRecord(
+                    id="dist-tourism-reviews",
+                    connector_type="rest.json",
+                    source_locator="https://example.test/tourism",
+                    profile_id="rest_json",
+                    parser_supported=False,
+                    machine_readable=False,
+                    quality_score=0.2,
+                )
+            ],
+        ),
         DatasetRecord(
             id="synthetic_llm_only_credit_claim",
             title="Synthetic LLM-only Ukraine MSME credit claim",
@@ -610,9 +636,7 @@ def build_production_data_contract_catalog_graph(
     contracts_payload = _read_catalog_json(curated_root / "data_contracts.json")
     bindings_payload = _read_catalog_json(curated_root / "source_bindings.json")
     generated_at = str(
-        contracts_payload.get("generated_at")
-        or bindings_payload.get("generated_at")
-        or ""
+        contracts_payload.get("generated_at") or bindings_payload.get("generated_at") or ""
     )
     contracts = {
         str(item.get("metric_id")): item
@@ -634,8 +658,10 @@ def build_production_data_contract_catalog_graph(
         raise FileNotFoundError(
             f"no production data contracts/source bindings found under {curated_root}"
         )
-    root = Path(graph_root) if graph_root is not None else Path(
-        tempfile.mkdtemp(prefix="polisyos-production-data-catalog-")
+    root = (
+        Path(graph_root)
+        if graph_root is not None
+        else Path(tempfile.mkdtemp(prefix="polisyos-production-data-catalog-"))
     )
     root.mkdir(parents=True, exist_ok=True)
     db_path = root / "catalog.duckdb"

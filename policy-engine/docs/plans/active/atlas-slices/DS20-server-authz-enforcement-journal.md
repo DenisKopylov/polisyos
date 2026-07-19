@@ -343,3 +343,188 @@ Task 6 must convert the 31 legacy HTTP expectations invalidated by Tasks 4/5 to
 authz-aware fixtures or explicit fail-closed assertions (15 action/resource-binding
 changes plus 16 high-stakes ingest/promotion step-up changes). They are DS20-caused,
 not inherited baseline debt, and cannot remain classified as inherited at closure.
+
+## 2026-07-19 — Task 6 denominator proof and legacy-fixture conversion
+
+Task 6 converted all 31 DS20-invalidated legacy expectations without weakening an
+authorization check. Tests that legitimately exercise a mutation now install a
+verified principal, exact role grant, allow-policy witness, and (for high-stakes
+operations) a request-bound one-use step-up assertion. Tests whose old expectation
+depended on malformed, unknown, cross-tenant, or fixture-authored authority now
+assert the earlier fail-closed response and prove the handler side effect is absent.
+
+Live-router introspection still yields exactly 29 unsafe operations, all `POST`.
+The matrix independently proves:
+
+- 29/29 carry exactly one direct typed action-permission dependency;
+- 29/29 deny a verified principal lacking the exact permission with `403`;
+- 29/29 deny absent identity with `401`; and
+- 29/29 admit an authorized request into the real handler with `200`.
+
+Six live operations carry a second direct step-up dependency across five declared
+classes: acquisition approval; promotion approval and rejection; publication; run
+reissue/revocation; and production approval. Valid permission without the exact
+fresh assertion denies, and stale, expired, replayed, wrong-subject, wrong-tenant,
+wrong-route, wrong-body, wrong-resource, wrong-class, and wrong-scorecard assertions
+deny before handler execution.
+
+The structural tests enumerate the application router rather than an authored
+route list. They reject missing, duplicate, indirect, marker-only, mismatched, or
+misordered action and step-up dependencies. A synthetic late-added unsafe route is
+also rejected before service. Route-contract permission values must be exact members
+of `RuntimePermission`; no unknown literal can acquire authority by appearing in a
+decorator or client.
+
+The focused DS20 gate collected 268 tests and passed in full. Its coverage includes
+the action matrix, canonical vocabulary, step-up, fixture prohibition, fixture
+loader, authorization access-audit, audience denials, N009-N013, and adversarial
+binding follow-ups. The final scoped HTTP suite collects 699 tests. Its first final
+pass retained the six inherited failures and two inherited skips, plus one read-only
+SSE snapshot timing failure. That SSE node passed immediately in isolation and in
+its complete module; the module retained only the two already-recorded control-plane
+fixture failures. A pre-review repeat produced exactly the six pre-edit failures and
+two inherited skips, with the SSE node green. After the final seal/`nbf` repairs, a
+fresh 699-test serial run again produced exactly those six failures and two skips,
+with no additional failure. The timing observation is not folded into the baseline.
+
+## 2026-07-19 — Final adversarial review repairs
+
+Two review rounds found additional in-fence defects. Each was first reproduced by a
+negative witness and then repaired at the shared enforcement layer:
+
+- Resource binders, OPA calls, JWKS verification/retrieval, replay consumption, and
+  durable authorization-audit appends no longer block the ASGI event loop. AnyIO
+  worker-thread boundaries preserve the same fail-closed exceptions. A deliberately
+  slow binder no longer stalls an unrelated health request.
+- Delegation-contract rejection, dependency override/replacement, unbound-resource
+  rejection, and other preflight failures now append exact denial events to the
+  existing access-audit trail. There is still one log and one terminal decision per
+  unsafe request.
+- Authorization state is sealed before handler dispatch. Direct replacement, nested
+  mutation, and bulk clearing of the frozen route requirement, bound resource,
+  permission proof, or step-up proof is detected before a malicious replacement
+  handler can perform a side effect. An allow audit event means authorization
+  admission under the sealed context, not handler success.
+- Server-emitted `run:{run_id}:telemetry` lineage is recognized as an owned run
+  descendant rather than denied as an unknown selector.
+- Scenario lineage now freezes the exact durable head and manifest before OPA,
+  rechecks the head after policy evaluation, and projects only that frozen manifest.
+  A concurrent head advance returns `409` rather than projecting a resource other
+  than the one authorized.
+- `/auth/me` OpenAPI examples derive the analyst grant list from the canonical enum
+  mapping and cannot silently become a second permission vocabulary.
+
+The six new audit/sealing/event-loop witnesses failed before their repairs and pass
+after them. A combined authorization/audit/binding follow-up run passed 52 tests;
+the focused 268-test gate also passed after these changes. Changed-file Ruff and
+`git diff --check` are green. Focused basedpyright at error level reports zero errors.
+
+## 2026-07-19 — Cross-fence production integration findings
+
+Read-only validation against OPA 1.15.2 exercised both
+`ops/policy/policies/**` and the Helm policy bundle. The canonical policies do not
+yet understand DS20's action/resource contract:
+
+- an ADMIN ingestion request with the truthful empty-tenant binding is denied with
+  `allow=false` and a failed tenant boundary;
+- an ANALYST run launch against a same-tenant collection is denied by the legacy
+  RBAC path; and
+- promotion's truthful `content_resolved_unscoped` binding fails the tenant boundary
+  and stale role mapping.
+
+There is no honest HTTP-only repair. Assigning the caller tenant to an unowned or
+unscoped resource fabricates ownership; skipping or rewriting the OPA decision would
+weaken the security floor. This is `bridge_missing` plus `semantic_test_missing` for
+the policy/Helm owner and blocks truthful end-to-end production admission even
+though HTTP enforcement itself is complete.
+
+Two production consumers also fail before reaching the API under the new floor:
+
+- `tools/ops_runners/runtime/local_production_canary.py` requests fixture identity
+  and now exits before network I/O; and
+- `tools/quality/testing/local_prod_debug_probe.py` starts a production app without
+  a configured step-up verifier and now exits fail closed.
+
+The required consumer/runbook repairs are outside the DS20 fence. Their state is
+`consumer_missing` plus `verification_missing`; ownership is handed to the canary,
+debug-probe, and runbook lanes rather than weakening production startup.
+
+Two pre-existing authority limitations remain explicit. Promotion candidate
+consumption has no expected-digest/version compare-and-set, so the truthful
+`content_resolved_unscoped` snapshot can race after OPA. Production scorecard
+eligibility proves durable CAS identity but not verifier provenance; treating CAS
+presence as quality authority would repeat P32. Those repairs require out-of-fence
+producer/contracts and are not silently altered here. PostgreSQL replay and scenario
+CAS statements share the tested SQLite contract but were not locally executed
+because no `POLISYOS_CONTROL_POSTGRES_DSN` is configured.
+
+## 2026-07-19 — Canonical projection and closeout validators
+
+The final OpenAPI example correction was regenerated twice through the DS3 pipeline.
+Both complete serial runs were byte-identical, with final per-file receipts:
+
+```text
+f94c87d56cf1cc3658c3c9330bd202fc2061fc2debad16a407d0aabf322cb0cb  schemas/runtime_api_v1.openapi.json
+137ba30652cc89ff37317d055ab63704e0ccdfdb705e618851fb7ed2f015e644  packages/runtime-api-client/types.ts
+82e61027952eaad307a9f1685e23449c8911235ed269203969025ec34dc0ad94  packages/runtime-api-client/runtimeApiClient.ts
+7a1094444cf72ab1ba7b6daf11bc85f4e07c289ac21c84b516724cff0f8e3945  packages/runtime-api-client/runtimeApiClient.js
+45a31882719cc949f6e1d453b8a6033ee2047f76deec1f184cb8ce95a9bcdd2d  packages/runtime-api-client/canonicalRuntimeApiClient.ts
+6d7465160421459492cbef22102f4f9abc1e777803706b9730e2ebfe511e9568  packages/runtime-api-client/canonicalRuntimeApiClient.js
+```
+
+The exact OpenAPI/server/generated-union test, the two-run regeneration test, and
+the committed package-pipeline test all pass. The canonical runtime-contract checker
+passes, and the generated runtime client TypeScript typecheck passes.
+
+The architecture guardrail remains baseline-red, with no DS20-added edge. It reports
+five inherited DS3 additions (`channel_contracts` to two core modules,
+`lex_pipeline` to the Lex store, and `lex_search_projection` to two modules) and
+three removed baseline edges caused by DS20 improving imports (`execution_policy`
+to identity and `routes.runs` to artifact IDs/canon). Synchronizing the baseline is
+outside the writable fence; the improvement is not reverted merely to make the
+snapshot green.
+
+Pattern closeout re-read confirms the structural target: P05/P10/P26 authority and
+audience decisions are server-enforced; P29 is behavioral live-router proof rather
+than marker inspection; P31 is closed with shared preflight/state sealing rather
+than per-route patches; P32 keeps ownership and scorecard provenance truthful; and
+P33/P34 adversarial variants and completed exclusion runs prevent probe-shaped or
+baseline-laundered green claims. The remaining Rego bridge, consumer, CAS, and
+provenance work retains precise `bridge_missing`, `consumer_missing`,
+`verification_missing`, `semantic_test_missing`, and `artifact_missing` labels.
+
+### Independent final review: base-descriptor seal and `nbf`
+
+The final independent review found no Critical issue and two Important in-fence
+defects. Both were reproduced red-first:
+
+- Because the first seal used `dict` subclasses, `dict.__setitem__` could bypass the
+  overridden mutators. The response-time integrity check returned 503, but only after
+  the malicious probe recorded a handler side effect.
+- PyJWT `nbf` verification was delegated to the injected-clock path, but that path
+  checked only `iat` and `exp`. A correctly signed and exactly bound token with
+  `nbf=now+300` was accepted immediately.
+
+The sealed resource and ASGI state are now `MutableMapping` wrappers, not `dict`
+subclasses. Protected values live behind `MappingProxyType`; mutable non-authority
+state is stored separately. Direct base-`dict` descriptors therefore fail before the
+handler's next statement, while normal mutation attempts still raise the structured
+integrity error. The access-audit consumer accepts the read-only mapping interface,
+so resource attribution does not regress.
+
+The step-up verifier now parses optional `nbf` as an exact integer under its injected
+clock, rejects activation beyond configured clock skew with
+`step_up_not_yet_valid`, and rejects an expiry at or before `nbf`. Invalid `nbf`
+shape fails closed. The two witnesses changed from 2/2 red to 2/2 green; sibling
+outer-state, malformed-window, invalid-type, and skew-boundary variants also pass.
+The fresh complete focused gate now collects 268 tests.
+
+Independent re-review closed both Important findings and found no remaining Critical
+or Important issue. It exercised every direct base-`dict` mutator against both
+protected wrappers and the optional/malformed/boundary `nbf` cases. The affected two
+test modules passed 75 tests in that review; no reviewer file edits were made.
+
+Final collision inspection found `main` unchanged at `d5f83a26b`. GY-N13b advanced
+to `72e20ff8b` and still has zero branch-only `src/polisyos/runtime/http/**` paths.
+The current-base `git merge-tree` preview emitted no conflicts. The branch remains
+unmerged for architect review.

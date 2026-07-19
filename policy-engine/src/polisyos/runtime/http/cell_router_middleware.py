@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
@@ -119,11 +119,23 @@ class CellRouterMiddleware(_BaseHTTPMiddleware):
             routing_headers[self._tenant_header] = effective_tenant_id
             routing_headers[self._tenant_header.lower()] = effective_tenant_id
 
+        from polisyos.runtime.http.deployment_security_attestation import (
+            require_attested_deployment_component,
+        )
+
+        registry = cast(
+            "CellRegistry",
+            require_attested_deployment_component(
+                request,
+                component_name="cell_registry",
+                candidate=self._registry,
+            ),
+        )
         start = time.perf_counter()
         try:
             routing = resolve_routing(
                 headers=routing_headers,
-                registry=self._registry,
+                registry=registry,
                 tenant_header=self._tenant_header,
             )
         except MissingTenantHeaderError as exc:

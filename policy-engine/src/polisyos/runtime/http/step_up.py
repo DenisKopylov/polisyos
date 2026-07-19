@@ -584,6 +584,20 @@ class StepUpDependency:
         security = getattr(getattr(request, "app", object()), "state", object())
         security_config = getattr(security, "runtime_security", None)
         verifier = getattr(security_config, "step_up_verifier", None)
+        from polisyos.runtime.http.deployment_security_attestation import (
+            require_attested_deployment_component,
+            require_installed_deployment_security,
+        )
+
+        if verifier is not None:
+            verifier = cast(
+                "StepUpAssertionVerifier",
+                require_attested_deployment_component(
+                    request,
+                    component_name="step_up_verifier",
+                    candidate=verifier,
+                ),
+            )
         verify = getattr(verifier, "verify", None)
         if not callable(verify):
             raise service_unavailable(
@@ -614,6 +628,8 @@ class StepUpDependency:
                 "The verified step-up assertion is no longer fresh",
                 code="step_up_expired",
             )
+        if verifier is not None:
+            require_installed_deployment_security(request)
         replay_store = getattr(security_config, "step_up_replay_store", None)
         if replay_store is None:
             control_service = resolve_control_service(request)

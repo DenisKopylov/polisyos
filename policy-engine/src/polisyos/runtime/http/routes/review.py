@@ -22,6 +22,11 @@ from polisyos.runtime.http.container import (
     resolve_runtime_review_opa_guard,
     resolve_runtime_security,
 )
+from polisyos.runtime.http.deployment_security_attestation import (
+    DeploymentSecurityAttestationError,
+    require_attested_deployment_component,
+    require_installed_deployment_security,
+)
 from polisyos.runtime.http.errors import (
     RuntimeDependencyTimeoutError,
     RuntimeDependencyUnavailableError,
@@ -35,6 +40,9 @@ from polisyos.runtime.http.security import (
 if TYPE_CHECKING:
     from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 
+    from polisyos.core.security.authz import OPAClient
+    from polisyos.core.security.identity import SPIFFEIdentityProvider
+    from polisyos.core.security.registry import CellRegistry
     from polisyos.runtime.http.services.review_collaboration import (
         ReviewChannel,
         ReviewCollaborationHub,
@@ -97,6 +105,11 @@ def _get_review_opa_guard(websocket: WebSocket) -> Any:
 
 
 async def _authenticate_review_socket(websocket: WebSocket) -> _ReviewSocketSecurityContext | None:
+    try:
+        require_installed_deployment_security(websocket)
+    except DeploymentSecurityAttestationError:
+        await websocket.close(code=4503, reason="Deployment security attestation failed")
+        return None
     config = _get_runtime_security_config(websocket)
     headers = {str(key).lower(): value for key, value in websocket.headers.items()}
     auth_header = headers.get("authorization", "")
@@ -108,7 +121,21 @@ async def _authenticate_review_socket(websocket: WebSocket) -> _ReviewSocketSecu
             await websocket.close(code=4401, reason="Missing or unsupported bearer token")
             return None
         try:
-            claims = config.identity_provider.extract_user_claims(token)
+            identity_provider = cast(
+                "SPIFFEIdentityProvider",
+                require_attested_deployment_component(
+                    websocket,
+                    component_name="identity_provider",
+                    candidate=config.identity_provider,
+                ),
+            )
+            claims = identity_provider.extract_user_claims(token)
+        except DeploymentSecurityAttestationError:
+            await websocket.close(
+                code=4503,
+                reason="Deployment security attestation failed",
+            )
+            return None
         except MFARequiredError:
             await websocket.close(code=4403, reason="MFA required")
             return None
@@ -152,9 +179,17 @@ async def _authenticate_review_socket(websocket: WebSocket) -> _ReviewSocketSecu
     routing_headers = dict(headers)
     routing_headers[TENANT_HEADER] = effective_tenant_id
     try:
+        cell_registry = cast(
+            "CellRegistry",
+            require_attested_deployment_component(
+                websocket,
+                component_name="cell_registry",
+                candidate=config.cell_registry,
+            ),
+        )
         routing = resolve_routing(
             headers=routing_headers,
-            registry=config.cell_registry,
+            registry=cell_registry,
             tenant_header=TENANT_HEADER,
         )
     except MissingTenantHeaderError:
@@ -186,6 +221,11 @@ async def _authorize_review_action(
     run_id: str | None,
     action: str,
 ) -> bool:
+    try:
+        require_installed_deployment_security(websocket)
+    except DeploymentSecurityAttestationError:
+        await websocket.close(code=4503, reason="Deployment security attestation failed")
+        return False
     runtime_ctx = resolve_runtime_api_context(websocket)
     resource_tenant_id = security_ctx.tenant_id
     resolved_run_id = _resolve_run_id(review_id, run_id)
@@ -203,6 +243,18 @@ async def _authorize_review_action(
     config = _get_runtime_security_config(websocket)
     if config.opa_client is None:
         return True
+    try:
+        opa_client = cast(
+            "OPAClient",
+            require_attested_deployment_component(
+                websocket,
+                component_name="opa_client",
+                candidate=config.opa_client,
+            ),
+        )
+    except DeploymentSecurityAttestationError:
+        await websocket.close(code=4503, reason="Deployment security attestation failed")
+        return False
 
     authz_input = AuthzInput.for_http_request(
         request_method="WEBSOCKET",
@@ -215,9 +267,9 @@ async def _authorize_review_action(
     guard = _get_review_opa_guard(websocket)
     try:
         if guard is not None:
-            result = await guard.run(config.opa_client.check, authz_input)
+            result = await guard.run(opa_client.check, authz_input)
         else:
-            result = await config.opa_client.check(authz_input)
+            result = await opa_client.check(authz_input)
     except RuntimeDependencyTimeoutError:
         await websocket.close(code=4504, reason="Review authorization dependency timed out")
         return False

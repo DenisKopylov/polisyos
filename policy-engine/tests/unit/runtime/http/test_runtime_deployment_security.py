@@ -251,6 +251,300 @@ def test_factory_attestation_rejects_post_factory_config_mutation(
         security.require_factory_produced_deployment_security(runtime)
 
 
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "identity_method",
+        "principal_grants",
+        "opa_method",
+        "cell_method",
+        "step_up_method",
+        "identity_jwks_cache",
+        "step_up_jwks_client",
+        "opa_decision_cache",
+        "opa_session",
+    ],
+)
+def test_non_development_runtime_revalidates_same_object_authority_before_request(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+) -> None:
+    from types import MappingProxyType
+
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.permissions import RuntimePermission
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    app = create_runtime_api_app(
+        cas_root=tmp_path / f"same-object-{mutation}",
+        deployment_security=runtime,
+    )
+
+    if mutation == "identity_method":
+        object.__setattr__(
+            runtime.identity_provider,
+            "extract_user_claims",
+            lambda _token, **_kwargs: SimpleNamespace(sub="forged-admin"),
+        )
+    elif mutation == "principal_grants":
+        grant = runtime.config.service_principals[0]
+        object.__setattr__(
+            runtime.principal_grants,
+            "_permissions_by_identity",
+            MappingProxyType(
+                {
+                    grant.identity_key: frozenset(
+                        {
+                            *grant.permissions,
+                            RuntimePermission.EVIDENCE_ACQUIRE,
+                        }
+                    )
+                }
+            ),
+        )
+    elif mutation == "opa_method":
+        object.__setattr__(runtime.opa_client, "check", lambda _input: True)
+    elif mutation == "cell_method":
+        object.__setattr__(
+            runtime.cell_registry,
+            "resolve",
+            lambda _tenant_id: SimpleNamespace(cell_id="attacker-cell"),
+        )
+    elif mutation == "step_up_method":
+        object.__setattr__(
+            runtime.step_up_verifier,
+            "verify",
+            lambda _token, _context: SimpleNamespace(assertion_id="forged-step-up"),
+        )
+    elif mutation == "identity_jwks_cache":
+        runtime.identity_provider._jwks_cache["client"] = SimpleNamespace(
+            get_signing_key_from_jwt=lambda _token: SimpleNamespace(key="forged")
+        )
+    elif mutation == "step_up_jwks_client":
+        object.__setattr__(
+            runtime.step_up_verifier,
+            "_jwks_client",
+            SimpleNamespace(
+                get_signing_key_from_jwt=lambda _token: SimpleNamespace(key="forged")
+            ),
+        )
+    elif mutation == "opa_decision_cache":
+        object.__setattr__(
+            runtime.opa_client,
+            "_cache",
+            SimpleNamespace(get=lambda _key: SimpleNamespace(is_allowed=True)),
+        )
+    else:
+        object.__setattr__(
+            runtime.opa_client,
+            "_session",
+            SimpleNamespace(post=lambda *_args, **_kwargs: SimpleNamespace()),
+        )
+
+    with pytest.raises(TypeError, match=r"factory|attest|bundle"):
+        security.verify_exact_deployment_principal_token(
+            runtime,
+            "synthetic-probe-token",
+            required_permissions=frozenset(
+                {RuntimePermission.RUNS_LAUNCH, RuntimePermission.RUNS_VIEW}
+            ),
+        )
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.get("/api/v1/health")
+
+    assert response.status_code == 503, response.text
+    assert response.json()["code"] == "deployment_security_attestation_invalid"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "identity_public_paths",
+        "authorization_enforcement",
+        "delegation_manager",
+        "step_up_replay_store",
+    ],
+)
+def test_non_development_runtime_revalidates_perimeter_objects_before_bypass(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: str,
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    app = create_runtime_api_app(
+        cas_root=tmp_path / f"perimeter-{mutation}",
+        deployment_security=runtime,
+        enable_security_middlewares=True,
+    )
+
+    def _middleware(name: str) -> Any:
+        current = cast("Any", app).middleware_stack
+        while current is not None:
+            if type(current).__name__ == name:
+                return current
+            current = getattr(current, "app", None)
+        raise AssertionError(f"middleware {name!r} was not installed")
+
+    with TestClient(app, raise_server_exceptions=False) as client:
+        assert client.get("/health").status_code == 200
+        if mutation == "identity_public_paths":
+            identity_middleware = _middleware("JWTAuthMiddleware")
+            object.__setattr__(
+                identity_middleware,
+                "_public_paths",
+                frozenset({"/health", "/api/v1/control/data/ingest"}),
+            )
+        elif mutation == "authorization_enforcement":
+            object.__setattr__(_middleware("AuthzMiddleware"), "_enforce", False)
+        elif mutation == "delegation_manager":
+            object.__setattr__(
+                _middleware("AuthzMiddleware"),
+                "_delegation_manager",
+                SimpleNamespace(decode_and_validate=lambda *_args, **_kwargs: object()),
+            )
+        else:
+            object.__setattr__(
+                cast("Any", app).state.runtime_security,
+                "step_up_replay_store",
+                _AlwaysTrueReplayStore(),
+            )
+        response = client.get("/health")
+
+    assert response.status_code == 503, response.text
+    assert response.json()["code"] == "deployment_security_attestation_invalid"
+
+
+def test_non_development_request_revalidates_authority_after_entry_before_mutation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
+) -> None:
+    import time
+    from types import MappingProxyType
+
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from tests.unit.runtime.http.deployment_security_test_support import (
+        LocalJWKSStub,
+    )
+
+    security = _deployment_security_module()
+    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+    runtime_holder: dict[str, Any] = {}
+
+    def _mutate_grants_during_key_fetch() -> None:
+        runtime = runtime_holder["runtime"]
+        grant = runtime.config.service_principals[0]
+        object.__setattr__(
+            runtime.principal_grants,
+            "_permissions_by_identity",
+            MappingProxyType(
+                {
+                    grant.identity_key: frozenset(
+                        {
+                            *grant.permissions,
+                            RuntimePermission.EVIDENCE_ACQUIRE,
+                        }
+                    )
+                }
+            ),
+        )
+
+    jwks_server = LocalJWKSStub(
+        private_key,
+        on_request=_mutate_grants_during_key_fetch,
+    )
+    jwks_uri = jwks_server.start()
+    request.addfinalizer(jwks_server.close)
+    raw_config = _config_mapping(tmp_path)
+    identity_config = raw_config["identity_verifier"]
+    assert isinstance(identity_config, dict)
+    identity_config["jwks_uri"] = jwks_uri
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(raw_config)
+    )
+    runtime_holder["runtime"] = runtime
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "post-entry-authority-mutation",
+        deployment_security=runtime,
+        enable_security_middlewares=True,
+    )
+    audit_events: list[dict[str, Any]] = []
+
+    class _AuditCapture:
+        def append(self, entry: dict[str, Any]) -> None:
+            audit_events.append(entry)
+
+    audit_capture = _AuditCapture()
+    cast("Any", app).state.runtime_container.runtime_access_audit = audit_capture
+    cast("Any", app).state.runtime_access_audit = audit_capture
+    now = int(time.time())
+    token = jwt.encode(
+        {
+            "iss": "https://idp.example",
+            "aud": "polisyos-runtime",
+            "sub": "runtime-canary",
+            "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "cell_id": "018f47a0-0000-7000-8000-000000000001",
+            "realm_access": {"roles": ["polisyos_viewer"]},
+            "amr": ["pwd", "mfa"],
+            "iat": now,
+            "exp": now + 60,
+            "jti": f"post-entry-authority-mutation-{now}",
+        },
+        private_key,
+        algorithm="RS256",
+        headers={"kid": "identity-2026-07"},
+    )
+
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.post(
+            "/api/v1/control/data/ingest",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "X-Tenant-ID": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            },
+            json={},
+        )
+
+    assert response.status_code == 503, response.text
+    assert response.json()["code"] == "deployment_security_attestation_invalid"
+    assert len(audit_events) == 1
+    assert audit_events[0]["outcome"] == "deny"
+    assert audit_events[0]["denial_reason"] == (
+        "deployment_security_attestation_invalid"
+    )
+
+
 def test_unknown_service_principal_permission_is_rejected(tmp_path: Path) -> None:
     security = _deployment_security_module()
     raw = _config_mapping(tmp_path)
@@ -364,13 +658,6 @@ def test_deployment_identity_provider_rejects_multi_audience_token(
         security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
     )
     private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
-
-    class _StaticJWKClient:
-        def get_signing_key_from_jwt(self, _token: str) -> SimpleNamespace:
-            return SimpleNamespace(key=private_key.public_key())
-
-    runtime.identity_provider._jwks_cache["client"] = _StaticJWKClient()
-    runtime.identity_provider._jwks_cache_expires = float("inf")
     now = int(time.time())
     token = jwt.encode(
         {
@@ -446,6 +733,8 @@ def test_non_development_bootstrap_requires_exact_deployment_security_bundle(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from fastapi.testclient import TestClient
+
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.execution_policy import RuntimeBootstrapError
 
@@ -474,6 +763,9 @@ def test_non_development_bootstrap_requires_exact_deployment_security_bundle(
         deployment_security=runtime,
     )
     assert cast("Any", app).state.runtime_deployment_security is runtime
+    with TestClient(app) as client:
+        response = client.get("/health")
+    assert response.status_code == 200
 
 
 @pytest.mark.parametrize(
@@ -793,7 +1085,9 @@ def test_service_principal_grant_reaches_opa_and_blocks_sibling_mutation(
     runtime = security.build_deployment_security(
         security.DeploymentSecurityConfig.from_mapping(raw)
     )
-    cast("Any", client.app).state.runtime_deployment_security = runtime
+    # This test isolates grant projection on the development composition built
+    # by ``_build_secure_client``. Non-development bundle/alias integrity is
+    # covered by the attestation negatives above and must remain all-or-nothing.
     cast("Any", client.app).state.runtime_deployment_principal_grants = (
         runtime.principal_grants
     )

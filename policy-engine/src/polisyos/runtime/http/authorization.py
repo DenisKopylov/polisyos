@@ -545,6 +545,18 @@ class ActionPermissionDependency:
             None,
         )
         if deployment_grants is not None:
+            from polisyos.runtime.http.deployment_security_attestation import (
+                require_attested_deployment_component,
+            )
+
+            deployment_grants = cast(
+                "DeploymentPrincipalGrantResolver",
+                require_attested_deployment_component(
+                    request,
+                    component_name="principal_grants",
+                    candidate=deployment_grants,
+                ),
+            )
             if type(deployment_grants) is not DeploymentPrincipalGrantResolver:
                 raise forbidden(
                     "Deployment principal grant state is invalid",

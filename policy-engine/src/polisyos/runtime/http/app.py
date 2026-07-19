@@ -9,6 +9,10 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.runtime.http.access_audit import (
+    RuntimeAuthorizationOutcome,
+    emit_runtime_authorization_audit_async,
+)
 from polisyos.runtime.http.authorization import (
     assert_mutating_route_authorization_contract,
     install_route_authorization_openapi_contract,
@@ -24,12 +28,14 @@ from polisyos.runtime.http.container import (
 )
 from polisyos.runtime.http.csrf import CSRFMiddleware
 from polisyos.runtime.http.deployment_security import (
+    DeploymentSecurityAttestationError,
     RuntimeDeploymentSecurity,
     is_deployment_step_up_verifier,
     require_factory_produced_deployment_security,
+    require_installed_deployment_security,
 )
 from polisyos.runtime.http.dev_identity_middleware import DevelopmentFixtureIdentityMiddleware
-from polisyos.runtime.http.errors import install_exception_handlers
+from polisyos.runtime.http.errors import install_exception_handlers, problem_response
 from polisyos.runtime.http.execution_policy import (
     RuntimeBootstrapError,
     RuntimeExecutionPolicyResolver,
@@ -326,6 +332,44 @@ def create_runtime_api_app(
             identity_provider=identity_provider,
             metrics=runtime_container.runtime_metrics,
         )
+
+    if (
+        deployment_security is not None
+        and policy_resolver.default_profile != "dev"
+    ):
+
+        @app.middleware("http")
+        async def _deployment_security_attestation_guard(
+            request: Any,
+            call_next: Any,
+        ) -> Any:
+            try:
+                installed = require_installed_deployment_security(request)
+                if (
+                    installed is not deployment_security
+                    or getattr(app.state, "runtime_container", None)
+                    is not runtime_container
+                ):
+                    raise DeploymentSecurityAttestationError(
+                        "deployment security installation identity changed"
+                    )
+                return await call_next(request)
+            except DeploymentSecurityAttestationError:
+                if request.method.upper() in {"POST", "PUT", "PATCH", "DELETE"}:
+                    await emit_runtime_authorization_audit_async(
+                        request,
+                        outcome=RuntimeAuthorizationOutcome.DENY,
+                        denial_reason="deployment_security_attestation_invalid",
+                        raise_on_failure=False,
+                    )
+                return problem_response(
+                    status_code=503,
+                    code="deployment_security_attestation_invalid",
+                    detail="Deployment security attestation is invalid",
+                    request_id=getattr(request.state, "request_id", None),
+                    instance=str(getattr(request.url, "path", "")),
+                    error="deployment_security_attestation_invalid",
+                )
 
     if health_router is not None:
         app.include_router(health_router)

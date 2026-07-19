@@ -3,9 +3,11 @@ from __future__ import annotations
 import json
 import os
 import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from threading import Thread
 from types import SimpleNamespace
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
@@ -14,6 +16,73 @@ from polisyos.scientist.orchestration.llm.provider_quality import (
 )
 from tools.quality.testing import local_prod_debug_probe
 from tools.quality.validation import check_production_data_scenario_contracts
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
+class _LocalOPAStub:
+    """Serve canonical Rego decisions through the real OPA HTTP client path."""
+
+    def __init__(
+        self,
+        evaluate: Callable[[dict[str, Any]], dict[str, Any]],
+    ) -> None:
+        self.inputs: list[dict[str, Any]] = []
+        self._evaluate = evaluate
+        self._server: ThreadingHTTPServer | None = None
+        self._thread: Thread | None = None
+
+    def start(self) -> str:
+        """Start the loopback decision endpoint and return its base URL."""
+        observed = self.inputs
+        evaluate = self._evaluate
+
+        class _Handler(BaseHTTPRequestHandler):
+            def do_POST(self) -> None:  # noqa: N802 - stdlib handler contract
+                if self.path != "/v1/data/polisyos/authz/decision":
+                    self.send_error(404)
+                    return
+                try:
+                    content_length = int(self.headers.get("content-length", "0"))
+                    body = json.loads(self.rfile.read(content_length))
+                    input_value = body["input"]
+                    if not isinstance(input_value, dict):
+                        raise TypeError("OPA input must be an object")
+                    decision = evaluate(input_value)
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+                    self.send_error(400)
+                    return
+                observed.append(input_value)
+                response = json.dumps({"result": decision}).encode("utf-8")
+                self.send_response(200)
+                self.send_header("content-type", "application/json")
+                self.send_header("content-length", str(len(response)))
+                self.end_headers()
+                self.wfile.write(response)
+
+            def log_message(self, format: str, *args: object) -> None:
+                del format, args
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+        thread = Thread(
+            target=server.serve_forever,
+            name="ds20-local-opa",
+            daemon=True,
+        )
+        thread.start()
+        self._server = server
+        self._thread = thread
+        host, port = cast("tuple[str, int]", server.server_address)
+        return f"http://{host}:{port}"
+
+    def close(self) -> None:
+        """Stop the loopback endpoint and release its listening socket."""
+        if self._server is not None:
+            self._server.shutdown()
+            self._server.server_close()
+        if self._thread is not None:
+            self._thread.join(timeout=5)
 
 
 def test_parser_defaults_to_quick_and_redacts_secret_env(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -170,11 +239,15 @@ def test_production_dry_run_composes_genuine_deployment_security(
 def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
 ) -> None:
     import jwt
     from cryptography.hazmat.primitives.asymmetric import rsa
     from fastapi.testclient import TestClient
 
+    from tests.unit.runtime.http.deployment_security_test_support import (
+        LocalJWKSStub,
+    )
     from tests.unit.runtime.http.test_runtime_deployment_security import (
         _config_mapping,
     )
@@ -182,7 +255,31 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
         _opa_eval,
     )
 
+    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+    jwks_server = LocalJWKSStub(private_key)
+    jwks_uri = jwks_server.start()
+    request.addfinalizer(jwks_server.close)
+    opa_query = (
+        '{"allow": data.polisyos.authz.decision.allow, '
+        '"deny_reasons": data.polisyos.authz.decision.deny_reasons}'
+    )
+
+    def _evaluate_opa(payload: dict[str, Any]) -> dict[str, Any]:
+        decision = _opa_eval(opa_query, input_value=payload)
+        assert isinstance(decision, dict)
+        return decision
+
+    opa_server = _LocalOPAStub(_evaluate_opa)
+    opa_url = opa_server.start()
+    request.addfinalizer(opa_server.close)
+
     raw_config = _config_mapping(tmp_path)
+    identity_config = raw_config["identity_verifier"]
+    assert isinstance(identity_config, dict)
+    identity_config["jwks_uri"] = jwks_uri
+    opa_config = raw_config["opa"]
+    assert isinstance(opa_config, dict)
+    opa_config["url"] = opa_url
     principals = raw_config["service_principals"]
     assert isinstance(principals, list)
     valid_principal = principals[0]
@@ -213,7 +310,8 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
         "POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH",
         str(config_path),
     )
-    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
     monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
     monkeypatch.setenv(
@@ -227,32 +325,6 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
     app = local_prod_debug_probe._build_production_dry_run_app(context)
     deployment_security = cast("Any", app).state.runtime_deployment_security
 
-    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
-
-    class _StaticJWKClient:
-        def get_signing_key_from_jwt(self, _token: str) -> SimpleNamespace:
-            return SimpleNamespace(key=private_key.public_key())
-
-    deployment_security.identity_provider._jwks_cache["client"] = _StaticJWKClient()
-    deployment_security.identity_provider._jwks_cache_expires = float("inf")
-    opa_inputs: list[dict[str, Any]] = []
-
-    async def _query_opa(authz_input: Any) -> dict[str, Any]:
-        from asyncio import to_thread
-
-        payload = authz_input.to_opa_input()
-        opa_inputs.append(payload)
-        decision = await to_thread(
-            lambda: _opa_eval(
-                '{"allow": data.polisyos.authz.decision.allow, '
-                '"deny_reasons": data.polisyos.authz.decision.deny_reasons}',
-                input_value=payload,
-            )
-        )
-        assert isinstance(decision, dict)
-        return decision
-
-    monkeypatch.setattr(deployment_security.opa_client, "_query_opa", _query_opa)
     now = int(time.time())
 
     def _token(
@@ -323,16 +395,18 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
                 "Authorization": f"Bearer {valid_bearer}",
             },
         )
+        assert client.portal is not None
+        client.portal.call(deployment_security.opa_client.close)
 
     assert invalid.status_code == 401
     assert missing_grant.status_code == 403
     assert authorized.status_code == 404
-    assert len(opa_inputs) == 2
-    assert opa_inputs[0]["identity"]["sub"] == "runtime-debug-no-view"
-    assert opa_inputs[0]["identity"]["permissions"] == ["runs.launch"]
-    assert opa_inputs[1]["identity"]["sub"] == "runtime-debug-probe"
-    assert opa_inputs[1]["identity"]["permissions"] == ["runs.view"]
-    assert opa_inputs[1]["identity"]["authorization_source"] == (
+    assert len(opa_server.inputs) == 2
+    assert opa_server.inputs[0]["identity"]["sub"] == "runtime-debug-no-view"
+    assert opa_server.inputs[0]["identity"]["permissions"] == ["runs.launch"]
+    assert opa_server.inputs[1]["identity"]["sub"] == "runtime-debug-probe"
+    assert opa_server.inputs[1]["identity"]["permissions"] == ["runs.view"]
+    assert opa_server.inputs[1]["identity"]["authorization_source"] == (
         "deployment_service_principal"
     )
 

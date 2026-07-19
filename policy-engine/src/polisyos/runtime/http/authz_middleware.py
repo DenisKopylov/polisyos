@@ -590,6 +590,22 @@ class AuthzMiddleware:
             return
 
         request = Request(scope, receive=receive)
+        from polisyos.runtime.http.deployment_security_attestation import (
+            require_attested_deployment_setting,
+        )
+
+        require_attested_deployment_setting(
+            request,
+            setting_name="authorization_perimeter",
+            candidate=(
+                self._enforce,
+                self._shadow_mode,
+                self._public_paths,
+                self._delegation_manager,
+                self._trusted_delegators,
+            ),
+            expected=(True, False, _PUBLIC_PATHS, None, frozenset()),
+        )
         method = str(request.method).upper()
         path = str(request.url.path)
         unsafe = method in _UNSAFE_METHODS
@@ -832,7 +848,19 @@ class AuthzMiddleware:
                     None,
                 )
                 if deployment_grants is not None:
+                    from polisyos.runtime.http.deployment_security_attestation import (
+                        require_attested_deployment_component,
+                    )
                     from polisyos.runtime.http.security import UserIdentityClaims
+
+                    deployment_grants = cast(
+                        "DeploymentPrincipalGrantResolver",
+                        require_attested_deployment_component(
+                            request,
+                            component_name="principal_grants",
+                            candidate=deployment_grants,
+                        ),
+                    )
 
                     if type(deployment_grants) is not DeploymentPrincipalGrantResolver:
                         await self._send_failure(
@@ -1381,6 +1409,18 @@ class AuthzMiddleware:
         opa = self._opa
         if opa is None:
             return None, False
+        from polisyos.runtime.http.deployment_security_attestation import (
+            require_attested_deployment_component,
+        )
+
+        opa = cast(
+            "OPAClient",
+            require_attested_deployment_component(
+                request,
+                component_name="opa_client",
+                candidate=opa,
+            ),
+        )
         try:
             result = await self._opa_breaker.execute(
                 lambda: asyncio.wait_for(

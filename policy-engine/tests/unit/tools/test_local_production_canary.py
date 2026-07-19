@@ -30,6 +30,7 @@ from tools.ops_runners.runtime.quality_scenarios import (
 
 def _runtime_canary_security(
     tmp_path: Path,
+    request: pytest.FixtureRequest,
 ) -> tuple[Any, Any]:
     import jwt
     from cryptography.hazmat.primitives.asymmetric import rsa
@@ -38,11 +39,21 @@ def _runtime_canary_security(
         DeploymentSecurityConfig,
         build_deployment_security,
     )
+    from tests.unit.runtime.http.deployment_security_test_support import (
+        LocalJWKSStub,
+    )
     from tests.unit.runtime.http.test_runtime_deployment_security import (
         _config_mapping,
     )
 
+    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+    jwks_server = LocalJWKSStub(private_key)
+    jwks_uri = jwks_server.start()
+    request.addfinalizer(jwks_server.close)
     raw = _config_mapping(tmp_path)
+    identity_config = raw["identity_verifier"]
+    assert isinstance(identity_config, dict)
+    identity_config["jwks_uri"] = jwks_uri
     principals = raw["service_principals"]
     assert isinstance(principals, list)
     valid = principals[0]
@@ -55,14 +66,6 @@ def _runtime_canary_security(
         }
     )
     runtime = build_deployment_security(DeploymentSecurityConfig.from_mapping(raw))
-    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
-
-    class _StaticJWKClient:
-        def get_signing_key_from_jwt(self, _token: str) -> SimpleNamespace:
-            return SimpleNamespace(key=private_key.public_key())
-
-    runtime.identity_provider._jwks_cache["client"] = _StaticJWKClient()
-    runtime.identity_provider._jwks_cache_expires = float("inf")
 
     def _token(subject: str) -> str:
         now = int(time.time())
@@ -312,6 +315,7 @@ def test_runtime_canary_requires_a_separately_injected_bearer() -> None:
 
 def test_runtime_canary_authenticated_client_sends_exact_grant_bearer(
     tmp_path: Path,
+    request: pytest.FixtureRequest,
 ) -> None:
     from fastapi import FastAPI
 
@@ -319,7 +323,7 @@ def test_runtime_canary_authenticated_client_sends_exact_grant_bearer(
 
     observed_authorization: list[str] = []
     app = FastAPI()
-    runtime, token = _runtime_canary_security(tmp_path)
+    runtime, token = _runtime_canary_security(tmp_path, request)
     app.state.runtime_deployment_security = runtime
 
     @app.middleware("http")
@@ -349,10 +353,11 @@ def test_runtime_canary_authenticated_client_sends_exact_grant_bearer(
 def test_runtime_canary_rejects_unmanaged_or_over_granted_token_before_request(
     tmp_path: Path,
     subject: str,
+    request: pytest.FixtureRequest,
 ) -> None:
     import tools.ops_runners.runtime.local_production_canary as canary
 
-    runtime, token = _runtime_canary_security(tmp_path)
+    runtime, token = _runtime_canary_security(tmp_path, request)
     app = SimpleNamespace(
         state=SimpleNamespace(runtime_deployment_security=runtime)
     )

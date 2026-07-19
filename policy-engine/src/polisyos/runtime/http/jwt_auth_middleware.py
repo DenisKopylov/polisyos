@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import contextvars
 import os
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
@@ -110,7 +110,18 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
         request: _Request,
         call_next: Callable[[_Request], Awaitable[_Response]],
     ) -> _Response:
+        from polisyos.runtime.http.deployment_security_attestation import (
+            require_attested_deployment_component,
+            require_attested_deployment_setting,
+        )
+
         path = str(getattr(request.url, "path", ""))
+        require_attested_deployment_setting(
+            request,
+            setting_name="identity_public_paths",
+            candidate=self._public_paths,
+            expected=_PUBLIC_PATHS,
+        )
         if path in self._public_paths:
             return await call_next(request)
         request_id = getattr(getattr(request, "state", object()), "request_id", None)
@@ -141,8 +152,16 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
                 error="missing_bearer_token",
             )
 
+        identity_provider = cast(
+            "SPIFFEIdentityProvider",
+            require_attested_deployment_component(
+                request,
+                component_name="identity_provider",
+                candidate=self._identity_provider,
+            ),
+        )
         try:
-            claims = self._identity_provider.extract_user_claims(
+            claims = identity_provider.extract_user_claims(
                 token,
                 expected_cell_id=self._expected_cell_id,
             )

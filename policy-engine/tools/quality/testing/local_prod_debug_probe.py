@@ -24,7 +24,10 @@ from polisyos.core.contracts import (
     ScenarioFamilyConstructRow,
     construct_for_legacy_family,
 )
-from polisyos.core.security.authz import AuthzDecision, AuthzResult
+from polisyos.runtime.http.deployment_security import (
+    DeploymentSecurityConfig,
+    build_deployment_security,
+)
 from polisyos.runtime.http.execution_policy import (
     RuntimeBootstrapError,
     RuntimeExecutionPolicyResolver,
@@ -106,6 +109,8 @@ SECRET_ENV_KEYS = (
     "POLISYOS_CONTROL_POSTGRES_DSN",
     "POLISYOS_LLM_GATEWAY_API_KEY",
     "POLISYOS_DELEGATION_SECRET",
+    "POLISYOS_RUNTIME_CANARY_BEARER_TOKEN",
+    "POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN",
 )
 VISIBLE_ENV_KEYS = (
     "POLISYOS_EXECUTION_PROFILE",
@@ -514,7 +519,7 @@ def run_stale_recovery_check(context: ProbeContext) -> dict[str, Any]:
 
 
 def run_production_dry_run_check(context: ProbeContext) -> dict[str, Any]:
-    """Dry-run strict production bootstrap and health route composition."""
+    """Dry-run strict bootstrap plus one genuinely authorized protected read."""
     if not context.postgres_dsn and context.store_backend == "postgres":
         return _missing_dsn_result("production-dry-run")
     env = _production_env(context)
@@ -531,24 +536,19 @@ def run_production_dry_run_check(context: ProbeContext) -> dict[str, Any]:
         try:
             from fastapi.testclient import TestClient
 
-            from polisyos.runtime.http.app import create_runtime_api_app
-
-            app = create_runtime_api_app(
-                cas_root=context.repo_root / ".polisyos" / "local-prod-debug" / "dry-run-cas",
-                core_runs_root=context.repo_root
-                / ".polisyos"
-                / "local-prod-debug"
-                / "dry-run-runs",
-                identity_provider=object(),
-                cell_registry=object(),
-                opa_client=_AllowingOPAClient(),
-                authz_enforce=True,
-                authz_shadow_mode=False,
-                allow_fixture_identity=False,
-            )
+            app = _build_production_dry_run_app(context)
             with TestClient(app) as client:
                 response = client.get("/health")
                 health_status = response.status_code
+                protected_response = client.get(
+                    "/api/v1/runs/local-prod-debug-probe",
+                    headers={
+                        "Authorization": (
+                            f"Bearer {_debug_probe_bearer_token(context.runtime_env)}"
+                        )
+                    },
+                )
+                protected_probe_status = protected_response.status_code
         except Exception as exc:
             return _check_result(
                 "production-dry-run",
@@ -558,13 +558,20 @@ def run_production_dry_run_check(context: ProbeContext) -> dict[str, Any]:
                 details={"missing_security_chain_blocker": blocker},
             )
     expected_blocker = "Execution profile requires runtime security middlewares and providers."
-    status = "pass" if blocker == expected_blocker and 200 <= health_status < 300 else "fail"
+    status = (
+        "pass"
+        if blocker == expected_blocker
+        and 200 <= health_status < 300
+        and protected_probe_status == 404
+        else "fail"
+    )
     return _check_result(
         "production-dry-run",
         status,
         details={
             "missing_security_chain_blocker": blocker,
             "health_status": health_status,
+            "protected_probe_status": protected_probe_status,
             "strict_profile": {
                 "execution_profile": "production",
                 "worker_backend": "external",
@@ -574,6 +581,39 @@ def run_production_dry_run_check(context: ProbeContext) -> dict[str, Any]:
             },
         },
     )
+
+
+def _build_production_dry_run_app(context: ProbeContext) -> Any:
+    """Compose the dry-run app through the genuine deployment security producer."""
+    from polisyos.runtime.http.app import create_runtime_api_app
+
+    deployment_security = build_deployment_security(
+        DeploymentSecurityConfig.from_env()
+    )
+    return create_runtime_api_app(
+        cas_root=context.repo_root / ".polisyos" / "local-prod-debug" / "dry-run-cas",
+        core_runs_root=context.repo_root
+        / ".polisyos"
+        / "local-prod-debug"
+        / "dry-run-runs",
+        deployment_security=deployment_security,
+        enable_security_middlewares=True,
+        authz_enforce=True,
+        authz_shadow_mode=False,
+        allow_fixture_identity=False,
+    )
+
+
+def _debug_probe_bearer_token(env: Mapping[str, str] | None = None) -> str:
+    """Resolve the deployment-injected debug principal token without logging it."""
+    source = os.environ if env is None else env
+    token = str(source.get("POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN", "")).strip()
+    if not token or any(character in token for character in "\r\n"):
+        raise RuntimeError(
+            "POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN must contain a short-lived "
+            "service-principal token"
+        )
+    return token
 
 
 def run_provider_preflight_check(context: ProbeContext) -> dict[str, Any]:
@@ -1853,16 +1893,6 @@ def _diagnostic_event_appender(
         )
 
     return append_event
-
-
-class _AllowingOPAClient:
-    async def check(self, _authz_input: object) -> AuthzResult:
-        return AuthzResult(
-            decision=AuthzDecision.ALLOW,
-            policy="local-prod-debug-allow-all-health-dry-run",
-            reasons=(),
-            audit_entry={},
-        )
 
 
 def _production_env(context: ProbeContext) -> dict[str, str]:

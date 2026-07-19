@@ -1,17 +1,23 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
+
+import pytest
 
 from polisyos.runtime.quality.assurance_case import build_policy_intent_envelope
 from tools.ops_runners.runtime.local_production_canary import (
     DEFAULT_MODEL,
     _build_canary_request,
+    _build_runtime_canary_app,
+    _configure_local_runtime_env,
     _extract_provider_preflight,
     _has_required_materialization_refs,
     _is_terminal_job_state,
     _load_env_file,
     _load_local_run_evidence,
+    _runtime_canary_bearer_token,
 )
 from tools.ops_runners.runtime.quality_scenarios import (
     DEFAULT_QUALITY_SCENARIO_ID,
@@ -230,3 +236,63 @@ def test_load_env_file_supports_export_and_quotes_without_overwriting(tmp_path: 
         "POLISYOS_LLM_GATEWAY_BASE_URL": "https://proxy.gonka.gg/v1",
     }
     assert env["EXISTING"] == "already"
+
+
+def test_runtime_canary_requires_a_separately_injected_bearer() -> None:
+    with pytest.raises(RuntimeError, match="short-lived service-principal token"):
+        _runtime_canary_bearer_token({})
+
+    token = "eyJ-short-lived-canary-token"  # noqa: S105 - inert test sentinel
+    assert _runtime_canary_bearer_token(
+        {"POLISYOS_RUNTIME_CANARY_BEARER_TOKEN": token}
+    ) == token
+
+
+def test_runtime_canary_configuration_removes_fixture_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY", "1")
+
+    _configure_local_runtime_env(run_root=tmp_path, mode="simulated", timeout_s=1)
+
+    assert "POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY" not in os.environ
+
+
+def test_runtime_canary_app_uses_only_deployment_security(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import tools.ops_runners.runtime.local_production_canary as canary
+
+    deployment_config = object()
+    deployment_security = object()
+    captured: dict[str, object] = {}
+
+    monkeypatch.setattr(
+        canary.DeploymentSecurityConfig,
+        "from_env",
+        lambda: deployment_config,
+    )
+    monkeypatch.setattr(
+        canary,
+        "build_deployment_security",
+        lambda config: deployment_security if config is deployment_config else None,
+    )
+
+    def _capture_app(**kwargs: object) -> object:
+        captured.update(kwargs)
+        return object()
+
+    monkeypatch.setattr(canary, "create_runtime_api_app", _capture_app)
+
+    _build_runtime_canary_app(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+    )
+
+    assert captured["deployment_security"] is deployment_security
+    assert captured["enable_security_middlewares"] is True
+    assert captured["allow_fixture_identity"] is False
+    assert "identity_provider" not in captured
+    assert "opa_client" not in captured

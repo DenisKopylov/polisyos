@@ -33,6 +33,14 @@ def test_parser_defaults_to_quick_and_redacts_secret_env(monkeypatch: pytest.Mon
         "postgresql://polisyos:super-secret@127.0.0.1:54329/polisyos_control",
     )
     monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "sk-live-secret-value")
+    monkeypatch.setenv(
+        "POLISYOS_RUNTIME_CANARY_BEARER_TOKEN",
+        "runtime-canary-secret-token",
+    )
+    monkeypatch.setenv(
+        "POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN",
+        "runtime-debug-probe-secret-token",
+    )
 
     sanitized = local_prod_debug_probe.sanitized_env(os.environ)
 
@@ -44,6 +52,104 @@ def test_parser_defaults_to_quick_and_redacts_secret_env(monkeypatch: pytest.Mon
     )
     assert sanitized["POLISYOS_LLM_GATEWAY_API_KEY"]["present"] is True
     assert sanitized["POLISYOS_LLM_GATEWAY_API_KEY"]["fingerprint"].startswith("sha256:")
+    assert sanitized["POLISYOS_RUNTIME_CANARY_BEARER_TOKEN"]["present"] is True
+    assert sanitized["POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN"]["present"] is True
+    assert "runtime-canary-secret-token" not in rendered
+    assert "runtime-debug-probe-secret-token" not in rendered
+
+
+def test_debug_probe_requires_a_separately_injected_bearer() -> None:
+    with pytest.raises(RuntimeError, match="short-lived service-principal token"):
+        local_prod_debug_probe._debug_probe_bearer_token({})
+
+    token = "eyJ-short-lived-debug-probe-token"  # noqa: S105 - inert test sentinel
+    assert local_prod_debug_probe._debug_probe_bearer_token(
+        {"POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN": token}
+    ) == token
+
+
+def test_production_dry_run_exercises_protected_route_with_debug_principal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from fastapi import FastAPI, Response
+
+    observed_authorization: list[str] = []
+    app = FastAPI()
+
+    @app.middleware("http")
+    async def _capture_authorization(request, call_next):  # type: ignore[no-untyped-def]
+        if request.url.path == "/api/v1/runs/local-prod-debug-probe":
+            observed_authorization.append(request.headers.get("authorization", ""))
+        return await call_next(request)
+
+    @app.get("/health")
+    def _health() -> dict[str, str]:
+        return {"status": "ok"}
+
+    @app.get("/api/v1/runs/{run_id}")
+    def _protected_probe(run_id: str) -> Response:
+        assert run_id == "local-prod-debug-probe"
+        return Response(status_code=404)
+
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        postgres_dsn="postgresql://probe.invalid/polisyos",
+    )
+    synthetic_token = "-".join(("eyJ", "debug", "probe", "sentinel"))
+    context.runtime_env["POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN"] = synthetic_token
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "_build_production_dry_run_app",
+        lambda _context: app,
+    )
+
+    result = local_prod_debug_probe.run_production_dry_run_check(context)
+
+    assert result["details"]["protected_probe_status"] == 404
+    assert result["status"] == "pass", result
+    assert observed_authorization == [f"Bearer {synthetic_token}"]
+
+
+def test_production_dry_run_composes_genuine_deployment_security(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.runtime.http.app as app_module
+
+    deployment_config = object()
+    deployment_security = object()
+    captured: dict[str, object] = {}
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe.DeploymentSecurityConfig,
+        "from_env",
+        lambda: deployment_config,
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "build_deployment_security",
+        lambda config: deployment_security if config is deployment_config else None,
+    )
+
+    def _capture_app(**kwargs: object) -> object:
+        captured.update(kwargs)
+        return object()
+
+    monkeypatch.setattr(app_module, "create_runtime_api_app", _capture_app)
+
+    local_prod_debug_probe._build_production_dry_run_app(context)
+
+    assert captured["deployment_security"] is deployment_security
+    assert captured["enable_security_middlewares"] is True
+    assert captured["authz_enforce"] is True
+    assert captured["authz_shadow_mode"] is False
+    assert captured["allow_fixture_identity"] is False
+    assert "identity_provider" not in captured
+    assert "opa_client" not in captured
 
 
 def test_parse_checks_expands_quick_without_live_or_workflow_heavy_checks() -> None:

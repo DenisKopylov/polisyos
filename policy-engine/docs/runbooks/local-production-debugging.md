@@ -112,7 +112,110 @@ export POLISYOS_CONTROL_WORKER_BACKEND=external
 unset POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE
 ```
 
-Strict production profile is expected to fail locally until the security chain and an external worker are available.
+Strict production profile is expected to fail locally until the deployment
+security document, OPA sidecar, dedicated probe identities, PostgreSQL store,
+and an external worker are available. Fixture identity and test-only step-up
+verifiers are refused outside the development profile.
+
+## Runtime Security and Probe Identity
+
+Both local probes compose the runtime from one strict deployment-owned security
+document. Point the runtime at that document; do not put a bearer token or a
+signing secret in it:
+
+```bash
+export POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH="$PWD/.polisyos/local-prod-debug/runtime-security.json"
+export POLISYOS_RUNTIME_CANARY_BEARER_TOKEN='<short-lived runtime-canary access token>'
+export POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN='<short-lived runtime-debug-probe access token>'
+```
+
+The historical `...GRANTS_PATH` name is retained for compatibility, but the
+referenced JSON is the complete public verification and grant contract:
+
+```json
+{
+  "identity_verifier": {
+    "issuer": "https://idp.example/realms/polisyos",
+    "audience": "polisyos-runtime",
+    "algorithms": ["RS256"],
+    "jwks_uri": "https://idp.example/realms/polisyos/protocol/openid-connect/certs",
+    "allowed_key_ids": ["identity-2026-07"],
+    "revoked_key_ids": [],
+    "keycloak_client_id": "polisyos-runtime",
+    "jwks_cache_ttl_seconds": 300,
+    "provenance": {
+      "source": "deployment_config",
+      "reference": "runtime-idp/trust-policy@2026-07"
+    }
+  },
+  "step_up_verifier": {
+    "issuer": "https://idp.example/realms/polisyos-step-up",
+    "audience": "polisyos-runtime-step-up",
+    "algorithms": ["RS256"],
+    "jwks_uri": "https://idp.example/realms/polisyos-step-up/protocol/openid-connect/certs",
+    "allowed_key_ids": ["step-up-2026-07"],
+    "revoked_key_ids": [],
+    "maximum_age_seconds": 300,
+    "clock_skew_seconds": 30,
+    "provenance": {
+      "source": "deployment_config",
+      "reference": "runtime-idp/step-up-trust-policy@2026-07"
+    }
+  },
+  "cell_registry_path": "/absolute/path/to/runtime-cells.json",
+  "opa": {
+    "url": "http://127.0.0.1:8181",
+    "policy_path": "polisyos/authz/decision",
+    "timeout_seconds": 2.0
+  },
+  "service_principals": [
+    {
+      "issuer": "https://idp.example/realms/polisyos",
+      "audience": "polisyos-runtime",
+      "subject": "runtime-canary",
+      "tenant_id": "<canary-tenant-uuid>",
+      "cell_id": "<registered-cell-uuidv7>",
+      "permissions": ["runs.launch", "runs.view"]
+    },
+    {
+      "issuer": "https://idp.example/realms/polisyos",
+      "audience": "polisyos-runtime",
+      "subject": "runtime-debug-probe",
+      "tenant_id": "<debug-tenant-uuid>",
+      "cell_id": "<registered-cell-uuidv7>",
+      "permissions": ["runs.view"]
+    }
+  ]
+}
+```
+
+The canary needs exactly `runs.launch` for the launch mutation and `runs.view`
+for job/run/timeline/lineage polling. The debug probe needs exactly `runs.view`
+and proves the identity/OPA chain by requesting a deliberately absent run; HTTP
+`404` is success for that check because authorization completed before route
+lookup. A coarse token role never adds permissions to either configured
+principal. A subject named in this document with any issuer, audience, tenant,
+or cell mismatch receives an empty grant and is denied.
+
+The external identity provider must issue access tokens with signed `alg` and
+`kid` headers and the claims `iss`, `aud`, `sub`, `exp`, `iat`, `tenant_id`, and
+`cell_id`; `roles`, `mfa_verified`, and `jti` must also be supplied for normal
+runtime identity/audit semantics. Issuer, audience, algorithm, active/revoked
+key sets, JWKS endpoint, tenant, and cell must exactly match the document and
+cell registry.
+
+High-stakes step-up assertions additionally bind `sub`, `tenant_id`, `method`,
+`route`, `permission`, `resource_id`, `resource_digest`, `resource_kind`,
+`binding_authority`, `body_sha256`, `step_up_class`, `scorecard_ref`, and
+`scorecard_sha256`. They require `iss`, `aud`, `exp`, `iat`, `jti`,
+`mfa_verified=true`, and a non-empty `assurance`; optional `nbf` is honored.
+Assertions are rejected when stale, replayed, signed by a non-active key, or
+different from any request/resource binding.
+
+Keep the two bearer variables in the deployment secret injector only. The
+debug evidence sanitizer records presence and a fingerprint, never token bytes.
+The JSON document contains public trust metadata and exact grants, but should
+still be deployment-managed and reviewed because changing it changes authority.
 
 ## Verify PostgreSQL Store
 

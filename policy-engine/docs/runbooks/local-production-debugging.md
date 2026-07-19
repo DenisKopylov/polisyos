@@ -199,10 +199,14 @@ or cell mismatch receives an empty grant and is denied.
 
 The external identity provider must issue access tokens with signed `alg` and
 `kid` headers and the claims `iss`, `aud`, `sub`, `exp`, `iat`, `tenant_id`, and
-`cell_id`; `roles`, `mfa_verified`, and `jti` must also be supplied for normal
-runtime identity/audit semantics. Issuer, audience, algorithm, active/revoked
-key sets, JWKS endpoint, tenant, and cell must exactly match the document and
-cell registry.
+`cell_id`. Role mapping reads Keycloak-style `realm_access.roles` and
+`resource_access[polisyos-runtime].roles`; use `polisyos_viewer` for these
+service principals because their authority comes only from the exact grant list
+above. MFA inference reads `acr` (`2`, `3`, or the configured silver value) or
+`amr` (`webauthn`, `fido-u2f`, `mfa`, or `otp`), never a client-authored
+`mfa_verified` boolean. Include a unique `jti` for identity/audit correlation.
+Issuer, audience, algorithm, active/revoked key sets, JWKS endpoint, tenant, and
+cell must exactly match the document and cell registry.
 
 High-stakes step-up assertions additionally bind `sub`, `tenant_id`, `method`,
 `route`, `permission`, `resource_id`, `resource_digest`, `resource_kind`,

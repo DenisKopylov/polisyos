@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
@@ -150,6 +151,145 @@ def test_production_dry_run_composes_genuine_deployment_security(
     assert captured["allow_fixture_identity"] is False
     assert "identity_provider" not in captured
     assert "opa_client" not in captured
+
+
+def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from fastapi.testclient import TestClient
+
+    from tests.unit.runtime.http.test_runtime_deployment_security import (
+        _config_mapping,
+    )
+    from tests.unit.runtime.http.test_runtime_rego_authorization_parity import (
+        _opa_eval,
+    )
+
+    raw_config = _config_mapping(tmp_path)
+    principals = raw_config["service_principals"]
+    assert isinstance(principals, list)
+    valid_principal = principals[0]
+    assert isinstance(valid_principal, dict)
+    valid_principal.update(
+        {
+            "subject": "runtime-debug-probe",
+            "permissions": ["runs.view"],
+        }
+    )
+    principals.append(
+        {
+            **valid_principal,
+            "subject": "runtime-debug-no-view",
+            "permissions": ["runs.launch"],
+        }
+    )
+    config_path = tmp_path / "runtime-security.json"
+    config_path.write_text(json.dumps(raw_config), encoding="utf-8")
+    monkeypatch.setenv(
+        "POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH",
+        str(config_path),
+    )
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv(
+        "POLISYOS_CONTROL_SQLITE_PATH",
+        str(tmp_path / "control.sqlite3"),
+    )
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    app = local_prod_debug_probe._build_production_dry_run_app(context)
+    deployment_security = cast("Any", app).state.runtime_deployment_security
+
+    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+
+    class _StaticJWKClient:
+        def get_signing_key_from_jwt(self, _token: str) -> SimpleNamespace:
+            return SimpleNamespace(key=private_key.public_key())
+
+    deployment_security.identity_provider._jwks_cache["client"] = _StaticJWKClient()
+    deployment_security.identity_provider._jwks_cache_expires = float("inf")
+    opa_inputs: list[dict[str, Any]] = []
+
+    async def _query_opa(authz_input: Any) -> dict[str, Any]:
+        from asyncio import to_thread
+
+        payload = authz_input.to_opa_input()
+        opa_inputs.append(payload)
+        decision = await to_thread(
+            lambda: _opa_eval(
+                '{"allow": data.polisyos.authz.decision.allow, '
+                '"deny_reasons": data.polisyos.authz.decision.deny_reasons}',
+                input_value=payload,
+            )
+        )
+        assert isinstance(decision, dict)
+        return decision
+
+    monkeypatch.setattr(deployment_security.opa_client, "_query_opa", _query_opa)
+    now = int(time.time())
+
+    def _token(subject: str, *, signing_key: Any = private_key) -> str:
+        return jwt.encode(
+            {
+                "iss": "https://idp.example",
+                "aud": "polisyos-runtime",
+                "sub": subject,
+                "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                "cell_id": "018f47a0-0000-7000-8000-000000000001",
+                "realm_access": {"roles": ["polisyos_viewer"]},
+                "amr": ["pwd"],
+                "iat": now,
+                "exp": now + 60,
+                "jti": f"{subject}-{now}",
+            },
+            signing_key,
+            algorithm="RS256",
+            headers={"kid": "identity-2026-07"},
+        )
+
+    path = "/api/v1/runs/local-prod-debug-probe"
+    tenant_header = {"X-Tenant-ID": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"}
+    wrong_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+    with TestClient(app) as client:
+        invalid = client.get(
+            path,
+            headers={
+                **tenant_header,
+                "Authorization": f"Bearer {_token('runtime-debug-probe', signing_key=wrong_key)}",
+            },
+        )
+        missing_grant = client.get(
+            path,
+            headers={
+                **tenant_header,
+                "Authorization": f"Bearer {_token('runtime-debug-no-view')}",
+            },
+        )
+        authorized = client.get(
+            path,
+            headers={
+                **tenant_header,
+                "Authorization": f"Bearer {_token('runtime-debug-probe')}",
+            },
+        )
+
+    assert invalid.status_code == 401
+    assert missing_grant.status_code == 403
+    assert authorized.status_code == 404
+    assert len(opa_inputs) == 2
+    assert opa_inputs[0]["identity"]["sub"] == "runtime-debug-no-view"
+    assert opa_inputs[0]["identity"]["permissions"] == ["runs.launch"]
+    assert opa_inputs[1]["identity"]["sub"] == "runtime-debug-probe"
+    assert opa_inputs[1]["identity"]["permissions"] == ["runs.view"]
+    assert opa_inputs[1]["identity"]["authorization_source"] == (
+        "deployment_service_principal"
+    )
 
 
 def test_parse_checks_expands_quick_without_live_or_workflow_heavy_checks() -> None:

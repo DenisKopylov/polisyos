@@ -248,6 +248,34 @@ def test_runtime_canary_requires_a_separately_injected_bearer() -> None:
     ) == token
 
 
+def test_runtime_canary_authenticated_client_sends_bearer() -> None:
+    from fastapi import FastAPI
+
+    import tools.ops_runners.runtime.local_production_canary as canary
+
+    observed_authorization: list[str] = []
+    app = FastAPI()
+
+    @app.middleware("http")
+    async def _capture_authorization(request, call_next):  # type: ignore[no-untyped-def]
+        observed_authorization.append(request.headers.get("authorization", ""))
+        return await call_next(request)
+
+    @app.get("/protected")
+    def _protected() -> dict[str, bool]:
+        return {"ok": True}
+
+    synthetic_token = "-".join(("eyJ", "canary", "sentinel"))
+    with canary._authenticated_runtime_canary_client(
+        app,
+        bearer_token=synthetic_token,
+    ) as client:
+        response = client.get("/protected")
+
+    assert response.status_code == 200
+    assert observed_authorization == [f"Bearer {synthetic_token}"]
+
+
 def test_runtime_canary_configuration_removes_fixture_identity(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

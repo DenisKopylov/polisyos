@@ -2428,6 +2428,19 @@ def _build_runtime_canary_app(*, cas_root: Path, core_runs_root: Path) -> Any:
     )
 
 
+def _authenticated_runtime_canary_client(
+    app: Any,
+    *,
+    bearer_token: str,
+) -> Any:
+    """Create the probe client with its deployment identity on every request."""
+    if TestClient is None:
+        raise RuntimeError("FastAPI TestClient is required for the runtime canary")
+    client = TestClient(app)
+    client.headers["Authorization"] = f"Bearer {bearer_token}"
+    return client
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--mode", choices=("real", "simulated"), default="real")
@@ -2570,8 +2583,10 @@ def main(argv: list[str] | None = None) -> int:
             cas_root=run_root / "cas",
             core_runs_root=run_root / "runs",
         )
-        with TestClient(app) as client:
-            client.headers["Authorization"] = f"Bearer {bearer_token}"
+        with _authenticated_runtime_canary_client(
+            app,
+            bearer_token=bearer_token,
+        ) as client:
             launch_response = client.post("/api/v1/control/runs/nl", json=request_payload)
             launch_payload = _response_json(launch_response)
             _write_json(run_root / "launch_response.json", launch_payload)

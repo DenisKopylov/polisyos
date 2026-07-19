@@ -26,12 +26,15 @@ from polisyos.core.contracts import (
 )
 from polisyos.runtime.http.deployment_security import (
     DeploymentSecurityConfig,
+    RuntimeDeploymentSecurity,
     build_deployment_security,
+    verify_exact_deployment_principal_token,
 )
 from polisyos.runtime.http.execution_policy import (
     RuntimeBootstrapError,
     RuntimeExecutionPolicyResolver,
 )
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.control.production_data import (
     load_production_data_manifest,
     production_data_contract_binding_report,
@@ -537,6 +540,15 @@ def run_production_dry_run_check(context: ProbeContext) -> dict[str, Any]:
             from fastapi.testclient import TestClient
 
             app = _build_production_dry_run_app(context)
+            deployment_security = getattr(
+                getattr(app, "state", object()),
+                "runtime_deployment_security",
+                None,
+            )
+            probe_bearer = _verified_debug_probe_bearer(
+                deployment_security,
+                context.runtime_env,
+            )
             with TestClient(app) as client:
                 response = client.get("/health")
                 health_status = response.status_code
@@ -544,7 +556,7 @@ def run_production_dry_run_check(context: ProbeContext) -> dict[str, Any]:
                     "/api/v1/runs/local-prod-debug-probe",
                     headers={
                         "Authorization": (
-                            f"Bearer {_debug_probe_bearer_token(context.runtime_env)}"
+                            f"Bearer {probe_bearer}"
                         )
                     },
                 )
@@ -614,6 +626,20 @@ def _debug_probe_bearer_token(env: Mapping[str, str] | None = None) -> str:
             "service-principal token"
         )
     return token
+
+
+def _verified_debug_probe_bearer(
+    deployment_security: RuntimeDeploymentSecurity,
+    env: Mapping[str, str] | None = None,
+) -> str:
+    """Verify the debug bearer has only its deployment-owned read grant."""
+    bearer_token = _debug_probe_bearer_token(env)
+    verify_exact_deployment_principal_token(
+        deployment_security,
+        bearer_token,
+        required_permissions=frozenset({RuntimePermission.RUNS_VIEW}),
+    )
+    return bearer_token
 
 
 def run_provider_preflight_check(context: ProbeContext) -> dict[str, Any]:

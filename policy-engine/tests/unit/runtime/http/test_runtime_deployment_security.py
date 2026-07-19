@@ -16,6 +16,12 @@ def _deployment_security_module() -> Any:
     return deployment_security
 
 
+class _AlwaysTrueReplayStore:
+    def consume_step_up_assertion(self, *, assertion_id: str, expires_at: int) -> bool:
+        del assertion_id, expires_at
+        return True
+
+
 def _config_mapping(tmp_path: Path) -> dict[str, object]:
     registry_path = tmp_path / "cells.json"
     registry_path.write_text(
@@ -314,6 +320,74 @@ def test_non_development_bootstrap_requires_exact_deployment_security_bundle(
         deployment_security=runtime,
     )
     assert cast("Any", app).state.runtime_deployment_security is runtime
+
+
+@pytest.mark.parametrize(
+    ("injection_name", "injection"),
+    [
+        (
+            "step_up_replay_store",
+            {"step_up_replay_store": _AlwaysTrueReplayStore()},
+        ),
+        ("delegation_manager", {"delegation_manager": object()}),
+        (
+            "trusted_delegators",
+            {"trusted_delegators": frozenset({"spiffe://delegator.example/runtime"})},
+        ),
+        ("service_spiffe_id", {"service_spiffe_id": "spiffe://runtime.example/api"}),
+        ("authz_enforce", {"authz_enforce": False}),
+        ("authz_shadow_mode", {"authz_shadow_mode": True}),
+    ],
+)
+def test_non_development_bootstrap_rejects_direct_authority_injections(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    injection_name: str,
+    injection: dict[str, Any],
+) -> None:
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.execution_policy import RuntimeBootstrapError
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+
+    with pytest.raises(RuntimeBootstrapError, match=injection_name):
+        create_runtime_api_app(
+            cas_root=tmp_path / injection_name,
+            deployment_security=runtime,
+            **injection,
+        )
+
+
+def test_non_development_bootstrap_rejects_runtime_container_override(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.execution_policy import RuntimeBootstrapError
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+
+    with pytest.raises(RuntimeBootstrapError, match="container_overrides"):
+        create_runtime_api_app(
+            cas_root=tmp_path / "container-override",
+            deployment_security=runtime,
+            container_overrides=RuntimeContainerOverrides(),
+        )
 
 
 def test_managed_principal_grants_deny_claim_and_effective_cell_mismatch() -> None:

@@ -24,7 +24,9 @@ from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.deployment_security import (
     DeploymentSecurityConfig,
     build_deployment_security,
+    verify_exact_deployment_principal_token,
 )
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.quality.assurance_case import (
     build_capability_duty_record,
     build_capability_selection_ledger,
@@ -2436,6 +2438,18 @@ def _authenticated_runtime_canary_client(
     """Create the probe client with its deployment identity on every request."""
     if TestClient is None:
         raise RuntimeError("FastAPI TestClient is required for the runtime canary")
+    deployment_security = getattr(
+        getattr(app, "state", object()),
+        "runtime_deployment_security",
+        None,
+    )
+    verify_exact_deployment_principal_token(
+        deployment_security,
+        bearer_token,
+        required_permissions=frozenset(
+            {RuntimePermission.RUNS_LAUNCH, RuntimePermission.RUNS_VIEW}
+        ),
+    )
     client = TestClient(app)
     client.headers["Authorization"] = f"Bearer {bearer_token}"
     return client

@@ -121,24 +121,50 @@ def create_runtime_api_app(
         else _default_core_runs_root(normalized_cas_root)
     )
     policy_resolver = RuntimeExecutionPolicyResolver.from_env()
-    direct_security_collaborators = (
-        identity_provider,
-        cell_registry,
-        opa_client,
-        step_up_verifier,
-    )
+    direct_security_collaborators = {
+        "identity_provider": identity_provider,
+        "cell_registry": cell_registry,
+        "opa_client": opa_client,
+        "step_up_verifier": step_up_verifier,
+        "step_up_replay_store": step_up_replay_store,
+        "delegation_manager": delegation_manager,
+    }
+    direct_non_development_authority = [
+        name
+        for name, collaborator in direct_security_collaborators.items()
+        if collaborator is not None
+    ]
+    if trusted_delegators:
+        direct_non_development_authority.append("trusted_delegators")
+    if service_spiffe_id is not None:
+        direct_non_development_authority.append("service_spiffe_id")
+    if container_overrides is not None:
+        direct_non_development_authority.append("container_overrides")
+    if not authz_enforce:
+        direct_non_development_authority.append("authz_enforce")
+    if authz_shadow_mode:
+        direct_non_development_authority.append("authz_shadow_mode")
     if (
         policy_resolver.default_profile != "dev"
-        and any(collaborator is not None for collaborator in direct_security_collaborators)
+        and direct_non_development_authority
     ):
         raise RuntimeBootstrapError(
-            "Non-development security collaborators require an exact "
-            "RuntimeDeploymentSecurity bundle."
+            "Non-development authority composition requires an exact "
+            "RuntimeDeploymentSecurity bundle without direct injections: "
+            + ", ".join(sorted(direct_non_development_authority))
         )
     if deployment_security is not None:
         if type(deployment_security) is not RuntimeDeploymentSecurity:
             raise TypeError("deployment_security must be a RuntimeDeploymentSecurity")
-        if any(collaborator is not None for collaborator in direct_security_collaborators):
+        if any(
+            direct_security_collaborators[name] is not None
+            for name in (
+                "identity_provider",
+                "cell_registry",
+                "opa_client",
+                "step_up_verifier",
+            )
+        ):
             raise RuntimeBootstrapError(
                 "Deployment security cannot be mixed with direct security collaborators."
             )

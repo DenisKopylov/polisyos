@@ -29,7 +29,7 @@ from polisyos.runtime.http.jwt_auth_middleware import (
     SPIFFEIdentityProvider,
     TokenValidationError,
 )
-from polisyos.runtime.http.permissions import RuntimePermission  # noqa: TC001
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.step_up import JWTStepUpAssertionVerifier
 
 if TYPE_CHECKING:
@@ -381,6 +381,53 @@ def is_deployment_step_up_verifier(value: object) -> bool:
     return type(value) is DeploymentJWTStepUpAssertionVerifier
 
 
+def verify_exact_deployment_principal_token(
+    runtime: RuntimeDeploymentSecurity,
+    bearer_token: str,
+    *,
+    required_permissions: frozenset[RuntimePermission],
+) -> UserIdentityClaims:
+    """Verify one bearer and require its exact deployment-managed action set.
+
+    This preflight is intentionally stricter than normal route authorization:
+    an operations probe is a narrowly provisioned witness, so an unmanaged role
+    fallback or a managed principal with additional authority must not produce a
+    passing probe.
+    """
+    if type(runtime) is not RuntimeDeploymentSecurity:
+        raise TypeError("runtime must be a factory-produced RuntimeDeploymentSecurity")
+    if (
+        not isinstance(bearer_token, str)
+        or not bearer_token.strip()
+        or bearer_token != bearer_token.strip()
+        or any(character in bearer_token for character in "\r\n")
+    ):
+        raise RuntimeError("probe bearer token is unavailable or malformed")
+    if not required_permissions or any(
+        not isinstance(permission, RuntimePermission)
+        for permission in required_permissions
+    ):
+        raise TypeError("required_permissions must be canonical RuntimePermission values")
+    try:
+        claims = runtime.identity_provider.extract_user_claims(bearer_token)
+    except TokenValidationError as exc:
+        raise RuntimeError(
+            "probe bearer failed deployment identity verification"
+        ) from exc
+    granted_permissions = runtime.principal_grants.permissions_for_principal(
+        issuer=claims.iss,
+        audience=claims.aud,
+        subject=claims.sub,
+        tenant_id=claims.tenant_id,
+        cell_id=claims.cell_id,
+    )
+    if granted_permissions != required_permissions:
+        raise RuntimeError(
+            "probe bearer does not resolve to the exact deployment service-principal grant"
+        )
+    return claims
+
+
 __all__ = [
     "CANONICAL_ROLE_AUTHORIZATION_SOURCE",
     "DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE",
@@ -395,4 +442,5 @@ __all__ = [
     "VerifierProvenance",
     "build_deployment_security",
     "is_deployment_step_up_verifier",
+    "verify_exact_deployment_principal_token",
 ]

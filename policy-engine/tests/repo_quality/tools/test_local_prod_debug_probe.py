@@ -99,6 +99,19 @@ def test_production_dry_run_exercises_protected_route_with_debug_principal(
     )
     synthetic_token = "-".join(("eyJ", "debug", "probe", "sentinel"))
     context.runtime_env["POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN"] = synthetic_token
+    deployment_security = object()
+    app.state.runtime_deployment_security = deployment_security
+    verified: list[tuple[object, object]] = []
+
+    def _verify_probe_bearer(security: object, env: object) -> str:
+        verified.append((security, env))
+        return synthetic_token
+
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "_verified_debug_probe_bearer",
+        _verify_probe_bearer,
+    )
     monkeypatch.setattr(
         local_prod_debug_probe,
         "_build_production_dry_run_app",
@@ -110,6 +123,7 @@ def test_production_dry_run_exercises_protected_route_with_debug_principal(
     assert result["details"]["protected_probe_status"] == 404
     assert result["status"] == "pass", result
     assert observed_authorization == [f"Bearer {synthetic_token}"]
+    assert verified == [(deployment_security, context.runtime_env)]
 
 
 def test_production_dry_run_composes_genuine_deployment_security(
@@ -186,6 +200,13 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
             "permissions": ["runs.launch"],
         }
     )
+    principals.append(
+        {
+            **valid_principal,
+            "subject": "runtime-debug-over-granted",
+            "permissions": ["runs.view", "runs.launch"],
+        }
+    )
     config_path = tmp_path / "runtime-security.json"
     config_path.write_text(json.dumps(raw_config), encoding="utf-8")
     monkeypatch.setenv(
@@ -234,7 +255,12 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
     monkeypatch.setattr(deployment_security.opa_client, "_query_opa", _query_opa)
     now = int(time.time())
 
-    def _token(subject: str, *, signing_key: Any = private_key) -> str:
+    def _token(
+        subject: str,
+        *,
+        role: str = "polisyos_viewer",
+        signing_key: Any = private_key,
+    ) -> str:
         return jwt.encode(
             {
                 "iss": "https://idp.example",
@@ -242,8 +268,8 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
                 "sub": subject,
                 "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
                 "cell_id": "018f47a0-0000-7000-8000-000000000001",
-                "realm_access": {"roles": ["polisyos_viewer"]},
-                "amr": ["pwd"],
+                "realm_access": {"roles": [role]},
+                "amr": ["pwd", "mfa"],
                 "iat": now,
                 "exp": now + 60,
                 "jti": f"{subject}-{now}",
@@ -252,6 +278,25 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
             algorithm="RS256",
             headers={"kid": "identity-2026-07"},
         )
+
+    valid_bearer = local_prod_debug_probe._verified_debug_probe_bearer(
+        deployment_security,
+        {"POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN": _token("runtime-debug-probe")},
+    )
+    rejected_bearers = (
+        _token("unmanaged-admin", role="polisyos_admin"),
+        _token("runtime-debug-over-granted"),
+    )
+    for rejected_bearer in rejected_bearers:
+        with pytest.raises(
+            RuntimeError,
+            match="exact deployment service-principal grant",
+        ) as exc:
+            local_prod_debug_probe._verified_debug_probe_bearer(
+                deployment_security,
+                {"POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN": rejected_bearer},
+            )
+        assert rejected_bearer not in str(exc.value)
 
     path = "/api/v1/runs/local-prod-debug-probe"
     tenant_header = {"X-Tenant-ID": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"}
@@ -275,7 +320,7 @@ def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
             path,
             headers={
                 **tenant_header,
-                "Authorization": f"Bearer {_token('runtime-debug-probe')}",
+                "Authorization": f"Bearer {valid_bearer}",
             },
         )
 

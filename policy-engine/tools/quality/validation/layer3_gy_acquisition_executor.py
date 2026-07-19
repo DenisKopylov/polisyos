@@ -2923,7 +2923,11 @@ def _select_d6_carrier(
             is not data_forge_read_api.catalog.CatalogSelectionRejectionCode.FORBIDDEN_THEME_PRESENT
         }
         if decisive_codes:
-            rejected.update(decisive_codes)
+            # The route receipt is a row denominator, so every rejected carrier
+            # receives exactly one stable terminal disposition.  Additional
+            # failed checks remain available in the owner evaluation and must
+            # not inflate the denominator by being counted as extra rows.
+            rejected[min(decisive_codes)] += 1
             continue
         values: dict[str, object] = {
             "role": role,

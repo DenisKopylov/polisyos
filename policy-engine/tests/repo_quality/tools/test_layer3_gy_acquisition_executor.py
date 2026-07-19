@@ -784,6 +784,25 @@ def test_d6_route_selector_derives_ratio_times_scale_from_owner_denominators(
             "('synthetic_scale_metric', 'gdp-dataset', 'gdp-dist', 'worldbank.wdi', "
             "'worldbank_wdi', 'NY.GDP.MKTP.CD', 0.87, '{}', 'transport_ready')"
         )
+        con.execute(
+            "INSERT INTO ds_datasets VALUES "
+            "('bad-gdp-dataset', 'worldbank', 'World Bank', 'GDP (% of GDP)', "
+            "'Gross domestic product as percent of GDP.', NULL, NULL, "
+            "'', FALSE, 'transport_ready', ?)",
+            [json.dumps(["WDI Database Archives"])],
+        )
+        con.execute(
+            "INSERT INTO ds_distributions VALUES "
+            "('bad-gdp-dist', 'bad-gdp-dataset', 'https://api.worldbank.org/v2', "
+            "'worldbank.wdi', 'worldbank_wdi', 'fixture', ?, 1.0, TRUE)",
+            [json.dumps({"indicator_id": "BAD.GDP.PERCENT"})],
+        )
+        con.execute(
+            "INSERT INTO ds_metric_bindings VALUES "
+            "('synthetic_scale_metric', 'bad-gdp-dataset', 'bad-gdp-dist', "
+            "'worldbank.wdi', 'worldbank_wdi', 'BAD.GDP.PERCENT', 0.87, '{}', "
+            "'transport_ready')"
+        )
     finally:
         con.close()
     repo_root = Path(__file__).resolve().parents[3]
@@ -822,7 +841,9 @@ def test_d6_route_selector_derives_ratio_times_scale_from_owner_denominators(
     assert selection.auxiliary.metric_id == "synthetic_scale_metric"
     assert selection.auxiliary.role == "scale"
     assert selection.auxiliary.unit == "usd"
+    assert selection.auxiliary_catalog_denominator == 2
     assert selection.auxiliary_candidate_denominator == 1
+    assert sum(selection.auxiliary_rejected_counts.values()) == 1
     assert selection.primary_requires_source_characterization is True
     assert selection.selection_sha256 == executor.content_sha256(selection.identity_payload())
 

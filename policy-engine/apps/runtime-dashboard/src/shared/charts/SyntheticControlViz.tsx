@@ -35,6 +35,28 @@ const SVG_HEIGHT = 320;
 const PADDING = { top: 32, right: 24, bottom: 48, left: 56 };
 const PLOT_W = SVG_WIDTH - PADDING.left - PADDING.right;
 const PLOT_H = SVG_HEIGHT - PADDING.top - PADDING.bottom;
+type LegendGeometry = {
+  primary: {
+    labelX: number;
+    labelY: number;
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
+  };
+  secondary: {
+    labelX: number;
+    labelY: number;
+    x1: number;
+    x2: number;
+    y1: number;
+    y2: number;
+  };
+};
+const LEGEND_GEOMETRY = {
+  primary: { labelX: 20, labelY: 4, x1: 0, x2: 16, y1: 0, y2: 0 },
+  secondary: { labelX: 100, labelY: 4, x1: 80, x2: 96, y1: 0, y2: 0 },
+} as const satisfies LegendGeometry;
 
 // ---------------------------------------------------------------------------
 // Component
@@ -279,33 +301,33 @@ export function SyntheticControlViz({
           {/* Legend */}
           <g transform={`translate(${PADDING.left + 8}, ${PADDING.top + 8})`}>
             <line
-              x1={0}
-              y1={0}
-              x2={16}
-              y2={0}
+              x1={LEGEND_GEOMETRY.primary.x1}
+              y1={LEGEND_GEOMETRY.primary.y1}
+              x2={LEGEND_GEOMETRY.primary.x2}
+              y2={LEGEND_GEOMETRY.primary.y2}
               stroke={chartTheme.primary}
               strokeWidth={2}
             />
             <text
-              x={20}
-              y={4}
+              x={LEGEND_GEOMETRY.primary.labelX}
+              y={LEGEND_GEOMETRY.primary.labelY}
               fontSize={chartDefaults.tickFontSize}
               fill={chartTheme.axis}
             >
               {t("shared.charts.syntheticControl.actual")}
             </text>
             <line
-              x1={80}
-              y1={0}
-              x2={96}
-              y2={0}
+              x1={LEGEND_GEOMETRY.secondary.x1}
+              y1={LEGEND_GEOMETRY.secondary.y1}
+              x2={LEGEND_GEOMETRY.secondary.x2}
+              y2={LEGEND_GEOMETRY.secondary.y2}
               stroke={chartTheme.neutral}
               strokeWidth={2}
               strokeDasharray="5 3"
             />
             <text
-              x={100}
-              y={4}
+              x={LEGEND_GEOMETRY.secondary.labelX}
+              y={LEGEND_GEOMETRY.secondary.labelY}
               fontSize={chartDefaults.tickFontSize}
               fill={chartTheme.axis}
             >

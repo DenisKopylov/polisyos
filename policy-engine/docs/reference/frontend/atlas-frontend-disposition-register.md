@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **2834**
-- Application lines deleted: **7126**
-- Net application LOC reduction: **4292**
+- Application lines added: **4867**
+- Application lines deleted: **7660**
+- Net application LOC reduction: **2793**
 - Application files deleted: **63**
 
 ## Wave-end full verification
@@ -455,7 +455,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-inline-run-narrative` | `status-inline-run-narrative` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-governance-comparison-left` | `status-inline-governance-comparison-left` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-governance-comparison-right` | `status-inline-governance-comparison-right` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-small-multiples` | `status-inline-small-multiples` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-small-multiples` | `status-inline-small-multiples` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-verification-metadata-small-multiples` |
 | `status-inline-route-loader` | `status-inline-route-loader` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-explainability` | `status-inline-explainability` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-counterfactual-badge` | `status-inline-counterfactual-badge` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -514,6 +514,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `290bb5e61 refactor(dashboard): wrap decision producers as quantities`
 - `e57b241a0 test(dashboard): govern the status retirement inventory`
 - `5127af28d feat(atlas-ui): project ratified DTCG token parity`
 - `a2c9ae8b0 chore(dashboard): retire dormant overlay primitives`

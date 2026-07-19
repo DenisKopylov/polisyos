@@ -72,6 +72,11 @@ ARCHITECTURE_IDENTITY_FIELDS = (
     "rule_id",
     "message",
 )
+RESOLUTION_REFERENCE_ROLES = (
+    ("implementation_refs", "implementation"),
+    ("consumer_refs", "consumer"),
+    ("closure_test_ref", "closure_test"),
+)
 
 DECISION_DATE = "2026-07-17"
 REGISTER_AS_OF = "2026-07-17T10:30:00+03:00"
@@ -1479,6 +1484,71 @@ def _canonical_sha256(value: Any) -> str:
     return hashlib.sha256(encoded).hexdigest()
 
 
+def _expected_resolution_content_roles(
+    resolutions: Sequence[Mapping[str, Any]],
+) -> dict[tuple[str, str], frozenset[str]]:
+    """Derive every cluster/path role set from the resolution graph."""
+    roles_by_cluster_path: defaultdict[tuple[str, str], set[str]] = defaultdict(set)
+    for resolution in resolutions:
+        cluster_id = resolution["cluster_id"]
+        for field, role in RESOLUTION_REFERENCE_ROLES:
+            value = resolution[field]
+            references = value if isinstance(value, list) else [value]
+            for reference in references:
+                roles_by_cluster_path[(cluster_id, reference)].add(role)
+    return {
+        key: frozenset(roles)
+        for key, roles in roles_by_cluster_path.items()
+    }
+
+
+def _resolution_content_binding_errors(
+    lint: Mapping[str, Any],
+    *,
+    source_bytes_override: Mapping[str, bytes] | None = None,
+) -> list[str]:
+    """Require an exact role projection and bind every referenced file's bytes."""
+    errors: list[str] = []
+    expected = _expected_resolution_content_roles(lint["resolutions"])
+    bindings = lint["resolution_content_bindings"]
+    stored_by_key: defaultdict[tuple[str, str], list[Mapping[str, Any]]] = defaultdict(
+        list
+    )
+    for binding in bindings:
+        stored_by_key[(binding["cluster_id"], binding["path"])].append(binding)
+
+    expected_keys = set(expected)
+    stored_keys = set(stored_by_key)
+    for cluster_id, path in sorted(expected_keys - stored_keys):
+        errors.append(f"lint_resolution_content_binding_missing:{cluster_id}:{path}")
+    for cluster_id, path in sorted(stored_keys - expected_keys):
+        errors.append(f"lint_resolution_content_binding_extra:{cluster_id}:{path}")
+    for cluster_id, path in sorted(stored_keys):
+        rows = stored_by_key[(cluster_id, path)]
+        if len(rows) != 1:
+            errors.append(f"lint_resolution_content_binding_duplicate:{cluster_id}:{path}")
+        expected_roles = expected.get((cluster_id, path))
+        for binding in rows:
+            if expected_roles is not None and frozenset(binding["roles"]) != expected_roles:
+                errors.append(
+                    f"lint_resolution_content_binding_role_drift:{cluster_id}:{path}"
+                )
+            if source_bytes_override is not None and path in source_bytes_override:
+                source_bytes = source_bytes_override[path]
+            else:
+                source_path = REPO_ROOT / path
+                try:
+                    source_bytes = source_path.read_bytes()
+                except OSError:
+                    errors.append(
+                        f"lint_resolution_content_binding_path_missing:{cluster_id}:{path}"
+                    )
+                    continue
+            if hashlib.sha256(source_bytes).hexdigest() != binding["sha256"]:
+                errors.append(f"lint_resolution_content_hash_drift:{cluster_id}:{path}")
+    return errors
+
+
 def _lint_identity_rows(
     lint: Mapping[str, Any],
 ) -> list[tuple[str, dict[str, Any]]]:
@@ -1579,7 +1649,10 @@ def _flatten_vitest_failures(baseline: Mapping[str, Any]) -> list[dict[str, Any]
 
 
 def validate_baseline_manifest(
-    baseline: Mapping[str, Any], *, verify_source_bytes: bool = False
+    baseline: Mapping[str, Any],
+    *,
+    verify_source_bytes: bool = False,
+    source_bytes_override: Mapping[str, bytes] | None = None,
 ) -> list[str]:
     """Validate immutable origins, active debt, resolutions, and provenance."""
     errors = _schema_errors(baseline, BASELINE_SCHEMA_PATH)
@@ -1649,6 +1722,12 @@ def validate_baseline_manifest(
             identity_from_resolution=lambda row: dict(row),
         )
     )
+    errors.extend(
+        _resolution_content_binding_errors(
+            lint,
+            source_bytes_override=source_bytes_override,
+        )
+    )
     c06_classifications = Counter(
         row["classification"]
         for row in lint["resolutions"]
@@ -1661,6 +1740,16 @@ def validate_baseline_manifest(
         "parser_control": 1,
     }:
         errors.append("lint_c06_resolution_classification_drift")
+    c07_classifications = Counter(
+        row["classification"]
+        for row in lint["resolutions"]
+        if row["cluster_id"] == "C07"
+    )
+    if c07_classifications != {
+        "quantity_semantics": 4,
+        "layout_geometry": 33,
+    }:
+        errors.append("lint_c07_resolution_classification_drift")
     for resolution in lint["resolutions"]:
         identity_id = resolution["origin_identity_sha256"]
         if (
@@ -1670,6 +1759,25 @@ def validate_baseline_manifest(
             != "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
         ):
             errors.append(f"lint_c06_semantic_closure_drift:{identity_id}")
+        if resolution["cluster_id"] == "C07":
+            expected_semantic_kind = (
+                "decision_bearing"
+                if resolution["classification"] == "quantity_semantics"
+                else "non_authority_control"
+            )
+            if resolution["semantic_kind"] != expected_semantic_kind:
+                errors.append("lint_c07_semantic_kind_drift")
+            if (
+                resolution["closure_test_ref"]
+                != "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx"
+            ):
+                errors.append(f"lint_c07_semantic_closure_drift:{identity_id}")
+            if (
+                resolution["classification"] == "quantity_semantics"
+                and "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+                not in resolution["implementation_refs"]
+            ):
+                errors.append(f"lint_c07_semantic_adapter_drift:{identity_id}")
         references = [
             *resolution["implementation_refs"],
             *resolution["consumer_refs"],
@@ -2414,6 +2522,41 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
     )
     probes.append(("lint-fabricated-successor", fabricated_ref))
 
+    missing_content_binding = copy.deepcopy(baseline)
+    missing_content_binding["lint"]["resolution_content_bindings"].pop()
+    probes.append(("lint-missing-resolution-content-binding", missing_content_binding))
+
+    laundered_content_role = copy.deepcopy(baseline)
+    c07_multi_role_binding = next(
+        row
+        for row in laundered_content_role["lint"]["resolution_content_bindings"]
+        if row["cluster_id"] == "C07" and len(row["roles"]) > 1
+    )
+    c07_multi_role_binding["roles"] = c07_multi_role_binding["roles"][:-1]
+    probes.append(("lint-resolution-content-role-laundering", laundered_content_role))
+
+    c07_semantic_laundering = copy.deepcopy(baseline)
+    c07_resolution = next(
+        row
+        for row in c07_semantic_laundering["lint"]["resolutions"]
+        if row["cluster_id"] == "C07"
+        and row["classification"] == "quantity_semantics"
+    )
+    c07_resolution["semantic_kind"] = "non_authority_control"
+    probes.append(("lint-c07-semantic-kind-laundering", c07_semantic_laundering))
+
+    c07_marker_only = copy.deepcopy(baseline)
+    c07_resolution = next(
+        row
+        for row in c07_marker_only["lint"]["resolutions"]
+        if row["cluster_id"] == "C07"
+        and row["classification"] == "quantity_semantics"
+    )
+    c07_resolution["closure_test_ref"] = (
+        "apps/runtime-dashboard/src/shared/charts/chartHardening.test.tsx"
+    )
+    probes.append(("lint-c07-marker-only-closure", c07_marker_only))
+
     empty_without_resolutions = copy.deepcopy(baseline)
     empty_lint = empty_without_resolutions["lint"]
     empty_lint.update(
@@ -2437,6 +2580,37 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
     for name, mutation in probes:
         if not validate_baseline_manifest(mutation):
             failures.append(name)
+
+    c07_scalar_path = (
+        "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+    )
+    c07_source = (REPO_ROOT / c07_scalar_path).read_bytes()
+    try:
+        scalar_start = c07_source.index(b"export function chartQuantityScalarPoint")
+        scalar_end = c07_source.index(
+            b"\nexport function chartQuantityInterval",
+            scalar_start,
+        )
+    except ValueError:
+        corrupted_c07_source = c07_source
+    else:
+        corrupted_c07_source = (
+            c07_source[:scalar_start]
+            + b"""export function chartQuantityScalarPoint(
+  input: ChartQuantityInput | null | undefined,
+): number | null {
+  // Retained semantic marker strings: chartQuantityMembers, finitePoint,
+  // members.length, members[0]?.point, and input == null.
+  return null;
+}
+"""
+            + c07_source[scalar_end:]
+        )
+    if not validate_baseline_manifest(
+        baseline,
+        source_bytes_override={c07_scalar_path: corrupted_c07_source},
+    ):
+        failures.append("lint-c07-scalar-property-removed-markers-retained")
     return failures
 
 

@@ -3980,12 +3980,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "runtime-verification-metadata-small-multiples",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/charts/SmallMultiples.tsx",
+          "apps/runtime-dashboard/src/shared/charts/SmallMultiples.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C07 deletes the composite SmallMultiples status union and consumes generated verification_status and freshness independently without forging either field when producer metadata is absent."
     },
     {
       "unit_id": "status-inline-route-loader",

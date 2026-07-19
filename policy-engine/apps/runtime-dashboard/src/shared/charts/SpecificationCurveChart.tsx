@@ -5,11 +5,16 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { chartTheme, ciColors, chartDefaults } from "./theme";
 import { ChartDataTable } from "./accessibility";
 import type { SpecificationPoint } from "./types";
+import {
+  ChartQuantityEvidence,
+  chartQuantityScalarPoint,
+  type ChartQuantityInput,
+} from "./quantityChartSemantics";
 
 type SpecificationCurveChartProps = {
   specifications: SpecificationPoint[];
   title?: string;
-  referenceValue?: number;
+  referenceValue?: ChartQuantityInput | null;
   height?: number;
   className?: string;
 };
@@ -17,7 +22,7 @@ type SpecificationCurveChartProps = {
 export function SpecificationCurveChart({
   specifications,
   title,
-  referenceValue = 0,
+  referenceValue,
   height = 360,
   className,
 }: SpecificationCurveChartProps) {
@@ -28,8 +33,41 @@ export function SpecificationCurveChart({
   );
 
   const allValues = sorted.flatMap((s) => [s.ci.lower, s.ci.upper, s.estimate]);
-  const minVal = Math.min(referenceValue, ...allValues);
-  const maxVal = Math.max(referenceValue, ...allValues);
+  const referencePoint = chartQuantityScalarPoint(referenceValue);
+  const domainValues =
+    referencePoint === null ? allValues : [...allValues, referencePoint];
+  const tableRows = useMemo(
+    () =>
+      sorted.map((s) => ({
+        label: s.id,
+        values: {
+          Estimate: s.estimate.toFixed(4),
+          "CI Lower": s.ci.lower.toFixed(4),
+          "CI Upper": s.ci.upper.toFixed(4),
+          Main: s.isMain ? "Yes" : "",
+        },
+      })),
+    [sorted],
+  );
+
+  if (domainValues.length === 0) {
+    return (
+      <figure
+        className={cn("border-border bg-card rounded-xl border p-4", className)}
+      >
+        {referenceValue ? (
+          <ChartQuantityEvidence value={referenceValue} />
+        ) : null}
+        <div
+          role="img"
+          aria-label={`Specification curve chart${title ? `: ${title}` : ""}. No specifications.`}
+        />
+      </figure>
+    );
+  }
+
+  const minVal = Math.min(...domainValues);
+  const maxVal = Math.max(...domainValues);
   const valRange = maxVal - minVal || 1;
   const valPadding = valRange * 0.1;
 
@@ -49,70 +87,76 @@ export function SpecificationCurveChart({
     );
   }
 
-  const positiveCount = sorted.filter(
-    (s) => s.estimate > referenceValue,
-  ).length;
-  const positivePct = sorted.length
-    ? Math.round((positiveCount / sorted.length) * 100)
-    : 0;
+  const positiveCount =
+    referencePoint === null
+      ? null
+      : sorted.filter((s) => s.estimate > referencePoint).length;
+  const positivePct =
+    positiveCount === null || sorted.length === 0
+      ? null
+      : Math.round((positiveCount / sorted.length) * 100);
 
   const mainSpec = sorted.find((s) => s.isMain);
 
-  const tableRows = useMemo(
-    () =>
-      sorted.map((s) => ({
-        label: s.id,
-        values: {
-          Estimate: s.estimate.toFixed(4),
-          "CI Lower": s.ci.lower.toFixed(4),
-          "CI Upper": s.ci.upper.toFixed(4),
-          Main: s.isMain ? "Yes" : "",
-        },
-      })),
-    [sorted],
-  );
-
-  const ariaDescription = `Specification curve chart${title ? `: ${title}` : ""}. ${sorted.length} specifications, ${positivePct}% positive.${mainSpec ? ` Main specification estimate: ${mainSpec.estimate.toFixed(4)}.` : ""}`;
+  const directionalDescription =
+    positivePct === null ? "" : ` ${positivePct}% above reference.`;
+  const ariaDescription = `Specification curve chart${title ? `: ${title}` : ""}. ${sorted.length} specifications.${directionalDescription}${mainSpec ? ` Main specification estimate: ${mainSpec.estimate.toFixed(4)}.` : ""}`;
 
   return (
     <figure
       className={cn("border-border bg-card rounded-xl border p-4", className)}
-      role="img"
-      aria-label={ariaDescription}
     >
       {title && (
         <figcaption className="text-foreground mb-2 text-sm font-semibold">
           {title}
         </figcaption>
       )}
-      <p className="text-muted-foreground mb-3 text-xs">
-        {t("shared.charts.specificationCurve.summary", {
-          count: sorted.length,
-          positivePct,
-        })}
-      </p>
+      {positivePct === null ? null : (
+        <p className="text-muted-foreground mb-3 text-xs">
+          {t("shared.charts.specificationCurve.summary", {
+            count: sorted.length,
+            positivePct,
+          })}
+        </p>
+      )}
+      {referenceValue ? (
+        <div className="mb-3" data-testid="specification-reference-evidence">
+          <ChartQuantityEvidence value={referenceValue} />
+        </div>
+      ) : null}
       <div className="overflow-x-auto">
-        <svg width={svgWidth} height={height} className="overflow-visible">
+        <svg
+          width={svgWidth}
+          height={height}
+          className="overflow-visible"
+          role="img"
+          aria-label={ariaDescription}
+        >
           {/* Reference line */}
-          <line
-            x1={padding.left}
-            y1={toY(referenceValue)}
-            x2={svgWidth - padding.right}
-            y2={toY(referenceValue)}
-            stroke={chartTheme.neutral}
-            strokeDasharray="4 3"
-            strokeWidth={1}
-          />
-          <text
-            x={padding.left - 4}
-            y={toY(referenceValue)}
-            textAnchor="end"
-            dominantBaseline="central"
-            fontSize={chartDefaults.tickFontSize}
-            fill={chartTheme.neutral}
-          >
-            {referenceValue}
-          </text>
+          {referencePoint === null ? null : (
+            <>
+              <line
+                data-testid="specification-reference-line"
+                x1={padding.left}
+                y1={toY(referencePoint)}
+                x2={svgWidth - padding.right}
+                y2={toY(referencePoint)}
+                stroke={chartTheme.neutral}
+                strokeDasharray="4 3"
+                strokeWidth={1}
+              />
+              <text
+                x={padding.left - 4}
+                y={toY(referencePoint)}
+                textAnchor="end"
+                dominantBaseline="central"
+                fontSize={chartDefaults.tickFontSize}
+                fill={chartTheme.neutral}
+              >
+                {referencePoint}
+              </text>
+            </>
+          )}
 
           {/* Y axis ticks */}
           {[
@@ -156,9 +200,11 @@ export function SpecificationCurveChart({
                   fill={
                     isMain
                       ? chartTheme.primary
-                      : spec.estimate > referenceValue
-                        ? chartTheme.success
-                        : chartTheme.alert
+                      : referencePoint === null
+                        ? chartTheme.neutral
+                        : spec.estimate > referencePoint
+                          ? chartTheme.success
+                          : chartTheme.alert
                   }
                 />
               </g>

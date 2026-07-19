@@ -12,6 +12,14 @@ export type ImportanceFactor = {
   detail?: string;
 };
 
+type FactorChartGeometry = {
+  numericColumnWidth: number;
+};
+
+const FACTOR_CHART_GEOMETRY = {
+  numericColumnWidth: 60,
+} as const satisfies FactorChartGeometry;
+
 type FactorImportanceChartProps = {
   factors: ImportanceFactor[];
   title?: string;
@@ -40,11 +48,14 @@ export function FactorImportanceChart({
   const barHeight = 28;
   const gap = 6;
   const labelWidth = 120;
-  const valueWidth = 60;
   const padding = { top: 8, right: 16, bottom: 8, left: 8 };
   const svgWidth = 480;
   const barAreaWidth =
-    svgWidth - padding.left - padding.right - labelWidth - valueWidth;
+    svgWidth -
+    padding.left -
+    padding.right -
+    labelWidth -
+    FACTOR_CHART_GEOMETRY.numericColumnWidth;
 
   const computedHeight =
     heightOverride ??

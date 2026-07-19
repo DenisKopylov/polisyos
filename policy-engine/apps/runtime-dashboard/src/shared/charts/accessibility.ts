@@ -139,9 +139,16 @@ export function describeConfidenceInterval(
 
 export function describeForestPlot(
   studies: Array<{ label: string; estimate: number }>,
+  referencePoint: number | null,
 ): string {
-  const positiveCount = studies.filter((s) => s.estimate > 0).length;
-  return `Forest plot with ${studies.length} studies. ${positiveCount} show positive effects, ${studies.length - positiveCount} show negative or null effects.`;
+  if (referencePoint === null) {
+    return `Forest plot with ${studies.length} studies. Direction relative to a reference is unavailable.`;
+  }
+
+  const aboveReferenceCount = studies.filter(
+    (study) => study.estimate > referencePoint,
+  ).length;
+  return `Forest plot with ${studies.length} studies. ${aboveReferenceCount} estimates are above the reference, ${studies.length - aboveReferenceCount} are at or below it.`;
 }
 
 /* ── Screen reader data table ── */

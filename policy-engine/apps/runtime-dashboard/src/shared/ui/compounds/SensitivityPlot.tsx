@@ -4,6 +4,11 @@ import { cn } from "@/shared/lib/utils";
 import { Card } from "@polisyos/atlas-ui";
 import { chartTheme, chartDefaults } from "@/shared/charts/theme";
 import { ChartDataTable } from "@/shared/charts/accessibility";
+import {
+  ChartQuantityEvidence,
+  chartQuantityScalarPoint,
+  type ChartQuantityInput,
+} from "@/shared/charts/quantityChartSemantics";
 
 export type SensitivityPoint = {
   gamma: number;
@@ -14,7 +19,7 @@ export type SensitivityPoint = {
 type SensitivityPlotProps = {
   points: SensitivityPoint[];
   breakdownGamma?: number;
-  referenceValue?: number;
+  referenceValue?: ChartQuantityInput | null;
   title?: string;
   height?: number;
   className?: string;
@@ -23,7 +28,7 @@ type SensitivityPlotProps = {
 export function SensitivityPlot({
   points,
   breakdownGamma,
-  referenceValue = 0,
+  referenceValue,
   title = "Sensitivity Analysis (Rosenbaum Bounds)",
   height = 280,
   className,
@@ -32,10 +37,36 @@ export function SensitivityPlot({
     () => [...points].sort((a, b) => a.gamma - b.gamma),
     [points],
   );
+  const tableRows = useMemo(
+    () =>
+      sorted.map((p) => ({
+        label: `\u0393=${p.gamma.toFixed(1)}`,
+        values: {
+          Upper: p.upperBound.toFixed(4),
+          Lower: p.lowerBound.toFixed(4),
+        },
+      })),
+    [sorted],
+  );
 
   const allValues = sorted.flatMap((p) => [p.lowerBound, p.upperBound]);
-  const minY = Math.min(referenceValue, ...allValues);
-  const maxY = Math.max(referenceValue, ...allValues);
+  const referencePoint = chartQuantityScalarPoint(referenceValue);
+  const domainValues =
+    referencePoint === null ? allValues : [...allValues, referencePoint];
+
+  if (domainValues.length === 0) {
+    return (
+      <Card className={cn("space-y-3", className)}>
+        <h3 className="text-lg font-semibold">{title}</h3>
+        {referenceValue ? (
+          <ChartQuantityEvidence value={referenceValue} />
+        ) : null}
+      </Card>
+    );
+  }
+
+  const minY = Math.min(...domainValues);
+  const maxY = Math.max(...domainValues);
   const yRange = maxY - minY || 1;
   const yPad = yRange * 0.12;
 
@@ -76,18 +107,6 @@ export function SensitivityPlot({
     ? `Robust up to \u0393=${breakdownGamma.toFixed(1)}`
     : null;
 
-  const tableRows = useMemo(
-    () =>
-      sorted.map((p) => ({
-        label: `\u0393=${p.gamma.toFixed(1)}`,
-        values: {
-          Upper: p.upperBound.toFixed(4),
-          Lower: p.lowerBound.toFixed(4),
-        },
-      })),
-    [sorted],
-  );
-
   return (
     <Card className={cn("space-y-3", className)}>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -98,6 +117,13 @@ export function SensitivityPlot({
           </span>
         )}
       </div>
+      {referenceValue ? (
+        <div
+          data-testid="sensitivity-reference-evidence"
+        >
+          <ChartQuantityEvidence value={referenceValue} />
+        </div>
+      ) : null}
 
       <div className="overflow-x-auto">
         <svg width={svgWidth} height={height} className="overflow-visible">
@@ -105,14 +131,17 @@ export function SensitivityPlot({
           <path d={fillPath} fill="var(--color-ci-80)" />
 
           {/* Reference line */}
-          <line
-            x1={padding.left}
-            y1={toY(referenceValue)}
-            x2={svgWidth - padding.right}
-            y2={toY(referenceValue)}
-            stroke={chartTheme.neutral}
-            strokeDasharray="4 3"
-          />
+          {referencePoint === null ? null : (
+            <line
+              data-testid="sensitivity-reference-line"
+              x1={padding.left}
+              y1={toY(referencePoint)}
+              x2={svgWidth - padding.right}
+              y2={toY(referencePoint)}
+              stroke={chartTheme.neutral}
+              strokeDasharray="4 3"
+            />
+          )}
 
           {/* Upper bound line */}
           <path

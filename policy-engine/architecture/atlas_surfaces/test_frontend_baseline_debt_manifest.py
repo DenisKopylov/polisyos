@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import importlib.util
 import json
 import subprocess
@@ -28,6 +29,32 @@ _SPEC.loader.exec_module(checker)
 
 def _manifest() -> dict[str, object]:
     return json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
+
+
+def _always_null_c07_scalar_bytes() -> bytes:
+    path = REPO_ROOT / "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+    source = path.read_bytes()
+    start = source.index(b"export function chartQuantityScalarPoint")
+    end = source.index(b"\nexport function chartQuantityInterval", start)
+    replacement = b"""export function chartQuantityScalarPoint(
+  input: ChartQuantityInput | null | undefined,
+): number | null {
+  // Retained semantic marker strings: chartQuantityMembers, finitePoint,
+  // members.length, members[0]?.point, and input == null.
+  return null;
+}
+"""
+    corrupted = source[:start] + replacement + source[end:]
+    for marker in (
+        b"chartQuantityMembers",
+        b"finitePoint",
+        b"members.length",
+        b"members[0]?.point",
+        b"input == null",
+    ):
+        if marker not in corrupted:
+            raise AssertionError(f"corruption lost marker: {marker!r}")
+    return corrupted
 
 
 def _write_json(value: object) -> Path:
@@ -70,9 +97,9 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         self.assertIn("immutable_origin", lint)
         self.assertEqual(lint["immutable_origin"]["error_count"], 75)
         self.assertEqual(lint["immutable_origin"]["source_file_count"], 22)
-        self.assertEqual(lint["error_count"], 55)
-        self.assertEqual(lint["source_file_count"], 15)
-        self.assertEqual(len(lint["resolutions"]), 20)
+        self.assertEqual(lint["error_count"], 18)
+        self.assertEqual(lint["source_file_count"], 7)
+        self.assertEqual(len(lint["resolutions"]), 57)
         self.assertEqual(checker.validate_baseline_manifest(manifest), [])
 
     def test_lint_partition_rejects_a_missing_resolution(self) -> None:
@@ -130,6 +157,149 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         self.assertIn(
             "lint_c06_semantic_closure_drift:"
             + resolution["origin_identity_sha256"],
+            errors,
+        )
+
+    def test_c07_chart_resolution_classifications_are_exact_and_content_bound(self) -> None:
+        manifest = _manifest()
+        resolutions = [
+            row
+            for row in manifest["lint"]["resolutions"]
+            if row["cluster_id"] == "C07"
+        ]
+
+        self.assertEqual(
+            {
+                "layout_geometry": 33,
+                "quantity_semantics": 4,
+            },
+            dict(checker.Counter(row["classification"] for row in resolutions)),
+        )
+        self.assertTrue(
+            all(
+                row["semantic_kind"]
+                == (
+                    "decision_bearing"
+                    if row["classification"] == "quantity_semantics"
+                    else "non_authority_control"
+                )
+                for row in resolutions
+            )
+        )
+        self.assertTrue(
+            all(
+                row["closure_test_ref"]
+                == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx"
+                for row in resolutions
+            )
+        )
+
+    def test_c07_chart_resolution_rejects_semantic_kind_laundering(self) -> None:
+        mutation = copy.deepcopy(_manifest())
+        resolution = next(
+            row
+            for row in mutation["lint"]["resolutions"]
+            if row["cluster_id"] == "C07"
+            and row["classification"] == "quantity_semantics"
+        )
+        resolution["semantic_kind"] = "non_authority_control"
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn("lint_c07_semantic_kind_drift", errors)
+
+    def test_resolution_content_bindings_cover_exact_derived_roles_and_live_bytes(
+        self,
+    ) -> None:
+        manifest = _manifest()
+
+        errors = checker.validate_baseline_manifest(manifest)
+
+        self.assertEqual(errors, [])
+        c07_closure = next(
+            row
+            for row in manifest["lint"]["resolution_content_bindings"]
+            if row["cluster_id"] == "C07"
+            and row["path"]
+            == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx"
+        )
+        self.assertEqual(c07_closure["roles"], ["closure_test", "consumer"])
+
+    def test_resolution_content_bindings_reject_a_removed_binding(self) -> None:
+        mutation = _manifest()
+        removed = mutation["lint"]["resolution_content_bindings"].pop()
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn(
+            "lint_resolution_content_binding_missing:"
+            f"{removed['cluster_id']}:{removed['path']}",
+            errors,
+        )
+
+    def test_resolution_content_bindings_reject_role_laundering(self) -> None:
+        mutation = _manifest()
+        binding = next(
+            row
+            for row in mutation["lint"]["resolution_content_bindings"]
+            if row["cluster_id"] == "C07" and len(row["roles"]) > 1
+        )
+        binding["roles"] = binding["roles"][:-1]
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn(
+            "lint_resolution_content_binding_role_drift:"
+            f"{binding['cluster_id']}:{binding['path']}",
+            errors,
+        )
+
+    def test_resolution_content_bindings_reject_duplicate_cluster_path(self) -> None:
+        mutation = _manifest()
+        duplicate = copy.deepcopy(mutation["lint"]["resolution_content_bindings"][0])
+        duplicate["sha256"] = "0" * 64
+        mutation["lint"]["resolution_content_bindings"].append(duplicate)
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn(
+            "lint_resolution_content_binding_duplicate:"
+            f"{duplicate['cluster_id']}:{duplicate['path']}",
+            errors,
+        )
+
+    def test_resolution_content_bindings_reject_an_extra_cluster_path(self) -> None:
+        mutation = _manifest()
+        path = "architecture/atlas_surfaces/frontend-baseline-debt.schema.json"
+        mutation["lint"]["resolution_content_bindings"].append(
+            {
+                "cluster_id": "C07",
+                "path": path,
+                "roles": ["consumer"],
+                "sha256": hashlib.sha256((REPO_ROOT / path).read_bytes()).hexdigest(),
+            }
+        )
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn(
+            f"lint_resolution_content_binding_extra:C07:{path}",
+            errors,
+        )
+
+    def test_resolution_content_binding_detects_marker_preserving_scalar_corruption(
+        self,
+    ) -> None:
+        manifest = _manifest()
+        path = "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+
+        errors = checker.validate_baseline_manifest(
+            manifest,
+            source_bytes_override={path: _always_null_c07_scalar_bytes()},
+        )
+
+        self.assertIn(
+            f"lint_resolution_content_hash_drift:C07:{path}",
             errors,
         )
 
@@ -212,6 +382,27 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         manifest = _manifest()
 
         self.assertEqual(checker._baseline_corruption_probes(manifest), [])
+
+    def test_lifecycle_corruption_probes_exercise_marker_preserving_property_removal(
+        self,
+    ) -> None:
+        manifest = _manifest()
+        path = "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+        binding = next(
+            row
+            for row in manifest["lint"]["resolution_content_bindings"]
+            if row["cluster_id"] == "C07" and row["path"] == path
+        )
+        binding["sha256"] = hashlib.sha256(
+            _always_null_c07_scalar_bytes()
+        ).hexdigest()
+
+        escaped = checker._baseline_corruption_probes(manifest)
+
+        self.assertIn(
+            "lint-c07-scalar-property-removed-markers-retained",
+            escaped,
+        )
 
 
 if __name__ == "__main__":

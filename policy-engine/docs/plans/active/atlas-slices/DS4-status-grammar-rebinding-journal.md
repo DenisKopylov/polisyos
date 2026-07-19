@@ -762,3 +762,92 @@ actual consumer. The rule and immutable 75/36 origins remain unchanged.
 - Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
   frozen Russian locale, master plan, main, and other worktrees remain
   untouched. The generated client was consumed read-only.
+
+## 2026-07-20 — DS4-C07 chart quantity semantics
+
+### Red-first and authority boundary
+
+- The exact planned chart test first failed because the shared adapter did not
+  exist and the living components still accepted point-only references with
+  locally supplied zero defaults. The SmallMultiples negative failed while its
+  combined local status still forged `untraced` for absent producer metadata.
+- The debt lifecycle tests first failed with no C07 rows. The committed
+  invariant requires exactly four `quantity_semantics` and thirty-three
+  `layout_geometry` resolutions, binds their semantic kinds, and rejects both
+  semantic-kind laundering and an unrelated marker-only closure test.
+- Independent review then exposed four gaps before commit: point-null
+  distributions still rendered as `Unknown`, the finite scalar path had only
+  negative tests, `AnimatedNumber` retained formatting options it did not
+  forward, and resolution evidence trusted paths without binding their bytes.
+  The added tests failed on the missing opaque quantiles and on the formerly
+  accepted currency option. A generic content-binding test failed until every
+  resolution reference and role was derived and hashed. Re-review reported no
+  remaining actionable finding.
+- A delayed independent-review result then found that the ForestPlot accessible
+  description still compared non-scalar references against a locally invented
+  zero and that ForestPlot and SpecificationCurveChart nested provenance inside
+  `role="img"`. The extended semantic test failed first on the invented
+  positive/negative direction, inaccessible provenance, and missing
+  consumer-scoped AnimatedNumber evidence. The repair makes direction neutral
+  without one finite producer point, moves the image role to each chart-only
+  SVG, restores automatic provenance affordances, and scopes evidence assertions
+  to each living consumer. The shared accessibility helper is now itself an
+  implementation reference with a live byte binding.
+- C07 adds no value-kind, readiness, comparability, or authority vocabulary.
+  A chart input is one generated `QuantityValue` or an ordered set of generated
+  values. Scalar projection is permitted only for one finite producer point;
+  the adapter never selects a quantile, interval midpoint, first member, mean,
+  or zero.
+
+### Implementation and disposition
+
+- `AnimatedNumber`, `ForestPlot`, `SpecificationCurveChart`, and
+  `SensitivityPlot` now accept generated quantity references. Missing,
+  distributional, interval-only, and multi-member inputs render every envelope
+  through `Quantity` but produce no reference line or directional claim.
+  Every finite owner-supplied quantile key and both typed confidence intervals
+  remain visible and accessible without selecting a representative scalar.
+  A single finite producer point, including the legitimate value `0`, is the
+  only reference-line path. Animated values transition the exact producer
+  envelope; no locally cloned intermediate decision values are minted, and
+  the formatting prop is narrowed to the single option it forwards. Quantity
+  provenance remains keyboard-reachable outside each chart image subtree.
+- The thirty-three SVG legend and numeric-column literals are held in typed,
+  readonly geometry objects with descriptive layout keys. No lint rule,
+  configuration, disable directive, classification comment, or numeric-string
+  escape changed. C08 still owns the generic structural layout classifier.
+- `SmallMultiples` deleted its five-member composite status union. It consumes
+  generated `VerificationMetadata.verification_status` and `freshness`
+  independently; missing cells omit both attributes. Its DS19 row is strangled
+  to `runtime-verification-metadata-small-multiples`, while `ui-quantity`,
+  `ui-compounds`, `FactorImportanceChart`, and `SensitivityPlot` receive no new
+  disposition claim. The latter two remain DS16-deferred point substrates.
+- The debt artifact now content-binds the exact derived role graph for all C06
+  and C07 implementation, consumer, and closure-test references. The checker
+  rejects missing, extra, duplicate, role-drifted, or byte-drifted bindings.
+  Its remove-property/keep-markers probe replaces the scalar implementation
+  with an always-null body and fails despite retaining the marker strings.
+
+### Debt and verification receipt
+
+| Gate                                      | Result                                                                                                                                                  |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| quantity lint identities                  | exact `55 / 15 -> 18 / 7`; 37 C07 origin resolutions (`4` quantity semantics, `33` layout geometry), zero warnings, exact comparator PASS              |
+| architecture                              | held at exact `23 / 20`; 22 `shared-no-app-or-features` plus one `app-no-feature-internals`, exact comparator PASS                                     |
+| affected behavior and structural a11y     | PASS; 6 files / 45 tests, including all eight named components, opaque quantiles, interval/unknown/incomparable negatives, scalar-zero positives, neutral non-scalar direction, reachable provenance, SmallMultiples independence, and axe coverage |
+| dashboard typecheck and production build  | PASS; app/node/tools projects, 3,872 modules, postbuild security, package Tailwind-source proof, and 101 PWA entries                                  |
+| status inventory                          | PASS; 47 DS1 rows, 42 current definitions, 4 retired and 1 already deleted; source-bound generated anchors and corruption probes green                 |
+| disposition and debt lifecycle governance | PASS; 261 roots, 8 censuses, 200 pending dispositions, 23 seeded negatives, 30 content-bound C06/C07 resolution refs, and 50 Python lifecycle tests      |
+
+The DS16 outer-set vocabulary remains explicitly absent. C07 preserves ordered
+member structure and opaque producer labels without claiming a final
+comparability or set-valued readiness grammar.
+
+### Fence receipt
+
+- C07 changes are confined to dashboard chart/compound sources and tests,
+  owned `architecture/atlas_surfaces/**`, the generated DS19 reference report,
+  and this journal. Package, dependency, and lock inputs are unchanged.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client remains read-only.

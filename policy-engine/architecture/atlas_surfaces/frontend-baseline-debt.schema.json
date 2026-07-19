@@ -560,6 +560,32 @@
         }
       }
     },
+    "resolutionContentBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cluster_id", "path", "roles", "sha256"],
+      "properties": {
+        "cluster_id": {
+          "type": "string",
+          "pattern": "^C(?:06|07|08)$"
+        },
+        "path": {
+          "$ref": "#/$defs/repoPath"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["implementation", "consumer", "closure_test"]
+          }
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
     "lintBaseline": {
       "type": "object",
       "additionalProperties": false,
@@ -576,7 +602,8 @@
         "identity_set_sha256",
         "files",
         "immutable_origin",
-        "resolutions"
+        "resolutions",
+        "resolution_content_bindings"
       ],
       "properties": {
         "owner_slice": {
@@ -649,6 +676,13 @@
           "maxItems": 75,
           "items": {
             "$ref": "#/$defs/lintResolution"
+          }
+        },
+        "resolution_content_bindings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/resolutionContentBinding"
           }
         }
       },

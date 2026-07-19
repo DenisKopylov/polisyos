@@ -16,11 +16,16 @@ import {
   type UncertaintyPalette,
 } from "./uncertainty-tokens";
 import type { EffectEstimate } from "./types";
+import {
+  ChartQuantityEvidence,
+  chartQuantityScalarPoint,
+  type ChartQuantityInput,
+} from "./quantityChartSemantics";
 
 type ForestPlotProps = {
   estimates: EffectEstimate[];
   pooled?: EffectEstimate;
-  referenceValue?: number;
+  referenceValue?: ChartQuantityInput | null;
   title?: string;
   className?: string;
 };
@@ -32,7 +37,7 @@ const WEIGHT_WIDTH = 48;
 export function ForestPlot({
   estimates,
   pooled,
-  referenceValue = 0,
+  referenceValue,
   title,
   className,
 }: ForestPlotProps) {
@@ -42,10 +47,9 @@ export function ForestPlot({
     estimate.ci.upper,
     estimate.estimate,
   ]);
-  const minVal = Math.min(referenceValue, ...allValues);
-  const maxVal = Math.max(referenceValue, ...allValues);
-  const valRange = maxVal - minVal || 1;
-  const valPad = valRange * 0.15;
+  const referencePoint = chartQuantityScalarPoint(referenceValue);
+  const domainValues =
+    referencePoint === null ? allValues : [...allValues, referencePoint];
 
   const totalRows = estimates.length + (pooled ? 2 : 0);
   const padding = { top: 28, bottom: 16 };
@@ -59,20 +63,7 @@ export function ForestPlot({
     () => buildUncertaintyPatternIds(patternSeed.replace(/:/g, "")),
     [patternSeed],
   );
-
-  function toX(value: number): number {
-    return (
-      plotLeft +
-      plotWidth * ((value - (minVal - valPad)) / (valRange + 2 * valPad))
-    );
-  }
-
-  const refX = toX(referenceValue);
-  const maxWeight = Math.max(
-    ...estimates.map((estimate) => estimate.weight ?? 1),
-    1,
-  );
-  const ariaDescription = describeForestPlot(estimates);
+  const ariaDescription = describeForestPlot(estimates, referencePoint);
   const tableRows = useMemo(
     () =>
       all.map((estimate) => ({
@@ -90,19 +81,64 @@ export function ForestPlot({
     [all],
   );
 
+  if (domainValues.length === 0) {
+    return (
+      <figure
+        className={cn("border-border bg-card rounded-xl border p-4", className)}
+      >
+        {referenceValue ? (
+          <ChartQuantityEvidence value={referenceValue} />
+        ) : null}
+        <div role="img" aria-label={ariaDescription} />
+      </figure>
+    );
+  }
+
+  const minVal = Math.min(...domainValues);
+  const maxVal = Math.max(...domainValues);
+  const valRange = maxVal - minVal || 1;
+  const valPad = valRange * 0.15;
+
+  function toX(value: number): number {
+    return (
+      plotLeft +
+      plotWidth * ((value - (minVal - valPad)) / (valRange + 2 * valPad))
+    );
+  }
+
+  const refX = referencePoint === null ? null : toX(referencePoint);
+  const maxWeight = Math.max(
+    ...estimates.map((estimate) => estimate.weight ?? 1),
+    1,
+  );
+  const axisTicks = [
+    minVal - valPad,
+    ...(referencePoint === null ? [] : [referencePoint]),
+    maxVal + valPad,
+  ];
+
   return (
     <figure
       className={cn("border-border bg-card rounded-xl border p-4", className)}
-      role="img"
-      aria-label={ariaDescription}
     >
       {title ? (
         <figcaption className="text-foreground mb-3 text-sm font-semibold">
           {title}
         </figcaption>
       ) : null}
+      {referenceValue ? (
+        <div className="mb-3" data-testid="forest-reference-evidence">
+          <ChartQuantityEvidence value={referenceValue} />
+        </div>
+      ) : null}
       <div className="overflow-x-auto">
-        <svg width={svgWidth} height={svgHeight} className="overflow-visible">
+        <svg
+          width={svgWidth}
+          height={svgHeight}
+          className="overflow-visible"
+          role="img"
+          aria-label={ariaDescription}
+        >
           <defs>
             {all.map((estimate) => {
               const gradientId = `${patternSeed.replace(/:/g, "")}-${estimate.id}-ci`;
@@ -131,14 +167,17 @@ export function ForestPlot({
             })}
           </defs>
           <UncertaintyPatterns ids={patternIds} />
-          <line
-            x1={refX}
-            y1={padding.top - 8}
-            x2={refX}
-            y2={svgHeight - padding.bottom}
-            stroke={chartTheme.neutral}
-            strokeDasharray="4 3"
-          />
+          {refX === null ? null : (
+            <line
+              data-testid="forest-reference-line"
+              x1={refX}
+              y1={padding.top - 8}
+              x2={refX}
+              y2={svgHeight - padding.bottom}
+              stroke={chartTheme.neutral}
+              strokeDasharray="4 3"
+            />
+          )}
 
           {estimates.map((estimate, index) => {
             const cy = padding.top + index * ROW_HEIGHT + ROW_HEIGHT / 2;
@@ -301,7 +340,7 @@ export function ForestPlot({
             y2={svgHeight - padding.bottom}
             stroke={chartTheme.axis}
           />
-          {[minVal - valPad, referenceValue, maxVal + valPad].map((tick) => (
+          {axisTicks.map((tick) => (
             <text
               key={tick}
               x={toX(tick)}

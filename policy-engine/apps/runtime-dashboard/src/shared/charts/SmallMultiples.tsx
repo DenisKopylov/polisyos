@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 
+import type { VerificationMetadata } from "@polisyos/runtime-api-client";
 import { cn } from "@/shared/lib/utils";
 
 import { categoricalSwatch } from "./categorical-palettes";
@@ -9,7 +10,10 @@ export type SmallMultipleDatum = {
   sector: string;
   value: number;
   label?: string;
-  status?: "verified" | "pending" | "stale" | "disputed" | "untraced";
+  verification?: Pick<
+    VerificationMetadata,
+    "freshness" | "verification_status"
+  > | null;
 };
 
 export type SmallMultiplesProps = {
@@ -82,7 +86,10 @@ export function SmallMultiples({
                 data-pattern={swatch.pattern}
                 data-region={region}
                 data-sector={sector}
-                data-status={datum?.status ?? "untraced"}
+                data-verification-status={
+                  datum?.verification?.verification_status
+                }
+                data-freshness={datum?.verification?.freshness}
                 onClick={() => {
                   if (datum) {
                     onSelect?.(datum);

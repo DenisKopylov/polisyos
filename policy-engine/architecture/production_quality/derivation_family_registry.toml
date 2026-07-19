@@ -60,3 +60,97 @@ assumption_rules = [
   { name = "reference_year", parameter_name = "reference_year" },
   { name = "year_join", literal_value = "exact; no interpolation" },
 ]
+
+[[catalog_selection_policies]]
+policy_id = "share_of_aggregate_exact_year.d6"
+family_id = "share_of_aggregate_exact_year"
+method_version = "1.0.0"
+purposes = ["d6_route"]
+country_code = "UA"
+output_variable_id_template = "{share_canonical_variable}_current_usd"
+
+[[catalog_selection_policies.roles]]
+role = "aggregate"
+catalog_unit = "usd"
+semantic_anchor = "gross domestic product current us dollars"
+owner_metric_id = "gdp"
+owner_canonical_variable = "gdp"
+minimum_alignment_confidence = 0.5
+allow_proxy = false
+require_executable_binding = true
+executable_connectors = ["worldbank.wdi"]
+required_themes = ["World Development Indicators"]
+forbidden_theme_fragments = ["archive"]
+required_text_fragments = ["current"]
+forbidden_text_fragments = ["per capita", "seas. adj", "seasonally adjusted"]
+
+[[catalog_selection_policies.roles]]
+role = "share"
+catalog_unit = "percent_gdp"
+semantic_anchor = "cash surplus deficit percent gross domestic product"
+owner_metric_id = "gov_balance"
+owner_canonical_variable = "gov_balance"
+minimum_alignment_confidence = 0.2
+allow_proxy = false
+require_executable_binding = true
+executable_connectors = ["worldbank.wdi"]
+required_themes = []
+forbidden_theme_fragments = ["archive"]
+required_text_fragments = []
+forbidden_text_fragments = []
+
+[[catalog_selection_policies]]
+policy_id = "share_of_aggregate_exact_year.proof"
+family_id = "share_of_aggregate_exact_year"
+method_version = "1.0.0"
+purposes = ["universality_proof"]
+country_code = "UA"
+output_variable_id_template = "{share_canonical_variable}_current_usd"
+
+[[catalog_selection_policies.roles]]
+role = "aggregate"
+catalog_unit = "usd"
+semantic_anchor = "gross domestic product nominal current usd"
+owner_metric_id = "gdp"
+owner_canonical_variable = "gdp"
+minimum_alignment_confidence = 0.8
+allow_proxy = false
+require_executable_binding = true
+executable_connectors = ["worldbank.wdi"]
+required_themes = ["World Development Indicators"]
+forbidden_theme_fragments = ["archive"]
+required_text_fragments = ["current"]
+forbidden_text_fragments = ["per capita", "seas. adj", "seasonally adjusted"]
+
+[[catalog_selection_policies.roles]]
+role = "share"
+catalog_unit = "percent_gdp"
+semantic_anchor = "current account balance percent gross domestic product"
+owner_metric_id = "current_account_balance"
+owner_canonical_variable = "current_account_balance"
+minimum_alignment_confidence = 0.8
+allow_proxy = false
+require_executable_binding = true
+executable_connectors = ["worldbank.wdi"]
+required_themes = ["World Development Indicators"]
+forbidden_theme_fragments = ["archive"]
+required_text_fragments = ["current account balance", "gross domestic product"]
+forbidden_text_fragments = []
+
+[[families]]
+family_id = "share_of_aggregate_exact_year"
+method_id = "arithmetic.exact_year.share_times_aggregate"
+method_version = "1.0.0"
+year_domain_role = "share"
+input_specs = [
+  { role = "aggregate", basis = { quantity_kind = "monetary_scale", unit = "usd", attributes = [{ name = "currency", value = "USD" }, { name = "price_basis", value = "current" }] }, value_constraints = [] },
+  { role = "share", basis = { quantity_kind = "share_of_aggregate", unit = "percent", attributes = [{ name = "denominator", value = "gross_domestic_product" }] }, value_constraints = [] },
+]
+output_basis = { quantity_kind = "monetary_flow", unit = "usd", attributes = [{ name = "currency", value = "USD" }, { name = "price_basis", value = "current" }] }
+parameter_rules = []
+output_parameter_bindings = []
+expression = { operator = "divide", operands = [{ operator = "multiply", operands = [{ operator = "current_value", role = "aggregate" }, { operator = "current_value", role = "share" }] }, { operator = "constant", constant_value = "100" }] }
+assumption_rules = [
+  { name = "formula", literal_value = "aggregate_t * share_t / 100" },
+  { name = "year_join", literal_value = "exact; no interpolation" },
+]

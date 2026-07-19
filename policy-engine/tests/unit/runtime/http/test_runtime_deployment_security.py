@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, cast
@@ -249,6 +250,80 @@ def test_non_development_bootstrap_rejects_protocol_shaped_test_verifier(
         )
 
 
+def test_non_development_bootstrap_requires_exact_deployment_security_bundle(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.execution_policy import RuntimeBootstrapError
+
+    security = _deployment_security_module()
+    config = security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    runtime = security.build_deployment_security(config)
+    manually_constructed_verifier = security.DeploymentJWTStepUpAssertionVerifier(
+        config.step_up_verifier
+    )
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+
+    with pytest.raises(RuntimeBootstrapError, match=r"RuntimeDeploymentSecurity|bundle"):
+        create_runtime_api_app(
+            cas_root=tmp_path / "cas",
+            identity_provider=runtime.identity_provider,
+            cell_registry=runtime.cell_registry,
+            opa_client=runtime.opa_client,
+            step_up_verifier=manually_constructed_verifier,
+        )
+
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "bundled-cas",
+        deployment_security=runtime,
+    )
+    assert cast("Any", app).state.runtime_deployment_security is runtime
+
+
+def test_managed_principal_grants_deny_claim_and_effective_cell_mismatch() -> None:
+    from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+    from polisyos.runtime.http.authorization import DeploymentPrincipalGrantResolver
+    from polisyos.runtime.http.permissions import RuntimePermission
+
+    resolver = DeploymentPrincipalGrantResolver(
+        (
+            (
+                (
+                    "https://idp.example",
+                    "polisyos-runtime",
+                    "runtime-canary",
+                    "tenant-a",
+                    "cell-effective",
+                ),
+                (RuntimePermission.RUNS_LAUNCH,),
+            ),
+        )
+    )
+    claims = UserIdentityClaims(
+        sub="runtime-canary",
+        tenant_id="tenant-a",
+        cell_id="cell-claimed",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+        mfa_verified=True,
+        iss="https://idp.example",
+        aud="polisyos-runtime",
+        exp=4_102_444_800,
+        iat=1,
+        jti="runtime-canary-token",
+    )
+
+    assert resolver.resolve_claim_permissions(
+        claims,
+        effective_subject=claims.sub,
+        effective_tenant_id=claims.tenant_id,
+        effective_cell_id="cell-effective",
+    ) == frozenset()
+
+
 def test_action_dependency_uses_exact_service_grant_instead_of_admin_role(
     tmp_path: Path,
 ) -> None:
@@ -314,6 +389,73 @@ def test_action_dependency_uses_exact_service_grant_instead_of_admin_role(
         "runs.launch",
         "runs.view",
     }
+
+
+def test_action_dependency_denies_managed_admin_when_effective_cell_differs_from_claim(
+) -> None:
+    from polisyos.core.security.access_scope import AccessScope
+    from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+    from polisyos.runtime.http.authorization import (
+        DeploymentPrincipalGrantResolver,
+        ResourceBindingSource,
+        ResourceBindingSpec,
+        require_action_permission,
+    )
+    from polisyos.runtime.http.errors import RuntimeHTTPError
+    from polisyos.runtime.http.permissions import RuntimePermission
+
+    claims = UserIdentityClaims(
+        sub="runtime-canary",
+        tenant_id="tenant-a",
+        cell_id="cell-claimed",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+        mfa_verified=True,
+        iss="https://idp.example",
+        aud="polisyos-runtime",
+        exp=4_102_444_800,
+        iat=1,
+        jti="runtime-canary-token",
+    )
+    effective_scope = replace(
+        AccessScope.from_user_claims(claims),
+        cell_id="cell-effective",
+    )
+    effective_cell_id = effective_scope.cell_id
+    assert effective_cell_id is not None
+    grants = DeploymentPrincipalGrantResolver(
+        (
+            (
+                (
+                    claims.iss,
+                    claims.aud,
+                    claims.sub,
+                    claims.tenant_id,
+                    effective_cell_id,
+                ),
+                (RuntimePermission.RUNS_LAUNCH,),
+            ),
+        )
+    )
+    request = SimpleNamespace(
+        state=SimpleNamespace(
+            user_claims=claims,
+            authz_effective_scope=effective_scope,
+        ),
+        app=SimpleNamespace(
+            state=SimpleNamespace(runtime_deployment_principal_grants=grants)
+        ),
+    )
+    dependency = require_action_permission(
+        RuntimePermission.RUNS_LAUNCH,
+        ResourceBindingSpec(
+            source=ResourceBindingSource.TENANT_COLLECTION,
+            resource_kind="runtime.run_collection",
+        ),
+    )
+
+    with pytest.raises(RuntimeHTTPError) as exc_info:
+        dependency._authorize(cast("Any", request))
+    assert exc_info.value.code == "action_permission_denied"
 
 
 def test_service_principal_grant_reaches_opa_and_blocks_sibling_mutation(

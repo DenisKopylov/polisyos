@@ -5,8 +5,11 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+from copy import deepcopy
 from dataclasses import dataclass
+from enum import StrEnum
 from pathlib import Path
+from types import SimpleNamespace
 from typing import TYPE_CHECKING, Any, cast
 
 import pytest
@@ -20,8 +23,10 @@ from polisyos.runtime.http.authorization import (
     ResourceBindingSource,
     ResourceBindingSpec,
     RouteAuthorizationRequirement,
+    get_route_action_permission_dependency,
     get_route_authorization_requirement,
 )
+from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.runtime.http.opa_input import (
     CANONICAL_ROLE_AUTHORIZATION_SOURCE,
     DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE,
@@ -32,6 +37,7 @@ from polisyos.runtime.http.permissions import RuntimePermission, permissions_for
 from polisyos.runtime.http.resource_binding import (
     BindingAuthority,
     BoundAuthorizationResource,
+    bind_authorization_resource,
 )
 from polisyos.runtime.http.security import PolicyOSRole
 from tests.unit.runtime.http.test_runtime_api_authz import (
@@ -343,128 +349,211 @@ def test_server_service_read_expectation_matches_rego(
     assert rego_allowed is server_expected
 
 
+class _DecisionInputMutation(StrEnum):
+    NONE = "none"
+    UNKNOWN_ACTION = "unknown_action"
+    MALFORMED_ACTION = "malformed_action"
+    KNOWN_ACTION_WRONG_RESOURCE = "known_action_wrong_resource"
+    UNKNOWN_RESOURCE = "unknown_resource"
+    UNKNOWN_AUTHORITY = "unknown_authority"
+    CROSS_TENANT = "cross_tenant"
+    FABRICATED_TENANT = "fabricated_tenant"
+
+
 @dataclass(frozen=True, slots=True)
 class _DecisionParityCase:
     name: str
+    route_path: str
     role: PolicyOSRole
-    permission: str
-    resource_class: str
-    authority: str
-    resource_tenant: str
+    body: bytes
+    mutation: _DecisionInputMutation = _DecisionInputMutation.NONE
 
 
 _DECISION_PARITY_CASES = (
     _DecisionParityCase(
         "analyst_launch",
+        "/api/v1/control/runs",
         PolicyOSRole.ANALYST,
-        "runs.launch",
-        "runtime.run_collection",
-        "tenant_collection",
-        "tenant-a",
+        b"{}",
     ),
     _DecisionParityCase(
         "viewer_launch",
+        "/api/v1/control/runs",
         PolicyOSRole.VIEWER,
-        "runs.launch",
-        "runtime.run_collection",
-        "tenant_collection",
-        "tenant-a",
+        b"{}",
     ),
     _DecisionParityCase(
         "admin_ingestion",
+        "/api/v1/control/data/ingest",
         PolicyOSRole.ADMIN,
-        "evidence.acquire",
-        "runtime.evidence.acquisition",
-        "request_bound",
-        "",
+        b'{"datasets":[{"dataset_id":"dataset-a"}]}',
     ),
     _DecisionParityCase(
-        "analyst_unscoped_promotion",
-        PolicyOSRole.ANALYST,
-        "evidence.promotions.approve",
-        "runtime.evidence.promotion.approve",
-        "content_resolved_unscoped",
-        "",
+        "admin_unscoped_resolution",
+        "/api/v1/control/data/resolve",
+        PolicyOSRole.ADMIN,
+        b'{"data_needs":[{"need_id":"need-a"}]}',
     ),
     _DecisionParityCase(
-        "promotion_with_fabricated_tenant",
-        PolicyOSRole.ANALYST,
-        "evidence.promotions.approve",
-        "runtime.evidence.promotion.approve",
-        "content_resolved_unscoped",
-        "tenant-a",
+        "request_bound_resource_with_fabricated_tenant",
+        "/api/v1/control/data/resolve",
+        PolicyOSRole.ADMIN,
+        b'{"data_needs":[{"need_id":"need-a"}]}',
+        _DecisionInputMutation.FABRICATED_TENANT,
     ),
     _DecisionParityCase(
         "cross_tenant_launch",
+        "/api/v1/control/runs",
         PolicyOSRole.ADMIN,
-        "runs.launch",
-        "runtime.run_collection",
-        "tenant_collection",
-        "tenant-b",
+        b"{}",
+        _DecisionInputMutation.CROSS_TENANT,
     ),
     _DecisionParityCase(
         "unknown_action",
+        "/api/v1/control/runs",
         PolicyOSRole.ADMIN,
-        "runs.launch.synonym",
-        "runtime.run_collection",
-        "tenant_collection",
-        "tenant-a",
+        b"{}",
+        _DecisionInputMutation.UNKNOWN_ACTION,
+    ),
+    _DecisionParityCase(
+        "malformed_action",
+        "/api/v1/control/runs",
+        PolicyOSRole.ADMIN,
+        b"{}",
+        _DecisionInputMutation.MALFORMED_ACTION,
     ),
     _DecisionParityCase(
         "known_action_wrong_resource",
+        "/api/v1/control/runs",
         PolicyOSRole.ADMIN,
-        "evidence.acquire",
-        "runtime.run_collection",
-        "tenant_collection",
-        "tenant-a",
+        b"{}",
+        _DecisionInputMutation.KNOWN_ACTION_WRONG_RESOURCE,
     ),
     _DecisionParityCase(
         "unknown_resource",
+        "/api/v1/control/runs",
         PolicyOSRole.ADMIN,
-        "runs.launch",
-        "runtime.run_collection.synonym",
-        "tenant_collection",
-        "tenant-a",
+        b"{}",
+        _DecisionInputMutation.UNKNOWN_RESOURCE,
     ),
     _DecisionParityCase(
         "unknown_authority",
+        "/api/v1/control/runs",
         PolicyOSRole.ADMIN,
-        "runs.launch",
-        "runtime.run_collection",
-        "self_asserted",
-        "tenant-a",
+        b"{}",
+        _DecisionInputMutation.UNKNOWN_AUTHORITY,
     ),
 )
 
 
-def _server_expected_decision(
-    case: _DecisionParityCase,
+def _live_route(app: object, *, method: str, path: str) -> APIRoute:
+    matches = [
+        candidate
+        for candidate in cast("Any", app).routes
+        if isinstance(candidate, APIRoute)
+        and candidate.path == path
+        and method in candidate.methods
+    ]
+    assert len(matches) == 1, (method, path, matches)
+    return matches[0]
+
+
+def _project_live_server_action(
+    app: object,
     *,
-    contracts: Mapping[str, Mapping[str, set[str]]],
-) -> bool:
+    route_path: str,
+    role: PolicyOSRole,
+    body: bytes,
+) -> tuple[bool, dict[str, Any]]:
+    route = _live_route(app, method="POST", path=route_path)
+    dependency = get_route_action_permission_dependency(cast("Any", route))
+    claims = _claims(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        jti=f"parity-{role.value}",
+        roles=frozenset({role}),
+    )
+    scope = AccessScope.from_user_claims(claims)
+    request = SimpleNamespace(
+        method="POST",
+        path_params={},
+        scope={"query_string": b""},
+        state=SimpleNamespace(
+            user_claims=claims,
+            access_scope=scope,
+            authz_effective_scope=scope,
+        ),
+        app=app,
+    )
     try:
-        permission = RuntimePermission(case.permission)
-        authority = BindingAuthority(case.authority)
-    except ValueError:
-        return False
-    if permission not in permissions_for_roles({case.role}):
-        return False
-    if authority.value not in contracts.get(permission.value, {}).get(
-        case.resource_class,
-        set(),
-    ):
-        return False
-    if authority in {
-        BindingAuthority.OWNERSHIP_VERIFIED,
-        BindingAuthority.TENANT_COLLECTION,
-    }:
-        return case.resource_tenant == "tenant-a"
-    if authority in {
-        BindingAuthority.CONTENT_RESOLVED_UNSCOPED,
-        BindingAuthority.REQUEST_BOUND,
-    }:
-        return case.resource_tenant == ""
-    return case.resource_tenant in {"", "tenant-a"}
+        verification = dependency._authorize(cast("Any", request))
+    except RuntimeHTTPError:
+        fallback_allowed, fallback_payload = _project_live_server_action(
+            app,
+            route_path=route_path,
+            role=PolicyOSRole.ADMIN,
+            body=body,
+        )
+        assert fallback_allowed
+        fallback_payload["identity"]["roles"] = [role.value]
+        fallback_payload["identity"]["permissions"] = [
+            permission.value
+            for permission in sorted(
+                permissions_for_roles(frozenset({role})),
+                key=lambda permission: permission.value,
+            )
+        ]
+        return False, fallback_payload
+
+    assert type(verification) is ActionPermissionVerification
+    bound_resource = bind_authorization_resource(
+        cast("Any", request),
+        dependency.requirement,
+        body,
+    )
+    base_input = AuthzInput.for_http_request(
+        request_method="POST",
+        request_path=route_path,
+        request_headers={},
+        scope=scope,
+        resource_tenant_id=bound_resource.tenant_id or "",
+        resource_kind=bound_resource.resource_kind,
+        resource_artifact_id=bound_resource.resource_id,
+    )
+    projected = RuntimeActionAuthzInput.from_bound_action(
+        base_input=base_input,
+        verification=verification,
+        bound_resource=bound_resource,
+    )
+    return True, projected.to_opa_input()
+
+
+def _mutate_live_server_input(
+    payload: dict[str, Any],
+    mutation: _DecisionInputMutation,
+) -> dict[str, Any]:
+    candidate = deepcopy(payload)
+    if mutation is _DecisionInputMutation.NONE:
+        return candidate
+    if mutation is _DecisionInputMutation.UNKNOWN_ACTION:
+        candidate["action"]["permission"] = "runs.launch.synonym"
+    elif mutation is _DecisionInputMutation.MALFORMED_ACTION:
+        candidate["action"] = "runs.launch"
+    elif mutation is _DecisionInputMutation.KNOWN_ACTION_WRONG_RESOURCE:
+        candidate["action"]["permission"] = "evidence.acquire"
+    elif mutation is _DecisionInputMutation.UNKNOWN_RESOURCE:
+        candidate["resource"]["class"] = "runtime.run_collection.synonym"
+        candidate["resource"]["kind"] = "runtime.run_collection.synonym.tenant_collection"
+    elif mutation is _DecisionInputMutation.UNKNOWN_AUTHORITY:
+        candidate["resource"]["binding_authority"] = "self_asserted"
+        candidate["resource"]["kind"] = "runtime.run_collection.self_asserted"
+    elif mutation is _DecisionInputMutation.CROSS_TENANT:
+        candidate["resource"]["tenant_id"] = "tenant-b"
+    elif mutation is _DecisionInputMutation.FABRICATED_TENANT:
+        candidate["resource"]["tenant_id"] = "tenant-a"
+    else:  # pragma: no cover - closed enum exhaustiveness guard
+        raise AssertionError(f"unsupported mutation: {mutation.value}")
+    return candidate
 
 
 @pytest.mark.parametrize("case", _DECISION_PARITY_CASES, ids=lambda case: case.name)
@@ -472,36 +561,17 @@ def test_server_and_rego_decisions_match_for_principal_operation_resource_matrix
     case: _DecisionParityCase,
     runtime_api_env,
 ) -> None:
-    contracts = _live_action_contracts(runtime_api_env["app"])
-    granted = [permission.value for permission in permissions_for_roles(frozenset({case.role}))]
-    input_value = {
-        "request": {
-            "method": "POST",
-            "path": "/api/v1/runtime-mutation",
-            "headers": {},
-        },
-        "identity": {
-            "tenant_id": "tenant-a",
-            "roles": [case.role.value],
-            "permissions": granted,
-            "authorization_source": "canonical_role_permissions",
-            "mfa_verified": True,
-            "principal_type": "user",
-        },
-        "peer": {"spiffe_id": ""},
-        "action": {"permission": case.permission},
-        "resource": {
-            "tenant_id": case.resource_tenant,
-            "kind": f"{case.resource_class}.{case.authority}",
-            "class": case.resource_class,
-            "binding_authority": case.authority,
-            "pii_tier": "none",
-            "requires_anonymization": False,
-        },
-    }
+    server_route_allowed, server_input = _project_live_server_action(
+        runtime_api_env["app"],
+        route_path=case.route_path,
+        role=case.role,
+        body=case.body,
+    )
+    input_value = _mutate_live_server_input(server_input, case.mutation)
+    server_allowed = server_route_allowed and input_value == server_input
 
     rego_allowed = _opa_eval(
         "data.polisyos.authz.decision.allow",
         input_value=input_value,
     )
-    assert rego_allowed is _server_expected_decision(case, contracts=contracts)
+    assert rego_allowed is server_allowed

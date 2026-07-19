@@ -170,7 +170,11 @@ class DeploymentPrincipalGrantResolver:
             and effective_subject not in self._managed_subjects
         ):
             return None
-        if claims.sub != effective_subject or claims.tenant_id != effective_tenant_id:
+        if (
+            claims.sub != effective_subject
+            or claims.tenant_id != effective_tenant_id
+            or claims.cell_id != effective_cell_id
+        ):
             return frozenset()
         return self.permissions_for_principal(
             issuer=claims.iss,

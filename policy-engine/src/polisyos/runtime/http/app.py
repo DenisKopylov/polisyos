@@ -121,18 +121,24 @@ def create_runtime_api_app(
         else _default_core_runs_root(normalized_cas_root)
     )
     policy_resolver = RuntimeExecutionPolicyResolver.from_env()
+    direct_security_collaborators = (
+        identity_provider,
+        cell_registry,
+        opa_client,
+        step_up_verifier,
+    )
+    if (
+        policy_resolver.default_profile != "dev"
+        and any(collaborator is not None for collaborator in direct_security_collaborators)
+    ):
+        raise RuntimeBootstrapError(
+            "Non-development security collaborators require an exact "
+            "RuntimeDeploymentSecurity bundle."
+        )
     if deployment_security is not None:
         if type(deployment_security) is not RuntimeDeploymentSecurity:
             raise TypeError("deployment_security must be a RuntimeDeploymentSecurity")
-        if any(
-            collaborator is not None
-            for collaborator in (
-                identity_provider,
-                cell_registry,
-                opa_client,
-                step_up_verifier,
-            )
-        ):
+        if any(collaborator is not None for collaborator in direct_security_collaborators):
             raise RuntimeBootstrapError(
                 "Deployment security cannot be mixed with direct security collaborators."
             )

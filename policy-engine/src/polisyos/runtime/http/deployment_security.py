@@ -279,9 +279,14 @@ class DeploymentIdentityProvider(SPIFFEIdentityProvider):
         )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, init=False)
 class RuntimeDeploymentSecurity:
-    """Resolved genuine collaborators plus exact service-principal grants."""
+    """Factory-produced collaborators plus exact service-principal grants.
+
+    Direct construction is forbidden because exact collaborator types do not
+    prove that every value originated from this bundle's strict configuration
+    document. :func:`build_deployment_security` is the sole assembly path.
+    """
 
     config: DeploymentSecurityConfig
     identity_provider: DeploymentIdentityProvider = field(repr=False)
@@ -289,6 +294,20 @@ class RuntimeDeploymentSecurity:
     opa_client: OPAClient = field(repr=False)
     step_up_verifier: DeploymentJWTStepUpAssertionVerifier = field(repr=False)
     principal_grants: DeploymentPrincipalGrantResolver = field(repr=False)
+
+    def __init__(
+        self,
+        *,
+        config: DeploymentSecurityConfig,
+        identity_provider: DeploymentIdentityProvider,
+        cell_registry: CellRegistry,
+        opa_client: OPAClient,
+        step_up_verifier: DeploymentJWTStepUpAssertionVerifier,
+        principal_grants: DeploymentPrincipalGrantResolver,
+    ) -> None:
+        raise TypeError(
+            "RuntimeDeploymentSecurity is factory-only; use build_deployment_security(config)"
+        )
 
     def __post_init__(self) -> None:
         if type(self.config) is not DeploymentSecurityConfig:
@@ -331,17 +350,25 @@ def build_deployment_security(config: DeploymentSecurityConfig) -> RuntimeDeploy
         policy_path=opa.policy_path,
         timeout_seconds=opa.timeout_seconds,
     )
-    return RuntimeDeploymentSecurity(
-        config=config,
-        identity_provider=identity_provider,
-        cell_registry=registry,
-        opa_client=opa_client,
-        step_up_verifier=DeploymentJWTStepUpAssertionVerifier(config.step_up_verifier),
-        principal_grants=DeploymentPrincipalGrantResolver(
-            (grant.identity_key, grant.permissions)
-            for grant in config.service_principals
+    runtime = object.__new__(RuntimeDeploymentSecurity)
+    object.__setattr__(runtime, "config", config)
+    object.__setattr__(runtime, "identity_provider", identity_provider)
+    object.__setattr__(runtime, "cell_registry", registry)
+    object.__setattr__(runtime, "opa_client", opa_client)
+    object.__setattr__(
+        runtime,
+        "step_up_verifier",
+        DeploymentJWTStepUpAssertionVerifier(config.step_up_verifier),
+    )
+    object.__setattr__(
+        runtime,
+        "principal_grants",
+        DeploymentPrincipalGrantResolver(
+            (grant.identity_key, grant.permissions) for grant in config.service_principals
         ),
     )
+    runtime.__post_init__()
+    return runtime
 
 
 def is_deployment_step_up_verifier(value: object) -> bool:

@@ -112,6 +112,38 @@ def test_deployment_security_config_is_strict_and_typed(tmp_path: Path) -> None:
         security.DeploymentSecurityConfig.from_mapping(malformed)
 
 
+def test_runtime_deployment_security_cannot_mix_collaborators_across_documents(
+    tmp_path: Path,
+) -> None:
+    security = _deployment_security_module()
+    config_a = security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    raw_b = _config_mapping(tmp_path)
+    identity_b = raw_b["identity_verifier"]
+    assert isinstance(identity_b, dict)
+    identity_b.update(
+        {
+            "issuer": "https://idp-b.example",
+            "jwks_uri": "https://idp-b.example/.well-known/jwks.json",
+        }
+    )
+    config_b = security.DeploymentSecurityConfig.from_mapping(raw_b)
+    runtime_a = security.build_deployment_security(config_a)
+
+    with pytest.raises(TypeError, match=r"factory|build_deployment_security"):
+        security.RuntimeDeploymentSecurity(
+            config=config_b,
+            identity_provider=runtime_a.identity_provider,
+            cell_registry=runtime_a.cell_registry,
+            opa_client=runtime_a.opa_client,
+            step_up_verifier=runtime_a.step_up_verifier,
+            principal_grants=runtime_a.principal_grants,
+        )
+
+    runtime_b = security.build_deployment_security(config_b)
+    assert runtime_b.config is config_b
+    assert runtime_b.identity_provider is not runtime_a.identity_provider
+
+
 def test_unknown_service_principal_permission_is_rejected(tmp_path: Path) -> None:
     security = _deployment_security_module()
     raw = _config_mapping(tmp_path)

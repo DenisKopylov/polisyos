@@ -9,6 +9,8 @@ import hashlib
 import json
 import os
 import subprocess
+import sys
+import tempfile
 import time
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -19,11 +21,19 @@ from pydantic import ValidationError
 
 from polisyos.fabric.data_plane import canonical_json_bytes
 from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
+    DEFAULT_GENERATED_ARTIFACTS,
     DEFAULT_N13B_CONTRACT,
     DEFAULT_N13B_LIFECYCLE_MANIFEST,
     N13bAcquisitionExecutorContract,
     N13bContractError,
     derive_n13b_acquisition_executor_contract,
+    derive_n13b_generated_registry_update,
+)
+from tools.quality.validation.layer3_gy_n13b_derivation_universality import (
+    DEFAULT_DERIVATION_FAMILY_REGISTRY,
+    DEFAULT_UNIVERSALITY_RECEIPT,
+    build_derivation_universality_receipt,
+    derivation_universality_bytes,
 )
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
@@ -72,11 +82,25 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=POLICY_ENGINE_ROOT / DEFAULT_N13B_LIFECYCLE_MANIFEST,
     )
+    parser.add_argument(
+        "--derivation-registry",
+        type=Path,
+        default=DEFAULT_DERIVATION_FAMILY_REGISTRY,
+    )
+    parser.add_argument(
+        "--universality-output",
+        type=Path,
+        default=POLICY_ENGINE_ROOT / DEFAULT_UNIVERSALITY_RECEIPT,
+    )
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    args.derivation_registry, args.universality_output = _canonical_derivation_paths(
+        registry_path=args.derivation_registry,
+        universality_output=args.universality_output,
+    )
     baseline_before = _file_sha256(args.catalog_path)
     l5_sha = _file_sha256(args.l5_path)
     if args.source_flip_mutations:
@@ -85,15 +109,47 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps(report, sort_keys=True))
         return 0 if report["status"] == "pass" else 1
 
+    first_universality = build_derivation_universality_receipt(
+        catalog_path=args.catalog_path,
+        registry_path=args.derivation_registry,
+    )
+    second_universality = build_derivation_universality_receipt(
+        catalog_path=args.catalog_path,
+        registry_path=args.derivation_registry,
+    )
+    first_universality_bytes = derivation_universality_bytes(first_universality)
+    second_universality_bytes = derivation_universality_bytes(second_universality)
+    if first_universality_bytes != second_universality_bytes:
+        raise N13bContractError("n13b_universality_writer_not_byte_stable")
+    if not args.write:
+        _check_exact(
+            args.universality_output,
+            first_universality_bytes,
+            "n13b_derivation_universality_drift",
+        )
+
+    registry_update = derive_n13b_generated_registry_update(POLICY_ENGINE_ROOT)
+    generated_artifacts_path = POLICY_ENGINE_ROOT / DEFAULT_GENERATED_ARTIFACTS
+    if not args.write:
+        _check_exact(
+            generated_artifacts_path,
+            registry_update.registry_bytes,
+            "n13b_generated_cas_registry_drift",
+        )
+
     first = derive_n13b_acquisition_executor_contract(
         repo_root=POLICY_ENGINE_ROOT,
         baseline_sha256=baseline_before,
         l5_sha256=l5_sha,
+        universality_receipt=first_universality,
+        generated_artifacts_bytes=registry_update.registry_bytes,
     )
     second = derive_n13b_acquisition_executor_contract(
         repo_root=POLICY_ENGINE_ROOT,
         baseline_sha256=baseline_before,
         l5_sha256=l5_sha,
+        universality_receipt=second_universality,
+        generated_artifacts_bytes=registry_update.registry_bytes,
     )
     first_contract = canonical_json_bytes(first.model_dump(mode="json"))
     second_contract = canonical_json_bytes(second.model_dump(mode="json"))
@@ -104,8 +160,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     _require_baseline_unchanged(args.catalog_path, baseline_before)
 
     if args.write:
-        _write_replace(args.lifecycle_output, first_lifecycle)
-        _write_replace(args.output, first_contract)
+        _write_transaction(
+            (
+                (generated_artifacts_path, registry_update.registry_bytes),
+                (args.universality_output, first_universality_bytes),
+                (args.lifecycle_output, first_lifecycle),
+                (args.output, first_contract),
+            ),
+            remove_paths=tuple(
+                POLICY_ENGINE_ROOT / path for path in registry_update.obsolete_cas_output_paths
+            ),
+        )
         status = "written"
     elif args.check:
         _check_exact(args.lifecycle_output, first_lifecycle, "n13b_lifecycle_manifest_drift")
@@ -122,6 +187,8 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     report = _summary(first, status=status)
     report["byte_stable_passes"] = 2
+    report["derivation_family_count"] = first_universality.family_count
+    report["derivation_universality_sha256"] = first_universality.receipt_sha256
     report["baseline_before_sha256"] = baseline_before
     report["baseline_after_sha256"] = _file_sha256(args.catalog_path)
     print(json.dumps(report, sort_keys=True))
@@ -140,6 +207,7 @@ def _summary(
         "registered_output_count": contract.lifecycle.registered_output_count,
         "local_lift_denominator_count": contract.local_lift.residual_denominator_count,
         "local_lift_admissible_count": contract.local_lift.admissible_count,
+        "d2_connector_gap_count": contract.d2_source_growth.connector_gap_count,
         "live_attempt_count": contract.journal.terminal_count,
         "raw_response_count": contract.journal.raw_response_count,
         "resumption_spent_call_count": contract.resumption_budget.spent_call_count,
@@ -147,6 +215,8 @@ def _summary(
         "derivation_recipe_id": contract.derivation.recipe_id,
         "derivation_consumer_count": contract.derivation.consumer_count,
         "second_materialization_cache_hit": (contract.derivation.second_materialization_cache_hit),
+        "derivation_family_count": contract.derivation_universality.family_count,
+        "derivation_universality_sha256": (contract.derivation_universality.source_receipt_sha256),
         "availability_count_before": contract.world_growth.availability_count_before,
         "availability_count_after": contract.world_growth.availability_count_after,
         "availability_count_delta": contract.world_growth.availability_count_delta,
@@ -180,15 +250,17 @@ def run_corrupt_field_drift(
         ),
         (
             "derivation_recipe_parameter_tamper",
-            ("derivation", "recipe_projection", "base_year"),
-            2019,
+            ("derivation", "recipe_projection", "parameters", 0, "value"),
+            "1900",
         ),
         (
             "derivation_recipe_input_tamper",
             (
                 "derivation",
                 "recipe_projection",
-                "nominal_input",
+                "inputs",
+                0,
+                "artifact",
                 "artifact_id",
             ),
             "sha256:" + "0" * 64,
@@ -217,6 +289,26 @@ def run_corrupt_field_drift(
             "local_lift_terminal_relabel",
             ("local_lift", "disposition"),
             "local_lift_admissible",
+        ),
+        (
+            "d2_connector_backlog_reordered",
+            ("d2_source_growth", "rows", 0, "rank"),
+            2,
+        ),
+        (
+            "universality_family_proof_tamper",
+            (
+                "derivation_universality",
+                "families",
+                0,
+                "family_proof_sha256",
+            ),
+            "sha256:" + "0" * 64,
+        ),
+        (
+            "universality_family_version_tamper",
+            ("derivation_universality", "families", 0, "method_version"),
+            "forged-version",
         ),
     )
     results: list[dict[str, object]] = []
@@ -426,48 +518,97 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             source_path=DERIVATION_SOURCE_PATH,
             replacements=(
                 (
-                    "        if self.recipe_id != expected_id:\n"
+                    "        if self.assumptions != expected_assumptions:\n"
+                    '            raise ValueError("recipe assumptions differ from family rules")\n',
+                    "        if False and self.assumptions != expected_assumptions:\n"
+                    '            raise ValueError("recipe assumptions differ from family rules")\n',
+                ),
+                (
+                    "        _validate_output_parameter_bindings(\n"
+                    "            self.family,\n"
+                    "            self.parameters,\n"
+                    "            self.output_basis,\n"
+                    "        )\n",
+                    "        if False:\n"
+                    "            _validate_output_parameter_bindings(\n"
+                    "                self.family,\n"
+                    "                self.parameters,\n"
+                    "                self.output_basis,\n"
+                    "            )\n",
+                ),
+                (
+                    '        if self.recipe_id != _identity("derivation-recipe", self.identity_payload()):\n'
                     '            raise ValueError("derivation recipe identity must be recomputed")\n',
-                    "        if False and self.recipe_id != expected_id:\n"
+                    '        if False and self.recipe_id != _identity("derivation-recipe", self.identity_payload()):\n'
                     '            raise ValueError("derivation recipe identity must be recomputed")\n',
                 ),
             ),
-            probe_nodeid=(
-                derivation_test + "test_derivation_recipe_identity_rejects_parameter_tamper"
-            ),
-            expected_red_signal=("test_derivation_recipe_identity_rejects_parameter_tamper"),
+            probe_nodeid=(derivation_test + "test_recipe_parameter_tamper_is_rejected"),
+            expected_red_signal=("test_recipe_parameter_tamper_is_rejected"),
         ),
         _SourceFlipCase(
             mutation_id="derivation_recipe_input_hash_binding_removed",
             source_path=DERIVATION_SOURCE_PATH,
             replacements=(
                 (
-                    "        if self.recipe_id != expected_id:\n"
+                    '        if self.recipe_id != _identity("derivation-recipe", self.identity_payload()):\n'
                     '            raise ValueError("derivation recipe identity must be recomputed")\n',
-                    "        if False and self.recipe_id != expected_id:\n"
+                    '        if False and self.recipe_id != _identity("derivation-recipe", self.identity_payload()):\n'
                     '            raise ValueError("derivation recipe identity must be recomputed")\n',
                 ),
             ),
-            probe_nodeid=(
-                derivation_test + "test_derivation_recipe_identity_rejects_input_hash_tamper"
-            ),
-            expected_red_signal=("test_derivation_recipe_identity_rejects_input_hash_tamper"),
+            probe_nodeid=(derivation_test + "test_layer_invariants_are_family_parameterized"),
+            expected_red_signal=("test_layer_invariants_are_family_parameterized"),
         ),
         _SourceFlipCase(
             mutation_id="derived_as_observed_type_fence_removed",
             source_path=DERIVATION_SOURCE_PATH,
             replacements=(
                 (
-                    "    source_artifact_ids: tuple[artifacts.ArtifactID, artifacts.ArtifactID]\n"
+                    "    source_artifact_ids: tuple[artifacts.ArtifactID, ...] = Field(min_length=1)\n"
                     '    observation_class: Literal["derived"]\n',
-                    "    source_artifact_ids: tuple[artifacts.ArtifactID, artifacts.ArtifactID]\n"
+                    "    source_artifact_ids: tuple[artifacts.ArtifactID, ...] = Field(min_length=1)\n"
                     "    observation_class: str\n",
                 ),
             ),
-            probe_nodeid=(
-                derivation_test + "test_recipe_certificate_and_derived_class_cannot_be_pinned"
+            probe_nodeid=(derivation_test + "test_layer_invariants_are_family_parameterized"),
+            expected_red_signal=("test_layer_invariants_are_family_parameterized"),
+        ),
+        _SourceFlipCase(
+            mutation_id="derived_authority_monotonicity_removed",
+            source_path=DERIVATION_SOURCE_PATH,
+            replacements=(
+                (
+                    "        if self.effective_authority != min(\n"
+                    "            item.effective_score for item in self.input_authorities\n"
+                    "        ):\n"
+                    '            raise ValueError("derived authority must equal the weakest input")\n',
+                    "        if False and self.effective_authority != min(\n"
+                    "            item.effective_score for item in self.input_authorities\n"
+                    "        ):\n"
+                    '            raise ValueError("derived authority must equal the weakest input")\n',
+                ),
             ),
-            expected_red_signal=("test_recipe_certificate_and_derived_class_cannot_be_pinned"),
+            probe_nodeid=(derivation_test + "test_layer_invariants_are_family_parameterized"),
+            expected_red_signal=("test_layer_invariants_are_family_parameterized"),
+        ),
+        _SourceFlipCase(
+            mutation_id="data_registered_novel_family_resolution_removed",
+            source_path=DERIVATION_SOURCE_PATH,
+            replacements=(
+                (
+                    "            and _output_basis_matches_family(family, output_basis)\n",
+                    '            and family.family_id == "__enumerated_first_family__"\n'
+                    "            and _output_basis_matches_family(family, output_basis)\n",
+                ),
+            ),
+            probe_nodeid=(
+                derivation_test
+                + "test_novel_family_is_typed_refused_then_accepted_by_registry_data_only"
+            ),
+            expected_red_signal=(
+                "test_novel_family_is_typed_refused_then_accepted_by_registry_data_only"
+            ),
         ),
         _SourceFlipCase(
             mutation_id="local_rights_trust_root_fence_removed",
@@ -527,17 +668,16 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             source_path=SOURCE_MODULE_PATH,
             replacements=(
                 (
-                    '        "canonical_provision_registered": DEFAULT_N13B_PROVISION.as_posix() in registration_paths,\n',
-                    '        "canonical_provision_registered": False,\n',
+                    '        "universality_receipt_registered": (\n'
+                    "            DEFAULT_UNIVERSALITY_RECEIPT.as_posix() in registration_paths\n"
+                    "        ),\n",
+                    '        "universality_receipt_registered": True,\n',
                 ),
             ),
             probe_nodeid=(
-                contract_test
-                + "test_lifecycle_manifest_derives_registered_outputs_and_no_phantom_snapshot"
+                contract_test + "test_lifecycle_missing_universality_cannot_be_forged_closed"
             ),
-            expected_red_signal=(
-                "test_lifecycle_manifest_derives_registered_outputs_and_no_phantom_snapshot"
-            ),
+            expected_red_signal=("test_lifecycle_missing_universality_cannot_be_forged_closed"),
         ),
     )
 
@@ -566,6 +706,18 @@ def _run_source_flip(repo_root: Path, case: _SourceFlipCase) -> dict[str, object
                 "result": "HARNESS_ERROR",
                 "proof": {"source_guard_count": source.count(old)},
             }
+    baseline = _run_flip_probe(repo_root, case.probe_nodeid)
+    if baseline.returncode != 0:
+        return {
+            "mutation_id": case.mutation_id,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_flip_probe_not_green_before_mutation",
+                "exit_code": baseline.returncode,
+                "stdout_tail": "\n".join(baseline.stdout.splitlines()[-12:]),
+                "stderr_tail": "\n".join(baseline.stderr.splitlines()[-12:]),
+            },
+        }
     mutated = source
     for old, new in case.replacements:
         mutated = mutated.replace(old, new, 1)
@@ -574,19 +726,7 @@ def _run_source_flip(repo_root: Path, case: _SourceFlipCase) -> dict[str, object
     started = time.monotonic()
     try:
         source_path.write_text(mutated, encoding="utf-8")
-        completed = subprocess.run(
-            ("uv", "run", "--extra", "test", "pytest", case.probe_nodeid, "-q"),
-            cwd=repo_root,
-            env={
-                **os.environ,
-                "PYTHONDONTWRITEBYTECODE": "1",
-                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
-            },
-            capture_output=True,
-            text=True,
-            timeout=300,
-            check=False,
-        )
+        completed = _run_flip_probe(repo_root, case.probe_nodeid)
     except Exception as exc:  # pragma: no cover - reported as harness evidence.
         error = str(exc)
     finally:
@@ -603,6 +743,18 @@ def _run_source_flip(repo_root: Path, case: _SourceFlipCase) -> dict[str, object
                 "after": restored_hash,
             },
         }
+    restored_probe = _run_flip_probe(repo_root, case.probe_nodeid)
+    if restored_probe.returncode != 0:
+        return {
+            "mutation_id": case.mutation_id,
+            "result": "HARNESS_ERROR",
+            "proof": {
+                "error": "source_flip_probe_not_green_after_restore",
+                "exit_code": restored_probe.returncode,
+                "stdout_tail": "\n".join(restored_probe.stdout.splitlines()[-12:]),
+                "stderr_tail": "\n".join(restored_probe.stderr.splitlines()[-12:]),
+            },
+        }
     if error is not None or completed is None:
         return {
             "mutation_id": case.mutation_id,
@@ -610,20 +762,55 @@ def _run_source_flip(repo_root: Path, case: _SourceFlipCase) -> dict[str, object
             "proof": error or "source_flip_probe_not_run",
         }
     output = f"{completed.stdout}\n{completed.stderr}"
-    red = completed.returncode != 0 and case.expected_red_signal in output
+    targeted_failure = f"FAILED {case.probe_nodeid}" in output
+    red = completed.returncode != 0 and targeted_failure
     return {
         "mutation_id": case.mutation_id,
         "result": "RED" if red else "GREEN_MUTATION_SURVIVED",
         "proof": {
             "exit_code": completed.returncode,
+            "baseline_exit_code": baseline.returncode,
+            "restored_exit_code": restored_probe.returncode,
             "expected_red_signal": case.expected_red_signal,
-            "signal_observed": case.expected_red_signal in output,
+            "targeted_failure_observed": targeted_failure,
             "source_restored_sha256": restored_hash,
             "wall_time_seconds": round(time.monotonic() - started, 6),
             "stdout_tail": "\n".join(completed.stdout.splitlines()[-12:]),
             "stderr_tail": "\n".join(completed.stderr.splitlines()[-12:]),
         },
     }
+
+
+def _run_flip_probe(
+    repo_root: Path,
+    nodeid: str,
+) -> subprocess.CompletedProcess[str]:
+    """Run one fresh-process semantic probe without reusing bytecode or scratch."""
+
+    with tempfile.TemporaryDirectory(prefix="polisyos-n13b-flip-pycache-") as cache_root:
+        return subprocess.run(
+            (
+                sys.executable,
+                "-B",
+                "-m",
+                "pytest",
+                nodeid,
+                "-q",
+                "-p",
+                "no:cacheprovider",
+            ),
+            cwd=repo_root,
+            env={
+                **os.environ,
+                "PYTHONDONTWRITEBYTECODE": "1",
+                "PYTHONPYCACHEPREFIX": cache_root,
+                "PYTHONPATH": f"{repo_root / 'src'}:{repo_root}",
+            },
+            capture_output=True,
+            text=True,
+            timeout=300,
+            check=False,
+        )
 
 
 def _check_exact(path: Path, expected: bytes, code: str) -> None:
@@ -635,6 +822,33 @@ def _check_exact(path: Path, expected: bytes, code: str) -> None:
         raise N13bContractError(code, str(path))
 
 
+def _canonical_derivation_paths(
+    *,
+    registry_path: Path,
+    universality_output: Path,
+) -> tuple[Path, Path]:
+    """Resolve and require the sole registry/receipt pair frozen by this owner."""
+
+    expected_registry = (POLICY_ENGINE_ROOT / DEFAULT_DERIVATION_FAMILY_REGISTRY).resolve()
+    expected_output = (POLICY_ENGINE_ROOT / DEFAULT_UNIVERSALITY_RECEIPT).resolve()
+    actual_registry = (
+        registry_path.resolve()
+        if registry_path.is_absolute()
+        else (POLICY_ENGINE_ROOT / registry_path).resolve()
+    )
+    actual_output = (
+        universality_output.resolve()
+        if universality_output.is_absolute()
+        else (POLICY_ENGINE_ROOT / universality_output).resolve()
+    )
+    if actual_registry != expected_registry or actual_output != expected_output:
+        raise N13bContractError(
+            "n13b_noncanonical_derivation_owner_paths",
+            f"registry={actual_registry}/receipt={actual_output}",
+        )
+    return actual_registry, actual_output
+
+
 def _write_replace(path: Path, payload: bytes) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -644,6 +858,65 @@ def _write_replace(path: Path, payload: bytes) -> None:
         handle.flush()
         os.fsync(handle.fileno())
     os.replace(temporary, target)
+
+
+def _write_transaction(
+    outputs: Sequence[tuple[Path, bytes]],
+    *,
+    remove_paths: Sequence[Path] = (),
+    _replace: Any = os.replace,
+    _unlink: Any = Path.unlink,
+) -> None:
+    """Replace and remove one output set, rolling back exact prior bytes on failure."""
+
+    targets = tuple((Path(path), payload) for path, payload in outputs)
+    removals = tuple(Path(path) for path in remove_paths)
+    paths = tuple(path.resolve() for path, _payload in targets)
+    removal_paths = tuple(path.resolve() for path in removals)
+    if (
+        len(paths) != len(set(paths))
+        or len(removal_paths) != len(set(removal_paths))
+        or set(paths) & set(removal_paths)
+    ):
+        raise N13bContractError("n13b_write_transaction_duplicate_target")
+    originals: dict[Path, bytes | None] = {}
+    staged: dict[Path, Path] = {}
+    replaced: list[Path] = []
+    removed: list[Path] = []
+    try:
+        for target, payload in targets:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            originals[target] = target.read_bytes() if target.exists() else None
+            temporary = target.with_name(f".{target.name}.transaction.tmp")
+            with temporary.open("wb") as handle:
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+            staged[target] = temporary
+        for target in removals:
+            originals[target] = target.read_bytes() if target.exists() else None
+        for target, _payload in targets:
+            _replace(staged[target], target)
+            replaced.append(target)
+        for target in removals:
+            if originals[target] is not None:
+                _unlink(target)
+                removed.append(target)
+    except Exception as exc:
+        for target in reversed(removed):
+            original = originals[target]
+            if original is not None:
+                _write_replace(target, original)
+        for target in reversed(replaced):
+            original = originals[target]
+            if original is None:
+                target.unlink(missing_ok=True)
+            else:
+                _write_replace(target, original)
+        raise N13bContractError("n13b_write_transaction_failed", str(exc)) from exc
+    finally:
+        for temporary in staged.values():
+            temporary.unlink(missing_ok=True)
 
 
 def _require_baseline_unchanged(path: Path, before: str) -> None:

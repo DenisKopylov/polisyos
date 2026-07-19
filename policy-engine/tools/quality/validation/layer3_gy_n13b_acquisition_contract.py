@@ -10,7 +10,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import tomllib
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from itertools import pairwise
 from pathlib import Path
 from typing import Any, Literal, Self
 
@@ -23,6 +28,15 @@ from polisyos.fabric.data_plane import (
     content_sha256,
     resolve_live_attempt_terminals,
     resolve_raw_response_body,
+)
+from polisyos.runtime.quality.acquisition_planner import (
+    AcquisitionGapType,
+    AcquisitionPlannerReport,
+    AcquisitionRequirementGap,
+    AuthorityLevel,
+    MandatoryGateState,
+    RequirementGapFamily,
+    plan_requirement_gap_acquisition,
 )
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     D6RouteSelection,
@@ -40,6 +54,11 @@ from tools.quality.validation.layer3_gy_n13b_acceptance import (
     AcceptanceInputSelection,
     AcceptanceLiveExecutionReceipt,
     verify_persisted_acceptance_case,
+)
+from tools.quality.validation.layer3_gy_n13b_derivation_universality import (
+    DEFAULT_DERIVATION_FAMILY_REGISTRY,
+    DEFAULT_UNIVERSALITY_RECEIPT,
+    DerivationUniversalityReceipt,
 )
 from tools.quality.validation.layer3_gy_n13b_reentry import N13bReentryTrace
 
@@ -93,14 +112,20 @@ DEFAULT_ACCEPTANCE_FALLBACK = Path(
 )
 DEFAULT_REENTRY_TRACE = Path("architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json")
 _SOURCE_OWNER_PATHS = (
+    DEFAULT_DERIVATION_FAMILY_REGISTRY.as_posix(),
     "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+    "src/polisyos/data_forge/domains/catalog/knowledge/derivation_catalog_selection.py",
     "src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
     "src/polisyos/fabric/data_plane/evidence_journal.py",
+    "src/polisyos/ir/kernel/units.py",
     "src/polisyos/runtime/quality/acquisition_executor.py",
     "src/polisyos/runtime/quality/acquisition_planner.py",
     "src/polisyos/runtime/quality/data_state_substrate.py",
     "src/polisyos/runtime/quality/derived_observations.py",
+    "tools/quality/validation/layer3_gy_n13b_derivation_universality.py",
 )
+_SOURCE_GROWTH_REQUIREMENT_SCHEMA_VERSION = "policyos.layer3.gy.n13b.connector_request_lever_gap.v1"
+_SOURCE_GROWTH_PLANNER_GENERATED_AT = datetime(2026, 7, 19, tzinfo=UTC)
 
 
 class N13bContractError(RuntimeError):
@@ -110,6 +135,16 @@ class N13bContractError(RuntimeError):
         self.code = code
         self.detail = detail or code
         super().__init__(f"{code}: {self.detail}")
+
+
+@dataclass(frozen=True)
+class N13bGeneratedRegistryUpdate:
+    """Canonical generated-artifact registry update for the live CAS closure."""
+
+    registry_bytes: bytes
+    required_cas_artifact_ids: tuple[str, ...]
+    required_cas_output_paths: tuple[str, ...]
+    obsolete_cas_output_paths: tuple[str, ...]
 
 
 class _StrictModel(BaseModel):
@@ -238,6 +273,352 @@ def derive_local_lift_refusal(
         ),
     }
     return LocalLiftRefusal(
+        **values,
+        projection_sha256=content_sha256(_json_value(values)),
+    )
+
+
+class D2CarrierReceiptProjection(_StrictModel):
+    """Narrow D3 receipt projection supplying the D2 connector-gap denominator."""
+
+    connector_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
+    execution_tier: str = Field(min_length=1)
+    missing_request_levers: tuple[str, ...]
+    source_receipt_sha256: str = Field(pattern=SHA256_PATTERN)
+    projection_sha256: str = Field(pattern=SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _projection_is_content_bound(self) -> Self:
+        if self.missing_request_levers != tuple(sorted(set(self.missing_request_levers))):
+            raise ValueError("carrier request-lever denominator must be unique and sorted")
+        if self.projection_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("carrier request-lever projection identity drift")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "projection_sha256"
+        }
+
+
+class D2PlannerRouteProjection(_StrictModel):
+    """Timestamp-free narrow projection of one canonical N7 planner run."""
+
+    planner_schema_version: Literal["policyos.runtime.acquisition_planner.v1"]
+    run_id: str = Field(min_length=1)
+    gap_id: str = Field(min_length=1)
+    requirement_gap_ref: str = Field(min_length=1)
+    requirement_family: Literal["data_requirement"]
+    compiled_requirement_ref: str = Field(min_length=1)
+    requirement_schema_version: Literal["policyos.layer3.gy.n13b.connector_request_lever_gap.v1"]
+    gap_type: Literal["scenario_source_family"]
+    missing_requirement_fields: tuple[str, ...] = Field(min_length=1)
+    report_status: Literal["pass", "warn", "blocked"]
+    record_status: Literal["ready", "limited", "blocked"]
+    recommended_strategy: str = Field(min_length=1)
+    terminal_disposition: str = Field(min_length=1)
+    eligible_strategies: tuple[str, ...] = Field(min_length=1)
+    ineligible_strategies: tuple[str, ...] = Field(min_length=1)
+    producer_expected: str | None = None
+    producer_output_ref: str = Field(min_length=1)
+    voi_ranking_ref: None = None
+    voi_numeric_support: Literal[False]
+    source_report_projection_sha256: str = Field(pattern=SHA256_PATTERN)
+    projection_sha256: str = Field(pattern=SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _projection_is_content_bound(self) -> Self:
+        if self.eligible_strategies != tuple(sorted(set(self.eligible_strategies))):
+            raise ValueError("eligible strategy projection must be unique and sorted")
+        if self.ineligible_strategies != tuple(sorted(set(self.ineligible_strategies))):
+            raise ValueError("ineligible strategy projection must be unique and sorted")
+        if set(self.eligible_strategies) & set(self.ineligible_strategies):
+            raise ValueError("planner strategies cannot be both eligible and ineligible")
+        if self.projection_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("N7 connector-gap planner projection identity drift")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "projection_sha256"
+        }
+
+
+class D2ConnectorGapRow(_StrictModel):
+    """One family-first request-contract growth demand routed through N7."""
+
+    rank: int = Field(ge=1)
+    gap_kind: Literal["connector_gap"]
+    connector_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
+    missing_request_lever: str = Field(min_length=1)
+    source_receipt_sha256: str = Field(pattern=SHA256_PATTERN)
+    growth_scope: Literal["connector_family_request_contract"]
+    growth_mechanism: Literal["family_first_config_not_code"]
+    requirement_gap: AcquisitionRequirementGap
+    planner_route: D2PlannerRouteProjection
+    voi_owner_integration: Literal["planner_routed_no_owner_voi_numeric_support"]
+    projection_sha256: str = Field(pattern=SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _row_is_recomputed_from_owner_outputs(self) -> Self:
+        identity = _source_growth_gap_identity(
+            connector_id=self.connector_id,
+            request_dataset_id=self.request_dataset_id,
+            missing_request_lever=self.missing_request_lever,
+            source_receipt_sha256=self.source_receipt_sha256,
+        )
+        receipt_ref = f"carrier-liveness:{self.source_receipt_sha256}"
+        expected_metadata = {
+            "source": "n13a_recurring_carrier_liveness",
+            "connector_id": self.connector_id,
+            "request_dataset_id": self.request_dataset_id,
+            "missing_request_lever": self.missing_request_lever,
+            "source_receipt_sha256": self.source_receipt_sha256,
+            "growth_scope": self.growth_scope,
+            "growth_mechanism": self.growth_mechanism,
+        }
+        gap = self.requirement_gap
+        if (
+            gap.requirement_gap_id
+            != f"requirement-gap:data_requirement:connector-request-lever:{identity}"
+            or gap.requirement_family is not RequirementGapFamily.DATA
+            or gap.compiled_requirement_ref
+            != f"runtime-requirement:connector-request-lever:{identity}:v1"
+            or gap.requirement_schema_version != _SOURCE_GROWTH_REQUIREMENT_SCHEMA_VERSION
+            or gap.gap_type is not AcquisitionGapType.SCENARIO_SOURCE_FAMILY
+            or gap.claim_ref != f"connector-request-contract-claim:{identity}"
+            or gap.scenario_requirement_refs != (receipt_ref,)
+            or gap.missing_requirement_fields
+            != (f"connector_request_lever:{self.missing_request_lever}",)
+            or gap.authority_level is not AuthorityLevel.RESEARCH
+            or gap.mandatory_gate_state is not MandatoryGateState.NONE
+            or gap.mandatory_gate_refs
+            or gap.limitation_permitted
+            or gap.decision_owner_ref != "polisyos.runtime.quality.acquisition_planner"
+            or gap.producer_output_ref != receipt_ref
+            or gap.calibration_feedback_ref is not None
+            or gap.metadata != expected_metadata
+        ):
+            raise ValueError("connector gap must recompute from its carrier request lever")
+        route = self.planner_route
+        if (
+            route.run_id != f"gy-n13b-source-growth-{identity}"
+            or route.gap_id != gap.requirement_gap_id
+            or route.requirement_gap_ref != gap.requirement_gap_id
+            or route.requirement_family != gap.requirement_family.value
+            or route.compiled_requirement_ref != gap.compiled_requirement_ref
+            or route.requirement_schema_version != gap.requirement_schema_version
+            or route.gap_type != gap.gap_type.value
+            or route.missing_requirement_fields != gap.missing_requirement_fields
+            or route.producer_output_ref != gap.producer_output_ref
+        ):
+            raise ValueError("connector gap planner record must preserve the typed requirement")
+        if self.projection_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("connector-gap row identity drift")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "projection_sha256"
+        }
+
+
+class D2SourceGrowthBacklog(_StrictModel):
+    """Full recurring-receipt denominator and its N7-routed connector gaps."""
+
+    carrier_receipts: tuple[D2CarrierReceiptProjection, ...]
+    carrier_receipt_denominator_count: int = Field(ge=0)
+    missing_request_lever_denominator_count: int = Field(ge=0)
+    connector_gap_count: int = Field(ge=0)
+    rows: tuple[D2ConnectorGapRow, ...]
+    ranking_basis: Literal["family_first_config_growth_then_carrier_identity"]
+    voi_owner_integration: Literal["planner_routed_no_owner_voi_numeric_support"]
+    source_receipt_projection_sha256: str = Field(pattern=SHA256_PATTERN)
+    projection_sha256: str = Field(pattern=SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _full_denominator_and_ranking_are_recomputed(self) -> Self:
+        receipt_keys = tuple(
+            (row.connector_id, row.request_dataset_id, row.source_receipt_sha256)
+            for row in self.carrier_receipts
+        )
+        if receipt_keys != tuple(sorted(set(receipt_keys))):
+            raise ValueError("recurring carrier receipt denominator must be unique and sorted")
+        if self.carrier_receipt_denominator_count != len(self.carrier_receipts):
+            raise ValueError("recurring carrier receipt denominator count drift")
+        expected_gap_keys = tuple(
+            sorted(
+                (
+                    receipt.connector_id,
+                    receipt.request_dataset_id,
+                    lever,
+                    receipt.source_receipt_sha256,
+                )
+                for receipt in self.carrier_receipts
+                for lever in receipt.missing_request_levers
+            )
+        )
+        row_keys = tuple(
+            (
+                row.connector_id,
+                row.request_dataset_id,
+                row.missing_request_lever,
+                row.source_receipt_sha256,
+            )
+            for row in self.rows
+        )
+        if row_keys != expected_gap_keys:
+            raise ValueError("connector-gap rows must cover every recurring missing request lever")
+        if tuple(row.rank for row in self.rows) != tuple(range(1, len(self.rows) + 1)):
+            raise ValueError("connector-gap rows must preserve their derived rank")
+        if self.missing_request_lever_denominator_count != len(
+            expected_gap_keys
+        ) or self.connector_gap_count != len(self.rows):
+            raise ValueError("connector-gap denominator count drift")
+        receipt_projection = [row.model_dump(mode="json") for row in self.carrier_receipts]
+        if self.source_receipt_projection_sha256 != content_sha256(receipt_projection):
+            raise ValueError("recurring carrier receipt projection identity drift")
+        if self.projection_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("D2 source-growth backlog identity drift")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "projection_sha256"
+        }
+
+
+def derive_d2_source_growth_backlog(
+    carrier_receipts: Sequence[RecurringCarrierLivenessUpdate],
+) -> D2SourceGrowthBacklog:
+    """Route every recurring missing request lever through the canonical N7 owner."""
+
+    frozen_receipts = tuple(
+        RecurringCarrierLivenessUpdate.model_validate(receipt.model_dump(mode="python"))
+        for receipt in carrier_receipts
+    )
+    receipt_shas = tuple(receipt.receipt_sha256 for receipt in frozen_receipts)
+    if len(receipt_shas) != len(set(receipt_shas)):
+        raise N13bContractError("duplicate_recurring_carrier_receipt")
+    carrier_projections: list[D2CarrierReceiptProjection] = []
+    for receipt in sorted(
+        frozen_receipts,
+        key=lambda value: (
+            value.connector_id,
+            value.request_dataset_id,
+            value.receipt_sha256,
+        ),
+    ):
+        receipt_values = {
+            "connector_id": receipt.connector_id,
+            "request_dataset_id": receipt.request_dataset_id,
+            "execution_tier": receipt.execution_tier,
+            "missing_request_levers": tuple(sorted(receipt.missing_request_levers)),
+            "source_receipt_sha256": receipt.receipt_sha256,
+        }
+        carrier_projections.append(
+            D2CarrierReceiptProjection(
+                **receipt_values,
+                projection_sha256=content_sha256(receipt_values),
+            )
+        )
+    gap_sources = sorted(
+        (
+            receipt.connector_id,
+            receipt.request_dataset_id,
+            lever,
+            receipt.receipt_sha256,
+        )
+        for receipt in frozen_receipts
+        for lever in receipt.missing_request_levers
+    )
+    rows: list[D2ConnectorGapRow] = []
+    for rank, (
+        connector_id,
+        request_dataset_id,
+        missing_request_lever,
+        source_receipt_sha256,
+    ) in enumerate(gap_sources, start=1):
+        identity = _source_growth_gap_identity(
+            connector_id=connector_id,
+            request_dataset_id=request_dataset_id,
+            missing_request_lever=missing_request_lever,
+            source_receipt_sha256=source_receipt_sha256,
+        )
+        receipt_ref = f"carrier-liveness:{source_receipt_sha256}"
+        requirement_gap = AcquisitionRequirementGap(
+            requirement_gap_id=(
+                f"requirement-gap:data_requirement:connector-request-lever:{identity}"
+            ),
+            requirement_family=RequirementGapFamily.DATA,
+            compiled_requirement_ref=(f"runtime-requirement:connector-request-lever:{identity}:v1"),
+            requirement_schema_version=_SOURCE_GROWTH_REQUIREMENT_SCHEMA_VERSION,
+            gap_type=AcquisitionGapType.SCENARIO_SOURCE_FAMILY,
+            claim_ref=f"connector-request-contract-claim:{identity}",
+            scenario_requirement_refs=(receipt_ref,),
+            missing_requirement_fields=(f"connector_request_lever:{missing_request_lever}",),
+            authority_level=AuthorityLevel.RESEARCH,
+            mandatory_gate_state=MandatoryGateState.NONE,
+            limitation_permitted=False,
+            decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
+            producer_output_ref=receipt_ref,
+            metadata={
+                "source": "n13a_recurring_carrier_liveness",
+                "connector_id": connector_id,
+                "request_dataset_id": request_dataset_id,
+                "missing_request_lever": missing_request_lever,
+                "source_receipt_sha256": source_receipt_sha256,
+                "growth_scope": "connector_family_request_contract",
+                "growth_mechanism": "family_first_config_not_code",
+            },
+        )
+        planner_report = plan_requirement_gap_acquisition(
+            run_id=f"gy-n13b-source-growth-{identity}",
+            requirement_gaps=(requirement_gap,),
+            generated_at=_SOURCE_GROWTH_PLANNER_GENERATED_AT,
+        )
+        planner_route = _d2_planner_route_projection(planner_report)
+        row_values = {
+            "rank": rank,
+            "gap_kind": "connector_gap",
+            "connector_id": connector_id,
+            "request_dataset_id": request_dataset_id,
+            "missing_request_lever": missing_request_lever,
+            "source_receipt_sha256": source_receipt_sha256,
+            "growth_scope": "connector_family_request_contract",
+            "growth_mechanism": "family_first_config_not_code",
+            "requirement_gap": requirement_gap,
+            "planner_route": planner_route,
+            "voi_owner_integration": "planner_routed_no_owner_voi_numeric_support",
+        }
+        rows.append(
+            D2ConnectorGapRow(
+                **row_values,
+                projection_sha256=content_sha256(_json_value(row_values)),
+            )
+        )
+    receipt_projection = [row.model_dump(mode="json") for row in carrier_projections]
+    values = {
+        "carrier_receipts": tuple(carrier_projections),
+        "carrier_receipt_denominator_count": len(carrier_projections),
+        "missing_request_lever_denominator_count": len(gap_sources),
+        "connector_gap_count": len(rows),
+        "rows": tuple(rows),
+        "ranking_basis": "family_first_config_growth_then_carrier_identity",
+        "voi_owner_integration": "planner_routed_no_owner_voi_numeric_support",
+        "source_receipt_projection_sha256": content_sha256(receipt_projection),
+    }
+    return D2SourceGrowthBacklog(
         **values,
         projection_sha256=content_sha256(_json_value(values)),
     )
@@ -438,6 +819,199 @@ def derive_journal_evidence_projection(
     )
 
 
+def derive_cas_artifact_closure(
+    cas_root: Path,
+    root_artifact_ids: Sequence[str],
+) -> tuple[str, ...]:
+    """Resolve and content-validate the complete CAS input graph from exact roots."""
+
+    roots = tuple(sorted({str(value) for value in root_artifact_ids}))
+    if not roots:
+        raise N13bContractError("n13b_cas_root_denominator_empty")
+    pending = list(reversed(roots))
+    visited: set[str] = set()
+    while pending:
+        artifact_id = pending.pop()
+        if artifact_id in visited:
+            continue
+        _require_artifact_id(artifact_id)
+        blob = _cas_blob_path(Path(cas_root), artifact_id)
+        manifest_path = _cas_manifest_path(Path(cas_root), artifact_id)
+        if not blob.is_file() or not manifest_path.is_file():
+            raise N13bContractError("n13b_cas_artifact_missing", artifact_id)
+        if _file_sha256(blob) != artifact_id:
+            raise N13bContractError("n13b_cas_blob_content_drift", artifact_id)
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise N13bContractError("n13b_cas_manifest_invalid", artifact_id) from exc
+        if not isinstance(manifest, dict) or manifest.get("artifact_id") != artifact_id:
+            raise N13bContractError("n13b_cas_manifest_identity_drift", artifact_id)
+        digest = artifact_id.removeprefix("sha256:")
+        integrity = manifest.get("integrity")
+        if (
+            not isinstance(integrity, dict)
+            or integrity.get("sha256") not in {digest, artifact_id}
+            or manifest.get("byte_size") != blob.stat().st_size
+        ):
+            raise N13bContractError("n13b_cas_manifest_integrity_drift", artifact_id)
+        inputs = manifest.get("inputs")
+        if not isinstance(inputs, list):
+            raise N13bContractError("n13b_cas_manifest_inputs_invalid", artifact_id)
+        input_ids: list[str] = []
+        for row in inputs:
+            if not isinstance(row, dict) or not isinstance(row.get("artifact_id"), str):
+                raise N13bContractError("n13b_cas_manifest_input_invalid", artifact_id)
+            input_id = str(row["artifact_id"])
+            _require_artifact_id(input_id)
+            input_ids.append(input_id)
+        visited.add(artifact_id)
+        pending.extend(
+            reversed(
+                tuple(sorted(input_id for input_id in set(input_ids) if input_id not in visited))
+            )
+        )
+    return tuple(sorted(visited))
+
+
+def derive_n13b_generated_registry_update(repo_root: Path) -> N13bGeneratedRegistryUpdate:
+    """Derive the exact N13b CAS closure and its registry-only textual update."""
+
+    root = Path(repo_root)
+    acceptance = _read_model(root / DEFAULT_DERIVED_ACCEPTANCE, AcceptanceCaseReceipt)
+    journal = derive_journal_evidence_projection(
+        journal_path=root / DEFAULT_N13B_JOURNAL,
+        cas_root=root / DEFAULT_N13B_CAS,
+    )
+    raw_artifact_ids = tuple(
+        str(row.raw_body_sha256) for row in journal.attempts if row.raw_body_sha256 is not None
+    )
+    artifact_ids = derive_cas_artifact_closure(
+        root / DEFAULT_N13B_CAS,
+        (*raw_artifact_ids, acceptance.certificate_artifact_id),
+    )
+    required_paths = tuple(
+        sorted(
+            path
+            for artifact_id in artifact_ids
+            for path in (
+                _cas_blob_relative(artifact_id),
+                _cas_manifest_relative(artifact_id),
+            )
+        )
+    )
+    registry_path = root / DEFAULT_GENERATED_ARTIFACTS
+    try:
+        original = registry_path.read_bytes()
+        parsed = tomllib.loads(original.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError) as exc:
+        raise N13bContractError("generated_artifact_registry_unreadable") from exc
+    family, other_output_paths = _n13b_generated_family(parsed)
+    output_values = family.get("outputs")
+    if not isinstance(output_values, list) or not output_values:
+        raise N13bContractError("n13b_generated_outputs_missing")
+    current_outputs = tuple(str(value) for value in output_values)
+    cas_prefix = (DEFAULT_N13B_CAS / "artifacts/sha256").as_posix() + "/"
+    non_cas_outputs = tuple(path for path in current_outputs if not path.startswith(cas_prefix))
+    next_outputs = tuple(sorted((*non_cas_outputs, *required_paths)))
+    registry_bytes = _replace_n13b_generated_outputs(original, next_outputs)
+    stale = set(current_outputs) - set(next_outputs)
+    removable_stale = tuple(
+        sorted(
+            path for path in stale if path.startswith(cas_prefix) and path not in other_output_paths
+        )
+    )
+    return N13bGeneratedRegistryUpdate(
+        registry_bytes=registry_bytes,
+        required_cas_artifact_ids=artifact_ids,
+        required_cas_output_paths=required_paths,
+        obsolete_cas_output_paths=removable_stale,
+    )
+
+
+def _n13b_generated_family(
+    parsed: Mapping[str, Any],
+) -> tuple[Mapping[str, Any], frozenset[str]]:
+    families = parsed.get("family")
+    if not isinstance(families, list):
+        raise N13bContractError("n13b_generated_family_unresolved")
+    matches = [row for row in families if isinstance(row, dict) and row.get("id") == N13B_FAMILY_ID]
+    if len(matches) != 1:
+        raise N13bContractError("n13b_generated_family_unresolved")
+    other_outputs = frozenset(
+        str(output)
+        for row in families
+        if isinstance(row, dict) and row.get("id") != N13B_FAMILY_ID
+        for output in (row.get("outputs") or ())
+    )
+    return matches[0], other_outputs
+
+
+def _replace_n13b_generated_outputs(
+    registry_bytes: bytes,
+    outputs: Sequence[str],
+) -> bytes:
+    """Replace only the N13b family output list while preserving all other bytes."""
+
+    try:
+        text = registry_bytes.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise N13bContractError("generated_artifact_registry_unreadable") from exc
+    lines = text.splitlines(keepends=True)
+    starts = [index for index, line in enumerate(lines) if line.strip() == "[[family]]"]
+    starts.append(len(lines))
+    matching_blocks: list[tuple[int, int]] = []
+    id_pattern = re.compile(r'id\s*=\s*"' + re.escape(N13B_FAMILY_ID) + r'"\s*')
+    for start, end in pairwise(starts):
+        if any(id_pattern.fullmatch(line.strip()) for line in lines[start:end]):
+            matching_blocks.append((start, end))
+    if len(matching_blocks) != 1:
+        raise N13bContractError("n13b_generated_family_unresolved")
+    start, end = matching_blocks[0]
+    output_starts = [
+        index
+        for index in range(start, end)
+        if re.fullmatch(r"outputs\s*=\s*\[\s*", lines[index].strip())
+    ]
+    if len(output_starts) != 1:
+        raise N13bContractError("n13b_generated_outputs_missing")
+    output_start = output_starts[0]
+    output_ends = [index for index in range(output_start + 1, end) if lines[index].strip() == "]"]
+    if not output_ends:
+        raise N13bContractError("n13b_generated_outputs_missing")
+    output_end = output_ends[0]
+    newline = "\r\n" if lines[output_start].endswith("\r\n") else "\n"
+    replacement = [lines[output_start]]
+    replacement.extend(f"  {json.dumps(path)}," + newline for path in outputs)
+    replacement.append(lines[output_end])
+    rewritten = "".join((*lines[:output_start], *replacement, *lines[output_end + 1 :])).encode()
+    try:
+        before = tomllib.loads(text)
+        after = tomllib.loads(rewritten.decode("utf-8"))
+    except tomllib.TOMLDecodeError as exc:
+        raise N13bContractError("generated_artifact_registry_unreadable") from exc
+    before_family, _before_other = _n13b_generated_family(before)
+    after_family, _after_other = _n13b_generated_family(after)
+    before_without_outputs = {
+        key: value for key, value in before_family.items() if key != "outputs"
+    }
+    after_without_outputs = {key: value for key, value in after_family.items() if key != "outputs"}
+    if before_without_outputs != after_without_outputs or after_family.get("outputs") != list(
+        outputs
+    ):
+        raise N13bContractError("n13b_generated_registry_update_scope_drift")
+    before_others = [row for row in before["family"] if row.get("id") != N13B_FAMILY_ID]
+    after_others = [row for row in after["family"] if row.get("id") != N13B_FAMILY_ID]
+    if before_others != after_others:
+        raise N13bContractError("n13b_generated_registry_update_scope_drift")
+    return rewritten
+
+
+def _require_artifact_id(artifact_id: str) -> None:
+    if re.fullmatch(SHA256_PATTERN, artifact_id) is None:
+        raise N13bContractError("n13b_cas_artifact_id_invalid", artifact_id)
+
+
 class DerivationProjection(_StrictModel):
     """Narrow D4–D6 acceptance projection over one verified CAS recipe."""
 
@@ -521,6 +1095,122 @@ def derive_derivation_projection(
         ),
     }
     return DerivationProjection(
+        **values,
+        projection_sha256=content_sha256(_json_value(values)),
+    )
+
+
+class UniversalityFamilyProjection(_StrictModel):
+    """Narrow proof that one data-registered family used the generic owner."""
+
+    family_id: str = Field(min_length=1)
+    method_version: str = Field(min_length=1)
+    family_projection_sha256: str = Field(pattern=SHA256_PATTERN)
+    recipe_id: str = Field(pattern=r"^derivation-recipe:sha256:[0-9a-f]{64}$")
+    recipe_sha256: str = Field(pattern=SHA256_PATTERN)
+    certificate_artifact_id: str = Field(pattern=SHA256_PATTERN)
+    derived_artifact_id: str = Field(pattern=SHA256_PATTERN)
+    selected_role_projection_sha256s: tuple[str, ...] = Field(min_length=1)
+    parameter_rule_operators: tuple[str, ...]
+    assumption_names: tuple[str, ...] = Field(min_length=1)
+    first_materialization_cache_hit: Literal[False]
+    second_materialization_cache_hit: Literal[True]
+    fresh_cas_rebuild_equal: Literal[True]
+    monotone_authority_proven: Literal[True]
+    observation_class: Literal["derived"]
+    family_proof_sha256: str = Field(pattern=SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _family_projection_is_canonical(self) -> Self:
+        if self.selected_role_projection_sha256s != tuple(
+            sorted(set(self.selected_role_projection_sha256s))
+        ):
+            raise ValueError("universality role projections must be unique and sorted")
+        if self.assumption_names != tuple(sorted(set(self.assumption_names))):
+            raise ValueError("universality assumption names must be unique and sorted")
+        return self
+
+
+class DerivationUniversalityProjection(_StrictModel):
+    """Projection-scoped A1–A5 proof over the full transform-family registry."""
+
+    registry_ref: str = Field(min_length=1)
+    registry_sha256: str = Field(pattern=SHA256_PATTERN)
+    source_epoch: Literal[0]
+    full_series_denominator_count: int = Field(ge=1)
+    family_count: int = Field(ge=1)
+    families: tuple[UniversalityFamilyProjection, ...] = Field(min_length=1)
+    unregistered_basis_refusal_code: Literal["basis_mismatch"]
+    unregistered_basis_refusal_reason: Literal["no_certified_transform"]
+    network_call_count: Literal[0]
+    source_receipt_sha256: str = Field(pattern=SHA256_PATTERN)
+    projection_sha256: str = Field(pattern=SHA256_PATTERN)
+
+    @model_validator(mode="after")
+    def _registry_denominator_is_recomputed(self) -> Self:
+        family_identities = tuple((row.family_id, row.method_version) for row in self.families)
+        if family_identities != tuple(sorted(set(family_identities))):
+            raise ValueError("universality family denominator must be unique and sorted")
+        if self.family_count != len(self.families):
+            raise ValueError("universality family count must be recomputed")
+        if self.projection_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("derivation universality projection identity drift")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "projection_sha256"
+        }
+
+
+def derive_derivation_universality_projection(
+    receipt: DerivationUniversalityReceipt,
+) -> DerivationUniversalityProjection:
+    """Bind only decisive genericity fields from the recomputing receipt."""
+
+    frozen = DerivationUniversalityReceipt.model_validate(receipt.model_dump(mode="python"))
+    rows = tuple(
+        UniversalityFamilyProjection(
+            family_id=proof.family_id,
+            method_version=proof.method_version,
+            family_projection_sha256=proof.family_projection_sha256,
+            recipe_id=proof.recipe.recipe_id,
+            recipe_sha256=proof.recipe_sha256,
+            certificate_artifact_id=proof.certificate_artifact_id,
+            derived_artifact_id=proof.derived_artifact_id,
+            selected_role_projection_sha256s=tuple(
+                sorted(selection.selected.projection_sha256 for selection in proof.selections)
+            ),
+            parameter_rule_operators=tuple(
+                parameter.rule.operator for parameter in proof.recipe.parameters
+            ),
+            assumption_names=tuple(
+                sorted(assumption.name for assumption in proof.recipe.assumptions)
+            ),
+            first_materialization_cache_hit=proof.first_materialization_cache_hit,
+            second_materialization_cache_hit=proof.second_materialization_cache_hit,
+            fresh_cas_rebuild_equal=proof.fresh_cas_rebuild_equal,
+            monotone_authority_proven=proof.monotone_authority_proven,
+            observation_class=proof.certificate.observation_class,
+            family_proof_sha256=proof.proof_sha256,
+        )
+        for proof in frozen.family_proofs
+    )
+    values = {
+        "registry_ref": frozen.registry_ref,
+        "registry_sha256": frozen.registry_sha256,
+        "source_epoch": frozen.source_epoch,
+        "full_series_denominator_count": frozen.full_series_denominator_count,
+        "family_count": frozen.family_count,
+        "families": rows,
+        "unregistered_basis_refusal_code": frozen.unregistered_basis_refusal_code,
+        "unregistered_basis_refusal_reason": frozen.unregistered_basis_refusal_reason,
+        "network_call_count": frozen.network_call_count,
+        "source_receipt_sha256": frozen.receipt_sha256,
+    }
+    return DerivationUniversalityProjection(
         **values,
         projection_sha256=content_sha256(_json_value(values)),
     )
@@ -669,8 +1359,8 @@ class LifecycleRegistration(_StrictModel):
 class N13bLifecycleManifest(_StrictModel):
     """Acyclic lifecycle registration for all materialized N13b outputs."""
 
-    schema_version: Literal["policyos.layer3.gy.n13b.lifecycle_manifest.v1"] = (
-        "policyos.layer3.gy.n13b.lifecycle_manifest.v1"
+    schema_version: Literal["policyos.layer3.gy.n13b.lifecycle_manifest.v2"] = (
+        "policyos.layer3.gy.n13b.lifecycle_manifest.v2"
     )
     generated_family_id: Literal["policy-design-case-layer3-gy-n13b-acquisition-executor"]
     generated_family_projection_sha256: str = Field(pattern=SHA256_PATTERN)
@@ -683,6 +1373,7 @@ class N13bLifecycleManifest(_StrictModel):
     canonical_provision_registered: bool
     derived_artifact_registered: bool
     derivation_certificate_registered: bool
+    universality_receipt_registered: bool
     owner_registration_derivation_missing_closed: bool
     manifest_sha256: str = Field(pattern=SHA256_PATTERN)
 
@@ -705,6 +1396,7 @@ class N13bLifecycleManifest(_StrictModel):
             and self.canonical_provision_registered
             and self.derived_artifact_registered
             and self.derivation_certificate_registered
+            and self.universality_receipt_registered
         )
         if self.owner_registration_derivation_missing_closed != expected_closed:
             raise ValueError("owner-registration residual must be recomputed")
@@ -729,14 +1421,34 @@ class N13bLifecycleManifest(_StrictModel):
         return value
 
 
-def derive_lifecycle_manifest(repo_root: Path) -> N13bLifecycleManifest:
+def derive_lifecycle_manifest(
+    repo_root: Path,
+    *,
+    derived_artifact_id: str | None = None,
+    certificate_artifact_id: str | None = None,
+    prospective_outputs: Mapping[str, bytes] | None = None,
+    generated_artifacts_bytes: bytes | None = None,
+    required_cas_artifact_ids: Sequence[str] | None = None,
+) -> N13bLifecycleManifest:
     """Derive lifecycle registrations from the real generated-artifact family."""
 
     root = Path(repo_root)
+    if derived_artifact_id is None or certificate_artifact_id is None:
+        acceptance = _read_model(
+            root / DEFAULT_DERIVED_ACCEPTANCE,
+            AcceptanceCaseReceipt,
+        )
+        derived_artifact_id = acceptance.derived_artifact_id
+        certificate_artifact_id = acceptance.certificate_artifact_id
     generated_path = root / DEFAULT_GENERATED_ARTIFACTS
     try:
-        payload = tomllib.loads(generated_path.read_text(encoding="utf-8"))
-    except (OSError, tomllib.TOMLDecodeError) as exc:
+        registry_bytes = (
+            generated_artifacts_bytes
+            if generated_artifacts_bytes is not None
+            else generated_path.read_bytes()
+        )
+        payload = tomllib.loads(registry_bytes.decode("utf-8"))
+    except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError) as exc:
         raise N13bContractError("generated_artifact_registry_unreadable") from exc
     families = [
         row
@@ -752,10 +1464,26 @@ def derive_lifecycle_manifest(repo_root: Path) -> N13bLifecycleManifest:
     outputs = tuple(sorted(str(value) for value in output_values))
     if len(outputs) != len(set(outputs)):
         raise N13bContractError("n13b_generated_outputs_duplicate")
+    if required_cas_artifact_ids is not None:
+        expected_cas_outputs = {
+            path
+            for artifact_id in required_cas_artifact_ids
+            for path in (
+                _cas_blob_relative(str(artifact_id)),
+                _cas_manifest_relative(str(artifact_id)),
+            )
+        }
+        cas_prefix = (DEFAULT_N13B_CAS / "artifacts/sha256").as_posix() + "/"
+        registered_cas_outputs = {path for path in outputs if path.startswith(cas_prefix)}
+        if registered_cas_outputs != expected_cas_outputs:
+            raise N13bContractError("n13b_generated_cas_output_denominator_drift")
     writer_paths = {
         DEFAULT_N13B_CONTRACT.as_posix(),
         DEFAULT_N13B_LIFECYCLE_MANIFEST.as_posix(),
     }
+    prospective = dict(prospective_outputs or {})
+    if set(prospective) - set(outputs):
+        raise N13bContractError("n13b_prospective_output_not_registered")
     registrations: list[LifecycleRegistration] = []
     phantom = 0
     for relative in outputs:
@@ -768,6 +1496,18 @@ def derive_lifecycle_manifest(repo_root: Path) -> N13bLifecycleManifest:
                     registration_status="writer_managed",
                     byte_sha256=None,
                     byte_size=None,
+                )
+            )
+            continue
+        if relative in prospective:
+            payload = prospective[relative]
+            registrations.append(
+                LifecycleRegistration(
+                    path=relative,
+                    role=_lifecycle_role(relative),
+                    registration_status="content_bound",
+                    byte_sha256=_bytes_sha256(payload),
+                    byte_size=len(payload),
                 )
             )
             continue
@@ -784,12 +1524,8 @@ def derive_lifecycle_manifest(repo_root: Path) -> N13bLifecycleManifest:
             )
         )
     registration_paths = {row.path for row in registrations}
-    derived_path = _cas_blob_relative(
-        "sha256:6f8bf2cfc76b89da8500b827c46237fcba4d22fa34fe4b3a569c42156991cb34"
-    )
-    certificate_path = _cas_blob_relative(
-        "sha256:2762950fb0162d50ee54af9947960a85db3b5ff80686f26a99f791726b9f0c0d"
-    )
+    derived_path = _cas_blob_relative(derived_artifact_id)
+    certificate_path = _cas_blob_relative(certificate_artifact_id)
     snapshots = tuple(
         path
         for path in outputs
@@ -814,7 +1550,7 @@ def derive_lifecycle_manifest(repo_root: Path) -> N13bLifecycleManifest:
         )
     }
     values = {
-        "schema_version": "policyos.layer3.gy.n13b.lifecycle_manifest.v1",
+        "schema_version": "policyos.layer3.gy.n13b.lifecycle_manifest.v2",
         "generated_family_id": N13B_FAMILY_ID,
         "generated_family_projection_sha256": content_sha256(family_projection),
         "registrations": tuple(sorted(registrations, key=lambda row: row.path)),
@@ -830,6 +1566,9 @@ def derive_lifecycle_manifest(repo_root: Path) -> N13bLifecycleManifest:
         "canonical_provision_registered": DEFAULT_N13B_PROVISION.as_posix() in registration_paths,
         "derived_artifact_registered": derived_path in registration_paths,
         "derivation_certificate_registered": certificate_path in registration_paths,
+        "universality_receipt_registered": (
+            DEFAULT_UNIVERSALITY_RECEIPT.as_posix() in registration_paths
+        ),
         "owner_registration_derivation_missing_closed": False,
     }
     values["owner_registration_derivation_missing_closed"] = (
@@ -839,6 +1578,7 @@ def derive_lifecycle_manifest(repo_root: Path) -> N13bLifecycleManifest:
         and values["canonical_provision_registered"]
         and values["derived_artifact_registered"]
         and values["derivation_certificate_registered"]
+        and values["universality_receipt_registered"]
     )
     identity = _json_value(values)
     identity["registrations"] = [
@@ -1121,8 +1861,8 @@ class ResidualClosureProjection(_StrictModel):
 class N13bAcquisitionExecutorContract(_StrictModel):
     """Frozen N13b contract recomputed from canonical data-plane owners."""
 
-    schema_version: Literal["policyos.layer3.gy.n13b.acquisition_executor_contract.v1"] = (
-        "policyos.layer3.gy.n13b.acquisition_executor_contract.v1"
+    schema_version: Literal["policyos.layer3.gy.n13b.acquisition_executor_contract.v4"] = (
+        "policyos.layer3.gy.n13b.acquisition_executor_contract.v4"
     )
     rule_version: Literal["GY-plan-rev18+3.5.12-D1-D6"]
     producer: Literal[
@@ -1138,9 +1878,11 @@ class N13bAcquisitionExecutorContract(_StrictModel):
     evidence_bindings: tuple[EvidenceBinding, ...] = Field(min_length=1)
     authority_owner: AuthorityOwnerProjection
     local_lift: LocalLiftRefusal
+    d2_source_growth: D2SourceGrowthBacklog
     journal: JournalEvidenceProjection
     carrier_liveness: CarrierLivenessProjection
     derivation: DerivationProjection
+    derivation_universality: DerivationUniversalityProjection
     reentry: ReentryProjection
     capstone_routes: CapstoneRoutePreservation
     lifecycle: N13bLifecycleManifest
@@ -1165,6 +1907,14 @@ class N13bAcquisitionExecutorContract(_StrictModel):
         evidence_paths = tuple(row.path for row in self.evidence_bindings)
         if evidence_paths != tuple(sorted(set(evidence_paths))):
             raise ValueError("evidence-binding denominator must be unique and sorted")
+        evidence_identities = {row.content_identity for row in self.evidence_bindings}
+        recurring_receipt_identities = {
+            row.source_receipt_sha256 for row in self.d2_source_growth.carrier_receipts
+        }
+        if not recurring_receipt_identities.issubset(evidence_identities):
+            raise ValueError("D2 connector-gap sources must bind registered recurring receipts")
+        if self.derivation_universality.source_receipt_sha256 not in evidence_identities:
+            raise ValueError("universality projection must bind its frozen receipt")
         if (
             self.baseline_sha256 != self.authority_owner.baseline_sha256
             or self.l5_measurement_registry_sha256
@@ -1227,6 +1977,8 @@ def derive_n13b_acquisition_executor_contract(
     repo_root: Path,
     baseline_sha256: str,
     l5_sha256: str,
+    universality_receipt: DerivationUniversalityReceipt | None = None,
+    generated_artifacts_bytes: bytes | None = None,
 ) -> N13bAcquisitionExecutorContract:
     """Recompute the frozen N13b contract without any network or engine execution."""
 
@@ -1241,10 +1993,17 @@ def derive_n13b_acquisition_executor_contract(
         catalog_read_api.AcquisitionAuthorityRegistry,
     )
     r1 = _read_model(root / DEFAULT_R1_FORENSIC, R1ForensicReceipt)
-    carrier = _read_model(
-        root / DEFAULT_CARRIER_LIVENESS,
-        RecurringCarrierLivenessUpdate,
+    recurring_carrier_receipts = _read_recurring_carrier_receipts(root)
+    carrier = next(
+        (
+            receipt
+            for path, receipt in recurring_carrier_receipts
+            if path == DEFAULT_CARRIER_LIVENESS
+        ),
+        None,
     )
+    if carrier is None:
+        raise N13bContractError("required_carrier_liveness_receipt_missing")
     r2 = _read_model(
         root / DEFAULT_R2_METADATA_EVIDENCE,
         MetadataProbeExecutionEvidence,
@@ -1267,6 +2026,23 @@ def derive_n13b_acquisition_executor_contract(
         AcceptanceFallbackSelection,
     )
     acceptance = _read_model(root / DEFAULT_DERIVED_ACCEPTANCE, AcceptanceCaseReceipt)
+    if universality_receipt is None:
+        universality_receipt = _read_model(
+            root / DEFAULT_UNIVERSALITY_RECEIPT,
+            DerivationUniversalityReceipt,
+        )
+    else:
+        universality_receipt = DerivationUniversalityReceipt.model_validate(
+            universality_receipt.model_dump(mode="python")
+        )
+    expected_registry_ref = f"repo://{DEFAULT_DERIVATION_FAMILY_REGISTRY.as_posix()}"
+    expected_registry_sha256 = _file_sha256(root / DEFAULT_DERIVATION_FAMILY_REGISTRY)
+    if (
+        universality_receipt.registry_ref != expected_registry_ref
+        or universality_receipt.registry_sha256 != expected_registry_sha256
+    ):
+        raise N13bContractError("n13b_derivation_registry_owner_drift")
+    universality_receipt_bytes = canonical_json_bytes(universality_receipt.model_dump(mode="json"))
     reentry = _read_model(root / DEFAULT_REENTRY_TRACE, N13bReentryTrace)
     if (
         baseline_sha256 != provision.baseline_content_sha256
@@ -1276,16 +2052,41 @@ def derive_n13b_acquisition_executor_contract(
         or l5_sha256 != provision.l5_measurement_registry_content_sha256
     ):
         raise N13bContractError("n13b_baseline_or_l5_owner_drift")
-    lifecycle = derive_lifecycle_manifest(root)
     journal = derive_journal_evidence_projection(
         journal_path=root / DEFAULT_N13B_JOURNAL,
         cas_root=root / DEFAULT_N13B_CAS,
     )
+    registry_update = derive_n13b_generated_registry_update(root)
+    expected_registry_bytes = registry_update.registry_bytes
+    if generated_artifacts_bytes is None:
+        try:
+            actual_registry_bytes = (root / DEFAULT_GENERATED_ARTIFACTS).read_bytes()
+        except OSError as exc:
+            raise N13bContractError("generated_artifact_registry_unreadable") from exc
+        if actual_registry_bytes != expected_registry_bytes:
+            raise N13bContractError("n13b_generated_cas_registry_drift")
+        generated_artifacts_bytes = actual_registry_bytes
+    elif generated_artifacts_bytes != expected_registry_bytes:
+        raise N13bContractError("n13b_generated_cas_registry_override_drift")
+    lifecycle = derive_lifecycle_manifest(
+        root,
+        derived_artifact_id=acceptance.derived_artifact_id,
+        certificate_artifact_id=acceptance.certificate_artifact_id,
+        prospective_outputs={
+            DEFAULT_UNIVERSALITY_RECEIPT.as_posix(): universality_receipt_bytes,
+        },
+        generated_artifacts_bytes=generated_artifacts_bytes,
+        required_cas_artifact_ids=registry_update.required_cas_artifact_ids,
+    )
     local_lift = derive_local_lift_refusal(census=census, provision=provision)
+    d2_source_growth = derive_d2_source_growth_backlog(
+        tuple(receipt for _, receipt in recurring_carrier_receipts)
+    )
     derivation = derive_derivation_projection(
         acceptance=acceptance,
         cas_root=root / DEFAULT_N13B_CAS,
     )
+    derivation_universality = derive_derivation_universality_projection(universality_receipt)
     capstone = derive_capstone_route_preservation(census)
     authority_values = {
         "baseline_sha256": provision.baseline_content_sha256,
@@ -1411,7 +2212,7 @@ def derive_n13b_acquisition_executor_contract(
         (DEFAULT_N13B_PROVISION, provision, provision.provision_id),
         (DEFAULT_N13B_REGISTRY, registry, registry.content_sha256),
         (DEFAULT_R1_FORENSIC, r1, r1.receipt_sha256),
-        (DEFAULT_CARRIER_LIVENESS, carrier, carrier.receipt_sha256),
+        *((path, receipt, receipt.receipt_sha256) for path, receipt in recurring_carrier_receipts),
         (DEFAULT_R2_METADATA_EVIDENCE, r2, r2.evidence_sha256),
         (DEFAULT_D6_ROUTE, d6, d6.selection_sha256),
         (DEFAULT_R3_METADATA_EVIDENCE, r3, r3.evidence_sha256),
@@ -1423,12 +2224,25 @@ def derive_n13b_acquisition_executor_contract(
             acceptance_fallback.selection_sha256,
         ),
         (DEFAULT_DERIVED_ACCEPTANCE, acceptance, acceptance.receipt_sha256),
+        (
+            DEFAULT_UNIVERSALITY_RECEIPT,
+            universality_receipt,
+            universality_receipt.receipt_sha256,
+        ),
         (DEFAULT_REENTRY_TRACE, reentry, reentry.trace_sha256),
     )
     evidence_bindings = tuple(
         sorted(
             (
-                _evidence_binding(root, path, model, identity)
+                _evidence_binding(
+                    root,
+                    path,
+                    model,
+                    identity,
+                    payload_override=(
+                        universality_receipt_bytes if path == DEFAULT_UNIVERSALITY_RECEIPT else None
+                    ),
+                )
                 for path, model, identity in models_and_identities
             ),
             key=lambda row: row.path,
@@ -1443,7 +2257,7 @@ def derive_n13b_acquisition_executor_contract(
         for path in _SOURCE_OWNER_PATHS
     )
     values = {
-        "schema_version": "policyos.layer3.gy.n13b.acquisition_executor_contract.v1",
+        "schema_version": "policyos.layer3.gy.n13b.acquisition_executor_contract.v4",
         "rule_version": "GY-plan-rev18+3.5.12-D1-D6",
         "producer": (
             "tools.quality.validation.layer3_gy_n13b_acquisition_contract."
@@ -1458,9 +2272,11 @@ def derive_n13b_acquisition_executor_contract(
         "evidence_bindings": evidence_bindings,
         "authority_owner": authority,
         "local_lift": local_lift,
+        "d2_source_growth": d2_source_growth,
         "journal": journal,
         "carrier_liveness": carrier_projection,
         "derivation": derivation,
+        "derivation_universality": derivation_universality,
         "reentry": reentry_projection,
         "capstone_routes": capstone,
         "lifecycle": lifecycle,
@@ -1501,11 +2317,111 @@ def _read_model(path: Path, model: type[BaseModel]) -> Any:
         raise N13bContractError("n13b_source_artifact_invalid", path.as_posix()) from exc
 
 
+def _d2_planner_route_projection(
+    report: AcquisitionPlannerReport,
+) -> D2PlannerRouteProjection:
+    if len(report.acquisition_records) != 1:
+        raise N13bContractError("connector_gap_planner_record_denominator_drift")
+    record = report.acquisition_records[0]
+    strategy_records = (*record.strategy_records, *record.ineligible_strategy_records)
+    if record.voi_ranking_ref is not None or any(
+        strategy.voi_decision_ref is not None
+        or strategy.voi_rank is not None
+        or strategy.voi_expected_value is not None
+        or strategy.voi_expected_cost is not None
+        for strategy in strategy_records
+    ):
+        raise N13bContractError("connector_gap_owner_voi_evidence_unexpected")
+    if record.producer_output_ref is None:
+        raise N13bContractError("connector_gap_planner_producer_output_ref_missing")
+    source_projection = report.model_dump(mode="json")
+    source_projection.pop("generated_at", None)
+    values = {
+        "planner_schema_version": report.schema_version,
+        "run_id": report.run_id,
+        "gap_id": record.gap_id,
+        "requirement_gap_ref": record.requirement_gap_ref,
+        "requirement_family": record.requirement_family,
+        "compiled_requirement_ref": record.compiled_requirement_ref,
+        "requirement_schema_version": record.requirement_schema_version,
+        "gap_type": record.gap_type.value,
+        "missing_requirement_fields": record.missing_requirement_fields,
+        "report_status": report.status,
+        "record_status": record.status,
+        "recommended_strategy": record.recommended_strategy.value,
+        "terminal_disposition": record.terminal_disposition.value,
+        "eligible_strategies": tuple(
+            sorted(strategy.value for strategy in record.eligible_strategies)
+        ),
+        "ineligible_strategies": tuple(sorted(record.ineligible_strategies)),
+        "producer_expected": record.producer_expected,
+        "producer_output_ref": record.producer_output_ref,
+        "voi_ranking_ref": None,
+        "voi_numeric_support": False,
+        "source_report_projection_sha256": content_sha256(source_projection),
+    }
+    return D2PlannerRouteProjection(
+        **values,
+        projection_sha256=content_sha256(values),
+    )
+
+
+def _read_recurring_carrier_receipts(
+    root: Path,
+) -> tuple[tuple[Path, RecurringCarrierLivenessUpdate], ...]:
+    """Discover the full typed recurring-receipt denominator without family lists."""
+
+    artifact_root = Path(root) / "architecture/policy_design_case"
+    receipts: list[tuple[Path, RecurringCarrierLivenessUpdate]] = []
+    for path in sorted(artifact_root.glob("*.json")):
+        try:
+            payload = json.loads(path.read_bytes())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise N13bContractError("n13b_source_artifact_invalid", path.as_posix()) from exc
+        if not isinstance(payload, dict) or payload.get("schema_version") != (
+            "policyos.layer3.gy.n13a.recurring_carrier_liveness.v1"
+        ):
+            continue
+        try:
+            receipt = RecurringCarrierLivenessUpdate.model_validate_json(
+                canonical_json_bytes(payload)
+            )
+        except ValueError as exc:
+            raise N13bContractError(
+                "n13b_recurring_carrier_receipt_invalid",
+                path.as_posix(),
+            ) from exc
+        receipts.append((path.relative_to(root), receipt))
+    receipt_paths = tuple(path for path, _ in receipts)
+    if receipt_paths != tuple(sorted(set(receipt_paths))):
+        raise N13bContractError("n13b_recurring_carrier_receipt_denominator_invalid")
+    return tuple(receipts)
+
+
+def _source_growth_gap_identity(
+    *,
+    connector_id: str,
+    request_dataset_id: str,
+    missing_request_lever: str,
+    source_receipt_sha256: str,
+) -> str:
+    return content_sha256(
+        {
+            "connector_id": connector_id,
+            "request_dataset_id": request_dataset_id,
+            "missing_request_lever": missing_request_lever,
+            "source_receipt_sha256": source_receipt_sha256,
+        }
+    ).removeprefix("sha256:")[:20]
+
+
 def _evidence_binding(
     root: Path,
     relative: Path,
     model: BaseModel,
     identity: str,
+    *,
+    payload_override: bytes | None = None,
 ) -> EvidenceBinding:
     path = root / relative
     schema_version = getattr(model, "schema_version", None)
@@ -1515,8 +2431,10 @@ def _evidence_binding(
         path=relative.as_posix(),
         schema_version=schema_version,
         content_identity=identity,
-        file_sha256=_file_sha256(path),
-        byte_size=path.stat().st_size,
+        file_sha256=(
+            _bytes_sha256(payload_override) if payload_override is not None else _file_sha256(path)
+        ),
+        byte_size=(len(payload_override) if payload_override is not None else path.stat().st_size),
     )
 
 
@@ -1566,10 +2484,24 @@ def _cas_blob_path(cas_root: Path, artifact_id: str) -> Path:
     return Path(cas_root) / "artifacts/sha256" / digest[:2] / digest[2:4] / f"{digest}.blob"
 
 
+def _cas_manifest_path(cas_root: Path, artifact_id: str) -> Path:
+    digest = artifact_id.removeprefix("sha256:")
+    return (
+        Path(cas_root) / "artifacts/sha256" / digest[:2] / digest[2:4] / f"{digest}.manifest.json"
+    )
+
+
 def _cas_blob_relative(artifact_id: str) -> str:
     digest = artifact_id.removeprefix("sha256:")
     return (
         DEFAULT_N13B_CAS / "artifacts/sha256" / digest[:2] / digest[2:4] / f"{digest}.blob"
+    ).as_posix()
+
+
+def _cas_manifest_relative(artifact_id: str) -> str:
+    digest = artifact_id.removeprefix("sha256:")
+    return (
+        DEFAULT_N13B_CAS / "artifacts/sha256" / digest[:2] / digest[2:4] / f"{digest}.manifest.json"
     ).as_posix()
 
 
@@ -1599,16 +2531,26 @@ __all__ = [
     "DEFAULT_N13B_CONTRACT",
     "DEFAULT_N13B_LIFECYCLE_MANIFEST",
     "CapstoneRoutePreservation",
+    "D2CarrierReceiptProjection",
+    "D2ConnectorGapRow",
+    "D2PlannerRouteProjection",
+    "D2SourceGrowthBacklog",
     "DerivationProjection",
+    "DerivationUniversalityProjection",
     "JournalEvidenceProjection",
     "LocalLiftRefusal",
     "N13bAcquisitionExecutorContract",
     "N13bContractError",
+    "N13bGeneratedRegistryUpdate",
     "N13bLifecycleManifest",
     "derive_capstone_route_preservation",
+    "derive_cas_artifact_closure",
+    "derive_d2_source_growth_backlog",
     "derive_derivation_projection",
+    "derive_derivation_universality_projection",
     "derive_journal_evidence_projection",
     "derive_lifecycle_manifest",
     "derive_local_lift_refusal",
     "derive_n13b_acquisition_executor_contract",
+    "derive_n13b_generated_registry_update",
 ]

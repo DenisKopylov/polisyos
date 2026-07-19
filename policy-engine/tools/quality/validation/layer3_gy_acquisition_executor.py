@@ -12,6 +12,7 @@ import hashlib
 import json
 import re
 import socket
+import tomllib
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -28,6 +29,11 @@ from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
     VariablePairAlignmentScore,  # noqa: TC001 - Pydantic resolves this at runtime.
 )
+from polisyos.data_forge.read_api.catalog import (
+    CatalogSelectionCandidateEvidence,
+    CatalogSelectionPolicyConfig,
+    CatalogSelectionRoleConfig,
+)
 from polisyos.fabric.connectors.sources._contracts import WDI_GENERIC_SCHEMA
 from polisyos.fabric.data_plane import (
     JournalEventRef,
@@ -42,6 +48,16 @@ from polisyos.fabric.data_plane import (
     resolve_live_attempt_terminals,
     resolve_live_transport_trace,
     resolve_raw_response_body,
+)
+from polisyos.runtime.quality.derived_observations import (
+    BasisSignature,
+    DerivationRefusalCode,
+    DerivationRefusalError,
+    DerivationRefusalReason,
+    TransformFamily,
+    TransformFamilyRegistry,
+    TransformInputSpec,
+    load_transform_family_registry,
 )
 
 TARGET_SELECTION_SCHEMA_VERSION = "policyos.layer3.gy.n13b.live_target_selection.v1"
@@ -103,9 +119,18 @@ class IndicatorMetadataDisposition(StrEnum):
 class AcquisitionSelectionError(RuntimeError):
     """Typed refusal raised when source evidence cannot select one live carrier."""
 
-    def __init__(self, code: str, detail: str | None = None) -> None:
+    def __init__(
+        self,
+        code: str,
+        detail: str | None = None,
+        *,
+        reason: str | None = None,
+    ) -> None:
         self.code = code
-        super().__init__(f"{code}: {detail or code}")
+        self.detail = detail or code
+        self.reason = reason
+        suffix = f"/{reason}" if reason is not None else ""
+        super().__init__(f"{code}{suffix}: {self.detail}")
 
 
 class _StrictModel(BaseModel):
@@ -352,7 +377,7 @@ class MetadataProbeExecutionEvidence(_StrictModel):
 class D6CatalogCarrier(_StrictModel):
     """One catalog-owned carrier scored for a single certified D6 transform role."""
 
-    role: Literal["primary_ratio", "auxiliary_scale"]
+    role: str = Field(min_length=1)
     dataset_id: str = Field(min_length=1)
     distribution_id: str = Field(min_length=1)
     connector_id: str = Field(min_length=1)
@@ -368,7 +393,8 @@ class D6CatalogCarrier(_StrictModel):
     execution_tier: Literal["fetchable", "transport_ready"]
     binding_confidence: float = Field(ge=0.0, le=1.0)
     distribution_quality_score: float = Field(ge=0.0, le=1.0)
-    unit: Literal["percent_gdp", "usd"]
+    unit: str = Field(min_length=1)
+    basis: BasisSignature | None = None
     connector_params: dict[str, Any]
     default_filters: dict[str, list[str]]
     source_selector_declared: bool
@@ -428,7 +454,7 @@ class D6CatalogCarrier(_StrictModel):
 
         return {
             key: value
-            for key, value in self.model_dump(mode="json").items()
+            for key, value in self.model_dump(mode="json", exclude_none=True).items()
             if key != "projection_sha256"
         }
 
@@ -436,9 +462,10 @@ class D6CatalogCarrier(_StrictModel):
 class D6RouteSelection(_StrictModel):
     """Evidence-derived one-transform route from a paid basis mismatch."""
 
-    schema_version: Literal["policyos.layer3.gy.n13b.d6_route_selection.v1"] = (
-        "policyos.layer3.gy.n13b.d6_route_selection.v1"
-    )
+    schema_version: Literal[
+        "policyos.layer3.gy.n13b.d6_route_selection.v1",
+        "policyos.layer3.gy.n13b.d6_route_selection.v2",
+    ] = "policyos.layer3.gy.n13b.d6_route_selection.v2"
     baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     census_backlog_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     substrate_slot_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -447,9 +474,11 @@ class D6RouteSelection(_StrictModel):
     target_variable: str = Field(min_length=1)
     backlog_rank: int = Field(ge=1)
     demand_sources: tuple[str, ...] = Field(min_length=1)
-    required_output_unit: Literal["usd"]
+    required_output_unit: str = Field(min_length=1)
     failed_request_dataset_id: str = Field(min_length=1)
     failed_metric_id: str = Field(min_length=1)
+    failed_catalog_title: str | None = Field(default=None, min_length=1)
+    failed_catalog_unit: str | None = Field(default=None, min_length=1)
     failed_carrier_disposition: Literal[
         "carrier_current_no_data_for_scope",
         "carrier_current_source_profile_mismatch",
@@ -457,9 +486,23 @@ class D6RouteSelection(_StrictModel):
     ]
     failed_missing_request_levers: tuple[str, ...]
     route_disposition: Literal["derivation_requirement"]
-    transform_method_id: Literal["percent_of_gdp_times_current_usd_exact_year"]
-    transform_method_version: Literal["1.0.0"]
-    transform_formula: Literal["output_usd = primary_percent_gdp / 100 * auxiliary_gdp_usd"]
+    transform_method_id: str = Field(min_length=1)
+    transform_method_version: str = Field(min_length=1)
+    transform_formula: str = Field(min_length=1)
+    transform_family: TransformFamily | None = None
+    transform_family_projection_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    transform_registry_projection_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    selection_policy: CatalogSelectionPolicyConfig | None = None
+    selection_policy_projection_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     primary_catalog_denominator: int = Field(ge=1)
     primary_candidate_denominator: int = Field(ge=1)
     primary_rejected_counts: dict[str, int]
@@ -486,19 +529,91 @@ class D6RouteSelection(_StrictModel):
             != self.auxiliary_catalog_denominator
         ):
             raise ValueError("D6 candidate outcomes must cover both complete denominators")
+        generic_fields = (
+            self.failed_catalog_title,
+            self.failed_catalog_unit,
+            self.transform_family,
+            self.transform_family_projection_sha256,
+            self.transform_registry_projection_sha256,
+            self.selection_policy,
+            self.selection_policy_projection_sha256,
+        )
+        if self.schema_version.endswith(".v1"):
+            if any(value is not None for value in generic_fields):
+                raise ValueError("legacy D6 routes cannot carry partial generic owner data")
+            if self.selection_sha256 != content_sha256(self.identity_payload()):
+                raise ValueError("D6 route selection identity must be recomputed")
+            return self
+        if any(value is None for value in generic_fields):
+            raise ValueError("generic D6 routes require complete family and policy owner data")
+        assert self.failed_catalog_title is not None
+        assert self.failed_catalog_unit is not None
+        assert self.transform_family is not None
+        assert self.transform_family_projection_sha256 is not None
+        assert self.transform_registry_projection_sha256 is not None
+        assert self.selection_policy is not None
+        assert self.selection_policy_projection_sha256 is not None
+        family = self.transform_family
+        policy = self.selection_policy
+        if family.family_id != policy.family_id:
+            raise ValueError("D6 route family must derive from selection policy")
+        if family.method_version != policy.method_version:
+            raise ValueError("D6 route method version must derive from selection policy")
+        specs = {item.role: item for item in family.input_specs}
+        if set(specs) != {item.role for item in policy.roles}:
+            raise ValueError("D6 route policy must cover the selected transform family")
+        try:
+            primary_policy, auxiliary_policy = _d6_failed_and_auxiliary_roles(
+                policy,
+                self.failed_metric_id,
+            )
+        except (ValueError, data_forge_read_api.catalog.CatalogSelectionError) as exc:
+            raise ValueError("D6 paid carrier must select one transform input role") from exc
+        primary_values = _resolve_d6_catalog_role_policy(
+            primary_policy,
+            is_failed_carrier=True,
+            failed_metric_id=self.failed_metric_id,
+            failed_request_dataset_id=self.failed_request_dataset_id,
+            failed_catalog_title=self.failed_catalog_title,
+            failed_catalog_unit=self.failed_catalog_unit,
+        )
+        auxiliary_values = _resolve_d6_catalog_role_policy(
+            auxiliary_policy,
+            is_failed_carrier=False,
+            failed_metric_id=self.failed_metric_id,
+            failed_request_dataset_id=self.failed_request_dataset_id,
+            failed_catalog_title=self.failed_catalog_title,
+            failed_catalog_unit=self.failed_catalog_unit,
+        )
         if (
-            self.primary.role != "primary_ratio"
-            or self.primary.metric_id != self.failed_metric_id
-            or self.primary.unit != "percent_gdp"
-            or self.auxiliary.role != "auxiliary_scale"
-            or self.auxiliary.metric_id != "gdp"
-            or self.auxiliary.unit != "usd"
-            or self.required_output_unit != "usd"
+            self.required_output_unit != family.output_basis.unit
+            or self.required_output_unit != self.failed_catalog_unit
+            or self.transform_method_id != family.method_id
+            or self.transform_method_version != family.method_version
+            or self.transform_formula != _d6_transform_formula(family)
+            or self.transform_family_projection_sha256
+            != content_sha256(family.model_dump(mode="json"))
+            or self.selection_policy_projection_sha256
+            != content_sha256(policy.model_dump(mode="json"))
+            or not _d6_carrier_matches_role(
+                self.primary,
+                role=primary_policy.role,
+                role_spec=specs[primary_policy.role],
+                role_policy=primary_policy,
+                resolved_policy=primary_values,
+            )
+            or not _d6_carrier_matches_role(
+                self.auxiliary,
+                role=auxiliary_policy.role,
+                role_spec=specs[auxiliary_policy.role],
+                role_policy=auxiliary_policy,
+                resolved_policy=auxiliary_values,
+            )
         ):
-            raise ValueError("D6 ratio-times-scale basis edge is not certified")
-        expected_characterization = not self.primary.source_selector_declared and any(
-            "archive" in theme.casefold() or "africa development indicators" in theme.casefold()
-            for theme in self.primary.themes
+            raise ValueError("D6 transform edge must recompute from family and policy data")
+        expected_characterization = _d6_requires_source_characterization(
+            self.primary,
+            primary_policy,
         )
         if self.primary_requires_source_characterization != expected_characterization:
             raise ValueError("D6 primary characterization gate must derive from source owners")
@@ -511,7 +626,7 @@ class D6RouteSelection(_StrictModel):
 
         return {
             key: value
-            for key, value in self.model_dump(mode="json").items()
+            for key, value in self.model_dump(mode="json", exclude_none=True).items()
             if key != "selection_sha256"
         }
 
@@ -869,8 +984,10 @@ def derive_d6_route_selection(
     substrate_path: Path,
     r1_receipt: R1ForensicReceipt,
     carrier_liveness_path: Path,
+    transform_registry_source: TransformFamilyRegistry | str | Path | Mapping[str, object],
+    selection_policy_source: CatalogSelectionPolicyConfig | str | Path | Mapping[str, object],
 ) -> D6RouteSelection:
-    """Derive the one-transform fiscal route from paid and catalog owner evidence."""
+    """Derive one registered transform route from paid and catalog owner evidence."""
 
     from tools.quality.validation import layer3_gy_n13a_acquisition_census as census_owner
 
@@ -921,25 +1038,91 @@ def derive_d6_route_selection(
             """,
             [r1.request_dataset_id],
         ).fetchall()
-    failed_owner_rows = tuple(
-        row
-        for row in failed_rows
-        if data_forge_read_api.catalog.derive_catalog_unit_from_text(
+    failed_owner_keys = set()
+    for row in failed_rows:
+        owner_unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(
             f"{row[3] or ''} {row[4] or ''}"
         )
-        == "usd"
-    )
-    failed_owner_keys = {
-        (str(row[0]), str(row[1]), str(row[2]), str(row[3]), str(row[4] or ""))
-        for row in failed_owner_rows
-    }
+        if owner_unit is None:
+            continue
+        failed_owner_keys.add(
+            (
+                str(row[0]),
+                str(row[1]),
+                str(row[2]),
+                str(row[3]),
+                str(row[4] or ""),
+                owner_unit,
+            )
+        )
     if len(failed_owner_keys) != 1:
         raise AcquisitionSelectionError(
             "d6_failed_catalog_owner_ambiguous",
             str(len(failed_owner_keys)),
         )
-    failed_metric, connector_id, profile_id, failed_title, _failed_description = next(
-        iter(failed_owner_keys)
+    (
+        failed_metric,
+        connector_id,
+        profile_id,
+        failed_title,
+        _failed_description,
+        failed_unit,
+    ) = next(iter(failed_owner_keys))
+    registry = _load_d6_transform_registry(transform_registry_source)
+    policy = _load_d6_selection_policy(
+        selection_policy_source,
+        failed_metric_id=failed_metric,
+    )
+    family = _resolve_d6_transform_family(
+        registry,
+        family_id=policy.family_id,
+        method_version=policy.method_version,
+    )
+    if family.method_version != policy.method_version:
+        _raise_d6_no_certified_transform(
+            f"{family.family_id}: policy/runtime method-version mismatch"
+        )
+    specs = {item.role: item for item in family.input_specs}
+    if set(specs) != {item.role for item in policy.roles}:
+        _raise_d6_no_certified_transform(
+            f"{family.family_id}: policy roles differ from transform inputs"
+        )
+    if family.output_basis.unit != failed_unit:
+        _raise_d6_no_certified_transform(
+            f"{family.family_id}: output={family.output_basis.unit}, failed={failed_unit}"
+        )
+    try:
+        primary_policy, auxiliary_policy = _d6_failed_and_auxiliary_roles(
+            policy,
+            failed_metric,
+        )
+    except (ValueError, data_forge_read_api.catalog.CatalogSelectionError) as exc:
+        raise AcquisitionSelectionError(
+            DerivationRefusalCode.BASIS_MISMATCH.value,
+            str(exc),
+            reason=DerivationRefusalReason.NO_CERTIFIED_TRANSFORM.value,
+        ) from exc
+    primary_spec = specs[primary_policy.role]
+    auxiliary_spec = specs[auxiliary_policy.role]
+    if primary_spec.basis == family.output_basis:
+        _raise_d6_no_certified_transform(
+            f"{family.family_id}: primary/output basis mismatch absent"
+        )
+    primary_role_values = _resolve_d6_catalog_role_policy(
+        primary_policy,
+        is_failed_carrier=True,
+        failed_metric_id=failed_metric,
+        failed_request_dataset_id=r1.request_dataset_id,
+        failed_catalog_title=failed_title,
+        failed_catalog_unit=failed_unit,
+    )
+    auxiliary_role_values = _resolve_d6_catalog_role_policy(
+        auxiliary_policy,
+        is_failed_carrier=False,
+        failed_metric_id=failed_metric,
+        failed_request_dataset_id=r1.request_dataset_id,
+        failed_catalog_title=failed_title,
+        failed_catalog_unit=failed_unit,
     )
 
     census = _read_mapping(Path(census_path), code="n13a_census")
@@ -949,13 +1132,13 @@ def derive_d6_route_selection(
     target_candidates: list[tuple[tuple[object, ...], str, dict[str, object]]] = []
     for variable_id, row in backlog.items():
         units = slot_units.get(variable_id, ())
-        if row.get("gap_kind") != "binding_gap" or units != ("usd",):
+        if row.get("gap_kind") != "binding_gap" or units != (failed_unit,):
             continue
         score = data_forge_read_api.catalog.score_variable_pair(
             left_name=variable_id,
             right_name=failed_metric,
-            left_unit="usd",
-            right_unit="usd",
+            left_unit=failed_unit,
+            right_unit=failed_unit,
         )
         target_candidates.append(
             (
@@ -965,39 +1148,57 @@ def derive_d6_route_selection(
             )
         )
     if not target_candidates:
-        raise AcquisitionSelectionError("d6_demanded_usd_gap_denominator_empty")
+        raise AcquisitionSelectionError("d6_demanded_output_gap_denominator_empty")
     target_candidates.sort(key=lambda item: item[0])
     _target_key, target_variable, backlog_row = target_candidates[0]
 
     primary_rows = _read_d6_catalog_denominator(
         catalog_path,
         connector_id=connector_id,
-        metric_id=failed_metric,
+        metric_id=primary_role_values["metric_id"],
     )
     primary, primary_rejected, primary_count = _select_d6_carrier(
         rows=primary_rows,
-        role="primary_ratio",
-        required_unit="percent_gdp",
-        identifier_anchor=r1.request_dataset_id,
-        title_anchor=failed_title,
-        anchor_unit="usd",
+        role=primary_policy.role,
+        role_policy=primary_policy,
+        required_basis=primary_spec.basis,
+        identifier_anchor=primary_role_values["identifier_anchor"],
+        title_anchor=primary_role_values["title_anchor"],
+        anchor_unit=primary_role_values["anchor_unit"],
     )
-    auxiliary_metric = _d6_auxiliary_metric_for_basis(primary.unit)
     auxiliary_rows = _read_d6_catalog_denominator(
         catalog_path,
         connector_id=connector_id,
-        metric_id=auxiliary_metric,
+        metric_id=auxiliary_role_values["metric_id"],
     )
     auxiliary, auxiliary_rejected, auxiliary_count = _select_d6_carrier(
         rows=auxiliary_rows,
-        role="auxiliary_scale",
-        required_unit="usd",
-        identifier_anchor=auxiliary_metric,
-        title_anchor="gross domestic product current us dollars",
-        anchor_unit="usd",
+        role=auxiliary_policy.role,
+        role_policy=auxiliary_policy,
+        required_basis=auxiliary_spec.basis,
+        identifier_anchor=auxiliary_role_values["identifier_anchor"],
+        title_anchor=auxiliary_role_values["title_anchor"],
+        anchor_unit=auxiliary_role_values["anchor_unit"],
     )
     if primary.profile_id != profile_id or auxiliary.profile_id != profile_id:
         raise AcquisitionSelectionError("d6_profile_owner_mismatch")
+    try:
+        resolved_family = registry.resolve(
+            input_bases={
+                primary.role: primary.basis or primary_spec.basis,
+                auxiliary.role: auxiliary.basis or auxiliary_spec.basis,
+            },
+            output_basis=family.output_basis,
+            family_id=family.family_id,
+        )
+    except DerivationRefusalError as exc:
+        raise AcquisitionSelectionError(
+            exc.code.value,
+            exc.detail,
+            reason=exc.reason.value if exc.reason is not None else None,
+        ) from exc
+    if resolved_family != family:
+        raise AcquisitionSelectionError("d6_transform_registry_resolution_drift")
 
     backlog_projection = {
         "variable_id": target_variable,
@@ -1010,7 +1211,7 @@ def derive_d6_route_selection(
         "units": slot_units[target_variable],
     }
     values: dict[str, object] = {
-        "schema_version": "policyos.layer3.gy.n13b.d6_route_selection.v1",
+        "schema_version": "policyos.layer3.gy.n13b.d6_route_selection.v2",
         "baseline_sha256": baseline_sha,
         "census_backlog_projection_sha256": content_sha256(backlog_projection),
         "substrate_slot_projection_sha256": content_sha256(substrate_projection),
@@ -1019,15 +1220,22 @@ def derive_d6_route_selection(
         "target_variable": target_variable,
         "backlog_rank": int(backlog_row["rank"]),
         "demand_sources": tuple(sorted(str(item) for item in backlog_row["demand_sources"])),
-        "required_output_unit": "usd",
+        "required_output_unit": family.output_basis.unit,
         "failed_request_dataset_id": r1.request_dataset_id,
         "failed_metric_id": failed_metric,
+        "failed_catalog_title": failed_title,
+        "failed_catalog_unit": failed_unit,
         "failed_carrier_disposition": carrier_update.carrier_disposition.value,
         "failed_missing_request_levers": carrier_update.missing_request_levers,
         "route_disposition": "derivation_requirement",
-        "transform_method_id": "percent_of_gdp_times_current_usd_exact_year",
-        "transform_method_version": "1.0.0",
-        "transform_formula": ("output_usd = primary_percent_gdp / 100 * auxiliary_gdp_usd"),
+        "transform_method_id": family.method_id,
+        "transform_method_version": family.method_version,
+        "transform_formula": _d6_transform_formula(family),
+        "transform_family": family,
+        "transform_family_projection_sha256": content_sha256(family.model_dump(mode="json")),
+        "transform_registry_projection_sha256": content_sha256(registry.model_dump(mode="json")),
+        "selection_policy": policy,
+        "selection_policy_projection_sha256": content_sha256(policy.model_dump(mode="json")),
         "primary_catalog_denominator": len(primary_rows),
         "primary_candidate_denominator": primary_count,
         "primary_rejected_counts": dict(sorted(primary_rejected.items())),
@@ -1036,17 +1244,18 @@ def derive_d6_route_selection(
         "auxiliary_rejected_counts": dict(sorted(auxiliary_rejected.items())),
         "primary": primary,
         "auxiliary": auxiliary,
-        "primary_requires_source_characterization": (
-            not primary.source_selector_declared
-            and any(
-                "archive" in theme.casefold() or "africa development indicators" in theme.casefold()
-                for theme in primary.themes
-            )
+        "primary_requires_source_characterization": _d6_requires_source_characterization(
+            primary,
+            primary_policy,
         ),
     }
+    draft = D6RouteSelection.model_construct(
+        **values,
+        selection_sha256="sha256:" + "0" * 64,
+    )
     return D6RouteSelection(
         **values,
-        selection_sha256=content_sha256(values),
+        selection_sha256=content_sha256(draft.identity_payload()),
     )
 
 
@@ -1078,7 +1287,8 @@ def derive_d6_metadata_probe_owner(
             selected.primary.profile_id,
         )
     target_slug = re.sub(r"[^a-z0-9]+", "-", selected.target_variable.casefold()).strip("-")
-    attempt_id = f"gy-n13b-worldbank-wdi-{target_slug}-percent-gdp-metadata-001"
+    basis_slug = re.sub(r"[^a-z0-9]+", "-", selected.primary.unit.casefold()).strip("-")
+    attempt_id = f"gy-n13b-worldbank-wdi-{target_slug}-{basis_slug}-metadata-001"
     harness = derive_worldbank_metadata_harness_receipt(
         attempt_id=attempt_id,
         indicator_id=selected.primary.request_dataset_id,
@@ -2449,19 +2659,200 @@ def _read_d6_catalog_denominator(
     return tuple(dict(zip(fields, row, strict=True)) for row in rows)
 
 
-def _d6_auxiliary_metric_for_basis(unit: str) -> str:
-    """Return the declared auxiliary role for the only N13b single transform."""
+def _load_d6_transform_registry(
+    source: TransformFamilyRegistry | str | Path | Mapping[str, object],
+) -> TransformFamilyRegistry:
+    if isinstance(source, TransformFamilyRegistry):
+        return TransformFamilyRegistry.model_validate(source.model_dump(mode="python"))
+    payload: Mapping[str, object]
+    if isinstance(source, Mapping):
+        payload = source
+    else:
+        path = Path(source)
+        try:
+            if path.suffix.casefold() == ".json":
+                raw = json.loads(path.read_bytes())
+            else:
+                raw = tomllib.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, tomllib.TOMLDecodeError) as exc:
+            raise AcquisitionSelectionError(
+                "d6_transform_registry_invalid",
+                path.as_posix(),
+            ) from exc
+        if not isinstance(raw, Mapping):
+            raise AcquisitionSelectionError("d6_transform_registry_invalid", path.as_posix())
+        payload = raw
+    family_rows = payload.get("families")
+    try:
+        return load_transform_family_registry({"families": family_rows})
+    except (TypeError, ValueError) as exc:
+        raise AcquisitionSelectionError("d6_transform_registry_invalid") from exc
 
-    if unit != "percent_gdp":
-        raise AcquisitionSelectionError("d6_transform_basis_unsupported", unit)
-    return "gdp"
+
+def _load_d6_selection_policy(
+    source: CatalogSelectionPolicyConfig | str | Path | Mapping[str, object],
+    *,
+    failed_metric_id: str,
+) -> CatalogSelectionPolicyConfig:
+    if isinstance(source, CatalogSelectionPolicyConfig):
+        policy = CatalogSelectionPolicyConfig.model_validate(source.model_dump(mode="python"))
+        return _require_d6_policy_purpose(policy, failed_metric_id=failed_metric_id)
+    payload: object
+    if isinstance(source, Mapping):
+        payload = source
+    else:
+        path = Path(source)
+        try:
+            if path.suffix.casefold() == ".json":
+                payload = json.loads(path.read_bytes())
+            else:
+                payload = tomllib.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError, tomllib.TOMLDecodeError) as exc:
+            raise AcquisitionSelectionError(
+                "d6_selection_policy_invalid",
+                path.as_posix(),
+            ) from exc
+    try:
+        if isinstance(payload, Mapping) and "catalog_selection_policies" in payload:
+            owner = data_forge_read_api.catalog.load_derivation_catalog_selection(payload)
+            return data_forge_read_api.catalog.resolve_catalog_selection_policy(
+                owner,
+                purpose="d6_route",
+                owner_metric_id=failed_metric_id,
+            )
+        policy = CatalogSelectionPolicyConfig.model_validate_json(canonical_json_bytes(payload))
+        return _require_d6_policy_purpose(policy, failed_metric_id=failed_metric_id)
+    except (
+        TypeError,
+        ValueError,
+        data_forge_read_api.catalog.CatalogSelectionError,
+    ) as exc:
+        raise AcquisitionSelectionError("d6_selection_policy_invalid") from exc
+
+
+def _require_d6_policy_purpose(
+    policy: CatalogSelectionPolicyConfig,
+    *,
+    failed_metric_id: str,
+) -> CatalogSelectionPolicyConfig:
+    if "d6_route" not in policy.purposes:
+        raise data_forge_read_api.catalog.CatalogSelectionError(
+            "catalog_selection_policy_unresolved",
+            f"purpose=d6_route/metric={failed_metric_id}/count=0",
+        )
+    policy.role_policy_for_owner_metric(failed_metric_id)
+    return policy
+
+
+def _d6_failed_and_auxiliary_roles(
+    policy: CatalogSelectionPolicyConfig,
+    failed_metric_id: str,
+) -> tuple[CatalogSelectionRoleConfig, CatalogSelectionRoleConfig]:
+    primary = policy.role_policy_for_owner_metric(failed_metric_id)
+    auxiliary = tuple(item for item in policy.roles if item.role != primary.role)
+    if len(auxiliary) != 1:
+        raise ValueError("D6 transform requires exactly one auxiliary role")
+    return primary, auxiliary[0]
+
+
+def _resolve_d6_transform_family(
+    registry: TransformFamilyRegistry,
+    *,
+    family_id: str,
+    method_version: str,
+) -> TransformFamily:
+    families = tuple(
+        family
+        for family in registry.families
+        if (family.family_id, family.method_version) == (family_id, method_version)
+    )
+    if len(families) != 1:
+        _raise_d6_no_certified_transform(family_id)
+    return families[0]
+
+
+def _raise_d6_no_certified_transform(detail: str) -> None:
+    raise AcquisitionSelectionError(
+        DerivationRefusalCode.BASIS_MISMATCH.value,
+        detail,
+        reason=DerivationRefusalReason.NO_CERTIFIED_TRANSFORM.value,
+    )
+
+
+def _resolve_d6_catalog_role_policy(
+    policy: CatalogSelectionRoleConfig,
+    *,
+    is_failed_carrier: bool,
+    failed_metric_id: str,
+    failed_request_dataset_id: str,
+    failed_catalog_title: str,
+    failed_catalog_unit: str,
+) -> dict[str, str]:
+    if is_failed_carrier:
+        if policy.owner_metric_id != failed_metric_id:
+            raise AcquisitionSelectionError("d6_failed_role_owner_metric_drift", policy.role)
+        metric_id = failed_metric_id
+        identifier_anchor = failed_request_dataset_id
+        title_anchor = failed_catalog_title
+        anchor_unit = failed_catalog_unit
+    else:
+        metric_id = policy.owner_metric_id
+        identifier_anchor = policy.owner_metric_id
+        title_anchor = policy.semantic_anchor
+        anchor_unit = policy.catalog_unit
+    return {
+        "metric_id": metric_id,
+        "identifier_anchor": identifier_anchor,
+        "title_anchor": title_anchor,
+        "anchor_unit": anchor_unit,
+    }
+
+
+def _d6_carrier_matches_role(
+    carrier: D6CatalogCarrier,
+    *,
+    role: str,
+    role_spec: TransformInputSpec,
+    role_policy: CatalogSelectionRoleConfig,
+    resolved_policy: Mapping[str, str],
+) -> bool:
+    return (
+        carrier.role == role
+        and carrier.metric_id == resolved_policy["metric_id"]
+        and carrier.identifier_anchor == resolved_policy["identifier_anchor"]
+        and carrier.title_anchor == resolved_policy["title_anchor"]
+        and carrier.anchor_unit == resolved_policy["anchor_unit"]
+        and carrier.unit == role_policy.catalog_unit
+        and carrier.basis == role_spec.basis
+    )
+
+
+def _d6_requires_source_characterization(
+    carrier: D6CatalogCarrier,
+    policy: CatalogSelectionRoleConfig,
+) -> bool:
+    """Recompute the generic policy evidence that blocks direct source admission."""
+
+    normalized_themes = tuple(theme.casefold() for theme in carrier.themes)
+    return not carrier.source_selector_declared and any(
+        fragment.casefold() in theme
+        for fragment in policy.forbidden_theme_fragments
+        for theme in normalized_themes
+    )
+
+
+def _d6_transform_formula(family: TransformFamily) -> str:
+    """Project the family-owned arithmetic AST without interpreting vocabulary."""
+
+    return canonical_json_bytes(family.expression.model_dump(mode="json")).decode().strip()
 
 
 def _select_d6_carrier(
     *,
     rows: Sequence[Mapping[str, object]],
-    role: Literal["primary_ratio", "auxiliary_scale"],
-    required_unit: Literal["percent_gdp", "usd"],
+    role: str,
+    role_policy: CatalogSelectionRoleConfig,
+    required_basis: BasisSignature,
     identifier_anchor: str,
     title_anchor: str,
     anchor_unit: str,
@@ -2469,45 +2860,71 @@ def _select_d6_carrier(
     """Classify a complete role denominator and select its owner-scored carrier."""
 
     rejected: Counter[str] = Counter()
-    candidates: list[D6CatalogCarrier] = []
+    candidates: list[
+        tuple[
+            D6CatalogCarrier,
+            data_forge_read_api.catalog.CatalogSelectionCandidateEvaluation,
+        ]
+    ] = []
     for row in rows:
         execution_tier = str(row.get("execution_tier") or "")
         access_license = str(row.get("access_license") or "")
         title = str(row.get("title") or "")
         description = str(row.get("description") or "")
         unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(f"{title} {description}")
-        if execution_tier not in _EXECUTABLE_TIERS:
-            rejected["execution_tier_not_executable"] += 1
-            continue
-        if (
-            data_forge_read_api.catalog.derive_license_disposition(access_license).value
-            != "admissible_open"
-        ):
-            rejected["license_not_admissible"] += 1
-            continue
-        if bool(row.get("access_auth_required")):
-            rejected["auth_required"] += 1
-            continue
-        if not bool(row.get("parser_supported")):
-            rejected["parser_unsupported"] += 1
-            continue
-        if unit != required_unit:
-            rejected[f"basis_not_{required_unit}"] += 1
-            continue
         connector_params = _json_object(row.get("connector_params"))
         default_filters = _d6_filter_map(row.get("default_filters"))
         identifier_alignment = data_forge_read_api.catalog.score_variable_pair(
             left_name=identifier_anchor,
             right_name=str(row["request_dataset_id"]),
             left_unit=anchor_unit,
-            right_unit=required_unit,
+            right_unit=unit or "unresolved",
         )
         title_alignment = data_forge_read_api.catalog.score_variable_pair(
             left_name=title_anchor,
             right_name=title,
             left_unit=anchor_unit,
-            right_unit=required_unit,
+            right_unit=unit or "unresolved",
         )
+        themes = tuple(sorted(set(_string_values(row.get("themes")))))
+        binding_confidence = float(row.get("binding_confidence") or 0.0)
+        distribution_quality = float(row.get("distribution_quality_score") or 0.0)
+        evaluation = data_forge_read_api.catalog.evaluate_catalog_selection_candidate(
+            role_policy,
+            CatalogSelectionCandidateEvidence(
+                candidate_kind="live_carrier",
+                catalog_unit=unit,
+                metric_id=str(row["metric_id"]),
+                canonical_variable=str(row["metric_id"]),
+                title=title,
+                description=description,
+                access_license=access_license,
+                alignment_method="catalog_owner_scored",
+                alignment_confidence=min(
+                    identifier_alignment.overall_score,
+                    title_alignment.overall_score,
+                ),
+                alignment_is_proxy=False,
+                alignment_proxy_penalty=0.0,
+                exact_binding_count=1,
+                maximum_binding_confidence=binding_confidence,
+                maximum_distribution_quality=distribution_quality,
+                connector_id=str(row["connector_id"]),
+                execution_tier=execution_tier,
+                access_auth_required=bool(row.get("access_auth_required")),
+                parser_supported=bool(row.get("parser_supported")),
+                themes=themes,
+            ),
+        )
+        decisive_codes = {
+            code.value
+            for code in evaluation.rejection_codes
+            if code
+            is not data_forge_read_api.catalog.CatalogSelectionRejectionCode.FORBIDDEN_THEME_PRESENT
+        }
+        if decisive_codes:
+            rejected.update(decisive_codes)
+            continue
         values: dict[str, object] = {
             "role": role,
             "dataset_id": str(row["dataset_id"]),
@@ -2520,12 +2937,13 @@ def _select_d6_carrier(
             "agency": str(row.get("agency") or ""),
             "title": title,
             "description": description,
-            "themes": tuple(sorted(set(_string_values(row.get("themes"))))),
+            "themes": themes,
             "access_license": access_license,
             "execution_tier": execution_tier,
-            "binding_confidence": float(row.get("binding_confidence") or 0.0),
-            "distribution_quality_score": float(row.get("distribution_quality_score") or 0.0),
-            "unit": required_unit,
+            "binding_confidence": binding_confidence,
+            "distribution_quality_score": distribution_quality,
+            "unit": role_policy.catalog_unit,
+            "basis": required_basis,
             "connector_params": connector_params,
             "default_filters": default_filters,
             "source_selector_declared": any(
@@ -2544,9 +2962,12 @@ def _select_d6_carrier(
             ),
         }
         candidates.append(
-            D6CatalogCarrier(
-                **values,
-                projection_sha256=content_sha256(values),
+            (
+                D6CatalogCarrier(
+                    **values,
+                    projection_sha256=content_sha256(values),
+                ),
+                evaluation,
             )
         )
     if not candidates:
@@ -2555,16 +2976,16 @@ def _select_d6_carrier(
             role,
         )
     candidates.sort(
-        key=lambda carrier: (
-            -carrier.rank_score,
-            -carrier.binding_confidence,
-            -carrier.distribution_quality_score,
-            carrier.dataset_id,
-            carrier.distribution_id,
-            carrier.request_dataset_id,
+        key=lambda item: data_forge_read_api.catalog.catalog_selection_candidate_rank(
+            item[1],
+            identity=(
+                item[0].dataset_id,
+                item[0].distribution_id,
+                item[0].request_dataset_id,
+            ),
         )
     )
-    return candidates[0], rejected, len(candidates)
+    return candidates[0][0], rejected, len(candidates)
 
 
 def _d6_filter_map(value: object) -> dict[str, list[str]]:

@@ -385,7 +385,7 @@ def test_acceptance_selection_rejects_pinned_terminal_and_carrier_labels(
         acceptance.DeflatorCarrierDisposition.model_validate(carrier)
 
 
-def test_local_fallback_covers_every_index_series_and_selects_exact_cpi(
+def test_local_fallback_covers_every_role_series_and_defers_parameters_to_family(
     tmp_path: Path,
 ) -> None:
     catalog = _fixture_catalog(tmp_path / "catalog.duckdb")
@@ -407,12 +407,12 @@ def test_local_fallback_covers_every_index_series_and_selects_exact_cpi(
     assert fallback.selected_deflator is not None
     assert fallback.selected_deflator.raw_variable == "FP.CPI.TOTL"
     assert fallback.exact_overlap_years == (2018, 2019, 2020)
-    assert fallback.recipe_base_year == 2019
-    assert fallback.recipe_base_year_selection == "median_exact_overlap_year"
+    assert fallback.recipe_base_year is None
+    assert fallback.recipe_base_year_selection == "lower_median_common_year"
 
     pinned = fallback.model_dump(mode="python")
     pinned["recipe_base_year"] = 2018
-    with pytest.raises(ValueError, match="median exact overlap"):
+    with pytest.raises(ValueError, match="resolved by the derivation owner"):
         acceptance.AcceptanceFallbackSelection.model_validate(pinned)
 
 
@@ -441,6 +441,16 @@ def test_acceptance_case_materializes_once_then_runs_two_cached_consumers(
 
     assert receipt.first_materialization_cache_hit is False
     assert receipt.second_materialization_cache_hit is True
+    assert receipt.transform_family_id == "price_index_exact_year_rebase"
+    assert {item.role for item in receipt.recipe.inputs} == {"amount", "index"}
+    assert {item.name: item.value for item in receipt.recipe.parameters} == {"reference_year": 2019}
+    assert receipt.recipe.output_basis.attribute("reference_year") == "2019"
+    assert {item.name for item in receipt.recipe.assumptions} == {
+        "formula",
+        "index_choice_rule",
+        "reference_year",
+        "year_join",
+    }
     assert receipt.certificate.observation_class == "derived"
     assert receipt.certificate.effective_authority <= min(
         item.effective_score for item in receipt.certificate.input_authorities
@@ -450,5 +460,31 @@ def test_acceptance_case_materializes_once_then_runs_two_cached_consumers(
         "forecasting.univariate.theta@1.0.0",
     }
     assert receipt.basis_mismatch_refusal_code == "basis_mismatch"
+    assert receipt.basis_mismatch_refusal_reason == "no_certified_transform"
     assert receipt.model_output_observation_rejection_codes == ("model_output_not_observation",)
     acceptance.verify_persisted_acceptance_case(store, receipt)
+
+
+def test_acceptance_metric_role_is_steered_by_owner_config_only(tmp_path: Path) -> None:
+    catalog = _fixture_catalog(tmp_path / "catalog.duckdb")
+    registry_text = acceptance.DEFAULT_DERIVATION_FAMILY_REGISTRY.read_text(encoding="utf-8")
+    assert registry_text.count('owner_metric_id = "inflation"') == 1
+    registry_path = tmp_path / "derivation_family_registry.toml"
+    registry_path.write_text(
+        registry_text.replace(
+            'owner_metric_id = "inflation"',
+            'owner_metric_id = "gdp"',
+        ),
+        encoding="utf-8",
+    )
+
+    selection = acceptance.derive_acceptance_input_selection(
+        catalog_path=catalog,
+        census_path=_fixture_census(tmp_path / "census.json"),
+        r1_paid_success_elapsed_seconds=6.945391583998571,
+        family_registry_path=registry_path,
+    )
+
+    assert {row.metric_id for row in selection.deflator_denominator} == {"gdp"}
+    assert selection.eligible_deflator_count == 0
+    assert selection.disposition == "acceptance_inputs_inadmissible"

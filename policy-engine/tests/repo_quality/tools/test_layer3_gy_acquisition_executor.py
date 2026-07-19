@@ -21,6 +21,106 @@ def _write_json(path: Path, value: object) -> Path:
     return path
 
 
+def _synthetic_d6_transform_sources() -> tuple[dict[str, object], dict[str, object]]:
+    registry: dict[str, object] = {
+        "families": [
+            {
+                "family_id": "synthetic_share_times_scale",
+                "method_id": "arithmetic.synthetic.share_times_scale",
+                "method_version": "7.3.1",
+                "year_domain_role": "share",
+                "input_specs": [
+                    {
+                        "role": "scale",
+                        "basis": {
+                            "quantity_kind": "monetary_scale",
+                            "unit": "usd",
+                            "attributes": [{"name": "currency", "value": "USD"}],
+                        },
+                        "value_constraints": [],
+                    },
+                    {
+                        "role": "share",
+                        "basis": {
+                            "quantity_kind": "relative_share",
+                            "unit": "percent",
+                            "attributes": [{"name": "denominator", "value": "output_scale"}],
+                        },
+                        "value_constraints": [],
+                    },
+                ],
+                "output_basis": {
+                    "quantity_kind": "monetary_flow",
+                    "unit": "usd",
+                    "attributes": [{"name": "currency", "value": "USD"}],
+                },
+                "parameter_rules": [],
+                "output_parameter_bindings": [],
+                "expression": {
+                    "operator": "multiply",
+                    "operands": [
+                        {
+                            "operator": "divide",
+                            "operands": [
+                                {"operator": "current_value", "role": "share"},
+                                {"operator": "constant", "constant_value": "100"},
+                            ],
+                        },
+                        {"operator": "current_value", "role": "scale"},
+                    ],
+                },
+                "assumption_rules": [
+                    {
+                        "name": "arithmetic_contract",
+                        "literal_value": "share divided by 100, multiplied by scale",
+                    }
+                ],
+            }
+        ]
+    }
+    policy: dict[str, object] = {
+        "policy_id": "synthetic_share_times_scale.d6",
+        "family_id": "synthetic_share_times_scale",
+        "method_version": "7.3.1",
+        "purposes": ["d6_route"],
+        "country_code": "UA",
+        "output_variable_id_template": "{share_canonical_variable}_amount",
+        "roles": [
+            {
+                "role": "scale",
+                "catalog_unit": "usd",
+                "semantic_anchor": "gross domestic product current us dollars",
+                "owner_metric_id": "synthetic_scale_metric",
+                "owner_canonical_variable": "synthetic_scale_metric",
+                "minimum_alignment_confidence": 0.0,
+                "allow_proxy": False,
+                "require_executable_binding": True,
+                "executable_connectors": [],
+                "required_themes": [],
+                "forbidden_theme_fragments": [],
+                "required_text_fragments": [],
+                "forbidden_text_fragments": [],
+            },
+            {
+                "role": "share",
+                "catalog_unit": "percent_gdp",
+                "semantic_anchor": "fiscal balance percent of output",
+                "owner_metric_id": "gov_balance",
+                "owner_canonical_variable": "gov_balance",
+                "minimum_alignment_confidence": 0.0,
+                "allow_proxy": False,
+                "require_executable_binding": True,
+                "executable_connectors": [],
+                "required_themes": [],
+                "forbidden_theme_fragments": ["archive"],
+                "required_text_fragments": [],
+                "forbidden_text_fragments": [],
+            },
+        ],
+    }
+    return registry, policy
+
+
 @pytest.fixture
 def selection_inputs(tmp_path: Path) -> tuple[Path, Path, Path]:
     census = _write_json(
@@ -681,7 +781,7 @@ def test_d6_route_selector_derives_ratio_times_scale_from_owner_denominators(
         )
         con.execute(
             "INSERT INTO ds_metric_bindings VALUES "
-            "('gdp', 'gdp-dataset', 'gdp-dist', 'worldbank.wdi', "
+            "('synthetic_scale_metric', 'gdp-dataset', 'gdp-dist', 'worldbank.wdi', "
             "'worldbank_wdi', 'NY.GDP.MKTP.CD', 0.87, '{}', 'transport_ready')"
         )
     finally:
@@ -695,6 +795,7 @@ def test_d6_route_selector_derives_ratio_times_scale_from_owner_denominators(
         request_dataset_id="GC.BAL.CASH.CD",
     )
 
+    transform_registry, selection_policy = _synthetic_d6_transform_sources()
     selection = executor.derive_d6_route_selection(
         catalog_path=catalog,
         census_path=census,
@@ -704,20 +805,78 @@ def test_d6_route_selector_derives_ratio_times_scale_from_owner_denominators(
             repo_root / "architecture/policy_design_case/"
             "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json"
         ),
+        transform_registry_source=transform_registry,
+        selection_policy_source=selection_policy,
     )
 
     assert selection.target_variable == "government.balance"
     assert selection.required_output_unit == "usd"
     assert selection.route_disposition == "derivation_requirement"
-    assert selection.transform_method_id == "percent_of_gdp_times_current_usd_exact_year"
+    assert selection.transform_method_id == "arithmetic.synthetic.share_times_scale"
+    assert selection.transform_method_version == "7.3.1"
+    assert selection.primary.role == "share"
     assert selection.primary.request_dataset_id == "GC.BAL.CASH.GD.ZS"
     assert selection.primary.unit == "percent_gdp"
     assert selection.primary_candidate_denominator == 1
     assert selection.auxiliary.request_dataset_id == "NY.GDP.MKTP.CD"
+    assert selection.auxiliary.metric_id == "synthetic_scale_metric"
+    assert selection.auxiliary.role == "scale"
     assert selection.auxiliary.unit == "usd"
     assert selection.auxiliary_candidate_denominator == 1
     assert selection.primary_requires_source_characterization is True
     assert selection.selection_sha256 == executor.content_sha256(selection.identity_payload())
+
+    forged_model = selection.model_copy(update={"transform_method_id": "arithmetic.forged"})
+    forged = forged_model.model_dump(mode="python")
+    forged["selection_sha256"] = executor.content_sha256(forged_model.identity_payload())
+    with pytest.raises(ValueError, match="transform edge must recompute"):
+        executor.D6RouteSelection.model_validate(forged)
+
+
+def test_d6_route_selector_refuses_unregistered_basis_pair_with_typed_reason(
+    selection_inputs: tuple[Path, Path, Path],
+) -> None:
+    catalog, census, substrate = selection_inputs
+    repo_root = Path(__file__).resolve().parents[3]
+    r1 = executor.derive_r1_forensic_receipt(
+        journal_path=(
+            repo_root / "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
+        ),
+        cas_root=repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas",
+        request_dataset_id="GC.BAL.CASH.CD",
+    )
+    transform_registry, selection_policy = _synthetic_d6_transform_sources()
+    selection_policy["family_id"] = "unregistered_basis_family"
+
+    with pytest.raises(executor.AcquisitionSelectionError) as raised:
+        executor.derive_d6_route_selection(
+            catalog_path=catalog,
+            census_path=census,
+            substrate_path=substrate,
+            r1_receipt=r1,
+            carrier_liveness_path=(
+                repo_root / "architecture/policy_design_case/"
+                "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json"
+            ),
+            transform_registry_source=transform_registry,
+            selection_policy_source=selection_policy,
+        )
+
+    assert raised.value.code == "basis_mismatch"
+    assert raised.value.reason == "no_certified_transform"
+
+
+def test_d6_route_selection_keeps_frozen_v1_receipt_parseable() -> None:
+    repo_root = Path(__file__).resolve().parents[3]
+    route = executor.D6RouteSelection.model_validate_json(
+        (
+            repo_root / "architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json"
+        ).read_bytes()
+    )
+
+    assert route.schema_version == "policyos.layer3.gy.n13b.d6_route_selection.v1"
+    assert route.transform_family is None
+    assert route.selection_policy is None
 
 
 def test_d6_metadata_owner_binds_route_and_paid_latency(
@@ -746,7 +905,7 @@ def test_d6_metadata_owner_binds_route_and_paid_latency(
         )
         con.execute(
             "INSERT INTO ds_metric_bindings VALUES "
-            "('gdp', 'gdp-dataset', 'gdp-dist', 'worldbank.wdi', "
+            "('synthetic_scale_metric', 'gdp-dataset', 'gdp-dist', 'worldbank.wdi', "
             "'worldbank_wdi', 'NY.GDP.MKTP.CD', 0.87, '{}', 'transport_ready')"
         )
     finally:
@@ -759,6 +918,7 @@ def test_d6_metadata_owner_binds_route_and_paid_latency(
         cas_root=repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas",
         request_dataset_id="GC.BAL.CASH.CD",
     )
+    transform_registry, selection_policy = _synthetic_d6_transform_sources()
     selection = executor.derive_d6_route_selection(
         catalog_path=catalog,
         census_path=census,
@@ -768,6 +928,8 @@ def test_d6_metadata_owner_binds_route_and_paid_latency(
             repo_root / "architecture/policy_design_case/"
             "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json"
         ),
+        transform_registry_source=transform_registry,
+        selection_policy_source=selection_policy,
     )
 
     owner = executor.derive_d6_metadata_probe_owner(

@@ -1,8 +1,7 @@
 """Recomputing owners for the GY-N13b real-terms acceptance inputs.
 
-The selector is deliberately read-only.  It enumerates every local Ukraine
-series group before reducing to monetary candidates, and every catalog binding
-for the inflation metric before selecting one connector-executable price index.
+The selector is deliberately read-only. It enumerates every local Ukraine
+series group before applying family-owned input bases and catalog-role policy.
 It never treats a catalog label as admission evidence and never performs I/O.
 """
 
@@ -16,6 +15,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
+from string import Formatter
 from typing import Any, Literal, Self
 
 import duckdb
@@ -23,6 +23,11 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts
 from polisyos.data_forge import read_api as data_forge_read_api
+from polisyos.data_forge.read_api.catalog import (
+    CatalogSelectionCandidateEvidence,
+    CatalogSelectionPolicyConfig,
+    CatalogSelectionRoleConfig,
+)
 from polisyos.fabric.data_plane import (
     LiveAttemptTerminal,
     canonical_json_bytes,
@@ -33,7 +38,6 @@ from polisyos.foundry.methods.catalog.forecasting.univariate import (
     ExponentialSmoothingEstimator,
     ThetaMethodEstimator,
 )
-from polisyos.ir.kernel import DimensionlessUnit, MoneyUnit
 from polisyos.runtime.quality.acquisition_executor import (
     ObservationProvenanceClass,
     derive_observation_provenance_rejections,
@@ -41,21 +45,23 @@ from polisyos.runtime.quality.acquisition_executor import (
 from polisyos.runtime.quality.derived_observations import (
     DERIVATION_CERTIFICATE_KIND,
     AuthorityProjection,
+    BasisSignature,
     CertifiedDerivationConsumption,
     DerivationCertificate,
     DerivationRecipe,
     DerivationRefusalCode,
     DerivationRefusalError,
-    EconomicBasis,
-    EconomicSeries,
-    PriceIndexBasis,
-    PriceIndexSeries,
+    DerivationRefusalReason,
     SeriesPoint,
-    build_cpi_derivation_recipe,
+    SourceSeries,
+    TransformFamily,
+    TransformFamilyRegistry,
+    TransformInputSpec,
+    build_derivation_recipe,
     consume_certified_derivation,
-    materialize_cpi_real_terms,
-    persist_economic_series,
-    persist_price_index_series,
+    load_transform_family_registry,
+    materialize_derivation,
+    persist_source_series,
 )
 from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_TARGET_AUTHORITY_PROVISION,
@@ -85,16 +91,13 @@ DEFAULT_ACCEPTANCE_FALLBACK_SELECTION = Path(
 DEFAULT_ACCEPTANCE_CASE = Path(
     "architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json"
 )
+DEFAULT_DERIVATION_FAMILY_REGISTRY = Path(
+    "architecture/production_quality/derivation_family_registry.toml"
+)
 
-_EXECUTABLE_TIERS = frozenset({"fetchable", "transport_ready"})
-_MONETARY_UNITS = frozenset({"usd", "uah"})
-_LOCAL_ALIGNMENT_THRESHOLD = 0.8
-_NOMINAL_ANCHOR = "gross domestic product nominal current usd"
-_DEFLATOR_ANCHOR = "consumer price index reference base"
-_BASE_YEAR_RE = re.compile(r"\b((?:19|20)\d{2})\s*=\s*100\b", re.IGNORECASE)
 _ACCEPTANCE_PRODUCER = artifacts.ProducerInfo(
     component="tools.quality.validation.layer3_gy_n13b_acceptance",
-    version="1.0.0",
+    version="2.0.0",
 )
 _ACCEPTANCE_EVIDENCE_SCHEMA = artifacts.SchemaInfo(
     name="policyos.layer3.gy.n13b.series-input-evidence",
@@ -112,6 +115,51 @@ class AcceptanceSelectionError(RuntimeError):
 
 class _StrictModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
+
+
+@dataclass(frozen=True)
+class AcceptanceDerivationOwner:
+    """Narrow selected family plus its catalog-role selector."""
+
+    registry: TransformFamilyRegistry
+    family: TransformFamily
+    selector: CatalogSelectionPolicyConfig
+
+    @property
+    def primary_role(self) -> str:
+        """Return the family-owned year-domain role."""
+
+        return self.family.year_domain_role
+
+    @property
+    def auxiliary_role(self) -> str:
+        """Return the sole non-primary role required by this two-input case."""
+
+        roles = tuple(
+            spec.role for spec in self.family.input_specs if spec.role != self.primary_role
+        )
+        if len(roles) != 1:
+            raise AcceptanceSelectionError(
+                "acceptance_auxiliary_role_unresolved", self.family.family_id
+            )
+        return roles[0]
+
+    def selection_role(self, role: str) -> CatalogSelectionRoleConfig:
+        """Return the exact selector role bound to one family input."""
+
+        return next(item for item in self.selector.roles if item.role == role)
+
+    @property
+    def family_projection_sha256(self) -> str:
+        """Return selected-family identity without unrelated registry growth."""
+
+        return content_sha256(self.family.model_dump(mode="json"))
+
+    @property
+    def selector_projection_sha256(self) -> str:
+        """Return the selected catalog-role policy identity."""
+
+        return content_sha256(self.selector.identity_payload())
 
 
 class LocalNominalPoint(_StrictModel):
@@ -135,7 +183,9 @@ class LocalNominalDisposition(_StrictModel):
     description: str
     access_license: str
     raw_variable: str = Field(min_length=1)
+    metric_id: str | None
     canonical_variable: str = Field(min_length=1)
+    role_policy: CatalogSelectionRoleConfig
     derived_unit: str | None
     row_count: int = Field(ge=1)
     distinct_year_count: int = Field(ge=1)
@@ -143,6 +193,7 @@ class LocalNominalDisposition(_StrictModel):
     maximum_year: int = Field(ge=1900, le=2200)
     duplicate_year_count: int = Field(ge=0)
     source_watermark_count: int = Field(ge=0)
+    dataset_version_count: int = Field(ge=0)
     acquisition_method_count: int = Field(ge=0)
     alignment_method: str | None
     alignment_confidence: float | None = Field(default=None, ge=0.0, le=1.0)
@@ -169,13 +220,8 @@ class LocalNominalDisposition(_StrictModel):
             raise ValueError("local nominal rejection codes must be recomputed")
         if self.eligible != (not expected_rejections):
             raise ValueError("local nominal eligibility must derive from rejection codes")
-        score = data_forge_read_api.catalog.score_variable_pair(
-            left_name=_NOMINAL_ANCHOR,
-            right_name=(f"{self.canonical_variable} {self.raw_variable} {self.title}"),
-            left_unit="usd",
-            right_unit=self.derived_unit or "unresolved",
-        )
-        if abs(self.acceptance_alignment_score - score.overall_score) > 1e-9:
+        evaluation = _evaluate_local_candidate(self)
+        if abs(self.acceptance_alignment_score - evaluation.semantic_alignment_score) > 1e-9:
             raise ValueError("local nominal acceptance score must use the alignment owner")
         if self.projection_sha256 != content_sha256(self.identity_payload()):
             raise ValueError("local nominal projection identity must be recomputed")
@@ -192,7 +238,7 @@ class LocalNominalDisposition(_StrictModel):
 
 
 class DeflatorCarrierDisposition(_StrictModel):
-    """One inflation binding classified for the exact CPI-deflator role."""
+    """One live binding classified for the family-declared auxiliary role."""
 
     metric_id: str = Field(min_length=1)
     dataset_id: str = Field(min_length=1)
@@ -200,6 +246,7 @@ class DeflatorCarrierDisposition(_StrictModel):
     connector_id: str = Field(min_length=1)
     profile_id: str = Field(min_length=1)
     request_dataset_id: str = Field(min_length=1)
+    role_policy: CatalogSelectionRoleConfig
     binding_confidence: float = Field(ge=0.0, le=1.0)
     execution_tier: str = Field(min_length=1)
     source: str = Field(min_length=1)
@@ -231,7 +278,10 @@ class DeflatorCarrierDisposition(_StrictModel):
         )
         if self.derived_unit != expected_unit:
             raise ValueError("deflator unit must come from the catalog owner")
-        expected_year = _reference_base_year(f"{self.title} {self.description}")
+        expected_year = _reference_base_year(
+            f"{self.title} {self.description}",
+            pattern=self.role_policy.reference_value_pattern,
+        )
         if self.reference_base_year != expected_year:
             raise ValueError("deflator base year must be parsed from catalog evidence")
         expected_rejections = _deflator_rejection_codes(self)
@@ -239,13 +289,8 @@ class DeflatorCarrierDisposition(_StrictModel):
             raise ValueError("deflator rejection codes must be recomputed")
         if self.eligible != (not expected_rejections):
             raise ValueError("deflator eligibility must derive from rejection codes")
-        score = data_forge_read_api.catalog.score_variable_pair(
-            left_name=_DEFLATOR_ANCHOR,
-            right_name=f"{self.request_dataset_id} {self.title}",
-            left_unit="index",
-            right_unit=self.derived_unit or "unresolved",
-        )
-        if abs(self.acceptance_alignment_score - score.overall_score) > 1e-9:
+        evaluation = _evaluate_live_candidate(self)
+        if abs(self.acceptance_alignment_score - evaluation.semantic_alignment_score) > 1e-9:
             raise ValueError("deflator rank must use the alignment owner")
         if self.projection_sha256 != content_sha256(self.identity_payload()):
             raise ValueError("deflator projection identity must be recomputed")
@@ -270,7 +315,12 @@ class AcceptanceInputSelection(_StrictModel):
     baseline_ref: str = Field(min_length=1)
     baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     census_family_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
-    country_code: Literal["UA"]
+    transform_family_id: str = Field(min_length=1)
+    transform_family_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selector_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    primary_input_role: str = Field(min_length=1)
+    auxiliary_input_role: str = Field(min_length=1)
+    country_code: str = Field(min_length=2, max_length=3)
     all_local_series_group_count: int = Field(ge=1)
     non_monetary_series_group_count: int = Field(ge=0)
     local_monetary_denominator_count: int = Field(ge=1)
@@ -296,6 +346,8 @@ class AcceptanceInputSelection(_StrictModel):
 
     @model_validator(mode="after")
     def _selection_is_recomputed(self) -> Self:
+        if self.primary_input_role == self.auxiliary_input_role:
+            raise ValueError("acceptance input roles must be distinct")
         if self.all_local_series_group_count != (
             self.non_monetary_series_group_count + self.local_monetary_denominator_count
         ):
@@ -388,7 +440,7 @@ class AcceptanceInputSelection(_StrictModel):
 
 
 class AcceptanceAuthorityOwner(_StrictModel):
-    """Projection binding the selected CPI carrier to the canonical authority graph."""
+    """Projection binding the selected carrier to the canonical authority graph."""
 
     schema_version: Literal["policyos.layer3.gy.n13b.acceptance_authority.v1"] = (
         "policyos.layer3.gy.n13b.acceptance_authority.v1"
@@ -425,7 +477,7 @@ class AcceptanceAuthorityOwner(_StrictModel):
 
 
 class AcceptanceLiveExecutionReceipt(_StrictModel):
-    """Reopened journal/CAS result for the single authorized CPI data call."""
+    """Reopened journal/CAS result for the single authorized auxiliary call."""
 
     schema_version: Literal["policyos.layer3.gy.n13b.acceptance_live_execution.v1"] = (
         "policyos.layer3.gy.n13b.acceptance_live_execution.v1"
@@ -499,13 +551,16 @@ class LocalDeflatorDisposition(_StrictModel):
     description: str
     access_license: str
     raw_variable: str = Field(min_length=1)
+    metric_id: str | None
     canonical_variable: str = Field(min_length=1)
+    role_policy: CatalogSelectionRoleConfig
     row_count: int = Field(ge=1)
     distinct_year_count: int = Field(ge=1)
     minimum_year: int = Field(ge=1900, le=2200)
     maximum_year: int = Field(ge=1900, le=2200)
     duplicate_year_count: int = Field(ge=0)
     source_watermark_count: int = Field(ge=0)
+    dataset_version_count: int = Field(ge=0)
     acquisition_method_count: int = Field(ge=0)
     nonpositive_value_count: int = Field(ge=0)
     alignment_method: str | None
@@ -535,7 +590,10 @@ class LocalDeflatorDisposition(_StrictModel):
         )
         if self.derived_unit != expected_unit:
             raise ValueError("local deflator unit must come from the catalog owner")
-        expected_year = _reference_base_year(f"{self.title} {self.description}")
+        expected_year = _reference_base_year(
+            f"{self.title} {self.description}",
+            pattern=self.role_policy.reference_value_pattern,
+        )
         if self.reference_base_year != expected_year:
             raise ValueError("local deflator base year must come from catalog evidence")
         expected_rejections = _local_deflator_rejection_codes(self)
@@ -566,6 +624,9 @@ class AcceptanceFallbackSelection(_StrictModel):
     baseline_ref: str = Field(min_length=1)
     baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     input_selection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    transform_family_id: str = Field(min_length=1)
+    transform_family_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selector_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     live_execution_receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     live_terminal_failure_code: str = Field(min_length=1)
     all_local_series_group_count: int = Field(ge=1)
@@ -582,7 +643,7 @@ class AcceptanceFallbackSelection(_StrictModel):
     selected_deflator: LocalDeflatorDisposition | None
     selected_deflator_points: tuple[LocalDeflatorPoint, ...]
     exact_overlap_years: tuple[int, ...]
-    recipe_base_year_selection: Literal["median_exact_overlap_year"] | None
+    recipe_base_year_selection: str | None = Field(default=None, min_length=1)
     recipe_base_year: int | None = Field(default=None, ge=1900, le=2200)
     deflator_version: str | None
     selection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
@@ -609,9 +670,10 @@ class AcceptanceFallbackSelection(_StrictModel):
             self.selected_nominal_projection_sha256,
             self.selected_deflator,
             self.recipe_base_year_selection,
-            self.recipe_base_year,
             self.deflator_version,
         )
+        if self.recipe_base_year is not None:
+            raise ValueError("recipe parameters must be resolved by the derivation owner")
         if eligible and any(value is None for value in optional):
             raise ValueError("admissible fallback requires a complete derivation scope")
         if not eligible and any(value is not None for value in optional):
@@ -631,9 +693,6 @@ class AcceptanceFallbackSelection(_StrictModel):
                 raise ValueError("fallback exact overlap must derive from the selected deflator")
             if not self.exact_overlap_years:
                 raise ValueError("admissible fallback requires at least one exact overlap year")
-            median = self.exact_overlap_years[len(self.exact_overlap_years) // 2]
-            if self.recipe_base_year != median:
-                raise ValueError("recipe base year must be the median exact overlap year")
             versions = {
                 (point.dataset_version, point.source_watermark, point.acquisition_method)
                 for point in self.selected_deflator_points
@@ -691,6 +750,11 @@ class AcceptanceCaseReceipt(_StrictModel):
     fallback_selection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     baseline_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     source_epoch: Literal[0]
+    transform_family_id: str = Field(min_length=1)
+    transform_family_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    selector_projection_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    primary_input_role: str = Field(min_length=1)
+    auxiliary_input_role: str = Field(min_length=1)
     nominal_series_artifact_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     deflator_series_artifact_id: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     recipe: DerivationRecipe
@@ -701,6 +765,7 @@ class AcceptanceCaseReceipt(_StrictModel):
     second_materialization_cache_hit: Literal[True]
     consumers: tuple[ConsumerMethodExecution, ConsumerMethodExecution]
     basis_mismatch_refusal_code: Literal["basis_mismatch"]
+    basis_mismatch_refusal_reason: Literal["no_certified_transform"]
     basis_mismatch_detail_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     model_output_observation_rejection_codes: tuple[str, ...]
     disposition: Literal["accepted_local_fallback"]
@@ -708,10 +773,21 @@ class AcceptanceCaseReceipt(_StrictModel):
 
     @model_validator(mode="after")
     def _receipt_is_recomputed(self) -> Self:
-        if str(self.recipe.nominal_input.artifact_id) != self.nominal_series_artifact_id:
-            raise ValueError("acceptance recipe nominal input drift")
-        if str(self.recipe.deflator_input.artifact_id) != self.deflator_series_artifact_id:
-            raise ValueError("acceptance recipe deflator input drift")
+        if self.primary_input_role == self.auxiliary_input_role:
+            raise ValueError("acceptance receipt input roles must be distinct")
+        role_artifacts = {item.role: str(item.artifact.artifact_id) for item in self.recipe.inputs}
+        if set(role_artifacts) != {self.primary_input_role, self.auxiliary_input_role}:
+            raise ValueError("acceptance recipe role denominator drift")
+        if role_artifacts[self.primary_input_role] != self.nominal_series_artifact_id:
+            raise ValueError("acceptance recipe primary input drift")
+        if role_artifacts[self.auxiliary_input_role] != self.deflator_series_artifact_id:
+            raise ValueError("acceptance recipe auxiliary input drift")
+        if (
+            self.recipe.family.family_id != self.transform_family_id
+            or content_sha256(self.recipe.family.model_dump(mode="json"))
+            != self.transform_family_projection_sha256
+        ):
+            raise ValueError("acceptance transform-family projection drift")
         if self.certificate.recipe != self.recipe:
             raise ValueError("acceptance certificate recipe drift")
         if str(self.certificate.derived_artifact_id) != self.derived_artifact_id:
@@ -772,15 +848,92 @@ class AcceptanceAuthorityOwners:
         }
 
 
+def _load_acceptance_derivation_owner(
+    source: Path,
+) -> AcceptanceDerivationOwner:
+    """Load one narrow acceptance selector and the generic family registry."""
+
+    try:
+        catalog_owner = data_forge_read_api.catalog.load_derivation_catalog_selection(source)
+        selector = data_forge_read_api.catalog.resolve_catalog_selection_policy(
+            catalog_owner,
+            purpose="derived_acceptance",
+        )
+        registry = load_transform_family_registry({"families": catalog_owner.families_payload})
+    except (
+        OSError,
+        ValueError,
+        data_forge_read_api.catalog.CatalogSelectionError,
+    ) as exc:
+        raise AcceptanceSelectionError(
+            "acceptance_derivation_registry_unresolved",
+            Path(source).as_posix(),
+        ) from exc
+    matched = tuple(
+        family
+        for family in registry.families
+        if (family.family_id, family.method_version)
+        == (selector.family_id, selector.method_version)
+    )
+    if len(matched) != 1:
+        raise AcceptanceSelectionError("acceptance_derivation_family_unresolved")
+    family = matched[0]
+    roles = {spec.role for spec in family.input_specs}
+    selector_roles = {item.role for item in selector.roles}
+    if roles != selector_roles or len(roles) != 2:
+        raise AcceptanceSelectionError(
+            "acceptance_derivation_role_contract_drift", selector.family_id
+        )
+    template_fields = {
+        field_name
+        for _, field_name, _, _ in Formatter().parse(selector.output_variable_id_template)
+        if field_name is not None
+    }
+    allowed_template_fields = {
+        *(f"{role}_canonical_variable" for role in roles),
+        *(rule.name for rule in family.parameter_rules),
+    }
+    primary_field = f"{family.year_domain_role}_canonical_variable"
+    if primary_field not in template_fields or not template_fields.issubset(
+        allowed_template_fields
+    ):
+        raise AcceptanceSelectionError(
+            "acceptance_output_variable_template_unresolved",
+            selector.output_variable_id_template,
+        )
+    return AcceptanceDerivationOwner(
+        registry=registry,
+        family=family,
+        selector=selector,
+    )
+
+
+def _family_input_spec(
+    owner: AcceptanceDerivationOwner,
+    role: str,
+) -> TransformInputSpec:
+    return next(spec for spec in owner.family.input_specs if spec.role == role)
+
+
+def _catalog_role_policy(
+    owner: AcceptanceDerivationOwner,
+    *,
+    role: str,
+) -> CatalogSelectionRoleConfig:
+    return owner.selection_role(role)
+
+
 def derive_acceptance_input_selection(
     *,
     catalog_path: Path,
     census_path: Path,
     r1_paid_success_elapsed_seconds: float,
+    family_registry_path: Path = DEFAULT_DERIVATION_FAMILY_REGISTRY,
 ) -> AcceptanceInputSelection:
     """Recompute the complete local nominal and live deflator denominators."""
 
     catalog = Path(catalog_path)
+    derivation_owner = _load_acceptance_derivation_owner(family_registry_path)
     census_file = Path(census_path)
     if not catalog.is_file():
         raise AcceptanceSelectionError("acceptance_catalog_unresolved", catalog.as_posix())
@@ -793,14 +946,39 @@ def derive_acceptance_input_selection(
     if not isinstance(census, Mapping):
         raise AcceptanceSelectionError("acceptance_census_invalid")
     live_families, family_projection = _live_families(census)
-    local_rows, local_points, all_local_groups = _read_local_denominator(catalog)
-    deflator_rows = _read_deflator_denominator(catalog)
+    primary_policy = _catalog_role_policy(
+        derivation_owner,
+        role=derivation_owner.primary_role,
+    )
+    auxiliary_policy = _catalog_role_policy(
+        derivation_owner,
+        role=derivation_owner.auxiliary_role,
+    )
+    local_rows, local_points, all_local_groups = _read_local_denominator(
+        catalog,
+        expected_unit=primary_policy.catalog_unit,
+        country_code=derivation_owner.selector.country_code,
+    )
+    deflator_rows = _read_deflator_denominator(
+        catalog,
+        metric_id=auxiliary_policy.owner_metric_id,
+    )
 
     local_dispositions = tuple(
-        _build_local_disposition(row, points=local_points[row["series_key"]]) for row in local_rows
+        _build_local_disposition(
+            row,
+            points=local_points[row["series_key"]],
+            role_policy=primary_policy,
+        )
+        for row in local_rows
     )
     deflator_dispositions = tuple(
-        _build_deflator_disposition(row, live_families=live_families) for row in deflator_rows
+        _build_deflator_disposition(
+            row,
+            live_families=live_families,
+            role_policy=auxiliary_policy,
+        )
+        for row in deflator_rows
     )
     eligible_local = tuple(row for row in local_dispositions if row.eligible)
     eligible_deflators = tuple(row for row in deflator_dispositions if row.eligible)
@@ -813,7 +991,10 @@ def derive_acceptance_input_selection(
     request_start_year: int | None = None
     request_end_year: int | None = None
     request_page_size: int | None = None
-    if selected_nominal is not None and selected_deflator is not None:
+    pair_selected = selected_nominal is not None and selected_deflator is not None
+    if pair_selected:
+        assert selected_nominal is not None
+        assert selected_deflator is not None
         selected_points = tuple(
             LocalNominalPoint.model_validate(point)
             for point in local_points[
@@ -845,7 +1026,12 @@ def derive_acceptance_input_selection(
         "baseline_ref": _stable_repo_ref(catalog),
         "baseline_sha256": baseline_sha,
         "census_family_projection_sha256": content_sha256(family_projection),
-        "country_code": "UA",
+        "transform_family_id": derivation_owner.family.family_id,
+        "transform_family_projection_sha256": (derivation_owner.family_projection_sha256),
+        "selector_projection_sha256": derivation_owner.selector_projection_sha256,
+        "primary_input_role": derivation_owner.primary_role,
+        "auxiliary_input_role": derivation_owner.auxiliary_role,
+        "country_code": derivation_owner.selector.country_code,
         "all_local_series_group_count": all_local_groups,
         "non_monetary_series_group_count": all_local_groups - len(local_dispositions),
         "local_monetary_denominator_count": len(local_dispositions),
@@ -856,14 +1042,10 @@ def derive_acceptance_input_selection(
         "eligible_deflator_count": len(eligible_deflators),
         "deflator_rejection_counts": _rejection_counts(deflator_dispositions),
         "deflator_denominator": deflator_dispositions,
-        "disposition": (
-            "admissible_pair"
-            if selected_nominal is not None and selected_deflator is not None
-            else "acceptance_inputs_inadmissible"
-        ),
-        "selected_nominal": selected_nominal,
+        "disposition": ("admissible_pair" if pair_selected else "acceptance_inputs_inadmissible"),
+        "selected_nominal": selected_nominal if pair_selected else None,
         "selected_nominal_points": selected_points,
-        "selected_deflator": selected_deflator,
+        "selected_deflator": selected_deflator if pair_selected else None,
         "execution_selection": execution_selection,
         "request_start_year": request_start_year,
         "request_end_year": request_end_year,
@@ -888,7 +1070,7 @@ def derive_acceptance_authority_owners(
     l5_owner_ref: str,
     fixture_root: Path,
 ) -> AcceptanceAuthorityOwners:
-    """Extend the canonical registry/provision with one exact CPI live carrier."""
+    """Extend the canonical registry/provision with one exact live carrier."""
 
     selected = AcceptanceInputSelection.model_validate(selection.model_dump(mode="python"))
     if selected.disposition != "admissible_pair" or selected.execution_selection is None:
@@ -1037,11 +1219,21 @@ def derive_acceptance_fallback_selection(
     input_selection: AcceptanceInputSelection,
     live_execution: AcceptanceLiveExecutionReceipt,
     catalog_path: Path,
+    family_registry_path: Path = DEFAULT_DERIVATION_FAMILY_REGISTRY,
 ) -> AcceptanceFallbackSelection:
     """Recompute every local index series after the one authorized live terminal."""
 
     selected = AcceptanceInputSelection.model_validate(input_selection.model_dump(mode="python"))
     live = AcceptanceLiveExecutionReceipt.model_validate(live_execution.model_dump(mode="python"))
+    derivation_owner = _load_acceptance_derivation_owner(family_registry_path)
+    if (
+        selected.transform_family_id != derivation_owner.family.family_id
+        or selected.transform_family_projection_sha256 != derivation_owner.family_projection_sha256
+        or selected.selector_projection_sha256 != derivation_owner.selector_projection_sha256
+        or selected.primary_input_role != derivation_owner.primary_role
+        or selected.auxiliary_input_role != derivation_owner.auxiliary_role
+    ):
+        raise AcceptanceSelectionError("acceptance_fallback_derivation_owner_drift")
     if selected.selected_nominal is None or not selected.selected_nominal_points:
         raise AcceptanceSelectionError("acceptance_fallback_nominal_input_missing")
     if (
@@ -1055,13 +1247,22 @@ def derive_acceptance_fallback_selection(
     if _file_sha256(catalog) != selected.baseline_sha256:
         raise AcceptanceSelectionError("acceptance_fallback_baseline_drift")
 
+    auxiliary_policy = _catalog_role_policy(
+        derivation_owner,
+        role=derivation_owner.auxiliary_role,
+    )
     nominal_years = tuple(point.year for point in selected.selected_nominal_points)
-    rows, points, all_local_groups = _read_local_index_denominator(catalog)
+    rows, points, all_local_groups = _read_local_index_denominator(
+        catalog,
+        expected_unit=auxiliary_policy.catalog_unit,
+        country_code=derivation_owner.selector.country_code,
+    )
     dispositions = tuple(
         _build_local_deflator_disposition(
             row,
             points=points[row["series_key"]],
             nominal_years=nominal_years,
+            role_policy=auxiliary_policy,
         )
         for row in rows
     )
@@ -1069,8 +1270,7 @@ def derive_acceptance_fallback_selection(
     selected_deflator = min(eligible, key=_local_deflator_rank_key) if eligible else None
     selected_points: tuple[LocalDeflatorPoint, ...] = ()
     exact_overlap_years: tuple[int, ...] = ()
-    base_year_selection: Literal["median_exact_overlap_year"] | None = None
-    base_year: int | None = None
+    parameter_rule_selection: str | None = None
     deflator_version: str | None = None
     if selected_deflator is not None:
         selected_points = tuple(
@@ -1084,8 +1284,21 @@ def derive_acceptance_fallback_selection(
             ]
         )
         exact_overlap_years = selected_deflator.overlapping_nominal_years
-        base_year_selection = "median_exact_overlap_year"
-        base_year = exact_overlap_years[len(exact_overlap_years) // 2]
+        rules = tuple(
+            rule
+            for rule in derivation_owner.family.parameter_rules
+            if set(rule.input_roles)
+            == {
+                derivation_owner.primary_role,
+                derivation_owner.auxiliary_role,
+            }
+        )
+        if len(rules) != 1:
+            raise AcceptanceSelectionError(
+                "acceptance_family_parameter_rule_unresolved",
+                derivation_owner.family.family_id,
+            )
+        parameter_rule_selection = rules[0].operator
         versions = {
             (point.dataset_version, point.source_watermark, point.acquisition_method)
             for point in selected_points
@@ -1101,6 +1314,9 @@ def derive_acceptance_fallback_selection(
         "baseline_ref": selected.baseline_ref,
         "baseline_sha256": selected.baseline_sha256,
         "input_selection_sha256": selected.selection_sha256,
+        "transform_family_id": derivation_owner.family.family_id,
+        "transform_family_projection_sha256": (derivation_owner.family_projection_sha256),
+        "selector_projection_sha256": derivation_owner.selector_projection_sha256,
         "live_execution_receipt_sha256": live.receipt_sha256,
         "live_terminal_failure_code": live.terminal.failure_code,
         "all_local_series_group_count": all_local_groups,
@@ -1120,8 +1336,8 @@ def derive_acceptance_fallback_selection(
         "selected_deflator": selected_deflator,
         "selected_deflator_points": selected_points,
         "exact_overlap_years": exact_overlap_years,
-        "recipe_base_year_selection": base_year_selection,
-        "recipe_base_year": base_year,
+        "recipe_base_year_selection": parameter_rule_selection,
+        "recipe_base_year": None,
         "deflator_version": deflator_version,
     }
     return AcceptanceFallbackSelection(
@@ -1136,6 +1352,7 @@ def materialize_acceptance_case(
     fallback_selection: AcceptanceFallbackSelection,
     store: artifacts.FileSystemCAS,
     require_first_cache_miss: bool = True,
+    family_registry_path: Path = DEFAULT_DERIVATION_FAMILY_REGISTRY,
 ) -> AcceptanceCaseReceipt:
     """Materialize and consume the certified local-fallback derivation once."""
 
@@ -1143,19 +1360,33 @@ def materialize_acceptance_case(
     fallback = AcceptanceFallbackSelection.model_validate(
         fallback_selection.model_dump(mode="python")
     )
+    derivation_owner = _load_acceptance_derivation_owner(family_registry_path)
     if (
         fallback.input_selection_sha256 != selected.selection_sha256
         or fallback.disposition != "local_fallback_admissible"
         or selected.selected_nominal is None
         or fallback.selected_deflator is None
-        or fallback.recipe_base_year is None
         or fallback.deflator_version is None
     ):
         raise AcceptanceSelectionError("acceptance_case_inputs_inadmissible")
+    if (
+        selected.transform_family_id != derivation_owner.family.family_id
+        or selected.transform_family_projection_sha256 != derivation_owner.family_projection_sha256
+        or selected.selector_projection_sha256 != derivation_owner.selector_projection_sha256
+        or fallback.transform_family_id != derivation_owner.family.family_id
+        or fallback.transform_family_projection_sha256 != derivation_owner.family_projection_sha256
+        or fallback.selector_projection_sha256 != derivation_owner.selector_projection_sha256
+    ):
+        raise AcceptanceSelectionError("acceptance_case_derivation_owner_drift")
 
-    nominal_authority = _persist_input_authority(
+    primary_role = derivation_owner.primary_role
+    auxiliary_role = derivation_owner.auxiliary_role
+    primary_spec = _family_input_spec(derivation_owner, primary_role)
+    auxiliary_spec = _family_input_spec(derivation_owner, auxiliary_role)
+
+    primary_authority = _persist_input_authority(
         store,
-        role="nominal_monetary_series",
+        role=primary_role,
         baseline_sha256=fallback.baseline_sha256,
         disposition_payload=selected.selected_nominal.identity_payload(),
         observation_projection_sha256=(selected.selected_nominal.observation_projection_sha256),
@@ -1163,9 +1394,9 @@ def materialize_acceptance_case(
         binding_confidence=selected.selected_nominal.maximum_binding_confidence,
         distribution_quality=selected.selected_nominal.maximum_distribution_quality,
     )
-    deflator_authority = _persist_input_authority(
+    auxiliary_authority = _persist_input_authority(
         store,
-        role="price_index_series",
+        role=auxiliary_role,
         baseline_sha256=fallback.baseline_sha256,
         disposition_payload=fallback.selected_deflator.identity_payload(),
         observation_projection_sha256=(fallback.selected_deflator.observation_projection_sha256),
@@ -1173,86 +1404,71 @@ def materialize_acceptance_case(
         binding_confidence=fallback.selected_deflator.maximum_binding_confidence,
         distribution_quality=fallback.selected_deflator.maximum_distribution_quality,
     )
-    nominal_basis = EconomicBasis(
-        unit=MoneyUnit(
-            kind="money",
-            currency="USD",
-            nominal_year=None,
-            price_base=None,
-        ),
-        price_basis="nominal",
-        base_year=None,
-        deflator_ref=None,
-        deflator_version=None,
-        per_capita=False,
-        seasonal_adjustment="not_seasonally_adjusted",
-    )
-    deflator_basis = PriceIndexBasis(
-        unit=DimensionlessUnit(kind="dimensionless", label="index"),
-        index_id="consumer_price_index",
-        index_version=fallback.deflator_version,
-        reference_base_year=fallback.selected_deflator.reference_base_year,
-        seasonal_adjustment="not_seasonally_adjusted",
-    )
-    nominal_series = EconomicSeries(
-        variable_id=(f"{selected.selected_nominal.canonical_variable}_nominal_usd"),
-        basis=nominal_basis,
+    primary_series = SourceSeries(
+        variable_id=selected.selected_nominal.canonical_variable,
+        basis=primary_spec.basis,
         points=tuple(
             SeriesPoint(year=point.year, value=point.value)
             for point in selected.selected_nominal_points
         ),
-        authority=nominal_authority,
+        authority=primary_authority,
         observation_class="observed",
     )
-    deflator_series = PriceIndexSeries(
-        variable_id="consumer_price_index",
-        basis=deflator_basis,
+    auxiliary_series = SourceSeries(
+        variable_id=fallback.selected_deflator.canonical_variable,
+        basis=auxiliary_spec.basis,
         points=tuple(
             SeriesPoint(year=point.year, value=point.value)
             for point in fallback.selected_deflator_points
         ),
-        authority=deflator_authority,
+        authority=auxiliary_authority,
         observation_class="observed",
     )
-    nominal_ref = persist_economic_series(
+    primary_ref = persist_source_series(
         store,
-        nominal_series,
-        producer=_ACCEPTANCE_PRODUCER,
+        primary_series,
     )
-    deflator_ref = persist_price_index_series(
+    auxiliary_ref = persist_source_series(
         store,
-        deflator_series,
-        producer=_ACCEPTANCE_PRODUCER,
+        auxiliary_series,
     )
-    output_basis = _acceptance_output_basis(
-        deflator_ref=deflator_ref,
-        deflator_version=fallback.deflator_version,
-        base_year=fallback.recipe_base_year,
-        currency="USD",
-    )
-    assumptions = (
-        f"base_year={fallback.recipe_base_year}",
-        "deflator_choice=consumer_price_index",
-        f"deflator_reference_base_year={fallback.selected_deflator.reference_base_year}",
-        f"deflator_version={fallback.deflator_version}",
-        "exact-year joins; no interpolation",
-        "real_t = nominal_t * CPI_base / CPI_t",
-        "recipe_base_year_selection=median_exact_overlap_year",
-    )
-    recipe = build_cpi_derivation_recipe(
+    input_refs = {
+        primary_role: primary_ref,
+        auxiliary_role: auxiliary_ref,
+    }
+    preview = build_derivation_recipe(
         store,
-        nominal_ref=nominal_ref,
-        deflator_ref=deflator_ref,
-        output_variable_id=(
-            f"{selected.selected_nominal.canonical_variable}_real_usd_{fallback.recipe_base_year}"
-        ),
-        output_basis=output_basis,
-        assumptions=assumptions,
+        registry=derivation_owner.registry,
+        input_refs=input_refs,
+        output_variable_id=f"{selected.selected_nominal.canonical_variable}.preview",
+        family_id=derivation_owner.family.family_id,
     )
-    first = materialize_cpi_real_terms(store, recipe)
+    if fallback.recipe_base_year_selection not in {
+        parameter.rule.operator for parameter in preview.parameters
+    }:
+        raise AcceptanceSelectionError("acceptance_recipe_parameter_rule_drift")
+    variable_context = {
+        f"{primary_role}_canonical_variable": selected.selected_nominal.canonical_variable,
+        f"{auxiliary_role}_canonical_variable": (fallback.selected_deflator.canonical_variable),
+        **{parameter.name: format(parameter.value, "f") for parameter in preview.parameters},
+    }
+    try:
+        output_variable_id = derivation_owner.selector.output_variable_id_template.format_map(
+            variable_context
+        )
+    except (KeyError, ValueError) as exc:
+        raise AcceptanceSelectionError("acceptance_output_variable_template_unresolved") from exc
+    recipe = build_derivation_recipe(
+        store,
+        registry=derivation_owner.registry,
+        input_refs=input_refs,
+        output_variable_id=output_variable_id,
+        family_id=derivation_owner.family.family_id,
+    )
+    first = materialize_derivation(store, recipe)
     if require_first_cache_miss and first.cache_hit:
         raise AcceptanceSelectionError("acceptance_first_materialization_not_cache_miss")
-    second = materialize_cpi_real_terms(store, recipe)
+    second = materialize_derivation(store, recipe)
     if not second.cache_hit:
         raise AcceptanceSelectionError("acceptance_second_materialization_not_cache_hit")
     if (
@@ -1266,27 +1482,27 @@ def materialize_acceptance_case(
         certificate_ref=second.certificate_artifact_ref,
     )
     try:
-        build_cpi_derivation_recipe(
+        mismatched_basis_payload = recipe.output_basis.model_dump(mode="python")
+        mismatched_basis_payload["unit"] = f"{recipe.output_basis.unit}.uncertified"
+        build_derivation_recipe(
             store,
-            nominal_ref=nominal_ref,
-            deflator_ref=deflator_ref,
-            output_variable_id=(
-                f"{selected.selected_nominal.canonical_variable}_real_uah_"
-                f"{fallback.recipe_base_year}"
-            ),
-            output_basis=_acceptance_output_basis(
-                deflator_ref=deflator_ref,
-                deflator_version=fallback.deflator_version,
-                base_year=fallback.recipe_base_year,
-                currency="UAH",
-            ),
-            assumptions=assumptions,
+            registry=derivation_owner.registry,
+            input_refs=input_refs,
+            output_variable_id=output_variable_id,
+            output_basis=BasisSignature.model_validate(mismatched_basis_payload),
         )
     except DerivationRefusalError as exc:
-        if exc.code is not DerivationRefusalCode.BASIS_MISMATCH:
+        if (
+            exc.code is not DerivationRefusalCode.BASIS_MISMATCH
+            or exc.reason is not DerivationRefusalReason.NO_CERTIFIED_TRANSFORM
+        ):
             raise
         basis_mismatch_detail_sha256 = content_sha256(
-            {"code": exc.code.value, "detail": exc.detail}
+            {
+                "code": exc.code.value,
+                "reason": exc.reason.value,
+                "detail": exc.detail,
+            }
         )
     else:
         raise AcceptanceSelectionError("acceptance_basis_mismatch_did_not_refuse")
@@ -1296,8 +1512,13 @@ def materialize_acceptance_case(
         "fallback_selection_sha256": fallback.selection_sha256,
         "baseline_sha256": fallback.baseline_sha256,
         "source_epoch": 0,
-        "nominal_series_artifact_id": str(nominal_ref.artifact_id),
-        "deflator_series_artifact_id": str(deflator_ref.artifact_id),
+        "transform_family_id": derivation_owner.family.family_id,
+        "transform_family_projection_sha256": (derivation_owner.family_projection_sha256),
+        "selector_projection_sha256": derivation_owner.selector_projection_sha256,
+        "primary_input_role": primary_role,
+        "auxiliary_input_role": auxiliary_role,
+        "nominal_series_artifact_id": str(primary_ref.artifact_id),
+        "deflator_series_artifact_id": str(auxiliary_ref.artifact_id),
         "recipe": recipe,
         "certificate": second.certificate,
         "derived_artifact_id": str(second.derived_artifact_ref.artifact_id),
@@ -1306,6 +1527,7 @@ def materialize_acceptance_case(
         "second_materialization_cache_hit": True,
         "consumers": consumer_executions,
         "basis_mismatch_refusal_code": DerivationRefusalCode.BASIS_MISMATCH.value,
+        "basis_mismatch_refusal_reason": (DerivationRefusalReason.NO_CERTIFIED_TRANSFORM.value),
         "basis_mismatch_detail_sha256": basis_mismatch_detail_sha256,
         "model_output_observation_rejection_codes": (
             derive_observation_provenance_rejections(ObservationProvenanceClass.MODEL_OUTPUT)
@@ -1403,29 +1625,6 @@ def _persist_input_authority(
     )
 
 
-def _acceptance_output_basis(
-    *,
-    deflator_ref: artifacts.ArtifactRef,
-    deflator_version: str,
-    base_year: int,
-    currency: str,
-) -> EconomicBasis:
-    return EconomicBasis(
-        unit=MoneyUnit(
-            kind="money",
-            currency=currency,
-            nominal_year=base_year,
-            price_base="consumer_price_index",
-        ),
-        price_basis="real",
-        base_year=base_year,
-        deflator_ref=deflator_ref.artifact_id,
-        deflator_version=deflator_version,
-        per_capita=False,
-        seasonal_adjustment="not_seasonally_adjusted",
-    )
-
-
 def _consume_acceptance_methods(
     store: artifacts.FileSystemCAS,
     *,
@@ -1467,6 +1666,9 @@ def _consume_acceptance_methods(
 
 def _read_local_denominator(
     catalog_path: Path,
+    *,
+    expected_unit: str,
+    country_code: str,
 ) -> tuple[
     tuple[dict[str, object], ...],
     dict[tuple[str, str, str], tuple[dict[str, object], ...]],
@@ -1486,10 +1688,11 @@ def _read_local_denominator(
                      max(o.year) AS maximum_year,
                      count(*) - count(DISTINCT o.year) AS duplicate_year_count,
                      count(o.source_watermark) AS source_watermark_count,
+                     count(o.dataset_version) AS dataset_version_count,
                      count(o.acquisition_method) AS acquisition_method_count
               FROM ds_observations o
               JOIN ds_datasets d ON d.id = o.dataset_id
-              WHERE o.country_code = 'UA'
+              WHERE o.country_code = ?
                 AND o.value IS NOT NULL
                 AND o.year IS NOT NULL
               GROUP BY ALL
@@ -1507,9 +1710,11 @@ def _read_local_denominator(
                    o.access_license, o.raw_variable, o.canonical_var,
                    o.row_count, o.distinct_year_count, o.minimum_year,
                    o.maximum_year, o.duplicate_year_count,
-                   o.source_watermark_count, o.acquisition_method_count,
+                   o.source_watermark_count, o.dataset_version_count,
+                   o.acquisition_method_count,
                    a.method, a.confidence, a.is_proxy, a.proxy_penalty,
                    coalesce(b.exact_binding_count, 0),
+                   b.canonical_var,
                    b.maximum_binding_confidence,
                    b.maximum_distribution_quality
             FROM observation_groups o
@@ -1522,7 +1727,8 @@ def _read_local_denominator(
              AND b.raw_variable = o.raw_variable
              AND b.canonical_var = o.canonical_var
             ORDER BY o.dataset_id, o.raw_variable, o.canonical_var
-            """
+            """,
+            [country_code],
         ).fetchall()
         fields = (
             "dataset_id",
@@ -1539,12 +1745,14 @@ def _read_local_denominator(
             "maximum_year",
             "duplicate_year_count",
             "source_watermark_count",
+            "dataset_version_count",
             "acquisition_method_count",
             "alignment_method",
             "alignment_confidence",
             "alignment_is_proxy",
             "alignment_proxy_penalty",
             "exact_binding_count",
+            "metric_id",
             "maximum_binding_confidence",
             "maximum_distribution_quality",
         )
@@ -1555,7 +1763,7 @@ def _read_local_denominator(
             if data_forge_read_api.catalog.derive_catalog_unit_from_text(
                 f"{row['title']} {row['description']}"
             )
-            in _MONETARY_UNITS
+            == expected_unit
         )
         points: dict[tuple[str, str, str], tuple[dict[str, object], ...]] = {}
         for row in monetary_rows:
@@ -1570,10 +1778,10 @@ def _read_local_denominator(
                        dataset_version, acquisition_method
                 FROM ds_observations
                 WHERE dataset_id = ? AND raw_variable = ? AND canonical_var = ?
-                  AND country_code = 'UA' AND value IS NOT NULL AND year IS NOT NULL
+                  AND country_code = ? AND value IS NOT NULL AND year IS NOT NULL
                 ORDER BY year, observation_id
                 """,
-                list(key),
+                [*key, country_code],
             ).fetchall()
             point_fields = (
                 "observation_id",
@@ -1590,6 +1798,9 @@ def _read_local_denominator(
 
 def _read_local_index_denominator(
     catalog_path: Path,
+    *,
+    expected_unit: str,
+    country_code: str,
 ) -> tuple[
     tuple[dict[str, object], ...],
     dict[tuple[str, str, str], tuple[dict[str, object], ...]],
@@ -1609,11 +1820,12 @@ def _read_local_index_denominator(
                      max(o.year) AS maximum_year,
                      count(*) - count(DISTINCT o.year) AS duplicate_year_count,
                      count(o.source_watermark) AS source_watermark_count,
+                     count(o.dataset_version) AS dataset_version_count,
                      count(o.acquisition_method) AS acquisition_method_count,
                      sum(CASE WHEN o.value <= 0 THEN 1 ELSE 0 END) AS nonpositive_value_count
               FROM ds_observations o
               JOIN ds_datasets d ON d.id = o.dataset_id
-              WHERE o.country_code = 'UA'
+              WHERE o.country_code = ?
                 AND o.value IS NOT NULL
                 AND o.year IS NOT NULL
               GROUP BY ALL
@@ -1631,10 +1843,12 @@ def _read_local_index_denominator(
                    o.access_license, o.raw_variable, o.canonical_var,
                    o.row_count, o.distinct_year_count, o.minimum_year,
                    o.maximum_year, o.duplicate_year_count,
-                   o.source_watermark_count, o.acquisition_method_count,
+                   o.source_watermark_count, o.dataset_version_count,
+                   o.acquisition_method_count,
                    o.nonpositive_value_count,
                    a.method, a.confidence, a.is_proxy, a.proxy_penalty,
                    coalesce(b.exact_binding_count, 0),
+                   b.canonical_var,
                    b.maximum_binding_confidence,
                    b.maximum_distribution_quality
             FROM observation_groups o
@@ -1647,7 +1861,8 @@ def _read_local_index_denominator(
              AND b.raw_variable = o.raw_variable
              AND b.canonical_var = o.canonical_var
             ORDER BY o.dataset_id, o.raw_variable, o.canonical_var
-            """
+            """,
+            [country_code],
         ).fetchall()
         fields = (
             "dataset_id",
@@ -1664,6 +1879,7 @@ def _read_local_index_denominator(
             "maximum_year",
             "duplicate_year_count",
             "source_watermark_count",
+            "dataset_version_count",
             "acquisition_method_count",
             "nonpositive_value_count",
             "alignment_method",
@@ -1671,6 +1887,7 @@ def _read_local_index_denominator(
             "alignment_is_proxy",
             "alignment_proxy_penalty",
             "exact_binding_count",
+            "metric_id",
             "maximum_binding_confidence",
             "maximum_distribution_quality",
         )
@@ -1681,7 +1898,7 @@ def _read_local_index_denominator(
             if data_forge_read_api.catalog.derive_catalog_unit_from_text(
                 f"{row['title']} {row['description']}"
             )
-            == "index"
+            == expected_unit
         )
         points: dict[tuple[str, str, str], tuple[dict[str, object], ...]] = {}
         for row in index_rows:
@@ -1696,10 +1913,10 @@ def _read_local_index_denominator(
                        dataset_version, acquisition_method
                 FROM ds_observations
                 WHERE dataset_id = ? AND raw_variable = ? AND canonical_var = ?
-                  AND country_code = 'UA' AND value IS NOT NULL AND year IS NOT NULL
+                  AND country_code = ? AND value IS NOT NULL AND year IS NOT NULL
                 ORDER BY year, observation_id
                 """,
-                list(key),
+                [*key, country_code],
             ).fetchall()
             point_fields = (
                 "observation_id",
@@ -1714,7 +1931,11 @@ def _read_local_index_denominator(
     return index_rows, points, len(all_rows)
 
 
-def _read_deflator_denominator(catalog_path: Path) -> tuple[dict[str, object], ...]:
+def _read_deflator_denominator(
+    catalog_path: Path,
+    *,
+    metric_id: str,
+) -> tuple[dict[str, object], ...]:
     with duckdb.connect(str(catalog_path), read_only=True) as con:
         rows = con.execute(
             """
@@ -1730,9 +1951,10 @@ def _read_deflator_denominator(catalog_path: Path) -> tuple[dict[str, object], .
             JOIN ds_datasets d ON d.id = b.dataset_id
             JOIN ds_distributions x
               ON x.id = b.distribution_id AND x.dataset_id = b.dataset_id
-            WHERE b.metric_id = 'inflation'
+            WHERE b.metric_id = ?
             ORDER BY b.dataset_id, b.distribution_id, b.request_dataset_id
-            """
+            """,
+            [metric_id],
         ).fetchall()
     fields = (
         "metric_id",
@@ -1763,31 +1985,30 @@ def _build_local_disposition(
     row: Mapping[str, object],
     *,
     points: Sequence[Mapping[str, object]],
+    role_policy: CatalogSelectionRoleConfig,
 ) -> LocalNominalDisposition:
-    values = {key: value for key, value in row.items() if key != "series_key"}
+    values = {
+        **{key: value for key, value in row.items() if key != "series_key"},
+        "role_policy": role_policy,
+    }
     unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(
         f"{values['title']} {values['description']}"
-    )
-    score = data_forge_read_api.catalog.score_variable_pair(
-        left_name=_NOMINAL_ANCHOR,
-        right_name=(f"{values['canonical_variable']} {values['raw_variable']} {values['title']}"),
-        left_unit="usd",
-        right_unit=unit or "unresolved",
     )
     provisional = LocalNominalDisposition.model_construct(
         **values,
         derived_unit=unit,
-        acceptance_alignment_score=score.overall_score,
+        acceptance_alignment_score=0.0,
         rejection_codes=(),
         eligible=False,
         observation_projection_sha256=_point_projection_sha256(points),
         projection_sha256="sha256:" + "0" * 64,
     )
+    evaluation = _evaluate_local_candidate(provisional)
     rejections = _local_rejection_codes(provisional)
     payload = {
         **values,
         "derived_unit": unit,
-        "acceptance_alignment_score": score.overall_score,
+        "acceptance_alignment_score": evaluation.semantic_alignment_score,
         "rejection_codes": rejections,
         "eligible": not rejections,
         "observation_projection_sha256": _point_projection_sha256(points),
@@ -1802,25 +2023,24 @@ def _build_deflator_disposition(
     row: Mapping[str, object],
     *,
     live_families: tuple[str, ...],
+    role_policy: CatalogSelectionRoleConfig,
 ) -> DeflatorCarrierDisposition:
     themes = tuple(sorted(set(_string_values(row.get("themes")))))
     title = str(row["title"])
     description = str(row["description"])
     unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(f"{title} {description}")
-    base_year = _reference_base_year(f"{title} {description}")
-    score = data_forge_read_api.catalog.score_variable_pair(
-        left_name=_DEFLATOR_ANCHOR,
-        right_name=f"{row['request_dataset_id']} {title}",
-        left_unit="index",
-        right_unit=unit or "unresolved",
+    base_year = _reference_base_year(
+        f"{title} {description}",
+        pattern=role_policy.reference_value_pattern,
     )
     values: dict[str, object] = {
         **row,
+        "role_policy": role_policy,
         "themes": themes,
         "derived_unit": unit,
         "reference_base_year": base_year,
         "live_family": str(row["connector_id"]) in live_families,
-        "acceptance_alignment_score": score.overall_score,
+        "acceptance_alignment_score": 0.0,
     }
     provisional = DeflatorCarrierDisposition.model_construct(
         **values,
@@ -1828,8 +2048,14 @@ def _build_deflator_disposition(
         eligible=False,
         projection_sha256="sha256:" + "0" * 64,
     )
+    evaluation = _evaluate_live_candidate(provisional)
     rejections = _deflator_rejection_codes(provisional)
-    payload = {**values, "rejection_codes": rejections, "eligible": not rejections}
+    payload = {
+        **values,
+        "acceptance_alignment_score": evaluation.semantic_alignment_score,
+        "rejection_codes": rejections,
+        "eligible": not rejections,
+    }
     return DeflatorCarrierDisposition(
         **payload,
         projection_sha256=content_sha256(_json_values(payload)),
@@ -1841,12 +2067,19 @@ def _build_local_deflator_disposition(
     *,
     points: Sequence[Mapping[str, object]],
     nominal_years: Sequence[int],
+    role_policy: CatalogSelectionRoleConfig,
 ) -> LocalDeflatorDisposition:
-    values = {key: value for key, value in row.items() if key != "series_key"}
+    values = {
+        **{key: value for key, value in row.items() if key != "series_key"},
+        "role_policy": role_policy,
+    }
     title = str(values["title"])
     description = str(values["description"])
     unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(f"{title} {description}")
-    base_year = _reference_base_year(f"{title} {description}")
+    base_year = _reference_base_year(
+        f"{title} {description}",
+        pattern=role_policy.reference_value_pattern,
+    )
     point_years = {int(point["year"]) for point in points}
     expected_years = {int(year) for year in nominal_years}
     overlap = tuple(sorted(point_years & expected_years))
@@ -1881,112 +2114,82 @@ def _build_local_deflator_disposition(
 
 
 def _local_rejection_codes(row: LocalNominalDisposition) -> tuple[str, ...]:
-    codes: set[str] = set()
-    if row.derived_unit not in _MONETARY_UNITS:
-        codes.add("monetary_unit_unresolved")
-    if (
-        data_forge_read_api.catalog.derive_license_disposition(row.access_license).value
-        != "admissible_open"
-    ):
-        codes.add("license_not_admissible")
-    if row.distinct_year_count < 2:
-        codes.add("insufficient_exact_years")
-    if row.duplicate_year_count:
-        codes.add("duplicate_years")
-    if row.source_watermark_count != row.row_count:
-        codes.add("source_watermark_missing")
-    if row.acquisition_method_count != row.row_count:
-        codes.add("acquisition_method_missing")
-    if row.alignment_method is None or row.alignment_confidence is None:
-        codes.add("alignment_missing")
-    elif row.alignment_confidence < _LOCAL_ALIGNMENT_THRESHOLD:
-        codes.add("alignment_below_owner_threshold")
-    if row.alignment_is_proxy is not False:
-        codes.add("proxy_or_unresolved_alignment")
-    if row.exact_binding_count < 1:
-        codes.add("metric_binding_missing")
-    title = row.title.casefold()
-    if "current" not in title:
-        codes.add("nominal_basis_not_declared")
-    if "per capita" in title:
-        codes.add("per_capita_basis_out_of_scope")
-    if "seas. adj" in title or "seasonally adjusted" in title:
-        codes.add("seasonal_basis_out_of_scope")
-    return tuple(sorted(codes))
+    return tuple(code.value for code in _evaluate_local_candidate(row).rejection_codes)
 
 
 def _deflator_rejection_codes(row: DeflatorCarrierDisposition) -> tuple[str, ...]:
-    codes: set[str] = set()
-    if row.metric_id != "inflation":
-        codes.add("metric_role_mismatch")
+    codes = {code.value for code in _evaluate_live_candidate(row).rejection_codes}
     if not row.live_family:
         codes.add("family_not_live_characterized")
-    if row.connector_id != "worldbank.wdi":
-        codes.add("executor_connector_unimplemented")
-    if row.execution_tier not in _EXECUTABLE_TIERS:
-        codes.add("execution_tier_not_executable")
-    if (
-        data_forge_read_api.catalog.derive_license_disposition(row.access_license).value
-        != "admissible_open"
-    ):
-        codes.add("license_not_admissible")
-    if row.access_auth_required:
-        codes.add("auth_required")
-    if not row.parser_supported:
-        codes.add("parser_unsupported")
-    if row.derived_unit != "index":
-        codes.add("price_index_basis_missing")
-    normalized = f"{row.title} {row.description}".casefold()
-    if "consumer price index" not in normalized:
-        codes.add("consumer_price_index_role_missing")
-    if row.reference_base_year is None:
-        codes.add("reference_base_year_missing")
-    if "World Development Indicators" not in row.themes:
-        codes.add("current_wdi_theme_missing")
-    if any("archive" in theme.casefold() for theme in row.themes):
-        codes.add("archived_carrier")
     return tuple(sorted(codes))
 
 
 def _local_deflator_rejection_codes(row: LocalDeflatorDisposition) -> tuple[str, ...]:
-    codes: set[str] = set()
-    if row.derived_unit != "index":
-        codes.add("price_index_basis_missing")
-    if (
-        data_forge_read_api.catalog.derive_license_disposition(row.access_license).value
-        != "admissible_open"
-    ):
-        codes.add("license_not_admissible")
-    if row.distinct_year_count < 2:
-        codes.add("insufficient_exact_years")
-    if row.duplicate_year_count:
-        codes.add("duplicate_years")
-    if row.source_watermark_count != row.row_count:
-        codes.add("source_watermark_missing")
-    if row.acquisition_method_count != row.row_count:
-        codes.add("acquisition_method_missing")
+    codes = {code.value for code in _evaluate_local_candidate(row).rejection_codes}
     if row.nonpositive_value_count:
         codes.add("nonpositive_index_value")
-    if row.alignment_method is None or row.alignment_confidence is None:
-        codes.add("alignment_missing")
-    elif row.alignment_confidence < _LOCAL_ALIGNMENT_THRESHOLD:
-        codes.add("alignment_below_owner_threshold")
-    if row.alignment_is_proxy is not False:
-        codes.add("proxy_or_unresolved_alignment")
-    if row.exact_binding_count < 1:
-        codes.add("metric_binding_missing")
-    if row.canonical_variable != "inflation":
-        codes.add("deflator_metric_role_mismatch")
-    normalized = f"{row.title} {row.description}".casefold()
-    if "consumer price index" not in normalized:
-        codes.add("consumer_price_index_role_missing")
-    if "annual %" in normalized or "percentage change" in normalized:
-        codes.add("rate_not_price_index_level")
-    if row.reference_base_year is None:
-        codes.add("reference_base_year_missing")
     if row.missing_nominal_years:
         codes.add("exact_year_overlap_missing")
     return tuple(sorted(codes))
+
+
+def _evaluate_local_candidate(
+    row: LocalNominalDisposition | LocalDeflatorDisposition,
+) -> data_forge_read_api.catalog.CatalogSelectionCandidateEvaluation:
+    return data_forge_read_api.catalog.evaluate_catalog_selection_candidate(
+        row.role_policy,
+        CatalogSelectionCandidateEvidence(
+            candidate_kind="local_series",
+            catalog_unit=row.derived_unit,
+            metric_id=row.metric_id,
+            canonical_variable=row.canonical_variable,
+            title=row.title,
+            description=row.description,
+            access_license=row.access_license,
+            alignment_method=row.alignment_method,
+            alignment_confidence=row.alignment_confidence,
+            alignment_is_proxy=row.alignment_is_proxy,
+            alignment_proxy_penalty=row.alignment_proxy_penalty,
+            exact_binding_count=row.exact_binding_count,
+            maximum_binding_confidence=row.maximum_binding_confidence,
+            maximum_distribution_quality=row.maximum_distribution_quality,
+            point_count=row.row_count,
+            distinct_year_count=row.distinct_year_count,
+            duplicate_year_count=row.duplicate_year_count,
+            source_watermark_count=row.source_watermark_count,
+            dataset_version_count=row.dataset_version_count,
+            acquisition_method_count=row.acquisition_method_count,
+        ),
+    )
+
+
+def _evaluate_live_candidate(
+    row: DeflatorCarrierDisposition,
+) -> data_forge_read_api.catalog.CatalogSelectionCandidateEvaluation:
+    return data_forge_read_api.catalog.evaluate_catalog_selection_candidate(
+        row.role_policy,
+        CatalogSelectionCandidateEvidence(
+            candidate_kind="live_carrier",
+            catalog_unit=row.derived_unit,
+            metric_id=row.metric_id,
+            canonical_variable=row.metric_id,
+            title=row.title,
+            description=row.description,
+            access_license=row.access_license,
+            alignment_method="exact_catalog_binding",
+            alignment_confidence=row.binding_confidence,
+            alignment_is_proxy=False,
+            alignment_proxy_penalty=0.0,
+            exact_binding_count=1,
+            maximum_binding_confidence=row.binding_confidence,
+            maximum_distribution_quality=row.distribution_quality_score,
+            connector_id=row.connector_id,
+            execution_tier=row.execution_tier,
+            access_auth_required=row.access_auth_required,
+            parser_supported=row.parser_supported,
+            themes=row.themes,
+        ),
+    )
 
 
 def _local_rank_key(row: LocalNominalDisposition) -> tuple[object, ...]:
@@ -2033,19 +2236,20 @@ def _execution_selection(
     eligible_count: int,
     decisive_rejections: dict[str, int],
 ) -> LiveTargetSelection:
+    target_variable = row.role_policy.owner_canonical_variable
     score = data_forge_read_api.catalog.score_variable_pair(
-        left_name="inflation",
-        right_name="inflation",
-        left_unit="index",
-        right_unit="index",
+        left_name=target_variable,
+        right_name=row.metric_id,
+        left_unit=row.role_policy.catalog_unit,
+        right_unit=row.role_policy.catalog_unit,
     )
     values: dict[str, object] = {
-        "target_variable": "inflation",
-        "canonical_unit": "index",
+        "target_variable": target_variable,
+        "canonical_unit": row.role_policy.catalog_unit,
         "backlog_rank": 1,
         "demand_sources": ("GY-N13b.item7.real_terms_acceptance",),
         "live_family_denominator": live_families,
-        "eligible_target_denominator": ("inflation",),
+        "eligible_target_denominator": (target_variable,),
         "catalog_candidate_denominator": catalog_denominator_count,
         "eligible_catalog_candidate_count": eligible_count,
         "rejected_candidate_counts": decisive_rejections,
@@ -2107,8 +2311,10 @@ def _live_families(census: Mapping[str, object]) -> tuple[tuple[str, ...], dict[
     return tuple(sorted(live)), {"family_scorecards": projection_rows}
 
 
-def _reference_base_year(value: str) -> int | None:
-    match = _BASE_YEAR_RE.search(value)
+def _reference_base_year(value: str, *, pattern: str | None) -> int | None:
+    if pattern is None:
+        return None
+    match = re.search(pattern, value, re.IGNORECASE)
     return int(match.group(1)) if match else None
 
 
@@ -2208,13 +2414,17 @@ __all__ = [
     "DEFAULT_ACCEPTANCE_FALLBACK_SELECTION",
     "DEFAULT_ACCEPTANCE_INPUT_SELECTION",
     "DEFAULT_ACCEPTANCE_LIVE_EXECUTION",
+    "DEFAULT_DERIVATION_FAMILY_REGISTRY",
     "AcceptanceAuthorityOwner",
     "AcceptanceAuthorityOwners",
     "AcceptanceCaseReceipt",
+    "AcceptanceDerivationOwner",
     "AcceptanceFallbackSelection",
     "AcceptanceInputSelection",
     "AcceptanceLiveExecutionReceipt",
     "AcceptanceSelectionError",
+    "CatalogSelectionPolicyConfig",
+    "CatalogSelectionRoleConfig",
     "DeflatorCarrierDisposition",
     "LocalDeflatorDisposition",
     "LocalDeflatorPoint",

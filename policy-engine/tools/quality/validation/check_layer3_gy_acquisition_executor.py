@@ -150,6 +150,7 @@ def main() -> int:
     mode.add_argument("--write-acceptance-authority", action="store_true")
     mode.add_argument("--execute-acceptance-deflator", action="store_true")
     mode.add_argument("--check-acceptance-execution", action="store_true")
+    mode.add_argument("--write-acceptance-execution", action="store_true")
     mode.add_argument("--check-acceptance-fallback", action="store_true")
     mode.add_argument("--write-acceptance-fallback", action="store_true")
     mode.add_argument("--check-acceptance-case", action="store_true")
@@ -278,8 +279,6 @@ def main() -> int:
         scratch_root = POLICY_ENGINE_ROOT / ".tmp"
         scratch_root.mkdir(parents=True, exist_ok=True)
         if args.write_acceptance_case:
-            if case_path.exists():
-                raise RuntimeError("acceptance_case_output_already_exists")
             receipt = materialize_acceptance_case(
                 input_selection=acceptance,
                 fallback_selection=fallback,
@@ -301,6 +300,8 @@ def main() -> int:
             payload = canonical_json_bytes(receipt.model_dump(mode="json"))
             if payload != canonical_json_bytes(second_receipt.model_dump(mode="json")):
                 raise RuntimeError("acceptance_case_not_byte_stable")
+            # `--write` is the canonical rebaseline mode: replacement occurs only
+            # after the persisted graph and a fresh-CAS rebuild agree byte-for-byte.
             _write_replace_bytes(case_path, payload)
             status = "acceptance_case_written"
         else:
@@ -563,7 +564,11 @@ def main() -> int:
         )
         return 0
 
-    if args.execute_acceptance_deflator or args.check_acceptance_execution:
+    if (
+        args.execute_acceptance_deflator
+        or args.check_acceptance_execution
+        or args.write_acceptance_execution
+    ):
         paid_success_elapsed = _paid_success_elapsed_seconds(r1)
         acceptance = derive_acceptance_input_selection(
             catalog_path=args.catalog_path,
@@ -669,11 +674,15 @@ def main() -> int:
             )
             if payload != canonical_json_bytes(second.model_dump(mode="json")):
                 raise RuntimeError("acceptance_execution_not_byte_stable")
-            _check_payloads(
-                {DEFAULT_ACCEPTANCE_LIVE_EXECUTION: payload},
-                label="acceptance_execution",
-            )
-            status = "ok"
+            if args.write_acceptance_execution:
+                _write_replace_bytes(evidence_path, payload)
+                status = "acceptance_execution_rederived"
+            else:
+                _check_payloads(
+                    {DEFAULT_ACCEPTANCE_LIVE_EXECUTION: payload},
+                    label="acceptance_execution",
+                )
+                status = "ok"
         print(
             json.dumps(
                 {
@@ -696,6 +705,9 @@ def main() -> int:
                     "baseline_after_sha256": receipt.baseline_after_sha256,
                     "remaining_resumption_call_budget": 3,
                     "byte_stable_passes": 2,
+                    "live_network_calls": (
+                        receipt.call_count if args.execute_acceptance_deflator else 0
+                    ),
                 },
                 sort_keys=True,
             )

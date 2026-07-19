@@ -39,9 +39,19 @@ class _RegisteredDeploymentSecurityAttestation:
     components: Mapping[str, object]
 
 
+@dataclass(frozen=True, slots=True)
+class _RegisteredDeploymentSecurityInstallation:
+    runtime: object
+    container: object
+
+
 _ATTESTATIONS: WeakKeyDictionary[
     object,
     _RegisteredDeploymentSecurityAttestation,
+] = WeakKeyDictionary()
+_INSTALLATIONS: WeakKeyDictionary[
+    object,
+    _RegisteredDeploymentSecurityInstallation,
 ] = WeakKeyDictionary()
 _ATTESTATION_LOCK = RLock()
 
@@ -92,14 +102,60 @@ def require_registered_deployment_security(value: object) -> object:
     return value
 
 
+def register_deployment_security_installation(
+    app: object,
+    *,
+    runtime: object,
+    container: object,
+) -> None:
+    """Bind one application identity to its exact deployment composition."""
+    require_registered_deployment_security(runtime)
+    state = getattr(app, "state", None)
+    if (
+        state is None
+        or getattr(state, "runtime_deployment_security", None) is not runtime
+        or getattr(state, "runtime_container", None) is not container
+    ):
+        raise TypeError("deployment security installation is incomplete")
+    installation = _RegisteredDeploymentSecurityInstallation(
+        runtime=runtime,
+        container=container,
+    )
+    try:
+        with _ATTESTATION_LOCK:
+            _INSTALLATIONS[app] = installation
+    except TypeError as exc:
+        raise TypeError("deployment security application is not attestable") from exc
+
+
 def require_installed_deployment_security(subject: object) -> object | None:
     """Validate an installed bundle and all application security aliases."""
     app = getattr(subject, "app", subject)
     state = getattr(app, "state", None)
     runtime_value = getattr(state, "runtime_deployment_security", None)
-    if runtime_value is None:
-        return None
-    runtime = require_registered_deployment_security(runtime_value)
+    try:
+        with _ATTESTATION_LOCK:
+            installation = _INSTALLATIONS.get(app)
+    except TypeError as exc:
+        if runtime_value is None:
+            return None
+        raise DeploymentSecurityAttestationError(
+            "deployment security application identity is invalid"
+        ) from exc
+    if installation is None:
+        if runtime_value is None:
+            return None
+        raise DeploymentSecurityAttestationError(
+            "deployment security bundle is not registered to this application"
+        )
+    if (
+        runtime_value is not installation.runtime
+        or getattr(state, "runtime_container", None) is not installation.container
+    ):
+        raise DeploymentSecurityAttestationError(
+            "deployment security installation identity changed"
+        )
+    runtime = require_registered_deployment_security(installation.runtime)
     with _ATTESTATION_LOCK:
         attestation = _ATTESTATIONS.get(runtime)
     if attestation is None:  # pragma: no cover - guarded above under the same process
@@ -176,6 +232,7 @@ __all__ = [
     "DeploymentSecurityAttestationError",
     "DeploymentSecurityComponentName",
     "register_deployment_security_attestation",
+    "register_deployment_security_installation",
     "require_attested_deployment_component",
     "require_attested_deployment_setting",
     "require_installed_deployment_security",

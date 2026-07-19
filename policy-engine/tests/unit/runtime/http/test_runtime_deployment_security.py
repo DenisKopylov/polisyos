@@ -435,6 +435,43 @@ def test_non_development_runtime_revalidates_perimeter_objects_before_bypass(
     assert response.json()["code"] == "deployment_security_attestation_invalid"
 
 
+def test_non_development_review_socket_rejects_removed_deployment_installation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from fastapi.testclient import TestClient
+    from starlette.websockets import WebSocketDisconnect
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "review-installation-removal",
+        deployment_security=runtime,
+        enable_security_middlewares=True,
+    )
+
+    with TestClient(app) as client:
+        cast("Any", app).state.runtime_deployment_security = None
+        with (
+            pytest.raises(WebSocketDisconnect) as raised,
+            client.websocket_connect(
+                "/api/v1/review/live?channel=review.cursor&review_id=review-ds20"
+            ),
+        ):
+            pass
+
+    assert raised.value.code == 4503
+    assert raised.value.reason == "Deployment security attestation failed"
+
+
 def test_non_development_request_revalidates_authority_after_entry_before_mutation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,

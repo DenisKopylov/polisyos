@@ -34,6 +34,9 @@ from polisyos.runtime.http.deployment_security import (
     require_factory_produced_deployment_security,
     require_installed_deployment_security,
 )
+from polisyos.runtime.http.deployment_security_attestation import (
+    register_deployment_security_installation,
+)
 from polisyos.runtime.http.dev_identity_middleware import DevelopmentFixtureIdentityMiddleware
 from polisyos.runtime.http.errors import install_exception_handlers, problem_response
 from polisyos.runtime.http.execution_policy import (
@@ -269,6 +272,12 @@ def create_runtime_api_app(
         else None
     )
     runtime_container.install(app)
+    if deployment_security is not None:
+        register_deployment_security_installation(
+            app,
+            runtime=deployment_security,
+            container=runtime_container,
+        )
     install_exception_handlers(app)
 
     _install_request_telemetry_middleware(

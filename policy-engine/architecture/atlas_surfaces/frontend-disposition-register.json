@@ -455,6 +455,82 @@
       "verification_refs": [
         "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---whatif-dead-parameter-subgraph-cluster-verification"
       ]
+    },
+    {
+      "census_id": "census-ds4-c03b-dormant-primitives",
+      "captured_at": "2026-07-18T16:20:00+03:00",
+      "covers_unit_ids": [
+        "ui-primitives-root"
+      ],
+      "ds1_evidence_ids": [
+        "ui-primitives-root"
+      ],
+      "result": "zero_consumers",
+      "probes": [
+        {
+          "kind": "typescript_symbol_consumer_census",
+          "targets": [
+            "DropdownMenu",
+            "ScrollArea",
+            "Separator",
+            "Sheet",
+            "Tabs"
+          ],
+          "scan_roots": [
+            "apps/runtime-dashboard/src",
+            "packages"
+          ],
+          "expected_count": 0,
+          "observed_refs": [],
+          "checked_import_forms": [
+            "barrel",
+            "composition",
+            "direct",
+            "dynamic",
+            "namespace",
+            "relative"
+          ]
+        },
+        {
+          "kind": "path_absent",
+          "targets": [
+            "apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx",
+            "apps/runtime-dashboard/src/shared/ui/DropdownMenu.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Separator.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Separator.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Sheet.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Sheet.a11y.test.tsx",
+            "packages/atlas-ui/src/primitives/DropdownMenu.tsx",
+            "packages/atlas-ui/src/primitives/ScrollArea.tsx",
+            "packages/atlas-ui/src/primitives/Separator.tsx",
+            "packages/atlas-ui/src/primitives/Sheet.tsx",
+            "packages/atlas-ui/src/primitives/Tabs.tsx"
+          ],
+          "scan_roots": [],
+          "expected_count": 0,
+          "observed_refs": []
+        },
+        {
+          "kind": "protected_live_consumers",
+          "targets": [
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.tsx",
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Tabs.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Tabs.a11y.test.tsx"
+          ],
+          "scan_roots": [],
+          "expected_count": 4,
+          "observed_refs": [
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/ScrollArea.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Tabs.a11y.test.tsx",
+            "apps/runtime-dashboard/src/shared/ui/Tabs.tsx"
+          ]
+        }
+      ],
+      "verification_refs": [
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-journal.md#2026-07-18---c03b-dormant-primitive-retirement"
+      ]
     }
   ],
   "entries": [
@@ -1233,12 +1309,103 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "reference_census_id": "census-ds4-c03b-dormant-primitives",
+      "successor": {
+        "unit_id": "atlas-ui-primitives",
+        "consumer_refs": [
+          "packages/atlas-ui/src/index.ts",
+          "apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx",
+          "apps/runtime-dashboard/src/shared/ui/primitives/primitiveMigration.test.tsx"
+        ]
+      },
+      "aggregate_disposition_receipt": {
+        "receipt_id": "ds4-c03b-ui-primitives-mixed-disposition",
+        "kind": "aggregate_mixed_disposition",
+        "reason": "no_production_consumer",
+        "counts": {
+          "total": 29,
+          "package_migrated": 22,
+          "dashboard_rebound": 2,
+          "retired": 3,
+          "use_as_is": 2,
+          "c03b_candidates": 5,
+          "production_consumers": 0
+        },
+        "c03b_members": [
+          {
+            "primitive": "DropdownMenu",
+            "disposition": "retire",
+            "ds2_adoption_id": null,
+            "governing_condition": null,
+            "ledger_absence_reason": "no_exact_ds2_row"
+          },
+          {
+            "primitive": "ScrollArea",
+            "disposition": "use_as_is",
+            "ds2_adoption_id": "component-scroll-area",
+            "governing_condition": "Archive admission alone sunsets nothing. DS4 may remove a mapped loser only after generated/source ownership, consumer migration, drift checks, and the owning slice's DS6 evidence are complete.",
+            "ledger_absence_reason": null
+          },
+          {
+            "primitive": "Separator",
+            "disposition": "retire",
+            "ds2_adoption_id": null,
+            "governing_condition": null,
+            "ledger_absence_reason": "no_exact_ds2_row"
+          },
+          {
+            "primitive": "Sheet",
+            "disposition": "retire",
+            "ds2_adoption_id": null,
+            "governing_condition": null,
+            "ledger_absence_reason": "no_exact_ds2_row"
+          },
+          {
+            "primitive": "Tabs",
+            "disposition": "use_as_is",
+            "ds2_adoption_id": "component-tabs",
+            "governing_condition": "Keep the mapped live v4 family as the transitional winner until DS4 routes a real consumer through one governed replacement, DS6 passes its negative/browser/accessibility evidence, and the old import path is removed.",
+            "ledger_absence_reason": null
+          }
+        ],
+        "reference_census_id": "census-ds4-c03b-dormant-primitives",
+        "pre_deletion_resurrection_anchor": {
+          "git_commit": "caa1ee6e3ab49d559b19dbeeda6308c3598e7183",
+          "files": [
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx",
+              "git_blob": "7bf4bfc423f17393ac1f8646e94d0da8b8d0c8a6"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/DropdownMenu.a11y.test.tsx",
+              "git_blob": "67e09a12bef1f1fe0b996dcdbc151bc9f8ee8a33"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/Separator.tsx",
+              "git_blob": "de156b91bb009e287df0e3fda6f70ae21364bd13"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/Separator.a11y.test.tsx",
+              "git_blob": "1da3670349e6b31b832c1fa5ee236d58ff57eab6"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/Sheet.tsx",
+              "git_blob": "c119e917a73c942e2c2b00a03b84b7c3d86b6d5e"
+            },
+            {
+              "path": "apps/runtime-dashboard/src/shared/ui/Sheet.a11y.test.tsx",
+              "git_blob": "5b4f8d67e39bd31869ebe9d753015fcac9fc58f1"
+            }
+          ]
+        },
+        "resurrection_rule": "recreate_in_atlas_ui_only_with_a_real_production_consumer_never_restore_in_the_app_tree"
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-07-18",
+      "seed_rule": "ds4_c03b_mixed_rebind_complete",
+      "rationale": "C03b reconciles all 29 primitive candidates through one aggregate receipt: 22 package migrations and 2 dashboard rebindings remain rooted in the Atlas package chain, 3 dormant app primitives are retired, and 2 mapped live v4 primitives remain use-as-is until their DS2 sunset conditions are satisfied."
     },
     {
       "unit_id": "ui-compounds-root",

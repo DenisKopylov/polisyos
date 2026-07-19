@@ -12,6 +12,7 @@ import argparse
 import copy
 import hashlib
 import json
+import posixpath
 import re
 import subprocess
 import sys
@@ -136,6 +137,730 @@ SCAN_ROOTS = [
     "apps/runtime-dashboard/package.json",
     "packages",
 ]
+
+UI_PRIMITIVES_ROOT_ID = "ui-primitives-root"
+UI_PRIMITIVES_CENSUS_ID = "census-ds4-c03b-dormant-primitives"
+UI_PRIMITIVES_PRE_DELETION_COMMIT = "caa1ee6e3ab49d559b19dbeeda6308c3598e7183"
+UI_PRIMITIVES_RESURRECTION_RULE = (
+    "recreate_in_atlas_ui_only_with_a_real_production_consumer_"
+    "never_restore_in_the_app_tree"
+)
+UI_PRIMITIVES_CHECKED_IMPORT_FORMS = {
+    "direct",
+    "barrel",
+    "namespace",
+    "relative",
+    "dynamic",
+    "composition",
+}
+UI_PRIMITIVES_PACKAGE_MIGRATED = {
+    "AsyncSection",
+    "Badge",
+    "Button",
+    "Card",
+    "Checkbox",
+    "Command",
+    "Dialog",
+    "EmptyState",
+    "Icon",
+    "Input",
+    "Label",
+    "Popover",
+    "Radio",
+    "SegmentedControl",
+    "Select",
+    "Skeleton",
+    "Slider",
+    "Switch",
+    "Text",
+    "Textarea",
+    "ToggleButton",
+    "Tooltip",
+}
+UI_PRIMITIVES_DASHBOARD_REBOUND = {"ApiErrorAlert", "ProvenanceStrip"}
+UI_PRIMITIVES_MEMBER_RULES = {
+    "DropdownMenu": {
+        "disposition": "retire",
+        "ds2_adoption_id": None,
+        "governing_condition": None,
+        "ledger_absence_reason": "no_exact_ds2_row",
+    },
+    "ScrollArea": {
+        "disposition": "use_as_is",
+        "ds2_adoption_id": "component-scroll-area",
+        "governing_condition": (
+            "Archive admission alone sunsets nothing. DS4 may remove a mapped loser "
+            "only after generated/source ownership, consumer migration, drift checks, "
+            "and the owning slice's DS6 evidence are complete."
+        ),
+        "ledger_absence_reason": None,
+    },
+    "Separator": {
+        "disposition": "retire",
+        "ds2_adoption_id": None,
+        "governing_condition": None,
+        "ledger_absence_reason": "no_exact_ds2_row",
+    },
+    "Sheet": {
+        "disposition": "retire",
+        "ds2_adoption_id": None,
+        "governing_condition": None,
+        "ledger_absence_reason": "no_exact_ds2_row",
+    },
+    "Tabs": {
+        "disposition": "use_as_is",
+        "ds2_adoption_id": "component-tabs",
+        "governing_condition": (
+            "Keep the mapped live v4 family as the transitional winner until DS4 "
+            "routes a real consumer through one governed replacement, DS6 passes its "
+            "negative/browser/accessibility evidence, and the old import path is removed."
+        ),
+        "ledger_absence_reason": None,
+    },
+}
+UI_PRIMITIVES_DELETED_BLOBS = {
+    "apps/runtime-dashboard/src/shared/ui/DropdownMenu.tsx": (
+        "7bf4bfc423f17393ac1f8646e94d0da8b8d0c8a6"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/DropdownMenu.a11y.test.tsx": (
+        "67e09a12bef1f1fe0b996dcdbc151bc9f8ee8a33"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/Separator.tsx": (
+        "de156b91bb009e287df0e3fda6f70ae21364bd13"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/Separator.a11y.test.tsx": (
+        "1da3670349e6b31b832c1fa5ee236d58ff57eab6"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/Sheet.tsx": (
+        "c119e917a73c942e2c2b00a03b84b7c3d86b6d5e"
+    ),
+    "apps/runtime-dashboard/src/shared/ui/Sheet.a11y.test.tsx": (
+        "5b4f8d67e39bd31869ebe9d753015fcac9fc58f1"
+    ),
+}
+UI_PRIMITIVES_RETAINED_PATHS = {
+    "apps/runtime-dashboard/src/shared/ui/ScrollArea.tsx",
+    "apps/runtime-dashboard/src/shared/ui/ScrollArea.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/Tabs.tsx",
+    "apps/runtime-dashboard/src/shared/ui/Tabs.a11y.test.tsx",
+}
+UI_PRIMITIVES_BARREL = "apps/runtime-dashboard/src/shared/ui/primitives/index.ts"
+ATLAS_UI_INDEX = "packages/atlas-ui/src/index.ts"
+
+_TS_MODULE_FACTS_SCRIPT = r"""
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const sources = JSON.parse(raw);
+const facts = [];
+const compilerOptions = {
+  jsx: ts.JsxEmit.Preserve,
+  module: ts.ModuleKind.ESNext,
+  noLib: true,
+  noResolve: true,
+  target: ts.ScriptTarget.Latest,
+};
+const virtualSources = new Map(Object.entries(sources));
+const host = ts.createCompilerHost(compilerOptions, true);
+const defaultFileExists = host.fileExists.bind(host);
+const defaultReadFile = host.readFile.bind(host);
+const defaultGetSourceFile = host.getSourceFile.bind(host);
+host.fileExists = (fileName) => virtualSources.has(fileName) || defaultFileExists(fileName);
+host.readFile = (fileName) => virtualSources.get(fileName) ?? defaultReadFile(fileName);
+host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+  const source = virtualSources.get(fileName);
+  if (source !== undefined) {
+    const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+    return ts.createSourceFile(fileName, source, languageVersion, true, kind);
+  }
+  return defaultGetSourceFile(
+    fileName,
+    languageVersion,
+    onError,
+    shouldCreateNewSourceFile,
+  );
+};
+const program = ts.createProgram({
+  rootNames: [...virtualSources.keys()],
+  options: compilerOptions,
+  host,
+});
+const checker = program.getTypeChecker();
+
+for (const [path] of Object.entries(sources)) {
+  const file = program.getSourceFile(path);
+  if (!file) throw new Error(`Missing virtual source: ${path}`);
+  const propertyUses = new Map();
+
+  function collect(node) {
+    if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression)) {
+      const names = propertyUses.get(node.expression.text) ?? new Set();
+      names.add(node.name.text);
+      propertyUses.set(node.expression.text, names);
+    } else if (
+      ts.isElementAccessExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      ts.isStringLiteral(node.argumentExpression)
+    ) {
+      const names = propertyUses.get(node.expression.text) ?? new Set();
+      names.add(node.argumentExpression.text);
+      propertyUses.set(node.expression.text, names);
+    }
+    ts.forEachChild(node, collect);
+  }
+  collect(file);
+
+  function line(node) {
+    return file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1;
+  }
+  function isWithin(node, predicate) {
+    let current = node.parent;
+    while (current && current !== file) {
+      if (predicate(current)) return true;
+      current = current.parent;
+    }
+    return false;
+  }
+  function isValueIdentifierUse(node, binding, bindingSymbol) {
+    if (node === binding || checker.getSymbolAtLocation(node) !== bindingSymbol) {
+      return false;
+    }
+    if (
+      isWithin(
+        node,
+        (ancestor) =>
+          ts.isImportDeclaration(ancestor) ||
+          ts.isExportDeclaration(ancestor) ||
+          ts.isTypeNode(ancestor),
+      )
+    ) {
+      return false;
+    }
+    return true;
+  }
+  function bindingHasValueUse(binding) {
+    const bindingSymbol = checker.getSymbolAtLocation(binding);
+    if (!bindingSymbol) return false;
+    let used = false;
+    function scan(node) {
+      if (used) return;
+      if (
+        ts.isIdentifier(node) &&
+        isValueIdentifierUse(node, binding, bindingSymbol)
+      ) {
+        used = true;
+        return;
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(file);
+    return used;
+  }
+  function bindingNames(name) {
+    if (ts.isIdentifier(name)) return [name.text];
+    if (ts.isObjectBindingPattern(name) || ts.isArrayBindingPattern(name)) {
+      return name.elements.flatMap((element) =>
+        ts.isBindingElement(element) ? bindingNames(element.name) : [],
+      );
+    }
+    return [];
+  }
+  function callbackModuleNames(callback) {
+    if (
+      !callback ||
+      (!ts.isArrowFunction(callback) && !ts.isFunctionExpression(callback)) ||
+      callback.parameters.length === 0
+    ) {
+      return [];
+    }
+    const parameter = callback.parameters[0].name;
+    if (ts.isObjectBindingPattern(parameter)) {
+      return parameter.elements
+        .filter((element) => !element.dotDotDotToken)
+        .map((element) => (element.propertyName ?? element.name).text);
+    }
+    if (ts.isIdentifier(parameter)) {
+      return [...(propertyUses.get(parameter.text) ?? [])];
+    }
+    return [];
+  }
+  function continuationNames(binding) {
+    const bindingSymbol = checker.getSymbolAtLocation(binding);
+    if (!bindingSymbol) return [];
+    const names = new Set();
+    function sameBinding(node) {
+      return ts.isIdentifier(node) && checker.getSymbolAtLocation(node) === bindingSymbol;
+    }
+    function scan(node) {
+      if (
+        ts.isCallExpression(node) &&
+        ts.isPropertyAccessExpression(node.expression) &&
+        node.expression.name.text === "then" &&
+        sameBinding(node.expression.expression)
+      ) {
+        for (const name of callbackModuleNames(node.arguments[0])) names.add(name);
+      } else if (
+        ts.isVariableDeclaration(node) &&
+        node.initializer &&
+        ts.isAwaitExpression(node.initializer) &&
+        sameBinding(node.initializer.expression)
+      ) {
+        if (ts.isObjectBindingPattern(node.name)) {
+          for (const element of node.name.elements) {
+            if (!element.dotDotDotToken) {
+              names.add((element.propertyName ?? element.name).text);
+            }
+          }
+        } else if (ts.isIdentifier(node.name)) {
+          for (const name of propertyUses.get(node.name.text) ?? []) names.add(name);
+        }
+      }
+      ts.forEachChild(node, scan);
+    }
+    scan(file);
+    return [...names];
+  }
+  function dynamicNames(call) {
+    let expression = call;
+    while (
+      expression.parent &&
+      ((ts.isAwaitExpression(expression.parent) && expression.parent.expression === expression) ||
+        (ts.isParenthesizedExpression(expression.parent) &&
+          expression.parent.expression === expression) ||
+        (ts.isAsExpression(expression.parent) && expression.parent.expression === expression) ||
+        (ts.isNonNullExpression(expression.parent) &&
+          expression.parent.expression === expression))
+    ) {
+      expression = expression.parent;
+    }
+    const parent = expression.parent;
+    if (
+      parent &&
+      ts.isPropertyAccessExpression(parent) &&
+      parent.expression === expression &&
+      parent.name.text === "then" &&
+      ts.isCallExpression(parent.parent) &&
+      parent.parent.expression === parent
+    ) {
+      return callbackModuleNames(parent.parent.arguments[0]);
+    }
+    if (parent && ts.isPropertyAccessExpression(parent) && parent.expression === expression) {
+      return [parent.name.text];
+    }
+    if (
+      parent &&
+      ts.isElementAccessExpression(parent) &&
+      parent.expression === expression &&
+      ts.isStringLiteral(parent.argumentExpression)
+    ) {
+      return [parent.argumentExpression.text];
+    }
+    if (parent && ts.isVariableDeclaration(parent) && parent.initializer === expression) {
+      if (ts.isObjectBindingPattern(parent.name)) {
+        return parent.name.elements
+          .filter((element) => !element.dotDotDotToken)
+          .map((element) => (element.propertyName ?? element.name).text);
+      }
+      if (ts.isIdentifier(parent.name)) {
+        return [
+          ...new Set([
+            ...(propertyUses.get(parent.name.text) ?? []),
+            ...continuationNames(parent.name),
+          ]),
+        ];
+      }
+    }
+    if (
+      parent &&
+      ts.isBinaryExpression(parent) &&
+      parent.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+      parent.right === expression &&
+      ts.isIdentifier(parent.left)
+    ) {
+      return [
+        ...new Set([
+          ...(propertyUses.get(parent.left.text) ?? []),
+          ...continuationNames(parent.left),
+        ]),
+      ];
+    }
+    return [];
+  }
+  function visit(node) {
+    if (node.parent === file) {
+      if (
+        (ts.isFunctionDeclaration(node) ||
+          ts.isClassDeclaration(node) ||
+          ts.isEnumDeclaration(node)) &&
+        node.name
+      ) {
+        facts.push({
+          path,
+          kind: "owner_symbol",
+          module: "",
+          names: [node.name.text],
+          exported_names: [node.name.text],
+          namespace_usages: [],
+          value_binding_used: false,
+          line: line(node),
+        });
+      } else if (ts.isVariableStatement(node)) {
+        const names = node.declarationList.declarations.flatMap((declaration) =>
+          bindingNames(declaration.name),
+        );
+        if (names.length > 0) {
+          facts.push({
+            path,
+            kind: "owner_symbol",
+            module: "",
+            names,
+            exported_names: names,
+            namespace_usages: [],
+            value_binding_used: false,
+            line: line(node),
+          });
+        }
+      }
+    }
+    if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+      const clause = node.importClause;
+      if (clause && !clause.isTypeOnly) {
+        const names = [];
+        const usedNames = [];
+        let namespace = null;
+        let namespaceUsed = false;
+        let defaultUsed = false;
+        if (clause.name) defaultUsed = bindingHasValueUse(clause.name);
+        const bindings = clause.namedBindings;
+        if (bindings && ts.isNamedImports(bindings)) {
+          for (const element of bindings.elements) {
+            if (!element.isTypeOnly) {
+              const importedName = (element.propertyName ?? element.name).text;
+              names.push(importedName);
+              if (bindingHasValueUse(element.name)) usedNames.push(importedName);
+            }
+          }
+        } else if (bindings && ts.isNamespaceImport(bindings)) {
+          namespace = bindings.name.text;
+          namespaceUsed = bindingHasValueUse(bindings.name);
+        }
+        facts.push({
+          path,
+          kind: "static",
+          module: node.moduleSpecifier.text,
+          names,
+          exported_names: [],
+          used_names: usedNames,
+          namespace_usages: namespace ? [...(propertyUses.get(namespace) ?? [])] : [],
+          value_binding_used: defaultUsed || namespaceUsed || usedNames.length > 0,
+          line: line(node),
+        });
+      }
+    } else if (
+      ts.isExportDeclaration(node) &&
+      !node.isTypeOnly
+    ) {
+      let names = ["*"];
+      let exportedNames = ["*"];
+      if (node.exportClause && ts.isNamedExports(node.exportClause)) {
+        const elements = node.exportClause.elements.filter((element) => !element.isTypeOnly);
+        names = elements.map((element) => (element.propertyName ?? element.name).text);
+        exportedNames = elements.map((element) => element.name.text);
+      } else if (node.exportClause && ts.isNamespaceExport(node.exportClause)) {
+        names = ["*"];
+        exportedNames = [node.exportClause.name.text];
+      }
+      facts.push({
+        path,
+        kind: "export",
+        module:
+          node.moduleSpecifier && ts.isStringLiteral(node.moduleSpecifier)
+            ? node.moduleSpecifier.text
+            : "",
+        names,
+        exported_names: exportedNames,
+        namespace_usages: [],
+        value_binding_used: false,
+        line: line(node),
+      });
+    } else if (
+      ts.isCallExpression(node) &&
+      node.arguments.length === 1 &&
+      ts.isStringLiteral(node.arguments[0]) &&
+      (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(node.expression) && node.expression.text === "require"))
+    ) {
+      facts.push({
+        path,
+        kind: "dynamic",
+        module: node.arguments[0].text,
+        names: dynamicNames(node),
+        exported_names: [],
+        namespace_usages: [],
+        value_binding_used: dynamicNames(node).length > 0,
+        line: line(node),
+      });
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(file);
+}
+
+process.stdout.write(JSON.stringify(facts));
+"""
+
+_TS_MODULE_FACTS_CACHE: dict[str, list[dict[str, Any]]] = {}
+
+
+def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]:
+    """Parse TypeScript modules with the installed compiler, never text markers."""
+    cache_key = hashlib.sha256(
+        json.dumps(
+            sources,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    cached = _TS_MODULE_FACTS_CACHE.get(cache_key)
+    if cached is not None:
+        return cached
+    completed = subprocess.run(
+        ["node", "--input-type=module", "-e", _TS_MODULE_FACTS_SCRIPT],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(sources),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "TypeScript consumer census failed: " + completed.stderr.strip()
+        )
+    parsed = json.loads(completed.stdout)
+    if not isinstance(parsed, list):
+        raise RuntimeError("TypeScript consumer census returned a non-list payload")
+    _TS_MODULE_FACTS_CACHE[cache_key] = parsed
+    return parsed
+
+
+def _typescript_production_sources(scan_roots: Sequence[str]) -> dict[str, str]:
+    """Load TypeScript production modules while excluding tests, stories, and output."""
+    sources: dict[str, str] = {}
+    for path in _iter_scan_files(scan_roots):
+        relative = path.relative_to(REPO_ROOT).as_posix()
+        if path.suffix not in {".ts", ".tsx", ".mts", ".cts"}:
+            continue
+        if any(part in {"dist", "coverage", "tests", "e2e", ".storybook"} for part in path.parts):
+            continue
+        if re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$|\.stories\.[cm]?tsx?$", path.name):
+            continue
+        sources[relative] = path.read_text(encoding="utf-8")
+    return sources
+
+
+def _owner_exports(path: str, source: str, module_prefix: str) -> set[str]:
+    """Return owner module stems exported by a canonical TypeScript barrel."""
+    return {
+        posixpath.basename(fact["module"])
+        for fact in _typescript_module_facts({path: source})
+        if fact["kind"] == "export" and fact["module"].startswith(module_prefix)
+    }
+
+
+def _ui_primitive_owner_refs_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Find dormant primitive declarations or exported aliases in owner roots."""
+    primitives = set(UI_PRIMITIVES_MEMBER_RULES)
+    observed: dict[str, set[str]] = defaultdict(set)
+    owner_roots = (
+        "apps/runtime-dashboard/src/shared/ui/",
+        "packages/atlas-ui/src/primitives/",
+    )
+    for fact in _typescript_module_facts(sources):
+        if not fact["path"].startswith(owner_roots):
+            continue
+        if fact["kind"] == "owner_symbol":
+            names = set(fact["names"])
+        elif fact["kind"] == "export":
+            names = set(fact.get("exported_names", []))
+        else:
+            continue
+        reference = f"{fact['path']}:{fact['line']}"
+        for primitive in names & primitives:
+            observed[primitive].add(reference)
+    return {
+        primitive: sorted(references)
+        for primitive, references in sorted(observed.items())
+    }
+
+
+def _atlas_ui_value_consumer_refs_from_sources(
+    sources: Mapping[str, str],
+) -> list[str]:
+    """Return package import sites whose local value binding is actually used."""
+    return sorted(
+        {
+            f"{fact['path']}:{fact['line']}"
+            for fact in _typescript_module_facts(sources)
+            if fact["module"] == "@polisyos/atlas-ui"
+            and fact["kind"] in {"static", "dynamic"}
+            and fact.get("value_binding_used") is True
+        }
+    )
+
+
+def _ui_primitives_successor_evidence_errors(
+    successor_refs: Sequence[str],
+    *,
+    sources: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Require listed live and test successors to consume an atlas-ui value."""
+    reference_paths = {ref.split(":", 1)[0] for ref in successor_refs}
+    if sources is None:
+        sources = {
+            path: (REPO_ROOT / path).read_text(encoding="utf-8")
+            for path in reference_paths
+            if (REPO_ROOT / path).is_file()
+        }
+    consumed_paths = {
+        ref.split(":", 1)[0]
+        for ref in _atlas_ui_value_consumer_refs_from_sources(sources)
+    }
+    listed_consumers = reference_paths & consumed_paths
+    errors: list[str] = []
+    if not any(
+        not re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$", path)
+        for path in listed_consumers
+    ):
+        errors.append("ui_primitives_successor_live_consumer_missing")
+    if not any(
+        re.search(r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$", path)
+        for path in listed_consumers
+    ):
+        errors.append("ui_primitives_successor_test_consumer_missing")
+    return errors
+
+
+def _ui_primitive_consumer_map_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Derive dormant-primitive consumers from TypeScript module syntax."""
+    primitives = set(UI_PRIMITIVES_MEMBER_RULES)
+    observed: dict[str, set[str]] = {primitive: set() for primitive in primitives}
+
+    def module_base(importer: str, module: str) -> str | None:
+        if module.startswith("@/shared/ui"):
+            suffix = module.removeprefix("@/")
+            return f"apps/runtime-dashboard/src/{suffix}"
+        if module == "@polisyos/atlas-ui":
+            return "packages/atlas-ui/src/index"
+        if module.startswith("@polisyos/atlas-ui/"):
+            return "packages/atlas-ui/src/" + module.removeprefix(
+                "@polisyos/atlas-ui/"
+            )
+        if module.startswith("."):
+            return posixpath.normpath(
+                posixpath.join(posixpath.dirname(importer), module)
+            )
+        return None
+
+    def primitive_for_direct_module(base: str | None) -> str | None:
+        if base is None:
+            return None
+        stem = re.sub(r"\.(?:[cm]?[jt]sx?)$", "", base)
+        for primitive in primitives:
+            if stem in {
+                f"apps/runtime-dashboard/src/shared/ui/{primitive}",
+                f"packages/atlas-ui/src/primitives/{primitive}",
+            }:
+                return primitive
+        return None
+
+    def is_barrel(base: str | None) -> bool:
+        if base is None:
+            return False
+        stem = re.sub(r"\.(?:[cm]?[jt]sx?)$", "", base)
+        return stem in {
+            "apps/runtime-dashboard/src/shared/ui",
+            "apps/runtime-dashboard/src/shared/ui/index",
+            "apps/runtime-dashboard/src/shared/ui/primitives",
+            "apps/runtime-dashboard/src/shared/ui/primitives/index",
+            "packages/atlas-ui/src/index",
+        }
+
+    owner_barrels = {
+        UI_PRIMITIVES_BARREL,
+        "apps/runtime-dashboard/src/shared/ui/index.ts",
+        ATLAS_UI_INDEX,
+    }
+    for fact in _typescript_module_facts(sources):
+        if fact["path"] in owner_barrels:
+            continue
+        base = module_base(fact["path"], fact["module"])
+        direct = primitive_for_direct_module(base)
+        used_primitives = {direct} if direct is not None else set()
+        if not used_primitives and is_barrel(base):
+            if "*" in fact["names"]:
+                used_primitives.update(primitives)
+            used_primitives.update(set(fact["names"]) & primitives)
+            used_primitives.update(set(fact["namespace_usages"]) & primitives)
+        reference = f"{fact['path']}:{fact['line']}"
+        for primitive in used_primitives:
+            observed[primitive].add(reference)
+    return {
+        primitive: sorted(references)
+        for primitive, references in sorted(observed.items())
+    }
+
+
+def _ui_primitive_consumers_from_sources(
+    sources: Mapping[str, str],
+) -> list[str]:
+    """Flatten the per-member dormant-primitive consumer census."""
+    by_primitive = _ui_primitive_consumer_map_from_sources(sources)
+    return sorted({reference for references in by_primitive.values() for reference in references})
+
+
+def _live_ui_primitives_source_state_errors() -> list[str]:
+    """Recompute the C03b owner/export/consumer invariant from the live tree."""
+    relevant_paths = {
+        *UI_PRIMITIVES_DELETED_BLOBS,
+        *UI_PRIMITIVES_RETAINED_PATHS,
+        *(
+            f"packages/atlas-ui/src/primitives/{primitive}.tsx"
+            for primitive in UI_PRIMITIVES_MEMBER_RULES
+        ),
+        *(
+            f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
+            for primitive in UI_PRIMITIVES_DASHBOARD_REBOUND
+        ),
+    }
+    existing_paths = {path for path in relevant_paths if (REPO_ROOT / path).exists()}
+    dashboard_exports = _owner_exports(
+        UI_PRIMITIVES_BARREL,
+        (REPO_ROOT / UI_PRIMITIVES_BARREL).read_text(encoding="utf-8"),
+        "../",
+    )
+    atlas_exports = _owner_exports(
+        ATLAS_UI_INDEX,
+        (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
+        "./primitives/",
+    )
+    sources = _typescript_production_sources(
+        ["apps/runtime-dashboard/src", "packages"]
+    )
+    consumers = _ui_primitive_consumers_from_sources(sources)
+    owner_refs = _ui_primitive_owner_refs_from_sources(sources)
+    return _ui_primitives_source_state_errors(
+        existing_paths=existing_paths,
+        dashboard_exports=dashboard_exports,
+        atlas_exports=atlas_exports,
+        production_consumers=consumers,
+        owner_refs=owner_refs,
+    )
 
 CLUSTER_PROOFS = {
     "collaboration": {
@@ -339,6 +1064,9 @@ def _recompute_probe(probe: Mapping[str, Any]) -> list[str]:
         return sorted(target for target in probe["targets"] if (REPO_ROOT / target).exists())
     if probe["kind"] == "protected_live_consumers":
         return sorted(target for target in probe["targets"] if (REPO_ROOT / target).exists())
+    if probe["kind"] == "typescript_symbol_consumer_census":
+        sources = _typescript_production_sources(probe["scan_roots"])
+        return _ui_primitive_consumers_from_sources(sources)
     return _reference_matches(probe["targets"], probe["scan_roots"])
 
 
@@ -968,6 +1696,220 @@ def _validate_composition(
             errors.append(f"decision_detail_missing:{unit_id}")
 
 
+def _validate_ui_primitives_mixed_receipt(
+    entry: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Recompute mixed C03b counts, decisions, and Git resurrection anchors."""
+    receipt = entry.get("aggregate_disposition_receipt")
+    if receipt is None:
+        if entry.get("strangle_status") == "strangled":
+            errors.append("ui_primitives_aggregate_receipt_missing")
+        return
+
+    members = receipt["c03b_members"]
+    member_counts = Counter(member["disposition"] for member in members)
+    recomputed = {
+        "total": (
+            len(UI_PRIMITIVES_PACKAGE_MIGRATED)
+            + len(UI_PRIMITIVES_DASHBOARD_REBOUND)
+            + len(members)
+        ),
+        "package_migrated": len(UI_PRIMITIVES_PACKAGE_MIGRATED),
+        "dashboard_rebound": len(UI_PRIMITIVES_DASHBOARD_REBOUND),
+        "retired": member_counts["retire"],
+        "use_as_is": member_counts["use_as_is"],
+        "c03b_candidates": len(members),
+        "production_consumers": 0,
+    }
+    for key, value in recomputed.items():
+        if receipt["counts"][key] != value:
+            errors.append(f"ui_primitives_receipt_count_drift:{key}")
+
+    members_by_name = {member["primitive"]: member for member in members}
+    if set(members_by_name) != set(UI_PRIMITIVES_MEMBER_RULES):
+        errors.append("ui_primitives_receipt_member_set_drift")
+    else:
+        for primitive, expected in UI_PRIMITIVES_MEMBER_RULES.items():
+            if members_by_name[primitive] != {"primitive": primitive, **expected}:
+                errors.append(f"ui_primitives_receipt_member_drift:{primitive}")
+
+    anchor = receipt["pre_deletion_resurrection_anchor"]
+    commit = anchor["git_commit"]
+    if commit != UI_PRIMITIVES_PRE_DELETION_COMMIT:
+        errors.append("ui_primitives_anchor_commit_drift")
+    anchored_files = {item["path"]: item["git_blob"] for item in anchor["files"]}
+    if set(anchored_files) != set(UI_PRIMITIVES_DELETED_BLOBS):
+        errors.append("ui_primitives_anchor_file_set_drift")
+        return
+    for path, recorded_blob in anchored_files.items():
+        completed = subprocess.run(
+            ["git", "rev-parse", f"{commit}:policy-engine/{path}"],
+            cwd=REPO_ROOT.parent,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if completed.returncode != 0:
+            errors.append(f"ui_primitives_anchor_unresolved:{path}")
+        elif completed.stdout.strip() != recorded_blob:
+            errors.append(f"ui_primitives_anchor_blob_drift:{path}")
+
+
+def _ui_primitives_source_state_errors(
+    *,
+    existing_paths: set[str],
+    dashboard_exports: set[str],
+    atlas_exports: set[str],
+    production_consumers: Sequence[str],
+    owner_refs: Mapping[str, Sequence[str]] | None = None,
+) -> list[str]:
+    """Return structural C03b retirement and resurrection failures."""
+    errors: list[str] = []
+    retired = {
+        name
+        for name, rule in UI_PRIMITIVES_MEMBER_RULES.items()
+        if rule["disposition"] == "retire"
+    }
+    retained = set(UI_PRIMITIVES_MEMBER_RULES) - retired
+
+    for primitive in sorted(retired):
+        owner = f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
+        test = f"apps/runtime-dashboard/src/shared/ui/{primitive}.a11y.test.tsx"
+        if owner in existing_paths:
+            errors.append(f"ui_primitives_retired_owner_revived:{primitive}")
+        if test in existing_paths:
+            errors.append(f"ui_primitives_retired_test_revived:{primitive}")
+        if primitive in dashboard_exports:
+            errors.append(f"ui_primitives_retired_export_revived:{primitive}")
+        for reference in (owner_refs or {}).get(primitive, []):
+            errors.append(
+                f"ui_primitives_retired_symbol_revived:{primitive}:{reference}"
+            )
+
+    for primitive in sorted(retained):
+        owner = f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
+        test = f"apps/runtime-dashboard/src/shared/ui/{primitive}.a11y.test.tsx"
+        if owner not in existing_paths:
+            errors.append(f"ui_primitives_retained_owner_missing:{primitive}")
+        if test not in existing_paths:
+            errors.append(f"ui_primitives_retained_test_missing:{primitive}")
+        if primitive not in dashboard_exports:
+            errors.append(f"ui_primitives_retained_export_missing:{primitive}")
+        if owner_refs is not None:
+            dashboard_owner_refs = [
+                ref
+                for ref in owner_refs.get(primitive, [])
+                if ref.startswith("apps/runtime-dashboard/src/shared/ui/")
+            ]
+            if not dashboard_owner_refs:
+                errors.append(f"ui_primitives_retained_symbol_missing:{primitive}")
+
+    for primitive in sorted(UI_PRIMITIVES_MEMBER_RULES):
+        counterpart = f"packages/atlas-ui/src/primitives/{primitive}.tsx"
+        if counterpart in existing_paths or primitive in atlas_exports:
+            errors.append(
+                f"ui_primitives_package_counterpart_without_consumer:{primitive}"
+            )
+        for reference in (owner_refs or {}).get(primitive, []):
+            if reference.startswith("packages/atlas-ui/src/primitives/"):
+                errors.append(
+                    "ui_primitives_package_counterpart_without_consumer:"
+                    f"{primitive}:{reference}"
+                )
+
+    for primitive in sorted(UI_PRIMITIVES_DASHBOARD_REBOUND):
+        owner = f"apps/runtime-dashboard/src/shared/ui/{primitive}.tsx"
+        if owner not in existing_paths:
+            errors.append(f"ui_primitives_dashboard_rebound_missing:{primitive}")
+        if primitive not in dashboard_exports:
+            errors.append(f"ui_primitives_dashboard_rebound_export_missing:{primitive}")
+
+    missing_package = sorted(UI_PRIMITIVES_PACKAGE_MIGRATED - atlas_exports)
+    unexpected_package = sorted(atlas_exports - UI_PRIMITIVES_PACKAGE_MIGRATED)
+    if missing_package:
+        errors.append(f"ui_primitives_package_exports_missing:{missing_package}")
+    if unexpected_package:
+        errors.append(f"ui_primitives_package_exports_unexpected:{unexpected_package}")
+    if production_consumers:
+        errors.append(
+            "ui_primitives_dormant_production_consumers:"
+            + ",".join(production_consumers)
+        )
+    return errors
+
+
+def _validate_ui_primitives_receipt_semantics(
+    entry: Mapping[str, Any],
+    ds2: Mapping[str, Any],
+    censuses: Mapping[str, Mapping[str, Any]],
+    errors: list[str],
+    *,
+    live_probes: bool,
+) -> None:
+    """Bind the C03b receipt to DS2, its census, successor, and live source."""
+    receipt = entry.get("aggregate_disposition_receipt")
+    if receipt is None:
+        return
+    if entry["disposition"] != "rebind_pending" or entry["strangle_status"] != "strangled":
+        errors.append("ui_primitives_root_transition_invalid")
+    if entry.get("reference_census_id") != UI_PRIMITIVES_CENSUS_ID:
+        errors.append("ui_primitives_root_census_link_invalid")
+
+    successor = entry.get("successor") or {}
+    successor_refs = successor.get("consumer_refs", [])
+    if successor.get("unit_id") != "atlas-ui-primitives" or ATLAS_UI_INDEX not in successor_refs:
+        errors.append("ui_primitives_successor_root_invalid")
+    direct_refs = [
+        ref
+        for ref in successor_refs
+        if ref != ATLAS_UI_INDEX and (REPO_ROOT / ref.split(":", 1)[0]).is_file()
+    ]
+    errors.extend(_ui_primitives_successor_evidence_errors(direct_refs))
+
+    ds2_by_id = {row["id"]: row for row in ds2["entries"]}
+    ds2_titles = {row["title"] for row in ds2["entries"]}
+    for primitive, expected in UI_PRIMITIVES_MEMBER_RULES.items():
+        adoption_id = expected["ds2_adoption_id"]
+        if adoption_id is None:
+            if primitive in ds2_titles:
+                errors.append(f"ui_primitives_ds2_absence_drift:{primitive}")
+            continue
+        row = ds2_by_id.get(adoption_id)
+        if row is None or row["title"] != primitive:
+            errors.append(f"ui_primitives_ds2_binding_drift:{primitive}")
+        elif row["sunset_condition"] != expected["governing_condition"]:
+            errors.append(f"ui_primitives_ds2_condition_drift:{primitive}")
+
+    census = censuses.get(UI_PRIMITIVES_CENSUS_ID)
+    if (
+        census is None
+        or census["covers_unit_ids"] != [UI_PRIMITIVES_ROOT_ID]
+        or census["ds1_evidence_ids"] != [UI_PRIMITIVES_ROOT_ID]
+        or census["result"] != "zero_consumers"
+        or not census.get("verification_refs")
+    ):
+        errors.append("ui_primitives_census_invalid")
+    else:
+        scanner_probes = [
+            probe
+            for probe in census["probes"]
+            if probe["kind"] == "typescript_symbol_consumer_census"
+        ]
+        if len(scanner_probes) != 1:
+            errors.append("ui_primitives_scanner_probe_missing")
+        else:
+            probe = scanner_probes[0]
+            if set(probe["targets"]) != set(UI_PRIMITIVES_MEMBER_RULES):
+                errors.append("ui_primitives_scanner_targets_drift")
+            if set(probe.get("checked_import_forms", [])) != UI_PRIMITIVES_CHECKED_IMPORT_FORMS:
+                errors.append("ui_primitives_scanner_forms_drift")
+            if probe["expected_count"] != 0 or probe["observed_refs"] != []:
+                errors.append("ui_primitives_scanner_receipt_not_zero")
+
+    if live_probes:
+        errors.extend(_live_ui_primitives_source_state_errors())
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -1006,6 +1948,15 @@ def validate_register(
     if len(entry_ids) != len(set(entry_ids)):
         errors.append("register_duplicate_unit")
     entry_by_id = {entry["unit_id"]: entry for entry in entries}
+    for entry in entries:
+        if (
+            "aggregate_disposition_receipt" in entry
+            and entry["unit_id"] != UI_PRIMITIVES_ROOT_ID
+        ):
+            errors.append(f"ui_primitives_receipt_wrong_root:{entry['unit_id']}")
+    _validate_ui_primitives_mixed_receipt(
+        entry_by_id[UI_PRIMITIVES_ROOT_ID], errors
+    )
 
     linked_ds2: list[str] = []
     for unit_id, entry in entry_by_id.items():
@@ -1055,6 +2006,13 @@ def validate_register(
     censuses = {census["census_id"]: census for census in data["reference_censuses"]}
     if len(censuses) != len(data["reference_censuses"]):
         errors.append("duplicate_census_id")
+    _validate_ui_primitives_receipt_semantics(
+        entry_by_id[UI_PRIMITIVES_ROOT_ID],
+        ds2,
+        censuses,
+        errors,
+        live_probes=live_probes,
+    )
     for unit in [*entries, *data["subunits"]]:
         _validate_composition(unit, censuses, errors)
 
@@ -1213,6 +2171,26 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     op["decision_detail"]["consumer_slice"] = "DS8"
     probes.append(("wrong-consumer-slice", wrong_consumer))
 
+    mixed_count_drift = copy.deepcopy(data)
+    primitives = next(
+        entry
+        for entry in mixed_count_drift["entries"]
+        if entry["unit_id"] == UI_PRIMITIVES_ROOT_ID
+    )
+    primitives["aggregate_disposition_receipt"]["counts"]["retired"] = 2
+    probes.append(("ui-primitives-mixed-count-drift", mixed_count_drift))
+
+    mixed_blob_drift = copy.deepcopy(data)
+    primitives = next(
+        entry
+        for entry in mixed_blob_drift["entries"]
+        if entry["unit_id"] == UI_PRIMITIVES_ROOT_ID
+    )
+    primitives["aggregate_disposition_receipt"][
+        "pre_deletion_resurrection_anchor"
+    ]["files"][0]["git_blob"] = "0" * 40
+    probes.append(("ui-primitives-resurrection-blob-drift", mixed_blob_drift))
+
     failures = []
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
@@ -1271,6 +2249,48 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             + "` | "
             + (", ".join(f"`{ref}`" for ref in verification_refs) if verification_refs else "pending")
             + " |"
+        )
+
+    primitive_entry = entry_by_id[UI_PRIMITIVES_ROOT_ID]
+    primitive_receipt = primitive_entry.get("aggregate_disposition_receipt")
+    if primitive_receipt is not None:
+        counts = primitive_receipt["counts"]
+        lines.extend(
+            [
+                "",
+                "### DS4 primitive aggregate disposition",
+                "",
+                "| Outcome | Count |",
+                "| --- | ---: |",
+                f"| Package migrated | {counts['package_migrated']} |",
+                f"| Dashboard rebound | {counts['dashboard_rebound']} |",
+                f"| Retired | {counts['retired']} |",
+                f"| Use as-is | {counts['use_as_is']} |",
+                f"| **Total** | **{counts['total']}** |",
+                "",
+                "| Dormant primitive | Disposition | DS2 adoption row | Governing condition |",
+                "| --- | --- | --- | --- |",
+            ]
+        )
+        for member in primitive_receipt["c03b_members"]:
+            adoption_id = member["ds2_adoption_id"] or "none"
+            condition = (
+                member["governing_condition"]
+                or "No exact DS2 row; retirement is not prohibited."
+            )
+            lines.append(
+                f"| `{member['primitive']}` | `{member['disposition']}` | "
+                f"`{adoption_id}` | {condition} |"
+            )
+        anchor = primitive_receipt["pre_deletion_resurrection_anchor"]
+        lines.extend(
+            [
+                "",
+                f"Pre-deletion resurrection commit: `{anchor['git_commit']}`.",
+                "",
+                "Resurrection rule: "
+                f"`{primitive_receipt['resurrection_rule']}`.",
+            ]
         )
 
     lines.extend(

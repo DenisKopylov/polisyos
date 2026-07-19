@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **14**
-- Application lines deleted: **4019**
-- Net application LOC reduction: **4005**
-- Application files deleted: **33**
+- Application lines added: **639**
+- Application lines deleted: **6325**
+- Net application LOC reduction: **5686**
+- Application files deleted: **63**
 
 ## Wave-end full verification
 
@@ -118,6 +118,28 @@ DS2 evidence reconciliation: **233 = 173 mapped + 60 unbound**. DS2 rows are evi
 | workers | `worker-dag-layout`, `worker-data-transform`, `worker-json-parse` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---zero-consumer-workers-cluster-verification` |
 | clerk-index | `route-home-clerk-duplicate` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---duplicate-clerk-index-cluster-verification` |
 | whatif-local | `cache-whatif-scenarios`, `feature-whatif::legacy-local-whatif-subgraph` | zero_consumers | `deleted` | `docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---whatif-dead-parameter-subgraph-cluster-verification` |
+
+### DS4 primitive aggregate disposition
+
+| Outcome | Count |
+| --- | ---: |
+| Package migrated | 22 |
+| Dashboard rebound | 2 |
+| Retired | 3 |
+| Use as-is | 2 |
+| **Total** | **29** |
+
+| Dormant primitive | Disposition | DS2 adoption row | Governing condition |
+| --- | --- | --- | --- |
+| `DropdownMenu` | `retire` | `none` | No exact DS2 row; retirement is not prohibited. |
+| `ScrollArea` | `use_as_is` | `component-scroll-area` | Archive admission alone sunsets nothing. DS4 may remove a mapped loser only after generated/source ownership, consumer migration, drift checks, and the owning slice's DS6 evidence are complete. |
+| `Separator` | `retire` | `none` | No exact DS2 row; retirement is not prohibited. |
+| `Sheet` | `retire` | `none` | No exact DS2 row; retirement is not prohibited. |
+| `Tabs` | `use_as_is` | `component-tabs` | Keep the mapped live v4 family as the transitional winner until DS4 routes a real consumer through one governed replacement, DS6 passes its negative/browser/accessibility evidence, and the old import path is removed. |
+
+Pre-deletion resurrection commit: `caa1ee6e3ab49d559b19dbeeda6308c3598e7183`.
+
+Resurrection rule: `recreate_in_atlas_ui_only_with_a_real_production_consumer_never_restore_in_the_app_tree`.
 
 ### Wire dispositions — 13 OpenAPI operations
 
@@ -280,7 +302,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `feature-platform` | `feature-platform` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `feature-runs` | `feature-runs` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `feature-whatif` | `feature-whatif` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
-| `ui-primitives-root` | `ui-primitives-root` | 21 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-primitives-root` | `ui-primitives-root` | 21 | `rebind_pending` | `strangled` | `DS4` | `census-ds4-c03b-dormant-primitives` |
 | `ui-compounds-root` | `ui-compounds-root` | 3 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `pending` | `DS4` | `—` |
@@ -492,15 +514,46 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `caa1ee6e3 feat(atlas-ui): migrate living overlay primitives`
+- `2dbf604e0 feat(atlas-ui): migrate form primitives`
+- `018328d68 feat(atlas-ui): migrate foundation primitives`
+- `61d354f62 docs: plan Atlas DS4 status grammar rebinding`
+- `71f438ad5 docs: Atlas plan — DS3 closed & merged; debt table extended`
+- `e451cec56 merge: land Atlas DS3 — runtime producers & export infrastructure`
+- `028ddde5d docs(atlas): close DS3 exact-head review`
+- `7050786f2 fix(runtime): close DS3 exact-head review`
+- `a906ed7c1 chore(pdc): rebind N13a census route identities`
+- `687545824 fix(pdc): rebind N10 capstone context provenance`
+- `c9a477a9f docs(atlas): close DS3 second review`
+- `202c1e48f test(runtime): consume merged DS19 strangle`
+- `18a7e62ba docs: Atlas plan Rev 3.1 — DS19 closed; inherited baseline debt of record`
+- `f9f69e807 merge: land Atlas DS19 — false-substrate strangle wave + frontend disposition register`
+- `952a52a44 fix(runtime): bind projections to owner validation`
+- `ee793cfa9 chore(frontend): close DS19 for architect review`
 - `3d245d4fd test(frontend): verify DS19 deletion wave`
+- `8a4db34e2 docs(atlas): record DS3 review repairs`
 - `4a4f2a56b refactor(frontend): delete dead WhatIf parameter subgraph`
 - `42fcabe17 refactor(frontend): delete duplicate Clerk index route`
+- `99090d923 fix(runtime): close DS3 producer review findings`
 - `b66e77314 refactor(frontend): delete zero-consumer workers`
 - `9b25c0ca0 refactor(frontend): delete empty layout placeholder`
 - `2bbdfac4e refactor(frontend): delete orphan onboarding`
 - `df87559b3 refactor(frontend): delete phantom collaboration substrate`
+- `7c648b045 chore(pdc): rebind composition to canonical L6 context`
 - `702256135 feat(frontend): establish DS19 disposition authority`
+- `46447ae67 chore(pdc): converge second-domain N8 provenance`
+- `9a0e2b743 docs(atlas): close DS3 producer evidence`
+- `f167adb04 chore(pdc): rebind N8 to canonical L6 context`
+- `48118be16 feat(runtime): bind existing exports to replay contract`
+- `8eed73d7d chore(pdc): rebind second-domain pack to canonical L6`
+- `6e71f9fc3 fix(quality): unblock canonical L6 provenance replay`
+- `3b2c2cd91 build(runtime): regenerate shared API client contract`
+- `a92fcce6e feat(runtime): preserve Lex truth through HTTP projection`
+- `34545cdde feat(runtime): expose governed artifact projections`
+- `986a54daa chore(pdc): canonicalize L6 receipt provenance`
 - `d01eaa572 chore(frontend): repair dashboard typecheck baseline`
+- `e979a5cf4 test(atlas): seed DS3 producer contract negatives`
+- `9516d35cb docs(atlas): bind DS3 runtime producer plan`
 
 The final documentation/report commit cannot self-record its own hash. The
 architect review handoff includes that hash separately. No merge is performed.

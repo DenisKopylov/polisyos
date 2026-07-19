@@ -393,3 +393,89 @@ manifested.
   bounded atlas-ui lockfile importer hunk, and this DS4 journal. Backend,
   schemas, generated client, v15 archive, frozen Russian locale, master plan,
   CI, registers, debt manifests, and other worktrees remain untouched.
+
+## 2026-07-18 — C03b dormant primitive retirement
+
+### Red-first receipt and ruling application
+
+- The compiler-AST census was recomputed across dashboard and workspace
+  production TypeScript for direct, barrel, namespace, relative, dynamic, and
+  composition imports. `DropdownMenu`, `ScrollArea`, `Separator`, `Sheet`, and
+  `Tabs` each had zero production consumers; owner-local a11y fixtures and
+  barrels did not count as consumers.
+- The first focused checker test failed before the aggregate receipt and source
+  transition existed. Positive work then made the checker derive the live
+  owner/export/consumer state, bind Git resurrection blobs, and reconcile the
+  receipt rather than trusting stored counts.
+- During self-review, the mixed receipt was found on the wrong DS1 root. Two
+  additional red-first regressions—rejecting a receipt on any non-primitive
+  root and requiring the live receipt only on `ui-primitives-root`—failed on
+  that state. Moving the receipt to its canonical root made both pass; this is
+  now a structural checker invariant and corruption target.
+- Independent review then found two P29 bypass classes: marker-only successor
+  evidence and a retired symbol exported from a differently named owner file,
+  plus computed and delayed dynamic-import access forms. The added negatives
+  failed on comments/strings/type-only or unused imports, `Overlay.tsx` alias
+  exports, `UI["Tabs"]`, directly chained promises, and a promise assigned
+  before `.then`. The checker now resolves actual TypeScript binding symbols,
+  follows dynamic-import continuations, scans declarations/exported aliases
+  across both owner roots, and rejects shadowed same-name lookalikes. All
+  variants pass only after the runtime property is present. The bounded final
+  independent re-review approved the fixes with no remaining finding.
+- The exact DS2 ledger condition for `component-scroll-area` is: “Archive
+  admission alone sunsets nothing. DS4 may remove a mapped loser only after
+  generated/source ownership, consumer migration, drift checks, and the owning
+  slice's DS6 evidence are complete.” It therefore remains `use_as_is`.
+- The exact DS2 ledger condition for `component-tabs` is: “Keep the mapped live
+  v4 family as the transitional winner until DS4 routes a real consumer through
+  one governed replacement, DS6 passes its negative/browser/accessibility
+  evidence, and the old import path is removed.” It therefore remains
+  `use_as_is`.
+- `DropdownMenu`, `Separator`, and `Sheet` have no exact DS2 adoption row, so
+  the architect's default retirement ruling applies.
+
+### Implementation and disposition receipt
+
+- Deleted the three dormant implementation/a11y pairs and their dashboard
+  barrel exports. No story or other harness reference existed, and no package
+  counterpart or compatibility shim was created.
+- Retained `ScrollArea` and `Tabs`, their colocated a11y tests, exports, and
+  dependencies without claiming the missing DS6 evidence.
+- Bound the retirement to pre-deletion commit
+  `caa1ee6e3ab49d559b19dbeeda6308c3598e7183` and all six Git blob IDs. A future
+  resurrection is permitted only by recreating the primitive in
+  `@polisyos/atlas-ui` together with a real production consumer; the app-tree
+  implementations must never be restored.
+- Transitioned the aggregate `ui-primitives-root` through the repository's
+  completed-rebind encoding and attached one typed mixed receipt. Its
+  recomputed accounting is 22 package migrations + 2 dashboard rebounds + 3
+  retirements + 2 `use_as_is` = 29. The receipt is report-projected and the
+  DS19 root denominator remains 261.
+- Kept `apps/runtime-dashboard/package.json` and `pnpm-lock.yaml` byte-identical
+  to C03a. The original DS4 lock exception is addition-only; removing now-unused
+  direct dependency declarations is not required to retire the source owners
+  and is therefore outside this cluster's bounded lock change.
+
+### Verification receipt
+
+| Gate | Result |
+| --- | --- |
+| focused register behavior | PASS; 14 tests, including wrong-root, count-drift, revived/renamed-owner, package-only resurrection, blob-drift, marker-only/shadowed successor evidence, and all required import-form probes |
+| disposition register | PASS with source-byte verification and corruption probes; 261 roots, 8 censuses, 200 `rebind_pending`, 15 deleted, 25 retire, 5 `use_as_is`, 16 wire, 23 negatives, 11 findings |
+| atlas-ui lint/typecheck/test/architecture | PASS; 8 files / 22 tests and 24 source files inspected |
+| retained primitive a11y | PASS for `ScrollArea` and `Tabs` |
+| structural a11y census | honestly RED only for the inherited `OperatorDiagnosticPanel.tsx` identity assigned to C12; no C03b identity was added |
+| dashboard primitive migration | PASS; 1 file / 3 tests |
+| dashboard typecheck and production build | PASS; 3,867 modules and 101 PWA precache entries; postbuild security and package Tailwind-source checks pass |
+| dashboard full lint JSON | exact inherited 75 errors in 22 files, zero warnings, only `policyos/quantity-must-be-wrapped`; baseline subset comparator PASS |
+| dashboard architecture | exact inherited 36 identities; no C03b edge added |
+| frozen install | PASS with the committed lockfile unchanged |
+
+### Fence receipt
+
+- Source, a11y fixture, barrel-export, package-counterpart, and production
+  consumer scans enforce the retirement and retention choices from live syntax.
+- The C03b diff is confined to dashboard source deletion, the owned DS19
+  register/schema/checker/report, its focused test, and this journal. Backend,
+  schemas, generated client, v15 archive, frozen Russian locale, master plan,
+  lockfile, and other worktrees remain untouched.

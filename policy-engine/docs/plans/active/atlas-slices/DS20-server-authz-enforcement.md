@@ -8,6 +8,85 @@
 
 **Tech stack:** Python 3.14.x, FastAPI/Starlette, Pydantic v2, PyJWT, pytest, Ruff, OpenAPI JSON, TypeScript, `openapi-typescript`, pnpm.
 
+## DS20-B amendment — ratified cross-fence closure
+
+This amendment resumes from accepted DS20 commits `a4855dd96` and `9b5e4f69c`.
+It does not reopen the 29-operation HTTP floor, vocabulary projection, step-up
+semantics, fixture prohibition, or existing audit work. The only new work is the
+five ratified integration blockers below. All implementation remains red-first,
+baseline-relative, serial where shared scratch is materialized, and unmerged.
+
+### Frozen writable path list
+
+The following is the complete DS20-B writable list. Paths not named here remain
+read-only even if they are under `ops/**`; the original Runtime HTTP and DS20-doc
+fences remain in force only for the files named below.
+
+| Blocker | Exact writable files | Purpose |
+|---|---|---|
+| B1 Rego bridge | `ops/policy/policies/action_permission.rego` (new); `ops/policy/policies/action_permission_test.rego` (new); `ops/policy/policies/decision.rego`; `ops/policy/policies/decision_test.rego`; `src/polisyos/runtime/http/opa_input.py` (new); `src/polisyos/runtime/http/authz_middleware.py`; `tests/unit/runtime/http/test_runtime_rego_authorization_parity.py` (new) | Carry the sealed action and binding authority into OPA; compose a deny-by-default 33-value policy; prove exact vocabulary and decision parity. |
+| B2 ops identity | `src/polisyos/runtime/http/deployment_security.py` (new); `src/polisyos/runtime/http/app.py`; `src/polisyos/runtime/http/authorization.py`; `tools/ops_runners/runtime/local_production_canary.py`; `tools/quality/testing/local_prod_debug_probe.py`; `tests/unit/tools/test_local_production_canary.py`; `tests/repo_quality/tools/test_local_prod_debug_probe.py`; `tests/unit/runtime/http/test_runtime_deployment_security.py` (new); `docs/runbooks/local-production-debugging.md` | Resolve genuine deployment identity/OPA/cell configuration, bind an exact deployment-configured service principal to canonical permissions, inject a short-lived bearer without embedding it, and make both probes pass through the floor. |
+| B3 promotion CAS | **No Fabric file is writable in DS20-B.** Existing `src/polisyos/runtime/http/resource_binding.py`, `src/polisyos/runtime/http/services/control/run_lifecycle.py`, `src/polisyos/fabric/retrieval/service.py`, `src/polisyos/fabric/api.py`, and `src/polisyos/fabric/__init__.py` are evidence-only. | The mandatory N13b ownership stop is triggered. Preserve the existing pre-OPA content bind, quantify the remaining race, and hand the generic CAS producer repair to Fabric/N13b without racing that lane. |
+| B4 verifier provenance | `src/polisyos/runtime/http/deployment_security.py` (new); `src/polisyos/runtime/http/app.py`; `tests/unit/runtime/http/test_runtime_deployment_security.py` (new); `tools/quality/testing/local_prod_debug_probe.py`; `tests/repo_quality/tools/test_local_prod_debug_probe.py`; `docs/runbooks/local-production-debugging.md` | Resolve issuer, audience, algorithms, JWKS/key rotation policy, freshness bounds, and non-secret source provenance through deployment configuration; reject arbitrary/test verifiers outside development; document the external IdP contract. |
+| B5 PostgreSQL proof | `tests/unit/runtime/http/test_runtime_postgres_linearizability.py` (new) | Execute the existing durable step-up consume and scenario-head CAS contracts against two real PostgreSQL-backed store/app instances. |
+| Bookkeeping | `docs/plans/active/atlas-slices/DS20-server-authz-enforcement.md`; `docs/plans/active/atlas-slices/DS20-server-authz-enforcement-journal.md`; `docs/plans/active/atlas-slices/DS20-server-authz-enforcement-closure.md` | Preserve red/green receipts, verdicts, inherited findings, fence proof, and architect handoffs. |
+
+No schema or generated-client path is frozen because none of B1-B5 changes the
+public permission enum or OpenAPI contract. A legitimate schema delta reopens the
+original DS3 regeneration fence and requires two byte-identical runs before commit.
+The architecture-guardrail baseline, GY validators/artifacts, `apps/**`, core
+identity contracts, and every unlisted ops/Helm path remain forbidden.
+
+The chart mirror under `ops/cloud/helm/polisyos-cell/policies/**` is read-only in
+this grant. It is byte-identical to the canonical policy at this amendment's base,
+but canonical B1 edits will make it stale. `ops/policy/README.md` requires those
+trees to remain synchronized, so DS20-B will report the deployed Helm mirror as a
+separate fence limitation unless the architect grants its owning lane; it will not
+silently edit or claim that bundle green.
+
+### Collision and environment decisions frozen before implementation
+
+- N13b ref `72e20ff8b69b74fa7a3d881f0b50d85803e53713` changes the exact
+  promotion owner `src/polisyos/fabric/retrieval/service.py`; merge-base is
+  `a906ed7c1cef91813cca7b1488544454a48de925`. Although the merge-tree is
+  textually clean, the user's ownership condition—not textual conflict—requires
+  DS20-B to stop B3 implementation. There is no public revision-CAS primitive and
+  `PromotionCandidate` has no revision field. The remaining interval begins when
+  `resource_binding.py` copies the candidate and ends when the retrieval service
+  acquires its mutation lock; it spans OPA, step-up, and scheduling and has no
+  enforced upper bound. Queue mutation also releases its lock before downstream
+  binding/index persistence. Verdict target: `typed-limitation`, not false atomicity.
+- OPA 1.15.2 is installed. Baseline `opa check --strict` plus
+  `opa test --fail-on-empty -v ops/policy/policies` is green at 20/20, while the
+  three truthful DS20 witnesses (ingestion, same-tenant launch, and unscoped
+  promotion) are denied by the legacy policy. These are B1's red witnesses.
+- This workstation has no PostgreSQL DSN, no PostgreSQL Python driver or
+  testcontainers package, and Docker's daemon is unavailable. B5 therefore adds
+  the executable real-PostgreSQL harness but may close only as
+  `environment-blocked` unless a real DSN becomes available. Cloud reproduction:
+  `POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --extra multi-tenant pytest -q tests/unit/runtime/http/test_runtime_postgres_linearizability.py`.
+
+### DS20-B pattern pass and acceptance
+
+Relevant failures are P05/P07 (authority and replay), P12 (producer handshake),
+P27/P31 (owner bypass and instance patching), P29 (behavioral proof), P32
+(trust-by-form), and P33/P34 (probe-shaped repair and false exclusion). The target
+pattern is one typed deployment producer, one exact action/resource OPA input, one
+canonical policy decision, and behavioral parity/adversarial tests. B2 is not
+closed by an analyst/service role alone: a strict deployment-owned
+`(issuer, audience, subject, tenant, cell) -> frozenset[RuntimePermission]`
+projection must be consumed by the action dependency and mirrored into OPA.
+Unknown principals, permissions, resources, authorities, verifier sources, or
+profiles deny. B4 accepts only a verifier built from the typed deployment resolver
+outside development; a protocol-shaped test double remains inadmissible.
+
+Acceptance signals are: exact 33-value Rego/server equality; server/Rego agreement
+for the principal-operation-resource matrix; both ops consumers using genuine
+deployment identity without fixture or allow-all bypasses; a red/green non-dev
+test-verifier bootstrap negative; B3's quantified handoff with no Fabric diff; and
+the B5 real-DSN receipt or an explicit environment-blocked command. The original
+268-test and 699-test baseline gates remain unchanged closeout requirements.
+
 ## 1. Scope, invariants, and fences
 
 - Work only on branch `codex/atlas-ds20-server-authz` in `.worktrees/atlas-ds20`; do not merge.

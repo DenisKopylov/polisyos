@@ -1,0 +1,2521 @@
+{
+  "$schema": "./status-retirement-inventory.schema.json",
+  "schema_version": "1.0",
+  "inventory_id": "atlas-ds4-status-retirement",
+  "as_of": "2026-07-19T19:30:00+03:00",
+  "authority": {
+    "authoritative_for": [
+      "DS1 status-definition retirement accounting and assigned successor ownership."
+    ],
+    "may_not_use_for": [
+      "Inventing runtime authority labels or claiming future target-cluster migrations are complete."
+    ]
+  },
+  "sources": {
+    "ds1": {
+      "path": "architecture/atlas_surfaces/live-application-readiness-ledger.json",
+      "ledger_id": "atlas-live-application-readiness",
+      "sha256": "sha256:11f4898f547283968f97f8778a2b29cf15520214151ea65b1a69bc6072f3e812"
+    },
+    "ds19": {
+      "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
+      "ledger_id": "atlas-frontend-disposition-register",
+      "sha256": "sha256:30c5ee0f21a708a6e3b1e08c0753ccb2409ce54b1e14b5287ce8f6c1b12c2e04"
+    },
+    "generated_client": {
+      "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "canonical_sha256": "sha256:d06db70c79c2e497e69c0d141449f0ddb1ac958cdd2dc8f39971fc99c61ee9f4",
+      "types_path": "packages/runtime-api-client/types.ts",
+      "types_sha256": "sha256:e5430a16b949de4d020946dbf3fc1ff3bb27306b3e067620d9ad88be07d778ad"
+    }
+  },
+  "denominators": {
+    "ds1_rows": 47,
+    "ds1_named": 23,
+    "ds1_inline": 24,
+    "current_named": 22,
+    "current_inline": 24,
+    "current_total": 46,
+    "already_deleted": 1
+  },
+  "entries": [
+    {
+      "unit_id": "status-auth-session",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/auth/authSession.ts",
+        "start_line": 12,
+        "end_line": 16,
+        "declaration_name": "AuthSessionStatus"
+      },
+      "literal_members": [
+        "anonymous",
+        "authenticated",
+        "expired",
+        "refreshing"
+      ],
+      "type_expression": "| \"anonymous\"\n  | \"authenticated\"\n  | \"expired\"\n  | \"refreshing\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/app/auth/authSession.ts",
+          "line": 21,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "AuthSessionPhase",
+      "authority_purpose": "transport",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-offline-queue-item",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
+        "start_line": 8,
+        "end_line": 8,
+        "declaration_name": "OfflineQueueItemStatus"
+      },
+      "literal_members": ["failed", "queued", "retrying"],
+      "type_expression": "\"failed\" | \"queued\" | \"retrying\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
+          "line": 23,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "OfflineQueueDeliveryState",
+      "authority_purpose": "transport",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-feature-flag",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx",
+        "start_line": 26,
+        "end_line": 26,
+        "declaration_name": "FeatureFlagStatus"
+      },
+      "literal_members": ["error", "loading", "ready"],
+      "type_expression": "\"ready\" | \"loading\" | \"error\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx",
+          "line": 32,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx",
+          "line": 54,
+          "kind": "state_initializer"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "FeatureFlagLoadState",
+      "authority_purpose": "loading",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-runs-live",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/providers/runsLiveMachine.ts",
+        "start_line": 1,
+        "end_line": 6,
+        "declaration_name": "RunsLiveStatus"
+      },
+      "literal_members": [
+        "connecting",
+        "degraded",
+        "live",
+        "offline",
+        "polling"
+      ],
+      "type_expression": "| \"live\"\n  | \"connecting\"\n  | \"degraded\"\n  | \"polling\"\n  | \"offline\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/app/providers/runsLiveMachine.ts",
+          "line": 29,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/app/providers/RunsLiveProvider.tsx",
+          "line": 38,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/app/providers/RunsLiveProvider.tsx",
+          "line": 44,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "RunsTransportState",
+      "authority_purpose": "transport",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-causal-edge-identification",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/causal/types.ts",
+        "start_line": 16,
+        "end_line": 19,
+        "declaration_name": "EdgeIdentificationStatus"
+      },
+      "literal_members": ["bounds_only", "identified", "unidentified"],
+      "type_expression": "| \"identified\"\n  | \"unidentified\"\n  | \"bounds_only\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "line": 3,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "line": 23,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/causal/index.ts",
+          "line": 6,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/causal/types.ts",
+          "line": 58,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "CausalDraftIdentificationDisplay",
+      "authority_purpose": "candidate_display",
+      "target_cluster": "C13",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c13"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-causal-pipeline-stage",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/causal/types.ts",
+        "start_line": 22,
+        "end_line": 27,
+        "declaration_name": "PipelineStageStatus"
+      },
+      "literal_members": [
+        "completed",
+        "failed",
+        "pending",
+        "running",
+        "skipped"
+      ],
+      "type_expression": "| \"pending\"\n  | \"running\"\n  | \"completed\"\n  | \"failed\"\n  | \"skipped\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/causal/components/PipelineProgressViz.tsx",
+          "line": 8,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/causal/components/PipelineProgressViz.tsx",
+          "line": 17,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/causal/index.ts",
+          "line": 16,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/causal/types.ts",
+          "line": 142,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "CausalPipelineProgressState",
+      "authority_purpose": "progress",
+      "target_cluster": "C13",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c13"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-collaboration-session",
+      "definition_kind": "deleted",
+      "current_definition_state": "deleted",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/collaboration/types.ts",
+        "start_line": 95,
+        "end_line": 99,
+        "declaration_name": "CollaborationSessionStatus"
+      },
+      "literal_members": [
+        "connected",
+        "connecting",
+        "disconnected",
+        "reconnecting"
+      ],
+      "type_expression": "\"connected\" | \"connecting\" | \"disconnected\" | \"reconnecting\"",
+      "consumers": [],
+      "owner_type": {
+        "kind": "none"
+      },
+      "classification": "removed",
+      "replacement": "removed with DS19 collaboration deletion",
+      "authority_purpose": "none",
+      "target_cluster": "C05",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "removal_evidence": {
+        "reason": "DS19 zero-consumer collaboration substrate deletion",
+        "verification_ref": "architecture/atlas_surfaces/frontend-disposition-register.json",
+        "deletion_commit": "df87559b3f00a2d165d2eaa504bf233f8e7a9680",
+        "pre_deletion_commit": "702256135f4c43730cc6e6e7abaee2f78ca0236e",
+        "git_blob": "4cb1e1bf6b5615df833e4da0af015201f3f92eb7"
+      }
+    },
+    {
+      "unit_id": "status-health-check",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.tsx",
+        "start_line": 8,
+        "end_line": 8,
+        "declaration_name": "HealthCheckStatus"
+      },
+      "literal_members": ["degraded", "down", "healthy", "unknown"],
+      "type_expression": "\"healthy\" | \"degraded\" | \"down\" | \"unknown\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/index.ts",
+          "line": 12,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.tsx",
+          "line": 13,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.tsx",
+          "line": 28,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.tsx",
+          "line": 44,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.tsx",
+          "line": 50,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "SystemHealthDisplayState",
+      "authority_purpose": "telemetry",
+      "target_cluster": "C12",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c12"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-share-trust-fixture",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/export/social/email-fixtures.ts",
+        "start_line": 2,
+        "end_line": 7,
+        "declaration_name": "ShareTrustStatus"
+      },
+      "literal_members": [
+        "disputed",
+        "pending",
+        "stale",
+        "untraced",
+        "verified"
+      ],
+      "type_expression": "| \"verified\"\n  | \"pending\"\n  | \"stale\"\n  | \"disputed\"\n  | \"untraced\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/export/social/email-fixtures.ts",
+          "line": 18,
+          "kind": "fixture"
+        }
+      ],
+      "owner_type": {
+        "kind": "none"
+      },
+      "classification": "removed",
+      "replacement": "typed fixture_authority evidence",
+      "authority_purpose": "none",
+      "target_cluster": "C11",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c11"
+      ],
+      "removal_evidence": {
+        "reason": "planned local authority-definition retirement in C11",
+        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c11"
+      }
+    },
+    {
+      "unit_id": "status-comparability-api-alias",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/compare-types.ts",
+        "start_line": 15,
+        "end_line": 15,
+        "declaration_name": "ComparabilityStatus"
+      },
+      "literal_members": [],
+      "type_expression": "ComparabilityReport[\"status\"]",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
+          "line": 2,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
+          "line": 24,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
+          "line": 34,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/compare/index.ts",
+          "line": 14,
+          "kind": "import"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "ComparabilityReport[\"status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "ComparabilityReport status",
+      "authority_purpose": "authority",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "generated_anchor": {
+        "export_symbol": "ComparabilityReport",
+        "canonical_line": 225,
+        "schema_line": 3420,
+        "field": "status"
+      }
+    },
+    {
+      "unit_id": "status-narrative-chapter",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/NarrativeChapter.tsx",
+        "start_line": 7,
+        "end_line": 7,
+        "declaration_name": "ChapterStatus"
+      },
+      "literal_members": ["active", "completed", "pending"],
+      "type_expression": "\"pending\" | \"active\" | \"completed\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/narrative/index.ts",
+          "line": 13,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/NarrativeChapter.tsx",
+          "line": 14,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/NarrativeChapter.tsx",
+          "line": 19,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "NarrativeChapterPhase",
+      "authority_purpose": "playback",
+      "target_cluster": "C10",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c10"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-dispute-run",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+        "start_line": 3,
+        "end_line": 3,
+        "declaration_name": "DisputeStatus"
+      },
+      "literal_members": ["open", "resolved", "under_review"],
+      "type_expression": "\"open\" | \"under_review\" | \"resolved\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+          "line": 7,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+          "line": 15,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+          "line": 10,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "RunDisputeWorkflowState",
+      "authority_purpose": "progress",
+      "target_cluster": "C11",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c11"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-publication-argument-node",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        "start_line": 22,
+        "end_line": 26,
+        "declaration_name": "ArgumentNodeStatus"
+      },
+      "literal_members": ["certified", "contested", "open", "rebutted"],
+      "type_expression": "| \"certified\"\n  | \"contested\"\n  | \"open\"\n  | \"rebutted\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+          "line": 34,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "none"
+      },
+      "classification": "removed",
+      "replacement": "candidate argument support without a closed authority status",
+      "authority_purpose": "none",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "removal_evidence": {
+        "reason": "planned local authority-definition retirement in C14",
+        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      }
+    },
+    {
+      "unit_id": "status-stress-scene",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+        "start_line": 93,
+        "end_line": 93,
+        "declaration_name": "StressSceneStatus"
+      },
+      "literal_members": ["block", "pass", "warn"],
+      "type_expression": "\"pass\" | \"warn\" | \"block\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "line": 9,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+          "line": 35,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+          "line": 97,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+          "line": 99,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+          "line": 586,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+          "line": 596,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+          "line": 622,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "StressSceneDiagnosticDisplay",
+      "authority_purpose": "diagnostic_display",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-agent-step",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+        "start_line": 9,
+        "end_line": 9,
+        "declaration_name": "AgentStepStatus"
+      },
+      "literal_members": ["fail", "info", "ok", "warn"],
+      "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"info\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+          "line": 17,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+          "line": 176,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "AgentPipelineStep[\"status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "AgentPipelineStep status",
+      "authority_purpose": "authority",
+      "target_cluster": "C12",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c12"
+      ],
+      "generated_anchor": {
+        "export_symbol": "AgentPipelineStep",
+        "canonical_line": 25,
+        "schema_line": 1700,
+        "field": "status"
+      }
+    },
+    {
+      "unit_id": "status-agent-performance-budget",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+        "start_line": 113,
+        "end_line": 116,
+        "declaration_name": "PerformanceBudgetStatus"
+      },
+      "literal_members": ["over_budget", "unknown", "within_budget"],
+      "type_expression": "| \"over_budget\"\n  | \"within_budget\"\n  | \"unknown\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+          "line": 123,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+          "line": 352,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "PerformanceBudgetDisplayState",
+      "authority_purpose": "diagnostic_display",
+      "target_cluster": "C12",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c12"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-workflow-node",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/workflow.ts",
+        "start_line": 9,
+        "end_line": 9,
+        "declaration_name": "WorkflowNodeStatus"
+      },
+      "literal_members": ["fail", "ok", "skip", "unknown"],
+      "type_expression": "\"ok\" | \"skip\" | \"fail\" | \"unknown\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/lib/domain/workflow.ts",
+          "line": 15,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/lib/domain/workflow.ts",
+          "line": 53,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "RunWorkflowNodeView[\"status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "RunWorkflowNodeView status",
+      "authority_purpose": "authority",
+      "target_cluster": "C12",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c12"
+      ],
+      "generated_anchor": {
+        "export_symbol": "RunWorkflowNodeView",
+        "canonical_line": 882,
+        "schema_line": 9446,
+        "field": "status"
+      }
+    },
+    {
+      "unit_id": "status-governance-pass",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/compounds/GovernancePassGrid.tsx",
+        "start_line": 11,
+        "end_line": 11,
+        "declaration_name": "GovernancePassStatus"
+      },
+      "literal_members": ["fail", "pass", "skip", "warning"],
+      "type_expression": "\"pass\" | \"fail\" | \"warning\" | \"skip\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/GovernancePassGrid.tsx",
+          "line": 16,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/GovernancePassGrid.tsx",
+          "line": 27,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/GovernancePassGrid.tsx",
+          "line": 40,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "none"
+      },
+      "classification": "removed",
+      "replacement": "decision-grade neutral presentation module",
+      "authority_purpose": "none",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "removal_evidence": {
+        "reason": "planned local authority-definition retirement in C14",
+        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      }
+    },
+    {
+      "unit_id": "status-quantity-provenance",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+        "start_line": 36,
+        "end_line": 36,
+        "declaration_name": "QuantityProvenanceStatus"
+      },
+      "literal_members": [],
+      "type_expression": "VerificationStatus | \"stale\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 48,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 59,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 289,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 308,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 326,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "VerificationMetadata[\"verification_status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "independent verification and freshness fields",
+      "authority_purpose": "authority",
+      "target_cluster": "C06",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
+      ],
+      "generated_anchor": {
+        "export_symbol": "VerificationMetadata",
+        "canonical_line": 1000,
+        "schema_line": 10334,
+        "field": "verification_status"
+      }
+    },
+    {
+      "unit_id": "status-scenario",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+        "start_line": 140,
+        "end_line": 140,
+        "declaration_name": "ScenarioStatus"
+      },
+      "literal_members": ["computed", "draft", "failed", "stale"],
+      "type_expression": "\"draft\" | \"computed\" | \"stale\" | \"failed\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+          "line": 144,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "ScenarioRef[\"status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "ScenarioRef status",
+      "authority_purpose": "authority",
+      "target_cluster": "C06",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
+      ],
+      "generated_anchor": {
+        "export_symbol": "ScenarioRef",
+        "canonical_line": 942,
+        "schema_line": 9883,
+        "field": "status"
+      }
+    },
+    {
+      "unit_id": "status-verification",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+        "start_line": 1,
+        "end_line": 5,
+        "declaration_name": "VerificationStatus"
+      },
+      "literal_members": ["disputed", "pending", "untraced", "verified"],
+      "type_expression": "| \"verified\"\n  | \"pending\"\n  | \"disputed\"\n  | \"untraced\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+          "line": 10,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+          "line": 25,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+          "line": 199,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+          "line": 200,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+          "line": 201,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 33,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+          "line": 36,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+          "line": 28,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+          "line": 61,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+          "line": 92,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+          "line": 4,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+          "line": 11,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+          "line": 81,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "VerificationMetadata[\"verification_status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "VerificationMetadata verification status",
+      "authority_purpose": "authority",
+      "target_cluster": "C06",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
+      ],
+      "generated_anchor": {
+        "export_symbol": "VerificationMetadata",
+        "canonical_line": 1000,
+        "schema_line": 10334,
+        "field": "verification_status"
+      }
+    },
+    {
+      "unit_id": "status-dispute-quantity",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+        "start_line": 8,
+        "end_line": 8,
+        "declaration_name": "DisputeStatus"
+      },
+      "literal_members": ["disputed", "none", "resolved", "under_review"],
+      "type_expression": "\"none\" | \"disputed\" | \"under_review\" | \"resolved\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+          "line": 33,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "VerificationMetadata[\"dispute_status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "VerificationMetadata dispute status",
+      "authority_purpose": "authority",
+      "target_cluster": "C06",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
+      ],
+      "generated_anchor": {
+        "export_symbol": "VerificationMetadata",
+        "canonical_line": 1000,
+        "schema_line": 10317,
+        "field": "dispute_status"
+      }
+    },
+    {
+      "unit_id": "status-dispute-trust-view",
+      "definition_kind": "named",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+        "start_line": 7,
+        "end_line": 7,
+        "declaration_name": "DisputeStatus"
+      },
+      "literal_members": ["disputed", "none", "resolved", "under_review"],
+      "type_expression": "\"none\" | \"disputed\" | \"under_review\" | \"resolved\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+          "line": 4,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+          "line": 7,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/index.ts",
+          "line": 14,
+          "kind": "import"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+          "line": 16,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "VerificationMetadata[\"dispute_status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "VerificationMetadata dispute status",
+      "authority_purpose": "authority",
+      "target_cluster": "C11",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c11"
+      ],
+      "generated_anchor": {
+        "export_symbol": "VerificationMetadata",
+        "canonical_line": 1000,
+        "schema_line": 10317,
+        "field": "dispute_status"
+      }
+    },
+    {
+      "unit_id": "status-inline-promotion-decision",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/api/hooks/usePromotionDecision.ts",
+        "start_line": 110,
+        "end_line": 110,
+        "field_name": "status"
+      },
+      "literal_members": ["approved", "rejected"],
+      "type_expression": "\"approved\" | \"rejected\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/api/hooks/usePromotionDecision.ts",
+          "line": 113,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/api/hooks/usePromotionDecision.ts",
+          "line": 115,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/api/hooks/usePromotionDecision.ts",
+          "line": 117,
+          "kind": "comparison"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "PromotionDecisionResponse[\"status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "PromotionDecisionResponse status",
+      "authority_purpose": "authority",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "generated_anchor": {
+        "export_symbol": "PromotionDecisionResponse",
+        "canonical_line": 763,
+        "schema_line": 8339,
+        "field": "status"
+      }
+    },
+    {
+      "unit_id": "status-inline-queued-promotion",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/evidence/hooks/useQueuedPromotionDecision.ts",
+        "start_line": 16,
+        "end_line": 16,
+        "field_name": "queueStatus"
+      },
+      "literal_members": ["failed", "queued", "retrying"],
+      "type_expression": "\"failed\" | \"queued\" | \"retrying\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "line": 1254,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "OfflineQueueDeliveryState",
+      "authority_purpose": "transport",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-authz-provider",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx",
+        "start_line": 21,
+        "end_line": 21,
+        "field_name": "status"
+      },
+      "literal_members": ["error", "loading", "ready"],
+      "type_expression": "\"error\" | \"loading\" | \"ready\"",
+      "consumers": [],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "AuthzLoadState",
+      "authority_purpose": "loading",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-visual-fixture",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/surfaces/visualFixtureHarness.ts",
+        "start_line": 29,
+        "end_line": 29,
+        "field_name": "status"
+      },
+      "literal_members": ["blocked", "complete", "pending", "running"],
+      "type_expression": "\"blocked\" | \"complete\" | \"pending\" | \"running\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/app/surfaces/visualFixtureHarness.ts",
+          "line": 117,
+          "kind": "fixture"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "FixtureTimelinePlaybackState plus fixture_authority",
+      "authority_purpose": "playback",
+      "target_cluster": "C12",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c12"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-review-indicators",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/realtime/ReviewCollaborationIndicators.tsx",
+        "start_line": 36,
+        "end_line": 36,
+        "field_name": "status"
+      },
+      "literal_members": ["connecting", "idle", "live"],
+      "type_expression": "\"connecting\" | \"idle\" | \"live\"",
+      "consumers": [],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "ReviewTransportState",
+      "authority_purpose": "transport",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-review-surface",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
+        "start_line": 28,
+        "end_line": 28,
+        "field_name": "status"
+      },
+      "literal_members": ["connecting", "idle", "live"],
+      "type_expression": "\"connecting\" | \"idle\" | \"live\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "line": 1192,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/GovernanceTab.tsx",
+          "line": 65,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "ReviewTransportState",
+      "authority_purpose": "transport",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-bureaucratic-block",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.ts",
+        "start_line": 41,
+        "end_line": 41,
+        "field_name": "legal_review_status"
+      },
+      "literal_members": ["approved", "pending_external_review", "rejected"],
+      "type_expression": "\"pending_external_review\" | \"approved\" | \"rejected\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx",
+          "line": 15,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx",
+          "line": 24,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts",
+          "line": 42,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "BureaucraticTemplateRef[\"legal_review_status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "BureaucraticTemplateRef legal review status",
+      "authority_purpose": "authority",
+      "target_cluster": "C10",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c10"
+      ],
+      "generated_anchor": {
+        "export_symbol": "BureaucraticTemplateRef",
+        "canonical_line": 178,
+        "schema_line": 2936,
+        "field": "legal_review_status"
+      }
+    },
+    {
+      "unit_id": "status-inline-bureaucratic-section",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.ts",
+        "start_line": 80,
+        "end_line": 80,
+        "field_name": "status"
+      },
+      "literal_members": ["archived", "draft", "signed_external"],
+      "type_expression": "\"draft\" | \"signed_external\" | \"archived\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.ts",
+          "line": 130,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts",
+          "line": 55,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticHeader.tsx",
+          "line": 50,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "BureaucraticDocument[\"status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "BureaucraticDocument status",
+      "authority_purpose": "authority",
+      "target_cluster": "C10",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c10"
+      ],
+      "generated_anchor": {
+        "export_symbol": "BureaucraticDocument",
+        "canonical_line": 163,
+        "schema_line": 2817,
+        "field": "status"
+      }
+    },
+    {
+      "unit_id": "status-inline-data-freshness",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.tsx",
+        "start_line": 13,
+        "end_line": 13,
+        "field_name": "status"
+      },
+      "literal_members": ["fresh", "stale", "unknown"],
+      "type_expression": "\"fresh\" | \"stale\" | \"unknown\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.tsx",
+          "line": 26,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.tsx",
+          "line": 49,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.tsx",
+          "line": 50,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.tsx",
+          "line": 84,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "DataFreshnessDisplayState",
+      "authority_purpose": "telemetry",
+      "target_cluster": "C09",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c09"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-compliance-badge",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/platform/ComplianceBadge.tsx",
+        "start_line": 15,
+        "end_line": 15,
+        "field_name": "status"
+      },
+      "literal_members": ["compliant", "partial", "planned"],
+      "type_expression": "\"compliant\" | \"partial\" | \"planned\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/platform/ComplianceBadge.tsx",
+          "line": 39,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/platform/ComplianceBadge.tsx",
+          "line": 79,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/platform/ComplianceBadge.tsx",
+          "line": 82,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "none"
+      },
+      "classification": "removed",
+      "replacement": "documentation disclosure without an authority status",
+      "authority_purpose": "none",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "removal_evidence": {
+        "reason": "planned local authority-definition retirement in C14",
+        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      }
+    },
+    {
+      "unit_id": "status-inline-choreography-stage",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts",
+        "start_line": 8,
+        "end_line": 8,
+        "field_name": "status"
+      },
+      "literal_members": ["blocked", "complete", "pending", "running"],
+      "type_expression": "\"blocked\" | \"complete\" | \"pending\" | \"running\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx",
+          "line": 11,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx",
+          "line": 63,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts",
+          "line": 49,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "RunChoreographyDisplayState",
+      "authority_purpose": "playback",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-choreography-transition",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts",
+        "start_line": 21,
+        "end_line": 21,
+        "field_name": "status"
+      },
+      "literal_members": ["blocked", "complete", "pending", "running"],
+      "type_expression": "\"blocked\" | \"complete\" | \"pending\" | \"running\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx",
+          "line": 73,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts",
+          "line": 37,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts",
+          "line": 50,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts",
+          "line": 53,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "RunChoreographyDisplayState",
+      "authority_purpose": "playback",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-publication-claim",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        "start_line": 131,
+        "end_line": 131,
+        "field_name": "status"
+      },
+      "literal_members": ["high", "low", "medium"],
+      "type_expression": "\"high\" | \"low\" | \"medium\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+          "line": 369,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+          "line": 371,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+          "line": 1001,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+          "line": 1052,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "CandidateCoverageDisplayState",
+      "authority_purpose": "candidate_display",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-publication-ground",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        "start_line": 136,
+        "end_line": 136,
+        "field_name": "status"
+      },
+      "literal_members": ["caveat", "clear"],
+      "type_expression": "\"clear\" | \"caveat\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+          "line": 351,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+          "line": 353,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+          "line": 864,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
+          "line": 201,
+          "kind": "test"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "CandidateCoverageCaveatState",
+      "authority_purpose": "candidate_display",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-readiness-evidence",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+        "start_line": 119,
+        "end_line": 119,
+        "field_name": "status"
+      },
+      "literal_members": ["active", "clear", "unlock_pending"],
+      "type_expression": "\"active\" | \"unlock_pending\" | \"clear\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "line": 441,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "line": 442,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+          "line": 575,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+          "line": 609,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "EmbargoOverlayState",
+      "authority_purpose": "candidate_display",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-readiness-gate",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+        "start_line": 150,
+        "end_line": 150,
+        "field_name": "status"
+      },
+      "literal_members": ["active", "replacement", "revoked", "superseded"],
+      "type_expression": "\"active\" | \"revoked\" | \"superseded\" | \"replacement\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "line": 476,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "line": 477,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "DecisionValidityStatus"
+      },
+      "classification": "lattice_derived",
+      "replacement": "DecisionValidityStatus with replacement kept as a relation",
+      "authority_purpose": "authority",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "generated_anchor": {
+        "export_symbol": "DecisionValidityStatus",
+        "canonical_line": 387,
+        "schema_line": 4735
+      }
+    },
+    {
+      "unit_id": "status-inline-readiness-review",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+        "start_line": 157,
+        "end_line": 157,
+        "field_name": "currentStatus"
+      },
+      "literal_members": ["active", "revoked", "superseded"],
+      "type_expression": "\"active\" | \"revoked\" | \"superseded\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+          "line": 464,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
+          "line": 321,
+          "kind": "test"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+          "line": 844,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+          "line": 1020,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "DecisionValidityStatus"
+      },
+      "classification": "lattice_derived",
+      "replacement": "DecisionValidityStatus",
+      "authority_purpose": "authority",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "generated_anchor": {
+        "export_symbol": "DecisionValidityStatus",
+        "canonical_line": 387,
+        "schema_line": 4735
+      }
+    },
+    {
+      "unit_id": "status-inline-run-narrative",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/RunNarrativeView.tsx",
+        "start_line": 27,
+        "end_line": 27,
+        "field_name": "status"
+      },
+      "literal_members": ["available", "missing", "partial"],
+      "type_expression": "\"available\" | \"partial\" | \"missing\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/narrative/RunNarrativeView.tsx",
+          "line": 233,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/narrative/RunNarrativeView.tsx",
+          "line": 237,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "CandidateSourceAvailabilityDisplay",
+      "authority_purpose": "candidate_display",
+      "target_cluster": "C10",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c10"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-governance-comparison-left",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+        "start_line": 12,
+        "end_line": 12,
+        "field_name": "baseStatus"
+      },
+      "literal_members": ["fail", "pass", "skip", "warning"],
+      "type_expression": "\"pass\" | \"fail\" | \"warning\" | \"skip\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 48,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 54,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 55,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 88,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 89,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 117,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 119,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "none"
+      },
+      "classification": "removed",
+      "replacement": "decision-grade neutral presentation module",
+      "authority_purpose": "none",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "removal_evidence": {
+        "reason": "planned local authority-definition retirement in C14",
+        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      }
+    },
+    {
+      "unit_id": "status-inline-governance-comparison-right",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+        "start_line": 13,
+        "end_line": 13,
+        "field_name": "targetStatus"
+      },
+      "literal_members": ["fail", "pass", "skip", "warning"],
+      "type_expression": "\"pass\" | \"fail\" | \"warning\" | \"skip\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 54,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 55,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 93,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+          "line": 94,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "none"
+      },
+      "classification": "removed",
+      "replacement": "decision-grade neutral presentation module",
+      "authority_purpose": "none",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "removal_evidence": {
+        "reason": "planned local authority-definition retirement in C14",
+        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      }
+    },
+    {
+      "unit_id": "status-inline-small-multiples",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/charts/SmallMultiples.tsx",
+        "start_line": 12,
+        "end_line": 12,
+        "field_name": "status"
+      },
+      "literal_members": [
+        "disputed",
+        "pending",
+        "stale",
+        "untraced",
+        "verified"
+      ],
+      "type_expression": "\"verified\" | \"pending\" | \"stale\" | \"disputed\" | \"untraced\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/charts/SmallMultiples.tsx",
+          "line": 85,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "VerificationMetadata[\"verification_status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "independent VerificationMetadata verification and freshness fields",
+      "authority_purpose": "authority",
+      "target_cluster": "C07",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c07"
+      ],
+      "generated_anchor": {
+        "export_symbol": "VerificationMetadata",
+        "canonical_line": 1000,
+        "schema_line": 10334,
+        "field": "verification_status"
+      }
+    },
+    {
+      "unit_id": "status-inline-route-loader",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/telemetry/routeLoaderEvents.ts",
+        "start_line": 5,
+        "end_line": 5,
+        "field_name": "status"
+      },
+      "literal_members": ["error", "ready"],
+      "type_expression": "\"error\" | \"ready\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/shared/telemetry/TelemetryProvider.tsx",
+          "line": 149,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "interaction_wrapper",
+        "module": "@/shared/lib/domain/statusOwnership",
+        "query": "InteractionState"
+      },
+      "classification": "interaction_state",
+      "replacement": "RouteLoaderState",
+      "authority_purpose": "telemetry",
+      "target_cluster": "C18",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "unit_id": "status-inline-explainability",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+        "start_line": 18,
+        "end_line": 18,
+        "field_name": "status"
+      },
+      "literal_members": ["approved", "rejected", "review"],
+      "type_expression": "\"approved\" | \"rejected\" | \"review\"",
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+          "line": 84,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+          "line": 42,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+          "line": 75,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+          "line": 98,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+          "line": 99,
+          "kind": "prop"
+        }
+      ],
+      "owner_type": {
+        "kind": "none"
+      },
+      "classification": "removed",
+      "replacement": "generated payload fields and neutral modules",
+      "authority_purpose": "none",
+      "target_cluster": "C14",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "removal_evidence": {
+        "reason": "planned local authority-definition retirement in C14",
+        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      }
+    },
+    {
+      "unit_id": "status-inline-counterfactual-badge",
+      "definition_kind": "inline",
+      "current_definition_state": "present",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+        "start_line": 11,
+        "end_line": 11,
+        "field_name": "status"
+      },
+      "literal_members": ["computed", "draft", "failed", "stale"],
+      "type_expression": "\"draft\" | \"computed\" | \"stale\" | \"failed\"",
+      "consumers": [],
+      "owner_type": {
+        "kind": "generated_indexed",
+        "module": "@polisyos/runtime-api-client",
+        "query": "ScenarioRef[\"status\"]"
+      },
+      "classification": "lattice_derived",
+      "replacement": "ScenarioRef status",
+      "authority_purpose": "authority",
+      "target_cluster": "C13",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c13"
+      ],
+      "generated_anchor": {
+        "export_symbol": "ScenarioRef",
+        "canonical_line": 942,
+        "schema_line": 9883,
+        "field": "status"
+      }
+    }
+  ],
+  "semantic_exemptions": [
+    {
+      "candidate_id": "semantic-projection-authority-boundary",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed.ts",
+        "start_line": 309,
+        "end_line": 309,
+        "field_name": "authority"
+      },
+      "literal_members": ["projection_only", "runtime_authority"],
+      "type_expression": "\"runtime_authority\" | \"projection_only\"",
+      "disposition": "boundary_guard",
+      "target_cluster": "C05",
+      "rationale": "Fail-closed projection/runtime authority separation is a domain boundary, not a glass status.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-lineage-freshness",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+        "start_line": 7,
+        "end_line": 7,
+        "declaration_name": "LineageFreshness"
+      },
+      "literal_members": ["current", "stale", "unknown"],
+      "type_expression": "\"current\" | \"stale\" | \"unknown\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C06",
+      "rationale": "Generated VerificationMetadata freshness owns this vocabulary; the local clone retires with quantity.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-status-timeline-tone",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx",
+        "start_line": 6,
+        "end_line": 6,
+        "declaration_name": "StatusTimelineTone"
+      },
+      "literal_members": ["fail", "info", "neutral", "ok", "warn"],
+      "type_expression": "\"fail\" | \"info\" | \"neutral\" | \"ok\" | \"warn\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C12",
+      "rationale": "Timeline tone is visual presentation only and must not enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c12"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-chart-identifiability",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/charts/types.ts",
+        "start_line": 110,
+        "end_line": 110,
+        "declaration_name": "IdentifiabilityState"
+      },
+      "literal_members": ["assumed", "estimated", "identified"],
+      "type_expression": "\"identified\" | \"estimated\" | \"assumed\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C13",
+      "rationale": "Chart identifiability presentation must bind the causal producer rather than remain a local authority union.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c13"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-decision-verdict",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/decision.ts",
+        "start_line": 15,
+        "end_line": 15,
+        "declaration_name": "DecisionVerdict"
+      },
+      "literal_members": ["APPROVE", "REJECT", "REVIEW"],
+      "type_expression": "\"APPROVE\" | \"REJECT\" | \"REVIEW\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "The local decision-card verdict normalization retires through the single decision-grade neutral swap point.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-evidence-focus",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/evidence.ts",
+        "start_line": 68,
+        "end_line": 73,
+        "declaration_name": "EvidenceFocus"
+      },
+      "literal_members": ["artifact", "need", "overview", "plan", "promotion"],
+      "type_expression": "| \"overview\"\n  | \"need\"\n  | \"plan\"\n  | \"promotion\"\n  | \"artifact\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C05",
+      "rationale": "EvidenceFocus is a navigation facet, not evidence strength or authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-production-freshness",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
+        "start_line": 5,
+        "end_line": 5,
+        "declaration_name": "FreshnessState"
+      },
+      "literal_members": ["fail", "ok", "unknown", "warn"],
+      "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"unknown\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C06",
+      "rationale": "Connector diagnostic freshness cannot remain a second verification/cache-age authority vocabulary.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-public-projection-state",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        "start_line": 194,
+        "end_line": 201,
+        "declaration_name": "PublicProjectionState"
+      },
+      "literal_members": [
+        "blocked",
+        "contested",
+        "draft",
+        "projection_only",
+        "publishable",
+        "redacted",
+        "stale"
+      ],
+      "type_expression": "| \"blocked\"\n  | \"contested\"\n  | \"draft\"\n  | \"projection_only\"\n  | \"publishable\"\n  | \"redacted\"\n  | \"stale\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "Client-composed publishability retires in the publication/decision-grade cluster.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-evidence-wallet-kind",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        "start_line": 80,
+        "end_line": 85,
+        "declaration_name": "EvidenceWalletCandidateKind"
+      },
+      "literal_members": [
+        "artifact",
+        "coverage",
+        "explanation",
+        "model_card",
+        "threshold"
+      ],
+      "type_expression": "| \"artifact\"\n  | \"coverage\"\n  | \"explanation\"\n  | \"model_card\"\n  | \"threshold\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C05",
+      "rationale": "EvidenceWalletCandidateKind is a candidate artifact category, not an authority posture.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-readiness-section-id",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+        "start_line": 22,
+        "end_line": 29,
+        "declaration_name": "ReadinessSectionId"
+      },
+      "literal_members": [
+        "fairness",
+        "harm",
+        "identifiability",
+        "objections",
+        "provenance",
+        "revocation",
+        "uncertainty"
+      ],
+      "type_expression": "| \"objections\"\n  | \"fairness\"\n  | \"harm\"\n  | \"provenance\"\n  | \"uncertainty\"\n  | \"identifiability\"\n  | \"revocation\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C05",
+      "rationale": "ReadinessSectionId addresses sections and carries no readiness outcome.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-readiness-severity",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
+        "start_line": 31,
+        "end_line": 31,
+        "declaration_name": "ReadinessSeverity"
+      },
+      "literal_members": ["block", "pass", "warn"],
+      "type_expression": "\"block\" | \"warn\" | \"pass\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "Client-composed readiness severity is retired or made diagnostic in the readiness cluster.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-scientific-identifiability",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
+        "start_line": 9,
+        "end_line": 13,
+        "declaration_name": "IdentifiabilityState"
+      },
+      "literal_members": ["not_identified", "partial", "point", "set"],
+      "type_expression": "| \"point\"\n  | \"partial\"\n  | \"set\"\n  | \"not_identified\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C13",
+      "rationale": "Scientific identifiability presentation binds producer semantics in the causal cluster.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c13"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-share-fixture-state",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/export/social/email-fixtures.ts",
+        "start_line": 25,
+        "end_line": 25,
+        "field_name": "state"
+      },
+      "literal_members": ["draft", "verified"],
+      "type_expression": "\"draft\" | \"verified\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C11",
+      "rationale": "Fixture draft/verified state is fixture-only presentation and cannot confer verification authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c11"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-interaction-authority-purpose",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.ts",
+        "start_line": 4,
+        "end_line": 11,
+        "declaration_name": "InteractionAuthorityPurpose"
+      },
+      "literal_members": [
+        "candidate_display",
+        "diagnostic_display",
+        "loading",
+        "playback",
+        "progress",
+        "telemetry",
+        "transport"
+      ],
+      "type_expression": "| \"candidate_display\"\n  | \"diagnostic_display\"\n  | \"loading\"\n  | \"playback\"\n  | \"progress\"\n  | \"telemetry\"\n  | \"transport\"",
+      "disposition": "structural_interaction_wrapper",
+      "target_cluster": "C05",
+      "rationale": "The closed set constrains non-authority purposes on the branded interaction wrapper itself.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    }
+  ]
+}

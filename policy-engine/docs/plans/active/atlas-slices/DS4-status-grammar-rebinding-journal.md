@@ -581,3 +581,86 @@ manifested.
   Russian locale, master plan, lockfile, main, and other worktrees remain
   untouched. Full `designTokens.ts` sunset is not claimed; it still requires
   C17 consumer completion and DS6 evidence.
+
+## 2026-07-19 — DS4-C05 status-retirement authority and W1 boundary
+
+### Red-first receipt and measured inventory
+
+- The three named TypeScript negatives first failed because no status-owner
+  barrier existed. The inventory suite then failed at the absent checker, and
+  its supplemental semantic-union negative failed again after the first exact
+  47-row implementation because `LineageFreshness` could be removed from the
+  typed supplement without a live-source diagnostic. The positive checker now
+  closes both classes.
+- A compiler-program scan of the live dashboard recomputed 46 authored
+  definitions: 22 named and 24 inline. Joining the one already deleted
+  collaboration definition produces the immutable DS1 denominator of 47:
+  15 `lattice_derived`, 24 `interaction_state`, and 8 `removed`.
+- The scanner found 14 additional closed semantic unions outside the DS1
+  status denominator. They are separately content-bound as seven scheduled
+  retirement debts, three non-status taxonomies, two interaction states, one
+  fail-closed boundary, and one structural interaction wrapper. Every row says
+  explicitly that it does not change the 47-row denominator; adding, removing,
+  renaming, or changing one now fails the live checker.
+- The typed waist-debt register contains exactly the three architect-ratified
+  DS5 rows: cache age (`ProjectionFreshness`, C09), absent `DecisionGrade`
+  (C14), and CGF disposition (`GenerationCycleDispositionPayload`, C19). Each
+  is `bridge_missing` plus `surface_missing`, names its single future swap
+  module, and is anchored to the current read-only generated client.
+
+### Implementation and behavioral guard
+
+- Added the branded `InteractionState` wrapper and a compile-only authority
+  slot that rejects naked, divergent, and interaction values. Runtime owner
+  metadata rejects `local_union`; no living dashboard consumer imports this
+  guard yet, so C05 introduces no production-reachable UI or screenshot
+  change.
+- The inventory is a strict JSON Schema artifact with exact DS1/DS19 joins,
+  source hashes, source spans, literal members, symbol-derived consumers,
+  generated indexed-owner queries, removal receipts, target clusters, and
+  verification references. The checker reads the actual dashboard TypeScript
+  program and generated-client source rather than trusting stored counts.
+- Corruption probes reject a renamed authority union, inline synonym,
+  present-but-fake generated import, sibling interaction consumer, missing DS1
+  join, and a fourth waist row. The focused Python suite also rejects duplicate
+  or unknown joins, wrong generated fields/anchors, a surviving deleted source,
+  missing interaction barriers, target-cluster drift, and unregistered
+  supplemental semantic unions.
+- No DS19 family row transitions in C05. The status inventory is the typed work
+  queue for C06-C18; the disposition register remains the authority for family
+  transitions.
+
+### W1 verification receipt
+
+| Gate                                     | Result                                                                                                                                                                                                              |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| status owner tests                       | PASS; 2 files / 3 tests plus dashboard typecheck compile barrier                                                                                                                                                    |
+| status inventory                         | PASS; 12 behavioral tests and corruption probes; 47 DS1 rows, 46 current definitions, 14 supplemental semantic candidates, 3 DS5 waist rows                                                                         |
+| disposition register                     | PASS with baseline source bytes and corruption probes; 261 roots, 200 `rebind_pending`, 23 seeded negatives, 8 censuses                                                                                             |
+| frozen install and lock proof            | PASS; six workspaces already current; lockfile and all dependency declarations byte-identical to C04                                                                                                                |
+| atlas-ui gates                           | PASS; typecheck, lint, architecture (27 source files), token schema/projection, and 10 files / 50 tests                                                                                                             |
+| dashboard typecheck and production build | PASS; 3,868 modules, postbuild security, package Tailwind-source proof, and 101 PWA entries                                                                                                                         |
+| dashboard full lint JSON                 | exact inherited 75 errors in 22 files, zero warnings, one `policyos/quantity-must-be-wrapped` rule; baseline multiset comparator PASS                                                                               |
+| dashboard full Vitest JSON               | exact inherited five identities; 691 tests, 686 pass; baseline failed-test comparator PASS                                                                                                                          |
+| dashboard architecture                   | exact inherited 36 shared/app violations; no C05 edge added                                                                                                                                                         |
+| Storybook                                | production build PASS; browser suite 44 files / 97 tests PASS                                                                                                                                                       |
+| structural a11y                          | honestly RED only at the inherited `OperatorDiagnosticPanel` census identity assigned to C12                                                                                                                        |
+| Playwright visual                        | suite executed after the documented fixture-env workaround; 1 passed / 14 existing broad snapshot or route failures across untouched inputs, so this is an unmanifested baseline non-receipt, not a C05 green claim |
+
+The visual command's first attempt is also a tooling non-receipt: the committed
+Playwright web-server command omits `pytest`, which its fixture helper imports.
+Starting the same server with `uv run --with pytest --extra runtime-http` let
+the suite execute without repository edits. C05 changed neither the visual
+spec/snapshots nor their runtime-reachable inputs; the new status module has no
+production importer. The independent-review subagent lanes reached their
+external usage ceiling, so independent review is recorded as a non-receipt;
+the local review still ran the generic adversarial probes, strict schemas,
+focused lint/typecheck/tests, and `git diff --check`.
+
+### Fence receipt
+
+- The C05 diff is confined to the dashboard status-owner guard/tests, owned
+  Atlas-surface artifacts/checker/tests, and this journal. The lockfile,
+  dependency manifests, debt manifests, and DS19 register are unchanged.
+- Backend `src/**`, schemas, generated runtime client, v15 archive, frozen
+  Russian locale, master plan, main, and other worktrees remain untouched.

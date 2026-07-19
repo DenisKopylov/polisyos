@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "status-retirement-inventory.schema.json",
+  "title": "Atlas DS4 status-retirement inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "schema_version",
+    "inventory_id",
+    "as_of",
+    "authority",
+    "sources",
+    "denominators",
+    "entries",
+    "semantic_exemptions"
+  ],
+  "properties": {
+    "$schema": { "const": "./status-retirement-inventory.schema.json" },
+    "schema_version": { "const": "1.0" },
+    "inventory_id": { "const": "atlas-ds4-status-retirement" },
+    "as_of": { "type": "string", "format": "date-time" },
+    "authority": { "$ref": "#/$defs/authority" },
+    "sources": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ds1", "ds19", "generated_client"],
+      "properties": {
+        "ds1": { "$ref": "#/$defs/source" },
+        "ds19": { "$ref": "#/$defs/source" },
+        "generated_client": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "canonical_path",
+            "canonical_sha256",
+            "types_path",
+            "types_sha256"
+          ],
+          "properties": {
+            "canonical_path": { "$ref": "#/$defs/path" },
+            "canonical_sha256": { "$ref": "#/$defs/sha256" },
+            "types_path": { "$ref": "#/$defs/path" },
+            "types_sha256": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      }
+    },
+    "denominators": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ds1_rows",
+        "ds1_named",
+        "ds1_inline",
+        "current_named",
+        "current_inline",
+        "current_total",
+        "already_deleted"
+      ],
+      "properties": {
+        "ds1_rows": { "const": 47 },
+        "ds1_named": { "const": 23 },
+        "ds1_inline": { "const": 24 },
+        "current_named": { "type": "integer", "minimum": 0, "maximum": 23 },
+        "current_inline": { "type": "integer", "minimum": 0, "maximum": 24 },
+        "current_total": { "type": "integer", "minimum": 0, "maximum": 47 },
+        "already_deleted": { "type": "integer", "minimum": 1, "maximum": 47 }
+      }
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 47,
+      "maxItems": 47,
+      "items": { "$ref": "#/$defs/entry" }
+    },
+    "semantic_exemptions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/semanticExemption" }
+    }
+  },
+  "$defs": {
+    "nonEmpty": { "type": "string", "minLength": 1 },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\.\\./).+$"
+    },
+    "sha256": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authoritative_for", "may_not_use_for"],
+      "properties": {
+        "authoritative_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        },
+        "may_not_use_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "ledger_id", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "ledger_id": { "$ref": "#/$defs/nonEmpty" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "sourceSpan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "start_line", "end_line"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "start_line": { "type": "integer", "minimum": 1 },
+        "end_line": { "type": "integer", "minimum": 1 },
+        "declaration_name": { "$ref": "#/$defs/nonEmpty" },
+        "field_name": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "consumer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "line", "kind"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "line": { "type": "integer", "minimum": 1 },
+        "kind": {
+          "enum": [
+            "import",
+            "prop",
+            "state_initializer",
+            "comparison",
+            "map",
+            "story",
+            "fixture",
+            "test"
+          ]
+        }
+      }
+    },
+    "ownerType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["generated_indexed", "interaction_wrapper", "none"]
+        },
+        "module": { "$ref": "#/$defs/nonEmpty" },
+        "query": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "generatedAnchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["export_symbol", "canonical_line", "schema_line"],
+      "properties": {
+        "export_symbol": { "$ref": "#/$defs/nonEmpty" },
+        "canonical_line": { "type": "integer", "minimum": 1 },
+        "schema_line": { "type": "integer", "minimum": 1 },
+        "field": { "$ref": "#/$defs/nonEmpty" }
+      }
+    },
+    "removalEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "verification_ref"],
+      "properties": {
+        "reason": { "$ref": "#/$defs/nonEmpty" },
+        "verification_ref": { "$ref": "#/$defs/nonEmpty" },
+        "deletion_commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "pre_deletion_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "git_blob": { "type": "string", "pattern": "^[a-f0-9]{40}$" }
+      }
+    },
+    "semanticExemption": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_id",
+        "definition_kind",
+        "source_span",
+        "literal_members",
+        "type_expression",
+        "disposition",
+        "target_cluster",
+        "rationale",
+        "verification_refs",
+        "does_not_change_ds1_denominator"
+      ],
+      "properties": {
+        "candidate_id": {
+          "type": "string",
+          "pattern": "^semantic-[a-z0-9-]+$"
+        },
+        "definition_kind": { "enum": ["named", "inline"] },
+        "source_span": { "$ref": "#/$defs/sourceSpan" },
+        "literal_members": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        },
+        "type_expression": { "$ref": "#/$defs/nonEmpty" },
+        "disposition": {
+          "enum": [
+            "boundary_guard",
+            "interaction_state",
+            "non_status_taxonomy",
+            "retirement_debt",
+            "structural_interaction_wrapper"
+          ]
+        },
+        "target_cluster": {
+          "enum": [
+            "C05",
+            "C06",
+            "C07",
+            "C08",
+            "C09",
+            "C10",
+            "C11",
+            "C12",
+            "C13",
+            "C14",
+            "C15",
+            "C16",
+            "C17",
+            "C18"
+          ]
+        },
+        "rationale": { "$ref": "#/$defs/nonEmpty" },
+        "verification_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        },
+        "authority_slot_barrier_ref": { "$ref": "#/$defs/nonEmpty" },
+        "does_not_change_ds1_denominator": { "const": true }
+      }
+    },
+    "entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unit_id",
+        "definition_kind",
+        "current_definition_state",
+        "source_span",
+        "literal_members",
+        "type_expression",
+        "consumers",
+        "owner_type",
+        "classification",
+        "replacement",
+        "authority_purpose",
+        "target_cluster",
+        "verification_refs"
+      ],
+      "properties": {
+        "unit_id": { "type": "string", "pattern": "^status-[a-z0-9-]+$" },
+        "definition_kind": { "enum": ["named", "inline", "deleted"] },
+        "current_definition_state": { "enum": ["present", "deleted"] },
+        "source_span": { "$ref": "#/$defs/sourceSpan" },
+        "literal_members": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        },
+        "type_expression": { "$ref": "#/$defs/nonEmpty" },
+        "consumers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/consumer" }
+        },
+        "owner_type": { "$ref": "#/$defs/ownerType" },
+        "classification": {
+          "enum": ["lattice_derived", "interaction_state", "removed"]
+        },
+        "replacement": { "$ref": "#/$defs/nonEmpty" },
+        "authority_purpose": {
+          "enum": [
+            "authority",
+            "candidate_display",
+            "diagnostic_display",
+            "loading",
+            "none",
+            "playback",
+            "progress",
+            "telemetry",
+            "transport"
+          ]
+        },
+        "target_cluster": {
+          "enum": [
+            "C05",
+            "C06",
+            "C07",
+            "C08",
+            "C09",
+            "C10",
+            "C11",
+            "C12",
+            "C13",
+            "C14",
+            "C15",
+            "C16",
+            "C17",
+            "C18"
+          ]
+        },
+        "verification_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        },
+        "authority_slot_barrier_ref": { "$ref": "#/$defs/nonEmpty" },
+        "generated_anchor": { "$ref": "#/$defs/generatedAnchor" },
+        "removal_evidence": { "$ref": "#/$defs/removalEvidence" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "classification": { "const": "lattice_derived" } }
+          },
+          "then": {
+            "required": ["generated_anchor"],
+            "properties": {
+              "owner_type": {
+                "properties": {
+                  "kind": { "const": "generated_indexed" },
+                  "module": { "const": "@polisyos/runtime-api-client" }
+                },
+                "required": ["module", "query"]
+              },
+              "authority_purpose": { "const": "authority" }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "classification": { "const": "interaction_state" } }
+          },
+          "then": {
+            "required": ["authority_slot_barrier_ref"],
+            "properties": {
+              "owner_type": {
+                "properties": {
+                  "kind": { "const": "interaction_wrapper" },
+                  "module": { "const": "@/shared/lib/domain/statusOwnership" },
+                  "query": { "const": "InteractionState" }
+                },
+                "required": ["module", "query"]
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "classification": { "const": "removed" } } },
+          "then": {
+            "required": ["removal_evidence"],
+            "properties": {
+              "owner_type": { "properties": { "kind": { "const": "none" } } },
+              "authority_purpose": { "const": "none" }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 import uuid
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, cast
 
@@ -230,11 +231,11 @@ def record_data_access_audit(
     authz_resource = getattr(request.state, "authz_resource", None)
     resource_kind = (
         str(authz_resource.get("kind", "runtime.unknown"))
-        if isinstance(authz_resource, dict)
+        if isinstance(authz_resource, Mapping)
         else "runtime.unknown"
     )
     resolved_resource_id = resource_id
-    if not resolved_resource_id and isinstance(authz_resource, dict):
+    if not resolved_resource_id and isinstance(authz_resource, Mapping):
         candidate = authz_resource.get("artifact_id")
         if isinstance(candidate, str) and candidate:
             resolved_resource_id = candidate

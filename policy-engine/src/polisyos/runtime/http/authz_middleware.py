@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import os
+from collections.abc import Iterator, Mapping, MutableMapping
 from contextlib import suppress
 from dataclasses import dataclass
 from functools import partial
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Never, cast
 
 from anyio import to_thread
@@ -52,7 +54,7 @@ from polisyos.runtime.http.security import (
 logger = get_logger("polisyos.security.authz")
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable, Mapping
+    from collections.abc import Awaitable, Callable
 
     from fastapi.routing import APIRoute
     from starlette.requests import Request
@@ -75,7 +77,6 @@ else:
     Awaitable = Any
     Callable = Any
     DelegationTokenManager = Any
-    Mapping = Any
     Message = dict[str, Any]
     Receive = Any
     Response = Any
@@ -119,8 +120,12 @@ class _AuthorizationStateMutationError(RuntimeError):
     """Signal an attempted handler-side mutation of sealed authority state."""
 
 
-class _FrozenAuthorizationDict(dict[str, object]):
-    """Dictionary-shaped immutable value retained for legacy read consumers."""
+class _FrozenAuthorizationMapping(MutableMapping[str, object]):
+    """Mapping-shaped immutable value retained for legacy read consumers.
+
+    This deliberately does not inherit from ``dict``. Python's base ``dict``
+    descriptors can mutate a subclass without invoking its overrides.
+    """
 
     def __init__(
         self,
@@ -128,13 +133,22 @@ class _FrozenAuthorizationDict(dict[str, object]):
         *,
         seal: _AuthorizationStateSeal,
     ) -> None:
-        super().__init__(
+        self._values = MappingProxyType(
             {
                 key: _freeze_authorization_value(item, seal=seal)
                 for key, item in value.items()
             }
         )
         self._seal = seal
+
+    def __getitem__(self, key: str) -> object:
+        return self._values[key]
+
+    def __iter__(self) -> Iterator[str]:
+        return iter(self._values)
+
+    def __len__(self) -> int:
+        return len(self._values)
 
     def _reject(self) -> Never:
         self._seal.violated = True
@@ -168,13 +182,17 @@ class _FrozenAuthorizationDict(dict[str, object]):
         del args, kwargs
         self._reject()
 
-    def __ior__(self, value: object) -> _FrozenAuthorizationDict:
+    def __ior__(self, value: object) -> _FrozenAuthorizationMapping:
         del value
         self._reject()
 
 
-class _SealedAuthorizationState(dict[str, object]):
-    """ASGI state mapping that rejects protected authority-field replacement."""
+class _SealedAuthorizationState(MutableMapping[str, object]):
+    """ASGI state mapping that rejects protected authority-field replacement.
+
+    Protected values live only in an unreferenced backing dictionary exposed
+    through ``MappingProxyType``. Mutable downstream state is held separately.
+    """
 
     def __init__(
         self,
@@ -182,17 +200,29 @@ class _SealedAuthorizationState(dict[str, object]):
         *,
         seal: _AuthorizationStateSeal,
     ) -> None:
-        super().__init__(
-            {
-                key: (
-                    _freeze_authorization_value(item, seal=seal)
-                    if _is_sealed_authorization_field(key)
-                    else item
-                )
-                for key, item in value.items()
-            }
-        )
+        protected: dict[str, object] = {}
+        mutable: dict[str, object] = {}
+        for key, item in value.items():
+            if _is_sealed_authorization_field(key):
+                protected[key] = _freeze_authorization_value(item, seal=seal)
+            else:
+                mutable[key] = item
+        self._protected = MappingProxyType(protected)
+        self._mutable = mutable
         self._seal = seal
+
+    def __getitem__(self, key: str) -> object:
+        try:
+            return self._protected[key]
+        except KeyError:
+            return self._mutable[key]
+
+    def __iter__(self) -> Iterator[str]:
+        yield from self._protected
+        yield from self._mutable
+
+    def __len__(self) -> int:
+        return len(self._protected) + len(self._mutable)
 
     def _reject(self, key: str) -> Never:
         self._seal.violated = True
@@ -203,12 +233,12 @@ class _SealedAuthorizationState(dict[str, object]):
     def __setitem__(self, key: str, value: object) -> None:
         if _is_sealed_authorization_field(key):
             self._reject(key)
-        super().__setitem__(key, value)
+        self._mutable[key] = value
 
     def __delitem__(self, key: str) -> None:
         if _is_sealed_authorization_field(key):
             self._reject(key)
-        super().__delitem__(key)
+        del self._mutable[key]
 
     def clear(self) -> None:
         self._reject("<bulk-clear>")
@@ -216,7 +246,7 @@ class _SealedAuthorizationState(dict[str, object]):
     def pop(self, key: str, default: object = None) -> object:
         if _is_sealed_authorization_field(key):
             self._reject(key)
-        return super().pop(key, default)
+        return self._mutable.pop(key, default)
 
     def popitem(self) -> tuple[str, object]:
         self._reject("<bulk-popitem>")
@@ -224,7 +254,7 @@ class _SealedAuthorizationState(dict[str, object]):
     def setdefault(self, key: str, default: object = None) -> object:
         if _is_sealed_authorization_field(key):
             self._reject(key)
-        return super().setdefault(key, default)
+        return self._mutable.setdefault(key, default)
 
     def update(self, *args: object, **kwargs: object) -> None:
         del args, kwargs
@@ -249,7 +279,7 @@ def _freeze_authorization_value(
     seal: _AuthorizationStateSeal,
 ) -> object:
     if isinstance(value, dict):
-        return _FrozenAuthorizationDict(value, seal=seal)
+        return _FrozenAuthorizationMapping(value, seal=seal)
     if isinstance(value, list):
         return tuple(_freeze_authorization_value(item, seal=seal) for item in value)
     if isinstance(value, set):

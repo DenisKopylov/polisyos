@@ -931,6 +931,74 @@ def test_future_step_up_assertion_is_denied() -> None:
         _jwt_step_up_verifier(now=now).verify(token, context)
 
 
+def test_not_before_step_up_assertion_is_denied() -> None:
+    from polisyos.runtime.http.step_up import StepUpAssertionVerificationError
+
+    now = 1_800_000_000
+    context = _step_up_context()
+    token = _signed_step_up_token(
+        context,
+        issued_at=now - 5,
+        expires_at=now + 600,
+        claim_overrides={"nbf": now + 300},
+    )
+
+    with pytest.raises(StepUpAssertionVerificationError) as exc:
+        _jwt_step_up_verifier(now=now).verify(token, context)
+
+    assert exc.value.code == "step_up_not_yet_valid"
+
+
+@pytest.mark.parametrize(
+    ("claim_overrides", "error_code"),
+    [
+        pytest.param({"nbf": "later"}, "step_up_invalid", id="non-integer"),
+        pytest.param(
+            {"nbf": 1_799_999_998, "exp": 1_799_999_998},
+            "step_up_expired",
+            id="expires-at-not-before",
+        ),
+    ],
+)
+def test_not_before_step_up_assertion_rejects_invalid_claim_or_window(
+    claim_overrides: dict[str, object],
+    error_code: str,
+) -> None:
+    from polisyos.runtime.http.step_up import StepUpAssertionVerificationError
+
+    now = 1_800_000_000
+    context = _step_up_context()
+    token = _signed_step_up_token(
+        context,
+        issued_at=now - 5,
+        expires_at=now + 60,
+        claim_overrides=claim_overrides,
+    )
+
+    with pytest.raises(StepUpAssertionVerificationError) as exc:
+        _jwt_step_up_verifier(now=now).verify(token, context)
+
+    assert exc.value.code == error_code
+
+
+def test_not_before_step_up_assertion_accepts_exact_clock_skew_boundary() -> None:
+    from polisyos.runtime.http.step_up import StepUpAssertionVerification
+
+    now = 1_800_000_000
+    context = _step_up_context()
+    token = _signed_step_up_token(
+        context,
+        issued_at=now - 5,
+        expires_at=now + 60,
+        claim_overrides={"nbf": now + 10},
+    )
+
+    verification = _jwt_step_up_verifier(now=now).verify(token, context)
+
+    assert type(verification) is StepUpAssertionVerification
+    assert verification.context == context
+
+
 def test_replayed_step_up_assertion_is_denied(runtime_api_env, tmp_path: Path) -> None:
     from polisyos.runtime.http.security import RuntimeSecurityConfig
     from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore

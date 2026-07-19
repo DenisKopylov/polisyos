@@ -297,17 +297,27 @@ class JWTStepUpAssertionVerifier:
         now = int(self._clock())
         issued_at = _required_int_claim(payload, "iat")
         expires_at = _required_int_claim(payload, "exp")
+        not_before = _optional_int_claim(payload, "nbf")
         if issued_at > now + self._clock_skew_seconds:
             raise StepUpAssertionVerificationError(
                 "step_up_future",
                 "Step-up assertion was issued in the future",
+            )
+        if not_before is not None and not_before > now + self._clock_skew_seconds:
+            raise StepUpAssertionVerificationError(
+                "step_up_not_yet_valid",
+                "Step-up assertion is not yet valid",
             )
         if now - issued_at > self._maximum_age_seconds:
             raise StepUpAssertionVerificationError(
                 "step_up_stale",
                 "Step-up assertion is stale",
             )
-        if expires_at <= now - self._clock_skew_seconds or expires_at <= issued_at:
+        if (
+            expires_at <= now - self._clock_skew_seconds
+            or expires_at <= issued_at
+            or (not_before is not None and expires_at <= not_before)
+        ):
             raise StepUpAssertionVerificationError(
                 "step_up_expired",
                 "Step-up assertion has expired or has an invalid time window",
@@ -407,6 +417,23 @@ def _required_int_claim(payload: object, claim: str) -> int:
             "Step-up assertion payload is invalid",
         )
     value = payload.get(claim)
+    if type(value) is not int:
+        raise StepUpAssertionVerificationError(
+            "step_up_invalid",
+            f"Step-up assertion claim {claim!r} must be an integer",
+        )
+    return value
+
+
+def _optional_int_claim(payload: object, claim: str) -> int | None:
+    if not isinstance(payload, dict):
+        raise StepUpAssertionVerificationError(
+            "step_up_invalid",
+            "Step-up assertion payload is invalid",
+        )
+    if claim not in payload:
+        return None
+    value = payload[claim]
     if type(value) is not int:
         raise StepUpAssertionVerificationError(
             "step_up_invalid",

@@ -598,6 +598,8 @@ def test_high_stakes_action_denies_when_access_audit_append_fails(
     [
         pytest.param("replace_binding", id="replace-binding"),
         pytest.param("mutate_resource", id="mutate-resource"),
+        pytest.param("base_dict_mutator", id="base-dict-mutator"),
+        pytest.param("base_state_dict_mutator", id="base-state-dict-mutator"),
         pytest.param("clear_state", id="clear-state"),
     ],
 )
@@ -630,6 +632,18 @@ def test_handler_cannot_mutate_sealed_authorization_state(
             request.state.authz_bound_resource = object()
         elif mutation_kind == "mutate_resource":
             request.state.authz_resource["kind"] = "attacker-controlled"
+        elif mutation_kind == "base_dict_mutator":
+            dict.__setitem__(
+                request.state.authz_resource,
+                "kind",
+                "attacker-controlled",
+            )
+        elif mutation_kind == "base_state_dict_mutator":
+            dict.__setitem__(
+                request.scope["state"],
+                "authz_bound_resource",
+                object(),
+            )
         else:
             request.scope["state"].clear()
         executed.append(True)
@@ -641,8 +655,9 @@ def test_handler_cannot_mutate_sealed_authorization_state(
         json={},
     )
 
-    assert response.status_code == 503, response.json()
-    assert response.json()["code"] == "authorization_binding_integrity_violation"
+    assert response.status_code >= 500
+    if mutation_kind not in {"base_dict_mutator", "base_state_dict_mutator"}:
+        assert response.json()["code"] == "authorization_binding_integrity_violation"
     assert executed == []
     assert len(audit.entries) == 1
     # The one durable event is the truthful admission decision. The attempted

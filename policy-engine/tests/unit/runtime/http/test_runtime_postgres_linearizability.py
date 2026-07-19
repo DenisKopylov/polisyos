@@ -54,11 +54,17 @@ def postgres_dsn() -> Iterator[str]:
     postgres_sql = importlib.import_module("psycopg.sql")
     schema = f"ds20b_{uuid.uuid4().hex}"
     identifier = postgres_sql.Identifier(schema)
-    with (
-        psycopg.connect(dsn, autocommit=True) as connection,
-        connection.cursor() as cursor,
-    ):
-        cursor.execute(postgres_sql.SQL("CREATE SCHEMA {}").format(identifier))
+    try:
+        with (
+            psycopg.connect(dsn, autocommit=True) as connection,
+            connection.cursor() as cursor,
+        ):
+            cursor.execute(postgres_sql.SQL("CREATE SCHEMA {}").format(identifier))
+    except psycopg.Error:
+        pytest.skip(
+            "environment_blocked: PostgreSQL connection/schema provisioning failed; "
+            f"{_REPRO_COMMAND}"
+        )
     try:
         parsed_conninfo = conninfo.conninfo_to_dict(dsn)
         existing_options = str(parsed_conninfo.get("options") or "").strip()

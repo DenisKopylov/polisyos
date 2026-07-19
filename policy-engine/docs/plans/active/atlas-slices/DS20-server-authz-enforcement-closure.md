@@ -21,11 +21,11 @@ the durable PostgreSQL properties have executable proofs but no real-DSN receipt
 this environment. Claiming full production readiness would therefore still be false.
 
 | DS20-B blocker | Verdict |
-|---|---|
-| B1 Rego bridge | `closed` — exact 33-value vocabulary and behavioral server/Rego parity |
-| B2 ops identity | `closed` — genuine minimal-grant deployment principals for both probes |
+| --- | --- |
+| B1 Rego bridge | `closed` — exact 33-value vocabulary and live HTTP→middleware→Rego parity |
+| B2 ops identity | `closed` — signed deployment principals whose grants are preflighted for exact minimal equality |
 | B3 promotion CAS | `typed-limitation` — N13b owns the missing public Fabric CAS producer |
-| B4 verifier provenance | `closed` — factory-only non-development composition and documented IdP provenance |
+| B4 deployment verifier provenance | `closed` — one factory-only non-development identity/step-up authority boundary and documented IdP provenance; persisted scorecard producer provenance remains the separately typed limitation below |
 | B5 PostgreSQL proof | `environment-blocked` — executable real-PG harness, no local DSN/daemon |
 
 ## Live denominator and structural proof
@@ -34,7 +34,7 @@ Application-router introspection on the final branch yields 29 unsafe operations
 29 `POST`, zero `PUT`, zero `PATCH`, and zero `DELETE`.
 
 | Property | Receipt |
-|---|---:|
+| --- | ---: |
 | One exact direct typed action dependency | 29/29 |
 | Exact-permission denial | 29/29 return 403 |
 | Absent-identity denial | 29/29 return 401 |
@@ -103,7 +103,7 @@ edit `apps/**` or promote those strings into authority. They are a DS5/DS4
 Five declared high-stakes classes map to six live operations:
 
 | Class | Live operation(s) |
-|---|---|
+| --- | --- |
 | Acquisition approval | `ingest_data` |
 | Promotion | `approve_data_promotion`, `reject_data_promotion` |
 | Publication | `publish_decision_validity_event` |
@@ -169,7 +169,7 @@ review-effectiveness input.
 ## DS1 N009-N013 disposition
 
 | Negative | DS20 status | Remaining owner/state |
-|---|---|---|
+| --- | --- | --- |
 | N009 generic mutation authorization | Server half closed | 29/29 structural dependency and three-way matrix |
 | N010 UI/fallback identity path | Server half closed | DS5/DS4 UI rebinding remains `consumer_missing` |
 | N011 production fixture identity | Closed | Startup/provider/WebSocket negatives pass |
@@ -184,8 +184,8 @@ The authoritative register is outside the DS20 fence and was not edited.
 
 ## Verification receipts
 
-- Focused DS20 gate: 268 tests, all passed.
-- Scoped HTTP collection: 699 tests.
+- Focused DS20 gate: 270 tests, all passed.
+- Scoped HTTP collection: 701 tests.
 - Final repeat scoped run: exactly the six pre-edit failures and two inherited skips,
   with no additional failure. An earlier read-only SSE timing failure passed alone,
   in its complete module, and in this repeat; it is not added to the baseline.
@@ -202,9 +202,12 @@ The authoritative register is outside the DS20 fence and was not edited.
 - Focused authorization/step-up basedpyright error gate: 0 errors. Including
   `dependencies.py` reports only its two pre-existing artifact-store cast errors.
 - `git diff --check`: passed.
-- Final independent review: no Critical or Important finding remains. Its two
-  Important witnesses (base-`dict` seal bypass and premature `nbf`) were red before
-  repair and green afterward; sibling mutator/type/skew/window probes also pass.
+- The pre-attestation independent review's two Important witnesses (base-`dict`
+  seal bypass and premature `nbf`) were red before repair and green afterward;
+  sibling mutator/type/skew/window probes also pass. The final post-attestation
+  automated re-review was environment-blocked by the workspace credit quota, so
+  no independent sign-off is claimed for the last hardening commits; architect
+  review remains required.
 - Architecture guardrail: baseline-red, not DS20-green. Five inherited DS3 additions
   remain, while DS20 removes three stale baseline edges. No DS20-added deep-import
   edge remains; baseline sync is outside the fence.
@@ -213,12 +216,15 @@ DS20-B's fresh closeout receipts add:
 
 - OPA 1.15.2 strict check and canonical Rego harness: 45/45 passed.
 - Rego/server vocabulary parity: exact equality with all 33 canonical permissions.
-- Rego/server decision parity: live server inputs and the principal × operation ×
-  resource matrix agree, including unknown-value and no-contract denials.
-- DS20-B focused gate: 75 selected, 70 passed, five explicit skips. Four skips are
+- Rego/server decision parity: a live `TestClient` request crosses authorization
+  middleware and canonical Rego before the real handler effect; the principal ×
+  operation × resource matrix agrees, and unknown action/resource/authority/source/
+  grant variants return 403 without that effect.
+- DS20-B focused gate after the final attestation repairs: 105 selected, 100 passed,
+  five explicit skips. Four skips are
   the real-PostgreSQL proofs below; one is the pre-existing optional debug-probe
   PostgreSQL integration.
-- Focused DS20 denominator after the final import-boundary repair: 268/268 passed.
+- Focused DS20 denominator after the final attestation repair: 270/270 passed.
 - Scoped HTTP denominator after the same repair: exactly the six inherited failures
   and two inherited skips listed below; no SSE recurrence and no new failure.
 - Runtime contract checker: passed. Runtime client TypeScript, architecture, four
@@ -293,23 +299,74 @@ The canary and local-production debug probe no longer request fixture identity o
 allow-all policy. Both compose the strict deployment security factory and require a
 deployment-injected short-lived bearer for dedicated service principals. The canary
 principal is limited to `runs.launch` and `runs.view`; the debug principal is limited
-to `runs.view`. Behavioral tests prove bad signature returns 401, a genuine principal
-without the exact grant returns 403, and the exact debug grant reaches the protected
-missing-run witness and returns 404 after canonical OPA evaluation.
+to `runs.view`. Before either probe can issue a request, the runner validates the
+signed token with the deployment identity provider, resolves the exact managed
+principal `(issuer, audience, subject, tenant, cell)`, and requires its canonical
+grant set to equal the probe's declared minimum. Behavioral tests prove that an
+unmanaged `ADMIN` token and a managed token with one extra known permission both fail
+before network dispatch, without leaking the bearer. Bad signature returns 401, a
+genuine principal without the exact route grant returns 403, and the exact debug
+grant reaches the protected missing-run witness and returns 404 after canonical OPA
+evaluation.
 
 ### B4 verifier provenance — closed
 
 Non-development application construction accepts only the exact factory-produced
-deployment bundle. Issuer, audience, algorithms, JWKS/key rotation, cell routing,
-OPA endpoint, service-principal grants, replay storage, freshness bounds, and
-non-secret configuration provenance resolve through the typed deployment path.
+deployment bundle. One bootstrap invariant rejects every sibling authority injection:
+direct identity/cell/OPA/step-up/replay/delegation collaborators, trusted delegators,
+service SPIFFE identity, container overrides, disabled authorization enforcement,
+or authorization shadow mode. Issuer, audience, algorithms, JWKS/key rotation, cell
+routing, OPA endpoint, service-principal grants, replay storage, freshness bounds,
+and non-secret configuration provenance resolve through the typed deployment path.
 Protocol-shaped/test verifiers are structurally refused outside development. The
 runbook records the external IdP contract, including Keycloak role claims and MFA
 `acr`/`amr`; a client-authored MFA boolean is not authority.
 
+### Whole-branch adversarial review and final attestation repairs
+
+The first post-closure whole-branch review found no Critical issue and three
+Important proof/authority gaps. Each received a red witness before repair:
+
+1. The Rego parity matrix stopped at a helper boundary; its TestClient witness used
+   an allow stub. Commit `1ec995fe1` now mutates the exact sealed OPA input at the
+   live middleware boundary, evaluates canonical Rego, and proves valid input reaches
+   the handler effect while each unknown contract dimension is denied before effect.
+2. A probe could false-green with an unmanaged coarse `ADMIN` token or a managed
+   over-granted principal. Commit `78ee33f94` adds exact signed-token/principal/grant
+   preflight to both probe runners and rejects both adversarial variants before a
+   request is sent.
+3. Non-development startup still accepted sibling direct authority injections such
+   as replay/delegation stores and could disable enforcement. The same commit seals
+   all direct non-development authority inputs behind one factory-only composition
+   invariant while retaining development-only test composition.
+
+Subsequent adversarial passes found a broader same-object authority-mutation class
+and one sibling WebSocket bypass. Commits `08018888a`, `c33c4d450`, `811088d25`, and
+`5ca5a9979` now:
+
+- attest the exact factory bundle, application/container identity, collaborator
+  identities, callable origins, and mutable security state at bootstrap and again
+  at every HTTP/WebSocket authority consumer;
+- pin identity and step-up JWKS clients, keep deployment OPA request-local with no
+  retained decision/session authority, and revalidate middleware policy, grants,
+  replay-store, and post-verification state before handler dispatch;
+- reject a removed or replaced bundle/container through a module-owned weak app
+  installation registry, including the red-first WebSocket removal witness; and
+- return a generic 503 and append the unsafe-composition denial to the existing
+  access-audit trail without exposing attestation internals.
+
+The real loopback tests exercise JWKS and canonical OPA HTTP paths; no verifier or
+OPA monkeypatch substitutes for those production chains. The final 105-test
+B-focused gate, 270-test DS20 gate, 701-test baseline-relative HTTP suite, Rego
+harness, Ruff, basedpyright, runtime contract, client gates, guardrails, and both
+merge-tree previews were rerun after the repairs. Automated independent re-review
+of the final commits was attempted but environment-blocked by the workspace credit
+quota. The earlier targeted review does not constitute sign-off on those later
+commits; architect review is required.
+
 ### B3 Fabric promotion CAS — typed limitation
 
-- N13b ref `72e20ff8b` owns the exact Fabric producer
+- N13b ref `72e20ff8b`, now merged to current `main` at `b3f11e587`, owns the exact Fabric producer
   `src/polisyos/fabric/retrieval/service.py`, so the mandated owner-overlap stop fired
   before any Fabric edit. Both merge-tree previews are textually clean, but textual
   cleanliness does not waive owner discipline.
@@ -339,6 +396,16 @@ runbook records the external IdP contract, including Keycloak role claims and MF
 - Persisted production scorecards expose CAS identity but not verifier provenance.
   A producer/contract repair must prove quality authority; CAS presence or
   self-attestation is insufficient.
+
+### Inherited Fabric connector lifecycle finding
+
+The 29-case authorized-handler matrix passes, but its `discover_data_sources` and
+`resolve_data_needs` cases each emit one unclosed `aiohttp` connector diagnostic at
+process teardown. Isolated reruns reproduce only those two cases; the deployment
+OPA client is not the source because it uses a request-local `async with` session.
+Connector-pool ownership and shutdown live under the read-only Fabric/N13b path, so
+DS20-B records this as inherited cleanup debt and does not change Fabric lifecycle
+semantics or weaken the live-handler proof.
 
 ### DS5 and DS4
 
@@ -372,12 +439,13 @@ The new internal Python modules were not added to the package public facade.
   in the amendment's guardrail addendum; they add no new core edge.
 - `apps/**`, runtime quality, Fabric, GY artifacts/validators, Helm, architecture
   baselines, and the DS19 register were read-only.
-- Closeout `main` remains `d5f83a26b`; N13b is `72e20ff8b` with zero branch-only
-  runtime HTTP paths.
+- Closeout `main` advanced to `b3f11e587` by merging N13b; its change from the DS20
+  base has zero runtime HTTP paths and includes the N13b-owned Fabric retrieval
+  producer.
 - `git merge-tree --write-tree HEAD main` and the corresponding N13b preview both
   exit zero. N13b has no textual path overlap with DS20-B, while its semantic
   ownership of the Fabric CAS producer is preserved as B3's stop condition.
 - DS20-B changes no schema/client bytes and makes no Fabric, Helm, app, GY, or
   architecture-baseline edit.
-- Final fence stat: `72 files changed, 19062 insertions(+), 912 deletions(-)`.
+- Final fence stat: `74 files changed, 21302 insertions(+), 919 deletions(-)`.
 - No merge, push, or pull request is authorized by this slice.

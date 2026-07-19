@@ -535,11 +535,11 @@ The architect-ratified extension was frozen in `45f7733cd` before cross-fence
 implementation. Its closeout verdicts are:
 
 | Blocker | Verdict | Evidence |
-|---|---|---|
-| B1 Rego bridge | `closed` | Canonical policy consumes the exact server action/resource envelope; vocabulary and behavioral decision parity are executable. |
-| B2 ops probe identity | `closed` | Canary and debug probe use strict deployment composition, dedicated minimal-grant principals, and injected short-lived bearers; no fixture or allow-all bypass remains. |
+| --- | --- | --- |
+| B1 Rego bridge | `closed` | Canonical policy consumes the exact server action/resource envelope; vocabulary parity and live HTTP→middleware→Rego decision parity are executable. |
+| B2 ops probe identity | `closed` | Canary and debug probe use signed deployment principals whose managed grant sets are preflighted for exact minimal equality; no fixture, coarse-role, unmanaged, over-grant, or allow-all bypass remains. |
 | B3 promotion CAS | `typed-limitation` | N13b owns the exact Fabric producer; no Fabric path changed. The authorize→mutate interval remains unbounded and non-atomic. |
-| B4 verifier provenance | `closed` | Non-development bootstrap accepts only the exact deployment-factory bundle and rejects protocol-shaped/test verifiers. The external IdP contract is documented. |
+| B4 verifier provenance | `closed` | One bootstrap invariant rejects every direct non-development authority injection and accepts only deployment-factory composition. The external IdP contract is documented. |
 | B5 PostgreSQL proof | `environment-blocked` | Four real-PG-only proofs exist with no SQLite fallback, but this host has no DSN, `pg_isready`, or reachable Docker daemon. |
 
 ### B1 red/green and parity
@@ -559,6 +559,12 @@ permission, resource class, binding authority, authorization source, extra grant
 and missing action contract all deny. A marker-only or allow-by-omission policy
 cannot satisfy the suite.
 
+The final P29 repair in `1ec995fe1` adds the behavioral witness that the original
+matrix lacked: a real `TestClient` request crosses authorization middleware and the
+canonical Rego evaluator using the exact sealed `RuntimeActionAuthzInput`. Valid
+input reaches the real launch-handler service effect. Unknown action, resource,
+authority, source, and grant variants return 403 without the handler effect.
+
 The Helm chart mirror at `ops/cloud/helm/polisyos-cell/policies/**` was explicitly
 outside the grant. It is now stale relative to canonical Rego and remains an honest
 deployment `bridge_missing`/`verification_missing` limitation for its owner.
@@ -577,12 +583,23 @@ collaborators or test verifiers abort bootstrap.
 The canary requires `POLISYOS_RUNTIME_CANARY_BEARER_TOKEN` and uses only
 `runs.launch` plus `runs.view`. The debug probe requires
 `POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN` and uses only `runs.view`. Both tokens are
-sanitized from diagnostics. The production-chain debug witness uses a genuine RS256
-JWT and canonical Rego: bad signature returns 401, the exact principal without the
-required grant returns 403, and the exact `runs.view` grant reaches the protected
-missing-run handler and returns 404. The runbook names the external IdP fields,
+sanitized from diagnostics. Before issuing any request, both runners verify the
+signed token through the deployment identity provider, resolve the exact managed
+principal tuple, and require exact equality with the declared canonical grant set.
+An unmanaged coarse `ADMIN` token and a managed principal carrying one extra known
+permission are red-first denials before dispatch. The production-chain debug witness
+uses a genuine RS256 JWT and canonical Rego: bad signature returns 401, the exact
+principal without the required grant returns 403, and the exact `runs.view` grant
+reaches the protected missing-run handler and returns 404. The runbook names the external IdP fields,
 Keycloak `realm_access.roles` / `resource_access[polisyos-runtime].roles`, and MFA
 `acr`/`amr`; a client-authored `mfa_verified` boolean is not accepted as provenance.
+
+Non-development startup now has one exhaustive direct-authority invariant. It
+rejects direct identity provider, cell registry, OPA client, step-up verifier,
+step-up replay store, delegation manager, trusted delegators, service SPIFFE ID,
+container overrides, disabled authorization enforcement, and authorization shadow
+mode. This closes the sibling override class rather than only the first test-verifier
+instance; the development profile retains explicit test composition.
 
 The guardrail initially exposed six new deep imports. The repair moved the OPA input
 implementation onto the existing authorization-middleware edge and left
@@ -626,10 +643,11 @@ POLISYOS_TEST_PG_DSN='postgresql://...' uv run --extra test --extra runtime --ex
 The SQLite proofs remain labeled interim; no unexecuted PostgreSQL property is
 claimed true.
 
-### Final serialized verification receipts
+### Final serialized verification receipts (superseded by final attestation receipt)
 
 - OPA strict plus Rego harness: 45/45 passed.
-- DS20-B focused set: 75 selected, 70 passed, five explicit skips (four B5 plus the
+- DS20-B focused set after the whole-branch review repairs: 85 selected, 80 passed,
+  five explicit skips (four B5 plus the
   existing optional debug-probe PostgreSQL integration).
 - Original focused DS20 gate after the import-boundary repair: 268/268 passed.
 - Original scoped HTTP denominator after the same repair: exactly six inherited
@@ -652,6 +670,86 @@ claimed true.
   N13b has no textual overlap with DS20-B, while its semantic ownership of the Fabric
   producer remains the B3 stop condition.
 
-All implementation-task re-reviews approved with no remaining Critical, Important,
-or Minor finding. The branch remains unmerged for the final whole-branch review and
-architect disposition.
+## 2026-07-19 — Whole-branch adversarial review and repair
+
+The first whole-branch review found no Critical issue and three Important gaps. The
+findings were substantive rather than documentary: probe startup could accept an
+unmanaged coarse-role or over-granted signed principal; non-development construction
+still admitted sibling direct authority inputs and enforcement-off modes; and the
+decision-parity suite's TestClient path stopped at an allow stub rather than canonical
+Rego. Red witnesses reproduced all three classes.
+
+`1ec995fe1` closes the P29 proof gap with live request→middleware→canonical-Rego→
+handler-effect parity and unknown-dimension no-effect denials. `78ee33f94` closes the
+probe false-green class with exact signed-token/principal/grant preflight and closes
+all direct non-development authority siblings behind one deployment-factory
+invariant. The repair tests include unmanaged `ADMIN`, managed over-grant, direct
+replay/delegation collaborators, trusted delegators, service SPIFFE identity, blank
+container override, disabled enforcement, and shadow mode.
+
+Post-repair serial receipts are: 85 selected / 80 passed / five explicit skips for
+the B-focused set; 268/268 for the original focused DS20 gate; and the 699-test HTTP
+denominator at exactly the six inherited failures and two inherited skips, with no
+SSE recurrence or new failure. OPA remains 45/45; Ruff, basedpyright, runtime contract,
+client gates, `git diff --check`, zero-new guardrails, schema/client immutability, and
+both merge-tree previews pass. The independent targeted re-review found no remaining
+Critical or Important issue.
+
+The branch remains unmerged for architect disposition. B3 remains a typed limitation,
+B5 remains environment-blocked, and the out-of-fence Helm mirror remains a declared
+deployment bridge limitation; none is promoted to a tested closure by this review.
+
+## 2026-07-20 — Final deployment-attestation repair and closeout refresh
+
+The first whole-branch review was followed by red-first adversarial probes against
+same-object mutation after a valid factory composition. Those probes showed that
+exact type/identity checks at startup were insufficient when an installed authority
+object, method, cache, policy setting, replay store, or application state could be
+mutated after composition. The repair sequence is:
+
+- `08018888a`: bind deployment authority to one attested factory composition;
+- `c33c4d450`: re-attest the exact bundle and its mutable authority state at each
+  identity, cell, grant, OPA, step-up, middleware, and WebSocket consumer; pin JWKS
+  clients; remove retained deployment OPA cache/session authority; and audit generic
+  fail-closed 503 denials for unsafe composition;
+- `811088d25`: preserve the review-route import boundary through existing middleware
+  facades, restoring zero task-owned guardrail additions; and
+- `5ca5a9979`: close the sibling WebSocket bundle-removal bypass by registering the
+  exact application/container/bundle installation independently of mutable app state.
+
+The durable negatives cover identity/cell/OPA/step-up callable replacement, grants,
+JWKS cache/client mutation, OPA decision-cache/session injection, middleware policy
+mutation, replay-store mutation, post-entry JWKS callback mutation, and removed or
+replaced application bundle/container state. Production-chain witnesses use real
+loopback JWKS and OPA HTTP servers; no OPA/verifier monkeypatch supplies authority.
+
+Final serial receipts after `5ca5a9979`:
+
+- DS20-B focused denominator: 105 selected, 100 passed, five explicit skips. Four
+  are the environment-blocked real-PostgreSQL proofs and one is the pre-existing
+  optional debug-probe PostgreSQL integration.
+- Original focused DS20 denominator: 270/270 passed.
+- Scoped Runtime HTTP denominator: 701 collected with exactly the six inherited
+  failures and two inherited skips already named above; no new node and no SSE
+  recurrence.
+- The 29-case authorized-handler matrix remains green. Its isolated
+  `discover_data_sources` and `resolve_data_needs` cases expose one unclosed
+  `aiohttp` connector each at process teardown. The deployment OPA client uses a
+  request-local context-managed session, and the diagnostic reproduces only through
+  the Fabric connector consumers. Fabric connector-pool shutdown is outside the
+  frozen fence, so this is recorded as inherited lifecycle debt rather than repaired
+  across the N13b boundary.
+
+Automated independent re-review of the final attestation commits was attempted, but
+the reviewer agents were environment-blocked by the workspace credit quota. The
+earlier targeted review and the root adversarial pass do not substitute for
+architect sign-off; no final independent sign-off is claimed.
+
+Current `main` is `b3f11e587`, the N13b merge. From DS20's base it changes no
+`src/polisyos/runtime/http/**` path but owns
+`src/polisyos/fabric/retrieval/service.py`. DS20-B has no Fabric edit. Both
+`git merge-tree --write-tree HEAD main` and
+`git merge-tree --write-tree HEAD 72e20ff8b` exit zero; textual cleanliness does
+not waive the B3 ownership stop. Main exposes no public generic revision-CAS
+primitive that this branch can safely consume, so B3 remains `typed-limitation` /
+`bridge_missing` pending architect integration.

@@ -23,7 +23,7 @@ read-only even if they are under `ops/**`; the original Runtime HTTP and DS20-do
 fences remain in force only for the files named below.
 
 | Blocker | Exact writable files | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | B1 Rego bridge | `ops/policy/policies/action_permission.rego` (new); `ops/policy/policies/action_permission_test.rego` (new); `ops/policy/policies/decision.rego`; `ops/policy/policies/decision_test.rego`; `src/polisyos/runtime/http/opa_input.py` (new); `src/polisyos/runtime/http/authz_middleware.py`; `tests/unit/runtime/http/test_runtime_rego_authorization_parity.py` (new) | Carry the sealed action and binding authority into OPA; compose a deny-by-default 33-value policy; prove exact vocabulary and decision parity. |
 | B2 ops identity | `src/polisyos/runtime/http/deployment_security.py` (new); `src/polisyos/runtime/http/app.py`; `src/polisyos/runtime/http/authorization.py`; `tools/ops_runners/runtime/local_production_canary.py`; `tools/quality/testing/local_prod_debug_probe.py`; `tests/unit/tools/test_local_production_canary.py`; `tests/repo_quality/tools/test_local_prod_debug_probe.py`; `tests/unit/runtime/http/test_runtime_deployment_security.py` (new); `docs/runbooks/local-production-debugging.md` | Resolve genuine deployment identity/OPA/cell configuration, bind an exact deployment-configured service principal to canonical permissions, inject a short-lived bearer without embedding it, and make both probes pass through the floor. |
 | B3 promotion CAS | **No Fabric file is writable in DS20-B.** Existing `src/polisyos/runtime/http/resource_binding.py`, `src/polisyos/runtime/http/services/control/run_lifecycle.py`, `src/polisyos/fabric/retrieval/service.py`, `src/polisyos/fabric/api.py`, and `src/polisyos/fabric/__init__.py` are evidence-only. | The mandatory N13b ownership stop is triggered. Preserve the existing pre-OPA content bind, quantify the remaining race, and hand the generic CAS producer repair to Fabric/N13b without racing that lane. |
@@ -92,8 +92,10 @@ Acceptance signals are: exact 33-value Rego/server equality; server/Rego agreeme
 for the principal-operation-resource matrix; both ops consumers using genuine
 deployment identity without fixture or allow-all bypasses; a red/green non-dev
 test-verifier bootstrap negative; B3's quantified handoff with no Fabric diff; and
-the B5 real-DSN receipt or an explicit environment-blocked command. The original
-268-test and 699-test baseline gates remain unchanged closeout requirements.
+the B5 real-DSN receipt or an explicit environment-blocked command. The final
+attestation hardening expands the closeout denominators to 270 focused DS20 tests
+and 701 scoped Runtime HTTP tests; the journal preserves the earlier historical
+268/699 receipts rather than rewriting them retroactively.
 
 ## 1. Scope, invariants, and fences
 
@@ -115,7 +117,7 @@ the B5 real-DSN receipt or an explicit environment-blocked command. The original
 ## 2. Required pattern pass
 
 | Pattern | Existing failure in scope | Target repair | Acceptance signal |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | P01/P02 contract-only/thin orchestration | Roles and permission strings exist, but no mutating operation consumes an action requirement | Typed requirement is produced, bound, evaluated, audited, and consumed by every live unsafe operation | Live-router structural test plus request-level deny tests |
 | P03 hidden internal richness | OPA and access audit exist without an operation-level public contract | OpenAPI exposes canonical permission enum and operation requirement extensions | Schema/client contract tests and two-run regeneration |
 | P04/P05 status/authority leak | A coarse role or OPA result can precede action/resource enforcement | Exact action + concrete resource + step-up are fail-closed admission inputs | Permission-only high-stakes request is denied |
@@ -151,7 +153,7 @@ The server enum is the only hand-authored vocabulary. Role grants import enum me
 ### 4.1 Preserved server/client-facing permissions
 
 | Permission | Purpose |
-|---|---|
+| --- | --- |
 | `dashboard.view` | View dashboard shell |
 | `evidence.promotions.approve` | Approve evidence promotion |
 | `evidence.promotions.reject` | Reject evidence promotion |
@@ -168,7 +170,7 @@ The server enum is the only hand-authored vocabulary. Role grants import enum me
 ### 4.2 New operation-level permissions
 
 | Permission | Operations | Initial grants |
-|---|---|---|
+| --- | --- | --- |
 | `analysis.execute` | Attractor, Lyapunov, basin-map, continuation analysis | admin, analyst, service, system |
 | `artifacts.batch.read` | Batch artifact lookup | admin, analyst, viewer, service, system |
 | `artifacts.render` | Bureaucratic artifact rendering | admin, analyst, service, system |
@@ -220,7 +222,7 @@ All five current classes require a verified user principal and MFA/step-up assur
 Current high-stakes bindings:
 
 | Operation | Step-up class |
-|---|---|
+| --- | --- |
 | data promotion approve/reject | `promotion` |
 | production approval | `production_approval` |
 | decision-validity publication | `publication` |
@@ -257,7 +259,7 @@ The closed source variants are `owned_existing_path`, `owned_existing_batch`, `r
 The pre-OPA binder first performs exact action-permission preflight so malformed/unknown resources cannot become an oracle. It then reads at most the configured JSON-body ceiling, validates JSON, applies the route's variant, canonicalizes unordered sets, resolves only facts supported by the installed runtime container, includes the binding-authority label and SHA-256 of the exact request bytes, and replays the identical bytes downstream. Request-carried tenant claims never establish ownership. A field is required only when its request schema and binding variant require it. Malformed bodies, unknown/cross-tenant **owned** identifiers, excessive bodies, duplicate identifiers where forbidden, or an empty owned batch deny before OPA; request/candidate modes bind their honest limited authority instead. Where the existing `AuthzInput` has no composite/authority field, the versioned digest is encoded in `resource_artifact_id` and the authority label in the route-specific `resource_kind`; it is never replaced by generic `http_resource` or caller-tenant-as-owner.
 
 | # | Case ID | Method and path | Permission | Resource binding before OPA | Step-up |
-|---:|---|---|---|---|---|
+| ---: | --- | --- | --- | --- | --- |
 | 1 | `analyze-attractors` | `POST /api/v1/analysis/attractors` | `analysis.execute` | `tenant_collection`: `runtime.analysis.attractors` + body digest | — |
 | 2 | `analyze-lyapunov` | `POST /api/v1/analysis/lyapunov` | `analysis.execute` | `tenant_collection`: `runtime.analysis.lyapunov` + body digest | — |
 | 3 | `persist-basin-map` | `POST /api/v1/analysis/basin-map` | `analysis.execute` | `candidate_target_slot`: logical analysis/basin selectors + body digest; no ownership claim | — |
@@ -368,7 +370,7 @@ Tests:
 ## 8. DS1 seeded negatives N009-N013
 
 | ID | Red-first test(s) | DS20 closure claim |
-|---|---|---|
+| --- | --- | --- |
 | N009 generic action authz | live-router structural tests plus all 29 × 3 cases | Closed when denominator is N/N and a synthetic sibling fails construction |
 | N010 fail-open UI identity | `test_ds1_n010_ui_fallback_identity_cannot_authorize_any_mutation` plus all 29 absent-identity cases | The fallback's authority effect is closed server-side: its direct calls are 401 and it cannot reach a handler. The still-rendered dashboard placeholder is an out-of-fence DS5 `consumer_missing` finding, so DS20 does not falsely claim the UI presentation itself was deleted |
 | N011 fixture identity | fixture/profile, review-WebSocket, and `/auth/me` tests in §7.1 | Closed server-side: non-dev fixture configuration is impossible and missing genuine identity is 401 |

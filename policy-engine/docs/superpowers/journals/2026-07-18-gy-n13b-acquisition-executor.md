@@ -245,3 +245,87 @@ deeper terminal above.
 Pattern closeout: P05/P10 keep authority and semantic adequacy fail-closed; P27 prevents a parallel
 catalog/overlay owner; P29/P32 require behavioral content-bound proof; P31 closes the guard classes,
 not individual carrier strings; and P33/P34 preserve adversarial variation and honest isolation.
+
+## Merge-gate universality and free-grow audit — 2026-07-19
+
+Status: `generic_proven`; zero network calls; the three unused resumption calls remain unspent. The
+accepted N13b outcome remains `typed_deeper_terminal`, with zero admitted rows, zero overlay epochs,
+and no capstone-route laundering.
+
+### A1 — second transform family through the same owner
+
+Verdict: `violation_fixed`.
+
+The audit first generalized the derivation owner, catalog selector, and registry contract. A
+full-denominator adversarial fixture then exposed one additional generic defect: one rejected
+carrier could contribute multiple rejection reasons and inflate the 4,861-row denominator. Commit
+`2fe0fa006` made terminal rejection row-exact while preserving the complete owner evaluation. From
+that generalized base, commit `b9720bdb4` added the second family and recomputed receipts with a
+zero-file Python diff: the entire family delta was TOML plus frozen JSON evidence.
+
+The second family is `share_of_aggregate_exact_year@1.0.0`, method
+`arithmetic.exact_year.share_times_aggregate`. Its owner-selected epoch-0 inputs are GDP current USD
+(`002d43bfe79a7ea800b1`, `NY.GDP.MKTP.CD`) and current-account balance as percent of GDP
+(`26dd3ad43654482ab5ca`, `BN.CAB.XOKA.GD.ZS`). It ran through the same recipe, certificate, CAS,
+derived passport boundary, monotone-authority rule, and two-consumer path as the real-terms family:
+
+- recipe `derivation-recipe:sha256:c5d1eacfd5536fd165158859e25b734f287c9215dc1195aa2181cfabdfd60c1a`;
+- certificate identity
+  `derivation-certificate:sha256:2a75f319fdd9cc9863a297f460300db4b888ae50285516bff2caccb8ff9c03e4`;
+- certificate CAS artifact
+  `sha256:d2bf1d0ae1180ffab61f093cfd5f30d6bf60d6b63b12bac339200038f53a25a4`;
+- derived artifact
+  `sha256:55dd1fdadb1ebe22c59fe072990e25c6026fb86eec4351eae34b96e09fd7f03b`;
+- first materialization miss, second materialization hit, fresh-CAS rebuild equal, and two distinct
+  consumer receipts.
+
+The universality receipt covers all 4,861 catalog series, both families, epoch 0, and zero network
+calls. Its semantic identity is
+`sha256:497d82ef894451f3f5ceb8c55d6cd16d67cfaf7b2a93a0222ee0fea7350645a1`.
+
+### A2–A6 findings
+
+- A2 `violation_fixed`: any declared basis mismatch now resolves through the registered family graph;
+  an unregistered pair refuses as typed `basis_mismatch/no_certified_transform`.
+- A3 `generic_proven`: production-token census found no instance-driven selector branch. CPI text
+  remains only at the typed-refusal compatibility boundary; GDP text in acquisition authority is
+  generic unit vocabulary. Indicator IDs and family-specific semantic anchors live in TOML owner
+  data.
+- A4 `violation_fixed`: the real-terms `lower_median_common_year` parameter rule and certificate
+  assumptions are registry declarations. The multiplicative family declares no derived parameters;
+  its formula and exact-year join are registry assumptions.
+- A5 `violation_fixed`: Ruff reformatted the monotone-authority guard after the flip anchor was
+  written, so the first whole-suite run reported `source_guard_count=0`. Commit `d725d19c0` repaired
+  only the exact harness anchor. The focused flip and then the complete 17-case suite proved
+  baseline GREEN, every semantic mutation RED, exact restoration GREEN.
+- A6 `violation_fixed`: `source_selector:11` is a ranked `connector_gap` with
+  `family_first_config_not_code`; source-profile mismatch remains carrier-attributed tier-decay
+  evidence, while transport timeouts are `transport_undiscriminated` and cannot decay a carrier.
+  The active GY plan continues to record `typed_deeper_terminal`, never closure by acquisition.
+
+### Re-freeze and verification
+
+- N13b contract semantic identity:
+  `sha256:484b372c3a3e2921cb368f10513a341afcb1b954792ae07d0c77ebc245ddac02`;
+  file SHA-256 `e2437b0cd4bb888cfd8b0ec9155a419d4c5423d853a91d465f25d048eace4178`;
+- universality file SHA-256
+  `e3ef1310c8855caafa519957a641620f20fb9f7963aee6a763c45c7f6623ec81`;
+- lifecycle semantic identity:
+  `sha256:37c8d892b9954ed23551dc9b5b9818e26e985569f48d9217f001a55eb24d6eba`;
+  file SHA-256 `c4fdd968121a31944e6c6f5cdbb0d1fae7a2bbc700ed4a23acece73aa22aafcb`;
+- checker SHA-256 `c57693b7714ccacef617d6f1ec87e97760806b358f0ed651a4868c6238606e64`;
+- canonical N13b `--check`: two byte-stable passes; 13/13 nested corruptions RED; 17/17
+  behavioral source flips RED and restored; focused suite 95/95; Ruff and architecture guardrails
+  pass; generated-artifact registry contract has zero findings/errors; validator census 39/39 in
+  97 seconds.
+
+The repository-wide Task-0 generated/public lifecycle census remains stale outside this slice. A
+detached isolation at accepted closeout `72e20ff8b` reproduced 459 violations; the audit branch
+reports the same classes with 466. This is disclosed separately from the green N13b lifecycle
+manifest and generated-artifact registry contract; it was not relabelled or used to exclude a
+failing N13b gate.
+
+Pattern closeout: P27 prevented a parallel selector/derivation owner; P29 required the full catalog
+recomputation and real-path flips; P31/P33 converted instance-shaped evidence into one generic
+family registry and adversarial second-family proof; P34 required the detached isolation before the
+stale Task-0 census was classified as inherited.

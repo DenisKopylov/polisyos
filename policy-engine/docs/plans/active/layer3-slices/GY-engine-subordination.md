@@ -2033,7 +2033,8 @@ re-architecting.
   overlay store + passport, not a second write path.
   `P27`/`P29`/§3.5.6/§3.5.9/§3.5.10/§3.5.11/§3.5.12.
 
-  **Measured N13b result (2026-07-18; frozen at `6280e487f`):** the acquisition executor
+  **Measured N13b result (2026-07-18; closure frozen at `6280e487f`, universality audit frozen at
+  `b9720bdb4`):** the acquisition executor
   capability is `implemented` with an `audit_surface`, and its honest demonstration result is
   `typed_deeper_terminal`, not world growth. The resumption spent 3/6 authorized calls; no response
   was admitted, so `government.balance` remained 0 datasets / 0 bindings / 0 observations, with
@@ -2043,7 +2044,12 @@ re-architecting.
   second-materialization cache hit. Both N10 lifecycle residuals are closed and all three capstone
   routes remain `not_a_data_gap`. Frozen contract:
   `architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json`, semantic
-  `sha256:1e2b91fcf8ff2410524d86dd486ffdb7f07e417372f608f16b00135d5aa84235`.
+  `sha256:484b372c3a3e2921cb368f10513a341afcb1b954792ae07d0c77ebc245ddac02`.
+  The 2026-07-19 merge-gate audit proved the derivation owner is data-only free-growing over two
+  structurally different families (`price_index_exact_year_rebase` and
+  `share_of_aggregate_exact_year`) on the complete 4,861-series epoch-0 denominator, with zero
+  network calls. The measured outcome remains `typed_deeper_terminal`; the audit did not relabel it
+  as closed by acquisition or create a world-growth epoch.
 
 **Phase-5 deferred (adopt the contract now, implement when a certified frontier exists).** With
 `useful_design_rate ≈ 0` and depth-1 integration, the mature-frontier machinery is not yet

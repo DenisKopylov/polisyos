@@ -263,7 +263,8 @@ vars; fabric has 20+ real connectors, `run_orchestrated_ingestion` (fetch→CAS�
 RetrievalService dataset-catalog lane that is never wired; N7's `_capture_fabric` is a probe
 that never executes a fetch plan. This revision converts the measurement into the next wave +
 the process lessons N10 paid for: (a) **NEW GY-N13a (acquisition-layer reality census) +
-GY-N13b (acquisition executor — the world grows)**, closing one capstone route end-to-end and
+GY-N13b (acquisition executor — attempted world growth)**, taking one measured D2 gap to an
+admitted epoch or an honest typed deeper terminal and closing
 the two typed N7 infrastructure residuals; (b) new **§3.5.9 live-carrier conformance gates
 C1–C5** (the compiler saga generalized to every live LLM/data carrier); (c) new **§3.5.10
 recompute-not-pin** (the expectation-transplant class fired three times in N10 — now a named
@@ -1972,7 +1973,8 @@ re-architecting.
   N13b VOI-owner integration note; it is not claimed as VOI. Frozen artifact:
   `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`, file
   `sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791`.
-- **GY-N13b — Acquisition executor — the world grows (close one capstone route end-to-end;
+- **GY-N13b — Acquisition executor — attempted world growth (close one measured D2 gap or
+  freeze its honest typed deeper terminal;
   NEW, Rev 16).** wire-existing + narrow build-new. Convert N7's routes from typed dead-ends
   into executed acquisitions: (1) wire the `DatasetCatalogGraph` into the N7 `_capture_fabric`
   path (kill the probe-only pattern that imports `run_orchestrated_ingestion` and immediately
@@ -2200,7 +2202,9 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
   **Rev 16:** consume the frozen N10 capstone directly — its three plain-language runs,
   per-domain terminal distributions, and three acquisition-route evidence classes ARE labelled
   cases (do not rebuild a parallel labelled set for those domains); add the post-N13b re-entry
-  trace as a labelled case of a gap **closed by acquisition**.
+  trace as a labelled case of the measured acquisition outcome: **closed by acquisition or an
+  honest typed deeper terminal**. For the frozen N13b run this label is
+  `typed_deeper_terminal`, with no world-growth epoch.
 - **GY-V4 — Adversarial-against-A battery (laundering firewalls live).** The
   constitution mandates this once real grounding happens. Executed **negative** probes,
   each with recorded evidence: (a) agent attempts to write a Ring-2 field → rejected;

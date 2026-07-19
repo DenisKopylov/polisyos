@@ -7,7 +7,12 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.core.security.exceptions import CrossTenantAccessError, TenantIsolationError
+from polisyos.core.security.exceptions import (
+    CrossTenantAccessError,
+    TenantIsolationError,
+    TenantNotFoundError,
+)
+from polisyos.core.security.registry import CellRegistry
 from polisyos.core.security.router import (
     TENANT_HEADER,
     MissingTenantHeaderError,
@@ -31,8 +36,6 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp as _ASGIApp
 
     from polisyos.core.observability import MetricsRegistry
-    from polisyos.core.security.registry import CellRegistry
-
     class _BaseHTTPMiddleware:
         def __init__(self, app: _ASGIApp) -> None: ...
 else:
@@ -243,4 +246,9 @@ class CellRouterMiddleware(_BaseHTTPMiddleware):
         )
 
 
-__all__ = ["TENANT_HEADER", "CellRouterMiddleware"]
+__all__ = [
+    "TENANT_HEADER",
+    "CellRegistry",
+    "CellRouterMiddleware",
+    "TenantNotFoundError",
+]

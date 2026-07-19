@@ -10,6 +10,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.exceptions import MFARequiredError, TokenValidationError
+from polisyos.core.security.identity import SPIFFEIdentityProvider, UserIdentityClaims
 from polisyos.core.security.tenant_context import (
     reset_current_access_scope,
     set_current_access_scope,
@@ -33,8 +34,6 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp as _ASGIApp
 
     from polisyos.core.observability import MetricsRegistry
-    from polisyos.core.security.identity import SPIFFEIdentityProvider, UserIdentityClaims
-
     class _BaseHTTPMiddleware:
         def __init__(self, app: _ASGIApp) -> None: ...
 else:
@@ -231,4 +230,10 @@ class JWTAuthMiddleware(_BaseHTTPMiddleware):
             reset_current_access_scope(scope_token)
 
 
-__all__ = ["JWTAuthMiddleware", "get_current_user"]
+__all__ = [
+    "JWTAuthMiddleware",
+    "SPIFFEIdentityProvider",
+    "TokenValidationError",
+    "UserIdentityClaims",
+    "get_current_user",
+]

@@ -14,21 +14,26 @@ import os
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.security.authz import OPAClient
-from polisyos.core.security.exceptions import TenantNotFoundError, TokenValidationError
-from polisyos.core.security.identity import SPIFFEIdentityProvider, UserIdentityClaims
-from polisyos.core.security.registry import CellRegistry
 from polisyos.runtime.http.authorization import (
     CANONICAL_ROLE_AUTHORIZATION_SOURCE,
     DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE,
     DeploymentPrincipalGrantResolver,
 )
+from polisyos.runtime.http.authz_middleware import OPAClient
+from polisyos.runtime.http.cell_router_middleware import CellRegistry, TenantNotFoundError
+from polisyos.runtime.http.jwt_auth_middleware import (
+    SPIFFEIdentityProvider,
+    TokenValidationError,
+)
 from polisyos.runtime.http.permissions import RuntimePermission  # noqa: TC001
 from polisyos.runtime.http.step_up import JWTStepUpAssertionVerifier
+
+if TYPE_CHECKING:
+    from polisyos.runtime.http.security import UserIdentityClaims
 
 _CONFIG_PATH_ENV = "POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH"
 _TRUSTED_JWT_ALGORITHMS = frozenset({"RS256", "ES256", "EdDSA"})

@@ -10,6 +10,7 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass, field
 from enum import StrEnum
+from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from polisyos.runtime.http.access_audit import (
@@ -28,7 +29,7 @@ from polisyos.runtime.http.permissions import RuntimePermission, permissions_for
 from polisyos.runtime.http.security import PolicyOSRole, UserIdentityClaims
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator, Sequence
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
 
     from fastapi import Request
     from fastapi.routing import APIRoute as _ImportedAPIRoute
@@ -70,6 +71,114 @@ else:
 
 _UNSAFE_HTTP_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _VERIFICATION_STATE_FIELD = "action_permission_verification"
+CANONICAL_ROLE_AUTHORIZATION_SOURCE = "canonical_role_permissions"
+DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE = "deployment_service_principal"
+
+_DeploymentPrincipalKey = tuple[str, str, str, str, str]
+
+
+class DeploymentPrincipalGrantResolver:
+    """Resolve exact deployment-managed grants without importing bootstrap code.
+
+    The deployment composition root projects its validated Pydantic document
+    into this immutable authorization-owned value. Keeping the resolver here
+    prevents the action dependency from importing the step-up composition root
+    and therefore makes the authorization/step-up module graph acyclic.
+    """
+
+    __slots__ = ("_managed_subjects", "_permissions_by_identity")
+
+    def __init__(
+        self,
+        bindings: Iterable[
+            tuple[_DeploymentPrincipalKey, Iterable[RuntimePermission]]
+        ],
+    ) -> None:
+        permissions_by_identity: dict[
+            _DeploymentPrincipalKey,
+            frozenset[RuntimePermission],
+        ] = {}
+        for identity_key, raw_permissions in bindings:
+            if (
+                not isinstance(identity_key, tuple)
+                or len(identity_key) != 5
+                or any(
+                    not isinstance(value, str)
+                    or not value
+                    or value != value.strip()
+                    for value in identity_key
+                )
+                or identity_key[0] != identity_key[0].rstrip("/")
+            ):
+                raise TypeError(
+                    "deployment principal identity keys must be canonical "
+                    "issuer/audience/subject/tenant/cell tuples"
+                )
+            permissions = frozenset(raw_permissions)
+            if not permissions or any(
+                not isinstance(permission, RuntimePermission)
+                for permission in permissions
+            ):
+                raise TypeError(
+                    "deployment principal grants must contain RuntimePermission values"
+                )
+            if identity_key in permissions_by_identity:
+                raise ValueError("duplicate exact deployment principal binding")
+            permissions_by_identity[identity_key] = permissions
+        self._permissions_by_identity: Mapping[
+            _DeploymentPrincipalKey,
+            frozenset[RuntimePermission],
+        ] = MappingProxyType(permissions_by_identity)
+        self._managed_subjects = frozenset(
+            identity_key[2] for identity_key in permissions_by_identity
+        )
+
+    def permissions_for_principal(
+        self,
+        *,
+        issuer: str,
+        audience: str,
+        subject: str,
+        tenant_id: str,
+        cell_id: str | None,
+    ) -> frozenset[RuntimePermission]:
+        """Return exact grants only when every verified dimension matches."""
+        return self._permissions_by_identity.get(
+            (
+                issuer.rstrip("/"),
+                audience,
+                subject,
+                tenant_id,
+                cell_id or "",
+            ),
+            frozenset(),
+        )
+
+    def resolve_claim_permissions(
+        self,
+        claims: UserIdentityClaims,
+        *,
+        effective_subject: str,
+        effective_tenant_id: str,
+        effective_cell_id: str | None,
+    ) -> frozenset[RuntimePermission] | None:
+        """Resolve a managed subject or deny partial bindings with an empty set."""
+        if not isinstance(claims, UserIdentityClaims):
+            raise TypeError("claims must be verified UserIdentityClaims")
+        if (
+            claims.sub not in self._managed_subjects
+            and effective_subject not in self._managed_subjects
+        ):
+            return None
+        if claims.sub != effective_subject or claims.tenant_id != effective_tenant_id:
+            return frozenset()
+        return self.permissions_for_principal(
+            issuer=claims.iss,
+            audience=claims.aud,
+            subject=claims.sub,
+            tenant_id=claims.tenant_id,
+            cell_id=effective_cell_id,
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -317,6 +426,8 @@ class ActionPermissionVerification:
     tenant_id: str
     jwt_id: str
     roles: frozenset[PolicyOSRole]
+    authorization_source: str
+    granted_permissions: tuple[RuntimePermission, ...]
 
 
 @dataclass(frozen=True, slots=True)
@@ -408,6 +519,7 @@ class ActionPermissionDependency:
 
         if isinstance(scope, AccessScope):
             subject, tenant_id, identity_id, roles = principal_from_access_scope(scope)
+            effective_cell_id = scope.cell_id
         else:
             if claims is None:  # pragma: no cover - narrowed by the fail-closed guard above
                 raise unauthorized(
@@ -418,8 +530,35 @@ class ActionPermissionDependency:
             subject = claims.sub
             tenant_id = claims.tenant_id
             identity_id = claims.jti
+            effective_cell_id = claims.cell_id
 
+        authorization_source = CANONICAL_ROLE_AUTHORIZATION_SOURCE
         granted_permissions = permissions_for_roles(roles)
+        app_state = getattr(getattr(request, "app", object()), "state", object())
+        deployment_grants = getattr(
+            app_state,
+            "runtime_deployment_principal_grants",
+            None,
+        )
+        if deployment_grants is not None:
+            if type(deployment_grants) is not DeploymentPrincipalGrantResolver:
+                raise forbidden(
+                    "Deployment principal grant state is invalid",
+                    code="service_principal_contract_invalid",
+                )
+            if claims is not None:
+                deployment_permissions = deployment_grants.resolve_claim_permissions(
+                    claims,
+                    effective_subject=subject,
+                    effective_tenant_id=tenant_id,
+                    effective_cell_id=effective_cell_id,
+                )
+                if deployment_permissions is not None:
+                    granted_permissions = sorted(
+                        deployment_permissions,
+                        key=lambda permission: permission.value,
+                    )
+                    authorization_source = DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE
         if self.requirement.permission not in granted_permissions:
             raise forbidden(
                 f"Permission {self.requirement.permission.value!r} is required",
@@ -432,6 +571,8 @@ class ActionPermissionDependency:
             tenant_id=tenant_id,
             jwt_id=identity_id,
             roles=roles,
+            authorization_source=authorization_source,
+            granted_permissions=tuple(granted_permissions),
         )
         state = request.state
         existing = getattr(state, _VERIFICATION_STATE_FIELD, None)
@@ -683,9 +824,12 @@ def install_route_authorization_openapi_contract(app: object) -> None:
 
 
 __all__ = [
+    "CANONICAL_ROLE_AUTHORIZATION_SOURCE",
+    "DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE",
     "ActionPermissionDependency",
     "ActionPermissionVerification",
     "BoundActionPermissionVerification",
+    "DeploymentPrincipalGrantResolver",
     "MatchedAuthorizationRoute",
     "ResourceBindingSource",
     "ResourceBindingSpec",

@@ -33,6 +33,7 @@ from polisyos.runtime.http.access_audit import (
 from polisyos.runtime.http.authorization import (
     ActionPermissionVerification,
     BoundActionPermissionVerification,
+    DeploymentPrincipalGrantResolver,
     MatchedAuthorizationRoute,
     RouteAuthorizationRequirement,
     get_route_action_permission_dependency,
@@ -41,6 +42,11 @@ from polisyos.runtime.http.errors import (
     RuntimeHTTPError,
     bad_request,
     problem_response,
+)
+from polisyos.runtime.http.opa_input import (
+    DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE,
+    RuntimeActionAuthzInput,
+    RuntimePrincipalAuthzInput,
 )
 from polisyos.runtime.http.resource_binding import (
     BoundAuthorizationResource,
@@ -526,7 +532,7 @@ class AuthzMiddleware:
                     send=send,
                 )
                 return
-            authz_input = AuthzInput.for_http_request(
+            base_authz_input = AuthzInput.for_http_request(
                 request_method=method,
                 request_path=path,
                 request_headers=_policy_headers(request.headers),
@@ -540,6 +546,134 @@ class AuthzMiddleware:
                 resource_columns=_resource_columns(resource.get("columns")),
                 resource_requires_anonymization=bool(resource.get("requires_anonymization", False)),
             )
+            authz_input: AuthzInput = base_authz_input
+            if unsafe:
+                verification = getattr(
+                    request.state,
+                    "action_permission_verification",
+                    None,
+                )
+                if (
+                    type(verification) is not ActionPermissionVerification
+                    or type(bound_resource) is not BoundAuthorizationResource
+                ):
+                    await self._send_failure(
+                        request,
+                        _AuthorizationFailure(
+                            response=self._problem(
+                                request,
+                                status_code=503,
+                                code="authorization_contract_violation",
+                                detail=(
+                                    "OPA evaluation lacks the exact action/resource "
+                                    "preflight handshake"
+                                ),
+                            ),
+                            reason="authorization_contract_violation",
+                        ),
+                        scope=scope,
+                        receive=downstream_receive,
+                        send=send,
+                    )
+                    return
+                try:
+                    authz_input = RuntimeActionAuthzInput.from_bound_action(
+                        base_input=base_authz_input,
+                        verification=verification,
+                        bound_resource=bound_resource,
+                        principal_permissions=cast(
+                            "Any",
+                            getattr(verification, "granted_permissions", None),
+                        ),
+                        authorization_source=cast(
+                            "Any",
+                            getattr(verification, "authorization_source", None),
+                        ),
+                    )
+                except (TypeError, ValueError) as exc:
+                    await self._send_failure(
+                        request,
+                        _AuthorizationFailure(
+                            response=self._problem(
+                                request,
+                                status_code=503,
+                                code="authorization_contract_violation",
+                                detail=str(exc),
+                            ),
+                            reason="authorization_contract_violation",
+                        ),
+                        scope=scope,
+                        receive=downstream_receive,
+                        send=send,
+                    )
+                    return
+            else:
+                deployment_grants = getattr(
+                    getattr(self._runtime_app, "state", object()),
+                    "runtime_deployment_principal_grants",
+                    None,
+                )
+                if deployment_grants is not None:
+                    from polisyos.core.security.identity import UserIdentityClaims
+
+                    if type(deployment_grants) is not DeploymentPrincipalGrantResolver:
+                        await self._send_failure(
+                            request,
+                            _AuthorizationFailure(
+                                response=self._problem(
+                                    request,
+                                    status_code=503,
+                                    code="authorization_contract_violation",
+                                    detail=(
+                                        "Deployment principal grant state has an "
+                                        "invalid type"
+                                    ),
+                                ),
+                                reason="authorization_contract_violation",
+                            ),
+                            scope=scope,
+                            receive=downstream_receive,
+                            send=send,
+                        )
+                        return
+                    claims = getattr(request.state, "user_claims", None)
+                    if isinstance(claims, UserIdentityClaims):
+                        deployment_permissions = (
+                            deployment_grants.resolve_claim_permissions(
+                                claims,
+                                effective_subject=effective_scope.user_sub,
+                                effective_tenant_id=effective_scope.tenant_id,
+                                effective_cell_id=effective_scope.cell_id,
+                            )
+                        )
+                        if deployment_permissions is not None:
+                            try:
+                                authz_input = (
+                                    RuntimePrincipalAuthzInput.from_verified_principal(
+                                        base_input=base_authz_input,
+                                        principal_permissions=deployment_permissions,
+                                        authorization_source=(
+                                            DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE
+                                        ),
+                                    )
+                                )
+                            except (TypeError, ValueError) as exc:
+                                await self._send_failure(
+                                    request,
+                                    _AuthorizationFailure(
+                                        response=self._problem(
+                                            request,
+                                            status_code=503,
+                                            code="authorization_contract_violation",
+                                            detail=str(exc),
+                                        ),
+                                        reason="authorization_contract_violation",
+                                    ),
+                                    scope=scope,
+                                    receive=downstream_receive,
+                                    send=send,
+                                )
+                                return
             opa_scope_token = set_current_access_scope(effective_scope)
             try:
                 opa_response, shadow_deny = await self._evaluate_opa(

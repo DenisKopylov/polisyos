@@ -23,6 +23,10 @@ from polisyos.runtime.http.container import (
     resolve_runtime_tracer,
 )
 from polisyos.runtime.http.csrf import CSRFMiddleware
+from polisyos.runtime.http.deployment_security import (
+    RuntimeDeploymentSecurity,
+    is_deployment_step_up_verifier,
+)
 from polisyos.runtime.http.dev_identity_middleware import DevelopmentFixtureIdentityMiddleware
 from polisyos.runtime.http.errors import install_exception_handlers
 from polisyos.runtime.http.execution_policy import (
@@ -92,6 +96,7 @@ def create_runtime_api_app(
     identity_provider: Any | None = None,
     cell_registry: Any | None = None,
     opa_client: Any | None = None,
+    deployment_security: RuntimeDeploymentSecurity | None = None,
     authz_enforce: bool = True,
     authz_shadow_mode: bool = False,
     delegation_manager: Any | None = None,
@@ -116,6 +121,25 @@ def create_runtime_api_app(
         else _default_core_runs_root(normalized_cas_root)
     )
     policy_resolver = RuntimeExecutionPolicyResolver.from_env()
+    if deployment_security is not None:
+        if type(deployment_security) is not RuntimeDeploymentSecurity:
+            raise TypeError("deployment_security must be a RuntimeDeploymentSecurity")
+        if any(
+            collaborator is not None
+            for collaborator in (
+                identity_provider,
+                cell_registry,
+                opa_client,
+                step_up_verifier,
+            )
+        ):
+            raise RuntimeBootstrapError(
+                "Deployment security cannot be mixed with direct security collaborators."
+            )
+        identity_provider = deployment_security.identity_provider
+        cell_registry = deployment_security.cell_registry
+        opa_client = deployment_security.opa_client
+        step_up_verifier = deployment_security.step_up_verifier
     fixture_identity_enabled = is_fixture_identity_enabled(explicit=allow_fixture_identity)
     if fixture_identity_enabled and policy_resolver.default_profile != "dev":
         raise RuntimeBootstrapError(
@@ -124,6 +148,14 @@ def create_runtime_api_app(
     if policy_resolver.default_profile == "production" and step_up_verifier is None:
         raise RuntimeBootstrapError(
             "Production deployment requires a configured step-up assertion verifier."
+        )
+    if (
+        policy_resolver.default_profile != "dev"
+        and step_up_verifier is not None
+        and not is_deployment_step_up_verifier(step_up_verifier)
+    ):
+        raise RuntimeBootstrapError(
+            "Non-development deployments require a deployment-provenance step-up verifier."
         )
     security_chain_available = (
         identity_provider is not None and cell_registry is not None and opa_client is not None
@@ -184,6 +216,12 @@ def create_runtime_api_app(
             "Runtime API v1: run explorer, debug, and artifact inspector surfaces for PolicyOS."
         ),
         lifespan=_runtime_lifespan,
+    )
+    app.state.runtime_deployment_security = deployment_security
+    app.state.runtime_deployment_principal_grants = (
+        deployment_security.principal_grants
+        if deployment_security is not None
+        else None
     )
     runtime_container.install(app)
     install_exception_handlers(app)

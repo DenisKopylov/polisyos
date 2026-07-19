@@ -20,18 +20,54 @@ delegation_guard_allow if {
 	data.polisyos.authz.delegation_guard.allow with input as input
 }
 
+action_request if {
+	data.polisyos.authz.action_permission.action_request with input as input
+}
+
+action_permission_allow if {
+	data.polisyos.authz.action_permission.allow with input as input
+}
+
+principal_projection_request if {
+	data.polisyos.authz.action_permission.principal_projection_request with input as input
+}
+
+service_read_allow if {
+	data.polisyos.authz.action_permission.service_read_allow with input as input
+}
+
 allow if {
+	not action_request
+	not principal_projection_request
 	tenant_boundary_allow
 	role_access_allow
 	data_classification_allow
 	delegation_guard_allow
 }
 
+allow if {
+	action_request
+	action_permission_allow
+	data_classification_allow
+	delegation_guard_allow
+}
+
+allow if {
+	principal_projection_request
+	service_read_allow
+	data_classification_allow
+	delegation_guard_allow
+}
+
 deny_reasons contains reason if {
+	not action_request
+	not principal_projection_request
 	some reason in data.polisyos.authz.tenant_boundary.deny_reasons with input as input
 }
 
 deny_reasons contains reason if {
+	not action_request
+	not principal_projection_request
 	some reason in data.polisyos.authz.role_access.deny_reasons with input as input
 }
 
@@ -41,6 +77,16 @@ deny_reasons contains reason if {
 
 deny_reasons contains reason if {
 	some reason in data.polisyos.authz.delegation_guard.deny_reasons with input as input
+}
+
+deny_reasons contains reason if {
+	action_request
+	some reason in data.polisyos.authz.action_permission.deny_reasons with input as input
+}
+
+deny_reasons contains reason if {
+	principal_projection_request
+	some reason in data.polisyos.authz.action_permission.deny_reasons with input as input
 }
 
 allowed_columns := cols if {
@@ -63,9 +109,16 @@ delegation_guard_audit := entry if {
 	entry := data.polisyos.authz.delegation_guard.audit_entry with input as input
 }
 
+action_permission_audit := entry if {
+	entry := data.polisyos.authz.action_permission.audit_entry with input as input
+}
+
 audit_entry := {
 	"policy": "decision",
 	"decision": allow,
+	"action_request": action_request,
+	"principal_projection_request": principal_projection_request,
+	"action_permission": action_permission_audit,
 	"tenant_boundary": tenant_boundary_audit,
 	"role_access": role_access_audit,
 	"data_classification": data_classification_audit,

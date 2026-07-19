@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Mapping, Sequence
 from datetime import UTC, datetime
 from typing import Any, ClassVar
 
@@ -34,6 +34,54 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+
+def normalize_worldbank_records(
+    records: Sequence[Mapping[str, Any]],
+    indicator_id: str,
+) -> pd.DataFrame:
+    """Project World Bank v2 records into the canonical eight-field WDI schema.
+
+    This pure projection is the shared owner for both connector production and
+    independent raw-versus-normalized verification. It performs only the
+    long-standing WDI field selection and scalar coercions; it does not infer,
+    repair, or substitute observation values.
+
+    Args:
+        records: World Bank v2 observation objects from one response carrier.
+        indicator_id: Requested indicator used only when a record omits its
+            nested indicator identifier.
+
+    Returns:
+        A DataFrame whose columns exactly match ``WDI_GENERIC_SCHEMA``.
+    """
+
+    rows: list[dict[str, Any]] = []
+    for row in records:
+        country_info = row.get("country")
+        if not isinstance(country_info, Mapping):
+            country_info = {}
+        indicator_info = row.get("indicator")
+        if not isinstance(indicator_info, Mapping):
+            indicator_info = {}
+
+        rows.append(
+            {
+                "country_code": row.get("countryiso3code") or country_info.get("id"),
+                "country_name": country_info.get("value"),
+                "indicator_id": indicator_info.get("id") or indicator_id,
+                "indicator_name": indicator_info.get("value"),
+                "year": safe_int(row.get("date")),
+                "value": safe_float(row.get("value")),
+                "unit": row.get("unit"),
+                "decimal": safe_int(row.get("decimal")),
+            }
+        )
+
+    frame = pd.DataFrame(rows, columns=WDI_GENERIC_SCHEMA.field_names())
+    if frame.empty:
+        return pd.DataFrame(columns=WDI_GENERIC_SCHEMA.field_names())
+    return frame
 
 
 class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
@@ -143,6 +191,29 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
                     "unit": row.get("unit"),
                 },
             )
+
+    async def fetch_indicator_metadata_raw(
+        self,
+        handle: ConnectionHandle,
+        indicator_id: str,
+    ) -> tuple[Any, dict[str, str], bytes]:
+        """Fetch one exact indicator-metadata envelope without interpreting it.
+
+        The operation is a distinct characterization call class. It returns the
+        decoded object and the untouched response bytes so a journal-first owner
+        can classify current/retired/unknown status after persistence.
+        """
+
+        normalized = self._normalize_indicator_batch(indicator_id)
+        if ";" in normalized:
+            raise ValueError("indicator metadata requires exactly one indicator")
+        base_url = self._base_url(handle)
+        return await self._resilient_request_json(
+            handle,
+            f"{base_url}/indicator/{normalized}",
+            params={"format": "json", "page": "1", "per_page": "1"},
+            connector_id=self.connector_id,
+        )
 
     async def fetch(
         self,
@@ -311,33 +382,13 @@ class WorldBankConnector(HTTPConnectorBase[pd.DataFrame]):
         return date_values[0]
 
     @staticmethod
-    def _normalize_records(records: list[dict[str, Any]], indicator_id: str) -> pd.DataFrame:
-        rows: list[dict[str, Any]] = []
-        for row in records:
-            country_info = row.get("country")
-            if not isinstance(country_info, dict):
-                country_info = {}
-            indicator_info = row.get("indicator")
-            if not isinstance(indicator_info, dict):
-                indicator_info = {}
+    def _normalize_records(
+        records: Sequence[Mapping[str, Any]],
+        indicator_id: str,
+    ) -> pd.DataFrame:
+        """Delegate connector normalization to the shared projection owner."""
 
-            rows.append(
-                {
-                    "country_code": row.get("countryiso3code") or country_info.get("id"),
-                    "country_name": country_info.get("value"),
-                    "indicator_id": indicator_info.get("id") or indicator_id,
-                    "indicator_name": indicator_info.get("value"),
-                    "year": safe_int(row.get("date")),
-                    "value": safe_float(row.get("value")),
-                    "unit": row.get("unit"),
-                    "decimal": safe_int(row.get("decimal")),
-                }
-            )
-
-        frame = pd.DataFrame(rows, columns=WDI_GENERIC_SCHEMA.field_names())
-        if frame.empty:
-            return pd.DataFrame(columns=WDI_GENERIC_SCHEMA.field_names())
-        return frame
+        return normalize_worldbank_records(records, indicator_id)
 
 
 def _update_header_consensus(
@@ -359,4 +410,4 @@ def _update_header_consensus(
 
 _retry_after_seconds = retry_after_seconds
 
-__all__ = ["WorldBankConnector", "_retry_after_seconds"]
+__all__ = ["WorldBankConnector", "_retry_after_seconds", "normalize_worldbank_records"]

@@ -15,7 +15,11 @@ from polisyos.fabric.connectors.sources.event_stream import EventStreamConnector
 from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
 from polisyos.fabric.connectors.sources.geojson import GeoJSONConnector
 from polisyos.fabric.connectors.sources.graphql_api import GraphQLConnector
-from polisyos.fabric.connectors.sources.http_base import HTTPConnectorBase, HTTPResilienceProfile
+from polisyos.fabric.connectors.sources.http_base import (
+    HTTPConnectorBase,
+    HTTPResilienceProfile,
+    RawHTTPResponseObserver,
+)
 from polisyos.fabric.connectors.sources.object_storage import ObjectStorageConnector
 from polisyos.fabric.connectors.sources.opendatasoft import OpendatasoftConnector
 from polisyos.fabric.connectors.sources.rest_json import RestJsonConnector
@@ -27,7 +31,10 @@ from polisyos.fabric.connectors.sources.ukons import UKONSConnector
 from polisyos.fabric.connectors.sources.unesco_uis import UNESCOUISConnector
 from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.who import WHOConnector
-from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+from polisyos.fabric.connectors.sources.world_bank import (
+    WorldBankConnector,
+    normalize_worldbank_records,
+)
 from polisyos.fabric.connectors.sources.wvs import WVSConnector
 
 __all__ = [
@@ -42,6 +49,7 @@ __all__ = [
     "HTTPResilienceProfile",
     "ObjectStorageConnector",
     "OpendatasoftConnector",
+    "RawHTTPResponseObserver",
     "RestJsonConnector",
     "SDMXSourceConnector",
     "SPARQLConnector",
@@ -53,4 +61,5 @@ __all__ = [
     "WHOConnector",
     "WVSConnector",
     "WorldBankConnector",
+    "normalize_worldbank_records",
 ]

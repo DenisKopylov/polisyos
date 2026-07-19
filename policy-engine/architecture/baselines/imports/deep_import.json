@@ -14300,20 +14300,6 @@
       "source_module": "polisyos.runtime.quality.acquisition_planner",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
-      "target_module": "polisyos.fabric.data_plane.orchestrator",
-      "target_root": "fabric"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.acquisition_planner",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
-      "target_module": "polisyos.fabric.ingestion.ingestion_providers",
-      "target_root": "fabric"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.acquisition_planner",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/acquisition_planner.py",
       "target_module": "polisyos.fabric.retrieval.service",
       "target_root": "fabric"
     },

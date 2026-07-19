@@ -42,7 +42,8 @@ if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
-    from polisyos.fabric.ingestion import IngestionDependencies
+    from polisyos.fabric.connectors import RawHTTPResponseObserver
+    from polisyos.fabric.ingestion import IngestionDependencies, PreTransformFetchResultSink
 
 logger = get_logger(__name__)
 
@@ -518,6 +519,8 @@ def run_orchestrated_ingestion(
     produce_snapshot: bool = True,
     tenant_id: str | None = None,
     ingestion_dependencies: IngestionDependencies | None = None,
+    raw_result_sink: PreTransformFetchResultSink | None = None,
+    raw_http_response_observer: RawHTTPResponseObserver | None = None,
 ) -> IngestionResult:
     """Run ingestion and optionally produce a DataSnapshot.
 
@@ -538,6 +541,8 @@ def run_orchestrated_ingestion(
         cas_root=resolved_cas_root,
         connection_config=connection_config,
         dependencies=ingestion_dependencies,
+        raw_result_sink=raw_result_sink,
+        raw_http_response_observer=raw_http_response_observer,
     )
 
     datasets_fetched = 0

@@ -247,9 +247,14 @@ class DatasetCatalogGraph:
         db_path: Path,
         index_dir: Path,
         *,
+        overlay_path: Path | None = None,
         embedding_model: str = "intfloat/multilingual-e5-large",
     ) -> None:
-        self._store = DatasetCatalogStore(db_path, index_dir)
+        self._store = DatasetCatalogStore(
+            db_path,
+            index_dir,
+            overlay_path=overlay_path,
+        )
         self._embedding_model_name = embedding_model
         self._embedder = None
         self._embedding_disabled = False

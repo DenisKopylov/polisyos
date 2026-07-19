@@ -12,7 +12,6 @@ import asyncio
 import base64
 import hashlib
 import json
-import os
 import time
 from collections import Counter, defaultdict
 from collections.abc import Awaitable, Callable, Mapping, Sequence
@@ -25,6 +24,11 @@ from urllib.parse import urlsplit
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
+
+from polisyos.fabric.data_plane.evidence_journal import (
+    append_fsync_jsonl as _append_fsync_jsonl,
+)
+from polisyos.fabric.data_plane.evidence_journal import canonical_json_bytes
 
 SCHEMA_VERSION = "policyos.policy_design_case.gy_n13a.acquisition_census.v1"
 RULE_VERSION = "policyos.layer3.gy.n13a.acquisition_census.v1"
@@ -188,6 +192,74 @@ class LivenessState(StrEnum):
     RESPONSE_BUDGET_EXCEEDED = "response_budget_exceeded"
     RESPONSE_SAFETY_BLOCKED = "response_safety_blocked"
     TRANSPORT_ERROR = "transport_error"
+
+
+class RecurringCarrierDataDisposition(StrEnum):
+    """Data-call disposition recomputed from exact recurring-lane bytes."""
+
+    CARRIER_RETIRED_OR_INVALID = "carrier_retired_or_invalid"
+    NO_DATA_FOR_SCOPE = "no_data_for_scope"
+    DATA_PRESENT = "data_present"
+    RESPONSE_SHAPE_UNCLASSIFIED = "response_shape_unclassified"
+
+
+class RecurringCarrierMetadataDisposition(StrEnum):
+    """Metadata-call disposition recomputed after journal-first persistence."""
+
+    CARRIER_CURRENT = "carrier_current"
+    CARRIER_RETIRED_OR_INVALID = "carrier_retired_or_invalid"
+    RESPONSE_SHAPE_UNCLASSIFIED = "response_shape_unclassified"
+    METADATA_TRANSPORT_TERMINAL = "metadata_transport_terminal"
+
+
+class RecurringCarrierDisposition(StrEnum):
+    """D3 carrier state derived from data and metadata call-class evidence."""
+
+    CARRIER_LIVE_WITH_DATA = "carrier_live_with_data"
+    CARRIER_CURRENT_NO_DATA_FOR_SCOPE = "carrier_current_no_data_for_scope"
+    CARRIER_CURRENT_SOURCE_PROFILE_MISMATCH = "carrier_current_source_profile_mismatch"
+    CARRIER_RETIRED_OR_INVALID = "carrier_retired_or_invalid"
+    RESPONSE_SHAPE_UNCLASSIFIED = "response_shape_unclassified"
+    METADATA_TRANSPORT_TERMINAL = "metadata_transport_terminal"
+
+
+class TierDecayEvidenceAttribution(StrEnum):
+    """Whether a typed liveness outcome can honestly update one carrier's tier."""
+
+    CARRIER_ATTRIBUTED = "carrier_attributed"
+    TRANSPORT_UNDISCRIMINATED = "transport_undiscriminated"
+
+
+_LIVENESS_CARRIER_ATTRIBUTED_OUTCOMES = frozenset(
+    {
+        LivenessState.ALIVE_CONFORMANT,
+        LivenessState.ALIVE_SCHEMA_DRIFT,
+        LivenessState.ALIVE_SCHEMA_UNVERIFIED,
+        LivenessState.DEAD,
+        LivenessState.AUTH_REQUIRED,
+        LivenessState.RATE_LIMITED,
+        LivenessState.LICENSE_UNCLEAR,
+        LivenessState.CATALOG_ONLY,
+        LivenessState.ENDPOINT_UNUSABLE,
+        LivenessState.CONNECTOR_OWNER_MISSING,
+        LivenessState.CONNECTOR_CONTRACT_INVALID,
+        LivenessState.DRY_RUN_FAILED,
+        LivenessState.SCHEMA_PROFILE_MISSING,
+        LivenessState.SOURCE_PROFILE_MISSING,
+        LivenessState.SOURCE_PROFILE_MISMATCH,
+        LivenessState.RESPONSE_BUDGET_EXCEEDED,
+        LivenessState.RESPONSE_SAFETY_BLOCKED,
+    }
+)
+_RECURRING_CARRIER_ATTRIBUTED_OUTCOMES = frozenset(
+    {
+        RecurringCarrierDisposition.CARRIER_LIVE_WITH_DATA,
+        RecurringCarrierDisposition.CARRIER_CURRENT_NO_DATA_FOR_SCOPE,
+        RecurringCarrierDisposition.CARRIER_CURRENT_SOURCE_PROFILE_MISMATCH,
+        RecurringCarrierDisposition.CARRIER_RETIRED_OR_INVALID,
+        RecurringCarrierDisposition.RESPONSE_SHAPE_UNCLASSIFIED,
+    }
+)
 
 
 class ProbeDisposition(StrEnum):
@@ -712,9 +784,11 @@ class ConnectorFamilyReceipt(_StrictBoundaryModel):
             raise ValueError("harness failures must be unique and sorted")
         if set(self.harness_checks_passed) & set(self.harness_check_failures):
             raise ValueError("a harness check cannot both pass and fail")
-        if owner_resolved and (
-            set(self.harness_checks_passed) | set(self.harness_check_failures)
-        ) != _REQUIRED_CONNECTOR_HARNESS_CHECKS:
+        if (
+            owner_resolved
+            and (set(self.harness_checks_passed) | set(self.harness_check_failures))
+            != _REQUIRED_CONNECTOR_HARNESS_CHECKS
+        ):
             raise ValueError("every required public harness check must have a typed result")
         if not owner_resolved and (self.harness_checks_passed or self.harness_check_failures):
             raise ValueError("missing connector owners cannot claim harness execution")
@@ -756,7 +830,9 @@ class ConnectorFamilyReceipt(_StrictBoundaryModel):
             and self.network_escape_attempt_count == 0
         )
         if self.safe_dry_run_passed != expected_safe:
-            raise ValueError("dry-run gate must be derived from actual harness and simulator evidence")
+            raise ValueError(
+                "dry-run gate must be derived from actual harness and simulator evidence"
+            )
         return self
 
 
@@ -1211,6 +1287,144 @@ class FamilyScorecard(_StrictBoundaryModel):
         return self
 
 
+class RecurringCarrierAttemptEvidence(_StrictBoundaryModel):
+    """Narrow journal projection for one recurring carrier attempt."""
+
+    attempt_id: str = Field(min_length=1)
+    call_class: Literal["data_fetch", "indicator_metadata"]
+    request_dataset_id: str = Field(min_length=1)
+    request_event_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    raw_evidence_event_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    terminal_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    terminal_outcome: str = Field(min_length=1)
+    raw_body_sha256: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    http_status_code: int | None = Field(default=None, ge=100, le=599)
+    max_elapsed_seconds: float = Field(ge=0.0)
+
+    @model_validator(mode="after")
+    def _raw_evidence_projection_is_complete(self) -> Self:
+        raw_fields = (self.raw_evidence_event_sha256, self.raw_body_sha256)
+        if (raw_fields[0] is None) != (raw_fields[1] is None):
+            raise ValueError("raw event and body identities must travel together")
+        if self.http_status_code is not None and self.raw_body_sha256 is None:
+            raise ValueError("HTTP status requires journaled raw evidence")
+        return self
+
+
+class RecurringCarrierLivenessUpdate(_StrictBoundaryModel):
+    """Recomputing D3 supplement for one catalog carrier across call classes."""
+
+    schema_version: Literal["policyos.layer3.gy.n13a.recurring_carrier_liveness.v1"] = (
+        "policyos.layer3.gy.n13a.recurring_carrier_liveness.v1"
+    )
+    connector_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
+    execution_tier: str = Field(min_length=1)
+    data_attempts: tuple[RecurringCarrierAttemptEvidence, ...] = Field(min_length=1)
+    decisive_data_attempt_id: str = Field(min_length=1)
+    metadata_attempt: RecurringCarrierAttemptEvidence
+    data_body_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    data_byte_count: int = Field(ge=0)
+    data_disposition: RecurringCarrierDataDisposition
+    metadata_body_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    metadata_byte_count: int | None = Field(default=None, ge=0)
+    metadata_disposition: RecurringCarrierMetadataDisposition
+    metadata_source_id: str | None = None
+    metadata_source_name: str | None = None
+    catalog_source_names: tuple[str, ...]
+    profile_source_descriptors: tuple[str, ...]
+    source_selector_declared: bool
+    carrier_disposition: RecurringCarrierDisposition
+    missing_request_levers: tuple[str, ...]
+    tier_decay_findings: tuple[str, ...]
+    receipt_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _update_is_recomputed(self) -> Self:
+        attempt_ids = tuple(attempt.attempt_id for attempt in self.data_attempts)
+        if len(attempt_ids) != len(set(attempt_ids)):
+            raise ValueError("data attempt denominator must be unique")
+        if any(
+            attempt.call_class != "data_fetch"
+            or attempt.request_dataset_id != self.request_dataset_id
+            for attempt in self.data_attempts
+        ):
+            raise ValueError("data attempts must preserve the exact carrier")
+        if (
+            self.metadata_attempt.call_class != "indicator_metadata"
+            or self.metadata_attempt.request_dataset_id != self.request_dataset_id
+        ):
+            raise ValueError("metadata attempt must preserve the exact carrier")
+        decisive = tuple(
+            attempt
+            for attempt in self.data_attempts
+            if attempt.attempt_id == self.decisive_data_attempt_id
+        )
+        if len(decisive) != 1 or decisive[0].raw_body_sha256 != self.data_body_sha256:
+            raise ValueError("decisive data bytes must bind one paid attempt")
+        if self.metadata_body_sha256 is None:
+            if self.metadata_byte_count is not None:
+                raise ValueError("metadata byte count requires metadata bytes")
+            if self.metadata_attempt.raw_body_sha256 is not None:
+                raise ValueError("metadata attempt bytes cannot be omitted")
+            if (
+                self.metadata_disposition
+                is not RecurringCarrierMetadataDisposition.METADATA_TRANSPORT_TERMINAL
+            ):
+                raise ValueError("no-response metadata must remain a transport terminal")
+        elif (
+            self.metadata_byte_count is None
+            or self.metadata_attempt.raw_body_sha256 != self.metadata_body_sha256
+        ):
+            raise ValueError("metadata bytes must bind the paid metadata attempt")
+        if self.catalog_source_names != tuple(sorted(set(self.catalog_source_names))):
+            raise ValueError("catalog source names must be unique and sorted")
+        if self.profile_source_descriptors != tuple(sorted(set(self.profile_source_descriptors))):
+            raise ValueError("profile source descriptors must be unique and sorted")
+        expected_carrier = _derive_recurring_carrier_disposition(
+            data_disposition=self.data_disposition,
+            metadata_disposition=self.metadata_disposition,
+            metadata_source_name=self.metadata_source_name,
+            catalog_source_names=self.catalog_source_names,
+            profile_source_descriptors=self.profile_source_descriptors,
+        )
+        if self.carrier_disposition is not expected_carrier:
+            raise ValueError("carrier disposition must be recomputed")
+        expected_levers = _derive_recurring_missing_request_levers(
+            carrier_disposition=expected_carrier,
+            metadata_source_id=self.metadata_source_id,
+            source_selector_declared=self.source_selector_declared,
+        )
+        if self.missing_request_levers != expected_levers:
+            raise ValueError("missing request levers must be recomputed")
+        expected_decay = _derive_recurring_tier_decay(
+            execution_tier=self.execution_tier,
+            request_dataset_id=self.request_dataset_id,
+            carrier_disposition=expected_carrier,
+        )
+        if self.tier_decay_findings != expected_decay:
+            raise ValueError("tier decay findings must be recomputed")
+        expected_sha = semantic_content_hash(self.identity_payload())
+        if self.receipt_sha256 != expected_sha:
+            raise ValueError("recurring carrier receipt identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the timestamp-free content identity for this D3 update."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "receipt_sha256"
+        }
+
+
 class GrowthBacklogRow(_StrictBoundaryModel):
     """Demand-ranked residual without claiming a parallel VOI authority."""
 
@@ -1224,9 +1438,7 @@ class GrowthBacklogRow(_StrictBoundaryModel):
     ranking_method: Literal["interim_binding_confidence_x_route_demand"]
     authority_boundary: Literal["ranking_only_not_voi"]
     voi_owner_fit: Literal["metric_residual_granularity_not_supported"]
-    voi_owner_ref: Literal[
-        "polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition"
-    ]
+    voi_owner_ref: Literal["polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition"]
     voi_owner_integration: Literal["routed_to_gy_n13b"]
 
     @model_validator(mode="after")
@@ -1462,22 +1674,6 @@ class CensusExecutionFenceError(RuntimeError):
         self.detail = detail
 
 
-def canonical_json_bytes(value: object) -> bytes:
-    """Return deterministic UTF-8 JSON bytes with one trailing newline."""
-
-    normalized = _json_value(value)
-    return (
-        json.dumps(
-            normalized,
-            allow_nan=False,
-            ensure_ascii=False,
-            separators=(",", ":"),
-            sort_keys=True,
-        )
-        + "\n"
-    ).encode("utf-8")
-
-
 def semantic_content_hash(value: object) -> str:
     """Hash semantic evidence while recursively excluding run economics."""
 
@@ -1506,13 +1702,10 @@ def assemble_census_manifest(
         schema_version=SCHEMA_VERSION,
         rule_version=RULE_VERSION,
         producer=(
-            "tools.quality.validation.layer3_gy_n13a_acquisition_census."
-            "assemble_census_manifest"
+            "tools.quality.validation.layer3_gy_n13a_acquisition_census.assemble_census_manifest"
         ),
         catalog_identity=catalog_source.identity,
-        projection_bindings=tuple(
-            sorted(projection_bindings, key=lambda row: row.projection_id)
-        ),
+        projection_bindings=tuple(sorted(projection_bindings, key=lambda row: row.projection_id)),
         metric_resolutions=tuple(metric_resolutions),
         reverse_demand_variables=demand_rows,
         reverse_demand_residuals=residuals,
@@ -2355,9 +2548,7 @@ def validate_probe_family_denominator(
 ) -> ProbeSelectionPlan:
     """Require probes for every family derived from binding-owner rows."""
 
-    selected_families = tuple(
-        receipt.connector_id for receipt in selection_plan.sampling_receipts
-    )
+    selected_families = tuple(receipt.connector_id for receipt in selection_plan.sampling_receipts)
     if selected_families != catalog_source.connector_families:
         raise CatalogContractError(
             "probe_family_denominator_drift",
@@ -2831,6 +3022,8 @@ def derive_family_scorecards(
             for record in family_records
             if record.candidate.execution_tier in EXECUTABLE_BINDING_TIERS
             and record.derived_liveness.liveness_state not in alive_states
+            and derive_tier_decay_evidence_attribution(record.derived_liveness.liveness_state)
+            is TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
         )
         scorecards.append(
             FamilyScorecard(
@@ -2871,6 +3064,107 @@ def derive_family_scorecards(
             )
         )
     return tuple(scorecards)
+
+
+def derive_recurring_carrier_liveness_update(
+    *,
+    connector_id: str,
+    request_dataset_id: str,
+    execution_tier: str,
+    data_attempts: Sequence[RecurringCarrierAttemptEvidence],
+    decisive_data_body: bytes,
+    metadata_attempt: RecurringCarrierAttemptEvidence,
+    metadata_body: bytes | None,
+    catalog_source_names: Sequence[str] = (),
+    profile_source_descriptors: Sequence[str] = (),
+    source_selector_declared: bool = False,
+) -> RecurringCarrierLivenessUpdate:
+    """Recompute one D3 carrier update from journal/CAS-bound response bytes."""
+
+    normalized_data_attempts = tuple(
+        RecurringCarrierAttemptEvidence.model_validate(attempt.model_dump(mode="python"))
+        for attempt in data_attempts
+    )
+    if not normalized_data_attempts:
+        raise CatalogContractError("recurring_data_attempts_missing", request_dataset_id)
+    normalized_metadata_attempt = RecurringCarrierAttemptEvidence.model_validate(
+        metadata_attempt.model_dump(mode="python")
+    )
+    data_body_sha = _bytes_sha256(decisive_data_body)
+    decisive_attempts = tuple(
+        attempt for attempt in normalized_data_attempts if attempt.raw_body_sha256 == data_body_sha
+    )
+    if len(decisive_attempts) != 1:
+        raise CatalogContractError(
+            "recurring_decisive_data_attempt_unresolved",
+            request_dataset_id,
+        )
+    data_disposition = _classify_recurring_worldbank_data(decisive_data_body)
+    if metadata_body is None:
+        metadata_body_sha: str | None = None
+        metadata_byte_count: int | None = None
+        metadata_disposition = RecurringCarrierMetadataDisposition.METADATA_TRANSPORT_TERMINAL
+        metadata_source_id: str | None = None
+        metadata_source_name: str | None = None
+    else:
+        metadata_body_sha = _bytes_sha256(metadata_body)
+        metadata_byte_count = len(metadata_body)
+        metadata_disposition = _classify_recurring_worldbank_metadata(
+            metadata_body,
+            indicator_id=request_dataset_id,
+        )
+        metadata_source_id, metadata_source_name = _recurring_worldbank_metadata_source(
+            metadata_body,
+            indicator_id=request_dataset_id,
+        )
+    normalized_catalog_sources = tuple(
+        sorted({str(value).strip() for value in catalog_source_names if str(value).strip()})
+    )
+    normalized_profile_descriptors = tuple(
+        sorted({str(value).strip() for value in profile_source_descriptors if str(value).strip()})
+    )
+    carrier_disposition = _derive_recurring_carrier_disposition(
+        data_disposition=data_disposition,
+        metadata_disposition=metadata_disposition,
+        metadata_source_name=metadata_source_name,
+        catalog_source_names=normalized_catalog_sources,
+        profile_source_descriptors=normalized_profile_descriptors,
+    )
+    values: dict[str, object] = {
+        "schema_version": "policyos.layer3.gy.n13a.recurring_carrier_liveness.v1",
+        "connector_id": connector_id,
+        "request_dataset_id": request_dataset_id,
+        "execution_tier": execution_tier,
+        "data_attempts": normalized_data_attempts,
+        "decisive_data_attempt_id": decisive_attempts[0].attempt_id,
+        "metadata_attempt": normalized_metadata_attempt,
+        "data_body_sha256": data_body_sha,
+        "data_byte_count": len(decisive_data_body),
+        "data_disposition": data_disposition,
+        "metadata_body_sha256": metadata_body_sha,
+        "metadata_byte_count": metadata_byte_count,
+        "metadata_disposition": metadata_disposition,
+        "metadata_source_id": metadata_source_id,
+        "metadata_source_name": metadata_source_name,
+        "catalog_source_names": normalized_catalog_sources,
+        "profile_source_descriptors": normalized_profile_descriptors,
+        "source_selector_declared": source_selector_declared,
+        "carrier_disposition": carrier_disposition,
+        "missing_request_levers": _derive_recurring_missing_request_levers(
+            carrier_disposition=carrier_disposition,
+            metadata_source_id=metadata_source_id,
+            source_selector_declared=source_selector_declared,
+        ),
+        "tier_decay_findings": _derive_recurring_tier_decay(
+            execution_tier=execution_tier,
+            request_dataset_id=request_dataset_id,
+            carrier_disposition=carrier_disposition,
+        ),
+    }
+    return RecurringCarrierLivenessUpdate(
+        **values,
+        receipt_sha256=semantic_content_hash(values),
+    )
 
 
 def measure_reverse_demand(
@@ -3009,9 +3303,7 @@ def derive_growth_backlog(
             demand_sources=row.demand_sources,
             route_demand=float(len(row.demand_sources)),
             binding_confidence=row.best_binding_confidence,
-            ranking_score=round(
-                row.best_binding_confidence * float(len(row.demand_sources)), 12
-            ),
+            ranking_score=round(row.best_binding_confidence * float(len(row.demand_sources)), 12),
             ranking_method="interim_binding_confidence_x_route_demand",
             authority_boundary="ranking_only_not_voi",
             voi_owner_fit="metric_residual_granularity_not_supported",
@@ -3373,9 +3665,7 @@ async def _derive_connector_family_receipts_async(
             source_profile_family=source_profile_family,
             request_dataset_id=candidate.request_dataset_id,
             fetch_request_key=request.request_key,
-            connection_config_content_sha256=semantic_content_hash(
-                config.to_dict(redact=True)
-            ),
+            connection_config_content_sha256=semantic_content_hash(config.to_dict(redact=True)),
             connector_fetch_invoked=connector_fetch_invoked,
             fetch_completed=fetch_completed,
             outcome=outcome,
@@ -3476,9 +3766,7 @@ async def _derive_connector_family_receipts_async(
                         harness=harness,
                     )
                 )
-            attempts = tuple(
-                sorted(carrier_attempts, key=lambda row: row.attempt_id)
-            )
+            attempts = tuple(sorted(carrier_attempts, key=lambda row: row.attempt_id))
         simulator_call_count = sum(row.simulator_call_count for row in attempts)
         escape_count = sum(row.network_escape_attempt_count for row in attempts)
         safe_outcome = any(
@@ -3532,6 +3820,12 @@ def _quality_bucket(score: float) -> str:
     return "q75_100"
 
 
+def derive_quality_bucket(score: float) -> str:
+    """Return the N13a owner bucket for one measured distribution quality."""
+
+    return _quality_bucket(score)
+
+
 def _probe_stratum_sort_key(stratum_id: str) -> tuple[int, int, str]:
     tier, bucket = stratum_id.split(":", maxsplit=1)
     tier_order = {"transport_ready": 0, "fetchable": 1, "catalog": 2}
@@ -3570,12 +3864,40 @@ def _schema_profile_from_catalog_row(
 ) -> SchemaProfileContract | None:
     if row[15] is None:
         return None
-    raw_columns: object = row[15]
+    return derive_schema_profile_contract(
+        distribution_id=str(row[2]),
+        dataset_id=str(row[1]),
+        profile_id=str(row[4]),
+        columns_json=row[15],
+        sample_row_count=int(row[16] or 0),
+        preview_sample_hash=str(row[17]) if row[17] is not None else None,
+        inference_mode=str(row[18] or "metadata_only"),
+        parser_mode=str(row[19] or "metadata_only"),
+    )
+
+
+def derive_schema_profile_contract(
+    *,
+    distribution_id: str,
+    dataset_id: str,
+    profile_id: str,
+    columns_json: object,
+    sample_row_count: int,
+    preview_sample_hash: str | None,
+    inference_mode: str,
+    parser_mode: str,
+) -> SchemaProfileContract:
+    """Project one owner catalog schema-profile row into the C1 contract."""
+
+    raw_columns: object = columns_json
     if isinstance(raw_columns, str):
         try:
             raw_columns = json.loads(raw_columns)
         except json.JSONDecodeError as exc:
-            raise CatalogContractError("probe_schema_profile_columns_invalid", str(row[2])) from exc
+            raise CatalogContractError(
+                "probe_schema_profile_columns_invalid",
+                distribution_id,
+            ) from exc
     columns: list[str] = []
     if isinstance(raw_columns, Sequence) and not isinstance(raw_columns, (str, bytes, bytearray)):
         for item in raw_columns:
@@ -3588,14 +3910,14 @@ def _schema_profile_from_catalog_row(
     elif isinstance(raw_columns, Mapping):
         columns.extend(str(key) for key in raw_columns)
     return SchemaProfileContract(
-        distribution_id=str(row[2]),
-        dataset_id=str(row[1]),
-        profile_id=str(row[4]),
+        distribution_id=distribution_id,
+        dataset_id=dataset_id,
+        profile_id=profile_id,
         columns=tuple(sorted(set(columns))),
-        sample_row_count=int(row[16] or 0),
-        preview_sample_hash=str(row[17]) if row[17] is not None else None,
-        inference_mode=str(row[18] or "metadata_only"),
-        parser_mode=str(row[19] or "metadata_only"),
+        sample_row_count=sample_row_count,
+        preview_sample_hash=preview_sample_hash,
+        inference_mode=inference_mode,
+        parser_mode=parser_mode,
     )
 
 
@@ -3915,14 +4237,6 @@ def _safe_response_headers(headers: Mapping[str, str]) -> dict[str, str]:
         if normalized in exact or normalized.startswith("x-ratelimit-"):
             safe[normalized] = str(value)
     return dict(sorted(safe.items()))
-
-
-def _append_fsync_jsonl(path: Path, event: Mapping[str, Any]) -> None:
-    payload = canonical_json_bytes(event)
-    with path.open("ab") as handle:
-        handle.write(payload)
-        handle.flush()
-        os.fsync(handle.fileno())
 
 
 def _coerce_plan_filters(value: object) -> dict[str, list[str]]:
@@ -4772,3 +5086,188 @@ def _validate_nonnegative_count_map(
     if negative_keys:
         raise ValueError(f"count map has negative values for: {', '.join(negative_keys)}")
     return value
+
+
+def _classify_recurring_worldbank_data(body: bytes) -> RecurringCarrierDataDisposition:
+    try:
+        payload = json.loads(body)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return RecurringCarrierDataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    if _recurring_worldbank_messages(payload):
+        return RecurringCarrierDataDisposition.CARRIER_RETIRED_OR_INVALID
+    if not (isinstance(payload, list) and len(payload) == 2 and isinstance(payload[0], Mapping)):
+        return RecurringCarrierDataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    total = _recurring_nonbool_int(payload[0].get("total"))
+    rows = payload[1]
+    if total == 0 and rows in (None, []):
+        return RecurringCarrierDataDisposition.NO_DATA_FOR_SCOPE
+    if isinstance(rows, list) and rows and all(isinstance(row, Mapping) for row in rows):
+        return RecurringCarrierDataDisposition.DATA_PRESENT
+    return RecurringCarrierDataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+
+
+def _classify_recurring_worldbank_metadata(
+    body: bytes,
+    *,
+    indicator_id: str,
+) -> RecurringCarrierMetadataDisposition:
+    try:
+        payload = json.loads(body)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return RecurringCarrierMetadataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    if _recurring_worldbank_messages(payload):
+        return RecurringCarrierMetadataDisposition.CARRIER_RETIRED_OR_INVALID
+    if not (isinstance(payload, list) and len(payload) == 2 and isinstance(payload[0], Mapping)):
+        return RecurringCarrierMetadataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    total = _recurring_nonbool_int(payload[0].get("total"))
+    rows = payload[1]
+    if total == 0 and rows in (None, []):
+        return RecurringCarrierMetadataDisposition.CARRIER_RETIRED_OR_INVALID
+    if (
+        total == 1
+        and isinstance(rows, list)
+        and len(rows) == 1
+        and isinstance(rows[0], Mapping)
+        and rows[0].get("id") == indicator_id
+    ):
+        return RecurringCarrierMetadataDisposition.CARRIER_CURRENT
+    return RecurringCarrierMetadataDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+
+
+def _recurring_worldbank_metadata_source(
+    body: bytes,
+    *,
+    indicator_id: str,
+) -> tuple[str | None, str | None]:
+    try:
+        payload = json.loads(body)
+    except (UnicodeDecodeError, json.JSONDecodeError):
+        return None, None
+    if not (
+        isinstance(payload, list)
+        and len(payload) == 2
+        and isinstance(payload[1], list)
+        and len(payload[1]) == 1
+        and isinstance(payload[1][0], Mapping)
+        and payload[1][0].get("id") == indicator_id
+    ):
+        return None, None
+    source = payload[1][0].get("source")
+    if not isinstance(source, Mapping):
+        return None, None
+    source_id = str(source.get("id") or "").strip() or None
+    source_name = str(source.get("value") or "").strip() or None
+    return source_id, source_name
+
+
+def _recurring_worldbank_messages(payload: object) -> tuple[object, ...]:
+    containers: list[object] = []
+    if isinstance(payload, Mapping):
+        containers.append(payload.get("message"))
+    elif isinstance(payload, list) and payload and isinstance(payload[0], Mapping):
+        containers.append(payload[0].get("message"))
+    messages: list[object] = []
+    for value in containers:
+        if isinstance(value, list):
+            messages.extend(value)
+        elif value is not None:
+            messages.append(value)
+    return tuple(messages)
+
+
+def _recurring_nonbool_int(value: object) -> int | None:
+    if isinstance(value, bool):
+        return None
+    try:
+        return int(str(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def _derive_recurring_carrier_disposition(
+    *,
+    data_disposition: RecurringCarrierDataDisposition,
+    metadata_disposition: RecurringCarrierMetadataDisposition,
+    metadata_source_name: str | None,
+    catalog_source_names: Sequence[str],
+    profile_source_descriptors: Sequence[str],
+) -> RecurringCarrierDisposition:
+    if metadata_disposition is RecurringCarrierMetadataDisposition.CARRIER_RETIRED_OR_INVALID:
+        return RecurringCarrierDisposition.CARRIER_RETIRED_OR_INVALID
+    if metadata_disposition is RecurringCarrierMetadataDisposition.METADATA_TRANSPORT_TERMINAL:
+        return RecurringCarrierDisposition.METADATA_TRANSPORT_TERMINAL
+    if metadata_disposition is not RecurringCarrierMetadataDisposition.CARRIER_CURRENT:
+        return RecurringCarrierDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    normalized_source = str(metadata_source_name or "").strip().casefold()
+    catalog_matches = not catalog_source_names or (
+        bool(normalized_source)
+        and any(normalized_source == value.strip().casefold() for value in catalog_source_names)
+    )
+    if not catalog_matches:
+        return RecurringCarrierDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+    profile_matches = not profile_source_descriptors or (
+        bool(normalized_source)
+        and any(
+            normalized_source in descriptor.strip().casefold()
+            for descriptor in profile_source_descriptors
+        )
+    )
+    if not profile_matches:
+        return RecurringCarrierDisposition.CARRIER_CURRENT_SOURCE_PROFILE_MISMATCH
+    if data_disposition is RecurringCarrierDataDisposition.DATA_PRESENT:
+        return RecurringCarrierDisposition.CARRIER_LIVE_WITH_DATA
+    if data_disposition is RecurringCarrierDataDisposition.NO_DATA_FOR_SCOPE:
+        return RecurringCarrierDisposition.CARRIER_CURRENT_NO_DATA_FOR_SCOPE
+    return RecurringCarrierDisposition.RESPONSE_SHAPE_UNCLASSIFIED
+
+
+def _derive_recurring_missing_request_levers(
+    *,
+    carrier_disposition: RecurringCarrierDisposition,
+    metadata_source_id: str | None,
+    source_selector_declared: bool,
+) -> tuple[str, ...]:
+    if (
+        carrier_disposition is RecurringCarrierDisposition.CARRIER_CURRENT_SOURCE_PROFILE_MISMATCH
+        and metadata_source_id is not None
+        and not source_selector_declared
+    ):
+        return (f"source_selector:{metadata_source_id}",)
+    return ()
+
+
+def _derive_recurring_tier_decay(
+    *,
+    execution_tier: str,
+    request_dataset_id: str,
+    carrier_disposition: RecurringCarrierDisposition,
+) -> tuple[str, ...]:
+    if (
+        execution_tier not in EXECUTABLE_BINDING_TIERS
+        or carrier_disposition is RecurringCarrierDisposition.CARRIER_LIVE_WITH_DATA
+        or derive_tier_decay_evidence_attribution(carrier_disposition)
+        is TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+    ):
+        return ()
+    return (
+        f"execution_tier_decay:{execution_tier}:{carrier_disposition.value}:"
+        f"carrier={request_dataset_id}",
+    )
+
+
+def derive_tier_decay_evidence_attribution(
+    outcome: LivenessState | RecurringCarrierDisposition,
+) -> TierDecayEvidenceAttribution:
+    """Classify whether an outcome distinguishes carrier state from local transport."""
+
+    if isinstance(outcome, LivenessState):
+        if outcome is LivenessState.TRANSPORT_ERROR:
+            return TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+        if outcome in _LIVENESS_CARRIER_ATTRIBUTED_OUTCOMES:
+            return TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
+    elif isinstance(outcome, RecurringCarrierDisposition):
+        if outcome is RecurringCarrierDisposition.METADATA_TRANSPORT_TERMINAL:
+            return TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+        if outcome in _RECURRING_CARRIER_ATTRIBUTED_OUTCOMES:
+            return TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
+    raise ValueError(f"tier-decay evidence attribution missing for typed outcome: {outcome!r}")

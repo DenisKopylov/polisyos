@@ -5,7 +5,13 @@ from __future__ import annotations
 from typing import Any
 
 from . import ingestion as _ingestion_module
-from .ingestion import ConnectorManifestSpec, DatasetFetchSpec, run_connectors_ingestion
+from .ingestion import (
+    ConnectorManifestSpec,
+    DatasetFetchSpec,
+    PreTransformFetchResultSink,
+    RawFetchResultSink,
+    run_connectors_ingestion,
+)
 from .ingestion_providers import (
     IngestionDependencies,
     build_filesystem_artifact_store,
@@ -16,6 +22,8 @@ __all__ = [
     "ConnectorManifestSpec",
     "DatasetFetchSpec",
     "IngestionDependencies",
+    "PreTransformFetchResultSink",
+    "RawFetchResultSink",
     "build_filesystem_artifact_store",
     "resolve_ingestion_dependencies",
     "run_connectors_ingestion",

@@ -30,6 +30,7 @@ from polisyos.fabric.connectors.cache import (
     PolicyRegistry,
     PrefetchJob,
     PrefetchScheduler,
+    ResultSerializer,
     SchemaChangeInvalidationTrigger,
     SizeBoundedPolicy,
     SmartExpiryPolicy,
@@ -88,6 +89,8 @@ from polisyos.fabric.connectors.pool import (
     PoolExhaustedError,
     PoolStats,
 )
+from polisyos.fabric.connectors.profiles import SourceProfileRegistry
+from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 
 # Registry Architecture (Phase 2.2)
 from polisyos.fabric.connectors.registry import (
@@ -128,6 +131,8 @@ from polisyos.fabric.connectors.resilience import (
     with_rate_limit,
     with_retry,
 )
+from polisyos.fabric.connectors.sources.http_base import RawHTTPResponseObserver
+from polisyos.fabric.connectors.sources.world_bank import normalize_worldbank_records
 
 # Error types and supporting structures
 from polisyos.fabric.connectors.types import (
@@ -251,10 +256,12 @@ __all__ = [
     "RateLimitStatus",
     "RateLimiter",
     "RateLimiterConfig",
+    "RawHTTPResponseObserver",
     "RegistryError",
     "RegistryMetrics",
     "RegistryStats",
     "ResilienceConfig",
+    "ResultSerializer",
     "RetryExhaustedError",
     # === Resilience Layer (Phase 2.9) ===
     "RetryPolicy",
@@ -264,6 +271,7 @@ __all__ = [
     "SmartExpiryPolicy",
     # === Protocol & Core Types ===
     "SourceConnector",
+    "SourceProfileRegistry",
     "StaticDataPolicy",
     "TTLPolicy",
     "TrustLevel",
@@ -287,9 +295,11 @@ __all__ = [
     "get_registry",
     "is_retryable_error",
     "make_schema_hash_provider",
+    "normalize_worldbank_records",
     "requires_any_capability",
     # === Capability Utilities ===
     "requires_capability",
+    "resolve_connection_config",
     "resolve_resilience_config",
     "validate_connector_governance_metadata",
     # === Validation Helpers ===

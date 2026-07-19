@@ -25,7 +25,13 @@ from .policy import (
 from .prefetch import PrefetchJob, PrefetchScheduler
 from .proxy import CachingConnectorProxy
 from .schema_aware import make_schema_hash_provider
-from .store import CachedFetchResult, CacheMetadata, CacheStats, ConnectorCacheStore
+from .store import (
+    CachedFetchResult,
+    CacheMetadata,
+    CacheStats,
+    ConnectorCacheStore,
+    ResultSerializer,
+)
 
 __all__ = [
     "CacheMetadata",
@@ -42,6 +48,7 @@ __all__ = [
     "PolicyRegistry",
     "PrefetchJob",
     "PrefetchScheduler",
+    "ResultSerializer",
     "SchemaChangeInvalidationTrigger",
     "SizeBoundedPolicy",
     "SmartExpiryPolicy",

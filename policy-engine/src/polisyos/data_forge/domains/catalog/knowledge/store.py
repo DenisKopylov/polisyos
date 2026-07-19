@@ -6,10 +6,10 @@ import json
 import re
 from typing import TYPE_CHECKING
 
-import duckdb
 import numpy as np
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.catalog.knowledge.overlay import open_catalog_read_session
 from polisyos.data_forge.domains.catalog.knowledge.types import (
     DatasetAccess,
     DatasetCoverage,
@@ -119,10 +119,16 @@ _CONNECTOR_ALIASES = {
 class DatasetCatalogStore:
     """Read-only handle to the dataset catalog (DuckDB + HNSW)."""
 
-    def __init__(self, db_path: Path, index_dir: Path) -> None:
+    def __init__(
+        self,
+        db_path: Path,
+        index_dir: Path,
+        *,
+        overlay_path: Path | None = None,
+    ) -> None:
         self._db_path = db_path
         self._index_dir = index_dir
-        self._con = duckdb.connect(str(db_path), read_only=True)
+        self._con = open_catalog_read_session(db_path, overlay_path=overlay_path)
 
         self._dataset_index = None
         self._dataset_ids: list[str] | None = None

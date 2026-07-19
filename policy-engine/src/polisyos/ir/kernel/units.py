@@ -115,6 +115,10 @@ DEFAULT_UNITS_REGISTRY = UnitsRegistry(
         "uah": MoneyUnit(currency="UAH"),
         "year": DurationUnit(unit="year"),
         "month": DurationUnit(unit="month"),
+        "index": GenericUnit(
+            label="index",
+            description="generic measured index level",
+        ),
         "per_step": GenericUnit(label="per_step", description="per simulation step"),
     }
 )

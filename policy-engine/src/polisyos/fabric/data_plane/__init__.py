@@ -6,7 +6,17 @@ import importlib
 from typing import Any
 
 __all__ = [
+    "AppendOnlyEvidenceJournal",
+    "EvidenceJournalError",
     "FabricBenchmarkReport",
+    "HarnessAuthorizationEvidence",
+    "JournalEventRef",
+    "LiveAttemptTerminal",
+    "LiveExecutionAuthorization",
+    "LiveHttpBudget",
+    "LiveMetadataExecutionAuthorization",
+    "LiveMetadataHarnessReceipt",
+    "LiveTransportTrace",
     "QuarantineRecord",
     "QuarantineReport",
     "QuarantineReprocessResult",
@@ -17,8 +27,14 @@ __all__ = [
     "benchmark_query_execution",
     "benchmark_stream_processing",
     "benchmark_world_materialization",
+    "build_live_execution_authorization",
+    "build_live_metadata_execution_authorization",
     "build_quarantine_report",
+    "canonical_json_bytes",
     "compare_historical_rows",
+    "content_sha256",
+    "derive_harness_authorization_evidence",
+    "derive_live_http_budget",
     "iter_record_batches",
     "list_quarantine_records",
     "load_quarantine_payload",
@@ -29,14 +45,119 @@ __all__ = [
     "persist_historical_semantic_diff_report",
     "persist_quarantine_record",
     "process_stream_dataset",
-    "query_world_table",
     "quarantine_index_path",
+    "query_world_table",
     "register_quarantine_reprocessor",
     "reprocess_quarantine_records",
+    "require_authorized_execution",
     "require_dataframe",
+    "resolve_journal_event_ref",
+    "resolve_linked_request_event",
+    "resolve_live_attempt_terminal",
+    "resolve_live_attempt_terminals",
+    "resolve_live_transport_trace",
+    "resolve_raw_response_body",
+    "run_orchestrated_ingestion",
+    "verify_journal_event_ref",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "AppendOnlyEvidenceJournal": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "AppendOnlyEvidenceJournal",
+    ),
+    "EvidenceJournalError": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "EvidenceJournalError",
+    ),
+    "HarnessAuthorizationEvidence": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "HarnessAuthorizationEvidence",
+    ),
+    "JournalEventRef": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "JournalEventRef",
+    ),
+    "LiveAttemptTerminal": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveAttemptTerminal",
+    ),
+    "LiveExecutionAuthorization": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveExecutionAuthorization",
+    ),
+    "LiveMetadataExecutionAuthorization": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveMetadataExecutionAuthorization",
+    ),
+    "LiveMetadataHarnessReceipt": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveMetadataHarnessReceipt",
+    ),
+    "LiveHttpBudget": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveHttpBudget",
+    ),
+    "LiveTransportTrace": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "LiveTransportTrace",
+    ),
+    "build_live_execution_authorization": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "build_live_execution_authorization",
+    ),
+    "build_live_metadata_execution_authorization": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "build_live_metadata_execution_authorization",
+    ),
+    "derive_harness_authorization_evidence": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "derive_harness_authorization_evidence",
+    ),
+    "derive_live_http_budget": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "derive_live_http_budget",
+    ),
+    "content_sha256": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "content_sha256",
+    ),
+    "canonical_json_bytes": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "canonical_json_bytes",
+    ),
+    "require_authorized_execution": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "require_authorized_execution",
+    ),
+    "resolve_journal_event_ref": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_journal_event_ref",
+    ),
+    "resolve_linked_request_event": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_linked_request_event",
+    ),
+    "resolve_live_attempt_terminal": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_live_attempt_terminal",
+    ),
+    "resolve_live_attempt_terminals": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_live_attempt_terminals",
+    ),
+    "resolve_live_transport_trace": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_live_transport_trace",
+    ),
+    "resolve_raw_response_body": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "resolve_raw_response_body",
+    ),
+    "verify_journal_event_ref": (
+        "polisyos.fabric.data_plane.evidence_journal",
+        "verify_journal_event_ref",
+    ),
     "FabricBenchmarkReport": ("polisyos.fabric.data_plane.benchmarks", "FabricBenchmarkReport"),
     "benchmark_partitioned_ingestion": (
         "polisyos.fabric.data_plane.benchmarks",
@@ -121,6 +242,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "process_stream_dataset": ("polisyos.fabric.data_plane.streaming", "process_stream_dataset"),
     "payload_to_dataframe": ("polisyos.fabric.data_plane.tabular", "payload_to_dataframe"),
     "require_dataframe": ("polisyos.fabric.data_plane.tabular", "require_dataframe"),
+    "run_orchestrated_ingestion": (
+        "polisyos.fabric.data_plane.orchestrator",
+        "run_orchestrated_ingestion",
+    ),
 }
 
 
@@ -128,7 +253,9 @@ def __getattr__(name: str) -> Any:
     try:
         module_name, attr = _LAZY_IMPORTS[name]
     except KeyError as exc:
-        raise AttributeError(f"module 'polisyos.fabric.data_plane' has no attribute {name!r}") from exc
+        raise AttributeError(
+            f"module 'polisyos.fabric.data_plane' has no attribute {name!r}"
+        ) from exc
     module = importlib.import_module(module_name)
     value = getattr(module, attr)
     globals()[name] = value

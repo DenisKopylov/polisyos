@@ -24,6 +24,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
+from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
 from polisyos.data_forge.kernel.snapshot import finalize_snapshot
 from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -195,6 +196,8 @@ class _DataStatePaths:
 def l1_dcat_variable_availability(
     repo_root: Path,
     variable_id: str,
+    *,
+    overlay_path: Path | None = None,
 ) -> L1VariableAvailability:
     """Resolve required-vs-available status from the L1 DCAT DuckDB catalog."""
 
@@ -205,9 +208,13 @@ def l1_dcat_variable_availability(
     if not dcat_path.exists():
         raise DataStateSubstrateError("l1_dcat_missing", dcat_path.as_posix())
 
-    import duckdb
-
-    con = duckdb.connect(str(dcat_path), read_only=True)
+    selected_overlay = overlay_path or (
+        data_forge_read_api.catalog.default_acquisition_overlay_path(repo_root)
+    )
+    con = data_forge_read_api.catalog.open_catalog_read_session(
+        dcat_path,
+        overlay_path=selected_overlay,
+    )
     try:
         metric_binding_count = int(
             con.execute(

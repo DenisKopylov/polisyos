@@ -16,6 +16,9 @@ transportability layer over the dataset catalog built by the batch pipeline.
 - **Dataset registry** - `DatasetRegistry` resolves datasets for canonical variables and P*(Z) estimates.
 - **Proxy resolution** - `proxy_resolver.py` builds fallback chains when direct observations are missing.
 - **Variable alignment** - `variable_alignment.py` maps canonical SKG variables onto dataset variables.
+- **Derivation catalog selection** - `derivation_catalog_selection.py` strictly loads
+  purpose-addressable family policies and evaluates candidates against exact metric/canonical
+  owner edges plus rights, alignment, binding, and completeness evidence.
 
 ## Public API
 
@@ -23,6 +26,7 @@ transportability layer over the dataset catalog built by the batch pipeline.
 - `DatasetRegistry`
 - `proxy_resolver`
 - `variable_alignment`
+- `derivation_catalog_selection`
 - `types.py`
 - `store.py`
 - `search.py`

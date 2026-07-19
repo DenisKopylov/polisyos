@@ -263,7 +263,8 @@ vars; fabric has 20+ real connectors, `run_orchestrated_ingestion` (fetch→CAS�
 RetrievalService dataset-catalog lane that is never wired; N7's `_capture_fabric` is a probe
 that never executes a fetch plan. This revision converts the measurement into the next wave +
 the process lessons N10 paid for: (a) **NEW GY-N13a (acquisition-layer reality census) +
-GY-N13b (acquisition executor — the world grows)**, closing one capstone route end-to-end and
+GY-N13b (acquisition executor — attempted world growth)**, taking one measured D2 gap to an
+admitted epoch or an honest typed deeper terminal and closing
 the two typed N7 infrastructure residuals; (b) new **§3.5.9 live-carrier conformance gates
 C1–C5** (the compiler saga generalized to every live LLM/data carrier); (c) new **§3.5.10
 recompute-not-pin** (the expectation-transplant class fired three times in N10 — now a named
@@ -1972,7 +1973,8 @@ re-architecting.
   N13b VOI-owner integration note; it is not claimed as VOI. Frozen artifact:
   `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`, file
   `sha256:63212c8ccdcd80e96f8ae5903a74e4587090cfe096392e00069d30c17ba64791`.
-- **GY-N13b — Acquisition executor — the world grows (close one capstone route end-to-end;
+- **GY-N13b — Acquisition executor — attempted world growth (close one measured D2 gap or
+  freeze its honest typed deeper terminal;
   NEW, Rev 16).** wire-existing + narrow build-new. Convert N7's routes from typed dead-ends
   into executed acquisitions: (1) wire the `DatasetCatalogGraph` into the N7 `_capture_fabric`
   path (kill the probe-only pattern that imports `run_orchestrated_ingestion` and immediately
@@ -2030,6 +2032,24 @@ re-architecting.
   the acquisition half of the Phase-6 world-growth spine — O1/O3's write-back reuses its
   overlay store + passport, not a second write path.
   `P27`/`P29`/§3.5.6/§3.5.9/§3.5.10/§3.5.11/§3.5.12.
+
+  **Measured N13b result (2026-07-18; closure frozen at `6280e487f`, universality audit frozen at
+  `b9720bdb4`):** the acquisition executor
+  capability is `implemented` with an `audit_surface`, and its honest demonstration result is
+  `typed_deeper_terminal`, not world growth. The resumption spent 3/6 authorized calls; no response
+  was admitted, so `government.balance` remained 0 datasets / 0 bindings / 0 observations, with
+  zero overlay epochs and terminal `deeper_terminal_primary_carrier_characterization_failed`. The
+  separate real-terms acceptance case closed from owner-admissible epoch-0 catalog inputs: one
+  certified exact-year CPI derivation, two distinct consumers, and a verified
+  second-materialization cache hit. Both N10 lifecycle residuals are closed and all three capstone
+  routes remain `not_a_data_gap`. Frozen contract:
+  `architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json`, semantic
+  `sha256:484b372c3a3e2921cb368f10513a341afcb1b954792ae07d0c77ebc245ddac02`.
+  The 2026-07-19 merge-gate audit proved the derivation owner is data-only free-growing over two
+  structurally different families (`price_index_exact_year_rebase` and
+  `share_of_aggregate_exact_year`) on the complete 4,861-series epoch-0 denominator, with zero
+  network calls. The measured outcome remains `typed_deeper_terminal`; the audit did not relabel it
+  as closed by acquisition or create a world-growth epoch.
 
 **Phase-5 deferred (adopt the contract now, implement when a certified frontier exists).** With
 `useful_design_rate ≈ 0` and depth-1 integration, the mature-frontier machinery is not yet
@@ -2188,7 +2208,9 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
   **Rev 16:** consume the frozen N10 capstone directly — its three plain-language runs,
   per-domain terminal distributions, and three acquisition-route evidence classes ARE labelled
   cases (do not rebuild a parallel labelled set for those domains); add the post-N13b re-entry
-  trace as a labelled case of a gap **closed by acquisition**.
+  trace as a labelled case of the measured acquisition outcome: **closed by acquisition or an
+  honest typed deeper terminal**. For the frozen N13b run this label is
+  `typed_deeper_terminal`, with no world-growth epoch.
 - **GY-V4 — Adversarial-against-A battery (laundering firewalls live).** The
   constitution mandates this once real grounding happens. Executed **negative** probes,
   each with recorded evidence: (a) agent attempts to write a Ring-2 field → rejected;
@@ -2280,9 +2302,9 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
    depth-N universality. *(Rev 16 status note: the GY-CG grounding block CG0–CG6, GY-INFRA-1,
    GY-N4–N9, GY-N10a, and **GY-N10 (closed GO — capstone
    `layer3_gy_depth_n_universality_contract.json` at ce847b9f2; final architect audit in
-   flight)** are executed; the remaining Phase-5 tasks run **N13a → N13b → N11 → N12** — the
-   acquisition census and executor land FIRST because world growth + cycle re-entry is the only
-   unproven capability and N10's capstone routes are their paid-for inputs; all bound by
+   flight)**, **GY-N13a**, and **GY-N13b** are executed; N13b closed with an honest
+   `typed_deeper_terminal` and no world-growth epoch. The remaining Phase-5 tasks run
+   **N11 → N12**; all remain bound by
    §3.5.6–§3.5.12.)* The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
    VOI / EXP3 / MCTS) carries contracts now, implementation later. Runs before the learning loop
    and the V-battery so verification audits the **cycle**, not the single-pass harness.

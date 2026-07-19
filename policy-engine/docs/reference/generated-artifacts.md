@@ -63,7 +63,8 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Policy Design Case Layer 3 GY-N10a owner-derived second-domain pack` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_second_domain_census.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_pack.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json`<br/>`architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json` |
 | `Policy Design Case Layer 3 GY-N10 depth-N universality contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json` |
 | `Policy Design Case Layer 3 GY-N10 CG1-mediated L2 relation census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json` |
-| `Policy Design Case Layer 3 GY-N13a acquisition-layer reality census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`<br/>`architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json` |
+| `Policy Design Case Layer 3 GY-N13a acquisition-layer reality census` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`<br/>`architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`<br/>`architecture/policy_design_case/layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json` |
+| `Policy Design Case Layer 3 GY-N13b acquisition executor contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/27/62/2762950fb0162d50ee54af9947960a85db3b5ff80686f26a99f791726b9f0c0d.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/27/62/2762950fb0162d50ee54af9947960a85db3b5ff80686f26a99f791726b9f0c0d.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/6b/9e/6b9e317667e322cff14593e384f2cbfd68ad294513268d6baf02af2513c762d4.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/6b/9e/6b9e317667e322cff14593e384f2cbfd68ad294513268d6baf02af2513c762d4.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/6f/8b/6f8bf2cfc76b89da8500b827c46237fcba4d22fa34fe4b3a569c42156991cb34.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/6f/8b/6f8bf2cfc76b89da8500b827c46237fcba4d22fa34fe4b3a569c42156991cb34.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/72/7a/727aa1e750839ef6f87f4ab8c941a0d3bed38ea40ab1019a6d49d0ebf09d45d8.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/72/7a/727aa1e750839ef6f87f4ab8c941a0d3bed38ea40ab1019a6d49d0ebf09d45d8.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/75/12/7512edb8c814b36cf98b114f6bf33bc20eb3bb04eb1612e87947c29b4aefa4ed.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/75/12/7512edb8c814b36cf98b114f6bf33bc20eb3bb04eb1612e87947c29b4aefa4ed.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/7d/75/7d75f6dc1b2b7f8e3a823e7cf97254a7cac37fa92c29b52b1b4db1ea95e461fe.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/7d/75/7d75f6dc1b2b7f8e3a823e7cf97254a7cac37fa92c29b52b1b4db1ea95e461fe.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/ae/f7/aef736b138d96dd93374d8ed4f82367cb74068cb7a1e3199177be0a42bef626b.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/ae/f7/aef736b138d96dd93374d8ed4f82367cb74068cb7a1e3199177be0a42bef626b.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e8/b7/e8b7f152c85101a25f94642e4c111afd0aecbf2377cb4c6a53fa6d065739b8d4.blob`<br/>`architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e8/b7/e8b7f152c85101a25f94642e4c111afd0aecbf2377cb4c6a53fa6d065739b8d4.manifest.json`<br/>`architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_fallback_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness_attempt_002.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_owner.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json`<br/>`architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json` |
 | `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
@@ -1759,11 +1760,75 @@ python3 tools/quality/validation/check_layer3_gy_n10_cg1_l2_relation_census.py -
 - Outputs:
   - `architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json`
   - `architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json`
+  - `architecture/policy_design_case/layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json`
 
 Canonical regeneration commands:
 
 ```bash
 uv run --extra test python tools/quality/validation/check_layer3_gy_n13a_acquisition_census.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb
+```
+
+## `Policy Design Case Layer 3 GY-N13b acquisition executor contract`
+
+- Family id: `policy-design-case-layer3-gy-n13b-acquisition-executor`
+- Lifecycle: `generated_committed`
+- Source of truth: the content-bound dataset catalog baseline, N13a narrow route/backlog projections, canonical acquisition provision/registry, append-only raw journal plus quarantine CAS, derived-observation owner, and demanding-stage re-entry trace
+- Generator: GY-N13b frozen writer over canonical acquisition, journal, overlay, catalog, and derivation owners; live execution is never triggered by lifecycle modes
+- Verifier: GY-N13b recomputing checker, byte-stable writer/rederive, nested corrupt-field lane, and restoring behavioral source-flip suite
+- Promotion target: Phase-6 acquisition/derivation audit evidence and typed deeper terminals only; never observation, engine, publication, or connector-promotion authority
+- Commit policy: `committed`
+- Freshness rule: Regenerate whenever the baseline identity, N13a demand/route projections, acquisition authority owners, raw journal/CAS evidence, overlay epochs, derivation recipe/certificate, re-entry trace, or registered output denominator changes.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/27/62/2762950fb0162d50ee54af9947960a85db3b5ff80686f26a99f791726b9f0c0d.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/27/62/2762950fb0162d50ee54af9947960a85db3b5ff80686f26a99f791726b9f0c0d.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/6b/9e/6b9e317667e322cff14593e384f2cbfd68ad294513268d6baf02af2513c762d4.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/6b/9e/6b9e317667e322cff14593e384f2cbfd68ad294513268d6baf02af2513c762d4.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/6f/8b/6f8bf2cfc76b89da8500b827c46237fcba4d22fa34fe4b3a569c42156991cb34.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/6f/8b/6f8bf2cfc76b89da8500b827c46237fcba4d22fa34fe4b3a569c42156991cb34.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/72/7a/727aa1e750839ef6f87f4ab8c941a0d3bed38ea40ab1019a6d49d0ebf09d45d8.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/72/7a/727aa1e750839ef6f87f4ab8c941a0d3bed38ea40ab1019a6d49d0ebf09d45d8.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/75/12/7512edb8c814b36cf98b114f6bf33bc20eb3bb04eb1612e87947c29b4aefa4ed.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/75/12/7512edb8c814b36cf98b114f6bf33bc20eb3bb04eb1612e87947c29b4aefa4ed.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/7d/75/7d75f6dc1b2b7f8e3a823e7cf97254a7cac37fa92c29b52b1b4db1ea95e461fe.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/7d/75/7d75f6dc1b2b7f8e3a823e7cf97254a7cac37fa92c29b52b1b4db1ea95e461fe.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/ae/f7/aef736b138d96dd93374d8ed4f82367cb74068cb7a1e3199177be0a42bef626b.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/ae/f7/aef736b138d96dd93374d8ed4f82367cb74068cb7a1e3199177be0a42bef626b.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e8/b7/e8b7f152c85101a25f94642e4c111afd0aecbf2377cb4c6a53fa6d065739b8d4.blob`
+  - `architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e8/b7/e8b7f152c85101a25f94642e4c111afd0aecbf2377cb4c6a53fa6d065739b8d4.manifest.json`
+  - `architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl`
+  - `architecture/policy_design_case/layer3_gy_n13b_acceptance_authority_owner.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_acceptance_fallback_selection.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_acceptance_input_selection.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_cpi_live_execution_evidence.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_d6_route_selection.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_derived_acceptance_case.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_r1_forensic_receipt.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_reentry_trace.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_worldbank_cpi_harness.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_harness_attempt_002.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_evidence.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_metadata_owner.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_evidence.json`
+  - `architecture/policy_design_case/layer3_gy_n13b_worldbank_government_balance_percent_gdp_metadata_owner.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run --extra test python tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py --write --catalog-path production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb --l5-path production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json
 ```
 
 ## `Policy Design Case Layer 3 GY generation-cycle disposition ledger`

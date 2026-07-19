@@ -27,10 +27,11 @@ can never enter the observed overlay.
 Pydantic v2 strict DTOs, existing L5 and alignment owners, pytest, Ruff, generated JSON/DuckDB
 artifacts.
 
-**Status (2026-07-18):** `stopped_by_evidence` — not closed or merge-authorized. The local-lift
-denominator has no admissible owner binding, and both exact live carriers ended in quarantine
-terminals. Per the binding stop law, no overlay epoch, world-growth claim, or derivation acceptance
-case may be manufactured. Execution ledger:
+**Status (2026-07-19):** implementation frozen at `6280e487f` with
+`demonstration_status=typed_deeper_terminal`; closeout verification is complete, architect review
+is pending, and merge is not authorized. The local-lift denominator has no admissible owner binding,
+and every exact live carrier ended in a quarantine/terminal state. No overlay epoch or world-growth
+claim was manufactured. Execution ledger:
 `docs/superpowers/journals/2026-07-18-gy-n13b-acquisition-executor.md`.
 
 **Authorized continuation:** the historical stop remains valid. The evidence-driven resumption is
@@ -38,7 +39,7 @@ sequenced in
 `docs/superpowers/plans/2026-07-18-gy-n13b-resumption-contract-closure.md`; it begins from the paid
 CAS bytes and does not reopen completed green workstreams.
 
-## Stop-law receipt
+## Historical stop-law receipt (2026-07-18)
 
 - Local-lift: `0/15` census residuals admissible; terminal
   `no_admissible_local_binding`. The 100 household cells lack owner-proven currency/basis/base-year,

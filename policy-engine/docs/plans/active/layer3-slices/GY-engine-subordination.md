@@ -2031,6 +2031,18 @@ re-architecting.
   overlay store + passport, not a second write path.
   `P27`/`P29`/§3.5.6/§3.5.9/§3.5.10/§3.5.11/§3.5.12.
 
+  **Measured N13b result (2026-07-18; frozen at `6280e487f`):** the acquisition executor
+  capability is `implemented` with an `audit_surface`, and its honest demonstration result is
+  `typed_deeper_terminal`, not world growth. The resumption spent 3/6 authorized calls; no response
+  was admitted, so `government.balance` remained 0 datasets / 0 bindings / 0 observations, with
+  zero overlay epochs and terminal `deeper_terminal_primary_carrier_characterization_failed`. The
+  separate real-terms acceptance case closed from owner-admissible epoch-0 catalog inputs: one
+  certified exact-year CPI derivation, two distinct consumers, and a verified
+  second-materialization cache hit. Both N10 lifecycle residuals are closed and all three capstone
+  routes remain `not_a_data_gap`. Frozen contract:
+  `architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json`, semantic
+  `sha256:1e2b91fcf8ff2410524d86dd486ffdb7f07e417372f608f16b00135d5aa84235`.
+
 **Phase-5 deferred (adopt the contract now, implement when a certified frontier exists).** With
 `useful_design_rate ≈ 0` and depth-1 integration, the mature-frontier machinery is not yet
 load-bearing. Carry the **contracts / labels** now (so artifacts already speak them) and implement
@@ -2280,9 +2292,9 @@ high `useful_design_rate`. Forcing useful-design credit is a failure of this pha
    depth-N universality. *(Rev 16 status note: the GY-CG grounding block CG0–CG6, GY-INFRA-1,
    GY-N4–N9, GY-N10a, and **GY-N10 (closed GO — capstone
    `layer3_gy_depth_n_universality_contract.json` at ce847b9f2; final architect audit in
-   flight)** are executed; the remaining Phase-5 tasks run **N13a → N13b → N11 → N12** — the
-   acquisition census and executor land FIRST because world growth + cycle re-entry is the only
-   unproven capability and N10's capstone routes are their paid-for inputs; all bound by
+   flight)**, **GY-N13a**, and **GY-N13b** are executed; N13b closed with an honest
+   `typed_deeper_terminal` and no world-growth epoch. The remaining Phase-5 tasks run
+   **N11 → N12**; all remain bound by
    §3.5.6–§3.5.12.)* The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
    VOI / EXP3 / MCTS) carries contracts now, implementation later. Runs before the learning loop
    and the V-battery so verification audits the **cycle**, not the single-pass harness.

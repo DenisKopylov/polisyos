@@ -2,8 +2,8 @@
 
 Canonical plan: `docs/superpowers/plans/2026-07-17-gy-n13b-acquisition-executor.md`.
 
-Status: `stopped_by_evidence` on 2026-07-18. This is an execution ledger and stop-law report, not a
-GY-N13b closure receipt. No world-growth epoch exists.
+Status: `closed_typed_deeper_terminal` on 2026-07-19; pending architect review; not merged. The
+2026-07-18 stop receipt remains below as historical evidence. No world-growth epoch exists.
 
 ## Step 0 — landing and provenance repair
 
@@ -21,9 +21,10 @@ Status: `complete`.
 - The isolated branch is `codex/gy-n13b-acquisition-executor`. Atlas paths and worktrees were not
   touched; production data remained read-only.
 
-## Implemented foundations before the stop
+## Implemented foundations before the historical stop
 
-Status: `implemented_and_focused_verified`, but not a completed capability claim.
+Historical status: `implemented_and_focused_verified`, before the resumption completed the audit
+artifact, lifecycle, derivation acceptance, and re-entry contracts.
 
 The branch wires N7 to the real catalog plan owner, consolidates journal-first evidence, implements
 strict acquisition authority/passports/quarantine, provides the immutable overlay + shared L1 read
@@ -102,7 +103,7 @@ Evidence identities:
 Both terminals resolve from the full journal denominator. Both have `quarantine=true` and
 `response_admitted=false`.
 
-## Stop-law result
+## Historical stop-law result
 
 The two demonstration lanes are exhausted honestly:
 
@@ -144,3 +145,103 @@ Evidence-preservation commits:
 - `7d6239707` — authorize a second exact live acquisition carrier;
 - `282a33169` — reopen terminal-closed acquisition journals;
 - `423dcd606` — preserve terminal acquisition evidence.
+
+## Evidence-driven resumption and frozen closure
+
+Status: `closed_typed_deeper_terminal`; frozen implementation `6280e487f`; pending architect
+review; not merged.
+
+- `executor_capability_status=implemented`; `surface_status=audit_surface`;
+  `demonstration_status=typed_deeper_terminal`.
+- World growth remained honest: `status=no_growth`, event count 0, overlay epoch count 0, admitted
+  observation count 0, and `government.balance` availability 0 -> 0. The demanding-stage terminal
+  is `deeper_terminal_primary_carrier_characterization_failed`.
+- The resumption spent 3/6 authorized calls and left three unused. Across all five historical and
+  resumption attempts there are five quarantine/terminal outcomes, two raw responses, three
+  terminals without response bytes, and zero admitted responses.
+- Local lift remains `0/15` with `no_admissible_local_binding`; no rights, unit, or basis authority
+  was inferred from adjacent local rows.
+- Both N10 residuals are closed:
+  `owner_registration_derivation_missing_closed=true` and
+  `journal_raw_evidence_persistence_missing_closed=true`; `open_residuals=[]`.
+- All three capstone routes remain `not_a_data_gap`; `laundered_route_count=0`.
+
+R1 decoded the already-paid 85-byte body as
+`[{"page":0,"pages":0,"per_page":0,"total":0,"sourceid":null,"lastupdated":null},null]`,
+therefore exactly `no_data_for_scope`. The body is bound as
+`sha256:244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264`;
+the R1 receipt is
+`sha256:a46c3646be7caa696df3fc89096c369eca65e9f73596f7339b00a180f83b58bd`.
+The prior elapsed evidence is 6.945391583998571 seconds for the small page and
+15.766325374999724 seconds at the owner timeout.
+
+### Resumption call ledger
+
+| Attempt | Class | Max elapsed | Raw bytes | HTTP | Terminal |
+| --- | --- | ---: | ---: | ---: | --- |
+| `gy-n13b-worldbank-wdi-government-balance-usd-metadata-001` | indicator metadata | 1.0341310840012738 s | 756 | 200 | `quarantined_metadata_characterization_complete` |
+| `gy-n13b-worldbank-wdi-government-balance-percent-gdp-metadata-001` | indicator metadata | 14.01588400000037 s | 0 | — | `failed_metadata_retryexhaustederror` |
+| `gy-n13b-worldbank-wdi-inflation-index-001` | data fetch | 14.120988167000178 s | 0 | — | `failed_retry_exhausted_error` |
+
+The metadata response proves `GC.BAL.CASH.CD` belongs to World Bank source 11, Africa Development
+Indicators, rather than the catalog-declared WDI source profile. The evidence-derived carrier
+disposition is `carrier_current_source_profile_mismatch`, and the recurring N13a owner records the
+corresponding `transport_ready` tier-decay finding. The primary percent-of-GDP metadata attempt and
+the CPI fetch each reached a typed terminal; neither authorized a retry.
+
+### Derived acceptance and re-entry
+
+The contracted real-terms case closed over owner-admissible epoch-0 catalog inputs without claiming
+live world growth. It materialized one exact-year CPI derivation and served two distinct consumers;
+the first materialization was a cache miss and the second a cache hit.
+
+- recipe:
+  `derivation-recipe:sha256:6a2b33103cbd25835d3d502a82c3f9392459b5076769813fc203c49b96a85e99`;
+- certificate artifact:
+  `sha256:2762950fb0162d50ee54af9947960a85db3b5ff80686f26a99f791726b9f0c0d`;
+- derived artifact:
+  `sha256:6f8bf2cfc76b89da8500b827c46237fcba4d22fa34fe4b3a569c42156991cb34`;
+- consumer methods: `forecasting.univariate.exponential_smoothing@1.0.0` and
+  `forecasting.univariate.theta@1.0.0`;
+- negative terminals preserved: `basis_mismatch` and `model_output_not_observation`.
+
+The real N7 re-entry trace is
+`sha256:5a3aa348588478170d473c65f3504641c0313a16debb03f0382d9b6ecca83a52`.
+It recomputes 0 -> 0 availability, zero fetch-plan executions, zero overlay epochs, and the honest
+deeper terminal above.
+
+### Frozen contract and lifecycle
+
+- contract semantic identity:
+  `sha256:1e2b91fcf8ff2410524d86dd486ffdb7f07e417372f608f16b00135d5aa84235`;
+  file SHA-256 `8af3f4b9fd9458c30b7124c409a2a829757b6cf4404123380770daf4f03b3d8a`;
+- lifecycle semantic identity:
+  `sha256:991b84375cb07b7b58577529f3ee4d13b998631f86c4b7a4bd278e7be19b60b1`;
+  file SHA-256 `58ac3aea57a5ff48c9620525fe6a9e01c7cf00adf4a28d0560cdb2c99a802e9e`;
+- checker SHA-256 `f93c82cf68823708785703b85698e1b118a09eb5448e87be0bcf1ca68f166720`;
+  recomputing owner SHA-256 `b0825cdaafc89a8ecc7cdb76d53bf9526a7076d13260335ca70c0b9866ef658b`;
+- raw journal: 44 events, 21,347 bytes,
+  `sha256:7dc382b08355301968643b09982940029f4caa2c2b60419268940b5b7a4d4635`;
+- lifecycle: 40 registered outputs, 38 content-bound, two writer-managed, zero phantom outputs.
+
+### Closure verification
+
+- canonical N13b `--check`: pass, with byte stability 2/2 and baseline SHA-256 unchanged at
+  `4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7`;
+- nested corrupt-field suite: 10/10 RED; restoring behavioral source flips: 15/15 RED with exact
+  source SHA restoration;
+- focused frozen-contract/overlay/derivation tests: 11 passed; Ruff passed across all 52 Python
+  paths changed since `a906ed7c1`;
+- serial owner chain: N13a census, N4, N8 (390/390 method denominator), composition, N10a, N10
+  capstone, and the generation-cycle disposition ledger all passed;
+- validator census: 39/39 contract checkers imported and exposed `--help`, zero failures in
+  106.024 seconds. The raw filename glob is 40; the excluded file is the operational live runner
+  `check_layer3_gy_acquisition_executor.py`, not a frozen contract validator;
+- generated-artifact guardrail sync added only the N13a recurring-carrier output and N13b family;
+  architecture guardrails passed;
+- the inherited HTTP-redaction failure remains disclosed and unchanged from the clean base; it was
+  neither fixed nor excluded from an otherwise failing target suite.
+
+Pattern closeout: P05/P10 keep authority and semantic adequacy fail-closed; P27 prevents a parallel
+catalog/overlay owner; P29/P32 require behavioral content-bound proof; P31 closes the guard classes,
+not individual carrier strings; and P33/P34 preserve adversarial variation and honest isolation.

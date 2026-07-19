@@ -15,6 +15,11 @@ weakening any admission, provenance, baseline, route, or journal fence.
 valid evidence. This document is the architect-authorized continuation after the required owner
 evidence became obtainable.
 
+**Status (2026-07-19):** `closed_typed_deeper_terminal`; implementation and frozen contract are at
+`6280e487f`, targeted closeout verification is complete, architect review is pending, and the branch
+must not be merged. The result is an implemented executor/audit capability with zero admitted
+epochs, not a world-growth claim.
+
 ## Resumption preflight and R1 receipt
 
 - Branch/worktree: `codex/gy-n13b-acquisition-executor` in `.worktrees/gy-n13b`, clean at
@@ -204,4 +209,3 @@ the next reserved call.
   inherited HTTP-redaction failure isolation.
 - [ ] Commit: `docs: close GY-N13b acquisition executor ledger`.
 - [ ] Stop for architect review. Do not merge.
-

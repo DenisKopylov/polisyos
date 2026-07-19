@@ -223,6 +223,45 @@ class RecurringCarrierDisposition(StrEnum):
     METADATA_TRANSPORT_TERMINAL = "metadata_transport_terminal"
 
 
+class TierDecayEvidenceAttribution(StrEnum):
+    """Whether a typed liveness outcome can honestly update one carrier's tier."""
+
+    CARRIER_ATTRIBUTED = "carrier_attributed"
+    TRANSPORT_UNDISCRIMINATED = "transport_undiscriminated"
+
+
+_LIVENESS_CARRIER_ATTRIBUTED_OUTCOMES = frozenset(
+    {
+        LivenessState.ALIVE_CONFORMANT,
+        LivenessState.ALIVE_SCHEMA_DRIFT,
+        LivenessState.ALIVE_SCHEMA_UNVERIFIED,
+        LivenessState.DEAD,
+        LivenessState.AUTH_REQUIRED,
+        LivenessState.RATE_LIMITED,
+        LivenessState.LICENSE_UNCLEAR,
+        LivenessState.CATALOG_ONLY,
+        LivenessState.ENDPOINT_UNUSABLE,
+        LivenessState.CONNECTOR_OWNER_MISSING,
+        LivenessState.CONNECTOR_CONTRACT_INVALID,
+        LivenessState.DRY_RUN_FAILED,
+        LivenessState.SCHEMA_PROFILE_MISSING,
+        LivenessState.SOURCE_PROFILE_MISSING,
+        LivenessState.SOURCE_PROFILE_MISMATCH,
+        LivenessState.RESPONSE_BUDGET_EXCEEDED,
+        LivenessState.RESPONSE_SAFETY_BLOCKED,
+    }
+)
+_RECURRING_CARRIER_ATTRIBUTED_OUTCOMES = frozenset(
+    {
+        RecurringCarrierDisposition.CARRIER_LIVE_WITH_DATA,
+        RecurringCarrierDisposition.CARRIER_CURRENT_NO_DATA_FOR_SCOPE,
+        RecurringCarrierDisposition.CARRIER_CURRENT_SOURCE_PROFILE_MISMATCH,
+        RecurringCarrierDisposition.CARRIER_RETIRED_OR_INVALID,
+        RecurringCarrierDisposition.RESPONSE_SHAPE_UNCLASSIFIED,
+    }
+)
+
+
 class ProbeDisposition(StrEnum):
     """Pre-network result derived from owner, safety, and catalog evidence."""
 
@@ -2983,6 +3022,10 @@ def derive_family_scorecards(
             for record in family_records
             if record.candidate.execution_tier in EXECUTABLE_BINDING_TIERS
             and record.derived_liveness.liveness_state not in alive_states
+            and derive_tier_decay_evidence_attribution(
+                record.derived_liveness.liveness_state
+            )
+            is TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
         )
         scorecards.append(
             FamilyScorecard(
@@ -5204,9 +5247,29 @@ def _derive_recurring_tier_decay(
     if (
         execution_tier not in EXECUTABLE_BINDING_TIERS
         or carrier_disposition is RecurringCarrierDisposition.CARRIER_LIVE_WITH_DATA
+        or derive_tier_decay_evidence_attribution(carrier_disposition)
+        is TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
     ):
         return ()
     return (
         f"execution_tier_decay:{execution_tier}:{carrier_disposition.value}:"
         f"carrier={request_dataset_id}",
     )
+
+
+def derive_tier_decay_evidence_attribution(
+    outcome: LivenessState | RecurringCarrierDisposition,
+) -> TierDecayEvidenceAttribution:
+    """Classify whether an outcome distinguishes carrier state from local transport."""
+
+    if isinstance(outcome, LivenessState):
+        if outcome is LivenessState.TRANSPORT_ERROR:
+            return TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+        if outcome in _LIVENESS_CARRIER_ATTRIBUTED_OUTCOMES:
+            return TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
+    elif isinstance(outcome, RecurringCarrierDisposition):
+        if outcome is RecurringCarrierDisposition.METADATA_TRANSPORT_TERMINAL:
+            return TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+        if outcome in _RECURRING_CARRIER_ATTRIBUTED_OUTCOMES:
+            return TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
+    raise ValueError(f"tier-decay evidence attribution missing for typed outcome: {outcome!r}")

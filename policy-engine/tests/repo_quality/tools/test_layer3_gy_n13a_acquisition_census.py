@@ -2664,9 +2664,10 @@ def test_transport_undiscriminated_probe_evidence_never_decays_a_carrier_tier() 
         }
     )
 
-    assert census.derive_tier_decay_evidence_attribution(
-        census.LivenessState.TRANSPORT_ERROR
-    ) is census.TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+    assert (
+        census.derive_tier_decay_evidence_attribution(census.LivenessState.TRANSPORT_ERROR)
+        is census.TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+    )
     card = census.derive_family_scorecards((transport_record,))[0]
     assert card.liveness_counts == {census.LivenessState.TRANSPORT_ERROR: 1}
     assert card.tier_decay_findings == ()
@@ -2805,9 +2806,10 @@ def test_recurring_metadata_transport_terminal_never_decays_a_carrier_tier() -> 
 
     assert receipt.metadata_disposition == "metadata_transport_terminal"
     assert receipt.carrier_disposition == "metadata_transport_terminal"
-    assert census.derive_tier_decay_evidence_attribution(
-        receipt.carrier_disposition
-    ) is census.TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+    assert (
+        census.derive_tier_decay_evidence_attribution(receipt.carrier_disposition)
+        is census.TierDecayEvidenceAttribution.TRANSPORT_UNDISCRIMINATED
+    )
     assert receipt.tier_decay_findings == ()
 
 
@@ -2909,9 +2911,10 @@ def test_recurring_carrier_liveness_exposes_catalog_source_profile_mismatch() ->
     assert receipt.metadata_source_name == "Africa Development Indicators"
     assert receipt.carrier_disposition == "carrier_current_source_profile_mismatch"
     assert receipt.missing_request_levers == ("source_selector:11",)
-    assert census.derive_tier_decay_evidence_attribution(
-        receipt.carrier_disposition
-    ) is census.TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
+    assert (
+        census.derive_tier_decay_evidence_attribution(receipt.carrier_disposition)
+        is census.TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
+    )
     assert receipt.tier_decay_findings == (
         "execution_tier_decay:transport_ready:carrier_current_source_profile_mismatch:"
         "carrier=GC.BAL.CASH.CD",

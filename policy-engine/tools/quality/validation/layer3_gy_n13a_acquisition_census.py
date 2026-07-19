@@ -3022,9 +3022,7 @@ def derive_family_scorecards(
             for record in family_records
             if record.candidate.execution_tier in EXECUTABLE_BINDING_TIERS
             and record.derived_liveness.liveness_state not in alive_states
-            and derive_tier_decay_evidence_attribution(
-                record.derived_liveness.liveness_state
-            )
+            and derive_tier_decay_evidence_attribution(record.derived_liveness.liveness_state)
             is TierDecayEvidenceAttribution.CARRIER_ATTRIBUTED
         )
         scorecards.append(

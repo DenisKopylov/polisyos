@@ -866,6 +866,38 @@ def test_d6_route_selector_refuses_unregistered_basis_pair_with_typed_reason(
     assert raised.value.reason == "no_certified_transform"
 
 
+def test_d6_canonical_writer_wires_one_registry_owner_to_both_protocols(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    selection = object()
+    metadata_owner = object()
+    captured: dict[str, object] = {}
+
+    def fake_selection(**kwargs: object) -> object:
+        captured.update(kwargs)
+        return selection
+
+    def fake_metadata_owner(**kwargs: object) -> object:
+        assert kwargs["selection"] is selection
+        return metadata_owner
+
+    monkeypatch.setattr(checker, "derive_d6_route_selection", fake_selection)
+    monkeypatch.setattr(checker, "derive_d6_metadata_probe_owner", fake_metadata_owner)
+
+    actual = checker._recompute_d6_route_owners(
+        catalog_path=tmp_path / "catalog.duckdb",
+        census_path=tmp_path / "census.json",
+        substrate_path=tmp_path / "substrate.json",
+        r1=object(),
+    )
+
+    expected_owner = checker.POLICY_ENGINE_ROOT / checker.DEFAULT_DERIVATION_FAMILY_REGISTRY
+    assert actual == (selection, metadata_owner)
+    assert captured["transform_registry_source"] == expected_owner
+    assert captured["selection_policy_source"] == expected_owner
+
+
 def test_d6_route_selection_keeps_frozen_v1_receipt_parseable() -> None:
     repo_root = Path(__file__).resolve().parents[3]
     route = executor.D6RouteSelection.model_validate_json(

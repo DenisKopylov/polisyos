@@ -78,6 +78,9 @@ from tools.quality.validation.layer3_gy_n13b_acceptance import (
     materialize_acceptance_case,
     verify_persisted_acceptance_case,
 )
+from tools.quality.validation.layer3_gy_n13b_derivation_universality import (
+    DEFAULT_DERIVATION_FAMILY_REGISTRY,
+)
 from tools.quality.validation.layer3_gy_n13b_reentry import (
     DEFAULT_N13B_REENTRY_TRACE,
     N7CatalogResolutionProjection,
@@ -1490,12 +1493,15 @@ def _recompute_d6_route_owners(
     substrate_path: Path,
     r1: Any,
 ) -> tuple[Any, Any]:
+    derivation_owner = POLICY_ENGINE_ROOT / DEFAULT_DERIVATION_FAMILY_REGISTRY
     selection = derive_d6_route_selection(
         catalog_path=catalog_path,
         census_path=census_path,
         substrate_path=substrate_path,
         r1_receipt=r1,
         carrier_liveness_path=POLICY_ENGINE_ROOT / DEFAULT_CARRIER_LIVENESS_UPDATE,
+        transform_registry_source=derivation_owner,
+        selection_policy_source=derivation_owner,
     )
     metadata_owner = derive_d6_metadata_probe_owner(
         selection=selection,

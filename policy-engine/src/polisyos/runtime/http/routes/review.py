@@ -40,9 +40,9 @@ from polisyos.runtime.http.security import (
 if TYPE_CHECKING:
     from fastapi import APIRouter, Query, WebSocket, WebSocketDisconnect
 
-    from polisyos.core.security.authz import OPAClient
-    from polisyos.core.security.identity import SPIFFEIdentityProvider
-    from polisyos.core.security.registry import CellRegistry
+    from polisyos.runtime.http.authz_middleware import OPAClient
+    from polisyos.runtime.http.cell_router_middleware import CellRegistry
+    from polisyos.runtime.http.jwt_auth_middleware import SPIFFEIdentityProvider
     from polisyos.runtime.http.services.review_collaboration import (
         ReviewChannel,
         ReviewCollaborationHub,

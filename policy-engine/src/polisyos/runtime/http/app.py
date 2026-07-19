@@ -26,6 +26,7 @@ from polisyos.runtime.http.csrf import CSRFMiddleware
 from polisyos.runtime.http.deployment_security import (
     RuntimeDeploymentSecurity,
     is_deployment_step_up_verifier,
+    require_factory_produced_deployment_security,
 )
 from polisyos.runtime.http.dev_identity_middleware import DevelopmentFixtureIdentityMiddleware
 from polisyos.runtime.http.errors import install_exception_handlers
@@ -154,8 +155,14 @@ def create_runtime_api_app(
             + ", ".join(sorted(direct_non_development_authority))
         )
     if deployment_security is not None:
-        if type(deployment_security) is not RuntimeDeploymentSecurity:
-            raise TypeError("deployment_security must be a RuntimeDeploymentSecurity")
+        try:
+            deployment_security = require_factory_produced_deployment_security(
+                deployment_security
+            )
+        except TypeError as exc:
+            raise RuntimeBootstrapError(
+                "Deployment security must be an intact factory-attested bundle."
+            ) from exc
         if any(
             direct_security_collaborators[name] is not None
             for name in (

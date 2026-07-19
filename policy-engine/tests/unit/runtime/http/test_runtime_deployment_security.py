@@ -150,6 +150,107 @@ def test_runtime_deployment_security_cannot_mix_collaborators_across_documents(
     assert runtime_b.identity_provider is not runtime_a.identity_provider
 
 
+def test_non_development_bootstrap_and_probe_reject_object_new_forged_bundle(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.execution_policy import RuntimeBootstrapError
+    from polisyos.runtime.http.permissions import RuntimePermission
+
+    security = _deployment_security_module()
+    genuine = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    forged = object.__new__(security.RuntimeDeploymentSecurity)
+    for field_name in (
+        "config",
+        "identity_provider",
+        "cell_registry",
+        "opa_client",
+        "step_up_verifier",
+        "principal_grants",
+    ):
+        object.__setattr__(forged, field_name, getattr(genuine, field_name))
+
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+
+    with pytest.raises(RuntimeBootstrapError, match=r"factory|attest|bundle"):
+        create_runtime_api_app(
+            cas_root=tmp_path / "forged-cas",
+            deployment_security=forged,
+        )
+    with pytest.raises(TypeError, match=r"factory|attest|bundle"):
+        security.verify_exact_deployment_principal_token(
+            forged,
+            "synthetic-probe-token",
+            required_permissions=frozenset(
+                {RuntimePermission.RUNS_LAUNCH, RuntimePermission.RUNS_VIEW}
+            ),
+        )
+
+
+def test_non_development_bootstrap_and_probe_reject_replaced_factory_component(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.execution_policy import RuntimeBootstrapError
+    from polisyos.runtime.http.permissions import RuntimePermission
+
+    security = _deployment_security_module()
+    config_a = security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    raw_b = _config_mapping(tmp_path)
+    identity_b = raw_b["identity_verifier"]
+    assert isinstance(identity_b, dict)
+    identity_b.update(
+        {
+            "issuer": "https://idp-b.example",
+            "jwks_uri": "https://idp-b.example/.well-known/jwks.json",
+        }
+    )
+    runtime_a = security.build_deployment_security(config_a)
+    runtime_b = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(raw_b)
+    )
+    object.__setattr__(runtime_a, "identity_provider", runtime_b.identity_provider)
+
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+
+    with pytest.raises(RuntimeBootstrapError, match=r"factory|attest|bundle"):
+        create_runtime_api_app(
+            cas_root=tmp_path / "replaced-cas",
+            deployment_security=runtime_a,
+        )
+    with pytest.raises(TypeError, match=r"factory|attest|bundle"):
+        security.verify_exact_deployment_principal_token(
+            runtime_a,
+            "synthetic-probe-token",
+            required_permissions=frozenset(
+                {RuntimePermission.RUNS_LAUNCH, RuntimePermission.RUNS_VIEW}
+            ),
+        )
+
+
+def test_factory_attestation_rejects_post_factory_config_mutation(
+    tmp_path: Path,
+) -> None:
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    object.__setattr__(runtime.config.opa, "url", "http://attacker.invalid:8181")
+
+    with pytest.raises(TypeError, match=r"factory|attest|bundle"):
+        security.require_factory_produced_deployment_security(runtime)
+
+
 def test_unknown_service_principal_permission_is_rejected(tmp_path: Path) -> None:
     security = _deployment_security_module()
     raw = _config_mapping(tmp_path)
@@ -237,6 +338,59 @@ def test_deployment_identity_provider_rejects_algorithm_outside_declared_set(
     )
 
     with pytest.raises(TokenValidationError, match="algorithm"):
+        runtime.identity_provider.extract_user_claims(token)
+
+
+@pytest.mark.parametrize(
+    "audience",
+    [
+        ["polisyos-runtime", "other-service"],
+        ["other-service", "polisyos-runtime"],
+    ],
+)
+def test_deployment_identity_provider_rejects_multi_audience_token(
+    tmp_path: Path,
+    audience: list[str],
+) -> None:
+    import time
+
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric import rsa
+
+    from polisyos.core.security.exceptions import TokenValidationError
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+
+    class _StaticJWKClient:
+        def get_signing_key_from_jwt(self, _token: str) -> SimpleNamespace:
+            return SimpleNamespace(key=private_key.public_key())
+
+    runtime.identity_provider._jwks_cache["client"] = _StaticJWKClient()
+    runtime.identity_provider._jwks_cache_expires = float("inf")
+    now = int(time.time())
+    token = jwt.encode(
+        {
+            "iss": "https://idp.example",
+            "aud": audience,
+            "sub": "runtime-canary",
+            "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+            "cell_id": "018f47a0-0000-7000-8000-000000000001",
+            "realm_access": {"roles": ["polisyos_admin"]},
+            "amr": ["pwd", "mfa"],
+            "iat": now,
+            "exp": now + 60,
+            "jti": f"runtime-canary-{now}",
+        },
+        private_key,
+        algorithm="RS256",
+        headers={"kid": "identity-2026-07"},
+    )
+
+    with pytest.raises(TokenValidationError, match=r"audience|singleton|exact"):
         runtime.identity_provider.extract_user_claims(token)
 
 

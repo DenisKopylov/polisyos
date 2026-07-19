@@ -13,8 +13,12 @@ import json
 import os
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from hashlib import sha256
+from hmac import compare_digest
 from pathlib import Path
+from threading import RLock
 from typing import TYPE_CHECKING, Self
+from weakref import WeakKeyDictionary
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -255,6 +259,7 @@ class DeploymentIdentityProvider(SPIFFEIdentityProvider):
             jwks_cache_ttl_seconds=config.jwks_cache_ttl_seconds,
         )
         self._deployment_algorithms = frozenset(config.algorithms)
+        self._deployment_audience = config.audience
         self._deployment_provenance = config.provenance
 
     @property
@@ -273,18 +278,28 @@ class DeploymentIdentityProvider(SPIFFEIdentityProvider):
             import jwt as pyjwt
 
             header = pyjwt.get_unverified_header(jwt_token)
+            unverified_payload = pyjwt.decode(
+                jwt_token,
+                options={"verify_signature": False, "verify_aud": False},
+            )
         except Exception as exc:
             raise TokenValidationError("Token header validation failed") from exc
         algorithm = str(header.get("alg", "")).strip()
         if algorithm not in self._deployment_algorithms:
             raise TokenValidationError("JWT algorithm is not trusted by deployment policy")
+        if unverified_payload.get("aud") != self._deployment_audience or type(
+            unverified_payload.get("aud")
+        ) is not str:
+            raise TokenValidationError(
+                "Deployment JWT audience must be an exact singleton match"
+            )
         return super().extract_user_claims(
             jwt_token,
             expected_cell_id=expected_cell_id,
         )
 
 
-@dataclass(frozen=True, slots=True, init=False)
+@dataclass(frozen=True, slots=True, init=False, eq=False, weakref_slot=True)
 class RuntimeDeploymentSecurity:
     """Factory-produced collaborators plus exact service-principal grants.
 
@@ -327,6 +342,98 @@ class RuntimeDeploymentSecurity:
             raise TypeError("step_up_verifier must come from deployment configuration")
         if type(self.principal_grants) is not DeploymentPrincipalGrantResolver:
             raise TypeError("principal_grants must come from deployment configuration")
+
+
+@dataclass(frozen=True, slots=True)
+class _DeploymentSecurityAttestation:
+    """Module-owned proof binding a factory instance to its exact composition."""
+
+    config: DeploymentSecurityConfig
+    config_fingerprint: str
+    components: tuple[
+        DeploymentIdentityProvider,
+        CellRegistry,
+        OPAClient,
+        DeploymentJWTStepUpAssertionVerifier,
+        DeploymentPrincipalGrantResolver,
+    ]
+
+
+_DEPLOYMENT_SECURITY_ATTESTATIONS: WeakKeyDictionary[
+    RuntimeDeploymentSecurity,
+    _DeploymentSecurityAttestation,
+] = WeakKeyDictionary()
+_DEPLOYMENT_SECURITY_ATTESTATION_LOCK = RLock()
+
+
+def _deployment_config_fingerprint(config: DeploymentSecurityConfig) -> str:
+    serialized = json.dumps(
+        config.model_dump(mode="json"),
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+    )
+    return sha256(serialized.encode("utf-8")).hexdigest()
+
+
+def _deployment_components(
+    runtime: RuntimeDeploymentSecurity,
+) -> tuple[
+    DeploymentIdentityProvider,
+    CellRegistry,
+    OPAClient,
+    DeploymentJWTStepUpAssertionVerifier,
+    DeploymentPrincipalGrantResolver,
+]:
+    return (
+        runtime.identity_provider,
+        runtime.cell_registry,
+        runtime.opa_client,
+        runtime.step_up_verifier,
+        runtime.principal_grants,
+    )
+
+
+def require_factory_produced_deployment_security(
+    value: object,
+) -> RuntimeDeploymentSecurity:
+    """Return an intact factory-produced bundle or fail closed.
+
+    Exact outer type is insufficient in Python because ``object.__new__`` and
+    ``object.__setattr__`` can bypass a frozen dataclass constructor. The private
+    weak registry proves that the factory created this identity and that neither
+    its configuration nor any authority-bearing collaborator was replaced.
+    """
+    if type(value) is not RuntimeDeploymentSecurity:
+        raise TypeError(
+            "deployment security must be a factory-attested RuntimeDeploymentSecurity bundle"
+        )
+    runtime = value
+    with _DEPLOYMENT_SECURITY_ATTESTATION_LOCK:
+        attestation = _DEPLOYMENT_SECURITY_ATTESTATIONS.get(runtime)
+    if attestation is None:
+        raise TypeError(
+            "deployment security must be a factory-attested RuntimeDeploymentSecurity bundle"
+        )
+    try:
+        config_fingerprint = _deployment_config_fingerprint(runtime.config)
+        components = _deployment_components(runtime)
+    except (AttributeError, TypeError, ValueError) as exc:
+        raise TypeError("deployment security factory attestation is invalid") from exc
+    if (
+        runtime.config is not attestation.config
+        or not compare_digest(config_fingerprint, attestation.config_fingerprint)
+        or any(
+            component is not attested_component
+            for component, attested_component in zip(
+                components,
+                attestation.components,
+                strict=True,
+            )
+        )
+    ):
+        raise TypeError("deployment security factory attestation is invalid")
+    return runtime
 
 
 def build_deployment_security(config: DeploymentSecurityConfig) -> RuntimeDeploymentSecurity:
@@ -373,7 +480,14 @@ def build_deployment_security(config: DeploymentSecurityConfig) -> RuntimeDeploy
         ),
     )
     runtime.__post_init__()
-    return runtime
+    attestation = _DeploymentSecurityAttestation(
+        config=config,
+        config_fingerprint=_deployment_config_fingerprint(config),
+        components=_deployment_components(runtime),
+    )
+    with _DEPLOYMENT_SECURITY_ATTESTATION_LOCK:
+        _DEPLOYMENT_SECURITY_ATTESTATIONS[runtime] = attestation
+    return require_factory_produced_deployment_security(runtime)
 
 
 def is_deployment_step_up_verifier(value: object) -> bool:
@@ -394,8 +508,7 @@ def verify_exact_deployment_principal_token(
     fallback or a managed principal with additional authority must not produce a
     passing probe.
     """
-    if type(runtime) is not RuntimeDeploymentSecurity:
-        raise TypeError("runtime must be a factory-produced RuntimeDeploymentSecurity")
+    runtime = require_factory_produced_deployment_security(runtime)
     if (
         not isinstance(bearer_token, str)
         or not bearer_token.strip()
@@ -442,5 +555,6 @@ __all__ = [
     "VerifierProvenance",
     "build_deployment_security",
     "is_deployment_step_up_verifier",
+    "require_factory_produced_deployment_security",
     "verify_exact_deployment_principal_token",
 ]

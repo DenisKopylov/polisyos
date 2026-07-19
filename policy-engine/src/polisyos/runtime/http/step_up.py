@@ -293,6 +293,11 @@ class JWTStepUpAssertionVerifier:
                 "step_up_signature_invalid",
                 "Step-up assertion signature, issuer, or audience is invalid",
             ) from exc
+        if type(payload.get("aud")) is not str or payload.get("aud") != self._audience:
+            raise StepUpAssertionVerificationError(
+                "step_up_signature_invalid",
+                "Step-up assertion audience must be an exact singleton match",
+            )
 
         now = int(self._clock())
         issued_at = _required_int_claim(payload, "iat")

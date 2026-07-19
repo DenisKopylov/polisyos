@@ -767,6 +767,18 @@ def test_valid_signed_step_up_assertion_verifies_exact_context() -> None:
             "step_up_signature_invalid",
         ),
         (
+            "multi_audience_expected_first",
+            {"aud": ["polisyos-runtime-step-up", "other-service"]},
+            "ds20-test-step-up-key-with-at-least-32-bytes",
+            "step_up_signature_invalid",
+        ),
+        (
+            "multi_audience_expected_second",
+            {"aud": ["other-service", "polisyos-runtime-step-up"]},
+            "ds20-test-step-up-key-with-at-least-32-bytes",
+            "step_up_signature_invalid",
+        ),
+        (
             "mfa_not_verified",
             {"mfa_verified": False},
             "ds20-test-step-up-key-with-at-least-32-bytes",

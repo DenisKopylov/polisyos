@@ -1,0 +1,16 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Pure system preference descriptor; the dashboard remains the DOM/media owner.",
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {
+        "modeSystem": {
+          "attribute": "system",
+          "dark": "dark",
+          "light": "light",
+          "mediaQuery": "(prefers-color-scheme: dark)"
+        }
+      }
+    }
+  }
+}

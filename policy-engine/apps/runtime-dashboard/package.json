@@ -42,7 +42,7 @@
     "wave2:backend": "cd ../.. && uv run --extra runtime --extra ml pytest tests/unit/runtime/http/test_lineage_api.py tests/unit/runtime/http/test_temporal_api.py tests/unit/runtime/http/test_run_compare_api.py tests/unit/runtime/http/test_scenarios_api.py tests/unit/runtime/http/test_bureaucratic_rendering_api.py tests/unit/fabric/test_world_time_travel.py tests/unit/fabric/test_lineage.py -q",
     "wave2:cli": "corepack pnpm --dir ../.. --filter @polisyos/cli run typecheck && corepack pnpm --dir ../.. --filter @polisyos/cli test",
     "wave2:gate": "corepack pnpm run typecheck && corepack pnpm run test:wave2 && corepack pnpm run lint:wave2-quantity && corepack pnpm run design:polish && corepack pnpm run wave2:cli",
-    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.tools.json --noEmit",
     "generate:api": "./scripts/generate-api-client.sh",
     "contracts:record": "node ./scripts/record-runtime-contracts.mjs",
     "contracts:verify": "node ./scripts/verify-runtime-contracts.mjs",

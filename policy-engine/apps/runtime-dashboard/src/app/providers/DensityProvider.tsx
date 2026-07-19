@@ -6,6 +6,7 @@ import {
   useMemo,
   type PropsWithChildren,
 } from "react";
+import { densityModeDescriptors } from "@polisyos/atlas-ui";
 
 import {
   usePreferencesStore,
@@ -14,9 +15,9 @@ import {
 import { trackDensityChange } from "@/shared/telemetry/extendedEvents";
 
 export const SUPPORTED_DENSITIES = [
-  "comfortable",
-  "compact",
-  "condensed",
+  densityModeDescriptors.comfortable.attribute,
+  densityModeDescriptors.compact.attribute,
+  densityModeDescriptors.condensed.attribute,
 ] as const satisfies readonly Density[];
 
 const DENSITY_ATTR = "data-density";
@@ -39,7 +40,10 @@ export function DensityProvider({ children }: PropsWithChildren) {
   const setDensityState = usePreferencesStore((state) => state.setDensity);
 
   useEffect(() => {
-    document.documentElement.setAttribute(DENSITY_ATTR, density);
+    document.documentElement.setAttribute(
+      DENSITY_ATTR,
+      densityModeDescriptors[density].attribute,
+    );
     trackDensityChange(density);
   }, [density]);
 

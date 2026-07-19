@@ -62,7 +62,20 @@ const EXPECTED_RUNTIME_EXPORTS = [
   "TooltipTrigger",
   "badgeVariants",
   "buttonVariants",
+  "breakpointProjection",
+  "chartColorAliases",
+  "contrastModeDescriptors",
+  "densityModeDescriptors",
+  "generatedTokens",
   "iconVariants",
+  "motionDurations",
+  "motionModeDescriptors",
+  "printModeDescriptors",
+  "resolveThemeMode",
+  "semanticColorAliases",
+  "themeModeDescriptors",
+  "tokenProjectionManifest",
+  "zIndexLayers",
 ];
 
 describe("atlas-ui public surface", () => {

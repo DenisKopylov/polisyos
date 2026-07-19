@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "sourceDigest": "d6e64ec7edd52b8d22c162339c4e77f371bcd86c27bda97bc0ef33dde12a24ab",
+  "sourceFiles": [
+    "tokens/modes/contrast.tokens.json",
+    "tokens/modes/dark.tokens.json",
+    "tokens/modes/density.tokens.json",
+    "tokens/modes/light.tokens.json",
+    "tokens/modes/motion.tokens.json",
+    "tokens/modes/print.tokens.json",
+    "tokens/modes/system.tokens.json",
+    "tokens/source/data-viz.tokens.json",
+    "tokens/source/primitive.tokens.json",
+    "tokens/source/responsive.tokens.json",
+    "tokens/source/semantic.tokens.json",
+    "tokens/source/theme.tokens.json"
+  ],
+  "generatedFiles": [
+    "src/generated/figma.json",
+    "src/generated/manifest.json",
+    "src/generated/tailwind.ts",
+    "src/generated/tokens.css",
+    "src/generated/tokens.ts"
+  ],
+  "retainedAsymmetries": {
+    "cssModerateMotionMs": 240,
+    "helperModerateMotionMs": 180,
+    "runtimeExpandedMin": 1281,
+    "tokenXl": 1280
+  }
+}

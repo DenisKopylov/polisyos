@@ -1,0 +1,255 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Living motion CSS and reduced-motion behavior.",
+  "motionMode": {
+    "default": {
+      "tokens": {
+        "--motion-distance-popover": {
+          "$type": "dimension",
+          "$value": {
+            "value": 4,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "4px"
+            }
+          }
+        },
+        "--motion-duration-fast": {
+          "$type": "duration",
+          "$value": {
+            "value": 160,
+            "unit": "ms"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "160ms"
+            }
+          }
+        },
+        "--motion-duration-hop": {
+          "$type": "duration",
+          "$value": {
+            "value": 500,
+            "unit": "ms"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "500ms"
+            }
+          }
+        },
+        "--motion-duration-instant": {
+          "$type": "duration",
+          "$value": {
+            "value": 80,
+            "unit": "ms"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "80ms"
+            }
+          }
+        },
+        "--motion-duration-moderate": {
+          "$type": "duration",
+          "$value": {
+            "value": 240,
+            "unit": "ms"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "240ms"
+            }
+          }
+        },
+        "--motion-duration-slow": {
+          "$type": "duration",
+          "$value": {
+            "value": 360,
+            "unit": "ms"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "360ms"
+            }
+          }
+        },
+        "--motion-ease-emphasised": {
+          "$type": "cubicBezier",
+          "$value": [0.3, 0, 0, 1],
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "cubic-bezier(0.3, 0, 0, 1)"
+            }
+          }
+        },
+        "--motion-ease-enter": {
+          "$type": "cubicBezier",
+          "$value": [0, 0, 0.2, 1],
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "cubic-bezier(0, 0, 0.2, 1)"
+            }
+          }
+        },
+        "--motion-ease-exit": {
+          "$type": "cubicBezier",
+          "$value": [0.4, 0, 1, 1],
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "cubic-bezier(0.4, 0, 1, 1)"
+            }
+          }
+        },
+        "--motion-ease-standard": {
+          "$type": "cubicBezier",
+          "$value": [0.2, 0, 0, 1],
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "cubic-bezier(0.2, 0, 0, 1)"
+            }
+          }
+        }
+      }
+    },
+    "reduced": {
+      "tokens": {
+        "--animation-duration": {
+          "$type": "duration",
+          "$value": {
+            "value": 0.01,
+            "unit": "ms"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.01ms"
+            }
+          }
+        },
+        "--animation-iteration-count": {
+          "$type": "number",
+          "$value": 1
+        },
+        "--transition-duration": {
+          "$type": "duration",
+          "$value": {
+            "value": 0.01,
+            "unit": "ms"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.01ms"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {
+        "motionMode": {
+          "default": {
+            "reduced": false,
+            "tokens": {
+              "--motion-distance-sheet": "100%",
+              "--motion-ease-linear": "linear"
+            }
+          },
+          "reduced": {
+            "attribute": "reduce",
+            "mediaQuery": "(prefers-reduced-motion: reduce)",
+            "nonessentialTransform": "none",
+            "reduced": true,
+            "tokens": {
+              "--scroll-behavior": "auto"
+            },
+            "mediaRules": {
+              "rootScroll": {
+                "selectors": {
+                  "selector1": "html",
+                  "selector2": ":root[data-reduced-motion=\"reduce\"]"
+                },
+                "declarations": {
+                  "scroll-behavior": "auto"
+                }
+              },
+              "universal": {
+                "selectors": {
+                  "selector1": "*",
+                  "selector2": "*::before",
+                  "selector3": "*::after"
+                },
+                "declarations": {
+                  "animation-duration": "0.01ms !important",
+                  "animation-iteration-count": "1 !important",
+                  "scroll-behavior": "auto !important",
+                  "transition-duration": "0.01ms !important"
+                }
+              },
+              "hops": {
+                "selectors": {
+                  "selector1": ".hops"
+                },
+                "declarations": {
+                  "display": "none !important"
+                }
+              },
+              "hopsFallback": {
+                "selectors": {
+                  "selector1": ".hops + .hops-static-fallback"
+                },
+                "declarations": {
+                  "display": "block !important"
+                }
+              },
+              "nonessential": {
+                "selectors": {
+                  "attribute": "[data-motion-essential=\"false\"]",
+                  "panel": ".motion-panel-enter",
+                  "popover": ".motion-popover-enter"
+                },
+                "declarations": {
+                  "transform": "none !important"
+                }
+              }
+            },
+            "manualRules": {
+              "universal": {
+                "selectors": {
+                  "selector1": ":root[data-reduced-motion=\"reduce\"] *",
+                  "selector2": ":root[data-reduced-motion=\"reduce\"] *::before",
+                  "selector3": ":root[data-reduced-motion=\"reduce\"] *::after"
+                },
+                "declarations": {
+                  "animation-duration": "0.01ms !important",
+                  "animation-iteration-count": "1 !important",
+                  "scroll-behavior": "auto !important",
+                  "transition-duration": "0.01ms !important"
+                }
+              },
+              "hops": {
+                "selectors": {
+                  "selector1": ":root[data-reduced-motion=\"reduce\"] .hops"
+                },
+                "declarations": {
+                  "display": "none !important"
+                }
+              },
+              "hopsFallback": {
+                "selectors": {
+                  "selector1": ":root[data-reduced-motion=\"reduce\"] .hops + .hops-static-fallback"
+                },
+                "declarations": {
+                  "display": "block !important"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

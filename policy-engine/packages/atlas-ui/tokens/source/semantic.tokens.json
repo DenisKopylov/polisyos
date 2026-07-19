@@ -1,0 +1,72 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Post-reference semantic aliases; these are presentation aliases, not authority vocabularies.",
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {
+        "semantic": {
+          "darkColorAliases": {
+            "--color-action-destructive": "var(--danger)",
+            "--color-action-primary": "var(--accent)",
+            "--color-bounds-fill": "color-mix(in srgb, var(--accent) 10%, transparent)",
+            "--color-bounds-stroke": "color-mix(in srgb, var(--accent) 36%, transparent)",
+            "--color-ci-50": "color-mix(in srgb, var(--accent) 26%, transparent)",
+            "--color-ci-80": "color-mix(in srgb, var(--accent) 16%, transparent)",
+            "--color-ci-95": "color-mix(in srgb, var(--accent) 8%, transparent)",
+            "--color-confidence-high": "var(--success)",
+            "--color-confidence-low": "var(--danger)",
+            "--color-confidence-medium": "var(--warning)",
+            "--color-evidence-verified": "var(--success)",
+            "--color-governance-blocker": "var(--danger)",
+            "--color-governance-review": "var(--warning)",
+            "--color-severity-high": "var(--danger)",
+            "--color-severity-low": "var(--accent)",
+            "--color-severity-medium": "var(--warning)",
+            "--color-status-approved": "var(--success)",
+            "--color-status-pending": "var(--warning)",
+            "--color-status-rejected": "var(--danger)",
+            "--color-transport-degraded": "var(--warning)",
+            "--color-transport-live": "var(--chart-secondary)",
+            "--color-uncertainty-confidence-interval": "var(--color-bounds-stroke)",
+            "--color-uncertainty-counterfactual-interval": "var(--warning)",
+            "--color-uncertainty-disputed": "var(--danger)",
+            "--color-uncertainty-point-estimate": "var(--chart-primary)",
+            "--color-waterfall-negative": "var(--danger)",
+            "--color-waterfall-positive": "var(--success)",
+            "--color-waterfall-total": "var(--chart-secondary)"
+          },
+          "lightColorAliases": {
+            "--color-action-destructive": "var(--danger)",
+            "--color-action-primary": "var(--accent)",
+            "--color-bounds-fill": "color-mix(in srgb, var(--accent) 8%, transparent)",
+            "--color-bounds-stroke": "color-mix(in srgb, var(--accent) 30%, transparent)",
+            "--color-ci-50": "color-mix(in srgb, var(--accent) 25%, transparent)",
+            "--color-ci-80": "color-mix(in srgb, var(--accent) 15%, transparent)",
+            "--color-ci-95": "color-mix(in srgb, var(--accent) 6%, transparent)",
+            "--color-confidence-high": "var(--teal)",
+            "--color-confidence-low": "var(--ember)",
+            "--color-confidence-medium": "var(--gold)",
+            "--color-evidence-verified": "var(--success)",
+            "--color-governance-blocker": "var(--danger)",
+            "--color-governance-review": "var(--gold)",
+            "--color-severity-high": "var(--danger)",
+            "--color-severity-low": "var(--accent)",
+            "--color-severity-medium": "var(--warning)",
+            "--color-status-approved": "var(--success)",
+            "--color-status-pending": "var(--warning)",
+            "--color-status-rejected": "var(--danger)",
+            "--color-transport-degraded": "var(--warning)",
+            "--color-transport-live": "var(--chart-secondary)",
+            "--color-uncertainty-confidence-interval": "var(--color-bounds-stroke)",
+            "--color-uncertainty-counterfactual-interval": "var(--warning)",
+            "--color-uncertainty-disputed": "var(--danger)",
+            "--color-uncertainty-point-estimate": "var(--chart-primary)",
+            "--color-waterfall-negative": "var(--chart-alert)",
+            "--color-waterfall-positive": "var(--chart-primary)",
+            "--color-waterfall-total": "var(--chart-secondary)"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1223 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Living comfortable, compact, and condensed density runtime projections.",
+  "density": {
+    "comfortable": {
+      "tokens": {
+        "--control-height-icon": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.25,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.25rem"
+            }
+          }
+        },
+        "--control-height-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 3,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "3rem"
+            }
+          }
+        },
+        "--control-height-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.75rem"
+            }
+          }
+        },
+        "--control-height-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2rem"
+            }
+          }
+        },
+        "--control-px-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.25,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.25rem"
+            }
+          }
+        },
+        "--control-px-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1rem"
+            }
+          }
+        },
+        "--control-px-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.75rem"
+            }
+          }
+        },
+        "--control-py-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.75rem"
+            }
+          }
+        },
+        "--control-radius": {
+          "$type": "dimension",
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "16px"
+            }
+          }
+        },
+        "--control-text-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.875,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.875rem"
+            }
+          }
+        },
+        "--control-text-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.875,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.875rem"
+            }
+          }
+        },
+        "--control-text-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.75rem"
+            }
+          }
+        },
+        "--deck-card-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 20,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "20px"
+            }
+          }
+        },
+        "--deck-gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 18,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "18px"
+            }
+          }
+        },
+        "--deck-slide-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 26,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "26px"
+            }
+          }
+        },
+        "--font-scale-step": {
+          "$type": "number",
+          "$value": 0
+        },
+        "--input-padding-block": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--input-padding-inline": {
+          "$type": "dimension",
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "16px"
+            }
+          }
+        },
+        "--metric-padding-block": {
+          "$type": "dimension",
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "16px"
+            }
+          }
+        },
+        "--metric-padding-inline": {
+          "$type": "dimension",
+          "$value": {
+            "value": 18,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "18px"
+            }
+          }
+        },
+        "--panel-header-gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--panel-header-margin": {
+          "$type": "dimension",
+          "$value": {
+            "value": 18,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "18px"
+            }
+          }
+        },
+        "--panel-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 22,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "22px"
+            }
+          }
+        },
+        "--root-font-size": {
+          "$type": "dimension",
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "16px"
+            }
+          }
+        },
+        "--row-height-scale": {
+          "$type": "number",
+          "$value": 1
+        },
+        "--space-scale": {
+          "$type": "number",
+          "$value": 1
+        },
+        "--switch-height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.5,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.5rem"
+            }
+          }
+        },
+        "--switch-thumb-size": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.25,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.25rem"
+            }
+          }
+        },
+        "--switch-thumb-translate": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.25,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.25rem"
+            }
+          }
+        },
+        "--switch-width": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.75rem"
+            }
+          }
+        },
+        "--table-cell-px": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.75rem"
+            }
+          }
+        },
+        "--table-cell-py": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.75rem"
+            }
+          }
+        },
+        "--table-header-py": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.5,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.5rem"
+            }
+          }
+        },
+        "--table-min-width": {
+          "$type": "dimension",
+          "$value": {
+            "value": 48,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "48rem"
+            }
+          }
+        },
+        "--table-row-height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.5,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.5rem"
+            }
+          }
+        }
+      }
+    },
+    "compact": {
+      "tokens": {
+        "--control-height-icon": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2rem"
+            }
+          }
+        },
+        "--control-height-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.75rem"
+            }
+          }
+        },
+        "--control-height-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.375,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.375rem"
+            }
+          }
+        },
+        "--control-height-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.75rem"
+            }
+          }
+        },
+        "--control-px-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1rem"
+            }
+          }
+        },
+        "--control-px-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.875,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.875rem"
+            }
+          }
+        },
+        "--control-px-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.625,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.625rem"
+            }
+          }
+        },
+        "--control-py-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.625,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.625rem"
+            }
+          }
+        },
+        "--control-radius": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--control-text-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.8125,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.8125rem"
+            }
+          }
+        },
+        "--control-text-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.8125,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.8125rem"
+            }
+          }
+        },
+        "--control-text-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.6875,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.6875rem"
+            }
+          }
+        },
+        "--deck-card-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "16px"
+            }
+          }
+        },
+        "--deck-gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--deck-slide-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 20,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "20px"
+            }
+          }
+        },
+        "--font-scale-step": {
+          "$type": "number",
+          "$value": -1
+        },
+        "--input-padding-block": {
+          "$type": "dimension",
+          "$value": {
+            "value": 11,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "11px"
+            }
+          }
+        },
+        "--input-padding-inline": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--metric-padding-block": {
+          "$type": "dimension",
+          "$value": {
+            "value": 12,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "12px"
+            }
+          }
+        },
+        "--metric-padding-inline": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--panel-header-gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 12,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "12px"
+            }
+          }
+        },
+        "--panel-header-margin": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--panel-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 18,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "18px"
+            }
+          }
+        },
+        "--root-font-size": {
+          "$type": "dimension",
+          "$value": {
+            "value": 15,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "15px"
+            }
+          }
+        },
+        "--row-height-scale": {
+          "$type": "number",
+          "$value": 0.85
+        },
+        "--space-scale": {
+          "$type": "number",
+          "$value": 0.75
+        },
+        "--switch-height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.375,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.375rem"
+            }
+          }
+        },
+        "--switch-thumb-size": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.125,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.125rem"
+            }
+          }
+        },
+        "--switch-thumb-translate": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.125,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.125rem"
+            }
+          }
+        },
+        "--switch-width": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.5,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.5rem"
+            }
+          }
+        },
+        "--table-cell-px": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.625,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.625rem"
+            }
+          }
+        },
+        "--table-cell-py": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.5625,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.5625rem"
+            }
+          }
+        },
+        "--table-header-py": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.4375,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.4375rem"
+            }
+          }
+        },
+        "--table-min-width": {
+          "$type": "dimension",
+          "$value": {
+            "value": 48,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "48rem"
+            }
+          }
+        },
+        "--table-row-height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.125,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.125rem"
+            }
+          }
+        }
+      }
+    },
+    "condensed": {
+      "tokens": {
+        "--control-height-icon": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.875,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.875rem"
+            }
+          }
+        },
+        "--control-height-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.375,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.375rem"
+            }
+          }
+        },
+        "--control-height-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.125,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.125rem"
+            }
+          }
+        },
+        "--control-height-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.625,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.625rem"
+            }
+          }
+        },
+        "--control-px-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.875,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.875rem"
+            }
+          }
+        },
+        "--control-px-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.75rem"
+            }
+          }
+        },
+        "--control-px-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.5,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.5rem"
+            }
+          }
+        },
+        "--control-py-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.5,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.5rem"
+            }
+          }
+        },
+        "--control-radius": {
+          "$type": "dimension",
+          "$value": {
+            "value": 12,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "12px"
+            }
+          }
+        },
+        "--control-text-lg": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.75rem"
+            }
+          }
+        },
+        "--control-text-md": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.75,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.75rem"
+            }
+          }
+        },
+        "--control-text-sm": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.625,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.625rem"
+            }
+          }
+        },
+        "--deck-card-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 13,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "13px"
+            }
+          }
+        },
+        "--deck-gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 12,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "12px"
+            }
+          }
+        },
+        "--deck-slide-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "16px"
+            }
+          }
+        },
+        "--font-scale-step": {
+          "$type": "number",
+          "$value": -2
+        },
+        "--input-padding-block": {
+          "$type": "dimension",
+          "$value": {
+            "value": 9,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "9px"
+            }
+          }
+        },
+        "--input-padding-inline": {
+          "$type": "dimension",
+          "$value": {
+            "value": 12,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "12px"
+            }
+          }
+        },
+        "--metric-padding-block": {
+          "$type": "dimension",
+          "$value": {
+            "value": 10,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "10px"
+            }
+          }
+        },
+        "--metric-padding-inline": {
+          "$type": "dimension",
+          "$value": {
+            "value": 12,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "12px"
+            }
+          }
+        },
+        "--panel-header-gap": {
+          "$type": "dimension",
+          "$value": {
+            "value": 10,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "10px"
+            }
+          }
+        },
+        "--panel-header-margin": {
+          "$type": "dimension",
+          "$value": {
+            "value": 12,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "12px"
+            }
+          }
+        },
+        "--panel-padding": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--root-font-size": {
+          "$type": "dimension",
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "14px"
+            }
+          }
+        },
+        "--row-height-scale": {
+          "$type": "number",
+          "$value": 0.7
+        },
+        "--space-scale": {
+          "$type": "number",
+          "$value": 0.5
+        },
+        "--switch-height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.25,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.25rem"
+            }
+          }
+        },
+        "--switch-thumb-size": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1rem"
+            }
+          }
+        },
+        "--switch-thumb-translate": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.9375,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.9375rem"
+            }
+          }
+        },
+        "--switch-width": {
+          "$type": "dimension",
+          "$value": {
+            "value": 2.25,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "2.25rem"
+            }
+          }
+        },
+        "--table-cell-px": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.5,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.5rem"
+            }
+          }
+        },
+        "--table-cell-py": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.4375,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.4375rem"
+            }
+          }
+        },
+        "--table-header-py": {
+          "$type": "dimension",
+          "$value": {
+            "value": 0.375,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "0.375rem"
+            }
+          }
+        },
+        "--table-min-width": {
+          "$type": "dimension",
+          "$value": {
+            "value": 50,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "50rem"
+            }
+          }
+        },
+        "--table-row-height": {
+          "$type": "dimension",
+          "$value": {
+            "value": 1.875,
+            "unit": "rem"
+          },
+          "$extensions": {
+            "org.polisyos.atlas": {
+              "cssValue": "1.875rem"
+            }
+          }
+        }
+      }
+    }
+  },
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {
+        "density": {
+          "comfortable": {
+            "attribute": "comfortable"
+          },
+          "compact": {
+            "attribute": "compact"
+          },
+          "condensed": {
+            "attribute": "condensed"
+          }
+        }
+      }
+    }
+  }
+}

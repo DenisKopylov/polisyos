@@ -20,3 +20,4 @@ export * from "./primitives/Text";
 export * from "./primitives/Textarea";
 export * from "./primitives/ToggleButton";
 export * from "./primitives/Tooltip";
+export * from "./generated/tokens";

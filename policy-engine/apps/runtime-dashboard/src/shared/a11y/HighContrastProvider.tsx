@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { contrastModeDescriptors } from "@polisyos/atlas-ui";
 
 import { trackHighContrastEnabled } from "@/shared/telemetry/extendedEvents";
 
@@ -39,9 +40,11 @@ function readHighContrastState() {
     };
   }
 
-  const prefersMore = window.matchMedia("(prefers-contrast: more)").matches;
+  const prefersMore = window.matchMedia(
+    contrastModeDescriptors.more.mediaQuery,
+  ).matches;
   const forcedColorsActive = window.matchMedia(
-    "(forced-colors: active)",
+    contrastModeDescriptors.forcedColors.mediaQuery,
   ).matches;
   const isHighContrast = prefersMore || forcedColorsActive;
 
@@ -61,8 +64,12 @@ export function HighContrastProvider({ children }: PropsWithChildren) {
       return;
     }
 
-    const prefersContrastQuery = window.matchMedia("(prefers-contrast: more)");
-    const forcedColorsQuery = window.matchMedia("(forced-colors: active)");
+    const prefersContrastQuery = window.matchMedia(
+      contrastModeDescriptors.more.mediaQuery,
+    );
+    const forcedColorsQuery = window.matchMedia(
+      contrastModeDescriptors.forcedColors.mediaQuery,
+    );
     const sync = () => setState(readHighContrastState());
 
     sync();

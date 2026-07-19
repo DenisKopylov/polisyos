@@ -479,3 +479,105 @@ manifested.
   register/schema/checker/report, its focused test, and this journal. Backend,
   schemas, generated client, v15 archive, frozen Russian locale, master plan,
   lockfile, and other worktrees remain untouched.
+
+## 2026-07-19 — DS4-C04 ratified DTCG token projection
+
+### Red-first receipt and pattern pass
+
+- Before the adapter existed, the nine exact package parity tests and both
+  projector-drift suites failed at their absent generated/projector imports.
+  The dashboard parity suite failed all nine gap assertions because the package
+  exports were absent. Four behavioral owner tests then failed on the living
+  Theme, Density, HighContrast, and ReducedMotion hard-coded values.
+- The first independent review found three P29/P33 defects: regeneration could
+  bless invalid DTCG, the live parity proof sampled values, and generated
+  contrast/motion/print CSS omitted behavior. Four validator regressions were
+  recorded RED against unknown type, missing type/value, malformed compound
+  value, and a nested token sibling. Three generic behavior comparisons were
+  recorded RED against the incomplete high/forced-color, reduced-motion, and
+  print projections before the positive repair.
+- Four bounded re-reviews then exposed deeper instances of the same class.
+  Persistent RED cases now prove official-schema-invalid composite fields,
+  metadata, names, and cubic-bezier x coordinates cannot pass the direct
+  writer; canonical DTCG color alpha and the standard `none` component cannot
+  collapse to opaque or `NaN` CSS. Contrast-more and both reduced-motion paths
+  remain complete, while forced-color/print parity compares ordered rules
+  within each cascade layer. A reversed same-context source-order adversary
+  fails even though the former merged-map comparator stays equal. A full-suite
+  RED also found a route test's total package mock hiding new descriptor
+  exports; it is now a partial mock.
+- Relevant risks were P06/P27/P28 (one future token authority without a second
+  runtime owner) and P29/P33 (real projection, complete parity, and adversarial
+  corruption rather than marker checks). `token-root-component` remains
+  explicitly deferred under DS2; its live theme aliases are classified by the
+  parity gate and are not silently admitted into C04.
+
+### Implementation
+
+- Added the one-way package topology
+  `tokens/{source,modes}/*.tokens.json -> src/tokens/project.ts ->
+  src/generated/{tokens.css,tokens.ts,tailwind.ts,figma.json,manifest.json}`.
+  All twelve sources are valid DTCG 2025.10 documents with structured standard
+  values; CSS behavior lives only in `org.polisyos.atlas` projection metadata.
+  Both generation and checking run the pinned official schema first. The
+  direct projector also validates the complete supported source subset,
+  including recursive metadata/name constraints and standard compound-value
+  bounds. It proves any redundant CSS value equals the canonical DTCG value
+  (including alpha and `none`), hashes every source byte, and compares the
+  complete output set.
+- Projected all nine ratified gaps: ADR-047 warm light/dark values, eight z
+  layers, light/dark post-reference and nine chart aliases, all 35 values for
+  each density, the `1280` token/`1281` runtime breakpoint asymmetry,
+  light/dark/system descriptors, full high/contrast-more/forced-color tokens
+  and layer-preserving rule graphs,
+  the `240ms` CSS/`180ms` helper motion asymmetry plus complete reduced-motion
+  rules, and complete imported print `@page`, utility, shell, deck,
+  hide/keep/layout/link/export behavior with source-order overrides retained.
+- The package root exports pure typed descriptors and aliases only. Generated
+  CSS is committed parity evidence and is not a root side effect. No React mode
+  provider, dashboard dependency, deep export, central CSS adoption, or C17
+  responsive migration was added.
+- Rebound the four living providers to package descriptor values while keeping
+  DOM mutation, storage, feature flags, media subscriptions, state, telemetry,
+  and React contexts in their existing dashboard owners. The behavioral test
+  substitutes sentinel descriptors, proving the values are consumed rather
+  than merely duplicated.
+- The live parity test is outside the runtime `src` architecture graph and uses
+  PostCSS to compare complete admitted maps and normalized rule graphs in both
+  directions. Its dynamic non-hand-picked corruption fails while source
+  markers remain. The DS2 `token-root-component` deferral is an exact 50-name
+  inventory for each light/dark source, not a prefix loophole; any newly
+  unclassified alias is treated as admitted and fails parity. Unproved radius,
+  shadow, spacing, and typography leaves were removed from the future-authority
+  source rather than silently projected.
+- `designTokens.ts`, `chartTheme.ts`, `motion.ts`, all living CSS, and all
+  central consumers remain byte-unchanged. `ui-tokens` remains
+  `rebind_pending`; C17/DS6 still own compatibility-projection and sunset
+  evidence. The raw Tailwind z-index census remains 19 uses in 15 files and is
+  not misreported as migrated.
+
+### Verification receipt
+
+| Gate | Result |
+| --- | --- |
+| frozen install and lock proof | PASS; six workspaces already current; `pnpm-lock.yaml` and dashboard dependency declarations byte-identical to C03b |
+| deterministic projection | PASS; official DTCG 2025.10 schema precedes generate/check; regenerate leaves all five artifacts exact; source/output/manifest/unregistered-sibling, malformed composite/metadata/name, CSS-equivalence, alpha/`none`, cubic-bound, and direct-writer corruptions fail |
+| atlas-ui gates | PASS; typecheck, lint, architecture (27 source files), and 10 test files / 50 tests |
+| dashboard owner/parity tests | PASS; 3 files / 22 tests, including ordered contextual nine-gap parity, the source-order adversary, four sentinel owner bindings, and the partial-mock route regression |
+| dashboard design/a11y token gates | PASS; Atlas-v4 238-pair drift, motion, print, reduced-motion, contrast, and color-blind checks |
+| dashboard typecheck and production build | PASS; 3,868 modules, postbuild security, package Tailwind-source proof, and 101 PWA precache entries |
+| dashboard full lint JSON | exact inherited 75 errors in 22 files, zero warnings, only `policyos/quantity-must-be-wrapped`; baseline comparator PASS |
+| dashboard full Vitest | PASS baseline-relative after a two-worker run: 228 files / 688 tests, 225 files / 683 tests pass, and only the five inherited identities remain; an earlier host-starved attempt and its focused-green timeout are non-receipts |
+| dashboard architecture | exact inherited 36 identities after moving the parity harness outside runtime `src`; zero C04 edge added |
+| disposition register | PASS with source-byte verification and corruption probes; 261 roots, 8 censuses, 200 `rebind_pending`, and 23 seeded negatives |
+
+### Fence receipt
+
+- The C04 diff is confined to dashboard providers/tests/tooling,
+  `packages/atlas-ui`, and this DS4 journal. The register is unchanged because
+  `ui-tokens` honestly remains pending; debt manifests are unchanged at
+  `75/22`, five Vitest identities, and 36 architecture identities.
+- Backend `src/**`, schemas, generated runtime client, v15 archive, frozen
+  Russian locale, master plan, lockfile, main, and other worktrees remain
+  untouched. Full `designTokens.ts` sunset is not claimed; it still requires
+  C17 consumer completion and DS6 evidence.

@@ -13,6 +13,9 @@
     "check:architecture": "node ./scripts/check-architecture.mjs",
     "lint": "eslint src tests vitest.config.ts --max-warnings=0",
     "test": "vitest run",
+    "tokens:check": "pnpm run tokens:schema && node --experimental-strip-types ./src/tokens/project.ts",
+    "tokens:generate": "pnpm run tokens:schema && node --experimental-strip-types ./src/tokens/project.ts --write",
+    "tokens:schema": "uv run --with check-jsonschema==0.37.4 check-jsonschema --schemafile https://www.designtokens.org/schemas/2025.10/format.json tokens/source/*.tokens.json tokens/modes/*.tokens.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

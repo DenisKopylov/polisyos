@@ -1,0 +1,55 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Living breakpoint tokens and the intentional runtime boundary asymmetry.",
+  "responsive": {
+    "breakpoints": {
+      "2xl": {
+        "$type": "number",
+        "$value": 1536
+      },
+      "lg": {
+        "$type": "number",
+        "$value": 1024
+      },
+      "md": {
+        "$type": "number",
+        "$value": 768
+      },
+      "sm": {
+        "$type": "number",
+        "$value": 640
+      },
+      "xl": {
+        "$type": "number",
+        "$value": 1280
+      }
+    },
+    "runtime": {
+      "compactMin": {
+        "$type": "number",
+        "$value": 768
+      },
+      "expandedMin": {
+        "$type": "number",
+        "$value": 1281
+      },
+      "mobileMax": {
+        "$type": "number",
+        "$value": 639
+      },
+      "standardMin": {
+        "$type": "number",
+        "$value": 1024
+      },
+      "tabletMin": {
+        "$type": "number",
+        "$value": 640
+      }
+    }
+  },
+  "$extensions": {
+    "org.polisyos.atlas": {
+      "projection": {}
+    }
+  }
+}

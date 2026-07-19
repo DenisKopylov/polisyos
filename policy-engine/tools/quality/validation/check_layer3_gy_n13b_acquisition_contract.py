@@ -579,13 +579,9 @@ def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
             source_path=DERIVATION_SOURCE_PATH,
             replacements=(
                 (
-                    "        if self.effective_authority != min(\n"
-                    "            item.effective_score for item in self.input_authorities\n"
-                    "        ):\n"
+                    "        if self.effective_authority != min(item.effective_score for item in self.input_authorities):\n"
                     '            raise ValueError("derived authority must equal the weakest input")\n',
-                    "        if False and self.effective_authority != min(\n"
-                    "            item.effective_score for item in self.input_authorities\n"
-                    "        ):\n"
+                    "        if False and self.effective_authority != min(item.effective_score for item in self.input_authorities):\n"
                     '            raise ValueError("derived authority must equal the weakest input")\n',
                 ),
             ),

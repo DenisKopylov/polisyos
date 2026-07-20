@@ -4,7 +4,7 @@ status: active
 kind: research-synthesis
 owner: team-architecture
 created: 2026-07-20
-revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17; Batch 4 — Foundry Phase 7 P7.01..P7.14; Batch 5 — Foundry Phase 8 P8.01..P8.14; Batch 6 — Foundry Phase 9 P9.01..P9.14; Batch 7 — Foundry Phase 10 P10.01..P10.16 distilled)
+revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17; Batch 4 — Foundry Phase 7 P7.01..P7.14; Batch 5 — Foundry Phase 8 P8.01..P8.14; Batch 6 — Foundry Phase 9 P9.01..P9.14; Batch 7 — Foundry Phase 10 P10.01..P10.16; Batch 8 — Foundry Phase 11 P11.01..P11.15 distilled)
 source: docs/research/remaining-deep-research-backlog.md
 relationship: candidate_for_consolidation into docs/plans/active/layer3-slices/GY-engine-subordination.md and docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 authoritative_for: [research_finding_triage, consolidation_candidate_registry]
@@ -52,8 +52,8 @@ Across the distilled reports the same handful of engineering/logical moves recur
 per-report prose, are the reusable yield. Each is stated as a move, with its verdict and where it lands.
 **M1–M10** were first surfaced by Batch 1 (Scientist); **M11–M14** by Batch 2 (Fabric); **M15–M17** by
 Batch 3 (Foundry Phase 6); **M18–M20** by Batch 4 (Foundry Phase 7); **M21–M24** by Batch 5 (Foundry Phase
-8); **M25–M26** by Batch 6 (Foundry Phase 9); **M27–M28** by Batch 7 (Foundry Phase 10) — but all are
-cross-cutting and later batches may reinforce any of them.
+8); **M25–M26** by Batch 6 (Foundry Phase 9); **M27–M28** by Batch 7 (Foundry Phase 10); **M29–M30** by Batch 8
+(Foundry Phase 11) — but all are cross-cutting and later batches may reinforce any of them.
 
 **M1 — The explicit `authoritative_for` / `may_not_use_for` envelope on every advisory artifact.**
 Every proposed sidecar carries two machine-checkable fields naming exactly what it may drive and, red-first,
@@ -378,6 +378,42 @@ are calibration-*only*, never the authoritative bound), P10.02 (εN must be an e
 not a static 0.05). *Verdict: ADOPT-CANDIDATE.* The numerical/statistical sibling of [[M12]] (the reassuring
 verdict is the one that must be earned) and [[M18]] (the checker authorizes only its own narrow claim); the
 "decision-relevant unit" clause ties to [[M17]].
+
+**M29 — Compose multiple decision sub-results through their *native operators*, never by scalar sum; each
+sub-result's authority stays bounded to its own claim (one never covers another's); the composition record
+only certifies composability + weakest-link status; guard the two hazards — double-counting (one effect
+entering two layers) and the convenient-sum that erases a veto (subgroup / fairness / feasibility / incentive-
+compatibility).** From P11.05 (worst fiscal scenario = a *nested* protocol EVT → DRO → GE-feedback → risk-
+functional; order matters — the exogenous-shock tail and the endogenous-amplification tail are different
+claims, so re-tailing GE output double-counts; a worst-case is authority-bearing only with tail-cert ∧
+ambiguity-cert ∧ equilibrium-cert), P11.12 (sequential value = six typed sub-results {intertemporal-welfare /
+option-delta-vs-*named-irreversible-baseline* / allocation-feasibility / fairness-frontier / dynamic-IC /
+composition-record}, "not summed symmetrically" — real-option value is a *delta relative to a named baseline*,
+not a second copy of continuation welfare; integer-allocation and IC enter as *feasibility filters*, not
+welfare add-ons; fairness stays a *frontier* until reviewed value-choice authority appears), P11.10 (combine
+forecasts at the CDF/distribution level, never by averaging medians+bounds component-wise → quantile crossing;
+a linear pool of calibrated forecasts is *not* calibrated — mandatory post-combination recalibration), P11.09
+(Bayesian-diagnostics and safe-BO share one surface but two non-interchangeable lanes — retrospective-fit ⊥
+prospective-search), P11.02 (whistleblower governance = five control loops {intake / source-protection /
+anti-retaliation / investigation / disclosure}, each with its own boundary — never one "we have a channel"
+claim). *Verdict: ADOPT-CANDIDATE.* Sharpens [[M16]] (law-not-scalar) and [[M11]] (don't average axes) to the
+multi-result decision-composition setting; overall status is the weakest-link (weakest-boundary composition).
+
+**M30 — Unify heterogeneous producers at a *thin shared admission port* with a discriminated-union of
+family-native payloads — never force a shared theorem family, shared scalar, or merged domain semantics
+("common port, not common theorem").** The consumer gate checks only the shared required fields (same-input
+closure, typed uncertainty semantics, a family-native certificate ref, an explicit authority boundary); the
+domain-specific payload stays local to its family. **This is the constructive resolution to the certificate-
+proliferation risk (§4):** the ~60+ candidate artifacts across Phases 8–11 should collapse to *one* shared-waist
+envelope + per-family payloads — not ~60 parallel authority families, and not one merged mega-scalar. From
+P11.13 ("общий порт — да, общий theorem family — нет" — a trajectory-enclosure cert and a motif-count cert are
+admitted by ONE rule but keep distinct payloads, discriminated by `certificate_domain`), P11.15 (cross-toolchain
+replication = canonical estimator-spec + input-snapshot + *language-native lowerers* + result-canonicalization +
+one parity certificate; "same formula ≠ same estimand" because design-matrix / missingness / vcov / df semantics
+differ across R/Stata/Python, so the *lowered* spec is the unit of replication, not the surface script — a sharp
+[[M27]] instance), P11.09 (one authority surface, two lanes), P11.05 / P11.12 (one composition record over
+family-native sub-certs). *Verdict: ADOPT-CANDIDATE.* Extends [[M1]]/[[M2]] (envelope + additive sidecar) into a
+shared-port-with-union architecture; reuses the repo's `CrossBackendEquivalenceCertificate` seed.
 
 ---
 
@@ -1283,6 +1319,150 @@ staged DP*, NOT stationary discounted PI — the discounted (1−γ) bounds must
 
 ---
 
+## §2·H Per-report distillation — Batch 8 (Foundry Phase 11, P11.01–P11.15)
+
+Phase 11 is Foundry's **composition / dispatch / cross-tool-reproducibility** tier, with several governance/
+infra topics (whistleblower, judge-stack, R/Stata/Python replication). It heavily reinforces regime-triage
+([[M22]]/[[M17]]) and set-valued honesty ([[M23]]), re-applies effective-independence ([[M3]]) to LLM-judge
+panels, and adds two new moves: [[M29]] (compose by native operator, never scalar-sum; guard double-count &
+veto-erasure) and [[M30]] (shared admission port + family-native payloads — the *constructive resolution* to the
+certificate-proliferation risk).
+
+**P11.01 — Geostatistical extremes are a regime-gated extremal-dependence workflow, not "spatial interpolation
+of rare values" (244).** Estimate marginal tails and extremal *dependence class* separately; gate maxima →
+max-stable / exceedances → generalized-Pareto-process / high-dim or ambiguous → conditional-extremes; a Gaussian-
+process kriging surface (the tempting `gaussian_process_kriging` cousin) localizes extremes and gives NO joint
+tail dependence — the dangerous false-neighbor; ambiguous class → research_only/block. Reuse
+`foundry.methods.catalog.spatial` + `DependenceStructure` + `UncertaintyEnvelope`. *Verdict: ADOPT-CANDIDATE
+([[M27]] + [[M22]]).* `producer_missing`.
+
+**P11.02 — Whistleblower-safe infrastructure = five separate control loops, not "we have a channel" (245).**
+{protected-intake / source-protection / anti-retaliation / independent-investigation / disclosure}, each with its
+own owner + typed artifact + `authoritative_for`/`may_not_use_for` + fail-closed kill rules; the "anonymous
+channel that only accepts identifiable corporate accounts" is the killer counterexample → `blocked` even if every
+ticket field is green. Reuse runtime/quality governance modules (`consultation` judgement-not-data, `compliance`
+PII fail-closed, `authority` no projection/fixture authority). *Verdict: ADOPT-CANDIDATE ([[M29]] role-separated
+composition).* `bridge_missing` / `surface_missing`.
+
+**P11.03 — Copula tail dependence supports policy scenarios only as a scenario-coupling primitive, never a policy
+claim (246).** Same rank-dependence ≠ same tail dependence (Gaussian gives none, t gives symmetric joint extremes;
+Gumbel=upper, Clayton=lower); tail-asymmetry and regime/time semantics are load-bearing fields; thin-tail sample
+or family disagreement → research_only/block, not pseudo-precise λ-values. Reuse
+`foundry.methods.catalog.dependence` + `econometrics.route_cross_sectional_dependence`. *Verdict: ADOPT-CANDIDATE
+([[M22]] + [[M27]]).* `bridge_missing`.
+
+**P11.04 — Scenario generation "proves coverage" only via five separated claims over a *declared denominator*
+(247).** envelope-declaration (world family + factor schema + boundaries) → structural coverage (combinatorial
+`t`-way + LHS for continuous — NOT run-count) → distributional calibration (`coverage_lcb` + empirical source) →
+tail/boundary-challenge → balanced success+failure memory; raw-count inflation and space-filling-over-the-wrong-
+semantic-model are the counterexamples; overall = weakest boundary, downgrades to `SCENARIO`/`BLOCKED`. Reuse
+`foundry.agent_sim.world` (phase-0 seed worlds) + `RobustSetCalibrationReport` + `simulation_proof_bridge`.
+*Verdict: ADOPT-CANDIDATE ([[M29]] + [[M28]]; balanced-memory reinforces the GY-P11 successes-not-just-failures
+law).* `bridge_missing`.
+
+**P11.05 — Worst fiscal scenarios compose as a NESTED protocol EVT → DRO → GE-feedback → risk-functional, each
+with its own certificate (248).** Order matters: the exogenous-shock tail (EVT) and endogenous-amplification tail
+(GE) are different claims — re-tailing GE output double-counts; a worst-case is authority-bearing only with
+tail-cert ∧ ambiguity-cert ∧ equilibrium-cert; a "bad but locally-unstable" equilibrium must not be published as
+inevitable; a GE fixed-point without *fiscal budget closure* is not fiscal admissibility. Reuse compile/execute
+feedback (convergence/multiplicity certs) + policy frontier. *Verdict: ADOPT-CANDIDATE ([[M29]] the canonical
+double-count guard).* `bridge_missing` + `producer_missing` (EVT/DRO).
+
+**P11.06 — A dynamic game is "identified" only after a six-layer decomposition, never from a calibration fit
+(249).** {game class / information structure / equilibrium concept / claimed primitives / exclusion-independence-
+heterogeneity assumptions / point-set-selection-dependent-or-not}; multiplicity → identify only equilibrium-
+*invariant* objects (selection_dependent/set_identified); persistent latent heterogeneity mimicking strategic
+dynamics → blocked_evidence; incomplete-info without exclusion restrictions → at most set_identified. Do NOT fold
+this into the symbolic causal-ID stack — it's structural econometrics. Reuse `ir.analytics.strategic` (static
+seeds) + `foundry.calibration.identifiability`. *Verdict: ADOPT-CANDIDATE ([[M22]] + [[M23]]).* `bridge_missing`.
+
+**P11.07 — Uncertainty in a VFI chain propagates as a chain of separate claims, not one CI (250).** primitive-
+uncertainty → Bellman/solver certificate → policy-selection stability → occupancy/value → welfare → admissibility;
+a Bellman residual gives a *solver-truncation* outer bound only (not primitive/calibration/admissibility);
+approximate VFI needs separate truncation + approximation + discretization bounds; a narrow *value* band with a
+small *action-gap* is NOT a stable policy — emit a `policy_gap_certificate` (`selection_contested`);
+distributional-*control* is unstable (only policy-evaluation contracts), non-rectangular ambiguity ≠ robust-Bellman
+support. Reuse `foundry.agent_sim.vfi.OfflineVFI` + `ir.analytics.uncertainty` (heuristics can't be gate-eligible).
+*Verdict: ADOPT-CANDIDATE ([[M28]] + [[M23]] + [[M29]]).* `implemented_but_not_orchestrated` + `bridge_missing`.
+
+**P11.08 — Discrete-continuous choice needs a task-specific estimator, not pure discrete-choice + an ad-hoc
+two-part model (251).** Route by structure: MDCEV full-information ML as the frequentist default (Bayesian
+research-gated — no production posterior sampler); escalate to flexible-MDCEV if participation/quantity margins
+decouple, to MDCP/KT if cross-alternative covariance matters; a two-part model is `heuristic_baseline` only (no
+welfare/substitution); outside-good & budget semantics and measurement truncation are load-bearing. Reuse
+`econometrics.discrete_choice` (MNL/mixed-logit/BLP seeds). *Verdict: ADOPT-CANDIDATE ([[M22]] + [[M17]]).*
+`producer_missing`.
+
+**P11.09 — Bayesian diagnostics and safe BO share ONE authority surface but two non-interchangeable lanes (252).**
+`retrospective_fit_authority` (PPC / PSIS-LOO / SBC / stacking — no single scalar; policy-sensitive multimodality
+→ refuse single policy) ⊥ `prospective_search_authority` (GP-UCB regret + SafeOpt safe-seed + (ε,δ)-stopping —
+misspecification turns sublinear regret linear, so it needs sentinels); never one "Bayesian trust score", never
+active-search on fit diagnostics alone, never a regret-cert as model-adequacy. Reuse calibration diagnostics +
+bayesian `pmd_hmc` + SearchExitContract; NO `bayesian_optimization`/`safeopt` producer. *Verdict: ADOPT-CANDIDATE
+([[M29]] two-lane + [[M30]] shared surface).* retrospective = `implemented_but_not_orchestrated`; BO =
+`producer_missing`; `bridge_missing`.
+
+**P11.10 — Coherent forecast authority = five separate claims; combine at the distribution level, never
+component-wise (253).** estimate / coherence-certificate / calibration / uncertainty / admissibility; ordinal →
+RPS on cumulative CDF (not numericalized RMSE — cardinal laundering), continuous → pinball/WIS/CRPS with the score
+family declared *ex ante*; no-arbitrage invariants (monotone CDF, non-crossing quantiles, nested intervals); **a
+linear pool of calibrated forecasts is NOT calibrated (Ranjan–Gneiting) → mandatory post-combination
+recalibration**; interval bundles need *conditional* coverage (Christoffersen), not just hit-rate; historical
+calibration is influence, not current-run evidence. Reuse `ForecastingUncertaintyBundle` (monotone fan-chart seed)
++ `CausalModelEnsemble` + `calibration_ledger`. *Verdict: ADOPT-CANDIDATE ([[M29]] + [[M15]]).* `bridge_missing`
+/ `producer_missing`.
+
+**P11.11 — The econometric dispatcher is not one "LP or VAR" flag; MHT, top-coded wealth, and group deflators are
+separate layers, never hidden knobs (254).** Fix the estimand first (LP/VAR share it, differ on bias-variance);
+default LP-first-for-authority / VAR-as-benchmark; run confirmatory MHT via Romano–Wolf stepdown (not per-horizon
+t-tests); treat top-coded wealth as a tail-coverage problem (Pareto/rich-list/bounds — raw top-codes = input
+provenance only); publish a group-deflator sensitivity view whenever cross-group *real* comparisons are claimed.
+Reuse `econometrics.timeseries` (ARIMA/VAR) + `foundry.calibration.fabric_quality`. *Verdict: ADOPT-CANDIDATE
+([[M22]] + [[M29]] separate-layer composition).* VAR = `implemented_but_not_orchestrated`; LP/MHT/top-code/deflator
+= `producer_missing`.
+
+**P11.12 — Sequential public-decision value composes six typed sub-results by native operators, never a scalar
+(255).** {intertemporal-welfare-envelope / continuation-option-delta-vs-*named-irreversible-baseline* /
+allocation-feasibility-certificate / facility-fairness-frontier / dynamic-IC-certificate / composition-record};
+option value added to continuation welfare that already optimizes it = double-count; a static IC cert for a
+sequential mechanism checks the wrong strategy space → `abstain_dynamic_ic_mismatched`; fairness stays a frontier
+absent reviewed social-weight provenance. Reuse `MethodComposer` + `frontier_emitter` + `social_weight_provenance`
++ `ir.mechanism_design`. *Verdict: ADOPT-CANDIDATE ([[M29]] the canonical statement).*
+`implemented_but_not_orchestrated` + `bridge_missing`.
+
+**P11.13 — Validated trajectory enclosures and motif-count uncertainty need SEPARATE family-native certificates,
+admitted by ONE shared rule (256).** ODE → deterministic outer enclosure (Taylor-model remainder); SDE →
+pathwise-or-coverage enclosure with adaptedness/filtration/no-future-leakage (a deterministic-looking interval on
+SDE output is not a validated enclosure); motif-count → design-conditional interval (subgraph-sampling model is
+load-bearing — an interval under one design is invalid under another). "Common port, not common theorem" — the
+shared consumer checks same-input closure + typed uncertainty + family-native cert + authority boundary, the
+payloads stay local. Reuse `RoughPathInterventionCertificate` + `proof_composability` (REUSABLE/REVALIDATE/
+REDERIVE); network catalog has no motif owner. *Verdict: ADOPT-CANDIDATE ([[M30]] the canonical statement +
+[[M27]]).* trajectory = `implemented_but_not_orchestrated`; motif = `bridge_missing`.
+
+**P11.14 — A six-judge stack is meta-evaluated as a selective measurement instrument, not "six independent votes"
+(257).** Two levels — seat diagnostics (prompt-stability / order-invariance / gold-agreement / calibration) and
+stack diagnostics (chance-corrected agreement, Brier, risk-coverage w/ abstention, robustness, and
+**`effective_independent_judge_count`** — nominal 6 without it is unsafe, [[M3]]); reliability ≠ validity (high
+test-retest can coexist with strong position bias); on human-disagreement slices, calibration to majority vote is
+wrong — score contested-item recognition + abstention. **Reuse the near-perfect template**
+`foundry.validation.causal_validity` (`causal_statistical_validity_report`: offline benchmark contract, known-
+answer/placebo/negative-control/missingness/uncertainty-calibration) + `agent_sim.world`. *Verdict: ADOPT-CANDIDATE
+([[M3]] + [[M8]]).* `implemented_but_not_orchestrated` (bridge/consumer/surface/semantic-test missing).
+
+**P11.15 — Foundry cross-toolchain replication = canonical estimator-spec + input-snapshot + language-native
+lowerers + result-canonicalization + a parity certificate, never shared script text or coefficient-table identity
+(258).** "Same formula ≠ same estimand": R `model.matrix`/`na.action`, statsmodels Patsy/`missing='none'`→NaN,
+Stata factor-vars/`e(sample)`, and `sandwich` HC0–HC5 vs statsmodels `cov_type` vs Stata `vce()` differ on
+design-matrix, missingness *mask*, and vcov/df — so parity must cover the *lowered* spec, the sample-mask hash,
+and the vcov/df, not just coefficients; a lowerer that can't represent a slot exactly must fail-closed. **Strong
+reuse:** `foundry.methods.equivalence.CrossBackendEquivalenceCertificate` (field-tolerance, strict/relaxed, signed,
+`canonicalize_method_result`) is the seed — extend NumPy/JAX → R/Stata/Python; `ecosystem_bridges` is Python-only
+today. *Verdict: ADOPT-CANDIDATE ([[M30]] + [[M27]] lowering-is-load-bearing).* `bridge_missing` +
+`implemented_but_not_orchestrated`.
+
+---
+
 ## §3 Where these findings could land (consolidation map, not a commitment)
 
 These are candidate routings to weigh once all batches are distilled — **not** approved plan edits.
@@ -1463,6 +1643,32 @@ These are candidate routings to weigh once all batches are distilled — **not**
   the discounted (1−γ) error bounds must not be applied to it mechanically (it needs a separate finite-horizon
   backward-error contract).
 
+*— Foundry Phase 11 batch —*
+
+- **The consolidation architecture itself** ([[M30]], the constructive answer to the §4 certificate-proliferation
+  caveat): **P11.13** ("common port, not common theorem"), **P11.09** (one authority surface, two lanes), **P11.15**
+  (one parity port, language-native lowerers), **P11.05** / **P11.12** (one composition record over family-native
+  sub-certs). When the deliberate consolidation act happens, this is the pattern — a shared waist envelope +
+  discriminated-union payloads, reusing `CrossBackendEquivalenceCertificate`.
+- **The future Foundry-subordination lane (conformance battery / D3.8)** ← the engine-internal method disciplines:
+  **P11.01** (spatial EVT), **P11.03** (copula tail-dependence), **P11.06** (dynamic-game ID), **P11.07** (VFI
+  uncertainty chain), **P11.08** (DCC/MDCEV), **P11.10** (coherent forecast authority), **P11.11** (LP-vs-VAR
+  dispatch + MHT + top-code + deflator), **P11.13** (trajectory/motif certs), **P11.15** (cross-toolchain parity).
+- **GY value / uncertainty engine (set-valued state) + causal engine** ← **P11.05** (nested EVT→DRO→GE composition
+  — [[M29]]), **P11.12** (sequential-value composition), **P11.06** (dynamic-game set/selection identification),
+  **P11.09** (safe-BO search-authority lane for the GY search controller). All reinforce [[M23]]/[[M29]].
+- **Scientist governance / GY hidden-eval + promotion gate (D3.8)** ← **P11.14** (six-judge meta-eval as a selective
+  instrument with `effective_independent_judge_count` — [[M3]]; reuses the `causal_statistical_validity_report`
+  template), **P11.04** (scenario-coverage proof over a declared denominator — the GY balanced-memory /
+  successes-not-just-failures law), **P11.02** (whistleblower governance's role-separated control loops).
+- **Atlas (DS9 / DS12 / DS16 / DS17)** ← **P11.10** (ordinal/quantile/interval forecast surfaces — *simultaneous* vs
+  pointwise, no-crossing on the glass), **P11.02** (source-protection / disclosure surfaces — projection-only,
+  recourse-reachable), **P11.14** (show the judge-stack envelope + collapse reasons + abstention, never a bare
+  verdict).
+- **Actionable (verify in code — reports are untrusted):** `tests/_golden/foundry/signature_baseline.json`
+  `method_count: 0` is re-confirmed a *third* time (P11.14, P11.15) — an empty method-inventory golden, consistent
+  with the standing note.
+
 ---
 
 ## §4 What NOT to adopt / honest caveats
@@ -1482,17 +1688,19 @@ These are candidate routings to weigh once all batches are distilled — **not**
   conservative label in code (`graph_temporal_scope="partial"` / `research_track="R3"`; generic-streaming default
   `at_least_once_with_dedupe`; row-level quarantine). The reports *validate* these; consolidation must keep them,
   not "upgrade" them without the proof artifact ([[M12]]) each label demands.
-- **The status-lattice proliferation risk is now severe** ([[M6]] caveat, escalated again): across Foundry Phases 6–10
-  the reports propose ~74 bespoke status lattices (defect-impact effects, reduction-certificate tiers, calibration-
+- **The status-lattice proliferation risk is now severe** ([[M6]] caveat, escalated again): across Foundry Phases 6–11
+  the reports propose ~89 bespoke status lattices (defect-impact effects, reduction-certificate tiers, calibration-
   decision-relevance states, sequential-Bayes coverage classes, proof-carrying-certificate lattices, reproducibility
   tiers, DP-composition states, federated-correctness classes, judge-holdout states, identification-status lattices,
   observability-regime routes, fairness-profile states, safe-RL violation classes, energy-carbon estimate statuses,
   TEE claim classes, nowcast/HANK/DSGE identification lattices, transportability statuses, matching/auction/DA
   certificate statuses, multilevel-solve postures, equilibrium existence/witness/multiplicity lattices, survival-
   interval admission states, topology/manifold/graph descriptor statuses, audit-detection & drift-update lattices,
-  policy-iteration certificate regimes, …). Adopt the *shape* (typed, fail-closed, `research_only` floor, states
-  recomputed not pinned) but every one must be reconciled against the single Atlas status lattice / DS4 discipline
-  before it lands. Do not import ~74 parallel lattices.
+  policy-iteration certificate regimes, spatial-EVT/copula/scenario-coverage lattices, dynamic-game identification
+  statuses, VFI/DCC/forecast-authority lattices, judge-stack meta-eval states, cross-toolchain parity verdicts, …).
+  Adopt the *shape* (typed, fail-closed, `research_only` floor, states recomputed not pinned) but every one must be
+  reconciled against the single Atlas status lattice / DS4 discipline before it lands. Do not import ~89 parallel
+  lattices.
 - **Candidate-certificate proliferation is now the single largest consolidation risk** (Phases 8–10): the three
   batches together propose **~44 new local candidate artifacts** (Phase 10 alone adds ~16: `multilevel_admissibility_
   assessment`, `mean_field_finite_n_correction`, `SurvivalIntervalBundle`, `CoupledMechanismEquilibriumCase`, the
@@ -1513,7 +1721,11 @@ These are candidate routings to weigh once all batches are distilled — **not**
   authority families. Any consolidation must factor a **shared waist** (authority_boundary + provenance +
   same_input_closure + status + calibration/uncertainty refs — the [[M1]]/[[M11]]/[[M15]] envelope) and let only the
   domain-specific payload differ; otherwise the backlog reintroduces the very fragmentation the narrow waist exists to
-  prevent. Every report *itself* flags its artifact as `candidate_for_consolidation` — honor that.
+  prevent. Every report *itself* flags its artifact as `candidate_for_consolidation` — honor that. **The constructive
+  resolution now has a name: [[M30]]** (surfaced by Phase 11 — P11.13 "common port, not common theorem"; P11.15's
+  parity-port; P11.09's one-surface-two-lanes) — collapse the ~60+ candidate certificates (Phases 8–11) to *one*
+  shared admission port with a discriminated-union of family-native payloads, reusing the repo's
+  `CrossBackendEquivalenceCertificate` seed. That is the pattern the deliberate consolidation act should adopt.
 - **A claim to refuse outright** (P7.03): "the computation is reproducible on any hardware." Bitwise cross-hardware
   reproducibility is refuted as a default; only the tiered contract ([[M12]]) is honest. If any consolidated artifact or
   surface asserts blanket hardware reproducibility, that is the overclaim to block.
@@ -1554,8 +1766,9 @@ These are candidate routings to weigh once all batches are distilled — **not**
 | 5 | Foundry (Phase 8) | `P8.01`..`P8.14` (14) | **DONE** | §2·E + moves M21–M24 |
 | 6 | Foundry (Phase 9) | `P9.01`..`P9.14` (14) | **DONE** | §2·F + moves M25–M26 |
 | 7 | Foundry (Phase 10) | `P10.01`..`P10.16` (16) | **DONE** | §2·G + moves M27–M28 |
-| 8 | Lex | `LEX-R*` | pending | — |
-| 9 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈SCI-R10, CPA-R26≈SCI-R8, CPA-R22/R23≈DS20-authz already flagged) |
+| 8 | Foundry (Phase 11) | `P11.01`..`P11.15` (15) | **DONE** | §2·H + moves M29–M30 |
+| 9 | Lex | `LEX-R*` | pending | — |
+| 10 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈SCI-R10, CPA-R26≈SCI-R8, CPA-R22/R23≈DS20-authz already flagged) |
 
 **Next:** when a batch arrives, distil into a new §2-style section + fold any genuinely new move into §1
 (M-series), update §3 routing and §5. Consolidation into GY/Atlas is a **separate, later** deliberate act —

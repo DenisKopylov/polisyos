@@ -4,7 +4,7 @@ status: active
 kind: research-synthesis
 owner: team-architecture
 created: 2026-07-20
-revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17; Batch 4 — Foundry Phase 7 P7.01..P7.14; Batch 5 — Foundry Phase 8 P8.01..P8.14; Batch 6 — Foundry Phase 9 P9.01..P9.14; Batch 7 — Foundry Phase 10 P10.01..P10.16; Batch 8 — Foundry Phase 11 P11.01..P11.15 distilled)
+revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17; Batch 4 — Foundry Phase 7 P7.01..P7.14; Batch 5 — Foundry Phase 8 P8.01..P8.14; Batch 6 — Foundry Phase 9 P9.01..P9.14; Batch 7 — Foundry Phase 10 P10.01..P10.16; Batch 8 — Foundry Phase 11 P11.01..P11.15; Batch 9 — Cross-cutting Public Authority CPA-R1..R17; Batch 10 — Cross-cutting Public Authority CPA-R18..R28 distilled)
 source: docs/research/remaining-deep-research-backlog.md
 relationship: candidate_for_consolidation into docs/plans/active/layer3-slices/GY-engine-subordination.md and docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 authoritative_for: [research_finding_triage, consolidation_candidate_registry]
@@ -53,7 +53,8 @@ per-report prose, are the reusable yield. Each is stated as a move, with its ver
 **M1–M10** were first surfaced by Batch 1 (Scientist); **M11–M14** by Batch 2 (Fabric); **M15–M17** by
 Batch 3 (Foundry Phase 6); **M18–M20** by Batch 4 (Foundry Phase 7); **M21–M24** by Batch 5 (Foundry Phase
 8); **M25–M26** by Batch 6 (Foundry Phase 9); **M27–M28** by Batch 7 (Foundry Phase 10); **M29–M30** by Batch 8
-(Foundry Phase 11) — but all are cross-cutting and later batches may reinforce any of them.
+(Foundry Phase 11); **M31–M35** by Batch 9 and **M36–M40** by Batch 10 (both Cross-cutting Public Authority) — but
+all are cross-cutting and later batches may reinforce any of them.
 
 **M1 — The explicit `authoritative_for` / `may_not_use_for` envelope on every advisory artifact.**
 Every proposed sidecar carries two machine-checkable fields naming exactly what it may drive and, red-first,
@@ -414,6 +415,159 @@ differ across R/Stata/Python, so the *lowered* spec is the unit of replication, 
 [[M27]] instance), P11.09 (one authority surface, two lanes), P11.05 / P11.12 (one composition record over
 family-native sub-certs). *Verdict: ADOPT-CANDIDATE.* Extends [[M1]]/[[M2]] (envelope + additive sidecar) into a
 shared-port-with-union architecture; reuses the repo's `CrossBackendEquivalenceCertificate` seed.
+
+**M31 — Heterogeneous-authority axis separation: public-authority admissibility is NOT one governance score.**
+The whole CPA corpus (R1–R17) converges on one law: *legal authority / democratic legitimacy / organizational
+authority / operational capacity / public transparency / contestability / technical evidence* are **non-fungible
+evidentiary lanes**, each with its own resolution routes and its own status. The aggregate composes by
+**weakest-boundary + hard-gates** (minimum-over-load-bearing), never by average or weighted sum, and **a passing
+lane cannot buy a failing one** — strong technical evidence never mints a legal mandate; a fast, cheap service
+never mints legitimacy; a human-review trace in the wrong role never mints value authority. Grounds: Bovens
+(accountability = actor↔forum; legal accountability is the most unambiguous lane because it rests on specifically
+assigned duties), Koppell ("multiple accountabilities disorder" — the dimensions cannot share one scale),
+NIST/OECD/OMB M-25-21/UK ATRS (roles, oversight, traceability, appeals as *separate* operational duties). **The
+repo already owns the composition primitive:** `capability_authority.py` uses "minimum across load-bearing
+factors" with `admissible|limited|contested|blocked` + `authoritative_for`/`may_not_use_for`. *Verdict:
+ADOPT-CANDIDATE.* This is the CPA signature; it reinforces [[M29]] (native-operator composition, no scalar-sum)
+and [[M5]] (gate = constraint, not reward), and **pairs with [[M30]]**: the ~17 CPA records should be
+discriminated-union payloads over one admission port, composed by this 7-axis weakest-boundary rule — not 17
+authority families and not one merged governance number.
+
+**M32 — Delivery-capacity envelope: technical validity is necessary, never sufficient; execution capacity is a
+separate blocking axis, and state capacity is a *ceiling*.** From R6/R7/R8: a design is `deliverable` only if the
+executing institution can staff, monitor, explain, contest and *stop* it. Two sharp sub-laws: **(a) model
+adequacy ≠ delivery adequacy** — a calibrated model behind an unstaffed appeal queue, missing logs, or no override
+path is `blocked`, not `deliverable`; **(b) local success does not extrapolate — the "pocket-of-efficiency trap":**
+a regional pilot may be `limited` while nationwide rollout stays `blocked`, because state capacity caps the *whole
+delivery chain* (coordination, frontline discipline, long-run monitoring), not a per-site KPI. Capacity evidence
+(skills / staffing-continuity / institutional-memory / maintenance-burden) must come from **observable sources**
+(rosters, training records, incident/postmortem stores, backlog & response telemetry, CHAOSS contributor-absence-
+factor) — never from a prose runbook. *Verdict: ADOPT-CANDIDATE.* Extends [[M5]] (hard gate) and the capacity-as-
+constraint discipline; the four capacity record-classes are family-native payloads for [[M30]]/[[M31]].
+
+**M33 — Authorization-to-aggregate: social weights are a recorded *permission to aggregate*, not ground truth.**
+From R3: objectives, social weights, distributional priorities and acceptable trade-offs are stored as a typed
+normative-authorization artifact recording *who* authorized *which aggregation* under *what mandate / scope /
+dissent / TTL* — **not** as a model parameter or loss weight. Absent a valid schedule the system may emit only a
+Pareto frontier + scenario cards + a typed `NormativeDecisionRequest`; it must **never silently scalarize**. The
+value schedule is "permission to aggregate this way," not "the truth about fairness." Banned laundering paths:
+silent equal-weight default, historical-prior-as-social-weight, proxy-as-priority, fairness-metric-library-default.
+Grounds: UK Green Book / OMB Circular A-4 (distributional weighting is a *disclosed choice*, applied consistently,
+never a hidden default), HM Treasury MCDA (record disagreement → sensitivity, never average it away), Kleinberg-
+Mullainathan-Raghavan (no universal fair scalarization exists). *Verdict: ADOPT-CANDIDATE.* The constructive
+counterpart to "the system is never the principal"; reinforces [[M16]] (the canonical object is the full
+partial-order / red-line / floor structure, never the collapsed scalar) and [[M31]] (its own axis).
+
+**M34 — Contestability is proven, not gestured; explanation efficacy is *measured*, not assumed from fluency.**
+From R5/R16: a public-facing recommendation is publishable only behind a typed contestability packet — same-input
+explanation, a *competent independent* reviewer with real authority to change the outcome, and withdraw/reissue
+mechanics; an "Appeal here" link bound to no case, or a rubber-stamp review, fails closed. And an explanation earns
+governed use only when it is shown to raise **objective** understanding (simulatability / limit-recognition /
+error-detection) *and* challenge quality at **non-increasing false confidence** — perceived clarity, trust, or
+adoption are not release criteria. Two named failure modes: **recourse laundering** (telling a person how to change
+*themselves* to flip the output instead of how to challenge the decision's *validity* — burden-shift, not
+contestation) and **false-confidence inflation** (illusion of explanatory depth; deceptive explanations can
+out-persuade honest ones). **Repo already owns the primitives:** `human_review.py` scores reviewer independence /
+separation-of-duty / rubber-stamp risk; `graded_outcomes.py` requires a verified recourse pointer for high-stakes
+publish. *Verdict: ADOPT-CANDIDATE.* Extends [[M10]] (structured transparency, not explanation) with a *behavioral
+falsification test*; reinforces [[M7]] (control-artifact vs measurement-artifact) and [[M8]] (false-pass fixtures).
+
+**M35 — Graded external-supplier admission: escrow + independent audit access + pinned reproducibility replace
+both blind trust and impossible full-disclosure.** From R10/R11: third-party AI/data-supplier artifacts never
+enter authority *directly*. Three admission tiers — **archive** (`candidate_only`) → **serious-PDC authority-path**
+(six sub-dossiers: supplier-chain / data-provenance / TEVV / logging / incident / independent-review) →
+**claim-closing** (needs authority-side independent verification + [[M3]] independence accounting). For proprietary
+models/data the neutral contract is a **three-contour regime**: confidential *evidence escrow* + *independent audit
+access* + *graded reproducibility* (same-input → metric → portability replay tiers), version/hash/time-bound and
+release-triggered — the AI-Act Art.78 "confidential access ≠ zero access" pattern, and the EDPB rule that
+*dataset-not-published ≠ model-safe* (extractability/memorization is its own axis). Two anti-patterns fail closed:
+**vendor-run eval treated as independent evidence**, and **"no incident found in AIID/OECD-AIM" read as "no
+incidents"** (those corpora are media-based, incomplete, and self-declared non-authoritative — research/challenge
+inputs only, never closure). *Verdict: ADOPT-CANDIDATE.* Reinforces [[M3]] (vendor + literature sharing lineage is
+*one* line, not two), [[M18]] (proposer≠verifier), [[M21]] (anchored-support certificate over a versioned source).
+
+**M36 — Typed post-publication perturbation cascade: incidents, appeals, corrections, retractions, legal changes
+and discovered bias are *distinct event classes*, not one "reopen" — each with a least-expansive default scope,
+downgrade-only pre-adjudication authority, a bounded lifecycle action, and NO silent mutation of a closed case.**
+Unifies R18/R19/R21/R26. A perturbation is authoritative only for `review_required` / `contested` / annotation
+*until adjudicated*; only after adjudication may it become authoritative for `invalidate` / `reissue` / `supersede`
+/ `withdraw`. The scope rule is *least-expansive-but-safety-preserving*: a single upheld appeal invalidates the
+*instance*, not the class; a renumbered rule with an unchanged logic-hash is `annotation_only`, not supersession; a
+media/AIID entry is a *candidate trigger* requiring corroboration, never self-acting withdrawal. **Supersede ≠
+withdraw:** a law change supersedes a claim that was lawful-and-replay-valid at closure (old case stays immutably
+replayable under its closure-time rules), and only *withdraws* when continued public reliance is itself unsafe or
+unremediable. Source-status invalidity (retraction / correction / expression-of-concern / living-review-supersession
+/ fabricated-citation / withdrawn-source) propagates as a replayable `EvidenceValidityEvent` through
+source→evidence-line→claim→publication — no authority survives silently after its support is lost. **Repo already
+owns most of this:** `case_lifecycle.py` enumerates the lifecycle states + `REVISION_ACTION_ORDER`;
+`core.contracts.rule_evolution` emits a revalidation blocker on a semantic (not cosmetic) rule change;
+`obligation_rules` has `PUBLIC_CONTESTATION` + public-revalidation effects; `scientist/governance/continuous` has
+`incident.py`/`invalidation.py`/`reissue.py`/`lifecycle_bridge.py`. *Verdict: ADOPT-CANDIDATE ([[M25]] recompute-
+not-pin over time + [[M31]] per-axis + one-lattice).* Reinforces [[SCI-R8]] decision-lifecycle typing.
+
+**M37 — Capability is not permission: an agent's external action (search / tool_call / draft / data_request /
+external_interaction) needs a *pre-action*, mandate-bounded, least-privilege, replay-linked authority packet — not a
+post-hoc log.** From R22/R24. `autonomous_action_allowed = verified_identity ∩ explicit_permission ∩
+mandate-bounded delegation ∩ operation-in-envelope ∩ live accountability binding`; out-of-envelope stakes/
+reversibility/data-sensitivity route to a typed `HumanDecisionRequest` and a five-rights-valid `HumanDecisionRecord`
+(a click by the wrong role/after TTL/without disconfirming evidence is not approval — P26 responsibility laundering).
+**Authority is not monotone:** "can search" never grants "can data_request / write / publish"; `draft` is not
+globally low-risk (type it by audience/externality). The security precondition (R24): treat the agent as an
+*untrusted transducer* whose inputs, tools, and long-term memory are all attack surfaces (indirect prompt injection,
+tool poisoning, memory poisoning) requiring governed admission — memory records masquerading as policy/incident
+facts must pass the same candidate→authority gate as any external document; multi-agent handoff is first-class
+attack surface. *Verdict: ADOPT-CANDIDATE ([[M18]] proposer≠verifier + [[M31]] + [[M5]] gate-not-reward).* The D3
+delegation layer (`DelegationContract`/`HumanDecisionRequest`/`HumanDecisionRecord`) is still `contract_only` /
+`producer_missing` — this is the pre-action gate it needs.
+
+**M38 — Orchestration and handoff transparency *preserve* authority: log each choice as an authority delta, and
+transfer bounded artifacts + a responsibility chain, never authority wholesale.** From R23/R25. Every load-bearing
+orchestration choice (evidence-selection / tool-choice / framing / compression) leaves a typed trace carrying the
+candidate universe + rejected set + decision-policy ref + an **explicit authority effect** — `authoritative_for = ∅`
+by default (the repo's `search_ledger` already does exactly this). Because *framing-narrowing* and *lossy
+compression* are themselves authority moves: compression that cannot preserve retained-limitations, denied-uses and
+omitted-counterevidence must **fail closed**, not silently emit a clean-looking public summary ("compression
+laundering", "framing laundering", "selection laundering" — a low-`k_eff` selected set masquerading as broad
+consensus, [[M3]]). Cross-agency handoff (R25) is a *two-step bounded acceptance*: the receiver `meet()`s the
+offered `AuthorityBoundary` against its own permitted purposes (intersection of allowed uses, union of deny-lists;
+empty ⇒ blocked), inherits *no* responsibility by default, gets a typed *context capsule* (not a summary blob), and
+an `llm_candidate` summary can cross departments only as `candidate_only` routing hint — never as decision authority.
+Auditability-by-construction: time-correlated who-emitted/who-accepted/what-denied records, verifiable offline.
+*Verdict: ADOPT-CANDIDATE.* Extends [[M10]] (structured transparency) with an authority-delta discipline; reuses
+the repo's `AuthorityBoundary.meet()`, `ClusterHandoffRecord`, `AuthorityDerivationTrace`. **Gap:** G6 emits
+prompt/tool/search/orchestration/replay ledgers but *no* compression-specific ledger yet.
+
+**M39 — A proxy standing for a policy construct requires a construct-validity *case*, not a fit statistic —
+technical validity is necessary, never sufficient, and measurability never authorizes the construct.** From R27
+(source of the "streetlight bias" antidote). Before a metric / text-variable / remote-sensing signal / administrative
+field may *substitute* for a construct (need, vulnerability, fraud-risk, legitimacy, public value, trust), it needs
+content + substantive/process + structural + external (convergent/discriminant/predictive) + generalizability +
+consequential evidence (Messick / Jacobs-Wallach), PLUS a **modality-specific independence floor**: administrative →
+source-process audit (incentives, coding rules, missingness, schema drift, QAAD); text → confounder + semantic
+validation beyond gold labels (ValiText — a classifier "measuring ideology" that actually learned incumbency fails
+discriminant validity); remote-sensing → an *independent* reference sample with reported CIs (CEOS LPV — a train/test
+split is not independence; correlated reference can make the worse map look better). **Aggregation-level jumps
+(school-history proxy → individual grade, Ofqual 2020), non-independent validation, and single-number fit all fail
+closed.** **Repo already owns the seam:** `runtime/quality/construct_registry.py` carries
+`construct_validity_requirements` / `proxy_validation_rules` / `required_time_roles` / per-posture
+`authority_requirements` (research/governed_pilot/production). *Verdict: ADOPT-CANDIDATE ([[M27]] representation-
+conditioned + [[M17]] validity-by-decision-structure + [[M31]]).* `implemented_but_not_orchestrated` +
+`verification_missing`.
+
+**M40 — External governance regimes compile to *plane-separated obligation atoms over source anchors*, never to
+authority — one atom = one governance plane, binding-force is a typed field, and only producer-owned fulfillment
+artifacts (not the cited regime) close a gate.** From R28. A `RegimeClauseAnchor` is authoritative only for source
+identity/traceability; an `ObligationAtom` carries *exactly one* of the seven planes ([[M31]]) plus a typed
+`binding_kind` — voluntary framework (NIST RMF, "not a checklist"), binding law (EU AI Act), management memo (OMB
+M-25-21), transparency duty (UK ATRS), governance framework (OECD), incident-learning (OECD-AIM/AIID, `monitor_only`
+never approval). **Governance-prose-laundering guard:** a published ATRS record, a NIST profile, a "no AIID match",
+or an LLM legal summary can be a traceability anchor / public projection / rebuttal input — *never* a filled
+authority slot. An LLM-extracted "obligation" enters only as `ObligationRuleCandidate` behind a `RuleGovernanceDecision`
+(the repo already blocks `LLM_CANDIDATE` from the blocking frontier). No universal cross-jurisdiction legal
+conclusion — jurisdiction-neutral contract + one example mapping per regime. *Verdict: ADOPT-CANDIDATE ([[M31]]
+planes + [[M30]] shared port + [[M1]] envelope).* Extends the [[M30]]×[[M31]] consolidation architecture to the
+*ingestion* of external regimes; open question = the `lex` (legal artifacts) vs `obligation_rules` (mixed-bindingness)
+boundary.
 
 ---
 
@@ -1463,6 +1617,235 @@ today. *Verdict: ADOPT-CANDIDATE ([[M30]] + [[M27]] lowering-is-load-bearing).* 
 
 ---
 
+## §2·I Per-report distillation — Batch 9 (Cross-cutting Public Authority, CPA-R1–R17)
+
+The CPA tier is **not** an engine tier; it is the public-authority admissibility layer. All 17 reports share one
+template and one meta-conclusion — the seven-axis non-collapse ([[M31]]) — applied to a different question each.
+Almost every report self-labels `implemented_but_not_orchestrated` + `surface_missing`: the repo already owns the
+primitives (`AuthorityBoundary`, `capability_authority`, `participation_requirement`, `evidence.PolicyConflictRecord`,
+`graded_outcomes`, `human_review`, `institutional_provenance`, `core.audit`) but has **no single cross-cutting
+public-authority producer/surface**. So this batch is overwhelmingly *reuse-first wiring guidance*, not new
+capability — and its ~17 proposed records are the sharpest test yet of the [[M30]] shared-port discipline.
+
+**CPA-R1 — Mandate-admissibility precheck: three core prongs (goal-mandate ∧ intervention-authority ∧
+decision-forum), fail-closed (259).** A typed `mandate_admissibility_record` that answers *only* "does this design
+objective have a valid authority envelope for further design" — not "is the goal true." Any core prong ≠ `pass`
+⇒ `blocked`; core pass + transparency/contestability deficit ⇒ at most `limited`. Reuses S6/S7/S8 posture inputs
+(`mandate_record_ref`, `delegation_contract_ref`, `decision_rights_matrix_ref`) already present. *Verdict:
+ADOPT-CANDIDATE ([[M31]] + [[M1]]).* `implemented_but_not_orchestrated` + `verification_missing`.
+
+**CPA-R2 — Affected-community participation is `sufficient_narrow_scope`, never mandate-creating (260).**
+Participation can *support* a bounded value choice inside an already-authorized decision space; it never *creates*
+the space, never overrides a rights floor, never averages away a multi-principal conflict. Claim-matched: a
+non-representative consultation supports "consulted subgroup raised concern Y," not "the affected population
+prefers X." Repo `participation_requirement` already downgrades thin consultation and blocks LLM-summary-as-
+participation. *Verdict: REINFORCES-EXISTING ([[M31]] + [[M12]] burden-of-proof).* `implemented_but_not_orchestrated`.
+
+**CPA-R3 — `NormativeAuthorizationRecord`: weights are a recorded permission to aggregate, not ground truth (261).**
+The keystone value-authority report and the source of [[M33]]. Absent an authorized schedule ⇒ `pareto_only` +
+`NormativeDecisionRequest`; authority-lane mismatch (legal competence but wrong decision-rights role) ⇒ `blocked`,
+not "downgraded to okay." Bans silent equal-weight / historical-prior / proxy-as-priority / library-default
+scalarization. *Verdict: ADOPT-CANDIDATE ([[M33]] + [[M31]] + [[M16]]).* `producer_missing` (adjacent primitives
+present).
+
+**CPA-R4 — Multi-principal conflict = typed incompatibility records per axis, never a scalar settlement (262).**
+Each principal gets one-or-more *authority seats* on the 7 axes; conflict materializes on logical-incompatibility
+∨ rights/procedure-bar ∨ unauthorized-value-aggregation. Resolution routes are axis-specific (legal ⇒
+hierarchy/scope-narrowing/phasing; legitimacy ⇒ governance-decision only). **Reuse-first, do not rebuild:**
+`polisyos.evidence` already owns `PolicyConflictRecord` / `build_conflict_portfolio_index` /
+`persistent_contested_state`, authoritative *only for conflict materialization*, never support-strength. *Verdict:
+REINFORCES-EXISTING ([[M29]] + [[M30]] + [[M31]]).* `implemented_but_not_orchestrated` + `semantic_test_missing`.
+
+**CPA-R5 — `ContestabilityReleasePacket`: prove contestability before publishing, don't gesture at it (263).**
+Source of [[M34]]'s packet half. Publishable only if same-input explanation ∧ real recourse to a competent
+reviewer with authority to change ∧ withdraw/reissue ∧ provenance/replay. Repo `graded_outcomes.py` already
+requires a verified recourse pointer + `decision_owner_ref` for `publish_with_limitation`; `human_review.py`
+already scores rubber-stamp risk. *Verdict: ADOPT-CANDIDATE ([[M34]] + [[M10]]).* `implemented_but_not_orchestrated`.
+
+**CPA-R6 — Deliverability envelope: `deliverable | limited | blocked`, hard gates + minimum-of-load-bearing (264).**
+Source of [[M32]]. Legal/organizational/operational/transparency/contestability must all meet the posture floor;
+state capacity is a *ceiling* capping rollout scope even when local capacity looks fine. Repo `capability_authority.py`
+already implements "minimum across load-bearing factors" — the exact composition primitive. *Verdict:
+ADOPT-CANDIDATE ([[M32]] + [[M31]]).* `implemented_but_not_orchestrated`.
+
+**CPA-R7 — Operational feasibility = a stage-by-stage failure ledger × 7 axes, never a feasibility score (265).**
+Model per delivery stage (intake → scope → recommend → approve → execute → notify → appeal → monitor/suspend/replay);
+"feasible" requires no unmodeled severe failure on any axis at any material stage. Fallback must be capacity-tested,
+not described. *Verdict: ADOPT-CANDIDATE ([[M32]] + [[M31]] + [[M20]] verdict-granularity).* `implemented_but_not_orchestrated`
++ `verification_missing`.
+
+**CPA-R8 — Capacity evidence = four observable record-classes, not caveats-in-a-memo (266).** Skills-Readiness /
+Staffing-Continuity / Institutional-Memory / Maintenance-Burden, each emitted from *observable telemetry* (rosters,
+training/incident stores, CHAOSS contributor-absence-factor, change-request-closure-ratio, toil ratio) — a
+narrative-only input fails closed (`capacity_narrative_only_rejected`). **Caution (see §4):** raw git/HR telemetry
+raises privacy/data-ethics issues — needs a governed aggregation/minimization layer, not raw reads. *Verdict:
+ADOPT-CANDIDATE ([[M32]] + [[M8]]).* `producer_missing` + `verification_missing` + `surface_missing`.
+
+**CPA-R9 — Ex-post public value = 5-domain card bundle; ROI computed *last* and *withheld* when unproven (267).**
+No composite `public_value_score` (a direct Goodhart pressure). Separate cards for public-value / service-quality /
+cost / trust / ROI; ROI needs baseline ∧ attribution-class ∧ non-monetized ledger ∧ no unresolved
+rights/incident state, else `withheld_as_misleading`. Cost ledger must include *user-burden* + incident-adjustment
+or the ROI is systematically false. *Verdict: ADOPT-CANDIDATE ([[M16]] full-bundle-not-scalar + [[M24]]
+no-cancellation + [[M31]]).* `implemented_but_not_orchestrated`.
+
+**CPA-R10 — Third-party evidence: three admission tiers + six sub-dossiers + independence accounting (268).**
+Source of [[M35]]'s tiering half. Vendor artifacts enter as `candidate_only`, reach authority-path only via a
+producer-owned adapter (content-bind + same-input closure + purpose boundary), and close a *major* claim only with
+authority-side independent verification. Vendor-run eval ≠ independent; "no AIID match" ≠ "no incident." Reuse
+existing `producer_evidence_contracts` family, don't invent a vendor engine. *Verdict: ADOPT-CANDIDATE ([[M35]] +
+[[M3]] + [[M21]]).* `implemented_but_not_orchestrated` + `verification_missing` + `surface_missing`.
+
+**CPA-R11 — Proprietary models/data: escrow + independent audit access + graded reproducibility (269).** Source of
+[[M35]]'s three-contour half. Escrow is trigger-based (insolvency/breach/incident/regulator/contested-decision),
+version/hash/time-bound, updated on every material change (silent drift = breach). Reproducibility is *tiered*
+(same-input → metric → portability), never "full retraining replication." AI-Act Art.78 confidential-access
+pattern. *Verdict: ADOPT-CANDIDATE ([[M35]] + [[M28]] a-posteriori-checkable + [[M13]] sealed-original).*
+`implemented_but_not_orchestrated` (+ `producer/bridge/surface_missing`).
+
+**CPA-R12 — License/IP/data-use/contract gating is an action×audience matrix, composed to the weakest boundary
+(270).** Not one label per artifact: the same asset may allow internal inference but bar external fine-tune, allow
+summary publication but bar payload. Labels ("open-source", "public") are *not* gate inputs — resolve the actual
+clauses (**provenance-over-label**). Mixed bundles compose to the weakest permitted boundary; model-reuse
+decomposes (inference / fine-tune / distill / weight-redistribution). EDPB: dataset-not-shared ≠ model-safe.
+*Verdict: REINFORCES-EXISTING ([[M21]] + [[M1]] weakest-boundary + [[M31]]).* `contract_only` + `consumer_missing`
++ `semantic_test_missing`.
+
+**CPA-R13 — External-dependency contingency/exit/decommission = a 7-band evidence bundle, fail-closed (271).**
+Trigger classes: failure/outage, terms-or-model change, noncompliance-suspension. **Silent model swap** (schema
+unchanged, weights/moderation/pricing changed) and **semantic data drift under unchanged schema** are the headline
+adversaries — shape-validation greens while the decision basis moved. Exit needs data-return/delete evidence +
+sub-processor visibility + continuity-of-appeal, not just a cutover. *Verdict: ADOPT-CANDIDATE ([[M32]] + [[M9]]
+external-dependency typing + [[M31]]).* `producer_missing` + `semantic_test_missing` + `surface_missing`.
+
+**CPA-R14 — Public transparency record is a projection-only derived artifact, never a public dump of the case
+(272).** Audience-scoped; every field is a public-safe summary, an explicit redaction stub (with reason code), or a
+blocker — never a silent drop and never a raw `cas://`/internal ref. Private evidence stays in PDC/audit; the
+public record must not mint authority. Two-tier ATRS mapping. *Verdict: REINFORCES-EXISTING ([[M10]] + [[M31]]).*
+`implemented_but_not_orchestrated` + `surface_missing`.
+
+**CPA-R15 — Per-audience disclosure/redaction contract: PUBLIC/REVIEWER/EXPERT/MACHINE dispositions per fact ×
+axis (273).** `AudienceDisclosureDecisionRecord` with `public_summary | reviewer_detail | expert_detail |
+machine_structured | ref_only | access_controlled | redacted | blocked`. **MACHINE projection must preserve
+reconstructable source/authority/audit refs** — a machine packet without refs launders prose into authority. A
+redaction may hide a sensitive detail but never the *existence* of contestability. *Verdict: REINFORCES-EXISTING
+([[M10]] + [[M31]]).* `implemented_but_not_orchestrated` + `semantic_test_missing`.
+
+**CPA-R16 — Test whether public explanations improve *understanding + contestability* at non-increasing false
+confidence — not perceived clarity (274).** Source of [[M34]]'s efficacy half; ties to [[SCI-R10]] structured
+transparency. Four-arm design (control / reason / reason+limits / +challenge affordance); three DVs (understanding
+via simulatability+error-detection / contest quality / false-confidence calibration gap). **Recourse laundering**
+and **illusion of explanatory depth** are the named traps; deceptive explanations can out-persuade honest ones.
+*Verdict: ADOPT-CANDIDATE ([[M34]] + [[M8]] behavioral-fixtures + [[M7]]).* `verification_missing` +
+`semantic_test_missing` + `surface_missing`.
+
+**CPA-R17 — Update/notice semantics: `record_lifecycle_state` is a downgrade-only *local dimension*, never a
+parallel status world (275).** `current | stale | superseded | corrected | restricted | retired` composes with —
+and only ever *lowers* — the publication state; superseded versions stay replay/audit-valid but not current-valid;
+**no silent edit of a published public record** (breaks replay + contestability). `as_of` + `review_due_at`;
+restriction distinguishes partial-redaction / full-tombstone / no-acknowledgement (NCND). Reuse `obligation_rules`
+`PublicRevalidationEffect` vocabulary. *Verdict: REINFORCES-EXISTING ([[M25]] vintage/as-of + one-lattice
+(Atlas DS4) + [[M31]]).* `implemented_but_not_orchestrated` + `surface_missing` + `semantic_test_missing`.
+
+---
+
+## §2·J Per-report distillation — Batch 10 (Cross-cutting Public Authority, CPA-R18–R28)
+
+The second CPA half moves from *admissibility* (R1–R17) to the **operational lifecycle**: how perturbations reopen a
+case ([[M36]]), how agents are authorized and disciplined ([[M37]]/[[M38]]), how proxies earn the right to stand for
+a construct ([[M39]]), and how external regimes enter without laundering prose into authority ([[M40]]). As before,
+nearly every report is reuse-first — and several point at *already-built* repo scaffolding (`case_lifecycle`,
+`rule_evolution`, `construct_registry`, `scientist/governance/continuous`), which strengthens the [[M30]]×[[M31]]
+"reuse the owner, don't mint a family" verdict.
+
+**CPA-R18 — Incident registration = four operational classes + a seniority axis, not "we have a channel" (276).**
+`hazard` (plausible harm w/ causal path) / `near_miss` (harmful chain stopped by a gate/rollback/fail-safe — a
+blocked LLM-authority-laundering *is* a near-miss, not "doesn't count") / `incident` (realised harm) / `public_harm`
+(external public-effect tag). OECD incident∥hazard; a candidate-only hallucination that never reached closeout is an
+ordinary defect, not an incident (anti-alert-fatigue). OECD-7 mandatory fields + repo `same_input_envelope`.
+*Verdict: ADOPT-CANDIDATE (feeds [[M36]] + [[M31]]).* `producer_missing`.
+
+**CPA-R19 — Reopen/limit after appeal ≠ challenge ≠ correction ≠ reviewer-escalation: four event classes, four
+default scopes (277).** Citizen appeal → narrow person-slice reopen; institutional challenge (regulator/court/DPA) →
+default *revalidation demand* across sibling cases; correction request → data-accuracy narrow path (typo = annotate;
+inaccurate-personal-data/provenance = restrict-then-reopen); reviewer escalation → hardest pre-publication gate.
+Contestation never *mutates* a closed case — it emits a typed `PdcContestationIntake` + `PdcReopenScopeDecision`.
+**Repo reuse:** `obligation_rules` `PUBLIC_CONTESTATION` + revalidation effects; `scientist/governance/continuous`
+`incident/invalidation/reissue/lifecycle_bridge`. *Verdict: ADOPT-CANDIDATE ([[M36]] + [[M34]]).*
+`implemented_but_not_orchestrated` + `semantic_test_missing`.
+
+**CPA-R20 — Harm-response: compensation & public apology need a SEPARATE authority; they are not derivable from the
+AI-incident fact (278).** `HarmResponseCaseV1` proves *readiness* per axis: correction / notification / individual
+recourse may be ready while `compensation_blocked` (no compensation authority) and `public_apology_blocked` (no named
+approver / unverified facts). Asymmetric states are first-class (`correction_complete + notification_complete +
+compensation_not_authorized`). Ombudsman remedy practice (explanation/apology/remedial-action/compensation), not
+governance theatre. *Verdict: REINFORCES-EXISTING ([[M31]] non-fungibility + [[M33]] authorization-required +
+[[M34]]).* `artifact_missing` + `bridge_missing`.
+
+**CPA-R21 — Cascade rulebook: 5 triggers × 7 axes → 5 lifecycle actions, fail-closed (279).** `incident | appeal |
+retraction | legal_change | discovered_bias` → per-axis deltas → `annotation_only | invalidate | reissue | supersede
+| withdraw`. Sharp discriminators: one upheld appeal ≠ systemic defect; renumbered rule w/ same logic-hash =
+annotate not supersede; a single bias-metric anomaly ≠ withdraw (needs replication + protected-group harm). Two typed
+records (`ClaimLifecycleTriggerRecord` + `ClaimLifecycleDecisionRecord`); pre-adjudication authoritative only for
+intake/queueing. **Reuse `rule_evolution` supersede semantics.** *Verdict: ADOPT-CANDIDATE ([[M36]] keystone +
+[[M31]]).* `implemented_but_not_orchestrated`.
+
+**CPA-R22 — Pre-action `AgentActionAuthorityPacket`: capability ∩ permission ∩ mandate-bounded delegation ∩
+envelope ∩ live accountability, checked *before* the action (280).** Source of [[M37]]. Five action classes;
+`draft` is not globally low-risk (type by audience/externality); authority is non-monotone (search ↛ data_request).
+Out-of-envelope ⇒ `HumanDecisionRequest` → five-rights `HumanDecisionRecord`; a click by the wrong role fails (P26).
+Reuse `OperationContract`/`OperationInvocationRecord`/`AuthorityBoundary`/candidate-firewall. *Verdict:
+ADOPT-CANDIDATE ([[M37]]).* `contract_only` + `producer_missing` + `bridge_missing` (D3 delegation layer).
+
+**CPA-R23 — Log orchestration as an authority delta, not a rationale (281).** Source of [[M38]]'s selection half.
+Evidence-selection / tool-choice / framing / compression each get candidate-universe + rejected-set + decision-policy
++ explicit authority effect (`authoritative_for = ∅`, mirroring `search_ledger`). Named traps: selection laundering
+(low-`k_eff` set → false "consensus"), framing laundering (silent envelope-narrowing changes governance burden),
+compression laundering (public prose drops retained-limitations). **Gap:** G6 has prompt/tool/search/orchestration/
+replay ledgers but *no compression ledger*. *Verdict: ADOPT-CANDIDATE ([[M38]] + [[M3]] + [[M10]]).*
+`implemented_but_not_orchestrated` + `semantic_test_missing`.
+
+**CPA-R24 — Composite, lifecycle-bound, authority-aware agent threat model — not STRIDE/LINDDUN alone (282).** The
+agent is simultaneously an untrusted interpreter of untrusted content, a privileged workflow actor, a PII handler,
+and a non-authoritative evidence transformer. Six abuse classes (control/evidence-integrity/state-memory/privilege/
+privacy/public-process) × workflow stages; **long-term memory is an untrusted surface** (memory-poisoning records
+masquerading as policy/incident facts need governed admission); multi-agent coordination is first-class attack
+surface. `agent_threat_case.v1` with 7 governance axes. *Verdict: ADOPT-CANDIDATE (security half of [[M37]] +
+[[M31]]).* `verification_missing` + `semantic_test_missing` + `surface_missing`.
+
+**CPA-R25 — Cross-agency handoff = two-step bounded acceptance; transfer artifacts + responsibility chain, never
+authority wholesale (283).** Source of [[M38]]'s handoff half. `AuthorityBoundary.meet()` (∩ allowed uses, ∪
+deny-lists; empty ⇒ blocked); no-responsibility-transfer-by-default; a *context capsule* (typed refs + as-of + legal
+snapshot), not a summary blob; an `llm_candidate` summary crosses only as `candidate_only`. Auditability-by-
+construction (time-correlated emit/accept/deny). Reuse `ClusterHandoffRecord`/`AuthorityDerivationTrace`. *Verdict:
+ADOPT-CANDIDATE ([[M38]] + [[M35]]).* `implemented_but_not_orchestrated` + `surface_missing`.
+
+**CPA-R26 — Retraction/correction propagation = a replayable `EvidenceValidityEvent`, not a narrative note (284).**
+Taxonomy: metadata-correction / content-correction / expression-of-concern / retraction-recall / living-review-
+superseded / citation-fabricated-or-unresolvable / source-withdrawn-unverified (**do NOT invent a `partial_retraction`
+source type** — model partial loss at the claim/evidence relation). Propagates source→evidence-line→claim→publication;
+"retraction laundering through a living review" and "fabricated citation w/ plausible metadata" are the headline
+adversaries. Reuse `evidence_spine`→`claim_registry`→`case_lifecycle`; distinct from `rule_evolution` (sources, not
+rules). *Verdict: ADOPT-CANDIDATE ([[M36]] source-status facet + [[M21]] anchored-support).*
+`implemented_but_not_orchestrated` + `verification_missing`.
+
+**CPA-R27 — Proxy-for-construct needs a construct-validity case, not a fit statistic (285).** Source of [[M39]].
+Seven bundles (concept-contract + 6 Messick lenses) + a modality-specific independence floor (admin source-audit /
+text confounder+semantic / EO independent-reference) + legal/legitimacy/capacity/transparency/contestability bundles.
+Ofqual-2020 aggregation trap; ValiText ideology→incumbency confounder; CEOS non-independent-reference. **Repo owns
+the seam:** `runtime/quality/construct_registry.py` (`construct_validity_requirements`, `proxy_validation_rules`,
+per-posture `authority_requirements`). *Verdict: ADOPT-CANDIDATE ([[M39]]).* `implemented_but_not_orchestrated` +
+`verification_missing` + `semantic_test_missing`.
+
+**CPA-R28 — Minimal obligation grammar: one atom = one governance plane, over a source anchor, never direct authority
+(286).** Source of [[M40]]. `RegimeClauseAnchor` (source identity/traceability) + `ObligationAtom` (exactly one of 7
+planes + typed `binding_kind` + applicability + fulfillment-contract + temporal-semantics + authority-boundary).
+Governance-prose-laundering guard: ATRS record / NIST profile / "no AIID match" / LLM legal summary are anchors,
+projections, or rebuttal inputs — never filled authority slots. Extend `obligation_rules` with a dialect; don't
+build a compliance brain. *Verdict: ADOPT-CANDIDATE ([[M40]] + [[M30]]×[[M31]]).* `implemented_but_not_orchestrated`
++ `surface_missing`.
+
+---
+
 ## §3 Where these findings could land (consolidation map, not a commitment)
 
 These are candidate routings to weigh once all batches are distilled — **not** approved plan edits.
@@ -1669,6 +2052,73 @@ These are candidate routings to weigh once all batches are distilled — **not**
   `method_count: 0` is re-confirmed a *third* time (P11.14, P11.15) — an empty method-inventory golden, consistent
   with the standing note.
 
+*— Cross-cutting Public Authority batch —*
+
+- **The consolidation architecture for the whole public-authority layer = [[M31]] × [[M30]].** The ~17 CPA records
+  should NOT become 17 owners and NOT become one governance number. They should be **discriminated-union payloads
+  over one admission port** ([[M30]]), **composed by the 7-axis weakest-boundary rule** ([[M31]]). Most already
+  have a home: reuse `evidence.PolicyConflictRecord` (R4), `participation_requirement` (R2/R3 participation lane),
+  `capability_authority` "minimum-of-load-bearing" (R6/R7 composition), `runtime.quality` `producer_evidence_contracts`
+  (R10/R11 supplier evidence), `graded_outcomes`/`human_review` (R5/R16 contestability), `institutional_provenance`
+  (R6/R8 feasibility), `core.audit` (R11/R14 offline bundles). The one genuinely `producer_missing` new family is
+  the value-authorization record (R3, [[M33]]).
+- **Atlas DS12 (public publication gate) + DS14 (public transparency surface)** ← **CPA-R5** (contestability packet
+  before publish), **CPA-R14** (projection-only transparency record, redaction-with-reason, never mint authority),
+  **CPA-R15** (per-audience disclosure matrix; MACHINE must keep reconstructable refs), **CPA-R16** (measure
+  explanation efficacy, not clarity — ties to [[SCI-R10]] and the existing DS12↔CPA-R16 cross-link), **CPA-R17**
+  (lifecycle-state is downgrade-only, no silent edit). All are projection-only [[M10]]/[[M31]] surfaces.
+- **Atlas DS9 (human decision integrity)** ← **CPA-R3** (value-authorization = `principal` role, not `ai_first`,
+  not `delegated_autonomous`), **CPA-R5** (competent reviewer with change-authority; rubber-stamp fails) — both sit
+  directly on the DS20 review-effectiveness telemetry already merged.
+- **Atlas DS4 (status grammar)** ← the CPA lattices must be filtered through DS4's one-lattice / recompute-not-pin
+  discipline. **CPA-R17 supplies the rule:** a lifecycle/authority dimension may only *lower* the composed status,
+  never open a parallel status world — the antidote to status-enum-proliferation from 7 axes × 17 records.
+- **GY-N11 (δ-budget) / N12 (epochs)** ← **CPA-R1/R6** hard-gate-then-minimum composition is the same shape as
+  N11's obligation-class δ-split; **CPA-R17** stale/superseded/corrected semantics = N12's epoch/stale-certificate
+  handling, and **CPA-R13** contingency triggers = external-dependency epoch boundaries.
+- **Layer-2 D3 (multi-principal normative firewall)** ← **CPA-R4** typed incompatibility-per-axis + reuse of
+  `evidence.PolicyConflictRecord`; **CPA-R3** authorization-to-aggregate. These are the D3 firewall's evidence shapes.
+- **Observations (not actionable code bugs — this tier is design-research):** (1) every CPA report independently
+  lands `implemented_but_not_orchestrated` + `surface_missing` — a *consistent* signal that the public-authority
+  primitives exist but the cross-cutting producer/surface does not; treat as a real orchestration gap, not 17
+  separate ones. (2) The target-architecture doc's own admission that *"measurability & subject granularity are
+  orphan"* and *"state capacity, mandate/legitimacy, feasibility are orphan"* on the axes (cited by CPA-R9) is a
+  registered gap worth a pointer. (3) **CPA-R8's CHAOSS/git-telemetry-as-capacity-evidence needs a governed
+  minimization layer** before any raw read (privacy/data-ethics) — see §4.
+
+*— Cross-cutting Public Authority batch 2 —*
+
+- **GY-N12 (epochs / stale certificates) + Layer-2 lifecycle** ← **CPA-R21** (5-trigger × 5-action cascade =
+  [[M36]]) and **CPA-R26** (source-status `EvidenceValidityEvent` propagation) are the same recompute-not-pin law
+  N12 needs. **Reuse-first, do not rebuild:** `case_lifecycle.py` (states + `REVISION_ACTION_ORDER`),
+  `core.contracts.rule_evolution` (semantic-change revalidation blocker), and `scientist/governance/continuous`
+  (`incident`/`invalidation`/`reissue`/`lifecycle_bridge`) already materialize much of the cascade — CPA-R19/R21/R26
+  should wire these, not add a parallel owner.
+- **Atlas DS9 (human decision integrity) + DS20 server-authz** ← **CPA-R22** (pre-action `AgentActionAuthorityPacket`
+  = [[M37]]) and **CPA-R23** (orchestration-choice authority-delta log = [[M38]]). The memory's prior note
+  "CPA-R22/R23 ≈ DS20-authz" is confirmed: these are the agent-action authorization + audit that DS20's server floor
+  and the G6 bounded-agent ledgers already partially carry. **CPA-R23 flags a real gap:** G6 has prompt/tool/search/
+  orchestration/replay ledgers but *no compression ledger* — the compression-laundering surface is unbuilt.
+- **GY bounded LLM agent + proving-ground safety** ← **CPA-R24** (composite agent threat model: untrusted transducer,
+  memory-poisoning, multi-agent handoff as attack surface) and **CPA-R25** (cross-agency handoff = `meet()` +
+  responsibility-chain, [[M38]]). These are the security envelope for any promoted B-side agent (the D3.8 gate).
+- **Layer-2 D3 delegation layer** ← **CPA-R22** names the pre-action gate the still-`contract_only`
+  `DelegationContract`/`HumanDecisionRequest`/`HumanDecisionRecord` triad needs (the D3 layer the memory tracks as
+  producer-missing). This is the single highest-value wiring target in the batch.
+- **GY-S substrate / construct grounding + CGF** ← **CPA-R27** proxy-for-construct validity ([[M39]]) has a live repo
+  seam: `runtime/quality/construct_registry.py` already carries `construct_validity_requirements` /
+  `proxy_validation_rules` / per-posture `authority_requirements`. This is the "measurability ≠ construct" gate the
+  target-arch doc admits is orphan.
+- **External-regime ingestion (Lex ↔ obligation_rules) + §3.5.11 CGF** ← **CPA-R28** plane-separated obligation
+  grammar ([[M40]]). Open consolidation question it raises: the boundary between `lex` (true legal artifacts) and
+  an `obligation_rules` dialect (mixed-bindingness regimes: OMB/NIST/ATRS/OECD) — keep `binding_kind` typed, don't
+  dilute the Lex legal contour.
+- **Actionable / observational (verify — reports are untrusted):** no hard code bugs this batch (design-research
+  tier). Two standing gaps re-confirmed: the **D3 delegation layer is still `contract_only`/`producer_missing`**
+  (CPA-R22), and **no compression ledger exists on the G6 bounded-agent surface** (CPA-R23). One reuse win worth
+  recording: `case_lifecycle.py` already enumerates the full lifecycle-state set + `REVISION_ACTION_ORDER` that
+  CPA-R21/R26 assume (verify before building anything new).
+
 ---
 
 ## §4 What NOT to adopt / honest caveats
@@ -1700,7 +2150,10 @@ These are candidate routings to weigh once all batches are distilled — **not**
   statuses, VFI/DCC/forecast-authority lattices, judge-stack meta-eval states, cross-toolchain parity verdicts, …).
   Adopt the *shape* (typed, fail-closed, `research_only` floor, states recomputed not pinned) but every one must be
   reconciled against the single Atlas status lattice / DS4 discipline before it lands. Do not import ~89 parallel
-  lattices.
+  lattices. **The CPA batch adds a second dimension of the same risk:** 7 authority axes × 17 records, each report
+  proposing per-axis statuses. The resolution is supplied *inside* the batch by **CPA-R17 / [[M31]]**: an
+  authority/lifecycle dimension may only ever *lower* the single composed status (weakest-boundary), never open a
+  parallel status world — so the 7 axes are composition inputs to one lattice, not seven lattices.
 - **Candidate-certificate proliferation is now the single largest consolidation risk** (Phases 8–10): the three
   batches together propose **~44 new local candidate artifacts** (Phase 10 alone adds ~16: `multilevel_admissibility_
   assessment`, `mean_field_finite_n_correction`, `SurvivalIntervalBundle`, `CoupledMechanismEquilibriumCase`, the
@@ -1726,6 +2179,32 @@ These are candidate routings to weigh once all batches are distilled — **not**
   parity-port; P11.09's one-surface-two-lanes) — collapse the ~60+ candidate certificates (Phases 8–11) to *one*
   shared admission port with a discriminated-union of family-native payloads, reusing the repo's
   `CrossBackendEquivalenceCertificate` seed. That is the pattern the deliberate consolidation act should adopt.
+  **Batch 9 raises the count to ~77** (adds ~17 CPA records: `mandate_admissibility_record`,
+  `affected_community_participation_judgement`, `NormativeAuthorizationRecord`, `MultiPrincipalConflictBundle`,
+  `ContestabilityReleasePacket`, `PolicyDeliveryCapacityAssessment`, `delivery_feasibility_failure_battery`,
+  `operational_capacity_evidence`, `ExPostValueMeasurementRecord`, `third_party_supplier_evidence_packet`,
+  `VendorEvidenceEscrowRecord`, `DownstreamUseRestrictionRecord`, `ExternalDependencyContinuityEvidenceBundle`,
+  `public_algorithmic_transparency_record`, `AudienceDisclosureDecisionRecord`, `PublicExplanationEvaluationRecord`,
+  `TransparencyRecordLifecycleEvent`). For the CPA layer the resolution is **[[M30]] × [[M31]] jointly**: the shared
+  port + family-native payloads ([[M30]]), *composed by* the 7-axis weakest-boundary rule ([[M31]]). Most CPA
+  records also have an existing owner (reuse `evidence.PolicyConflictRecord`, `participation_requirement`,
+  `capability_authority`, `runtime.quality.producer_evidence_contracts`, `graded_outcomes`/`human_review`,
+  `institutional_provenance`, `core.audit`) — only the value-authorization record ([[M33]]) is genuinely new.
+  **Batch 10 raises the count to ~90** (adds ~13 CPA lifecycle/agent records: `PolicyIncidentRecordV1`,
+  `PdcContestationIntake` + `PdcReopenScopeDecision`, `HarmResponseCaseV1`, `ClaimLifecycleTriggerRecord` +
+  `ClaimLifecycleDecisionRecord`, `AgentActionAuthorityPacket`, `OrchestrationChoiceAuditV1`, `agent_threat_case.v1`,
+  `CrossAgencyAgentHandoffRecordV1`, `EvidenceValidityEvent`, `ConstructValidityReceipt`, `RegimeClauseAnchor` +
+  `ObligationAtom`). But Batch 10 *strengthens* the resolution rather than worsening it: **most of these reports name
+  an existing owner to reuse** — `case_lifecycle` + `rule_evolution` + `scientist/governance/continuous` (R19/R21/R26
+  cascade), `construct_registry` (R27), `obligation_rules` dialect (R28), `OperationContract`/`AuthorityBoundary.meet`
+  (R22/R25). The consolidation act should treat the ~90 records as [[M30]]×[[M31]] payloads over ~6–8 existing owners,
+  not ~90 families. **The two genuinely-missing producers to note:** the D3 delegation gate (R22, `contract_only`) and
+  the value-authorization record (R3, [[M33]]).
+- **CPA-R8 CHAOSS/repo-telemetry caveat.** Using raw git/HR telemetry (contributor-absence-factor, change-request-
+  closure-ratio, response latency, roster data) as operational-capacity evidence ([[M32]]) is attractive but raises
+  privacy / data-ethics concerns that CHAOSS itself flags. Any adoption must route through a **governed aggregation
+  / minimization layer**, never a raw read of git or HR stores — treat this as a hard precondition, not a later
+  refinement.
 - **A claim to refuse outright** (P7.03): "the computation is reproducible on any hardware." Bitwise cross-hardware
   reproducibility is refuted as a default; only the tiered contract ([[M12]]) is honest. If any consolidated artifact or
   surface asserts blanket hardware reproducibility, that is the overclaim to block.
@@ -1767,9 +2246,12 @@ These are candidate routings to weigh once all batches are distilled — **not**
 | 6 | Foundry (Phase 9) | `P9.01`..`P9.14` (14) | **DONE** | §2·F + moves M25–M26 |
 | 7 | Foundry (Phase 10) | `P10.01`..`P10.16` (16) | **DONE** | §2·G + moves M27–M28 |
 | 8 | Foundry (Phase 11) | `P11.01`..`P11.15` (15) | **DONE** | §2·H + moves M29–M30 |
-| 9 | Lex | `LEX-R*` | pending | — |
-| 10 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈SCI-R10, CPA-R26≈SCI-R8, CPA-R22/R23≈DS20-authz already flagged) |
+| 9 | Cross-cutting public authority (I) | `CPA-R1`..`CPA-R17` (17) | **DONE** | §2·I + moves M31–M35 (CPA-R16≈`SCI-R10`) |
+| 10 | Cross-cutting public authority (II) | `CPA-R18`..`CPA-R28` (11) | **DONE** | §2·J + moves M36–M40 (CPA-R22/R23≈DS20-authz; R26≈`SCI-R8`) |
+| 11 | Lex | `LEX-R*` | pending | — (sole remaining track) |
 
-**Next:** when a batch arrives, distil into a new §2-style section + fold any genuinely new move into §1
-(M-series), update §3 routing and §5. Consolidation into GY/Atlas is a **separate, later** deliberate act —
-only after the backlog is fully distilled.
+**Next:** only the **Lex (`LEX-R*`)** track remains. When it arrives, distil into a new §2-style section + fold any
+genuinely new move into §1 (M-series), update §3 routing and §5. Consolidation into GY/Atlas is a **separate,
+later** deliberate act — only after the backlog is fully distilled. Running totals: **139 reports** across 10
+batches, **40 cross-cutting moves**, ~90 candidate records flagged for [[M30]]×[[M31]] consolidation (over ~6–8
+existing owners, not ~90 families).

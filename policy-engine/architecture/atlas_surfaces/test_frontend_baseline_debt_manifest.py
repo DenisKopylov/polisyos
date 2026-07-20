@@ -448,8 +448,16 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         architecture = manifest["architecture"]
 
         self.assertEqual(architecture["immutable_origin"]["violation_count"], 36)
-        self.assertEqual(architecture["violation_count"], 23)
-        self.assertEqual(len(architecture["resolutions"]), 13)
+        self.assertEqual(architecture["violation_count"], 16)
+        self.assertEqual(architecture["source_file_count"], 14)
+        self.assertEqual(len(architecture["resolutions"]), 20)
+        self.assertEqual(
+            sum(
+                resolution["cluster_id"] == "C09"
+                for resolution in architecture["resolutions"]
+            ),
+            7,
+        )
         self.assertEqual(checker.validate_baseline_manifest(manifest), [])
 
     def test_architecture_partition_rejects_a_missing_resolution(self) -> None:

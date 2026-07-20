@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Download, FileCheck2, Printer } from "lucide-react";
 
 import { useBureaucraticRender } from "@/api/hooks/useBureaucraticRender";
-import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { Button, Checkbox } from "@polisyos/atlas-ui";
 

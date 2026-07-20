@@ -9,7 +9,7 @@ import {
   useState,
 } from "react";
 
-import { useMaybeTemporalCursor } from "./useTemporalCursor";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import {
   compareScenarioScopes,
   normalizeScenarioScope,

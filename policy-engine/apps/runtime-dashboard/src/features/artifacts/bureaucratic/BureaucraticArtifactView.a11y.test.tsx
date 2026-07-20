@@ -9,7 +9,7 @@ vi.mock("@/api/hooks/useBureaucraticRender", () => ({
     useBureaucraticRenderMock(...args),
 }));
 
-vi.mock("@/app/providers/useTemporalCursor", () => ({
+vi.mock("@/shared/ui/temporal/TemporalRuntimeBridge", () => ({
   useMaybeTemporalCursor: () => null,
 }));
 

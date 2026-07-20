@@ -1,22 +1,23 @@
 import type { PropsWithChildren } from "react";
-import { useEffect } from "react";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  TemporalCursorProvider,
-  useTemporalCursor,
-} from "@/app/providers/TemporalCursorProvider";
-import { createTestQueryClient } from "@/test/queryClient";
 import { ReducedMotionProvider } from "@/shared/a11y";
+import {
+  TemporalRuntimeBridgeProvider,
+  type TemporalRuntimeBridgeValue,
+} from "./TemporalRuntimeBridge";
 import { TemporalScrubber } from "./TemporalScrubber";
 
-function TemporalHarness() {
-  const { setTemporalCapabilities } = useTemporalCursor();
-  useEffect(() => {
-    setTemporalCapabilities({
+const RANGE = {
+  earliest: "2026-04-10T00:00:00Z",
+  latest: "2026-04-20T00:00:00Z",
+};
+
+function renderScrubber() {
+  const commitScope = vi.fn();
+  const value: TemporalRuntimeBridgeValue = {
+    capabilities: {
       defaultScope: {
         txAt: "2026-04-16T00:00:00Z",
         validAt: "2026-04-15T00:00:00Z",
@@ -26,62 +27,67 @@ function TemporalHarness() {
           id: "start",
           kind: "run_start",
           label: "start",
-          timestamp: "2026-04-10T00:00:00Z",
+          timestamp: RANGE.earliest,
         },
         {
           id: "finish",
           kind: "run_finish",
           label: "finish",
-          timestamp: "2026-04-20T00:00:00Z",
+          timestamp: RANGE.latest,
         },
       ],
       resolution: "event",
       runId: "run-1",
       surfaces: [],
-      txRange: {
-        earliest: "2026-04-10T00:00:00Z",
-        latest: "2026-04-20T00:00:00Z",
-      },
-      validRange: {
-        earliest: "2026-04-10T00:00:00Z",
-        latest: "2026-04-20T00:00:00Z",
-      },
-    });
-  }, [setTemporalCapabilities]);
+      txRange: RANGE,
+      validRange: RANGE,
+    },
+    committedScope: null,
+    commitPreview: vi.fn(),
+    commitScope,
+    effectiveScope: {
+      txAt: "2026-04-16T00:00:00Z",
+      validAt: "2026-04-15T00:00:00Z",
+    },
+    eventPoints: [],
+    previewScope: null,
+    range: RANGE,
+    resetScope: vi.fn(),
+    setPreviewScope: vi.fn(),
+    setTemporalCapabilities: vi.fn(),
+    stepValidTime: vi.fn(),
+    txRange: RANGE,
+  };
 
-  return (
-    <TemporalScrubber
-      labels={{
-        now: "Now",
-        observed: "Observed",
-        simulated: "Simulated",
-        slider: "Temporal cursor",
-      }}
-    />
-  );
-}
-
-function renderScrubber() {
-  const queryClient = createTestQueryClient();
   function Wrapper({ children }: PropsWithChildren) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter initialEntries={["/"]}>
-          <ReducedMotionProvider>
-            <TemporalCursorProvider>{children}</TemporalCursorProvider>
-          </ReducedMotionProvider>
-        </MemoryRouter>
-      </QueryClientProvider>
+      <ReducedMotionProvider>
+        <TemporalRuntimeBridgeProvider value={value}>
+          {children}
+        </TemporalRuntimeBridgeProvider>
+      </ReducedMotionProvider>
     );
   }
 
-  return render(<TemporalHarness />, { wrapper: Wrapper });
+  return {
+    commitScope,
+    ...render(
+      <TemporalScrubber
+        labels={{
+          now: "Now",
+          observed: "Observed",
+          simulated: "Simulated",
+          slider: "Temporal cursor",
+        }}
+      />,
+      { wrapper: Wrapper },
+    ),
+  };
 }
 
 describe("TemporalScrubber", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    window.history.replaceState({}, "", "/");
   });
 
   afterEach(() => {
@@ -89,7 +95,7 @@ describe("TemporalScrubber", () => {
   });
 
   it("updates preview on change and commits after debounce", () => {
-    renderScrubber();
+    const { commitScope } = renderScrubber();
     const slider = screen.getByRole("slider", { name: "Temporal cursor" });
 
     fireEvent.change(slider, {
@@ -100,23 +106,30 @@ describe("TemporalScrubber", () => {
       vi.advanceTimersByTime(150);
     });
 
-    expect(window.location.search).toContain("valid_at=2026-04-18");
+    expect(commitScope).toHaveBeenCalledWith(
+      expect.objectContaining({ validAt: "2026-04-18T00:00:00.000Z" }),
+    );
   });
 
   it("supports keyboard navigation and now action", () => {
-    renderScrubber();
+    const { commitScope } = renderScrubber();
     const slider = screen.getByRole("slider", { name: "Temporal cursor" });
 
     fireEvent.keyDown(slider, { key: "Home" });
     act(() => {
       vi.advanceTimersByTime(150);
     });
-    expect(window.location.search).toContain("valid_at=2026-04-10");
+    expect(commitScope).toHaveBeenCalledWith(
+      expect.objectContaining({ validAt: "2026-04-10T00:00:00.000Z" }),
+    );
 
+    commitScope.mockClear();
     fireEvent.click(screen.getByRole("button", { name: "Now" }));
     act(() => {
       vi.advanceTimersByTime(150);
     });
-    expect(window.location.search).toContain("valid_at=2026-04-20");
+    expect(commitScope).toHaveBeenCalledWith(
+      expect.objectContaining({ validAt: "2026-04-20T00:00:00.000Z" }),
+    );
   });
 });

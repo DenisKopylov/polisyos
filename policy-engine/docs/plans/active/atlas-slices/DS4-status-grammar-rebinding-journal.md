@@ -928,3 +928,96 @@ comparability or set-valued readiness grammar.
 - Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
   frozen Russian locale, master plan, main, and other worktrees remain
   untouched. The generated client remains read-only.
+
+## 2026-07-20 — DS4-C09 temporal semantics and cursor root cause
+
+### Red-first and authority boundary
+
+- The inherited `TemporalCursorProvider.test.tsx > commits canonical URL
+params` failure was reproduced before product work. Classification showed the
+  committed cursor and range clamp were correct: the test's April 2026 fixture
+  was being compared against the ambient July wall clock. Fake timers and an
+  injected system time now make that assertion time-independent without
+  changing the product's clamp semantics.
+- The three planned temporal semantic negatives landed before the rebound:
+  missing epoch/as-of fields remain explicit unknowns, `observed_at` never
+  substitutes for `source_as_of`, and a producer observation state never
+  becomes a client-minted cache-age state. The cache-age bridge has exactly one
+  runtime export, passes every non-empty owner label through opaquely, presents
+  it as `unrecognized`, and exports no value-level vocabulary constants.
+- The final uncached lint initially exposed eleven test-only
+  `testing-library/no-node-access` errors. Explicit queryable row identities
+  replaced DOM-parent traversal; the scoped lint and four affected tests went
+  green before the full denominator was rerun. Typecheck then exposed a widened
+  temporal-surface string and a non-generated freshness fixture. The endpoint
+  mapper now retains the generated `TemporalCapabilitiesView`,
+  `TemporalEventPoint`, and `TemporalSurfaceCapability` types after runtime
+  validation, and the fixture uses the generated `ProjectionFreshness` state
+  and basis.
+- A final formatting audit found two mechanically unformatted files. Their
+  formatter-only rewrite was followed by another production build, scoped
+  tests, status/source-byte checks, and a second uncached full lint. The final
+  receipt therefore binds the formatter-final bytes rather than relying on the
+  earlier zero-error run.
+- Independent subagent review was unavailable because the workspace agent
+  credit pool remained exhausted. This is a non-receipt. Local review included
+  the generated-type typecheck failures above, the structural temporal import
+  test, full denominator comparators, and marker-preserving corruption probes.
+
+### Implementation and disposition
+
+- Temporal domain normalization moved from `app/providers` to
+  `shared/lib/domain/temporal.ts` and indexes the canonical generated client
+  types. URL ownership stays in the app. A shared, app/API-clean
+  `TemporalRuntimeBridge` carries the live cursor; the app-owned
+  `ConnectedTemporalScrubber` binds the runtime query to the living shared
+  family. The old app-local cursor hook, app-owned domain module, and shared
+  API hook are deleted.
+- `TimeSemanticsLabel` renders policy `valid_at`, knowledge `tx_at`, payload
+  `as_of`, source `source_as_of`, producer `observed_at`/state, and neutral
+  cache age independently. It consumes the generated `ProjectionFreshness`
+  contract. No missing field is guessed from another time role.
+- `DataFreshnessMatrix` no longer owns the `fresh | stale | unknown` status
+  union. Its display prop is an `InteractionState`; only telemetry-purpose
+  labels affect the count/color projection, while novel labels remain neutral.
+  The inventory row is retired and the authored denominator moves `42 -> 41`.
+- The structural temporal architecture test parses every temporal-family and
+  shared-domain import with the TypeScript AST and rejects app, API, feature,
+  export, and dynamic-import dependencies. Seven exact temporal identities are
+  removed from the architecture manifest (`23 / 20 -> 16 / 14`).
+- `ui-temporal` is strangled to
+  `dashboard-temporal-generated-waist-rebind`, with live domain, scrubber, and
+  time-semantics consumer evidence. The DS2-rejected
+  `component-decision-timeline` remains rejected. The data-freshness root is
+  separately strangled to its interaction-state successor; neither row claims
+  a new component universe.
+- Full-suite review also exposed a stale Fabric-hook assertion whose fixture
+  omitted the generated temporal object and whose expectation required the UI
+  to mint trust metadata. The fixture now uses the generated-valid empty time
+  object and the test proves absent producer trust metadata remains absent.
+  Newly introduced runtime-bridge and time-semantics components received real
+  axe tests, leaving only the pre-existing C12-owned
+  `OperatorDiagnosticPanel` census identity.
+
+### Debt and verification receipt
+
+| Gate                                      | Result                                                                                                                                                                                                   |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| quantity lint identities                  | held at terminal `0 / 0`; formatter-final uncached full ESLint covers 915 files with zero errors and zero warnings; exact comparator PASS                                                                |
+| temporal Vitest identity                  | `5 -> 4`; temporal cursor closed, 245 files / 742 tests, 738 pass, with only three DS6 i18n identities and the C12 OperatorDiagnosticPanel census remaining; exact comparator PASS                       |
+| architecture                              | exact `23 / 20 -> 16 / 14`; seven `shared-no-app-or-features` temporal identities resolved, leaving fifteen shared-boundary plus one app-barrel identity; exact comparator PASS                          |
+| status retirement                         | PASS; 47 DS1 rows, 41 current definitions, classifications `24 interaction / 15 lattice / 8 removed`, 14 semantic exemptions, 7 remaining retirement rows, and 3 DS5 waist rows; corruption probes green |
+| affected behavior                         | PASS; cursor/provider, URL/domain normalization, runtime bridge, scrubber, time-semantics, cache-age negatives, data freshness, Fabric hook, AppShell, and all added axe tests                           |
+| dashboard typecheck and production build  | PASS on formatter-final bytes; app/node/tools projects, 3,875 modules, postbuild security, package Tailwind-source proof, and 102 PWA entries                                                            |
+| `@polisyos/atlas-ui` package gates        | PASS; typecheck, 10 files / 50 tests, lint, 27-file architecture, DTCG schema validation, and token projection drift check                                                                               |
+| disposition and debt lifecycle governance | PASS; 261 roots, 8 censuses, 200 pending dispositions, 23 seeded negatives, 26 debt-lifecycle tests, source-byte verification, exact three-denominator comparison, and corruption probes                 |
+
+### Fence receipt
+
+- C09 changes are confined to the dashboard temporal/data-freshness consumers,
+  owned `architecture/atlas_surfaces/**`, the generated DS19 reference report,
+  and this journal. `packages/atlas-ui`, dependency versions, and the lockfile
+  are unchanged.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client was consumed read-only.

@@ -2,7 +2,7 @@ import {
   hasTemporalScope,
   normalizeTemporalScope,
   type TemporalScope,
-} from "./temporal-scope";
+} from "@/shared/lib/domain/temporal";
 
 const CANONICAL_PARAMS = [
   "valid_at",

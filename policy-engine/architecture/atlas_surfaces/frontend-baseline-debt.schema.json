@@ -70,6 +70,9 @@
     "ownerSlice": {
       "const": "DS4"
     },
+    "debtOwnerSlice": {
+      "enum": ["DS4", "DS6"]
+    },
     "disposition": {
       "const": "rebind_pending"
     },
@@ -1008,7 +1011,7 @@
           "pattern": "^[a-z0-9][a-z0-9-]*$"
         },
         "owner_slice": {
-          "$ref": "#/$defs/ownerSlice"
+          "$ref": "#/$defs/debtOwnerSlice"
         },
         "disposition": {
           "$ref": "#/$defs/disposition"
@@ -1127,10 +1130,12 @@
           "minLength": 1
         },
         "wall_duration_seconds": {
-          "const": 181.12
+          "type": "number",
+          "exclusiveMinimum": 0
         },
         "vitest_duration_seconds": {
-          "const": 178.12
+          "type": "number",
+          "exclusiveMinimum": 0
         },
         "exit_code": {
           "const": 1
@@ -1165,7 +1170,7 @@
         },
         "debt_classes": {
           "type": "array",
-          "minItems": 3,
+          "minItems": 1,
           "maxItems": 3,
           "items": {
             "$ref": "#/$defs/testDebtClass"

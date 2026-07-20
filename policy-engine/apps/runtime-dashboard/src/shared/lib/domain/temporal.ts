@@ -1,9 +1,18 @@
+import type {
+  TemporalCapabilitiesView as RuntimeTemporalCapabilities,
+  TemporalEventPoint as RuntimeTemporalEventPoint,
+  TemporalGapRange as RuntimeTemporalGap,
+  TemporalRange as RuntimeTemporalRange,
+  TemporalScope as RuntimeTemporalScope,
+  TemporalSurfaceCapability as RuntimeTemporalSurface,
+} from "@polisyos/runtime-api-client";
+
 export type TemporalScope = {
-  validAt?: string | null;
-  txAt?: string | null;
-  branch?: string | null;
-  snapshotId?: string | null;
-  scenarioId?: string | null;
+  validAt?: RuntimeTemporalScope["valid_at"];
+  txAt?: RuntimeTemporalScope["tx_at"];
+  branch?: RuntimeTemporalScope["branch"];
+  snapshotId?: RuntimeTemporalScope["snapshot_id"];
+  scenarioId?: RuntimeTemporalScope["scenario_id"];
 };
 
 export type TemporalScopeKey = {
@@ -15,50 +24,42 @@ export type TemporalScopeKey = {
 };
 
 export type TemporalRange = {
-  earliest: string | null;
-  latest: string | null;
+  earliest: RuntimeTemporalRange["earliest"];
+  latest: RuntimeTemporalRange["latest"];
 };
 
 export type TemporalEventPoint = {
-  id: string;
-  timestamp: string;
-  kind:
-    | "run_start"
-    | "run_finish"
-    | "trace_event"
-    | "policy_change"
-    | "late_evidence"
-    | "correction"
-    | "snapshot"
-    | "now";
-  label: string;
-  validAt?: string | null;
-  txAt?: string | null;
-  observed?: boolean;
+  id: RuntimeTemporalEventPoint["id"];
+  timestamp: RuntimeTemporalEventPoint["timestamp"];
+  kind: RuntimeTemporalEventPoint["kind"];
+  label: RuntimeTemporalEventPoint["label"];
+  validAt?: RuntimeTemporalEventPoint["valid_at"];
+  txAt?: RuntimeTemporalEventPoint["tx_at"];
+  observed?: RuntimeTemporalEventPoint["observed"];
 };
 
 export type TemporalSurfaceCapability = {
-  surface: string;
-  supported: boolean;
-  resolution: string;
-  reasonCode?: string | null;
+  surface: RuntimeTemporalSurface["surface"];
+  supported: RuntimeTemporalSurface["supported"];
+  resolution: RuntimeTemporalSurface["resolution"];
+  reasonCode?: RuntimeTemporalSurface["reason_code"];
   validRange?: TemporalRange | null;
   txRange?: TemporalRange | null;
   nearestEventPoints?: TemporalEventPoint[];
   gaps?: Array<{
-    start?: string | null;
-    end?: string | null;
-    reasonCode: string;
-    label?: string | null;
+    start?: RuntimeTemporalGap["start"];
+    end?: RuntimeTemporalGap["end"];
+    reasonCode: RuntimeTemporalGap["reason_code"];
+    label?: RuntimeTemporalGap["label"];
   }>;
 };
 
 export type TemporalCapabilities = {
-  runId?: string | null;
+  runId?: RuntimeTemporalCapabilities["run_id"];
   defaultScope?: TemporalScope | null;
   validRange: TemporalRange;
   txRange: TemporalRange;
-  resolution: string;
+  resolution: RuntimeTemporalCapabilities["resolution"];
   surfaces: TemporalSurfaceCapability[];
   eventPoints: TemporalEventPoint[];
 };

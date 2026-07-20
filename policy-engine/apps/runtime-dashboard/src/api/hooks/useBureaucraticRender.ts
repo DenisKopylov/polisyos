@@ -3,7 +3,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import {
   toApiTemporalParams,
   type TemporalScope,
-} from "@/app/providers/temporal-scope";
+} from "@/shared/lib/domain/temporal";
 import type { BureaucraticGenre } from "@/features/artifacts/bureaucratic/ast/bureaucratic-document-ast";
 
 import { runtimeApiClient } from "../client";

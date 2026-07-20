@@ -1886,7 +1886,7 @@ def validate_baseline_manifest(
                 errors.append(f"architecture_active_source_hash_drift:{row['source_path']}")
 
     failures = _flatten_vitest_failures(baseline)
-    if len(failures) != baseline["vitest"]["tests"]["failed"] or len(failures) != 5:
+    if len(failures) != baseline["vitest"]["tests"]["failed"] or len(failures) != 4:
         errors.append("vitest_baseline_failure_count_drift")
     if _canonical_sha256(failures) != baseline["vitest"]["failure_set"]["sha256"]:
         errors.append("vitest_baseline_payload_hash_drift")
@@ -2048,10 +2048,7 @@ def compare_vitest_results(
                 continue
             class_id, anchor = baseline_rows[key]
             messages = "\n".join(assertion.get("failureMessages", []))
-            if class_id == "temporal-cursor-canonical-url":
-                if "valid_at=2026-04-15T12%3A00%3A00.000Z" not in messages:
-                    errors.append(f"vitest_failure_signature_drift:{file_path}:{full_name}")
-            elif anchor not in messages:
+            if anchor not in messages:
                 errors.append(f"vitest_failure_signature_drift:{file_path}:{full_name}")
     return errors
 

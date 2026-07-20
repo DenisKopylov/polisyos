@@ -2402,18 +2402,18 @@
     "owner_slice": "DS4",
     "disposition": "rebind_pending",
     "command": "corepack pnpm run test:components",
-    "wall_duration_seconds": 181.12,
-    "vitest_duration_seconds": 178.12,
+    "wall_duration_seconds": 192.87,
+    "vitest_duration_seconds": 192.85,
     "exit_code": 1,
     "test_files": {
-      "total": 231,
-      "passed": 228,
-      "failed": 3
+      "total": 245,
+      "passed": 243,
+      "failed": 2
     },
     "tests": {
-      "total": 678,
-      "passed": 673,
-      "failed": 5
+      "total": 742,
+      "passed": 738,
+      "failed": 4
     },
     "failure_set": {
       "hash_algorithm": "sha256",
@@ -2425,14 +2425,14 @@
         "assertion_line",
         "assertion_anchor"
       ],
-      "sha256": "6183ee5eeefd8aa108e7cdff148af54038eb0fd44952663b61ecff20950022f6"
+      "sha256": "f7fe234f514b29e39d48a6fafa4a9c73b471d1d26567e24048796eabc49588ca"
     },
     "debt_classes": [
       {
         "class_id": "i18n-count-message-parity",
-        "owner_slice": "DS4",
+        "owner_slice": "DS6",
         "disposition": "rebind_pending",
-        "rationale": "Three unchanged locale parity cases expose the same count-sensitive message without ICU plural syntax or an explicit allowlist entry.",
+        "rationale": "Three unchanged locale parity cases expose the same count-sensitive message without ICU plural syntax or an explicit allowlist entry; Ruling 2 assigns this class to DS6.",
         "failure_count": 3,
         "failures": [
           {
@@ -2469,37 +2469,22 @@
             "assertion_anchor": "expected [ 'OperatorDiagnosticPanel.tsx' ] to deeply equal []"
           }
         ]
-      },
-      {
-        "class_id": "temporal-cursor-canonical-url",
-        "owner_slice": "DS4",
-        "disposition": "rebind_pending",
-        "rationale": "The unchanged TemporalCursorProvider test has a time-sensitive canonical URL expectation; its volatile received value is excluded from the stable failure identity.",
-        "failure_count": 1,
-        "failures": [
-          {
-            "test_file": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.test.tsx",
-            "test_name": "TemporalCursorProvider > commits canonical URL params",
-            "assertion_line": 37,
-            "assertion_anchor": "expected valid_at=2026-04-15T12%3A00%3A00.000Z; received value is time-varying and excluded from canonical identity"
-          }
-        ]
       }
     ],
     "parent_reproduction": {
-      "revision": "7b69337704ad304ec4fa1afb3712f13a493782ba",
+      "revision": "0ef16da1b1a3efe1bce0345cf85163fe4971baaa",
       "command": "corepack pnpm exec vitest run src/shared/i18n/parity.test.ts src/shared/ui/A11yCoverage.a11y.test.tsx src/app/providers/TemporalCursorProvider.test.tsx",
-      "wall_duration_seconds": 1.96,
+      "wall_duration_seconds": 2.43,
       "exit_code": 1,
       "test_files": {
         "total": 3,
-        "passed": 0,
-        "failed": 3
+        "passed": 1,
+        "failed": 2
       },
       "tests": {
         "total": 8,
-        "passed": 3,
-        "failed": 5
+        "passed": 4,
+        "failed": 4
       },
       "matches_full_run_failure_set": true
     }
@@ -2512,9 +2497,9 @@
     "producer_path": "apps/runtime-dashboard/scripts/check-architecture.mjs",
     "producer_sha256": "e4dfa233f2e7c504a585688c8dbf976a9cd60c3e1baa7eb5c4898f2749cf7e98",
     "exit_code": 1,
-    "violation_count": 23,
-    "source_file_count": 20,
-    "identity_set_sha256": "0c1af527b601fc373749ff0f9f7da9090e1d15b204b03d850bad8c800ea6e960",
+    "violation_count": 16,
+    "source_file_count": 14,
+    "identity_set_sha256": "66051c41cca92d81cbe356affa349c52712a23af260673ffa9d84c4a69908047",
     "violations": [
       {
         "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
@@ -2605,76 +2590,6 @@
         "rule_id": "shared-no-app-or-features",
         "message": "shared layer cannot depend on app or features.",
         "display": "src/shared/ui/counterfactual/ScenarioPicker.tsx:2 -> @/app/providers/useCounterfactual :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.a11y.test.tsx",
-        "source_content_sha256": "d2bca8ca8682ee9b2d1a2424b5ff00df808e12c203d85386218e73cd720a900e",
-        "line": 12,
-        "specifier": "@/app/providers/TemporalCursorProvider",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/temporal/TemporalScrubber.a11y.test.tsx:12 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.stories.tsx",
-        "source_content_sha256": "9d585a7842f49786388ce620c6d9f001ff07ec10f41c99a2db62414662027cc9",
-        "line": 8,
-        "specifier": "@/app/providers/TemporalCursorProvider",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/temporal/TemporalScrubber.stories.tsx:8 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
-        "source_content_sha256": "de62fa6a9da93c714d610af224a869e5f85673dbc8ad60ce8f9fe6c9b0bfb17d",
-        "line": 11,
-        "specifier": "@/app/providers/TemporalCursorProvider",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/temporal/TemporalScrubber.test.tsx:11 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.tsx",
-        "source_content_sha256": "41c274c782f6d0a201626b938b73cc5cdbb4154f563ac033955dc49bfbd8b93d",
-        "line": 10,
-        "specifier": "@/app/providers/temporal-scope",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/temporal/TemporalScrubber.tsx:10 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.tsx",
-        "source_content_sha256": "41c274c782f6d0a201626b938b73cc5cdbb4154f563ac033955dc49bfbd8b93d",
-        "line": 11,
-        "specifier": "@/app/providers/useTemporalCursor",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/temporal/TemporalScrubber.tsx:11 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/useTemporalRange.ts",
-        "source_content_sha256": "02eaabdbd358de3b54a5aad9e58efe126b3bd2289da77ddf9438a83ed01144fb",
-        "line": 4,
-        "specifier": "@/app/providers/useTemporalCursor",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/temporal/useTemporalRange.ts:4 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/withTemporalCursor.tsx",
-        "source_content_sha256": "b99d17039e799677a94e67a2198f9c7aa9d62c80d78bc5f7f1b99859f85f6c8c",
-        "line": 6,
-        "specifier": "@/app/providers/useTemporalCursor",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/temporal/withTemporalCursor.tsx:6 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
       },
       {
         "source_path": "apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx",
@@ -3054,6 +2969,188 @@
           "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx"
         ],
         "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/quantity/quantityArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "087d07d3ea990e7aceab144a9de067c1b3b6e927199fd131f19a9a56728e8be2",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.a11y.test.tsx",
+          "source_content_sha256": "d2bca8ca8682ee9b2d1a2424b5ff00df808e12c203d85386218e73cd720a900e",
+          "line": 12,
+          "specifier": "@/app/providers/TemporalCursorProvider",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/temporal/TemporalScrubber.a11y.test.tsx:12 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C09",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "apps/runtime-dashboard/src/app/layout/ConnectedTemporalScrubber.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/temporal/temporalArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "1b32ed750aa1f8b63d5f0dca1d681f8c1e685ec31d41dc96983cc87bef20d6e3",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.stories.tsx",
+          "source_content_sha256": "9d585a7842f49786388ce620c6d9f001ff07ec10f41c99a2db62414662027cc9",
+          "line": 8,
+          "specifier": "@/app/providers/TemporalCursorProvider",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/temporal/TemporalScrubber.stories.tsx:8 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C09",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "apps/runtime-dashboard/src/app/layout/ConnectedTemporalScrubber.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/temporal/temporalArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "c9f1be6589a05d7c5d9ae6c271b52ae6ae93457d6275bd02ed30b9a1fe40a26e",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "source_content_sha256": "de62fa6a9da93c714d610af224a869e5f85673dbc8ad60ce8f9fe6c9b0bfb17d",
+          "line": 11,
+          "specifier": "@/app/providers/TemporalCursorProvider",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/temporal/TemporalScrubber.test.tsx:11 -> @/app/providers/TemporalCursorProvider :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C09",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "apps/runtime-dashboard/src/app/layout/ConnectedTemporalScrubber.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/temporal/temporalArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "6b636032ef5357bbea0840e6f7454440696e3892610872a9982a506555c8adb6",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.tsx",
+          "source_content_sha256": "41c274c782f6d0a201626b938b73cc5cdbb4154f563ac033955dc49bfbd8b93d",
+          "line": 10,
+          "specifier": "@/app/providers/temporal-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/temporal-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/temporal/TemporalScrubber.tsx:10 -> @/app/providers/temporal-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C09",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "apps/runtime-dashboard/src/app/layout/ConnectedTemporalScrubber.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/temporal/temporalArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "5b891ea2ba09a670e1036d19675d67660078e4eb207da3bb402f2ffe4bdc7b76",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.tsx",
+          "source_content_sha256": "41c274c782f6d0a201626b938b73cc5cdbb4154f563ac033955dc49bfbd8b93d",
+          "line": 11,
+          "specifier": "@/app/providers/useTemporalCursor",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/temporal/TemporalScrubber.tsx:11 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C09",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "apps/runtime-dashboard/src/app/layout/ConnectedTemporalScrubber.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/temporal/temporalArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "a095b890310ce97dcd6eb5878f0b11a1ab42cd8c68f4c25076fb3fdd19693f6a",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/useTemporalRange.ts",
+          "source_content_sha256": "02eaabdbd358de3b54a5aad9e58efe126b3bd2289da77ddf9438a83ed01144fb",
+          "line": 4,
+          "specifier": "@/app/providers/useTemporalCursor",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/temporal/useTemporalRange.ts:4 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C09",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "apps/runtime-dashboard/src/app/layout/ConnectedTemporalScrubber.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/temporal/temporalArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "694e635472f5445b5bb19c3d1b262079c21361e79badefd5070eae4433a8ffca",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/temporal/withTemporalCursor.tsx",
+          "source_content_sha256": "b99d17039e799677a94e67a2198f9c7aa9d62c80d78bc5f7f1b99859f85f6c8c",
+          "line": 6,
+          "specifier": "@/app/providers/useTemporalCursor",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTemporalCursor.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/temporal/withTemporalCursor.tsx:6 -> @/app/providers/useTemporalCursor :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C09",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalRuntimeBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/TemporalCursorProvider.tsx",
+          "apps/runtime-dashboard/src/app/layout/ConnectedTemporalScrubber.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/temporal/temporalArchitecture.test.ts"
       }
     ]
   }

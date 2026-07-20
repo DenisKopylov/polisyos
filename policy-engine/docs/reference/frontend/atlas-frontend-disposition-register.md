@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **4867**
-- Application lines deleted: **7660**
-- Net application LOC reduction: **2793**
-- Application files deleted: **63**
+- Application lines added: **6114**
+- Application lines deleted: **8342**
+- Net application LOC reduction: **2228**
+- Application files deleted: **67**
 
 ## Wave-end full verification
 
@@ -311,7 +311,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `ui-patterns` | `ui-patterns` | 7 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `strangled` | `DS4` | `dashboard-quantity-generated-waist-rebind` |
 | `ui-responsive` | `ui-responsive` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-temporal` | `ui-temporal` | 1 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-temporal` | `ui-temporal` | 1 | `rebind_pending` | `strangled` | `DS4` | `dashboard-temporal-generated-waist-rebind` |
 | `ui-trust-view` | `ui-trust-view` | 16 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-tokens` | `ui-tokens` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `api-op-analyze-attractors` | `api-op-analyze-attractors` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
@@ -443,7 +443,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-inline-review-surface` | `status-inline-review-surface` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-bureaucratic-block` | `status-inline-bureaucratic-block` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-bureaucratic-section` | `status-inline-bureaucratic-section` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-data-freshness` | `status-inline-data-freshness` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-data-freshness` | `status-inline-data-freshness` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-data-freshness-interaction-state` |
 | `status-inline-compliance-badge` | `status-inline-compliance-badge` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-choreography-stage` | `status-inline-choreography-stage` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-choreography-transition` | `status-inline-choreography-transition` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -514,6 +514,8 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `0ef16da1b fix(dashboard): classify nondecision numeric layout values`
+- `07ed51c81 refactor(dashboard): preserve chart quantity semantics`
 - `290bb5e61 refactor(dashboard): wrap decision producers as quantities`
 - `e57b241a0 test(dashboard): govern the status retirement inventory`
 - `5127af28d feat(atlas-ui): project ratified DTCG token parity`

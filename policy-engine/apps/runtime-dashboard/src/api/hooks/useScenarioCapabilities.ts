@@ -7,9 +7,9 @@ import {
 import {
   toApiTemporalParams,
   type TemporalScope,
-} from "@/app/providers/temporal-scope";
+} from "@/shared/lib/domain/temporal";
 import { useMaybeCounterfactual } from "@/app/providers/useCounterfactual";
-import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";

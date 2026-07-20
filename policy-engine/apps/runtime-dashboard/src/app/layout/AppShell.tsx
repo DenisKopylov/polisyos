@@ -3,6 +3,7 @@ import { matchPath, useLocation } from "react-router-dom";
 
 import { useRunScenarios } from "@/api/hooks/useScenarioCapabilities";
 import { AppMobileNav } from "@/app/layout/AppMobileNav";
+import { ConnectedTemporalScrubber } from "@/app/layout/ConnectedTemporalScrubber";
 import { GlobalRuntimeBanner } from "@/app/layout/GlobalRuntimeBanner";
 import type { CounterfactualMode } from "@/app/providers/scenario-scope";
 import { useMaybeCounterfactual } from "@/app/providers/useCounterfactual";
@@ -11,7 +12,6 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { useIsMobile } from "@/shared/ui/responsive";
 import { CounterfactualModeSwitch } from "@/shared/ui/counterfactual/CounterfactualModeSwitch";
 import { ScenarioPicker } from "@/shared/ui/counterfactual/ScenarioPicker";
-import { TemporalScrubber } from "@/shared/ui/temporal";
 import { TrustInspector } from "@/shared/ui/trust-view";
 import Header from "@/app/layout/Header";
 import Sidebar from "@/app/layout/Sidebar";
@@ -89,7 +89,10 @@ export default function AppShell({ children }: PropsWithChildren) {
           <div className="surface">
             <GlobalRuntimeBanner />
             <Header />
-            <TemporalScrubber className={runId ? "mb-2" : "mb-4"} />
+            <ConnectedTemporalScrubber
+              className={runId ? "mb-2" : "mb-4"}
+              runId={runId}
+            />
             {runId ? <CounterfactualShellRail runId={runId} /> : null}
             <main id="main-content" className="shell-main" tabIndex={-1}>
               {children}

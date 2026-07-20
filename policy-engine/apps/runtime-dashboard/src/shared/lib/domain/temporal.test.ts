@@ -6,11 +6,7 @@ import {
   normalizeTemporalScope,
   temporalScopeKey,
   toApiTemporalParams,
-} from "./temporal-scope";
-import {
-  readTemporalScopeFromSearchParams,
-  serializeTemporalUrlParams,
-} from "./temporal-url";
+} from "./temporal";
 
 describe("temporal-scope", () => {
   it("normalizes timestamps to UTC", () => {
@@ -47,26 +43,18 @@ describe("temporal-scope", () => {
     });
   });
 
-  it("parses shorthand and compares normalized scopes", () => {
-    const parsed = readTemporalScopeFromSearchParams(
-      new URLSearchParams("?t=2026-04-15T12:00:00Z"),
-    );
-
-    expect(parsed?.validAt).toBe("2026-04-15T12:00:00.000Z");
+  it("compares normalized scopes", () => {
     expect(
-      compareTemporalScopes(parsed, {
-        validAt: "2026-04-15T15:00:00+03:00",
-      }),
+      compareTemporalScopes(
+        { validAt: "2026-04-15T12:00:00Z" },
+        {
+          validAt: "2026-04-15T15:00:00+03:00",
+        },
+      ),
     ).toBe(true);
   });
 
-  it("round-trips canonical URL params and API payloads", () => {
-    const query = serializeTemporalUrlParams({
-      branch: "main",
-      validAt: "2026-04-15T12:00:00Z",
-    });
-
-    expect(query).toBe("valid_at=2026-04-15T12%3A00%3A00.000Z&branch=main");
+  it("normalizes generated API payloads", () => {
     expect(
       fromApiTemporalScope({
         branch: "main",

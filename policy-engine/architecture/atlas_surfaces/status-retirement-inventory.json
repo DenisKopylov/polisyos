@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:957c22e34a24d55f0a572b0184ab7f63cc8b2d837026a969690df26aa2dcb1e9"
+      "sha256": "sha256:cd7512c91dd5e0d810d74419ff18cee0416cbbcc01ba28c831124fd4a9e5e48d"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -34,9 +34,9 @@
     "ds1_named": 23,
     "ds1_inline": 24,
     "current_named": 19,
-    "current_inline": 23,
-    "current_total": 42,
-    "retired_definitions": 4,
+    "current_inline": 22,
+    "current_total": 41,
+    "retired_definitions": 5,
     "already_deleted": 1
   },
   "entries": [
@@ -358,7 +358,7 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/dashboard/components/index.ts",
-          "line": 12,
+          "line": 15,
           "kind": "import"
         },
         {
@@ -1434,7 +1434,7 @@
     {
       "unit_id": "status-inline-data-freshness",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.tsx",
         "start_line": 13,

@@ -1,20 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Clock } from "lucide-react";
-import { useParams } from "react-router-dom";
 
 import {
   formatTemporalAnnouncement,
   formatTemporalDate,
   normalizeTemporalInstant,
   type TemporalEventPoint,
-} from "@/app/providers/temporal-scope";
-import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
+} from "@/shared/lib/domain/temporal";
+import { useMaybeTemporalCursor } from "./TemporalRuntimeBridge";
 import { useMaybeReducedMotionPreference } from "@/shared/a11y";
 import { Button } from "@polisyos/atlas-ui";
 import { cn } from "@/shared/lib/utils";
 import { TemporalCursorMarker } from "./TemporalCursorMarker";
 import { TemporalLegend } from "./TemporalLegend";
-import { useTemporalRange } from "./useTemporalRange";
 
 type TemporalScrubberProps = {
   className?: string;
@@ -50,16 +48,12 @@ function TemporalScrubberInner({
   cursor,
   labels,
 }: TemporalScrubberProps & { cursor: TemporalCursor }) {
-  const params = useParams();
-  const runId = params.runId ?? null;
   const mergedLabels = { ...DEFAULT_LABELS, ...labels };
   const { prefersReducedMotion } = useMaybeReducedMotionPreference();
   const [announcement, setAnnouncement] = useState("");
   const announceTimerRef = useRef<number | null>(null);
   const commitTimerRef = useRef<number | null>(null);
   const frameRef = useRef<number | null>(null);
-
-  useTemporalRange(runId);
 
   useEffect(
     () => () => {

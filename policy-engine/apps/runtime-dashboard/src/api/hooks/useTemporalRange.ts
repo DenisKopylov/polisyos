@@ -3,6 +3,11 @@ import {
   useQuery,
   useSuspenseQuery,
 } from "@tanstack/react-query";
+import type {
+  TemporalCapabilitiesView,
+  TemporalEventPoint as RuntimeTemporalEventPoint,
+  TemporalSurfaceCapability as RuntimeTemporalSurfaceCapability,
+} from "@polisyos/runtime-api-client";
 
 import {
   fromApiTemporalScope,
@@ -10,14 +15,11 @@ import {
   type TemporalCapabilities,
   type TemporalEventPoint,
   type TemporalSurfaceCapability,
-} from "@/app/providers/temporal-scope";
+} from "@/shared/lib/domain/temporal";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
 import { queryKeys } from "../queryKeys";
-import {
-  temporalCapabilitiesSchema,
-  type TemporalCapabilitiesPayload,
-} from "../validators";
+import { temporalCapabilitiesSchema } from "../validators";
 
 async function fetchTemporalCapabilities(
   runId: string | null | undefined,
@@ -39,7 +41,8 @@ async function fetchTemporalCapabilities(
     );
   }
 
-  const parsed = temporalCapabilitiesSchema.parse(data).capabilities;
+  temporalCapabilitiesSchema.parse(data);
+  const parsed: TemporalCapabilitiesView = data.capabilities;
   return {
     defaultScope: fromApiTemporalScope(parsed.default_scope),
     eventPoints: (parsed.event_points ?? []).map(toTemporalEventPoint),
@@ -75,9 +78,7 @@ export function useSuspenseTemporalRange(runId: string) {
 }
 
 function toTemporalEventPoint(
-  event: NonNullable<
-    TemporalCapabilitiesPayload["capabilities"]["event_points"]
-  >[number],
+  event: RuntimeTemporalEventPoint,
 ): TemporalEventPoint {
   return {
     id: event.id,
@@ -91,9 +92,7 @@ function toTemporalEventPoint(
 }
 
 function toTemporalSurfaceCapability(
-  surface: NonNullable<
-    TemporalCapabilitiesPayload["capabilities"]["surfaces"]
-  >[number],
+  surface: RuntimeTemporalSurfaceCapability,
 ): TemporalSurfaceCapability {
   return {
     gaps: (surface.gaps ?? []).map((gap) => ({

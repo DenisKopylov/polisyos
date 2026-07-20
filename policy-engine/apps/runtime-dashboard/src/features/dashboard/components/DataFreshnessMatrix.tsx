@@ -1,4 +1,5 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import type { InteractionState } from "@/shared/lib/domain/statusOwnership";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -6,12 +7,14 @@ import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
 // ---------------------------------------------------------------------------
 
 export type DataSourceFreshness = {
+  displayState: DataFreshnessDisplayState;
   sourceId: string;
   label: string;
   lastUpdated: string;
   recordCount?: number;
-  status: "fresh" | "stale" | "unknown";
 };
+
+export type DataFreshnessDisplayState = InteractionState;
 
 type DataFreshnessMatrixProps = {
   sources: DataSourceFreshness[];
@@ -23,11 +26,22 @@ type DataFreshnessMatrixProps = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const STATUS_COLOR: Record<DataSourceFreshness["status"], string> = {
-  fresh: "var(--color-status-approved)",
-  stale: "var(--color-status-rejected)",
-  unknown: "var(--line)",
-};
+function hasTelemetryLabel(source: DataSourceFreshness, label: string) {
+  return (
+    source.displayState.authorityPurpose === "telemetry" &&
+    source.displayState.label === label
+  );
+}
+
+function freshnessColor(source: DataSourceFreshness) {
+  if (hasTelemetryLabel(source, "fresh")) {
+    return "var(--color-status-approved)";
+  }
+  if (hasTelemetryLabel(source, "stale")) {
+    return "var(--color-status-rejected)";
+  }
+  return "var(--line)";
+}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -46,8 +60,12 @@ export function DataFreshnessMatrix({
     );
   }
 
-  const freshCount = sources.filter((s) => s.status === "fresh").length;
-  const staleCount = sources.filter((s) => s.status === "stale").length;
+  const freshCount = sources.filter((source) =>
+    hasTelemetryLabel(source, "fresh"),
+  ).length;
+  const staleCount = sources.filter((source) =>
+    hasTelemetryLabel(source, "stale"),
+  ).length;
 
   return (
     <div className={cn("space-y-3", className)}>
@@ -79,9 +97,12 @@ export function DataFreshnessMatrix({
           <div
             key={source.sourceId}
             className="border-line rounded-xl border p-2 text-xs"
+            data-authority-purpose={source.displayState.authorityPurpose}
+            data-display-state={source.displayState.label}
+            data-testid={`data-freshness-source-${source.sourceId}`}
             style={{
               borderLeftWidth: 3,
-              borderLeftColor: STATUS_COLOR[source.status],
+              borderLeftColor: freshnessColor(source),
             }}
           >
             <p className="truncate font-semibold">{source.label}</p>

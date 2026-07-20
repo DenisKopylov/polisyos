@@ -12,7 +12,7 @@ vi.mock("@/api/hooks/useBureaucraticRender", () => ({
     useBureaucraticRenderMock(...args),
 }));
 
-vi.mock("@/app/providers/useTemporalCursor", () => ({
+vi.mock("@/shared/ui/temporal/TemporalRuntimeBridge", () => ({
   useMaybeTemporalCursor: () => ({
     effectiveScope: {
       validAt: "2026-02-11T12:00:00Z",

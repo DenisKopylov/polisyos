@@ -1,7 +1,7 @@
 import {
   temporalScopeKey,
   type TemporalScope,
-} from "@/app/providers/temporal-scope";
+} from "@/shared/lib/domain/temporal";
 import {
   scenarioScopeKey,
   type ScenarioScope,

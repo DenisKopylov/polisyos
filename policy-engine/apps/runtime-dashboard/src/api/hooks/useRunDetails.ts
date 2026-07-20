@@ -7,10 +7,10 @@ import {
   RUN_TERMINAL_STALE_MS,
 } from "@/shared/lib/constants";
 import {
-  useMaybeTemporalCursor,
+  toApiTemporalParams,
   type TemporalScope,
-} from "@/app/providers/useTemporalCursor";
-import { toApiTemporalParams } from "@/app/providers/temporal-scope";
+} from "@/shared/lib/domain/temporal";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import { isRunTerminal } from "../../features/runs/domain/status";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError, isRuntimeApiNotFound } from "../http";

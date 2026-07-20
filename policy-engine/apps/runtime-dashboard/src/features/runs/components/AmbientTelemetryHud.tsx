@@ -2,7 +2,7 @@ import { useEffect, useMemo, useReducer } from "react";
 import { Activity, Radio, SlidersHorizontal, TimerReset } from "lucide-react";
 
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
-import { useMaybeTemporalCursor } from "@/app/providers/useTemporalCursor";
+import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import {
   completeReadingOnboardingStep,

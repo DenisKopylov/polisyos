@@ -43,7 +43,7 @@ const payload = {
         redaction: "none",
         tenant_scope: "shared_public",
       },
-      time: null,
+      time: {},
       replay: { status: "replayable" },
       gaps: [],
       metadata: { quantity_class: "decision" },
@@ -56,22 +56,25 @@ afterEach(() => {
 });
 
 describe("useRunFabricDecisionData", () => {
-  it("loads Fabric envelopes and exposes renderable quantities", async () => {
+  it("loads Fabric envelopes without minting trust authority", async () => {
     const getSpy = mockRuntimeGetSuccess(payload);
     const { result } = renderHook(() => useRunFabricDecisionData(runId), {
       wrapper: createQueryHookWrapper(),
     });
 
-    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    await waitFor(() => {
+      if (result.current.error) {
+        throw result.current.error;
+      }
+      expect(result.current.isSuccess).toBe(true);
+    });
 
     expect(result.current.data?.decision_data).toHaveLength(1);
     expect(result.current.data?.quantities[0]?.metric_id).toBe("policy_cost");
+    expect(result.current.data?.quantities[0]?.lineage.status).toBe("verified");
     expect(
       result.current.data?.quantities[0]?.lineage.trust_metadata,
-    ).toMatchObject({
-      verification_method: "fabric_trust_envelope",
-      verification_status: "verified",
-    });
+    ).toBeUndefined();
     expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
       {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { fromApiTemporalScope } from "@/app/providers/temporal-scope";
+import { fromApiTemporalScope } from "@/shared/lib/domain/temporal";
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { AsyncSection, Button, EmptyState } from "@polisyos/atlas-ui";

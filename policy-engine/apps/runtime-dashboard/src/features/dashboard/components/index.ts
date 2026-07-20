@@ -7,6 +7,9 @@ export { RecentRunsTimeline } from "./RecentRunsTimeline";
 export { ActiveAlertsStrip } from "./ActiveAlertsStrip";
 export type { ActiveAlert, AlertSeverity } from "./ActiveAlertsStrip";
 export { DataFreshnessMatrix } from "./DataFreshnessMatrix";
-export type { DataSourceFreshness } from "./DataFreshnessMatrix";
+export type {
+  DataFreshnessDisplayState,
+  DataSourceFreshness,
+} from "./DataFreshnessMatrix";
 export { SystemHealthPulse } from "./SystemHealthPulse";
 export type { HealthCheck, HealthCheckStatus } from "./SystemHealthPulse";

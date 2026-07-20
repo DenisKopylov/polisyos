@@ -1654,12 +1654,20 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-temporal-generated-waist-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/temporal.ts",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TemporalScrubber.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C09 rebinds the living temporal family to generated temporal DTO fields through an app-owned runtime bridge, separates valid_at, tx_at, payload as_of, source_as_of, and observed_at, and preserves the DS2-rejected component-decision-timeline as rejected material rather than inventing an authority timeline."
     },
     {
       "unit_id": "ui-trust-view",
@@ -3812,12 +3820,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-data-freshness-interaction-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.tsx",
+          "apps/runtime-dashboard/src/features/dashboard/components/DataFreshnessMatrix.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C09 retires the inline fresh, stale, and unknown union in favor of the branded InteractionState telemetry wrapper; novel labels remain neutral presentation and cannot enter authority slots."
     },
     {
       "unit_id": "status-inline-compliance-badge",

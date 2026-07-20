@@ -1,9 +1,8 @@
 import type { ComponentType } from "react";
 
-import {
-  useTemporalCursor,
-  type TemporalScope,
-} from "@/app/providers/useTemporalCursor";
+import type { TemporalScope } from "@/shared/lib/domain/temporal";
+
+import { useTemporalCursor } from "./TemporalRuntimeBridge";
 
 export type WithTemporalCursorProps = {
   temporalScope: TemporalScope | null;

@@ -4,7 +4,7 @@ status: active
 kind: research-synthesis
 owner: team-architecture
 created: 2026-07-20
-revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17 distilled)
+revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17; Batch 4 — Foundry Phase 7 P7.01..P7.14 distilled)
 source: docs/research/remaining-deep-research-backlog.md
 relationship: candidate_for_consolidation into docs/plans/active/layer3-slices/GY-engine-subordination.md and docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 authoritative_for: [research_finding_triage, consolidation_candidate_registry]
@@ -51,7 +51,8 @@ execute.
 Across the distilled reports the same handful of engineering/logical moves recur. These, not the
 per-report prose, are the reusable yield. Each is stated as a move, with its verdict and where it lands.
 **M1–M10** were first surfaced by Batch 1 (Scientist); **M11–M14** by Batch 2 (Fabric); **M15–M17** by
-Batch 3 (Foundry) — but all are cross-cutting and later batches may reinforce any of them.
+Batch 3 (Foundry Phase 6); **M18–M20** by Batch 4 (Foundry Phase 7) — but all are cross-cutting and later
+batches may reinforce any of them.
 
 **M1 — The explicit `authoritative_for` / `may_not_use_for` envelope on every advisory artifact.**
 Every proposed sidecar carries two machine-checkable fields naming exactly what it may drive and, red-first,
@@ -208,6 +209,43 @@ K-fold is the wrong split — validity means respecting decision-time filtration
 ADOPT-CANDIDATE.* Corollary (P6.11): the naming itself can launder authority — forbid ontological overclaim words
 ("hidden" minimum, "exactly-once", "coverage guarantee") and require the conditioned/observed phrasing;
 "false-hidden rate must be zero" is its semantic-test form.
+
+**M18 — Proposer ≠ verifier: the generator proposes bounded candidates; a small trusted checker disposes;
+the proposal is candidate-only and never emits its own certificate.** The signature move of the LLM-scaffolded
+Phase-7 reports (P7.11 theorem drafting, P7.12 estimator synthesis, P7.13 literature synthesis, P7.14
+hallucination detection) — the operational form of B-on-A applied to LLM tooling. The LLM may draft a
+statement/sketch/tactic/query, fill bounded slots, or propose a mutation; it may NEVER emit a proof-certificate,
+truthfulness tier, uncertainty interval, or admissibility label. Verification is delegated to a *small
+deterministic trusted checker* (a proof-assistant kernel that "does nothing but check proof terms" — P7.11; a
+deterministic compiler + CEGIS counterexample loop — P7.12; a span-level entailment / citation-faithfulness
+verifier — P7.13/P7.14), and the checker's acceptance authorizes only its own narrow claim (kernel: proof-valid-
+for-*this*-statement; NOT statement-faithful; NOT admissible). Two enforcement rules: the proposal space is a
+pre-approved typed grammar (SyGuS/Sketch — no arbitrary code), and the loop closes on typed counterexamples with
+every failed candidate preserved (CEGIS), never free-form self-improvement. *Verdict: ADOPT-CANDIDATE.* Directly
+informs the GY generation cycle — N10's compiler-conformance fix (constraining the provider to the full
+owner-derived tool-schema for 18/18 conformance) is exactly this move's bounded-grammar enforcement.
+
+**M19 — The selection / search / tuning process is itself a budgeted, accountable operation — never free
+preprocessing.** Adaptive selection contaminates the final claim unless it is logged as a first-class design
+object with disjoint data roles. Unifies P7.04 (DP budget composes over *every data-dependent touch* of the
+protected unit — tuning, model-selection, validation, calibration — not over "document stages"; "free
+preprocessing" that reads private data is the canonical error), P7.12 (disjoint `search`/`critic`/`calibration`/
+`sealed` data roles — Cawley–Talbot selection bias reappears the instant search and inference share data), P7.08
+(hidden holdouts must *rotate*, and an item that leaks into public exemplars must be *retired*), and generalizes
+P6.08 (hidden adaptivity, not adaptivity, is the enemy). Also: blocking/partitioning is a hidden-bias source that
+must be evidenced separately from the comparison step (P7.06, P7.09). *Verdict: ADOPT-CANDIDATE.* The GY sibling:
+this is why the hidden-eval discipline retires contaminated fixtures and why N10 held a sealed holdout distinct
+from the training slice.
+
+**M20 — Stratify / decompose / attribute at the granularity that changes the verdict, not at the convenient
+unit.** The coarse unit (aggregate score / whole-answer / doc-level citation / suite id) systematically hides the
+semantically critical failure. From P7.09 (stratify benchmarks by *regime cell* — the conditions that change
+identifiability / inference-type / failure-mode — not by dataset/theme/method, and report aggregate + per-regime +
+claim-conditioned), P7.14 (score by *atomic claim + reasoning-link*, not whole-answer binary — a correct answer
+can carry a hallucinated rationale), P7.13 (attribute provenance at *claim→span*, not doc-level — a doc-level
+citation never proves the span supports the claim), P7.02 (bind the guarantee to the *exact estimand*, not a
+generic "estimate"). *Verdict: ADOPT-CANDIDATE.* The Foundry-plane sibling of Scientist's atom+synthesis-join
+([[SCI-R2]]) and the evaluation-granularity counterpart of [[M17]].
 
 ---
 
@@ -558,6 +596,115 @@ ADOPT-CANDIDATE ([[M17]]).* Routes to the calibration/validation plane.
 
 ---
 
+## §2·D Per-report distillation — Batch 4 (Foundry Phase 7, P7.01–P7.14)
+
+Phase 7 is Foundry's frontier tier. It splits into two clusters: **(a) advanced numerics / privacy / federation**
+(P7.03–P7.07) — mostly `bridge_missing` / `research_only`, capabilities the repo does *not* have and may not need
+soon → they route to the future privacy / Fabric- / Foundry-subordination lanes as deferred discipline; and **(b)
+LLM-scaffolded tooling + benchmark governance** (P7.01, P7.08–P7.14) — the B-on-A generation discipline, the
+source of [[M18]], and the cluster that touches live GY generation-cycle work. Same repo-grounding + honest
+self-labelling as Phase 6. One recurring actionable finding across P7.01/P7.11/P7.12: `tests/_golden/foundry/
+signature_baseline.json` reports `method_count: 0` — an empty golden that can't anchor a real method inventory.
+
+**P7.01 — Lower a probabilistic program as a method-family + evidence bridge, NOT a new PPL (186).** Reuse
+compile/execute + method ABI + `UncertaintyEnvelope`; separate representation-semantics from inference-semantics;
+posterior draws are an evidence sidecar while policy-facing intervals go through the envelope; a multimodal
+posterior must never be compressed to a clean single CI. *Verdict: ADOPT the reuse-first lowering ([[M15]]).*
+Routes to Foundry-subordination; ties to the GY N4 model-compilation path.
+
+**P7.02 — A proof-carrying estimate certificate = estimate + guarantee-class + witness + envelope + replay +
+boundary, each a separate claim (192).** The guarantee class must be explicit (exact / sharp-bound / finite-sample-
+marginal / time-uniform / asymptotic / heuristic); narrow default = count only exact / bounded / finite-sample /
+time-uniform as proof-carrying, asymptotic-only stays research/prototype. PCC analogy: a predefined checkable
+policy + a machine-checkable witness + an independent validator (not "trust the producer"). *Verdict:
+ADOPT-CANDIDATE ([[M15]]+[[M12]]).* Routes to the GY value/certificate plane (the IR proof-carrying certificates
+already in the substrate). Strong.
+
+**P7.03 — Cross-hardware bitwise reproducibility is REFUTED as a default; a tiered contract replaces it (187).**
+`bitwise` (same fingerprint) / `numeric-tolerance` (same arch) / `cross-arch-tolerance` / `distributional`
+(stochastic) / `no-claim-without-measured-canaries`; "same seed" ≠ determinism (non-associative FP + parallel
+reductions); the repo already self-labels `seed_prior` with `validation_status="unknown"`. *Verdict: ADOPT the
+tier lattice ([[M12]]); one claim to REFUSE outright: "reproducible on any hardware."* Routes to GY replay /
+E-gate reproducibility (the byte-stable-×2 discipline).
+
+**P7.04 — DP budget composes over every data-dependent touch of the protected unit, not over "document stages"
+(188).** Start from the protected unit (user-level default) + contribution bounds, not ε; account tuning /
+model-selection / validation / calibration; sequential composition is the default, parallel only with *certified*
+disjointness; keep the native accountant space (RDP/PLD) internal and convert to (ε,δ) only at release; use an
+odometer/filter for adaptive pipelines. *Verdict: ADOPT-CANDIDATE ([[M19]]); DEFER (bridge_missing — a capability
+the repo lacks).* Routes to a future privacy lane.
+
+**P7.05 — Synthetic microdata are "utility-preserving enough" only for a declared workload, across three
+independent axes (189).** fidelity + analytic-replicability + decision-stability-on-real-holdout, plus a separate
+privacy/generalization pass; there is no universal scalar "good enough" threshold; synthetic data alone never
+raise a major policy claim above governed *supporting* evidence. *Verdict: ADOPT the workload-declared 3-axis
+protocol ([[M17]]); DEFER (research_only).* Killer case: a rare-subgroup / threshold decision flip that aggregate
+fidelity hides.
+
+**P7.06 — Privacy-preserving record linkage = a typed candidate-evidence pipeline, not an identity-truth engine
+(190).** Separate PII from payload; declare the threat model; keep quality-evidence and privacy/disclosure-risk as
+*separate* artifacts; Fellegi–Sunter's third class (clerical review / ambiguous zone) must survive; the method
+family is part of the artifact, not a hidden implementation detail (no single method wins on privacy *and* quality
+*and* scale). *Verdict: ADOPT the separation discipline ([[M15]]); DEFER (bridge_missing).* Ties to [[FAB-R5]]
+(entity resolution / linkage uncertainty must propagate).
+
+**P7.07 — Federated correctness = a bundle of separate proofs, not one "it's federated" flag (191).** Only two
+admissible classes: *lossless* (sufficient-statistics / additive-estimating-equation parity with the centralized
+estimator) or *asymptotically-justified* (explicit theorem + N/K regime + site-level assumptions + empirical
+coverage). FedAvg-style deep FL without inference theory stays `research_only`. Secure aggregation ≠ correctness;
+DP noise must enter the uncertainty envelope. *Verdict: ADOPT-CANDIDATE ([[M15]]); DEFER.*
+
+**P7.08 — Hidden holdouts for a judge stack = three independent loops, never one static test (193).**
+`shadow_calibration` (update judge weights / bias / drift) + `sealed_promotion` (release gate, separate runner) +
+`reserve_rotation` (untouched until contamination/drift/refresh). Never raw majority vote — calibrate to human gold
+(Dawid–Skene / Bridge), abstain/escalate on high disagreement or collapsed judge-independence; retire any item
+that leaks into public exemplars. *Verdict: ADOPT-CANDIDATE ([[M19]] rotation + [[M8]]).* Routes to the GY
+hidden-eval / contamination discipline (N10 sealed holdouts). (The report couldn't find "six-judge stack" in the
+repo — treat as an independent research prompt, `research_only`.)
+
+**P7.09 — Stratify benchmarks by REGIME, not by dataset / theme / method (204).** Six regime axes (assignment &
+identification / transport & shift / interaction & response / temporal-decision / support & overlap /
+measurement-quality); report in three cuts (aggregate / per-regime-cell / claim-conditioned); use a sparse
+anchor/stress/edge lattice, not the full Cartesian product; a benchmark is authoritative only for
+*benchmark-adequacy*, never for method admissibility. *Verdict: ADOPT-CANDIDATE ([[M20]]).* Routes to GY
+universality / U-gate testing and the promotion gate.
+
+**P7.10 — Method promotion requires a six-family adversarial/pathological stress dossier, fail-closed (194).**
+authority-chain / identification-&-data-validity / calibration-under-shift / adversarial-brittleness (non-robust
+features) / runtime-numeric-reproducibility / decision-&-welfare-stability. Only `pass` / `pass_narrow_scope` /
+`fail_closed` are acceptable outcomes — a *fail-open* blocks promotion. *Verdict: ADOPT-CANDIDATE ([[M17]]+[[M8]]).*
+Routes to the GY promotion gate (D3.8) as a conformance battery.
+
+**P7.11 — LLM theorem drafting: kernel-verified ≠ statement-faithful ≠ policy-admissible (195).** The LLM proposes
+(draft / sketch / tactic); a *small trusted proof-assistant kernel* disposes; statement-faithfulness (does the
+formal statement match the source intent?) is a SEPARATE, review-dependent claim that kernel acceptance never
+establishes; `axiom`/`sorry`/unapproved oracles without rechecking = blocked. *Verdict: ADOPT-CANDIDATE ([[M18]]).*
+Routes to the GY B-on-A generation discipline; strong tie to N10 (structured-output conformance).
+
+**P7.12 — LLM-scaffolded estimator synthesis is safe only as bounded candidate-generation over a predeclared
+grammar (196).** SyGuS/Sketch grammar (pre-approved operators, no arbitrary code / imports / network); CEGIS
+counterexample-guided rejection with every failed candidate preserved; disjoint data roles (search / critic /
+calibration / sealed); the LLM is proposer, never verifier; a partially-identified task → set-valued or blocked,
+never a laundered point estimate. *Verdict: ADOPT-CANDIDATE ([[M18]]+[[M19]]).* Routes to the GY generation cycle —
+bounded-grammar generation is exactly N10's tool-schema constraint.
+
+**P7.13 — Literature-synthesis provenance must be preserved at four levels, never collapsed into "citations"
+(197).** search-provenance (PRISMA-S/PRESS: queries / cutoffs / dedup / exclusions / incompleteness) +
+document-and-span provenance (claim→span→version→source, not doc-level) + claim-support provenance (`used_in_
+generation` vs `attached_post_hoc` — correctness ≠ faithfulness) + study-lineage (collapse dependent lines by
+`study_family_id` — anti-P14), with the certainty layer (GRADE) kept separate. *Verdict: ADOPT-CANDIDATE
+([[M20]]+[[M3]]).* Routes to the Scientist plane / CGF; reinforces [[SCI-R2]].
+
+**P7.14 — Policy-text hallucination detection = evidence-grounded, claim-decomposed, reasoning-integrity separate
+from support and admissibility (198).** Decompose the answer into atomic policy/reasoning claims; check span-level
+support (not doc-level); check the reasoning path (a correct answer can carry a hallucinated rationale; premise
+injection; citation doping; a missed exception in a long document); calibrated abstention; self-confidence is not
+authority. Status keeps `support` and `reasoning_integrity` as separate lattices, both distinct from admissibility.
+*Verdict: ADOPT-CANDIDATE ([[M20]]+[[M18]]).* Routes to Scientist/CGF and Atlas DS surfaces (designed
+grounding/abstention states); reinforces [[SCI-R2]].
+
+---
+
 ## §3 Where these findings could land (consolidation map, not a commitment)
 
 These are candidate routings to weigh once all batches are distilled — **not** approved plan edits.
@@ -633,6 +780,27 @@ These are candidate routings to weigh once all batches are distilled — **not**
   delta-propagated into an admissibility claim; **P6.13** — the default measurement adapter drops `identification_mode`
   and ignores `measurement_bias_flag`. Both are genuine (verify in code before acting — reports are untrusted).
 
+*— Foundry Phase 7 batch —*
+
+- **GY generation cycle (N4/N10 and the B-on-A discipline)** ← **P7.11** (proposer≠verifier, small trusted checker),
+  **P7.12** (bounded grammar + CEGIS + disjoint data roles), **P7.01** (probabilistic-program lowering). [[M18]]/[[M19]]
+  are the strongest Phase-7 tie to live work: N10 already practices bounded-grammar generation (the tool-schema
+  conformance fix) and sealed-holdout separation — these reports name the discipline it was reaching for.
+- **GY hidden-eval / promotion gate (D3.8) / U-gate universality** ← **P7.08** (three-loop rotating holdouts +
+  contamination retirement), **P7.10** (six-family adversarial stress dossier), **P7.09** (regime-stratified benchmark).
+  [[M8]]+[[M19]]+[[M20]] as the conformance-battery discipline for promoting any engine method.
+- **GY value / certificate plane** ← **P7.02** (proof-carrying estimate certificate = the estimate/guarantee/witness/
+  envelope/replay/boundary bundle) and **P7.03** (tiered reproducibility contract → the byte-stable-×2 / E-gate replay
+  discipline).
+- **Scientist plane / CGF grounding** ← **P7.13** (four-level provenance ledger, study-lineage collapse) and **P7.14**
+  (claim-decomposed, span-level, reasoning-integrity-separate hallucination detection) — both reinforce [[SCI-R2]]
+  (atom + synthesis-join support) and the grounding firewall.
+- **Deferred (capabilities the repo lacks — future privacy / Fabric- / Foundry-subordination lanes)** ← **P7.04** (DP
+  budget), **P7.05** (synthetic microdata), **P7.06** (privacy-preserving record linkage), **P7.07** (federated
+  correctness). Carry the discipline; do not treat as now-work. P7.06 consolidates with [[FAB-R5]].
+- **Atlas (DS9 / DS16 / DS17)** ← **P7.02** (certificate surface), **P7.14** (grounding/abstention states on the glass),
+  **P7.01** (uncertainty as distribution not point — [[M16]]).
+
 ---
 
 ## §4 What NOT to adopt / honest caveats
@@ -652,22 +820,30 @@ These are candidate routings to weigh once all batches are distilled — **not**
   conservative label in code (`graph_temporal_scope="partial"` / `research_track="R3"`; generic-streaming default
   `at_least_once_with_dedupe`; row-level quarantine). The reports *validate* these; consolidation must keep them,
   not "upgrade" them without the proof artifact ([[M12]]) each label demands.
-- **The status-lattice proliferation risk is now acute** ([[M6]] caveat, escalated): the Foundry batch alone proposes
-  ~17 bespoke status lattices (`FabricDefectImpactRecord` effects, `DeterministicReductionCertificate` tiers,
-  `CalibrationDecisionRelevanceCertificate` states, `SequentialBayesCoverageAssessment` classes, …). Adopt the *shape*
-  (typed, fail-closed, `research_only` floor, states recomputed not pinned) but every one must be reconciled against the
-  single Atlas status lattice / DS4 discipline before it lands. Do not import 17 parallel lattices.
+- **The status-lattice proliferation risk is now severe** ([[M6]] caveat, escalated again): across Foundry Phase 6 + 7
+  the reports propose ~30 bespoke status lattices (defect-impact effects, reduction-certificate tiers, calibration-
+  decision-relevance states, sequential-Bayes coverage classes, proof-carrying-certificate lattices, reproducibility
+  tiers, DP-composition states, federated-correctness classes, judge-holdout states, …). Adopt the *shape* (typed,
+  fail-closed, `research_only` floor, states recomputed not pinned) but every one must be reconciled against the single
+  Atlas status lattice / DS4 discipline before it lands. Do not import ~30 parallel lattices.
+- **A claim to refuse outright** (P7.03): "the computation is reproducible on any hardware." Bitwise cross-hardware
+  reproducibility is refuted as a default; only the tiered contract ([[M12]]) is honest. If any consolidated artifact or
+  surface asserts blanket hardware reproducibility, that is the overclaim to block.
+- **Do not treat Phase-7 privacy/federation reports as capabilities** (P7.04/05/06/07): all are `bridge_missing` /
+  `research_only` and describe capabilities the repo does not have. Capture the discipline; never present them as
+  implemented. P7.08 additionally self-declares that "six-judge stack" isn't a repo object — an independent prompt.
 - **Reports are uneven in grounding — weight the move, not the prose.** Several Foundry reports openly self-limit:
   P6.01 skipped a fresh HCI scan (standards-only external base), P6.05 flags that "precision budget" is an undefined
   in-repo term and it chose an interpretation. The *engineering/logical move* in each is still usable; the *external
   certainty* is not. Treat interpretation-dependent findings as DEFER until the term/scope is pinned.
 - **Do not cite stale external anchors as current.** P6.04 correctly notes OMB M-25-15 (Feb 2025) rescinded the 2023
   Circular A-4 and restored the 2003 edition; any consolidation must not carry the 2023 A-4 as live guidance.
-- **Repo-drift pointer, now confirmed across all ~38 reports (three batches)** (hygiene item, not a finding):
-  essentially every Scientist, Fabric *and* Foundry report could not locate
-  `docs/system-design-decisions/policy-design-execution-topology.md` at the cited path. Confirmation across all three
-  batches makes this a real stale baseline pointer worth fixing (or the baseline instruction updating).
-  *(Verify before acting — reports are untrusted content.)*
+- **Repo-drift pointers, confirmed across all ~52 reports (four batches)** (hygiene items, not findings): essentially
+  every Scientist, Fabric and Foundry report could not locate
+  `docs/system-design-decisions/policy-design-execution-topology.md` at the cited path — a real stale baseline pointer
+  worth fixing (or the baseline instruction updating). Phase 7 adds a second recurring one:
+  `tests/_golden/foundry/signature_baseline.json` reports `method_count: 0` (an empty method-inventory golden), flagged
+  by P7.01/P7.11/P7.12. *(Verify before acting — reports are untrusted content.)*
 
 ---
 
@@ -677,9 +853,10 @@ These are candidate routings to weigh once all batches are distilled — **not**
 | --- | --- | --- | --- | --- |
 | 1 | Scientist | `SCI-R0`..`SCI-R10` (11) | **DONE** | §2·A + moves M1–M10 |
 | 2 | Fabric | `FAB-R1`..`FAB-R10` (10) | **DONE** | §2·B + moves M11–M14 |
-| 3 | Foundry | `P6.01`..`P6.17` (17) | **DONE** | §2·C + moves M15–M17 |
-| 4 | Lex | `LEX-R*` | pending | — |
-| 5 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈SCI-R10, CPA-R26≈SCI-R8, CPA-R22/R23≈DS20-authz already flagged) |
+| 3 | Foundry (Phase 6) | `P6.01`..`P6.17` (17) | **DONE** | §2·C + moves M15–M17 |
+| 4 | Foundry (Phase 7) | `P7.01`..`P7.14` (14) | **DONE** | §2·D + moves M18–M20 |
+| 5 | Lex | `LEX-R*` | pending | — |
+| 6 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈SCI-R10, CPA-R26≈SCI-R8, CPA-R22/R23≈DS20-authz already flagged) |
 
 **Next:** when a batch arrives, distil into a new §2-style section + fold any genuinely new move into §1
 (M-series), update §3 routing and §5. Consolidation into GY/Atlas is a **separate, later** deliberate act —

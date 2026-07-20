@@ -4,7 +4,7 @@ status: active
 kind: research-synthesis
 owner: team-architecture
 created: 2026-07-20
-revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17; Batch 4 — Foundry Phase 7 P7.01..P7.14; Batch 5 — Foundry Phase 8 P8.01..P8.14; Batch 6 — Foundry Phase 9 P9.01..P9.14 distilled)
+revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17; Batch 4 — Foundry Phase 7 P7.01..P7.14; Batch 5 — Foundry Phase 8 P8.01..P8.14; Batch 6 — Foundry Phase 9 P9.01..P9.14; Batch 7 — Foundry Phase 10 P10.01..P10.16 distilled)
 source: docs/research/remaining-deep-research-backlog.md
 relationship: candidate_for_consolidation into docs/plans/active/layer3-slices/GY-engine-subordination.md and docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 authoritative_for: [research_finding_triage, consolidation_candidate_registry]
@@ -52,8 +52,8 @@ Across the distilled reports the same handful of engineering/logical moves recur
 per-report prose, are the reusable yield. Each is stated as a move, with its verdict and where it lands.
 **M1–M10** were first surfaced by Batch 1 (Scientist); **M11–M14** by Batch 2 (Fabric); **M15–M17** by
 Batch 3 (Foundry Phase 6); **M18–M20** by Batch 4 (Foundry Phase 7); **M21–M24** by Batch 5 (Foundry Phase
-8); **M25–M26** by Batch 6 (Foundry Phase 9) — but all are cross-cutting and later batches may reinforce
-any of them.
+8); **M25–M26** by Batch 6 (Foundry Phase 9); **M27–M28** by Batch 7 (Foundry Phase 10) — but all are
+cross-cutting and later batches may reinforce any of them.
 
 **M1 — The explicit `authoritative_for` / `may_not_use_for` envelope on every advisory artifact.**
 Every proposed sidecar carries two machine-checkable fields naming exactly what it may drive and, red-first,
@@ -342,6 +342,42 @@ asymmetry) and P9.12 (two-sided matching cannot promise bilateral truthfulness �
 state honesty for that side, declare the negative scope for the other). *Verdict: ADOPT-CANDIDATE.* Makes the
 [[M1]] `may_not_use_for` field load-bearing and *provable*, not merely cautious; the market-design sibling of
 [[M23]]'s abstention honesty.
+
+**M27 — Representation-conditioned descriptor: a learned geometric / topological / embedding / intensity
+summary is authoritative only relative to its *declared representation* (metric, filtration, embedding,
+aggregation, observation model), which is itself load-bearing; geometric fidelity never becomes substantive /
+causal / policy authority; the observation process that shaped the descriptor must be *modeled*, not assumed
+away; and opaque latent dimensions may not be semantically relabeled without separate evidence.** The
+signature of the ML-shape cluster. From P10.09 (persistent homology describes the shape of the *chosen*
+complex/filtration, not "the shape of policy" — a stable H1 loop can be a missingness/masking donut, not an
+institutional gap), P10.10 (geometry-good ≠ causally-faithful — unsupervised disentanglement is impossible
+without inductive bias, latent axes are not causes, forbid relabeling `latent_2` → "social capital"), P10.08
+(basis / FPCA / signature coefficients are engineering sidecars, never a publication surface; and *path ≠
+functional* — one trajectory yields many normative functionals), P10.11 (an administrative graph's topology
+is entangled with the registration / linkage / observation mechanism — "model *how the network became
+observable*"; observability ≠ need), P10.06 (don't collapse (time, space, mark) into tabular features; the
+conditional-intensity semantics is load-bearing; MAUP / discretization leakage; a post-event mark used as a
+pre-event covariate is leakage). *Verdict: ADOPT-CANDIDATE.* The observation-process-firewall half generalizes
+[[M19]]'s leakage discipline to derived descriptors; the no-substance-from-geometry half sharpens [[M17]] for
+representation learning. The repo already ships the fail-closed template — `embedding_fidelity.py`'s
+red/yellow/green + `ALLOW_AS_NUISANCE_ONLY` / `ALLOW_AS_ADJUSTMENT` actions and `latent_bridge_synthesis`'s
+`opaque_label_required` — so this is extend-existing, not build-new.
+
+**M28 — Certify the run by a checkable *a-posteriori* bound in decision-relevant units, never by a convergence
+/ success flag.** The authoritative numerical/statistical claim is a computed, verifiable bound for *this* run
+— expressed in the unit the decision uses and keyed to the method regime — not "it converged," "iterations
+stopped," "the fit succeeded," "the solver returned a point," or a static default. From P10.16 (a Bellman
+residual maps to a *policy-loss* bound that is regime-dependent — exact-PI needs none, VFI-extract needs
+2γ/(1−γ)², approximate-PI needs the (1−γ)² form and only a *stabilized-policy proof* sharpens it to (1−γ);
+"values barely changed" is not an admissibility claim, and late-iteration errors dominate so keep the trace),
+P10.01 (a solver certificate is objective lower/upper bounds — "the solver returned a point" is not exactness;
+abstain when unbounded/uncertified), P10.03 (an exact primal witness + residuals + replay outranks an
+ε-witness outranks an empirical low-regret learning trace, which is support-only), P10.13 (an exact
+hypergeometric / anytime-valid e-process bound is the proof layer; Monte-Carlo power and historical calibration
+are calibration-*only*, never the authoritative bound), P10.02 (εN must be an evidence-backed computed bound,
+not a static 0.05). *Verdict: ADOPT-CANDIDATE.* The numerical/statistical sibling of [[M12]] (the reassuring
+verdict is the one that must be earned) and [[M18]] (the checker authorizes only its own narrow claim); the
+"decision-relevant unit" clause ties to [[M17]].
 
 ---
 
@@ -1096,6 +1132,157 @@ approximate_calibrated / unverified) as the coarse downgrade signal + the `causa
 
 ---
 
+## §2·G Per-report distillation — Batch 7 (Foundry Phase 10, P10.01–P10.16)
+
+Phase 10 — the largest batch (16) — is Foundry's **advanced numerical/statistical-methods frontier**:
+optimization theory (P10.01, P10.16), stochastics (P10.02, P10.04, P10.06, P10.15), survival/event history
+(P10.05, P10.07, P10.08), topological/geometric ML (P10.09–11), and applied policy detection (P10.03, P10.12,
+P10.13, P10.14). It overwhelmingly **reinforces** the regime-triage discipline ([[M22]]/[[M17]]) and set-valued
+honesty ([[M23]]), and adds two new moves: [[M27]] (representation-conditioned descriptors — the ML-shape
+cluster) and [[M28]] (a-posteriori bound in decision units, not a convergence flag). Same certificate-
+proliferation caution as Phases 8–9 (see §4).
+
+**P10.01 — Multilevel policy optimization is a regime-classified admissibility decision, not "solve exactly
+by default" (227).** Exact only for certified classes (LP/MILP-moderate, bilevel-linear via KKT/duality,
+multilevel-MILP branch-and-cut); relaxation only with certified tightness or a reported gap; decomposition
+only with separability + valid bounds/cuts; bilevel reduction only *level-by-level* with an equivalence proof;
+robust bounding as the safe fallback for strategic/nonunique lower levels; abstention otherwise. Reuse
+`foundry…optimization` (`OptimizationAmbiguityCertificate`, `AmbiguityCertificate` w/ price_of_ambiguity) —
+`BilevelOptimizationEstimator@1.1.0` **already** returns leader-objective bounds and honestly abstains.
+*Verdict: ADOPT-CANDIDATE ([[M22]] + [[M23]] + [[M28]]).* `implemented_but_not_orchestrated` + `bridge_missing`.
+
+**P10.02 — Mean-field convergence needs a *split* finite-N correction stack, not one "safety factor" (229).**
+Four separate corrections keyed to the claim: εN-Nash bound (∼C/√N) for incentive/admissibility, √N
+fluctuation envelope for measure/trajectory, no-common-noise concentration for tails (common noise →
+`conditional_only`), optional 1/N weak-bias only for smooth aggregates; nonunique/phase-selection → block, not
+"add a 1/√N band." Reuse `policy.agent_sim.mean_field_equilibrium@1.0.0` + IR `EPSILON_NASH` — but εN is a
+static 0.05 today, not an evidence-backed bound ([[M28]]). *Verdict: ADOPT-CANDIDATE ([[M22]] + [[M23]]).*
+`implemented_but_not_orchestrated`.
+
+**P10.07 — Deep survival models expose a *separate* interval artifact typed by what is bounded, not a lower/
+upper field on `SurvivalResult` (230).** Three claim families {horizon-risk / event-time-set / survival-curve-
+band}, each with its own coverage semantics; "calibrated" = empirical predictive coverage under a *named
+censoring regime* (conformal), NOT a Hessian/Laplace parameter envelope; pointwise ≠ simultaneous bands (a
+whole-curve claim from stitched pointwise intervals is a kill rule); D-calibration pass ≠ interval authority.
+Reuse `ml/protocols.PredictionIntervalResult` for scalar horizon-risk only. *Verdict: ADOPT-CANDIDATE ([[M22]]
++ [[M27]] observation-regime as load-bearing).* `bridge_missing`.
+
+**P10.03 — Coupled mechanisms / correlated equilibria = separate certification layers, not one "certified"
+enum (231).** semantics (CE for finite complete-info / BCE for type-mediated / coupled-envelope for shared-
+constraint) ⊥ existence ⊥ witness ⊥ multiplicity ⊥ ambiguity ⊥ calibration ⊥ policy-disposition; existence ≠
+"solver didn't fail" ([[M12]]); multiplicity is load-bearing (uniqueness must be *proved*, else welfare
+interval); a regret-matching/learning trace is empirical support, never an exact witness ([[M28]] hierarchy).
+Reuse four recognizable repo patterns: `IncentiveCompatibilityCertificate`, `NegativeCertificate`,
+`ProofComposabilityCertificate` (reusable/revalidate/rederive), `simulation_proof_bridge` (IDENTIFIED/BOUNDED/
+SCENARIO/BLOCKED). *Verdict: ADOPT-CANDIDATE ([[M22]] + [[M28]]).* `bridge_missing`.
+
+**P10.04 — Hawkes/self-exciting processes carry policy events as a measurement-rooted, marked, multivariate
+point-process, with narrow descriptive authority — never causal (232).** Raw event log (exact times + marks +
+jurisdiction/actor + exogenous-baseline + batching/dedup) is canonical; the binned panel is a *derived view*;
+`authoritative_for` intensity/excitation/clustering/short-horizon-risk, `may_not_use_for` causal-self-excitation
+/ welfare / publication. The killer counterexample is reporting-lag/calendar-batch → false contagion — the
+observation process must be modeled ([[M27]]). Reuse IR `TemporalDiscoveryMethod.HAWKES` +
+`EventProcessObservationalData` + `LocalIndependenceWeightingCertificate`. *Verdict: ADOPT-CANDIDATE ([[M27]]).*
+`bridge_missing`.
+
+**P10.05 — Competing risks / recurrent events = an estimand→estimator rulebook, not one "event-history
+estimator" (233).** competing risks → Aalen–Johansen CIF (treating a competing event as censoring
+over-estimates incidence) + cause-specific Cox; Fine–Gray opt-in prediction-only (summing multiple Fine–Gray
+CIFs can exceed 1); recurrent → mean-cumulative-function, then AG (pooled intensity) / PWP (order matters) /
+WLW (marginal only); recurrent+terminal → while-alive burden, joint-frailty research-only; informative
+censoring must not be silently assumed independent. Reuse `ml.survival` (Cox seed; no CIF/MCF fields yet).
+*Verdict: ADOPT-CANDIDATE ([[M22]] + [[M17]]).* `bridge_missing`.
+
+**P10.06 — Marked spatio-temporal events = a bounded-window event-law via conditional intensity, family-routed
+by question (234).** (t, s, m) tuples with a marked conditional intensity, never tabular features; route by
+question — Hawkes/ETAS (contagion) / LGCP (latent background) / local-independence (intervention) — and don't
+mix their claim semantics; observation-process failures (reporting lag, MAUP/discretization, post-event marks)
+are the adversaries. Strong reuse: IR `dynamic_regime` (SUPPORTED/DEGRADED/BLOCKED_RESEARCH) +
+`local_independence` (process_family: marked_point_process) already own the semantics; the `spatial` catalog
+(Moran's I / kriging / IDW) has no STPP producer. *Verdict: ADOPT-CANDIDATE ([[M27]] + [[M22]]).* `bridge_missing`.
+
+**P10.08 — Longitudinal policy outcomes = a typed trajectory bundle with an explicit *named functional*, never
+a scalar / basis blob / bare curve (235).** path ≠ functional (same trajectory → integral / crossing-time /
+time-above-threshold / welfare-path); basis/FPCA/signature coefficients are engineering sidecars, not a
+publication surface; whole-curve claims need *simultaneous* bands; informative visit processes must downgrade
+or block. Strong reuse: IR `EffectTrajectoryBundle` + `RoughPathInterventionCertificate` + `TemporalTargetFunctional`
+are shape-parallel — extend, don't reinvent. *Verdict: ADOPT-CANDIDATE ([[M27]] + [[M16]]).*
+`implemented_but_not_orchestrated` + `bridge_missing`.
+
+**P10.09 — Persistent homology describes the shape of the *chosen representation*, not "the shape of policy"
+(236).** A typed, representation-conditioned, multiscale structural descriptor: `authoritative_for` structural
+patterns / anomaly-disparity candidates under a *declared* embedding+metric+filtration; `may_not_use_for`
+causal / welfare / legal / publication claims; the "false donut" (an H1 loop that is really administrative
+missingness / masking) is the mandatory counterexample; long bars ≠ signal without a confidence/noise-
+separation layer. Reuse `DependenceStructure` + `ir_analytics_bridge`; GUDHI/Ripser/persim are permissive,
+giotto-tda is AGPL. *Verdict: ADOPT-CANDIDATE ([[M27]]).* `producer_missing`.
+
+**P10.10 — Manifold learning is "causally faithful enough" only as causal-supporting, never causal-defining
+(237).** Requires a declared identifiability basis beyond unsupervised geometry (auxiliary vars / environments /
+interventions — Locatello impossibility, nonlinear-ICA identifiability), a causal falsification pack (invariance,
+counterfactual/effect-drift, recoverability, residual-dependence), an explicit uncertainty envelope, and a
+narrow ceiling (`nuisance_only` / `adjustment_candidate`); geometry-good ≠ causal-good, and auto-relabeling
+opaque latent axes is a blocker. Strong reuse: `ir.representation_learning` (research_gate_required,
+decision_support_allowed=False), `network/embedding_fidelity`, `latent_bridge_synthesis` (opaque_label_required).
+*Verdict: ADOPT-CANDIDATE ([[M27]]).* `bridge_missing`.
+
+**P10.11 — Geometric deep learning on administrative graphs is a candidate estimation layer only, gated by the
+observation mechanism (238).** Lift to a *typed* administrative graph (node/edge type, time validity,
+provenance, structural-missing + confirmed-absence masks, linkage quality) and run `administrative_missingness`
+/ `network.missingness` *before* the learner; the killer case is observability ≠ need (a better-digitized
+municipality looks higher-risk); default to R-GCN/HGT (not vanilla GCN, which fails under institutional
+heterophily), require graph-specific + subgroup/local calibration, and forbid eligibility/sanction/publication
+use. Reuse `ml.graph.graph_conv@1.0.0` (baseline-only) + the missingness + embedding-fidelity seeds. *Verdict:
+ADOPT-CANDIDATE ([[M27]] + [[M17]]).* `implemented_but_not_orchestrated`.
+
+**P10.12 — Benefit-abuse detection balances causal fairness *lexicographically*, not via one aggregated score
+(239).** A four-loop protocol: causal-fairness decomposition (TV = DE + IE + SE; distinguish prohibited-direct /
+spurious-surveillance / legitimately-mediated paths) → an *explicit welfare ledger* (no hidden social-weight
+laundering) → performative/strategic response (a gate, not an appendix — chilling/non-take-up) → slice-aware
+calibration/uncertainty; blocked causal harms and uncovered uncertainty come *first*, then a frontier, then a
+separate governance admissibility decision. Reuse `causal.fairness@1.0.0` (SFM + Ctf-DE/IE/SE + partial-ID
+bounds), `sufficient_statistics_welfare` (social_weight_ref), `social_weight_provenance` (LLM fail-closed),
+`causal.strategic`. *Verdict: ADOPT-CANDIDATE (reinforces [[M7]]/[[M13]] fact-vs-value + [[M23]]).* `bridge_missing`.
+
+**P10.13 — Adaptive audit sampling exposes detection *bounds* — a miss/detection curve — not one confidence
+score (240).** Two mutually-invertible authority curves (miss-prob upper / detection-prob lower) for a declared
+tolerable rate, plus `minimum_detectable_rate`, under a *logged* without-replacement sampling policy; only exact
+hypergeometric/sequential or anytime-valid e-process/confidence-sequence bounds are the proof layer (Monte-Carlo
+power & historical calibration are calibration-only — [[M28]]); deterministic risk-targeting with zero inclusion
+probability → subpopulation-only or blocked, never a population guarantee; peeking without anytime validity is a
+kill rule. Reuse `ir.analytics.uncertainty` (deterministic_bounds) + `RobustSetCalibrationReport` +
+`method_quality`. *Verdict: ADOPT-CANDIDATE ([[M28]] + [[M23]]).* `implemented_but_not_orchestrated`.
+
+**P10.14 — Anomaly detection under drift updates as a *staged, fail-closed* authority chain — never a silent
+auto-retrain on a drift score (241).** drift evidence → calibration evidence → uncertainty → replay/same-input
+closure → admissibility; a *new drift score is not license to update* (recency ≠ authority — [[M25]]); typed
+update actions {threshold-recalibrate / reference-window-refresh / dynamic-normal-update / retire-abstain} keyed
+to whether score-ordering vs the notion-of-normal changed; a data-quality breach must precede and block, not be
+absorbed as "new normal." Strong reuse: `polisyos.ddm` (`adapt_shift_event` fail-closed requires calibration_id
++ empirical-FP evidence; CBPE estimator requires calibrated probs; `evaluate_data_quality`) + recalibration.
+*Verdict: ADOPT-CANDIDATE ([[M25]] + [[M22]]).* `bridge_missing`.
+
+**P10.15 — Multivariate policy tail risk = a typed joint-exceedance object in outcome-metric space, never a
+scalar risk score or univariate metadata (242).** A multivariate-GP / peaks-over-threshold law over a *declared
+adverse region* of the policy-outcome vector, with an explicit extremal-dependence class (asymptotic dependence
+vs independence vs hidden regular variation — a Gaussian-copula center hides crisis co-exceedances); default
+estimator = Heffernan–Tawn conditional extremes (transfers to high dimension), graphical extremes for sparse
+metric graphs; CoVaR/ES are downstream summaries, not the core object; early scalarization erases subgroup
+vetoes. **Actionable seed note:** `foundry.uncertainty.monte_carlo` writes only *univariate* `tail_risk`
+metadata (cvar_05 / quantile_01 / quantile_99) with an arithmetic-only test — don't mistake it for authority.
+*Verdict: ADOPT-CANDIDATE ([[M16]] law-not-scalar + [[M22]]).* `bridge_missing` / `producer_missing`.
+
+**P10.16 — Policy-function iteration needs a *regime-keyed* error certificate in policy-loss units, not one VFI
+stop rule (243).** exact Howard PI → `not_applicable_exact_pfi` (evaluation is a fixed-point solve, no VFI bound
+needed); VFI-extract-greedy → a Bellman-residual → policy-loss bound 2γ/(1−γ)²; approximate-PI → (ε_imp + 2γδ_eval)/
+(1−γ)², sharpened to /(1−γ) *only* under a stabilized-policy proof; "it converged" / "values barely changed" is
+not an admissibility claim, tie-breaking + finite precision are load-bearing, and late-iteration errors dominate.
+**Actionable precision note:** the existing `optimization.dynamic.dynamic_programming@1.0.0` is *finite-horizon
+staged DP*, NOT stationary discounted PI — the discounted (1−γ) bounds must not be applied to it mechanically.
+*Verdict: ADOPT-CANDIDATE ([[M28]] + [[M17]]).* `implemented_but_not_orchestrated`.
+
+---
+
 ## §3 Where these findings could land (consolidation map, not a commitment)
 
 These are candidate routings to weigh once all batches are distilled — **not** approved plan edits.
@@ -1247,6 +1434,35 @@ These are candidate routings to weigh once all batches are distilled — **not**
   `test_historical_prior_refs_fail_claim_registry_evidence_slots` as the ready model for a historical-influence
   firewall.
 
+*— Foundry Phase 10 batch —*
+
+- **The future Foundry-subordination lane (conformance battery / D3.8)** is the primary home for Phase 10 — most
+  reports are engine-internal method disciplines: **P10.01** (multilevel-solve regime router), **P10.02**
+  (finite-N correction stack), **P10.05** (competing-risks/recurrent estimand→estimator rulebook), **P10.15**
+  (multivariate EVT tail object), **P10.16** (regime-keyed policy-iteration certificate). Carry as
+  conformance-battery / promotion-gate criteria ([[M22]] regime-triage + [[M28]] a-posteriori bounds).
+- **GY causal engine + runtime/quality admission** ← **P10.03** (coupled-mechanism / correlated-equilibrium
+  certification layers — reuses four recognizable repo patterns), **P10.06** (marked STPP — `dynamic_regime` +
+  `local_independence` already own the semantics; wire, don't build), **P10.12** (causal-fairness lexicographic
+  admission over `causal.fairness@1.0.0`), **P10.10** (manifold causal-faithfulness — extends
+  `latent_bridge_synthesis`).
+- **GY value / uncertainty engine (set-valued state)** ← **P10.01** (robust-bound/abstain as first-class solve
+  modes), **P10.15** (joint-exceedance tail law, not a scalar), **P10.02** (εN/fluctuation set-valued) — all
+  reinforce [[M23]] and the "lifted state must be set-valued" direction.
+- **Scientist governance / GY-N12** ← **P10.14** (drift-conditioned anomaly update = staged fail-closed chain
+  over `polisyos.ddm`; recency ≠ authority — [[M25]]), **P10.13** (adaptive-audit detection bounds for the
+  evidence plane).
+- **Atlas (DS9 / DS16 / DS17)** ← **P10.07** / **P10.08** (survival-band / longitudinal-functional surfaces —
+  *simultaneous* vs pointwise bands, path ≠ functional), **P10.09** / **P10.10** / **P10.11** (representation-
+  conditioned descriptors on the glass — show the declared metric/filtration/observation regime, never geometry-
+  as-substance — [[M27]]), **P10.15** (tail as a joint object, not a scalar risk score).
+- **Two actionable precision notes (verify in code — reports are untrusted):** **P10.15** — `foundry.uncertainty.
+  monte_carlo` writes only *univariate* `tail_risk` metadata (cvar_05 / quantile_01 / quantile_99) with an
+  arithmetic-only test; do not mistake it for a multivariate tail-risk authority. **P10.16** —
+  `optimization.dynamic.dynamic_programming@1.0.0` is *finite-horizon staged DP*, not stationary discounted PI, so
+  the discounted (1−γ) error bounds must not be applied to it mechanically (it needs a separate finite-horizon
+  backward-error contract).
+
 ---
 
 ## §4 What NOT to adopt / honest caveats
@@ -1266,17 +1482,25 @@ These are candidate routings to weigh once all batches are distilled — **not**
   conservative label in code (`graph_temporal_scope="partial"` / `research_track="R3"`; generic-streaming default
   `at_least_once_with_dedupe`; row-level quarantine). The reports *validate* these; consolidation must keep them,
   not "upgrade" them without the proof artifact ([[M12]]) each label demands.
-- **The status-lattice proliferation risk is now severe** ([[M6]] caveat, escalated again): across Foundry Phases 6–9
-  the reports propose ~58 bespoke status lattices (defect-impact effects, reduction-certificate tiers, calibration-
+- **The status-lattice proliferation risk is now severe** ([[M6]] caveat, escalated again): across Foundry Phases 6–10
+  the reports propose ~74 bespoke status lattices (defect-impact effects, reduction-certificate tiers, calibration-
   decision-relevance states, sequential-Bayes coverage classes, proof-carrying-certificate lattices, reproducibility
   tiers, DP-composition states, federated-correctness classes, judge-holdout states, identification-status lattices,
   observability-regime routes, fairness-profile states, safe-RL violation classes, energy-carbon estimate statuses,
   TEE claim classes, nowcast/HANK/DSGE identification lattices, transportability statuses, matching/auction/DA
-  certificate statuses, …). Adopt the *shape* (typed, fail-closed, `research_only` floor, states recomputed not pinned)
-  but every one must be reconciled against the single Atlas status lattice / DS4 discipline before it lands. Do not
-  import ~58 parallel lattices.
-- **Candidate-certificate proliferation is now the single largest consolidation risk** (Phases 8–9): the two batches
-  together propose **~28 new local candidate artifacts** — Phase 8's ~14 (`regulatory_citation_proof`,
+  certificate statuses, multilevel-solve postures, equilibrium existence/witness/multiplicity lattices, survival-
+  interval admission states, topology/manifold/graph descriptor statuses, audit-detection & drift-update lattices,
+  policy-iteration certificate regimes, …). Adopt the *shape* (typed, fail-closed, `research_only` floor, states
+  recomputed not pinned) but every one must be reconciled against the single Atlas status lattice / DS4 discipline
+  before it lands. Do not import ~74 parallel lattices.
+- **Candidate-certificate proliferation is now the single largest consolidation risk** (Phases 8–10): the three
+  batches together propose **~44 new local candidate artifacts** (Phase 10 alone adds ~16: `multilevel_admissibility_
+  assessment`, `mean_field_finite_n_correction`, `SurvivalIntervalBundle`, `CoupledMechanismEquilibriumCase`, the
+  Hawkes triad, `EventHistoryEstimateV1`, `MarkedSpatioTemporalEventProcessResult`, `LongitudinalOutcomeFunctionalBundle`,
+  `TopologyShapeReport`, `CausalManifoldFaithfulnessCertificate`, `AdministrativeGraphEstimateCandidateV0`,
+  `BenefitAbuseFairnessBalanceBundleV1`, `AuditDetectionBoundReport`, `FoundryAnomalyDriftUpdateAssessment`,
+  `FoundryMultivariateTailRiskArtifactV1`, `PolicyIterationErrorCertificateV1`). The earlier ~28 were Phase 8's ~14
+  (`regulatory_citation_proof`,
   `topic_model_identification_record`, `text_measure_certificate`, `rag_citation_calibration_receipt`,
   `legal_reasoning_certificate`, `remote_sensing_proxy_admissibility_report`, `common_unit_fusion_authority_record`,
   `causal_change_semantics_attachment`, `ope_identification_envelope`, `geospatial_aggregation_risk_record`,
@@ -1285,7 +1509,7 @@ These are candidate routings to weigh once all batches are distilled — **not**
   `MixedFrequencyNowcastCandidate`, `StructuralModelAveragingAuthorityRecord`, `hank_identification_evidence`,
   `dsge_reporting_bundle`, `transport_bayesian_nma_report`, `publication_bias_calibrated_power`, the `LivingReviewDelta`
   triad, the five `MetaTransport*` records, `TwoSidedPreferenceProfile`, `FoundryAuctionWelfareLossEnvelope`,
-  `BoundedPlatformRegulationContract`, the DA strategy-proofness certificate). Do **not** canonize these as ~28 parallel
+  `BoundedPlatformRegulationContract`, the DA strategy-proofness certificate). Do **not** canonize these as ~44 parallel
   authority families. Any consolidation must factor a **shared waist** (authority_boundary + provenance +
   same_input_closure + status + calibration/uncertainty refs — the [[M1]]/[[M11]]/[[M15]] envelope) and let only the
   domain-specific payload differ; otherwise the backlog reintroduces the very fragmentation the narrow waist exists to
@@ -1313,7 +1537,9 @@ These are candidate routings to weigh once all batches are distilled — **not**
   recurring pointers still stand: `tests/_golden/foundry/signature_baseline.json` reports `method_count: 0` (an empty
   method-inventory golden, flagged by P7.01/P7.11/P7.12), and `agent_sim/rl.py` PPO advantage normalization mixes
   active/inactive agents (a safety-relevant defect tracked in `FOUNDRY_REMEDIATION_PLAN`, whose `identification_mode`
-  sibling P9.03 re-confirms). *(Verify before acting — reports are untrusted content.)*
+  sibling P9.03 re-confirms). Phase 10 is consistent with the correction (P10.13/P10.16 list the topology doc as
+  inspected; P10.06 could not reach it) — treat it as a per-report fetch artifact, not a repo gap. *(Verify before
+  acting — reports are untrusted content.)*
 
 ---
 
@@ -1327,8 +1553,9 @@ These are candidate routings to weigh once all batches are distilled — **not**
 | 4 | Foundry (Phase 7) | `P7.01`..`P7.14` (14) | **DONE** | §2·D + moves M18–M20 |
 | 5 | Foundry (Phase 8) | `P8.01`..`P8.14` (14) | **DONE** | §2·E + moves M21–M24 |
 | 6 | Foundry (Phase 9) | `P9.01`..`P9.14` (14) | **DONE** | §2·F + moves M25–M26 |
-| 7 | Lex | `LEX-R*` | pending | — |
-| 8 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈SCI-R10, CPA-R26≈SCI-R8, CPA-R22/R23≈DS20-authz already flagged) |
+| 7 | Foundry (Phase 10) | `P10.01`..`P10.16` (16) | **DONE** | §2·G + moves M27–M28 |
+| 8 | Lex | `LEX-R*` | pending | — |
+| 9 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈SCI-R10, CPA-R26≈SCI-R8, CPA-R22/R23≈DS20-authz already flagged) |
 
 **Next:** when a batch arrives, distil into a new §2-style section + fold any genuinely new move into §1
 (M-series), update §3 routing and §5. Consolidation into GY/Atlas is a **separate, later** deliberate act —

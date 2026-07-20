@@ -4,7 +4,7 @@ status: active
 kind: research-synthesis
 owner: team-architecture
 created: 2026-07-20
-revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10 distilled)
+revised: 2026-07-20 (Batch 1 — Scientist SCI-R0..R10; Batch 2 — Fabric FAB-R1..R10; Batch 3 — Foundry P6.01..P6.17 distilled)
 source: docs/research/remaining-deep-research-backlog.md
 relationship: candidate_for_consolidation into docs/plans/active/layer3-slices/GY-engine-subordination.md and docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 authoritative_for: [research_finding_triage, consolidation_candidate_registry]
@@ -50,8 +50,8 @@ execute.
 
 Across the distilled reports the same handful of engineering/logical moves recur. These, not the
 per-report prose, are the reusable yield. Each is stated as a move, with its verdict and where it lands.
-**M1–M10** were first surfaced by Batch 1 (Scientist); **M11–M14** by Batch 2 (Fabric) — but all are
-cross-cutting and later batches may reinforce any of them.
+**M1–M10** were first surfaced by Batch 1 (Scientist); **M11–M14** by Batch 2 (Fabric); **M15–M17** by
+Batch 3 (Foundry) — but all are cross-cutting and later batches may reinforce any of them.
 
 **M1 — The explicit `authoritative_for` / `may_not_use_for` envelope on every advisory artifact.**
 Every proposed sidecar carries two machine-checkable fields naming exactly what it may drive and, red-first,
@@ -173,6 +173,41 @@ to any "did the meaning change / is this the same / is this supported" judgment 
 multiple independent corroborators with an explicit `indeterminate → manual_review` floor, and treat the
 no-signal case as a **real epistemic limit**, not a pass. *Verdict: ADOPT-CANDIDATE.* The Fabric sibling of
 Scientist's atom+synthesis-join ([[SCI-R2]]) and the corroboration form of [[M8]]'s adversarial no-signal case.
+
+**M15 — Claim-type separation on the estimation plane (estimate / certificate / calibration / uncertainty /
+reproducibility / admissibility): one type never substitutes for another.** The estimation-plane sibling of
+[[M11]] — where M11 forbids *averaging* six data-provenance axes into one score, M15 forbids *substituting* one
+estimation claim for another (category laundering). The load-bearing non-substitutions the Foundry batch
+established: reproducibility ≠ accuracy (a canonical fixed order makes a *wrong* answer reproducible — P6.03);
+calibration ≠ decision-relevance (low global ECE ≠ correct threshold-loss — P6.10); a Bayesian credible interval
+≠ a frequentist coverage guarantee (P6.14); a Hessian/Laplace heuristic envelope ≠ a statistical CI (the repo
+already self-labels this `gate_eligible=False` — P6.04/07/10/13/14); a circuit-breaker close ≠ method validity
+(P6.02); a good fit ≠ measurement error handled (P6.13). *Verdict: ADOPT-CANDIDATE.* Every proposed artifact
+keeps these as separate typed claims each with its own `authoritative_for` ([[M1]]).
+
+**M16 — The canonical object is the full law / vector / typed structure; every scalar (point estimate, single
+score, single knob) is a derived, lossy summary and never the authority-bearing object.** From P6.04 (cost = a
+distribution law; `point_estimate` is a derived field — two policies with equal means can have radically
+different upper tails), P6.09 (coherent risk composes via *dual risk envelopes*, not interval arithmetic on a
+scalar), P6.05 (a precision "budget" is a *vector* — roundoff/sampling/calibration/replay — not one
+float32-vs-64 knob), P6.15 (a bounded-memory estimator discloses estimand + error-type + memory as separate
+fields, never one "confidence" number). *Verdict: ADOPT-CANDIDATE.* The numeric sibling of [[M10]] — it directly
+informs the GY value engine and Atlas DS16 value/uncertainty grammar (show the law + tail + basis, not a bare
+number).
+
+**M17 — Method validity is a function of the decision/loss/deployment structure it serves; the convenient
+default is valid only in a narrow, must-be-proven regime.** The sharpest Foundry logical signature — the
+convenient question is always the wrong one. P6.07: "is the model differentiable?" is the wrong test —
+delta-method is admissible only for smooth + local + moment-only loss with non-heuristic inputs, else Monte
+Carlo. P6.10: global ECE is the wrong object — calibration is decision-relevant only when identifiable *for the
+decision class* (threshold→local-near-τ; subgroup→multicalibration) on observable scope with a CI below the
+utility margin. P6.13: a weight-discount is the wrong tool for systematic bias — measurement error must enter as
+an *observation model* matched to the error structure. P6.12: a size-only index override is the wrong join —
+alignment is a four-stage claim-separated process matched to the index & missingness structure. P6.17: random
+K-fold is the wrong split — validity means respecting decision-time filtration & deployment cadence. *Verdict:
+ADOPT-CANDIDATE.* Corollary (P6.11): the naming itself can launder authority — forbid ontological overclaim words
+("hidden" minimum, "exactly-once", "coverage guarantee") and require the conditioned/observed phrasing;
+"false-hidden rate must be zero" is its semantic-test form.
 
 ---
 
@@ -402,6 +437,127 @@ lane, schema history). Cross-link: [[GY-N13b]], [[M11]].
 
 ---
 
+## §2·C Per-report distillation — Batch 3 (Foundry, P6.01–P6.17)
+
+The Foundry batch is the largest and most numeric (estimation / uncertainty / calibration / reproducibility). It
+is even *more* repo-grounded than Fabric — it cites real primitives (`MethodAdvisorResult`, `ProcessingGuaranteeContract`
+det-tiers, `UncertaintyEnvelope`/`DistributionCarrier`, `RobustSetCalibrationReport`, `IdentifiabilityDiagnosticResult`,
+DDM `CalibrationExpiration`) and repeatedly leans on a discipline the repo *already practices*: heuristic
+Hessian/Laplace envelopes are self-labelled `interval_semantics=HEURISTIC_RANGE`, `is_heuristic_ci=True`,
+`gate_eligible=False`. Consequence: most Foundry findings are *REINFORCES-EXISTING at the discipline level* (they
+strongly reinforce [[M5]], [[M6]], [[M12]]) with the yield being the specific taxonomy / decision-rule / fixture,
+plus the three new logical moves [[M15]]/[[M16]]/[[M17]]. Foundry is a Layer-3 subordinated engine, so most of
+this routes to the future **Foundry-subordination lane** as conformance-battery / promotion-gate criteria, not
+now-work — except the value/uncertainty and calibration findings that touch live GY value and N11/N12 work.
+
+**P6.01 — Human method-override = a typed deviation record over an IMMUTABLE advisor result; "override changes
+selection, never evidence" (167).** The reviewer's choice materializes a `MethodAdvisorOverrideRecord` + a computed
+`authority_delta`; the override may never raise the truthfulness tier, replace the regret certificate / consensus,
+clear a runtime downgrade, or auto-admit publishability — authority for the chosen method comes only from its own
+receipts. *Verdict: ADOPT-CANDIDATE, routed to Atlas DS9.* (Honest caveat the report itself flags: no fresh HCI
+scan — its external grounding is standards-only; the core move stands on repo invariants.) Cross-link: [[Atlas-DS9]], [[M1]].
+
+**P6.02 — Circuit-breaker recovery = deterministic epoch-based, not "timeout passed" (173).** Persisted `trip_epoch`,
+time-gated-but-not-time-sufficient half-open, a *single idempotency-safe* probe (mutating replay needs an idempotency
+key or synthetic read-only probe, else block), purpose-limited close criteria read from *typed outputs* (not HTTP-200);
+`authoritative_for = runtime_recovery_admission` only. *Verdict: REINFORCES [[M12]] + ADOPT the "close ≠ method
+validity" separation ([[M15]]).* Routes to the reproducibility/runtime plane.
+
+**P6.03 — Non-associative distributed reduction must declare a strategy or fail closed (168).** `reproducible_accumulator`
+(binned/ExBLAS-style) | `canonical_tree` (pinned leaf-order/partition/tree/route) | `statistical_envelope` — "same
+seed" is NOT determinism, and reproducibility ≠ accuracy (a fixed order makes a *wrong* sum reproducible). The
+`[1e20, -1e20, 1]` triple is the clean falsifier. *Verdict: REINFORCES [[M12]]+[[M15]]; ADOPT the three-strategy
+taxonomy.* Routes to GY replay/E-gate reproducibility discipline.
+
+**P6.04 — Cost = a distribution law; the point estimate is a derived summary (169).** Two policies with equal
+expected cost can have radically different upper tails → decision needs `P(cost>cap)`/`CVaR95`, not the mean;
+positive-skew families (`GAMMA`/`LOGNORMAL`) are missing from the enum; dependence must be *stored* (don't sum
+independent marginals). *Verdict: ADOPT-CANDIDATE ([[M16]]), routed to the GY value engine + Atlas DS16.* Currency
+note: the report correctly flags OMB M-25-15 (Feb 2025) rescinded the 2023 Circular A-4 and restored the 2003
+edition — don't cite 2023 A-4 as current.
+
+**P6.05 — Error-bound-FIRST, not budget-first; the precision budget is a vector (170).** Fix the tolerable error
+bound + replay semantics, then pick the cheapest *certified-feasible* precision config (roundoff/sampling/calibration/replay
+as separate channels); fail-closed (`INFEASIBLE_TARGET_PAIR`) if none — test-case-only tuning is never gate-eligible.
+*Verdict: REINFORCES [[M5]] (gate/feasibility-first) + [[M16]] (vector not scalar).* DEFER caveat: the term "precision
+budget" is undefined in-repo; the report chose the nearest numeric interpretation — keep research-only until the
+term is pinned.
+
+**P6.06 — Robust plan selection: budget-admissibility FIRST, then robust-lower-bound welfare among admissible (174).**
+Regret and rank-stability are *secondary diagnostics*, never the primary selector; return a contested-frontier /
+abstain when the leaders are within the uncertainty margin or `price_of_ambiguity`. Set-robust when evidence is
+bounds-only; moment-DRO when mean/covariance exist. *Verdict: REINFORCES [[M5]]; ADOPT the ordering.* Routes to the
+GY value engine.
+
+**P6.07 — Delta-method vs Monte Carlo is a function of the loss, not the model (176).** "Is the model differentiable?"
+is the wrong test; delta is admissible only for smooth + local + moment-only loss with *statistical* (non-heuristic)
+inputs; MC is the default for threshold/tail/asymmetric/nondifferentiable loss; a heuristic-calibration input must
+NOT be routed through delta for admissibility. *Verdict: ADOPT-CANDIDATE ([[M17]]).* Flags a real repo bug: the
+auto-dispatcher routes on `distribution_family==NORMAL` and ignores `is_heuristic_ci` — a genuine finding worth a GY/Foundry ticket.
+
+**P6.08 — Importance sampling / adaptive allocation: hidden adaptivity is the enemy, not adaptivity (177).** Log the
+allocation as a *design object* (propensities, proposal density, stopping rule, target-selection event); SNIS/PSIS
+are *diagnostics*, not unbiased authority (Pareto-k̂ ≥ 0.7 downgrade, ≥ 1 block; positivity/ESS kill rules); measure
+gain by coverage + decision-error, not interval width; post-hoc target selection after adaptive collection needs a
+selective-inference correction. *Verdict: ADOPT-CANDIDATE, routed to GY-N11* — this is exactly N11's world
+(adaptive querying of the gate under a risk budget). Cross-link: [[GY-N11]].
+
+**P6.09 — Coherent risk composes via DUAL risk envelopes, not interval aggregation (175).** Conservative = convex-hull
+union (`max_i ρ_i`); authorized weighted = Minkowski (`Σ λ_i ρ_i`); intersection only with proven independence.
+Static single-stage AVaR/spectral only; multi-stage needs *nested + rectangular* ambiguity; shared-lineage kills
+precision-weighted narrowing; no dual envelope ⇒ `outer_bound_only`. *Verdict: ADOPT-CANDIDATE ([[M16]]); reinforces
+[[M3]] (independence).* Routes to the GY value engine.
+
+**P6.10 — Calibration is decision-relevant only when identifiable *for the decision class* (178).** Global ECE ≠
+decision-relevant; threshold action → local calibration near τ; subgroup routing → multicalibration; needs observable
+scope, a CI below the utility margin, and nontrivial resolution; selective-labels ⇒ `observable_case_only`. *Verdict:
+ADOPT-CANDIDATE ([[M17]]).* Routes to the CGF/calibration plane + Atlas DS16/DS17; ties to the L5 calibration registries.
+
+**P6.11 — Reject the word "hidden" for multi-start minima (179).** Describe `distinct_observed_minimum` (solver +
+budget + equivalence-rule conditioned, with a local-optimality certificate) + a run-level `coverage_status` deficit;
+"not found" is a coverage fact, never an ontological object. *Verdict: ADOPT the [[M17]] vocabulary corollary;
+false-hidden rate must be zero.* Routes to Foundry-subordination.
+
+**P6.12 — Target alignment is a four-stage, claim-separated, fail-closed process (180).** semantic-alignment →
+index-alignment (`exact`/`inner-overlap`/rule-governed reindex — never size-only override) → missingness
+(support + mask + quality, not silent `fillna`) → imputation/linkage (a *separate* producer carrying uncertainty).
+The same-length-shifted-index case is the clean falsifier. *Verdict: ADOPT-CANDIDATE ([[M17]]).* Routes to the
+calibration/data plane; reinforces [[FAB-R5]] (linkage uncertainty must propagate).
+
+**P6.13 — Measurement error enters calibration as an observation MODEL, not a weight-discount (181).** Match the
+model to the error structure (additive/multiplicative/censored/misclassification/errors-in-variables/dark-uncertainty);
+the current `compute_effective_weight()` discount is the *fallback for weak evidence only*; both-axes or systematic
+bias needs an explicit bias/EIV channel. *Verdict: ADOPT-CANDIDATE ([[M17]]).* Flags a repo gap: the default adapter
+drops `identification_mode` and ignores `measurement_bias_flag`. Routes to the calibration plane.
+
+**P6.14 — Sequential Bayesian updating needs FOUR separate coverage guarantees (182).** posterior-coherence /
+computational-correctness (SBC + R-hat/ESS) / predictive-coverage (conformal / adaptive-conformal) / anytime-valid
+(confidence-sequences / e-values); a credible interval is NOT automatically a coverage guarantee, and exact
+distribution-free conditional coverage is impossible. *Verdict: ADOPT-CANDIDATE ([[M15]]), STRONG tie to GY-N11* —
+N11 already draws anytime-valid instruments (e-values / confidence sequences); P6.14's four-class split and
+"credible-interval ≠ coverage" refine N11's instrument taxonomy directly. Cross-link: [[GY-N11]].
+
+**P6.15 — Bounded-memory estimators publish two artifacts: estimate + a typed disclosure (183).** The disclosure
+carries estimand-semantics / approximation-semantics (rank vs value error; formal vs empirical vs heuristic) /
+memory-semantics (hard cap + degradation mode) / assumptions / uncertainty-admissibility / runtime-events; "exact"
+must fail-closed under bounded memory; rank-error must never be reported as value-error. *Verdict: ADOPT-CANDIDATE
+([[M15]]+[[M16]]).* Routes to Foundry-subordination.
+
+**P6.16 — Online calibration monitoring = a two-loop, sequentially-valid, authority-bounded early-warning (185).**
+evidence-admission (label-maturity + provenance fail-closed) → robust estimation (equal-mass/smoothed ECE +
+subgroup/horizon slices) → change-detection (CUSUM/EWMA) → sequential-evidence (e-values, conservative alpha); a
+warning is *posture*, never current-run claim evidence; lattice `advisory → persistent → mandatory_review →
+readiness_capped → scoped_block`. *Verdict: ADOPT-CANDIDATE, routed to GY-N12 (drift = an epoch/revision trigger) +
+Atlas surface honesty (designed warning/stale states).* Ties to the L5 `schema_regime` substrate. Cross-link: [[GY-N12]].
+
+**P6.17 — Valid streaming/rolling CV = respect decision-time filtration & deployment semantics (184).** delayed-prequential
+(online) / rolling-origin (batch retrain) / purged-embargoed (overlapping labels); random K-fold is a *narrow
+autoregressive exception*, never a default; a global preprocessing fit is a leak that no chronological ordering
+repairs; authoritative only for out-of-sample predictive performance under the declared deployment. *Verdict:
+ADOPT-CANDIDATE ([[M17]]).* Routes to the calibration/validation plane.
+
+---
+
 ## §3 Where these findings could land (consolidation map, not a commitment)
 
 These are candidate routings to weigh once all batches are distilled — **not** approved plan edits.
@@ -449,6 +605,34 @@ These are candidate routings to weigh once all batches are distilled — **not**
   surface may disclose — the DS12 gate); **FAB-R2** (Trust View shows source-class/tier, never institutional
   prestige); **FAB-R1** (defect-impact reviewer packet → DS9).
 
+*— Foundry batch —*
+
+- **GY-N11 (confidence ledger / δ-budget)** ← **P6.14** (anytime-valid coverage = confidence-sequences/e-values,
+  which N11 already draws; the four-guarantee-class split and "credible-interval ≠ coverage guarantee" refine N11's
+  instrument taxonomy) and **P6.08** (adaptive querying of the gate must log allocation as a design object; SNIS/PSIS
+  are diagnostics not authority; ESS/Pareto-k̂ kill rules) — the strongest Foundry tie to live work.
+- **GY value / uncertainty engine** (GY-N8 value-outer-set, GY-N-V ValueOuterSet, the marginal-interval fallback) ←
+  **P6.04** (cost = distribution law, tail metrics), **P6.09** (dual risk envelopes; nested+rectangular for multi-stage),
+  **P6.06** (admissibility-first then robust-lower-bound welfare), **P6.07** (delta-vs-MC by loss structure). [[M16]] +
+  [[M5]] applied to the value plane.
+- **GY-N12 (epochs + stale certificates)** ← **P6.16** (online calibration drift = an epoch/revision trigger; ties to
+  the L5 `schema_regime` changepoint) and **P6.17** (deployment-cadence / decision-time filtration as temporal semantics).
+- **CGF / calibration-grounding plane** ← **P6.10** (calibration decision-relevance for the decision class),
+  **P6.13** (measurement-error observation model), **P6.12** (four-stage target alignment) — these bind to the L5
+  calibration registries (`trust_tiers`/`identification_mode`/`schema_regime`) already in the production substrate.
+- **The future Foundry-subordination lane** (per the Layer-2 post-S14 direction: foundry/fabric/scientist via
+  ports/adapters/registry/conformance + promotion gate D3.8) is the home for the Foundry-internal disciplines that
+  don't touch live GY work — **P6.02** (breaker recovery), **P6.03** (deterministic reduction), **P6.05** (precision
+  frontier), **P6.11** (multi-start minima), **P6.15** (bounded-memory disclosure). Carry as conformance-battery /
+  promotion-gate candidates.
+- **Atlas (DS9 / DS16 / DS17)** ← **P6.01** (typed override deviation record → DS9 human decision integrity);
+  **P6.04/P6.09/P6.16** (distribution + tail + advisory/warning posture → DS16 value/uncertainty grammar and DS17
+  confidence-ledger surface — [[M16]] made visual via [[M10]]).
+- **Two concrete repo-bug findings worth GY/Foundry tickets** (not routing, but actionable): **P6.07** — the uncertainty
+  auto-dispatcher routes on `distribution_family==NORMAL` and ignores `is_heuristic_ci`, so a heuristic envelope can be
+  delta-propagated into an admissibility claim; **P6.13** — the default measurement adapter drops `identification_mode`
+  and ignores `measurement_bias_flag`. Both are genuine (verify in code before acting — reports are untrusted).
+
 ---
 
 ## §4 What NOT to adopt / honest caveats
@@ -468,10 +652,22 @@ These are candidate routings to weigh once all batches are distilled — **not**
   conservative label in code (`graph_temporal_scope="partial"` / `research_track="R3"`; generic-streaming default
   `at_least_once_with_dedupe`; row-level quarantine). The reports *validate* these; consolidation must keep them,
   not "upgrade" them without the proof artifact ([[M12]]) each label demands.
-- **Repo-drift pointer, now confirmed across ~20 reports** (hygiene item, not a finding): essentially every
-  Scientist *and* Fabric report could not locate `docs/system-design-decisions/policy-design-execution-topology.md`
-  at the cited path. Confirmation across both batches makes this a real stale baseline pointer worth fixing (or the
-  baseline instruction updating). *(Verify before acting — reports are untrusted content.)*
+- **The status-lattice proliferation risk is now acute** ([[M6]] caveat, escalated): the Foundry batch alone proposes
+  ~17 bespoke status lattices (`FabricDefectImpactRecord` effects, `DeterministicReductionCertificate` tiers,
+  `CalibrationDecisionRelevanceCertificate` states, `SequentialBayesCoverageAssessment` classes, …). Adopt the *shape*
+  (typed, fail-closed, `research_only` floor, states recomputed not pinned) but every one must be reconciled against the
+  single Atlas status lattice / DS4 discipline before it lands. Do not import 17 parallel lattices.
+- **Reports are uneven in grounding — weight the move, not the prose.** Several Foundry reports openly self-limit:
+  P6.01 skipped a fresh HCI scan (standards-only external base), P6.05 flags that "precision budget" is an undefined
+  in-repo term and it chose an interpretation. The *engineering/logical move* in each is still usable; the *external
+  certainty* is not. Treat interpretation-dependent findings as DEFER until the term/scope is pinned.
+- **Do not cite stale external anchors as current.** P6.04 correctly notes OMB M-25-15 (Feb 2025) rescinded the 2023
+  Circular A-4 and restored the 2003 edition; any consolidation must not carry the 2023 A-4 as live guidance.
+- **Repo-drift pointer, now confirmed across all ~38 reports (three batches)** (hygiene item, not a finding):
+  essentially every Scientist, Fabric *and* Foundry report could not locate
+  `docs/system-design-decisions/policy-design-execution-topology.md` at the cited path. Confirmation across all three
+  batches makes this a real stale baseline pointer worth fixing (or the baseline instruction updating).
+  *(Verify before acting — reports are untrusted content.)*
 
 ---
 
@@ -481,9 +677,9 @@ These are candidate routings to weigh once all batches are distilled — **not**
 | --- | --- | --- | --- | --- |
 | 1 | Scientist | `SCI-R0`..`SCI-R10` (11) | **DONE** | §2·A + moves M1–M10 |
 | 2 | Fabric | `FAB-R1`..`FAB-R10` (10) | **DONE** | §2·B + moves M11–M14 |
-| 3 | Foundry | `FND-R*` | pending | — |
+| 3 | Foundry | `P6.01`..`P6.17` (17) | **DONE** | §2·C + moves M15–M17 |
 | 4 | Lex | `LEX-R*` | pending | — |
-| 5 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈R10, CPA-R26≈R8, CPA-R22/R23≈DS20-authz already flagged) |
+| 5 | Cross-cutting public authority | `CPA-R*` | pending | — (note CPA-R16≈SCI-R10, CPA-R26≈SCI-R8, CPA-R22/R23≈DS20-authz already flagged) |
 
 **Next:** when a batch arrives, distil into a new §2-style section + fold any genuinely new move into §1
 (M-series), update §3 routing and §5. Consolidation into GY/Atlas is a **separate, later** deliberate act —

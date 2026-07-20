@@ -7,7 +7,7 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any, cast
+from typing import Any, Protocol, cast
 
 from polisyos.core.contracts.control import (
     EXECUTION_PROFILE_ORDER,
@@ -15,7 +15,31 @@ from polisyos.core.contracts.control import (
     ExecutionProfile,
     PolicyFlags,
 )
-from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+from polisyos.runtime.http.security import (
+    PolicyOSRole,
+    UserIdentityClaims,
+    is_fixture_identity_claims,
+)
+
+
+class _RuntimeAccessScope(Protocol):
+    """Structural view needed to derive an execution principal."""
+
+    @property
+    def tenant_id(self) -> str: ...
+
+    @property
+    def cell_id(self) -> str | None: ...
+
+    @property
+    def user_sub(self) -> str: ...
+
+    @property
+    def spiffe_id(self) -> str: ...
+
+    @property
+    def roles(self) -> frozenset[PolicyOSRole]: ...
+
 
 _PRIVILEGED_ROLES = frozenset({PolicyOSRole.ADMIN, PolicyOSRole.SERVICE, PolicyOSRole.SYSTEM})
 
@@ -56,6 +80,7 @@ class RuntimePrincipal:
     cell_id: str | None = None
     roles: frozenset[str] = frozenset()
     authenticated: bool = False
+    fixture_identity: bool = False
 
     @property
     def is_privileged(self) -> bool:
@@ -73,6 +98,29 @@ class RuntimePrincipal:
             cell_id=claims.cell_id,
             roles=frozenset(role.value for role in claims.roles),
             authenticated=True,
+            fixture_identity=is_fixture_identity_claims(claims),
+        )
+
+    @classmethod
+    def from_access_scope(
+        cls,
+        scope: _RuntimeAccessScope | None,
+        *,
+        fixture_identity: bool = False,
+    ) -> RuntimePrincipal:
+        """Convert the effective verified scope into the execution-policy principal."""
+        if scope is None:
+            return cls()
+        subject = scope.user_sub or scope.spiffe_id
+        if not subject or not scope.tenant_id:
+            return cls()
+        return cls(
+            subject=subject,
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            roles=frozenset(role.value for role in scope.roles),
+            authenticated=True,
+            fixture_identity=fixture_identity,
         )
 
 
@@ -222,6 +270,11 @@ class RuntimeExecutionPolicyResolver:
         effective: ExecutionProfile = requested or self._default_profile
         if self._profile_rank(effective) < self._profile_rank(self._default_profile):
             effective = self._default_profile
+        if actor.fixture_identity and effective != "dev":
+            raise ExecutionProfileError(
+                "fixture_identity_profile_forbidden",
+                "Development fixture identity cannot request a non-development profile.",
+            )
 
         if flags.allow_mock_fallback and not actor.is_privileged:
             raise PolicyFlagForbiddenError(

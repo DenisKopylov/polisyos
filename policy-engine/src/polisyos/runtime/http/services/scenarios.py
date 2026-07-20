@@ -5,12 +5,14 @@ from __future__ import annotations
 import json
 import math
 import re
+import threading
 from datetime import UTC, datetime
 from math import isfinite
 from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
+from polisyos.core import artifacts
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
@@ -41,12 +43,16 @@ from polisyos.ir.analytics.phase4_dynamics import (
     Phase4TemporalPolicyGateVerdict,
     validate_phase4_temporal_policy_query,
 )
-from polisyos.runtime.http.errors import conflict, not_found
+from polisyos.runtime.http.errors import conflict, not_found, service_unavailable
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.runtime.http.services.lineage import LineageService
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
+    from polisyos.runtime.http.services.scenario_heads import (
+        ScenarioHeadRecord,
+        ScenarioHeadStore,
+    )
     from polisyos.runtime.http.services.temporal import TemporalService
 
 
@@ -58,40 +64,159 @@ _SCENARIO_CANON = CanonSpec(forbid_floats=False)
 class ScenarioRepository:
     """Durable ScenarioManifest repository backed by the existing CAS ArtifactStore."""
 
-    def __init__(self, store: ArtifactStore | None) -> None:
+    def __init__(
+        self,
+        store: ArtifactStore | None,
+        *,
+        require_durable_heads: bool = False,
+    ) -> None:
         self._store = store
+        self._head_store: ScenarioHeadStore | None = None
+        self._require_durable_heads = require_durable_heads
         self._by_id: dict[str, ScenarioManifest] = {}
         self._artifact_by_id: dict[str, str] = {}
-        self._hydrate()
+        self._lock = threading.RLock()
+        if not require_durable_heads:
+            self._hydrate_legacy()
+
+    def bind_head_store(self, head_store: ScenarioHeadStore) -> None:
+        """Make one transactional logical-head store authoritative for all revisions."""
+        if head_store is None:
+            raise TypeError("head_store is required")
+        with self._lock:
+            if self._head_store is head_store:
+                return
+            self._head_store = head_store
+            self._by_id.clear()
+            self._artifact_by_id.clear()
+            self._hydrate_heads_locked()
+
+    def get_head(self, scenario_id: str) -> ScenarioHeadRecord | None:
+        """Return the current durable logical head without selecting a CAS candidate."""
+        with self._lock:
+            head_store = self._head_store_or_raise_locked()
+            if head_store is None:
+                return None
+            return head_store.get_scenario_head(scenario_id)
+
+    def get_for_bound_head(self, head: ScenarioHeadRecord) -> ScenarioManifest:
+        """Resolve exactly ``head`` and reject a concurrent logical-head change."""
+        with self._lock:
+            head_store = self._head_store_or_raise_locked()
+            if head_store is None:
+                raise service_unavailable(
+                    "Durable scenario-head authority is unavailable",
+                    code="scenario_head_store_unavailable",
+                )
+            if head_store.get_scenario_head(head.scenario_id) != head:
+                raise conflict(
+                    "Scenario changed during authorization binding",
+                    code="scenario_authorization_binding_changed",
+                )
+            manifest = self._load_head_locked(head)
+            if head_store.get_scenario_head(head.scenario_id) != head:
+                raise conflict(
+                    "Scenario changed during authorization binding",
+                    code="scenario_authorization_binding_changed",
+                )
+            return manifest
 
     def get(self, scenario_id: str) -> ScenarioManifest | None:
         """Return a persisted scenario manifest by id, if present."""
-        return self._by_id.get(scenario_id)
+        with self._lock:
+            head_store = self._head_store_or_raise_locked()
+            if head_store is not None:
+                head = head_store.get_scenario_head(scenario_id)
+                if head is None:
+                    self._by_id.pop(scenario_id, None)
+                    self._artifact_by_id.pop(scenario_id, None)
+                    return None
+                return self._load_head_locked(head)
+            return self._by_id.get(scenario_id)
 
     def list_for_run(self, run_id: str) -> list[ScenarioManifest]:
         """Return persisted manifests for one baseline run."""
-        return sorted(
-            (
-                manifest
-                for manifest in self._by_id.values()
-                if manifest.baseline_run_id == run_id
-            ),
-            key=lambda manifest: (manifest.id, manifest.revision),
-        )
+        with self._lock:
+            head_store = self._head_store_or_raise_locked()
+            if head_store is not None:
+                return sorted(
+                    (
+                        self._load_head_locked(head)
+                        for head in head_store.list_scenario_heads(
+                            baseline_run_id=run_id,
+                        )
+                    ),
+                    key=lambda manifest: (manifest.id, manifest.revision),
+                )
+            return sorted(
+                (
+                    manifest
+                    for manifest in self._by_id.values()
+                    if manifest.baseline_run_id == run_id
+                ),
+                key=lambda manifest: (manifest.id, manifest.revision),
+            )
 
     def next_revision(self, scenario_id: str) -> int:
         """Return the next persisted revision number for a scenario id."""
-        existing = self._by_id.get(scenario_id)
+        existing = self.get(scenario_id)
         return (existing.revision + 1) if existing is not None else 1
 
     def save(self, manifest: ScenarioManifest) -> ScenarioManifest:
         """Persist a manifest artifact and update the read-through index."""
+        current = self.get(manifest.id)
+        expected_revision = current.revision if current is not None else 0
+        return self.save_if_current(manifest, expected_revision=expected_revision)
+
+    def save_if_current(
+        self,
+        manifest: ScenarioManifest,
+        *,
+        expected_revision: int,
+    ) -> ScenarioManifest:
+        """Atomically persist only when the authorized revision is still current."""
+        with self._lock:
+            head_store = self._head_store_or_raise_locked()
+            current = self.get(manifest.id)
+            current_revision = current.revision if current is not None else 0
+            if current_revision != expected_revision:
+                raise conflict(
+                    "Scenario changed after authorization binding",
+                    code="scenario_authorization_binding_changed",
+                )
+            if manifest.revision != expected_revision + 1:
+                raise conflict(
+                    "Scenario revision does not follow the authorized revision",
+                    code="scenario_revision_mismatch",
+                )
+            if head_store is not None:
+                artifact_ref = self._persist_candidate_locked(manifest)
+                committed = head_store.compare_and_set_scenario_head(
+                    scenario_id=manifest.id,
+                    baseline_run_id=manifest.baseline_run_id,
+                    expected_revision=expected_revision,
+                    new_revision=manifest.revision,
+                    artifact_ref=artifact_ref,
+                    manifest_hash=manifest.manifest_hash,
+                )
+                if not committed:
+                    raise conflict(
+                        "Scenario changed after authorization binding",
+                        code="scenario_authorization_binding_changed",
+                    )
+                self._by_id[manifest.id] = manifest
+                self._artifact_by_id[manifest.id] = artifact_ref
+                return manifest
+            return self._save_locked(manifest)
+
+    def _persist_candidate_locked(self, manifest: ScenarioManifest) -> str:
         if self._store is None:
-            self._by_id[manifest.id] = manifest
-            return manifest
-        payload = manifest.model_dump(mode="json")
+            raise service_unavailable(
+                "Scenario artifact storage is unavailable",
+                code="scenario_artifact_store_unavailable",
+            )
         ref = self._store.put_json(
-            payload,
+            manifest.model_dump(mode="json"),
             ArtifactWriteOptions(
                 kind=_SCENARIO_ARTIFACT_KIND,
                 media_type="application/json",
@@ -99,11 +224,87 @@ class ScenarioRepository:
             ),
             canon_spec=_SCENARIO_CANON,
         )
+        return str(ref.artifact_id)
+
+    def _save_locked(self, manifest: ScenarioManifest) -> ScenarioManifest:
+        if self._store is None:
+            self._by_id[manifest.id] = manifest
+            return manifest
+        artifact_ref = self._persist_candidate_locked(manifest)
         self._by_id[manifest.id] = manifest
-        self._artifact_by_id[manifest.id] = str(ref.artifact_id)
+        self._artifact_by_id[manifest.id] = artifact_ref
         return manifest
 
-    def _hydrate(self) -> None:
+    def _head_store_or_raise_locked(self) -> ScenarioHeadStore | None:
+        if self._head_store is not None:
+            return self._head_store
+        if self._require_durable_heads:
+            raise service_unavailable(
+                "Durable scenario-head authority is unavailable",
+                code="scenario_head_store_unavailable",
+            )
+        return None
+
+    def _hydrate_heads_locked(self) -> None:
+        head_store = self._head_store_or_raise_locked()
+        if head_store is None:
+            return
+        for head in head_store.list_scenario_heads():
+            self._load_head_locked(head)
+
+    def _load_head_locked(self, head: ScenarioHeadRecord) -> ScenarioManifest:
+        cached = self._by_id.get(head.scenario_id)
+        if (
+            cached is not None
+            and self._artifact_by_id.get(head.scenario_id) == head.artifact_ref
+            and cached.baseline_run_id == head.baseline_run_id
+            and cached.revision == head.revision
+            and cached.manifest_hash == head.manifest_hash
+        ):
+            return cached
+        if self._store is None:
+            raise service_unavailable(
+                "Scenario artifact storage is unavailable",
+                code="scenario_artifact_store_unavailable",
+            )
+        try:
+            artifact_id = artifacts.ArtifactID.model_validate(head.artifact_ref)
+            sidecar = self._store.get_manifest(artifact_id)
+            payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+            scenario = ScenarioManifest.model_validate(payload)
+        except Exception as exc:
+            raise service_unavailable(
+                "The authoritative scenario head cannot be resolved",
+                code="scenario_head_artifact_unavailable",
+            ) from exc
+        artifact_schema = sidecar.artifact_schema
+        if (
+            sidecar.kind != _SCENARIO_ARTIFACT_KIND
+            or artifact_schema is None
+            or artifact_schema.name != _SCENARIO_SCHEMA.name
+            or artifact_schema.version != _SCENARIO_SCHEMA.version
+        ):
+            raise service_unavailable(
+                "The authoritative scenario head has an invalid artifact contract",
+                code="scenario_head_artifact_contract_invalid",
+            )
+        if (
+            scenario.id != head.scenario_id
+            or scenario.baseline_run_id != head.baseline_run_id
+            or scenario.revision != head.revision
+            or not scenario.manifest_hash
+            or scenario.manifest_hash != head.manifest_hash
+            or _manifest_hash(scenario) != head.manifest_hash
+        ):
+            raise service_unavailable(
+                "The authoritative scenario head failed content binding",
+                code="scenario_head_content_mismatch",
+            )
+        self._by_id[scenario.id] = scenario
+        self._artifact_by_id[scenario.id] = head.artifact_ref
+        return scenario
+
+    def _hydrate_legacy(self) -> None:
         if self._store is None:
             return
         try:
@@ -134,12 +335,20 @@ class ScenarioService:
         lineage_service: LineageService,
         temporal_service: TemporalService,
         store: ArtifactStore | None = None,
+        require_durable_heads: bool = False,
     ) -> None:
         self._lineage = lineage_service
         self._temporal = temporal_service
         self._store = store
-        self._repository = ScenarioRepository(store)
+        self._repository = ScenarioRepository(
+            store,
+            require_durable_heads=require_durable_heads,
+        )
         self._manifests: dict[str, ScenarioManifest] = {}
+
+    def bind_scenario_head_store(self, head_store: ScenarioHeadStore) -> None:
+        """Bind the transactional logical-head authority used by scenario mutations."""
+        self._repository.bind_head_store(head_store)
 
     def list_for_run(
         self,
@@ -152,7 +361,12 @@ class ScenarioService:
         quantities = self._decision_quantities(run, temporal_scope)
         if not quantities:
             return []
-        manifest = self._default_manifest(
+        all_persisted = self._repository.list_for_run(run.run_id)
+        default_id = _default_scenario_id(run)
+        manifest = next(
+            (item for item in all_persisted if item.id == default_id),
+            None,
+        ) or self._default_manifest(
             run=run,
             quantities=quantities,
             temporal_scope=temporal_scope,
@@ -160,9 +374,9 @@ class ScenarioService:
         )
         self._manifests[manifest.id] = manifest
         persisted = [
-            manifest
-            for manifest in self._repository.list_for_run(run.run_id)
-            if manifest.id != _default_scenario_id(run)
+            persisted_manifest
+            for persisted_manifest in all_persisted
+            if persisted_manifest.id != manifest.id
         ]
         for persisted_manifest in persisted:
             self._manifests[persisted_manifest.id] = persisted_manifest
@@ -181,7 +395,7 @@ class ScenarioService:
 
     def get_manifest(self, scenario_id: str) -> ScenarioManifest:
         """Return a cached generated or saved scenario manifest."""
-        manifest = self._manifests.get(scenario_id) or self._repository.get(scenario_id)
+        manifest = self._repository.get(scenario_id) or self._manifests.get(scenario_id)
         if manifest is None:
             raise not_found(
                 f"Scenario {scenario_id} is not available",
@@ -189,6 +403,24 @@ class ScenarioService:
             )
         self._manifests[scenario_id] = manifest
         return manifest
+
+    def get_persisted_manifest_or_none(self, scenario_id: str) -> ScenarioManifest | None:
+        """Return only a durable scenario used for authorization collision checks."""
+        return self._repository.get(scenario_id)
+
+    def get_persisted_head_or_none(
+        self,
+        scenario_id: str,
+    ) -> ScenarioHeadRecord | None:
+        """Return the global logical head used for pre-policy collision checks."""
+        return self._repository.get_head(scenario_id)
+
+    def get_persisted_manifest_for_head(
+        self,
+        head: ScenarioHeadRecord,
+    ) -> ScenarioManifest:
+        """Resolve one exact head snapshot for authorization binding."""
+        return self._repository.get_for_bound_head(head)
 
     def is_scenario_lineage(self, lineage_id: str) -> bool:
         """Return true when a lineage id belongs to a scenario manifest."""
@@ -199,12 +431,23 @@ class ScenarioService:
         parsed = _parse_scenario_lineage_id(lineage_id)
         if parsed is None:
             return _unresolved_scenario_lineage(lineage_id)
-        scenario_id, lineage_kind = parsed
+        scenario_id, _lineage_kind = parsed
         try:
             manifest = self.get_manifest(scenario_id)
         except Exception:
             return _unresolved_scenario_lineage(lineage_id)
+        return self.build_lineage_for_manifest(lineage_id, manifest)
 
+    def build_lineage_for_manifest(
+        self,
+        lineage_id: str,
+        manifest: ScenarioManifest,
+    ) -> LineageGraphView:
+        """Build scenario lineage from one already-authorized immutable manifest."""
+        parsed = _parse_scenario_lineage_id(lineage_id)
+        if parsed is None or parsed[0] != manifest.id:
+            raise ValueError("lineage_id must identify the supplied scenario manifest")
+        _scenario_id, lineage_kind = parsed
         nodes = _scenario_lineage_nodes(
             manifest=manifest,
             lineage_id=lineage_id,
@@ -316,9 +559,28 @@ class ScenarioService:
         request: ScenarioCreateRequest,
         temporal_scope: TemporalScope | None,
         regime_shift_forecast_bundle_ref: str | None = None,
+        authorized_scenario_id: str | None = None,
+        expected_revision: int | None = None,
     ) -> ScenarioManifest:
         """Persist an operator-authored scenario draft in the runtime service."""
-        scenario_id = _normalize_scenario_id(request.id or _draft_scenario_id(run))
+        scenario_id = authorized_scenario_id or resolve_scenario_target_id(run, request.id)
+        if _normalize_scenario_id(scenario_id) != scenario_id:
+            raise conflict(
+                "Authorized scenario target is not canonical",
+                code="scenario_authorization_binding_invalid",
+            )
+        if request.id is not None and resolve_scenario_target_id(run, request.id) != scenario_id:
+            raise conflict(
+                "Scenario target differs from the authorized target",
+                code="scenario_authorization_binding_changed",
+            )
+        current = self._repository.get(scenario_id)
+        current_revision = current.revision if current is not None else 0
+        if expected_revision is not None and current_revision != expected_revision:
+            raise conflict(
+                "Scenario changed after authorization binding",
+                code="scenario_authorization_binding_changed",
+            )
         now = datetime.now(UTC).replace(microsecond=0)
         gate_verdict = _enforce_phase4_scenario_gate(
             run,
@@ -333,7 +595,7 @@ class ScenarioService:
             baseline_run_id=run.run_id,
             status="draft",
             lifecycle_status="saved",
-            revision=self._repository.next_revision(scenario_id),
+            revision=current_revision + 1,
             temporal_scope=temporal_scope,
             policy_question=request.policy_question,
             author=request.author,
@@ -360,7 +622,10 @@ class ScenarioService:
         manifest = _finalize_manifest_hash(
             manifest.model_copy(update={"saved_at": now}),
         )
-        self._repository.save(manifest)
+        self._repository.save_if_current(
+            manifest,
+            expected_revision=current_revision,
+        )
         self._manifests[scenario_id] = manifest
         return manifest
 
@@ -451,7 +716,7 @@ class ScenarioService:
                 "Run has no decision-bearing quantities for counterfactual metrics",
                 code="scenario_metrics_unsupported",
             )
-        manifest = self._manifests.get(scenario_id) or self._repository.get(scenario_id)
+        manifest = self._repository.get(scenario_id) or self._manifests.get(scenario_id)
         if manifest is None:
             manifest = self._default_manifest(
                 run=run,
@@ -599,6 +864,18 @@ def _default_scenario_id(run: IndexedRunRecord) -> str:
 def _draft_scenario_id(run: IndexedRunRecord) -> str:
     stamp = datetime.now(UTC).strftime("%Y%m%d%H%M%S")
     return _normalize_scenario_id(f"scn_{run.run_id}_draft_{stamp}")
+
+
+def resolve_scenario_target_id(
+    run: IndexedRunRecord,
+    requested_id: str | None,
+) -> str:
+    """Resolve the exact canonical scenario slot that a create request mutates."""
+    return (
+        _normalize_scenario_id(requested_id)
+        if requested_id is not None
+        else _draft_scenario_id(run)
+    )
 
 
 def _normalize_scenario_id(value: str) -> str:

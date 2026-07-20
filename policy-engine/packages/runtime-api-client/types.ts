@@ -2409,7 +2409,7 @@ export interface components {
         AudienceClass: "REVIEWER" | "EXPERT" | "MACHINE";
         /**
          * AuthMeResponse
-         * @description Authenticated principal payload returned by the runtime ``/auth/me`` endpoint.
+         * @description Runtime principal payload with permissions bound to the server vocabulary.
          */
         AuthMeResponse: {
             /** Cell Id */
@@ -2427,7 +2427,7 @@ export interface components {
              */
             mfa_verified: boolean;
             /** Permissions */
-            permissions?: string[];
+            permissions?: components["schemas"]["RuntimePermission"][];
             /**
              * Principal Type
              * @default user
@@ -9588,6 +9588,12 @@ export interface components {
              */
             type: string;
         };
+        /**
+         * RuntimePermission
+         * @description Closed action-permission vocabulary owned by the runtime server.
+         * @enum {string}
+         */
+        RuntimePermission: "analysis.execute" | "artifacts.batch.read" | "artifacts.render" | "dashboard.view" | "decisions.validity.publish" | "evidence.acquire" | "evidence.discover" | "evidence.preview" | "evidence.promotions.approve" | "evidence.promotions.reject" | "evidence.resolve" | "evidence.review" | "evidence.sae.analyze" | "evidence.view" | "fabric.impact.analyze" | "fabric.quality.read" | "fabric.trust.read" | "knowledge.search" | "knowledge.trigger" | "knowledge.view" | "lineage.batch.read" | "mobility.analyze" | "mode.analyst" | "platform.admin" | "platform.view" | "runs.batch.read" | "runs.feedback.evaluate" | "runs.launch" | "runs.production_approval.create" | "runs.reissue" | "runs.review" | "runs.view" | "scenarios.create";
         /**
          * ScenarioAssumption
          * @description Named scenario assumption with provenance.

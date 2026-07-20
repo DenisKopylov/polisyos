@@ -1,22 +1,93 @@
 from __future__ import annotations
 
 import json
+import os
+import time
 from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
+
+import pytest
 
 from polisyos.runtime.quality.assurance_case import build_policy_intent_envelope
 from tools.ops_runners.runtime.local_production_canary import (
     DEFAULT_MODEL,
     _build_canary_request,
+    _build_runtime_canary_app,
+    _configure_local_runtime_env,
     _extract_provider_preflight,
     _has_required_materialization_refs,
     _is_terminal_job_state,
     _load_env_file,
     _load_local_run_evidence,
+    _runtime_canary_bearer_token,
 )
 from tools.ops_runners.runtime.quality_scenarios import (
     DEFAULT_QUALITY_SCENARIO_ID,
     load_quality_scenario_contract,
 )
+
+
+def _runtime_canary_security(
+    tmp_path: Path,
+    request: pytest.FixtureRequest,
+) -> tuple[Any, Any]:
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric import rsa
+
+    from polisyos.runtime.http.deployment_security import (
+        DeploymentSecurityConfig,
+        build_deployment_security,
+    )
+    from tests.unit.runtime.http.deployment_security_test_support import (
+        LocalJWKSStub,
+    )
+    from tests.unit.runtime.http.test_runtime_deployment_security import (
+        _config_mapping,
+    )
+
+    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+    jwks_server = LocalJWKSStub(private_key)
+    jwks_uri = jwks_server.start()
+    request.addfinalizer(jwks_server.close)
+    raw = _config_mapping(tmp_path)
+    identity_config = raw["identity_verifier"]
+    assert isinstance(identity_config, dict)
+    identity_config["jwks_uri"] = jwks_uri
+    principals = raw["service_principals"]
+    assert isinstance(principals, list)
+    valid = principals[0]
+    assert isinstance(valid, dict)
+    principals.append(
+        {
+            **valid,
+            "subject": "runtime-canary-over-granted",
+            "permissions": ["runs.launch", "runs.view", "evidence.acquire"],
+        }
+    )
+    runtime = build_deployment_security(DeploymentSecurityConfig.from_mapping(raw))
+
+    def _token(subject: str) -> str:
+        now = int(time.time())
+        return jwt.encode(
+            {
+                "iss": "https://idp.example",
+                "aud": "polisyos-runtime",
+                "sub": subject,
+                "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                "cell_id": "018f47a0-0000-7000-8000-000000000001",
+                "realm_access": {"roles": ["polisyos_admin"]},
+                "amr": ["pwd", "mfa"],
+                "iat": now,
+                "exp": now + 60,
+                "jti": f"{subject}-{now}",
+            },
+            private_key,
+            algorithm="RS256",
+            headers={"kid": "identity-2026-07"},
+        )
+
+    return runtime, _token
 
 
 def test_build_canary_request_is_real_one_model_production_data_lane(tmp_path: Path) -> None:
@@ -230,3 +301,122 @@ def test_load_env_file_supports_export_and_quotes_without_overwriting(tmp_path: 
         "POLISYOS_LLM_GATEWAY_BASE_URL": "https://proxy.gonka.gg/v1",
     }
     assert env["EXISTING"] == "already"
+
+
+def test_runtime_canary_requires_a_separately_injected_bearer() -> None:
+    with pytest.raises(RuntimeError, match="short-lived service-principal token"):
+        _runtime_canary_bearer_token({})
+
+    token = "eyJ-short-lived-canary-token"  # noqa: S105 - inert test sentinel
+    assert _runtime_canary_bearer_token(
+        {"POLISYOS_RUNTIME_CANARY_BEARER_TOKEN": token}
+    ) == token
+
+
+def test_runtime_canary_authenticated_client_sends_exact_grant_bearer(
+    tmp_path: Path,
+    request: pytest.FixtureRequest,
+) -> None:
+    from fastapi import FastAPI
+
+    import tools.ops_runners.runtime.local_production_canary as canary
+
+    observed_authorization: list[str] = []
+    app = FastAPI()
+    runtime, token = _runtime_canary_security(tmp_path, request)
+    app.state.runtime_deployment_security = runtime
+
+    @app.middleware("http")
+    async def _capture_authorization(request, call_next):  # type: ignore[no-untyped-def]
+        observed_authorization.append(request.headers.get("authorization", ""))
+        return await call_next(request)
+
+    @app.get("/protected")
+    def _protected() -> dict[str, bool]:
+        return {"ok": True}
+
+    synthetic_token = token("runtime-canary")
+    with canary._authenticated_runtime_canary_client(
+        app,
+        bearer_token=synthetic_token,
+    ) as client:
+        response = client.get("/protected")
+
+    assert response.status_code == 200
+    assert observed_authorization == [f"Bearer {synthetic_token}"]
+
+
+@pytest.mark.parametrize(
+    "subject",
+    ["unmanaged-admin", "runtime-canary-over-granted"],
+)
+def test_runtime_canary_rejects_unmanaged_or_over_granted_token_before_request(
+    tmp_path: Path,
+    subject: str,
+    request: pytest.FixtureRequest,
+) -> None:
+    import tools.ops_runners.runtime.local_production_canary as canary
+
+    runtime, token = _runtime_canary_security(tmp_path, request)
+    app = SimpleNamespace(
+        state=SimpleNamespace(runtime_deployment_security=runtime)
+    )
+    bearer = token(subject)
+
+    with pytest.raises(RuntimeError, match="exact deployment service-principal grant") as exc:
+        canary._authenticated_runtime_canary_client(
+            app,
+            bearer_token=bearer,
+        )
+
+    assert bearer not in str(exc.value)
+
+
+def test_runtime_canary_configuration_removes_fixture_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY", "1")
+
+    _configure_local_runtime_env(run_root=tmp_path, mode="simulated", timeout_s=1)
+
+    assert "POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY" not in os.environ
+
+
+def test_runtime_canary_app_uses_only_deployment_security(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import tools.ops_runners.runtime.local_production_canary as canary
+
+    deployment_config = object()
+    deployment_security = object()
+    captured: dict[str, object] = {}
+
+    monkeypatch.setattr(
+        canary.DeploymentSecurityConfig,
+        "from_env",
+        lambda: deployment_config,
+    )
+    monkeypatch.setattr(
+        canary,
+        "build_deployment_security",
+        lambda config: deployment_security if config is deployment_config else None,
+    )
+
+    def _capture_app(**kwargs: object) -> object:
+        captured.update(kwargs)
+        return object()
+
+    monkeypatch.setattr(canary, "create_runtime_api_app", _capture_app)
+
+    _build_runtime_canary_app(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+    )
+
+    assert captured["deployment_security"] is deployment_security
+    assert captured["enable_security_middlewares"] is True
+    assert captured["allow_fixture_identity"] is False
+    assert "identity_provider" not in captured
+    assert "opa_client" not in captured

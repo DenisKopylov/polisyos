@@ -16,6 +16,11 @@ from polisyos.core.contracts.runtime import (
     TemporalScope,
     TemporalSurfaceSupport,
 )
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
@@ -24,6 +29,7 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
+from polisyos.runtime.http.permissions import RuntimePermission
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
@@ -47,15 +53,42 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
-_RUNTIME_CONTEXT_DEPENDENCY = (
-    Depends(get_runtime_api_context) if Depends is not None else None
-)
+_RUNTIME_CONTEXT_DEPENDENCY = Depends(get_runtime_api_context) if Depends is not None else None
 _VALID_AT_QUERY = Query(default=None) if Query is not None else None
 _TX_AT_QUERY = Query(default=None) if Query is not None else None
 _T_QUERY = Query(default=None, alias="t") if Query is not None else None
 _BRANCH_QUERY = Query(default=None) if Query is not None else None
 _SNAPSHOT_ID_QUERY = Query(default=None) if Query is not None else None
 _SCENARIO_ID_QUERY = Query(default=None) if Query is not None else None
+_FABRIC_QUALITY_BATCH_AUTHZ = require_action_permission(
+    RuntimePermission.FABRIC_QUALITY_READ,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_PARENT_OR_REQUEST_COMPOSITE,
+        resource_kind="runtime.fabric.quality_batch",
+        parent_field="run_id",
+        selector_fields=("decision_data_ids",),
+        parent_required=True,
+    ),
+)
+_FABRIC_TRUST_BATCH_AUTHZ = require_action_permission(
+    RuntimePermission.FABRIC_TRUST_READ,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_PARENT_OR_REQUEST_COMPOSITE,
+        resource_kind="runtime.fabric.trust_batch",
+        parent_field="run_id",
+        selector_fields=("decision_data_ids",),
+        parent_required=True,
+    ),
+)
+_FABRIC_IMPACT_AUTHZ = require_action_permission(
+    RuntimePermission.FABRIC_IMPACT_ANALYZE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_PARENT_OR_REQUEST_COMPOSITE,
+        resource_kind="runtime.fabric.impact",
+        parent_field="run_id",
+        selector_fields=("lineage_ids", "source_contract_ids"),
+    ),
+)
 
 
 @router.get(
@@ -81,6 +114,7 @@ def get_fabric_source_scorecards(
     "/quality/batch",
     response_model=FabricQualityBatchResponse,
     operation_id="get_fabric_quality_batch",
+    dependencies=[Depends(_FABRIC_QUALITY_BATCH_AUTHZ)],
 )
 def get_fabric_quality_batch(
     body: FabricQualityTrustBatchRequest,
@@ -134,6 +168,7 @@ def get_fabric_quality_batch(
     "/trust/batch",
     response_model=FabricTrustBatchResponse,
     operation_id="get_fabric_trust_batch",
+    dependencies=[Depends(_FABRIC_TRUST_BATCH_AUTHZ)],
 )
 def get_fabric_trust_batch(
     body: FabricQualityTrustBatchRequest,
@@ -239,6 +274,7 @@ def get_fabric_run_replay(
     "/impact",
     response_model=FabricImpactAnalysisResponse,
     operation_id="analyze_fabric_impact",
+    dependencies=[Depends(_FABRIC_IMPACT_AUTHZ)],
 )
 def analyze_fabric_impact(
     body: FabricImpactAnalysisRequest,

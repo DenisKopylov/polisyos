@@ -414,7 +414,7 @@ export type AuthMeResponse = {
 };
   meta: ApiMeta;
   mfa_verified?: boolean;
-  permissions?: Array<string>;
+  permissions?: Array<RuntimePermission>;
   principal_type?: "anonymous" | "service" | "user";
   roles?: Array<string>;
   tenant_id: string;
@@ -3517,6 +3517,8 @@ export type RuntimeApiProblem = {
   title: string;
   type?: string;
 };
+
+export type RuntimePermission = "analysis.execute" | "artifacts.batch.read" | "artifacts.render" | "dashboard.view" | "decisions.validity.publish" | "evidence.acquire" | "evidence.discover" | "evidence.preview" | "evidence.promotions.approve" | "evidence.promotions.reject" | "evidence.resolve" | "evidence.review" | "evidence.sae.analyze" | "evidence.view" | "fabric.impact.analyze" | "fabric.quality.read" | "fabric.trust.read" | "knowledge.search" | "knowledge.trigger" | "knowledge.view" | "lineage.batch.read" | "mobility.analyze" | "mode.analyst" | "platform.admin" | "platform.view" | "runs.batch.read" | "runs.feedback.evaluate" | "runs.launch" | "runs.production_approval.create" | "runs.reissue" | "runs.review" | "runs.view" | "scenarios.create";
 
 export type ScenarioAssumptionInput = {
   description?: string | null;

@@ -9,6 +9,14 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.runtime.http.access_audit import (
+    RuntimeAuthorizationOutcome,
+    emit_runtime_authorization_audit_async,
+)
+from polisyos.runtime.http.authorization import (
+    assert_mutating_route_authorization_contract,
+    install_route_authorization_openapi_contract,
+)
 from polisyos.runtime.http.authz_middleware import AuthzMiddleware
 from polisyos.runtime.http.cell_router_middleware import CellRouterMiddleware
 from polisyos.runtime.http.container import (
@@ -19,9 +27,22 @@ from polisyos.runtime.http.container import (
     resolve_runtime_tracer,
 )
 from polisyos.runtime.http.csrf import CSRFMiddleware
+from polisyos.runtime.http.deployment_security import (
+    DeploymentSecurityAttestationError,
+    RuntimeDeploymentSecurity,
+    is_deployment_step_up_verifier,
+    require_factory_produced_deployment_security,
+    require_installed_deployment_security,
+)
+from polisyos.runtime.http.deployment_security_attestation import (
+    register_deployment_security_installation,
+)
 from polisyos.runtime.http.dev_identity_middleware import DevelopmentFixtureIdentityMiddleware
-from polisyos.runtime.http.errors import install_exception_handlers
-from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
+from polisyos.runtime.http.errors import install_exception_handlers, problem_response
+from polisyos.runtime.http.execution_policy import (
+    RuntimeBootstrapError,
+    RuntimeExecutionPolicyResolver,
+)
 from polisyos.runtime.http.fail_closed_middleware import FailClosedAccessScopeMiddleware
 from polisyos.runtime.http.jwt_auth_middleware import JWTAuthMiddleware
 from polisyos.runtime.http.mutation_policy import MutationProtectionMiddleware
@@ -44,9 +65,15 @@ from polisyos.runtime.http.routes.runs import router as runs_router
 from polisyos.runtime.http.routes.scenarios import router as scenarios_router
 from polisyos.runtime.http.routes.temporal import router as temporal_router
 from polisyos.runtime.http.security import RuntimeSecurityConfig, is_fixture_identity_enabled
+from polisyos.runtime.http.step_up import (
+    assert_high_stakes_step_up_contract,
+    install_step_up_openapi_contract,
+)
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator, Callable
+
+    from polisyos.runtime.http.step_up import StepUpAssertionVerifier, StepUpReplayStore
 
 FastAPI: Any | None
 Request: Any
@@ -79,6 +106,7 @@ def create_runtime_api_app(
     identity_provider: Any | None = None,
     cell_registry: Any | None = None,
     opa_client: Any | None = None,
+    deployment_security: RuntimeDeploymentSecurity | None = None,
     authz_enforce: bool = True,
     authz_shadow_mode: bool = False,
     delegation_manager: Any | None = None,
@@ -89,6 +117,8 @@ def create_runtime_api_app(
     tracer_factory: Callable[[], Any] | None = None,
     container_overrides: RuntimeContainerOverrides | None = None,
     enable_csrf_protection: bool | None = None,
+    step_up_verifier: StepUpAssertionVerifier | None = None,
+    step_up_replay_store: StepUpReplayStore | None = None,
 ) -> Any:
     """Create runtime api app."""
     if FastAPI is None:
@@ -101,6 +131,80 @@ def create_runtime_api_app(
         else _default_core_runs_root(normalized_cas_root)
     )
     policy_resolver = RuntimeExecutionPolicyResolver.from_env()
+    direct_security_collaborators = {
+        "identity_provider": identity_provider,
+        "cell_registry": cell_registry,
+        "opa_client": opa_client,
+        "step_up_verifier": step_up_verifier,
+        "step_up_replay_store": step_up_replay_store,
+        "delegation_manager": delegation_manager,
+    }
+    direct_non_development_authority = [
+        name
+        for name, collaborator in direct_security_collaborators.items()
+        if collaborator is not None
+    ]
+    if trusted_delegators:
+        direct_non_development_authority.append("trusted_delegators")
+    if service_spiffe_id is not None:
+        direct_non_development_authority.append("service_spiffe_id")
+    if container_overrides is not None:
+        direct_non_development_authority.append("container_overrides")
+    if not authz_enforce:
+        direct_non_development_authority.append("authz_enforce")
+    if authz_shadow_mode:
+        direct_non_development_authority.append("authz_shadow_mode")
+    if (
+        policy_resolver.default_profile != "dev"
+        and direct_non_development_authority
+    ):
+        raise RuntimeBootstrapError(
+            "Non-development authority composition requires an exact "
+            "RuntimeDeploymentSecurity bundle without direct injections: "
+            + ", ".join(sorted(direct_non_development_authority))
+        )
+    if deployment_security is not None:
+        try:
+            deployment_security = require_factory_produced_deployment_security(
+                deployment_security
+            )
+        except TypeError as exc:
+            raise RuntimeBootstrapError(
+                "Deployment security must be an intact factory-attested bundle."
+            ) from exc
+        if any(
+            direct_security_collaborators[name] is not None
+            for name in (
+                "identity_provider",
+                "cell_registry",
+                "opa_client",
+                "step_up_verifier",
+            )
+        ):
+            raise RuntimeBootstrapError(
+                "Deployment security cannot be mixed with direct security collaborators."
+            )
+        identity_provider = deployment_security.identity_provider
+        cell_registry = deployment_security.cell_registry
+        opa_client = deployment_security.opa_client
+        step_up_verifier = deployment_security.step_up_verifier
+    fixture_identity_enabled = is_fixture_identity_enabled(explicit=allow_fixture_identity)
+    if fixture_identity_enabled and policy_resolver.default_profile != "dev":
+        raise RuntimeBootstrapError(
+            "Development fixture identity is forbidden outside the dev deployment profile."
+        )
+    if policy_resolver.default_profile == "production" and step_up_verifier is None:
+        raise RuntimeBootstrapError(
+            "Production deployment requires a configured step-up assertion verifier."
+        )
+    if (
+        policy_resolver.default_profile != "dev"
+        and step_up_verifier is not None
+        and not is_deployment_step_up_verifier(step_up_verifier)
+    ):
+        raise RuntimeBootstrapError(
+            "Non-development deployments require a deployment-provenance step-up verifier."
+        )
     security_chain_available = (
         identity_provider is not None and cell_registry is not None and opa_client is not None
     )
@@ -111,7 +215,6 @@ def create_runtime_api_app(
     security_middlewares_enabled = (
         enable_security_middlewares or deployment_policy.security_required
     )
-    fixture_identity_enabled = is_fixture_identity_enabled(explicit=allow_fixture_identity)
     runtime_container = RuntimeServiceContainer.build(
         config=RuntimeContainerConfig(
             cas_root=normalized_cas_root,
@@ -133,6 +236,8 @@ def create_runtime_api_app(
             authz_enforce=authz_enforce,
             authz_shadow_mode=authz_shadow_mode,
             allow_fixture_identity=fixture_identity_enabled,
+            step_up_verifier=step_up_verifier,
+            step_up_replay_store=step_up_replay_store,
         ),
     )
     runtime_metrics = runtime_container.runtime_metrics
@@ -140,6 +245,8 @@ def create_runtime_api_app(
 
     @asynccontextmanager
     async def _runtime_lifespan(app: Any) -> AsyncIterator[None]:
+        assert_mutating_route_authorization_contract(app)
+        assert_high_stakes_step_up_contract(app)
         _assert_runtime_security_middleware_order(
             app,
             security_middlewares_enabled=security_middlewares_enabled,
@@ -158,7 +265,19 @@ def create_runtime_api_app(
         ),
         lifespan=_runtime_lifespan,
     )
+    app.state.runtime_deployment_security = deployment_security
+    app.state.runtime_deployment_principal_grants = (
+        deployment_security.principal_grants
+        if deployment_security is not None
+        else None
+    )
     runtime_container.install(app)
+    if deployment_security is not None:
+        register_deployment_security_installation(
+            app,
+            runtime=deployment_security,
+            container=runtime_container,
+        )
     install_exception_handlers(app)
 
     _install_request_telemetry_middleware(
@@ -183,6 +302,13 @@ def create_runtime_api_app(
         )
 
     if not security_middlewares_enabled:
+        app.add_middleware(
+            AuthzMiddleware,
+            runtime_app=app,
+            opa_client=None,
+            enforce=True,
+            shadow_mode=False,
+        )
         app.add_middleware(FailClosedAccessScopeMiddleware)
         if fixture_identity_enabled:
             app.add_middleware(DevelopmentFixtureIdentityMiddleware)
@@ -197,6 +323,7 @@ def create_runtime_api_app(
         # Register authz first so JWT/cell routing run before authorization checks.
         app.add_middleware(
             AuthzMiddleware,
+            runtime_app=app,
             opa_client=opa_client,
             enforce=authz_enforce,
             shadow_mode=authz_shadow_mode,
@@ -214,6 +341,44 @@ def create_runtime_api_app(
             identity_provider=identity_provider,
             metrics=runtime_container.runtime_metrics,
         )
+
+    if (
+        deployment_security is not None
+        and policy_resolver.default_profile != "dev"
+    ):
+
+        @app.middleware("http")
+        async def _deployment_security_attestation_guard(
+            request: Any,
+            call_next: Any,
+        ) -> Any:
+            try:
+                installed = require_installed_deployment_security(request)
+                if (
+                    installed is not deployment_security
+                    or getattr(app.state, "runtime_container", None)
+                    is not runtime_container
+                ):
+                    raise DeploymentSecurityAttestationError(
+                        "deployment security installation identity changed"
+                    )
+                return await call_next(request)
+            except DeploymentSecurityAttestationError:
+                if request.method.upper() in {"POST", "PUT", "PATCH", "DELETE"}:
+                    await emit_runtime_authorization_audit_async(
+                        request,
+                        outcome=RuntimeAuthorizationOutcome.DENY,
+                        denial_reason="deployment_security_attestation_invalid",
+                        raise_on_failure=False,
+                    )
+                return problem_response(
+                    status_code=503,
+                    code="deployment_security_attestation_invalid",
+                    detail="Deployment security attestation is invalid",
+                    request_id=getattr(request.state, "request_id", None),
+                    instance=str(getattr(request.url, "path", "")),
+                    error="deployment_security_attestation_invalid",
+                )
 
     if health_router is not None:
         app.include_router(health_router)
@@ -244,7 +409,11 @@ def create_runtime_api_app(
     if governed_projections_router is not None:
         app.include_router(governed_projections_router)
 
+    assert_mutating_route_authorization_contract(app)
+    assert_high_stakes_step_up_contract(app)
     install_runtime_openapi_contract(app)
+    install_route_authorization_openapi_contract(app)
+    install_step_up_openapi_contract(app)
     return app
 
 

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import json
 import os
+import time
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from threading import Thread
 from types import SimpleNamespace
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import pytest
 
@@ -13,6 +16,73 @@ from polisyos.scientist.orchestration.llm.provider_quality import (
 )
 from tools.quality.testing import local_prod_debug_probe
 from tools.quality.validation import check_production_data_scenario_contracts
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
+
+
+class _LocalOPAStub:
+    """Serve canonical Rego decisions through the real OPA HTTP client path."""
+
+    def __init__(
+        self,
+        evaluate: Callable[[dict[str, Any]], dict[str, Any]],
+    ) -> None:
+        self.inputs: list[dict[str, Any]] = []
+        self._evaluate = evaluate
+        self._server: ThreadingHTTPServer | None = None
+        self._thread: Thread | None = None
+
+    def start(self) -> str:
+        """Start the loopback decision endpoint and return its base URL."""
+        observed = self.inputs
+        evaluate = self._evaluate
+
+        class _Handler(BaseHTTPRequestHandler):
+            def do_POST(self) -> None:  # noqa: N802 - stdlib handler contract
+                if self.path != "/v1/data/polisyos/authz/decision":
+                    self.send_error(404)
+                    return
+                try:
+                    content_length = int(self.headers.get("content-length", "0"))
+                    body = json.loads(self.rfile.read(content_length))
+                    input_value = body["input"]
+                    if not isinstance(input_value, dict):
+                        raise TypeError("OPA input must be an object")
+                    decision = evaluate(input_value)
+                except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+                    self.send_error(400)
+                    return
+                observed.append(input_value)
+                response = json.dumps({"result": decision}).encode("utf-8")
+                self.send_response(200)
+                self.send_header("content-type", "application/json")
+                self.send_header("content-length", str(len(response)))
+                self.end_headers()
+                self.wfile.write(response)
+
+            def log_message(self, format: str, *args: object) -> None:
+                del format, args
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), _Handler)
+        thread = Thread(
+            target=server.serve_forever,
+            name="ds20-local-opa",
+            daemon=True,
+        )
+        thread.start()
+        self._server = server
+        self._thread = thread
+        host, port = cast("tuple[str, int]", server.server_address)
+        return f"http://{host}:{port}"
+
+    def close(self) -> None:
+        """Stop the loopback endpoint and release its listening socket."""
+        if self._server is not None:
+            self._server.shutdown()
+            self._server.server_close()
+        if self._thread is not None:
+            self._thread.join(timeout=5)
 
 
 def test_parser_defaults_to_quick_and_redacts_secret_env(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -33,6 +103,14 @@ def test_parser_defaults_to_quick_and_redacts_secret_env(monkeypatch: pytest.Mon
         "postgresql://polisyos:super-secret@127.0.0.1:54329/polisyos_control",
     )
     monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "sk-live-secret-value")
+    monkeypatch.setenv(
+        "POLISYOS_RUNTIME_CANARY_BEARER_TOKEN",
+        "runtime-canary-secret-token",
+    )
+    monkeypatch.setenv(
+        "POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN",
+        "runtime-debug-probe-secret-token",
+    )
 
     sanitized = local_prod_debug_probe.sanitized_env(os.environ)
 
@@ -44,6 +122,293 @@ def test_parser_defaults_to_quick_and_redacts_secret_env(monkeypatch: pytest.Mon
     )
     assert sanitized["POLISYOS_LLM_GATEWAY_API_KEY"]["present"] is True
     assert sanitized["POLISYOS_LLM_GATEWAY_API_KEY"]["fingerprint"].startswith("sha256:")
+    assert sanitized["POLISYOS_RUNTIME_CANARY_BEARER_TOKEN"]["present"] is True
+    assert sanitized["POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN"]["present"] is True
+    assert "runtime-canary-secret-token" not in rendered
+    assert "runtime-debug-probe-secret-token" not in rendered
+
+
+def test_debug_probe_requires_a_separately_injected_bearer() -> None:
+    with pytest.raises(RuntimeError, match="short-lived service-principal token"):
+        local_prod_debug_probe._debug_probe_bearer_token({})
+
+    token = "eyJ-short-lived-debug-probe-token"  # noqa: S105 - inert test sentinel
+    assert local_prod_debug_probe._debug_probe_bearer_token(
+        {"POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN": token}
+    ) == token
+
+
+def test_production_dry_run_exercises_protected_route_with_debug_principal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from fastapi import FastAPI, Response
+
+    observed_authorization: list[str] = []
+    app = FastAPI()
+
+    @app.middleware("http")
+    async def _capture_authorization(request, call_next):  # type: ignore[no-untyped-def]
+        if request.url.path == "/api/v1/runs/local-prod-debug-probe":
+            observed_authorization.append(request.headers.get("authorization", ""))
+        return await call_next(request)
+
+    @app.get("/health")
+    def _health() -> dict[str, str]:
+        return {"status": "ok"}
+
+    @app.get("/api/v1/runs/{run_id}")
+    def _protected_probe(run_id: str) -> Response:
+        assert run_id == "local-prod-debug-probe"
+        return Response(status_code=404)
+
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        postgres_dsn="postgresql://probe.invalid/polisyos",
+    )
+    synthetic_token = "-".join(("eyJ", "debug", "probe", "sentinel"))
+    context.runtime_env["POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN"] = synthetic_token
+    deployment_security = object()
+    app.state.runtime_deployment_security = deployment_security
+    verified: list[tuple[object, object]] = []
+
+    def _verify_probe_bearer(security: object, env: object) -> str:
+        verified.append((security, env))
+        return synthetic_token
+
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "_verified_debug_probe_bearer",
+        _verify_probe_bearer,
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "_build_production_dry_run_app",
+        lambda _context: app,
+    )
+
+    result = local_prod_debug_probe.run_production_dry_run_check(context)
+
+    assert result["details"]["protected_probe_status"] == 404
+    assert result["status"] == "pass", result
+    assert observed_authorization == [f"Bearer {synthetic_token}"]
+    assert verified == [(deployment_security, context.runtime_env)]
+
+
+def test_production_dry_run_composes_genuine_deployment_security(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.runtime.http.app as app_module
+
+    deployment_config = object()
+    deployment_security = object()
+    captured: dict[str, object] = {}
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe.DeploymentSecurityConfig,
+        "from_env",
+        lambda: deployment_config,
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "build_deployment_security",
+        lambda config: deployment_security if config is deployment_config else None,
+    )
+
+    def _capture_app(**kwargs: object) -> object:
+        captured.update(kwargs)
+        return object()
+
+    monkeypatch.setattr(app_module, "create_runtime_api_app", _capture_app)
+
+    local_prod_debug_probe._build_production_dry_run_app(context)
+
+    assert captured["deployment_security"] is deployment_security
+    assert captured["enable_security_middlewares"] is True
+    assert captured["authz_enforce"] is True
+    assert captured["authz_shadow_mode"] is False
+    assert captured["allow_fixture_identity"] is False
+    assert "identity_provider" not in captured
+    assert "opa_client" not in captured
+
+
+def test_debug_probe_strict_bundle_authenticates_and_enforces_exact_grant(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    request: pytest.FixtureRequest,
+) -> None:
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from fastapi.testclient import TestClient
+
+    from tests.unit.runtime.http.deployment_security_test_support import (
+        LocalJWKSStub,
+    )
+    from tests.unit.runtime.http.test_runtime_deployment_security import (
+        _config_mapping,
+    )
+    from tests.unit.runtime.http.test_runtime_rego_authorization_parity import (
+        _opa_eval,
+    )
+
+    private_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+    jwks_server = LocalJWKSStub(private_key)
+    jwks_uri = jwks_server.start()
+    request.addfinalizer(jwks_server.close)
+    opa_query = (
+        '{"allow": data.polisyos.authz.decision.allow, '
+        '"deny_reasons": data.polisyos.authz.decision.deny_reasons}'
+    )
+
+    def _evaluate_opa(payload: dict[str, Any]) -> dict[str, Any]:
+        decision = _opa_eval(opa_query, input_value=payload)
+        assert isinstance(decision, dict)
+        return decision
+
+    opa_server = _LocalOPAStub(_evaluate_opa)
+    opa_url = opa_server.start()
+    request.addfinalizer(opa_server.close)
+
+    raw_config = _config_mapping(tmp_path)
+    identity_config = raw_config["identity_verifier"]
+    assert isinstance(identity_config, dict)
+    identity_config["jwks_uri"] = jwks_uri
+    opa_config = raw_config["opa"]
+    assert isinstance(opa_config, dict)
+    opa_config["url"] = opa_url
+    principals = raw_config["service_principals"]
+    assert isinstance(principals, list)
+    valid_principal = principals[0]
+    assert isinstance(valid_principal, dict)
+    valid_principal.update(
+        {
+            "subject": "runtime-debug-probe",
+            "permissions": ["runs.view"],
+        }
+    )
+    principals.append(
+        {
+            **valid_principal,
+            "subject": "runtime-debug-no-view",
+            "permissions": ["runs.launch"],
+        }
+    )
+    principals.append(
+        {
+            **valid_principal,
+            "subject": "runtime-debug-over-granted",
+            "permissions": ["runs.view", "runs.launch"],
+        }
+    )
+    config_path = tmp_path / "runtime-security.json"
+    config_path.write_text(json.dumps(raw_config), encoding="utf-8")
+    monkeypatch.setenv(
+        "POLISYOS_RUNTIME_SERVICE_PRINCIPAL_GRANTS_PATH",
+        str(config_path),
+    )
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "research")
+    monkeypatch.setenv("POLISYOS_RESEARCH_ALLOW_LOCAL_CONTROL_PLANE", "1")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "embedded")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv(
+        "POLISYOS_CONTROL_SQLITE_PATH",
+        str(tmp_path / "control.sqlite3"),
+    )
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    app = local_prod_debug_probe._build_production_dry_run_app(context)
+    deployment_security = cast("Any", app).state.runtime_deployment_security
+
+    now = int(time.time())
+
+    def _token(
+        subject: str,
+        *,
+        role: str = "polisyos_viewer",
+        signing_key: Any = private_key,
+    ) -> str:
+        return jwt.encode(
+            {
+                "iss": "https://idp.example",
+                "aud": "polisyos-runtime",
+                "sub": subject,
+                "tenant_id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+                "cell_id": "018f47a0-0000-7000-8000-000000000001",
+                "realm_access": {"roles": [role]},
+                "amr": ["pwd", "mfa"],
+                "iat": now,
+                "exp": now + 60,
+                "jti": f"{subject}-{now}",
+            },
+            signing_key,
+            algorithm="RS256",
+            headers={"kid": "identity-2026-07"},
+        )
+
+    valid_bearer = local_prod_debug_probe._verified_debug_probe_bearer(
+        deployment_security,
+        {"POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN": _token("runtime-debug-probe")},
+    )
+    rejected_bearers = (
+        _token("unmanaged-admin", role="polisyos_admin"),
+        _token("runtime-debug-over-granted"),
+    )
+    for rejected_bearer in rejected_bearers:
+        with pytest.raises(
+            RuntimeError,
+            match="exact deployment service-principal grant",
+        ) as exc:
+            local_prod_debug_probe._verified_debug_probe_bearer(
+                deployment_security,
+                {"POLISYOS_RUNTIME_DEBUG_PROBE_BEARER_TOKEN": rejected_bearer},
+            )
+        assert rejected_bearer not in str(exc.value)
+
+    path = "/api/v1/runs/local-prod-debug-probe"
+    tenant_header = {"X-Tenant-ID": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"}
+    wrong_key = rsa.generate_private_key(public_exponent=65_537, key_size=2_048)
+    with TestClient(app) as client:
+        invalid = client.get(
+            path,
+            headers={
+                **tenant_header,
+                "Authorization": f"Bearer {_token('runtime-debug-probe', signing_key=wrong_key)}",
+            },
+        )
+        missing_grant = client.get(
+            path,
+            headers={
+                **tenant_header,
+                "Authorization": f"Bearer {_token('runtime-debug-no-view')}",
+            },
+        )
+        authorized = client.get(
+            path,
+            headers={
+                **tenant_header,
+                "Authorization": f"Bearer {valid_bearer}",
+            },
+        )
+        assert client.portal is not None
+        client.portal.call(deployment_security.opa_client.close)
+
+    assert invalid.status_code == 401
+    assert missing_grant.status_code == 403
+    assert authorized.status_code == 404
+    assert len(opa_server.inputs) == 2
+    assert opa_server.inputs[0]["identity"]["sub"] == "runtime-debug-no-view"
+    assert opa_server.inputs[0]["identity"]["permissions"] == ["runs.launch"]
+    assert opa_server.inputs[1]["identity"]["sub"] == "runtime-debug-probe"
+    assert opa_server.inputs[1]["identity"]["permissions"] == ["runs.view"]
+    assert opa_server.inputs[1]["identity"]["authorization_source"] == (
+        "deployment_service_principal"
+    )
 
 
 def test_parse_checks_expands_quick_without_live_or_workflow_heavy_checks() -> None:

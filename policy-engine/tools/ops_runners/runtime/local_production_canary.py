@@ -21,6 +21,12 @@ except ModuleNotFoundError:  # pragma: no cover
 
 from polisyos.core.contracts.control import POLICY_AUTHORITY_PROFILES
 from polisyos.runtime.http.app import create_runtime_api_app
+from polisyos.runtime.http.deployment_security import (
+    DeploymentSecurityConfig,
+    build_deployment_security,
+    verify_exact_deployment_principal_token,
+)
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.quality.assurance_case import (
     build_capability_duty_record,
     build_capability_selection_ledger,
@@ -39,11 +45,6 @@ from polisyos.runtime.quality.observability_static_audit import (
     build_freshness_policy_time_semantics_record,
     build_skip_causality_ledger_record,
 )
-from polisyos.runtime.quality.tenant_cas_approval_governance import (
-    PASS1B_PDD_REQUIRED_SURFACES,
-    PASS1B_REQUIRED_CASE_BINDING_FIELDS,
-    build_pass1b_tenant_cas_approval_governance_record,
-)
 from polisyos.runtime.quality.policy_design_case import (
     DEFAULT_POLICY_DESIGN_CASE_SUBSTRATE_RESIDUAL_BINDINGS,
     POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES,
@@ -59,6 +60,11 @@ from polisyos.runtime.quality.semantic_binding import (
     PRODUCER_SPINE_CONSUMER_COMPONENTS,
     PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION,
     build_semantic_binding_ledger,
+)
+from polisyos.runtime.quality.tenant_cas_approval_governance import (
+    PASS1B_PDD_REQUIRED_SURFACES,
+    PASS1B_REQUIRED_CASE_BINDING_FIELDS,
+    build_pass1b_tenant_cas_approval_governance_record,
 )
 from polisyos.scholar import build_scholar_academic_evidence_report
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
@@ -76,6 +82,7 @@ REQUIRED_MATERIALIZATION_REFS = (
     "registry_bundle_ref",
     "quality_report_ref",
 )
+_CANARY_BEARER_TOKEN_ENV = "POLISYOS_RUNTIME_CANARY_BEARER_TOKEN"
 
 _COUNTRY_JURISDICTION_CODES = {
     "ukraine": "UA",
@@ -2381,7 +2388,7 @@ def _configure_local_runtime_env(*, run_root: Path, mode: str, timeout_s: int) -
         "POLISYOS_CONTROL_SQLITE_PATH",
         str(run_root / "control_plane.sqlite3"),
     )
-    os.environ.setdefault("POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY", "1")
+    os.environ.pop("POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY", None)
     os.environ.setdefault("POLISYOS_RUNTIME_WRITE_RATE_LIMIT", "120")
     os.environ.setdefault("POLISYOS_LLM_GATEWAY_BASE_URL", "https://proxy.gonka.gg/v1")
     os.environ.setdefault("POLISYOS_LLM_GATEWAY_PROVIDER", "gonka_proxy")
@@ -2396,6 +2403,56 @@ def _configure_local_runtime_env(*, run_root: Path, mode: str, timeout_s: int) -
         os.environ["POLISYOS_LLM_SIMULATION_MODE"] = "1"
     else:
         os.environ.pop("POLISYOS_LLM_SIMULATION_MODE", None)
+
+
+def _runtime_canary_bearer_token(env: dict[str, str] | None = None) -> str:
+    """Resolve the deployment-injected short-lived canary bearer without logging it."""
+    source = os.environ if env is None else env
+    token = str(source.get(_CANARY_BEARER_TOKEN_ENV, "")).strip()
+    if not token or any(character in token for character in "\r\n"):
+        raise RuntimeError(
+            f"{_CANARY_BEARER_TOKEN_ENV} must contain a short-lived service-principal token"
+        )
+    return token
+
+
+def _build_runtime_canary_app(*, cas_root: Path, core_runs_root: Path) -> Any:
+    """Compose the canary through the genuine deployment security producer."""
+    deployment_security = build_deployment_security(
+        DeploymentSecurityConfig.from_env()
+    )
+    return create_runtime_api_app(
+        cas_root=cas_root,
+        core_runs_root=core_runs_root,
+        enable_security_middlewares=True,
+        deployment_security=deployment_security,
+        allow_fixture_identity=False,
+    )
+
+
+def _authenticated_runtime_canary_client(
+    app: Any,
+    *,
+    bearer_token: str,
+) -> Any:
+    """Create the probe client with its deployment identity on every request."""
+    if TestClient is None:
+        raise RuntimeError("FastAPI TestClient is required for the runtime canary")
+    deployment_security = getattr(
+        getattr(app, "state", object()),
+        "runtime_deployment_security",
+        None,
+    )
+    verify_exact_deployment_principal_token(
+        deployment_security,
+        bearer_token,
+        required_permissions=frozenset(
+            {RuntimePermission.RUNS_LAUNCH, RuntimePermission.RUNS_VIEW}
+        ),
+    )
+    client = TestClient(app)
+    client.headers["Authorization"] = f"Bearer {bearer_token}"
+    return client
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -2535,13 +2592,15 @@ def main(argv: list[str] | None = None) -> int:
     bundle_dir: Path | None = None
 
     try:
-        app = create_runtime_api_app(
+        bearer_token = _runtime_canary_bearer_token()
+        app = _build_runtime_canary_app(
             cas_root=run_root / "cas",
             core_runs_root=run_root / "runs",
-            enable_security_middlewares=False,
-            allow_fixture_identity=True,
         )
-        with TestClient(app) as client:
+        with _authenticated_runtime_canary_client(
+            app,
+            bearer_token=bearer_token,
+        ) as client:
             launch_response = client.post("/api/v1/control/runs/nl", json=request_payload)
             launch_payload = _response_json(launch_response)
             _write_json(run_root / "launch_response.json", launch_payload)

@@ -4,6 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
+from polisyos.runtime.http.access_audit import (
+    RuntimeAuthorizationOutcome,
+    emit_runtime_authorization_audit_async,
+)
 from polisyos.runtime.http.errors import problem_response
 
 if TYPE_CHECKING:
@@ -24,6 +28,7 @@ else:  # pragma: no cover - optional runtime dependency
 
 
 _PUBLIC_PATHS = frozenset({"/health", "/ready", "/metrics", "/auth/callback"})
+_UNSAFE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 
 
 class FailClosedAccessScopeMiddleware(_BaseHTTPMiddleware):
@@ -48,6 +53,13 @@ class FailClosedAccessScopeMiddleware(_BaseHTTPMiddleware):
             return await call_next(request)
         scope = getattr(request.state, "access_scope", None)
         if scope is None:
+            if request.method.upper() in _UNSAFE_METHODS:
+                await emit_runtime_authorization_audit_async(
+                    request,
+                    outcome=RuntimeAuthorizationOutcome.DENY,
+                    denial_reason="missing_access_scope",
+                    raise_on_failure=False,
+                )
             request_id = getattr(getattr(request, "state", object()), "request_id", None)
             return problem_response(
                 status_code=401,

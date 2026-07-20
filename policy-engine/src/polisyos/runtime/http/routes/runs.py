@@ -13,9 +13,8 @@ from datetime import UTC, datetime
 from time import monotonic
 from typing import TYPE_CHECKING, Any, cast
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.control import (
+    ProductionApprovalOverrideRequest,
     ProductionApprovalRequest,
     ProductionApprovalResponse,
 )
@@ -46,6 +45,11 @@ from polisyos.fabric.evidence.decision_data import (
 from polisyos.fabric.evidence.decision_data import (
     TemporalRef as FabricTemporalRef,
 )
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
@@ -55,7 +59,11 @@ from polisyos.runtime.http.dependencies import (
     require_access_scope,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, conflict
+from polisyos.runtime.http.errors import bad_request, conflict, forbidden
+from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.resource_binding import (
+    production_approval_scorecard_from_bound_request,
+)
 from polisyos.runtime.http.response_policies import add_run_link_relations
 from polisyos.runtime.http.services.channel_contracts import (
     RunDetailSnapshot,
@@ -67,6 +75,11 @@ from polisyos.runtime.http.services.channel_contracts import (
     validate_runs_channel_data_event,
 )
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
+from polisyos.runtime.http.step_up import (
+    StepUpAssertionVerification,
+    StepUpClass,
+    require_step_up,
+)
 from polisyos.runtime.quality.approval import (
     build_production_approval_packet,
     persist_production_approval_packet,
@@ -97,6 +110,55 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
+_GET_RUNS_BATCH_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_BATCH_READ,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_BATCH,
+        resource_kind="runtime.run.batch",
+        body_field="run_ids",
+    ),
+)
+_CREATE_PRODUCTION_APPROVAL_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.OWNED_EXISTING_PATH,
+        resource_kind="runtime.run.production_approval",
+        path_parameter="run_id",
+    ),
+)
+_CREATE_PRODUCTION_APPROVAL_STEP_UP = require_step_up(
+    StepUpClass.PRODUCTION_APPROVAL,
+)
+
+
+def _validated_production_approval_override(
+    request: Request,
+    body: ProductionApprovalRequest,
+) -> ProductionApprovalOverrideRequest | None:
+    """Bind override attribution to the verified step-up subject."""
+    override = body.override
+    if override is None:
+        return None
+    verification = getattr(request.state, "step_up_verification", None)
+    if (
+        type(verification) is not StepUpAssertionVerification
+        or verification.context.step_up_class is not StepUpClass.PRODUCTION_APPROVAL
+    ):
+        raise forbidden(
+            "Production approval override lacks a bound step-up proof",
+            code="production_approval_override_step_up_unbound",
+        )
+    if override.reviewer_identity != verification.context.subject:
+        raise forbidden(
+            "Override reviewer identity must equal the verified step-up subject",
+            code="production_approval_override_identity_mismatch",
+        )
+    if override.signature is not None:
+        raise forbidden(
+            "Client-asserted approval signatures are not authority",
+            code="production_approval_client_signature_forbidden",
+        )
+    return override
 
 
 @dataclass(frozen=True)
@@ -198,13 +260,6 @@ def _control_service_from_request(request: Request) -> Any | None:
     return getattr(container, "control_service", None)
 
 
-def _string_or_none(value: Any) -> str | None:
-    if isinstance(value, str):
-        stripped = value.strip()
-        return stripped or None
-    return None
-
-
 def _artifact_ownership_evidence(
     store: Any,
     *,
@@ -221,106 +276,6 @@ def _artifact_ownership_evidence(
     if not isinstance(payload, Mapping):
         return None
     return dict(payload)
-
-
-def _scorecard_ref_from_payload(scorecard: Mapping[str, Any] | None) -> str | None:
-    if scorecard is None:
-        return None
-    evidence_refs = scorecard.get("evidence_refs")
-    if not isinstance(evidence_refs, Mapping):
-        evidence_refs = {}
-    return _string_or_none(
-        scorecard.get("quality_scorecard_ref")
-        or scorecard.get("scorecard_ref")
-        or evidence_refs.get("quality_scorecard")
-    )
-
-
-def _load_scorecard_artifact(store: Any, ref: str) -> dict[str, Any] | None:
-    try:
-        artifact_id = ArtifactID.model_validate(ref)
-        if not store.has(artifact_id):
-            return None
-        payload = from_canonical_bytes(store.get_bytes(artifact_id))
-    except Exception:
-        return None
-    if not isinstance(payload, Mapping):
-        return None
-    return dict(payload)
-
-
-def _scorecard_with_persisted_ref(
-    *,
-    payload: Mapping[str, Any],
-    ref: str,
-    run_id: str,
-    overlay: Mapping[str, Any] | None = None,
-) -> dict[str, Any]:
-    scorecard = dict(payload)
-    if overlay is not None:
-        for key in (
-            "job_id",
-            "canary_kind",
-            "quality_evidence_bundle_path",
-            "evidence_bundle_path",
-        ):
-            if key not in scorecard and key in overlay:
-                scorecard[key] = overlay[key]
-        overlay_refs = overlay.get("evidence_refs")
-        payload_refs = scorecard.get("evidence_refs")
-        if isinstance(overlay_refs, Mapping) or isinstance(payload_refs, Mapping):
-            merged_refs: dict[str, Any] = {}
-            if isinstance(overlay_refs, Mapping):
-                merged_refs.update(dict(overlay_refs))
-            if isinstance(payload_refs, Mapping):
-                merged_refs.update(dict(payload_refs))
-            scorecard["evidence_refs"] = merged_refs
-
-    evidence_refs = scorecard.get("evidence_refs")
-    evidence_refs = dict(evidence_refs) if isinstance(evidence_refs, Mapping) else {}
-    evidence_refs["quality_scorecard"] = ref
-    scorecard["evidence_refs"] = evidence_refs
-    scorecard["quality_scorecard_ref"] = ref
-    scorecard["authoritative_scorecard_ref"] = ref
-    scorecard["scorecard_identity_ref"] = ref
-    scorecard["scorecard_identity_verified"] = True
-    scorecard["scorecard_ref_source"] = "runtime_cas"
-    scorecard.setdefault("run_id", run_id)
-    return scorecard
-
-
-def _latest_control_progress_scorecard(
-    control_service: Any | None,
-    run_id: str,
-) -> dict[str, Any] | None:
-    if control_service is None:
-        return None
-    get_latest = getattr(control_service, "get_latest_job_for_run", None)
-    record = None
-    if callable(get_latest):
-        try:
-            record = get_latest(run_id)
-        except Exception:
-            record = None
-    if record is None:
-        control_store = getattr(control_service, "_control_store", None)
-        get_latest_from_store = getattr(control_store, "get_latest_job_by_run", None)
-        if callable(get_latest_from_store):
-            try:
-                record = get_latest_from_store(run_id)
-            except Exception:
-                record = None
-    progress = getattr(record, "progress", None)
-    if not isinstance(progress, Mapping):
-        return None
-    scorecard = progress.get("quality_scorecard") or progress.get("quality")
-    if isinstance(scorecard, Mapping):
-        return dict(scorecard)
-    if any(
-        key in progress for key in ("quality_status", "quality_gates", "blocking_quality_failures")
-    ):
-        return dict(progress)
-    return None
 
 
 def _latest_control_operator_diagnostic(
@@ -377,68 +332,6 @@ def _latest_control_policy_projection(
         return None
     projection = getattr(response, "policy_design_case_projection", None)
     return dict(projection) if isinstance(projection, Mapping) else None
-
-
-def _resolve_production_approval_scorecard(
-    *,
-    body: ProductionApprovalRequest,
-    control_service: Any | None,
-    run_id: str,
-    store: Any,
-) -> dict[str, Any]:
-    explicit_ref = _string_or_none(body.quality_scorecard_ref)
-    if explicit_ref is not None:
-        payload = _load_scorecard_artifact(store, explicit_ref)
-        if payload is None:
-            raise bad_request(
-                "quality_scorecard_ref does not point to an available persisted scorecard",
-                code="quality_scorecard_ref_unavailable",
-            )
-        return _scorecard_with_persisted_ref(
-            payload=payload,
-            ref=explicit_ref,
-            run_id=run_id,
-        )
-
-    inline_scorecard = (
-        dict(body.quality_scorecard) if isinstance(body.quality_scorecard, Mapping) else None
-    )
-    inline_ref = _scorecard_ref_from_payload(inline_scorecard)
-    if inline_ref is not None:
-        payload = _load_scorecard_artifact(store, inline_ref)
-        if payload is not None:
-            return _scorecard_with_persisted_ref(
-                payload=payload,
-                ref=inline_ref,
-                run_id=run_id,
-                overlay=inline_scorecard,
-            )
-
-    progress_scorecard = _latest_control_progress_scorecard(control_service, run_id)
-    progress_ref = _scorecard_ref_from_payload(progress_scorecard)
-    if progress_ref is not None:
-        payload = _load_scorecard_artifact(store, progress_ref)
-        if payload is None:
-            raise bad_request(
-                "control progress points to an unavailable persisted quality scorecard",
-                code="quality_scorecard_ref_unavailable",
-            )
-        return _scorecard_with_persisted_ref(
-            payload=payload,
-            ref=progress_ref,
-            run_id=run_id,
-            overlay=progress_scorecard,
-        )
-
-    if inline_scorecard is not None:
-        raise bad_request(
-            "quality_scorecard must reference a persisted scorecard artifact",
-            code="quality_scorecard_not_persisted",
-        )
-    raise bad_request(
-        "quality_scorecard_ref or persisted control progress is required",
-        code="quality_scorecard_required",
-    )
 
 
 def _live_promotion_decisions(control_service: Any | None) -> dict[str, dict[str, Any]]:
@@ -737,6 +630,7 @@ if router is not None:
         "/batch",
         response_model=RunsBatchResponse,
         operation_id="get_runs_batch",
+        dependencies=[Depends(_GET_RUNS_BATCH_AUTHZ)],
     )
     def get_runs_batch(
         body: RunsBatchRequest,
@@ -871,6 +765,10 @@ if router is not None:
         "/{run_id}/production-approval",
         response_model=ProductionApprovalResponse,
         operation_id="create_run_production_approval",
+        dependencies=[
+            Depends(_CREATE_PRODUCTION_APPROVAL_AUTHZ),
+            Depends(_CREATE_PRODUCTION_APPROVAL_STEP_UP),
+        ],
     )
     def create_run_production_approval(
         run_id: str,
@@ -888,11 +786,9 @@ if router is not None:
         )
 
         control_service = _control_service_from_request(request)
-        scorecard = _resolve_production_approval_scorecard(
-            body=body,
-            control_service=control_service,
+        scorecard = production_approval_scorecard_from_bound_request(
+            request,
             run_id=run_id,
-            store=ctx.store,
         )
         artifact_ownership = _artifact_ownership_evidence(
             ctx.store,
@@ -901,18 +797,15 @@ if router is not None:
         )
         packet = build_production_approval_packet(
             scorecard=scorecard,
-            override=body.override,
+            override=_validated_production_approval_override(request, body),
             artifact_ownership=artifact_ownership,
         )
-        evidence_bundle_path = scorecard.get("quality_evidence_bundle_path")
         persisted = persist_production_approval_packet(
             packet,
             store=ctx.store,
-            evidence_bundle_path=(
-                str(evidence_bundle_path)
-                if isinstance(evidence_bundle_path, str) and evidence_bundle_path.strip()
-                else None
-            ),
+            # Persisted artifacts are authority data, never host-filesystem commands.
+            # The HTTP boundary writes approval packets only to the configured CAS.
+            evidence_bundle_path=None,
             artifact_ownership=artifact_ownership,
         )
         record_approval_packet = getattr(
@@ -1364,11 +1257,9 @@ if router is not None:
             kind="runtime.run_fabric_decision_data",
         )
         try:
-            ctx.lineage.assert_run_decision_surface_allowed(
-                run, surface="run_fabric_decision_data"
-            )
-            quantities, runtime_coverage, entries = (
-                ctx.lineage.build_quantity_inventory_for_run(run)
+            ctx.lineage.assert_run_decision_surface_allowed(run, surface="run_fabric_decision_data")
+            quantities, runtime_coverage, entries = ctx.lineage.build_quantity_inventory_for_run(
+                run
             )
         except LineageSurfaceAdmissionError as exc:
             raise conflict(

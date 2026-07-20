@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Literal, cast
 
-from polisyos.core.contracts.runtime import ApiMeta, AuthMeResponse
+from pydantic import BaseModel, ConfigDict, Field
+
+from polisyos.core.contracts.runtime import ApiMeta  # noqa: TC001 - Pydantic resolves at runtime
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
-from polisyos.runtime.http.container import resolve_runtime_security
 from polisyos.runtime.http.dependencies import build_meta
 from polisyos.runtime.http.errors import unauthorized
-from polisyos.runtime.http.security import build_fixture_identity_claims
+from polisyos.runtime.http.permissions import RuntimePermission, permissions_for_roles
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -31,109 +32,26 @@ def _build_router() -> APIRouter:
 
 router = _build_router()
 
-_ROLE_PERMISSIONS: dict[PolicyOSRole, frozenset[str]] = {
-    PolicyOSRole.ADMIN: frozenset(
-        {
-            "dashboard.view",
-            "evidence.promotions.approve",
-            "evidence.promotions.reject",
-            "evidence.review",
-            "evidence.view",
-            "knowledge.view",
-            "mode.analyst",
-            "platform.admin",
-            "platform.view",
-            "runs.launch",
-            "runs.review",
-            "runs.view",
-        }
-    ),
-    PolicyOSRole.ANALYST: frozenset(
-        {
-            "dashboard.view",
-            "evidence.promotions.approve",
-            "evidence.promotions.reject",
-            "evidence.review",
-            "evidence.view",
-            "knowledge.view",
-            "mode.analyst",
-            "platform.view",
-            "runs.launch",
-            "runs.review",
-            "runs.view",
-        }
-    ),
-    PolicyOSRole.VIEWER: frozenset(
-        {
-            "dashboard.view",
-            "evidence.view",
-            "knowledge.view",
-            "platform.view",
-            "runs.view",
-        }
-    ),
-    PolicyOSRole.SERVICE: frozenset(
-        {
-            "dashboard.view",
-            "evidence.promotions.approve",
-            "evidence.promotions.reject",
-            "evidence.review",
-            "evidence.view",
-            "knowledge.view",
-            "mode.analyst",
-            "platform.admin",
-            "platform.view",
-            "runs.launch",
-            "runs.review",
-            "runs.view",
-        }
-    ),
-    PolicyOSRole.SYSTEM: frozenset(
-        {
-            "dashboard.view",
-            "evidence.promotions.approve",
-            "evidence.promotions.reject",
-            "evidence.review",
-            "evidence.view",
-            "knowledge.view",
-            "mode.analyst",
-            "platform.admin",
-            "platform.view",
-            "runs.launch",
-            "runs.review",
-            "runs.view",
-        }
-    ),
-}
+
+class AuthMeResponse(BaseModel):
+    """Runtime principal payload with permissions bound to the server vocabulary."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    meta: ApiMeta
+    user_id: str
+    display_name: str
+    tenant_id: str
+    principal_type: Literal["anonymous", "service", "user"] = "user"
+    cell_id: str | None = None
+    roles: list[str] = Field(default_factory=list)
+    permissions: list[RuntimePermission] = Field(default_factory=list)
+    mfa_verified: bool = False
+    feature_overrides: dict[str, bool] = Field(default_factory=dict)
 
 
 def _sorted_roles(roles: Iterable[PolicyOSRole]) -> list[str]:
     return sorted((role.value for role in roles), key=str)
-
-
-def _resolve_permissions(roles: Iterable[PolicyOSRole]) -> list[str]:
-    permissions: set[str] = set()
-    for role in roles:
-        permissions.update(_ROLE_PERMISSIONS.get(role, ()))
-    return sorted(permissions)
-
-
-def _fallback_identity() -> AuthMeResponse:
-    claims = build_fixture_identity_claims()
-    fallback_roles = claims.roles or frozenset({PolicyOSRole.ANALYST})
-    permissions = _resolve_permissions(fallback_roles)
-    return AuthMeResponse(
-        meta=ApiMeta(request_id="fallback-auth-me"),
-        user_id=claims.sub,
-        display_name=claims.email or claims.sub,
-        tenant_id=claims.tenant_id,
-        principal_type="user",
-        cell_id=claims.cell_id,
-        roles=_sorted_roles(fallback_roles),
-        permissions=permissions,
-        mfa_verified=claims.mfa_verified,
-        feature_overrides={"enableReviewCollaboration": "runs.review" in permissions},
-    )
 
 
 if router is not None:
@@ -142,17 +60,13 @@ if router is not None:
     def get_auth_me(request: Request) -> AuthMeResponse:
         claims = getattr(request.state, "user_claims", None)
         if not isinstance(claims, UserIdentityClaims):
-            runtime_security = resolve_runtime_security(request)
-            if runtime_security is not None and runtime_security.allow_fixture_identity:
-                fallback = _fallback_identity()
-                return fallback.model_copy(update={"meta": build_meta(request)})
             raise unauthorized(
                 "Authenticated user claims are required for /auth/me",
                 code="missing_user_claims",
             )
 
-        roles = claims.roles or frozenset({PolicyOSRole.VIEWER})
-        permissions = _resolve_permissions(roles)
+        roles = claims.roles
+        permissions = permissions_for_roles(roles)
         return AuthMeResponse(
             meta=build_meta(request),
             user_id=claims.sub,
@@ -163,5 +77,7 @@ if router is not None:
             roles=_sorted_roles(roles),
             permissions=permissions,
             mfa_verified=claims.mfa_verified,
-            feature_overrides={"enableReviewCollaboration": "runs.review" in permissions},
+            feature_overrides={
+                "enableReviewCollaboration": RuntimePermission.RUNS_REVIEW in permissions
+            },
         )

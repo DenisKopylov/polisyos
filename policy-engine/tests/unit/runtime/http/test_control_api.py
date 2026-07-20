@@ -23,6 +23,7 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityEvaluation,
     DecisionValidityStatus,
 )
+from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.fabric.connectors.registry import ConnectorRegistry
 from polisyos.fabric.data_plane.orchestrator import IngestionResult
@@ -35,10 +36,71 @@ from polisyos.scientist.governance.continuous.monitors import (
 from polisyos.scientist.governance.continuous.reissue import build_reissue_packet
 from polisyos.scientist.orchestration.llm.provider_verification import ProviderPreflightReport
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from tests.unit.runtime.http.test_runtime_api_authz import (
+    _AllowOPA,
+    _build_secure_client,
+    _claims,
+    _fixture_bearer,
+    _install_bound_test_step_up,
+)
 
 
 def _sha(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def _secure_control_client(
+    runtime_api_env,
+    *,
+    role: PolicyOSRole,
+    case_id: str,
+):
+    bearer = _fixture_bearer(f"control-{case_id}")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti=f"jwt-control-{case_id}",
+            roles=frozenset({role}),
+        ),
+    )
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
+    return client, cell.cell_id, headers
+
+
+def _with_fresh_step_up(client, headers: dict[str, str]) -> dict[str, str]:
+    return {
+        **headers,
+        "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
+    }
+
+
+def _align_secure_artifact_ownership(
+    runtime_api_env,
+    *,
+    client,
+    cell_id: str,
+    artifact_ids: tuple[str, ...],
+) -> None:
+    store = FileSystemCAS(runtime_api_env["cas_root"])
+    for artifact_id in artifact_ids:
+        store.record_artifact_owner(
+            artifact_id,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell_id,
+            writer="tests.runtime_http.control_authz",
+        )
+    client.app.state.runtime_container.runtime_api_context.run_index.refresh(force=True)
 
 
 def _production_approval_scorecard(
@@ -693,6 +755,11 @@ class TestProductionApproval:
         runtime_api_env,
         tmp_path,
     ):
+        client, cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id="production-approval-persisted-scorecard",
+        )
         run_id = runtime_api_env["core_run_id"]
         evidence_bundle = tmp_path / "quality-evidence"
         scorecard_ref = _persist_scorecard(
@@ -702,10 +769,18 @@ class TestProductionApproval:
                 evidence_bundle_path=str(evidence_bundle),
             ),
         )
-        response = runtime_api_env["client"].post(
-            f"/api/v1/runs/{run_id}/production-approval",
-            json={"quality_scorecard_ref": scorecard_ref},
+        _align_secure_artifact_ownership(
+            runtime_api_env,
+            client=client,
+            cell_id=cell_id,
+            artifact_ids=(scorecard_ref,),
         )
+        with client:
+            response = client.post(
+                f"/api/v1/runs/{run_id}/production-approval",
+                headers=_with_fresh_step_up(client, headers),
+                json={"quality_scorecard_ref": scorecard_ref},
+            )
 
         assert response.status_code == 200
         body = response.json()
@@ -715,9 +790,8 @@ class TestProductionApproval:
         assert body["packet"]["scorecard_ref"] == scorecard_ref
         assert "artifact_ownership_index" in body["packet"]["evidence_refs"]
         assert body["approval_packet_ref"]["kind"] == "runtime.production_approval_packet"
-        assert body["evidence_bundle_packet_path"] == str(
-            evidence_bundle / "production_approval_packet.json"
-        )
+        assert body["evidence_bundle_packet_path"] is None
+        assert not (evidence_bundle / "production_approval_packet.json").exists()
 
         store = FileSystemCAS(runtime_api_env["cas_root"])
         artifact_id = body["approval_packet_ref"]["artifact_id"]
@@ -726,22 +800,17 @@ class TestProductionApproval:
         assert persisted["run_id"] == run_id
         assert persisted["decision"] == "approved"
 
-        bundle_payload = json.loads(
-            (evidence_bundle / "production_approval_packet.json").read_text(encoding="utf-8")
-        )
-        ownership = bundle_payload["artifact_ownership"]
-        assert ownership["mode"] == "shared_immutable_cas"
-        assert ownership["ownership_index_digest"].startswith("sha256:")
-        assert ownership["ownership_index_signature_path"]
-
     def test_create_run_production_approval_uses_persisted_control_progress(
         self,
         runtime_api_env,
         tmp_path,
     ):
+        client, cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id="production-approval-control-progress",
+        )
         run_id = runtime_api_env["core_run_id"]
-        service = runtime_api_env["app"].state._control_service
-        service._worker.stop()
         evidence_bundle = tmp_path / "quality-evidence-from-progress"
         scorecard = _production_approval_scorecard(
             run_id=run_id,
@@ -756,64 +825,86 @@ class TestProductionApproval:
                 "quality_scorecard": scorecard_ref,
             },
         }
-        service._control_store.create_job(
-            job_id="job_production_approval_progress",
-            kind="natural_language_run",
-            run_id=run_id,
-            pipeline_id=None,
-            requested_execution_profile="production",
-            effective_execution_profile="production",
-            policy_flags={},
-            capability_manifest_ref=None,
-            payload_ref=None,
-            submitted_by="tester",
+        _align_secure_artifact_ownership(
+            runtime_api_env,
+            client=client,
+            cell_id=cell_id,
+            artifact_ids=(scorecard_ref,),
         )
-        service._control_store.complete_job(
-            job_id="job_production_approval_progress",
-            progress={"quality_scorecard": scorecard_with_ref},
-        )
-
-        response = runtime_api_env["client"].post(
-            f"/api/v1/runs/{run_id}/production-approval",
-            json={},
-        )
-
-        assert response.status_code == 200
-        body = response.json()
-        record = service._control_store.get_job("job_production_approval_progress")
-        assert record is not None
-        progress_scorecard = record.progress["quality_scorecard"]
-        assert body["packet"]["scorecard_ref"] == scorecard_ref
-        assert (
-            progress_scorecard["approval_packet_ref"]
-            == body["approval_packet_ref"]["artifact_id"]
-        )
-        assert (
-            progress_scorecard["evidence_refs"]["approval_packet_ref"]
-            == body["approval_packet_ref"]["artifact_id"]
-        )
-        assert progress_scorecard["approval_decision"] == "approved"
+        with client:
+            service = client.app.state._control_service
+            assert service is not None
+            if service._worker is not None:
+                service._worker.stop()
+            service._control_store.create_job(
+                job_id="job_production_approval_progress",
+                kind="natural_language_run",
+                run_id=run_id,
+                pipeline_id=None,
+                requested_execution_profile="production",
+                effective_execution_profile="production",
+                policy_flags={},
+                capability_manifest_ref=None,
+                payload_ref=None,
+                submitted_by="tester",
+            )
+            service._control_store.complete_job(
+                job_id="job_production_approval_progress",
+                progress={"quality_scorecard": scorecard_with_ref},
+            )
+            response = client.post(
+                f"/api/v1/runs/{run_id}/production-approval",
+                headers=_with_fresh_step_up(client, headers),
+                json={},
+            )
+            assert response.status_code == 200
+            body = response.json()
+            record = service._control_store.get_job("job_production_approval_progress")
+            assert record is not None
+            progress_scorecard = record.progress["quality_scorecard"]
+            assert body["packet"]["scorecard_ref"] == scorecard_ref
+            assert (
+                progress_scorecard["approval_packet_ref"]
+                == body["approval_packet_ref"]["artifact_id"]
+            )
+            assert (
+                progress_scorecard["evidence_refs"]["approval_packet_ref"]
+                == body["approval_packet_ref"]["artifact_id"]
+            )
+            assert progress_scorecard["approval_decision"] == "approved"
 
     def test_run_production_approval_rejects_unpersisted_inline_scorecard(
         self,
         runtime_api_env,
         tmp_path,
     ):
-        run_id = runtime_api_env["core_run_id"]
-        response = runtime_api_env["client"].post(
-            f"/api/v1/runs/{run_id}/production-approval",
-            json={
-                "quality_scorecard": _production_approval_scorecard(
-                    run_id=run_id,
-                    evidence_bundle_path=str(tmp_path / "quality-evidence"),
-                )
-            },
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id="production-approval-inline-scorecard",
         )
+        run_id = runtime_api_env["core_run_id"]
+        with client:
+            response = client.post(
+                f"/api/v1/runs/{run_id}/production-approval",
+                headers=headers,
+                json={
+                    "quality_scorecard": _production_approval_scorecard(
+                        run_id=run_id,
+                        evidence_bundle_path=str(tmp_path / "quality-evidence"),
+                    )
+                },
+            )
 
-        assert response.status_code == 400
-        assert response.json()["code"] == "quality_scorecard_not_persisted"
+        assert response.status_code == 403, response.text
+        assert response.json()["code"] == "authorization_binding_scorecard_tenant_mismatch"
 
     def test_run_production_approval_rejects_incomplete_override(self, runtime_api_env, tmp_path):
+        client, cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id="production-approval-incomplete-override",
+        )
         run_id = runtime_api_env["core_run_id"]
         scorecard_ref = _persist_scorecard(
             runtime_api_env,
@@ -823,15 +914,23 @@ class TestProductionApproval:
                 performance_status="over_budget",
             ),
         )
-        response = runtime_api_env["client"].post(
-            f"/api/v1/runs/{run_id}/production-approval",
-            json={
-                "quality_scorecard_ref": scorecard_ref,
-                "override": {
-                    "reviewer_identity": "qa.lead@example.test",
-                },
-            },
+        _align_secure_artifact_ownership(
+            runtime_api_env,
+            client=client,
+            cell_id=cell_id,
+            artifact_ids=(scorecard_ref,),
         )
+        with client:
+            response = client.post(
+                f"/api/v1/runs/{run_id}/production-approval",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "quality_scorecard_ref": scorecard_ref,
+                    "override": {
+                        "reviewer_identity": "user-1",
+                    },
+                },
+            )
 
         assert response.status_code == 422
 
@@ -916,35 +1015,49 @@ class TestDecisionValidity:
         self,
         runtime_api_env,
     ):
+        client, cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id="decision-validity-source-invalidation",
+        )
         packet_ref = _register_lifecycle_decision_packet(
             runtime_api_env,
             dependency_kind=DecisionDependencyKind.SOURCE,
             dependency_key="source::gazette::2026",
             lineage_key="lineage::source-invalidation",
         )
+        _align_secure_artifact_ownership(
+            runtime_api_env,
+            client=client,
+            cell_id=cell_id,
+            artifact_ids=(packet_ref,),
+        )
 
-        response = runtime_api_env["client"].post(
-            "/api/v1/control/decision-validity/events",
-            json={
-                "trigger_type": "source_invalidation",
-                "status": "stale",
-                "reason": "gazette_source_superseded",
-                "dependency_keys": ["source::gazette::2026"],
-                "source_ref": "source://gazette/2026",
-                "payload": {
-                    "invalidation_domain": "source",
-                    "new_evidence_refs": [_sha("c")],
-                    "change_reason": "official gazette issued a corrected publication",
+        with client:
+            response = client.post(
+                "/api/v1/control/decision-validity/events",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "trigger_type": "source_invalidation",
+                    "status": "stale",
+                    "reason": "gazette_source_superseded",
+                    "dependency_keys": ["source::gazette::2026"],
+                    "source_ref": "source://gazette/2026",
+                    "payload": {
+                        "invalidation_domain": "source",
+                        "new_evidence_refs": [_sha("c")],
+                        "change_reason": "official gazette issued a corrected publication",
+                    },
                 },
-            },
-        )
+            )
 
-        assert response.status_code == 200
-        assert response.json()["affected_statuses"] == {"stale": 1}
+            assert response.status_code == 200
+            assert response.json()["affected_statuses"] == {"stale": 1}
 
-        summary = runtime_api_env["client"].get(
-            f"/api/v1/control/decision-packets/{packet_ref}/decision-validity"
-        )
+            summary = client.get(
+                f"/api/v1/control/decision-packets/{packet_ref}/decision-validity",
+                headers=headers,
+            )
 
         assert summary.status_code == 200
         body = summary.json()
@@ -955,34 +1068,48 @@ class TestDecisionValidity:
         assert body["lifecycle"]["transitions"][-1]["current_status"] == "stale"
 
     def test_norm_invalidation_can_withdraw_published_decision(self, runtime_api_env):
+        client, cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id="decision-validity-norm-invalidation",
+        )
         packet_ref = _register_lifecycle_decision_packet(
             runtime_api_env,
             dependency_kind=DecisionDependencyKind.NORM_PACK,
             dependency_key="norm::msme-tax::2026",
             lineage_key="lineage::norm-withdrawal",
         )
+        _align_secure_artifact_ownership(
+            runtime_api_env,
+            client=client,
+            cell_id=cell_id,
+            artifact_ids=(packet_ref,),
+        )
 
-        response = runtime_api_env["client"].post(
-            "/api/v1/control/decision-validity/events",
-            json={
-                "trigger_type": "norm_invalidation",
-                "status": "withdrawn",
-                "reason": "enabling_norm_withdrawn",
-                "dependency_keys": ["norm::msme-tax::2026"],
-                "source_ref": "law://ua/msme-tax/2026/withdrawal",
-                "payload": {
-                    "invalidation_domain": "norm",
-                    "withdrawal_record_ref": _sha("d"),
+        with client:
+            response = client.post(
+                "/api/v1/control/decision-validity/events",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "trigger_type": "norm_invalidation",
+                    "status": "withdrawn",
+                    "reason": "enabling_norm_withdrawn",
+                    "dependency_keys": ["norm::msme-tax::2026"],
+                    "source_ref": "law://ua/msme-tax/2026/withdrawal",
+                    "payload": {
+                        "invalidation_domain": "norm",
+                        "withdrawal_record_ref": _sha("d"),
+                    },
                 },
-            },
-        )
+            )
 
-        assert response.status_code == 200
-        assert response.json()["affected_statuses"] == {"withdrawn": 1}
+            assert response.status_code == 200
+            assert response.json()["affected_statuses"] == {"withdrawn": 1}
 
-        summary = runtime_api_env["client"].get(
-            f"/api/v1/control/decision-packets/{packet_ref}/decision-validity"
-        )
+            summary = client.get(
+                f"/api/v1/control/decision-packets/{packet_ref}/decision-validity",
+                headers=headers,
+            )
 
         assert summary.status_code == 200
         body = summary.json()
@@ -1040,35 +1167,49 @@ class TestDecisionValidity:
         status,
         expected_action,
     ):
+        client, cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ADMIN,
+            case_id=f"decision-validity-{trigger_type}",
+        )
         packet_ref = _register_lifecycle_decision_packet(
             runtime_api_env,
             dependency_kind=dependency_kind,
             dependency_key=dependency_key,
             lineage_key=f"lineage::{trigger_type}",
         )
+        _align_secure_artifact_ownership(
+            runtime_api_env,
+            client=client,
+            cell_id=cell_id,
+            artifact_ids=(packet_ref,),
+        )
 
-        response = runtime_api_env["client"].post(
-            "/api/v1/control/decision-validity/events",
-            json={
-                "trigger_type": trigger_type,
-                "status": status,
-                "reason": f"{trigger_type}_fixture",
-                "dependency_keys": [dependency_key],
-                "source_ref": f"decision-validity://{trigger_type}",
-                "payload": {
-                    "invalidation_domain": trigger_type.removesuffix("_invalidation"),
-                    "new_evidence_refs": [_sha("6")],
-                    "change_reason": f"{trigger_type} changed the decision basis",
+        with client:
+            response = client.post(
+                "/api/v1/control/decision-validity/events",
+                headers=_with_fresh_step_up(client, headers),
+                json={
+                    "trigger_type": trigger_type,
+                    "status": status,
+                    "reason": f"{trigger_type}_fixture",
+                    "dependency_keys": [dependency_key],
+                    "source_ref": f"decision-validity://{trigger_type}",
+                    "payload": {
+                        "invalidation_domain": trigger_type.removesuffix("_invalidation"),
+                        "new_evidence_refs": [_sha("6")],
+                        "change_reason": f"{trigger_type} changed the decision basis",
+                    },
                 },
-            },
-        )
+            )
 
-        assert response.status_code == 200
-        assert response.json()["affected_statuses"] == {status: 1}
+            assert response.status_code == 200
+            assert response.json()["affected_statuses"] == {status: 1}
 
-        summary = runtime_api_env["client"].get(
-            f"/api/v1/control/decision-packets/{packet_ref}/decision-validity"
-        )
+            summary = client.get(
+                f"/api/v1/control/decision-packets/{packet_ref}/decision-validity",
+                headers=headers,
+            )
 
         assert summary.status_code == 200
         body = summary.json()
@@ -1317,14 +1458,19 @@ class TestLaunchNlRun:
 
 class TestDataIngestion:
     def test_ingest_data_accepted(self, runtime_api_env):
-        client = runtime_api_env["client"]
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-accepted",
+        )
         IngestionResult(datasets_fetched=1)
-        with patch(
+        with client, patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
                 json={
                     "datasets": [
                         {
@@ -1340,12 +1486,19 @@ class TestDataIngestion:
         assert resp.status_code == 200
 
     def test_ingest_data_empty_datasets_returns_422(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        resp = client.post(
-            "/api/v1/control/data/ingest",
-            json={"datasets": []},
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-empty-datasets",
         )
-        assert resp.status_code == 422
+        with client:
+            resp = client.post(
+                "/api/v1/control/data/ingest",
+                headers=headers,
+                json={"datasets": []},
+            )
+        assert resp.status_code == 400
+        assert resp.json()["code"] == "authorization_binding_selector_alternative_required"
 
 
 class TestConnectorsList:
@@ -1400,13 +1553,18 @@ class TestSourceProfiles:
             assert "connector_available" in p
 
     def test_ingest_with_connection_profile(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        with patch(
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-connection-profile",
+        )
+        with client, patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
                 json={
                     "datasets": [
                         {
@@ -1421,13 +1579,18 @@ class TestSourceProfiles:
         assert resp.status_code == 200
 
     def test_ingest_response_has_new_fields(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        with patch(
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-response-fields",
+        )
+        with client, patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
                 json={
                     "datasets": [
                         {
@@ -1437,6 +1600,7 @@ class TestSourceProfiles:
                     ],
                 },
             )
+        assert resp.status_code == 200
         body = resp.json()
         # New fields should be present regardless of success/failure
         assert "data_snapshot_ref" in body
@@ -1610,34 +1774,44 @@ class TestDataRetrievalControl:
         assert "meta" in body
 
     def test_data_promotion_endpoints(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        list_resp = client.get("/api/v1/control/data/promotion/candidates")
-        assert list_resp.status_code == 200
-        assert isinstance(list_resp.json()["candidates"], list)
-
-        approve_resp = client.post(
-            "/api/v1/control/data/promotion/nonexistent/approve",
-            json={"reason": "test"},
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="promotion-unresolved-selector",
         )
-        assert approve_resp.status_code == 200
-        approve_body = approve_resp.json()
-        assert approve_body["status"] == "rejected"
-        assert approve_body["binding_updated"] is False
+        with client:
+            list_resp = client.get(
+                "/api/v1/control/data/promotion/candidates",
+                headers=headers,
+            )
+            assert list_resp.status_code == 200
+            assert isinstance(list_resp.json()["candidates"], list)
 
-        reject_resp = client.post(
-            "/api/v1/control/data/promotion/nonexistent/reject",
-            json={"reason": "test"},
-        )
-        assert reject_resp.status_code == 200
-        reject_body = reject_resp.json()
-        assert reject_body["status"] == "rejected"
-        assert reject_body["binding_updated"] is False
+            approve_resp = client.post(
+                "/api/v1/control/data/promotion/nonexistent/approve",
+                headers=headers,
+                json={"reason": "test"},
+            )
+            reject_resp = client.post(
+                "/api/v1/control/data/promotion/nonexistent/reject",
+                headers=headers,
+                json={"reason": "test"},
+            )
+
+        assert approve_resp.status_code == 403
+        assert approve_resp.json()["code"] == "authorization_binding_selector_unresolved"
+        assert reject_resp.status_code == 403
+        assert reject_resp.json()["code"] == "authorization_binding_selector_unresolved"
 
 
 class TestIngestStreamingWindowed:
     def test_ingest_streaming_windowed(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        with patch(
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-streaming-windowed",
+        )
+        with client, patch(
             "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
             return_value=[
                 {
@@ -1651,6 +1825,7 @@ class TestIngestStreamingWindowed:
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
                 json={
                     "datasets": [
                         {
@@ -1668,13 +1843,18 @@ class TestIngestStreamingWindowed:
 
 class TestIngestRecordReplay:
     def test_ingest_record_mode(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        with patch(
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-record-mode",
+        )
+        with client, patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
                 json={
                     "datasets": [
                         {
@@ -1688,13 +1868,18 @@ class TestIngestRecordReplay:
         assert resp.status_code == 200
 
     def test_ingest_response_has_record_and_binding_fields(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        with patch(
+        client, _cell_id, headers = _secure_control_client(
+            runtime_api_env,
+            role=PolicyOSRole.ANALYST,
+            case_id="ingest-record-binding-fields",
+        )
+        with client, patch(
             "polisyos.fabric.ingestion.run_connectors_ingestion",
             return_value=None,
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
+                headers=_with_fresh_step_up(client, headers),
                 json={
                     "datasets": [
                         {
@@ -1704,6 +1889,7 @@ class TestIngestRecordReplay:
                     ],
                 },
             )
+        assert resp.status_code == 200
         body = resp.json()
         # New Phase 4+5 fields should be present in the response
         assert "record_ref" in body

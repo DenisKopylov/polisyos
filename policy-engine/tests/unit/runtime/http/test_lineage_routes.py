@@ -1,16 +1,58 @@
 from __future__ import annotations
 
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.security.identity import PolicyOSRole
+from tests.unit.runtime.http.test_runtime_api_authz import (
+    _AllowOPA,
+    _build_secure_client,
+    _claims,
+    _fixture_bearer,
+)
+
 
 def test_lineage_batch_lookup_uses_compact_batch_adapter(runtime_api_env) -> None:
-    client = runtime_api_env["client"]
-    artifact_id = runtime_api_env["decision_packet_artifact_id"]
-    lineage_ids = [f"artifact:{artifact_id}", "lin_unknown", f"artifact:{artifact_id}"]
-
-    response = client.post(
-        "/api/v1/lineage/batch",
-        params={"valid_at": "2026-04-15T12:00:00Z", "branch": "main"},
-        json={"lineage_ids": lineage_ids},
+    bearer = _fixture_bearer("lineage-compact-batch")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
     )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-lineage-compact-batch",
+            roles=frozenset({PolicyOSRole.VIEWER}),
+        ),
+    )
+    primary_id = runtime_api_env["decision_packet_artifact_id"]
+    secondary_id = runtime_api_env["decision_packet_artifact_id_secondary"]
+    store = FileSystemCAS(runtime_api_env["cas_root"])
+    for artifact_id in (primary_id, secondary_id):
+        store.record_artifact_owner(
+            artifact_id,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            writer="tests.runtime_http.lineage_batch",
+        )
+    lineage_ids = [
+        f"artifact:{primary_id}",
+        f"artifact:{secondary_id}",
+        f"artifact:{primary_id}",
+    ]
+
+    with client:
+        response = client.post(
+            "/api/v1/lineage/batch",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+            },
+            params={"valid_at": "2026-04-15T12:00:00Z", "branch": "main"},
+            json={"lineage_ids": lineage_ids},
+        )
 
     assert response.status_code == 200
     payload = response.json()
@@ -19,7 +61,9 @@ def test_lineage_batch_lookup_uses_compact_batch_adapter(runtime_api_env) -> Non
     assert all(
         item["trust_metadata"]["temporal_scope"]["branch"] == "main" for item in payload["lineages"]
     )
-    assert payload["lineages"][1]["status"] == "untraced"
+    assert all(
+        item["status"] in {"verified", "disputed"} for item in payload["lineages"]
+    )
 
 
 def test_compact_lineage_batch_local_benchmark_meets_phase6_budget(runtime_api_env) -> None:

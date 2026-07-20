@@ -25,6 +25,11 @@ file is a downstream compatibility surface, not a second owner.
 - Generated OpenAPI schema types:
   [`types.ts`](types.ts)
 
+- Canonical permission vocabulary for authority consumers:
+  `components["schemas"]["RuntimePermission"]` in [`types.ts`](types.ts).
+  This union is generated from the server-owned OpenAPI enum; consumers must
+  not maintain a parallel permission-key list.
+
 - Public generated JavaScript client:
   [`canonicalRuntimeApiClient.js`](canonicalRuntimeApiClient.js)
 
@@ -135,4 +140,4 @@ file is a downstream compatibility surface, not a second owner.
 - [`../../docs/reference/api/artifacts.md`](../../docs/reference/api/artifacts.md)
 - [`../../src/polisyos/runtime/http/README.md`](../../src/polisyos/runtime/http/README.md)
 
-Last updated: 2026-07-17
+Last updated: 2026-07-18

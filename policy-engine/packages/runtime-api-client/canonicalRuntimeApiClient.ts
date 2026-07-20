@@ -903,6 +903,9 @@ export type RunsListResponse =
 export type RuntimeApiProblem =
   RuntimeApiComponents["schemas"]["RuntimeApiProblem"];
 
+export type RuntimePermission =
+  RuntimeApiComponents["schemas"]["RuntimePermission"];
+
 export type ScenarioAssumptionInput =
   RuntimeApiComponents["schemas"]["ScenarioAssumption-Input"];
 

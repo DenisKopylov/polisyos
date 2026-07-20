@@ -22,6 +22,9 @@ runtime mutations and live streams.
 - `src/polisyos/runtime/http/openapi_contract.py` for examples, links, and
   contract hardening hooks.
 
+- `src/polisyos/runtime/http/permissions.py` for the server-owned action
+  permission vocabulary and immutable role grants projected by `/auth/me`.
+
 - `src/polisyos/runtime/http/mutation_policy.py` for rate limits, idempotency,
   audit trail, and live-stream budgets.
 
@@ -41,7 +44,20 @@ runtime mutations and live streams.
 
 - Internal local-navigation surfaces worth checking first: `routes/*`,
   `services/*`, `container.py`, `dependencies.py`, `execution_policy.py`,
-  `mutation_policy.py`, `openapi_contract.py`
+  `mutation_policy.py`, `openapi_contract.py`, `permissions.py`
+
+## Authorization contract
+
+`RuntimePermission` is the only hand-authored permission vocabulary for the
+runtime API. Role grants consume enum members, and DS20's route-admission
+dependency will consume the same members. The HTTP-local `AuthMeResponse`
+projects the enum into OpenAPI for generated clients. Unknown string literals
+do not become permissions by appearing in a client.
+
+`GET /api/v1/auth/me` returns only claims installed by verified identity
+middleware. It never synthesizes a fixture identity; the explicit development
+fixture middleware may still install development-only claims before the route
+executes.
 
 ## Depends on / depended on by
 
@@ -96,4 +112,4 @@ Run commands from the repository root `policy-engine/`.
 
 ## Last updated date
 
-2026-04-17
+2026-07-18

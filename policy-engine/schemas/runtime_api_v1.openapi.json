@@ -2220,7 +2220,7 @@
       },
       "AuthMeResponse": {
         "additionalProperties": false,
-        "description": "Authenticated principal payload returned by the runtime ``/auth/me`` endpoint.",
+        "description": "Runtime principal payload with permissions bound to the server vocabulary.",
         "properties": {
           "cell_id": {
             "anyOf": [
@@ -2254,7 +2254,7 @@
           },
           "permissions": {
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/RuntimePermission"
             },
             "title": "Permissions",
             "type": "array"
@@ -19547,6 +19547,46 @@
         "title": "RuntimeApiProblem",
         "type": "object"
       },
+      "RuntimePermission": {
+        "description": "Closed action-permission vocabulary owned by the runtime server.",
+        "enum": [
+          "analysis.execute",
+          "artifacts.batch.read",
+          "artifacts.render",
+          "dashboard.view",
+          "decisions.validity.publish",
+          "evidence.acquire",
+          "evidence.discover",
+          "evidence.preview",
+          "evidence.promotions.approve",
+          "evidence.promotions.reject",
+          "evidence.resolve",
+          "evidence.review",
+          "evidence.sae.analyze",
+          "evidence.view",
+          "fabric.impact.analyze",
+          "fabric.quality.read",
+          "fabric.trust.read",
+          "knowledge.search",
+          "knowledge.trigger",
+          "knowledge.view",
+          "lineage.batch.read",
+          "mobility.analyze",
+          "mode.analyst",
+          "platform.admin",
+          "platform.view",
+          "runs.batch.read",
+          "runs.feedback.evaluate",
+          "runs.launch",
+          "runs.production_approval.create",
+          "runs.reissue",
+          "runs.review",
+          "runs.view",
+          "scenarios.create"
+        ],
+        "title": "RuntimePermission",
+        "type": "string"
+      },
       "ScenarioAssumption-Input": {
         "additionalProperties": false,
         "description": "Named scenario assumption with provenance.",
@@ -22549,7 +22589,12 @@
         "summary": "Analyze Attractors",
         "tags": [
           "runtime-analysis"
-        ]
+        ],
+        "x-polisyos-action-permission": "analysis.execute",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.analysis.attractors",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/analysis/basin-map": {
@@ -22777,7 +22822,19 @@
         "summary": "Persist Basin Map",
         "tags": [
           "runtime-analysis"
-        ]
+        ],
+        "x-polisyos-action-permission": "analysis.execute",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "basin_id"
+          ],
+          "resource_kind": "runtime.analysis.basin_map.candidate",
+          "selector_fields": [
+            "basin_id",
+            "analysis_id"
+          ],
+          "source": "candidate_target_slot"
+        }
       }
     },
     "/api/v1/analysis/continuation": {
@@ -23005,7 +23062,21 @@
         "summary": "Persist Continuation Branch",
         "tags": [
           "runtime-analysis"
-        ]
+        ],
+        "x-polisyos-action-permission": "analysis.execute",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "branch_id",
+            "branch_kind"
+          ],
+          "resource_kind": "runtime.analysis.continuation.candidate",
+          "selector_fields": [
+            "branch_id",
+            "analysis_id",
+            "branch_kind"
+          ],
+          "source": "candidate_target_slot"
+        }
       }
     },
     "/api/v1/analysis/lyapunov": {
@@ -23311,7 +23382,12 @@
         "summary": "Analyze Lyapunov Diagnostics",
         "tags": [
           "runtime-analysis"
-        ]
+        ],
+        "x-polisyos-action-permission": "analysis.execute",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.analysis.lyapunov",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/analysis/{analysis_id}": {
@@ -24347,7 +24423,13 @@
         "summary": "Get Artifact Batch",
         "tags": [
           "runtime-artifacts"
-        ]
+        ],
+        "x-polisyos-action-permission": "artifacts.batch.read",
+        "x-polisyos-resource-binding": {
+          "body_field": "artifact_ids",
+          "resource_kind": "runtime.artifact.batch",
+          "source": "owned_existing_batch"
+        }
       }
     },
     "/api/v1/artifacts/{artifact_id}": {
@@ -26401,7 +26483,13 @@
         "summary": "Render Bureaucratic Artifact",
         "tags": [
           "runtime-artifacts"
-        ]
+        ],
+        "x-polisyos-action-permission": "artifacts.render",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "packet_id",
+          "resource_kind": "runtime.artifact.bureaucratic_render",
+          "source": "owned_existing_path"
+        }
       }
     },
     "/api/v1/auth/me": {
@@ -26427,17 +26515,35 @@
                       },
                       "mfa_verified": true,
                       "permissions": [
+                        "analysis.execute",
+                        "artifacts.batch.read",
+                        "artifacts.render",
                         "dashboard.view",
+                        "evidence.acquire",
+                        "evidence.discover",
+                        "evidence.preview",
                         "evidence.promotions.approve",
                         "evidence.promotions.reject",
+                        "evidence.resolve",
                         "evidence.review",
+                        "evidence.sae.analyze",
                         "evidence.view",
+                        "fabric.impact.analyze",
+                        "fabric.quality.read",
+                        "fabric.trust.read",
+                        "knowledge.search",
+                        "knowledge.trigger",
                         "knowledge.view",
+                        "lineage.batch.read",
+                        "mobility.analyze",
                         "mode.analyst",
                         "platform.view",
+                        "runs.batch.read",
+                        "runs.feedback.evaluate",
                         "runs.launch",
                         "runs.review",
-                        "runs.view"
+                        "runs.view",
+                        "scenarios.create"
                       ],
                       "principal_type": "user",
                       "roles": [
@@ -26927,7 +27033,28 @@
         "summary": "Run boundary-constrained causal-frontier small-area estimation",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "evidence.sae.analyze",
+        "x-polisyos-resource-binding": {
+          "required_selector_alternatives": [
+            [
+              "bundle_dir"
+            ],
+            [
+              "areas",
+              "edges"
+            ]
+          ],
+          "resource_kind": "runtime.evidence.sae_causal_frontier",
+          "selector_fields": [
+            "bundle_dir",
+            "areas",
+            "edges",
+            "exposure",
+            "output_dir"
+          ],
+          "source": "request_composite"
+        }
       }
     },
     "/api/v1/control/capabilities": {
@@ -28443,7 +28570,18 @@
         "summary": "Run bounded ExploreLane discovery",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "evidence.discover",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "data_needs"
+          ],
+          "resource_kind": "runtime.evidence.discover",
+          "selector_fields": [
+            "data_needs"
+          ],
+          "source": "request_composite"
+        }
       }
     },
     "/api/v1/control/data/index/stats": {
@@ -28903,7 +29041,27 @@
         "summary": "Trigger data collection from connectors",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "evidence.acquire",
+        "x-polisyos-resource-binding": {
+          "required_selector_alternatives": [
+            [
+              "datasets"
+            ],
+            [
+              "fetch_plans"
+            ]
+          ],
+          "resource_kind": "runtime.evidence.acquisition",
+          "selector_fields": [
+            "binding_profile_id",
+            "connection_profile",
+            "datasets",
+            "fetch_plans"
+          ],
+          "source": "request_composite"
+        },
+        "x-polisyos-step-up-class": "acquisition_approval"
       }
     },
     "/api/v1/control/data/preview": {
@@ -29156,7 +29314,18 @@
         "summary": "Preview FetchPlan with quality gate",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "evidence.preview",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "fetch_plan"
+          ],
+          "resource_kind": "runtime.evidence.preview",
+          "selector_fields": [
+            "fetch_plan"
+          ],
+          "source": "request_composite"
+        }
       }
     },
     "/api/v1/control/data/profiles": {
@@ -29867,7 +30036,14 @@
         "summary": "Approve PromotionLane candidate",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "evidence.promotions.approve",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "promotion_id",
+          "resource_kind": "runtime.evidence.promotion.approve",
+          "source": "resolved_selector"
+        },
+        "x-polisyos-step-up-class": "promotion"
       }
     },
     "/api/v1/control/data/promotion/{promotion_id}/reject": {
@@ -30112,7 +30288,14 @@
         "summary": "Reject PromotionLane candidate",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "evidence.promotions.reject",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "promotion_id",
+          "resource_kind": "runtime.evidence.promotion.reject",
+          "source": "resolved_selector"
+        },
+        "x-polisyos-step-up-class": "promotion"
       }
     },
     "/api/v1/control/data/resolve": {
@@ -30397,7 +30580,18 @@
         "summary": "Resolve DataNeeds into FetchPlans",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "evidence.resolve",
+        "x-polisyos-resource-binding": {
+          "required_selector_fields": [
+            "data_needs"
+          ],
+          "resource_kind": "runtime.evidence.resolve",
+          "selector_fields": [
+            "data_needs"
+          ],
+          "source": "request_composite"
+        }
       }
     },
     "/api/v1/control/decision-packets/{decision_packet_ref}/decision-validity": {
@@ -30943,7 +31137,18 @@
         "summary": "Publish a durable decision invalidation event",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "decisions.validity.publish",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.decision_validity.event",
+          "selector_fields": [
+            "source_ref",
+            "dependency_keys",
+            "dedupe_key"
+          ],
+          "source": "request_composite"
+        },
+        "x-polisyos-step-up-class": "publication"
       }
     },
     "/api/v1/control/jobs/{job_id}": {
@@ -31691,7 +31896,12 @@
         "summary": "Search Lex knowledge graph facts",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "knowledge.search",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.lex_workspace.search",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/control/lex/status/{pipeline_id}": {
@@ -32164,7 +32374,12 @@
         "summary": "Start Lex batch pipeline in background",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "knowledge.trigger",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.lex_workspace.trigger",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/control/llm/profiles": {
@@ -32903,7 +33118,12 @@
         "summary": "Launch a workflow run",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.launch",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.run_collection",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/control/runs/nl": {
@@ -33138,7 +33358,12 @@
         "summary": "Launch a natural-language run via agent circuit",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.launch",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.run_collection.nl",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/control/runs/{run_id}/decision-validity": {
@@ -33698,7 +33923,14 @@
         "summary": "Evaluate post-deployment monitoring for a run",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.feedback.evaluate",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.feedback_evaluation",
+          "source": "owned_existing_path"
+        }
       }
     },
     "/api/v1/control/runs/{run_id}/reissue": {
@@ -33951,7 +34183,15 @@
         "summary": "Create a human-gated reissue run",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.reissue",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.reissue",
+          "source": "owned_existing_path"
+        },
+        "x-polisyos-step-up-class": "revocation"
       }
     },
     "/api/v1/control/workers": {
@@ -37308,7 +37548,17 @@
         "summary": "Analyze Fabric Impact",
         "tags": [
           "runtime-fabric"
-        ]
+        ],
+        "x-polisyos-action-permission": "fabric.impact.analyze",
+        "x-polisyos-resource-binding": {
+          "parent_field": "run_id",
+          "resource_kind": "runtime.fabric.impact",
+          "selector_fields": [
+            "lineage_ids",
+            "source_contract_ids"
+          ],
+          "source": "owned_parent_or_request_composite"
+        }
       }
     },
     "/api/v1/fabric/quality/batch": {
@@ -37666,7 +37916,17 @@
         "summary": "Get Fabric Quality Batch",
         "tags": [
           "runtime-fabric"
-        ]
+        ],
+        "x-polisyos-action-permission": "fabric.quality.read",
+        "x-polisyos-resource-binding": {
+          "parent_field": "run_id",
+          "parent_required": true,
+          "resource_kind": "runtime.fabric.quality_batch",
+          "selector_fields": [
+            "decision_data_ids"
+          ],
+          "source": "owned_parent_or_request_composite"
+        }
       }
     },
     "/api/v1/fabric/runs/{run_id}/replay": {
@@ -38649,7 +38909,17 @@
         "summary": "Get Fabric Trust Batch",
         "tags": [
           "runtime-fabric"
-        ]
+        ],
+        "x-polisyos-action-permission": "fabric.trust.read",
+        "x-polisyos-resource-binding": {
+          "parent_field": "run_id",
+          "parent_required": true,
+          "resource_kind": "runtime.fabric.trust_batch",
+          "selector_fields": [
+            "decision_data_ids"
+          ],
+          "source": "owned_parent_or_request_composite"
+        }
       }
     },
     "/api/v1/health": {
@@ -39252,7 +39522,13 @@
         "summary": "Get Lineage Batch",
         "tags": [
           "runtime-lineage"
-        ]
+        ],
+        "x-polisyos-action-permission": "lineage.batch.read",
+        "x-polisyos-resource-binding": {
+          "body_field": "lineage_ids",
+          "resource_kind": "runtime.lineage.batch",
+          "source": "resolved_selector_batch"
+        }
       }
     },
     "/api/v1/lineage/{lineage_id}": {
@@ -40743,7 +41019,12 @@
         "summary": "Compute Mobility Bounds",
         "tags": [
           "runtime-mobility"
-        ]
+        ],
+        "x-polisyos-action-permission": "mobility.analyze",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.mobility_bounds",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/mobility/estimate": {
@@ -41140,7 +41421,12 @@
         "summary": "Estimate Mobility",
         "tags": [
           "runtime-mobility"
-        ]
+        ],
+        "x-polisyos-action-permission": "mobility.analyze",
+        "x-polisyos-resource-binding": {
+          "resource_kind": "runtime.mobility_estimate",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/mobility/reports/{artifact_id}": {
@@ -42559,7 +42845,13 @@
         "summary": "Get Runs Batch",
         "tags": [
           "runtime-runs"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.batch.read",
+        "x-polisyos-resource-binding": {
+          "body_field": "run_ids",
+          "resource_kind": "runtime.run.batch",
+          "source": "owned_existing_batch"
+        }
       }
     },
     "/api/v1/runs/compare": {
@@ -47463,7 +47755,14 @@
         "summary": "Create Run Production Approval",
         "tags": [
           "runtime-runs"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.production_approval.create",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.production_approval",
+          "source": "owned_existing_path"
+        },
+        "x-polisyos-step-up-class": "production_approval"
       }
     },
     "/api/v1/runs/{run_id}/quantities": {
@@ -49326,7 +49625,16 @@
         "summary": "Create Run Scenario",
         "tags": [
           "runtime-scenarios"
-        ]
+        ],
+        "x-polisyos-action-permission": "scenarios.create",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.scenario.candidate",
+          "selector_fields": [
+            "id"
+          ],
+          "source": "candidate_target_slot"
+        }
       }
     },
     "/api/v1/runs/{run_id}/timeline": {

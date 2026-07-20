@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
 from typing import cast
 
@@ -732,6 +733,74 @@ def test_control_plane_sqlite_uses_wal_journaling(tmp_path) -> None:
 
     assert journal_mode.lower() == "wal"
     assert synchronous in {1, 2}
+
+
+def test_scenario_head_create_cas_has_one_winner_across_store_instances(tmp_path) -> None:
+    db_path = tmp_path / "control-plane.sqlite3"
+    first_store = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
+    second_store = ControlPlaneStore(backend="sqlite", sqlite_path=db_path)
+    barrier = threading.Barrier(2)
+
+    def _claim(store: ControlPlaneStore, artifact_ref: str, manifest_hash: str) -> bool:
+        barrier.wait()
+        return store.compare_and_set_scenario_head(
+            scenario_id="scenario-shared",
+            baseline_run_id="run-authorized",
+            expected_revision=0,
+            new_revision=1,
+            artifact_ref=artifact_ref,
+            manifest_hash=manifest_hash,
+        )
+
+    contenders = (
+        (first_store, "sha256:first", "sha256:manifest-first"),
+        (second_store, "sha256:second", "sha256:manifest-second"),
+    )
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [executor.submit(_claim, *contender) for contender in contenders]
+        outcomes = [future.result() for future in futures]
+
+    assert sorted(outcomes) == [False, True]
+    winner = contenders[outcomes.index(True)]
+    assert first_store.get_scenario_head("scenario-shared") == second_store.get_scenario_head(
+        "scenario-shared"
+    )
+    head = first_store.get_scenario_head("scenario-shared")
+    assert head is not None
+    assert head.baseline_run_id == "run-authorized"
+    assert head.revision == 1
+    assert head.artifact_ref == winner[1]
+    assert head.manifest_hash == winner[2]
+
+
+def test_scenario_head_update_cas_denies_baseline_run_rebinding(tmp_path) -> None:
+    store = _make_store(tmp_path)
+    assert store.compare_and_set_scenario_head(
+        scenario_id="scenario-bound",
+        baseline_run_id="run-original",
+        expected_revision=0,
+        new_revision=1,
+        artifact_ref="sha256:revision-one",
+        manifest_hash="sha256:manifest-one",
+    )
+
+    assert not store.compare_and_set_scenario_head(
+        scenario_id="scenario-bound",
+        baseline_run_id="run-other",
+        expected_revision=1,
+        new_revision=2,
+        artifact_ref="sha256:revision-two",
+        manifest_hash="sha256:manifest-two",
+    )
+
+    head = store.get_scenario_head("scenario-bound")
+    assert head is not None
+    assert head.baseline_run_id == "run-original"
+    assert head.revision == 1
+    assert head.artifact_ref == "sha256:revision-one"
+    assert head.manifest_hash == "sha256:manifest-one"
+    assert store.list_scenario_heads(baseline_run_id="run-original") == [head]
+    assert store.list_scenario_heads(baseline_run_id="run-other") == []
 
 
 class _FlakyHeartbeatStore:

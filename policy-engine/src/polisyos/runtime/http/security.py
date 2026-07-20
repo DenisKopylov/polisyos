@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol
 
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
 
 _FIXTURE_IDENTITY_ENV = "POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY"
+_FIXTURE_IDENTITY_ISSUER = "polisyos://fixture-identity"
 
-_AUTH_STATE_FIELDS = (
+AUTHORIZATION_STATE_FIELDS = (
     "user_claims",
     "authenticated_tenant_id",
     "access_scope",
@@ -22,7 +23,41 @@ _AUTH_STATE_FIELDS = (
     "authz_reasons",
     "authz_allowed_columns",
     "authz_resource",
+    "authz_bound_resource",
+    "authz_action_bound_resource",
+    "authz_resource_frozen",
+    "authz_body_sha256",
+    "authz_matched_route",
+    "authz_route_requirement",
+    "authz_effective_scope",
+    "authz_scope_provenance",
+    "authz_step_up_requirement",
+    "authz_action_dependency",
+    "authz_step_up_dependency",
+    "action_permission_verification",
+    "step_up_verification",
 )
+
+
+class RuntimeStepUpAssertionVerifier(Protocol):
+    """Security-config shape for a context-bound external assertion verifier."""
+
+    def verify(self, token: str, context: Any) -> Any:
+        """Return one typed proof or raise a fail-closed verifier error."""
+        ...
+
+
+class RuntimeStepUpReplayStore(Protocol):
+    """Security-config shape for atomic durable assertion consumption."""
+
+    def consume_step_up_assertion(
+        self,
+        *,
+        assertion_id: str,
+        expires_at: int,
+    ) -> bool:
+        """Return true only for the first durable consumption."""
+        ...
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,6 +70,8 @@ class RuntimeSecurityConfig:
     authz_enforce: bool
     authz_shadow_mode: bool
     allow_fixture_identity: bool
+    step_up_verifier: RuntimeStepUpAssertionVerifier | None = None
+    step_up_replay_store: RuntimeStepUpReplayStore | None = None
 
 
 def is_fixture_identity_enabled(*, explicit: bool | None = None) -> bool:
@@ -56,7 +93,7 @@ def build_fixture_identity_claims() -> UserIdentityClaims:
         cell_id="cell-a",
         roles=frozenset({PolicyOSRole.ANALYST}),
         mfa_verified=True,
-        iss="polisyos://fixture-identity",
+        iss=_FIXTURE_IDENTITY_ISSUER,
         aud="polisyos-web",
         exp=4_102_444_800,
         iat=1,
@@ -64,9 +101,17 @@ def build_fixture_identity_claims() -> UserIdentityClaims:
     )
 
 
+def is_fixture_identity_claims(value: object) -> bool:
+    """Return whether claims carry the reserved development-fixture issuer."""
+    return bool(
+        isinstance(value, UserIdentityClaims)
+        and value.iss == _FIXTURE_IDENTITY_ISSUER
+    )
+
+
 def clear_request_auth_context(state: Any) -> None:
     """Remove auth-derived state so deny paths cannot leak trusted context."""
-    for field_name in _AUTH_STATE_FIELDS:
+    for field_name in AUTHORIZATION_STATE_FIELDS:
         if hasattr(state, field_name):
             try:
                 delattr(state, field_name)
@@ -75,8 +120,14 @@ def clear_request_auth_context(state: Any) -> None:
 
 
 __all__ = [
+    "AUTHORIZATION_STATE_FIELDS",
+    "PolicyOSRole",
     "RuntimeSecurityConfig",
+    "RuntimeStepUpAssertionVerifier",
+    "RuntimeStepUpReplayStore",
+    "UserIdentityClaims",
     "build_fixture_identity_claims",
     "clear_request_auth_context",
+    "is_fixture_identity_claims",
     "is_fixture_identity_enabled",
 ]

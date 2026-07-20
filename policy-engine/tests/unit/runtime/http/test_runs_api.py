@@ -8,7 +8,15 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
+from polisyos.core.security.identity import PolicyOSRole
 from polisyos.runtime.http.routes import runs as runs_routes
+from tests.unit.runtime.http.test_runtime_api_authz import (
+    _AllowOPA,
+    _build_secure_client,
+    _claims,
+    _fixture_bearer,
+    _install_bound_test_step_up,
+)
 
 
 def _read_first_sse_snapshot(client: Any, path: str) -> dict[str, Any]:
@@ -353,8 +361,32 @@ def test_evaluate_feedback_endpoint_persists_monitoring_report(runtime_api_env) 
 
 
 def test_reissue_endpoint_fails_closed_without_durable_control_plane(runtime_api_env) -> None:
-    client = runtime_api_env["client"]
-    response = client.post(f"/api/v1/control/runs/{runtime_api_env['core_run_id']}/reissue")
+    bearer = _fixture_bearer("reissue-inherited-control-plane")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-reissue-inherited-control-plane",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+
+    with client:
+        response = client.post(
+            f"/api/v1/control/runs/{runtime_api_env['core_run_id']}/reissue",
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
+            },
+        )
     assert response.status_code == 422
 
     payload = response.json()

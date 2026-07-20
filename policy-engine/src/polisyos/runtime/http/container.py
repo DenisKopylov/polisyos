@@ -263,6 +263,10 @@ class RuntimeServiceContainer:
         }
 
     def _bind_legacy_state(self, app: Any) -> None:
+        if self.control_service is not None:
+            self.runtime_api_context.scenarios.bind_scenario_head_store(
+                self.control_service.scenario_head_store,
+            )
         app.state.runtime_api_ctx = self.runtime_api_context
         app.state.review_collaboration_hub = self.review_collaboration_hub
         app.state.execution_policy = self.deployment_policy

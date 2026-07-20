@@ -66,16 +66,16 @@
   },
   "lint": {
     "owner_slice": "DS4",
-    "disposition": "rebind_pending",
+    "disposition": "resolved",
     "command": "corepack pnpm exec eslint src .storybook e2e scripts eslint.config.mjs vite.config.ts vitest.config.ts vitest.a11y.config.ts vitest.storybook.config.ts playwright.config.ts tailwind.config.ts --cache --cache-location ../../_cache/apps/runtime-dashboard/eslint/.eslintcache --max-warnings=0 --format json",
-    "exit_code": 1,
-    "error_count": 18,
+    "exit_code": 0,
+    "error_count": 0,
     "warning_count": 0,
-    "source_file_count": 7,
+    "source_file_count": 0,
     "rule_identity": {
       "rule_id": "policyos/quantity-must-be-wrapped",
       "implementation_path": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs",
-      "implementation_sha256": "e0014bd68cdd629307dbc1fad99c41812d6a082486cd558d48ee10648f5802b6",
+      "implementation_sha256": "f6caad898516b1e07a11d734147debcc23d7653e70d9e059f4f67e96d2ebd43a",
       "configuration_path": "apps/runtime-dashboard/eslint.config.mjs",
       "configuration_sha256": "6653eb0a7475ade10b933623d0d073045731a9ecd48ae202f3b5912f5e20d4e4"
     },
@@ -94,300 +94,10 @@
         "message_id",
         "message"
       ],
-      "sha256": "e39966b3129ef3747189ba7c89cf628efaa5db67ca96f12bb5ac2c739f92c156"
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
-    "files": [
-      {
-        "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
-        "content_sha256": "be6269ebc9c95ef75bbeab975c564ed89a88cfdbd755c45d62791ae024c0d969",
-        "diagnostic_count": 1,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 1
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 46,
-            "column": 30,
-            "end_line": 46,
-            "end_column": 36,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.0025\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
-        "content_sha256": "ad2f45f674e77fcbef779deced807c9ca7b971bde4ca98e5e28326641277b7c7",
-        "diagnostic_count": 2,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 2
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 161,
-            "column": 17,
-            "end_line": 161,
-            "end_column": 19,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"24\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 162,
-            "column": 17,
-            "end_line": 162,
-            "end_column": 18,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"9\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
-        "content_sha256": "fca05b8125a48be13d97e0ca9619fc645ef6426d3e26a75e7a520abdff52aea7",
-        "diagnostic_count": 2,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 2
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 136,
-            "column": 13,
-            "end_line": 136,
-            "end_column": 14,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"4\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 151,
-            "column": 14,
-            "end_line": 151,
-            "end_column": 16,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"12\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-        "content_sha256": "2c0049c0c139e6ae61d102bac3134d98f8b3bd3a294afcb2dd08e59b4576d943",
-        "diagnostic_count": 2,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 2
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 224,
-            "column": 65,
-            "end_line": 224,
-            "end_column": 68,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"250\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 406,
-            "column": 24,
-            "end_line": 406,
-            "end_column": 25,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
-        "content_sha256": "d7e8b5c44ed087cb9c6edfdbd0f6f68694d232250d1a40ba7f65e014e21c6fb1",
-        "diagnostic_count": 1,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 1
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 23,
-            "column": 17,
-            "end_line": 23,
-            "end_column": 18,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"3\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-        "content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
-        "diagnostic_count": 9,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 9
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 7,
-            "column": 13,
-            "end_line": 7,
-            "end_column": 17,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.18\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 16,
-            "column": 16,
-            "end_line": 16,
-            "end_column": 17,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 16,
-            "column": 19,
-            "end_line": 16,
-            "end_column": 20,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 16,
-            "column": 22,
-            "end_line": 16,
-            "end_column": 23,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 16,
-            "column": 25,
-            "end_line": 16,
-            "end_column": 26,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 17,
-            "column": 16,
-            "end_line": 17,
-            "end_column": 19,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0.3\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 17,
-            "column": 21,
-            "end_line": 17,
-            "end_column": 22,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 17,
-            "column": 24,
-            "end_line": 17,
-            "end_column": 25,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
-          },
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 17,
-            "column": 27,
-            "end_line": 17,
-            "end_column": 28,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      },
-      {
-        "path": "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
-        "content_sha256": "0d73a189276402dea0077c0dde1f10bb1d8c1330eadff8c77a08032212bbf0b6",
-        "diagnostic_count": 1,
-        "rule_counts": [
-          {
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "count": 1
-          }
-        ],
-        "diagnostics": [
-          {
-            "path": "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
-            "rule_id": "policyos/quantity-must-be-wrapped",
-            "severity": 2,
-            "line": 44,
-            "column": 39,
-            "end_line": 44,
-            "end_column": 40,
-            "message_id": "decision",
-            "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
-          }
-        ]
-      }
-    ],
-    "identity_set_sha256": "7f6f5482e39a0ba2eb9778ae4e6995804939eb95815179eece67dd264b6adc0c",
+    "files": [],
+    "identity_set_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "immutable_origin": {
       "owner_slice": "DS4",
       "disposition": "rebind_pending",
@@ -1882,251 +1592,809 @@
           "apps/runtime-dashboard/src/shared/ui/compounds/xaiCompounds.test.tsx"
         ],
         "closure_test_ref": "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx"
+      },
+      {
+        "origin_identity_sha256": "74ab4cce28e705a104560b54ea27cb5d8112fa33bdaf686475e543d39e5e73ca",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+          "source_content_sha256": "fca05b8125a48be13d97e0ca9619fc645ef6426d3e26a75e7a520abdff52aea7",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 136,
+          "column": 13,
+          "end_line": 136,
+          "end_column": 14,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"4\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "layout_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "899b271367d2ce50b57b66b24db770d10f239c563e40e277ca7bceff529e0e6e",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 7,
+          "column": 13,
+          "end_line": 7,
+          "end_column": 17,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.18\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs",
+          "packages/atlas-ui/src/generated/tokens.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "9c3f1db07210300550d185ab3238971fddafc7df46163465bb58706c9e4ce615",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+          "source_content_sha256": "fca05b8125a48be13d97e0ca9619fc645ef6426d3e26a75e7a520abdff52aea7",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 151,
+          "column": 14,
+          "end_line": 151,
+          "end_column": 16,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"12\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "layout_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "cda0d0bfca7ad7eaa32a231a2ff20ac24ce4c0a5527e6e23e56f8b4e73adfbc4",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 16,
+          "column": 16,
+          "end_line": 16,
+          "end_column": 17,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "1c4381e79fcc658ab5933c38a94921ba11663efa8f12f85c433de6b68d91b4d2",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 17,
+          "column": 16,
+          "end_line": 17,
+          "end_column": 19,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.3\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "04de6de1c42841e86e69513a4af4cfabb7b726ad3d372ae03adf364acc029953",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "source_content_sha256": "ad2f45f674e77fcbef779deced807c9ca7b971bde4ca98e5e28326641277b7c7",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 162,
+          "column": 17,
+          "end_line": 162,
+          "end_column": 18,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"9\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "layout_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "d6feab42afad34877e8983fec105a5662ef1d5e5662d627602b7b3ba14b582f7",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
+          "source_content_sha256": "d7e8b5c44ed087cb9c6edfdbd0f6f68694d232250d1a40ba7f65e014e21c6fb1",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 23,
+          "column": 17,
+          "end_line": 23,
+          "end_column": 18,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"3\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "layout_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "418a390470c0fcd44a72b16a019277b38498a708cb7eea4f4acf05dfc27c46e8",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "source_content_sha256": "ad2f45f674e77fcbef779deced807c9ca7b971bde4ca98e5e28326641277b7c7",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 161,
+          "column": 17,
+          "end_line": 161,
+          "end_column": 19,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"24\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "layout_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "968767ade3e7665a3381251276d4034a8fce3a29c6d1ef774eeb9f5692baf0a0",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 16,
+          "column": 19,
+          "end_line": 16,
+          "end_column": 20,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "fbcc724ee13e9ee7ef3e49f07b229c1175082dbe2ffc63ae99fe11b1d220cba5",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 17,
+          "column": 21,
+          "end_line": 17,
+          "end_column": 22,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "0524455c5a1a4c87829d9d0cacb80a83e5e7406d162f6c7abaf25fa2c3474d1d",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 16,
+          "column": 22,
+          "end_line": 16,
+          "end_column": 23,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "44365df912219c9e603a356558db64f26461dee47dfcaeb806cd42057e8123f3",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 17,
+          "column": 24,
+          "end_line": 17,
+          "end_column": 25,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "f535cea76bdabffb2353fab7689c613bb0ba36c210ec183df5e30009b551a808",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "source_content_sha256": "2c0049c0c139e6ae61d102bac3134d98f8b3bd3a294afcb2dd08e59b4576d943",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 406,
+          "column": 24,
+          "end_line": 406,
+          "end_column": 25,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "operational_request_control",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "8b2057e55248cb4ed5e9a2b1423f2d5aad9a0d6531d8a1b9e5dd8c45ea57133d",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 16,
+          "column": 25,
+          "end_line": 16,
+          "end_column": 26,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "420067ecea3ee619f859c21392ce83b0f15abd3a96aa83ffcd5f8391c0457a65",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "source_content_sha256": "cea81c3f8d2a62fe6655c880a61c9e5d0e0b7a93b8e96229f8b81d18a41bfcf9",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 17,
+          "column": 27,
+          "end_line": 17,
+          "end_column": 28,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"1\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "motion_geometry",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/motion.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/motion.test.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "0458028523781ba62ed763a3b5c687409dab36c3ef3c4e9bffc05a0e406de72f",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
+          "source_content_sha256": "be6269ebc9c95ef75bbeab975c564ed89a88cfdbd755c45d62791ae024c0d969",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 46,
+          "column": 30,
+          "end_line": 46,
+          "end_column": 36,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0.0025\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "interaction_control",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "f1c8a3b85f7dc636ab8adb154a4d9893543e07497a898598d52b35806e53bc63",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+          "source_content_sha256": "0d73a189276402dea0077c0dde1f10bb1d8c1330eadff8c77a08032212bbf0b6",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 44,
+          "column": 39,
+          "end_line": 44,
+          "end_column": 40,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"0\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "interaction_control",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.a11y.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+      },
+      {
+        "origin_identity_sha256": "702b9d0ffe81f6618c2f6d3bd761ff0999d129ab64a5ca9652d11e7760b0ff69",
+        "origin_identity": {
+          "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "source_content_sha256": "2c0049c0c139e6ae61d102bac3134d98f8b3bd3a294afcb2dd08e59b4576d943",
+          "rule_id": "policyos/quantity-must-be-wrapped",
+          "severity": 2,
+          "line": 224,
+          "column": 65,
+          "end_line": 224,
+          "end_column": 68,
+          "message_id": "decision",
+          "message": "Decision numeric literal \"250\" must be emitted as QuantityValue and rendered through <Quantity>."
+        },
+        "cluster_id": "C08",
+        "semantic_kind": "non_authority_control",
+        "classification": "interaction_control",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+          "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
       }
     ],
     "resolution_content_bindings": [
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/evidence/components/ConnectorCharacterCards.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "fb548237bd9dc339afa789cd6788913dce5f564f03fcc478c9cb68e46326d0b6"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "7b1bc9a0e913a032d6ee83453e17ef4197f021453a7c8c22f865da828ab9b5f6"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "6b4dd4a5c075a9572338be907639e54caa57854d98e9215e263512931c6185c1"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "70513db3e8c3f6b0283d89364cd2c42a4ebc2b88d3e8cb8f17033e13f3950ddc"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "0858f8b6a99057181eda667721831a9bf57551090d4765fc981687febe75ab73"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-        "roles": [
-          "consumer",
-          "implementation"
-        ],
+        "roles": ["consumer", "implementation"],
         "sha256": "ba32a2a10b9e49113a46e5b1f251b682bcacffd6c7b9e01304a5ed8f401a3985"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "0c178ad2855256e1126d9f31ee57faaacfe8390d19c609bd53c601e3dd585c04"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
-        "roles": [
-          "closure_test"
-        ],
+        "roles": ["closure_test"],
         "sha256": "9b9c8304dcb01beac63c98cd044f912f788f96427855372b6ae53a587dc18ba6"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "3cc506c32a695530ad8f17339d6314a3f7c9853aadb5f2650358aea2a23d80a1"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "eb8fd8d164e08e1ba2f18628eb974e8ebe678d286812311a43e9ef517d9da83b"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "761d9e8f4b874e82b122b67f9bad786db19f3800364e363b60151024e80c150c"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "4afb859da302d5a829d4011128ebfa6db63e374c3720c2cee6c8e0fcffa9e7d3"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.test.ts",
-        "roles": [
-          "closure_test",
-          "consumer"
-        ],
+        "roles": ["closure_test", "consumer"],
         "sha256": "a086d44a67ffe2ea4f8bb2f42ace597f97fc38c2a717ebb523ac937c63224071"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "4912e565377b3102a11d6f18de3996fa1ac848cf1cec69b369309267730c9853"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx",
-        "roles": [
-          "closure_test"
-        ],
+        "roles": ["closure_test"],
         "sha256": "2f035b7dad98eb89e5513bd2b68a1a8142d44100ffd1ba1acf4ffe0ddc225dc5"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/features/runs/components/EffectComparisonForest.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "c7f111e3e385ab6e0489040d7a1b3a6d8de911bc2196cc23c53e6fe6f1bad499"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "ba32a2a10b9e49113a46e5b1f251b682bcacffd6c7b9e01304a5ed8f401a3985"
       },
       {
         "cluster_id": "C07",
+        "path": "apps/runtime-dashboard/src/shared/charts/accessibility.ts",
+        "roles": ["implementation"],
+        "sha256": "e78e438e1663f948f167a4119329c7f6ee4a9cee3854d9db9ec1130c7faf45b3"
+      },
+      {
+        "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/AnimatedNumber.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "d87af3310b40decbbca32eceab37cc4f0fb560d9e1ad0b99bd3ee66725bffdb9"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/BSTSVisualization.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "28bf09dce8a7b74c74a78bf1f686d1b920fd58f1b83674b83c953c82af8e3b08"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/chartHardening.test.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "c70da6b3bcc75eb9067d994da6d6b699f3262db7ad99345fff5ad716f5d82076"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/DiDVisualization.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "22707e56edb67bef12958ce2dec991d38d5c473a2b7c29322843f61be82874d3"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/ForestPlot.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "4e1a66747d384603ff86d537447ee7855965137c5b9a68774f39ab917da53fe2"
       },
       {
         "cluster_id": "C07",
-        "path": "apps/runtime-dashboard/src/shared/charts/accessibility.ts",
-        "roles": [
-          "implementation"
-        ],
-        "sha256": "e78e438e1663f948f167a4119329c7f6ee4a9cee3854d9db9ec1130c7faf45b3"
-      },
-      {
-        "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.test.tsx",
-        "roles": [
-          "closure_test",
-          "consumer"
-        ],
+        "roles": ["closure_test", "consumer"],
         "sha256": "5146647127264b7b2aea820f9b0338d19c0c1dd2486161500f2c733e04251056"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "1a37bff0c5f78b378ed6268a78c1db71d8c506d24c9b259263f64badf7e56c6c"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/SpecificationCurveChart.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "c0df6fdd2afff64282dd1b97e63d49f8ac868f14c337d96462215274a3d628d2"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/SyntheticControlViz.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "8fd7ff112b04b1839515925cbdd043f69db57bc6c2962cfd17d5cd8341c441fc"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/FactorImportanceChart.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "929303872472cc98fd516554a76b1f52cca0f5cedbaf701383c746a160b4dbb4"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/SensitivityPlot.tsx",
-        "roles": [
-          "implementation"
-        ],
+        "roles": ["implementation"],
         "sha256": "a09dfc61a10bf0562dff86f4c7a13fe0baaf0649de6253126ef99760a780f89d"
       },
       {
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/xaiCompounds.test.tsx",
-        "roles": [
-          "consumer"
-        ],
+        "roles": ["consumer"],
         "sha256": "39afc30e3ff15185ac4d2be26f7388114d2e41eba6e97e7642a55ac706ee53a5"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs",
+        "roles": ["implementation"],
+        "sha256": "f6caad898516b1e07a11d734147debcc23d7653e70d9e059f4f67e96d2ebd43a"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs",
+        "roles": ["closure_test"],
+        "sha256": "d172702622385281c7d2cf80d2617e8be83b60686b7e6d8cf0589394028edf2e"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.test.tsx",
+        "roles": ["consumer"],
+        "sha256": "ce13a63e42a378a5870e0d9191e034a074f9c86e6aa057d6e21803b61387a67a"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
+        "roles": ["consumer", "implementation"],
+        "sha256": "ee14983eb721c1f07a78d0ea327e29272a3b8eff1881a84fc1f1b3e7aecd4129"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+        "roles": ["consumer", "implementation"],
+        "sha256": "ef5d1ec4e783eda812005b601603fd3b5530ad29b38e710915584f6f1aa7ca7b"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/features/causal/components/CausalNode.tsx",
+        "roles": ["consumer", "implementation"],
+        "sha256": "bdc4d65915d44ba48020040f309bbed702ade220809c98a9decb9fa171c60b31"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.test.tsx",
+        "roles": ["consumer"],
+        "sha256": "c6b85b0771bcf7c6ba9ccf9b586b3f56be967d255dc7809e4c229552d3eaf9db"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+        "roles": ["consumer", "implementation"],
+        "sha256": "cf7871b7787e016b58c9e8a46f2224f0530600335d103e50ad38b45a127e04e6"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.test.tsx",
+        "roles": ["consumer"],
+        "sha256": "0eb93a672a53b946b3996440dc36188fcc944351d3165e0e32be588a8f2c65c8"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
+        "roles": ["consumer", "implementation"],
+        "sha256": "99afe0b477666e1b0ba0bf8bd97dfe31cb447a6dfd3a1acd0129dc11f661e2b1"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts",
+        "roles": ["consumer"],
+        "sha256": "84dde213d2482c3c8e2ca35b8cb00748ec9943123f3b4f899c3126fba7cc016f"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts",
+        "roles": ["implementation"],
+        "sha256": "cc755ae6ad32f645c1cefff001b19dfe4b8fef839f93091ba108b7a68e176e31"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/shared/ui/motion.test.ts",
+        "roles": ["consumer"],
+        "sha256": "ab53b6328927069220c269620483c7508914105156e4efba3cc03130a49de3b3"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/shared/ui/motion.ts",
+        "roles": ["consumer", "implementation"],
+        "sha256": "1d79a593ebeab1467190557351575bb172605445c6451ed9667bacb8f90aca9e"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.a11y.test.tsx",
+        "roles": ["consumer"],
+        "sha256": "bf2d05f3293afd9030048e2d9d847b5d95035cf2414760c78546039f0206f578"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+        "roles": ["consumer", "implementation"],
+        "sha256": "e971b4c9e07acb293cbc5dd993aaacbce45b33128077f7e9ca4bae0cf1508a00"
+      },
+      {
+        "cluster_id": "C08",
+        "path": "packages/atlas-ui/src/generated/tokens.ts",
+        "roles": ["implementation"],
+        "sha256": "24c56eefedf0a995cdecc48c3fe250706fafa47f51da85bb1dad9f692b321d73"
       }
     ]
   },

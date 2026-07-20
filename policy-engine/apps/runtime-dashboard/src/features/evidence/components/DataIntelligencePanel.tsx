@@ -29,6 +29,12 @@ import type {
   RunEvidencePromotion,
 } from "@/shared/lib/domain/evidence";
 import {
+  interactionControl,
+  operationalRequestControl,
+  type InteractionControl,
+  type OperationalRequestControl,
+} from "@/shared/lib/domain/nonAuthorityNumeric";
+import {
   formatBytes,
   formatDate,
   formatNumber,
@@ -49,6 +55,10 @@ import {
 type RetrievalMode = "fastlane" | "hybrid" | "explorelane";
 type FetchPlan = components["schemas"]["FetchPlan"];
 type DataNeed = components["schemas"]["DataNeed"];
+
+const QUERY_DEBOUNCE_MS: InteractionControl = interactionControl(250);
+const NO_DISCOVERY_COST_BUDGET_USD: OperationalRequestControl =
+  operationalRequestControl(0);
 
 type DataIntelligencePanelProps = {
   mode?: "workspace" | "context";
@@ -221,8 +231,14 @@ export default function DataIntelligencePanel({
     });
   }, [lastPreviewPlanId, mode, previewMutation, selectedPlan]);
 
-  const debouncedMetricQuery = useDebouncedValue(metric.trim(), 250);
-  const debouncedGeography = useDebouncedValue(geography.trim(), 250);
+  const debouncedMetricQuery = useDebouncedValue(
+    metric.trim(),
+    QUERY_DEBOUNCE_MS,
+  );
+  const debouncedGeography = useDebouncedValue(
+    geography.trim(),
+    QUERY_DEBOUNCE_MS,
+  );
 
   const catalogQuery = useDataCatalogSearch({
     metricQuery: debouncedMetricQuery,
@@ -403,7 +419,7 @@ export default function DataIntelligencePanel({
       max_discovery_calls_per_source: maxDiscoveryCallsPerSource,
       max_candidates_total: maxCandidatesTotal,
       time_budget_ms: timeBudgetMs,
-      cost_budget_usd: 0,
+      cost_budget_usd: NO_DISCOVERY_COST_BUDGET_USD,
     });
   }
 

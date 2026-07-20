@@ -1750,6 +1750,16 @@ def validate_baseline_manifest(
         "layout_geometry": 33,
     }:
         errors.append("lint_c07_resolution_classification_drift")
+    c08_classifications = Counter(
+        row["classification"] for row in lint["resolutions"] if row["cluster_id"] == "C08"
+    )
+    if c08_classifications != {
+        "interaction_control": 3,
+        "layout_geometry": 5,
+        "motion_geometry": 9,
+        "operational_request_control": 1,
+    }:
+        errors.append("lint_c08_resolution_classification_drift")
     for resolution in lint["resolutions"]:
         identity_id = resolution["origin_identity_sha256"]
         if (
@@ -1778,6 +1788,24 @@ def validate_baseline_manifest(
                 not in resolution["implementation_refs"]
             ):
                 errors.append(f"lint_c07_semantic_adapter_drift:{identity_id}")
+        if resolution["cluster_id"] == "C08":
+            if resolution["semantic_kind"] != "non_authority_control":
+                errors.append("lint_c08_semantic_kind_drift")
+            if (
+                resolution["closure_test_ref"]
+                != "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+            ):
+                errors.append(f"lint_c08_semantic_closure_drift:{identity_id}")
+            if (
+                "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts"
+                not in resolution["implementation_refs"]
+            ):
+                errors.append(f"lint_c08_semantic_adapter_drift:{identity_id}")
+            if (
+                "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.cjs"
+                not in resolution["implementation_refs"]
+            ):
+                errors.append(f"lint_c08_rule_binding_drift:{identity_id}")
         references = [
             *resolution["implementation_refs"],
             *resolution["consumer_refs"],
@@ -2507,9 +2535,35 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
     probes.append(("lint-missing-resolution", missing_lint))
 
     overlapping_lint = copy.deepcopy(baseline)
-    active_id, active_row = _lint_identity_rows(overlapping_lint["lint"])[0]
-    overlapping_lint["lint"]["resolutions"][0]["origin_identity_sha256"] = active_id
-    overlapping_lint["lint"]["resolutions"][0]["origin_identity"] = active_row
+    overlap_resolution = overlapping_lint["lint"]["resolutions"][0]
+    active_row = overlap_resolution["origin_identity"]
+    active_diagnostic = {
+        key: value for key, value in active_row.items() if key != "source_content_sha256"
+    }
+    overlapping_lint["lint"].update(
+        {
+            "disposition": "rebind_pending",
+            "exit_code": 1,
+            "error_count": 1,
+            "source_file_count": 1,
+            "files": [
+                {
+                    "path": active_row["path"],
+                    "content_sha256": active_row["source_content_sha256"],
+                    "diagnostic_count": 1,
+                    "rule_counts": [
+                        {
+                            "rule_id": active_row["rule_id"],
+                            "count": 1,
+                        }
+                    ],
+                    "diagnostics": [active_diagnostic],
+                }
+            ],
+            "identity_set_sha256": _canonical_sha256([active_row]),
+        }
+    )
+    overlapping_lint["lint"]["diagnostic_set"]["sha256"] = _canonical_sha256([active_diagnostic])
     probes.append(("lint-active-resolved-overlap", overlapping_lint))
 
     moved_lint = copy.deepcopy(baseline)
@@ -2557,6 +2611,40 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
     )
     probes.append(("lint-c07-marker-only-closure", c07_marker_only))
 
+    c08_class_laundering = copy.deepcopy(baseline)
+    c08_resolution = next(
+        row for row in c08_class_laundering["lint"]["resolutions"] if row["cluster_id"] == "C08"
+    )
+    c08_resolution["classification"] = "motion_geometry"
+    probes.append(("lint-c08-classification-laundering", c08_class_laundering))
+
+    c08_semantic_laundering = copy.deepcopy(baseline)
+    c08_resolution = next(
+        row for row in c08_semantic_laundering["lint"]["resolutions"] if row["cluster_id"] == "C08"
+    )
+    c08_resolution["semantic_kind"] = "decision_bearing"
+    probes.append(("lint-c08-semantic-kind-laundering", c08_semantic_laundering))
+
+    c08_marker_only = copy.deepcopy(baseline)
+    c08_resolution = next(
+        row for row in c08_marker_only["lint"]["resolutions"] if row["cluster_id"] == "C08"
+    )
+    c08_resolution["closure_test_ref"] = (
+        "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts"
+    )
+    probes.append(("lint-c08-marker-only-closure", c08_marker_only))
+
+    c08_missing_adapter = copy.deepcopy(baseline)
+    c08_resolution = next(
+        row for row in c08_missing_adapter["lint"]["resolutions"] if row["cluster_id"] == "C08"
+    )
+    c08_resolution["implementation_refs"] = [
+        ref
+        for ref in c08_resolution["implementation_refs"]
+        if ref != "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts"
+    ]
+    probes.append(("lint-c08-canonical-adapter-removed", c08_missing_adapter))
+
     empty_without_resolutions = copy.deepcopy(baseline)
     empty_lint = empty_without_resolutions["lint"]
     empty_lint.update(
@@ -2570,6 +2658,7 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
         }
     )
     empty_lint["diagnostic_set"]["sha256"] = _canonical_sha256([])
+    empty_lint["resolutions"].pop()
     probes.append(("lint-empty-active-incomplete-resolutions", empty_without_resolutions))
 
     missing_architecture = copy.deepcopy(baseline)

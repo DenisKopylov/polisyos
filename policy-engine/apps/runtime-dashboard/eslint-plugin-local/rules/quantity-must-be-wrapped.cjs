@@ -12,6 +12,14 @@ const {
   hasAnyToken,
 } = require("./quantity-classifier.cjs");
 
+const NON_AUTHORITY_NUMERIC_MODULE = "@/shared/lib/domain/nonAuthorityNumeric";
+const NON_AUTHORITY_NUMERIC_IMPORTS = new Map([
+  ["interactionControl", "interaction"],
+  ["layoutGeometry", "layout"],
+  ["motionGeometry", "motion"],
+  ["operationalRequestControl", "operational"],
+]);
+
 function isNumberLiteral(node) {
   return (
     (node.type === "Literal" && typeof node.value === "number") ||
@@ -130,11 +138,104 @@ function hasClassificationComment(sourceCode, node) {
 }
 
 function isDirectJsxChild(node) {
-  let cursor = node.parent;
-  if (cursor && cursor.type === "UnaryExpression") {
-    cursor = cursor.parent;
+  let cursor = node;
+  while (cursor.parent) {
+    if (
+      cursor.parent.type === "UnaryExpression" ||
+      cursor.parent.type === "TSAsExpression" ||
+      cursor.parent.type === "TSSatisfiesExpression"
+    ) {
+      cursor = cursor.parent;
+      continue;
+    }
+    break;
   }
-  return cursor?.type === "JSXExpressionContainer";
+  return (
+    cursor.parent?.type === "JSXExpressionContainer" &&
+    cursor.parent.parent?.type !== "JSXAttribute"
+  );
+}
+
+function hasNamedToken(value, tokens) {
+  const words = String(value || "")
+    .replace(/([a-z0-9])([A-Z])/gu, "$1 $2")
+    .toLowerCase()
+    .split(/[^a-z0-9]+/u)
+    .filter(Boolean);
+  return tokens.some((token) => words.includes(token));
+}
+
+function resolvedVariable(sourceCode, node, name) {
+  let scope = sourceCode.getScope(node);
+  while (scope) {
+    const variable = scope.set?.get(name);
+    if (variable) {
+      return variable;
+    }
+    scope = scope.upper;
+  }
+  return null;
+}
+
+function canonicalNumericClassification(node, sourceCode, structuralImports) {
+  let expression = node;
+  if (
+    node.parent?.type === "UnaryExpression" &&
+    (node.parent.operator === "-" || node.parent.operator === "+")
+  ) {
+    expression = node.parent;
+  }
+  const call = expression.parent;
+  if (
+    call?.type !== "CallExpression" ||
+    call.arguments[0] !== expression ||
+    call.callee.type !== "Identifier"
+  ) {
+    return undefined;
+  }
+
+  const structuralImport = structuralImports.get(call.callee.name);
+  if (!structuralImport) {
+    return NON_AUTHORITY_NUMERIC_IMPORTS.has(call.callee.name)
+      ? "decision"
+      : undefined;
+  }
+  const binding = resolvedVariable(sourceCode, call, call.callee.name);
+  const isCanonicalImport = binding?.defs.some(
+    (definition) =>
+      definition.type === "ImportBinding" &&
+      definition.node === structuralImport.specifier,
+  );
+  if (!isCanonicalImport) {
+    return "decision";
+  }
+  const { classification } = structuralImport;
+  if (isDirectJsxChild(call)) {
+    return "decision";
+  }
+
+  const propName = attributeName(call);
+  const name = contextName(call);
+  if (classification === "layout") {
+    if (propName && LAYOUT_PROPS.has(propName)) {
+      return null;
+    }
+    if (
+      (propName && hasNamedToken(propName, DECISION_TOKENS)) ||
+      (name && hasNamedToken(name, DECISION_TOKENS))
+    ) {
+      return "decision";
+    }
+  }
+  if (
+    classification === "motion" &&
+    ((propName && hasNamedToken(propName, DECISION_TOKENS)) ||
+      (name && hasNamedToken(name, DECISION_TOKENS)))
+  ) {
+    return "decision";
+  }
+
+  return null;
 }
 
 function isControlOrFormattingLiteral(node, sourceCode) {
@@ -187,7 +288,15 @@ function isControlOrFormattingLiteral(node, sourceCode) {
   return false;
 }
 
-function classify(node, sourceCode, filename) {
+function classify(node, sourceCode, filename, structuralImports) {
+  const canonicalClass = canonicalNumericClassification(
+    node,
+    sourceCode,
+    structuralImports,
+  );
+  if (canonicalClass !== undefined) {
+    return canonicalClass;
+  }
   const line = sourceCode.lines?.[node.loc?.start.line - 1] ?? "";
   const lineClass = classifyLine(filename, line);
   if (lineClass !== undefined) {
@@ -263,13 +372,19 @@ module.exports = {
     const filename = context.filename || "";
     const options = context.options[0] || {};
     const reportedClasses = new Set(options.classes || ["decision"]);
+    const structuralImports = new Map();
 
     function check(node) {
       if (!isNumberLiteral(node)) {
         return;
       }
 
-      const quantityClass = classify(node, sourceCode, filename);
+      const quantityClass = classify(
+        node,
+        sourceCode,
+        filename,
+        structuralImports,
+      );
       if (quantityClass !== "decision" && quantityClass !== "telemetry") {
         return;
       }
@@ -285,6 +400,25 @@ module.exports = {
     }
 
     return {
+      ImportDeclaration(node) {
+        if (node.source.value !== NON_AUTHORITY_NUMERIC_MODULE) {
+          return;
+        }
+        for (const specifier of node.specifiers) {
+          if (specifier.type !== "ImportSpecifier") {
+            continue;
+          }
+          const importedName = propertyName(specifier.imported);
+          const classification =
+            NON_AUTHORITY_NUMERIC_IMPORTS.get(importedName);
+          if (classification) {
+            structuralImports.set(specifier.local.name, {
+              classification,
+              specifier,
+            });
+          }
+        }
+      },
       Literal: check,
       NumericLiteral: check,
     };

@@ -87,6 +87,30 @@ def _eslint_results(lint: dict[str, object]) -> list[dict[str, object]]:
     ]
 
 
+def _reactivate_resolution(lint: dict[str, object], resolution: dict[str, object]) -> None:
+    origin = resolution["origin_identity"]
+    diagnostic = {key: value for key, value in origin.items() if key != "source_content_sha256"}
+    lint.update(
+        {
+            "disposition": "rebind_pending",
+            "exit_code": 1,
+            "error_count": 1,
+            "source_file_count": 1,
+            "files": [
+                {
+                    "path": origin["path"],
+                    "content_sha256": origin["source_content_sha256"],
+                    "diagnostic_count": 1,
+                    "rule_counts": [{"rule_id": origin["rule_id"], "count": 1}],
+                    "diagnostics": [diagnostic],
+                }
+            ],
+            "identity_set_sha256": checker._canonical_sha256([origin]),
+        }
+    )
+    lint["diagnostic_set"]["sha256"] = checker._canonical_sha256([diagnostic])
+
+
 class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
     """Prove debt can shrink without erasing its immutable origin."""
 
@@ -97,9 +121,9 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         self.assertIn("immutable_origin", lint)
         self.assertEqual(lint["immutable_origin"]["error_count"], 75)
         self.assertEqual(lint["immutable_origin"]["source_file_count"], 22)
-        self.assertEqual(lint["error_count"], 18)
-        self.assertEqual(lint["source_file_count"], 7)
-        self.assertEqual(len(lint["resolutions"]), 57)
+        self.assertEqual(lint["error_count"], 0)
+        self.assertEqual(lint["source_file_count"], 0)
+        self.assertEqual(len(lint["resolutions"]), 75)
         self.assertEqual(checker.validate_baseline_manifest(manifest), [])
 
     def test_lint_partition_rejects_a_missing_resolution(self) -> None:
@@ -112,8 +136,10 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
     def test_lint_partition_rejects_an_active_and_resolved_duplicate(self) -> None:
         mutation = copy.deepcopy(_manifest())
-        active_identity = checker._lint_identity_rows(mutation["lint"])[0][0]
-        mutation["lint"]["resolutions"][0]["origin_identity_sha256"] = active_identity
+        _reactivate_resolution(
+            mutation["lint"],
+            mutation["lint"]["resolutions"][0],
+        )
 
         errors = checker.validate_baseline_manifest(mutation)
 
@@ -207,6 +233,86 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         errors = checker.validate_baseline_manifest(mutation)
 
         self.assertIn("lint_c07_semantic_kind_drift", errors)
+
+    def test_c08_non_authority_classifications_are_exact_and_content_bound(
+        self,
+    ) -> None:
+        manifest = _manifest()
+        resolutions = [row for row in manifest["lint"]["resolutions"] if row["cluster_id"] == "C08"]
+
+        self.assertEqual(
+            {
+                "interaction_control": 3,
+                "layout_geometry": 5,
+                "motion_geometry": 9,
+                "operational_request_control": 1,
+            },
+            dict(checker.Counter(row["classification"] for row in resolutions)),
+        )
+        self.assertTrue(all(row["semantic_kind"] == "non_authority_control" for row in resolutions))
+        self.assertTrue(
+            all(
+                row["closure_test_ref"]
+                == "apps/runtime-dashboard/eslint-plugin-local/rules/quantity-must-be-wrapped.test.cjs"
+                for row in resolutions
+            )
+        )
+
+    def test_c08_rejects_classification_laundering(self) -> None:
+        mutation = copy.deepcopy(_manifest())
+        resolution = next(
+            row for row in mutation["lint"]["resolutions"] if row["cluster_id"] == "C08"
+        )
+        resolution["classification"] = "motion_geometry"
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn("lint_c08_resolution_classification_drift", errors)
+
+    def test_c08_rejects_semantic_kind_laundering(self) -> None:
+        mutation = copy.deepcopy(_manifest())
+        resolution = next(
+            row for row in mutation["lint"]["resolutions"] if row["cluster_id"] == "C08"
+        )
+        resolution["semantic_kind"] = "decision_bearing"
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn("lint_c08_semantic_kind_drift", errors)
+
+    def test_c08_rejects_a_marker_only_closure(self) -> None:
+        mutation = copy.deepcopy(_manifest())
+        resolution = next(
+            row for row in mutation["lint"]["resolutions"] if row["cluster_id"] == "C08"
+        )
+        resolution["closure_test_ref"] = (
+            "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.test.ts"
+        )
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn(
+            "lint_c08_semantic_closure_drift:" + resolution["origin_identity_sha256"],
+            errors,
+        )
+
+    def test_c08_requires_the_canonical_numeric_adapter(self) -> None:
+        mutation = copy.deepcopy(_manifest())
+        resolution = next(
+            row for row in mutation["lint"]["resolutions"] if row["cluster_id"] == "C08"
+        )
+        resolution["implementation_refs"] = [
+            ref
+            for ref in resolution["implementation_refs"]
+            if ref != "apps/runtime-dashboard/src/shared/lib/domain/nonAuthorityNumeric.ts"
+        ]
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn(
+            "lint_c08_semantic_adapter_drift:" + resolution["origin_identity_sha256"],
+            errors,
+        )
 
     def test_resolution_content_bindings_cover_exact_derived_roles_and_live_bytes(
         self,
@@ -306,16 +412,34 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
     def test_lint_comparator_requires_the_exact_active_set(self) -> None:
         manifest = _manifest()
         exact_path = _write_json(_eslint_results(manifest["lint"]))
-        missing_results = _eslint_results(manifest["lint"])
-        missing_results[0]["messages"].pop()
-        missing_path = _write_json(missing_results)
+        origin = manifest["lint"]["resolutions"][0]["origin_identity"]
+        fabricated_path = _write_json(
+            [
+                {
+                    "filePath": str(REPO_ROOT / origin["path"]),
+                    "messages": [
+                        {
+                            "ruleId": origin["rule_id"],
+                            "severity": origin["severity"],
+                            "line": origin["line"],
+                            "column": origin["column"],
+                            "endLine": origin["end_line"],
+                            "endColumn": origin["end_column"],
+                            "messageId": origin["message_id"],
+                            "message": origin["message"],
+                        }
+                    ],
+                    "suppressedMessages": [],
+                }
+            ]
+        )
         self.addCleanup(exact_path.unlink)
-        self.addCleanup(missing_path.unlink)
+        self.addCleanup(fabricated_path.unlink)
 
         self.assertEqual(checker.compare_lint_results(manifest, exact_path), [])
-        errors = checker.compare_lint_results(manifest, missing_path)
+        errors = checker.compare_lint_results(manifest, fabricated_path)
         self.assertTrue(
-            any(error.startswith("lint_expected_diagnostic_missing:") for error in errors),
+            any(error.startswith("lint_new_diagnostic:") for error in errors),
             errors,
         )
 

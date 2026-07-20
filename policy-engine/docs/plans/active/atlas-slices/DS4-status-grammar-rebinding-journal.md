@@ -830,14 +830,14 @@ actual consumer. The rule and immutable 75/36 origins remain unchanged.
 
 ### Debt and verification receipt
 
-| Gate                                      | Result                                                                                                                                                  |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| quantity lint identities                  | exact `55 / 15 -> 18 / 7`; 37 C07 origin resolutions (`4` quantity semantics, `33` layout geometry), zero warnings, exact comparator PASS              |
-| architecture                              | held at exact `23 / 20`; 22 `shared-no-app-or-features` plus one `app-no-feature-internals`, exact comparator PASS                                     |
+| Gate                                      | Result                                                                                                                                                                                                                                              |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| quantity lint identities                  | exact `55 / 15 -> 18 / 7`; 37 C07 origin resolutions (`4` quantity semantics, `33` layout geometry), zero warnings, exact comparator PASS                                                                                                           |
+| architecture                              | held at exact `23 / 20`; 22 `shared-no-app-or-features` plus one `app-no-feature-internals`, exact comparator PASS                                                                                                                                  |
 | affected behavior and structural a11y     | PASS; 6 files / 45 tests, including all eight named components, opaque quantiles, interval/unknown/incomparable negatives, scalar-zero positives, neutral non-scalar direction, reachable provenance, SmallMultiples independence, and axe coverage |
-| dashboard typecheck and production build  | PASS; app/node/tools projects, 3,872 modules, postbuild security, package Tailwind-source proof, and 101 PWA entries                                  |
-| status inventory                          | PASS; 47 DS1 rows, 42 current definitions, 4 retired and 1 already deleted; source-bound generated anchors and corruption probes green                 |
-| disposition and debt lifecycle governance | PASS; 261 roots, 8 censuses, 200 pending dispositions, 23 seeded negatives, 30 content-bound C06/C07 resolution refs, and 50 Python lifecycle tests      |
+| dashboard typecheck and production build  | PASS; app/node/tools projects, 3,872 modules, postbuild security, package Tailwind-source proof, and 101 PWA entries                                                                                                                                |
+| status inventory                          | PASS; 47 DS1 rows, 42 current definitions, 4 retired and 1 already deleted; source-bound generated anchors and corruption probes green                                                                                                              |
+| disposition and debt lifecycle governance | PASS; 261 roots, 8 censuses, 200 pending dispositions, 23 seeded negatives, 30 content-bound C06/C07 resolution refs, and 50 Python lifecycle tests                                                                                                 |
 
 The DS16 outer-set vocabulary remains explicitly absent. C07 preserves ordered
 member structure and opaque producer labels without claiming a final
@@ -848,6 +848,83 @@ comparability or set-valued readiness grammar.
 - C07 changes are confined to dashboard chart/compound sources and tests,
   owned `architecture/atlas_surfaces/**`, the generated DS19 reference report,
   and this journal. Package, dependency, and lock inputs are unchanged.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client remains read-only.
+
+## 2026-07-20 — DS4-C08 non-authority numeric closure
+
+### Red-first and structural boundary
+
+- The two planned RuleTester cases first failed because layout and motion were
+  recognized only by heuristic names. The canonical adapter is now the sole
+  typed entry point for interaction controls, layout geometry, motion geometry,
+  and operational request controls. Decision-bearing names and direct rendered
+  values still fail even when wrapped by that adapter.
+- Self-review found an additional import-provenance bypass: a local function
+  could shadow an imported classifier alias and inherit its exemption. The new
+  red-first shadowing case reproduced that false green. The rule now resolves
+  the lexical binding and accepts only the exact canonical import specifier.
+  A same-named local function, an aliased-but-shadowed import, and a classifier
+  in a decision slot all fail.
+- The legacy `quantity:coverage` package gate remained line-based and reported
+  six regular-expression quantifier digits as decision values after the AST
+  denominator reached zero. Its own command supplied the red receipt. The
+  dashboard package gate now executes the real quantity ESLint configuration,
+  making the evidence path structural instead of adding source suppressions or
+  weakening the rule.
+- The independent subagent re-review was unavailable because the workspace
+  agent-credit pool was exhausted. This is recorded as a non-receipt; the
+  lexical-shadowing repair came from an explicit local diff review and its
+  adversarial red/green test, not from claimed independent evidence.
+
+### Implementation and debt closure
+
+- The exact remaining eighteen immutable-origin identities are classified as
+  three interaction controls, five layout geometries, nine motion geometries,
+  and one operational request control. All values retain numeric runtime
+  identity, while private unique-symbol brands keep the four non-authority
+  purposes distinct in TypeScript. The module exports only four constructors
+  and no value-level vocabulary constants.
+- Collaboration cursor epsilon and touch indexing are interaction controls;
+  causal and evidence-sigil coordinates are layout geometry; Bezier control
+  points are motion geometry; the zero discovery-cost ceiling is an operational
+  request control. Motion durations now project the already-ratified generated
+  `@polisyos/atlas-ui` helper durations into Motion seconds with unchanged
+  easing and timing behavior.
+- The lint manifest is terminal at `0 / 0`, with all 75 immutable-origin rows
+  resolved and 47 C06-C08 implementation/consumer/test paths content-bound.
+  C08 lifecycle probes reject classification laundering, semantic laundering,
+  marker-only closure, removal of the canonical adapter, active/resolved
+  overlap, and a fabricated new zero-baseline diagnostic.
+- C08 does not reinterpret the existing `EvidenceSigil` `FrescProfile` or its
+  confidence-derived color posture. That touched-code audit exposed an existing
+  local evidence-authority mapping. The standing architect ruling already
+  requires open evidence labels to remain opaque end-to-end, so retirement of
+  that mapping is carried into the C12/C14 evidence/decision rebinding and is
+  not claimed as resolved by this numeric cluster.
+- No DS19 family reaches a new terminal disposition in C08; the register remains
+  the unchanged disposition authority. Status-inventory line anchors shifted by
+  imports only and were re-derived against live source.
+
+### Verification receipt
+
+| Gate                                      | Result                                                                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| quantity lint identities                  | exact `18 / 7 -> 0 / 0`; 18 C08 resolutions and 75 total immutable-origin resolutions; uncached full ESLint JSON, zero warnings, exact comparator PASS |
+| affected behavior                         | PASS; 6 files / 13 Vitest tests plus the complete RuleTester suite, including canonical-import, rendered-decision, and lexical-shadowing negatives     |
+| dashboard typecheck and production build  | PASS; app/node/tools projects, 3,873 modules, postbuild security, package Tailwind-source proof, and 102 PWA entries                                   |
+| architecture                              | held at exact `23 / 20`; 22 `shared-no-app-or-features` plus one `app-no-feature-internals`; exact comparator PASS                                     |
+| status inventory                          | PASS; 47 DS1 rows, 42 current definitions, 14 supplements, and 3 DS5 waist rows; corruption probes green                                               |
+| disposition and debt lifecycle governance | PASS; 26 debt tests, 261 roots, 8 censuses, 200 pending dispositions, 23 seeded negatives, source-byte verification, and corruption probes             |
+| `@polisyos/atlas-ui` package gates        | PASS; typecheck, 10 files / 50 tests, lint, 27-file architecture, DTCG schema validation, and token projection drift check                             |
+
+### Fence receipt
+
+- C08 changes are confined to dashboard source, tests, lint-gate configuration,
+  owned `architecture/atlas_surfaces/**`, status-inventory anchor maintenance,
+  and this journal. `packages/atlas-ui`, dependency versions, and the lockfile
+  are unchanged.
 - Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
   frozen Russian locale, master plan, main, and other worktrees remain
   untouched. The generated client remains read-only.

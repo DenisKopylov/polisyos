@@ -2,6 +2,10 @@ import type { CSSProperties, HTMLAttributes } from "react";
 import { useId } from "react";
 
 import { cn } from "@/shared/lib/utils";
+import {
+  layoutGeometry,
+  type LayoutGeometry,
+} from "@/shared/lib/domain/nonAuthorityNumeric";
 
 export type EvidenceSigilSize = 48 | 64 | 96;
 
@@ -17,12 +21,12 @@ export type FrescProfile =
   | "replicated"
   | "canonical";
 
-const FRESC_DENSITY: Record<FrescProfile, number> = {
-  unclassified: 1,
-  reconnaissance: 2,
-  corroborated: 3,
-  replicated: 4,
-  canonical: 5,
+const FRESC_DENSITY: Record<FrescProfile, LayoutGeometry> = {
+  unclassified: layoutGeometry(1),
+  reconnaissance: layoutGeometry(2),
+  corroborated: layoutGeometry(3),
+  replicated: layoutGeometry(4),
+  canonical: layoutGeometry(5),
 };
 
 export type EvidenceSigilGeometry = {

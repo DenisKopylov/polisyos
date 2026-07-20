@@ -1,5 +1,7 @@
 import { memo } from "react";
 
+import { layoutGeometry } from "@/shared/lib/domain/nonAuthorityNumeric";
+
 import type { CausalEdgeData, EdgeIdentificationStatus } from "../types";
 import { NODE_WIDTH, NODE_HEIGHT } from "../types";
 
@@ -158,8 +160,8 @@ export const CausalEdge = memo(function CausalEdge({
       {edge.estimate != null && !dimmed && (
         <g transform={`translate(${midX}, ${midY})`}>
           <rect
-            x={-24}
-            y={-9}
+            x={layoutGeometry(-24)}
+            y={layoutGeometry(-9)}
             width={48}
             height={18}
             rx={4}

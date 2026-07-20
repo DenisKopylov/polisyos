@@ -217,12 +217,12 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
-          "line": 3,
+          "line": 5,
           "kind": "import"
         },
         {
           "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
-          "line": 23,
+          "line": 25,
           "kind": "prop"
         },
         {
@@ -1185,7 +1185,7 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-          "line": 1254,
+          "line": 1270,
           "kind": "prop"
         }
       ],
@@ -1300,8 +1300,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/app/realtime/useReviewCollaborationSurface.ts",
-        "start_line": 28,
-        "end_line": 28,
+        "start_line": 32,
+        "end_line": 32,
         "field_name": "status"
       },
       "literal_members": ["connecting", "idle", "live"],
@@ -1309,7 +1309,7 @@
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
-          "line": 1192,
+          "line": 1208,
           "kind": "prop"
         },
         {

@@ -4,8 +4,8 @@ status: ACTIVE - Revision 3 grounded in Phase-A measured reality; activation sat
 owner: team-design
 runtime_co_owner: team-architecture  # producers, bridges, and authz enforcement land in runtime code; named per task plan
 created: 2026-06-10
-revised: 2026-07-16 (Revision 3 - Phase A closed & merged: measured denominators of record, thesis sharpened to rebind/strangle, new DS19 strangle wave + DS20 authz enforcement split from DS5, negatives front-loading rule, activation satisfied)
-last_reviewed: 2026-07-16
+revised: 2026-07-20 (Revision 3.2 - DS20 + DS20-B server authorization floor CLOSED & MERGED 03ebc1ce8; typed cross-fence limitations B3/B5/scorecard/Helm registered as debt with owners; DS4 remains the sole active Phase-B parallel lane)
+last_reviewed: 2026-07-20
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 atlas_source_of_truth: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
 phase_a_synthesis: ../../reference/frontend/atlas-phase-a-synthesis.md   # the Revision-3 input package: per-slice confirmed/re-scoped/invalidated + PI-01..PI-24
@@ -433,7 +433,7 @@ roughly chronological; the DAG, not the numbers, governs start order.
 | DS3 | Runtime producers & export infrastructure (GY artifact projections; one-client consolidation) | **CLOSED** (merged e451cec56: 13 typed producers, owner-receipt cache law, replay binder, channel registry, canonical client twin) | B |
 | DS19 | False-substrate strangle wave + frontend disposition register | **CLOSED** (merged f9f69e807: 33 files / −4,005 LOC; register live) | B |
 | DS4 | Status-grammar rebinding & test harness (12 families / 47 statuses) | DS3 | B |
-| DS20 | **Server authorization enforcement (NEW, Rev 3 — split from DS5)** | DS3; parallel to DS4 | B |
+| DS20 | **Server authorization enforcement (NEW, Rev 3 — split from DS5)** | **CLOSED** (merged 03ebc1ce8: DS20 29/29-op action-permission floor + step-up + fixture-identity removal + 33-value vocabulary; DS20-B B1 Rego bridge + B2 probe identity + B4 verifier provenance closed, deployment-authority attestation architect-reviewed) | B |
 | DS5 | Enforcement waist: lints, audience mapping, cache discipline, flags | DS4; DS20 vocabulary | B |
 | DS6 | Evidence workflow & instrumentation | DS4 | B |
 | DS7 | **Cycle Board** (hero) | DS5 | C |
@@ -476,7 +476,7 @@ bounded agent.
 
 | Milestone | Unblocked surface work |
 | --- | --- |
-| **Now** (Phase A + DS19 + **DS3 all closed & merged**; the typed HTTP waist over the GY artifacts is live) | **DS4** (12-family rebinding, 47-status retirement, D2 token adapter, the 75-lint + temporal-cursor + severing debts) and **DS20** (29-operation server authz + step-up + fixture-identity removal) in parallel. |
+| **Now** (Phase A + DS19 + DS3 + **DS20 all closed & merged**; the typed HTTP waist and the server authorization floor over the GY artifacts are live) | **DS4** (12-family rebinding, 47-status retirement, D2 token adapter, the 75-lint + temporal-cursor + severing debts) in flight; DS20's server-projected permission vocabulary is now available to **DS5** (audience mapping) and **DS9** (decision integrity). |
 | **DS5 closed** | **DS7 Cycle Board on real capstone data** → DS8 → DS9 (with DS20); DS10; DS16's value/uncertainty grammar (ValueOuterSet is live main-tree data now). |
 | **GY-N13a accepted/merged** | DS15 read surfaces: connector scorecard (12-family liveness), the growth backlog (`ranking_only_not_voi`, 15 `binding_gap` residuals), route projections — noting the routes are currently **structural gaps, not data gaps**. |
 | **GY-N13b closed** | DS15 live loop (approve-acquisition → world-growth → re-entry), passports/quarantine; DS16 derived-data provenance (derivation certificates, basis chips). |
@@ -511,10 +511,28 @@ doctrine bullet); only the owning slice closes and re-manifests a debt:
 | Worktree tooling gap | agent worktrees carry invalid `.venv`s (Playwright/py tooling non-receipts in DS1/DS19) | ops note — every future slice prompt | slices declare their toolchain baseline gate up front (the DS19 pattern) |
 | Control-plane fixture drift | 2 pre-existing test failures in `tests/unit/runtime/http/test_control_api.py`-adjacent run-control paths (`DecisionMonitoringContract` rejects fixture fields; reproduced on pre-DS3 base in isolation) | **runtime/GY lane** (the contract's owner) — not an Atlas surface debt | the owner reconciles fixture vs contract red-first; DS3's focused selections exclude exactly these two, documented |
 | Producer availability denominator | DS3 measured 5 available / 7 `invalid_source` / 1 `artifact_missing` from a worktree WITHOUT `production_data` — environment-relative fail-closed, not artifact corruption | **DS7** (first consumer) re-measures on main with the catalog mounted and records the true availability row in the readiness ledger | the Cycle Board consumes measured availability, never the worktree-relative snapshot |
+| DS20-B B3 promotion CAS | promotion authorize→mutate is not atomic — DS20 binds the revision before OPA and re-verifies after (409 on drift), but no public Fabric compare-and-set producer exists; N13b owns `fabric/retrieval/service.py` | **GY / fabric lane** — expose a generic public revision-CAS primitive (the scenario-head CAS is the reference shape); DS20's HTTP consumer is ready to call it | the fabric lane lands the primitive; a follow-on wires the promotion path to it and removes the typed limitation |
+| DS20-B B5 PostgreSQL linearizability proofs | step-up one-use consumption and scenario-head CAS are proven on SQLite; the real-PG harness exists but is `environment_blocked` (no local DSN/`pg_isready`/docker daemon) — `tests/unit/runtime/http/test_runtime_postgres_linearizability.py`, run with `POLISYOS_..._POSTGRES_DSN` set | **cloud verification** (the user's backend-verify environment) | the four proofs run against real PostgreSQL with a DSN; the harness reports pass, never a SQLite fallback |
+| DS20-B scorecard producer provenance | the production-approval path binds a persisted scorecard before OPA and refuses cross-run/absent `run_id`, but the authoritative scorecard *producer's* provenance is configured outside the DS20 fence | **DS9** (decision integrity) / ops config | DS9 binds the scorecard producer's declared provenance into the approval decision |
+| DS20-B Helm policy mirror | the Helm chart carries a separate stale copy of the OPA policy; the canonical `ops/policy/policies/**` Rego is DS20-current, the Helm mirror was outside the extended fence | **ops / deploy lane** | the deploy lane regenerates the Helm mirror from the canonical Rego (or removes the duplicate in favor of the canonical source) |
+| aiohttp Fabric connector cleanup | two unclosed `aiohttp` session/connector diagnostics surface from the authorized `discover_data_sources`/`resolve_data_needs` handler witnesses opening Fabric connector pools (not a test failure; DS20 added no HTTP bypass) | **GY / fabric lane** (connector lifecycle owner) | the fabric lane closes the connector-pool lifecycle; not an Atlas surface debt |
 
 The five formerly-phantom dependency declarations (+ the `workbox-window`
 peer) and the `audience` fixture drift are already repaired (d01eaa572) and
 recorded in the register.
+
+**DS20 / DS20-B closure note (merged 03ebc1ce8, 2026-07-20).** The server
+authorization floor is live on main: 29/29 unsafe operations structurally gated,
+step-up for the 6 high-stakes ops, fixture identity prohibited outside dev, the
+33-value permission vocabulary projected through OpenAPI into the generated client
+(consumed by **DS5** audience mapping and **DS9** decision integrity), Rego↔server
+vocabulary + decision parity guards standing. The deployment-authority attestation
+hardening (`c33c4d450..7fa1b5f27` — forgery / same-object-mutation / TOCTOU /
+perimeter-flip / WebSocket-fall-through defenses) received architect review in lieu
+of the credit-blocked final automated pass and is sound. Guardrails carry the same
+5 inherited DS3 deep-import edges (owner: runtime lane) with zero DS20 additions;
+the SSE order-sensitive flake is inherited and isolated. The B3/B5/scorecard/Helm
+typed limitations above must clear before a production-readiness claim.
 
 ### Phase A — Pre-Activation (Layer-3-independent)
 
@@ -1057,6 +1075,15 @@ is implied by DS0 closure.
   wave and merely registered.
 
 #### DS20 — Server Authorization Enforcement (split from DS5)
+
+> **CLOSED & MERGED** (03ebc1ce8, 2026-07-20). DS20 (29/29-op action-permission
+> floor, step-up for 6 high-stakes ops, fixture-identity removal, 33-value
+> vocabulary through OpenAPI→client) + DS20-B cross-fence closure (B1 Rego bridge,
+> B2 probe identity, B4 verifier provenance) landed; deployment-authority
+> attestation architect-reviewed. Typed limitations carried as registered debt
+> (see the inherited-debt table): B3 promotion CAS → fabric lane; B5 PostgreSQL
+> proofs → cloud verification; scorecard producer provenance → DS9; Helm policy
+> mirror → deploy lane.
 
 - **Goal:** close the systemic authorization gap DS1 measured — this is
   today's production security posture, not UI debt, and it gates every

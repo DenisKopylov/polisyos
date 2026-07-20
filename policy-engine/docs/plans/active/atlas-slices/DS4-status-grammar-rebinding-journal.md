@@ -1021,3 +1021,72 @@ params` failure was reproduced before product work. Classification showed the
 - Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
   frozen Russian locale, master plan, main, and other worktrees remain
   untouched. The generated client was consumed read-only.
+
+## 2026-07-20 — DS4-C10 authored candidate posture
+
+### Red-first and authority boundary
+
+- The exact planned negative, `AuthoredText.test.tsx > renders unverified model
+prose as candidate and never as human reviewed`, first failed because model
+  prose had no candidate posture and a local helper minted `Verified` metadata
+  from `reviewed_by_human`. The repaired component treats the review flag only
+  as recorded attribution, never as verification, and renders trust metadata
+  only when the producer supplies it.
+- A second red-first case proved that model candidate clothing disappeared when
+  authorship highlighting was off. Model and unrecognized prose now retain a
+  dashed, visible boundary in every interaction mode; highlighting controls
+  noise, not authority. The repair also moves expanded trust details beside the
+  authored paragraph, eliminating the invalid block-content-inside-`p` shape.
+- The structural import negative first reported the exact
+  `AuthoredText.tsx -> @/app/providers/useTrustView` dependency. A shared
+  authorship interaction bridge now receives the display mode from the
+  app-owned provider adapter, and an AST-based family test rejects app, API,
+  feature, export, and dynamic-import dependencies.
+- Independent subagent review was unavailable because the workspace agent
+  credit pool remained exhausted. This is a non-receipt; local review included
+  the generated-contract audit, the candidate-clothing adversarial case, the
+  DOM-validity repair, exact denominator comparators, and corruption probes.
+
+### Implementation and disposition
+
+- Authored block author, source, content, review, confidence, and timestamp
+  types index the generated `DecisionPacketAuthoredBlock` contract. The old
+  exported author array and registry are removed. One private presentation map
+  remains exhaustive against the generated union; unknown or absent authors
+  take an explicit unrecognized candidate posture and are never normalized to
+  `human`.
+- `AuthorBadge`, `AuthoredText`, and `AuthorshipProvider` remain in their living
+  dashboard family. Model-authored output stays candidate even with recorded
+  human review or explicit producer trust metadata. The interaction-only
+  highlight modes remain separate from authority semantics, and nested
+  providers inherit the app-supplied trust display mode.
+- The `ui-authored-text` disposition is strangled to
+  `dashboard-authored-candidate-posture`, with the generated registry adapter,
+  exact candidate negative, and live monograph consumer as evidence. Only the
+  DS2 `content-trust-copy` material was used; the v15 archive was not accessed.
+- The family adds no local value-level authority vocabulary constants. The
+  barrel exposes the generated author type, presentation lookup, normalization,
+  and interaction controls, not an importable authority list.
+
+### Debt and verification receipt
+
+| Gate                                      | Result                                                                                                                                                                                        |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| quantity lint identities                  | held at terminal `0 / 0`; the full quantity gate and scoped authored-text lint are green                                                                                                      |
+| Vitest denominator                        | held at exact `4`; 8 comparator files / 19 tests, 15 pass, with only three DS6 i18n identities and the C12 OperatorDiagnosticPanel census remaining                                           |
+| architecture                              | exact `16 / 14 -> 15 / 13`; the sole authored-text app/provider identity is content-bound as a C10 resolution; exact comparator PASS                                                          |
+| affected behavior and structural a11y     | PASS; 6 files / 14 tests, including candidate posture, highlight-off clothing, producer-only trust metadata, monograph integration, family architecture, and axe coverage                     |
+| status retirement                         | held at 41 current definitions; classifications `24 interaction / 15 lattice / 8 removed`, 14 semantic exemptions, 7 remaining retirement rows, and 3 DS5 waist rows; corruption probes green |
+| dashboard typecheck and production build  | PASS; app/node/tools projects, 3,875 modules, postbuild security, package Tailwind-source proof, and 102 PWA entries                                                                          |
+| disposition and debt lifecycle governance | PASS; register/source-byte validation, 26 debt-lifecycle tests, exact architecture/Vitest comparators, report parity, and marker-preserving corruption probes                                 |
+
+### Fence receipt
+
+- C10 changes are confined to the dashboard authored-text family, its app
+  provider adapter and reading-view type consumer, owned
+  `architecture/atlas_surfaces/**`, the generated DS19 reference report, and
+  this journal. `packages/atlas-ui`, dependency versions, and the lockfile are
+  unchanged.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client was consumed read-only.

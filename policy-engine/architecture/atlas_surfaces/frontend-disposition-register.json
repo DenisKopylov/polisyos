@@ -1460,12 +1460,20 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-authored-candidate-posture",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/authored-text/author-registry.ts",
+          "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.test.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.test.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C10 rebinds the living authored-text family to generated DecisionPacketAuthoredBlock attribution, preserves v15 trust-copy as projection material only, keeps every model author in candidate clothing, and renders verification only when producer metadata is explicitly supplied."
     },
     {
       "unit_id": "ui-compounds",

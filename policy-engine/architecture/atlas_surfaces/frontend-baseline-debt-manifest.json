@@ -2497,9 +2497,9 @@
     "producer_path": "apps/runtime-dashboard/scripts/check-architecture.mjs",
     "producer_sha256": "e4dfa233f2e7c504a585688c8dbf976a9cd60c3e1baa7eb5c4898f2749cf7e98",
     "exit_code": 1,
-    "violation_count": 16,
-    "source_file_count": 14,
-    "identity_set_sha256": "66051c41cca92d81cbe356affa349c52712a23af260673ffa9d84c4a69908047",
+    "violation_count": 15,
+    "source_file_count": 13,
+    "identity_set_sha256": "03bb27f055c06378ed810976c649fbd143f397b87d7876bedbbfc43ded5fbc3a",
     "violations": [
       {
         "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
@@ -2530,16 +2530,6 @@
         "rule_id": "shared-no-app-or-features",
         "message": "shared layer cannot depend on app or features.",
         "display": "src/shared/charts/uncertainty-rendering.ts:1 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
-        "source_content_sha256": "3221de2dcdb919465fecd79111103efe3a39cd47e7056b67484d62ad6cc89374",
-        "line": 11,
-        "specifier": "@/app/providers/useTrustView",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/authored-text/AuthoredText.tsx:11 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
       },
       {
         "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
@@ -3151,6 +3141,31 @@
           "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx"
         ],
         "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/temporal/temporalArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "46273202f4ebc11388ecbed39451aac24fab17e5483b2ac74d72f06567cb5568",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
+          "source_content_sha256": "3221de2dcdb919465fecd79111103efe3a39cd47e7056b67484d62ad6cc89374",
+          "line": 11,
+          "specifier": "@/app/providers/useTrustView",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useTrustView.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/authored-text/AuthoredText.tsx:11 -> @/app/providers/useTrustView :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C10",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/authored-text/author-registry.ts",
+          "apps/runtime-dashboard/src/shared/ui/authored-text/AuthorshipProvider.tsx",
+          "apps/runtime-dashboard/src/app/providers/AppProviders.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.test.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/authored-text/authoredTextArchitecture.test.ts"
       }
     ]
   }

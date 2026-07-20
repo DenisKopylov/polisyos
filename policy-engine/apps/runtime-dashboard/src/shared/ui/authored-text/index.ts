@@ -6,13 +6,10 @@ export {
   useAuthorship,
 } from "./AuthorshipProvider";
 export {
-  AUTHOR_REGISTRY,
-  AUTHORED_TEXT_AUTHORS,
   AUTHORSHIP_HIGHLIGHT_MODES,
   extractTextFromNode,
-  isAuthoredTextAuthor,
+  getAuthorPresentation,
   normalizeAuthoredNarrativeBlock,
-  normalizeAuthoredTextAuthor,
   normalizeAuthorshipHighlightMode,
   type AuthoredNarrativeBlock,
   type AuthoredTextAuthor,

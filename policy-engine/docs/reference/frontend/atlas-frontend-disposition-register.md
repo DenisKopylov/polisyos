@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **6114**
-- Application lines deleted: **8342**
-- Net application LOC reduction: **2228**
-- Application files deleted: **67**
+- Application lines added: **6883**
+- Application lines deleted: **8257**
+- Net application LOC reduction: **1374**
+- Application files deleted: **65**
 
 ## Wave-end full verification
 
@@ -305,7 +305,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `ui-primitives-root` | `ui-primitives-root` | 21 | `rebind_pending` | `strangled` | `DS4` | `census-ds4-c03b-dormant-primitives` |
 | `ui-compounds-root` | `ui-compounds-root` | 3 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `strangled` | `DS4` | `dashboard-authored-candidate-posture` |
 | `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-patterns` | `ui-patterns` | 7 | `rebind_pending` | `pending` | `DS4` | `—` |
@@ -514,6 +514,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `9c45a240e fix(dashboard): rebind temporal semantics and cursor`
 - `0ef16da1b fix(dashboard): classify nondecision numeric layout values`
 - `07ed51c81 refactor(dashboard): preserve chart quantity semantics`
 - `290bb5e61 refactor(dashboard): wrap decision producers as quantities`

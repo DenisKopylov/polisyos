@@ -31,7 +31,7 @@ export type ReadingViewDefinition = {
 export type ReadingViewParagraph = {
   id: string;
   content: string;
-  author: AuthoredTextAuthor;
+  author: AuthoredTextAuthor | null;
   authorAgentVersion?: string;
   sourceRef?: string;
   timestamp?: string;

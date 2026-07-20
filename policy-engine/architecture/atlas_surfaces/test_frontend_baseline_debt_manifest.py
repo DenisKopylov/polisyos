@@ -448,15 +448,29 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         architecture = manifest["architecture"]
 
         self.assertEqual(architecture["immutable_origin"]["violation_count"], 36)
-        self.assertEqual(architecture["violation_count"], 16)
-        self.assertEqual(architecture["source_file_count"], 14)
-        self.assertEqual(len(architecture["resolutions"]), 20)
+        self.assertEqual(architecture["violation_count"], 15)
+        self.assertEqual(architecture["source_file_count"], 13)
+        self.assertEqual(len(architecture["resolutions"]), 21)
         self.assertEqual(
             sum(
                 resolution["cluster_id"] == "C09"
                 for resolution in architecture["resolutions"]
             ),
             7,
+        )
+        c10_resolutions = [
+            resolution
+            for resolution in architecture["resolutions"]
+            if resolution["cluster_id"] == "C10"
+        ]
+        self.assertEqual(len(c10_resolutions), 1)
+        self.assertEqual(
+            c10_resolutions[0]["origin_identity"]["source_path"],
+            "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
+        )
+        self.assertEqual(
+            c10_resolutions[0]["closure_test_ref"],
+            "apps/runtime-dashboard/src/shared/ui/authored-text/authoredTextArchitecture.test.ts",
         )
         self.assertEqual(checker.validate_baseline_manifest(manifest), [])
 

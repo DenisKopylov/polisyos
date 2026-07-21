@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 import {
   buildDisputeRecords,
+  createDisputeStatus,
   type DisputeRecord,
-  type DisputeStatus,
   readStoredDisputes,
   writeStoredDisputes,
 } from "@/features/runs/domain/disputes";
@@ -12,9 +12,9 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { formatDate, formatNumber } from "@/shared/lib/utils";
 import { Badge, Button, Card, Input, Label, Select } from "@polisyos/atlas-ui";
 
-function statusKind(status: DisputeStatus) {
-  if (status === "resolved") return "ok";
-  if (status === "open") return "fail";
+function statusKind(status: DisputeRecord["status"]) {
+  if (status.label === "resolved") return "ok";
+  if (status.label === "open") return "fail";
   return "warn";
 }
 
@@ -33,7 +33,7 @@ export function DisputeRegistryPanel({
   );
   const disputes = buildDisputeRecords(issues, localDisputes);
   const openCount = disputes.filter(
-    (dispute) => dispute.status === "open",
+    (dispute) => dispute.status.label === "open",
   ).length;
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export function DisputeRegistryPanel({
                   basis: draftBasis,
                   id: `local:${runId}:${now}`,
                   openedAt: now,
-                  status: "open",
+                  status: createDisputeStatus("open"),
                   target: "decision",
                   title: draftTitle.trim(),
                 },
@@ -131,7 +131,9 @@ export function DisputeRegistryPanel({
                   })}
                 </p>
               </div>
-              <Badge kind={statusKind(dispute.status)}>{dispute.status}</Badge>
+              <Badge kind={statusKind(dispute.status)}>
+                {dispute.status.label}
+              </Badge>
             </div>
           </article>
         ))}

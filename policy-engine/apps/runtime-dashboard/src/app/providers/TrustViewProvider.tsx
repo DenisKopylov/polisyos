@@ -7,12 +7,12 @@ import {
 } from "react";
 
 import { usePreferencesStore } from "@/app/state/usePreferencesStore";
-
 import {
-  TrustViewContext,
+  TrustViewBridgeProvider,
   type TrustInspectorSubject,
+  type TrustViewBridgeValue,
   type TrustViewMode,
-} from "./useTrustView";
+} from "@/shared/ui/trust-view";
 
 const TRUST_VIEW_STORAGE_KEY = "polisyos.runtime.trust-view";
 const TRUST_VIEW_PARAM = "trust";
@@ -89,7 +89,7 @@ export function TrustViewProvider({ children }: PropsWithChildren) {
     setInspectorSubject(null);
   }, []);
 
-  const value = useMemo(
+  const value = useMemo<TrustViewBridgeValue>(
     () => ({
       closeInspector,
       cycleMode,
@@ -111,9 +111,9 @@ export function TrustViewProvider({ children }: PropsWithChildren) {
   );
 
   return (
-    <TrustViewContext.Provider value={value}>
+    <TrustViewBridgeProvider value={value}>
       {children}
-    </TrustViewContext.Provider>
+    </TrustViewBridgeProvider>
   );
 }
 

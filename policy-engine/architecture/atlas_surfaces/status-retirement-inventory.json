@@ -2,7 +2,7 @@
   "$schema": "./status-retirement-inventory.schema.json",
   "schema_version": "1.1",
   "inventory_id": "atlas-ds4-status-retirement",
-  "as_of": "2026-07-19T19:30:00+03:00",
+  "as_of": "2026-07-20T13:15:00+03:00",
   "authority": {
     "authoritative_for": [
       "DS1 status-definition retirement accounting and assigned successor ownership."
@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:d13967109acfc7d346911264c3ebf6d57b2ec3575d599b0b09354d9739088014"
+      "sha256": "sha256:1406c282aa3419b6aaf34daa4ff0558cd75414f7a6e6518b68b5b3fda21742c7"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -33,10 +33,10 @@
     "ds1_rows": 47,
     "ds1_named": 23,
     "ds1_inline": 24,
-    "current_named": 19,
+    "current_named": 17,
     "current_inline": 22,
-    "current_total": 41,
-    "retired_definitions": 5,
+    "current_total": 39,
+    "retired_definitions": 7,
     "already_deleted": 1
   },
   "entries": [
@@ -539,7 +539,7 @@
     {
       "unit_id": "status-dispute-run",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
         "start_line": 3,
@@ -955,8 +955,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
-        "start_line": 43,
-        "end_line": 43,
+        "start_line": 41,
+        "end_line": 41,
         "declaration_name": "VerificationStatus"
       },
       "literal_members": [],
@@ -990,21 +990,6 @@
         {
           "path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
           "line": 308,
-          "kind": "prop"
-        },
-        {
-          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
-          "line": 4,
-          "kind": "import"
-        },
-        {
-          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
-          "line": 11,
-          "kind": "prop"
-        },
-        {
-          "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
-          "line": 81,
           "kind": "prop"
         }
       ],
@@ -1070,7 +1055,7 @@
     {
       "unit_id": "status-dispute-trust-view",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
         "start_line": 7,

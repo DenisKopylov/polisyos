@@ -14,7 +14,6 @@ import type {
   QuantityUncertainty as RuntimeQuantityUncertainty,
   QuantityValueOutput as RuntimeQuantityValue,
   ScenarioRef as RuntimeScenarioRef,
-  VerificationMetadata as RuntimeVerificationMetadata,
   polisyos__core__contracts__runtime__TemporalRef as RuntimeTemporalRef,
   polisyos__core__contracts__runtime__UnitRef as RuntimeUnitRef,
 } from "@polisyos/runtime-api-client";
@@ -36,7 +35,6 @@ export type QuantityValue = RuntimeQuantityValue;
 export type ScenarioRef = RuntimeScenarioRef;
 export type TemporalRef = RuntimeTemporalRef;
 export type UnitRef = RuntimeUnitRef;
-export type VerificationMetadata = RuntimeVerificationMetadata;
 
 export type LineageFreshness = LineageRef["freshness"];
 export type QuantityClass = QuantityValue["quantity_class"];

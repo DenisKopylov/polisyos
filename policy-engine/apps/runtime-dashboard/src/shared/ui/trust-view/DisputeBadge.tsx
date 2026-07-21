@@ -1,10 +1,10 @@
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
-import type { DisputeStatus } from "./trust-glyphs";
+import type { VerificationMetadata } from "./trust-glyphs";
 
 type DisputeBadgeProps = {
-  status: DisputeStatus;
+  status: VerificationMetadata["dispute_status"];
   className?: string;
 };
 

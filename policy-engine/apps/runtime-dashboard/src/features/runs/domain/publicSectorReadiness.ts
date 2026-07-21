@@ -996,7 +996,7 @@ export function buildPublicSectorReadinessSnapshot(input: {
     runId: input.runId,
   });
   const openDisputes = (input.disputes ?? []).filter(
-    (dispute) => dispute.status === "open",
+    (dispute) => dispute.status.label === "open",
   );
   const blocks = [
     ...(fairness.blocked && fairness.sentinel

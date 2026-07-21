@@ -1,13 +1,15 @@
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
-
-export type DisputeStatus = "open" | "under_review" | "resolved";
+import {
+  createInteractionState,
+  type InteractionState,
+} from "@/shared/lib/domain/statusOwnership";
 
 export type DisputeRecord = {
   actor: "governance" | "reviewer";
   basis: string;
   id: string;
   openedAt: string;
-  status: DisputeStatus;
+  status: InteractionState;
   target: string;
   title: string;
 };
@@ -27,7 +29,9 @@ export function issueToDispute(issue: GovernanceIssueView): DisputeRecord {
     basis: issue.passId ?? issue.code,
     id: `issue:${issue.code}`,
     openedAt,
-    status: issue.severity === "blocker" ? "open" : "under_review",
+    status: createDisputeStatus(
+      issue.severity === "blocker" ? "open" : "under_review",
+    ),
     target: issue.path ?? issue.passId ?? "decision",
     title: issue.message,
   };
@@ -37,22 +41,54 @@ export function disputeStorageKey(runId: string) {
   return `polisyos:atlas:disputes:${runId}`;
 }
 
-export function isDisputeRecord(value: unknown): value is DisputeRecord {
-  if (!value || typeof value !== "object") {
-    return false;
+export function createDisputeStatus(value: unknown): InteractionState {
+  const label =
+    typeof value === "string"
+      ? value
+      : typeof value === "object" &&
+          value !== null &&
+          "label" in value &&
+          typeof value.label === "string"
+        ? value.label
+        : null;
+  if (
+    label !== "open" &&
+    label !== "under_review" &&
+    label !== "resolved"
+  ) {
+    throw new TypeError("run dispute interaction state is unrecognized");
   }
-  const record = value as Partial<DisputeRecord>;
-  return (
+  return createInteractionState(label, "progress");
+}
+
+function parseDisputeRecord(value: unknown): DisputeRecord | null {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+  const record = value as Record<string, unknown>;
+  const structurallyValid =
     (record.actor === "governance" || record.actor === "reviewer") &&
     typeof record.basis === "string" &&
     typeof record.id === "string" &&
     typeof record.openedAt === "string" &&
-    (record.status === "open" ||
-      record.status === "under_review" ||
-      record.status === "resolved") &&
     typeof record.target === "string" &&
-    typeof record.title === "string"
-  );
+    typeof record.title === "string";
+  if (!structurallyValid) {
+    return null;
+  }
+  try {
+    return {
+      actor: record.actor as DisputeRecord["actor"],
+      basis: record.basis as string,
+      id: record.id as string,
+      openedAt: record.openedAt as string,
+      status: createDisputeStatus(record.status),
+      target: record.target as string,
+      title: record.title as string,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export function readStoredDisputes(runId: string): DisputeRecord[] {
@@ -67,7 +103,9 @@ export function readStoredDisputes(runId: string): DisputeRecord[] {
     }
     const parsed = JSON.parse(raw) as { disputes?: unknown };
     return Array.isArray(parsed.disputes)
-      ? parsed.disputes.filter(isDisputeRecord)
+      ? parsed.disputes
+          .map(parseDisputeRecord)
+          .filter((record): record is DisputeRecord => record !== null)
       : [];
   } catch {
     return [];
@@ -83,7 +121,10 @@ export function writeStoredDisputes(runId: string, disputes: DisputeRecord[]) {
     window.localStorage.setItem(
       disputeStorageKey(runId),
       JSON.stringify({
-        disputes,
+        disputes: disputes.map(({ status, ...dispute }) => ({
+          ...dispute,
+          status: status.label,
+        })),
         savedAt: new Date().toISOString(),
         version: 1,
       }),

@@ -1,7 +1,10 @@
-import { createContext, useContext } from "react";
+import {
+  createContext,
+  useContext,
+  type PropsWithChildren,
+} from "react";
 
-import type { TemporalRef } from "@/shared/ui/quantity";
-import type { VerificationMetadata } from "@/shared/ui/trust-view/trust-glyphs";
+import type { VerificationMetadata } from "./trust-glyphs";
 
 export type TrustViewMode = "off" | "compact" | "expanded";
 
@@ -18,11 +21,11 @@ export type TrustInspectorSubject = {
   label?: string | null;
   hash?: string | null;
   trustMetadata?: VerificationMetadata | null;
-  temporalScope?: TemporalRef | null;
+  temporalScope?: VerificationMetadata["temporal_scope"];
   summary?: string | null;
 };
 
-export type TrustViewContextValue = {
+export type TrustViewBridgeValue = {
   mode: TrustViewMode;
   density: "comfortable" | "compact" | "condensed";
   inspectorSubject: TrustInspectorSubject | null;
@@ -32,18 +35,27 @@ export type TrustViewContextValue = {
   closeInspector: () => void;
 };
 
-export const TrustViewContext = createContext<TrustViewContextValue | null>(
-  null,
-);
+const TrustViewBridgeContext = createContext<TrustViewBridgeValue | null>(null);
+
+export function TrustViewBridgeProvider({
+  children,
+  value,
+}: PropsWithChildren<{ value: TrustViewBridgeValue }>) {
+  return (
+    <TrustViewBridgeContext.Provider value={value}>
+      {children}
+    </TrustViewBridgeContext.Provider>
+  );
+}
 
 export function useTrustView() {
-  const context = useContext(TrustViewContext);
+  const context = useContext(TrustViewBridgeContext);
   if (!context) {
-    throw new Error("useTrustView must be used within TrustViewProvider");
+    throw new Error("useTrustView must be used within TrustViewBridgeProvider");
   }
   return context;
 }
 
 export function useMaybeTrustView() {
-  return useContext(TrustViewContext);
+  return useContext(TrustViewBridgeContext);
 }

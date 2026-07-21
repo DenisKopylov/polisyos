@@ -3,7 +3,8 @@ import type { ReactNode } from "react";
 import {
   useMaybeTrustView,
   type TrustInspectorSubject,
-} from "@/app/providers/useTrustView";
+  type TrustViewMode,
+} from "./TrustViewBridge";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
@@ -11,8 +12,7 @@ import { DisputeBadge } from "./DisputeBadge";
 import { HashChip } from "./HashChip";
 import { TemporalScopeChip } from "./TemporalScopeChip";
 import {
-  trustMetadataFromLineage,
-  trustToneFromMetadata,
+  hasVerificationOwnerContract,
   type VerificationMetadata,
 } from "./trust-glyphs";
 import { VerificationStatus } from "./VerificationStatus";
@@ -23,7 +23,7 @@ type TrustMetadataProps = {
   label?: string | null;
   subjectId: string;
   subjectKind?: "quantity" | "authored_text" | "artifact" | "lineage" | "chart";
-  mode?: "compact" | "expanded";
+  mode?: Exclude<TrustViewMode, "off">;
   className?: string;
 };
 
@@ -37,81 +37,85 @@ export function TrustMetadata({
   className,
 }: TrustMetadataProps) {
   const { t } = useI18n();
-  const resolved =
-    metadata ??
-    trustMetadataFromLineage({
-      freshness: "unknown",
-      hash,
-      status: "untraced",
-    });
-  const tone = trustToneFromMetadata(resolved);
+  const ownerMetadata = hasVerificationOwnerContract(metadata)
+    ? metadata
+    : null;
   const openInspectorPayload: TrustInspectorSubject = {
-    hash: resolved.hash ?? hash ?? undefined,
+    hash: ownerMetadata?.hash ?? hash ?? undefined,
     id: subjectId,
     kind: subjectKind,
     label,
-    trustMetadata: resolved,
+    trustMetadata: ownerMetadata,
   };
 
   if (mode === "compact") {
     return (
       <span className={cn("trust-metadata trust-metadata-compact", className)}>
         <TrustStatusButton subject={openInspectorPayload}>
-          <VerificationStatus tone={tone} showLabel={false} />
+          <VerificationStatus metadata={ownerMetadata} showLabel={false} />
         </TrustStatusButton>
         <HashChip
-          hash={resolved.hash ?? hash}
+          hash={ownerMetadata?.hash ?? hash}
           label={label}
           subjectId={subjectId}
           subjectKind={subjectKind}
-          trustMetadata={resolved}
+          trustMetadata={ownerMetadata}
         />
       </span>
     );
   }
 
   return (
-    <div className={cn("trust-metadata trust-metadata-expanded", className)}>
-      <div className="flex flex-wrap items-center gap-2">
+    <span
+      className={cn("trust-metadata trust-metadata-expanded", className)}
+      role="group"
+      aria-label={t("shared.ui.trustView.label")}
+    >
+      <span className="flex flex-wrap items-center gap-2">
         <TrustStatusButton subject={openInspectorPayload}>
-          <VerificationStatus tone={tone} />
+          <VerificationStatus metadata={ownerMetadata} />
         </TrustStatusButton>
-        <DisputeBadge status={resolved.dispute_status} />
+        {ownerMetadata ? (
+          <DisputeBadge status={ownerMetadata.dispute_status} />
+        ) : null}
         <HashChip
-          hash={resolved.hash ?? hash}
+          hash={ownerMetadata?.hash ?? hash}
           label={label}
           subjectId={subjectId}
           subjectKind={subjectKind}
-          trustMetadata={resolved}
+          trustMetadata={ownerMetadata}
         />
-      </div>
-      <dl className="grid gap-x-3 gap-y-1 text-[11px] sm:grid-cols-[max-content_minmax(0,1fr)]">
-        <dt className="text-muted-foreground">
-          {t("shared.ui.trustView.verifiedBy")}
-        </dt>
-        <dd className="min-w-0 truncate">
-          {resolved.verified_by ?? t("common.unknown")}
-        </dd>
-        <dt className="text-muted-foreground">
-          {t("shared.ui.trustView.verifiedAt")}
-        </dt>
-        <dd className="min-w-0 truncate">
-          {resolved.verified_at ?? t("common.unknown")}
-        </dd>
-        <dt className="text-muted-foreground">
-          {t("shared.ui.trustView.method")}
-        </dt>
-        <dd className="min-w-0 truncate">
-          {resolved.verification_method ?? t("common.unknown")}
-        </dd>
-        <dt className="text-muted-foreground">
+      </span>
+      <span className="grid gap-x-3 gap-y-1 text-[11px] sm:grid-cols-[max-content_minmax(0,1fr)]">
+        <TrustDetail
+          label={t("shared.ui.trustView.verifiedBy")}
+          value={ownerMetadata?.verified_by ?? t("common.unknown")}
+        />
+        <TrustDetail
+          label={t("shared.ui.trustView.verifiedAt")}
+          value={ownerMetadata?.verified_at ?? t("common.unknown")}
+        />
+        <TrustDetail
+          label={t("shared.ui.trustView.method")}
+          value={ownerMetadata?.verification_method ?? t("common.unknown")}
+        />
+        <span className="text-muted-foreground">
           {t("shared.ui.trustView.temporal")}
-        </dt>
-        <dd className="min-w-0">
-          <TemporalScopeChip scope={resolved.temporal_scope} />
-        </dd>
-      </dl>
-    </div>
+        </span>
+        <span className="min-w-0">
+          <TemporalScopeChip scope={ownerMetadata?.temporal_scope} />
+        </span>
+      </span>
+    </span>
+  );
+}
+
+function TrustDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <>
+      <span className="text-muted-foreground">{label}</span>
+      <span className="min-w-0 truncate">{value}</span>
+    </>
   );
 }
 

@@ -15,10 +15,9 @@ import {
   type QuantityValue,
   type TemporalRef,
 } from "@/shared/ui/quantity";
-import { TrustMetadata } from "@/shared/ui/trust-view";
+import { TrustMetadata, useMaybeTrustView } from "@/shared/ui/trust-view";
 
 import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
-import { useMaybeTrustView } from "./useTrustView";
 
 export function QuantityRuntimeProvider({ children }: PropsWithChildren) {
   const cursor = useMaybeTemporalCursor();

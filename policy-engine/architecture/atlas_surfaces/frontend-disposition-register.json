@@ -1701,12 +1701,20 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-trust-view-generated-verification-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+          "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewAuthority.test.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BaseBureaucraticRenderer.test.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-20",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C11 rebinds the living trust-view family to generated VerificationMetadata, presents missing or incomplete owner metadata as explicit unknown, keeps open producer labels opaque, and inverts the former shared-to-app provider dependency through a shared bridge. DS2 material remains projection guidance only."
     },
     {
       "unit_id": "ui-tokens",

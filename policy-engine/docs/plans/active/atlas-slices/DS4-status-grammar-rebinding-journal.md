@@ -1090,3 +1090,86 @@ prose as candidate and never as human reviewed`, first failed because model
 - Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
   frozen Russian locale, master plan, main, and other worktrees remain
   untouched. The generated client was consumed read-only.
+
+## 2026-07-21 — DS4-C11 trust-view authority
+
+### Red-first and authority boundary
+
+- The exact planned negative, `TrustViewAuthority.test.tsx > never renders
+  verified from missing or projection-only metadata`, first failed because a
+  partial object carrying only `verification_status: verified` was allowed to
+  dress as verified. The family now requires the generated
+  `VerificationMetadata` owner contract and presents missing or incomplete
+  metadata as explicit neutral `unknown`.
+- Independent mixed-field cases prove `under_review` remains disputed and
+  `stale` remains stale even when the producer's verification field says
+  `verified`. The generated fields stay independent; no weakest-field or
+  verdict owner is synthesized in the UI.
+- The structural import negative first reported nine exact shared-to-app
+  edges. A shared `TrustViewBridge` now owns only interaction context while the
+  app provider retains URL, storage, preference, and density orchestration.
+  The old app hook is deleted, and the AST closure rejects app, feature, API,
+  export, and dynamic-import dependencies across the family.
+- The run-dispute retirement case first proved that persisted string labels
+  were not wrapped as interaction state. Legacy storage is now parsed into a
+  branded `InteractionState`, serialized back as a transport string, and
+  classified consistently as interaction-only `progress`; its correction was
+  also exercised red-first (`transport` observed where `progress` was
+  required).
+
+### Implementation and disposition
+
+- `DisputeBadge`, `HashChip`, `TemporalScopeChip`, `TrustInspector`,
+  `TrustMetadata`, `TrustViewBadge`, `TrustViewToggle`, and
+  `VerificationStatus` remain in the living dashboard family. Exactly one
+  generated binding aliases `VerificationMetadata`; the former local dispute
+  union, trust tone union, synthetic lineage-to-verification adapter, and app
+  hook owner are removed.
+- `BaseBureaucraticRenderer` is the real consumer proof for C11. It no longer
+  mints verification method, verifier, timestamp, freshness, dispute, or
+  verification status from block authorship and lineage projections. Quantity
+  blocks render their producer-supplied `lineage.trust_metadata` once; other
+  blocks may show a hash without claiming authority. The associated test also
+  caught and closed duplicate trust markup and invalid block content nested in
+  a paragraph.
+- All eight living trust components now have co-located axe tests, so the a11y
+  census remains honestly red only for the inherited C12-owned
+  `OperatorDiagnosticPanel`. Expanded trust details use inline-safe markup and
+  a labelled group without suppressing the census.
+- `status-dispute-run` and `status-dispute-trust-view` are retired, moving the
+  current authored denominator `41 -> 39`. `status-verification` remains the
+  generated quantity-lineage indexed alias at its live source span. The
+  `ui-trust-view` register row is strangled to
+  `dashboard-trust-view-generated-verification-rebind`, with the generated
+  adapter, fail-closed negative, and bureaucratic consumer as evidence.
+- Only DS2 ledger material for the governance-gate and provenance map/graph
+  families was used. It remains projection guidance; the v15 archive was not
+  accessed and no second component owner was introduced.
+- Independent subagent review reported no concrete finding after checking the
+  generated binding, fail-closed/mixed-field behavior, shared dependency
+  inversion, focused consumer tests, status and architecture lifecycles,
+  corruption probes, diff hygiene, and the writable fence. Its explicitly
+  unrun full build/lint/Vitest receipts are supplied by the primary gate above.
+
+### Debt and verification receipt
+
+| Gate                                      | Result                                                                                                                                                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| quantity lint identities                  | held at terminal `0 / 0`; full dashboard ESLint completed with zero errors and zero warnings                                                                                                                  |
+| Vitest denominator                        | held at exact `4`; the exact comparator accepts only the three DS6 i18n identities and the C12 `OperatorDiagnosticPanel` census identity                                                                      |
+| architecture                              | exact `15 / 13 -> 6 / 5`; nine shared-to-app identities are content-bound as C11 resolutions, leaving five counterfactual edges and one app-barrel edge                                                        |
+| affected behavior and structural a11y     | PASS; 18 files / 30 tests cover authority, provider, trust interaction, real-consumer, dispute/readiness, architecture, and all eight axe cases; the progress-purpose correction was rerun in 2 files / 8 tests |
+| status retirement                         | PASS; 47 DS1 rows, 39 current definitions, classifications `24 interaction / 15 lattice / 8 removed`, 14 semantic exemptions, 7 retirement-debt rows, and 3 DS5 waist rows; corruption probes green           |
+| dashboard typecheck and production build  | PASS; app/node/tools projects, 3,875 modules, postbuild security, package Tailwind-source proof, and 103 PWA entries                                                                                           |
+| disposition and debt lifecycle governance | PASS; 261 roots, 8 censuses, 200 pending dispositions, 23 seeded negatives, 26 debt-lifecycle tests, source-byte verification, exact architecture/Vitest comparators, report parity, and corruption probes    |
+
+### Fence receipt
+
+- C11 changes are confined to the dashboard trust-view family, its app
+  provider adapter, existing trust consumers, owned
+  `architecture/atlas_surfaces/**`, the generated DS19 reference report, and
+  this journal. `packages/atlas-ui`, dependency versions, and the lockfile are
+  unchanged.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client was consumed read-only.

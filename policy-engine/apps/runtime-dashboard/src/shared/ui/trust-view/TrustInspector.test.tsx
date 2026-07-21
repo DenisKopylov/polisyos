@@ -1,12 +1,36 @@
+import { useState, type PropsWithChildren } from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { TrustViewProvider } from "@/app/providers/TrustViewProvider";
-import { useTrustView } from "@/app/providers/useTrustView";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
 import { TrustInspector } from "./TrustInspector";
+import {
+  TrustViewBridgeProvider,
+  useTrustView,
+  type TrustInspectorSubject,
+} from "./TrustViewBridge";
+
+function TestTrustViewProvider({ children }: PropsWithChildren) {
+  const [inspectorSubject, setInspectorSubject] =
+    useState<TrustInspectorSubject | null>(null);
+  return (
+    <TrustViewBridgeProvider
+      value={{
+        closeInspector: () => setInspectorSubject(null),
+        cycleMode: () => undefined,
+        density: "comfortable",
+        inspectorSubject,
+        mode: "compact",
+        openInspector: setInspectorSubject,
+        setMode: () => undefined,
+      }}
+    >
+      {children}
+    </TrustViewBridgeProvider>
+  );
+}
 
 function OpenInspectorButton() {
   const { openInspector } = useTrustView();
@@ -54,10 +78,10 @@ describe("TrustInspector", () => {
 
     render(
       <LocaleProvider>
-        <TrustViewProvider>
+        <TestTrustViewProvider>
           <OpenInspectorButton />
           <TrustInspector />
-        </TrustViewProvider>
+        </TestTrustViewProvider>
       </LocaleProvider>,
     );
 

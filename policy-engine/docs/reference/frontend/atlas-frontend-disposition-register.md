@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **6883**
-- Application lines deleted: **8257**
-- Net application LOC reduction: **1374**
-- Application files deleted: **65**
+- Application lines added: **7287**
+- Application lines deleted: **8575**
+- Net application LOC reduction: **1288**
+- Application files deleted: **66**
 
 ## Wave-end full verification
 
@@ -312,7 +312,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `strangled` | `DS4` | `dashboard-quantity-generated-waist-rebind` |
 | `ui-responsive` | `ui-responsive` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-temporal` | `ui-temporal` | 1 | `rebind_pending` | `strangled` | `DS4` | `dashboard-temporal-generated-waist-rebind` |
-| `ui-trust-view` | `ui-trust-view` | 16 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-trust-view` | `ui-trust-view` | 16 | `rebind_pending` | `strangled` | `DS4` | `dashboard-trust-view-generated-verification-rebind` |
 | `ui-tokens` | `ui-tokens` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `api-op-analyze-attractors` | `api-op-analyze-attractors` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
 | `api-op-persist-basin-map` | `api-op-persist-basin-map` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
@@ -514,6 +514,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `c4e1b97e3 refactor(dashboard): rebind authored candidate posture`
 - `9c45a240e fix(dashboard): rebind temporal semantics and cursor`
 - `0ef16da1b fix(dashboard): classify nondecision numeric layout values`
 - `07ed51c81 refactor(dashboard): preserve chart quantity semantics`

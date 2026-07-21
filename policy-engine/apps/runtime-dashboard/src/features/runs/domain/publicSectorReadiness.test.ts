@@ -2,7 +2,7 @@ import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 
-import type { DisputeRecord } from "./disputes";
+import { createDisputeStatus, type DisputeRecord } from "./disputes";
 import {
   acknowledgeReviewSection,
   buildPublicSectorReadinessSnapshot,
@@ -131,7 +131,7 @@ describe("public sector readiness domain", () => {
       basis: "legal",
       id: "local:run-34:objection",
       openedAt: "2026-04-01T12:00:00.000Z",
-      status: "open",
+      status: createDisputeStatus("open"),
       target: "decision",
       title: "Unresolved appeal",
     };

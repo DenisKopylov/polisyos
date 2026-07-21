@@ -23,14 +23,6 @@ describe("shared/ui accessibility coverage", () => {
       "temporal/TemporalCursorMarker.tsx",
       "temporal/TemporalLegend.tsx",
       "temporal/withTemporalCursor.tsx",
-      "trust-view/DisputeBadge.tsx",
-      "trust-view/HashChip.tsx",
-      "trust-view/TemporalScopeChip.tsx",
-      "trust-view/TrustInspector.tsx",
-      "trust-view/TrustMetadata.tsx",
-      "trust-view/TrustViewBadge.tsx",
-      "trust-view/TrustViewToggle.tsx",
-      "trust-view/VerificationStatus.tsx",
     ]);
 
     function collectComponentFiles(currentDirectory: string, prefix = "") {

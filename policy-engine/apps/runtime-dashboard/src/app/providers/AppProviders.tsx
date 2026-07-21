@@ -12,7 +12,6 @@ import { TelemetryProvider } from "../../app/providers/TelemetryProvider";
 import { CounterfactualProvider } from "../../app/providers/CounterfactualProvider";
 import { TemporalCursorProvider } from "../../app/providers/TemporalCursorProvider";
 import { TrustViewProvider } from "../../app/providers/TrustViewProvider";
-import { useMaybeTrustView } from "../../app/providers/useTrustView";
 import { QuantityRuntimeProvider } from "../../app/providers/QuantityRuntimeProvider";
 import { DensityProvider } from "../../app/providers/DensityProvider";
 import { ThemeProvider } from "../../app/providers/ThemeProvider";
@@ -30,6 +29,7 @@ import {
   AuthorshipProvider,
   type AuthorshipHighlightMode,
 } from "@/shared/ui/authored-text";
+import { useMaybeTrustView } from "@/shared/ui/trust-view";
 
 function PersistentAuthorshipProvider({ children }: PropsWithChildren) {
   const trustView = useMaybeTrustView();

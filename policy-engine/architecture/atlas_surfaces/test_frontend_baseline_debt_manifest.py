@@ -448,9 +448,9 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         architecture = manifest["architecture"]
 
         self.assertEqual(architecture["immutable_origin"]["violation_count"], 36)
-        self.assertEqual(architecture["violation_count"], 15)
-        self.assertEqual(architecture["source_file_count"], 13)
-        self.assertEqual(len(architecture["resolutions"]), 21)
+        self.assertEqual(architecture["violation_count"], 6)
+        self.assertEqual(architecture["source_file_count"], 5)
+        self.assertEqual(len(architecture["resolutions"]), 30)
         self.assertEqual(
             sum(
                 resolution["cluster_id"] == "C09"
@@ -471,6 +471,36 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         self.assertEqual(
             c10_resolutions[0]["closure_test_ref"],
             "apps/runtime-dashboard/src/shared/ui/authored-text/authoredTextArchitecture.test.ts",
+        )
+        c11_resolutions = [
+            resolution
+            for resolution in architecture["resolutions"]
+            if resolution["cluster_id"] == "C11"
+        ]
+        self.assertEqual(len(c11_resolutions), 9)
+        self.assertEqual(
+            {
+                "apps/runtime-dashboard/src/shared/charts/UncertaintyDisplay.tsx",
+                "apps/runtime-dashboard/src/shared/charts/uncertainty-rendering.ts",
+                "apps/runtime-dashboard/src/shared/ui/trust-view/HashChip.tsx",
+                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.test.tsx",
+                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.test.tsx",
+                "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewToggle.tsx",
+            },
+            {
+                resolution["origin_identity"]["source_path"]
+                for resolution in c11_resolutions
+            },
+        )
+        self.assertTrue(
+            all(
+                resolution["classification"] == "shared_dependency_inverted"
+                and resolution["closure_test_ref"]
+                == "apps/runtime-dashboard/src/shared/ui/trust-view/trustViewArchitecture.test.ts"
+                for resolution in c11_resolutions
+            )
         )
         self.assertEqual(checker.validate_baseline_manifest(manifest), [])
 

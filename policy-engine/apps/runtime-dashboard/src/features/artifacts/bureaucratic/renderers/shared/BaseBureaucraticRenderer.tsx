@@ -2,11 +2,7 @@ import type { ReactNode } from "react";
 
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 import { Quantity } from "@/shared/ui/quantity";
-import { useMaybeTrustView } from "@/app/providers/useTrustView";
-import {
-  TrustMetadata,
-  type VerificationMetadata,
-} from "@/shared/ui/trust-view";
+import { TrustMetadata, useMaybeTrustView } from "@/shared/ui/trust-view";
 
 import type {
   BureaucraticBlock,
@@ -68,7 +64,10 @@ export function BureaucraticBlockView({ block }: { block: BureaucraticBlock }) {
       : trustView?.mode === "compact"
         ? "compact"
         : "off";
-  const metadata = buildBlockTrustMetadata(block);
+  const metadata = block.quantity?.lineage.trust_metadata ?? null;
+  const sourceHash =
+    block.raw_source_refs?.find((ref) => ref.startsWith("sha256:")) ?? null;
+  const hash = metadata?.hash ?? block.quantity?.lineage.hash ?? sourceHash;
   const heading = block.title ? (
     <Heading level={block.level + 1}>
       <BureaucraticNumbering number={block.number} />
@@ -103,9 +102,9 @@ export function BureaucraticBlockView({ block }: { block: BureaucraticBlock }) {
             .join(" | ")}
         </p>
       ) : null}
-      {trustMode !== "off" ? (
+      {trustMode !== "off" && !block.quantity ? (
         <TrustMetadata
-          hash={metadata.hash}
+          hash={hash}
           label={block.title ?? block.id}
           metadata={metadata}
           mode={trustMode}
@@ -118,48 +117,6 @@ export function BureaucraticBlockView({ block }: { block: BureaucraticBlock }) {
       ))}
     </section>
   );
-}
-
-function buildBlockTrustMetadata(
-  block: BureaucraticBlock,
-): VerificationMetadata {
-  if (block.quantity) {
-    return {
-      dispute_status:
-        block.quantity.lineage.status === "disputed" ? "disputed" : "none",
-      freshness: block.quantity.lineage.freshness,
-      hash: block.quantity.lineage.hash ?? null,
-      temporal_scope: block.quantity.time ?? null,
-      verification_method:
-        block.quantity.lineage.status === "untraced"
-          ? "lineage_id_resolution"
-          : "lineage_hash_match",
-      verification_status: block.quantity.lineage.status,
-      verified_at: block.authorship.timestamp ?? null,
-      verified_by:
-        block.quantity.lineage.status === "untraced"
-          ? null
-          : "PolicyOSLineageVerifier@1.0",
-    };
-  }
-  const sourceHash =
-    block.raw_source_refs?.find((ref) => ref.startsWith("sha256:")) ?? null;
-  return {
-    dispute_status: "none",
-    freshness: "current",
-    hash: sourceHash,
-    temporal_scope: block.authorship.timestamp
-      ? { valid_at: block.authorship.timestamp }
-      : null,
-    verification_method:
-      block.raw_source_refs?.length || block.provenance?.length
-        ? "block_provenance_summary"
-        : "block_authorship_registry",
-    verification_status:
-      sourceHash || block.provenance?.length ? "pending" : "untraced",
-    verified_at: block.authorship.timestamp ?? null,
-    verified_by: block.authorship.agent_version ?? block.authorship.author,
-  };
 }
 
 function Heading({ children, level }: { children: ReactNode; level: number }) {

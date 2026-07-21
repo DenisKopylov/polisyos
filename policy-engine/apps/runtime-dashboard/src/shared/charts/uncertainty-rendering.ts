@@ -1,4 +1,4 @@
-import type { TrustViewMode } from "@/app/providers/useTrustView";
+import type { TrustViewMode } from "@/shared/ui/trust-view";
 
 export function shouldRenderUncertaintyMethodLabel({
   focused = false,

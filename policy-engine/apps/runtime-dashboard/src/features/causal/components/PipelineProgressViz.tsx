@@ -5,7 +5,7 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { Card } from "@polisyos/atlas-ui";
 import { AnimatedProgress } from "@/shared/charts";
 
-import type { PipelineStage, PipelineStageStatus } from "../types";
+import type { PipelineStage } from "../types";
 
 type PipelineProgressVizProps = {
   stages: PipelineStage[];
@@ -14,7 +14,7 @@ type PipelineProgressVizProps = {
 };
 
 const STATUS_CONFIG: Record<
-  PipelineStageStatus,
+  string,
   { color: string; icon: string; bgClass: string }
 > = {
   pending: {
@@ -42,6 +42,12 @@ const STATUS_CONFIG: Record<
     icon: "\u2014",
     bgClass: "bg-[var(--chart-neutral)]/5",
   },
+};
+
+const UNKNOWN_STATUS_CONFIG = {
+  color: "var(--chart-neutral)",
+  icon: "?",
+  bgClass: "bg-[var(--chart-neutral)]/5",
 };
 
 function formatDuration(ms: number): string {
@@ -92,8 +98,12 @@ export function PipelineProgressViz({
     return depth;
   }, [stages]);
 
-  const completedCount = stages.filter((s) => s.status === "completed").length;
-  const failedCount = stages.filter((s) => s.status === "failed").length;
+  const completedCount = stages.filter(
+    (stage) => stage.status.label === "completed",
+  ).length;
+  const failedCount = stages.filter(
+    (stage) => stage.status.label === "failed",
+  ).length;
   const progressPct =
     stages.length > 0 ? Math.round((completedCount / stages.length) * 100) : 0;
 
@@ -145,7 +155,8 @@ export function PipelineProgressViz({
         {columns.map(([depth, col]) => (
           <div key={depth} className="flex shrink-0 flex-col gap-2">
             {col.map((stage) => {
-              const config = STATUS_CONFIG[stage.status];
+              const config =
+                STATUS_CONFIG[stage.status.label] ?? UNKNOWN_STATUS_CONFIG;
               return (
                 <div
                   key={stage.id}
@@ -171,7 +182,7 @@ export function PipelineProgressViz({
                       className="capitalize"
                       style={{ color: config.color }}
                     >
-                      {stage.status}
+                      {stage.status.label}
                     </span>
                     {stage.durationMs != null && (
                       <span className="text-muted">

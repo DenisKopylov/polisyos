@@ -232,29 +232,36 @@ vi.mock("@/features/runs/components/WorkflowDagPanel", () => ({
   ),
 }));
 
-vi.mock("@/features/causal", () => ({
-  AdjustmentSetHighlight: () => <div data-testid="adjustment-set-highlight" />,
-  CausalGraphCanvas: ({
-    edges,
-    highlightedPath,
-    nodes,
-  }: {
-    edges: unknown[];
-    highlightedPath?: string[];
-    nodes: unknown[];
-  }) => (
-    <div data-testid="causal-graph-canvas">
-      {nodes.length}:{edges.length}:{highlightedPath?.length ?? 0}
-    </div>
-  ),
-  EdgeDetailPanel: () => <div data-testid="edge-detail-panel" />,
-  IdentificationOverlay: () => <div data-testid="identification-overlay" />,
-  NodeDetailPanel: () => <div data-testid="node-detail-panel" />,
-  PathAnalysisPanel: ({ paths }: { paths: unknown[] }) => (
-    <div data-testid="path-analysis-panel">{paths.length}</div>
-  ),
-  TransportOverlay: () => <div data-testid="transport-overlay" />,
-}));
+vi.mock("@/features/causal", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/features/causal")>();
+
+  return {
+    ...actual,
+    AdjustmentSetHighlight: () => (
+      <div data-testid="adjustment-set-highlight" />
+    ),
+    CausalGraphCanvas: ({
+      edges,
+      highlightedPath,
+      nodes,
+    }: {
+      edges: unknown[];
+      highlightedPath?: string[];
+      nodes: unknown[];
+    }) => (
+      <div data-testid="causal-graph-canvas">
+        {nodes.length}:{edges.length}:{highlightedPath?.length ?? 0}
+      </div>
+    ),
+    EdgeDetailPanel: () => <div data-testid="edge-detail-panel" />,
+    IdentificationOverlay: () => <div data-testid="identification-overlay" />,
+    NodeDetailPanel: () => <div data-testid="node-detail-panel" />,
+    PathAnalysisPanel: ({ paths }: { paths: unknown[] }) => (
+      <div data-testid="path-analysis-panel">{paths.length}</div>
+    ),
+    TransportOverlay: () => <div data-testid="transport-overlay" />,
+  };
+});
 
 vi.mock("@/shared/ui/LineageGraph", () => ({
   default: ({ nodes }: { nodes: unknown[] }) => (

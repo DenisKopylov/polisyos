@@ -6,6 +6,9 @@ import {
   resolveUncertaintyPaletteColor,
   uncertaintyTokens,
 } from "@/shared/charts/uncertainty-tokens";
+import type { IdentifiabilityState } from "@/shared/charts/types";
+import type { QuantityUncertainty } from "@polisyos/runtime-api-client";
+import { expectTypeOf } from "vitest";
 
 describe("uncertainty tokens", () => {
   it("returns palette colors for normal and disputed states", () => {
@@ -39,8 +42,13 @@ describe("uncertainty tokens", () => {
   });
 
   it("resolves identifiability patterns", () => {
+    expectTypeOf<IdentifiabilityState>().toEqualTypeOf<
+      QuantityUncertainty["identifiability"]
+    >();
     expect(resolveIdentifiabilityPattern("identified")).toBe("none");
     expect(resolveIdentifiabilityPattern("estimated")).toBe("diagonal-lines");
     expect(resolveIdentifiabilityPattern("assumed")).toBe("dots");
+    expect(resolveIdentifiabilityPattern("unknown")).toBe("crosshatch");
+    expect(resolveIdentifiabilityPattern()).toBe("crosshatch");
   });
 });

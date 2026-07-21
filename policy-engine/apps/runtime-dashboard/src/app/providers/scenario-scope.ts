@@ -1,7 +1,9 @@
-export type CounterfactualMode =
-  | "actual"
-  | "actual_vs_scenario"
-  | "scenario_only";
+import {
+  normalizeCounterfactualMode,
+  type CounterfactualMode,
+} from "@/shared/ui/counterfactual/CounterfactualInteractionBridge";
+
+export type { CounterfactualMode };
 
 export type ScenarioScope = {
   scenarioId?: string | null;
@@ -14,19 +16,8 @@ export type ScenarioScopeKey = {
 };
 
 const DEFAULT_MODE: CounterfactualMode = "actual";
-const MODES = new Set<CounterfactualMode>([
-  "actual",
-  "actual_vs_scenario",
-  "scenario_only",
-]);
 
-export function normalizeCounterfactualMode(
-  value: string | null | undefined,
-): CounterfactualMode {
-  return MODES.has(value as CounterfactualMode)
-    ? (value as CounterfactualMode)
-    : DEFAULT_MODE;
-}
+export { normalizeCounterfactualMode };
 
 export function normalizeScenarioScope(
   scope: ScenarioScope | null | undefined,

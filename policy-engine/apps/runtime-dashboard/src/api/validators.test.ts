@@ -8,6 +8,31 @@ type ProjectionFixture = Record<string, unknown> & {
   audience?: components["schemas"]["PolicyDesignCaseProjection"]["audience"];
 };
 
+function projectionAuthorityCore(canCloseout: boolean) {
+  return {
+    authority_role: "projection_only" as const,
+    closeout_truth: {
+      blocker_codes: [],
+      blockers: [],
+      can_closeout: canCloseout,
+      contested_state: "not_contested",
+      limitation_codes: [],
+      omission_codes: [],
+      status: canCloseout ? "ready" : "blocked",
+      verdict: canCloseout ? "can_closeout" : "cannot_closeout",
+    },
+    evidence_class: "runtime_projection",
+    generated_at: "2026-05-19T10:00:00.000Z",
+    primary_state: canCloseout ? "publishable" : "projection_only",
+    projection_policy: "reads_policy_design_case_only" as const,
+    provenance_kind: "runtime_projection" as const,
+    states: canCloseout
+      ? ["projection_only", "publishable"]
+      : ["projection_only"],
+    surface: "runtime_dashboard",
+  };
+}
+
 const projectionMaskingCases = [
   {
     caseId: "missing",
@@ -48,8 +73,8 @@ const projectionMaskingCases = [
 
 function runDetailsPayload(label: string) {
   const policyDesignCaseProjection: ProjectionFixture = {
+    ...projectionAuthorityCore(false),
     audience: "public",
-    authority_role: "projection_only",
     labels: [
       {
         authority_role: "projection_only",
@@ -58,9 +83,6 @@ function runDetailsPayload(label: string) {
       },
     ],
     may_not_be_used_for: ["scorecard_authority"],
-    primary_state: "projection_only",
-    projection_policy: "reads_policy_design_case_only",
-    states: ["projection_only"],
   };
 
   return {
@@ -141,8 +163,8 @@ describe("runtime API validators", () => {
   });
 
   it.each(projectionMaskingCases)(
-    "fails closed at the API boundary when projection labels mask $caseId evidence",
-    ({ code, label }) => {
+    "preserves producer projection state when labels contain $caseId evidence text",
+    ({ label }) => {
       const parsed = runDetailsSchema.parse(runDetailsPayload(label));
       const projection = parsed.run.policy_design_case_projection as Record<
         string,
@@ -151,24 +173,18 @@ describe("runtime API validators", () => {
       const diagnosticLabel =
         parsed.run.operator_diagnostic?.projection_labels?.[0];
 
-      expect(projection.primary_state).toBe("blocked");
-      expect(projection.states).toEqual(["projection_only", "blocked"]);
-      expect(projection.fail_closed_codes).toContain(code);
-      expect(projection.may_not_be_used_for).toEqual(
-        expect.arrayContaining([
-          "runtime_closeout_authority",
-          "scorecard_authority",
-        ]),
-      );
+      expect(projection.primary_state).toBe("projection_only");
+      expect(projection.states).toEqual(["projection_only"]);
+      expect(projection).not.toHaveProperty("fail_closed_codes");
       expect(diagnosticLabel).toMatchObject({
         authority: "projection_only",
-        label: "blocked projection",
-        state: "blocked",
+        label,
+        state: "projection_only",
       });
     },
   );
 
-  it("fails closed when dashboard projection closeout truth is missing", () => {
+  it("rejects a projection when generated closeout truth is missing", () => {
     const payload = runDetailsPayload("publishable");
     payload.run.policy_design_case_projection = {
       audience: "public",
@@ -191,44 +207,14 @@ describe("runtime API validators", () => {
       states: ["publishable", "projection_only"],
     };
 
-    const parsed = runDetailsSchema.parse(payload);
-    const projection = parsed.run.policy_design_case_projection as Record<
-      string,
-      unknown
-    >;
-
-    expect(projection.primary_state).toBe("blocked");
-    expect(projection.fail_closed_codes).toContain(
-      "projection_closeout_truth_missing",
-    );
-    expect(projection.closeout_truth).toMatchObject({
-      can_closeout: false,
-      status: "blocked",
-      verdict: "cannot_closeout",
-    });
-    expect(projection.may_not_be_used_for).toEqual(
-      expect.arrayContaining([
-        "runtime_closeout_authority",
-        "scorecard_authority",
-      ]),
-    );
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
   });
 
-  it("fails closed when participation projection launders speculative prevalence", () => {
+  it("does not replace producer closeout truth from participation label text", () => {
     const payload = runDetailsPayload("projection only");
     payload.run.policy_design_case_projection = {
+      ...projectionAuthorityCore(true),
       audience: "public",
-      authority_role: "projection_only",
-      closeout_truth: {
-        blocker_codes: [],
-        blockers: [],
-        can_closeout: true,
-        contested_state: "not_contested",
-        limitation_codes: [],
-        omission_codes: [],
-        status: "ready",
-        verdict: "can_closeout",
-      },
       labels: [
         {
           authority_role: "projection_only",
@@ -247,9 +233,6 @@ describe("runtime API validators", () => {
           public_projection_effect: "supports_claim",
         },
       ],
-      primary_state: "projection_only",
-      projection_policy: "reads_policy_design_case_only",
-      states: ["projection_only"],
     };
 
     const parsed = runDetailsSchema.parse(payload);
@@ -258,17 +241,13 @@ describe("runtime API validators", () => {
       unknown
     >;
 
-    expect(projection.primary_state).toBe("blocked");
-    expect(projection.fail_closed_codes).toContain(
-      "participation_projection_authority_leak",
-    );
-    expect(projection.may_not_be_used_for).toEqual(
-      expect.arrayContaining([
-        "participation_authority",
-        "runtime_closeout_authority",
-        "scorecard_authority",
-      ]),
-    );
+    expect(projection.closeout_truth).toMatchObject({
+      can_closeout: true,
+      status: "ready",
+      verdict: "can_closeout",
+    });
+    expect(projection.primary_state).toBe("publishable");
+    expect(projection).not.toHaveProperty("fail_closed_codes");
   });
 });
 

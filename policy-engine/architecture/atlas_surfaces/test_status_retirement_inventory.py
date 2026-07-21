@@ -259,6 +259,19 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             errors,
         )
 
+    def test_summary_counts_only_live_semantic_retirement_debt(self) -> None:
+        inventory, debt = _artifacts()
+        expected = sum(
+            row["disposition"] == "retirement_debt"
+            and row["current_definition_state"] == "present"
+            for row in inventory["semantic_exemptions"]
+        )
+
+        self.assertEqual(
+            expected,
+            checker._summary(inventory, debt)["semantic_retirement_debt"],
+        )
+
 
 if __name__ == "__main__":  # pragma: no cover
     unittest.main()

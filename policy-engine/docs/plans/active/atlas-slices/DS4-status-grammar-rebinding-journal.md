@@ -1245,3 +1245,78 @@ prose as candidate and never as human reviewed`, first failed because model
   frozen Russian locale, master plan, main, and other worktrees remain
   untouched. The generated client was consumed read-only, and no full
   `designTokens.ts` sunset is claimed.
+
+## 2026-07-22 — DS4-C13 counterfactual and projection authority
+
+### Red-first and authority boundary
+
+- The four planned PI-06 negatives first exposed local authority synthesis in
+  causal drafts, scenario validation, composer readiness, and projection
+  closeout. `CausalTab`, `ScenarioValidationPanel`, and `LaunchRunPage` now
+  preserve producer absence instead of promoting local structure; the
+  projection adapter rejects a missing generated closeout truth and otherwise
+  passes the generated value through unchanged.
+- Counterfactual controls consume generated scenario, assumption, and metric
+  contracts. The shared family now reaches app orchestration through an
+  interaction-only bridge, closing all five shared-to-app edges without moving
+  URL, storage, or provider authority into the shared tree.
+- Null counterfactual points remain unknown rather than becoming zero. Missing
+  causal decomposition and data-availability fields render explicit unknown
+  postures, and candidate graph sanitization strips effect, interval,
+  methodology, evidence, adjustment-set, and free-form payload claims before a
+  local draft reaches an identified-effect surface.
+- Independent review found two additional inventory-assigned C13 debts. The
+  chart family now aliases generated `QuantityUncertainty.identifiability`, and
+  scientific depth consumes producer identifiability and method values without
+  warning-, bound-, or label-based inference. Its former weakest-rank and
+  invented-method recomputations are deleted.
+
+### Implementation and disposition
+
+- `AssumptionPill`, `CounterfactualBadge`, `CounterfactualMetricChart`,
+  `CounterfactualModeSwitch`, `ScenarioManifestPanel`, and `ScenarioPicker`
+  are rebound in place. `CounterfactualDelta`, `DualInput`, `DualSelector`, and
+  `DualSlider` remain `use_as_is`; the null-delta repair preserves an unknown
+  value without adopting the rejected point-centric v15 model.
+- The counterfactual aggregate and five semantic rows transition in the DS19
+  register: causal edge identification, causal pipeline stage, inline
+  counterfactual status, projection fail-closed, and the family aggregate.
+  The retirement denominator moves `36 -> 33` current definitions (`13` named,
+  `20` inline), with `13` retired rows and the three DS5 waist debts unchanged.
+- Generated terminal and evidence extensions remain opaque. Private exhaustive
+  membership checks protect interaction presentation only; no value-level
+  authority vocabulary is exported.
+- The real consumer tests prove a generated projection identity round-trip and
+  a sanitized causal draft. The counterfactual bridge additionally rejects
+  prototype labels such as `toString`, and manifest timestamps that are absent
+  or invalid render unknown rather than “latest.”
+
+### W3 verification receipt
+
+| Gate                                      | Result                                                                                                                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| quantity lint identities                  | held at terminal `0 / 0`; full dashboard ESLint is green with zero errors and zero warnings                                                                                                            |
+| Vitest denominator                        | held at exact `3`; 797 tests, 794 pass, with only the three DS6 `panels.agentPipeline.overBudget` i18n parity identities; exact failed-test comparator PASS                                             |
+| architecture                              | exact `6 / 5 -> 1 / 1`; five counterfactual shared-to-app identities are content-bound as C13 resolutions, leaving only the C18-owned `app/workspaces.ts` barrel edge; exact comparator PASS             |
+| affected behavior and structural a11y     | PASS; focused counterfactual, projection, causal, and scientific-depth suites are green; the complete structural suite is 85 files / 86 tests green                                                     |
+| status retirement                         | PASS; 47 DS1 rows, 33 current definitions, classifications `24 interaction / 15 lattice / 8 removed`, 13 retired semantic rows, 3 live retirement debts, and 3 DS5 waist rows; corruption probes green |
+| dashboard typecheck and production build  | PASS; app/node/tools projects, 3,880 modules, postbuild security, package Tailwind-source proof, and 103 PWA entries                                                                                   |
+| package and lifecycle governance          | PASS; package typecheck, 14 files / 72 tests, lint, architecture, token schema/projection; register/report parity, source-byte validation, debt lifecycle, and corruption probes                       |
+| Playwright visual                         | suite executed in an isolated temporary Python environment; reproduced the C05 denominator exactly at 1 pass / 14 broad snapshot-or-route failures, so it remains an unmanifested baseline non-receipt |
+
+The committed Playwright server command still omits `pytest`, which its fixture
+helper imports. A temporary `uv sync --frozen --extra runtime-http --extra test`
+environment allowed the unchanged suite to execute without a repository or
+parallel-worktree edit. The same 14 identities were already recorded at C05;
+C13 does not refresh their baselines. C19 owns the harness and visual-negative
+work.
+
+### Fence receipt
+
+- C13 changes are confined to dashboard counterfactual, causal, projection,
+  scientific-depth, and uncertainty consumers; owned Atlas-surface artifacts;
+  the generated DS19 reference report; and this journal. Dependency manifests,
+  `packages/atlas-ui`, and the lockfile are unchanged.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client was consumed read-only.

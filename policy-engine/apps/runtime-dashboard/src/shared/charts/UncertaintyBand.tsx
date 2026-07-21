@@ -148,7 +148,7 @@ export function UncertaintyBand({
   asOfIndex,
   disputed = false,
   disputes = [],
-  identifiability = "identified",
+  identifiability = "unknown",
   className,
 }: UncertaintyBandProps) {
   const { t } = useI18n();

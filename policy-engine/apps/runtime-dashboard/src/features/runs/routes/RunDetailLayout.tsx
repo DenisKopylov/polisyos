@@ -21,6 +21,7 @@ import { getVisibleRunInspectorTabs } from "@/features/runs/domain/tabs";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScientificDepthPanel } from "@/features/runs/components/ScientificDepthPanel";
 import { getRunBadgeKind } from "@/features/runs/domain/status";
+import { metricIdentifiability } from "@/shared/lib/domain/decision";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
 import {
@@ -55,7 +56,7 @@ import {
   useAuthorship,
 } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
-import { UncertaintyBand, type IdentifiabilityState } from "@/shared/charts";
+import { UncertaintyBand } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 
 function badgeKind(kind: ReturnType<typeof getRunBadgeKind>) {
@@ -188,9 +189,7 @@ function RunInspectorContent() {
       ],
       disputed: Boolean(metric.assumptionWarnings?.length),
       estimate: metric.value,
-      identifiability: metric.assumptionWarnings?.length
-        ? ("estimated" as IdentifiabilityState)
-        : ("identified" as IdentifiabilityState),
+      identifiability: metricIdentifiability(metric),
       label: metric.name,
       level: metric.ciLevel ?? 0.95,
       unit: metric.unit,
@@ -730,9 +729,7 @@ function RunInspectorContent() {
                           unit={primaryUncertaintyMetric.unit}
                           disputed={primaryUncertaintyMetric.disputed}
                           identifiability={
-                            primaryUncertaintyMetric.identifiability as
-                              | IdentifiabilityState
-                              | undefined
+                            primaryUncertaintyMetric.identifiability
                           }
                           className="w-full"
                         />

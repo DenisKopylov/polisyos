@@ -189,7 +189,7 @@ export function ForestPlot({
             const intervalColor = resolveUncertaintyIntervalColor(palette);
             const gradientId = `${patternSeed.replace(/:/g, "")}-${estimate.id}-ci`;
             const patternKind = resolveIdentifiabilityPattern(
-              estimate.identifiability ?? "identified",
+              estimate.identifiability ?? "unknown",
             );
             const ciX = toX(estimate.ci.lower);
             const ciWidth = toX(estimate.ci.upper) - ciX;

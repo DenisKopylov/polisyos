@@ -1,3 +1,5 @@
+import type { QuantityUncertainty } from "@polisyos/runtime-api-client";
+
 import {
   asArray,
   asNumber,
@@ -15,6 +17,13 @@ import {
 export type DecisionVerdict = "APPROVE" | "REJECT" | "REVIEW";
 export type DecisionConfidence = "HIGH" | "MEDIUM" | "LOW";
 
+const METRIC_IDENTIFIABILITY_MEMBERS = {
+  assumed: true,
+  estimated: true,
+  identified: true,
+  unknown: true,
+} as const satisfies Record<QuantityUncertainty["identifiability"], true>;
+
 export type DecisionMetric = {
   name: string;
   value: number;
@@ -29,6 +38,8 @@ export type DecisionMetric = {
   significant?: boolean | null;
   testLabel?: string | null;
   effectSize?: number | null;
+  identifiability?: QuantityUncertainty["identifiability"];
+  uncertaintyMethod?: QuantityUncertainty["method"];
   assumptionWarnings?: string[];
 };
 
@@ -85,6 +96,12 @@ export type DecisionCardViewModel = {
   totalDurationMs: number;
   sourceKind: "decision_card" | "decision_packet";
 };
+
+export function metricIdentifiability(
+  metric: Pick<DecisionMetric, "identifiability">,
+): QuantityUncertainty["identifiability"] {
+  return metric.identifiability ?? "unknown";
+}
 
 function normalizeVerdict(value: string | null): DecisionVerdict {
   const normalized = (value ?? "").trim().toUpperCase();
@@ -189,6 +206,11 @@ function metricSignificanceFields(
     typeof value.significant === "boolean" ? value.significant : undefined;
   const testLabel = asString(value.test_label) ?? undefined;
   const effectSize = extractEffectSizePoint(value.effect_size);
+  const effectSizeEnvelope = asRecord(value.effect_size);
+  const identifiability = extractMetricIdentifiability(
+    effectSizeEnvelope?.identifiability,
+  );
+  const uncertaintyMethod = asString(effectSizeEnvelope?.method);
   return {
     ...(pValue !== null ? { pValue } : {}),
     ...(pAdj !== null ? { pAdj } : {}),
@@ -196,8 +218,20 @@ function metricSignificanceFields(
     ...(significant !== undefined ? { significant } : {}),
     ...(testLabel ? { testLabel } : {}),
     ...(effectSize !== null ? { effectSize } : {}),
+    ...(identifiability ? { identifiability } : {}),
+    ...(uncertaintyMethod ? { uncertaintyMethod } : {}),
     ...(warnings.length > 0 ? { assumptionWarnings: warnings } : {}),
   };
+}
+
+function extractMetricIdentifiability(
+  value: unknown,
+): QuantityUncertainty["identifiability"] | undefined {
+  const candidate = asString(value);
+  if (candidate && Object.hasOwn(METRIC_IDENTIFIABILITY_MEMBERS, candidate)) {
+    return candidate as QuantityUncertainty["identifiability"];
+  }
+  return undefined;
 }
 
 function extractEffectSizePoint(value: unknown): number | null {

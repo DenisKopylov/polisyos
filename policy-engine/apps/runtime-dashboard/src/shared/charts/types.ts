@@ -1,3 +1,5 @@
+import type { QuantityUncertainty } from "@polisyos/runtime-api-client";
+
 export type DataPoint = {
   label: string;
   value: number;
@@ -107,7 +109,7 @@ export type RadarSeries = {
 
 export type ConfidenceLevel = "high" | "medium" | "low";
 
-export type IdentifiabilityState = "identified" | "estimated" | "assumed";
+export type IdentifiabilityState = QuantityUncertainty["identifiability"];
 
 export function classifyConfidence(value: number): ConfidenceLevel {
   if (value >= 0.8) return "high";

@@ -7,8 +7,10 @@ import type {
 
 import type { components } from "./types";
 import {
+  isGeneratedProjectionAuthority,
   normalizeApiProjectionFailClosed,
   normalizeOperatorProjectionLabelFailClosed,
+  type GeneratedProjectionAuthority,
 } from "@/shared/lib/domain/projectionFailClosed";
 
 const apiMetaSchema = z.object({
@@ -117,7 +119,9 @@ const operatorProjectionStateLabelSchema = z
   .transform(normalizeOperatorProjectionLabelFailClosed);
 
 const policyDesignCaseProjectionSchema = z
-  .record(z.string(), z.unknown())
+  .custom<GeneratedProjectionAuthority>(isGeneratedProjectionAuthority, {
+    message: "Policy Design Case projection lacks generated authority fields",
+  })
   .transform(normalizeApiProjectionFailClosed);
 
 const operatorDiagnosticSchema = z.object({

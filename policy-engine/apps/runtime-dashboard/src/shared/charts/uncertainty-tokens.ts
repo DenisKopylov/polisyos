@@ -1,7 +1,11 @@
 import type { IdentifiabilityState } from "./types";
 
 export type UncertaintyPalette = "default" | "disputed";
-export type UncertaintyPatternKind = "none" | "diagonal-lines" | "dots";
+export type UncertaintyPatternKind =
+  | "none"
+  | "diagonal-lines"
+  | "dots"
+  | "crosshatch";
 
 export const uncertaintyTokens = {
   pointEstimate: "var(--color-uncertainty-point-estimate)",
@@ -19,6 +23,10 @@ export const uncertaintyTokens = {
   assumed: {
     fill: "transparent",
     pattern: "dots",
+  },
+  unknown: {
+    fill: "transparent",
+    pattern: "crosshatch",
   },
 } as const;
 
@@ -57,7 +65,7 @@ export function resolveUncertaintyBandOpacity(level: number) {
 }
 
 export function resolveIdentifiabilityPattern(
-  state: IdentifiabilityState = "identified",
+  state: IdentifiabilityState = "unknown",
 ): UncertaintyPatternKind {
   if (state === "estimated") {
     return uncertaintyTokens.estimated.pattern;
@@ -65,5 +73,8 @@ export function resolveIdentifiabilityPattern(
   if (state === "assumed") {
     return uncertaintyTokens.assumed.pattern;
   }
-  return uncertaintyTokens.identified.pattern;
+  if (state === "identified") {
+    return uncertaintyTokens.identified.pattern;
+  }
+  return uncertaintyTokens.unknown.pattern;
 }

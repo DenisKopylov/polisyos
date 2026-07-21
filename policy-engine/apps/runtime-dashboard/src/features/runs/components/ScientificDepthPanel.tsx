@@ -18,18 +18,20 @@ import {
 } from "@/shared/lib/utils";
 import { Badge, Button, Slider } from "@polisyos/atlas-ui";
 
-const IDENTIFIABILITY_STATES: IdentifiabilityState[] = [
-  "point",
-  "partial",
-  "set",
-  "not_identified",
-];
-
 function identifiabilityKind(state: IdentifiabilityState) {
-  if (state === "point") return "ok";
-  if (state === "partial") return "warn";
-  if (state === "set") return "warn";
-  return "fail";
+  if (state === "identified") return "ok";
+  if (state === "estimated") return "warn";
+  if (state === "assumed") return "warn";
+  if (state === "unknown") return "neutral";
+  return assertNeverIdentifiability(state);
+}
+
+function assertNeverIdentifiability(value: never): never {
+  throw new TypeError(`Unhandled generated identifiability member: ${value}`);
+}
+
+function identifiabilityLabel(state: IdentifiabilityState) {
+  return state.replaceAll("_", " ");
 }
 
 function stressKind(status: StressSceneStatus) {
@@ -66,7 +68,7 @@ function IdentifiabilityDetail({ cell }: { cell: IdentifiabilityCell }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <strong>{cell.label}</strong>
         <Badge kind={identifiabilityKind(cell.state)}>
-          {t(`phase33.identifiability.state.${cell.state}`)}
+          {identifiabilityLabel(cell.state)}
         </Badge>
       </div>
       <div className="mt-3 grid gap-2 text-sm md:grid-cols-3">
@@ -77,7 +79,7 @@ function IdentifiabilityDetail({ cell }: { cell: IdentifiabilityCell }) {
           <p className="font-mono">
             {t("phase33.identifiability.interval", {
               lower: formatBound(cell.bounds.lower, t("common.unavailable")),
-              method: t(`phase33.identifiability.method.${cell.bounds.method}`),
+              method: cell.bounds.method ?? t("common.unavailable"),
               upper: formatBound(cell.bounds.upper, t("common.unavailable")),
             })}
           </p>
@@ -100,7 +102,10 @@ function IdentifiabilityDetail({ cell }: { cell: IdentifiabilityCell }) {
           </p>
           <p>
             {t("phase33.identifiability.impactMeta", {
-              policies: formatNumber(cell.decisionImpact.policyRecommendations),
+              policies:
+                cell.decisionImpact.policyRecommendations === null
+                  ? t("common.unavailable")
+                  : formatNumber(cell.decisionImpact.policyRecommendations),
               quantities: formatNumber(cell.decisionImpact.quantities),
             })}
           </p>
@@ -183,12 +188,12 @@ export function ScientificDepthPanel({
     ],
   );
   const [selectedCellId, setSelectedCellId] = useState<string | null>(
-    snapshot.identifiability.weakestCellId,
+    snapshot.identifiability.initialCellId,
   );
   const selectedCell =
     snapshot.identifiability.cells.find(
       (cell) =>
-        cell.id === (selectedCellId ?? snapshot.identifiability.weakestCellId),
+        cell.id === (selectedCellId ?? snapshot.identifiability.initialCellId),
     ) ??
     snapshot.identifiability.cells[0] ??
     null;
@@ -217,24 +222,15 @@ export function ScientificDepthPanel({
               <p className="eyebrow">{t("phase33.identifiability.eyebrow")}</p>
               <h4>{t("phase33.identifiability.title")}</h4>
             </div>
-            <Badge kind="warn">
-              {t("phase33.identifiability.weakest", {
-                value:
-                  selectedCell?.label ??
-                  t("phase33.identifiability.emptyMetric"),
-              })}
-            </Badge>
           </div>
           <div
             className="mt-4 grid gap-2 md:grid-cols-4"
             data-testid="identifiability-summary"
           >
-            {IDENTIFIABILITY_STATES.map((state) => (
+            {snapshot.identifiability.summary.map(({ count, state }) => (
               <div key={state} className="compact-metric">
-                <span>{t(`phase33.identifiability.state.${state}`)}</span>
-                <strong>
-                  {formatNumber(snapshot.identifiability.summary[state])}
-                </strong>
+                <span>{identifiabilityLabel(state)}</span>
+                <strong>{formatNumber(count)}</strong>
               </div>
             ))}
           </div>
@@ -256,7 +252,7 @@ export function ScientificDepthPanel({
                     {cell.label}
                   </span>
                   <span className="text-muted mt-1 block text-xs">
-                    {t(`phase33.identifiability.state.${cell.state}`)}
+                    {identifiabilityLabel(cell.state)}
                   </span>
                 </span>
               </Button>

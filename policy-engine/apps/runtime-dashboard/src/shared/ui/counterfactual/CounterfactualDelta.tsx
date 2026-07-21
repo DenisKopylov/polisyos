@@ -17,8 +17,15 @@ export function CounterfactualDelta({
   className,
 }: CounterfactualDeltaProps) {
   const { t } = useI18n();
-  const point = value.point ?? 0;
-  const Icon = point > 0 ? TrendingUp : point < 0 ? TrendingDown : Minus;
+  const point = value.point;
+  const hasPoint = typeof point === "number" && Number.isFinite(point);
+  const Icon = hasPoint
+    ? point > 0
+      ? TrendingUp
+      : point < 0
+        ? TrendingDown
+        : Minus
+    : Minus;
   return (
     <span
       className={cn(
@@ -26,9 +33,13 @@ export function CounterfactualDelta({
         counterfactualTokens.delta.className,
         className,
       )}
-      aria-label={t("shared.ui.counterfactual.deltaAria", {
-        value: point,
-      })}
+      aria-label={
+        hasPoint
+          ? t("shared.ui.counterfactual.deltaAria", { value: point })
+          : undefined
+      }
+      data-counterfactual-value-state={hasPoint ? "scalar" : "unknown"}
+      data-testid="counterfactual-delta"
     >
       <Icon className="size-3.5" aria-hidden="true" />
       <Quantity value={value} variant="dense" provenanceMode="auto" />

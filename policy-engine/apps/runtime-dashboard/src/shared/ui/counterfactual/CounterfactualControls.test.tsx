@@ -1,54 +1,30 @@
-import type { ReactNode } from "react";
-import { render, screen } from "@testing-library/react";
+import { type ReactNode, useState } from "react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { CounterfactualProvider } from "@/app/providers/CounterfactualProvider";
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
-import type {
-  CounterfactualMetric,
-  QuantityValue,
-} from "@/shared/ui/quantity/quantity.types";
 
 import { CounterfactualMetricChart } from "./CounterfactualMetricChart";
+import {
+  CounterfactualInteractionBridgeProvider,
+  type CounterfactualMode,
+} from "./CounterfactualInteractionBridge";
 import { CounterfactualModeSwitch } from "./CounterfactualModeSwitch";
 import { ScenarioManifestPanel } from "./ScenarioManifestPanel";
 import { ScenarioPicker } from "./ScenarioPicker";
-import type { ScenarioListPayload } from "@/api/validators";
-
-const scenario = {
-  id: "scn_fixture",
-  baseline_run_id: "run_actual",
-  status: "computed",
-  policy_question: "What if policy cost is capped?",
-  author: "operator",
-  model_family: "runtime-counterfactual-linearized",
-  model_lineage: {
-    id: "scenario:scn_fixture:model",
-    status: "pending",
-    freshness: "current",
-    summary: { source: "scenario" },
-  },
-  interventions: [],
-  assumptions: [
-    {
-      id: "asm_1",
-      label: "No external shock",
-      status: "operator_assumption",
-      lineage: {
-        id: "scenario:scn_fixture:assumption",
-        status: "pending",
-        freshness: "current",
-        summary: { source: "operator" },
-      },
-    },
-  ],
-} satisfies NonNullable<ScenarioListPayload["scenarios"]>[number];
+import { counterfactualMetric, scenario } from "./counterfactualTestData";
 
 function Providers({ children }: { children: ReactNode }) {
+  const [mode, setMode] = useState<CounterfactualMode>("actual");
+  const [scenarioId, setScenarioId] = useState<string | null>(null);
   return (
     <LocaleProvider>
-      <CounterfactualProvider>{children}</CounterfactualProvider>
+      <CounterfactualInteractionBridgeProvider
+        value={{ mode, scenarioId, setMode, setScenarioId }}
+      >
+        {children}
+      </CounterfactualInteractionBridgeProvider>
     </LocaleProvider>
   );
 }
@@ -104,72 +80,69 @@ describe("counterfactual controls", () => {
     expect(screen.getByText("No external shock")).toBeInTheDocument();
     expect(screen.getAllByText(/95% CI/)).toHaveLength(3);
   });
+
+  it("shows only assumptions bound by the generated metric artifact", () => {
+    render(
+      <CounterfactualMetricChart
+        metric={counterfactualMetric}
+        assumptions={[
+          ...scenario.assumptions,
+          {
+            ...scenario.assumptions[0],
+            id: "asm_unbound",
+            label: "Unbound local assumption",
+          },
+        ]}
+      />,
+      { wrapper: Providers },
+    );
+
+    expect(screen.getByText("No external shock")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Unbound local assumption"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("keeps an absent metric point unknown instead of drawing a zero value", () => {
+    render(
+      <CounterfactualMetricChart
+        metric={{
+          ...counterfactualMetric,
+          actual: { ...counterfactualMetric.actual, point: null },
+        }}
+      />,
+      { wrapper: Providers },
+    );
+
+    expect(screen.getByTestId("counterfactual-bar-actual")).toHaveAttribute(
+      "data-counterfactual-value-state",
+      "unknown",
+    );
+    expect(screen.getByTestId("counterfactual-bar-actual")).not.toHaveAttribute(
+      "style",
+    );
+    expect(
+      within(screen.getByTestId("counterfactual-value-actual")).getByTestId(
+        "quantity",
+      ),
+    ).toHaveAttribute("data-quantity-presentation", "unknown");
+    expect(
+      screen.getByTestId("counterfactual-value-actual"),
+    ).not.toHaveTextContent("0");
+  });
+
+  it("gives every scenario picker its own label target", () => {
+    render(
+      <>
+        <ScenarioPicker scenarios={[scenario]} value="scn_fixture" />
+        <ScenarioPicker scenarios={[scenario]} value="scn_fixture" />
+      </>,
+      { wrapper: Providers },
+    );
+
+    const pickerIds = screen
+      .getAllByRole("combobox", { name: "Scenario" })
+      .map((picker) => picker.id);
+    expect(new Set(pickerIds).size).toBe(2);
+  });
 });
-
-const baseLineage = {
-  id: "lineage:employment",
-  status: "verified",
-  freshness: "current",
-  summary: { source: "test" },
-} as const;
-
-const actual: QuantityValue = {
-  point: 0.2,
-  unit: { code: "1", system: "ucum", display: "ratio" },
-  metric_id: "employment_rate_delta",
-  label: "Employment",
-  lineage: baseLineage,
-  uncertainty: {
-    ci_95: [0.16, 0.24],
-    method: "bootstrap",
-    identifiability: "estimated",
-    disputed: false,
-  },
-  time: { valid_at: "2026-04-15T12:00:00Z" },
-  quantity_class: "decision",
-};
-
-const scenarioQuantity: QuantityValue = {
-  ...actual,
-  point: 0.24,
-  lineage: {
-    id: "scenario:scn_fixture:projection",
-    status: "pending",
-    freshness: "current",
-    summary: { source: "scenario", assumptions: "asm_1" },
-  },
-  uncertainty: {
-    ci_95: [0.19, 0.29],
-    method: "simulation",
-    identifiability: "assumed",
-    disputed: false,
-  },
-  time: { ...actual.time, scenario_id: "scn_fixture" },
-};
-
-const counterfactualMetric: CounterfactualMetric = {
-  metric_id: "employment_rate_delta",
-  label: "Employment",
-  actual,
-  counterfactual: scenarioQuantity,
-  delta: {
-    ...scenarioQuantity,
-    point: 0.04,
-    metric_id: "employment_rate_delta.counterfactual_delta",
-    label: "Employment delta",
-    uncertainty: {
-      ci_95: [-0.01, 0.09],
-      method: "simulation",
-      identifiability: "assumed",
-      disputed: false,
-    },
-  },
-  scenario_ref: {
-    id: "scn_fixture",
-    status: "computed",
-    baseline_run_id: "run_actual",
-    lineage: scenarioQuantity.lineage,
-    assumption_ids: ["asm_1"],
-  },
-  assumption_ids: ["asm_1"],
-};

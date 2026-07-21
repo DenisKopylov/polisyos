@@ -10,6 +10,7 @@ import {
 } from "react";
 
 import { useMaybeTemporalCursor } from "@/shared/ui/temporal/TemporalRuntimeBridge";
+import { CounterfactualInteractionBridgeProvider } from "@/shared/ui/counterfactual/CounterfactualInteractionBridge";
 import {
   compareScenarioScopes,
   normalizeScenarioScope,
@@ -122,7 +123,9 @@ export function CounterfactualProvider({ children }: PropsWithChildren) {
 
   return (
     <CounterfactualContext.Provider value={value}>
-      {children}
+      <CounterfactualInteractionBridgeProvider value={value}>
+        {children}
+      </CounterfactualInteractionBridgeProvider>
     </CounterfactualContext.Provider>
   );
 }

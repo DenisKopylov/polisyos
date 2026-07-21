@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
@@ -54,82 +53,8 @@ const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
   required_preflight: "governance-pass",
 };
 
-function clampReadiness(score: number): number {
-  return Math.max(18, Math.min(96, Math.round(score)));
-}
-
-function buildReadinessScore({
-  autoMaterializationEnabled,
-  capabilityCount,
-  fromRunId,
-  llmProfileCount,
-  maxParallelConstraint,
-  mode,
-  multimodelEnabled,
-  preflightEnabled,
-}: {
-  autoMaterializationEnabled: boolean;
-  capabilityCount: number;
-  fromRunId: string | null;
-  llmProfileCount: number;
-  maxParallelConstraint: number;
-  mode: Mode;
-  multimodelEnabled: boolean;
-  preflightEnabled: boolean;
-}): number {
-  const base = mode === "workflow" ? 58 : 52;
-  const capabilityBonus = Math.min(capabilityCount * 6, 24);
-  const preflightBonus = preflightEnabled ? 8 : 0;
-  const materializationBonus = autoMaterializationEnabled ? 6 : 0;
-  const modelRosterBonus = Math.min(llmProfileCount * 5, 15);
-  const multimodelBonus = mode === "nl" && multimodelEnabled ? 7 : 0;
-  const orchestrationBonus =
-    mode === "nl" ? Math.min(maxParallelConstraint * 2, 8) : 4;
-  const replanBonus = fromRunId ? 6 : 0;
-
-  return clampReadiness(
-    base +
-      capabilityBonus +
-      preflightBonus +
-      materializationBonus +
-      modelRosterBonus +
-      multimodelBonus +
-      orchestrationBonus +
-      replanBonus,
-  );
-}
-
 function resolveCapabilityGlyph(key: string): GlyphName {
   return CAPABILITY_GLYPHS[key] ?? "intervention";
-}
-
-function resolveReadinessKind(score: number): "ok" | "warn" | "neutral" {
-  if (score >= 74) {
-    return "ok";
-  }
-  if (score >= 58) {
-    return "warn";
-  }
-  return "neutral";
-}
-
-function resolveReadinessStatusKey(
-  score: number,
-): "common.ready" | "common.pending" | "common.blocked" {
-  if (score >= 74) {
-    return "common.ready";
-  }
-  if (score >= 58) {
-    return "common.pending";
-  }
-  return "common.blocked";
-}
-
-function buildReadinessRingStyle(score: number): CSSProperties {
-  const degrees = Math.round(score * 3.6);
-  return {
-    background: `radial-gradient(circle, rgba(20,22,26,1) 52%, transparent 53%), conic-gradient(from 238deg, #1d8d84 0deg, #1d8d84 ${degrees}deg, rgba(255,255,255,0.12) ${degrees}deg)`,
-  };
 }
 
 function resolveLaunchStatusKind(
@@ -413,34 +338,6 @@ export default function LaunchRunPage() {
     ],
     [t],
   );
-  const readinessScore = useMemo(
-    () =>
-      buildReadinessScore({
-        autoMaterializationEnabled,
-        capabilityCount: capabilityHighlights.length,
-        fromRunId,
-        llmProfileCount: llmProfiles.length,
-        maxParallelConstraint,
-        mode,
-        multimodelEnabled,
-        preflightEnabled,
-      }),
-    [
-      autoMaterializationEnabled,
-      capabilityHighlights.length,
-      fromRunId,
-      llmProfiles.length,
-      maxParallelConstraint,
-      mode,
-      multimodelEnabled,
-      preflightEnabled,
-    ],
-  );
-  const readinessKind = resolveReadinessKind(readinessScore);
-  const readinessRingStyle = useMemo(
-    () => buildReadinessRingStyle(readinessScore),
-    [readinessScore],
-  );
   const guardrailRows = useMemo<
     Array<{ kind: "ok" | "warn" | "neutral"; label: string; value: string }>
   >(
@@ -626,9 +523,6 @@ export default function LaunchRunPage() {
                         : t("pages.composer.modeNlTitle")}
                     </h3>
                   </div>
-                  <Badge kind={readinessKind} className="px-2 py-1 text-[10px]">
-                    {t(resolveReadinessStatusKey(readinessScore))}
-                  </Badge>
                 </div>
                 <div className="mt-4 space-y-2">
                   {guardrailRows.map((row) => (
@@ -662,28 +556,6 @@ export default function LaunchRunPage() {
           </div>
 
           <aside className="flex h-full flex-col gap-5 rounded-[28px] bg-[linear-gradient(180deg,rgba(38,49,58,0.98),rgba(20,22,26,0.96))] p-6 text-[#f5f0e6] shadow-[0_26px_40px_rgba(23,25,29,0.18)]">
-            <div>
-              <p className="font-mono text-[11px] tracking-[0.12em] text-white/52 uppercase">
-                {t("pages.composer.readinessTitle")}
-              </p>
-              <div
-                className="mt-3 grid size-32 place-items-center rounded-full text-4xl font-extrabold tracking-[-0.05em] text-[#fff8ef]"
-                data-testid="composer-readiness-score"
-                style={readinessRingStyle}
-              >
-                {readinessScore}
-              </div>
-              <Badge
-                kind={readinessKind}
-                className="mt-4 bg-white/10 text-white/78"
-              >
-                {t(resolveReadinessStatusKey(readinessScore))}
-              </Badge>
-              <p className="mt-4 max-w-xs text-sm leading-6 text-white/72">
-                {t("pages.composer.readinessNote")}
-              </p>
-            </div>
-
             <div className="space-y-4">
               <ComposerRailStat
                 label={t("pages.composer.journeyMetrics.mode")}

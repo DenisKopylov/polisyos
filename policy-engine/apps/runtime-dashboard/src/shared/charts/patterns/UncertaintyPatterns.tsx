@@ -2,6 +2,7 @@ export type UncertaintyPatternIds = {
   assumed: string;
   disputed: string;
   estimated: string;
+  unknown: string;
 };
 
 export function buildUncertaintyPatternIds(
@@ -11,11 +12,12 @@ export function buildUncertaintyPatternIds(
     assumed: `${prefix}-assumed`,
     disputed: `${prefix}-disputed`,
     estimated: `${prefix}-estimated`,
+    unknown: `${prefix}-unknown`,
   };
 }
 
 export function resolveUncertaintyPatternFill(
-  pattern: "diagonal-lines" | "dots" | "none",
+  pattern: "crosshatch" | "diagonal-lines" | "dots" | "none",
   ids: UncertaintyPatternIds,
 ) {
   if (pattern === "diagonal-lines") {
@@ -23,6 +25,9 @@ export function resolveUncertaintyPatternFill(
   }
   if (pattern === "dots") {
     return `url(#${ids.assumed})`;
+  }
+  if (pattern === "crosshatch") {
+    return `url(#${ids.unknown})`;
   }
   return "none";
 }
@@ -68,6 +73,20 @@ export function UncertaintyPatterns({ ids }: { ids: UncertaintyPatternIds }) {
           r="1.05"
           fill="var(--gold-vibrant)"
           opacity="0.5"
+        />
+      </pattern>
+      <pattern
+        id={ids.unknown}
+        data-testid={ids.unknown}
+        width="6"
+        height="6"
+        patternUnits="userSpaceOnUse"
+      >
+        <path
+          d="M0 0 L6 6 M6 0 L0 6"
+          stroke="var(--slate)"
+          strokeWidth="1"
+          opacity="0.45"
         />
       </pattern>
       <pattern

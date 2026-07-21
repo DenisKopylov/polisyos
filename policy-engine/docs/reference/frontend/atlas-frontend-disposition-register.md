@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **7949**
-- Application lines deleted: **8638**
-- Net application LOC reduction: **689**
+- Application lines added: **8662**
+- Application lines deleted: **9288**
+- Net application LOC reduction: **626**
 - Application files deleted: **65**
 
 ## Wave-end full verification
@@ -307,7 +307,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-operator-diagnostic-generated-evidence-rebind` |
 | `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `strangled` | `DS4` | `dashboard-authored-candidate-posture` |
 | `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `strangled` | `DS4` | `dashboard-counterfactual-generated-scenario-rebind` |
 | `ui-patterns` | `ui-patterns` | 7 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `strangled` | `DS4` | `dashboard-quantity-generated-waist-rebind` |
 | `ui-responsive` | `ui-responsive` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
@@ -416,8 +416,8 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-offline-queue-item` | `status-offline-queue-item` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-feature-flag` | `status-feature-flag` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-runs-live` | `status-runs-live` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-causal-edge-identification` | `status-causal-edge-identification` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-causal-pipeline-stage` | `status-causal-pipeline-stage` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-causal-edge-identification` | `status-causal-edge-identification` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-causal-draft-identification-display` |
+| `status-causal-pipeline-stage` | `status-causal-pipeline-stage` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-causal-pipeline-progress-state` |
 | `status-collaboration-session` | `status-collaboration-session` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
 | `status-health-check` | `status-health-check` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-system-health-interaction-state` |
 | `status-share-trust-fixture` | `status-share-trust-fixture` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -458,7 +458,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-inline-small-multiples` | `status-inline-small-multiples` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-verification-metadata-small-multiples` |
 | `status-inline-route-loader` | `status-inline-route-loader` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-explainability` | `status-inline-explainability` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-counterfactual-badge` | `status-inline-counterfactual-badge` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-counterfactual-badge` | `status-inline-counterfactual-badge` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-scenario-ref-status` |
 | `flag-enable-atlas-v2` | `flag-enable-atlas-v2` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `flag-enable-clerk-mode` | `flag-enable-clerk-mode` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `flag-enable-dark-mode` | `flag-enable-dark-mode` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -495,7 +495,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `cache-operator-craft` | `cache-operator-craft` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `transport-telemetry-beacon` | `transport-telemetry-beacon` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
 | `transport-sentry` | `transport-sentry` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
-| `derivation-projection-fail-closed` | `derivation-projection-fail-closed` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `derivation-projection-fail-closed` | `derivation-projection-fail-closed` | 0 | `rebind_pending` | `strangled` | `DS4` | `generated-policy-design-case-projection-pass-through` |
 | `derivation-browser-signature` | `derivation-browser-signature` | 0 | `rebind_pending` | `pending` | `DS12` | `census-browser-signing-protected-live` |
 | `derivation-causal-effects` | `derivation-causal-effects` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `derivation-composer-readiness` | `derivation-composer-readiness` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
@@ -514,6 +514,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `a59efb3dc refactor(dashboard): rebind operator evidence primitives`
 - `8a8c8169e refactor(dashboard): rebind trust view authority`
 - `c4e1b97e3 refactor(dashboard): rebind authored candidate posture`
 - `9c45a240e fix(dashboard): rebind temporal semantics and cursor`

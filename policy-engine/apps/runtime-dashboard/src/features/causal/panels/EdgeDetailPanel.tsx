@@ -32,7 +32,10 @@ export function EdgeDetailPanel({
       label: t("causal.edgeStatus.boundsOnly"),
     },
   };
-  const status = statusConfig[edge.status] ?? statusConfig.identified;
+  const status = statusConfig[edge.status.label] ?? {
+    color: "var(--chart-neutral)",
+    label: edge.status.label,
+  };
 
   return (
     <Card className={cn("w-80 space-y-4 overflow-y-auto", className)}>

@@ -1,16 +1,15 @@
+import type { QuantityUncertainty } from "@polisyos/runtime-api-client";
+
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
-import type {
-  DecisionCardViewModel,
-  DecisionDistributionalRow,
-  DecisionMetric,
+import {
+  metricIdentifiability,
+  type DecisionCardViewModel,
+  type DecisionDistributionalRow,
+  type DecisionMetric,
 } from "@/shared/lib/domain/decision";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
 
-export type IdentifiabilityState =
-  | "point"
-  | "partial"
-  | "set"
-  | "not_identified";
+export type IdentifiabilityState = QuantityUncertainty["identifiability"];
 
 export type IdentificationRemedy = {
   effort: "low" | "medium" | "high";
@@ -22,11 +21,11 @@ export type IdentifiabilityCell = {
   assumptionCount: number;
   bounds: {
     lower: number | null;
-    method: "confidence_interval" | "manski" | "robins" | "point" | "unknown";
+    method: string | null;
     upper: number | null;
   };
   decisionImpact: {
-    policyRecommendations: number;
+    policyRecommendations: number | null;
     quantities: number;
   };
   id: string;
@@ -38,10 +37,10 @@ export type IdentifiabilityCell = {
 
 export type IdentifiabilitySurfaceView = {
   cells: IdentifiabilityCell[];
-  summary: Record<IdentifiabilityState, number>;
+  summary: Array<{ count: number; state: IdentifiabilityState }>;
   totalCells: number;
   totalDecisionBearingQuantities: number;
-  weakestCellId: string | null;
+  initialCellId: string | null;
 };
 
 export type SensitivityClaim = {
@@ -122,13 +121,6 @@ export type ScientificDepthSnapshot = {
   stress: StressTestTheatreView;
 };
 
-const STATE_RANK: Record<IdentifiabilityState, number> = {
-  point: 0,
-  partial: 1,
-  set: 2,
-  not_identified: 3,
-};
-
 function metricId(metric: DecisionMetric, index: number) {
   return (
     metric.name
@@ -139,53 +131,43 @@ function metricId(metric: DecisionMetric, index: number) {
   );
 }
 
-function identifiabilityState(metric: DecisionMetric): IdentifiabilityState {
-  const hasBounds =
-    typeof metric.ciLower === "number" && typeof metric.ciUpper === "number";
-  const hasWarnings = Boolean(metric.assumptionWarnings?.length);
-
-  if (hasWarnings && hasBounds) {
-    return "partial";
-  }
-  if (hasWarnings) {
-    return "set";
-  }
-  if (!hasBounds) {
-    return "not_identified";
-  }
-  return "point";
+function assertNeverIdentifiability(value: never): never {
+  throw new TypeError(`Unhandled generated identifiability member: ${value}`);
 }
 
 function remedyForCell(
   state: IdentifiabilityState,
   context: RunEvidenceContext | null | undefined,
 ): IdentificationRemedy {
-  if (state === "point") {
+  if (state === "identified") {
     return {
       effort: "low",
       kind: "measurement",
       ref: context?.promotionCandidates[0]?.promotionId ?? "audit-current-data",
     };
   }
-  if (state === "partial") {
+  if (state === "estimated") {
     return {
       effort: "medium",
       kind: "covariate",
       ref: context?.fetchPlans[0]?.planId ?? "add-confounder-covariate",
     };
   }
-  if (state === "set") {
+  if (state === "assumed") {
     return {
       effort: "high",
       kind: "iv",
       ref: context?.dataNeeds[0]?.needId ?? "find-valid-instrument",
     };
   }
-  return {
-    effort: "high",
-    kind: context?.dataNeeds.length ? "dataset" : "rct",
-    ref: context?.dataNeeds[0]?.needId ?? "create-identifying-study",
-  };
+  if (state === "unknown") {
+    return {
+      effort: "high",
+      kind: context?.dataNeeds.length ? "dataset" : "rct",
+      ref: context?.dataNeeds[0]?.needId ?? "create-identifying-study",
+    };
+  }
+  return assertNeverIdentifiability(state);
 }
 
 function remedyCandidatesForCell(
@@ -199,60 +181,48 @@ function remedyCandidatesForCell(
   const needRef =
     context?.dataNeeds[0]?.needId ?? "register-identification-gap";
 
-  if (state === "point") {
+  if (state === "identified") {
     return [
       { effort: "low", kind: "measurement", ref: "audit-current-data" },
       { effort: "low", kind: "dataset", ref: promotionRef },
     ];
   }
-  if (state === "partial") {
+  if (state === "estimated") {
     return [
       { effort: "medium", kind: "covariate", ref: planRef },
       { effort: "medium", kind: "panel", ref: needRef },
       { effort: "high", kind: "rct", ref: "design-targeted-rct" },
     ];
   }
-  if (state === "set") {
+  if (state === "assumed") {
     return [
       { effort: "high", kind: "iv", ref: needRef },
       { effort: "high", kind: "rct", ref: "design-encouragement-study" },
       { effort: "medium", kind: "panel", ref: planRef },
     ];
   }
-  return [
-    {
-      effort: "high",
-      kind: context?.dataNeeds.length ? "dataset" : "rct",
-      ref: needRef,
-    },
-    { effort: "high", kind: "rct", ref: "create-identifying-study" },
-    {
-      effort: "medium",
-      kind: "measurement",
-      ref: "instrument-outcome-measure",
-    },
-  ];
+  if (state === "unknown") {
+    return [
+      {
+        effort: "high",
+        kind: context?.dataNeeds.length ? "dataset" : "rct",
+        ref: needRef,
+      },
+      { effort: "high", kind: "rct", ref: "create-identifying-study" },
+      {
+        effort: "medium",
+        kind: "measurement",
+        ref: "instrument-outcome-measure",
+      },
+    ];
+  }
+  return assertNeverIdentifiability(state);
 }
 
 function boundsMethodForMetric(
   metric: DecisionMetric,
-  state: IdentifiabilityState,
 ): IdentifiabilityCell["bounds"]["method"] {
-  const hasBounds =
-    typeof metric.ciLower === "number" && typeof metric.ciUpper === "number";
-  if (hasBounds && state === "partial") {
-    return "robins";
-  }
-  if (hasBounds) {
-    return "confidence_interval";
-  }
-  if (state === "set") {
-    return "manski";
-  }
-  if (state === "point") {
-    return "point";
-  }
-  return "unknown";
+  return metric.uncertaintyMethod ?? null;
 }
 
 export function buildIdentifiabilitySurfaceView(input: {
@@ -261,17 +231,17 @@ export function buildIdentifiabilitySurfaceView(input: {
 }): IdentifiabilitySurfaceView {
   const metrics = input.decisionView?.keyMetrics ?? [];
   const cells = metrics.map<IdentifiabilityCell>((metric, index) => {
-    const state = identifiabilityState(metric);
+    const state = metricIdentifiability(metric);
     const id = metricId(metric, index);
     return {
       assumptionCount: metric.assumptionWarnings?.length ?? 0,
       bounds: {
         lower: metric.ciLower,
-        method: boundsMethodForMetric(metric, state),
+        method: boundsMethodForMetric(metric),
         upper: metric.ciUpper,
       },
       decisionImpact: {
-        policyRecommendations: state === "point" ? 0 : 1,
+        policyRecommendations: null,
         quantities: 1 + (metric.assumptionWarnings?.length ?? 0),
       },
       id,
@@ -281,33 +251,20 @@ export function buildIdentifiabilitySurfaceView(input: {
       state,
     };
   });
-  const weakestCell =
-    [...cells].sort(
-      (a, b) =>
-        STATE_RANK[b.state] - STATE_RANK[a.state] ||
-        b.decisionImpact.quantities - a.decisionImpact.quantities,
-    )[0] ?? null;
+  const summary = new Map<IdentifiabilityState, number>();
+  for (const cell of cells) {
+    summary.set(cell.state, (summary.get(cell.state) ?? 0) + 1);
+  }
 
   return {
     cells,
-    summary: cells.reduce<Record<IdentifiabilityState, number>>(
-      (acc, cell) => {
-        acc[cell.state] += 1;
-        return acc;
-      },
-      {
-        point: 0,
-        partial: 0,
-        set: 0,
-        not_identified: 0,
-      },
-    ),
+    summary: Array.from(summary, ([state, count]) => ({ count, state })),
     totalCells: cells.length,
     totalDecisionBearingQuantities: cells.reduce(
       (total, cell) => total + cell.decisionImpact.quantities,
       0,
     ),
-    weakestCellId: weakestCell?.id ?? null,
+    initialCellId: cells[0]?.id ?? null,
   };
 }
 

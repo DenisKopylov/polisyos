@@ -61,6 +61,7 @@ const decisionView: DecisionCardViewModel = {
   },
   keyMetrics: [
     {
+      identifiability: "identified",
       ciLevel: 0.95,
       ciLower: 0.2,
       ciUpper: 2.1,
@@ -73,6 +74,7 @@ const decisionView: DecisionCardViewModel = {
     },
     {
       assumptionWarnings: ["unmeasured confounder"],
+      identifiability: "assumed",
       ciLevel: 0.95,
       ciLower: 0.1,
       ciUpper: 0.2,
@@ -84,6 +86,7 @@ const decisionView: DecisionCardViewModel = {
     },
     {
       assumptionWarnings: ["instrument missing"],
+      identifiability: "estimated",
       ciLevel: null,
       ciLower: null,
       ciUpper: null,
@@ -203,30 +206,30 @@ const governanceIssues: GovernanceIssueView[] = [
 ];
 
 describe("scientific depth domain", () => {
-  it("projects metric identifiability states and remedies deterministically", () => {
+  it("preserves producer identifiability without inferring it from warnings or bounds", () => {
     const surface = buildIdentifiabilitySurfaceView({
       decisionView,
       evidenceContext,
     });
 
     expect(surface.cells.map((cell) => [cell.label, cell.state])).toEqual([
-      ["GDP lift", "point"],
-      ["Employment lift", "partial"],
-      ["Inflation risk", "set"],
-      ["Coverage gap", "not_identified"],
+      ["GDP lift", "identified"],
+      ["Employment lift", "assumed"],
+      ["Inflation risk", "estimated"],
+      ["Coverage gap", "unknown"],
     ]);
-    expect(surface.summary).toEqual({
-      not_identified: 1,
-      partial: 1,
-      point: 1,
-      set: 1,
-    });
+    expect(surface.summary).toEqual([
+      { count: 1, state: "identified" },
+      { count: 1, state: "assumed" },
+      { count: 1, state: "estimated" },
+      { count: 1, state: "unknown" },
+    ]);
     expect(surface.totalDecisionBearingQuantities).toBe(6);
-    expect(surface.weakestCellId).toBe("coverage-gap");
+    expect(surface.initialCellId).toBe("gdp-lift");
     expect(
       surface.cells.find((cell) => cell.id === "employment-lift")?.bounds
         .method,
-    ).toBe("robins");
+    ).toBeNull();
     expect(
       surface.cells.find((cell) => cell.id === "coverage-gap")?.remedy,
     ).toMatchObject({
@@ -244,6 +247,24 @@ describe("scientific depth domain", () => {
         }),
       ]),
     );
+  });
+
+  it("keeps identical warning and bound shapes at producer-declared states", () => {
+    const identicalShape = decisionView.keyMetrics.slice(0, 2).map((metric) => ({
+      ...metric,
+      assumptionWarnings: ["same warning"],
+      ciLower: 0,
+      ciUpper: 1,
+    }));
+
+    const surface = buildIdentifiabilitySurfaceView({
+      decisionView: { ...decisionView, keyMetrics: identicalShape },
+    });
+
+    expect(surface.cells.map((cell) => cell.state)).toEqual([
+      "identified",
+      "assumed",
+    ]);
   });
 
   it("extinguishes claims under an E-value threshold and flags gate changes", () => {

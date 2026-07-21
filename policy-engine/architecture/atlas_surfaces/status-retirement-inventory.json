@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:4c04115aa044ede916d0dfd2308de8c7891b083aa5149b50b925cb3568001681"
+      "sha256": "sha256:2c87e76bfb15eac794e8c19c1a06ff0e54bfe4fda8909ac9373aa6de604eb887"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -33,10 +33,10 @@
     "ds1_rows": 47,
     "ds1_named": 23,
     "ds1_inline": 24,
-    "current_named": 15,
-    "current_inline": 21,
-    "current_total": 36,
-    "retired_definitions": 10,
+    "current_named": 13,
+    "current_inline": 20,
+    "current_total": 33,
+    "retired_definitions": 13,
     "already_deleted": 1
   },
   "entries": [
@@ -205,7 +205,7 @@
     {
       "unit_id": "status-causal-edge-identification",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/causal/types.ts",
         "start_line": 16,
@@ -254,7 +254,7 @@
     {
       "unit_id": "status-causal-pipeline-stage",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/causal/types.ts",
         "start_line": 22,
@@ -621,8 +621,8 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
-        "start_line": 93,
-        "end_line": 93,
+        "start_line": 92,
+        "end_line": 92,
         "declaration_name": "StressSceneStatus"
       },
       "literal_members": ["block", "pass", "warn"],
@@ -635,32 +635,32 @@
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
-          "line": 35,
+          "line": 37,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
-          "line": 97,
+          "line": 96,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
-          "line": 99,
+          "line": 98,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
-          "line": 586,
+          "line": 543,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
-          "line": 596,
+          "line": 553,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
-          "line": 622,
+          "line": 579,
           "kind": "prop"
         }
       ],
@@ -2137,7 +2137,7 @@
     {
       "unit_id": "status-inline-counterfactual-badge",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
         "start_line": 11,
@@ -2171,7 +2171,7 @@
   "semantic_exemptions": [
     {
       "candidate_id": "semantic-projection-authority-boundary",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed.ts",
@@ -2182,11 +2182,12 @@
       "literal_members": ["projection_only", "runtime_authority"],
       "type_expression": "\"runtime_authority\" | \"projection_only\"",
       "disposition": "boundary_guard",
-      "target_cluster": "C05",
-      "rationale": "Fail-closed projection/runtime authority separation is a domain boundary, not a glass status.",
+      "target_cluster": "C13",
+      "rationale": "C13 retires the local projection/runtime authority discriminator; generated PolicyDesignCaseProjection authority fields now pass through without label-derived closeout inference.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+        "apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c13"
       ],
       "does_not_change_ds1_denominator": true,
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
@@ -2236,7 +2237,7 @@
     },
     {
       "candidate_id": "semantic-chart-identifiability",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/charts/types.ts",
@@ -2261,8 +2262,8 @@
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/decision.ts",
-        "start_line": 15,
-        "end_line": 15,
+        "start_line": 17,
+        "end_line": 17,
         "declaration_name": "DecisionVerdict"
       },
       "literal_members": ["APPROVE", "REJECT", "REVIEW"],
@@ -2426,7 +2427,7 @@
     },
     {
       "candidate_id": "semantic-scientific-identifiability",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",

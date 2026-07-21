@@ -3,7 +3,7 @@ export type {
   CausalNodeData,
   CausalEdgeData,
   CausalNodeKind,
-  EdgeIdentificationStatus,
+  CausalDraftIdentificationDisplay,
   LayoutAlgorithm,
   OverlayMode,
   GraphTransform,
@@ -13,10 +13,17 @@ export type {
   LayoutOptions,
   NodePosition,
   PipelineStage,
-  PipelineStageStatus,
+  CausalPipelineProgressState,
 } from "./types";
 
-export { NODE_WIDTH, NODE_HEIGHT, NODE_COLORS, NODE_SHAPES } from "./types";
+export {
+  createCausalDraftIdentificationDisplay,
+  createCausalPipelineProgressState,
+  NODE_WIDTH,
+  NODE_HEIGHT,
+  NODE_COLORS,
+  NODE_SHAPES,
+} from "./types";
 
 // Components
 export {

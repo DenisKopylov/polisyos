@@ -1536,12 +1536,22 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-counterfactual-generated-scenario-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/index.ts",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualInteractionBridge.tsx",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/counterfactualArchitecture.test.ts",
+          "apps/runtime-dashboard/src/features/whatif/ScenarioWorkbench.tsx"
+        ]
+      },
+      "rationale": "C13 rebinds AssumptionPill, CounterfactualBadge, CounterfactualMetricChart, CounterfactualModeSwitch, ScenarioManifestPanel, and ScenarioPicker to generated scenario contracts or the interaction-only bridge. CounterfactualDelta, DualInput, DualSelector, and DualSlider remain use_as_is; the null-delta repair prevents the rejected point-collapse behavior without changing their owner. component-uncertainty-band remains wrap_then_strangle without a DS2 sunset claim, and rejected viz-chart-uncertainty-band remains rejected and unused."
     },
     {
       "unit_id": "ui-patterns",
@@ -3439,12 +3449,21 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-causal-draft-identification-display",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/causal/types.ts",
+          "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.test.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts"
+        ]
+      },
+      "rationale": "C13 retires the local edge-identification union and wraps candidate causal-edge labels in interaction-only candidate_display state. Untyped local and projected graphs are stripped of identified and effect claims before rendering."
     },
     {
       "unit_id": "status-causal-pipeline-stage",
@@ -3453,12 +3472,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-causal-pipeline-progress-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/causal/types.ts",
+          "apps/runtime-dashboard/src/features/causal/components/PipelineProgressViz.tsx",
+          "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts"
+        ]
+      },
+      "rationale": "C13 retires the local causal-pipeline union and wraps dormant progress labels in interaction-only progress state, structurally separate from workflow authority."
     },
     {
       "unit_id": "status-collaboration-session",
@@ -4110,12 +4137,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "runtime-scenario-ref-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioManifestPanel.tsx"
+        ]
+      },
+      "rationale": "C13 replaces the inline counterfactual badge status union with ScenarioRef status from the generated runtime client and preserves scenario status independently from interaction mode and lifecycle status."
     },
     {
       "unit_id": "flag-enable-atlas-v2",
@@ -4656,12 +4691,21 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "successor": {
+        "unit_id": "generated-policy-design-case-projection-pass-through",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/projectionFailClosed.test.ts",
+          "apps/runtime-dashboard/src/api/validators.ts",
+          "apps/runtime-dashboard/src/api/validators.test.ts"
+        ]
+      },
+      "rationale": "C13 replaces label-driven closeout synthesis with an identity adapter derived from generated PolicyDesignCaseProjection authority fields. Missing producer closeout truth is rejected; explicit producer true or false state passes through unchanged."
     },
     {
       "unit_id": "derivation-browser-signature",

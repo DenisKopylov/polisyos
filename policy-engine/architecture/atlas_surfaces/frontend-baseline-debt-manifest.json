@@ -2178,7 +2178,7 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
         "roles": ["consumer"],
-        "sha256": "761d9e8f4b874e82b122b67f9bad786db19f3800364e363b60151024e80c150c"
+        "sha256": "76754e08170b22b6d9fe3f2d35b6443981c07ab7fc4e8f3b8377ee0da1ed7b5d"
       },
       {
         "cluster_id": "C06",
@@ -2250,7 +2250,7 @@
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/shared/charts/ForestPlot.tsx",
         "roles": ["implementation"],
-        "sha256": "4e1a66747d384603ff86d537447ee7855965137c5b9a68774f39ab917da53fe2"
+        "sha256": "0acfe1e4ae61f0dac4860058b0c18078da216187c171103f7ac790f103895fc9"
       },
       {
         "cluster_id": "C07",
@@ -2322,7 +2322,7 @@
         "cluster_id": "C08",
         "path": "apps/runtime-dashboard/src/features/causal/components/CausalEdge.tsx",
         "roles": ["consumer", "implementation"],
-        "sha256": "ef5d1ec4e783eda812005b601603fd3b5530ad29b38e710915584f6f1aa7ca7b"
+        "sha256": "78028f9aaf136e48804d5aaedf65c22940bb4f575ba5a20caf59b477863c2d60"
       },
       {
         "cluster_id": "C08",
@@ -2482,9 +2482,9 @@
     "producer_path": "apps/runtime-dashboard/scripts/check-architecture.mjs",
     "producer_sha256": "e4dfa233f2e7c504a585688c8dbf976a9cd60c3e1baa7eb5c4898f2749cf7e98",
     "exit_code": 1,
-    "violation_count": 6,
-    "source_file_count": 5,
-    "identity_set_sha256": "49ac28684082fb497483997cea366b884b7a639e142cc40d282f2fdf39c3c360",
+    "violation_count": 1,
+    "source_file_count": 1,
+    "identity_set_sha256": "c000fef519116ea062d0b5d01814e62ce79164f2173f5878bb0260f89efade9c",
     "violations": [
       {
         "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
@@ -2495,56 +2495,6 @@
         "rule_id": "app-no-feature-internals",
         "message": "app layer can import features only through their public index.ts barrel.",
         "display": "src/app/workspaces.ts:9 -> @/features/runs/api/useRunsSample :: app layer can import features only through their public index.ts barrel."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
-        "source_content_sha256": "028a0482d5380565a74bf39741bb3ff6c8c4cc03401f4e9e966fcf8aa8cebd27",
-        "line": 3,
-        "specifier": "@/app/providers/scenario-scope",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/scenario-scope.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/counterfactual/CounterfactualBadge.tsx:3 -> @/app/providers/scenario-scope :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx",
-        "source_content_sha256": "b5ec7a9512e3f33d79c8013083ac8de956131af3ecb21fea4500a889fbd228fe",
-        "line": 6,
-        "specifier": "@/app/providers/CounterfactualProvider",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/CounterfactualProvider.tsx",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/counterfactual/CounterfactualControls.test.tsx:6 -> @/app/providers/CounterfactualProvider :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx",
-        "source_content_sha256": "f5184704efb4a5d181becdfaa806144cdc280df0318c11a98fde43f9766fa0a0",
-        "line": 1,
-        "specifier": "@/app/providers/scenario-scope",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/scenario-scope.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx:1 -> @/app/providers/scenario-scope :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx",
-        "source_content_sha256": "f5184704efb4a5d181becdfaa806144cdc280df0318c11a98fde43f9766fa0a0",
-        "line": 2,
-        "specifier": "@/app/providers/useCounterfactual",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useCounterfactual.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx:2 -> @/app/providers/useCounterfactual :: shared layer cannot depend on app or features."
-      },
-      {
-        "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx",
-        "source_content_sha256": "8a28e09762966110a3ecce11c931ca93388ee5057e064244fe467dae24fafe57",
-        "line": 2,
-        "specifier": "@/app/providers/useCounterfactual",
-        "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useCounterfactual.ts",
-        "rule_id": "shared-no-app-or-features",
-        "message": "shared layer cannot depend on app or features.",
-        "display": "src/shared/ui/counterfactual/ScenarioPicker.tsx:2 -> @/app/providers/useCounterfactual :: shared layer cannot depend on app or features."
       }
     ],
     "immutable_origin": {
@@ -3277,6 +3227,125 @@
           "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BaseBureaucraticRenderer.test.tsx"
         ],
         "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/trust-view/trustViewArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "b99e639ed923801a8be0576b374487b7f8bc63258dea87dd9f74f4f173195c81",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+          "source_content_sha256": "028a0482d5380565a74bf39741bb3ff6c8c4cc03401f4e9e966fcf8aa8cebd27",
+          "line": 3,
+          "specifier": "@/app/providers/scenario-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/scenario-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/counterfactual/CounterfactualBadge.tsx:3 -> @/app/providers/scenario-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C13",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualInteractionBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/CounterfactualProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx",
+          "apps/runtime-dashboard/src/features/whatif/ScenarioWorkbench.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/counterfactual/counterfactualArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "c917cc4b38add2e1d4c244f4a3236e883bf4089f2df77f8b72acb18b75bcfaca",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx",
+          "source_content_sha256": "b5ec7a9512e3f33d79c8013083ac8de956131af3ecb21fea4500a889fbd228fe",
+          "line": 6,
+          "specifier": "@/app/providers/CounterfactualProvider",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/CounterfactualProvider.tsx",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/counterfactual/CounterfactualControls.test.tsx:6 -> @/app/providers/CounterfactualProvider :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C13",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualInteractionBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/CounterfactualProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualControls.test.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/counterfactual/counterfactualArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "86d4fea6521827b6577d2671c34a2dd82e1b516143229e3000b8801c626f5ad9",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx",
+          "source_content_sha256": "f5184704efb4a5d181becdfaa806144cdc280df0318c11a98fde43f9766fa0a0",
+          "line": 1,
+          "specifier": "@/app/providers/scenario-scope",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/scenario-scope.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx:1 -> @/app/providers/scenario-scope :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C13",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualInteractionBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/CounterfactualProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+          "apps/runtime-dashboard/src/features/whatif/ScenarioWorkbench.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/counterfactual/counterfactualArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "0bd85707140f8a812930841b9243a0a948107391061726f4e91a69e338692d1c",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx",
+          "source_content_sha256": "f5184704efb4a5d181becdfaa806144cdc280df0318c11a98fde43f9766fa0a0",
+          "line": 2,
+          "specifier": "@/app/providers/useCounterfactual",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useCounterfactual.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/counterfactual/CounterfactualModeSwitch.tsx:2 -> @/app/providers/useCounterfactual :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C13",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualInteractionBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/CounterfactualProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+          "apps/runtime-dashboard/src/features/whatif/ScenarioWorkbench.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/counterfactual/counterfactualArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "e1291ca8545369cadf754b0b9920263ea14d8657b2ab60a3024cff58a83cd089",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx",
+          "source_content_sha256": "8a28e09762966110a3ecce11c931ca93388ee5057e064244fe467dae24fafe57",
+          "line": 2,
+          "specifier": "@/app/providers/useCounterfactual",
+          "resolved_target_path": "apps/runtime-dashboard/src/app/providers/useCounterfactual.ts",
+          "rule_id": "shared-no-app-or-features",
+          "message": "shared layer cannot depend on app or features.",
+          "display": "src/shared/ui/counterfactual/ScenarioPicker.tsx:2 -> @/app/providers/useCounterfactual :: shared layer cannot depend on app or features."
+        },
+        "cluster_id": "C13",
+        "classification": "shared_dependency_inverted",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualInteractionBridge.tsx",
+          "apps/runtime-dashboard/src/app/providers/CounterfactualProvider.tsx"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+          "apps/runtime-dashboard/src/features/whatif/ScenarioWorkbench.tsx"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/counterfactual/counterfactualArchitecture.test.ts"
       }
     ]
   }

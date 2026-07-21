@@ -1,13 +1,11 @@
-import type { CounterfactualMode } from "@/app/providers/scenario-scope";
-import { useMaybeCounterfactual } from "@/app/providers/useCounterfactual";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
-const MODES: CounterfactualMode[] = [
-  "actual",
-  "actual_vs_scenario",
-  "scenario_only",
-];
+import {
+  COUNTERFACTUAL_MODES,
+  type CounterfactualMode,
+  useMaybeCounterfactualInteraction,
+} from "./CounterfactualInteractionBridge";
 
 type CounterfactualModeSwitchProps = {
   value?: CounterfactualMode;
@@ -23,7 +21,7 @@ export function CounterfactualModeSwitch({
   className,
 }: CounterfactualModeSwitchProps) {
   const { t } = useI18n();
-  const counterfactual = useMaybeCounterfactual();
+  const counterfactual = useMaybeCounterfactualInteraction();
   const activeMode = value ?? counterfactual?.mode ?? "actual";
   const handleChange =
     onChange ??
@@ -40,7 +38,7 @@ export function CounterfactualModeSwitch({
       role="radiogroup"
       aria-label={t("shared.ui.counterfactual.modeSwitchLabel")}
     >
-      {MODES.map((mode) => (
+      {COUNTERFACTUAL_MODES.map((mode) => (
         <button
           key={mode}
           type="button"

@@ -13,9 +13,15 @@ export function IdentificationOverlay({
   className,
 }: IdentificationOverlayProps) {
   const { t } = useI18n();
-  const identified = edges.filter((e) => e.status === "identified").length;
-  const unidentified = edges.filter((e) => e.status === "unidentified").length;
-  const boundsOnly = edges.filter((e) => e.status === "bounds_only").length;
+  const identified = edges.filter(
+    (edge) => edge.status.label === "identified",
+  ).length;
+  const unidentified = edges.filter(
+    (edge) => edge.status.label === "unidentified",
+  ).length;
+  const boundsOnly = edges.filter(
+    (edge) => edge.status.label === "bounds_only",
+  ).length;
 
   return (
     <div

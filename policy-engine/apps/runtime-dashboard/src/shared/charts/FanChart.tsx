@@ -86,7 +86,7 @@ export function FanChart({
   asOfIndex,
   disputed = false,
   disputes = [],
-  identifiability = "identified",
+  identifiability = "unknown",
   className,
 }: FanChartProps) {
   const { t } = useI18n();

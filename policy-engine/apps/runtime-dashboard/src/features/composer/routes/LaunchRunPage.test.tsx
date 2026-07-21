@@ -56,9 +56,9 @@ vi.mock("@/features/composer/state/composerDraftRepository", () => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({
@@ -163,18 +163,13 @@ describe("LaunchRunPage", () => {
     });
   });
 
-  it("renders the atlas briefing chrome with readiness and capability tiles", async () => {
+  it("renders the atlas briefing chrome with runtime capability tiles", () => {
     renderLaunchRunPage();
 
     expect(screen.getByTestId("composer-page")).toBeInTheDocument();
     expect(
-      screen.getByText("pages.composer.readinessTitle"),
-    ).toBeInTheDocument();
-
-    const readinessScore = await screen.findByTestId(
-      "composer-readiness-score",
-    );
-    expect(readinessScore).toHaveTextContent(/\d+/);
+      screen.getAllByText("pages.composer.runtimeSignalsTitle").length,
+    ).toBeGreaterThan(0);
 
     const capabilityTiles = screen.getByTestId("composer-capability-tiles");
     expect(capabilityTiles).toBeInTheDocument();
@@ -182,6 +177,34 @@ describe("LaunchRunPage", () => {
       within(capabilityTiles).getByText("Multi-model"),
     ).toBeInTheDocument();
     expect(within(capabilityTiles).getByText("Preflight")).toBeInTheDocument();
+  });
+
+  it("does not raise readiness from local model-count scoring", () => {
+    useLlmProfilesMock.mockReturnValue({
+      data: {
+        profiles: Array.from({ length: 12 }, (_, index) => ({
+          description: `Model ${index}`,
+          display_name: `Model ${index}`,
+          input_cost_per_mtoken_usd: 0.4,
+          model_id: `provider/model-${index}`,
+          output_cost_per_mtoken_usd: 1.2,
+          profile_id: `profile-${index}`,
+          provider: "Provider",
+        })),
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderLaunchRunPage();
+
+    expect(
+      screen.queryByTestId("composer-readiness-score"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("pages.composer.readinessTitle"),
+    ).not.toBeInTheDocument();
   });
 
   it("hydrates and discards a saved workflow draft for replans", async () => {

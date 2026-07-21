@@ -377,7 +377,7 @@ export function CausalGraphCanvas({
   const isEdgeDimmed = useCallback(
     (edge: CausalEdgeData): boolean => {
       if (activeOverlay === "identification") {
-        return edge.status === "unidentified";
+        return edge.status.label === "unidentified";
       }
       if (activeOverlay === "transport") {
         return !edge.transportable;

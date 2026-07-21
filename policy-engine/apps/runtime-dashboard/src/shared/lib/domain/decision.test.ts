@@ -1,6 +1,48 @@
-import { parseDecisionCardPayload } from "@/shared/lib/domain/decision";
+import {
+  metricIdentifiability,
+  parseDecisionCardPayload,
+} from "@/shared/lib/domain/decision";
 
 describe("decision domain", () => {
+  it("preserves every generated identifiability member and rejects extensions as unknown", () => {
+    const generatedMembers = [
+      "assumed",
+      "estimated",
+      "identified",
+      "unknown",
+    ] as const;
+
+    for (const identifiability of generatedMembers) {
+      const parsed = parseDecisionCardPayload({
+        feedback: { issues: [], verdict: "review" },
+        metric_significance: {
+          score: { effect_size: { identifiability, point: 0.5 } },
+        },
+        simulation_results: { score: 0.5 },
+      });
+
+      expect(parsed?.keyMetrics[0]?.identifiability).toBe(identifiability);
+    }
+
+    const extension = parseDecisionCardPayload({
+      feedback: { issues: [], verdict: "review" },
+      metric_significance: {
+        score: {
+          effect_size: {
+            identifiability: "novel_owner_extension",
+            point: 0.5,
+          },
+        },
+      },
+      simulation_results: { score: 0.5 },
+    });
+
+    expect(extension?.keyMetrics[0]).not.toHaveProperty("identifiability");
+    expect(metricIdentifiability(extension?.keyMetrics[0] ?? {})).toBe(
+      "unknown",
+    );
+  });
+
   it("parses decision-card payloads with explicit badges and distributional tuples", () => {
     const parsed = parseDecisionCardPayload({
       confidence: "medium",
@@ -203,6 +245,11 @@ describe("decision domain", () => {
       metric_significance: {
         gdp_change: {
           alpha: 0.05,
+          effect_size: {
+            identifiability: "assumed",
+            method: "bayesian",
+            point: 0.12,
+          },
           p_adj: 0.01,
           p_value: 0.01,
           significant: true,
@@ -302,12 +349,15 @@ describe("decision domain", () => {
           ciLower: 0.1,
           ciUpper: 0.14,
           alpha: 0.05,
+          effectSize: 0.12,
           formatted: "+12.00",
+          identifiability: "assumed",
           name: "GDP Change",
           pAdj: 0.01,
           pValue: 0.01,
           significant: true,
           testLabel: "DeLong AUC",
+          uncertaintyMethod: "bayesian",
           unit: "%",
           value: 12,
         },

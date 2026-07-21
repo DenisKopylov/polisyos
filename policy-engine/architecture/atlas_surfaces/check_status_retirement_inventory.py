@@ -724,6 +724,7 @@ def _summary(inventory: Mapping[str, Any], debt: Mapping[str, Any]) -> dict[str,
         "semantic_exemptions": len(inventory["semantic_exemptions"]),
         "semantic_retirement_debt": sum(
             row["disposition"] == "retirement_debt"
+            and row["current_definition_state"] == "present"
             for row in inventory["semantic_exemptions"]
         ),
         "waist_debt_rows": len(debt["entries"]),

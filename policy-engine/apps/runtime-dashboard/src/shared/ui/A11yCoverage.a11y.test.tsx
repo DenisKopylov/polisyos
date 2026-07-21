@@ -6,16 +6,6 @@ describe("shared/ui accessibility coverage", () => {
   it("keeps an a11y test next to every component unless explicitly allowlisted", () => {
     const directory = path.dirname(fileURLToPath(import.meta.url));
     const allowlist = new Set<string>([
-      "counterfactual/AssumptionPill.tsx",
-      "counterfactual/CounterfactualBadge.tsx",
-      "counterfactual/CounterfactualDelta.tsx",
-      "counterfactual/CounterfactualMetricChart.tsx",
-      "counterfactual/CounterfactualModeSwitch.tsx",
-      "counterfactual/DualInput.tsx",
-      "counterfactual/DualSelector.tsx",
-      "counterfactual/DualSlider.tsx",
-      "counterfactual/ScenarioManifestPanel.tsx",
-      "counterfactual/ScenarioPicker.tsx",
       "quantity/CounterfactualQuantity.tsx",
       "quantity/ProvenanceDeepDiveDialog.tsx",
       "quantity/ProvenanceMiniGraph.tsx",

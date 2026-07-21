@@ -2401,19 +2401,19 @@
   "vitest": {
     "owner_slice": "DS4",
     "disposition": "rebind_pending",
-    "command": "corepack pnpm run test:components",
-    "wall_duration_seconds": 192.87,
-    "vitest_duration_seconds": 192.85,
+    "command": "corepack pnpm exec vitest run --reporter=json --outputFile=../../_build/apps/runtime-dashboard/ds4-c12-vitest-v2.json",
+    "wall_duration_seconds": 315.06,
+    "vitest_duration_seconds": 315.06,
     "exit_code": 1,
     "test_files": {
-      "total": 245,
-      "passed": 243,
-      "failed": 2
+      "total": 263,
+      "passed": 262,
+      "failed": 1
     },
     "tests": {
-      "total": 742,
-      "passed": 738,
-      "failed": 4
+      "total": 766,
+      "passed": 763,
+      "failed": 3
     },
     "failure_set": {
       "hash_algorithm": "sha256",
@@ -2425,7 +2425,7 @@
         "assertion_line",
         "assertion_anchor"
       ],
-      "sha256": "f7fe234f514b29e39d48a6fafa4a9c73b471d1d26567e24048796eabc49588ca"
+      "sha256": "533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd"
     },
     "debt_classes": [
       {
@@ -2453,23 +2453,8 @@
             "assertion_line": 88,
             "assertion_anchor": "panels.agentPipeline.overBudget must use ICU plural syntax or be justified in COUNT_MESSAGE_ALLOWLIST: expected false to be true"
           }
-        ]
-      },
-      {
-        "class_id": "shared-ui-a11y-coverage",
-        "owner_slice": "DS4",
-        "disposition": "rebind_pending",
-        "rationale": "The unchanged accessibility coverage census finds OperatorDiagnosticPanel.tsx without a co-located a11y test or explicit allowlist entry.",
-        "failure_count": 1,
-        "failures": [
-          {
-            "test_file": "apps/runtime-dashboard/src/shared/ui/A11yCoverage.a11y.test.tsx",
-            "test_name": "shared/ui accessibility coverage > keeps an a11y test next to every component unless explicitly allowlisted",
-            "assertion_line": 76,
-            "assertion_anchor": "expected [ 'OperatorDiagnosticPanel.tsx' ] to deeply equal []"
-          }
-        ]
-      }
+      ]
+    }
     ],
     "parent_reproduction": {
       "revision": "0ef16da1b1a3efe1bce0345cf85163fe4971baaa",

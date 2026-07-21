@@ -2,6 +2,7 @@ import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders } from "@/test/render";
+import { createPerformanceBudgetDisplayState } from "@/shared/lib/domain/agents";
 
 const { normalizeAgentPipelineMock, normalizeWorkflowMock } = vi.hoisted(
   () => ({
@@ -190,14 +191,14 @@ describe("pipeline surfaces", () => {
             category: "retrieval",
             durationMs: 15_000,
             phase: "retrieval.materialize",
-            status: "over_budget",
+            status: createPerformanceBudgetDisplayState("over_budget"),
           },
           {
             budgetMs: 30_000,
             category: "llm",
             durationMs: 12_000,
             phase: "llm.total",
-            status: "within_budget",
+            status: createPerformanceBudgetDisplayState("within_budget"),
           },
         ],
         totalTokens: 3400,

@@ -74,6 +74,12 @@ const OVERLAY_FAMILIES = {
   Tooltip: ["Tooltip", "TooltipContent", "TooltipProvider", "TooltipTrigger"],
 } as const;
 
+const EVIDENCE_FAMILIES = {
+  AuthorityBadge: ["AuthorityBadge"],
+  EnvelopeChip: ["EnvelopeChip"],
+  EvidenceLink: ["EvidenceLink"],
+} as const;
+
 type PrimitiveFamilies = Record<string, readonly string[]>;
 
 function walkTypeScriptFiles(directory: string): string[] {
@@ -373,5 +379,47 @@ describe("overlay primitive ownership", () => {
     }
 
     expect(violations).toEqual([]);
+  });
+});
+
+describe("evidence primitive ownership", () => {
+  it("rejects a migrated evidence primitive with a surviving dashboard implementation", () => {
+    const roots = [
+      path.join(packageRoot, "src/primitives"),
+      path.join(dashboardRoot, "src/shared/ui"),
+      path.join(dashboardRoot, "src/shared/components"),
+    ];
+    const units = roots
+      .flatMap(walkTypeScriptFiles)
+      .map((file) => sourceUnit(file));
+
+    expect(ownershipViolations(EVIDENCE_FAMILIES, units)).toEqual([]);
+
+    const duplicate = path.join(
+      dashboardRoot,
+      "src/shared/ui/AuthorityBadge.tsx",
+    );
+    const compatibilityShim = path.join(
+      dashboardRoot,
+      "src/shared/ui/EvidenceCompatibilityShim.ts",
+    );
+    const corruptedUnits = [
+      ...units,
+      sourceUnit(
+        duplicate,
+        "export function AuthorityBadge() { return null; }",
+      ),
+      sourceUnit(
+        compatibilityShim,
+        'export { EvidenceLink } from "@polisyos/atlas-ui";',
+      ),
+    ];
+
+    expect(ownershipViolations(EVIDENCE_FAMILIES, corruptedUnits)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("AuthorityBadge:"),
+        "package re-export: apps/runtime-dashboard/src/shared/ui/EvidenceCompatibilityShim.ts -> @polisyos/atlas-ui",
+      ]),
+    );
   });
 });

@@ -1,4 +1,5 @@
 export * from "./primitives/AsyncSection";
+export * from "./primitives/AuthorityBadge";
 export * from "./primitives/Badge";
 export * from "./primitives/Button";
 export * from "./primitives/Card";
@@ -6,6 +7,8 @@ export * from "./primitives/Checkbox";
 export * from "./primitives/Command";
 export * from "./primitives/Dialog";
 export * from "./primitives/EmptyState";
+export * from "./primitives/EnvelopeChip";
+export * from "./primitives/EvidenceLink";
 export * from "./primitives/Icon";
 export * from "./primitives/Input";
 export * from "./primitives/Label";
@@ -20,4 +23,13 @@ export * from "./primitives/Text";
 export * from "./primitives/Textarea";
 export * from "./primitives/ToggleButton";
 export * from "./primitives/Tooltip";
+export type {
+  FixtureAuthority,
+  FixtureProvenance,
+  GovernedAuthorityPurpose,
+} from "./primitives/evidenceTypes";
+export {
+  createFixtureProvenance,
+  createGovernedAuthorityPurpose,
+} from "./primitives/evidenceTypes";
 export * from "./generated/tokens";

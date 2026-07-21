@@ -12,4 +12,8 @@ export type {
   DataSourceFreshness,
 } from "./DataFreshnessMatrix";
 export { SystemHealthPulse } from "./SystemHealthPulse";
-export type { HealthCheck, HealthCheckStatus } from "./SystemHealthPulse";
+export { createSystemHealthDisplayState } from "./SystemHealthPulse";
+export type {
+  HealthCheck,
+  SystemHealthDisplayState,
+} from "./SystemHealthPulse";

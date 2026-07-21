@@ -1,16 +1,14 @@
 import type { ReactNode } from "react";
 
-import { Badge, EmptyState } from "@polisyos/atlas-ui";
+import { Badge, type BadgeTone, EmptyState } from "@polisyos/atlas-ui";
 import { VirtualList, VIRTUALIZATION_THRESHOLD } from "@/shared/ui/VirtualList";
-
-export type StatusTimelineTone = "fail" | "info" | "neutral" | "ok" | "warn";
 
 export type StatusTimelineItem = {
   id: string;
   title: string;
   body?: ReactNode;
   timestamp?: ReactNode;
-  tone?: StatusTimelineTone;
+  tone?: BadgeTone;
   meta?: ReactNode;
 };
 

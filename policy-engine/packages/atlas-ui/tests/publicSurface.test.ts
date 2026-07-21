@@ -2,6 +2,7 @@ import * as atlasUi from "../src/index";
 
 const EXPECTED_RUNTIME_EXPORTS = [
   "AsyncSection",
+  "AuthorityBadge",
   "Badge",
   "Button",
   "Card",
@@ -31,6 +32,8 @@ const EXPECTED_RUNTIME_EXPORTS = [
   "DialogTitle",
   "DialogTrigger",
   "EmptyState",
+  "EnvelopeChip",
+  "EvidenceLink",
   "Icon",
   "Input",
   "Label",
@@ -65,6 +68,11 @@ const EXPECTED_RUNTIME_EXPORTS = [
   "breakpointProjection",
   "chartColorAliases",
   "contrastModeDescriptors",
+  "createFixtureProvenance",
+  "createGovernedAuthorityPurpose",
+  "createOpaqueAuthorityPresentation",
+  "createOperatorBlockingCausePresentation",
+  "createOperatorProjectionPresentation",
   "densityModeDescriptors",
   "generatedTokens",
   "iconVariants",

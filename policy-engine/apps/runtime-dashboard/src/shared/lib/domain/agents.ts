@@ -5,8 +5,14 @@ import {
   asString,
   toDisplayLabel,
 } from "../parsing";
+import type { AgentPipelineStep } from "@polisyos/runtime-api-client";
 
-export type AgentStepStatus = "ok" | "warn" | "fail" | "info";
+import {
+  createInteractionState,
+  type InteractionState,
+} from "./statusOwnership";
+
+export type AgentStepStatus = AgentPipelineStep["status"];
 
 export type AgentStepView = {
   attempt: number;
@@ -110,17 +116,14 @@ export type ReproducibilityModel = {
   notes: string[];
 };
 
-export type PerformanceBudgetStatus =
-  | "over_budget"
-  | "within_budget"
-  | "unknown";
+export type PerformanceBudgetDisplayState = InteractionState;
 
 export type PerformancePhaseBudgetView = {
   category: string;
   phase: string;
   durationMs: number;
   budgetMs: number | null;
-  status: PerformanceBudgetStatus;
+  status: PerformanceBudgetDisplayState;
 };
 
 export type RunPerformanceSummaryModel = {
@@ -349,12 +352,11 @@ function normalizeReproducibility(raw: unknown): ReproducibilityModel | null {
   };
 }
 
-function normalizePerformanceStatus(raw: unknown): PerformanceBudgetStatus {
-  const status = (asString(raw) ?? "").toLowerCase();
-  if (status === "over_budget" || status === "within_budget") {
-    return status;
-  }
-  return "unknown";
+export function createPerformanceBudgetDisplayState(
+  raw: unknown,
+): PerformanceBudgetDisplayState {
+  const status = (asString(raw) ?? "unknown").toLowerCase() || "unknown";
+  return createInteractionState(status, "diagnostic_display");
 }
 
 function normalizePerformancePhaseBudget(
@@ -373,7 +375,7 @@ function normalizePerformancePhaseBudget(
     category: asString(row.category) ?? "runtime",
     durationMs: Math.max(0, asNumber(row.duration_ms) ?? 0),
     phase,
-    status: normalizePerformanceStatus(row.status),
+    status: createPerformanceBudgetDisplayState(row.status),
   };
 }
 
@@ -390,7 +392,7 @@ function normalizeRunPerformanceSummary(
     .map((item) => normalizePerformancePhaseBudget(item))
     .filter((item): item is PerformancePhaseBudgetView => item !== null);
   const overBudgetCount = phaseBudgets.filter(
-    (row) => row.status === "over_budget",
+    (row) => row.status.label === "over_budget",
   ).length;
 
   return {

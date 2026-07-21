@@ -1173,3 +1173,75 @@ prose as candidate and never as human reviewed`, first failed because model
 - Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
   frozen Russian locale, master plan, main, and other worktrees remain
   untouched. The generated client was consumed read-only.
+
+## 2026-07-21 — DS4-C12 operator evidence primitives
+
+### Red-first and authority boundary
+
+- The planned `AuthorityBadge`, `EnvelopeChip`, and `EvidenceLink` negatives
+  first failed because the package had no evidence-bearing primitive boundary.
+  Their repaired APIs accept only owner-derived or provenance-bound branded
+  presentations: opaque producer extensions render visibly as explicit
+  unrecognized values, `fixture_only` cannot enter an authority slot, and an
+  evidence reference is always visible without implying verification.
+- `OperatorDiagnosticPanel.test.tsx > never promotes projection labels when
+  runtime authority is blocked` first exposed the panel's local posture logic.
+  It now consumes generated operator diagnostics, derives blockers and
+  projection posture through the owner adapter, and suppresses positive
+  clothing whenever the generated blocker is present.
+- `OperatorDiagnosticPanel.a11y.test.tsx > exposes the real blocker structure
+  and keyboard-readable evidence` closed the inherited structural census
+  identity without an allowlist. A second red-first multi-panel case caught
+  duplicate fixed IDs; `useId()` now gives every live instance distinct
+  authority and evidence labels.
+- The compile-time fixture negative rejects raw or widened fixture flags at the
+  authority-bearing prop boundary. Adversarial tests additionally reject
+  cloned brands, undeclared projection membership, malformed legacy fixture
+  packets, hidden evidence references, and widened generated labels.
+- Independent review found and drove closure of the brand-cloning,
+  caller-supplied fixture-token, label-hiding, broad generated-import, and
+  duplicate-ID paths. The final package-boundary review reported GO.
+
+### Implementation and disposition
+
+- `AuthorityBadge`, `EnvelopeChip`, and `EvidenceLink` are define-once
+  primitives in `@polisyos/atlas-ui`. Generated imports are type-only and
+  limited by the package architecture gate to the exact owner contracts used
+  by their adapters. The gate's corruption probes reject value, broad,
+  aliased, dynamic, import-equals, and wrong-file client imports.
+- `OperatorDiagnosticPanel` is the live dashboard consumer proof. Run and
+  clerk surfaces now show generated blockers, open runtime labels, projection
+  state, evidence references, and neutral source context without minting an
+  authority purpose or decision grade in the UI.
+- Agent pipeline, workflow node, system-health, performance-budget, and visual
+  harness statuses were rebound to generated owner fields or explicitly
+  branded interaction state. The current authored-status denominator moves
+  `39 -> 36`; classifications are `24 interaction / 15 lattice / 8 removed`,
+  with 7 retirement-debt rows and the 3 DS5 waist rows unchanged.
+- Six register rows are strangled: operator diagnostics, health check, agent
+  step, performance budget, workflow node, and inline visual fixture. Their
+  successor and consumer evidence is recorded in the DS19 register; historical
+  `rebind_pending` values remain immutable.
+
+### Debt and verification receipt
+
+| Gate                                      | Result                                                                                                                                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| quantity lint identities                  | held at terminal `0 / 0`; full cached dashboard ESLint is green with zero errors and zero warnings                                                                                                     |
+| Vitest denominator                        | exact `4 -> 3` for C12 and `5 -> 3` across DS4; 767 tests, 764 pass, with only the three DS6 i18n parity identities in one file; exact source-byte comparator PASS                                     |
+| architecture                              | held at exact inherited `6 / 5`; the five counterfactual edges and one app-barrel edge remain assigned to later clusters; exact comparator PASS                                                       |
+| affected behavior and structural a11y     | PASS; 7 dashboard files / 25 tests cover the live panel, census, generated bindings, interaction rebinds, visual fixture, and clerk consumer; the package has 14 files / 72 tests green                 |
+| status retirement                         | PASS; 47 DS1 rows, 36 current definitions, classifications `24 interaction / 15 lattice / 8 removed`, 14 semantic exemptions, 7 retirement-debt rows, and 3 DS5 waist rows; corruption probes green |
+| dashboard typecheck and production build  | PASS; app/node/tools projects, 3,879 modules, postbuild security, package Tailwind-source proof, and 103 PWA entries                                                                                   |
+| package and lifecycle governance          | PASS; package typecheck, lint, architecture, token schema/projection, one-owner and public-surface gates; register/report parity, source-byte validation, debt lifecycle, and both corruption suites  |
+
+### Fence receipt
+
+- C12 changes are confined to dashboard evidence/status consumers,
+  `packages/atlas-ui/**`, owned `architecture/atlas_surfaces/**`, the generated
+  DS19 reference report, the bounded workspace dependency lock entry, and this
+  journal. Frozen-lockfile installation passed with no version movement.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client was consumed read-only, and no full
+  `designTokens.ts` sunset is claimed.

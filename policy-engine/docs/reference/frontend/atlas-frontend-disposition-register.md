@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **7287**
-- Application lines deleted: **8575**
-- Net application LOC reduction: **1288**
-- Application files deleted: **66**
+- Application lines added: **7949**
+- Application lines deleted: **8638**
+- Net application LOC reduction: **689**
+- Application files deleted: **65**
 
 ## Wave-end full verification
 
@@ -205,10 +205,10 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | --- | --- | --- | --- | --- |
 | `feature-whatif::legacy-local-whatif-subgraph` | `dead_subgraph` | `deleted` | `DS19` | Fresh DS19 census proved the seven-file local parameter/store branch and its optional workbench edge unreachable; it was deleted while the server-backed ScenarioWorkbench remained live. |
 | `route-app-layout::ru-ui-catalog` | `legacy_continuity` | `frozen_legacy_continuity` | `DS0` | Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. |
-| `baseline-lint-quantity-debt` | `baseline_lint_debt` | `rebind_pending` | `DS4` | `open_debt` — The exact 75 policyos/quantity-must-be-wrapped diagnostics are DS4 quantity-family rebinding debt; DS19 admits no new diagnostic. |
-| `baseline-test-i18n-count-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `open_debt` — Three count-sensitive locale parity failures reproduce on the parent and belong to DS4 quantity/message rebinding. |
-| `baseline-test-a11y-coverage-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `open_debt` — The missing OperatorDiagnosticPanel a11y companion reproduces on the parent and belongs to the DS4 harness repair. |
-| `baseline-test-temporal-cursor-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `open_debt` — The time-dependent canonical URL assertion reproduces on the parent and belongs to DS4 temporal primitive verification. |
+| `baseline-lint-quantity-debt` | `baseline_lint_debt` | `rebind_pending` | `DS4` | `repaired` — The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions. |
+| `baseline-test-i18n-count-debt` | `baseline_test_debt` | `rebind_pending` | `DS6` | `open_debt` — The active manifest retains exactly three count-sensitive locale parity identities owned by DS6. |
+| `baseline-test-a11y-coverage-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `repaired` — The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression. |
+| `baseline-test-temporal-cursor-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | `repaired` — The temporal-cursor state is derived from the active Vitest debt classes; C09 closed the time-dependent identity with an injected clock. |
 | `dependency-axe-core` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
 | `dependency-intl-messageformat` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
 | `dependency-workbox-core` | `dependency_declaration` | `use_as_is` | `DS19` | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
@@ -304,7 +304,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `feature-whatif` | `feature-whatif` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `ui-primitives-root` | `ui-primitives-root` | 21 | `rebind_pending` | `strangled` | `DS4` | `census-ds4-c03b-dormant-primitives` |
 | `ui-compounds-root` | `ui-compounds-root` | 3 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-operator-diagnostic-generated-evidence-rebind` |
 | `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `strangled` | `DS4` | `dashboard-authored-candidate-posture` |
 | `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `pending` | `DS4` | `—` |
@@ -419,16 +419,16 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-causal-edge-identification` | `status-causal-edge-identification` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-causal-pipeline-stage` | `status-causal-pipeline-stage` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-collaboration-session` | `status-collaboration-session` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
-| `status-health-check` | `status-health-check` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-health-check` | `status-health-check` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-system-health-interaction-state` |
 | `status-share-trust-fixture` | `status-share-trust-fixture` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-comparability-api-alias` | `status-comparability-api-alias` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-narrative-chapter` | `status-narrative-chapter` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-dispute-run` | `status-dispute-run` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-publication-argument-node` | `status-publication-argument-node` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-stress-scene` | `status-stress-scene` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-agent-step` | `status-agent-step` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-agent-performance-budget` | `status-agent-performance-budget` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-workflow-node` | `status-workflow-node` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-agent-step` | `status-agent-step` | 0 | `rebind_pending` | `strangled` | `DS4` | `generated-agent-pipeline-step-status` |
+| `status-agent-performance-budget` | `status-agent-performance-budget` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-performance-budget-interaction-state` |
+| `status-workflow-node` | `status-workflow-node` | 0 | `rebind_pending` | `strangled` | `DS4` | `generated-run-workflow-node-status` |
 | `status-governance-pass` | `status-governance-pass` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-quantity-provenance` | `status-quantity-provenance` | 0 | `rebind_pending` | `strangled` | `DS4` | `quantity-independent-owner-metadata` |
 | `status-scenario` | `status-scenario` | 0 | `rebind_pending` | `strangled` | `DS4` | `runtime-scenario-ref-status` |
@@ -438,7 +438,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `status-inline-promotion-decision` | `status-inline-promotion-decision` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-queued-promotion` | `status-inline-queued-promotion` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-authz-provider` | `status-inline-authz-provider` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
-| `status-inline-visual-fixture` | `status-inline-visual-fixture` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
+| `status-inline-visual-fixture` | `status-inline-visual-fixture` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-fixture-timeline-playback-state` |
 | `status-inline-review-indicators` | `status-inline-review-indicators` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-review-surface` | `status-inline-review-surface` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
 | `status-inline-bureaucratic-block` | `status-inline-bureaucratic-block` | 0 | `rebind_pending` | `pending` | `DS1` | `—` |
@@ -514,6 +514,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `8a8c8169e refactor(dashboard): rebind trust view authority`
 - `c4e1b97e3 refactor(dashboard): rebind authored candidate posture`
 - `9c45a240e fix(dashboard): rebind temporal semantics and cursor`
 - `0ef16da1b fix(dashboard): classify nondecision numeric layout values`

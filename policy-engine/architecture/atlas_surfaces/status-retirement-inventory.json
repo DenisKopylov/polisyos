@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:1406c282aa3419b6aaf34daa4ff0558cd75414f7a6e6518b68b5b3fda21742c7"
+      "sha256": "sha256:4c04115aa044ede916d0dfd2308de8c7891b083aa5149b50b925cb3568001681"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -33,10 +33,10 @@
     "ds1_rows": 47,
     "ds1_named": 23,
     "ds1_inline": 24,
-    "current_named": 17,
-    "current_inline": 22,
-    "current_total": 39,
-    "retired_definitions": 7,
+    "current_named": 15,
+    "current_inline": 21,
+    "current_total": 36,
+    "retired_definitions": 10,
     "already_deleted": 1
   },
   "entries": [
@@ -346,7 +346,7 @@
     {
       "unit_id": "status-health-check",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.tsx",
         "start_line": 8,
@@ -685,21 +685,21 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
-        "start_line": 9,
-        "end_line": 9,
+        "start_line": 15,
+        "end_line": 15,
         "declaration_name": "AgentStepStatus"
       },
-      "literal_members": ["fail", "info", "ok", "warn"],
-      "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"info\"",
+      "literal_members": [],
+      "type_expression": "AgentPipelineStep[\"status\"]",
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
-          "line": 17,
+          "line": 23,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
-          "line": 176,
+          "line": 179,
           "kind": "prop"
         }
       ],
@@ -726,7 +726,7 @@
     {
       "unit_id": "status-agent-performance-budget",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
         "start_line": 113,
@@ -768,21 +768,21 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/workflow.ts",
-        "start_line": 9,
-        "end_line": 9,
+        "start_line": 10,
+        "end_line": 10,
         "declaration_name": "WorkflowNodeStatus"
       },
-      "literal_members": ["fail", "ok", "skip", "unknown"],
-      "type_expression": "\"ok\" | \"skip\" | \"fail\" | \"unknown\"",
+      "literal_members": [],
+      "type_expression": "RunWorkflowNodeView[\"status\"]",
       "consumers": [
         {
           "path": "apps/runtime-dashboard/src/shared/lib/domain/workflow.ts",
-          "line": 15,
+          "line": 16,
           "kind": "prop"
         },
         {
           "path": "apps/runtime-dashboard/src/shared/lib/domain/workflow.ts",
-          "line": 53,
+          "line": 54,
           "kind": "prop"
         }
       ],
@@ -1220,7 +1220,7 @@
     {
       "unit_id": "status-inline-visual-fixture",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/app/surfaces/visualFixtureHarness.ts",
         "start_line": 29,
@@ -2214,7 +2214,7 @@
     },
     {
       "candidate_id": "semantic-status-timeline-tone",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/StatusTimeline.tsx",

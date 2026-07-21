@@ -1,32 +1,36 @@
-import type { components } from "@/api/types";
+import type {
+  OperatorDiagnostic,
+  RunOperatorDiagnostic,
+} from "@polisyos/runtime-api-client";
+import { useId } from "react";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
-import { Badge } from "@polisyos/atlas-ui";
+import {
+  AuthorityBadge,
+  Badge,
+  createOpaqueAuthorityPresentation,
+  createOperatorBlockingCausePresentation,
+  createOperatorProjectionPresentation,
+  EvidenceLink,
+} from "@polisyos/atlas-ui";
 
-type ControlOperatorDiagnostic = NonNullable<
-  components["schemas"]["ControlJobResponse"]["operator_diagnostic"]
->;
-type RunOperatorDiagnostic = NonNullable<
-  components["schemas"]["RunDetails"]["operator_diagnostic"]
->;
-
-export type OperatorDiagnosticView =
-  | ControlOperatorDiagnostic
-  | RunOperatorDiagnostic;
+export type OperatorDiagnosticView = OperatorDiagnostic | RunOperatorDiagnostic;
 
 type OperatorDiagnosticPanelProps = {
   className?: string;
   diagnostic: OperatorDiagnosticView;
 };
 
-function authorityLabel(value: string | null | undefined) {
-  return value === "runtime_authority"
-    ? "runtime authority"
-    : "projection only";
-}
-
 function valueEntries(record: Record<string, string> | undefined) {
   return Object.entries(record ?? {}).filter(([, value]) => Boolean(value));
+}
+
+function referenceHref(reference: string) {
+  return reference.startsWith("https://") ||
+    reference.startsWith("http://") ||
+    reference.startsWith("/")
+    ? reference
+    : undefined;
 }
 
 export function OperatorDiagnosticPanel({
@@ -37,6 +41,9 @@ export function OperatorDiagnosticPanel({
   const authorityRefs = valueEntries(diagnostic.authority_refs);
   const evidenceRefs = diagnostic.evidence_refs ?? [];
   const labels = diagnostic.projection_labels ?? [];
+  const instanceId = useId();
+  const authorityRefsId = `operator-authority-refs-${instanceId}`;
+  const evidenceRefsId = `operator-evidence-refs-${instanceId}`;
 
   return (
     <section
@@ -48,9 +55,22 @@ export function OperatorDiagnosticPanel({
       data-testid="operator-diagnostic-panel"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <Badge kind="fail">{diagnostic.first_blocking_cause}</Badge>
-        <Badge kind="neutral">{diagnostic.authoritative_runtime_state}</Badge>
-        <Badge kind="neutral">{diagnostic.projection_source}</Badge>
+        <h3>
+          <AuthorityBadge
+            presentation={createOperatorBlockingCausePresentation(diagnostic)}
+          />
+        </h3>
+        <AuthorityBadge
+          presentation={createOpaqueAuthorityPresentation(
+            diagnostic.authoritative_runtime_state,
+          )}
+        />
+        <Badge
+          data-projection-source={diagnostic.projection_source}
+          kind="neutral"
+        >
+          {diagnostic.projection_source}
+        </Badge>
         <Badge kind={diagnostic.blocker_overridable ? "warn" : "neutral"}>
           {diagnostic.blocker_overridable
             ? t("operatorDiagnostic.overridable")
@@ -61,20 +81,25 @@ export function OperatorDiagnosticPanel({
       {labels.length > 0 ? (
         <div className="mt-2 flex flex-wrap gap-2">
           {labels.map((item) => (
-            <Badge
+            <AuthorityBadge
               key={`${item.state}:${item.authority}`}
-              kind={item.authority === "runtime_authority" ? "fail" : "neutral"}
-            >
-              {item.label}
-            </Badge>
+              presentation={createOperatorProjectionPresentation(
+                diagnostic,
+                item,
+              )}
+            />
           ))}
-          {[
-            ...new Set(labels.map((item) => authorityLabel(item.authority))),
-          ].map((label) => (
-            <Badge key={label} kind="neutral">
-              {label}
-            </Badge>
-          ))}
+          {[...new Set(labels.map((item) => item.authority))].map(
+            (authority) => (
+              <Badge
+                data-projection-authority={authority}
+                key={authority}
+                kind="neutral"
+              >
+                {authority.replaceAll("_", " ")}
+              </Badge>
+            ),
+          )}
         </div>
       ) : null}
 
@@ -107,33 +132,41 @@ export function OperatorDiagnosticPanel({
         </div>
       </dl>
 
-      <p className="mt-2 font-mono text-xs break-all">
+      <code className="mt-2 block font-mono text-xs break-all">
         {diagnostic.next_diagnostic_command}
-      </p>
+      </code>
 
       {authorityRefs.length > 0 ? (
         <div className="mt-2 space-y-1 text-xs text-[var(--slate)]">
-          <p className="font-semibold">
+          <p className="font-semibold" id={authorityRefsId}>
             {t("operatorDiagnostic.authorityRefs")}
           </p>
-          {authorityRefs.map(([key, value]) => (
-            <p key={key} className="break-all">
-              {key}: {value}
-            </p>
-          ))}
+          <ul aria-labelledby={authorityRefsId} className="space-y-1">
+            {authorityRefs.map(([key, value]) => (
+              <li key={key}>
+                <EvidenceLink
+                  evidenceRef={value}
+                  href={referenceHref(value)}
+                  label={`${key}:`}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
 
       {evidenceRefs.length > 0 ? (
         <div className="mt-2 space-y-1 text-xs text-[var(--slate)]">
-          <p className="font-semibold">
+          <p className="font-semibold" id={evidenceRefsId}>
             {t("operatorDiagnostic.evidenceRefs")}
           </p>
-          {evidenceRefs.map((ref) => (
-            <p key={ref} className="break-all">
-              {ref}
-            </p>
-          ))}
+          <ul aria-labelledby={evidenceRefsId} className="space-y-1">
+            {evidenceRefs.map((ref) => (
+              <li key={ref}>
+                <EvidenceLink evidenceRef={ref} href={referenceHref(ref)} />
+              </li>
+            ))}
+          </ul>
         </div>
       ) : null}
     </section>

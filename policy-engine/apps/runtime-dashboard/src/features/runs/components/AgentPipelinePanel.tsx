@@ -244,7 +244,7 @@ export default function AgentPipelinePanel({
                 <div
                   key={`${row.phase}:${idx}`}
                   className={
-                    row.status === "over_budget"
+                    row.status.label === "over_budget"
                       ? "border-warning/35 bg-warning/5 grid gap-2 rounded-lg border p-2 text-xs md:grid-cols-5"
                       : "bg-canvas/30 border-line grid gap-2 rounded-lg border p-2 text-xs md:grid-cols-5"
                   }
@@ -276,14 +276,14 @@ export default function AgentPipelinePanel({
                   <div className="md:col-span-5">
                     <Badge
                       kind={
-                        row.status === "over_budget"
+                        row.status.label === "over_budget"
                           ? "warn"
-                          : row.status === "within_budget"
+                          : row.status.label === "within_budget"
                             ? "ok"
                             : "neutral"
                       }
                     >
-                      {row.status}
+                      {row.status.label}
                     </Badge>
                   </div>
                 </div>

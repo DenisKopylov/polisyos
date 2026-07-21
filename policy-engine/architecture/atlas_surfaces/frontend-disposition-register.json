@@ -1434,12 +1434,22 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-operator-diagnostic-generated-evidence-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+          "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.a11y.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+          "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 rebinds the living operator diagnostic to generated OperatorDiagnostic and RunOperatorDiagnostic contracts, preserves projection labels opaquely in neutral posture, and renders producer evidence as accessible references through define-once package primitives."
     },
     {
       "unit_id": "ui-authored-text",
@@ -3472,12 +3482,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-system-health-interaction-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.tsx",
+          "apps/runtime-dashboard/src/features/dashboard/components/SystemHealthPulse.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 retires the local HealthCheckStatus union and wraps health telemetry in InteractionState with the telemetry purpose, structurally barred from authority slots."
     },
     {
       "unit_id": "status-share-trust-fixture",
@@ -3570,12 +3587,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "generated-agent-pipeline-step-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 replaces the local AgentStepStatus vocabulary with the generated AgentPipelineStep status field while preserving the living pipeline consumer."
     },
     {
       "unit_id": "status-agent-performance-budget",
@@ -3584,12 +3609,21 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-performance-budget-interaction-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 retires the local performance-budget union and preserves its labels in diagnostic_display InteractionState values that cannot enter authority slots."
     },
     {
       "unit_id": "status-workflow-node",
@@ -3598,12 +3632,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "generated-run-workflow-node-status",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/lib/domain/workflow.ts",
+          "apps/runtime-dashboard/src/shared/lib/domain/workflow.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 replaces the local WorkflowNodeStatus vocabulary with the generated RunWorkflowNodeView status field while preserving the living DAG consumer."
     },
     {
       "unit_id": "status-governance-pass",
@@ -3766,12 +3808,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-fixture-timeline-playback-state",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/app/surfaces/visualFixtureHarness.ts",
+          "apps/runtime-dashboard/src/app/surfaces/visualFixtureHarness.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/evidence/fixtureOnlyAuthority.compile.test.tsx"
+        ]
+      },
       "owner": "team-design",
-      "owner_slice": "DS1",
-      "decision_date": "2026-07-17",
+      "owner_slice": "DS4",
+      "decision_date": "2026-07-21",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C12 retires the inline fixture timeline union, wraps playback labels in InteractionState, and carries the generated LegacyProvingGroundPayload fixture_authority discriminant."
     },
     {
       "unit_id": "status-inline-review-indicators",
@@ -4861,13 +4911,13 @@
       "finding_id": "baseline-lint-quantity-debt",
       "finding_kind": "baseline_lint_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#lint"
       ],
       "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "rationale": "The exact 75 policyos/quantity-must-be-wrapped diagnostics are DS4 quantity-family rebinding debt; DS19 admits no new diagnostic."
+      "rationale": "The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions."
     },
     {
       "finding_id": "baseline-test-i18n-count-debt",
@@ -4877,33 +4927,33 @@
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/i18n-count"
       ],
-      "owner_slice": "DS4",
+      "owner_slice": "DS6",
       "decision_date": "2026-07-17",
-      "rationale": "Three count-sensitive locale parity failures reproduce on the parent and belong to DS4 quantity/message rebinding."
+      "rationale": "The active manifest retains exactly three count-sensitive locale parity identities owned by DS6."
     },
     {
       "finding_id": "baseline-test-a11y-coverage-debt",
       "finding_kind": "baseline_test_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/a11y-coverage"
       ],
       "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "rationale": "The missing OperatorDiagnosticPanel a11y companion reproduces on the parent and belongs to the DS4 harness repair."
+      "rationale": "The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression."
     },
     {
       "finding_id": "baseline-test-temporal-cursor-debt",
       "finding_kind": "baseline_test_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/temporal-cursor"
       ],
       "owner_slice": "DS4",
       "decision_date": "2026-07-17",
-      "rationale": "The time-dependent canonical URL assertion reproduces on the parent and belongs to DS4 temporal primitive verification."
+      "rationale": "The temporal-cursor state is derived from the active Vitest debt classes; C09 closed the time-dependent identity with an injected clock."
     },
     {
       "finding_id": "dependency-axe-core",

@@ -214,6 +214,12 @@ UI_PRIMITIVES_PACKAGE_MIGRATED = {
     "ToggleButton",
     "Tooltip",
 }
+ATLAS_UI_DEFINE_ONCE_PRIMITIVES = {
+    "AuthorityBadge",
+    "EnvelopeChip",
+    "EvidenceLink",
+}
+ATLAS_UI_SUPPORT_MODULES = {"evidenceTypes"}
 UI_PRIMITIVES_DASHBOARD_REBOUND = {"ApiErrorAlert", "ProvenanceStrip"}
 UI_PRIMITIVES_MEMBER_RULES = {
     "DropdownMenu": {
@@ -1227,45 +1233,64 @@ def _seed_entry(
 
 def _supplemental_findings() -> list[dict[str, Any]]:
     baseline_ref = "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json"
-    open_findings = [
+    baseline = _load_json(BASELINE_PATH)
+    active_test_classes = {
+        row["class_id"]: row for row in baseline["vitest"]["debt_classes"]
+    }
+    debt_findings = [
         (
             "baseline-lint-quantity-debt",
             "baseline_lint_debt",
             f"{baseline_ref}#lint",
-            "The exact 75 policyos/quantity-must-be-wrapped diagnostics are DS4 quantity-family rebinding debt; DS19 admits no new diagnostic.",
+            None,
+            "DS4",
+            "The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions.",
         ),
         (
             "baseline-test-i18n-count-debt",
             "baseline_test_debt",
             f"{baseline_ref}#tests/i18n-count",
-            "Three count-sensitive locale parity failures reproduce on the parent and belong to DS4 quantity/message rebinding.",
+            "i18n-count-message-parity",
+            "DS6",
+            "The active manifest retains exactly three count-sensitive locale parity identities owned by DS6.",
         ),
         (
             "baseline-test-a11y-coverage-debt",
             "baseline_test_debt",
             f"{baseline_ref}#tests/a11y-coverage",
-            "The missing OperatorDiagnosticPanel a11y companion reproduces on the parent and belongs to the DS4 harness repair.",
+            "shared-ui-a11y-coverage",
+            "DS4",
+            "The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression.",
         ),
         (
             "baseline-test-temporal-cursor-debt",
             "baseline_test_debt",
             f"{baseline_ref}#tests/temporal-cursor",
-            "The time-dependent canonical URL assertion reproduces on the parent and belongs to DS4 temporal primitive verification.",
+            "temporal-cursor-canonical-url",
+            "DS4",
+            "The temporal-cursor state is derived from the active Vitest debt classes; C09 closed the time-dependent identity with an injected clock.",
         ),
     ]
-    findings: list[dict[str, Any]] = [
-        {
+    findings: list[dict[str, Any]] = []
+    for finding_id, kind, evidence_ref, class_id, default_owner, rationale in debt_findings:
+        active_class = active_test_classes.get(class_id) if class_id else None
+        is_open = (
+            baseline["lint"]["error_count"] > 0
+            if finding_id == "baseline-lint-quantity-debt"
+            else active_class is not None
+        )
+        findings.append({
             "finding_id": finding_id,
             "finding_kind": kind,
             "disposition": "rebind_pending",
-            "status": "open_debt",
+            "status": "open_debt" if is_open else "repaired",
             "evidence_refs": [evidence_ref],
-            "owner_slice": "DS4",
+            "owner_slice": (
+                active_class["owner_slice"] if active_class else default_owner
+            ),
             "decision_date": DECISION_DATE,
             "rationale": rationale,
-        }
-        for finding_id, kind, evidence_ref, rationale in open_findings
-    ]
+        })
     dependencies = {
         "dependency-axe-core": "apps/runtime-dashboard/src/shared/lib/a11yAudit.ts:71",
         "dependency-intl-messageformat": "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1",
@@ -1886,8 +1911,20 @@ def validate_baseline_manifest(
                 errors.append(f"architecture_active_source_hash_drift:{row['source_path']}")
 
     failures = _flatten_vitest_failures(baseline)
-    if len(failures) != baseline["vitest"]["tests"]["failed"] or len(failures) != 4:
+    if len(failures) != baseline["vitest"]["tests"]["failed"] or len(failures) != 3:
         errors.append("vitest_baseline_failure_count_drift")
+    surviving_vitest_classes = {
+        (
+            debt_class["class_id"],
+            debt_class["owner_slice"],
+            debt_class["failure_count"],
+        )
+        for debt_class in baseline["vitest"]["debt_classes"]
+    }
+    if surviving_vitest_classes != {
+        ("i18n-count-message-parity", "DS6", 3)
+    }:
+        errors.append("vitest_surviving_debt_owner_drift")
     if _canonical_sha256(failures) != baseline["vitest"]["failure_set"]["sha256"]:
         errors.append("vitest_baseline_payload_hash_drift")
     if baseline["vitest"]["parent_reproduction"]["matches_full_run_failure_set"] is not True:
@@ -2220,9 +2257,22 @@ def _ui_primitives_source_state_errors(
             errors.append(f"ui_primitives_dashboard_rebound_export_missing:{primitive}")
 
     missing_package = sorted(UI_PRIMITIVES_PACKAGE_MIGRATED - atlas_exports)
-    unexpected_package = sorted(atlas_exports - UI_PRIMITIVES_PACKAGE_MIGRATED)
+    missing_define_once = sorted(ATLAS_UI_DEFINE_ONCE_PRIMITIVES - atlas_exports)
+    missing_support = sorted(ATLAS_UI_SUPPORT_MODULES - atlas_exports)
+    unexpected_package = sorted(
+        atlas_exports
+        - UI_PRIMITIVES_PACKAGE_MIGRATED
+        - ATLAS_UI_DEFINE_ONCE_PRIMITIVES
+        - ATLAS_UI_SUPPORT_MODULES
+    )
     if missing_package:
         errors.append(f"ui_primitives_package_exports_missing:{missing_package}")
+    if missing_define_once:
+        errors.append(
+            f"atlas_ui_define_once_exports_missing:{missing_define_once}"
+        )
+    if missing_support:
+        errors.append(f"atlas_ui_support_exports_missing:{missing_support}")
     if unexpected_package:
         errors.append(f"ui_primitives_package_exports_unexpected:{unexpected_package}")
     if production_consumers:
@@ -2478,6 +2528,44 @@ def validate_register(
         errors.extend(
             "baseline_" + error for error in validate_baseline_manifest(baseline)
         )
+        findings_by_id = {
+            row["finding_id"]: row for row in data["supplemental_findings"]
+        }
+        active_test_classes = {
+            row["class_id"]: row for row in baseline["vitest"]["debt_classes"]
+        }
+        expected_debt_lifecycle = {
+            "baseline-lint-quantity-debt": (
+                "open_debt" if baseline["lint"]["error_count"] > 0 else "repaired",
+                "DS4",
+            ),
+            "baseline-test-i18n-count-debt": (
+                "open_debt"
+                if "i18n-count-message-parity" in active_test_classes
+                else "repaired",
+                active_test_classes.get(
+                    "i18n-count-message-parity", {"owner_slice": "DS6"}
+                )["owner_slice"],
+            ),
+            "baseline-test-a11y-coverage-debt": (
+                "open_debt"
+                if "shared-ui-a11y-coverage" in active_test_classes
+                else "repaired",
+                "DS4",
+            ),
+            "baseline-test-temporal-cursor-debt": (
+                "open_debt"
+                if "temporal-cursor-canonical-url" in active_test_classes
+                else "repaired",
+                "DS4",
+            ),
+        }
+        for finding_id, (status, owner_slice) in expected_debt_lifecycle.items():
+            finding = findings_by_id.get(finding_id, {})
+            if finding.get("status") != status:
+                errors.append(f"supplemental_debt_status_drift:{finding_id}")
+            if finding.get("owner_slice") != owner_slice:
+                errors.append(f"supplemental_debt_owner_drift:{finding_id}")
 
     expected_negatives = {f"DS1-N{number:03d}" for number in range(1, 24)}
     negative_rows = {row["negative_id"]: row for row in data["seeded_negative_lifecycle"]}
@@ -2767,6 +2855,35 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
             failures.append(name)
+
+    retained = {
+        name
+        for name, rule in UI_PRIMITIVES_MEMBER_RULES.items()
+        if rule["disposition"] != "retire"
+    }
+    expected_package_exports = (
+        UI_PRIMITIVES_PACKAGE_MIGRATED
+        | ATLAS_UI_DEFINE_ONCE_PRIMITIVES
+        | ATLAS_UI_SUPPORT_MODULES
+    )
+    unexpected_module_errors = _ui_primitives_source_state_errors(
+        existing_paths={
+            *(f"apps/runtime-dashboard/src/shared/ui/{name}.tsx" for name in retained),
+            *(f"apps/runtime-dashboard/src/shared/ui/{name}.a11y.test.tsx" for name in retained),
+            *(
+                f"apps/runtime-dashboard/src/shared/ui/{name}.tsx"
+                for name in UI_PRIMITIVES_DASHBOARD_REBOUND
+            ),
+        },
+        dashboard_exports=retained | UI_PRIMITIVES_DASHBOARD_REBOUND,
+        atlas_exports=expected_package_exports | {"UnexpectedAuthorityOwner"},
+        production_consumers=[],
+    )
+    if not any(
+        error.startswith("ui_primitives_package_exports_unexpected:")
+        for error in unexpected_module_errors
+    ):
+        failures.append("ui-primitives-unexpected-support-module")
     return failures
 
 

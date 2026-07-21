@@ -3,6 +3,12 @@ import {
   type SurfaceId,
   type SurfaceRegistryEntry,
 } from "./surfaceRegistry";
+import type { LegacyProvingGroundPayload } from "@polisyos/runtime-api-client";
+
+import {
+  createInteractionState,
+  type InteractionState,
+} from "@/shared/lib/domain/statusOwnership";
 
 export type VisualFixtureNode = {
   cluster: "data" | "decision" | "model" | "policy";
@@ -26,10 +32,13 @@ export type VisualFixtureTimelineEvent = {
   id: string;
   lane: string;
   label: string;
-  status: "blocked" | "complete" | "pending" | "running";
+  status: FixtureTimelinePlaybackState;
 };
 
+export type FixtureTimelinePlaybackState = InteractionState;
+
 export type VisualFixtureHarness = {
+  fixture_authority: LegacyProvingGroundPayload["fixture_authority"];
   graph: {
     edges: VisualFixtureEdge[];
     nodes: VisualFixtureNode[];
@@ -44,6 +53,12 @@ export type VisualFixtureHarness = {
     };
   };
 };
+
+export function createFixtureTimelinePlaybackState(
+  label: string,
+): FixtureTimelinePlaybackState {
+  return createInteractionState(label, "playback");
+}
 
 export type VisualFixtureHarnessOptions = {
   edgeCount?: number;
@@ -115,10 +130,10 @@ export function createVisualFixtureHarness(
 
   const lanes = ["parse", "plan", "check", "execute", "audit"];
   const statuses: VisualFixtureTimelineEvent["status"][] = [
-    "complete",
-    "running",
-    "pending",
-    "blocked",
+    createFixtureTimelinePlaybackState("complete"),
+    createFixtureTimelinePlaybackState("running"),
+    createFixtureTimelinePlaybackState("pending"),
+    createFixtureTimelinePlaybackState("blocked"),
   ];
   const start = new Date("2026-04-29T09:00:00.000Z");
   const events = Array.from({ length: eventCount }, (_, index) => {
@@ -141,6 +156,7 @@ export function createVisualFixtureHarness(
   );
 
   return {
+    fixture_authority: "fixture_only",
     graph: { edges, nodes },
     seed,
     timeline: {

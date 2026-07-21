@@ -99,8 +99,11 @@ describe("ControlFailurePanel", () => {
       within(diagnosticPanel).getAllByText(/sha256:abcdef/).length,
     ).toBeGreaterThan(0);
     expect(
+      within(diagnosticPanel).getByText("authority_boundary:"),
+    ).toBeInTheDocument();
+    expect(
       within(diagnosticPanel).getByText(
-        "authority_boundary: runtime.workflow_failed_non_authority.job-demo",
+        "runtime.workflow_failed_non_authority.job-demo",
       ),
     ).toBeInTheDocument();
     expect(

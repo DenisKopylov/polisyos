@@ -2571,6 +2571,40 @@ def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> N
         first["recording_content_hash"]
     )
 
+    second_context_projection = copy.deepcopy(context_projection)
+    second_context_projection["exact_call_prompt_hashes"][0] = (
+        "sha256:" + "b" * 64
+    )
+    second_context_projection["lever_space_prompt_slice_content_hash"] = (
+        "sha256:" + "c" * 64
+    )
+    second_bridge = second_context_projection["grounding_dispositions"][0][
+        "bridge_missing_records"
+    ][0]
+    second_bridge["record_id"] = "cg5_ticket_" + "d" * 16
+    second_bridge["content_hash"] = "sha256:" + "d" * 64
+    second_lever = second_context_projection["grounding_dispositions"][0][
+        "lever_resolution"
+    ]
+    second_lever["content_hash"] = "sha256:" + "d" * 64
+    second_lever["context_binding_hash"] = "sha256:" + "d" * 64
+    second_lever["substrate_input_content_hash"] = "sha256:" + "d" * 64
+    twice_chained = validator._normalize_replayed_n4_recording(
+        chained,
+        replayed_projection=second_context_projection,
+        context_rebind=("sha256:" + "a" * 64, "sha256:" + "e" * 64),
+    )
+    assert (
+        twice_chained["historical_projection_rebind_receipt"]["prior_receipt"]
+        ["receipt_content_hash"]
+        == chained["historical_projection_rebind_receipt"]
+        ["receipt_content_hash"]
+    )
+    assert (
+        validator._historical_n4_projection_rebind_receipt_issues(twice_chained)
+        == ()
+    )
+
     semantic_drift = copy.deepcopy(context_projection)
     semantic_drift["grounding_dispositions"][0]["disposition"] = "shadow_bound"
     with pytest.raises(
@@ -2734,6 +2768,60 @@ def test_historical_context_rebind_receipt_binds_route_and_raw_evidence() -> Non
         normalized_recording,
         replayed_domain_run=replayed,
     ) == ()
+
+    next_context = "sha256:" + "a" * 64
+    next_replayed = copy.deepcopy(replayed)
+    next_replayed["cycle_substrate_context_ref"] = next_context
+    next_replayed["content_hash"] = "sha256:" + "b" * 64
+    chained_receipt = validator._build_historical_context_rebind_receipt(
+        normalized_recording,
+        historical_domain_run=replayed,
+        replayed_domain_run=next_replayed,
+        replayed_context_content_hash=next_context,
+        replayed_compiled_run_content_hash="sha256:" + "c" * 64,
+        replayed_n4_recording_content_hash="sha256:" + "d" * 64,
+    )
+    assert chained_receipt["prior_receipt"]["receipt_content_hash"] == receipt[
+        "receipt_content_hash"
+    ]
+    chained_recording = copy.deepcopy(normalized_recording)
+    chained_recording["cycle_substrate_context_content_hash"] = next_context
+    chained_recording["compiled_run_content_hash"] = "sha256:" + "c" * 64
+    chained_recording["n4_recording"]["recording_content_hash"] = (
+        "sha256:" + "d" * 64
+    )
+    chained_recording["historical_context_rebind_receipt"] = chained_receipt
+    assert validator._historical_context_rebind_receipt_issues(
+        chained_recording,
+        replayed_domain_run=next_replayed,
+    ) == ()
+
+    forged_chain = copy.deepcopy(chained_recording)
+    forged_prior = forged_chain["historical_context_rebind_receipt"][
+        "prior_receipt"
+    ]
+    forged_prior["eligible_issue_set"] = []
+    forged_prior["receipt_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in forged_prior.items()
+            if key != "receipt_content_hash"
+        }
+    )
+    forged_top = forged_chain["historical_context_rebind_receipt"]
+    forged_top["receipt_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in forged_top.items()
+            if key != "receipt_content_hash"
+        }
+    )
+    assert "domain_run_context_rebind_issue_set_mismatch" in (
+        validator._historical_context_rebind_receipt_issues(
+            forged_chain,
+            replayed_domain_run=next_replayed,
+        )
+    )
 
     semantic_drift = copy.deepcopy(replayed)
     semantic_drift["terminal_distribution"]["decision_grade"] = "admissible"

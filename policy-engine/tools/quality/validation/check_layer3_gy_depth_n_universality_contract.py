@@ -1965,7 +1965,7 @@ def _build_historical_context_rebind_receipt(
     replayed_compiled_run_content_hash: str,
     replayed_n4_recording_content_hash: str,
 ) -> dict[str, Any]:
-    """Bind an exact identity-only route replay across one context rebase."""
+    """Bind one append-only identity-rebase link to the prior proof chain."""
 
     changed_paths = _projection_diff_paths(
         historical_domain_run,
@@ -1993,6 +1993,17 @@ def _build_historical_context_rebind_receipt(
         )
     compiler_recording = _mapping(recording.get("compiler_recording"))
     n4_recording = _mapping(recording.get("n4_recording"))
+    prior_receipt = _mapping(recording.get("historical_context_rebind_receipt"))
+    if prior_receipt:
+        prior_issues = _historical_context_rebind_receipt_issues(
+            recording,
+            replayed_domain_run=historical_domain_run,
+        )
+        if prior_issues:
+            raise UniversalityContractError(
+                "domain_run_context_rebind_receipt_invalid:"
+                + ",".join(prior_issues)
+            )
     payload: dict[str, Any] = {
         "schema_version": _HISTORICAL_CONTEXT_REBIND_SCHEMA_VERSION,
         "eligible_issue_set": ["domain_run_context_binding_drift"],
@@ -2024,6 +2035,8 @@ def _build_historical_context_rebind_receipt(
             _context_rebind_stable_projection(replayed_domain_run)
         ),
     }
+    if prior_receipt:
+        payload["prior_receipt"] = copy.deepcopy(prior_receipt)
     payload["receipt_content_hash"] = _semantic_hash(payload)
     return payload
 
@@ -2033,11 +2046,54 @@ def _historical_context_rebind_receipt_issues(
     *,
     replayed_domain_run: Mapping[str, Any],
 ) -> tuple[str, ...]:
-    """Recompute one historical context-rebind receipt from current evidence."""
+    """Recompute the append-only context-rebind chain from current evidence."""
 
     receipt = _mapping(recording.get("historical_context_rebind_receipt"))
     if not receipt:
         return ("domain_run_context_rebind_receipt_missing",)
+    compiler_recording = _mapping(recording.get("compiler_recording"))
+    n4_recording = _mapping(recording.get("n4_recording"))
+    issues = list(
+        _historical_context_rebind_chain_issues(
+            receipt,
+            replayed_domain_run=replayed_domain_run,
+            compiler_recording_content_hash=compiler_recording.get(
+                "recording_content_hash"
+            ),
+            replayed_n4_recording_content_hash=n4_recording.get(
+                "recording_content_hash"
+            ),
+            replayed_context_content_hash=recording.get(
+                "cycle_substrate_context_content_hash"
+            ),
+            replayed_compiled_run_content_hash=recording.get(
+                "compiled_run_content_hash"
+            ),
+        )
+    )
+    historical_n4_hash = _recompute_historical_n4_recording_content_hash(
+        n4_recording
+    )
+    if (
+        historical_n4_hash is not None
+        and receipt.get("historical_n4_recording_content_hash")
+        != historical_n4_hash
+    ):
+        issues.append("domain_run_context_rebind_historical_n4_drift")
+    return tuple(sorted(set(issues)))
+
+
+def _historical_context_rebind_chain_issues(
+    receipt: Mapping[str, Any],
+    *,
+    replayed_domain_run: Mapping[str, Any],
+    compiler_recording_content_hash: object,
+    replayed_n4_recording_content_hash: object,
+    replayed_context_content_hash: object,
+    replayed_compiled_run_content_hash: object,
+) -> tuple[str, ...]:
+    """Verify one receipt link and every recursively bound predecessor."""
+
     issues: list[str] = []
     stable_receipt = {
         key: value
@@ -2077,38 +2133,52 @@ def _historical_context_rebind_receipt_issues(
         replayed_domain_run,
     ):
         issues.append("domain_run_context_rebind_semantic_drift")
-
-    compiler_recording = _mapping(recording.get("compiler_recording"))
-    n4_recording = _mapping(recording.get("n4_recording"))
-    if receipt.get("compiler_recording_content_hash") != compiler_recording.get(
-        "recording_content_hash"
+    if (
+        receipt.get("compiler_recording_content_hash")
+        != compiler_recording_content_hash
     ):
         issues.append("domain_run_context_rebind_compiler_binding_drift")
-    if receipt.get("replayed_n4_recording_content_hash") != n4_recording.get(
-        "recording_content_hash"
+    if (
+        receipt.get("replayed_n4_recording_content_hash")
+        != replayed_n4_recording_content_hash
     ):
         issues.append("domain_run_context_rebind_n4_binding_drift")
-    historical_n4_hash = _recompute_historical_n4_recording_content_hash(
-        n4_recording
-    )
     if (
-        historical_n4_hash is not None
-        and receipt.get("historical_n4_recording_content_hash")
-        != historical_n4_hash
-    ):
-        issues.append("domain_run_context_rebind_historical_n4_drift")
-    if receipt.get("replayed_context_content_hash") != recording.get(
-        "cycle_substrate_context_content_hash"
+        receipt.get("replayed_context_content_hash")
+        != replayed_context_content_hash
     ):
         issues.append("domain_run_context_rebind_current_context_drift")
-    if receipt.get("replayed_compiled_run_content_hash") != recording.get(
-        "compiled_run_content_hash"
+    if (
+        receipt.get("replayed_compiled_run_content_hash")
+        != replayed_compiled_run_content_hash
     ):
         issues.append("domain_run_context_rebind_compiled_binding_drift")
-    if receipt.get("historical_context_content_hash") == recording.get(
-        "cycle_substrate_context_content_hash"
+    if (
+        not receipt.get("historical_context_content_hash")
+        or receipt.get("historical_context_content_hash")
+        == replayed_context_content_hash
     ):
         issues.append("domain_run_context_rebind_not_historical")
+    prior_receipt = _mapping(receipt.get("prior_receipt"))
+    if prior_receipt:
+        issues.extend(
+            _historical_context_rebind_chain_issues(
+                prior_receipt,
+                replayed_domain_run=historical_projection,
+                compiler_recording_content_hash=(
+                    compiler_recording_content_hash
+                ),
+                replayed_n4_recording_content_hash=receipt.get(
+                    "historical_n4_recording_content_hash"
+                ),
+                replayed_context_content_hash=receipt.get(
+                    "historical_context_content_hash"
+                ),
+                replayed_compiled_run_content_hash=receipt.get(
+                    "historical_compiled_run_content_hash"
+                ),
+            )
+        )
     return tuple(sorted(set(issues)))
 
 
@@ -2171,7 +2241,19 @@ def _build_historical_n4_projection_rebind_receipt(
     replayed_prompts = _strings(
         replayed_projection.get("exact_call_prompt_hashes")
     )
-    if historical_prompts != prompts:
+    prior_receipt = _mapping(
+        recording.get("historical_projection_rebind_receipt")
+    )
+    prior_is_context_rebind = (
+        prior_receipt.get("schema_version")
+        == _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION
+    )
+    expected_historical_prompts = (
+        _strings(prior_receipt.get("replayed_prompt_hashes"))
+        if context_rebind is not None and prior_is_context_rebind
+        else prompts
+    )
+    if historical_prompts != expected_historical_prompts:
         raise UniversalityContractError(
             "proof_n4_projection_prompt_binding_drift"
         )
@@ -2209,9 +2291,6 @@ def _build_historical_n4_projection_rebind_receipt(
             "raw_response_hashes": raw_hashes,
         }
     else:
-        prior_receipt = _mapping(
-            recording.get("historical_projection_rebind_receipt")
-        )
         if not prior_receipt or _historical_n4_projection_rebind_receipt_issues(
             recording
         ):
@@ -2330,9 +2409,20 @@ def _historical_n4_projection_rebind_receipt_issues(
             replayed_prompts = _strings(
                 replayed_projection.get("exact_call_prompt_hashes")
             )
+            prior_receipt = _mapping(receipt.get("prior_receipt"))
+            prior_is_context_rebind = (
+                prior_receipt.get("schema_version")
+                == _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION
+            )
+            expected_historical_prompts = (
+                _strings(prior_receipt.get("replayed_prompt_hashes"))
+                if prior_is_context_rebind
+                else prompts
+            )
             if (
-                receipt.get("historical_prompt_hashes") != prompts
-                or historical_prompts != prompts
+                receipt.get("historical_prompt_hashes")
+                != expected_historical_prompts
+                or historical_prompts != expected_historical_prompts
             ):
                 issues.append("proof_n4_historical_projection_prompt_drift")
             if (
@@ -2355,7 +2445,6 @@ def _historical_n4_projection_rebind_receipt_issues(
                 "cycle_substrate_context_content_hash"
             ):
                 issues.append("proof_n4_projection_current_context_drift")
-            prior_receipt = _mapping(receipt.get("prior_receipt"))
             if not prior_receipt:
                 issues.append("proof_n4_projection_prior_receipt_missing")
             else:
@@ -2365,6 +2454,9 @@ def _historical_n4_projection_rebind_receipt_issues(
                 )
                 prior_recording["historical_projection_rebind_receipt"] = (
                     prior_receipt
+                )
+                prior_recording["cycle_substrate_context_content_hash"] = (
+                    receipt.get("historical_context_content_hash")
                 )
                 prior_issues = _historical_n4_projection_rebind_receipt_issues(
                     prior_recording
@@ -3263,12 +3355,7 @@ async def _domain_run_and_normalized_recording(
         if context_rebind_required
         else None
     )
-    historical_context_receipt = _mapping(
-        recording.get("historical_context_rebind_receipt")
-    )
-    if context_rebind_required and (
-        historical_domain_run is None or historical_context_receipt
-    ):
+    if context_rebind_required and historical_domain_run is None:
         raise UniversalityContractError("domain_run_context_binding_drift")
     try:
         captured_compiled = CompiledRecursiveGenerationCycleRun.model_validate(

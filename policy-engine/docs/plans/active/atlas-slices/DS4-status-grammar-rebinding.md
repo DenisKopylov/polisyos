@@ -719,6 +719,97 @@ Red-first integration tests:
 - `RunExplainabilityPanel.governedProjection.test.tsx > marks typed artifact absence as fixture-only and blocks authority posture`.
 - `RunExplainabilityPanel.governedProjection.test.tsx > preserves an unseen terminal and evidence label verbatim`.
 
+### DS4-C21-C23 — authorized semantic re-cut (architect authorization 2026-07-20)
+
+**Why this exists.** The C14 boundary audit fired the stop law of "Cluster
+execution law": the hardened return-union scanner replaced a name-shaped census
+(`*Status` convention — the P32 trust-by-form pattern) with a behavioral one and
+widened the honest count from 15 to **19 live retirement debts**. That is a
+measurement correction, not scope growth: the earlier number was an artifact of a
+weak instrument, and preserving it would have been a false green. C18 is
+textually architecture-only (`36 -> 0`), so those 19 have no authorized owner.
+Per the same law they are placed here as continuously numbered clusters rather
+than absorbed into C18. **The stop was correct and is now resolved.**
+
+**Execution order.** C21-C23 run **after C18 and before C19**. Numbering is
+continuous; execution position is explicit because C19 (Storybook/a11y/visual)
+and C20 (closure) must prove the *final* state, not an intermediate one.
+
+**Sizing law (from the C14 lesson).** C14 measured 15 components / 86 files /
++5155-3228 — roughly four clusters in one, which is why a new debt class surfaced
+mid-flight. Each cluster below is capped at **one coherent class**; if a measured
+blast radius approaches C14's, split before implementing, do not enlarge.
+
+#### DS4-C21 — bounded mechanical retirement
+
+The 13 non-structural definitions from the triage: **3 genuine presentation
+taxonomies** (classify and keep as branded non-authority interaction state) and
+**10 bounded mechanical retirements** (retire against their generated owner or an
+explicit `use_as_is` rationale). No structural adapter and no behavioral repair
+belongs here.
+
+Red-first tests:
+
+- the status inventory checker fails when any of the 13 is revived under a new
+  name, an alias, or a differently-spelled local union;
+- a retired definition's consumer renders the producer value opaquely and cannot
+  re-derive the old local vocabulary.
+
+Target: 19 -> 6 live retirement debts, denominator itemized in the inventory.
+
+#### DS4-C22 — structural adapters and function-return vocabularies
+
+The 2 structural adapters plus the 4 additional function-return vocabularies the
+widened census exposed:
+
+- `RunBadgeKind` — open-label run-lifecycle guessing; must pass the producer
+  label through opaquely instead of classifying it locally;
+- `GlyphIntent` / provenance inference — must bind to generated provenance,
+  never infer intent from text or shape;
+- the 4 function-return unions — classified or retired against their owner.
+
+Red-first tests:
+
+- an unseen producer lifecycle label survives verbatim and receives neutral
+  clothing, never a local badge class;
+- provenance intent is absent when the generated field is absent — no inference
+  fallback;
+- the return-union scanner rejects each vocabulary's revival generically.
+
+Target: 6 -> 0 live retirement debts.
+
+#### DS4-C23 — readiness and scientific-composition containment (containment only)
+
+Two behavioral authority leaks sit beyond the type definitions:
+`PublicSectorReadiness` composes readiness from local thresholds, regexes, dwell
+state, and disputes; `ScientificDepth` binds generated identifiability correctly
+but **invents** remedies, acquisition refs, E-values, claim extinction, cohort
+timelines, and stress rankings. Wrapping these as interaction state does not
+close the boundary — this is a surface **minting** authority (`P15`/`P05`) and a
+direct violation of "dashboards may project authority; they may not mint it".
+
+**Scope of this cluster is containment, not binding.** DS4 owns status grammar;
+producing these values against a real producer contract is value/uncertainty
+semantics and belongs to **DS16**. C23 therefore:
+
+- removes every synthesized value on both surfaces (no relabeling as interaction
+  state);
+- renders `unavailable` / opaque until a typed producer contract exists — the
+  precedent is C06, which removed five guessed authority values the same way;
+- registers the producer-binding work as an explicit, non-suppressed debt owned
+  by **DS16** in the disposition register and the Atlas master plan.
+
+Red-first tests:
+
+- neither surface emits a readiness verdict, E-value, remedy, acquisition ref,
+  claim-extinction, cohort timeline, or stress ranking absent a generated field;
+- a novel producer label is preserved verbatim and never scored locally;
+- the containment cannot be bypassed by routing the same synthesis through a
+  helper, a wrapper, or a renamed union.
+
+Target: both surfaces authority-clean; DS16 debt registered with owner, reason,
+and closure signal. **Out of scope here:** building the producer contract itself.
+
 ### DS4-C20 — closure wave
 
 Run fresh full gates in this order:
@@ -779,5 +870,10 @@ as authority and does not duplicate its row narratives. No merge or push.
 | C16     | `refactor(atlas-ui): migrate shared patterns`                    |
 | C17     | `docs(dashboard): disposition responsive families`               |
 | C18     | `refactor(dashboard): close architecture severing remainder`     |
+| C21     | `refactor(dashboard): retire bounded status taxonomies`          |
+| C22     | `refactor(dashboard): bind run lifecycle and provenance intent`  |
+| C23     | `fix(dashboard): contain readiness and scientific synthesis`     |
 | C19     | `test(dashboard): prove authority posture on a real panel`       |
 | C20     | `docs: close Atlas DS4 for architect review`                     |
+
+Execution order is C01-C18, then C21-C23, then C19-C20 (see the re-cut section).

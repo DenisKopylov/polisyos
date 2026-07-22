@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:98ff0d5c20cf17515ba9bb734164435f1637ed39a74d863f439a687cee2d7b39"
+      "sha256": "sha256:230db1d7b0536149114308c56280d2e41181cc26253dcd9478d46594852add61"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -2808,7 +2808,7 @@
       "literal_members": ["fail", "ok", "unknown", "warn"],
       "type_expression": "\"ok\" | \"fail\" | \"warn\" | \"unknown\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C22",
+      "target_cluster": "C22b",
       "rationale": "C22 owns the structural run-lifecycle repair; C21 leaves this open-label classifier live and does not absorb it.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
@@ -2829,7 +2829,7 @@
       "literal_members": ["blocked", "default", "pending", "verified"],
       "type_expression": "\"default\" | \"verified\" | \"blocked\" | \"pending\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C22",
+      "target_cluster": "C22c",
       "rationale": "C22 owns the provenance-intent structural repair; C21 leaves this generated-provenance binding gap live.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
@@ -3415,7 +3415,7 @@
       "literal_members": ["high", "low", "medium"],
       "type_expression": "\"low\" | \"medium\" | \"high\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C22",
+      "target_cluster": "C22d",
       "rationale": "C22 owns removal of the structural return vocabulary; C21 only confines its current result inside a candidate-display InteractionState.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
@@ -3436,7 +3436,7 @@
       "literal_members": ["fail", "neutral", "ok", "warn"],
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C22",
+      "target_cluster": "C22d",
       "rationale": "resolveLaunchBadgeKind maps launch owner state into a local semantic posture and remains registered for C18 retirement.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
@@ -3457,7 +3457,7 @@
       "literal_members": ["fail", "neutral", "ok", "warn"],
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C22",
+      "target_cluster": "C22d",
       "rationale": "resolveLaunchStatusKind maps launch owner state into a local semantic posture and remains registered for C18 retirement.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
@@ -3478,7 +3478,7 @@
       "literal_members": ["fail", "neutral", "ok", "warn"],
       "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
       "disposition": "retirement_debt",
-      "target_cluster": "C22",
+      "target_cluster": "C22d",
       "rationale": "statusKind maps workflow owner labels into a local semantic posture and remains registered for C18 retirement.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",

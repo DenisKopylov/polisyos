@@ -1407,7 +1407,7 @@ CLUSTER_PROOFS = {
     },
 }
 
-EXPECTED_FINDING_IDS = {
+BASE_EXPECTED_FINDING_IDS = {
     "baseline-lint-quantity-debt",
     "baseline-test-i18n-count-debt",
     "baseline-test-a11y-coverage-debt",
@@ -1420,6 +1420,41 @@ EXPECTED_FINDING_IDS = {
     "dependency-workbox-window",
     "fixture-policy-design-case-audience",
 }
+
+PRODUCER_BINDING_DEBT_DESCRIPTORS = {
+    "run-lifecycle-terminal-fact": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS3",
+        "capability_states": ["producer_missing", "surface_missing"],
+        "evidence_refs": [
+            "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
+            "packages/runtime-api-client/types.ts:9240",
+            "packages/runtime-api-client/types.ts:9258",
+            "packages/runtime-api-client/types.ts:9284",
+            "src/polisyos/runtime/http/routes/runs.py:179",
+            "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
+        ],
+        "rationale": (
+            "RunSummary exposes open status text and finished_at but no "
+            "producer-signed terminal fact; the runtime SSE sibling currently "
+            "derives terminality from status substrings, so DS4 must render "
+            "labels opaquely and may not mint lifecycle authority."
+        ),
+        "closure_signal": (
+            "DS3 projects a producer-signed terminal/completion fact through "
+            "the generated RunSummary and governed event contracts; dashboard "
+            "polling, optimistic, Clerk, and run surfaces consume that fact; "
+            "novel status labels remain opaque; the C22 semantic negatives and "
+            "DS5 ownership lint remain green."
+        ),
+    }
+}
+
+EXPECTED_FINDING_IDS = (
+    BASE_EXPECTED_FINDING_IDS | set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+)
 
 REPORT_PROJECTION_START = "<!-- BEGIN DS19 REGISTER PROJECTION -->"
 REPORT_PROJECTION_END = "<!-- END DS19 REGISTER PROJECTION -->"
@@ -1757,7 +1792,140 @@ def _supplemental_findings() -> list[dict[str, Any]]:
             "rationale": "The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed.",
         }
     )
+    findings.extend(
+        {
+            "finding_id": finding_id,
+            **copy.deepcopy(descriptor),
+            "decision_date": DECISION_DATE,
+        }
+        for finding_id, descriptor in sorted(
+            PRODUCER_BINDING_DEBT_DESCRIPTORS.items()
+        )
+    )
     return findings
+
+
+def _json_container_end(text: str, start: int) -> int:
+    """Return the inclusive end of one JSON array/object without reformatting."""
+    opener = text[start]
+    if opener not in "[{":
+        raise ValueError(f"JSON container expected at offset {start}")
+    closer = "]" if opener == "[" else "}"
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(start, len(text)):
+        character = text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif character == "\\":
+                escaped = True
+            elif character == '"':
+                in_string = False
+            continue
+        if character == '"':
+            in_string = True
+        elif character == opener:
+            depth += 1
+        elif character == closer:
+            depth -= 1
+            if depth == 0:
+                return index
+    raise ValueError(f"unterminated JSON container at offset {start}")
+
+
+def _supplemental_section_spans(
+    text: str,
+) -> tuple[int, int, list[tuple[str, int, int]]]:
+    match = re.search(r'^  "supplemental_findings":\s*(\[)', text, re.MULTILINE)
+    if match is None:
+        raise ValueError("supplemental_findings array missing")
+    start = match.start(1)
+    end = _json_container_end(text, start)
+    objects: list[tuple[str, int, int]] = []
+    index = start + 1
+    while index < end:
+        while index < end and (text[index].isspace() or text[index] == ","):
+            index += 1
+        if index >= end:
+            break
+        if text[index] != "{":
+            raise ValueError(
+                f"supplemental finding object expected at offset {index}"
+            )
+        object_end = _json_container_end(text, index)
+        row = json.loads(text[index : object_end + 1])
+        finding_id = row.get("finding_id")
+        if not isinstance(finding_id, str):
+            raise ValueError("supplemental finding_id missing")
+        objects.append((finding_id, index, object_end))
+        index = object_end + 1
+    return start, end, objects
+
+
+def _supplemental_section(
+    text: str,
+) -> tuple[int, int, list[tuple[str, str]]]:
+    """Expose byte slices used by preservation and idempotence tests."""
+    start, end, spans = _supplemental_section_spans(text)
+    return (
+        start,
+        end,
+        [
+            (finding_id, text[object_start : object_end + 1])
+            for finding_id, object_start, object_end in spans
+        ],
+    )
+
+
+def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
+    rendered = json.dumps(row, indent=2, ensure_ascii=False)
+    lines = rendered.splitlines()
+    return lines[0] + "\n" + "\n".join("    " + line for line in lines[1:])
+
+
+def _refresh_supplemental_findings_text(text: str) -> str:
+    """Upsert descriptor rows while preserving every other register byte."""
+    descriptor_ids = set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+    generated = {
+        row["finding_id"]: row
+        for row in _supplemental_findings()
+        if row["finding_id"] in descriptor_ids
+    }
+    _start, _end, spans = _supplemental_section_spans(text)
+    seen: set[str] = set()
+    refreshed = text
+    for finding_id, object_start, object_end in reversed(spans):
+        if finding_id not in generated:
+            continue
+        replacement = _render_supplemental_finding(generated[finding_id])
+        refreshed = (
+            refreshed[:object_start]
+            + replacement
+            + refreshed[object_end + 1 :]
+        )
+        seen.add(finding_id)
+
+    missing = sorted(descriptor_ids - seen)
+    if not missing:
+        return refreshed
+    start, end, refreshed_spans = _supplemental_section_spans(refreshed)
+    if refreshed_spans:
+        insertion_at = refreshed_spans[-1][2] + 1
+        insertion = "".join(
+            ",\n    " + _render_supplemental_finding(generated[finding_id])
+            for finding_id in missing
+        )
+    else:
+        insertion_at = start + 1
+        insertion = "\n" + "\n".join(
+            "    " + _render_supplemental_finding(generated[finding_id])
+            for finding_id in missing
+        ) + "\n  "
+    if insertion_at > end:
+        raise ValueError("supplemental insertion escaped its array")
+    return refreshed[:insertion_at] + insertion + refreshed[insertion_at:]
 
 
 def _seeded_negatives() -> list[dict[str, Any]]:
@@ -3142,6 +3310,50 @@ def _validate_c17_responsive_receipt(
         errors.extend(_c17_responsive_source_state_errors())
 
 
+def _validate_producer_binding_debt_findings(
+    data: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Bind every producer-debt row byte-for-byte to its sole descriptor."""
+    rows = data.get("supplemental_findings", [])
+    if not isinstance(rows, list):
+        return
+    by_id = {
+        str(row.get("finding_id")): row
+        for row in rows
+        if isinstance(row, Mapping)
+    }
+    producer_rows = [
+        row
+        for row in rows
+        if isinstance(row, Mapping)
+        and row.get("finding_kind") == "producer_binding_debt"
+    ]
+    for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items():
+        row = by_id.get(finding_id)
+        if row is None:
+            errors.append(
+                f"producer_binding_debt_drift:{finding_id}:finding_id"
+            )
+            continue
+        expected = {
+            "finding_id": finding_id,
+            **descriptor,
+            "decision_date": DECISION_DATE,
+        }
+        for field, expected_value in expected.items():
+            if row.get(field) != expected_value:
+                errors.append(
+                    f"producer_binding_debt_drift:{finding_id}:{field}"
+                )
+    descriptor_ids = set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+    for row in producer_rows:
+        finding_id = str(row.get("finding_id", "unknown"))
+        if finding_id not in descriptor_ids:
+            errors.append(
+                "producer_binding_debt_descriptor_missing:" + finding_id
+            )
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -3151,9 +3363,10 @@ def validate_register(
 ) -> list[str]:
     """Return all schema, parity, composition, and live-census failures."""
     errors: list[str] = []
+    _validate_producer_binding_debt_findings(data, errors)
     if schema:
         errors.extend(_schema_errors(data, SCHEMA_PATH))
-        if errors:
+        if any(error.startswith("schema:") for error in errors):
             return errors
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
@@ -3712,6 +3925,24 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     responsive["rationale"] = "C17 proves responsive readiness."
     probes.append(("ui-responsive-use-as-is-rationale-drift", c17_rationale_drift))
 
+    for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items():
+        governed_fields = ("finding_id", *descriptor)
+        for field in governed_fields:
+            mutation = copy.deepcopy(data)
+            row = next(
+                item
+                for item in mutation["supplemental_findings"]
+                if item["finding_id"] == finding_id
+            )
+            value = row[field]
+            if isinstance(value, list):
+                row[field] = list(reversed(value))
+            else:
+                row[field] = str(value) + "-corrupt"
+            probes.append(
+                (f"producer-binding-debt-{finding_id}-{field}", mutation)
+            )
+
     failures = []
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
@@ -3995,17 +4226,24 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             "",
             "### Subunits and structural findings",
             "",
-            "| ID | Kind | Disposition | Owner slice | State/reason |",
-            "| --- | --- | --- | --- | --- |",
+            "| ID | Kind | Disposition | Owner slice | Capability states | Closure signal | State/reason |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
     for row in data["subunits"]:
         lines.append(
-            f"| `{row['unit_id']}` | `{row['scope_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | {row['rationale']} |"
+            f"| `{row['unit_id']}` | `{row['scope_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | — | — | {row['rationale']} |"
         )
     for row in data["supplemental_findings"]:
+        capability_states = row.get("capability_states")
+        capability_projection = (
+            ", ".join(f"`{state}`" for state in capability_states)
+            if capability_states
+            else "—"
+        )
+        closure_projection = row.get("closure_signal", "—")
         lines.append(
-            f"| `{row['finding_id']}` | `{row['finding_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | `{row['status']}` — {row['rationale']} |"
+            f"| `{row['finding_id']}` | `{row['finding_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | {capability_projection} | {closure_projection} | `{row['status']}` — {row['rationale']} |"
         )
 
     lines.extend(
@@ -4230,6 +4468,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="validate the committed register")
     parser.add_argument("--write-seed", action="store_true", help="write a fresh deterministic seed register")
+    parser.add_argument(
+        "--write-supplemental",
+        action="store_true",
+        help="refresh only descriptor-derived supplemental findings in the evolved register",
+    )
     parser.add_argument("--write-report", action="store_true", help="regenerate the report projection")
     parser.add_argument("--corruption-probes", action="store_true", help="prove decisive mutations are rejected")
     parser.add_argument(
@@ -4262,7 +4505,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not REGISTER_PATH.exists():
         print(f"missing register: {REGISTER_PATH}", file=sys.stderr)
         return 1
-    data = _load_json(REGISTER_PATH)
+    register_text = REGISTER_PATH.read_text(encoding="utf-8")
+    if args.write_supplemental:
+        register_text = _refresh_supplemental_findings_text(register_text)
+        REGISTER_PATH.write_text(register_text, encoding="utf-8")
+        print(
+            "refreshed "
+            + str(REGISTER_PATH.relative_to(REPO_ROOT))
+            + " supplemental_findings"
+        )
+    data = json.loads(register_text)
     if args.write_report:
         REPORT_PATH.write_text(render_report(data), encoding="utf-8")
         print(f"wrote {REPORT_PATH.relative_to(REPO_ROOT)}")

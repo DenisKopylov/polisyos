@@ -708,5 +708,252 @@ class C17ResponsiveReceiptTests(unittest.TestCase):
         )
 
 
+class ProducerBindingDebtTests(unittest.TestCase):
+    """Prove producer-binding debt is descriptor-derived and fail closed."""
+
+    finding_id = "run-lifecycle-terminal-fact"
+    capability_states = ["producer_missing", "surface_missing"]
+    evidence_refs = [
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
+        "packages/runtime-api-client/types.ts:9240",
+        "packages/runtime-api-client/types.ts:9258",
+        "packages/runtime-api-client/types.ts:9284",
+        "src/polisyos/runtime/http/routes/runs.py:179",
+        "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
+    ]
+
+    @staticmethod
+    def _producer_row() -> dict[str, object]:
+        return {
+            "finding_id": ProducerBindingDebtTests.finding_id,
+            "finding_kind": "producer_binding_debt",
+            "disposition": "rebind_pending",
+            "status": "open_debt",
+            "evidence_refs": list(ProducerBindingDebtTests.evidence_refs),
+            "owner_slice": "DS3",
+            "decision_date": checker.DECISION_DATE,
+            "capability_states": list(ProducerBindingDebtTests.capability_states),
+            "rationale": (
+                "RunSummary exposes open status text and finished_at but no "
+                "producer-signed terminal fact; the runtime SSE sibling currently "
+                "derives terminality from status substrings, so DS4 must render "
+                "labels opaquely and may not mint lifecycle authority."
+            ),
+            "closure_signal": (
+                "DS3 projects a producer-signed terminal/completion fact through "
+                "the generated RunSummary and governed event contracts; dashboard "
+                "polling, optimistic, Clerk, and run surfaces consume that fact; "
+                "novel status labels remain opaque; the C22 semantic negatives and "
+                "DS5 ownership lint remain green."
+            ),
+        }
+
+    @staticmethod
+    def _supplemental_schema_messages(row: dict[str, object]) -> list[str]:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        data["supplemental_findings"] = [row]
+        return checker._schema_errors(data, checker.SCHEMA_PATH)
+
+    def test_schema_requires_capability_states_and_closure_signal_only_for_producer_binding_debt(
+        self,
+    ) -> None:
+        producer = self._producer_row()
+        self.assertEqual([], self._supplemental_schema_messages(producer))
+
+        for field in ("capability_states", "closure_signal"):
+            with self.subTest(missing=field):
+                mutation = copy.deepcopy(producer)
+                mutation.pop(field)
+                self.assertTrue(self._supplemental_schema_messages(mutation))
+
+        repaired = copy.deepcopy(producer)
+        repaired["repair_commit"] = "a" * 40
+        self.assertTrue(self._supplemental_schema_messages(repaired))
+
+        ordinary = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))[
+            "supplemental_findings"
+        ][0]
+        for field, value in (
+            ("capability_states", list(self.capability_states)),
+            ("closure_signal", producer["closure_signal"]),
+        ):
+            with self.subTest(forbidden=field):
+                mutation = copy.deepcopy(ordinary)
+                mutation[field] = value
+                self.assertTrue(self._supplemental_schema_messages(mutation))
+
+    def test_capability_state_vocabulary_matches_the_failure_register(self) -> None:
+        register_text = (
+            checker.REPO_ROOT / "docs/reference/policy-design-case-failure-patterns.md"
+        ).read_text(encoding="utf-8")
+        expected = [
+            "contract_only",
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "implemented_but_not_orchestrated",
+            "surface_missing",
+            "surface_out_of_scope",
+            "semantic_test_missing",
+        ]
+        observed = [
+            line.split("`", 2)[1]
+            for line in register_text.splitlines()
+            if line.startswith("| `")
+        ][: len(expected)]
+        schema = json.loads(checker.SCHEMA_PATH.read_text(encoding="utf-8"))
+        supplemental = schema["$defs"]["supplementalFinding"]
+        schema_states = (
+            supplemental.get("properties", {})
+            .get("capability_states", {})
+            .get("items", {})
+            .get("enum", [])
+        )
+
+        self.assertEqual(expected, observed)
+        self.assertEqual(expected, schema_states)
+
+    def test_run_lifecycle_terminal_debt_is_derived_from_one_descriptor(self) -> None:
+        descriptors = getattr(checker, "PRODUCER_BINDING_DEBT_DESCRIPTORS", {})
+        self.assertEqual({self.finding_id}, set(descriptors))
+        self.assertEqual(
+            checker.BASE_EXPECTED_FINDING_IDS | set(descriptors),
+            checker.EXPECTED_FINDING_IDS,
+        )
+
+        generated = {
+            row["finding_id"]: row for row in checker._supplemental_findings()
+        }
+        expected = self._producer_row()
+        self.assertEqual(expected, generated[self.finding_id])
+        self.assertEqual(
+            {key: expected[key] for key in descriptors[self.finding_id]},
+            descriptors[self.finding_id],
+        )
+
+    def test_supplemental_refresh_preserves_terminal_history_and_changes_only_the_derived_set(
+        self,
+    ) -> None:
+        original_text = REGISTER_PATH.read_text(encoding="utf-8")
+        locate = getattr(checker, "_supplemental_section", None)
+        refresh = getattr(checker, "_refresh_supplemental_findings_text", None)
+        self.assertTrue(callable(locate) and callable(refresh))
+        if not callable(locate) or not callable(refresh):
+            return
+
+        original_start, original_end, original_objects = locate(original_text)
+        refreshed_text = refresh(original_text)
+        refreshed_start, refreshed_end, refreshed_objects = locate(refreshed_text)
+        self.assertEqual(refreshed_text, refresh(refreshed_text))
+        self.assertEqual(
+            original_text[: original_start + 1],
+            refreshed_text[: refreshed_start + 1],
+        )
+        self.assertEqual(original_text[original_end:], refreshed_text[refreshed_end:])
+        descriptor_ids = set(checker.PRODUCER_BINDING_DEBT_DESCRIPTORS)
+        self.assertEqual(
+            [
+                object_text
+                for finding_id, object_text in original_objects
+                if finding_id not in descriptor_ids
+            ],
+            [
+                object_text
+                for finding_id, object_text in refreshed_objects
+                if finding_id not in descriptor_ids
+            ],
+        )
+        before = json.loads(original_text)
+        refreshed = json.loads(refreshed_text)
+        generated_descriptors = [
+            row
+            for row in checker._supplemental_findings()
+            if row["finding_id"] in descriptor_ids
+        ]
+        self.assertEqual(
+            generated_descriptors,
+            [
+                row
+                for row in refreshed["supplemental_findings"]
+                if row["finding_id"] in descriptor_ids
+            ],
+        )
+        for field in sorted(set(before) - {"supplemental_findings"}):
+            with self.subTest(field=field):
+                self.assertEqual(before[field], refreshed[field])
+        self.assertEqual(
+            15,
+            sum(
+                row["disposition"] == "deleted"
+                for row in refreshed["entries"]
+            ),
+        )
+        self.assertEqual(
+            len(before["reference_censuses"]),
+            len(refreshed["reference_censuses"]),
+        )
+
+    def test_rejects_run_lifecycle_terminal_debt_drift_in_every_governed_field(
+        self,
+    ) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        self.assertIn(
+            self.finding_id,
+            {row["finding_id"] for row in data["supplemental_findings"]},
+        )
+        mutations = {
+            "finding_id": self.finding_id + "-drift",
+            "finding_kind": "baseline_test_debt",
+            "disposition": "use_as_is",
+            "status": "repaired",
+            "owner_slice": "DS4",
+            "rationale": "drift",
+            "capability_states": list(reversed(self.capability_states)),
+            "closure_signal": "drift",
+            "evidence_refs": list(reversed(self.evidence_refs)),
+        }
+        for field, value in mutations.items():
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(data)
+                row = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == self.finding_id
+                )
+                row[field] = value
+                errors = checker.validate_register(
+                    mutation,
+                    live_probes=False,
+                    report_parity=False,
+                )
+                self.assertIn(
+                    f"producer_binding_debt_drift:{self.finding_id}:{field}",
+                    errors,
+                )
+
+    def test_report_projects_capability_states_and_closure_signal(self) -> None:
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        data["supplemental_findings"] = checker._supplemental_findings()
+        projection = checker._report_projection(data)
+        producer_lines = [
+            line for line in projection.splitlines() if f"`{self.finding_id}`" in line
+        ]
+        self.assertEqual(1, len(producer_lines))
+        producer_line = producer_lines[0]
+        ordinary_line = next(
+            line
+            for line in projection.splitlines()
+            if "`baseline-test-i18n-count-debt`" in line
+        )
+
+        self.assertIn("Capability states", projection)
+        self.assertIn("Closure signal", projection)
+        self.assertIn("`producer_missing`, `surface_missing`", producer_line)
+        self.assertIn(str(self._producer_row()["closure_signal"]), producer_line)
+        self.assertIn("| — | — |", ordinary_line)
+
+
 if __name__ == "__main__":
     unittest.main()

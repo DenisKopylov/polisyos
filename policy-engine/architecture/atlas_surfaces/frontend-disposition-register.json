@@ -5137,6 +5137,28 @@
       "decision_date": "2026-07-17",
       "repair_commit": "d01eaa572",
       "rationale": "The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed."
+    },
+    {
+      "finding_id": "run-lifecycle-terminal-fact",
+      "finding_kind": "producer_binding_debt",
+      "disposition": "rebind_pending",
+      "status": "open_debt",
+      "owner_slice": "DS3",
+      "capability_states": [
+        "producer_missing",
+        "surface_missing"
+      ],
+      "evidence_refs": [
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
+        "packages/runtime-api-client/types.ts:9240",
+        "packages/runtime-api-client/types.ts:9258",
+        "packages/runtime-api-client/types.ts:9284",
+        "src/polisyos/runtime/http/routes/runs.py:179",
+        "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602"
+      ],
+      "rationale": "RunSummary exposes open status text and finished_at but no producer-signed terminal fact; the runtime SSE sibling currently derives terminality from status substrings, so DS4 must render labels opaquely and may not mint lifecycle authority.",
+      "closure_signal": "DS3 projects a producer-signed terminal/completion fact through the generated RunSummary and governed event contracts; dashboard polling, optimistic, Clerk, and run surfaces consume that fact; novel status labels remain opaque; the C22 semantic negatives and DS5 ownership lint remain green.",
+      "decision_date": "2026-07-17"
     }
   ],
   "seeded_negative_lifecycle": [

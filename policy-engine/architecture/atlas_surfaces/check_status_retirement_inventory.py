@@ -59,16 +59,19 @@ C21_RETIRED_IDS = frozenset(
         "semantic-confidence-colors",
     }
 )
-C22_REMAINDER_IDS = frozenset(
-    {
-        "semantic-status-run-badge-kind",
-        "semantic-glyph-glyph-intent",
-        "semantic-simulation-to-severity",
-        "semantic-composer-resolve-launch-badge-kind",
-        "semantic-launch-run-resolve-status-kind",
-        "semantic-workflow-dag-status-kind",
-    }
-)
+C22_SUBCLUSTER_IDS = {
+    "C22b": frozenset({"semantic-status-run-badge-kind"}),
+    "C22c": frozenset({"semantic-glyph-glyph-intent"}),
+    "C22d": frozenset(
+        {
+            "semantic-simulation-to-severity",
+            "semantic-composer-resolve-launch-badge-kind",
+            "semantic-launch-run-resolve-status-kind",
+            "semantic-workflow-dag-status-kind",
+        }
+    ),
+}
+C22_REMAINDER_IDS = frozenset().union(*C22_SUBCLUSTER_IDS.values())
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -113,15 +116,16 @@ def _scan_json(request_json: str) -> dict[str, Any]:
 def _protected_semantic_definitions(
     inventory: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
-    """Project retired C21 rows into generic path/member revival guards."""
+    """Project every path-protected retired row into generic revival guards."""
     return [
         {
             "candidateId": row["candidate_id"],
             "members": sorted(row["literal_members"]),
-            "paths": sorted(row.get("protected_source_paths", [])),
+            "paths": sorted(row["protected_source_paths"]),
         }
         for row in inventory.get("semantic_exemptions", [])
-        if row.get("candidate_id") in C21_RETIRED_IDS
+        if row.get("current_definition_state") == "retired"
+        and row.get("protected_source_paths")
     ]
 
 
@@ -445,7 +449,7 @@ def _validate_refs_and_removals(inventory: Mapping[str, Any]) -> list[str]:
 
 
 def _validate_c21_partition(inventory: Mapping[str, Any]) -> list[str]:
-    """Require the architect-approved exact C21/C22 semantic partition."""
+    """Require the architect-approved exact C21/C22 subcluster partition."""
     rows = inventory.get("semantic_exemptions", [])
     by_id = {
         str(row.get("candidate_id")): row
@@ -458,16 +462,19 @@ def _validate_c21_partition(inventory: Mapping[str, Any]) -> list[str]:
         for candidate_id, row in by_id.items()
         if row.get("target_cluster") == "C21"
     }
-    c22 = {
-        candidate_id
-        for candidate_id, row in by_id.items()
-        if row.get("target_cluster") == "C22"
-    }
     expected_c21 = C21_INTERACTION_IDS | C21_RETIRED_IDS
     if c21 != expected_c21:
         errors.append("c21_semantic_partition_drift")
-    if c22 != C22_REMAINDER_IDS:
-        errors.append("c22_semantic_partition_drift")
+    for cluster, expected_ids in C22_SUBCLUSTER_IDS.items():
+        actual_ids = {
+            candidate_id
+            for candidate_id, row in by_id.items()
+            if row.get("target_cluster") == cluster
+        }
+        if actual_ids != expected_ids:
+            errors.append(f"{cluster.lower()}_semantic_partition_drift")
+    if any(row.get("target_cluster") == "C22" for row in by_id.values()):
+        errors.append("c22_unsplit_definition_row_forbidden")
     if any(row.get("target_cluster") == "C23" for row in by_id.values()):
         errors.append("c23_definition_row_forbidden")
     for candidate_id in C21_INTERACTION_IDS:
@@ -488,9 +495,15 @@ def _validate_c21_partition(inventory: Mapping[str, Any]) -> list[str]:
             errors.append(f"c21_retirement_disposition_drift:{candidate_id}")
     for candidate_id in C22_REMAINDER_IDS:
         row = by_id.get(candidate_id, {})
+        expected_cluster = next(
+            cluster
+            for cluster, candidate_ids in C22_SUBCLUSTER_IDS.items()
+            if candidate_id in candidate_ids
+        )
         if (
             row.get("current_definition_state") != "present"
             or row.get("disposition") != "retirement_debt"
+            or row.get("target_cluster") != expected_cluster
         ):
             errors.append(f"c22_remainder_disposition_drift:{candidate_id}")
     return errors

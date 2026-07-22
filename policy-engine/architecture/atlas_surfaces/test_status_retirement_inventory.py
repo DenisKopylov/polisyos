@@ -155,7 +155,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
     def test_schema_admits_continuous_c21_through_c23_targets(self) -> None:
         inventory, debt = _artifacts()
         row = inventory["semantic_exemptions"][0]
-        for target in ("C21", "C22", "C23"):
+        for target in ("C21", "C22", "C22a", "C22b", "C22c", "C22d", "C23"):
             with self.subTest(target=target):
                 mutation = copy.deepcopy(inventory)
                 mutation_row = next(
@@ -195,7 +195,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             {
                 row["candidate_id"]
                 for row in rows
-                if row["target_cluster"] == "C22"
+                if row["target_cluster"] in checker.C22_SUBCLUSTER_IDS
             },
         )
         self.assertFalse(
@@ -219,6 +219,468 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         self.assertEqual(55, len(rows))
         self.assertEqual(47, inventory["denominators"]["ds1_rows"])
         self.assertEqual(6, checker._summary(inventory, debt)["semantic_retirement_debt"])
+
+    def test_c22_subcluster_partition_is_exact(self) -> None:
+        inventory, debt = _artifacts()
+        expected = {
+            "C22b": frozenset({"semantic-status-run-badge-kind"}),
+            "C22c": frozenset({"semantic-glyph-glyph-intent"}),
+            "C22d": frozenset(
+                {
+                    "semantic-simulation-to-severity",
+                    "semantic-composer-resolve-launch-badge-kind",
+                    "semantic-launch-run-resolve-status-kind",
+                    "semantic-workflow-dag-status-kind",
+                }
+            ),
+        }
+        self.assertEqual(expected, getattr(checker, "C22_SUBCLUSTER_IDS", {}))
+        rows = inventory["semantic_exemptions"]
+        for cluster, candidate_ids in expected.items():
+            with self.subTest(cluster=cluster):
+                self.assertEqual(
+                    candidate_ids,
+                    {
+                        row["candidate_id"]
+                        for row in rows
+                        if row["target_cluster"] == cluster
+                    },
+                )
+        self.assertFalse(any(row["target_cluster"] == "C22" for row in rows))
+        self.assertFalse(any(row["target_cluster"] == "C23" for row in rows))
+        self.assertEqual(6, checker._summary(inventory, debt)["semantic_retirement_debt"])
+
+    def test_every_retired_semantic_row_drives_generic_revival_protection(
+        self,
+    ) -> None:
+        inventory, _debt = _artifacts()
+        mutation = copy.deepcopy(inventory)
+        older_row = next(
+            row
+            for row in mutation["semantic_exemptions"]
+            if row["candidate_id"] == "semantic-lineage-freshness"
+        )
+        older_row["protected_source_paths"] = [
+            "apps/runtime-dashboard/src/shared/lib/domain/lineageProbe.ts"
+        ]
+        expected = [
+            {
+                "candidateId": row["candidate_id"],
+                "members": sorted(row["literal_members"]),
+                "paths": sorted(row["protected_source_paths"]),
+            }
+            for row in mutation["semantic_exemptions"]
+            if row["current_definition_state"] == "retired"
+            and row.get("protected_source_paths")
+        ]
+
+        self.assertEqual(expected, checker._protected_semantic_definitions(mutation))
+
+    def test_c22_behavioral_scanner_rejects_record_map_conditional_synonym_and_fake_owner_import(
+        self,
+    ) -> None:
+        inventory, _debt = _artifacts()
+        mutation = copy.deepcopy(inventory)
+        row = next(
+            entry
+            for entry in mutation["semantic_exemptions"]
+            if entry["candidate_id"] == "semantic-status-run-badge-kind"
+        )
+        row["current_definition_state"] = "retired"
+        paths = {
+            name: f"apps/runtime-dashboard/src/features/runs/domain/c22-{name}.tsx"
+            for name in (
+                "renamed",
+                "record-map",
+                "conditional",
+                "badge-variable",
+                "visual-class",
+                "terminal-branch",
+                "polling-branch",
+                "completed-action",
+                "sibling-helper",
+                "sibling-consumer",
+                "fake-owner",
+                "fake-consumer",
+                "fake-badge-tone",
+                "unresolved-owner",
+                "helper-only",
+                "inline-owner",
+                "object-helper-spread",
+                "property-assignment-read",
+                "property-assignment-spread",
+                "non-jsx-lifecycle",
+                "boolean-wrapper",
+                "direct-owner-clothing",
+                "identity-owner-clothing",
+                "aliased-owner-clothing",
+                "object-owner-clothing",
+                "function-alias-clothing",
+                "object-function-alias-clothing",
+                "object-owner-spread",
+                "inline-owner-spread",
+            )
+        }
+        row["protected_source_paths"] = sorted(paths.values())
+        owner_imports = (
+            'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+            'import { Badge } from "@polisyos/atlas-ui";\n'
+        )
+        classifier = (
+            "function project(value: RunSummary[\"status\"]) {\n"
+            "  return value === 'settled' ? 'stable' : value === 'waiting' ? "
+            "'watching' : value === 'denied' ? 'limited' : 'opaque';\n"
+            "}\n"
+        )
+        overrides = {
+            paths["renamed"]: (
+                owner_imports
+                + "function renamed(value: string) {\n"
+                + "  if (value === 'a') return 'ok';\n"
+                + "  if (value === 'b') return 'fail';\n"
+                + "  if (value === 'c') return 'warn';\n"
+                + "  return 'unknown';\n}\n"
+                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + "=> <Badge kind={renamed(status) as never}>x</Badge>;\n"
+            ),
+            paths["record-map"]: (
+                owner_imports
+                + "const TONES: Record<string, string> = { settled: 'stable', "
+                + "waiting: 'watching', denied: 'limited' };\n"
+                + "function project(value: RunSummary[\"status\"]) { "
+                + "return TONES[value] ?? 'opaque'; }\n"
+                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + "=> <Badge kind={project(status) as never}>x</Badge>;\n"
+            ),
+            paths["conditional"]: (
+                owner_imports
+                + "function project(value: RunSummary[\"status\"]) {\n"
+                + "  return value === 'settled' ? 'stable' : value === 'waiting' ? "
+                + "'watching' : value === 'denied' ? 'limited' : 'opaque';\n}\n"
+                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + "=> <Badge kind={project(status) as never}>x</Badge>;\n"
+            ),
+            paths["badge-variable"]: (
+                owner_imports
+                + classifier
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const clothing = project(status);\n"
+                + "  return <Badge kind={clothing as never}>x</Badge>;\n}\n"
+            ),
+            paths["visual-class"]: (
+                owner_imports
+                + classifier
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const clothing = project(status);\n"
+                + "  return <span className={clothing}>x</span>;\n}\n"
+            ),
+            paths["terminal-branch"]: (
+                owner_imports
+                + classifier
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const terminal = project(status);\n"
+                + "  if (terminal) return <button>stop</button>;\n"
+                + "  return null;\n}\n"
+            ),
+            paths["polling-branch"]: (
+                owner_imports
+                + classifier
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const polling = project(status);\n"
+                + "  return polling ? <span>stop polling</span> : <span>poll</span>;\n}\n"
+            ),
+            paths["completed-action"]: (
+                owner_imports
+                + classifier
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const completed = project(status);\n"
+                + "  return <button disabled={!completed}>open result</button>;\n}\n"
+            ),
+            paths["sibling-helper"]: (
+                'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+                + "export function sibling(value: RunSummary[\"status\"]) {\n"
+                + "  return value === 'settled' ? 'stable' : 'opaque';\n}\n"
+            ),
+            paths["sibling-consumer"]: (
+                'import { Badge } from "@polisyos/atlas-ui";\n'
+                + 'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+                + 'import { sibling } from "./c22-sibling-helper";\n'
+                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + "=> <Badge kind={sibling(status) as never}>x</Badge>;\n"
+            ),
+            paths["fake-owner"]: (
+                "export interface RunSummary { status: string }\n"
+            ),
+            paths["fake-consumer"]: (
+                'import { Badge } from "@polisyos/atlas-ui";\n'
+                + 'import type { RunSummary } from "./c22-fake-owner";\n'
+                + "function project(value: RunSummary[\"status\"]) {\n"
+                + "  return value === 'settled' ? 'stable' : 'opaque';\n}\n"
+                + "export const Probe = ({ status }: { status: RunSummary[\"status\"] }) "
+                + "=> <Badge kind={project(status) as never}>x</Badge>;\n"
+            ),
+            paths["fake-badge-tone"]: (
+                'import type { RunWorkflowNodeView } from "@polisyos/runtime-api-client";\n'
+                + 'import { Badge } from "@polisyos/atlas-ui";\n'
+                + "type BadgeTone = 'stable' | 'opaque';\n"
+                + "function project(value: RunWorkflowNodeView[\"status\"]): BadgeTone {\n"
+                + "  return value === 'ok' ? 'stable' : 'opaque';\n}\n"
+                + "export const Probe = "
+                + "({ status }: { status: RunWorkflowNodeView[\"status\"] }) "
+                + "=> <Badge kind={project(status) as never}>x</Badge>;\n"
+            ),
+            paths["unresolved-owner"]: (
+                'import type { MissingOwner } from "@missing/owner";\n'
+                + 'import { Badge, type BadgeTone } from "@polisyos/atlas-ui";\n'
+                + "function project(value: MissingOwner[\"state\"]): BadgeTone {\n"
+                + "  return value === 'settled' ? 'ok' : 'neutral';\n}\n"
+                + "export const Probe = "
+                + "({ value }: { value: MissingOwner[\"state\"] }) "
+                + "=> <Badge kind={project(value)}>x</Badge>;\n"
+            ),
+            paths["helper-only"]: (
+                'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+                + "export function project(value: RunSummary[\"status\"]) {\n"
+                + "  return value === 'settled' ? 'stable' : 'opaque';\n}\n"
+            ),
+            paths["inline-owner"]: (
+                'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+                + 'import { Badge } from "@polisyos/atlas-ui";\n'
+                + "export const Probe = "
+                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + "<Badge kind={(status === 'settled' ? 'ok' : 'neutral') as never}>"
+                + "x</Badge>;\n"
+            ),
+            paths["object-helper-spread"]: (
+                owner_imports
+                + "function project(value: RunSummary[\"status\"]) {\n"
+                + "  return { kind: value === 'settled' ? 'stable' : 'opaque' };\n}\n"
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const clothing = project(status);\n"
+                + "  return <Badge {...(clothing as never)}>x</Badge>;\n}\n"
+            ),
+            paths["property-assignment-read"]: (
+                owner_imports
+                + classifier
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const props: { kind?: string } = {};\n"
+                + "  props.kind = project(status);\n"
+                + "  return <Badge kind={props.kind as never}>x</Badge>;\n}\n"
+            ),
+            paths["property-assignment-spread"]: (
+                owner_imports
+                + classifier
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const props: { kind?: string } = {};\n"
+                + "  props.kind = project(status);\n"
+                + "  return <Badge {...(props as never)}>x</Badge>;\n}\n"
+            ),
+            paths["non-jsx-lifecycle"]: (
+                'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+                + "function guessedTerminal(value: RunSummary[\"status\"]) {\n"
+                + "  return value === 'settled';\n}\n"
+                + "export function refetchInterval(status: RunSummary[\"status\"]) {\n"
+                + "  return guessedTerminal(status) ? false : 1000;\n}\n"
+            ),
+            paths["boolean-wrapper"]: (
+                owner_imports
+                + classifier
+                + "export const Probe = "
+                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + "<button disabled={Boolean(project(status))}>open</button>;\n"
+            ),
+            paths["direct-owner-clothing"]: (
+                owner_imports
+                + "export const Probe = "
+                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + "<Badge kind={status as never}>x</Badge>;\n"
+            ),
+            paths["identity-owner-clothing"]: (
+                owner_imports
+                + "function identity<T>(value: T): T { return value; }\n"
+                + "export const Probe = "
+                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + "<Badge kind={identity(status) as never}>x</Badge>;\n"
+            ),
+            paths["aliased-owner-clothing"]: (
+                owner_imports
+                + "type RunStatus = RunSummary[\"status\"];\n"
+                + "function project(value: RunStatus) {\n"
+                + "  return value === 'settled' ? 'stable' : 'opaque';\n}\n"
+                + "export const Probe = ({ status }: { status: RunStatus }) => "
+                + "<Badge kind={project(status) as never}>x</Badge>;\n"
+            ),
+            paths["object-owner-clothing"]: (
+                owner_imports
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const envelope = { value: status };\n"
+                + "  return <Badge kind={envelope.value as never}>x</Badge>;\n}\n"
+            ),
+            paths["function-alias-clothing"]: (
+                owner_imports
+                + classifier
+                + "const alias = project;\n"
+                + "export const Probe = "
+                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + "<Badge kind={alias(status) as never}>x</Badge>;\n"
+            ),
+            paths["object-function-alias-clothing"]: (
+                owner_imports
+                + classifier
+                + "const adapters = { project };\n"
+                + "export const Probe = "
+                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + "<Badge kind={adapters.project(status) as never}>x</Badge>;\n"
+            ),
+            paths["object-owner-spread"]: (
+                owner_imports
+                + "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+                + "  const props = { kind: status };\n"
+                + "  return <Badge {...(props as never)}>x</Badge>;\n}\n"
+            ),
+            paths["inline-owner-spread"]: (
+                owner_imports
+                + "export const Probe = "
+                + "({ status }: { status: RunSummary[\"status\"] }) => "
+                + "<Badge {...({ kind: status } as never)}>x</Badge>;\n"
+            ),
+        }
+
+        scan = checker._scan(overrides, inventory=mutation)
+        rejected_paths = {
+            revival["path"] for revival in scan.get("protectedRevivals", [])
+        }
+        expected_consumers = {
+            path
+            for name, path in paths.items()
+            if name not in {"sibling-helper", "fake-owner", "helper-only"}
+        }
+        self.assertEqual(expected_consumers, rejected_paths)
+
+    def test_c22_behavioral_scanner_allows_generated_indexed_owner_types_and_badge_tone(
+        self,
+    ) -> None:
+        inventory, _debt = _artifacts()
+        mutation = copy.deepcopy(inventory)
+        row = next(
+            entry
+            for entry in mutation["semantic_exemptions"]
+            if entry["candidate_id"] == "semantic-status-run-badge-kind"
+        )
+        row["current_definition_state"] = "retired"
+        source_path = (
+            "apps/runtime-dashboard/src/features/runs/domain/"
+            "c22-generated-owner-positive.tsx"
+        )
+        raw_path = (
+            "apps/runtime-dashboard/src/features/runs/domain/"
+            "c22-raw-owner-label-positive.tsx"
+        )
+        layout_path = (
+            "apps/runtime-dashboard/src/features/runs/domain/"
+            "c22-layout-positive.tsx"
+        )
+        constant_path = (
+            "apps/runtime-dashboard/src/features/runs/domain/"
+            "c22-constant-helper-positive.tsx"
+        )
+        logging_path = (
+            "apps/runtime-dashboard/src/features/runs/domain/"
+            "c22-logging-positive.tsx"
+        )
+        observation_assignment_path = (
+            "apps/runtime-dashboard/src/features/runs/domain/"
+            "c22-observation-assignment-positive.tsx"
+        )
+        children_spread_path = (
+            "apps/runtime-dashboard/src/features/runs/domain/"
+            "c22-children-spread-positive.tsx"
+        )
+        row["protected_source_paths"] = [
+            source_path,
+            raw_path,
+            layout_path,
+            constant_path,
+            logging_path,
+            observation_assignment_path,
+            children_spread_path,
+        ]
+        source = (
+            'import type { RunWorkflowNodeView } from "@polisyos/runtime-api-client";\n'
+            'import { Badge, type BadgeTone } from "@polisyos/atlas-ui";\n'
+            "const TONES: Record<RunWorkflowNodeView[\"status\"], BadgeTone> = {\n"
+            "  ok: 'ok', skip: 'neutral', fail: 'fail', unknown: 'neutral',\n"
+            "};\n"
+            "function tone(status: RunWorkflowNodeView[\"status\"]): BadgeTone {\n"
+            "  return TONES[status];\n"
+            "}\n"
+            "export const Probe = "
+            "({ status }: { status: RunWorkflowNodeView[\"status\"] }) => "
+            "<Badge kind={tone(status)}>x</Badge>;\n"
+        )
+
+        raw_source = (
+            'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+            "function raw(value: RunSummary[\"status\"]) { return value; }\n"
+            "export const Probe = "
+            "({ status }: { status: RunSummary[\"status\"] }) => "
+            "<code>{raw(status)}</code>;\n"
+        )
+        layout_source = (
+            "function layout(width: number) {\n"
+            "  if (width > 1200) return 'grid-cols-3';\n"
+            "  if (width > 800) return 'grid-cols-2';\n"
+            "  return 'grid-cols-1';\n"
+            "}\n"
+            "export const Probe = ({ width }: { width: number }) => "
+            "<span className={layout(width)}>x</span>;\n"
+        )
+        constant_source = (
+            'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+            'import { Badge } from "@polisyos/atlas-ui";\n'
+            "function project(value: RunSummary[\"status\"]) {\n"
+            "  return value === 'settled' ? 'stable' : 'opaque';\n"
+            "}\n"
+            "export const Probe = () => "
+            "<Badge kind={project('settled') as never}>x</Badge>;\n"
+        )
+        logging_source = (
+            'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+            "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+            "  if (status === 'settled') console.debug(status);\n"
+            "  return <span>static</span>;\n"
+            "}\n"
+        )
+        observation_assignment_source = (
+            'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+            "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+            "  let observed = '';\n"
+            "  if (status === 'settled') observed = status;\n"
+            "  console.debug(observed);\n"
+            "  return <span>static</span>;\n"
+            "}\n"
+        )
+        children_spread_source = (
+            'import type { RunSummary } from "@polisyos/runtime-api-client";\n'
+            "export function Probe({ status }: { status: RunSummary[\"status\"] }) {\n"
+            "  const props = { children: status };\n"
+            "  return <code {...props} />;\n"
+            "}\n"
+        )
+        scan = checker._scan(
+            {
+                source_path: source,
+                raw_path: raw_source,
+                layout_path: layout_source,
+                constant_path: constant_source,
+                logging_path: logging_source,
+                observation_assignment_path: observation_assignment_source,
+                children_spread_path: children_spread_source,
+            },
+            inventory=mutation,
+        )
+
+        self.assertEqual([], scan.get("protectedRevivals", []))
 
     def test_rejects_semantic_interaction_state_without_an_authority_barrier(
         self,

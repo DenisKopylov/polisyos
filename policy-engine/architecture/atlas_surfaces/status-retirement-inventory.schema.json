@@ -250,6 +250,10 @@
             "C18",
             "C21",
             "C22",
+            "C22a",
+            "C22b",
+            "C22c",
+            "C22d",
             "C23"
           ]
         },
@@ -280,7 +284,9 @@
             "properties": {
               "current_definition_state": { "const": "retired" },
               "disposition": { "const": "retirement_debt" },
-              "target_cluster": { "const": "C21" }
+              "target_cluster": {
+                "enum": ["C21", "C22b", "C22c", "C22d"]
+              }
             },
             "required": [
               "current_definition_state",
@@ -363,6 +369,10 @@
             "C18",
             "C21",
             "C22",
+            "C22a",
+            "C22b",
+            "C22c",
+            "C22d",
             "C23"
           ]
         },

@@ -720,6 +720,1275 @@ function collectThresholdPresentationRevivals(
   );
 }
 
+const LIFECYCLE_SINK_ATTRIBUTES = new Set(["aria-disabled", "disabled"]);
+const LOGICAL_CONTROL_OPERATORS = new Set([
+  ts.SyntaxKind.AmpersandAmpersandToken,
+  ts.SyntaxKind.BarBarToken,
+  ts.SyntaxKind.QuestionQuestionToken,
+]);
+
+function declarationPath(node) {
+  return node ? relativePath(node.getSourceFile().fileName) : null;
+}
+
+function symbolDeclarationsResolveUnder(symbol, prefix) {
+  const declarations = symbol?.declarations ?? [];
+  return (
+    declarations.length > 0 &&
+    declarations.every((declaration) =>
+      declarationPath(declaration)?.startsWith(prefix),
+    )
+  );
+}
+
+function typeRootSymbol(checker, typeNode, seen = new Set()) {
+  if (!typeNode) return undefined;
+  if (ts.isParenthesizedTypeNode(typeNode)) {
+    return typeRootSymbol(checker, typeNode.type, seen);
+  }
+  if (ts.isIndexedAccessTypeNode(typeNode)) {
+    return typeRootSymbol(checker, typeNode.objectType, seen);
+  }
+  if (ts.isTypeReferenceNode(typeNode)) {
+    const symbol = symbolIdentity(checker, typeNode.typeName);
+    if (!symbol || seen.has(symbol)) return symbol;
+    seen.add(symbol);
+    for (const declaration of symbol.declarations ?? []) {
+      if (ts.isTypeAliasDeclaration(declaration)) {
+        const nested = typeRootSymbol(checker, declaration.type, seen);
+        if (nested) return nested;
+      }
+    }
+    return symbol;
+  }
+  if (ts.isTypeQueryNode(typeNode)) {
+    return symbolIdentity(checker, typeNode.exprName);
+  }
+  return undefined;
+}
+
+function isClosedStringLiteralType(type) {
+  const members = type.isUnion?.() ? type.types : [type];
+  return (
+    members.length > 0 &&
+    members.every((member) => (member.flags & ts.TypeFlags.StringLiteral) !== 0)
+  );
+}
+
+function isGeneratedClosedInputType(checker, typeNode) {
+  const root = typeRootSymbol(checker, typeNode);
+  if (
+    !symbolDeclarationsResolveUnder(root, "packages/runtime-api-client/")
+  ) {
+    return false;
+  }
+  return isClosedStringLiteralType(checker.getTypeFromTypeNode(typeNode));
+}
+
+function isAtlasBadgeToneType(checker, typeNode) {
+  if (!typeNode) return false;
+  const type = checker.getTypeFromTypeNode(typeNode);
+  const alias = type.aliasSymbol;
+  return (
+    alias?.name === "BadgeTone" &&
+    symbolDeclarationsResolveUnder(alias, "packages/atlas-ui/")
+  );
+}
+
+function functionSymbol(checker, node) {
+  if (node.name) return symbolIdentity(checker, node.name);
+  const parent = node.parent;
+  if (
+    ts.isVariableDeclaration(parent) ||
+    ts.isPropertyDeclaration(parent) ||
+    ts.isPropertyAssignment(parent)
+  ) {
+    return symbolIdentity(checker, parent.name);
+  }
+  return undefined;
+}
+
+function addBindingSymbols(checker, name, target) {
+  let changed = false;
+  for (const identifier of bindingNames(name)) {
+    const symbol = symbolIdentity(checker, identifier);
+    if (symbol && !target.has(symbol)) {
+      target.add(symbol);
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+function sourceFunctionNodes(sourceFiles) {
+  const functions = [];
+  for (const sourceFile of sourceFiles) {
+    const visit = (node) => {
+      if (ts.isFunctionLike(node) && node.body) functions.push(node);
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return functions;
+}
+
+function nodesInsideFunction(node) {
+  const variables = [];
+  const assignments = [];
+  const returns = [];
+  const visit = (current) => {
+    if (current !== node && ts.isFunctionLike(current)) return;
+    if (ts.isVariableDeclaration(current)) variables.push(current);
+    if (
+      ts.isBinaryExpression(current) &&
+      current.operatorToken.kind === ts.SyntaxKind.EqualsToken
+    ) {
+      assignments.push(current);
+    }
+    if (ts.isReturnStatement(current) && current.expression) {
+      returns.push(current);
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node.body);
+  return { assignments, returns, variables };
+}
+
+function parameterDependencies(checker, node) {
+  const parameters = new Map();
+  const dependentBindings = new Map();
+  for (const parameter of node.parameters) {
+    for (const identifier of bindingNames(parameter.name)) {
+      const symbol = symbolIdentity(checker, identifier);
+      if (!symbol) continue;
+      parameters.set(symbol, parameter);
+      dependentBindings.set(symbol, new Set([symbol]));
+    }
+  }
+  const { assignments, variables } = nodesInsideFunction(node);
+  const dependenciesOf = (expression, seen = new Set()) => {
+    const current = unwrapExpression(expression);
+    if (seen.has(current)) return new Set();
+    seen.add(current);
+    const direct = symbolIdentity(checker, current);
+    const dependencies = new Set(dependentBindings.get(direct) ?? []);
+    ts.forEachChild(current, (child) => {
+      for (const dependency of dependenciesOf(child, seen)) {
+        dependencies.add(dependency);
+      }
+    });
+    return dependencies;
+  };
+  const store = (name, dependencies) => {
+    let changed = false;
+    if (dependencies.size === 0) return changed;
+    for (const identifier of bindingNames(name)) {
+      const symbol = symbolIdentity(checker, identifier);
+      if (!symbol) continue;
+      const current = dependentBindings.get(symbol) ?? new Set();
+      const next = new Set([...current, ...dependencies]);
+      if (next.size !== current.size) {
+        dependentBindings.set(symbol, next);
+        changed = true;
+      }
+    }
+    return changed;
+  };
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const variable of variables) {
+      if (variable.initializer) {
+        changed =
+          store(variable.name, dependenciesOf(variable.initializer)) || changed;
+      }
+    }
+    for (const assignment of assignments) {
+      const left = unwrapExpression(assignment.left);
+      if (ts.isIdentifier(left)) {
+        changed = store(left, dependenciesOf(assignment.right)) || changed;
+      }
+    }
+  }
+  return { dependenciesOf, parameters };
+}
+
+function projectionControlsInExpression(node, dependenciesOf) {
+  const controls = new Set();
+  const addDependencies = (expression) => {
+    for (const dependency of dependenciesOf(expression)) {
+      controls.add(dependency);
+    }
+  };
+  const visit = (current) => {
+    current = unwrapExpression(current);
+    if (ts.isConditionalExpression(current)) {
+      addDependencies(current.condition);
+    }
+    if (
+      ts.isElementAccessExpression(current) &&
+      current.argumentExpression
+    ) {
+      addDependencies(current.argumentExpression);
+    }
+    if (
+      ts.isBinaryExpression(current) &&
+      (LOGICAL_CONTROL_OPERATORS.has(current.operatorToken.kind) ||
+        [
+          ts.SyntaxKind.EqualsEqualsToken,
+          ts.SyntaxKind.EqualsEqualsEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsEqualsToken,
+          ts.SyntaxKind.GreaterThanToken,
+          ts.SyntaxKind.GreaterThanEqualsToken,
+          ts.SyntaxKind.LessThanToken,
+          ts.SyntaxKind.LessThanEqualsToken,
+        ].includes(current.operatorToken.kind))
+    ) {
+      addDependencies(current.left);
+      addDependencies(current.right);
+    }
+    if (ts.isCallExpression(current)) {
+      addDependencies(current.expression);
+      for (const argument of current.arguments) addDependencies(argument);
+    }
+    if (
+      ts.isPrefixUnaryExpression(current) ||
+      ts.isPostfixUnaryExpression(current)
+    ) {
+      addDependencies(current.operand);
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
+  return controls;
+}
+
+function controllingAncestors(returnNode, functionNode, dependenciesOf) {
+  const controls = new Set();
+  for (
+    let current = returnNode.parent;
+    current && current !== functionNode.body;
+    current = current.parent
+  ) {
+    let condition;
+    if (ts.isIfStatement(current)) condition = current.expression;
+    if (ts.isSwitchStatement(current)) condition = current.expression;
+    if (condition) {
+      for (const dependency of dependenciesOf(condition)) {
+        controls.add(dependency);
+      }
+    }
+  }
+  return controls;
+}
+
+function directProjectionControls(checker, node) {
+  const { dependenciesOf, parameters } = parameterDependencies(checker, node);
+  const controls = new Set();
+  for (const returnNode of nodesInsideFunction(node).returns) {
+    for (const dependency of projectionControlsInExpression(
+      returnNode.expression,
+      dependenciesOf,
+    )) {
+      controls.add(dependency);
+    }
+    for (const dependency of controllingAncestors(
+      returnNode,
+      node,
+      dependenciesOf,
+    )) {
+      controls.add(dependency);
+    }
+  }
+  if (node.body && !ts.isBlock(node.body)) {
+    for (const dependency of projectionControlsInExpression(
+      node.body,
+      dependenciesOf,
+    )) {
+      controls.add(dependency);
+    }
+  }
+  return {
+    controls,
+    parameters: [...controls]
+      .map((symbol) => parameters.get(symbol))
+      .filter(Boolean),
+  };
+}
+
+function isAuthorizedBadgeToneProjection(checker, node, parameters) {
+  return (
+    parameters.length > 0 &&
+    isAtlasBadgeToneType(checker, node.type) &&
+    parameters.every(
+      (parameter) =>
+        parameter.type &&
+        isGeneratedClosedInputType(checker, parameter.type),
+    )
+  );
+}
+
+function hasIndexedAccessType(checker, typeNode, seen = new Set()) {
+  if (!typeNode) return false;
+  if (ts.isIndexedAccessTypeNode(typeNode)) return true;
+  if (ts.isTypeReferenceNode(typeNode)) {
+    const symbol = symbolIdentity(checker, typeNode.typeName);
+    if (symbol && !seen.has(symbol)) {
+      seen.add(symbol);
+      for (const declaration of symbol.declarations ?? []) {
+        if (
+          ts.isTypeAliasDeclaration(declaration) &&
+          hasIndexedAccessType(checker, declaration.type, seen)
+        ) {
+          return true;
+        }
+      }
+    }
+  }
+  let found = false;
+  ts.forEachChild(typeNode, (child) => {
+    if (!found && hasIndexedAccessType(checker, child, seen)) found = true;
+  });
+  return found;
+}
+
+function declaredBindingTypeNode(checker, declaration, identifier) {
+  if (ts.isIdentifier(declaration.name)) return declaration.type;
+  if (!ts.isObjectBindingPattern(declaration.name) || !declaration.type) {
+    return declaration.type;
+  }
+  const element = declaration.name.elements.find((candidate) =>
+    bindingNames(candidate.name).includes(identifier),
+  );
+  if (!element) return undefined;
+  const propertyName = propertyNameText(element.propertyName ?? element.name);
+  if (!propertyName) return undefined;
+  const property = checker
+    .getTypeFromTypeNode(declaration.type)
+    .getProperty(propertyName);
+  for (const propertyDeclaration of property?.declarations ?? []) {
+    if (
+      (ts.isPropertySignature(propertyDeclaration) ||
+        ts.isPropertyDeclaration(propertyDeclaration) ||
+        ts.isParameter(propertyDeclaration)) &&
+      propertyDeclaration.type
+    ) {
+      return propertyDeclaration.type;
+    }
+  }
+  return undefined;
+}
+
+function typeCanCarryOpenLabel(type) {
+  if (
+    (type.flags &
+      (ts.TypeFlags.Any | ts.TypeFlags.Unknown | ts.TypeFlags.StringLike)) !==
+    0
+  ) {
+    return true;
+  }
+  return Boolean(
+    type.isUnion?.() && type.types.some((member) => typeCanCarryOpenLabel(member)),
+  );
+}
+
+function expressionStringMembers(checker, node, seen = new Set()) {
+  const current = unwrapExpression(node);
+  if (seen.has(current)) return new Set();
+  seen.add(current);
+  if (
+    ts.isStringLiteral(current) ||
+    ts.isNoSubstitutionTemplateLiteral(current)
+  ) {
+    return new Set([current.text]);
+  }
+  if (ts.isConditionalExpression(current)) {
+    return new Set([
+      ...expressionStringMembers(checker, current.whenTrue, seen),
+      ...expressionStringMembers(checker, current.whenFalse, seen),
+    ]);
+  }
+  if (ts.isCallExpression(current)) {
+    const symbol = symbolIdentity(checker, current.expression);
+    const declaration = symbol?.valueDeclaration ?? symbol?.declarations?.[0];
+    if (declaration && ts.isFunctionLike(declaration)) {
+      return new Set(
+        functionReturnExpressions(declaration).flatMap((expression) => [
+          ...expressionStringMembers(checker, expression, seen),
+        ]),
+      );
+    }
+  }
+  if (ts.isIdentifier(current)) {
+    const symbol = symbolIdentity(checker, current);
+    const declaration = symbol?.valueDeclaration;
+    if (ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      return expressionStringMembers(checker, declaration.initializer, seen);
+    }
+  }
+  return new Set();
+}
+
+function collectAuthoredProjectionRevivals(
+  sourceFiles,
+  protectedDefinitions,
+  pathOf,
+  checker,
+) {
+  const descriptors = Array.isArray(protectedDefinitions)
+    ? protectedDefinitions
+    : [];
+  const descriptorsByPath = new Map();
+  for (const descriptor of descriptors) {
+    for (const protectedPath of descriptor.paths ?? []) {
+      const values = descriptorsByPath.get(protectedPath) ?? [];
+      values.push(descriptor);
+      descriptorsByPath.set(protectedPath, values);
+    }
+  }
+
+  const functions = sourceFunctionNodes(sourceFiles);
+  const projectedFunctions = new Map();
+  const transparentFunctions = new Map();
+  const authorizedFunctions = new Set();
+  const projectedValues = new Set();
+  const ownerValues = new Set();
+  const objectEntries = new Map();
+  const variableNodes = [];
+  const assignmentNodes = [];
+  const parameterNodes = [];
+  const objectLiteralNodes = [];
+  for (const sourceFile of sourceFiles) {
+    const visit = (node) => {
+      if (ts.isVariableDeclaration(node)) variableNodes.push(node);
+      if (ts.isParameter(node)) parameterNodes.push(node);
+      if (ts.isObjectLiteralExpression(node)) objectLiteralNodes.push(node);
+      if (
+        ts.isBinaryExpression(node) &&
+        node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+      ) {
+        assignmentNodes.push(node);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+
+  for (const node of [...parameterNodes, ...variableNodes]) {
+    for (const identifier of bindingNames(node.name)) {
+      const bindingType = declaredBindingTypeNode(checker, node, identifier);
+      if (!hasIndexedAccessType(checker, bindingType)) continue;
+      if (!typeCanCarryOpenLabel(checker.getTypeAtLocation(identifier))) {
+        continue;
+      }
+      const symbol = symbolIdentity(checker, identifier);
+      if (symbol) ownerValues.add(symbol);
+    }
+  }
+
+  const expressionIsOwnerDerived = (node, seen = new Set()) => {
+    const current = unwrapExpression(node);
+    if (seen.has(current)) return false;
+    seen.add(current);
+    const symbol = symbolIdentity(checker, current);
+    if (symbol && ownerValues.has(symbol)) return true;
+    if (ts.isPropertyAccessExpression(current)) {
+      if (
+        symbolDeclarationsResolveUnder(
+          symbolIdentity(checker, current.name),
+          "packages/runtime-api-client/",
+        ) && typeCanCarryOpenLabel(checker.getTypeAtLocation(current))
+      ) {
+        return true;
+      }
+      return expressionIsOwnerDerived(current.expression, seen);
+    }
+    if (ts.isElementAccessExpression(current)) {
+      return (
+        expressionIsOwnerDerived(current.expression, seen) ||
+        Boolean(
+          current.argumentExpression &&
+            expressionIsOwnerDerived(current.argumentExpression, seen),
+        )
+      );
+    }
+    if (ts.isConditionalExpression(current)) {
+      return (
+        expressionIsOwnerDerived(current.condition, seen) ||
+        expressionIsOwnerDerived(current.whenTrue, seen) ||
+        expressionIsOwnerDerived(current.whenFalse, seen)
+      );
+    }
+    if (ts.isBinaryExpression(current)) {
+      return (
+        expressionIsOwnerDerived(current.left, seen) ||
+        expressionIsOwnerDerived(current.right, seen)
+      );
+    }
+    if (
+      ts.isPrefixUnaryExpression(current) ||
+      ts.isPostfixUnaryExpression(current)
+    ) {
+      return expressionIsOwnerDerived(current.operand, seen);
+    }
+    if (
+      ts.isAwaitExpression(current) ||
+      ts.isYieldExpression(current) ||
+      ts.isSpreadElement(current)
+    ) {
+      return Boolean(
+        current.expression && expressionIsOwnerDerived(current.expression, seen),
+      );
+    }
+    if (ts.isArrayLiteralExpression(current)) {
+      return current.elements.some((element) =>
+        expressionIsOwnerDerived(element, seen),
+      );
+    }
+    if (ts.isObjectLiteralExpression(current)) {
+      return current.properties.some((property) => {
+        if (ts.isPropertyAssignment(property)) {
+          return expressionIsOwnerDerived(property.initializer, seen);
+        }
+        if (ts.isShorthandPropertyAssignment(property)) {
+          return expressionIsOwnerDerived(property.name, seen);
+        }
+        if (ts.isSpreadAssignment(property)) {
+          return expressionIsOwnerDerived(property.expression, seen);
+        }
+        return false;
+      });
+    }
+    return false;
+  };
+
+  let ownerChanged = true;
+  while (ownerChanged) {
+    ownerChanged = false;
+    for (const node of variableNodes) {
+      if (node.initializer && expressionIsOwnerDerived(node.initializer)) {
+        ownerChanged =
+          addBindingSymbols(checker, node.name, ownerValues) || ownerChanged;
+      }
+    }
+    for (const node of assignmentNodes) {
+      const left = unwrapExpression(node.left);
+      if (ts.isIdentifier(left) && expressionIsOwnerDerived(node.right)) {
+        ownerChanged =
+          addBindingSymbols(checker, left, ownerValues) || ownerChanged;
+      }
+      const property = objectPropertyTarget(left);
+      if (
+        property?.object &&
+        expressionIsOwnerDerived(node.right) &&
+        !ownerValues.has(property.object)
+      ) {
+        ownerValues.add(property.object);
+        ownerChanged = true;
+      }
+    }
+  }
+
+  for (const node of functions) {
+    const symbol = functionSymbol(checker, node);
+    if (!symbol) continue;
+    const parameterSymbols = node.parameters.map((parameter) => {
+      const names = bindingNames(parameter.name);
+      return names.length === 1
+        ? symbolIdentity(checker, names[0])
+        : undefined;
+    });
+    const returned = functionReturnExpressions(node).map((expression) =>
+      unwrapExpression(expression),
+    );
+    if (returned.length > 0) {
+      const index = parameterSymbols.findIndex(
+        (parameterSymbol) =>
+          parameterSymbol &&
+          returned.every(
+            (expression) =>
+              ts.isIdentifier(expression) &&
+              symbolIdentity(checker, expression) === parameterSymbol,
+          ),
+      );
+      if (index >= 0) transparentFunctions.set(symbol, new Set([index]));
+    }
+    const { controls, parameters } = directProjectionControls(checker, node);
+    const authorized =
+      controls.size > 0 &&
+      isAuthorizedBadgeToneProjection(checker, node, parameters);
+    if (authorized) authorizedFunctions.add(symbol);
+    if (controls.size > 0 && !authorized) {
+      projectedFunctions.set(
+        symbol,
+        new Set(
+          parameters
+            .map((parameter) => node.parameters.indexOf(parameter))
+            .filter((index) => index >= 0),
+        ),
+      );
+    }
+  }
+
+  const copyFunctionSummarySymbols = (target, source) => {
+    if (!target || !source || target === source) return false;
+    if (authorizedFunctions.has(source) && !authorizedFunctions.has(target)) {
+      authorizedFunctions.add(target);
+      return true;
+    }
+    for (const summaries of [projectedFunctions, transparentFunctions]) {
+      const sourceSummary = summaries.get(source);
+      if (sourceSummary && !summaries.has(target)) {
+        summaries.set(target, new Set(sourceSummary));
+        return true;
+      }
+    }
+    return false;
+  };
+  const copyFunctionSummary = (targetNode, sourceNode) =>
+    copyFunctionSummarySymbols(
+      symbolIdentity(checker, targetNode),
+      symbolIdentity(checker, unwrapExpression(sourceNode)),
+    );
+  const stableBindingKey = (node) => {
+    const symbol = symbolIdentity(checker, unwrapExpression(node));
+    const declaration = symbol?.valueDeclaration ?? symbol?.declarations?.[0];
+    return declaration
+      ? `${declaration.getSourceFile().fileName}:${declaration.pos}:${declaration.end}:${symbol.name}`
+      : undefined;
+  };
+  const objectFunctionSources = new Map();
+  const propertySourceRelations = [];
+  const spreadSourceRelations = [];
+  const objectAliasRelations = [];
+  const propertyReference = (node) => {
+    const current = unwrapExpression(node);
+    if (ts.isPropertyAccessExpression(current)) {
+      return {
+        name: current.name.text,
+        object: stableBindingKey(current.expression),
+      };
+    }
+    if (
+      ts.isElementAccessExpression(current) &&
+      current.argumentExpression &&
+      (ts.isStringLiteral(current.argumentExpression) ||
+        ts.isNoSubstitutionTemplateLiteral(current.argumentExpression))
+    ) {
+      return {
+        name: current.argumentExpression.text,
+        object: stableBindingKey(current.expression),
+      };
+    }
+    return null;
+  };
+  const objectLiteralOwner = (objectLiteral) => {
+    let current = objectLiteral;
+    while (
+      current.parent &&
+      (ts.isParenthesizedExpression(current.parent) ||
+        ts.isAsExpression(current.parent) ||
+        ts.isSatisfiesExpression(current.parent))
+    ) {
+      current = current.parent;
+    }
+    return ts.isVariableDeclaration(current.parent) &&
+      current.parent.initializer === current &&
+      ts.isIdentifier(current.parent.name)
+      ? stableBindingKey(current.parent.name)
+      : undefined;
+  };
+  for (const objectLiteral of objectLiteralNodes) {
+    const target = objectLiteralOwner(objectLiteral);
+    if (!target) continue;
+    for (const property of objectLiteral.properties) {
+      if (ts.isShorthandPropertyAssignment(property)) {
+        propertySourceRelations.push({
+          name: property.name.text,
+          sourceSymbol: checker.getShorthandAssignmentValueSymbol(property),
+          target,
+        });
+      }
+      if (ts.isPropertyAssignment(property)) {
+        const name = propertyNameText(property.name);
+        if (name) {
+          propertySourceRelations.push({
+            name,
+            sourceExpression: property.initializer,
+            target,
+          });
+        }
+      }
+      if (ts.isSpreadAssignment(property)) {
+        spreadSourceRelations.push({
+          source: stableBindingKey(property.expression),
+          target,
+        });
+      }
+    }
+  }
+  for (const variable of variableNodes) {
+    if (!variable.initializer || !ts.isIdentifier(variable.name)) continue;
+    objectAliasRelations.push({
+      source: stableBindingKey(variable.initializer),
+      target: stableBindingKey(variable.name),
+    });
+  }
+  for (const assignment of assignmentNodes) {
+    const left = unwrapExpression(assignment.left);
+    const property = propertyReference(left);
+    if (property?.object) {
+      propertySourceRelations.push({
+        name: property.name,
+        sourceExpression: assignment.right,
+        target: property.object,
+      });
+    }
+  }
+  const sourceFunctionSymbol = (node) => {
+    const property = propertyReference(node);
+    if (property?.object) {
+      const source = objectFunctionSources
+        .get(property.object)
+        ?.get(property.name);
+      if (source) return source;
+    }
+    return symbolIdentity(checker, unwrapExpression(node));
+  };
+  const setObjectFunctionSource = (target, name, source) => {
+    if (!target || !source) return false;
+    const entries = objectFunctionSources.get(target) ?? new Map();
+    if (entries.has(name)) return false;
+    entries.set(name, source);
+    objectFunctionSources.set(target, entries);
+    return true;
+  };
+  let objectSourceChanged = true;
+  while (objectSourceChanged) {
+    objectSourceChanged = false;
+    for (const relation of propertySourceRelations) {
+      objectSourceChanged =
+        setObjectFunctionSource(
+          relation.target,
+          relation.name,
+          relation.sourceSymbol ??
+            sourceFunctionSymbol(relation.sourceExpression),
+        ) || objectSourceChanged;
+    }
+    for (const relation of [...spreadSourceRelations, ...objectAliasRelations]) {
+      for (const [name, source] of
+        objectFunctionSources.get(relation.source) ?? []) {
+        objectSourceChanged =
+          setObjectFunctionSource(relation.target, name, source) ||
+          objectSourceChanged;
+      }
+    }
+  }
+  let functionAliasChanged = true;
+  while (functionAliasChanged) {
+    functionAliasChanged = false;
+    for (const node of variableNodes) {
+      if (!node.initializer || !ts.isIdentifier(node.name)) continue;
+      functionAliasChanged =
+        copyFunctionSummary(node.name, node.initializer) ||
+        functionAliasChanged;
+    }
+    for (const node of assignmentNodes) {
+      const left = unwrapExpression(node.left);
+      if (!ts.isIdentifier(left)) continue;
+      functionAliasChanged =
+        copyFunctionSummary(left, node.right) || functionAliasChanged;
+    }
+  }
+
+  const hasOwnerControlledProjection = (node, seen = new Set()) => {
+    const current = unwrapExpression(node);
+    if (seen.has(current)) return false;
+    seen.add(current);
+    if (
+      ts.isConditionalExpression(current) &&
+      expressionIsOwnerDerived(current.condition)
+    ) {
+      return true;
+    }
+    if (
+      ts.isElementAccessExpression(current) &&
+      current.argumentExpression &&
+      expressionIsOwnerDerived(current.argumentExpression)
+    ) {
+      return true;
+    }
+    if (
+      ts.isBinaryExpression(current) &&
+      (LOGICAL_CONTROL_OPERATORS.has(current.operatorToken.kind) ||
+        [
+          ts.SyntaxKind.EqualsEqualsToken,
+          ts.SyntaxKind.EqualsEqualsEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsEqualsToken,
+          ts.SyntaxKind.GreaterThanToken,
+          ts.SyntaxKind.GreaterThanEqualsToken,
+          ts.SyntaxKind.LessThanToken,
+          ts.SyntaxKind.LessThanEqualsToken,
+        ].includes(current.operatorToken.kind)) &&
+      (expressionIsOwnerDerived(current.left) ||
+        expressionIsOwnerDerived(current.right))
+    ) {
+      return true;
+    }
+    if (
+      (ts.isPrefixUnaryExpression(current) ||
+        ts.isPostfixUnaryExpression(current)) &&
+      expressionIsOwnerDerived(current.operand)
+    ) {
+      return true;
+    }
+    if (
+      ts.isCallExpression(current) &&
+      !symbolIdentity(checker, current.expression) &&
+      (expressionIsOwnerDerived(current.expression) ||
+        current.arguments.some((argument) =>
+          expressionIsOwnerDerived(argument),
+        ))
+    ) {
+      return true;
+    }
+    let found = false;
+    ts.forEachChild(current, (child) => {
+      if (!found && hasOwnerControlledProjection(child, seen)) found = true;
+    });
+    return found;
+  };
+
+  function objectPropertyTarget(node) {
+    const current = unwrapExpression(node);
+    if (ts.isPropertyAccessExpression(current)) {
+      return {
+        name: current.name.text,
+        object: symbolIdentity(checker, current.expression),
+      };
+    }
+    if (
+      ts.isElementAccessExpression(current) &&
+      current.argumentExpression &&
+      (ts.isStringLiteral(current.argumentExpression) ||
+        ts.isNoSubstitutionTemplateLiteral(current.argumentExpression))
+    ) {
+      return {
+        name: current.argumentExpression.text,
+        object: symbolIdentity(checker, current.expression),
+      };
+    }
+    return null;
+  }
+
+  const expressionIsProjected = (node, seen = new Set()) => {
+    const current = unwrapExpression(node);
+    if (seen.has(current)) return false;
+    seen.add(current);
+    const symbol = symbolIdentity(checker, current);
+    if (symbol && projectedValues.has(symbol)) return true;
+    if (hasOwnerControlledProjection(current)) return true;
+    if (ts.isCallExpression(current)) {
+      const callee = sourceFunctionSymbol(current.expression);
+      let controls = projectedFunctions.get(callee) ?? transparentFunctions.get(callee);
+      if (
+        !controls &&
+        callee &&
+        ["Boolean", "Number", "String"].includes(callee.name) &&
+        (callee.declarations ?? []).length > 0 &&
+        (callee.declarations ?? []).every((declaration) =>
+          /\/typescript\/lib\/lib\.[^/]+\.d\.ts$/u.test(
+            declaration.getSourceFile().fileName,
+          ),
+        )
+      ) {
+        controls = new Set([0]);
+      }
+      if (!controls) return false;
+      if (controls.has(-1)) return true;
+      return [...controls].some((index) => {
+        const argument = current.arguments[index];
+        return Boolean(
+          argument &&
+            (expressionIsOwnerDerived(argument) ||
+              expressionIsProjected(argument, seen)),
+        );
+      });
+    }
+    if (
+      ts.isPropertyAccessExpression(current) ||
+      ts.isElementAccessExpression(current)
+    ) {
+      const property = objectPropertyTarget(current);
+      if (
+        property?.object &&
+        objectEntries.get(property.object)?.has(property.name)
+      ) {
+        return true;
+      }
+      return (
+        expressionIsProjected(current.expression, seen) ||
+        (ts.isElementAccessExpression(current) &&
+          Boolean(
+            current.argumentExpression &&
+              expressionIsProjected(current.argumentExpression, seen),
+          ))
+      );
+    }
+    if (ts.isConditionalExpression(current)) {
+      return (
+        expressionIsProjected(current.condition, seen) ||
+        expressionIsProjected(current.whenTrue, seen) ||
+        expressionIsProjected(current.whenFalse, seen)
+      );
+    }
+    if (ts.isBinaryExpression(current)) {
+      return (
+        expressionIsProjected(current.left, seen) ||
+        expressionIsProjected(current.right, seen)
+      );
+    }
+    if (
+      ts.isPrefixUnaryExpression(current) ||
+      ts.isPostfixUnaryExpression(current)
+    ) {
+      return expressionIsProjected(current.operand, seen);
+    }
+    if (
+      ts.isAwaitExpression(current) ||
+      ts.isYieldExpression(current) ||
+      ts.isSpreadElement(current)
+    ) {
+      return Boolean(
+        current.expression && expressionIsProjected(current.expression, seen),
+      );
+    }
+    if (ts.isArrayLiteralExpression(current)) {
+      return current.elements.some((element) =>
+        expressionIsProjected(element, seen),
+      );
+    }
+    if (ts.isObjectLiteralExpression(current)) {
+      return current.properties.some((property) => {
+        if (ts.isPropertyAssignment(property)) {
+          return expressionIsProjected(property.initializer, seen);
+        }
+        if (ts.isShorthandPropertyAssignment(property)) {
+          return expressionIsProjected(property.name, seen);
+        }
+        if (ts.isSpreadAssignment(property)) {
+          return expressionIsProjected(property.expression, seen);
+        }
+        return false;
+      });
+    }
+    return false;
+  };
+
+  const projectedObjectEntries = (node, seen = new Set()) => {
+    const current = unwrapExpression(node);
+    if (seen.has(current)) return new Set();
+    seen.add(current);
+    if (
+      ts.isIdentifier(current) ||
+      ts.isPropertyAccessExpression(current) ||
+      ts.isElementAccessExpression(current)
+    ) {
+      return new Set(objectEntries.get(symbolIdentity(checker, current)) ?? []);
+    }
+    if (!ts.isObjectLiteralExpression(current)) return new Set();
+    const entries = new Set();
+    for (const property of current.properties) {
+      if (ts.isSpreadAssignment(property)) {
+        for (const entry of projectedObjectEntries(property.expression, seen)) {
+          entries.add(entry);
+        }
+      }
+      if (
+        ts.isPropertyAssignment(property) &&
+        (expressionIsProjected(property.initializer) ||
+          expressionIsOwnerDerived(property.initializer))
+      ) {
+        const name = propertyNameText(property.name);
+        if (name) entries.add(name);
+      }
+      if (
+        ts.isShorthandPropertyAssignment(property) &&
+        (expressionIsProjected(property.name) ||
+          expressionIsOwnerDerived(property.name))
+      ) {
+        entries.add(property.name.text);
+      }
+    }
+    return entries;
+  };
+
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const node of variableNodes) {
+      if (!node.initializer) continue;
+      if (expressionIsProjected(node.initializer)) {
+        changed = addBindingSymbols(checker, node.name, projectedValues) || changed;
+      }
+      const entries = projectedObjectEntries(node.initializer);
+      for (const identifier of bindingNames(node.name)) {
+        const symbol = symbolIdentity(checker, identifier);
+        if (!symbol || entries.size === 0) continue;
+        const current = objectEntries.get(symbol) ?? new Set();
+        const next = new Set([...current, ...entries]);
+        if (next.size !== current.size) {
+          objectEntries.set(symbol, next);
+          changed = true;
+        }
+      }
+    }
+    for (const node of assignmentNodes) {
+      const left = unwrapExpression(node.left);
+      if (ts.isIdentifier(left) && expressionIsProjected(node.right)) {
+        changed = addBindingSymbols(checker, left, projectedValues) || changed;
+      }
+      if (ts.isIdentifier(left)) {
+        const symbol = symbolIdentity(checker, left);
+        const entries = projectedObjectEntries(node.right);
+        if (symbol && entries.size > 0) {
+          const current = objectEntries.get(symbol) ?? new Set();
+          const next = new Set([...current, ...entries]);
+          if (next.size !== current.size) {
+            objectEntries.set(symbol, next);
+            changed = true;
+          }
+        }
+      }
+      const property = objectPropertyTarget(left);
+      if (
+        property?.object &&
+        (expressionIsProjected(node.right) ||
+          expressionIsOwnerDerived(node.right))
+      ) {
+        const current = objectEntries.get(property.object) ?? new Set();
+        if (!current.has(property.name)) {
+          objectEntries.set(
+            property.object,
+            new Set([...current, property.name]),
+          );
+          changed = true;
+        }
+      }
+    }
+    for (const node of functions) {
+      const symbol = functionSymbol(checker, node);
+      if (
+        symbol &&
+        !authorizedFunctions.has(symbol) &&
+        !projectedFunctions.has(symbol) &&
+        functionReturnExpressions(node).some((expression) =>
+          expressionIsProjected(expression),
+        )
+      ) {
+        projectedFunctions.set(symbol, new Set([-1]));
+        changed = true;
+      }
+    }
+  }
+
+  const revivals = [];
+  const addRevival = (sourceFile, node) => {
+    const relative = pathOf(sourceFile);
+    for (const descriptor of descriptorsByPath.get(relative) ?? []) {
+      revivals.push({
+        candidateId: descriptor.candidateId,
+        path: relative,
+        line: lineOf(sourceFile, node),
+      });
+    }
+  };
+  const projectedPresentationSink = (attributeName, expression) => {
+    if (!PRESENTATION_SINK_ATTRIBUTES.has(attributeName)) return false;
+    if (
+      !expressionIsProjected(expression) &&
+      !expressionIsOwnerDerived(expression)
+    ) {
+      return false;
+    }
+    if (attributeName !== "className") return true;
+    const members = expressionStringMembers(checker, expression);
+    return members.size === 0 || !isLayoutOnlyClassVocabulary(members);
+  };
+  const containsJsx = (node) => {
+    let found = false;
+    const visit = (current) => {
+      if (
+        ts.isJsxElement(current) ||
+        ts.isJsxSelfClosingElement(current) ||
+        ts.isJsxFragment(current)
+      ) {
+        found = true;
+        return;
+      }
+      ts.forEachChild(current, visit);
+    };
+    visit(node);
+    return found;
+  };
+  const isNonStringScalar = (node) => {
+    const type = checker.getTypeAtLocation(node);
+    const members = type.isUnion?.() ? type.types : [type];
+    const scalarFlags =
+      ts.TypeFlags.BooleanLike |
+      ts.TypeFlags.NumberLike |
+      ts.TypeFlags.BigIntLike |
+      ts.TypeFlags.Null |
+      ts.TypeFlags.Undefined;
+    return (
+      members.length > 0 &&
+      members.every((member) => (member.flags & scalarFlags) !== 0)
+    );
+  };
+  const isReturnedValue = (node) => {
+    let current = node;
+    while (
+      current.parent &&
+      (ts.isParenthesizedExpression(current.parent) ||
+        ts.isAsExpression(current.parent) ||
+        ts.isTypeAssertionExpression(current.parent) ||
+        ts.isNonNullExpression(current.parent) ||
+        ts.isSatisfiesExpression(current.parent))
+    ) {
+      current = current.parent;
+    }
+    return (
+      ts.isReturnStatement(current.parent) ||
+      (ts.isFunctionLike(current.parent) && current.parent.body === current)
+    );
+  };
+  const controlledSubtreeHasLifecycleEffect = (node) => {
+    let found = false;
+    const visit = (current) => {
+      if (current !== node && ts.isFunctionLike(current)) return;
+      if (
+        ts.isJsxElement(current) ||
+        ts.isJsxSelfClosingElement(current) ||
+        ts.isJsxFragment(current) ||
+        ts.isThrowStatement(current) ||
+        ts.isBreakStatement(current) ||
+        ts.isContinueStatement(current) ||
+        ((ts.isPrefixUnaryExpression(current) ||
+          ts.isPostfixUnaryExpression(current)) &&
+          [
+            ts.SyntaxKind.PlusPlusToken,
+            ts.SyntaxKind.MinusMinusToken,
+          ].includes(current.operator)) ||
+        (ts.isReturnStatement(current) &&
+          current.expression &&
+          (containsJsx(current.expression) ||
+            isNonStringScalar(current.expression)))
+      ) {
+        found = true;
+        return;
+      }
+      ts.forEachChild(current, visit);
+    };
+    visit(node);
+    return found;
+  };
+  const branchControlIsLifecycle = (node) => {
+    if (ts.isConditionalExpression(node)) {
+      return (
+        containsJsx(node.whenTrue) ||
+        containsJsx(node.whenFalse) ||
+        (isReturnedValue(node) &&
+          isNonStringScalar(node.whenTrue) &&
+          isNonStringScalar(node.whenFalse) &&
+          node.whenTrue.getText(node.getSourceFile()) !==
+            node.whenFalse.getText(node.getSourceFile()))
+      );
+    }
+    if (ts.isIfStatement(node)) {
+      return (
+        controlledSubtreeHasLifecycleEffect(node.thenStatement) ||
+        Boolean(
+          node.elseStatement &&
+            controlledSubtreeHasLifecycleEffect(node.elseStatement),
+        )
+      );
+    }
+    if (ts.isSwitchStatement(node)) {
+      return controlledSubtreeHasLifecycleEffect(node);
+    }
+    return true;
+  };
+
+  for (const sourceFile of sourceFiles) {
+    if (!descriptorsByPath.has(pathOf(sourceFile))) continue;
+    const visit = (node) => {
+      if (
+        ts.isJsxAttribute(node) &&
+        node.initializer &&
+        ts.isJsxExpression(node.initializer) &&
+        node.initializer.expression
+      ) {
+        const attributeName = propertyNameText(node.name);
+        if (
+          attributeName &&
+          (projectedPresentationSink(
+            attributeName,
+            node.initializer.expression,
+          ) ||
+            (LIFECYCLE_SINK_ATTRIBUTES.has(attributeName) &&
+              (expressionIsProjected(node.initializer.expression) ||
+                expressionIsOwnerDerived(node.initializer.expression))))
+        ) {
+          addRevival(sourceFile, node);
+        }
+      }
+      if (ts.isJsxSpreadAttribute(node)) {
+        const entries = projectedObjectEntries(node.expression);
+        if (
+          expressionIsProjected(node.expression) ||
+          [...entries].some(
+            (entry) =>
+              PRESENTATION_SINK_ATTRIBUTES.has(entry) ||
+              LIFECYCLE_SINK_ATTRIBUTES.has(entry),
+          )
+        ) {
+          addRevival(sourceFile, node);
+        }
+      }
+      if (
+        ((ts.isIfStatement(node) || ts.isSwitchStatement(node)) &&
+          expressionIsProjected(node.expression) &&
+          branchControlIsLifecycle(node)) ||
+        ((ts.isWhileStatement(node) || ts.isDoStatement(node)) &&
+          expressionIsProjected(node.expression)) ||
+        (ts.isForStatement(node) &&
+          node.condition &&
+          expressionIsProjected(node.condition)) ||
+        (ts.isConditionalExpression(node) &&
+          expressionIsProjected(node.condition) &&
+          branchControlIsLifecycle(node))
+      ) {
+        addRevival(sourceFile, node);
+      }
+      if (
+        ts.isBinaryExpression(node) &&
+        LOGICAL_CONTROL_OPERATORS.has(node.operatorToken.kind) &&
+        expressionIsProjected(node.left) &&
+        (ts.isJsxElement(unwrapExpression(node.right)) ||
+          ts.isJsxSelfClosingElement(unwrapExpression(node.right)) ||
+          (isReturnedValue(node) && isNonStringScalar(node.right)))
+      ) {
+        addRevival(sourceFile, node);
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sourceFile);
+  }
+  return revivals;
+}
+
 function collectProtectedRevivals(
   sourceFiles,
   protectedDefinitions,
@@ -730,6 +1999,14 @@ function collectProtectedRevivals(
     ? protectedDefinitions
     : [];
   const revivals = new Map();
+  for (const fact of collectAuthoredProjectionRevivals(
+    sourceFiles,
+    descriptors,
+    pathOf,
+    checker,
+  )) {
+    revivals.set(`${fact.candidateId}:${fact.path}:${fact.line}`, fact);
+  }
   for (const sourceFile of sourceFiles) {
     const relative = pathOf(sourceFile);
     const matching = descriptors.filter(
@@ -1278,14 +2555,19 @@ function createOverrideProgram(overrides) {
       source,
     ]),
   );
-  const options = {
-    jsx: ts.JsxEmit.ReactJSX,
-    module: ts.ModuleKind.ESNext,
-    moduleResolution: ts.ModuleResolutionKind.Bundler,
-    noResolve: true,
-    skipLibCheck: true,
-    target: ts.ScriptTarget.Latest,
-  };
+  const configPath = path.join(dashboardRoot, "tsconfig.app.json");
+  const config = ts.readConfigFile(configPath, ts.sys.readFile);
+  if (config.error) {
+    throw new Error(
+      ts.flattenDiagnosticMessageText(config.error.messageText, "\n"),
+    );
+  }
+  const parsed = ts.parseJsonConfigFileContent(
+    config.config,
+    ts.sys,
+    dashboardRoot,
+  );
+  const options = { ...parsed.options, noEmit: true, types: [] };
   const host = ts.createCompilerHost(options, true);
   const defaultFileExists = host.fileExists.bind(host);
   const defaultGetSourceFile = host.getSourceFile.bind(host);
@@ -1333,9 +2615,11 @@ function collectOverrideFacts(overrides, protectedDefinitions = []) {
   };
   const program = createOverrideProgram(overrides);
   const checker = program.getTypeChecker();
+  const sourceFiles = [];
   for (const relative of Object.keys(overrides)) {
     const sourceFile = program.getSourceFile(path.resolve(repoRoot, relative));
     if (!sourceFile) throw new Error(`missing override source: ${relative}`);
+    sourceFiles.push(sourceFile);
     const visit = (node) => {
       const constFact = constVocabularyFact(node, sourceFile, relative);
       if (constFact) {
@@ -1408,15 +2692,15 @@ function collectOverrideFacts(overrides, protectedDefinitions = []) {
         overrideInteractionIdentities(sourceFile, relative),
       ),
     );
-    facts.protectedRevivals.push(
-      ...collectProtectedRevivals(
-        [sourceFile],
-        protectedDefinitions,
-        () => relative,
-        checker,
-      ),
-    );
   }
+  facts.protectedRevivals.push(
+    ...collectProtectedRevivals(
+      sourceFiles,
+      protectedDefinitions,
+      (sourceFile) => relativePath(sourceFile.fileName),
+      checker,
+    ),
+  );
   return facts;
 }
 

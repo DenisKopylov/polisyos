@@ -1959,3 +1959,91 @@ producer`, with the original deep edge retained only as immutable provenance.
   locale, master plan, package sources, main, other worktrees, and lockfile are
   untouched. C21 does not absorb the six C22 structural repairs, C23 containment,
   the DS5 waist, or DS16 producer work. No push or merge is performed.
+
+## 2026-07-22 — DS4-C22 pre-split and C22a governance census
+
+- Clean base: `299fe06e8e1fc1ab9ace87ce00a3a0f8b8ff22c5`.
+- The architect-approved structural retirement cluster is pre-split before
+  implementation: C22a = 12 physical paths, C22b = 42 expected / 45 hard cap,
+  C22c = 24, and C22d = 17. C22b stays atomic because polling, optimistic run
+  caches, Clerk lifecycle, and every visible run consumer must enforce one
+  producer-signed terminal-fact invariant; splitting that class would preserve
+  a sibling authority-minting path (P31/P33).
+- C22a changes only the generic DS19 producer-binding debt descriptor path and
+  generic retired-definition scanner. Its checkpoint is DS1 47, current authored
+  21, semantic history 55, live retirement debt 6, DS5 waist debt 3, DS19 roots
+  261, and DS19 supplemental findings 12. C22b targets 47/20/55/5/3, C22c
+  47/19/55/4/3, and C22d 47/15/55/0/3; the root register remains 261 throughout.
+- Relevant pattern pass: P01/P03/P04/P05 name the typed producer/surface gap;
+  P29/P31 require one descriptor and one generic recomputing validator rather
+  than a hand-authored receipt; P32/P33 require declaration-provenance and
+  adversarial sibling/value-flow probes rather than import spelling or named
+  marker checks. The owned incomplete capability is
+  `producer_missing` + `surface_missing`, owner DS3; C22a records it and does not
+  build the producer field.
+- The planned `--write-seed` command was exercised before product work and
+  proved unsafe for the evolved DS19 artifact: it reconstructs the original C00
+  seed, so it removed later register transitions and reference censuses instead
+  of adding the new supplemental row. The resulting broad rewrite was discarded
+  and the register restored from the clean C21 `HEAD`; the same restoration was
+  repeated after a preservation probe exposed a second whole-section rewrite.
+  C22a therefore adds the bounded `--write-supplemental` updater. It locates the
+  supplemental JSON array structurally, upserts only descriptor-owned objects,
+  and preserves every non-descriptor object and every byte outside those object
+  spans. Its unit proof runs the updater twice, compares the surrounding bytes
+  and all non-descriptor raw slices exactly, and establishes idempotence. The
+  final artifact delta is exactly one descriptor (`+22/-0`), with all 261 roots,
+  eight reference censuses, 23 seeded negatives, and prior dispositions intact;
+  `--write-seed` remains a fresh-seed operation rather than an evolved-register
+  mutation path (P29/P34).
+
+### C22a generic governance and scanner result
+
+- DS19 now derives `run-lifecycle-terminal-fact` from the single generic
+  `PRODUCER_BINDING_DEBT_DESCRIPTORS` source. The row records DS3 ownership,
+  `producer_missing` + `surface_missing`, the exact generated/open-status and
+  backend inference anchors, and the producer-signed terminal-fact closure
+  signal. Schema conditionals require the capability fields only for
+  `producer_binding_debt`; all nine governed fields are corruption-probed. The
+  generated report visibly projects capability states and closure signal.
+- Red-first governance receipts: the five exact producer-binding methods first
+  failed on the absent kind/schema/descriptor/validator/report projection; the
+  byte-preservation/idempotence proof then failed before the bounded updater was
+  implemented. The exact C22 status methods initially had three failures and
+  one positive pass; ten declaration/value-flow variants escaped. The final
+  required four are green, and the generic protection source is every retired
+  row carrying protected paths rather than a C21/C22 name list.
+- Independent review expanded the behavioral property before approval. Exact
+  RED probes covered direct and aliased open owner values; local type aliases;
+  fake and unresolved owner/BadgeTone declarations; inline selection; Record
+  lookup; nested synonyms; variables, assignments, unary/coercion wrappers,
+  object properties, returned objects, arrays and JSX spreads; sibling helpers;
+  function aliases through variables/object shorthand/property assignment and
+  spread; and non-JSX `false`/interval lifecycle selection. Counterprobes keep
+  the real closed generated owner -> explicit real atlas-ui `BadgeTone` adapter
+  (including aliases), constants, unused helpers, layout-only classes,
+  logging/observation assignments, raw text, and `{children: ownerLabel}` spread
+  green. The scanner resolves declarations through the dashboard tsconfig and
+  local type aliases, analyzes all protected sources together, and emits only
+  where owner-derived/authored values reach presentation or lifecycle sinks.
+  Live protected revival output is empty.
+
+### C22a verification boundary
+
+| Gate | Result |
+| --- | --- |
+| Python governance | PASS; 91 / 91 tests in 138.461s |
+| DS19 | PASS; corruption and baseline-source-byte probes; 261 roots, 8 censuses, 23 seeded negatives, 12 supplemental findings; root dispositions unchanged at 15 deleted / 200 rebind-pending / 25 retire / 16 wire / 5 use-as-is |
+| status governance | PASS; corruption probes; 47 DS1 / 21 current authored / 55 history / 6 live retirement / 3 waist; classifications 15 lattice-derived / 24 interaction / 8 removed |
+| scanner | PASS; node syntax, required four exact methods 4 / 4, independent adversarial matrix, live protected revivals `[]` |
+| dashboard | PASS; typecheck; production build 3,884 modules and PWA 106 entries; postbuild security and atlas-ui Tailwind source; architecture 0 across 1,002 modules / 4,104 dependencies |
+| atlas-ui | PASS; typecheck; 18 files / 86 tests; lint; 36-source architecture |
+
+- Final C22a scope is exactly 11 tracked paths plus the ignored review report.
+  There are no dashboard production or package-source changes. The DS19
+  artifact content delta is exactly one descriptor (`+22/-0`); root
+  dispositions and reference censuses are untouched. `pnpm-lock.yaml` remains
+  byte-identical at SHA-256
+  `01c66675e43b2620f46e69dbf146b20284a216d0711c6c712299b0c7de86769b`.
+  Backend, schemas, generated client, v15 archive, frozen locale, master plan,
+  main, other worktrees, and remotes remain untouched.

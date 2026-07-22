@@ -808,7 +808,8 @@
             "baseline_lint_debt",
             "baseline_test_debt",
             "dependency_declaration",
-            "fixture_contract_drift"
+            "fixture_contract_drift",
+            "producer_binding_debt"
           ]
         },
         "disposition": {
@@ -838,10 +839,59 @@
           "type": "string",
           "pattern": "^[a-f0-9]{9,40}$"
         },
+        "capability_states": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "contract_only",
+              "producer_missing",
+              "artifact_missing",
+              "bridge_missing",
+              "consumer_missing",
+              "verification_missing",
+              "implemented_but_not_orchestrated",
+              "surface_missing",
+              "surface_out_of_scope",
+              "semantic_test_missing"
+            ]
+          }
+        },
+        "closure_signal": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
         "rationale": {
           "$ref": "#/$defs/nonEmptyString"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "finding_kind": { "const": "producer_binding_debt" }
+            },
+            "required": ["finding_kind"]
+          },
+          "then": {
+            "required": ["capability_states", "closure_signal"],
+            "properties": {
+              "disposition": { "const": "rebind_pending" },
+              "status": { "const": "open_debt" }
+            },
+            "not": { "required": ["repair_commit"] }
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["capability_states"] },
+                { "required": ["closure_signal"] }
+              ]
+            }
+          }
+        }
+      ]
     },
     "seededNegative": {
       "type": "object",

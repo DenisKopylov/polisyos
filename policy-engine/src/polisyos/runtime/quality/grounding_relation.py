@@ -482,7 +482,13 @@ class GroundingRelationEngine:
                 }
             )
         candidates = tuple(
-            sorted(scored.values(), key=lambda item: (-item.retrieval_score, item.atom_id))
+            sorted(
+                scored.values(),
+                key=lambda item: (
+                    -item.retrieval_score,
+                    grounding_candidate_semantic_sort_key(item),
+                ),
+            )
         )
         if (
             include_adversarial_countercandidates
@@ -1410,38 +1416,6 @@ def _relation_from_axes(
     return "partial"
 
 
-def _select_pair_result(
-    results: Sequence[CandidateRelationResult],
-    *,
-    candidates: Sequence[GroundingCandidateAtom],
-) -> CandidateRelationResult | None:
-    if not results:
-        return None
-    candidate_ids = {candidate.atom_id for candidate in candidates}
-    ordered_relations = (
-        "exact",
-        "certified-specialization",
-        "compositional",
-        "generalization",
-        "partial",
-        "novel-candidate",
-        "unknown",
-        "false-analog",
-        "blocked",
-    )
-    relation_rank = {relation: index for index, relation in enumerate(ordered_relations)}
-    valid_results = [result for result in results if result.atom_id in candidate_ids]
-    return sorted(
-        valid_results,
-        key=lambda item: (
-            relation_rank.get(item.selected_relation, 99),
-            -item.retrieval_score,
-            item.atom_id,
-            item.hypothesis_id,
-        ),
-    )[0]
-
-
 def _proposal_verdict(
     results: Sequence[CandidateRelationResult],
     *,
@@ -1550,7 +1524,9 @@ def _rank_candidate_results(
                 _EMPTY_COUNTER_SENTINEL,
             ).is_adversarial_countercandidate,
             -item.retrieval_score,
-            item.atom_id,
+            grounding_candidate_semantic_sort_key(
+                candidate_by_id.get(item.atom_id, _EMPTY_COUNTER_SENTINEL)
+            ),
             item.hypothesis_id,
         ),
     )
@@ -1560,6 +1536,33 @@ _EMPTY_COUNTER_SENTINEL = GroundingCandidateAtom(
     atom_id="cg1_missing_candidate_sentinel",
     signature=MechanisticSignature(),
 )
+
+
+def grounding_candidate_semantic_sort_key(
+    candidate: GroundingCandidateAtom,
+) -> str:
+    """Return a canonical candidate key that excludes owner content identities.
+
+    Atom ids, WMR versions, evidence refs, reference lifts, and retrieval
+    provenance are content-addressed owner identities.  They may change when an
+    otherwise identical reference is reissued, so none may decide which
+    semantic witness represents an equal-score relation.  The remaining
+    relation-axis fields are the causal denotation used solely as a
+    deterministic tie-break.
+    """
+
+    signature = candidate.signature
+    relation_axes = {
+        axis: _axis_value(signature, axis)
+        for axis in RELATION_AXES
+        if axis != "wm_version"
+    }
+    return json.dumps(
+        _json_ready(relation_axes),
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    )
 
 
 def _known_space_coverage_claim(
@@ -1738,7 +1741,12 @@ def _adversarial_countercandidates(
     unique: dict[str, GroundingCandidateAtom] = {}
     for counter in counters:
         unique[counter.atom_id] = counter
-    return tuple(sorted(unique.values(), key=lambda item: item.atom_id))
+    return tuple(
+        sorted(
+            unique.values(),
+            key=grounding_candidate_semantic_sort_key,
+        )
+    )
 
 
 def _mutated_countercandidate(

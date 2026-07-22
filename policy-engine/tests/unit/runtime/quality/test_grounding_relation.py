@@ -12,8 +12,14 @@ from polisyos.runtime.quality.credal_reference import (
 from polisyos.runtime.quality.grounding_relation import (
     AxisEntailmentWitness,
     AxisWitnessProvider,
+    CandidateRelationResult,
+    GroundingCandidateAtom,
     GroundingEnginePolicy,
     GroundingRelationEngine,
+    MechanisticSignature,
+    _rank_candidate_results,
+    grounding_candidate_semantic_sort_key,
+    parse_n4_proposal,
 )
 
 
@@ -130,6 +136,121 @@ def test_certificate_is_deterministic_for_same_reference_epoch() -> None:
     assert first.certificate_id == second.certificate_id
 
 
+def test_candidate_selection_is_invariant_to_content_id_readdressing() -> None:
+    """WMR-only atom rehashes cannot select a different semantic witness."""
+
+    budget = _tied_candidate(
+        atom_id="cg0_atom_ffffffffffffffff",
+        op="budget_allocation_multiplier",
+        target="government.balance",
+    )
+    procurement = _tied_candidate(
+        atom_id="cg0_atom_0000000000000000",
+        op="procurement_shock_intensity",
+        target="cells.distress_score",
+    )
+    readdressed_budget = budget.model_copy(
+        update={"atom_id": "cg0_atom_0000000000000000"}
+    )
+    readdressed_procurement = procurement.model_copy(
+        update={"atom_id": "cg0_atom_ffffffffffffffff"}
+    )
+
+    first = _selected_tied_semantics((budget, procurement))
+    readdressed = _selected_tied_semantics(
+        (readdressed_procurement, readdressed_budget)
+    )
+
+    assert first == readdressed
+    assert first == (
+        "budget_allocation_multiplier",
+        ("government.balance",),
+        ("op", "sign", "effect_path"),
+    )
+
+
+def test_candidate_retrieval_order_is_invariant_to_content_id_readdressing() -> None:
+    """Retrieval prioritization uses causal semantics after equal owner scores."""
+
+    class _AllCandidateHits:
+        indexed_edge_count = 2
+
+        def search(self, query: str, *, limit: int) -> list[dict[str, str]]:
+            del query, limit
+            return [
+                {"edge_key": "L6_KNOB_OPERATOR:budget_allocation_multiplier"},
+                {"edge_key": "L6_KNOB_OPERATOR:procurement_shock_intensity"},
+            ]
+
+    budget = _tied_candidate(
+        atom_id="cg0_atom_ffffffffffffffff",
+        op="budget_allocation_multiplier",
+        target="government.balance",
+    )
+    procurement = _tied_candidate(
+        atom_id="cg0_atom_0000000000000000",
+        op="procurement_shock_intensity",
+        target="cells.distress_score",
+    )
+    engine = _engine()
+    engine._reference_atoms = (procurement, budget)
+    engine._fts_index = _AllCandidateHits()  # type: ignore[assignment]
+    parsed = parse_n4_proposal(
+        {"raw_text": "unregistered neutral probe", "signature": {}},
+        proposal_id="unit-retrieval-readdress",
+        reference=engine.reference,
+    )
+
+    retrieved = engine.retrieve_candidates(
+        parsed,
+        include_adversarial_countercandidates=False,
+    )
+
+    assert [candidate.signature.op for candidate in retrieved] == [
+        "budget_allocation_multiplier",
+        "procurement_shock_intensity",
+    ]
+
+
+def test_candidate_semantic_key_excludes_provenance_but_not_relation_axes() -> None:
+    """The tie-break recomputes relation semantics without epoch identities."""
+
+    candidate = _tied_candidate(
+        atom_id="cg0_atom_0000000000000000",
+        op="budget_allocation_multiplier",
+        target="government.balance",
+    )
+    readdressed_signature = candidate.signature.model_copy(
+        update={
+            "evidence": ("WMR_WORLD_SLOT:reissued",),
+            "wm_version": "sha256:" + "b" * 64,
+        }
+    )
+    provenance_only = candidate.model_copy(
+        update={
+            "atom_id": "cg0_atom_ffffffffffffffff",
+            "edge_scope": ("WMR_WORLD_SLOT:reissued",),
+            "reference_lift": {"reissued": {"content_hash": "sha256:" + "c" * 64}},
+            "retrieval_reasons": ("reissued_owner_evidence",),
+            "signature": readdressed_signature,
+        }
+    )
+    semantic_change = provenance_only.model_copy(
+        update={
+            "signature": readdressed_signature.model_copy(
+                update={"unit": "index"}
+            )
+        }
+    )
+
+    assert grounding_candidate_semantic_sort_key(candidate) == (
+        grounding_candidate_semantic_sort_key(provenance_only)
+    )
+    assert grounding_candidate_semantic_sort_key(candidate) != (
+        grounding_candidate_semantic_sort_key(semantic_change)
+    )
+
+
 def test_alias_resolution_is_the_decisive_contract_property() -> None:
     engine = GroundingRelationEngine(
         _reference(),
@@ -142,6 +263,62 @@ def test_alias_resolution_is_the_decisive_contract_property() -> None:
 
 def _engine() -> GroundingRelationEngine:
     return GroundingRelationEngine(_reference())
+
+
+def _tied_candidate(
+    *,
+    atom_id: str,
+    op: str,
+    target: str,
+) -> GroundingCandidateAtom:
+    return GroundingCandidateAtom(
+        atom_id=atom_id,
+        signature=MechanisticSignature(
+            op=op,
+            X_do=(target,),
+            sign="increase",
+            outcome=(target,),
+            effect_path=(op, target),
+            estimand="average_treatment_effect",
+            wm_version="sha256:" + "a" * 64,
+            evidence=(f"L6_KNOB_OPERATOR:{op}",),
+        ),
+        edge_scope=(f"L6_KNOB_OPERATOR:{op}",),
+        retrieved_as_neighbor=True,
+        retrieval_reasons=("unit_equal_score",),
+        retrieval_score=0.5,
+    )
+
+
+def _selected_tied_semantics(
+    candidates: tuple[GroundingCandidateAtom, GroundingCandidateAtom],
+) -> tuple[str | None, tuple[str, ...], tuple[str, ...]]:
+    results = tuple(
+        CandidateRelationResult(
+            hypothesis_id="hypothesis_unit",
+            atom_id=candidate.atom_id,
+            selected_relation="false-analog",
+            solver_status="SAT",
+            axis_witnesses=(),
+            critical_contradictions=(
+                ("op", "sign", "effect_path")
+                if candidate.signature.op == "budget_allocation_multiplier"
+                else ("op", "effect_path")
+            ),
+            retrieval_reasons=candidate.retrieval_reasons,
+            retrieval_score=candidate.retrieval_score,
+        )
+        for candidate in candidates
+    )
+    candidate_by_id = {candidate.atom_id: candidate for candidate in candidates}
+    ranked = _rank_candidate_results(results, candidate_by_id)
+    selected = ranked[0]
+    atom = candidate_by_id[selected.atom_id]
+    return (
+        atom.signature.op,
+        atom.signature.X_do,
+        selected.critical_contradictions,
+    )
 
 
 def _reference() -> CredalReference:

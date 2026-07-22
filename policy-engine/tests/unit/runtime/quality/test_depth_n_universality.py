@@ -53,6 +53,10 @@ from polisyos.runtime.quality.generation_cycle import (
     PromotionPortObservation,
     SimulationPortObservation,
 )  # noqa: E402
+from polisyos.runtime.quality.grounding_relation import (  # noqa: E402
+    GroundingCandidateAtom,
+    MechanisticSignature,
+)
 from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
     intervention_atom_content_hash,
@@ -2521,6 +2525,153 @@ def test_historical_n4_projection_rebind_rejects_tamper_and_nonidentity() -> Non
     assert "proof_n4_recording_raw_response_hash_mismatch" in (
         validator._historical_n4_projection_rebind_receipt_issues(normalized)
     )
+
+
+def test_historical_n4_atom_readdress_is_owner_recomputed_not_whitelisted() -> None:
+    """A WMR reissue proves both CG0 preimages and one stable causal key."""
+
+    validator = _universality_contract_validator()
+    old_wmr = "sha256:" + "1" * 64
+    new_wmr = "sha256:" + "2" * 64
+    old_wmr_id = "world_model_record_" + old_wmr.removeprefix("sha256:")[:16]
+    new_wmr_id = "world_model_record_" + new_wmr.removeprefix("sha256:")[:16]
+    edge_prefix = "WMR_POLICY_SLOT_MAP::"
+    current_signature = MechanisticSignature(
+        op="budget_allocation_multiplier",
+        X_do=("government.balance",),
+        x_do={"domain": {"kind": "range", "unit": None}},
+        sign="increase",
+        params={"domain": {"kind": "range", "unit": None}},
+        scope="global",
+        unit="usd",
+        population="all",
+        time="current_reference_epoch",
+        outcome=("government.balance",),
+        effect_path=(
+            "budget_allocation_multiplier",
+            "government.balance",
+            "government.balance",
+        ),
+        estimand="average_treatment_effect",
+        admissibility="passed",
+        wm_version=new_wmr,
+        evidence=(
+            "L6_KNOB_OPERATOR::budget_allocation_multiplier",
+            edge_prefix + new_wmr_id + ":government.balance",
+        ),
+    )
+    current_scope = tuple(current_signature.evidence)
+    current_hash = gy_content_hash(
+        {
+            "edge_scope": sorted(current_scope),
+            "signature": current_signature.model_dump(mode="json"),
+        }
+    )
+    current_atom = GroundingCandidateAtom(
+        atom_id="cg0_atom_" + current_hash.removeprefix("sha256:")[:16],
+        signature=current_signature,
+        edge_scope=current_scope,
+    )
+    historical_signature = current_signature.model_copy(
+        update={
+            "wm_version": old_wmr,
+            "evidence": tuple(
+                item.replace(new_wmr_id, old_wmr_id)
+                for item in current_signature.evidence
+            ),
+        }
+    )
+    historical_scope = tuple(
+        item.replace(new_wmr_id, old_wmr_id) for item in current_scope
+    )
+    historical_hash = gy_content_hash(
+        {
+            "edge_scope": sorted(historical_scope),
+            "signature": historical_signature.model_dump(mode="json"),
+        }
+    )
+    historical_id = "cg0_atom_" + historical_hash.removeprefix("sha256:")[:16]
+    historical_projection = {
+        "grounding_dispositions": [
+            {
+                "proposal_id": "gy_n4.owner_recorded",
+                "identified_atom_id": historical_id,
+                "disposition": "novel_cg3",
+                "status": "candidate_unverified",
+                "selected_relation": "novel-candidate",
+                "rejected_cause": {
+                    "cg1_critical_contradictions": ["op", "sign"],
+                    "cg2_decision": "abstain",
+                },
+            }
+        ]
+    }
+    replayed_projection = copy.deepcopy(historical_projection)
+    replayed_projection["grounding_dispositions"][0]["identified_atom_id"] = (
+        current_atom.atom_id
+    )
+    registry = {
+        "schema_version": "policyos.layer3.gy.n10.wmr_reissue_registry.v1",
+        "reissues": [
+            {
+                "historical_wmr_content_hash": old_wmr,
+                "reissued_wmr_content_hash": new_wmr,
+                "owner": "production_composed_world_model_record",
+                "reason": "unit_owner_reissue",
+            }
+        ],
+    }
+
+    witnesses = validator._build_n4_atom_readdress_witnesses(
+        historical_projection,
+        replayed_projection,
+        current_atoms={current_atom.atom_id: current_atom},
+        reissue_registry=registry,
+    )
+
+    assert witnesses[0]["historical_atom_binding"]["atom_id"] == historical_id
+    assert witnesses[0]["reissued_atom_binding"]["atom_id"] == current_atom.atom_id
+    assert validator._n4_atom_readdress_witness_issues(
+        historical_projection,
+        replayed_projection,
+        witnesses=witnesses,
+        current_atoms={current_atom.atom_id: current_atom},
+        reissue_registry=registry,
+    ) == ()
+
+    forged = copy.deepcopy(witnesses)
+    forged[0]["historical_atom_binding"]["signature"]["unit"] = "index"
+    forged[0]["witness_content_hash"] = validator._semantic_hash(
+        {
+            key: value
+            for key, value in forged[0].items()
+            if key != "witness_content_hash"
+        }
+    )
+    assert "proof_n4_atom_readdress_historical_preimage_mismatch" in (
+        validator._n4_atom_readdress_witness_issues(
+            historical_projection,
+            replayed_projection,
+            witnesses=forged,
+            current_atoms={current_atom.atom_id: current_atom},
+            reissue_registry=registry,
+        )
+    )
+
+    no_veto = copy.deepcopy(replayed_projection)
+    no_veto["grounding_dispositions"][0]["rejected_cause"][
+        "cg1_critical_contradictions"
+    ] = []
+    with pytest.raises(
+        validator.UniversalityContractError,
+        match="proof_n4_atom_readdress_authority_growth",
+    ):
+        validator._build_n4_atom_readdress_witnesses(
+            historical_projection,
+            no_veto,
+            current_atoms={current_atom.atom_id: current_atom},
+            reissue_registry=registry,
+        )
 
 
 def test_historical_n4_projection_rebind_chains_only_for_context_identity() -> None:

@@ -40,6 +40,7 @@ from polisyos.runtime.quality.grounding_relation import (
     GroundingEnginePolicy,
     GroundingRelationCertificate,
     GroundingRelationEngine,
+    grounding_candidate_semantic_sort_key,
     parse_n4_proposal,
 )
 
@@ -1190,7 +1191,13 @@ def _lexical_decision(
             latency_ms=_elapsed_ms(start),
             notes=("duckdb_fts_no_hit",),
         )
-    selected = sorted(candidates, key=lambda item: (-item.retrieval_score, item.atom_id))[0]
+    selected = sorted(
+        candidates,
+        key=lambda item: (
+            -item.retrieval_score,
+            grounding_candidate_semantic_sort_key(item),
+        ),
+    )[0]
     return _decision(
         case,
         "lexical_similarity_duckdb_fts_top1",

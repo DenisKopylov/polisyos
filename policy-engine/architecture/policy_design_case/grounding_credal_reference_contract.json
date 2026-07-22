@@ -503,8 +503,8 @@
     },
     "reference_repair_stales_certificate": {
       "certificate_id": "cg0-reference-repair-stale-probe",
-      "new_reference_epoch": "kref:1fd912ae7292023d",
-      "old_reference_epoch": "kref:09b6349c4ee0bfef",
+      "new_reference_epoch": "kref:7444fc4f19dc8385",
+      "old_reference_epoch": "kref:956b076b990299fe",
       "reasons": [
         "reference_epoch_changed",
         "reference_hash_changed",
@@ -521,8 +521,8 @@
     "component_versions": {
       "L2": "sha256:6f013f350e95724139c79f23ea5fcac440ad759de8ea2e0416c8996533eb56bb",
       "L3": "sha256:19ba25cd24fbd27186d7ca9144775f00bd255fb7b5fca57caf5b7277dd6ddcf0",
-      "L6": "sha256:7489e7d1a9e77b458c63bdce652fccf2d31ddeb29e25b869c89ecf3b60c218b8",
-      "WMR": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca"
+      "L6": "sha256:5e10244a19f700a155bc2a0b4f59eb4b0c3128488c999d48514d0dd9393224d3",
+      "WMR": "sha256:11c3b1cb30a20018b0a6b85335edb23d999e62be53c3a289e7e2961371ff7cbf"
     },
     "denominator_status": {
       "L2_CANONICAL_VARIABLE": {
@@ -673,8 +673,8 @@
         }
       }
     },
-    "reference_epoch": "kref:09b6349c4ee0bfef",
-    "reference_hash": "sha256:09b6349c4ee0bfef6a153d1002fbcca6aad6d33d3b411222f8031e0e1dc6b3c9",
+    "reference_epoch": "kref:956b076b990299fe",
+    "reference_hash": "sha256:956b076b990299fec96e3782c7e068c467dd982b28848183221b7fd42e0e092f",
     "sample_edges": {
       "contested": [
         {

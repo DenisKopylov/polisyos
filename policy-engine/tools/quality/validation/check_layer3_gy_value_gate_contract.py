@@ -59,10 +59,10 @@ NATIVE_CONTRACT_FAMILIES = (
     "transport",
 )
 FORK_B_CENSUS_CONTENT_HASH = (
-    "sha256:f511626547c17ff010b1ee26d9157c753a6f13fe8be18f96c17ee9f1ca31e605"
+    "sha256:2f421734712fef4852bba58cfeeacdb440d2813463f8b56f31910fbfd62019ca"
 )
 FORK_B_CENSUS_RAW_HASH = (
-    "sha256:415e73219df496e86f9b199885a7458bf9ea9818ab2d989e82f9c6c992e16247"
+    "sha256:f8dc6e8de15a4c9da33227f4144b7f56e3329ae7047000cd8c859764d62aead7"
 )
 EXPECTED_MUTATION_IDS: tuple[str, ...] = (
     "value_input_read_from_runtime_hint",
@@ -3305,20 +3305,31 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
     if not isinstance(denominators, Mapping):
         issues.append({"code": "denominators_missing"})
     else:
+        expected_denominators = _catalog_denominators_cached()
         modes = tuple(denominators.get("evaluation_modes") or ())
         if modes != tuple(get_args(ValueEvaluationMode)):
             issues.append({"code": "evaluation_mode_denominator_not_full"})
         statuses = tuple(denominators.get("identification_statuses") or ())
         if statuses != ("point", "partial", "proxy"):
             issues.append({"code": "identification_status_denominator_not_full"})
-        if (
-            denominators.get("registered_method_count") != 390
-            or denominators.get("catalog_entry_count") != 390
-            or denominators.get("catalog_matches_registry") is not True
+        if any(
+            denominators.get(field) != expected_denominators[field]
+            for field in (
+                "registered_method_count",
+                "catalog_entry_count",
+                "catalog_matches_registry",
+                "catalog_snapshot_id",
+                "catalog_snapshot_stable",
+            )
         ):
             issues.append({"code": "catalog_method_denominator_drift"})
         methods = tuple(denominators.get("value_capable_methods") or ())
-        if denominators.get("value_capable_method_count") != 55 or len(methods) != 55:
+        expected_methods = tuple(expected_denominators["value_capable_methods"])
+        if (
+            denominators.get("value_capable_method_count")
+            != expected_denominators["value_capable_method_count"]
+            or methods != expected_methods
+        ):
             issues.append({"code": "value_capability_denominator_drift"})
         encoded = json.dumps(
             methods,

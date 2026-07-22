@@ -437,7 +437,7 @@
   "recursive_runs": [
     {
       "authority_scope": "contract_testing",
-      "content_hash": "sha256:8a1eba9be1389a1c8adae7d7ae74fbb4b0882f6b1a9fa1c70bc636a0fb281c30",
+      "content_hash": "sha256:15e0fb1fde620b04c53bfbf6eadadf2c3f914543658b6f4713c4a957c2460a64",
       "controller_ref": "polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController",
       "nodes": [
         {
@@ -447,7 +447,7 @@
           "composition_certificate": null,
           "cycle_run": null,
           "depth": 0,
-          "design_problem_ref": "sha256:3418cb025dfe7e52035ea12dc5e7a61ef9fa6af1f5a6c29afd05185310e41cf7",
+          "design_problem_ref": "sha256:cc4faa4c43c24358ccea371b2cee2dec23170093387151f0734e6de6fdc8ac83",
           "joint_simulation": null,
           "node_ref": "design://gy-n10/depth/root",
           "parent_ref": null,
@@ -471,7 +471,7 @@
           "composition_certificate": null,
           "cycle_run": null,
           "depth": 1,
-          "design_problem_ref": "sha256:a443f23cd2dca8c2629f4784da3dc5ec166b9ce9addddbbe84d061aae1941f77",
+          "design_problem_ref": "sha256:be169edf3ea82d2d880445514116dc3910b40a55e2dc3bc364ac06aa40d993aa",
           "joint_simulation": null,
           "node_ref": "design://gy-n10/depth/one",
           "parent_ref": "design://gy-n10/depth/root",
@@ -498,7 +498,7 @@
             "candidate_ref": null,
             "certificate_id": "composition-certificate-18a5e13568af",
             "claim_refs": [
-              "claim://design-problem/e7bfb28503c888bd46da1e00ab61d6275a40ba78cf97a7d623ec0d8a08ecfe36/objective/improve_education_outcomes"
+              "claim://design-problem/f105afe846439a4b6f4044baa03110e845ad9dcdb911074a7142db5cbd90bd6e/objective/improve_education_outcomes"
             ],
             "composition_law_check_ref": null,
             "composition_receipt_ref": null,
@@ -553,7 +553,7 @@
           },
           "cycle_run": null,
           "depth": 2,
-          "design_problem_ref": "sha256:e7bfb28503c888bd46da1e00ab61d6275a40ba78cf97a7d623ec0d8a08ecfe36",
+          "design_problem_ref": "sha256:f105afe846439a4b6f4044baa03110e845ad9dcdb911074a7142db5cbd90bd6e",
           "joint_simulation": {
             "acquisition_requests": [],
             "atom_ids": [
@@ -1233,7 +1233,7 @@
                   "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
                 },
                 "cycle_index": 0,
-                "design_problem_ref": "sha256:060bf2469091c80d97cc556b79bf7d26dd51508b10ba597ba74ad4aec8db8ba0",
+                "design_problem_ref": "sha256:d98ec0a4b849d8e8da423570620059fdcc4076b3fc80dd11babcf05edec807ca",
                 "driven_by_counterexample_ref": "pdc://gy/n6/depth_n_3/counterexample/001",
                 "grammar_elements": [
                   "seed"
@@ -1384,7 +1384,7 @@
                     "nl_provenance": {
                       "raw_request": "Improve education outcomes through evidence-backed interventions.",
                       "source_context": {
-                        "census_content_hash": "sha256:bfe5f34b15ce7bcb4100f2ca47098cb0649f79796674a1cfcc44d2bcfc5f6053"
+                        "census_content_hash": "sha256:bdab45ab5bae3317c1c89470ea5f5cb0e1a1cca1baee5ba9b9300cc5a2502e43"
                       },
                       "source_surface": "gy_n10a_second_domain_pack"
                     },
@@ -1514,7 +1514,7 @@
                 }
               }
             ],
-            "design_problem_ref": "sha256:060bf2469091c80d97cc556b79bf7d26dd51508b10ba597ba74ad4aec8db8ba0",
+            "design_problem_ref": "sha256:d98ec0a4b849d8e8da423570620059fdcc4076b3fc80dd11babcf05edec807ca",
             "engine_owner_ref": "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine",
             "fronts": {
               "decision": {
@@ -1547,7 +1547,7 @@
               "status": "promotion_pending_n9",
               "strangle_receipt": null
             },
-            "run_id": "generation_cycle_060bf2469091c80d",
+            "run_id": "generation_cycle_d98ec0a4b849d8e8",
             "schema_version": "policyos.runtime.generation_cycle_controller.v1",
             "strangle_receipt": {
               "allowed_fixture_callers": [
@@ -1598,7 +1598,7 @@
             }
           },
           "depth": 3,
-          "design_problem_ref": "sha256:060bf2469091c80d97cc556b79bf7d26dd51508b10ba597ba74ad4aec8db8ba0",
+          "design_problem_ref": "sha256:d98ec0a4b849d8e8da423570620059fdcc4076b3fc80dd11babcf05edec807ca",
           "joint_simulation": null,
           "node_ref": "design://gy-n10/depth/three-a",
           "parent_ref": "design://gy-n10/depth/two",
@@ -1678,7 +1678,7 @@
                   "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1"
                 },
                 "cycle_index": 0,
-                "design_problem_ref": "sha256:5a429f66e487c6d207cf374a7535f4a91b74f4848cb1ab490447192e22d16386",
+                "design_problem_ref": "sha256:8be456be011a7647b076a194c35932cb9b4e979e31d1d09e208e28e3436b30d8",
                 "driven_by_counterexample_ref": "pdc://gy/n6/depth_n_4/counterexample/001",
                 "grammar_elements": [
                   "seed"
@@ -1829,7 +1829,7 @@
                     "nl_provenance": {
                       "raw_request": "Improve education outcomes through evidence-backed interventions.",
                       "source_context": {
-                        "census_content_hash": "sha256:bfe5f34b15ce7bcb4100f2ca47098cb0649f79796674a1cfcc44d2bcfc5f6053"
+                        "census_content_hash": "sha256:bdab45ab5bae3317c1c89470ea5f5cb0e1a1cca1baee5ba9b9300cc5a2502e43"
                       },
                       "source_surface": "gy_n10a_second_domain_pack"
                     },
@@ -1959,7 +1959,7 @@
                 }
               }
             ],
-            "design_problem_ref": "sha256:5a429f66e487c6d207cf374a7535f4a91b74f4848cb1ab490447192e22d16386",
+            "design_problem_ref": "sha256:8be456be011a7647b076a194c35932cb9b4e979e31d1d09e208e28e3436b30d8",
             "engine_owner_ref": "polisyos.scientist.orchestration.workflows.engine_simple.SimpleLoopEngine",
             "fronts": {
               "decision": {
@@ -1992,7 +1992,7 @@
               "status": "promotion_pending_n9",
               "strangle_receipt": null
             },
-            "run_id": "generation_cycle_5a429f66e487c6d2",
+            "run_id": "generation_cycle_8be456be011a7647",
             "schema_version": "policyos.runtime.generation_cycle_controller.v1",
             "strangle_receipt": {
               "allowed_fixture_callers": [
@@ -2043,7 +2043,7 @@
             }
           },
           "depth": 3,
-          "design_problem_ref": "sha256:5a429f66e487c6d207cf374a7535f4a91b74f4848cb1ab490447192e22d16386",
+          "design_problem_ref": "sha256:8be456be011a7647b076a194c35932cb9b4e979e31d1d09e208e28e3436b30d8",
           "joint_simulation": null,
           "node_ref": "design://gy-n10/depth/three-b",
           "parent_ref": "design://gy-n10/depth/two",
@@ -2134,7 +2134,7 @@
       },
       "recursive_graph_content_hash": "sha256:793b3ca78b4dbd7618d8552e6082e73157002c3b787edb4ae72f5879838a115b",
       "recursive_graph_ref": "pdc://layer2/s5/1e81c32ffe9f/recursive-design-graph",
-      "root_design_problem_ref": "sha256:3418cb025dfe7e52035ea12dc5e7a61ef9fa6af1f5a6c29afd05185310e41cf7",
+      "root_design_problem_ref": "sha256:cc4faa4c43c24358ccea371b2cee2dec23170093387151f0734e6de6fdc8ac83",
       "root_node_ref": "design://gy-n10/depth/root",
       "run_id": "recursive:layer2.s5.recursive.43858d7def15",
       "schema_version": "policyos.runtime.recursive_generation_cycle.v1",

@@ -2935,6 +2935,18 @@ _HISTORICAL_N4_REPLAY_ISSUES = frozenset(
         "n4_owner_lever_substrate_binding_mismatch",
     }
 )
+_LEGACY_HISTORICAL_N4_REPLAY_ISSUES = (
+    _HISTORICAL_N4_REPLAY_ISSUES
+    - {"n4_owner_lever_substrate_binding_mismatch"}
+)
+_HISTORICAL_N4_ROLLBACK_REPLAY_ISSUES = (
+    _HISTORICAL_N4_REPLAY_ISSUES
+    | {"n4_owner_historical_problem_ref_invalid"}
+)
+_LEGACY_HISTORICAL_N4_ROLLBACK_REPLAY_ISSUES = (
+    _LEGACY_HISTORICAL_N4_REPLAY_ISSUES
+    | {"n4_owner_historical_problem_ref_invalid"}
+)
 _HISTORICAL_N4_REPLAY_BINDING_FIELDS = frozenset(
     {
         "design_problem_ref",
@@ -2964,6 +2976,38 @@ def _problem_without_census_provenance(problem: DesignProblem) -> dict[str, Any]
     provenance["source_context"] = source_context
     payload["nl_provenance"] = provenance
     return payload
+
+
+def _historical_n4_replay_issues_are_eligible(
+    *,
+    capture: Mapping[str, Any],
+    historical_problem: DesignProblem,
+    current_problem: DesignProblem,
+    issues: frozenset[str],
+) -> bool:
+    """Recognize direct drift or a verified return to the prior problem identity."""
+
+    if issues in {
+        _HISTORICAL_N4_REPLAY_ISSUES,
+        _LEGACY_HISTORICAL_N4_REPLAY_ISSUES,
+    }:
+        return True
+    if issues not in {
+        _HISTORICAL_N4_ROLLBACK_REPLAY_ISSUES,
+        _LEGACY_HISTORICAL_N4_ROLLBACK_REPLAY_ISSUES,
+    }:
+        return False
+    receipt = _mapping(capture.get("historical_replay_receipt"))
+    historical_problem_ref = gy_content_hash(
+        historical_problem.model_dump(mode="json")
+    )
+    current_problem_ref = gy_content_hash(current_problem.model_dump(mode="json"))
+    return bool(
+        receipt.get("current_design_problem_ref") == historical_problem_ref
+        and receipt.get("historical_design_problem_ref") == current_problem_ref
+        and receipt.get("problem_semantic_projection")
+        == _problem_without_census_provenance(current_problem)
+    )
 
 
 def _historical_n4_replay_receipt(
@@ -3065,7 +3109,12 @@ async def _replay_historical_n4_owner_capture(
             cycle_substrate_context=cycle_substrate_context,
         )
     )
-    if current_issues != _HISTORICAL_N4_REPLAY_ISSUES:
+    if not _historical_n4_replay_issues_are_eligible(
+        capture=capture,
+        historical_problem=historical_problem,
+        current_problem=problem,
+        issues=current_issues,
+    ):
         raise ValueError(
             "education_n4_historical_capture_not_replay_eligible:"
             + ",".join(sorted(current_issues))
@@ -3080,7 +3129,10 @@ async def _replay_historical_n4_owner_capture(
         for key in set(recorded_binding) | set(current_binding)
         if recorded_binding.get(key) != current_binding.get(key)
     )
-    if changed_binding_fields != _HISTORICAL_N4_REPLAY_BINDING_FIELDS:
+    if changed_binding_fields not in {
+        _HISTORICAL_N4_REPLAY_BINDING_FIELDS,
+        _LEGACY_HISTORICAL_N4_REPLAY_BINDING_FIELDS,
+    }:
         raise ValueError(
             "education_n4_historical_capture_binding_drift:"
             + ",".join(sorted(changed_binding_fields))

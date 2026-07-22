@@ -667,8 +667,14 @@ def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
         and "result" not in row
         for row in payload["decisive_mutation_expectations"]
     )
-    assert payload["denominators"]["registered_method_count"] == 390
-    assert payload["denominators"]["value_capable_method_count"] == 55
+    expected_denominators = value_contract._catalog_denominators()
+    assert payload["denominators"] == expected_denominators
+    assert payload["denominators"]["registered_method_count"] == payload[
+        "denominators"
+    ]["catalog_entry_count"]
+    assert payload["denominators"]["value_capable_method_count"] == len(
+        payload["denominators"]["value_capable_methods"]
+    )
     assert len(payload["native_projector_contract_proofs"]) == 6
     assert {
         proof["family"] for proof in payload["native_projector_contract_proofs"]

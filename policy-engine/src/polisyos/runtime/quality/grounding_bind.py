@@ -943,10 +943,13 @@ class GroundingBindGate:
             ),
             _obligation(
                 "unit_scale_consistent",
-                bool(unit)
-                and axis_relations.get("unit") in {"equivalent", "narrower", "unknown"},
-                "unit/scale is consistent with the selected atom",
-                {"unit": unit, "axis_relation": axis_relations.get("unit")},
+                bool(unit) and _cg1._unit_compatible(self.reference, target, unit),
+                "unit/scale is consistent with the owner WMR target slot",
+                {
+                    "unit": unit,
+                    "target": target,
+                    "axis_relation": axis_relations.get("unit"),
+                },
             ),
             _obligation(
                 "target_writable_wmr_slot",

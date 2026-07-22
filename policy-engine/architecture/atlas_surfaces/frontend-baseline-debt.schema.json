@@ -840,7 +840,10 @@
           "pattern": "^C(?:0[6-9]|1[0-8])$"
         },
         "classification": {
-          "const": "shared_dependency_inverted"
+          "enum": [
+            "shared_dependency_inverted",
+            "feature_public_barrel"
+          ]
         },
         "implementation_refs": {
           "type": "array",
@@ -861,7 +864,33 @@
         "closure_test_ref": {
           "$ref": "#/$defs/repoPath"
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "cluster_id": {
+                "const": "C18"
+              }
+            },
+            "required": ["cluster_id"]
+          },
+          "then": {
+            "properties": {
+              "classification": {
+                "const": "feature_public_barrel"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "classification": {
+                "const": "shared_dependency_inverted"
+              }
+            }
+          }
+        }
+      ]
     },
     "architectureBaseline": {
       "type": "object",

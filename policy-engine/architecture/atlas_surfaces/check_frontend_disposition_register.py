@@ -64,6 +64,9 @@ ARCHITECTURE_ORIGIN_FILE_COUNT = 28
 ARCHITECTURE_ORIGIN_IDENTITY_SHA256 = (
     "4c803817e489b2194e7967d2c24988b87bc56b9f4a7e09ac542a9582f25a5588"
 )
+ARCHITECTURE_ORIGIN_PRODUCER_SHA256 = (
+    "e4dfa233f2e7c504a585688c8dbf976a9cd60c3e1baa7eb5c4898f2749cf7e98"
+)
 ARCHITECTURE_IDENTITY_FIELDS = (
     "source_path",
     "source_content_sha256",
@@ -2382,6 +2385,8 @@ def validate_baseline_manifest(
         or architecture_origin["source_file_count"] != ARCHITECTURE_ORIGIN_FILE_COUNT
         or architecture_origin["identity_set_sha256"]
         != ARCHITECTURE_ORIGIN_IDENTITY_SHA256
+        or architecture_origin["producer_sha256"]
+        != ARCHITECTURE_ORIGIN_PRODUCER_SHA256
     ):
         errors.append("architecture_immutable_origin_anchor_drift")
     errors.extend(
@@ -2399,8 +2404,6 @@ def validate_baseline_manifest(
         not producer_path.exists()
         or hashlib.sha256(producer_path.read_bytes()).hexdigest()
         != architecture["producer_sha256"]
-        or architecture["producer_sha256"]
-        != architecture_origin["producer_sha256"]
     ):
         errors.append("architecture_producer_hash_drift")
     for resolution in architecture["resolutions"]:
@@ -2414,6 +2417,24 @@ def validate_baseline_manifest(
             issue = _reference_resolution_error(reference)
             if issue:
                 errors.append(f"architecture_resolution_{issue}:{identity_id}")
+    c18_resolutions = [
+        resolution
+        for resolution in architecture["resolutions"]
+        if resolution["cluster_id"] == "C18"
+    ]
+    if len(c18_resolutions) != 1:
+        errors.append("architecture_c18_resolution_count_drift")
+    elif c18_resolutions[0]["classification"] != "feature_public_barrel":
+        errors.append("architecture_c18_resolution_classification_drift")
+    for resolution in architecture["resolutions"]:
+        if (
+            resolution["cluster_id"] != "C18"
+            and resolution["classification"] != "shared_dependency_inverted"
+        ):
+            errors.append(
+                "architecture_non_c18_resolution_classification_drift:"
+                f"{resolution['origin_identity_sha256']}"
+            )
     if verify_source_bytes:
         for row in architecture["violations"]:
             path = REPO_ROOT / row["source_path"]
@@ -3534,6 +3555,34 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
     missing_architecture = copy.deepcopy(baseline)
     missing_architecture["architecture"]["resolutions"].pop()
     probes.append(("architecture-missing-resolution", missing_architecture))
+
+    c18_classification_laundering = copy.deepcopy(baseline)
+    c18_resolution = next(
+        row
+        for row in c18_classification_laundering["architecture"]["resolutions"]
+        if row["cluster_id"] == "C18"
+    )
+    c18_resolution["classification"] = "shared_dependency_inverted"
+    probes.append(
+        (
+            "architecture-c18-classification-laundering",
+            c18_classification_laundering,
+        )
+    )
+
+    sibling_classification_laundering = copy.deepcopy(baseline)
+    sibling_resolution = next(
+        row
+        for row in sibling_classification_laundering["architecture"]["resolutions"]
+        if row["cluster_id"] == "C09"
+    )
+    sibling_resolution["classification"] = "feature_public_barrel"
+    probes.append(
+        (
+            "architecture-non-c18-classification-laundering",
+            sibling_classification_laundering,
+        )
+    )
 
     failures: list[str] = []
     for name, mutation in probes:

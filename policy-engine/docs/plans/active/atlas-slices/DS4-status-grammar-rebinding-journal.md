@@ -1759,3 +1759,89 @@ the generated adapter` failed first at its injected-projection witness:
 - Backend `src/**`, schemas, runtime generated client, v15 archive, frozen `ru`
   locale, master plan, package sources, responsive component owners, main, and
   other worktrees are untouched. No push or merge is performed.
+
+## 2026-07-22 — DS4-C18 architecture remainder closure
+
+### Red-first property and cycle-safe public entry
+
+- The exact AST test `imports run workspace data only through the feature
+  public surface` failed first on
+  `@/features/runs/api/useRunsSample`. Static import, re-export, dynamic import,
+  and namespace-import corruptions all remain rejected.
+- Importing the existing root barrel exposed a real runtime cycle before the
+  test suite could initialize:
+  `runs/index -> useRunDetailSummary -> runDetailTabs -> surfaceRegistry ->
+  workspaces -> runs/index`. Dependency-cruiser independently reported two
+  `no-circular` witnesses, and `WORKSPACE_ORDER` was observed before
+  initialization. The root barrel is therefore an explicit negative, not a
+  masked test dependency.
+- The smallest correct public entry is the exact
+  `features/runs/workspaces.public.ts` projection. Both the custom checker and
+  dependency-cruiser recognize only that named path; there is no broad
+  `*.public` exemption. The existing root barrel was neither narrowed nor
+  duplicated.
+- The shared-boundary test now derives every supported file under
+  `src/shared/**` recursively and checks static imports, re-exports, dynamic
+  imports, and namespace imports against the measured app/feature boundary.
+  Dashboard API infrastructure remains outside this measured rule; package
+  components retain their stricter `@/api` rejection. No source-name or
+  manifest-name list defines the scan.
+
+Relevant repair patterns are P06/P27/P28 (one public feature owner, no shim),
+P29/P31 (the real runtime and both architecture producers exercise the
+property), and P33/P34 (root-barrel and four deep-import adversaries plus an
+explicit empty-result comparator). The correct pattern is
+`app workspace -> one cycle-safe named feature public entry -> existing query
+producer`, with the original deep edge retained only as immutable provenance.
+
+### Immutable partition and bounded governance
+
+- Architecture debt is resolved from 36 immutable-origin identities to 36
+  typed resolutions and 0 active violations across 0 files. The active
+  identity-set hash is the canonical empty JCS hash
+  `4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945`.
+- The exact C18 origin edge, source hash, line, target, rule, and message remain
+  preserved under `feature_public_barrel`; the original producer hash remains
+  immutable while the extended live producer has its separately verified
+  hash. Rewriting either provenance or the C18 classification fails closed.
+- The zero-active comparator is non-vacuous: explicit `{"violations":[]}`
+  passes, while reviving the exact C18 origin is a new violation.
+- No DS19 disposition row, status-retirement inventory row, status count, or
+  DS19 estate denominator changes in C18. Root dispositions remain 261 total:
+  200 `rebind_pending`, 15 deleted, 25 retire, 16 wire, and 5 `use_as_is`.
+
+### Exact verification and fence
+
+| Gate | Result |
+| --- | --- |
+| required workspace/shared tests | PASS; 2 files / 9 tests; query-key behavior retained |
+| dashboard typecheck and scoped lint | PASS; exact changed TypeScript/config/script scope |
+| dashboard production build | PASS; 3,885 transformed modules, PWA 106 entries, postbuild security and atlas-ui Tailwind-source proof |
+| dashboard architecture | PASS; custom checker 0 and dependency-cruiser 0 across 996 modules / 4,080 dependencies |
+| baseline lifecycle | PASS; 29 Python tests; immutable 36/0 partition and revived-edge comparator |
+| disposition governance | PASS; explicit empty architecture JSON, source-byte verification, corruption probes, and 22 unit tests |
+| status governance | PASS; corruption probes and 23 unit tests; 47 DS1 rows, 21 current authored definitions, 55 exemptions, 19 retirement debts, 3 waist debts |
+| atlas-ui spot-check | PASS; architecture across 36 source files; package source is untouched |
+
+- `pnpm-lock.yaml` is byte-unchanged at SHA-256
+  `01c66675e43b2620f46e69dbf146b20284a216d0711c6c712299b0c7de86769b`.
+- The tracked fence is limited to the workspace import/test, the exact feature
+  public entry, the generic shared test, the two dashboard architecture
+  producers, the owned baseline manifest/schema/checker/tests, and this
+  journal. No backend `src/**`, generated client, v15 archive, frozen locale,
+  package source, DS19 register, status inventory, master plan, lockfile, main,
+  or other worktree is touched. No push or merge is performed.
+
+### Review repair: exact architecture-resolution discriminant
+
+- Review found that the architecture resolution schema's global enum still
+  admitted `feature_public_barrel` for non-C18 rows. The red-first corruption
+  test proved that C09, C10, and C11 could each be relabelled without failure.
+- The schema and checker now enforce the exact partition: C18 must be
+  `feature_public_barrel`; every non-C18 architecture resolution must remain
+  `shared_dependency_inverted`. A register corruption probe independently
+  mutates C09 and proves that classification laundering fails closed.
+- The focused baseline lifecycle passes 30 tests. The disposition-register
+  explicit-empty comparator, source-byte verification, and corruption probes
+  pass, as do scoped Python syntax lint/compile, schema JSON parsing, and diff
+  checks. No manifest resolution or status count changed.

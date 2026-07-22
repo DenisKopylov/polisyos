@@ -12,7 +12,15 @@ const packagePatternsRoot = path.join(
   productRoot,
   "packages/atlas-ui/src/patterns",
 );
-const dashboardSharedRoot = path.join(dashboardRoot, "src/shared/ui");
+const dashboardSharedRoot = path.join(dashboardRoot, "src/shared");
+const dashboardSharedUiRoot = path.join(dashboardSharedRoot, "ui");
+const supportedExtensions = new Set([
+  ".ts",
+  ".tsx",
+  ".js",
+  ".jsx",
+  ".mjs",
+]);
 const migratedCompounds = new Set([
   "JsonPreview",
   "VirtualList",
@@ -25,8 +33,30 @@ type SourceUnit = {
   text: string;
 };
 
+function supportedSources(root: string): SourceUnit[] {
+  if (!fs.existsSync(root)) {
+    return [];
+  }
+  return fs
+    .readdirSync(root, { withFileTypes: true })
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .flatMap((entry) => {
+      const file = path.join(root, entry.name);
+      if (entry.isDirectory()) {
+        return supportedSources(file);
+      }
+      if (
+        !entry.isFile() ||
+        !supportedExtensions.has(path.extname(entry.name))
+      ) {
+        return [];
+      }
+      return [{ file, text: fs.readFileSync(file, "utf8") }];
+    });
+}
+
 function liveCompoundSources(): SourceUnit[] {
-  return [dashboardSharedRoot, packageCompoundsRoot].flatMap((root) => {
+  return [dashboardSharedUiRoot, packageCompoundsRoot].flatMap((root) => {
     if (!fs.existsSync(root)) {
       return [];
     }
@@ -109,6 +139,23 @@ function appDependencyViolations(units: SourceUnit[]): string[] {
   );
 }
 
+function sharedLayerDependencyViolations(units: SourceUnit[]): string[] {
+  return units.flatMap((unit) =>
+    dependencySpecifiers(unit)
+      .filter(
+        (specifier) =>
+          specifier === "@/app" ||
+          specifier.startsWith("@/app/") ||
+          specifier === "@/features" ||
+          specifier.startsWith("@/features/"),
+      )
+      .map(
+        (specifier) =>
+          `${path.relative(productRoot, unit.file)} -> ${specifier}`,
+      ),
+  );
+}
+
 function packagePatternDependencyViolations(units: SourceUnit[]): string[] {
   return appDependencyViolations(
     units.filter((unit) =>
@@ -118,6 +165,42 @@ function packagePatternDependencyViolations(units: SourceUnit[]): string[] {
 }
 
 describe("shared UI architecture", () => {
+  it("rejects every remaining shared to app API or feature edge from the measured manifest", () => {
+    const units = supportedSources(dashboardSharedRoot);
+    expect(units.length).toBeGreaterThan(0);
+    expect(sharedLayerDependencyViolations(units)).toEqual([]);
+
+    const probePath = path.join(
+      dashboardSharedRoot,
+      "ui/CorruptedSharedBoundary.tsx",
+    );
+    const corruptions: SourceUnit[] = [
+      {
+        file: probePath,
+        text: 'import { useWorkspace } from "@/app/workspaces";',
+      },
+      {
+        file: probePath,
+        text: 'export { useRuns } from "@/features/runs/api/useRuns";',
+      },
+      {
+        file: probePath,
+        text: 'const appState = import("@/app/state/usePreferencesStore");',
+      },
+      {
+        file: probePath,
+        text: 'import * as RunsApi from "@/features/runs/api/useRunsSample";',
+      },
+    ];
+
+    expect(sharedLayerDependencyViolations(corruptions)).toEqual([
+      "apps/runtime-dashboard/src/shared/ui/CorruptedSharedBoundary.tsx -> @/app/workspaces",
+      "apps/runtime-dashboard/src/shared/ui/CorruptedSharedBoundary.tsx -> @/features/runs/api/useRuns",
+      "apps/runtime-dashboard/src/shared/ui/CorruptedSharedBoundary.tsx -> @/app/state/usePreferencesStore",
+      "apps/runtime-dashboard/src/shared/ui/CorruptedSharedBoundary.tsx -> @/features/runs/api/useRunsSample",
+    ]);
+  });
+
   it("rejects a compound importing app API or feature state", () => {
     const units = liveCompoundSources();
     expect(

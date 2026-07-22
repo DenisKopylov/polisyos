@@ -470,34 +470,15 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         architecture = manifest["architecture"]
 
         self.assertEqual(architecture["immutable_origin"]["violation_count"], 36)
+        self.assertEqual(architecture["disposition"], "resolved")
+        self.assertEqual(architecture["exit_code"], 0)
+        self.assertEqual(architecture["violation_count"], 0)
+        self.assertEqual(architecture["source_file_count"], 0)
         self.assertEqual(
-            architecture["violation_count"], len(architecture["violations"])
+            architecture["identity_set_sha256"], checker._canonical_sha256([])
         )
-        self.assertEqual(
-            architecture["source_file_count"],
-            len({row["source_path"] for row in architecture["violations"]}),
-        )
-        self.assertEqual(
-            len(architecture["resolutions"]) + architecture["violation_count"],
-            36,
-        )
-        self.assertEqual(
-            {
-                (
-                    row["source_path"],
-                    row["specifier"],
-                    row["rule_id"],
-                )
-                for row in architecture["violations"]
-            },
-            {
-                (
-                    "apps/runtime-dashboard/src/app/workspaces.ts",
-                    "@/features/runs/api/useRunsSample",
-                    "app-no-feature-internals",
-                )
-            },
-        )
+        self.assertEqual(architecture["violations"], [])
+        self.assertEqual(len(architecture["resolutions"]), 36)
         self.assertEqual(
             sum(
                 resolution["cluster_id"] == "C09"
@@ -549,6 +530,34 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
                 for resolution in c11_resolutions
             )
         )
+        c18_resolution = next(
+            resolution
+            for resolution in architecture["resolutions"]
+            if resolution["cluster_id"] == "C18"
+        )
+        self.assertEqual(c18_resolution["classification"], "feature_public_barrel")
+        self.assertEqual(
+            c18_resolution["origin_identity"],
+            {
+                "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
+                "source_content_sha256": (
+                    "df8e3785d0baa2e30af4cf68567c2fe33dc736adfc0babd64d268241e1bfc4b3"
+                ),
+                "line": 9,
+                "specifier": "@/features/runs/api/useRunsSample",
+                "resolved_target_path": (
+                    "apps/runtime-dashboard/src/features/runs/api/useRunsSample.ts"
+                ),
+                "rule_id": "app-no-feature-internals",
+                "message": (
+                    "app layer can import features only through their public index.ts barrel."
+                ),
+                "display": (
+                    "src/app/workspaces.ts:9 -> @/features/runs/api/useRunsSample :: "
+                    "app layer can import features only through their public index.ts barrel."
+                ),
+            },
+        )
         self.assertEqual(checker.validate_baseline_manifest(manifest), [])
 
     def test_architecture_partition_rejects_a_missing_resolution(self) -> None:
@@ -559,23 +568,79 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         self.assertIn("architecture_partition_missing_identity", errors)
 
-    def test_architecture_comparator_requires_the_exact_active_set(self) -> None:
+    def test_architecture_origin_rejects_rewritten_producer_provenance(
+        self,
+    ) -> None:
+        mutation = copy.deepcopy(_manifest())
+        mutation["architecture"]["immutable_origin"]["producer_sha256"] = "0" * 64
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn("architecture_immutable_origin_anchor_drift", errors)
+
+    def test_architecture_comparator_rejects_the_revived_c18_edge_from_zero(
+        self,
+    ) -> None:
         manifest = _manifest()
-        exact = {"violations": manifest["architecture"]["violations"]}
-        exact_path = _write_json(exact)
-        missing_path = _write_json({"violations": exact["violations"][1:]})
-        self.addCleanup(exact_path.unlink)
-        self.addCleanup(missing_path.unlink)
+        c18_resolution = next(
+            resolution
+            for resolution in manifest["architecture"]["resolutions"]
+            if resolution["cluster_id"] == "C18"
+        )
+        empty_path = _write_json({"violations": []})
+        revived_path = _write_json(
+            {"violations": [c18_resolution["origin_identity"]]}
+        )
+        self.addCleanup(empty_path.unlink)
+        self.addCleanup(revived_path.unlink)
 
         self.assertEqual(
-            checker.compare_architecture_results(manifest, exact_path),
+            checker.compare_architecture_results(manifest, empty_path),
             [],
         )
-        errors = checker.compare_architecture_results(manifest, missing_path)
+        errors = checker.compare_architecture_results(manifest, revived_path)
         self.assertTrue(
-            any(error.startswith("architecture_expected_violation_missing:") for error in errors),
+            any(error.startswith("architecture_new_violation:") for error in errors),
             errors,
         )
+
+    def test_architecture_c18_rejects_shared_dependency_classification(
+        self,
+    ) -> None:
+        mutation = copy.deepcopy(_manifest())
+        resolution = next(
+            row
+            for row in mutation["architecture"]["resolutions"]
+            if row["cluster_id"] == "C18"
+        )
+        resolution["classification"] = "shared_dependency_inverted"
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertTrue(
+            any("feature_public_barrel" in error for error in errors),
+            errors,
+        )
+
+    def test_architecture_non_c18_rejects_feature_public_barrel_classification(
+        self,
+    ) -> None:
+        for cluster_id in ("C09", "C10", "C11"):
+            with self.subTest(cluster_id=cluster_id):
+                mutation = copy.deepcopy(_manifest())
+                resolution = next(
+                    row
+                    for row in mutation["architecture"]["resolutions"]
+                    if row["cluster_id"] == cluster_id
+                )
+                resolution["classification"] = "feature_public_barrel"
+
+                errors = checker.validate_baseline_manifest(mutation)
+
+                self.assertTrue(
+                    any("shared_dependency_inverted" in error for error in errors),
+                    errors,
+                )
 
     def test_architecture_json_and_human_modes_share_one_producer(self) -> None:
         json_run = subprocess.run(

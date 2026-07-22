@@ -119,6 +119,7 @@ function classifyModule(filePath) {
 function isFeaturePublicEntry(filePath) {
   const relative = relativePath(filePath);
   return (
+    relative === "src/features/runs/workspaces.public.ts" ||
     /^src\/features\/[^/]+\/index\.ts$/.test(relative) ||
     /^src\/features\/[^/]+\/index\.tsx$/.test(relative) ||
     /^src\/features\/[^/]+\/routes\.public\.ts$/.test(relative) ||

@@ -2476,27 +2476,16 @@
   },
   "architecture": {
     "owner_slice": "DS4",
-    "disposition": "rebind_pending",
+    "disposition": "resolved",
     "command": "node ./scripts/check-architecture.mjs --format=json",
     "producer": "runtime-dashboard-custom-import-boundary",
     "producer_path": "apps/runtime-dashboard/scripts/check-architecture.mjs",
-    "producer_sha256": "e4dfa233f2e7c504a585688c8dbf976a9cd60c3e1baa7eb5c4898f2749cf7e98",
-    "exit_code": 1,
-    "violation_count": 1,
-    "source_file_count": 1,
-    "identity_set_sha256": "c000fef519116ea062d0b5d01814e62ce79164f2173f5878bb0260f89efade9c",
-    "violations": [
-      {
-        "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
-        "source_content_sha256": "df8e3785d0baa2e30af4cf68567c2fe33dc736adfc0babd64d268241e1bfc4b3",
-        "line": 9,
-        "specifier": "@/features/runs/api/useRunsSample",
-        "resolved_target_path": "apps/runtime-dashboard/src/features/runs/api/useRunsSample.ts",
-        "rule_id": "app-no-feature-internals",
-        "message": "app layer can import features only through their public index.ts barrel.",
-        "display": "src/app/workspaces.ts:9 -> @/features/runs/api/useRunsSample :: app layer can import features only through their public index.ts barrel."
-      }
-    ],
+    "producer_sha256": "703bcac18f5eefb2bd76daa5ffe998aa11c166ed4604d97936081ec54d03db4b",
+    "exit_code": 0,
+    "violation_count": 0,
+    "source_file_count": 0,
+    "identity_set_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "violations": [],
     "immutable_origin": {
       "producer": "runtime-dashboard-custom-import-boundary",
       "producer_path": "apps/runtime-dashboard/scripts/check-architecture.mjs",
@@ -3346,6 +3335,29 @@
           "apps/runtime-dashboard/src/features/whatif/ScenarioWorkbench.tsx"
         ],
         "closure_test_ref": "apps/runtime-dashboard/src/shared/ui/counterfactual/counterfactualArchitecture.test.ts"
+      },
+      {
+        "origin_identity_sha256": "e364ff6de23eb9c38b8bea4f4157f69852da0a3435cd9753332bbdd63a9a9075",
+        "origin_identity": {
+          "source_path": "apps/runtime-dashboard/src/app/workspaces.ts",
+          "source_content_sha256": "df8e3785d0baa2e30af4cf68567c2fe33dc736adfc0babd64d268241e1bfc4b3",
+          "line": 9,
+          "specifier": "@/features/runs/api/useRunsSample",
+          "resolved_target_path": "apps/runtime-dashboard/src/features/runs/api/useRunsSample.ts",
+          "rule_id": "app-no-feature-internals",
+          "message": "app layer can import features only through their public index.ts barrel.",
+          "display": "src/app/workspaces.ts:9 -> @/features/runs/api/useRunsSample :: app layer can import features only through their public index.ts barrel."
+        },
+        "cluster_id": "C18",
+        "classification": "feature_public_barrel",
+        "implementation_refs": [
+          "apps/runtime-dashboard/src/app/workspaces.ts",
+          "apps/runtime-dashboard/src/features/runs/workspaces.public.ts"
+        ],
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/app/workspaces.ts"
+        ],
+        "closure_test_ref": "apps/runtime-dashboard/src/app/workspaces.test.ts"
       }
     ]
   }

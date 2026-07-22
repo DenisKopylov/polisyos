@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **14547**
-- Application lines deleted: **12848**
-- Net application LOC reduction: **-1699**
-- Application files deleted: **74**
+- Application lines added: **14650**
+- Application lines deleted: **12974**
+- Net application LOC reduction: **-1676**
+- Application files deleted: **78**
 
 ## Wave-end full verification
 
@@ -310,7 +310,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `strangled` | `DS4` | `dashboard-counterfactual-generated-scenario-rebind` |
 | `ui-patterns` | `ui-patterns` | 7 | `rebind_pending` | `strangled` | `DS4` | `atlas-ui-shared-patterns-and-dashboard-searchable-list` |
 | `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `strangled` | `DS4` | `dashboard-quantity-generated-waist-rebind` |
-| `ui-responsive` | `ui-responsive` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-responsive` | `ui-responsive` | 26 | `rebind_pending` | `strangled` | `DS4` | `dashboard-responsive-generated-breakpoint-adapter` |
 | `ui-temporal` | `ui-temporal` | 1 | `rebind_pending` | `strangled` | `DS4` | `dashboard-temporal-generated-waist-rebind` |
 | `ui-trust-view` | `ui-trust-view` | 16 | `rebind_pending` | `strangled` | `DS4` | `dashboard-trust-view-generated-verification-rebind` |
 | `ui-tokens` | `ui-tokens` | 26 | `rebind_pending` | `pending` | `DS4` | `—` |
@@ -514,7 +514,8 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
-- `228eb35d6 refactor(atlas-ui): migrate root compounds`
+- `66dcdc0b6 refactor(atlas-ui): migrate shared patterns`
+- `b171c4708 refactor(atlas-ui): migrate root compounds`
 - `e5730cf6a refactor(dashboard): rebind compound evidence families`
 - `7486eaa08 docs(atlas): authorize DS4 re-cut — clusters C21-C23`
 - `f444ba719 refactor(dashboard): fail closed on counterfactual projections`

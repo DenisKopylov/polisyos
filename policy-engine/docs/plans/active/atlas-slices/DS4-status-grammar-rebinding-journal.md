@@ -1683,3 +1683,79 @@ useful provisional evidence, not closure receipts after the final audit edits.
 - Backend `src/**`, schemas, generated runtime client, v15 archive, frozen `ru`
   locale, master plan, main, other worktrees, and lockfile are untouched. The
   move holds architecture at 1 -> 1 and makes no strictly-reduced claim.
+## 2026-07-22 — DS4-C17 responsive runtime adapter and bounded use-as-is receipt
+
+### Red-first property and pattern pass
+
+- The exact test `preserves live breakpoint density and gesture behavior through
+the generated adapter` failed first at its injected-projection witness:
+  width 800 should have followed a deliberately shifted generated projection as
+  `tablet`, but the duplicated dashboard constants returned `compact`.
+- The test was green only after the existing `useBreakpoint` seam consumed
+  `breakpointProjection.runtime`. It exercises the five exact live tiers and
+  their 639/640, 767/768, 1023/1024, and 1280/1281 edges, `useIsMobile`,
+  media-query subscribe/update/unsubscribe behavior, generated-projection
+  corruption, and the retained BottomSheet, SwipeableDrawer, and PullToRefresh
+  gesture paths. No source-string assertion stands in for runtime behavior.
+- The register tests then failed RED because no exact C17 receipt validator
+  existed. They pass after binding the receipt and after proving that admitting
+  the rejected breakpoint taxonomy or removing the DS6 evidence prohibition is
+  rejected.
+- Relevant repair patterns are P06/P27/P28 (one generated breakpoint owner and
+  removal of duplicated thresholds), P29/P31 (real runtime seam and all three
+  hook consumers), and P33/P34 (injection witness plus completed isolation for
+  the unrelated repository guardrail failure). The smallest correct pattern is
+  generated D2 projection -> unchanged dashboard hook/barrel -> existing live
+  consumers, with the four interaction components retained in place.
+
+### Implementation and bounded non-claims
+
+- `useBreakpoint` now derives classification and four media-query boundaries
+  from the generated atlas-ui runtime projection. `AppShell`,
+  `EvidenceFabricPage`, and `useMarginNoteAnchors` continue through the same
+  dashboard barrel and hook API; no consumer fork or new responsive taxonomy was
+  introduced.
+- BottomSheet, MobileNav, PullToRefresh, and SwipeableDrawer remain byte-unchanged
+  dashboard owners with their existing four axe suites. No package twin,
+  migration, re-home, or component-sunset claim was created.
+- `ui-responsive` is now `rebind_pending` / `strangled` with successor
+  `dashboard-responsive-generated-breakpoint-adapter`. Its exact four-component
+  `use_as_is` rationale and consumer refs are checker-bound. Root estate counts
+  remain 261 total: 200 `rebind_pending`, 15 deleted, 25 retire, 16 wire, and 5
+  `use_as_is`.
+- Only `token-root-responsive` material and
+  `responsive-shell-navigation` behavior inform the bounded receipt.
+  `responsive-breakpoint-taxonomy` remains rejected; the remaining responsive
+  DS2 rows retain their DS2 verdicts and DS6 gates. C17 claims no browser, print,
+  touch-device, manual-AT, DS2, or DS6 evidence.
+- `ui-tokens` remains `rebind_pending` / `pending`: C17 does not prove
+  `designTokens.ts` is a mechanically generated compatibility projection. The
+  responsive adapter is implemented and orchestrated through three live
+  consumers with a semantic negative; the larger DS2 responsive evidence cell
+  remains `verification_missing` / `semantic_test_missing` until DS6.
+
+### Exact verification and denominators
+
+| Gate                               | Result                                                                                                                                                                |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| required responsive/layout/axe     | PASS; 6 files / 14 tests, including the exact parity test and all four retained axe suites                                                                            |
+| atlas-ui token focus               | PASS; 2 files / 28 tests; schema and generated drift check PASS                                                                                                       |
+| atlas-ui package                   | PASS; 18 files / 86 tests, typecheck, lint, and 36-source architecture                                                                                                |
+| dashboard                          | PASS; typecheck, changed-file ESLint, and production build with 3,884 transformed modules, PWA 106 entries, postbuild security, and package Tailwind-source proof     |
+| frontend disposition               | PASS; 261-root schema/live/report/source-byte validation, exact C17 receipt, architecture comparator, and corruption probes                                           |
+| status retirement                  | PASS; 47 DS1 rows, 21 current authored definitions, 55 semantic exemptions, 19 retirement debts, and 3 waist debts; corruption probes PASS                            |
+| governance unit suites             | PASS; 45 tests across disposition and status-retirement checkers                                                                                                      |
+| dashboard architecture             | PASS against the governed baseline at exactly 1 -> 1; only the C18-owned `app/workspaces.ts -> features/runs/api/useRunsSample` edge remains                          |
+| repository architecture guardrails | INHERITED RED; five backend deep-import baseline drifts persist unchanged at clean base `66dcdc0b` under a completed stash isolation; no C17 green receipt is claimed |
+
+### Lockfile, fence, and close-boundary receipt
+
+- `pnpm-lock.yaml` is byte-unchanged at SHA-256
+  `01c66675e43b2620f46e69dbf146b20284a216d0711c6c712299b0c7de86769b`.
+- The tracked implementation fence contains the dashboard hook/test, the exact
+  DS19 register/checker/test/reference projection, its dependent status source
+  hash, and this journal only. The ignored SDD report is the sole additional
+  handoff artifact.
+- Backend `src/**`, schemas, runtime generated client, v15 archive, frozen `ru`
+  locale, master plan, package sources, responsive component owners, main, and
+  other worktrees are untouched. No push or merge is performed.

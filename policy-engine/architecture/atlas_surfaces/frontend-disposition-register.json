@@ -2,7 +2,7 @@
   "$schema": "./frontend-disposition-register.schema.json",
   "schema_version": "1.0",
   "register_id": "atlas-ds19-frontend-disposition",
-  "as_of": "2026-07-22T09:57:07+03:00",
+  "as_of": "2026-07-22T19:05:33+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
   "authority": {
     "authoritative_for": [
@@ -1683,12 +1683,34 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-responsive-generated-breakpoint-adapter",
+        "consumer_refs": [
+          "packages/atlas-ui/src/generated/tokens.ts",
+          "packages/atlas-ui/tests/tokenProjectionParity.test.ts",
+          "apps/runtime-dashboard/src/shared/ui/responsive/index.ts",
+          "apps/runtime-dashboard/src/shared/ui/responsive/useBreakpoint.ts",
+          "apps/runtime-dashboard/src/shared/ui/responsive/responsiveTokenParity.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.a11y.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/MobileNav.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/MobileNav.a11y.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/PullToRefresh.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/PullToRefresh.a11y.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/SwipeableDrawer.tsx",
+          "apps/runtime-dashboard/src/shared/ui/responsive/SwipeableDrawer.a11y.test.tsx",
+          "apps/runtime-dashboard/src/app/layout/AppMobileNav.tsx",
+          "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+          "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useMarginNoteAnchors.ts"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-07-22",
+      "seed_rule": "ds4_c17_generated_breakpoint_use_as_is",
+      "rationale": "C17 records an exact four-component use_as_is receipt: BottomSheet, MobileNav, PullToRefresh, and SwipeableDrawer remain dashboard-owned through the unchanged responsive barrel; the existing useBreakpoint/useIsMobile seam now consumes the generated atlas-ui breakpointProjection.runtime, with three live hook consumers and behavioral parity covering all five edges, media-query updates, useIsMobile, injected projection drift, and retained gestures. Only token-root-responsive material and responsive-shell-navigation behavior inform this bounded receipt. ui-tokens remains rebind_pending because designTokens.ts is not proven mechanically generated; responsive-breakpoint-taxonomy remains rejected; every other responsive DS2 row remains at its DS2 verdict and DS6 gate. This receipt claims no browser, print, touch-device, manual-AT, DS2, DS6, taxonomy, or component-sunset completion."
     },
     {
       "unit_id": "ui-temporal",

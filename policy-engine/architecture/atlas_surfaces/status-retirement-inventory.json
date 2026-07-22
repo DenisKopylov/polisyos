@@ -2,7 +2,7 @@
   "$schema": "./status-retirement-inventory.schema.json",
   "schema_version": "1.1",
   "inventory_id": "atlas-ds4-status-retirement",
-  "as_of": "2026-07-22T12:25:00+03:00",
+  "as_of": "2026-07-22T19:08:17+03:00",
   "authority": {
     "authoritative_for": [
       "DS1 status-definition retirement accounting and assigned successor ownership."
@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:0ec79bd296a600abb737c4edc96025636e452f2b51ad1069ea0865da5740afc0"
+      "sha256": "sha256:98ff0d5c20cf17515ba9bb734164435f1637ed39a74d863f439a687cee2d7b39"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",

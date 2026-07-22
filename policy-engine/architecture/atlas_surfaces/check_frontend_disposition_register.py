@@ -416,6 +416,52 @@ C16_MIXED_RATIONALE = (
     "owner to bind runtime artifacts, lifecycle effects, a live consumer, and DS6 negative/e2e "
     "evidence. This receipt claims no DS2, DS6, or product-flow completion."
 )
+C17_ROOT_ID = "ui-responsive"
+C17_TOKEN_ROOT_ID = "ui-tokens"
+C17_COMPONENTS = {"BottomSheet", "MobileNav", "PullToRefresh", "SwipeableDrawer"}
+C17_HOOK_EXPORTS = {"useBreakpoint"}
+C17_SUCCESSOR_ID = "dashboard-responsive-generated-breakpoint-adapter"
+C17_EVIDENCE_IDS = {"responsive-shell-navigation", "token-root-responsive"}
+C17_HOOK_CONSUMERS = {
+    "useBreakpoint": {
+        "apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useMarginNoteAnchors.ts"
+    },
+    "useIsMobile": {
+        "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+        "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+    },
+}
+C17_CONSUMER_REFS = [
+    "packages/atlas-ui/src/generated/tokens.ts",
+    "packages/atlas-ui/tests/tokenProjectionParity.test.ts",
+    "apps/runtime-dashboard/src/shared/ui/responsive/index.ts",
+    "apps/runtime-dashboard/src/shared/ui/responsive/useBreakpoint.ts",
+    "apps/runtime-dashboard/src/shared/ui/responsive/responsiveTokenParity.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/BottomSheet.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/MobileNav.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/MobileNav.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/PullToRefresh.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/PullToRefresh.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/SwipeableDrawer.tsx",
+    "apps/runtime-dashboard/src/shared/ui/responsive/SwipeableDrawer.a11y.test.tsx",
+    "apps/runtime-dashboard/src/app/layout/AppMobileNav.tsx",
+    "apps/runtime-dashboard/src/app/layout/AppShell.tsx",
+    "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+    "apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useMarginNoteAnchors.ts",
+]
+C17_RATIONALE = (
+    "C17 records an exact four-component use_as_is receipt: BottomSheet, MobileNav, "
+    "PullToRefresh, and SwipeableDrawer remain dashboard-owned through the unchanged responsive "
+    "barrel; the existing useBreakpoint/useIsMobile seam now consumes the generated atlas-ui "
+    "breakpointProjection.runtime, with three live hook consumers and behavioral parity covering "
+    "all five edges, media-query updates, useIsMobile, injected projection drift, and retained "
+    "gestures. Only token-root-responsive material and responsive-shell-navigation behavior "
+    "inform this bounded receipt. ui-tokens remains rebind_pending because designTokens.ts is not "
+    "proven mechanically generated; responsive-breakpoint-taxonomy remains rejected; every other "
+    "responsive DS2 row remains at its DS2 verdict and DS6 gate. This receipt claims no browser, "
+    "print, touch-device, manual-AT, DS2, DS6, taxonomy, or component-sunset completion."
+)
 
 _TS_MODULE_FACTS_SCRIPT = r"""
 import ts from "typescript";
@@ -1068,6 +1114,65 @@ def _c16_pattern_source_state_errors(
             errors.append("ui_patterns_searchable_list_promoted_without_consumer")
         else:
             errors.append("ui_patterns_searchable_list_promotion_unadjudicated")
+    return errors
+
+
+def _c17_responsive_source_state_errors(
+    *,
+    sources: Mapping[str, str] | None = None,
+    existing_paths: set[str] | None = None,
+    dashboard_exports: set[str] | None = None,
+    atlas_exports: set[str] | None = None,
+) -> list[str]:
+    """Recompute the retained responsive owners and live hook consumers."""
+    if sources is None:
+        sources = _typescript_production_sources(["apps/runtime-dashboard/src"])
+    if existing_paths is None:
+        existing_paths = {
+            path for path in C17_CONSUMER_REFS if (REPO_ROOT / path).is_file()
+        }
+    responsive_barrel = "apps/runtime-dashboard/src/shared/ui/responsive/index.ts"
+    if dashboard_exports is None:
+        dashboard_exports = _owner_exports(
+            responsive_barrel,
+            (REPO_ROOT / responsive_barrel).read_text(encoding="utf-8"),
+            "./",
+        )
+    if atlas_exports is None:
+        atlas_exports = _owner_exports(
+            ATLAS_UI_INDEX,
+            (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
+            "./",
+        )
+
+    errors = [
+        f"ui_responsive_required_path_missing:{path}"
+        for path in sorted(set(C17_CONSUMER_REFS) - existing_paths)
+    ]
+    required_dashboard_exports = C17_COMPONENTS | C17_HOOK_EXPORTS
+    if dashboard_exports != required_dashboard_exports:
+        errors.append(
+            "ui_responsive_dashboard_exports_drift:"
+            + ",".join(sorted(dashboard_exports))
+        )
+    package_twins = C17_COMPONENTS & atlas_exports
+    if package_twins:
+        errors.append(
+            "ui_responsive_package_twin_created:" + ",".join(sorted(package_twins))
+        )
+
+    observed_consumers: dict[str, set[str]] = {
+        hook: set() for hook in C17_HOOK_CONSUMERS
+    }
+    for fact in _typescript_module_facts(sources):
+        if fact["kind"] != "static" or fact["module"] != "@/shared/ui/responsive":
+            continue
+        used_names = set(fact.get("used_names", []))
+        for hook in used_names & set(C17_HOOK_CONSUMERS):
+            observed_consumers[hook].add(fact["path"])
+    for hook, expected_paths in C17_HOOK_CONSUMERS.items():
+        if observed_consumers[hook] != expected_paths:
+            errors.append(f"ui_responsive_hook_consumers_drift:{hook}")
     return errors
 
 
@@ -2954,6 +3059,68 @@ def _validate_c16_mixed_receipt(
                 )
 
 
+def _validate_c17_responsive_receipt(
+    entry: Mapping[str, Any],
+    token_entry: Mapping[str, Any],
+    ds2: Mapping[str, Any],
+    errors: list[str],
+    *,
+    live_probes: bool,
+) -> None:
+    """Bind C17 to one generated projection without claiming DS6 evidence."""
+    if entry["disposition"] != "rebind_pending" or entry["strangle_status"] != "strangled":
+        errors.append("ui_responsive_use_as_is_transition_invalid")
+    if entry["seed_rule"] != "ds4_c17_generated_breakpoint_use_as_is":
+        errors.append("ui_responsive_use_as_is_seed_rule_invalid")
+    if entry["rationale"] != C17_RATIONALE:
+        errors.append("ui_responsive_use_as_is_rationale_drift")
+
+    successor = entry.get("successor") or {}
+    if successor.get("unit_id") != C17_SUCCESSOR_ID:
+        errors.append("ui_responsive_successor_invalid")
+    if successor.get("consumer_refs") != C17_CONSUMER_REFS:
+        errors.append("ui_responsive_consumer_refs_drift")
+
+    if (
+        token_entry["disposition"] != "rebind_pending"
+        or token_entry["strangle_status"] != "pending"
+        or token_entry.get("successor") is not None
+    ):
+        errors.append("ui_tokens_false_c17_transition")
+
+    ds2_by_id = {row["id"]: row for row in ds2["entries"]}
+    taxonomy = ds2_by_id.get("responsive-breakpoint-taxonomy") or {}
+    if taxonomy.get("adoption_verdict") != "reject":
+        errors.append("ui_responsive_rejected_taxonomy_drift")
+
+    responsive_ids = {
+        adoption_id
+        for adoption_id in entry["evidence_link"]["ds2_adoption_ids"]
+        if adoption_id.startswith("responsive-")
+    }
+    ds6_prohibition = "claiming browser or manual assistive-technology evidence"
+    for adoption_id in sorted(
+        responsive_ids - {"responsive-breakpoint-taxonomy", "responsive-shell-navigation"}
+    ):
+        row = ds2_by_id.get(adoption_id) or {}
+        if row.get("adoption_verdict") != "admit_after_refactor":
+            errors.append(f"ui_responsive_ds2_verdict_drift:{adoption_id}")
+        if "DS6" not in row.get("consuming_surfaces", []):
+            errors.append(f"ui_responsive_ds6_owner_drift:{adoption_id}")
+        if ds6_prohibition not in (row.get("authority") or {}).get("may_not_use_for", []):
+            errors.append(f"ui_responsive_ds6_evidence_boundary_drift:{adoption_id}")
+
+    for evidence_id in sorted(C17_EVIDENCE_IDS):
+        row = ds2_by_id.get(evidence_id) or {}
+        if row.get("adoption_verdict") != "admit_after_refactor":
+            errors.append(f"ui_responsive_bounded_evidence_drift:{evidence_id}")
+        if ds6_prohibition not in (row.get("authority") or {}).get("may_not_use_for", []):
+            errors.append(f"ui_responsive_bounded_evidence_overclaim:{evidence_id}")
+
+    if live_probes:
+        errors.extend(_c17_responsive_source_state_errors())
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -3065,6 +3232,13 @@ def validate_register(
     )
     _validate_c16_mixed_receipt(
         entry_by_id[C16_ROOT_ID],
+        ds2,
+        errors,
+        live_probes=live_probes,
+    )
+    _validate_c17_responsive_receipt(
+        entry_by_id[C17_ROOT_ID],
+        entry_by_id[C17_TOKEN_ROOT_ID],
         ds2,
         errors,
         live_probes=live_probes,
@@ -3479,6 +3653,15 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     )
     patterns["rationale"] = "C16 complete."
     probes.append(("ui-patterns-mixed-rationale-drift", c16_rationale_drift))
+
+    c17_rationale_drift = copy.deepcopy(data)
+    responsive = next(
+        entry
+        for entry in c17_rationale_drift["entries"]
+        if entry["unit_id"] == C17_ROOT_ID
+    )
+    responsive["rationale"] = "C17 proves responsive readiness."
+    probes.append(("ui-responsive-use-as-is-rationale-drift", c17_rationale_drift))
 
     failures = []
     for name, mutation in probes:

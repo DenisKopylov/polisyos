@@ -628,5 +628,85 @@ class C16PatternReceiptTests(unittest.TestCase):
         )
 
 
+class C17ResponsiveReceiptTests(unittest.TestCase):
+    """Prove the responsive receipt stays bounded to generated runtime parity."""
+
+    def test_requires_the_exact_live_use_as_is_receipt(self) -> None:
+        self.assertTrue(
+            hasattr(checker, "_validate_c17_responsive_receipt"),
+            "C17 checker must bind the exact responsive use_as_is receipt",
+        )
+        if not hasattr(checker, "_validate_c17_responsive_receipt"):
+            return
+
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        ds2 = checker._load_json(checker.DS2_PATH)
+        entry = next(row for row in data["entries"] if row["unit_id"] == "ui-responsive")
+        token_entry = next(row for row in data["entries"] if row["unit_id"] == "ui-tokens")
+        errors: list[str] = []
+
+        checker._validate_c17_responsive_receipt(
+            entry,
+            token_entry,
+            ds2,
+            errors,
+            live_probes=True,
+        )
+
+        self.assertEqual(errors, [])
+
+    def test_rejects_taxonomy_admission_or_a_false_ds6_evidence_claim(self) -> None:
+        self.assertTrue(
+            hasattr(checker, "_validate_c17_responsive_receipt"),
+            "C17 checker must preserve rejected and DS6-gated evidence boundaries",
+        )
+        if not hasattr(checker, "_validate_c17_responsive_receipt"):
+            return
+
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        entry = next(row for row in data["entries"] if row["unit_id"] == "ui-responsive")
+        token_entry = next(row for row in data["entries"] if row["unit_id"] == "ui-tokens")
+        ds2 = checker._load_json(checker.DS2_PATH)
+
+        taxonomy_admitted = copy.deepcopy(ds2)
+        taxonomy = next(
+            row
+            for row in taxonomy_admitted["entries"]
+            if row["id"] == "responsive-breakpoint-taxonomy"
+        )
+        taxonomy["adoption_verdict"] = "admit_after_refactor"
+        taxonomy_errors: list[str] = []
+        checker._validate_c17_responsive_receipt(
+            entry,
+            token_entry,
+            taxonomy_admitted,
+            taxonomy_errors,
+            live_probes=False,
+        )
+        self.assertIn("ui_responsive_rejected_taxonomy_drift", taxonomy_errors)
+
+        false_ds6_evidence = copy.deepcopy(ds2)
+        print_row = next(
+            row
+            for row in false_ds6_evidence["entries"]
+            if row["id"] == "responsive-print-export"
+        )
+        print_row["authority"]["may_not_use_for"].remove(
+            "claiming browser or manual assistive-technology evidence"
+        )
+        evidence_errors: list[str] = []
+        checker._validate_c17_responsive_receipt(
+            entry,
+            token_entry,
+            false_ds6_evidence,
+            evidence_errors,
+            live_probes=False,
+        )
+        self.assertIn(
+            "ui_responsive_ds6_evidence_boundary_drift:responsive-print-export",
+            evidence_errors,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

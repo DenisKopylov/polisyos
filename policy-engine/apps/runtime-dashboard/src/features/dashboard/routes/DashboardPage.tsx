@@ -127,9 +127,7 @@ function DashboardHeroContent() {
               status: healthQuery.data?.status ?? t("common.unknown"),
             })}
           </Badge>
-          <DataFreshnessBadge
-            generatedAt={runsQuery.data?.meta?.generated_at}
-          />
+          <DataFreshnessBadge />
           <Badge kind={lexStatsQuery.data?.db_exists ? "ok" : "warn"}>
             {lexStatsQuery.data?.db_exists
               ? t("pages.dashboard.graphReady")

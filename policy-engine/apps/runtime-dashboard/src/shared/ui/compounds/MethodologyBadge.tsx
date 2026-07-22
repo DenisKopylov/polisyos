@@ -1,3 +1,5 @@
+import type { QuantityUncertainty } from "@polisyos/runtime-api-client";
+
 import { cn } from "@/shared/lib/utils";
 import {
   Tooltip,
@@ -5,8 +7,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@polisyos/atlas-ui";
-
-export type MethodologyKey = string;
 
 type MethodologyInfo = {
   short: string;
@@ -72,7 +72,7 @@ const METHODOLOGY_MAP: Record<string, MethodologyInfo> = {
 };
 
 type MethodologyBadgeProps = {
-  methodology: MethodologyKey;
+  methodology: QuantityUncertainty["method"];
   className?: string;
 };
 
@@ -80,9 +80,10 @@ export function MethodologyBadge({
   methodology,
   className,
 }: MethodologyBadgeProps) {
-  const info = METHODOLOGY_MAP[methodology.toLowerCase()] ?? {
-    short: methodology,
-    full: methodology,
+  const ownerLabel = methodology?.trim() || "unknown";
+  const info = METHODOLOGY_MAP[ownerLabel.toLowerCase()] ?? {
+    short: ownerLabel,
+    full: ownerLabel,
     description: "",
   };
 
@@ -90,14 +91,16 @@ export function MethodologyBadge({
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span
+          <button
+            type="button"
+            data-methodology-owner-label={ownerLabel}
             className={cn(
               "border-border bg-surface inline-flex cursor-help items-center rounded-lg border px-2 py-1 font-mono text-xs font-semibold tracking-wide",
               className,
             )}
           >
             {info.short}
-          </span>
+          </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-72">
           <p className="font-semibold">{info.full}</p>

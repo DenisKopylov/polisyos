@@ -1,5 +1,6 @@
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import { isInteractionState } from "@/shared/lib/domain/statusOwnership";
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 
 import {
@@ -250,12 +251,14 @@ describe("scientific depth domain", () => {
   });
 
   it("keeps identical warning and bound shapes at producer-declared states", () => {
-    const identicalShape = decisionView.keyMetrics.slice(0, 2).map((metric) => ({
-      ...metric,
-      assumptionWarnings: ["same warning"],
-      ciLower: 0,
-      ciUpper: 1,
-    }));
+    const identicalShape = decisionView.keyMetrics
+      .slice(0, 2)
+      .map((metric) => ({
+        ...metric,
+        assumptionWarnings: ["same warning"],
+        ciLower: 0,
+        ciUpper: 1,
+      }));
 
     const surface = buildIdentifiabilitySurfaceView({
       decisionView: { ...decisionView, keyMetrics: identicalShape },
@@ -280,7 +283,7 @@ describe("scientific depth domain", () => {
     expect(rotor.decisionBearingExtinguishedShare).toBeCloseTo(5 / 6, 4);
     expect(rotor.extinguishedClaims).toBe(3);
     expect(rotor.remainingClaims).toBe(1);
-    expect(rotor.verdictChanged).toBe(true);
+    expect(rotor.verdictChanged).toBeNull();
     expect(rotor.fairnessGateChanged).toBe(true);
     expect(
       rotor.claims
@@ -301,23 +304,23 @@ describe("scientific depth domain", () => {
       { id: "policy", label: "policy", value: "APPROVE" },
     ]);
     expect(traveler.policyOverlay).toEqual({
-      ref: "policy-overlay:run-33:APPROVE",
+      ref: "policy-overlay:run-33",
       verdict: "APPROVE",
     });
     expect(
-      traveler.transitions.map((transition) => transition.policyEffect),
-    ).toEqual(["pass", "fail", "review"]);
+      traveler.transitions.map((transition) => transition.policyEffect.label),
+    ).toEqual(["positive_delta", "negative_delta", "no_delta"]);
     expect(traveler.transitions[1]).toMatchObject({
       cohortLabel: "South",
       baselineShare: 0.28,
       fromState: "covered-vulnerable",
       observedShare: 0.18,
-      toState: "at-risk-under-policy",
+      toState: "overlay-share-decreased",
     });
     expect(traveler.transitions[1]?.overlayShare).toBeCloseTo(0.08, 4);
   });
 
-  it("cites the strongest stress scene that justifies a block or warning", () => {
+  it("cites the highest-priority scene with a recorded diagnostic", () => {
     const theatre = buildStressTestTheatreView({
       decisionView,
       evidenceContext,
@@ -325,21 +328,49 @@ describe("scientific depth domain", () => {
       runId: "run-33",
     });
 
-    expect(theatre.summary).toEqual({ blocked: 1, warned: 3 });
+    expect(theatre.summary).toEqual({
+      diagnosticFindings: 3,
+      evidenceWarnings: 1,
+    });
     expect(theatre.citedSceneRef).toBe("stress:run-33:legal-blocker");
     expect(
       theatre.scenes.find((scene) => scene.id === "legal-blocker"),
     ).toMatchObject({
       act: 3,
-      actual: "block",
-      expected: "warn",
+      actual: {
+        label: "owner_issue_recorded",
+        purpose: "interaction_only",
+      },
+      expected: {
+        label: "scenario_attention_expected",
+        purpose: "interaction_only",
+      },
       issueRefs: ["legal_blocker"],
-      policyChanged: true,
+      policyChanged: null,
       reactionKey: "phase33.stress.reaction.block",
     });
     expect(
-      theatre.scenes.find((scene) => scene.id === "stale-evidence")?.actual,
-    ).toBe("warn");
+      theatre.scenes.find((scene) => scene.id === "stale-evidence")?.actual
+        .label,
+    ).toBe("evidence_warning_recorded");
+  });
+
+  it("keeps stress-scene outcomes diagnostic-only", () => {
+    const theatre = buildStressTestTheatreView({
+      decisionView,
+      evidenceContext,
+      governanceIssues,
+      runId: "run-33-diagnostic",
+    });
+
+    for (const scene of theatre.scenes) {
+      expect(isInteractionState(scene.actual)).toBe(true);
+      expect(scene.actual).toMatchObject({
+        authorityPurpose: "diagnostic_display",
+        purpose: "interaction_only",
+      });
+      expect(isInteractionState(scene.expected)).toBe(true);
+    }
   });
 
   it("builds the full scientific-depth snapshot for decision packet integration", () => {
@@ -353,7 +384,7 @@ describe("scientific depth domain", () => {
     });
 
     expect(snapshot.identifiability.cells).toHaveLength(4);
-    expect(snapshot.sensitivity.verdictChanged).toBe(true);
+    expect(snapshot.sensitivity.verdictChanged).toBeNull();
     expect(snapshot.cohort.transitions).toHaveLength(3);
     expect(snapshot.stress.citedSceneRef).toBe("stress:run-33:legal-blocker");
   });

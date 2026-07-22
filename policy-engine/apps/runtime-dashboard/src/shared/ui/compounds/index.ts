@@ -19,3 +19,6 @@ export * from "./EvidenceCoverageRadar";
 export * from "./SensitivityPlot";
 export * from "./FactorImportanceChart";
 export * from "./ReasoningChainDisplay";
+export * from "./CandidateFrame";
+export * from "./BlockerCard";
+export * from "./WeakestLinkExplainer";

@@ -92,6 +92,7 @@ function runDetailsPayload(label: string) {
       source_kinds: ["core_run"],
     },
     run: {
+      decision_validity_status: undefined as string | null | undefined,
       duration_ms: null,
       finished_at: null,
       has_trace: false,
@@ -184,6 +185,18 @@ describe("runtime API validators", () => {
     },
   );
 
+  it("preserves generated decision validity and rejects an unknown local substitute", () => {
+    const payload = runDetailsPayload("projection only");
+    payload.run.decision_validity_status = "review_required";
+
+    expect(runDetailsSchema.parse(payload).run.decision_validity_status).toBe(
+      "review_required",
+    );
+
+    payload.run.decision_validity_status = "replacement";
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+
   it("rejects a projection when generated closeout truth is missing", () => {
     const payload = runDetailsPayload("publishable");
     payload.run.policy_design_case_projection = {
@@ -207,6 +220,35 @@ describe("runtime API validators", () => {
       states: ["publishable", "projection_only"],
     };
 
+    expect(runDetailsSchema.safeParse(payload).success).toBe(false);
+  });
+
+  it("preserves generated projection blockers and rejects malformed blocker fields", () => {
+    const payload = runDetailsPayload("projection only");
+    const projection = payload.run.policy_design_case_projection as {
+      closeout_truth: Record<string, unknown>;
+    };
+    projection.closeout_truth.blockers = [
+      {
+        code: "future_owner_blocker",
+        message: "Owner-supplied blocker message",
+        owner: "future-owner",
+        severity: "future-owner-severity",
+      },
+    ];
+
+    expect(
+      runDetailsSchema.parse(payload).run.policy_design_case_projection
+        ?.closeout_truth.blockers,
+    ).toEqual(projection.closeout_truth.blockers);
+
+    projection.closeout_truth.blockers = [
+      {
+        code: "future_owner_blocker",
+        message: "Owner-supplied blocker message",
+        owner: 42,
+      },
+    ];
     expect(runDetailsSchema.safeParse(payload).success).toBe(false);
   });
 

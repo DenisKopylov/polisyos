@@ -214,11 +214,11 @@
           "pattern": "^semantic-[a-z0-9-]+$"
         },
         "current_definition_state": { "enum": ["present", "retired"] },
-        "definition_kind": { "enum": ["named", "inline"] },
+        "definition_kind": { "enum": ["named", "inline", "const", "return"] },
         "source_span": { "$ref": "#/$defs/sourceSpan" },
         "literal_members": {
           "type": "array",
-          "minItems": 2,
+          "minItems": 1,
           "uniqueItems": true,
           "items": { "$ref": "#/$defs/nonEmpty" }
         },

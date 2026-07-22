@@ -8,6 +8,10 @@ import {
   type DecisionMetric,
 } from "@/shared/lib/domain/decision";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import {
+  createInteractionState,
+  type InteractionState,
+} from "@/shared/lib/domain/statusOwnership";
 
 export type IdentifiabilityState = QuantityUncertainty["identifiability"];
 
@@ -62,7 +66,7 @@ export type SensitivityRotorView = {
   remainingClaims: number;
   threshold: number;
   totalClaims: number;
-  verdictChanged: boolean;
+  verdictChanged: boolean | null;
   claims: SensitivityClaim[];
 };
 
@@ -73,34 +77,38 @@ export type CohortTransition = {
   fromState: string;
   observedShare: number;
   overlayShare: number;
-  policyEffect: "pass" | "fail" | "review";
+  policyEffect: InteractionState;
   timeIndex: number;
   toState: string;
 };
 
 export type CohortTimeTravelerView = {
   activeIndex: number;
-  filters: Array<{ id: string; label: string; value: string }>;
+  filters: Array<{ id: string; label: string; value: string | null }>;
   policyOverlay: {
     ref: string;
-    verdict: string;
+    verdict: string | null;
   };
   timeline: Array<{ index: number; label: string; validAt: string | null }>;
   transitions: CohortTransition[];
 };
 
-export type StressSceneStatus = "pass" | "warn" | "block";
+export type StressSceneDiagnosticDisplay = InteractionState;
+
+function stressSceneDiagnostic(label: string): StressSceneDiagnosticDisplay {
+  return createInteractionState(label, "diagnostic_display");
+}
 
 export type StressScene = {
   act: 1 | 2 | 3;
-  actual: StressSceneStatus;
+  actual: StressSceneDiagnosticDisplay;
   diff: "same" | "degraded" | "improved";
-  expected: StressSceneStatus;
+  expected: StressSceneDiagnosticDisplay;
   id: string;
   immutableRef: string;
   issueRefs: string[];
   labelKey: string;
-  policyChanged: boolean;
+  policyChanged: boolean | null;
   priority: number;
   reactionKey: string;
 };
@@ -109,8 +117,8 @@ export type StressTestTheatreView = {
   citedSceneRef: string | null;
   scenes: StressScene[];
   summary: {
-    blocked: number;
-    warned: number;
+    diagnosticFindings: number;
+    evidenceWarnings: number;
   };
 };
 
@@ -346,11 +354,6 @@ export function buildSensitivityRotorView(input: {
       ),
     ) && extinguishedClaims > 0,
   );
-  const verdictChanged =
-    input.decisionView?.verdict === "APPROVE" &&
-    claims.length > 0 &&
-    decisionBearingExtinguishedShare >= 0.5;
-
   return {
     claims,
     decisionBearingExtinguished,
@@ -365,7 +368,7 @@ export function buildSensitivityRotorView(input: {
     remainingClaims: claims.length - extinguishedClaims,
     threshold,
     totalClaims: claims.length,
-    verdictChanged,
+    verdictChanged: null,
   };
 }
 
@@ -380,8 +383,16 @@ function transitionForRow(
   row: DecisionDistributionalRow,
   index: number,
 ): CohortTransition {
-  const policyEffect =
-    row.primaryDelta > 0 ? "pass" : row.primaryDelta < 0 ? "fail" : "review";
+  const deltaDirection =
+    row.primaryDelta > 0
+      ? "positive_delta"
+      : row.primaryDelta < 0
+        ? "negative_delta"
+        : "no_delta";
+  const policyEffect = createInteractionState(
+    deltaDirection,
+    "diagnostic_display",
+  );
   const overlayShare = Math.max(
     0,
     Math.min(1, row.populationShare + row.primaryDelta),
@@ -399,11 +410,11 @@ function transitionForRow(
     policyEffect,
     timeIndex: 1,
     toState:
-      policyEffect === "pass"
-        ? "eligible-under-policy"
-        : policyEffect === "fail"
-          ? "at-risk-under-policy"
-          : "review-under-policy",
+      row.primaryDelta > 0
+        ? "overlay-share-increased"
+        : row.primaryDelta < 0
+          ? "overlay-share-decreased"
+          : "overlay-share-unchanged",
   };
 }
 
@@ -445,12 +456,12 @@ export function buildCohortTimeTravelerView(input: {
       {
         id: "policy",
         label: "policy",
-        value: input.decisionView?.verdict ?? "REVIEW",
+        value: input.decisionView?.verdict ?? null,
       },
     ],
     policyOverlay: {
-      ref: `policy-overlay:${input.decisionView?.runId ?? "unknown-run"}:${input.decisionView?.verdict ?? "REVIEW"}`,
-      verdict: input.decisionView?.verdict ?? "REVIEW",
+      ref: `policy-overlay:${input.decisionView?.runId ?? "unknown-run"}`,
+      verdict: input.decisionView?.verdict ?? null,
     },
     timeline,
     transitions: rows.map(transitionForRow),
@@ -540,24 +551,12 @@ function issueMatchesScene(issue: GovernanceIssueView, sceneId: string) {
   return false;
 }
 
-function statusForIssues(issues: GovernanceIssueView[]): StressSceneStatus {
-  if (issues.some((issue) => issue.severity === "blocker")) {
-    return "block";
-  }
-  if (issues.length > 0) {
-    return "warn";
-  }
-  return "pass";
-}
-
-function statusRank(status: StressSceneStatus) {
-  if (status === "block") {
-    return 2;
-  }
-  if (status === "warn") {
-    return 1;
-  }
-  return 0;
+function statusForIssues(
+  issues: GovernanceIssueView[],
+): StressSceneDiagnosticDisplay {
+  return stressSceneDiagnostic(
+    issues.length > 0 ? "owner_issue_recorded" : "no_owner_issue_recorded",
+  );
 }
 
 export function buildStressTestTheatreView(input: {
@@ -575,43 +574,43 @@ export function buildStressTestTheatreView(input: {
     const evidenceWarningHit =
       scene.id === "stale-evidence" &&
       Boolean(input.evidenceContext?.warnings.length);
-    const actual = evidenceWarningHit ? "warn" : statusForIssues(matchedIssues);
-    const expected: StressSceneStatus = scene.id === "boring" ? "pass" : "warn";
+    const actual = evidenceWarningHit
+      ? stressSceneDiagnostic("evidence_warning_recorded")
+      : statusForIssues(matchedIssues);
+    const expected = stressSceneDiagnostic(
+      scene.id === "boring"
+        ? "baseline_no_issue"
+        : "scenario_attention_expected",
+    );
     return {
       act: scene.act,
       actual,
-      diff:
-        actual === expected
-          ? "same"
-          : actual === "block"
-            ? "degraded"
-            : "improved",
+      diff: actual.label === "no_owner_issue_recorded" ? "same" : "degraded",
       expected,
       id: scene.id,
       immutableRef: `stress:${input.runId}:${scene.id}`,
       issueRefs: matchedIssues.map((issue) => issue.code),
       labelKey: scene.labelKey,
-      policyChanged:
-        input.decisionView?.verdict === "APPROVE" && actual === "block",
+      policyChanged: null,
       priority: scene.priority,
       reactionKey: `phase33.stress.reaction.${scene.reactionKey}`,
     };
   });
   const citedScene =
     scenes
-      .filter((scene) => scene.actual === "block" || scene.actual === "warn")
-      .sort(
-        (a, b) =>
-          statusRank(b.actual) - statusRank(a.actual) ||
-          b.priority - a.priority,
-      )[0] ?? null;
+      .filter((scene) => scene.actual.label !== "no_owner_issue_recorded")
+      .sort((a, b) => b.priority - a.priority)[0] ?? null;
 
   return {
     citedSceneRef: citedScene?.immutableRef ?? null,
     scenes,
     summary: {
-      blocked: scenes.filter((scene) => scene.actual === "block").length,
-      warned: scenes.filter((scene) => scene.actual === "warn").length,
+      diagnosticFindings: scenes.filter(
+        (scene) => scene.actual.label === "owner_issue_recorded",
+      ).length,
+      evidenceWarnings: scenes.filter(
+        (scene) => scene.actual.label === "evidence_warning_recorded",
+      ).length,
     },
   };
 }

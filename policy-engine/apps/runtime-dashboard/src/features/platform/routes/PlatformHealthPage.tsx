@@ -50,13 +50,7 @@ export default function PlatformHealth() {
                 {String(healthQuery.data.status ?? t("common.unknown"))}
               </Badge>
             ) : null}
-            <DataFreshnessBadge
-              generatedAt={
-                healthQuery.data?.meta?.generated_at ??
-                healthQuery.data?.ts ??
-                null
-              }
-            />
+            <DataFreshnessBadge />
             <Badge kind="ok">
               {t("pages.platform.activeFeatures", {
                 count: activeFeatures.length,

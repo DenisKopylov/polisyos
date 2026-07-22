@@ -16,16 +16,17 @@ export type AtlasRunDeckCopy = {
   closingEyebrow: string;
   closingTitle: string;
   confidence: string;
+  decisionContextEyebrow?: string;
   dependencies: string;
   evidenceEyebrow: string;
   exportSlide: string;
-  holdForReview: string;
   metricsEyebrow: string;
-  ratifyNow: string;
-  recommendation: string;
-  tradeoffEyebrow: string;
-  verdictEyebrow: string;
-  verdictTitle: string;
+  ownerDecision?: string;
+  ownerDecisionEyebrow?: string;
+  ownerDecisionTitle?: string;
+  reviewContext?: string;
+  supportingOwnerEvidence?: string;
+  [presentationKey: string]: string | undefined;
 };
 
 export const DEFAULT_ATLAS_RUN_DECK_COPY: AtlasRunDeckCopy = {
@@ -33,16 +34,16 @@ export const DEFAULT_ATLAS_RUN_DECK_COPY: AtlasRunDeckCopy = {
   closingEyebrow: "Action window",
   closingTitle: "Next action and comment window",
   confidence: "Confidence",
+  decisionContextEyebrow: "Decision context",
   dependencies: "Downstream dependencies",
   evidenceEyebrow: "Evidence and dissent",
   exportSlide: "Slide PNG",
-  holdForReview: "Hold for review",
   metricsEyebrow: "Real runtime metrics",
-  ratifyNow: "Ratify now",
-  recommendation: "Recommendation",
-  tradeoffEyebrow: "Ratify versus hold",
-  verdictEyebrow: "Verdict and recommendation",
-  verdictTitle: "Recommendation for the current run",
+  ownerDecision: "Owner decision",
+  ownerDecisionEyebrow: "Owner decision",
+  ownerDecisionTitle: "Decision label supplied by the owner",
+  reviewContext: "Review context",
+  supportingOwnerEvidence: "Supporting owner evidence",
 };
 
 function DeckSlide({
@@ -91,6 +92,9 @@ export function AtlasRunDeck({
   rootId?: string;
   testId?: string;
 }) {
+  const supportingContext = deck.tradeoff.supportingContext ?? [];
+  const reviewContext = deck.tradeoff.reviewContext ?? [];
+
   function renderExportAction(id: AtlasRunDeckSlideId) {
     if (!onExportSlide) {
       return null;
@@ -132,22 +136,32 @@ export function AtlasRunDeck({
               </Badge>
             ) : null}
             <Badge kind="neutral">{deck.verdict.status}</Badge>
-            <Badge kind={deck.report.blockerCount === 0 ? "ok" : "warn"}>
-              {deck.verdict.blockers}
-            </Badge>
+            <Badge kind="neutral">{deck.verdict.blockers}</Badge>
           </div>
         </div>
       </DeckSlide>
 
       <DeckSlide
         action={renderExportAction("verdict")}
-        eyebrow={copy.verdictEyebrow}
+        eyebrow={
+          copy.ownerDecisionEyebrow ??
+          DEFAULT_ATLAS_RUN_DECK_COPY.ownerDecisionEyebrow ??
+          "Owner decision"
+        }
         id="verdict"
-        title={copy.verdictTitle}
+        title={
+          copy.ownerDecisionTitle ??
+          DEFAULT_ATLAS_RUN_DECK_COPY.ownerDecisionTitle ??
+          "Decision label supplied by the owner"
+        }
       >
         <div className="atlas-deck-grid atlas-deck-grid--two">
           <div className="atlas-deck-spotlight">
-            <span>{copy.recommendation}</span>
+            <span>
+              {copy.ownerDecision ??
+                DEFAULT_ATLAS_RUN_DECK_COPY.ownerDecision ??
+                "Owner decision"}
+            </span>
             <strong>{deck.verdict.verdict}</strong>
             <p>{deck.verdict.headline}</p>
           </div>
@@ -183,7 +197,6 @@ export function AtlasRunDeck({
                   card.value
                 )}
               </strong>
-              <Badge kind={card.tone}>{card.tone}</Badge>
             </div>
           ))}
         </div>
@@ -203,20 +216,32 @@ export function AtlasRunDeck({
 
       <DeckSlide
         action={renderExportAction("tradeoff")}
-        eyebrow={copy.tradeoffEyebrow}
+        eyebrow={
+          copy.decisionContextEyebrow ??
+          DEFAULT_ATLAS_RUN_DECK_COPY.decisionContextEyebrow ??
+          "Decision context"
+        }
         id="tradeoff"
         title={deck.tradeoff.title}
       >
         <div className="atlas-deck-grid atlas-deck-grid--two">
           <div className="atlas-deck-lane">
-            <p className="eyebrow">{copy.ratifyNow}</p>
-            {deck.tradeoff.ratify.map((item) => (
+            <p className="eyebrow">
+              {copy.supportingOwnerEvidence ??
+                DEFAULT_ATLAS_RUN_DECK_COPY.supportingOwnerEvidence ??
+                "Supporting owner evidence"}
+            </p>
+            {supportingContext.map((item) => (
               <p key={item}>{item}</p>
             ))}
           </div>
-          <div className="atlas-deck-lane atlas-deck-lane--warn">
-            <p className="eyebrow">{copy.holdForReview}</p>
-            {deck.tradeoff.hold.map((item) => (
+          <div className="atlas-deck-lane">
+            <p className="eyebrow">
+              {copy.reviewContext ??
+                DEFAULT_ATLAS_RUN_DECK_COPY.reviewContext ??
+                "Review context"}
+            </p>
+            {reviewContext.map((item) => (
               <p key={item}>{item}</p>
             ))}
           </div>

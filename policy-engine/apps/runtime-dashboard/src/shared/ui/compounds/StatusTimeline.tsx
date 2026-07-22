@@ -1,14 +1,15 @@
 import type { ReactNode } from "react";
+import type { RunTimelineEvent } from "@polisyos/runtime-api-client";
 
-import { Badge, type BadgeTone, EmptyState } from "@polisyos/atlas-ui";
+import { Badge, EmptyState } from "@polisyos/atlas-ui";
 import { VirtualList, VIRTUALIZATION_THRESHOLD } from "@/shared/ui/VirtualList";
 
 export type StatusTimelineItem = {
   id: string;
   title: string;
   body?: ReactNode;
-  timestamp?: ReactNode;
-  tone?: BadgeTone;
+  timestamp?: RunTimelineEvent["timestamp"] | ReactNode;
+  recordedState?: RunTimelineEvent["event"] | null;
   meta?: ReactNode;
 };
 
@@ -26,19 +27,7 @@ function TimelineEntry({ item }: { item: StatusTimelineItem }) {
           <div className="flex items-center gap-3">
             <span
               aria-hidden="true"
-              className="mt-0.5 h-2.5 w-2.5 rounded-full bg-[var(--color-severity-low)]"
-              style={{
-                backgroundColor:
-                  item.tone === "fail"
-                    ? "var(--color-severity-high)"
-                    : item.tone === "warn"
-                      ? "var(--color-severity-medium)"
-                      : item.tone === "ok"
-                        ? "var(--color-status-approved)"
-                        : item.tone === "info"
-                          ? "var(--color-transport-live)"
-                          : "var(--line)",
-              }}
+              className="bg-line mt-0.5 h-2.5 w-2.5 rounded-full"
             />
             <p className="font-semibold">{item.title}</p>
           </div>
@@ -48,7 +37,15 @@ function TimelineEntry({ item }: { item: StatusTimelineItem }) {
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {item.meta}
-          {item.tone ? <Badge kind={item.tone}>{item.tone}</Badge> : null}
+          {item.recordedState ? (
+            <Badge
+              data-authority-presentation="opaque"
+              data-recorded-state={item.recordedState}
+              kind="outline"
+            >
+              {item.recordedState}
+            </Badge>
+          ) : null}
         </div>
       </div>
       {item.timestamp ? (
@@ -69,24 +66,24 @@ export function StatusTimeline({
     return <EmptyState title={emptyTitle} body={emptyBody} />;
   }
 
-  if (items.length < VIRTUALIZATION_THRESHOLD) {
-    return (
-      <div className="space-y-3">
-        {items.map((item) => (
-          <TimelineEntry key={item.id} item={item} />
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <VirtualList
-      className="rounded-2xl"
-      estimateSize={112}
-      itemKey={(item) => item.id}
-      items={items}
-      maxHeight={520}
-      renderItem={(item) => <TimelineEntry item={item} />}
-    />
+    <section
+      className="space-y-3"
+      data-timeline-authority="recorded-events-only"
+      data-testid="status-timeline"
+    >
+      {items.length < VIRTUALIZATION_THRESHOLD ? (
+        items.map((item) => <TimelineEntry key={item.id} item={item} />)
+      ) : (
+        <VirtualList
+          className="rounded-2xl"
+          estimateSize={112}
+          itemKey={(item) => item.id}
+          items={items}
+          maxHeight={520}
+          renderItem={(item) => <TimelineEntry item={item} />}
+        />
+      )}
+    </section>
   );
 }

@@ -4,48 +4,25 @@ import { formatNumber } from "@/shared/lib/utils";
 import {
   normalizeGovernanceIssues,
   summarizeGovernanceIssues,
-  type GovernanceIssueSeverity,
 } from "@/shared/lib/domain/governance";
 import { Badge } from "@polisyos/atlas-ui";
 import { JsonPreview } from "@/shared/ui";
-
-function severityKind(severity: GovernanceIssueSeverity) {
-  if (severity === "blocker") {
-    return "fail" as const;
-  }
-  if (severity === "warning") {
-    return "warn" as const;
-  }
-  if (severity === "info") {
-    return "ok" as const;
-  }
-  return "neutral" as const;
-}
-
-function verdictKind(verdict: string | null | undefined) {
-  const normalized = (verdict ?? "").toLowerCase();
-  if (normalized.includes("approve") || normalized === "ok") {
-    return "ok" as const;
-  }
-  if (
-    normalized.includes("reject") ||
-    normalized.includes("fail") ||
-    normalized.includes("block")
-  ) {
-    return "fail" as const;
-  }
-  return "warn" as const;
-}
+import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 
 type GovernanceReportProps = {
   data: GovernanceDebugPayload["debug"];
 };
 
 export default function GovernanceReport({ data }: GovernanceReportProps) {
-  const { t, label } = useI18n();
+  const { t } = useI18n();
   const notes = data.notes ?? [];
   const issues = normalizeGovernanceIssues(data.issues);
-  const summary = summarizeGovernanceIssues(issues);
+  const labelSummary = summarizeGovernanceIssues(issues);
+  const ownerBlockerCount = data.issue_summary?.blocker_count ?? 0;
+  const ownerWarningCount = data.issue_summary?.warning_count ?? 0;
+  const ownerInfoCount = data.issue_summary?.info_count ?? 0;
+  const ownerUnknownCount =
+    data.issue_summary?.unknown_count ?? labelSummary.unlabeled;
   const transportSummary = (data.transport_summary ?? null) as Record<
     string,
     unknown
@@ -54,6 +31,7 @@ export default function GovernanceReport({ data }: GovernanceReportProps) {
   const linkEntries = Object.entries(data.links ?? {}).filter(([, value]) =>
     Boolean(value),
   );
+  const decisionGrade = presentDecisionGradeLabel(data.verdict);
 
   return (
     <div className="space-y-3">
@@ -63,12 +41,12 @@ export default function GovernanceReport({ data }: GovernanceReportProps) {
             {t("panels.governance.verdict")}
           </p>
           <div className="mt-1 flex items-center gap-2">
-            <Badge kind={verdictKind(data.verdict)}>
-              {label(
-                "evaluatorVerdicts",
-                data.verdict,
-                data.verdict ?? t("common.unknown"),
-              )}
+            <Badge
+              data-decision-grade-presentation={decisionGrade.classification}
+              data-owner-decision-grade={decisionGrade.ownerLabel ?? undefined}
+              kind="neutral"
+            >
+              {decisionGrade.ownerLabel ?? t("common.unknown")}
             </Badge>
             {data.fallback_from_decision_packet ? (
               <span className="text-warning text-xs">
@@ -83,7 +61,7 @@ export default function GovernanceReport({ data }: GovernanceReportProps) {
               {t("panels.governance.blockers")}
             </p>
             <p className="text-danger font-semibold">
-              {formatNumber(summary.blocker)}
+              {formatNumber(ownerBlockerCount)}
             </p>
           </div>
           <div className="bg-canvas/30 border-line rounded-lg border px-2 py-1">
@@ -91,20 +69,20 @@ export default function GovernanceReport({ data }: GovernanceReportProps) {
               {t("panels.governance.warnings")}
             </p>
             <p className="text-warning font-semibold">
-              {formatNumber(summary.warning)}
+              {formatNumber(ownerWarningCount)}
             </p>
           </div>
           <div className="bg-canvas/30 border-line rounded-lg border px-2 py-1">
             <p className="text-muted text-xs">{t("panels.governance.info")}</p>
             <p className="text-success font-semibold">
-              {formatNumber(summary.info)}
+              {formatNumber(ownerInfoCount)}
             </p>
           </div>
           <div className="bg-canvas/30 border-line rounded-lg border px-2 py-1">
             <p className="text-muted text-xs">
               {t("panels.governance.unknown")}
             </p>
-            <p className="font-semibold">{formatNumber(summary.unknown)}</p>
+            <p className="font-semibold">{formatNumber(ownerUnknownCount)}</p>
           </div>
         </div>
       </div>
@@ -151,15 +129,9 @@ export default function GovernanceReport({ data }: GovernanceReportProps) {
           </p>
           <p className="font-semibold">
             {t("panels.governance.summaryValues", {
-              blockers: formatNumber(
-                data.issue_summary?.blocker_count ?? summary.blocker,
-              ),
-              warnings: formatNumber(
-                data.issue_summary?.warning_count ?? summary.warning,
-              ),
-              info: formatNumber(
-                data.issue_summary?.info_count ?? summary.info,
-              ),
+              blockers: formatNumber(ownerBlockerCount),
+              warnings: formatNumber(ownerWarningCount),
+              info: formatNumber(ownerInfoCount),
             })}
           </p>
         </div>
@@ -219,12 +191,11 @@ export default function GovernanceReport({ data }: GovernanceReportProps) {
               <summary className="cursor-pointer list-none">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <Badge kind={severityKind(issue.severity)}>
-                      {label(
-                        "governanceSeverity",
-                        issue.severity,
-                        issue.severity,
-                      )}
+                    <Badge
+                      data-owner-severity={issue.severity ?? undefined}
+                      kind="neutral"
+                    >
+                      {issue.severity ?? t("common.unknown")}
                     </Badge>
                     <span className="font-mono text-xs">{issue.code}</span>
                     {issue.passId ? (

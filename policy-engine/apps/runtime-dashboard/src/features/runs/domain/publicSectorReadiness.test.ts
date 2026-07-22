@@ -1,6 +1,8 @@
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import { isInteractionState } from "@/shared/lib/domain/statusOwnership";
+import type { DecisionValidityStatus } from "@polisyos/runtime-api-client";
 
 import { createDisputeStatus, type DisputeRecord } from "./disputes";
 import {
@@ -125,7 +127,97 @@ function completeReviewState(): ReviewAttentionState {
 }
 
 describe("public sector readiness domain", () => {
-  it("blocks approval through every Phase 3.4 public-sector gate", () => {
+  it("keeps locally composed readiness diagnostics out of approval authority", () => {
+    const snapshot = buildPublicSectorReadinessSnapshot({
+      decisionView: baseDecision,
+      disputes: [],
+      evidenceContext,
+      governanceIssues: [],
+      now: "2026-04-01T12:10:00.000Z",
+      reviewState: completeReviewState(),
+      runId: "run-diagnostic-readiness",
+    });
+    const diagnostic = snapshot as unknown as {
+      diagnosticComplete: null;
+      fairness: { groups: Array<{ status: unknown }> };
+      harm: {
+        euAiAct: Record<string, unknown>;
+        rows: Array<{ status: unknown }>;
+      };
+    };
+
+    expect(Object.hasOwn(snapshot, "approvalReady")).toBe(false);
+    expect(diagnostic.diagnosticComplete).toBeNull();
+    expect(
+      diagnostic.fairness.groups.every((group) =>
+        isInteractionState(group.status),
+      ),
+    ).toBe(true);
+    expect(
+      diagnostic.harm.rows.every(
+        (row) =>
+          isInteractionState(row.status) &&
+          row.status.authorityPurpose === "diagnostic_display",
+      ),
+    ).toBe(true);
+    expect(
+      Object.values(diagnostic.harm.euAiAct)
+        .filter((value) => isInteractionState(value))
+        .every(
+          (value) =>
+            isInteractionState(value) &&
+            value.authorityPurpose === "diagnostic_display",
+        ),
+    ).toBe(true);
+  });
+
+  it("uses generated decision validity verbatim and keeps replacement as a relation", () => {
+    const decisionValidityStatus: DecisionValidityStatus = "revoked";
+    const snapshot = buildPublicSectorReadinessSnapshot({
+      decisionValidityStatus,
+      decisionView: baseDecision,
+      evidenceContext,
+      governanceIssues: [
+        issue(
+          "policy_replacement",
+          "replacement policy is available",
+          "warning",
+        ),
+      ],
+      reviewState: completeReviewState(),
+      runId: "run-generated-validity",
+    } as Parameters<typeof buildPublicSectorReadinessSnapshot>[0] & {
+      decisionValidityStatus: DecisionValidityStatus;
+    });
+
+    expect(snapshot.revocation.currentStatus).toBe(decisionValidityStatus);
+    expect(snapshot.revocation.chain).toContainEqual(
+      expect.objectContaining({ relation: "replacement", status: null }),
+    );
+    expect(
+      snapshot.revocation.chain.map((entry) => entry.status),
+    ).not.toContain("replacement");
+  });
+
+  it("marks embargo presentation as candidate display rather than authority", () => {
+    const snapshot = buildPublicSectorReadinessSnapshot({
+      decisionView: baseDecision,
+      evidenceContext,
+      governanceIssues: [issue("embargo_active", "restricted until release")],
+      reviewState: completeReviewState(),
+      runId: "run-embargo-display",
+    });
+    const [mask] = snapshot.embargo.masks;
+
+    expect(mask).toBeDefined();
+    expect(isInteractionState(mask?.status)).toBe(true);
+    expect(mask?.status).toMatchObject({
+      authorityPurpose: "candidate_display",
+      purpose: "interaction_only",
+    });
+  });
+
+  it("reports every Phase 3.4 diagnostic finding without minting an approval verdict", () => {
     const openDispute: DisputeRecord = {
       actor: "reviewer",
       basis: "legal",
@@ -148,8 +240,9 @@ describe("public sector readiness domain", () => {
       runId: "run-34",
     });
 
-    expect(snapshot.approvalReady).toBe(false);
-    expect(snapshot.blocks.map((block) => block.kind).sort()).toEqual([
+    expect(Object.hasOwn(snapshot, "approvalReady")).toBe(false);
+    expect(snapshot.diagnosticComplete).toBeNull();
+    expect(snapshot.findings.map((finding) => finding.kind).sort()).toEqual([
       "embargo",
       "fairness",
       "harm",
@@ -163,14 +256,14 @@ describe("public sector readiness domain", () => {
     });
     expect(snapshot.embargo.masks[0]).toMatchObject({
       reasonCode: "embargo_active",
-      status: "active",
+      status: { label: "active", purpose: "interaction_only" },
     });
     expect(snapshot.auditTrail.map((event) => event.event)).toContain(
-      "approval.blocked.embargo",
+      "diagnostic.finding.embargo",
     );
   });
 
-  it("allows approval after fairness passes, harms are acknowledged, and review attention is complete", () => {
+  it("does not infer readiness when local diagnostic findings are absent", () => {
     const fairDecision: DecisionCardViewModel = {
       ...baseDecision,
       distributional: {
@@ -208,8 +301,9 @@ describe("public sector readiness domain", () => {
       runId: "run-34",
     });
 
-    expect(snapshot.approvalReady).toBe(true);
-    expect(snapshot.blocks).toEqual([]);
+    expect(Object.hasOwn(snapshot, "approvalReady")).toBe(false);
+    expect(snapshot.diagnosticComplete).toBeNull();
+    expect(snapshot.findings).toEqual([]);
     expect(snapshot.slowReview.completed).toBe(snapshot.slowReview.total);
     expect(snapshot.harm.blocked).toBe(false);
   });
@@ -258,7 +352,7 @@ describe("public sector readiness domain", () => {
     expect(JSON.stringify(snapshot.embargo)).not.toContain("SSN-123-45-6789");
   });
 
-  it("blocks fairness approval when protected-group evidence is absent", () => {
+  it("records a fairness diagnostic when protected-group evidence is absent", () => {
     const snapshot = buildPublicSectorReadinessSnapshot({
       decisionView: {
         ...baseDecision,
@@ -273,7 +367,9 @@ describe("public sector readiness domain", () => {
 
     expect(snapshot.fairness.evidenceAvailable).toBe(false);
     expect(snapshot.fairness.blocked).toBe(true);
-    expect(snapshot.blocks.map((block) => block.kind)).toContain("fairness");
+    expect(snapshot.findings.map((finding) => finding.kind)).toContain(
+      "fairness",
+    );
   });
 
   it("releases embargo blockers after unlock_at while keeping the skeleton auditable", () => {
@@ -293,14 +389,17 @@ describe("public sector readiness domain", () => {
     expect(snapshot.embargo.blocked).toBe(false);
     expect(snapshot.embargo.masks[0]).toMatchObject({
       reasonCode: "embargo_active",
-      status: "clear",
+      status: { label: "clear", purpose: "interaction_only" },
       unlockAt: "2026-04-01T12:00:00.000Z",
     });
-    expect(snapshot.blocks.map((block) => block.kind)).not.toContain("embargo");
+    expect(snapshot.findings.map((finding) => finding.kind)).not.toContain(
+      "embargo",
+    );
   });
 
   it("projects revocation ledger refs from governance metadata", () => {
     const snapshot = buildPublicSectorReadinessSnapshot({
+      decisionValidityStatus: "revoked",
       decisionView: baseDecision,
       evidenceContext,
       governanceIssues: [

@@ -1,5 +1,9 @@
 import { cn } from "@/shared/lib/utils";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  presentDecisionGradeLabel,
+  type DecisionGradePresentation,
+} from "@/shared/ui/compounds/decisionGradePresentation";
 import { Card, Badge } from "@polisyos/atlas-ui";
 
 // ---------------------------------------------------------------------------
@@ -7,10 +11,10 @@ import { Card, Badge } from "@polisyos/atlas-ui";
 // ---------------------------------------------------------------------------
 
 export type GovernanceComparisonItem = {
+  baseDecisionGrade: unknown;
   passId: string;
   label: string;
-  baseStatus: "pass" | "fail" | "warning" | "skip";
-  targetStatus: "pass" | "fail" | "warning" | "skip";
+  targetDecisionGrade: unknown;
 };
 
 type GovernanceComparisonProps = {
@@ -20,16 +24,25 @@ type GovernanceComparisonProps = {
   className?: string;
 };
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+function DecisionGradeBadge({
+  presentation,
+}: {
+  presentation: DecisionGradePresentation;
+}) {
+  const { t } = useI18n();
+  const label = presentation.ownerLabel ?? t("common.unavailable");
 
-const STATUS_BADGE_KIND: Record<string, "ok" | "fail" | "warn" | "neutral"> = {
-  pass: "ok",
-  fail: "fail",
-  warning: "warn",
-  skip: "neutral",
-};
+  return (
+    <Badge
+      kind="neutral"
+      data-decision-grade-presentation={presentation.classification}
+      data-kind="neutral"
+      data-owner-grade={presentation.ownerLabel ?? ""}
+    >
+      {label}
+    </Badge>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // Component
@@ -45,59 +58,70 @@ export function GovernanceComparison({
   const resolvedBaseLabel = baseLabel ?? t("pages.runs.compare.columns.base");
   const resolvedTargetLabel =
     targetLabel ?? t("pages.runs.compare.columns.target");
-  const statusLabel: Record<GovernanceComparisonItem["baseStatus"], string> = {
-    pass: t("shared.ui.governancePassGrid.status.pass"),
-    fail: t("shared.ui.governancePassGrid.status.fail"),
-    warning: t("shared.ui.governancePassGrid.status.warning"),
-    skip: t("shared.ui.governancePassGrid.status.skip"),
-  };
-  const changed = items.filter((i) => i.baseStatus !== i.targetStatus);
-  const unchanged = items.filter((i) => i.baseStatus === i.targetStatus);
+  const comparisonLabel = t("pages.runs.compare.visual.governanceComparison");
+  const presentedItems = items.map((item) => ({
+    ...item,
+    basePresentation: presentDecisionGradeLabel(item.baseDecisionGrade),
+    targetPresentation: presentDecisionGradeLabel(item.targetDecisionGrade),
+  }));
+  const changed = presentedItems.filter(
+    (item) =>
+      item.basePresentation.ownerLabel !== item.targetPresentation.ownerLabel,
+  );
+  const unchanged = presentedItems.filter(
+    (item) =>
+      item.basePresentation.ownerLabel === item.targetPresentation.ownerLabel,
+  );
 
   return (
     <Card className={cn("space-y-3 p-4", className)}>
-      <h4 className="text-sm font-semibold">
-        {t("pages.runs.compare.visual.governanceComparison")}
-      </h4>
+      <h4 className="text-sm font-semibold">{comparisonLabel}</h4>
 
       {items.length === 0 ? (
         <p className="text-muted text-xs">
           {t("pages.runs.compare.visual.noGovernancePasses")}
         </p>
       ) : (
-        <>
-          {/* Table header */}
-          <div className="text-muted grid grid-cols-3 gap-2 text-xs font-semibold">
-            <span>{t("pages.runs.compare.visual.passColumn")}</span>
-            <span className="text-center">{resolvedBaseLabel}</span>
-            <span className="text-center">{resolvedTargetLabel}</span>
-          </div>
-
-          {/* Changed first */}
-          {changed.map((item) => (
+        <div aria-label={comparisonLabel} className="space-y-2" role="table">
+          <div role="rowgroup">
             <div
-              key={item.passId}
-              className="border-line grid grid-cols-3 items-center gap-2 rounded-lg border p-2"
-              style={{
-                borderLeftWidth: 3,
-                borderLeftColor: "var(--chart-warning)",
-              }}
+              className="text-muted grid grid-cols-3 gap-2 text-xs font-semibold"
+              role="row"
             >
-              <span className="text-xs font-medium">{item.label}</span>
-              <span className="text-center">
-                <Badge kind={STATUS_BADGE_KIND[item.baseStatus] ?? "neutral"}>
-                  {statusLabel[item.baseStatus]}
-                </Badge>
+              <span role="columnheader">
+                {t("pages.runs.compare.visual.passColumn")}
               </span>
-              <span className="text-center">
-                <Badge kind={STATUS_BADGE_KIND[item.targetStatus] ?? "neutral"}>
-                  {statusLabel[item.targetStatus]}
-                </Badge>
+              <span className="text-center" role="columnheader">
+                {resolvedBaseLabel}
+              </span>
+              <span className="text-center" role="columnheader">
+                {resolvedTargetLabel}
               </span>
             </div>
-          ))}
 
-          {/* Unchanged */}
+            {changed.map((item) => (
+              <div
+                key={item.passId}
+                className="border-line grid grid-cols-3 items-center gap-2 rounded-lg border p-2"
+                role="row"
+                style={{
+                  borderLeftWidth: 3,
+                  borderLeftColor: "var(--chart-warning)",
+                }}
+              >
+                <span className="text-xs font-medium" role="cell">
+                  {item.label}
+                </span>
+                <span className="text-center" role="cell">
+                  <DecisionGradeBadge presentation={item.basePresentation} />
+                </span>
+                <span className="text-center" role="cell">
+                  <DecisionGradeBadge presentation={item.targetPresentation} />
+                </span>
+              </div>
+            ))}
+          </div>
+
           {unchanged.length > 0 && (
             <details className="text-xs">
               <summary className="text-muted cursor-pointer">
@@ -105,27 +129,30 @@ export function GovernanceComparison({
                   count: unchanged.length,
                 })}
               </summary>
-              <div className="mt-1.5 space-y-1">
+              <div className="mt-1.5 space-y-1" role="rowgroup">
                 {unchanged.map((item) => (
                   <div
                     key={item.passId}
                     className="text-muted grid grid-cols-3 items-center gap-2 px-2 py-1"
+                    role="row"
                   >
-                    <span>{item.label}</span>
-                    <span className="text-center">
-                      <Badge
-                        kind={STATUS_BADGE_KIND[item.baseStatus] ?? "neutral"}
-                      >
-                        {statusLabel[item.baseStatus]}
-                      </Badge>
+                    <span role="cell">{item.label}</span>
+                    <span className="text-center" role="cell">
+                      <DecisionGradeBadge
+                        presentation={item.basePresentation}
+                      />
                     </span>
-                    <span className="text-center">—</span>
+                    <span className="text-center" role="cell">
+                      <DecisionGradeBadge
+                        presentation={item.targetPresentation}
+                      />
+                    </span>
                   </div>
                 ))}
               </div>
             </details>
           )}
-        </>
+        </div>
       )}
     </Card>
   );

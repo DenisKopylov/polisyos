@@ -4,14 +4,15 @@ import type {
 } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import {
+  createInteractionState,
+  type InteractionState,
+} from "@/shared/lib/domain/statusOwnership";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 import {
   DEFAULT_PROJECTION_USE_LIMITS,
-  detectProjectionMaskingCases,
-  isProjectionPromotionLabel,
-  projectionFailClosedCodes,
-  type ProjectionMaskingCase,
+  type GeneratedProjectionAuthority,
 } from "@/shared/lib/domain/projectionFailClosed";
 
 export type ToulminNodeKind =
@@ -21,19 +22,12 @@ export type ToulminNodeKind =
   | "rebuttal"
   | "warrant";
 
-export type ArgumentNodeStatus =
-  | "certified"
-  | "contested"
-  | "open"
-  | "rebutted";
-
 export type ArgumentMapNode = {
   detail: string;
   id: string;
   kind: ToulminNodeKind;
   label: string;
   refs: string[];
-  status: ArgumentNodeStatus;
 };
 
 export type ArgumentMapEdge = {
@@ -87,19 +81,12 @@ export type GlossaryTerm = {
   term: string;
 };
 
-export type ConfidenceLadderRung =
-  | "disputed"
-  | "high_blast_radius"
-  | "low_confidence"
-  | "strongest_claim"
-  | "untraced"
-  | "weakest_link";
-
 export type ConfidenceLadderItem = {
   id: string;
   label: string;
   reason: string;
-  rung: ConfidenceLadderRung;
+  /** Opaque producer label when one exists; DS4 does not mint a rung vocabulary. */
+  rung: string | null;
   score: QuantityValueOutput;
   targetRef: string;
 };
@@ -129,33 +116,29 @@ export type CitationModelCard = {
 export type CoverageRegion = {
   caveat: string;
   density: number;
+  displayState: CandidateCoverageDisplayState;
   evidenceRefs: string[];
   label: string;
-  status: "high" | "low" | "medium";
 };
 
+export type CandidateCoverageDisplayState = InteractionState;
+export type CandidateCoverageCaveatState = InteractionState;
+
 export type CoverageCaveat = {
+  caveatState: CandidateCoverageCaveatState;
   regions: CoverageRegion[];
-  status: "clear" | "caveat";
   summary: string;
 };
 
-export type ThresholdEdgeCase = {
-  distance: number;
-  id: string;
-  label: string;
-  side: "above" | "below";
-};
-
 export type ThresholdMicrocontract = {
-  aboveCount: number | null;
-  belowCount: number | null;
+  aboveCount: null;
+  belowCount: null;
   calibrationCaveat: string;
-  edgeCases: ThresholdEdgeCase[];
-  epsilon: number;
-  nearLineCount: number | null;
+  edgeCases: [];
+  epsilon: null;
+  nearLineCount: null;
   policyRef: string;
-  threshold: number;
+  threshold: null;
 };
 
 export type BureaucraticPublicationForm = {
@@ -169,12 +152,12 @@ export type BureaucraticPublicationForm = {
 };
 
 export type PublicDecisionSummary = {
-  confidence: string;
+  confidence: string | null;
   generatedAt: string | null;
   headline: string;
   policySummary: string;
   runId: string;
-  verdict: string;
+  verdict: string | null;
 };
 
 export type PublicDecisionPacket = {
@@ -194,53 +177,35 @@ export type PublicDecisionPacket = {
   trustFraming: PublicTrustFraming;
 };
 
-export type PublicProjectionState =
-  | "blocked"
-  | "contested"
-  | "draft"
-  | "projection_only"
-  | "publishable"
-  | "redacted"
-  | "stale";
-
 export type PublicProjectionSemantics = {
-  authorityRole: "projection_only";
-  failClosedCodes: string[];
-  labels: string[];
+  authorityRole: string | null;
+  closeoutTruth: GeneratedProjectionAuthority["closeout_truth"] | null;
+  displayStates: InteractionState[];
+  evidenceClass: string | null;
+  generatedAt: string | null;
   mayNotBeUsedFor: string[];
-  maskingCases: ProjectionMaskingCase[];
-  primaryState: PublicProjectionState;
-  projectionPolicy:
-    | "reads_policy_design_case_only"
-    | "reads_runtime_policy_design_case_graph";
-  states: PublicProjectionState[];
+  primaryDisplayState: InteractionState;
+  projectionPolicy: NonNullable<
+    GeneratedProjectionAuthority["projection_policy"]
+  > | null;
+  provenanceKind: string | null;
+  surface: string | null;
 };
 
-export type TrustFramingScenario =
-  | "disputed"
-  | "draft"
-  | "frontend_signed"
-  | "low_confidence"
-  | "override_approved"
-  | "simulated"
-  | "stale"
-  | "untraced";
-
-export type TrustFramingCaveat = {
+export type FrontendIntegritySignatureNotice = {
   authorityCaveat: string;
   badge: string;
   label: string;
-  scenario: TrustFramingScenario;
-  signatureCue:
-    | "frontend_signature_not_authoritative"
-    | "no_signature_trust_upgrade";
+  signatureCue: "frontend_integrity_signature_not_authoritative";
 };
 
 export type PublicTrustFraming = {
   authorityRole: "not_closeout_authority";
   closeoutAuthorityCaveat: string;
+  integritySignatureNotice: FrontendIntegritySignatureNotice;
   mayNotBeUsedFor: string[];
-  scenarioCaveats: TrustFramingCaveat[];
+  /** Compatibility shape only; the client no longer emits inferred scenarios. */
+  scenarioCaveats: never[];
   visibleCaveat: string;
 };
 
@@ -256,7 +221,7 @@ export type PublicDecisionPacketInput = {
   evidenceContext?: RunEvidenceContext | null;
   governanceIssues?: GovernanceIssueView[];
   now?: string;
-  policyDesignCaseProjection?: Record<string, unknown> | null;
+  policyDesignCaseProjection?: GeneratedProjectionAuthority | null;
   runId: string;
 };
 
@@ -275,68 +240,12 @@ export type SignedPacketVerification =
 const PUBLIC_PACKET_SCHEMA = "polisyos.public_decision_packet.v1" as const;
 const SIGNATURE_SALT = "polisyos.atlas.public-viewer.v1";
 const FALLBACK_GENERATED_AT = "1970-01-01T00:00:00.000Z";
-const PUBLIC_PROJECTION_STATES = new Set<PublicProjectionState>([
-  "blocked",
-  "contested",
-  "draft",
-  "projection_only",
-  "publishable",
-  "redacted",
-  "stale",
-]);
 const TRUST_FRAMING_VISIBLE_CAVEAT =
   "Use runtime scorecard/readiness authority before approval or closeout.";
 const TRUST_FRAMING_CLOSEOUT_CAVEAT =
   "Frontend signatures, badges, labels, and projections are not closeout authority.";
-const TRUST_FRAMING_LABELS = {
-  disputed: {
-    badge: "Challenge open",
-    label: "Disputed",
-    signatureCue: "no_signature_trust_upgrade",
-  },
-  draft: {
-    badge: "Not publishable",
-    label: "Draft",
-    signatureCue: "no_signature_trust_upgrade",
-  },
-  frontend_signed: {
-    badge: "Projection signature",
-    label: "Frontend signed",
-    signatureCue: "frontend_signature_not_authoritative",
-  },
-  low_confidence: {
-    badge: "Needs review",
-    label: "Low confidence",
-    signatureCue: "no_signature_trust_upgrade",
-  },
-  override_approved: {
-    badge: "Override gated",
-    label: "Override",
-    signatureCue: "no_signature_trust_upgrade",
-  },
-  simulated: {
-    badge: "Research profile",
-    label: "Simulated",
-    signatureCue: "no_signature_trust_upgrade",
-  },
-  stale: {
-    badge: "Revalidate",
-    label: "Stale",
-    signatureCue: "no_signature_trust_upgrade",
-  },
-  untraced: {
-    badge: "Trace missing",
-    label: "Untraced",
-    signatureCue: "no_signature_trust_upgrade",
-  },
-} as const satisfies Record<
-  TrustFramingScenario,
-  {
-    badge: string;
-    label: string;
-    signatureCue: TrustFramingCaveat["signatureCue"];
-  }
->;
+const FRONTEND_INTEGRITY_SIGNATURE_CAVEAT =
+  "This frontend signature verifies packet integrity only; it is not trust, approval, publication, or closeout authority.";
 const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
     definition:
@@ -492,66 +401,8 @@ function stringValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function stringArray(value: unknown) {
-  return Array.isArray(value)
-    ? value.flatMap((item) => {
-        const text = stringValue(item);
-        return text ? [text] : [];
-      })
-    : [];
-}
-
-function projectionState(value: unknown): PublicProjectionState | null {
-  const text = stringValue(value).replace(/-/gu, "_") as PublicProjectionState;
-  return PUBLIC_PROJECTION_STATES.has(text) ? text : null;
-}
-
-function isProjectionOnlyPromotionLabel(value: string) {
-  return isProjectionPromotionLabel(value);
-}
-
 function uniqueStrings(values: string[]) {
   return Array.from(new Set(values));
-}
-
-function normalizedToken(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[-\s]+/gu, "_")
-    .replace(/_+/gu, "_")
-    .trim();
-}
-
-function normalizedText(value: string) {
-  return normalizedToken(value).replace(/_/gu, " ");
-}
-
-function collectProjectionText(value: unknown): string[] {
-  if (typeof value === "string") {
-    return [value];
-  }
-  if (Array.isArray(value)) {
-    return value.flatMap(collectProjectionText);
-  }
-  if (!value || typeof value !== "object") {
-    return [];
-  }
-  return Object.values(value as Record<string, unknown>).flatMap(
-    collectProjectionText,
-  );
-}
-
-function projectionMentions(
-  projection: Record<string, unknown> | null | undefined,
-  tokens: string[],
-) {
-  const normalized = collectProjectionText(projection).flatMap((value) => [
-    normalizedToken(value),
-    normalizedText(value),
-  ]);
-  return tokens.some((token) =>
-    normalized.some((value) => value === token || value.includes(token)),
-  );
 }
 
 function publicRef(value: string | null | undefined, fallback: string) {
@@ -606,16 +457,13 @@ function buildDecisionSummary(
 ): PublicDecisionSummary {
   const decision = input.decisionView;
   const runId = publicRef(decision?.runId ?? input.runId, input.runId);
-  const verdict = decision?.verdict ?? "REVIEW";
+  const verdict = decision?.verdict?.trim() || null;
   return {
-    confidence: decision?.confidence ?? "LOW",
+    confidence: decision?.confidence ?? null,
     generatedAt: decision?.generatedAt ?? null,
-    headline:
-      verdict === "APPROVE"
-        ? "Public decision: approve with published safeguards"
-        : verdict === "REJECT"
-          ? "Public decision: do not approve"
-          : "Public decision: review required",
+    headline: verdict
+      ? "Public decision: owner verdict recorded"
+      : "Public decision: owner verdict unavailable",
     policySummary: publicText(
       decision?.policySummary,
       "No restricted decision text is included in this public packet.",
@@ -648,7 +496,6 @@ function buildArgumentMap(input: {
       kind: "claim",
       label: input.decision.headline,
       refs: [input.decision.runId],
-      status: input.governanceIssues.length > 0 ? "contested" : "certified",
     },
     {
       detail: primaryMetric
@@ -658,7 +505,6 @@ function buildArgumentMap(input: {
       kind: "grounds",
       label: "Published grounds",
       refs: input.metrics.map(metricRef),
-      status: input.metrics.length > 0 ? "certified" : "open",
     },
     {
       detail:
@@ -667,7 +513,6 @@ function buildArgumentMap(input: {
       kind: "warrant",
       label: "Policy warrant",
       refs: ["atlas:publication:warrant"],
-      status: "certified",
     },
     {
       detail:
@@ -678,18 +523,16 @@ function buildArgumentMap(input: {
       kind: "backing",
       label: "Evidence backing",
       refs: evidenceRefs,
-      status: evidenceRefs.length > 0 ? "certified" : "open",
     },
     {
       detail:
         issueRefs.length > 0
-          ? `${issueRefs.length} public rebuttal reference(s) remain attached.`
-          : "No public rebuttal is active.",
+          ? `${issueRefs.length} public governance issue reference(s) are attached.`
+          : "No public governance issue references were supplied; absence does not establish that no dispute exists.",
       id: `rebuttal:${input.decision.runId}:governance`,
       kind: "rebuttal",
-      label: "Rebuttal status",
+      label: "Governance issue references",
       refs: issueRefs,
-      status: issueRefs.length > 0 ? "rebutted" : "certified",
     },
   ];
   return {
@@ -720,127 +563,24 @@ function buildArgumentMap(input: {
   };
 }
 
-function confidenceScore(decision: PublicDecisionSummary) {
-  if (decision.confidence === "HIGH") {
-    return 0.86;
-  }
-  if (decision.confidence === "MEDIUM") {
-    return 0.64;
-  }
-  return 0.38;
-}
-
 function buildConfidenceLadder(input: {
   decision: PublicDecisionSummary;
-  evidenceContext?: RunEvidenceContext | null;
-  governanceIssues: GovernanceIssueView[];
-  metrics: DecisionMetric[];
 }): ConfidenceLadderItem[] {
-  const [primaryMetric] = input.metrics;
-  const evidenceCount = [
-    input.evidenceContext?.evidenceBundleRef,
-    input.evidenceContext?.dataSnapshotRef,
-    input.evidenceContext?.inputBindingsRef,
-  ].filter(Boolean).length;
-  const issueCount = input.governanceIssues.length;
   return [
     {
-      id: `ladder:${input.decision.runId}:strongest`,
-      label: primaryMetric
-        ? metricLabel(primaryMetric, 0)
-        : input.decision.headline,
-      reason: primaryMetric
-        ? `${metricLabel(
-            primaryMetric,
-            0,
-          )} is the first published decision-bearing metric.`
-        : "The verdict is the strongest available public claim.",
-      rung: "strongest_claim",
+      id: `ladder:${input.decision.runId}:owner-confidence`,
+      label: input.decision.confidence
+        ? "Owner-recorded confidence label"
+        : "Owner confidence unavailable",
+      reason: input.decision.confidence
+        ? "The producer label is preserved opaquely; the client does not convert it into a numeric confidence or trust posture."
+        : "No owner-issued confidence quantity was supplied; absence remains unknown.",
+      rung: null,
       score: publicationQuantity({
-        label: "Strongest claim confidence",
-        metricId: "public.confidence_ladder.strongest_claim.score",
-        point: clamp(confidenceScore(input.decision) + 0.08),
-        reasonCode: "public_projection_confidence_score",
-      }),
-      targetRef: primaryMetric
-        ? metricRef(primaryMetric, 0)
-        : input.decision.runId,
-    },
-    {
-      id: `ladder:${input.decision.runId}:weakest`,
-      label: issueCount > 0 ? "Governance rebuttal" : "Evidence backing",
-      reason:
-        issueCount > 0
-          ? `${issueCount} public rebuttal reference(s) reduce confidence.`
-          : "Evidence backing is the weakest link when public artifact coverage is sparse.",
-      rung: "weakest_link",
-      score: publicationQuantity({
-        label: "Weakest link confidence",
-        metricId: "public.confidence_ladder.weakest_link.score",
-        point: clamp(issueCount > 0 ? 0.22 : 0.48 + evidenceCount * 0.08),
-        reasonCode: "public_projection_confidence_score",
-      }),
-      targetRef: issueCount > 0 ? "rebuttal:governance" : "backing:evidence",
-    },
-    {
-      id: `ladder:${input.decision.runId}:disputed`,
-      label: "Disputed or rebutted",
-      reason:
-        issueCount > 0
-          ? "At least one governance issue remains visible in the public packet."
-          : "No public governance dispute is attached.",
-      rung: "disputed",
-      score: publicationQuantity({
-        label: "Disputed confidence",
-        metricId: "public.confidence_ladder.disputed.score",
-        point: issueCount > 0 ? 0.18 : 0.92,
-        reasonCode: "public_projection_confidence_score",
-      }),
-      targetRef: "rebuttal:governance",
-    },
-    {
-      id: `ladder:${input.decision.runId}:untraced`,
-      label: "Untraced evidence",
-      reason:
-        evidenceCount === 0
-          ? "No public evidence artifact ref is available."
-          : `${evidenceCount} public evidence artifact ref(s) are available.`,
-      rung: "untraced",
-      score: publicationQuantity({
-        label: "Untraced evidence confidence",
-        metricId: "public.confidence_ladder.untraced.score",
-        point: evidenceCount === 0 ? 0.12 : 0.76,
-        reasonCode: "public_projection_confidence_score",
-      }),
-      targetRef: "backing:evidence",
-    },
-    {
-      id: `ladder:${input.decision.runId}:blast-radius`,
-      label: "High blast-radius claim",
-      reason:
-        "The decision verdict is the public claim with the widest impact.",
-      rung: "high_blast_radius",
-      score: publicationQuantity({
-        label: "High blast-radius confidence",
-        metricId: "public.confidence_ladder.high_blast_radius.score",
-        point: clamp(confidenceScore(input.decision)),
-        reasonCode: "public_projection_confidence_score",
-      }),
-      targetRef: input.decision.runId,
-    },
-    {
-      id: `ladder:${input.decision.runId}:low-confidence`,
-      label: "Low-confidence claim",
-      reason:
-        input.decision.confidence === "LOW"
-          ? "The decision packet explicitly reports low confidence."
-          : "No low-confidence claim is the primary public claim.",
-      rung: "low_confidence",
-      score: publicationQuantity({
-        label: "Low-confidence claim score",
-        metricId: "public.confidence_ladder.low_confidence.score",
-        point: input.decision.confidence === "LOW" ? 0.2 : 0.7,
-        reasonCode: "public_projection_confidence_score",
+        label: "Owner confidence quantity",
+        metricId: "public.confidence_ladder.owner_confidence.score",
+        point: null,
+        reasonCode: "owner_confidence_quantity_absent",
       }),
       targetRef: input.decision.runId,
     },
@@ -1063,7 +803,7 @@ function buildModelCard(input: {
         title: "Inputs and evidence",
       },
       {
-        body: `The public recommendation is ${input.decision.verdict} with ${input.decision.confidence} confidence.`,
+        body: `The owner-recorded decision grade is ${input.decision.verdict ?? "unavailable"}; the recorded confidence label is ${input.decision.confidence ?? "unavailable"}.`,
         footnoteRefs: ["ref:model"],
         id: "validation",
         provenanceRefs: [input.decision.runId],
@@ -1081,14 +821,14 @@ function buildModelCard(input: {
   };
 }
 
-function coverageStatus(density: number): CoverageRegion["status"] {
+function coverageDisplayState(density: number): CandidateCoverageDisplayState {
   if (density >= 0.74) {
-    return "high";
+    return createInteractionState("high", "candidate_display");
   }
   if (density >= 0.5) {
-    return "medium";
+    return createInteractionState("medium", "candidate_display");
   }
-  return "low";
+  return createInteractionState("low", "candidate_display");
 }
 
 function buildCoverageCaveat(
@@ -1102,20 +842,20 @@ function buildCoverageCaveat(
         : 0.35;
       const matchedPlanCount = matchedPlanIds.length;
       const density = clamp(qualityMin * 0.7 + matchedPlanCount * 0.12);
-      const status = coverageStatus(density);
+      const displayState = coverageDisplayState(density);
       return {
         caveat:
-          status === "low"
-            ? "Low evidence density requires a public caveat."
-            : status === "medium"
-              ? "Evidence is usable with a coverage note."
-              : "Evidence density is high enough for publication.",
+          displayState.label === "low"
+            ? "Calculated coverage falls in the low display band; inspect the source references."
+            : displayState.label === "medium"
+              ? "Calculated coverage falls in the middle display band; inspect the source references."
+              : "Calculated coverage falls in the upper display band; publication readiness is not inferred.",
         density,
+        displayState,
         evidenceRefs: matchedPlanIds.map((id, planIndex) =>
           publicRef(id, `plan-${index + 1}-${planIndex + 1}`),
         ),
         label: publicText(need.geography ?? need.metric, `region-${index + 1}`),
-        status,
       };
     },
   );
@@ -1127,72 +867,44 @@ function buildCoverageCaveat(
             caveat:
               "No geography-specific public evidence coverage is attached.",
             density: 0.32,
+            displayState: createInteractionState("low", "candidate_display"),
             evidenceRefs: [],
             label: "coverage unspecified",
-            status: "low" as const,
           },
         ];
-  const hasCaveat = fallbackRegions.some((region) => region.status === "low");
+  const hasLowDisplayBand = fallbackRegions.some(
+    (region) => region.displayState.label === "low",
+  );
   return {
+    caveatState: createInteractionState(
+      hasLowDisplayBand ? "caveat" : "clear",
+      "candidate_display",
+    ),
     regions: fallbackRegions,
-    status: hasCaveat ? "caveat" : "clear",
-    summary: hasCaveat
-      ? "At least one affected region has low public evidence density."
-      : "Published evidence coverage is sufficient for the decision scope.",
+    summary: hasLowDisplayBand
+      ? "At least one calculated coverage display is in the low band; owner publication semantics are not inferred."
+      : "No calculated coverage display is in the low band; owner publication semantics are not inferred.",
   };
 }
 
 function buildThresholdMicrocontract(input: {
-  decisionScore?: QuantityValueOutput | null;
   decisionView?: DecisionCardViewModel | null;
   runId: string;
 }): ThresholdMicrocontract {
-  const threshold = 0.7;
-  const epsilon = 0.05;
-  const score = quantityPoint(input.decisionScore);
   const policyRef = `policy:${publicRef(
     input.decisionView?.runId ?? input.runId,
     input.runId,
   )}`;
-  if (score === null) {
-    return {
-      aboveCount: null,
-      belowCount: null,
-      calibrationCaveat:
-        "Decision threshold proximity is unavailable because no decision score was produced.",
-      edgeCases: [],
-      epsilon,
-      nearLineCount: null,
-      policyRef,
-      threshold,
-    };
-  }
-  const boundedScore = clamp(score);
-  const rows = input.decisionView?.distributional?.breakdowns.flatMap(
-    (breakdown) => breakdown.rows,
-  );
-  const edgeCases = (rows?.length ? rows : []).slice(0, 6).map((row, index) => {
-    const pseudoScore = clamp(boundedScore + row.primaryDelta * 0.2);
-    return {
-      distance: Number(Math.abs(pseudoScore - threshold).toFixed(3)),
-      id: `threshold-edge:${index + 1}`,
-      label: publicText(row.cohortLabel, `cohort-${index + 1}`),
-      side: pseudoScore >= threshold ? ("above" as const) : ("below" as const),
-    };
-  });
-  const nearCases = edgeCases.filter((edge) => edge.distance <= epsilon);
   return {
-    aboveCount: edgeCases.filter((edge) => edge.side === "above").length,
-    belowCount: edgeCases.filter((edge) => edge.side === "below").length,
+    aboveCount: null,
+    belowCount: null,
     calibrationCaveat:
-      nearCases.length > 0
-        ? "At least one public cohort is near the decision threshold."
-        : "No published cohort is within epsilon of the decision threshold.",
-    edgeCases,
-    epsilon,
-    nearLineCount: nearCases.length,
+      "Decision threshold proximity is unavailable until a producer threshold contract is supplied.",
+    edgeCases: [],
+    epsilon: null,
+    nearLineCount: null,
     policyRef,
-    threshold,
+    threshold: null,
   };
 }
 
@@ -1201,158 +913,53 @@ function unsignedPacketHash(packet: Omit<PublicDecisionPacket, "packetHash">) {
 }
 
 function buildProjectionSemantics(
-  projection: Record<string, unknown> | null | undefined,
+  projection: GeneratedProjectionAuthority | null | undefined,
 ): PublicProjectionSemantics {
-  const requestedPrimaryState =
-    projectionState(projection?.primary_state) ?? "projection_only";
-  const requestedStates = Array.from(
-    new Set([
-      ...stringArray(projection?.states).flatMap((state) => {
-        const normalized = projectionState(state);
-        return normalized ? [normalized] : [];
-      }),
-      requestedPrimaryState,
-      "projection_only" as const,
-    ]),
-  );
-  const rawLabels = Array.isArray(projection?.labels)
-    ? projection.labels.flatMap((item) => {
-        if (!item || typeof item !== "object") {
-          return [];
-        }
-        const record = item as Record<string, unknown>;
-        const authorityRole = stringValue(record.authority_role);
-        if (authorityRole && authorityRole !== "projection_only") {
-          return [];
-        }
-        const label = stringValue(record.label) || stringValue(record.state);
-        return label ? [label] : [];
-      })
-    : [];
-  const promotionAttempt =
-    requestedPrimaryState === "publishable" ||
-    requestedStates.includes("publishable") ||
-    rawLabels.some(isProjectionOnlyPromotionLabel);
-  const detectedMaskingCases = detectProjectionMaskingCases(projection);
-  const maskingCases = uniqueStrings([
-    ...detectedMaskingCases,
-    ...(promotionAttempt ? ["projection_only" as const] : []),
-  ]) as ProjectionMaskingCase[];
-  const failClosed = promotionAttempt || maskingCases.length > 0;
-  const primaryState = failClosed ? "blocked" : requestedPrimaryState;
-  const states = failClosed
-    ? Array.from(
-        new Set([
-          ...requestedStates.filter((state) => state !== "publishable"),
-          "blocked" as const,
-        ]),
+  const primaryLabel = projection?.primary_state ?? "projection_absent";
+  const ownerStates = projection
+    ? uniqueStrings(
+        projection.states.map((state) => state.trim()).filter(Boolean),
       )
-    : requestedStates;
-  const labels = failClosed
-    ? uniqueStrings([
-        ...rawLabels.filter((label) => !isProjectionOnlyPromotionLabel(label)),
-        "blocked projection",
-      ])
-    : rawLabels;
+    : [primaryLabel];
   return {
-    authorityRole: "projection_only",
-    failClosedCodes: projectionFailClosedCodes(maskingCases),
-    labels: labels.length
-      ? labels
-      : states.map((state) =>
-          state === "projection_only" ? "projection only" : state,
-        ),
+    authorityRole: projection?.authority_role ?? null,
+    closeoutTruth: projection?.closeout_truth ?? null,
+    displayStates: ownerStates.map((state) =>
+      createInteractionState(state, "candidate_display"),
+    ),
+    evidenceClass: projection?.evidence_class ?? null,
+    generatedAt: projection?.generated_at ?? null,
     mayNotBeUsedFor: uniqueStrings([
       ...DEFAULT_PROJECTION_USE_LIMITS,
-      ...stringArray(projection?.may_not_be_used_for),
+      ...(projection?.may_not_be_used_for ?? []),
     ]),
-    maskingCases,
-    primaryState,
-    projectionPolicy: "reads_policy_design_case_only",
-    states,
-  };
-}
-
-function hasTraceableEvidence(
-  evidenceContext: RunEvidenceContext | null | undefined,
-) {
-  return Boolean(
-    evidenceContext?.evidenceBundleRef?.artifact_id ||
-    evidenceContext?.dataSnapshotRef?.artifact_id ||
-    evidenceContext?.inputBindingsRef?.artifact_id,
-  );
-}
-
-function trustFramingCaveat(
-  scenario: TrustFramingScenario,
-): TrustFramingCaveat {
-  const labels = TRUST_FRAMING_LABELS[scenario];
-  return {
-    authorityCaveat: TRUST_FRAMING_VISIBLE_CAVEAT,
-    badge: labels.badge,
-    label: labels.label,
-    scenario,
-    signatureCue: labels.signatureCue,
+    primaryDisplayState: createInteractionState(
+      primaryLabel,
+      "candidate_display",
+    ),
+    projectionPolicy: projection?.projection_policy ?? null,
+    provenanceKind: projection?.provenance_kind ?? null,
+    surface: projection?.surface ?? null,
   };
 }
 
 function buildTrustFraming(input: {
-  decision: PublicDecisionSummary;
-  evidenceContext?: RunEvidenceContext | null;
-  governanceIssues: GovernanceIssueView[];
-  projection?: Record<string, unknown> | null;
   projectionSemantics: PublicProjectionSemantics;
 }): PublicTrustFraming {
-  const scenarios: TrustFramingScenario[] = [];
-  if (input.decision.confidence !== "HIGH") {
-    scenarios.push("low_confidence");
-  }
-  if (
-    input.governanceIssues.length > 0 ||
-    projectionMentions(input.projection, ["disputed", "contested"])
-  ) {
-    scenarios.push("disputed");
-  }
-  if (
-    !hasTraceableEvidence(input.evidenceContext) ||
-    projectionMentions(input.projection, ["untraced", "trace missing"])
-  ) {
-    scenarios.push("untraced");
-  }
-  if (projectionMentions(input.projection, ["simulated", "research profile"])) {
-    scenarios.push("simulated");
-  }
-  if (
-    input.projectionSemantics.states.includes("stale") ||
-    projectionMentions(input.projection, ["stale"])
-  ) {
-    scenarios.push("stale");
-  }
-  if (
-    input.projectionSemantics.states.includes("draft") ||
-    projectionMentions(input.projection, ["draft"])
-  ) {
-    scenarios.push("draft");
-  }
-  if (
-    projectionMentions(input.projection, [
-      "override",
-      "override approved",
-      "override_approved",
-    ])
-  ) {
-    scenarios.push("override_approved");
-  }
-  scenarios.push("frontend_signed");
-
   return {
     authorityRole: "not_closeout_authority",
     closeoutAuthorityCaveat: TRUST_FRAMING_CLOSEOUT_CAVEAT,
+    integritySignatureNotice: {
+      authorityCaveat: FRONTEND_INTEGRITY_SIGNATURE_CAVEAT,
+      badge: "Integrity only",
+      label: "Frontend integrity signature",
+      signatureCue: "frontend_integrity_signature_not_authoritative",
+    },
     mayNotBeUsedFor: uniqueStrings([
       ...DEFAULT_PROJECTION_USE_LIMITS,
       ...input.projectionSemantics.mayNotBeUsedFor,
     ]),
-    scenarioCaveats: Array.from(new Set(scenarios)).map(trustFramingCaveat),
+    scenarioCaveats: [],
     visibleCaveat: TRUST_FRAMING_VISIBLE_CAVEAT,
   };
 }
@@ -1385,9 +992,6 @@ export function buildPublicDecisionPacket(
     }),
     confidenceLadder: buildConfidenceLadder({
       decision,
-      evidenceContext: input.evidenceContext,
-      governanceIssues,
-      metrics,
     }),
     coverageCaveat: buildCoverageCaveat(input.evidenceContext),
     decision,
@@ -1401,15 +1005,10 @@ export function buildPublicDecisionPacket(
     projectionSemantics,
     schema: PUBLIC_PACKET_SCHEMA,
     thresholdContract: buildThresholdMicrocontract({
-      decisionScore: input.decisionScore,
       decisionView: input.decisionView,
       runId: input.runId,
     }),
     trustFraming: buildTrustFraming({
-      decision,
-      evidenceContext: input.evidenceContext,
-      governanceIssues,
-      projection: input.policyDesignCaseProjection,
       projectionSemantics,
     }),
   } satisfies Omit<PublicDecisionPacket, "packetHash">;
@@ -1479,6 +1078,48 @@ function isSignedPublicDecisionPacket(
   );
 }
 
+function reviveCandidateDisplayState(
+  value: InteractionState,
+): InteractionState {
+  if (
+    !value ||
+    typeof value !== "object" ||
+    typeof value.label !== "string" ||
+    value.purpose !== "interaction_only" ||
+    value.authorityPurpose !== "candidate_display"
+  ) {
+    throw new TypeError("signed packet candidate display state is invalid");
+  }
+  return createInteractionState(value.label, "candidate_display");
+}
+
+function revivePublicationDisplayStates(
+  packet: PublicDecisionPacket,
+): PublicDecisionPacket {
+  return {
+    ...packet,
+    coverageCaveat: {
+      ...packet.coverageCaveat,
+      caveatState: reviveCandidateDisplayState(
+        packet.coverageCaveat.caveatState,
+      ),
+      regions: packet.coverageCaveat.regions.map((region) => ({
+        ...region,
+        displayState: reviveCandidateDisplayState(region.displayState),
+      })),
+    },
+    projectionSemantics: {
+      ...packet.projectionSemantics,
+      displayStates: packet.projectionSemantics.displayStates.map(
+        reviveCandidateDisplayState,
+      ),
+      primaryDisplayState: reviveCandidateDisplayState(
+        packet.projectionSemantics.primaryDisplayState,
+      ),
+    },
+  };
+}
+
 export function signPublicDecisionPacket(
   packet: PublicDecisionPacket,
 ): SignedPublicDecisionPacket {
@@ -1520,8 +1161,9 @@ export function verifySignedPublicDecisionPacket(
     ) {
       return { packet: null, reason: "bad_signature", valid: false };
     }
+    const revivedPacket = revivePublicationDisplayStates(packet);
     const signedPacket = {
-      ...packet,
+      ...revivedPacket,
       publicUrlPath: `/public/decisions/${signedId}`,
       signature: expectedSignature,
       signedId,

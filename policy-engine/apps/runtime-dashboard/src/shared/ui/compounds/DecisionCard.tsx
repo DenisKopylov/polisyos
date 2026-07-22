@@ -1,19 +1,30 @@
 import type { ReactNode } from "react";
 
-import { Badge, Card, type BadgeTone } from "@polisyos/atlas-ui";
+import {
+  Badge,
+  Card,
+  EnvelopeChip,
+  governedAuthorityPurposePresentation,
+  type GovernedAuthorityPurpose,
+} from "@polisyos/atlas-ui";
+
+import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { cn } from "@/shared/lib/utils";
+
+import { presentDecisionGradeLabel } from "./decisionGradePresentation";
 
 export type DecisionCardDiagnostic = {
-  kind?: BadgeTone;
+  /** Opaque owner label; it never selects authority clothing. */
+  kind?: string | null;
   label: string;
 };
 
 type DecisionCardProps = {
+  authorityPurpose?: GovernedAuthorityPurpose;
   title: string;
   subtitle?: ReactNode;
-  verdict: ReactNode;
-  verdictKind?: BadgeTone;
+  verdict: string | null;
   confidence?: ReactNode;
-  confidenceKind?: BadgeTone;
   summary?: ReactNode;
   diagnostics?: DecisionCardDiagnostic[];
   meta?: Array<{
@@ -26,9 +37,9 @@ type DecisionCardProps = {
 };
 
 export function DecisionCard({
+  authorityPurpose,
   children,
   confidence,
-  confidenceKind = "neutral",
   diagnostics = [],
   eyebrow,
   meta = [],
@@ -37,10 +48,34 @@ export function DecisionCard({
   summary,
   title,
   verdict,
-  verdictKind = "neutral",
 }: DecisionCardProps) {
+  const { t } = useI18n();
+  const authorityPresentation = authorityPurpose
+    ? governedAuthorityPurposePresentation(authorityPurpose)
+    : null;
+  const fixtureOnly =
+    authorityPresentation?.fixtureAuthority === "fixture_only";
+  const governed = Boolean(authorityPurpose) && !fixtureOnly;
+  const authorityPosture = fixtureOnly
+    ? "fixture-only"
+    : governed
+      ? "governed-authority"
+      : "candidate";
+  const decisionGrade = presentDecisionGradeLabel(verdict);
+
   return (
-    <Card className="space-y-4">
+    <Card
+      className={cn(
+        "space-y-4",
+        governed
+          ? "border-solid border-[var(--color-transport-live)]/40"
+          : "border-dashed border-[var(--teal)]/45",
+      )}
+      data-authority-posture={authorityPosture}
+      data-fixture-authority={authorityPresentation?.fixtureAuthority}
+      data-decision-grade-presentation={decisionGrade.classification}
+      data-testid={`decision-card-${fixtureOnly ? "fixture" : governed ? "governed" : "candidate"}`}
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           {eyebrow ? <div className="mb-1">{eyebrow}</div> : null}
@@ -51,10 +86,21 @@ export function DecisionCard({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {sigil ? <div className="mr-1 shrink-0">{sigil}</div> : null}
-          <Badge kind={verdictKind}>{verdict}</Badge>
-          {confidence ? (
-            <Badge kind={confidenceKind}>{confidence}</Badge>
-          ) : null}
+          {authorityPurpose ? (
+            <EnvelopeChip authorityPurpose={authorityPurpose} />
+          ) : (
+            <Badge kind="outline">
+              {t("pages.artifacts.metricValidation.columns.candidate")}
+            </Badge>
+          )}
+          <Badge
+            data-decision-grade-presentation={decisionGrade.classification}
+            data-owner-decision-grade={decisionGrade.ownerLabel ?? undefined}
+            kind="outline"
+          >
+            {decisionGrade.ownerLabel ?? "unknown"}
+          </Badge>
+          {confidence ? <Badge kind="outline">{confidence}</Badge> : null}
         </div>
       </div>
 
@@ -69,7 +115,8 @@ export function DecisionCard({
           {diagnostics.map((diagnostic) => (
             <Badge
               key={`${diagnostic.kind ?? "neutral"}-${diagnostic.label}`}
-              kind={diagnostic.kind ?? "neutral"}
+              data-owner-diagnostic-kind={diagnostic.kind ?? undefined}
+              kind="outline"
             >
               {diagnostic.label}
             </Badge>

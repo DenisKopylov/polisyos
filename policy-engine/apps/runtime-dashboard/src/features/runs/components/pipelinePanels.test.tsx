@@ -160,7 +160,7 @@ describe("pipeline surfaces", () => {
               totalTokens: 174,
             },
           ],
-          verdict: "APPROVE",
+          verdict: "future-owner-grade",
         },
       ],
       evaluator: {
@@ -172,7 +172,7 @@ describe("pipeline surfaces", () => {
           kpiScore: 0.88,
           totalScore: 0.9,
         },
-        verdict: "APPROVE",
+        verdict: "future-owner-grade",
       },
       hasPromptData: true,
       iterationLifecycle: {
@@ -180,7 +180,7 @@ describe("pipeline surfaces", () => {
         state: "running",
         stopReason: "budget_cap",
       },
-      latestVerdict: "APPROVE",
+      latestVerdict: "future-owner-grade",
       notes: ["Fallback lane engaged"],
       performanceSummary: {
         llmLatencyMs: 125_000,
@@ -259,6 +259,20 @@ describe("pipeline surfaces", () => {
     expect(screen.getByText("Promotion lane fallback")).toBeInTheDocument();
     expect(screen.getByText("Draft plan")).toBeInTheDocument();
     expect(screen.getByText(/Grounded in evidence/)).toBeInTheDocument();
+    const ownerStatuses = screen.getAllByText("ok");
+    expect(ownerStatuses).toHaveLength(2);
+    for (const ownerStatus of ownerStatuses) {
+      expect(ownerStatus).toHaveAttribute("data-kind", "neutral");
+      expect(ownerStatus).toHaveAttribute("data-owner-status", "ok");
+    }
+    const ownerGrades = screen.getAllByText("future-owner-grade");
+    expect(ownerGrades).toHaveLength(3);
+    for (const ownerGrade of ownerGrades) {
+      expect(ownerGrade).toHaveAttribute(
+        "data-decision-grade-presentation",
+        "unrecognized",
+      );
+    }
 
     await user.click(screen.getByRole("button", { name: /Draft plan/ }));
 

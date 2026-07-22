@@ -37,9 +37,7 @@ describe("compound widgets", () => {
         title="Decision"
         subtitle="Policy recommendation"
         verdict="Approved"
-        verdictKind="ok"
         confidence="0.91"
-        confidenceKind="info"
         summary="Summary block"
         diagnostics={[
           { kind: "warn", label: "Needs monitoring" },
@@ -96,13 +94,12 @@ describe("compound widgets", () => {
     );
 
     expect(screen.getByText("Input bundle")).toBeInTheDocument();
-    expect(screen.getByText("artifact-1")).toBeInTheDocument();
+    expect(screen.getAllByText("artifact-1")).toHaveLength(2);
     expect(screen.getByText("primary source")).toBeInTheDocument();
     expect(screen.getByText("trusted")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open" })).toHaveAttribute(
-      "href",
-      "/artifacts/artifact-1",
-    );
+    expect(
+      screen.getByRole("link", { name: /Open evidence artifact-1/ }),
+    ).toHaveAttribute("href", "/artifacts/artifact-1");
   });
 
   it("renders StatusTimeline in regular and virtualized modes", () => {
@@ -126,7 +123,7 @@ describe("compound widgets", () => {
             title: "Started",
             body: "Execution entered the queue.",
             timestamp: "2026-03-10T10:00:00Z",
-            tone: "info",
+            recordedState: "queued",
             meta: <span>queued</span>,
           },
         ]}
@@ -137,7 +134,7 @@ describe("compound widgets", () => {
     expect(
       screen.getByText("Execution entered the queue."),
     ).toBeInTheDocument();
-    expect(screen.getByText("queued")).toBeInTheDocument();
+    expect(screen.getAllByText("queued")).toHaveLength(2);
     expect(screen.getByText("2026-03-10T10:00:00Z")).toBeInTheDocument();
 
     rerender(
@@ -147,7 +144,7 @@ describe("compound widgets", () => {
         items={Array.from({ length: 31 }, (_, index) => ({
           id: `status-${index}`,
           title: `Event ${index}`,
-          tone: index % 2 === 0 ? "ok" : "warn",
+          recordedState: index % 2 === 0 ? "completed" : "warning",
         }))}
       />,
     );

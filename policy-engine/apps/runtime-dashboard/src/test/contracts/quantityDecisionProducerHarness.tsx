@@ -174,11 +174,6 @@ function publicationPacket(confidence: DecisionCardViewModel["confidence"]) {
   });
 }
 
-function lowConfidenceScore(packet: SignedPublicDecisionPacket) {
-  return packet.confidenceLadder.find((item) => item.rung === "low_confidence")
-    ?.score;
-}
-
 function publicationFallbackQuantity(packet: SignedPublicDecisionPacket) {
   return (packet.deterministicExplanations[0] as UnknownRecord | undefined)
     ?.quantity;
@@ -318,28 +313,6 @@ export const quantityDecisionProducerProbes: QuantityProducerProbe[] = [
     ),
   },
   {
-    column: 52,
-    expectedMetricId: "public.confidence_ladder.low_confidence.score",
-    expectedPoint: 0.2,
-    line: 788,
-    path: publicationPath,
-    read: () => lowConfidenceScore(publicationPacket("LOW")),
-    renderConsumer: () => (
-      <PublicationPacketPanel packet={publicationPacket("LOW")} />
-    ),
-  },
-  {
-    column: 58,
-    expectedMetricId: "public.confidence_ladder.low_confidence.score",
-    expectedPoint: 0.7,
-    line: 788,
-    path: publicationPath,
-    read: () => lowConfidenceScore(publicationPacket("HIGH")),
-    renderConsumer: () => (
-      <PublicationPacketPanel packet={publicationPacket("HIGH")} />
-    ),
-  },
-  {
     column: 18,
     expectedMetricId: "public.decision_metric.fallback",
     expectedPoint: null,
@@ -358,6 +331,8 @@ export const removedAuthorityGuessIdentities = [
   { column: 15, line: 190, path: summaryPath },
   { column: 17, line: 192, path: summaryPath },
   { column: 17, line: 193, path: summaryPath },
+  { column: 52, line: 788, path: publicationPath },
+  { column: 58, line: 788, path: publicationPath },
 ] as const;
 
 export function renderRepresentativeProducerConsumers(): ReactElement[] {

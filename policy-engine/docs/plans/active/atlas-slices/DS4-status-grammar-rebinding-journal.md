@@ -1320,3 +1320,157 @@ work.
 - Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
   frozen Russian locale, master plan, main, and other worktrees remain
   untouched. The generated client was consumed read-only.
+
+## 2026-07-22 — DS4-C14 compound evidence and deferred DS16 values (uncommitted; stop at C13)
+
+### Red-first and authority boundary
+
+- The six planned compound negatives landed before the positive rebind. They
+  prove candidate/authority clothing remains distinct, candidate prose cannot
+  acquire a generated purpose, producer blockers and weakest links cannot be
+  overridden or recomputed locally, mixed governance outcomes remain
+  set-valued, and recorded status events do not mint a DecisionTimeline.
+- One neutral decision-grade presentation module is the only current swap
+  point for the DS5-owned missing union. Novel owner labels render an explicit
+  `unrecognized` classification with their opaque value intact. Runtime exports
+  contain no vocabulary constants, and an AST-backed negative rejects sibling
+  comparisons, switches, maps, sets, string classifiers, aliases, and
+  helper-hidden classifiers.
+- `RunExplainabilityPanel` no longer calculates evidence coverage, benchmark
+  scores, a synthesized conclusion, provenance authority, or a verdict
+  classifier. It renders producer evidence, projection blockers, and diagnostic
+  provenance through the rebound family. Weakest-boundary and governed
+  projection-freshness bindings remain explicitly scheduled for the C19 real
+  endpoint proof. Specific publication, comparison, operator, readiness, and
+  overview classifiers exposed by review were removed. Independent review then
+  proved that the broader readiness composition is neither registered nor
+  authorized as C18 work; it is part of the clean-boundary stop below.
+- The baseline lifecycle checker now executes the authored C07 chart scalar
+  helpers against null, scalar, set-valued, and non-finite inputs. A
+  marker-preserving `return null` mutation fails even if its stored source hash
+  is fraudulently refreshed, closing the P29 authorial-proof gap.
+
+### Implementation and disposition
+
+- The 11 living compounds are rebound in place: `DataFreshnessBadge`,
+  `DecisionCard`, `EvidenceChain`, `ExplainabilityCard`,
+  `GovernancePassGrid`, `MethodologyBadge`, `NegativeCertificateCard`,
+  `ProvenanceChain`, `ReasoningChainDisplay`, `StatusTimeline`, and
+  `TrustCalibrationDisplay`. `AttributionWaterfall`,
+  `EvidenceCoverageRadar`, `FactorImportanceChart`, and `SensitivityPlot`
+  remain `use_as_is` pending DS16.
+- `CandidateFrame`, `BlockerCard`, and `WeakestLinkExplainer` extend the same
+  dashboard compound owner. `DecisionCard` fixture authority is explicit,
+  visually marked, and unavailable to production authority slots through the
+  atlas-ui public-surface accessor. The dormant zero-consumer
+  `ActiveAlertsStrip` is removed instead of retained speculatively.
+- The `ui-compounds` register row is strangled with successor and live-consumer
+  evidence; `ui-compounds-root` remains pending for C15 as planned. The report
+  projection, reference censuses, source-byte proofs, and corruption probes
+  match the register.
+- The immutable DS1 denominator remains 47. The live scanner now also routes
+  authority-like confidence, severity, risk, trust, tone, intent, profile,
+  level, badge-kind, and function/method return unions into the semantic census
+  rather than silently ignoring them. It records 55 semantic exemptions and 19
+  live retirement-debt identities; assigning those identities to C18 conflicts
+  with C18's approved architecture-only scope. Three absent waist vocabularies
+  remain typed DS5 debt.
+- Two former C06 publication confidence literals are honestly reclassified
+  from `quantity_enveloped` to `authority_guess_removed`; the immutable origin
+  and exact 75-item partition remain content-bound, while active quantity lint
+  stays at zero. A review-discovered frontend threshold policy and synthetic
+  cohort decisions were also removed: the surface now renders explicit
+  unavailable values until a producer threshold contract exists.
+
+### Provisional verification receipt (superseded by the stop audit)
+
+| Gate                                      | Result                                                                                                                                                                                   |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| affected behavior and authority negatives | PASS; 41 dashboard files / 191 tests, including compound a11y, real consumers, neutral-grade adversaries, and producer-value preservation                                                |
+| dashboard typecheck and production build  | PASS; TypeScript, 3,883 transformed modules, PWA/service-worker build, postbuild security, and atlas-ui Tailwind-source proof                                                            |
+| lint and quantity debt                     | PASS; scoped ESLint zero warnings/errors and full quantity rule at terminal `0 / 0`; immutable 75-item lifecycle partition remains exact                                                |
+| architecture                               | PASS; exact baseline lifecycle partition remains `1 / 1`, the C18-owned `app/workspaces.ts -> features/runs/api/useRunsSample` edge only                                                |
+| status retirement                          | BLOCKED BY SCOPE; checker green at 47 DS1 rows, 21 current authored definitions, 55 semantic exemptions, 19 live retirement debts, and 3 DS5 waist debts, but the 19 are not authorized C18 work |
+| atlas-ui package                           | PASS; typecheck, 14 files / 72 tests, lint, architecture, one-owner and public-surface gates                                                                                            |
+| register and baseline governance           | PASS; all three Python lifecycle suites, baseline live-byte validation, register/report parity, both corruption suites, and the executable chart-semantics probe                        |
+
+### Fence receipt
+
+- C14 changes are confined to dashboard compounds and their live consumers,
+  the atlas-ui public-surface guard, owned Atlas-surface artifacts, the DS19
+  report projection, and this journal. The lockfile and dependency manifests
+  are unchanged.
+- Backend `src/**`, schemas, `packages/runtime-api-client/**`, v15 archive,
+  frozen Russian locale, master plan, main, and other worktrees remain
+  untouched. The generated client was consumed read-only.
+
+### Independent close-boundary audit — STOP
+
+- The last committed clean boundary remains C13 at `f444ba719`. C14 is kept as
+  an uncommitted working tree and is not represented as a completed cluster or
+  scoped commit.
+- The red-first scanner repair now detects semantic function and method return
+  unions. It retired the local `AgentPipelinePanel.stepStatusKind` classifier
+  and keeps producer status labels opaque in neutral clothing. The stronger
+  census is green, including its corruption probes, but exposes 19 live
+  retirement debts rather than the earlier incomplete count of 15.
+- The approved plan says C18 closes only the measured architecture remainder.
+  Reassigning a newly discovered semantic wave to C18 would silently expand
+  that cluster and violate the sizing and monotone-debt laws. Independent
+  triage of the original 15 rows found three genuine presentation taxonomies,
+  ten bounded mechanical retirements, and two structural repairs
+  (`RunBadgeKind` lifecycle guessing and `GlyphIntent`/provenance inference).
+  Four additional function-return vocabularies remain in the widened census.
+- Two behavioral classes sit beyond those type definitions:
+  `PublicSectorReadiness` still composes readiness from local thresholds,
+  regexes, dwell state, and disputes; `ScientificDepth` binds generated
+  identifiability correctly but invents remedies, acquisition refs, E-values,
+  claim extinction, cohort timelines, and stress rankings. Wrapping these
+  values as interaction state does not close the authority boundary.
+- Architect re-cut is required before C14 can be committed: authorize a
+  semantic retirement wave for the 19 definitions and explicitly place the
+  run-lifecycle/glyph/readiness/scientific repairs. C15-C20 do not start while
+  that ownership is unresolved.
+
+### Architect resolution — re-cut authorized, C14 unblocked (2026-07-20)
+
+The stop is upheld as correct and is now resolved. The 15 -> 19 widening is
+accepted as a **measurement correction**, not scope growth: the previous census
+was name-shaped (`*Status` convention, the `P32` trust-by-form pattern) and the
+behavioral scanner is the honest instrument. Preserving the old count would have
+been a false green, so the hardened scanner is retained.
+
+Authorized placement (plan commit `7486eaa08`, section `DS4-C21-C23`):
+
+- **C21** — 3 presentation taxonomies + 10 bounded mechanical retirements;
+  target 19 -> 6.
+- **C22** — `RunBadgeKind` lifecycle guessing, `GlyphIntent`/provenance
+  inference, and the 4 function-return vocabularies; target 6 -> 0.
+- **C23** — `PublicSectorReadiness` / `ScientificDepth` **containment only**:
+  strip every synthesized value, render `unavailable`/opaque, and register the
+  producer-binding work as a **DS16-owned** debt. Building that producer
+  contract is explicitly out of DS4 scope — it is value/uncertainty semantics,
+  not status grammar.
+
+Execution order is C01-C18, then C21-C23, then C19-C20, so the visual/a11y and
+closure waves prove the final state.
+
+**C14 is therefore unblocked and committed as its planned scope.** The 19 live
+retirement debts remain recorded in the status inventory as an explicit,
+non-suppressed remainder with named owners (C21/C22/C23) — the same honest-
+remainder discipline the plan already applies to the architecture manifest. No
+checker was suppressed and no denominator was weakened to allow this commit; the
+`BLOCKED BY SCOPE` row above referred to placement authority, never to a failing
+C14 gate.
+
+**Sizing finding carried forward.** C14 measured 15 components / 86 files /
++5155-3228 — approximately four clusters in one, which is the structural reason a
+new debt class surfaced mid-flight. C15-C17 are to be measured against this cap
+before dispatch and pre-split if comparable.
+
+Stop receipts: dashboard typecheck green; focused final authority review 7
+files / 43 tests green; function-return/status repair 23 Python tests and 6
+pipeline tests green; scoped lint green; disposition lifecycle and status
+inventory checkers plus corruption probes green; `git diff --check` green; no
+fence or lockfile movement. The earlier production build and broad C14 run are
+useful provisional evidence, not closure receipts after the final audit edits.

@@ -70,6 +70,7 @@ const EXPECTED_RUNTIME_EXPORTS = [
   "contrastModeDescriptors",
   "createFixtureProvenance",
   "createGovernedAuthorityPurpose",
+  "governedAuthorityPurposePresentation",
   "createOpaqueAuthorityPresentation",
   "createOperatorBlockingCausePresentation",
   "createOperatorProjectionPresentation",

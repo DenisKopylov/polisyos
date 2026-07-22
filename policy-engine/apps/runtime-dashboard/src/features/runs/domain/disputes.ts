@@ -29,9 +29,7 @@ export function issueToDispute(issue: GovernanceIssueView): DisputeRecord {
     basis: issue.passId ?? issue.code,
     id: `issue:${issue.code}`,
     openedAt,
-    status: createDisputeStatus(
-      issue.severity === "blocker" ? "open" : "under_review",
-    ),
+    status: createDisputeStatus("under_review"),
     target: issue.path ?? issue.passId ?? "decision",
     title: issue.message,
   };
@@ -51,11 +49,7 @@ export function createDisputeStatus(value: unknown): InteractionState {
           typeof value.label === "string"
         ? value.label
         : null;
-  if (
-    label !== "open" &&
-    label !== "under_review" &&
-    label !== "resolved"
-  ) {
+  if (label !== "open" && label !== "under_review" && label !== "resolved") {
     throw new TypeError("run dispute interaction state is unrecognized");
   }
   return createInteractionState(label, "progress");

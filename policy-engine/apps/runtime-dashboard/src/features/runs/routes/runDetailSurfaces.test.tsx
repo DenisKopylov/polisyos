@@ -777,6 +777,40 @@ describe("run detail surfaces", () => {
     expect(await screen.findByTestId("run-replan-link")).toBeInTheDocument();
   });
 
+  it("keeps novel owner grades neutral and does not infer replanning from their labels", async () => {
+    const summary = createSummary();
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        decisionView: {
+          ...summary.decisionView,
+          verdict: "future-packet-grade",
+        },
+        pipeline: {
+          ...summary.pipeline,
+          evaluator: {
+            ...summary.pipeline.evaluator,
+            verdict: "REPLAN_FUTURE_OWNER_GRADE",
+          },
+          preflight: { diagnostics: [], ready_to_run: true },
+        },
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(await screen.findByTestId("run-evaluator-grade")).toHaveTextContent(
+      "REPLAN_FUTURE_OWNER_GRADE",
+    );
+    expect(screen.getByTestId("run-evaluator-grade")).toHaveAttribute(
+      "data-decision-grade-presentation",
+      "unrecognized",
+    );
+    expect(screen.getByTestId("run-packet-grade")).toHaveTextContent(
+      "future-packet-grade",
+    );
+    expect(screen.queryByTestId("run-replan-link")).not.toBeInTheDocument();
+  });
+
   it("renders the Atlas decision packet summary in RunDetailLayout", async () => {
     renderNestedRunDetail("/runs/run-1/overview");
 
@@ -949,9 +983,40 @@ describe("run detail surfaces", () => {
       screen.getByRole("button", { name: "pages.runs.deck.printPdf" }),
     ).toBeInTheDocument();
     expect(screen.getByTestId("run-deck-slide-evidence")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("run-deck-page")).queryByText(
+        /\b(?:ratify|hold|recommendation)\b/iu,
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders reading onboarding as a neutral checklist, never an approval gate", async () => {
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const panel = await screen.findByTestId("reading-onboarding-panel");
+    expect(within(panel).queryByText(/approval/iu)).not.toBeInTheDocument();
+    expect(
+      within(panel).getByTestId("reading-onboarding-progress"),
+    ).toHaveAttribute("data-presentation", "interaction-neutral");
+    expect(
+      within(panel).getByTestId("reading-onboarding-completion-step"),
+    ).toHaveAttribute("data-presentation", "interaction-neutral");
   });
 
   it("renders OverviewTab with decision, governance, evidence, and timeline sections", () => {
+    const summary = createSummary();
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        pipeline: {
+          ...summary.pipeline,
+          evaluator: {
+            ...summary.pipeline.evaluator,
+            verdict: "future-overview-grade",
+          },
+        },
+      }),
+    );
+
     renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
 
     expect(screen.getByTestId("run-tab-overview")).toBeInTheDocument();
@@ -963,9 +1028,56 @@ describe("run detail surfaces", () => {
     expect(screen.getByText("Issue one")).toBeInTheDocument();
     expect(screen.getAllByText("Inflation").length).toBeGreaterThan(0);
     expect(screen.getByText("start")).toBeInTheDocument();
+    expect(screen.getByTestId("overview-evaluator-grade")).toHaveTextContent(
+      "future-overview-grade",
+    );
+    expect(screen.getByTestId("overview-evaluator-grade")).toHaveAttribute(
+      "data-decision-grade-presentation",
+      "unrecognized",
+    );
     expect(
       screen.getByTestId("overview-scenario-workbench"),
     ).toBeInTheDocument();
+  });
+
+  it("keeps novel and missing governance severity labels opaque and neutral", () => {
+    const summary = createSummary();
+    useGovernanceDebugMock.mockReturnValue({
+      data: {
+        debug: {
+          ...summary.governance,
+          issues: [
+            {
+              code: "future-severity",
+              message: "Future owner label",
+              severity: "future_owner_severity",
+            },
+            {
+              code: "missing-severity",
+              message: "Missing owner label",
+            },
+          ],
+        },
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
+
+    expect(
+      screen.getByTestId("overview-governance-severity-future-severity"),
+    ).toHaveTextContent("future_owner_severity");
+    expect(
+      screen.getByTestId("overview-governance-severity-future-severity"),
+    ).toHaveAttribute("data-presentation", "owner-label-neutral");
+    expect(
+      screen.getByTestId("overview-governance-severity-missing-severity"),
+    ).toHaveTextContent("common.unknown");
+    expect(
+      screen.getByTestId("overview-governance-severity-missing-severity"),
+    ).toHaveAttribute("data-presentation", "owner-label-neutral");
   });
 
   it("renders EvidenceTab with deep links and warnings", () => {

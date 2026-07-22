@@ -313,13 +313,7 @@ export default function EvidenceFabric() {
                 })}
               </Badge>
             ) : null}
-            <DataFreshnessBadge
-              generatedAt={
-                runId
-                  ? runContextQuery.data?.meta?.generated_at
-                  : promotionCandidatesQuery.data?.meta?.generated_at
-              }
-            />
+            <DataFreshnessBadge />
             {enabledFeatures.slice(0, 2).map((feature) => (
               <Badge key={feature.key} kind="neutral">
                 {feature.label}

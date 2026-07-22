@@ -38,7 +38,7 @@ describe("run comparison helpers", () => {
     );
   });
 
-  it("orders audit entries by timestamp and severity source", () => {
+  it("orders audit entries while keeping local presentation out of recorded state", () => {
     const entries = buildAuditTrail({
       governanceIssues: [
         {
@@ -72,11 +72,22 @@ describe("run comparison helpers", () => {
     });
 
     expect(entries[0]).toEqual(
-      expect.objectContaining({ source: "runtime", severity: "fail" }),
+      expect.objectContaining({
+        ownerLabel: "err-1",
+        recordedState: null,
+        source: "runtime",
+      }),
+    );
+    expect(entries.find((entry) => entry.source === "timeline")).toEqual(
+      expect.objectContaining({ recordedState: "started" }),
     );
     expect(entries[1]).toEqual(expect.objectContaining({ source: "timeline" }));
     expect(entries[2]).toEqual(
-      expect.objectContaining({ source: "governance", severity: "fail" }),
+      expect.objectContaining({
+        ownerLabel: "blocker",
+        recordedState: null,
+        source: "governance",
+      }),
     );
   });
 
@@ -160,5 +171,87 @@ describe("run comparison helpers", () => {
     expect(
       unknownDeck.metrics.cards.find((card) => card.label === "Decision score"),
     ).toMatchObject({ tone: "neutral" });
+  });
+
+  it("keeps owner decision and impact labels opaque without minting a deck recommendation", () => {
+    const summary = {
+      artifactRefs: [],
+      blockerCount: 0,
+      decisionHeadline: "Owner-authored headline",
+      decisionScore: score(0.93),
+      decisionView: {
+        confidence: "future_confidence_label",
+        generatedAt: "2026-03-09T10:00:00Z",
+        verdict: "future_verdict_label",
+      },
+      evidenceContext: { fetchPlans: [], promotionCandidates: [] },
+      governanceIssues: [],
+      impactRows: [
+        { display: "+2.4 owner units", label: "Owner impact", value: 2.4 },
+      ],
+      pipeline: { evaluator: { verdict: null } },
+      run: {
+        run_id: "run-owner-labels",
+        source_kind: "core_run",
+        status: "future_terminal_label",
+      },
+      transportStatus: "future_transport_label",
+    } as never;
+
+    const report = buildRunReportSnapshot(summary, []);
+    const deck = buildRunDeckSnapshot(summary, report);
+
+    expect(report.impactOwnerLabels).toEqual([
+      {
+        label: "Owner impact",
+        ownerLabel: "+2.4 owner units",
+      },
+    ]);
+    expect(report.impactRows).toEqual([]);
+    expect(deck.verdict).toMatchObject({
+      confidence: "future_confidence_label",
+      status: "future_terminal_label",
+      verdict: "future_verdict_label",
+    });
+    expect(
+      deck.metrics.cards.find((card) => card.label === "Impact delta"),
+    ).toMatchObject({
+      kind: "text",
+      tone: "neutral",
+      value: "+2.4 owner units",
+    });
+    expect(deck.metrics.cards.every((card) => card.tone === "neutral")).toBe(
+      true,
+    );
+    expect(
+      JSON.stringify({ close: deck.close, tradeoff: deck.tradeoff }),
+    ).not.toMatch(/\b(?:ratify|hold|recommendation)\b/iu);
+  });
+
+  it("does not promote a run terminal status into a decision verdict", () => {
+    const summary = {
+      artifactRefs: [],
+      blockerCount: 0,
+      decisionHeadline: "Unknown owner decision",
+      decisionScore: score(null),
+      decisionView: null,
+      evidenceContext: { fetchPlans: [], promotionCandidates: [] },
+      governanceIssues: [],
+      impactRows: [],
+      pipeline: { evaluator: { verdict: null } },
+      run: {
+        run_id: "run-status-only",
+        source_kind: "core_run",
+        status: "completed",
+      },
+      transportStatus: "live",
+    } as never;
+
+    const report = buildRunReportSnapshot(summary, []);
+
+    expect(report.primaryVerdict).toBeNull();
+    expect(buildRunDeckSnapshot(summary, report).verdict.verdict).toBe(
+      "Unknown",
+    );
   });
 });

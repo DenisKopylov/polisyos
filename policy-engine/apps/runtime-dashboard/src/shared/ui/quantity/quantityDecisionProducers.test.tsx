@@ -119,7 +119,7 @@ function expectDecisionQuantity(
 describe("quantity decision producers", () => {
   it("emits and consumes every manifest-owned decision-bearing value as QuantityValue", () => {
     const diagnostics = c06OriginalDiagnostics();
-    expect(diagnostics).toHaveLength(12);
+    expect(diagnostics).toHaveLength(quantityDecisionProducerProbes.length);
     expect(quantityDecisionProducerProbes.map(identityKey).sort()).toEqual(
       diagnostics.map(identityKey).sort(),
     );
@@ -153,7 +153,7 @@ describe("quantity decision producers", () => {
 
   it("content-binds every removed authority guess to the manifest", () => {
     const diagnostics = c06RemovedAuthorityGuesses();
-    expect(diagnostics).toHaveLength(5);
+    expect(diagnostics).toHaveLength(removedAuthorityGuessIdentities.length);
     expect(removedAuthorityGuessIdentities.map(identityKey).sort()).toEqual(
       diagnostics.map(identityKey).sort(),
     );

@@ -6,16 +6,10 @@ import {
   toDisplayLabel,
 } from "../parsing";
 
-export type GovernanceIssueSeverity =
-  | "blocker"
-  | "warning"
-  | "info"
-  | "unknown";
-
 export type GovernanceIssueView = {
   code: string;
   message: string;
-  severity: GovernanceIssueSeverity;
+  severity: string | null;
   passId: string | null;
   path: string | null;
   durationMs: number | null;
@@ -23,29 +17,10 @@ export type GovernanceIssueView = {
 };
 
 export type GovernanceSummary = {
-  blocker: number;
-  warning: number;
-  info: number;
-  unknown: number;
+  byOwnerLabel: Record<string, number>;
+  total: number;
+  unlabeled: number;
 };
-
-function normalizeSeverity(value: string | null): GovernanceIssueSeverity {
-  const normalized = (value ?? "").trim().toLowerCase();
-  if (
-    normalized === "blocker" ||
-    normalized === "error" ||
-    normalized === "fail"
-  ) {
-    return "blocker";
-  }
-  if (normalized === "warning" || normalized === "warn") {
-    return "warning";
-  }
-  if (normalized === "info" || normalized === "notice") {
-    return "info";
-  }
-  return "unknown";
-}
 
 function readPath(issue: Record<string, unknown>): string | null {
   const directPath = asString(issue.path);
@@ -84,11 +59,10 @@ export function normalizeGovernanceIssues(
         asString(issue.msg) ??
         asString(issue.description) ??
         toDisplayLabel(code);
-      const severity = normalizeSeverity(
+      const severity =
         asString(issue.severity) ??
-          asString(issue.level) ??
-          asString(issue.type),
-      );
+        asString(issue.level) ??
+        asString(issue.type);
 
       const passId =
         asString(issue.pass_id) ??
@@ -112,16 +86,14 @@ export function normalizeGovernanceIssues(
 export function summarizeGovernanceIssues(
   issues: GovernanceIssueView[],
 ): GovernanceSummary {
-  return issues.reduce<GovernanceSummary>(
-    (acc, issue) => {
-      acc[issue.severity] += 1;
-      return acc;
-    },
-    {
-      blocker: 0,
-      warning: 0,
-      info: 0,
-      unknown: 0,
-    },
-  );
+  const byOwnerLabel: Record<string, number> = {};
+  let unlabeled = 0;
+  for (const issue of issues) {
+    if (issue.severity === null) {
+      unlabeled += 1;
+      continue;
+    }
+    byOwnerLabel[issue.severity] = (byOwnerLabel[issue.severity] ?? 0) + 1;
+  }
+  return { byOwnerLabel, total: issues.length, unlabeled };
 }

@@ -2,7 +2,7 @@
   "$schema": "./frontend-disposition-register.schema.json",
   "schema_version": "1.0",
   "register_id": "atlas-ds19-frontend-disposition",
-  "as_of": "2026-07-17T12:16:00+03:00",
+  "as_of": "2026-07-22T09:57:07+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
   "authority": {
     "authoritative_for": [
@@ -133,34 +133,36 @@
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e"
           ],
-      "expected_count": 26,
+          "expected_count": 28,
           "observed_refs": [
             "apps/runtime-dashboard/e2e/journeys/trust-framing-negative-traces.spec.ts:182",
             "apps/runtime-dashboard/src/app/routes/routes.test.tsx:167",
             "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx:42",
-        "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:81",
-            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:169",
-            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:198",
+            "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx:85",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:122",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:141",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:157",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:197",
+            "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx:240",
             "apps/runtime-dashboard/src/features/runs/components/PublicationReadinessPanel.tsx:17",
-        "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts:123",
-        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:234",
-        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:246",
-        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:251",
-        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:275",
-        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:314",
-        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:366",
-        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1496",
-        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1557",
+            "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts:123",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:445",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:459",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:477",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:506",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts:535",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1137",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1199",
             "apps/runtime-dashboard/src/features/runs/route.tsx:151",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:101",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:124",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:146",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:31",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:40",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:59",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:82",
-        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12",
-        "apps/runtime-dashboard/src/test/contracts/quantityDecisionProducerHarness.tsx:169"
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:109",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:128",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:138",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:160",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:71",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:80",
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx:99",
+            "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12",
+            "apps/runtime-dashboard/src/test/contracts/quantityDecisionProducerHarness.tsx:169"
           ]
         }
       ]
@@ -1517,12 +1519,21 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "dashboard-compound-evidence-generated-waist-rebind",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/shared/ui/compounds/index.ts",
+          "apps/runtime-dashboard/src/shared/ui/compounds/compoundAuthorityBindings.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.test.ts",
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
+      "decision_date": "2026-07-22",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C14 rebinds the 11 living compound evidence components to generated projection, freshness, blocker, lineage, quantity, and verification types or to the single neutral decision-grade presentation swap point. CandidateFrame, BlockerCard, and WeakestLinkExplainer extend the same dashboard owner; four deferred visualization compounds remain use-as-is pending DS16. The mechanically derived DS2 form-family evidence edges remain unchanged and do not transfer runtime ownership."
     },
     {
       "unit_id": "ui-counterfactual",

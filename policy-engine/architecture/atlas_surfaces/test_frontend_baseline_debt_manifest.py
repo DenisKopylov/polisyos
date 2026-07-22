@@ -186,6 +186,28 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
             errors,
         )
 
+    def test_c06_removed_authority_guess_requires_its_behavioral_negative(self) -> None:
+        mutation = copy.deepcopy(_manifest())
+        resolution = next(
+            row
+            for row in mutation["lint"]["resolutions"]
+            if row["cluster_id"] == "C06"
+            and row["classification"] == "authority_guess_removed"
+            and row["origin_identity"]["path"]
+            == "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+        )
+        resolution["closure_test_ref"] = (
+            "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+        )
+
+        errors = checker.validate_baseline_manifest(mutation)
+
+        self.assertIn(
+            "lint_c06_semantic_closure_drift:"
+            + resolution["origin_identity_sha256"],
+            errors,
+        )
+
     def test_c07_chart_resolution_classifications_are_exact_and_content_bound(self) -> None:
         manifest = _manifest()
         resolutions = [
@@ -448,9 +470,34 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         architecture = manifest["architecture"]
 
         self.assertEqual(architecture["immutable_origin"]["violation_count"], 36)
-        self.assertEqual(architecture["violation_count"], 6)
-        self.assertEqual(architecture["source_file_count"], 5)
-        self.assertEqual(len(architecture["resolutions"]), 30)
+        self.assertEqual(
+            architecture["violation_count"], len(architecture["violations"])
+        )
+        self.assertEqual(
+            architecture["source_file_count"],
+            len({row["source_path"] for row in architecture["violations"]}),
+        )
+        self.assertEqual(
+            len(architecture["resolutions"]) + architecture["violation_count"],
+            36,
+        )
+        self.assertEqual(
+            {
+                (
+                    row["source_path"],
+                    row["specifier"],
+                    row["rule_id"],
+                )
+                for row in architecture["violations"]
+            },
+            {
+                (
+                    "apps/runtime-dashboard/src/app/workspaces.ts",
+                    "@/features/runs/api/useRunsSample",
+                    "app-no-feature-internals",
+                )
+            },
+        )
         self.assertEqual(
             sum(
                 resolution["cluster_id"] == "C09"
@@ -559,7 +606,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         self.assertEqual(checker._baseline_corruption_probes(manifest), [])
 
-    def test_lifecycle_corruption_probes_exercise_marker_preserving_property_removal(
+    def test_lifecycle_corruption_probes_still_reject_marker_preserving_property_removal_when_the_hash_is_laundered(
         self,
     ) -> None:
         manifest = _manifest()
@@ -575,7 +622,7 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
 
         escaped = checker._baseline_corruption_probes(manifest)
 
-        self.assertIn(
+        self.assertNotIn(
             "lint-c07-scalar-property-removed-markers-retained",
             escaped,
         )

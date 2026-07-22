@@ -56,7 +56,10 @@ type OutlineEntry = {
   sectionType: DecisionPacketSectionType;
 };
 
-function formatEnum(value: string) {
+function formatEnum(value: string | null | undefined) {
+  if (!value) {
+    return "Unknown";
+  }
   return value
     .toLowerCase()
     .replace(/[_-]+/g, " ")
@@ -84,32 +87,19 @@ function isDefined<T>(value: T | null | undefined): value is T {
   return value !== null && value !== undefined;
 }
 
-function confidenceIntent(confidence: string) {
-  if (confidence === "HIGH") {
-    return "verified" as const;
-  }
-  if (confidence === "LOW") {
-    return "blocked" as const;
-  }
-  return "pending" as const;
-}
-
-function governanceItem(blockerCount: number) {
-  return blockerCount > 0
-    ? {
-        detail: `${blockerCount} governance blocker(s) still open.`,
-        glyph: "blocker" as const,
-        id: "governance",
-        intent: "blocked" as const,
-        label: pluralize(blockerCount, "blocker"),
-      }
-    : {
-        detail: "No governance blockers are currently recorded.",
-        glyph: "governance-pass" as const,
-        id: "governance",
-        intent: "verified" as const,
-        label: "Governance pass",
-      };
+function governanceItem(blockerCount: number | null) {
+  return {
+    detail:
+      blockerCount === null
+        ? "Owner blocker count is unavailable."
+        : `The owner records ${blockerCount} blocker(s).`,
+    glyph: "provenance" as const,
+    id: "governance",
+    label:
+      blockerCount === null
+        ? "Owner blocker count unavailable"
+        : pluralize(blockerCount, "owner-recorded blocker"),
+  };
 }
 
 function buildSectionProvenance(
@@ -127,13 +117,10 @@ function buildSectionProvenance(
       label: sectionLabelForType(sectionType),
     },
     {
-      detail: `Packet confidence resolves to ${formatEnum(packet.confidence)}.`,
+      detail: `Owner confidence label: ${packet.confidence ?? "Unknown"}.`,
       glyph: "evidence" as const,
       id: `${sectionType}-confidence`,
-      intent: confidenceIntent(packet.confidence),
-      label: `${formatEnum(packet.confidence)} confidence`,
-      strokeStyle:
-        packet.confidence === "MEDIUM" ? ("dashed" as const) : undefined,
+      label: `${packet.confidence ?? "Unknown"} confidence`,
     },
     governanceItem(packet.issues.blockerCount),
   ];
@@ -341,7 +328,7 @@ export function buildDecisionPacketDocument(
           },
           {
             anchorId: "policy_answer-p1",
-            body: `${formatEnum(packet.confidence)} confidence with ${pluralize(packet.issues.blockerCount, "blocker")} and ${pluralize(packet.issues.warningCount, "warning")}.`,
+            body: `${packet.confidence ?? "Unknown"} owner confidence; blocker and warning counts remain owner-recorded fields.`,
             id: "policy-answer-confidence",
             label: "Confidence",
           },
@@ -349,7 +336,7 @@ export function buildDecisionPacketDocument(
         paragraphs: normalizeParagraphs(
           record.narrative_blocks ?? record.blocks,
           [
-            `The packet currently resolves to ${formatEnum(packet.verdict)} across ${pluralize(packet.interventionCount, "intervention")} and a ${formatEnum(packet.confidence)} confidence posture.`,
+            `The packet carries owner decision grade ${packet.verdict || "Unknown"} across ${pluralize(packet.interventionCount, "intervention")} and owner confidence ${packet.confidence ?? "Unknown"}.`,
             needsExpertReview
               ? "Expert review is still explicitly required before this packet should be treated as publication-grade guidance."
               : "No explicit expert-review gate is attached to the current recommendation bundle.",
@@ -379,11 +366,11 @@ export function buildDecisionPacketDocument(
             term: "Interventions",
           },
           {
-            definition: formatEnum(packet.verdict),
+            definition: packet.verdict || "Unknown",
             term: "Verdict",
           },
           {
-            definition: formatEnum(packet.confidence),
+            definition: packet.confidence ?? "Unknown",
             term: "Confidence",
           },
         ],
@@ -656,9 +643,9 @@ export function buildDecisionPacketDocument(
           verifiedFindings.length > 0 ? "Verified findings" : undefined,
         id: "governance",
         lede:
-          packet.issues.blockerCount > 0
-            ? `Governance still reports ${pluralize(packet.issues.blockerCount, "blocker")} before this packet can be treated as clear-to-act.`
-            : "Governance currently clears without blockers in the previewed packet.",
+          packet.issues.blockerCount === null
+            ? "The owner blocker count is unavailable; this preview does not infer governance clearance."
+            : `The owner records ${pluralize(packet.issues.blockerCount, "blocker")}; this preview does not infer clear-to-act status.`,
         marginNotes: [
           {
             anchorId: "governance-lede",
@@ -843,7 +830,7 @@ export function buildDecisionPacketDocument(
     subtitle: [
       `Run ${packet.runId}`,
       packet.generatedAt ? formatDate(packet.generatedAt) : null,
-      `${formatEnum(packet.confidence)} confidence`,
+      `${packet.confidence ?? "Unknown"} confidence`,
     ]
       .filter(Boolean)
       .join(" · "),

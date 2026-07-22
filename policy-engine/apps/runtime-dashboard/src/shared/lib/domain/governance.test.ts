@@ -40,7 +40,7 @@ describe("governance domain", () => {
         passId: "transport",
         path: "payload.1.status",
         raw: expect.any(Object),
-        severity: "blocker",
+        severity: "error",
       },
       {
         code: "WARN_1",
@@ -49,7 +49,7 @@ describe("governance domain", () => {
         passId: "summary",
         path: "governance.summary",
         raw: expect.any(Object),
-        severity: "warning",
+        severity: "warn",
       },
       {
         code: "issue_3",
@@ -58,7 +58,7 @@ describe("governance domain", () => {
         passId: "review",
         path: null,
         raw: expect.any(Object),
-        severity: "info",
+        severity: "notice",
       },
       {
         code: "issue_4",
@@ -67,12 +67,12 @@ describe("governance domain", () => {
         passId: null,
         path: null,
         raw: expect.any(Object),
-        severity: "unknown",
+        severity: null,
       },
     ]);
   });
 
-  it("summarizes issue counts by severity", () => {
+  it("counts opaque owner labels without merging or guessing them", () => {
     const summary = summarizeGovernanceIssues(
       normalizeGovernanceIssues([
         { message: "Blocker", severity: "fail" },
@@ -83,10 +83,26 @@ describe("governance domain", () => {
     );
 
     expect(summary).toEqual({
-      blocker: 1,
-      info: 1,
-      unknown: 1,
-      warning: 1,
+      byOwnerLabel: {
+        fail: 1,
+        notice: 1,
+        warning: 1,
+      },
+      total: 4,
+      unlabeled: 1,
+    });
+  });
+
+  it("preserves novel severity labels as distinct owner extensions", () => {
+    const [issue] = normalizeGovernanceIssues([
+      { message: "Future owner label", severity: "future_owner_severity" },
+    ]);
+
+    expect(issue?.severity).toBe("future_owner_severity");
+    expect(summarizeGovernanceIssues(issue ? [issue] : [])).toEqual({
+      byOwnerLabel: { future_owner_severity: 1 },
+      total: 1,
+      unlabeled: 0,
     });
   });
 });

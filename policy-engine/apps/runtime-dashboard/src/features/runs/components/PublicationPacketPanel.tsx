@@ -10,52 +10,11 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-import type {
-  ArgumentMapNode,
-  ConfidenceLadderItem,
-  SignedPublicDecisionPacket,
-  TrustFramingScenario,
-} from "@/features/runs/domain/publicationPacket";
+import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
 import { Quantity } from "@/shared/ui/quantity";
 import { Badge, Button } from "@polisyos/atlas-ui";
-
-function nodeKind(node: ArgumentMapNode) {
-  if (node.status === "certified") {
-    return "ok";
-  }
-  if (node.status === "open") {
-    return "warn";
-  }
-  return "fail";
-}
-
-function ladderKind(item: ConfidenceLadderItem) {
-  const score = item.score.point;
-  if (typeof score !== "number") return "neutral";
-  if (score >= 0.7) {
-    return "ok";
-  }
-  if (score >= 0.4) {
-    return "warn";
-  }
-  return "fail";
-}
-
-function trustScenarioKind(scenario: TrustFramingScenario) {
-  if (scenario === "disputed" || scenario === "untraced") {
-    return "fail";
-  }
-  if (
-    scenario === "low_confidence" ||
-    scenario === "override_approved" ||
-    scenario === "stale"
-  ) {
-    return "warn";
-  }
-  return "neutral";
-}
 
 export function PublicationPacketPanel({
   packet,
@@ -78,8 +37,10 @@ export function PublicationPacketPanel({
         </div>
         <div className="flex flex-wrap items-center justify-end gap-2">
           <Badge
+            data-kind="neutral"
+            data-testid="frontend-integrity-signature-token"
             kind="neutral"
-            title={packet.trustFraming.closeoutAuthorityCaveat}
+            title={packet.trustFraming.integritySignatureNotice.authorityCaveat}
           >
             {packet.signature}
           </Badge>
@@ -87,19 +48,12 @@ export function PublicationPacketPanel({
             className="flex flex-wrap gap-2"
             data-testid="publication-projection-semantics"
           >
-            <Badge
-              kind={
-                packet.projectionSemantics.primaryState === "publishable"
-                  ? "ok"
-                  : packet.projectionSemantics.primaryState === "blocked"
-                    ? "fail"
-                    : "neutral"
-              }
-            >
-              {packet.projectionSemantics.primaryState}
+            <Badge kind="neutral">
+              {packet.projectionSemantics.primaryDisplayState.label}
             </Badge>
             <Badge kind="neutral">
-              {packet.projectionSemantics.authorityRole}
+              {packet.projectionSemantics.authorityRole ??
+                t("common.unavailable")}
             </Badge>
           </span>
           {!publicMode ? (
@@ -125,8 +79,8 @@ export function PublicationPacketPanel({
           </div>
           <div className="flex flex-wrap gap-2">
             <Badge kind="neutral">{packet.packetHash}</Badge>
-            <Badge kind={packet.decision.confidence === "HIGH" ? "ok" : "warn"}>
-              {packet.decision.confidence}
+            <Badge kind="neutral">
+              {packet.decision.confidence ?? t("common.unknown")}
             </Badge>
           </div>
         </div>
@@ -162,28 +116,26 @@ export function PublicationPacketPanel({
             </Badge>
           ))}
         </div>
-        <div className="mt-4 grid gap-2 md:grid-cols-2">
-          {packet.trustFraming.scenarioCaveats.map((caveat) => (
-            <article
-              key={caveat.scenario}
-              className="border-line bg-background/55 rounded-xl border p-3"
-              data-testid={`trust-framing-${caveat.scenario}`}
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-semibold">{caveat.label}</p>
-                <Badge kind={trustScenarioKind(caveat.scenario)}>
-                  {caveat.badge}
-                </Badge>
-              </div>
-              <p className="text-muted mt-1 text-sm">
-                {caveat.authorityCaveat}
-              </p>
-              <p className="text-muted mt-2 font-mono text-xs">
-                {caveat.signatureCue}
-              </p>
-            </article>
-          ))}
-        </div>
+        <article
+          className="border-line bg-background/55 mt-4 rounded-xl border p-3"
+          data-kind="neutral"
+          data-testid="frontend-integrity-signature-notice"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-semibold">
+              {packet.trustFraming.integritySignatureNotice.label}
+            </p>
+            <Badge data-kind="neutral" kind="neutral">
+              {packet.trustFraming.integritySignatureNotice.badge}
+            </Badge>
+          </div>
+          <p className="text-muted mt-1 text-sm">
+            {packet.trustFraming.integritySignatureNotice.authorityCaveat}
+          </p>
+          <p className="text-muted mt-2 font-mono text-xs">
+            {packet.trustFraming.integritySignatureNotice.signatureCue}
+          </p>
+        </article>
       </section>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
@@ -215,9 +167,7 @@ export function PublicationPacketPanel({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-semibold">{node.label}</p>
-                  <Badge kind={nodeKind(node)}>
-                    {t(`phase35.argument.status.${node.status}`)}
-                  </Badge>
+                  <Badge kind="neutral">{node.kind}</Badge>
                 </div>
                 <p className="text-muted mt-1 text-sm">{node.detail}</p>
                 <p className="text-muted mt-2 font-mono text-xs">
@@ -259,7 +209,8 @@ export function PublicationPacketPanel({
                   </span>
                 </div>
                 <p className="text-muted mt-2 font-mono text-xs">
-                  {t(`phase35.ladder.rung.${item.rung}`)} / {item.targetRef}
+                  {item.rung ? `${item.rung} / ` : ""}
+                  {item.targetRef}
                 </p>
               </article>
             ))}
@@ -356,9 +307,12 @@ export function PublicationPacketPanel({
               </h4>
             </div>
             <Badge
-              kind={packet.coverageCaveat.status === "clear" ? "ok" : "warn"}
+              data-interaction-state={packet.coverageCaveat.caveatState.label}
+              kind="neutral"
             >
-              {t(`phase35.coverage.status.${packet.coverageCaveat.status}`)}
+              {t(
+                `phase35.coverage.status.${packet.coverageCaveat.caveatState.label}`,
+              )}
             </Badge>
           </div>
           <p className="text-muted mt-2 text-sm">
@@ -373,13 +327,8 @@ export function PublicationPacketPanel({
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="font-semibold">{region.label}</p>
                   <Badge
-                    kind={
-                      region.status === "high"
-                        ? "ok"
-                        : region.status === "medium"
-                          ? "warn"
-                          : "fail"
-                    }
+                    data-interaction-state={region.displayState.label}
+                    kind="neutral"
                   >
                     {formatNumber(region.density, {
                       maximumFractionDigits: 2,
@@ -404,67 +353,18 @@ export function PublicationPacketPanel({
                 {t("phase35.threshold.title")}
               </h4>
             </div>
-            <Badge kind="neutral">
-              {formatNumber(packet.thresholdContract.threshold, {
-                maximumFractionDigits: 2,
-              })}
+            <Badge data-kind="neutral" kind="neutral">
+              {t("common.unknown")}
             </Badge>
           </div>
           <p className="text-muted mt-2 text-sm">
             {packet.thresholdContract.calibrationCaveat}
           </p>
-          {packet.thresholdContract.nearLineCount === null ||
-          packet.thresholdContract.aboveCount === null ||
-          packet.thresholdContract.belowCount === null ? (
-            <div
-              className="compact-metric mt-4"
-              data-testid="threshold-evaluation-unavailable"
-            >
-              <span>{t("common.unknown")}</span>
-            </div>
-          ) : (
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
-              <div
-                className="compact-metric"
-                data-testid="threshold-near-count"
-              >
-                <span>{t("phase35.threshold.near")}</span>
-                <strong>
-                  {formatNumber(packet.thresholdContract.nearLineCount)}
-                </strong>
-              </div>
-              <div
-                className="compact-metric"
-                data-testid="threshold-above-count"
-              >
-                <span>{t("phase35.threshold.above")}</span>
-                <strong>
-                  {formatNumber(packet.thresholdContract.aboveCount)}
-                </strong>
-              </div>
-              <div
-                className="compact-metric"
-                data-testid="threshold-below-count"
-              >
-                <span>{t("phase35.threshold.below")}</span>
-                <strong>
-                  {formatNumber(packet.thresholdContract.belowCount)}
-                </strong>
-              </div>
-            </div>
-          )}
-          <div className="mt-3 space-y-2">
-            {packet.thresholdContract.edgeCases.map((edge) => (
-              <div
-                key={edge.id}
-                className="border-line bg-background/55 flex flex-wrap items-center justify-between gap-2 rounded-xl border p-3 text-sm"
-              >
-                <span>{edge.label}</span>
-                <Badge kind={edge.side === "above" ? "ok" : "warn"}>
-                  {edge.side} {formatNumber(edge.distance)}
-                </Badge>
-              </div>
-            ))}
+          <div
+            className="compact-metric mt-4"
+            data-testid="threshold-evaluation-unavailable"
+          >
+            <span>{t("common.unknown")}</span>
           </div>
         </section>
 

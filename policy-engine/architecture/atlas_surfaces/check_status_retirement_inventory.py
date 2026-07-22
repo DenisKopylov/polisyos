@@ -441,6 +441,11 @@ def _validate_live_scan(
         denominators["current_total"],
     ):
         errors.append("live_status_denominator_drift")
+    for leak in scan.get("interactionLeaks", []):
+        errors.append(
+            "interaction_state_reaches_authority_slot:"
+            + Path(leak["path"]).name
+        )
     errors.extend(_validate_semantic_candidates(inventory, scan))
     return errors
 
@@ -536,6 +541,9 @@ def _validate_source_overrides(
 ) -> list[str]:
     errors: list[str] = []
     scan = _scan(source_overrides)
+    definition_identities = {
+        _fact_identity(fact) for fact in scan.get("definitions", [])
+    }
     protected_sets = {
         tuple(sorted(entry["literal_members"]))
         for entry in inventory["entries"]
@@ -554,6 +562,10 @@ def _validate_source_overrides(
             errors.append(f"local_authority_restatement:{name}")
         else:
             errors.append(f"unregistered_status_definition:{file_name}:{name}")
+    for fact in scan.get("authorityCandidates", []):
+        if _fact_identity(fact) in definition_identities:
+            continue
+        errors.append(f"unregistered_semantic_definition:{_semantic_name(fact)}")
     for leak in scan.get("interactionLeaks", []):
         errors.append(
             f'interaction_state_reaches_authority_slot:{Path(leak["path"]).name}'
@@ -685,6 +697,48 @@ def _corruption_probes(
                     'from "./statusOwnership";\n'
                     'const transport = createInteractionState("ready", "transport");\n'
                     'presentAuthority(transport);\n'
+                )
+            },
+            "interaction_state_reaches_authority_slot:probe.ts",
+        ),
+        "nullable-semantic-union": (
+            {
+                "apps/runtime-dashboard/src/shared/lib/domain/probe.ts": (
+                    'export type DecisionGrade = "pass" | "fail" | null;\n'
+                )
+            },
+            "unregistered_status_definition:probe.ts:DecisionGrade",
+        ),
+        "as-const-semantic-vocabulary": (
+            {
+                "apps/runtime-dashboard/src/shared/lib/domain/probe.ts": (
+                    "export const DecisionGradeVocabulary = "
+                    '["pass", "fail"] as const;\n'
+                )
+            },
+            "unregistered_semantic_definition:DecisionGradeVocabulary",
+        ),
+        "aliased-interaction-consumer": (
+            {
+                "apps/runtime-dashboard/src/shared/lib/domain/probe.ts": (
+                    "import { createInteractionState as makeInteraction, "
+                    "presentAuthority as showAuthority } "
+                    'from "./statusOwnership";\n'
+                    'const transport = makeInteraction("ready", "transport");\n'
+                    "showAuthority(transport);\n"
+                )
+            },
+            "interaction_state_reaches_authority_slot:probe.ts",
+        ),
+        "helper-return-interaction-consumer": (
+            {
+                "apps/runtime-dashboard/src/shared/lib/domain/probe.ts": (
+                    "import { createInteractionState, presentAuthority } "
+                    'from "./statusOwnership";\n'
+                    "function interactionForAuthority() {\n"
+                    '  return createInteractionState("ready", "transport");\n'
+                    "}\n"
+                    "presentAuthority(interactionForAuthority());\n"
                 )
             },
             "interaction_state_reaches_authority_slot:probe.ts",

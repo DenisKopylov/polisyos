@@ -6,10 +6,10 @@ import {
   type IdentifiabilityState,
   type IdentificationRemedy,
   type SensitivityClaim,
-  type StressSceneStatus,
 } from "@/features/runs/domain/scientificDepth";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 import {
   cn,
   formatDate,
@@ -32,12 +32,6 @@ function assertNeverIdentifiability(value: never): never {
 
 function identifiabilityLabel(state: IdentifiabilityState) {
   return state.replaceAll("_", " ");
-}
-
-function stressKind(status: StressSceneStatus) {
-  if (status === "pass") return "ok";
-  if (status === "warn") return "warn";
-  return "fail";
 }
 
 function formatBound(value: number | null, unavailable: string) {
@@ -201,6 +195,9 @@ export function ScientificDepthPanel({
     snapshot.cohort.timeline.find(
       (point) => point.index === snapshot.cohort.activeIndex,
     ) ?? snapshot.cohort.timeline[0];
+  const policyOverlayGrade = presentDecisionGradeLabel(
+    snapshot.cohort.policyOverlay.verdict,
+  );
 
   return (
     <section className="space-y-4" data-testid="scientific-depth-panel">
@@ -278,10 +275,12 @@ export function ScientificDepthPanel({
               <p className="eyebrow">{t("phase33.sensitivity.eyebrow")}</p>
               <h4>{t("phase33.sensitivity.title")}</h4>
             </div>
-            <Badge kind={snapshot.sensitivity.verdictChanged ? "fail" : "ok"}>
-              {snapshot.sensitivity.verdictChanged
-                ? t("phase33.sensitivity.verdictChanged")
-                : t("phase33.sensitivity.verdictStable")}
+            <Badge data-authority-presentation="unknown" kind="neutral">
+              {snapshot.sensitivity.verdictChanged === null
+                ? t("common.unknown")
+                : snapshot.sensitivity.verdictChanged
+                  ? t("phase33.sensitivity.verdictChanged")
+                  : t("phase33.sensitivity.verdictStable")}
             </Badge>
           </div>
           <div className="mt-4 space-y-3">
@@ -399,14 +398,22 @@ export function ScientificDepthPanel({
                 <Badge key={filter.id} kind="outline">
                   {t("phase33.cohort.filter", {
                     label: t(`phase33.cohort.filterLabel.${filter.label}`),
-                    value: filter.value,
+                    value: filter.value ?? t("common.unknown"),
                   })}
                 </Badge>
               ))}
-              <Badge kind="neutral">
+              <Badge
+                data-decision-grade-presentation={
+                  policyOverlayGrade.classification
+                }
+                data-owner-decision-grade={
+                  policyOverlayGrade.ownerLabel ?? undefined
+                }
+                kind="neutral"
+              >
                 {t("phase33.cohort.policyOverlay", {
                   ref: snapshot.cohort.policyOverlay.ref,
-                  verdict: snapshot.cohort.policyOverlay.verdict,
+                  verdict: policyOverlayGrade.ownerLabel ?? t("common.unknown"),
                 })}
               </Badge>
             </div>
@@ -419,15 +426,10 @@ export function ScientificDepthPanel({
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <strong>{transition.cohortLabel}</strong>
                     <Badge
-                      kind={
-                        transition.policyEffect === "pass"
-                          ? "ok"
-                          : transition.policyEffect === "fail"
-                            ? "fail"
-                            : "warn"
-                      }
+                      data-interaction-state={transition.policyEffect.label}
+                      kind="neutral"
                     >
-                      {t(`phase33.cohort.effect.${transition.policyEffect}`)}
+                      {transition.policyEffect.label.replaceAll("_", " ")}
                     </Badge>
                   </div>
                   <div className="mt-3 grid gap-2">
@@ -470,7 +472,7 @@ export function ScientificDepthPanel({
                         share: formatPercent(transition.observedShare, {
                           maximumFractionDigits: 0,
                         }),
-                        to: t(`phase33.cohort.state.${transition.toState}`),
+                        to: transition.toState.replaceAll("-", " "),
                       })}
                     </span>
                   </div>
@@ -494,18 +496,12 @@ export function ScientificDepthPanel({
               <p className="eyebrow">{t("phase33.stress.eyebrow")}</p>
               <h4>{t("phase33.stress.title")}</h4>
             </div>
-            <Badge
-              kind={
-                snapshot.stress.summary.blocked > 0
-                  ? "fail"
-                  : snapshot.stress.summary.warned > 0
-                    ? "warn"
-                    : "ok"
-              }
-            >
+            <Badge kind="neutral">
               {t("phase33.stress.summary", {
-                blocked: formatNumber(snapshot.stress.summary.blocked),
-                warned: formatNumber(snapshot.stress.summary.warned),
+                blocked: formatNumber(
+                  snapshot.stress.summary.diagnosticFindings,
+                ),
+                warned: formatNumber(snapshot.stress.summary.evidenceWarnings),
               })}
             </Badge>
           </div>
@@ -524,7 +520,8 @@ export function ScientificDepthPanel({
                 key={scene.id}
                 className={cn(
                   "border-line bg-background/55 grid gap-2 rounded-xl border p-3 text-sm md:grid-cols-[minmax(0,1fr)_auto]",
-                  scene.actual === "block" && "border-danger/40 bg-danger/10",
+                  scene.actual.label !== "no_owner_issue_recorded" &&
+                    "border-line bg-surface/80",
                 )}
               >
                 <div>
@@ -554,14 +551,20 @@ export function ScientificDepthPanel({
                   ) : null}
                 </div>
                 <div className="flex flex-wrap gap-2 md:justify-end">
-                  <Badge kind={stressKind(scene.expected)}>
+                  <Badge
+                    data-interaction-state={scene.expected.label}
+                    kind="neutral"
+                  >
                     {t("phase33.stress.expected", {
-                      status: t(`phase33.stress.status.${scene.expected}`),
+                      status: scene.expected.label.replaceAll("_", " "),
                     })}
                   </Badge>
-                  <Badge kind={stressKind(scene.actual)}>
+                  <Badge
+                    data-interaction-state={scene.actual.label}
+                    kind="neutral"
+                  >
                     {t("phase33.stress.actual", {
-                      status: t(`phase33.stress.status.${scene.actual}`),
+                      status: scene.actual.label.replaceAll("_", " "),
                     })}
                   </Badge>
                 </div>

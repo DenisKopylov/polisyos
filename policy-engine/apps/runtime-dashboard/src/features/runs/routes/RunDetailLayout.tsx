@@ -56,6 +56,7 @@ import {
   useAuthorship,
 } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
+import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 import { UncertaintyBand } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 
@@ -166,6 +167,10 @@ function RunInspectorContent() {
     () => buildRunReportSnapshot(summary, []),
     [summary],
   );
+  const evaluatorGrade = presentDecisionGradeLabel(
+    summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
+  );
+  const packetGrade = presentDecisionGradeLabel(decisionPacket.primaryVerdict);
   const primaryUncertaintyMetric = useMemo(() => {
     const metric = summary.decisionView?.keyMetrics.find(
       (candidate) =>
@@ -354,13 +359,17 @@ function RunInspectorContent() {
                   {t("pages.runs.evaluator")}
                 </span>
                 <strong className="mt-2 block">
-                  {label(
-                    "evaluatorVerdicts",
-                    summary.pipeline?.evaluator?.verdict,
-                    summary.decisionView?.verdict ??
-                      summary.pipeline?.evaluator?.verdict ??
-                      t("common.unknown"),
-                  )}
+                  <span
+                    data-testid="run-evaluator-grade"
+                    data-decision-grade-presentation={
+                      evaluatorGrade.classification
+                    }
+                    data-owner-decision-grade={
+                      evaluatorGrade.ownerLabel ?? undefined
+                    }
+                  >
+                    {evaluatorGrade.ownerLabel ?? t("common.unknown")}
+                  </span>
                 </strong>
               </div>
               <div className="bg-surface/80 border-line rounded-2xl border p-3">
@@ -476,8 +485,7 @@ function RunInspectorContent() {
                       {t("common.readingView")}
                     </PrefetchButton>
                   ) : null}
-                  {summary.pipeline?.preflight?.ready_to_run === false ||
-                  summary.pipeline?.evaluator?.verdict?.startsWith("REPLAN") ? (
+                  {summary.pipeline?.preflight?.ready_to_run === false ? (
                     canLaunchRuns ? (
                       <PrefetchButton
                         to={`/compose?fromRun=${runId}`}
@@ -531,11 +539,18 @@ function RunInspectorContent() {
                 />
                 <MetricCard
                   label={t("pages.runs.evaluator")}
-                  value={label(
-                    "evaluatorVerdicts",
-                    summary.pipeline?.evaluator?.verdict,
-                    summary.pipeline?.evaluator?.verdict ?? t("common.unknown"),
-                  )}
+                  value={
+                    <span
+                      data-decision-grade-presentation={
+                        evaluatorGrade.classification
+                      }
+                      data-owner-decision-grade={
+                        evaluatorGrade.ownerLabel ?? undefined
+                      }
+                    >
+                      {evaluatorGrade.ownerLabel ?? t("common.unknown")}
+                    </span>
+                  }
                   meta={
                     <Quantity
                       value={evaluatorScoreQuantity}
@@ -586,11 +601,17 @@ function RunInspectorContent() {
                   <MetricCard
                     label={t("pages.runs.verdictLabel")}
                     value={
-                      label(
-                        "evaluatorVerdicts",
-                        decisionPacket.primaryVerdict,
-                        decisionPacket.primaryVerdict ?? t("common.unknown"),
-                      ) ?? t("common.unknown")
+                      <span
+                        data-testid="run-packet-grade"
+                        data-decision-grade-presentation={
+                          packetGrade.classification
+                        }
+                        data-owner-decision-grade={
+                          packetGrade.ownerLabel ?? undefined
+                        }
+                      >
+                        {packetGrade.ownerLabel ?? t("common.unknown")}
+                      </span>
                     }
                     meta={decisionPacket.decisionHeadline}
                   />

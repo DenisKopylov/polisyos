@@ -1,8 +1,15 @@
 import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
 import type { RunEvidenceContext } from "@/shared/lib/domain/evidence";
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import {
+  createInteractionState,
+  type InteractionState,
+} from "@/shared/lib/domain/statusOwnership";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
-import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
+import type {
+  DecisionValidityStatus,
+  QuantityValueOutput,
+} from "@polisyos/runtime-api-client";
 
 import type { DisputeRecord } from "./disputes";
 
@@ -13,7 +20,7 @@ export type StakeholderLens =
   | "data_scientist"
   | "public_viewer";
 
-export type ApprovalBlockKind =
+export type DiagnosticFindingKind =
   | "fairness"
   | "harm"
   | "objection"
@@ -30,7 +37,16 @@ export type ReadinessSectionId =
   | "identifiability"
   | "revocation";
 
-export type ReadinessSeverity = "block" | "warn" | "pass";
+export type ReadinessDiagnosticDisplay = InteractionState;
+export type EmbargoOverlayState = InteractionState;
+
+function readinessDiagnostic(label: string): ReadinessDiagnosticDisplay {
+  return createInteractionState(label, "diagnostic_display");
+}
+
+function embargoDisplay(label: string): EmbargoOverlayState {
+  return createInteractionState(label, "candidate_display");
+}
 
 export type ReviewAttentionSection = {
   acknowledgedAt: string | null;
@@ -53,16 +69,15 @@ export type LensProjection = {
   decisionHash: string;
   emphasis: string[];
   lens: StakeholderLens;
-  riskOrder: ApprovalBlockKind[];
+  riskOrder: DiagnosticFindingKind[];
   terminology: Record<string, string>;
 };
 
-export type ApprovalBlock = {
+export type DiagnosticFinding = {
   auditRef: string;
   detailKey: string;
   id: string;
-  kind: ApprovalBlockKind;
-  severity: "block";
+  kind: DiagnosticFindingKind;
   targetRef: string;
 };
 
@@ -77,7 +92,7 @@ export type FairnessAuditGroup = {
   primaryDelta: QuantityValueOutput;
   referenceShare: number;
   selectionShare: number;
-  status: ReadinessSeverity;
+  status: ReadinessDiagnosticDisplay;
 };
 
 export type FairnessAuditView = {
@@ -97,20 +112,20 @@ export type FairnessAuditView = {
 export type HarmAssessmentRow = {
   expectedHarm: string;
   id: string;
-  likelihood: "low" | "medium" | "high";
+  likelihood: string | null;
   mitigation: string;
-  residualRisk: "low" | "medium" | "high";
+  residualRisk: string | null;
   required: boolean;
-  status: ReadinessSeverity;
+  status: ReadinessDiagnosticDisplay;
 };
 
 export type HarmAssessmentView = {
   blocked: boolean;
   euAiAct: {
-    humanOversight: ReadinessSeverity;
-    redressPath: ReadinessSeverity;
-    riskClass: "minimal" | "limited" | "high";
-    transparency: ReadinessSeverity;
+    humanOversight: ReadinessDiagnosticDisplay;
+    redressPath: ReadinessDiagnosticDisplay;
+    riskClass: string | null;
+    transparency: ReadinessDiagnosticDisplay;
   };
   rows: HarmAssessmentRow[];
 };
@@ -119,7 +134,7 @@ export type EmbargoMask = {
   auditRef: string;
   reasonCode: string;
   skeletonRef: string;
-  status: "active" | "unlock_pending" | "clear";
+  status: EmbargoOverlayState;
   unlockAt: string | null;
 };
 
@@ -149,27 +164,27 @@ export type RevocationLedgerEntry = {
   knownAt: string;
   policyRef: string;
   reason: string;
-  relation: "predecessor" | "current" | "successor";
-  status: "active" | "revoked" | "superseded" | "replacement";
+  relation: "current" | "predecessor" | "replacement";
+  status: DecisionValidityStatus | null;
   validAt: string;
 };
 
 export type RevocationLedgerView = {
   blocked: boolean;
   chain: RevocationLedgerEntry[];
-  currentStatus: "active" | "revoked" | "superseded";
+  currentStatus: DecisionValidityStatus | null;
   impactedRuns: string[];
 };
 
 export type PublicSectorReadinessSnapshot = {
-  approvalReady: boolean;
   auditTrail: Array<{
     at: string;
     event: string;
     ref: string;
   }>;
-  blocks: ApprovalBlock[];
+  findings: DiagnosticFinding[];
   decisionHash: string;
+  diagnosticComplete: null;
   embargo: EmbargoOverlayView;
   fairness: FairnessAuditView;
   harm: HarmAssessmentView;
@@ -247,10 +262,6 @@ function issueText(issue: GovernanceIssueView) {
 
 function issuesMatching(issues: GovernanceIssueView[], pattern: RegExp) {
   return issues.filter((issue) => pattern.test(issueText(issue)));
-}
-
-function isBlockingIssue(issue: GovernanceIssueView) {
-  return issue.severity === "blocker" || issue.severity === "warning";
 }
 
 function stringValue(value: unknown): string | null {
@@ -471,15 +482,16 @@ export function buildFairnessAuditView(input: {
         : null;
     const selectionShare = selectionShares[index] ?? 0.5;
     const disparateImpactRatio = selectionShare / referenceShare;
-    const issueOverride = fairnessIssues.some(isBlockingIssue);
-    const status =
-      !evidenceAvailable ||
-      disparateImpactRatio < FAIRNESS_THRESHOLD ||
-      issueOverride
-        ? "block"
-        : disparateImpactRatio < 0.9
-          ? "warn"
-          : "pass";
+    const issueRecorded = fairnessIssues.length > 0;
+    const status = readinessDiagnostic(
+      !evidenceAvailable
+        ? "evidence_unavailable"
+        : disparateImpactRatio < FAIRNESS_THRESHOLD || issueRecorded
+          ? "diagnostic_attention"
+          : disparateImpactRatio < 0.9
+            ? "near_display_threshold"
+            : "observed",
+    );
     return {
       calibrationDelta:
         Math.abs(primaryDeltaPoint ?? Number.NaN) *
@@ -489,7 +501,7 @@ export function buildFairnessAuditView(input: {
       disparateImpactRatio,
       groupId: `fairness:${index + 1}`,
       groupLabel: row.cohortLabel,
-      isProtected: row.isVulnerable || issueOverride,
+      isProtected: row.isVulnerable || issueRecorded,
       primaryDelta: row.primaryDelta,
       referenceShare,
       selectionShare,
@@ -498,11 +510,14 @@ export function buildFairnessAuditView(input: {
   });
   const worstGroup =
     [...groups].sort(
-      (left, right) =>
-        statusScore(right.status) - statusScore(left.status) ||
-        left.disparateImpactRatio - right.disparateImpactRatio,
+      (left, right) => left.disparateImpactRatio - right.disparateImpactRatio,
     )[0] ?? null;
-  const blocked = Boolean(worstGroup && worstGroup.status === "block");
+  const blocked = Boolean(
+    worstGroup &&
+    (!evidenceAvailable ||
+      worstGroup.disparateImpactRatio < FAIRNESS_THRESHOLD ||
+      fairnessIssues.length > 0),
+  );
 
   return {
     blocked,
@@ -522,16 +537,6 @@ export function buildFairnessAuditView(input: {
   };
 }
 
-function statusScore(status: ReadinessSeverity) {
-  if (status === "block") {
-    return 2;
-  }
-  if (status === "warn") {
-    return 1;
-  }
-  return 0;
-}
-
 export function buildHarmAssessmentView(input: {
   decisionView: DecisionCardViewModel | null | undefined;
   governanceIssues: GovernanceIssueView[];
@@ -544,50 +549,65 @@ export function buildHarmAssessmentView(input: {
   const harmAcknowledged = Boolean(
     input.reviewState.sections.harm.acknowledgedAt,
   );
-  const highRisk =
-    input.decisionView?.verdict === "APPROVE" ||
-    harmIssues.some(isBlockingIssue);
-  const issueBlocking = harmIssues.some(
-    (issue) => issue.severity === "blocker",
-  );
+  const issueRecorded = harmIssues.length > 0;
   const rows: HarmAssessmentRow[] = [
     {
       expectedHarm: "phase34.harm.expected.disparateDenial",
       id: "expected-harm",
-      likelihood: highRisk ? "medium" : "low",
+      likelihood: null,
       mitigation: "phase34.harm.mitigation.humanOversight",
       required: true,
-      residualRisk: harmAcknowledged && !issueBlocking ? "medium" : "high",
-      status: harmAcknowledged && !issueBlocking ? "warn" : "block",
+      residualRisk: null,
+      status: readinessDiagnostic(
+        harmAcknowledged && !issueRecorded
+          ? "review_recorded"
+          : "diagnostic_attention",
+      ),
     },
     {
       expectedHarm: "phase34.harm.expected.noRedress",
       id: "redress",
-      likelihood: highRisk ? "high" : "medium",
+      likelihood: null,
       mitigation: "phase34.harm.mitigation.redress",
       required: true,
-      residualRisk: harmAcknowledged && !issueBlocking ? "low" : "high",
-      status: harmAcknowledged && !issueBlocking ? "pass" : "block",
+      residualRisk: null,
+      status: readinessDiagnostic(
+        harmAcknowledged && !issueRecorded
+          ? "review_recorded"
+          : "diagnostic_attention",
+      ),
     },
     {
       expectedHarm: "phase34.harm.expected.opacity",
       id: "transparency",
-      likelihood: "medium",
+      likelihood: null,
       mitigation: "phase34.harm.mitigation.transparency",
       required: true,
-      residualRisk: harmAcknowledged ? "low" : "medium",
-      status: harmAcknowledged ? "pass" : "block",
+      residualRisk: null,
+      status: readinessDiagnostic(
+        harmAcknowledged ? "review_recorded" : "diagnostic_attention",
+      ),
     },
   ];
-  const blocked = rows.some((row) => row.required && row.status === "block");
+  const blocked = rows.some(
+    (row) => row.required && row.status.label === "diagnostic_attention",
+  );
 
   return {
     blocked,
     euAiAct: {
-      humanOversight: harmAcknowledged && !issueBlocking ? "pass" : "block",
-      redressPath: harmAcknowledged ? "pass" : "block",
-      riskClass: highRisk ? "high" : "limited",
-      transparency: harmAcknowledged ? "pass" : "block",
+      humanOversight: readinessDiagnostic(
+        harmAcknowledged && !issueRecorded
+          ? "review_recorded"
+          : "diagnostic_attention",
+      ),
+      redressPath: readinessDiagnostic(
+        harmAcknowledged ? "review_recorded" : "diagnostic_attention",
+      ),
+      riskClass: null,
+      transparency: readinessDiagnostic(
+        harmAcknowledged ? "review_recorded" : "diagnostic_attention",
+      ),
     },
     rows,
   };
@@ -619,9 +639,9 @@ export function buildEmbargoOverlayView(input: {
       Number.isFinite(nowMs) &&
       unlockMs <= nowMs
     ) {
-      return "clear";
+      return embargoDisplay("clear");
     }
-    return isBlockingIssue(issue) ? "active" : "unlock_pending";
+    return embargoDisplay("active");
   };
   const masks: EmbargoMask[] = [
     ...embargoIssues.map((issue, index) => ({
@@ -638,13 +658,13 @@ export function buildEmbargoOverlayView(input: {
       auditRef: `embargo:${input.runId}:warning-${index + 1}`,
       reasonCode: `warning_mask_${index + 1}`,
       skeletonRef: `warning-skeleton:${index + 1}`,
-      status: "active" as const,
+      status: embargoDisplay("active"),
       unlockAt: null,
     })),
   ];
 
   return {
-    blocked: masks.some((mask) => mask.status === "active"),
+    blocked: masks.some((mask) => mask.status.label === "active"),
     masks,
   };
 }
@@ -846,6 +866,7 @@ export function buildSlowReviewView(input: {
 }
 
 export function buildRevocationLedgerView(input: {
+  decisionValidityStatus?: DecisionValidityStatus | null;
   decisionView: DecisionCardViewModel | null | undefined;
   governanceIssues: GovernanceIssueView[];
   runId: string;
@@ -854,7 +875,10 @@ export function buildRevocationLedgerView(input: {
     input.governanceIssues,
     /revok|supersed|replac|withdraw|retir|void/i,
   );
-  const blocking = revocationIssues.some(isBlockingIssue);
+  const currentStatus = input.decisionValidityStatus ?? null;
+  const blocking =
+    revocationIssues.length > 0 ||
+    (currentStatus !== null && currentStatus !== "active");
   const primaryIssue = revocationIssues[0];
   const raw = primaryIssue?.raw ?? {};
   const generatedAt =
@@ -879,12 +903,6 @@ export function buildRevocationLedgerView(input: {
     stringValue(raw.successor_policy) ?? `${policyRef}:successor`,
     `${policyRef}:successor`,
   );
-  const currentStatus: RevocationLedgerView["currentStatus"] =
-    primaryIssue && /revok|withdraw|retir|void/i.test(issueText(primaryIssue))
-      ? "revoked"
-      : blocking
-        ? "superseded"
-        : "active";
   const impactedRunsRaw = Array.isArray(raw.impacted_runs)
     ? raw.impacted_runs
     : [];
@@ -900,32 +918,29 @@ export function buildRevocationLedgerView(input: {
         policyRef: predecessorRef,
         reason: "phase34.revocation.reason.predecessor",
         relation: "predecessor",
-        status: blocking ? "revoked" : "active",
+        status: null,
         validAt,
       },
       {
         knownAt,
         policyRef,
-        reason:
-          currentStatus === "revoked"
-            ? "phase34.revocation.reason.revoked"
-            : blocking
-              ? "phase34.revocation.reason.superseded"
-              : "phase34.revocation.reason.current",
+        reason: "phase34.revocation.reason.current",
         relation: "current",
         status: currentStatus,
         validAt,
       },
-      {
-        knownAt,
-        policyRef: successorRef,
-        reason: blocking
-          ? "phase34.revocation.reason.replacement"
-          : "phase34.revocation.reason.none",
-        relation: "successor",
-        status: blocking ? "replacement" : "active",
-        validAt,
-      },
+      ...(blocking
+        ? [
+            {
+              knownAt,
+              policyRef: successorRef,
+              reason: "phase34.revocation.reason.replacement",
+              relation: "replacement" as const,
+              status: null,
+              validAt,
+            },
+          ]
+        : []),
     ],
     currentStatus,
     impactedRuns: blocking
@@ -936,23 +951,23 @@ export function buildRevocationLedgerView(input: {
   };
 }
 
-function block(input: {
+function diagnosticFinding(input: {
   detailKey: string;
-  kind: ApprovalBlockKind;
+  kind: DiagnosticFindingKind;
   runId: string;
   targetRef: string;
-}): ApprovalBlock {
+}): DiagnosticFinding {
   return {
-    auditRef: `approval-block:${input.runId}:${input.kind}:${input.targetRef}`,
+    auditRef: `diagnostic-finding:${input.runId}:${input.kind}:${input.targetRef}`,
     detailKey: input.detailKey,
     id: `${input.kind}:${input.targetRef}`,
     kind: input.kind,
-    severity: "block",
     targetRef: input.targetRef,
   };
 }
 
 export function buildPublicSectorReadinessSnapshot(input: {
+  decisionValidityStatus?: DecisionValidityStatus | null;
   decisionView: DecisionCardViewModel | null | undefined;
   disputes?: DisputeRecord[];
   evidenceContext?: RunEvidenceContext | null;
@@ -991,6 +1006,7 @@ export function buildPublicSectorReadinessSnapshot(input: {
     runId: input.runId,
   });
   const revocation = buildRevocationLedgerView({
+    decisionValidityStatus: input.decisionValidityStatus,
     decisionView: input.decisionView,
     governanceIssues,
     runId: input.runId,
@@ -998,10 +1014,10 @@ export function buildPublicSectorReadinessSnapshot(input: {
   const openDisputes = (input.disputes ?? []).filter(
     (dispute) => dispute.status.label === "open",
   );
-  const blocks = [
+  const findings = [
     ...(fairness.blocked && fairness.sentinel
       ? [
-          block({
+          diagnosticFinding({
             detailKey: "phase34.blockers.fairness",
             kind: "fairness",
             runId: input.runId,
@@ -1011,17 +1027,17 @@ export function buildPublicSectorReadinessSnapshot(input: {
       : []),
     ...(harm.blocked
       ? [
-          block({
+          diagnosticFinding({
             detailKey: "phase34.blockers.harm",
             kind: "harm",
             runId: input.runId,
-            targetRef: harm.euAiAct.riskClass,
+            targetRef: harm.euAiAct.riskClass ?? "owner-risk-class-unavailable",
           }),
         ]
       : []),
     ...(openDisputes.length > 0
       ? [
-          block({
+          diagnosticFinding({
             detailKey: "phase34.blockers.objection",
             kind: "objection",
             runId: input.runId,
@@ -1031,7 +1047,7 @@ export function buildPublicSectorReadinessSnapshot(input: {
       : []),
     ...(embargo.blocked
       ? [
-          block({
+          diagnosticFinding({
             detailKey: "phase34.blockers.embargo",
             kind: "embargo",
             runId: input.runId,
@@ -1041,7 +1057,7 @@ export function buildPublicSectorReadinessSnapshot(input: {
       : []),
     ...(slowReview.blocked
       ? [
-          block({
+          diagnosticFinding({
             detailKey: "phase34.blockers.slowReview",
             kind: "slow_review",
             runId: input.runId,
@@ -1051,22 +1067,21 @@ export function buildPublicSectorReadinessSnapshot(input: {
       : []),
     ...(revocation.blocked
       ? [
-          block({
+          diagnosticFinding({
             detailKey: "phase34.blockers.revocation",
             kind: "revocation",
             runId: input.runId,
-            targetRef: revocation.currentStatus,
+            targetRef: revocation.currentStatus ?? "unknown",
           }),
         ]
       : []),
   ];
 
   return {
-    approvalReady: blocks.length === 0,
     auditTrail: [
-      ...blocks.map((item) => ({
+      ...findings.map((item) => ({
         at: now,
-        event: `approval.blocked.${item.kind}`,
+        event: `diagnostic.finding.${item.kind}`,
         ref: item.auditRef,
       })),
       ...Object.values(reviewState.sections).flatMap((section) =>
@@ -1077,8 +1092,9 @@ export function buildPublicSectorReadinessSnapshot(input: {
         })),
       ),
     ],
-    blocks,
+    findings,
     decisionHash,
+    diagnosticComplete: null,
     embargo,
     fairness,
     harm,

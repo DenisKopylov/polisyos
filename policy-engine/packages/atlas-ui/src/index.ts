@@ -31,5 +31,6 @@ export type {
 export {
   createFixtureProvenance,
   createGovernedAuthorityPurpose,
+  governedAuthorityPurposePresentation,
 } from "./primitives/evidenceTypes";
 export * from "./generated/tokens";

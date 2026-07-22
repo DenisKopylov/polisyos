@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { ProjectionFreshness } from "@polisyos/runtime-api-client";
 
 import { Badge } from "@polisyos/atlas-ui";
 import {
@@ -42,6 +43,13 @@ const runRows = [
   },
 ];
 
+const storyFreshness: ProjectionFreshness = {
+  basis: "source_timestamp",
+  observed_at: "2026-03-10T20:00:00Z",
+  source_as_of: "2026-03-10T19:55:00Z",
+  state: "observed",
+};
+
 export const OperationalOverview: Story = {
   render: () => (
     <div className="space-y-6">
@@ -60,8 +68,8 @@ export const OperationalOverview: Story = {
         />
         <MetricCard
           label="Evidence freshness"
-          value={<DataFreshnessBadge generatedAt="2026-03-10T19:55:00Z" />}
-          meta="Control-plane sample generated recently"
+          value={<DataFreshnessBadge freshness={storyFreshness} />}
+          meta="Producer-recorded source and observation times"
         />
       </section>
 
@@ -69,9 +77,7 @@ export const OperationalOverview: Story = {
         title="Decision packet: Food price shock intervention"
         subtitle="Workflow policy.v3 · runtime sample backed"
         verdict="Approve with revisions"
-        verdictKind="ok"
         confidence="0.82 confidence"
-        confidenceKind="info"
         summary="Budget exposure is acceptable, but the transportability note should be reviewed before final publish."
         diagnostics={[
           { kind: "ok", label: "Evidence verified" },
@@ -97,7 +103,7 @@ export const OperationalOverview: Story = {
               meta: <Badge kind="ok">Approved</Badge>,
               timestamp: "2026-03-10 19:48 UTC",
               title: "Promotion candidate accepted",
-              tone: "ok",
+              recordedState: "accepted",
             },
             {
               body: "Human gate paused publish while legal review was requested.",
@@ -105,7 +111,7 @@ export const OperationalOverview: Story = {
               meta: <Badge kind="warn">Human gate</Badge>,
               timestamp: "2026-03-10 19:31 UTC",
               title: "Governance waiting state entered",
-              tone: "warn",
+              recordedState: "human_gate_waiting",
             },
             {
               body: "Run recovered after polling fallback while SSE stream reconnected.",
@@ -113,7 +119,7 @@ export const OperationalOverview: Story = {
               meta: <Badge kind="info">Transport</Badge>,
               timestamp: "2026-03-10 19:12 UTC",
               title: "Live transport degraded",
-              tone: "info",
+              recordedState: "transport_degraded",
             },
           ]}
         />

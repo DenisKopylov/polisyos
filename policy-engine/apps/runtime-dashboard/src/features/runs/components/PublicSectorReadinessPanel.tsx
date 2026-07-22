@@ -13,7 +13,6 @@ import {
   PUBLIC_READINESS_CHANGED_EVENT,
   readStoredReviewAttention,
   type ReadinessSectionId,
-  type ReadinessSeverity,
   type StakeholderLens,
   STAKEHOLDER_LENSES,
   writeStoredReviewAttention,
@@ -23,10 +22,13 @@ import { cn, formatDate, formatNumber } from "@/shared/lib/utils";
 import { Quantity } from "@/shared/ui/quantity";
 import { Badge, Button } from "@polisyos/atlas-ui";
 
-function statusKind(status: ReadinessSeverity) {
-  if (status === "pass") return "ok";
-  if (status === "warn") return "warn";
-  return "fail";
+const DIAGNOSTIC_CENSUS_LABEL = "Diagnostic census";
+const DIAGNOSTIC_FINDINGS_LABEL = "Diagnostic findings";
+const RECORDED_FINDING_LABEL = "recorded finding";
+const NO_DIAGNOSTIC_FINDINGS_LABEL = "No diagnostic findings recorded.";
+
+function displayOwnerLabel(value: string | null, unavailable: string) {
+  return value?.replaceAll("_", " ") ?? unavailable;
 }
 
 function LensButton({
@@ -115,6 +117,7 @@ export function PublicSectorReadinessPanel({
   const snapshot = useMemo(
     () =>
       buildPublicSectorReadinessSnapshot({
+        decisionValidityStatus: summary.run?.decision_validity_status,
         decisionView: summary.decisionView,
         disputes,
         evidenceContext: summary.evidenceContext,
@@ -133,6 +136,7 @@ export function PublicSectorReadinessPanel({
       summary.decisionView,
       summary.evidenceContext,
       summary.governanceIssues,
+      summary.run?.decision_validity_status,
     ],
   );
 
@@ -169,18 +173,12 @@ export function PublicSectorReadinessPanel({
           <h3>{t("phase34.title")}</h3>
           <p className="topbar-subtitle mt-2">{t("phase34.body")}</p>
         </div>
-        <Badge kind={snapshot.approvalReady ? "ok" : "fail"}>
-          {snapshot.approvalReady
-            ? t("phase34.approval.ready")
-            : t("phase34.approval.blocked", {
-                value: formatNumber(snapshot.blocks.length),
-              })}
-        </Badge>
+        <Badge kind="neutral">{formatNumber(snapshot.findings.length)}</Badge>
       </div>
 
       {snapshot.fairness.sentinel ? (
         <div
-          className="border-danger/45 bg-danger/10 rounded-2xl border p-3"
+          className="border-line bg-surface/80 rounded-2xl border p-3"
           data-testid="fairness-sentinel-banner"
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -201,7 +199,7 @@ export function PublicSectorReadinessPanel({
                 })}
               </p>
             </div>
-            <Badge kind="fail">{snapshot.fairness.sentinel.auditRef}</Badge>
+            <Badge kind="neutral">{snapshot.fairness.sentinel.auditRef}</Badge>
           </div>
         </div>
       ) : null}
@@ -252,15 +250,15 @@ export function PublicSectorReadinessPanel({
         >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="eyebrow">{t("phase34.blockers.eyebrow")}</p>
-              <h4>{t("phase34.blockers.title")}</h4>
+              <p className="eyebrow">{DIAGNOSTIC_CENSUS_LABEL}</p>
+              <h4>{DIAGNOSTIC_FINDINGS_LABEL}</h4>
             </div>
-            <Badge kind={snapshot.blocks.length > 0 ? "fail" : "ok"}>
-              {formatNumber(snapshot.blocks.length)}
+            <Badge kind="neutral">
+              {formatNumber(snapshot.findings.length)}
             </Badge>
           </div>
           <div className="mt-4 space-y-2">
-            {snapshot.blocks.map((item) => (
+            {snapshot.findings.map((item) => (
               <article
                 key={item.id}
                 className="border-line bg-background/55 rounded-xl border p-3"
@@ -277,13 +275,13 @@ export function PublicSectorReadinessPanel({
                       {item.auditRef}
                     </p>
                   </div>
-                  <Badge kind="fail">{t("phase34.approval.block")}</Badge>
+                  <Badge kind="neutral">{RECORDED_FINDING_LABEL}</Badge>
                 </div>
               </article>
             ))}
-            {snapshot.blocks.length === 0 ? (
+            {snapshot.findings.length === 0 ? (
               <p className="text-muted text-sm">
-                {t("phase34.blockers.empty")}
+                {NO_DIAGNOSTIC_FINDINGS_LABEL}
               </p>
             ) : null}
           </div>
@@ -300,7 +298,7 @@ export function PublicSectorReadinessPanel({
               <p className="eyebrow">{t("phase34.fairness.eyebrow")}</p>
               <h4>{t("phase34.fairness.title")}</h4>
             </div>
-            <Badge kind={snapshot.fairness.blocked ? "fail" : "ok"}>
+            <Badge kind="neutral">
               {t("phase34.fairness.threshold", {
                 value: formatNumber(snapshot.fairness.threshold, {
                   maximumFractionDigits: 2,
@@ -316,8 +314,11 @@ export function PublicSectorReadinessPanel({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <strong>{group.groupLabel}</strong>
-                  <Badge kind={statusKind(group.status)}>
-                    {t(`phase34.status.${group.status}`)}
+                  <Badge
+                    data-interaction-state={group.status.label}
+                    kind="neutral"
+                  >
+                    {group.status.label.replaceAll("_", " ")}
                   </Badge>
                 </div>
                 <div className="mt-2 grid gap-2 text-sm md:grid-cols-3">
@@ -363,8 +364,11 @@ export function PublicSectorReadinessPanel({
               <p className="eyebrow">{t("phase34.harm.eyebrow")}</p>
               <h4>{t("phase34.harm.title")}</h4>
             </div>
-            <Badge kind={snapshot.harm.blocked ? "fail" : "ok"}>
-              {t(`phase34.harm.risk.${snapshot.harm.euAiAct.riskClass}`)}
+            <Badge kind="neutral">
+              {displayOwnerLabel(
+                snapshot.harm.euAiAct.riskClass,
+                t("common.unknown"),
+              )}
             </Badge>
           </div>
           <div className="mt-4 grid gap-2 md:grid-cols-3">
@@ -373,7 +377,7 @@ export function PublicSectorReadinessPanel({
                 <div key={key} className="compact-metric">
                   <span>{t(`phase34.harm.eu.${key}`)}</span>
                   <strong>
-                    {t(`phase34.status.${snapshot.harm.euAiAct[key]}`)}
+                    {snapshot.harm.euAiAct[key].label.replaceAll("_", " ")}
                   </strong>
                 </div>
               ),
@@ -390,14 +394,21 @@ export function PublicSectorReadinessPanel({
                     <p className="font-semibold">{t(row.expectedHarm)}</p>
                     <p className="text-muted mt-1">{t(row.mitigation)}</p>
                   </div>
-                  <Badge kind={statusKind(row.status)}>
-                    {t(`phase34.status.${row.status}`)}
+                  <Badge
+                    data-interaction-state={row.status.label}
+                    kind="neutral"
+                  >
+                    {row.status.label.replaceAll("_", " ")}
                   </Badge>
                 </div>
                 <p className="text-muted mt-2 text-xs">
                   {t("phase34.harm.rowMeta", {
-                    likelihood: t(`phase34.harm.likelihood.${row.likelihood}`),
-                    residual: t(`phase34.harm.residual.${row.residualRisk}`),
+                    likelihood: row.likelihood
+                      ? t(`phase34.harm.likelihood.${row.likelihood}`)
+                      : t("common.unknown"),
+                    residual: row.residualRisk
+                      ? t(`phase34.harm.residual.${row.residualRisk}`)
+                      : t("common.unknown"),
                   })}
                 </p>
               </div>
@@ -414,7 +425,7 @@ export function PublicSectorReadinessPanel({
               <p className="eyebrow">{t("phase34.embargo.eyebrow")}</p>
               <h4>{t("phase34.embargo.title")}</h4>
             </div>
-            <Badge kind={snapshot.embargo.blocked ? "fail" : "ok"}>
+            <Badge kind="neutral">
               {formatNumber(snapshot.embargo.masks.length)}
             </Badge>
           </div>
@@ -442,8 +453,11 @@ export function PublicSectorReadinessPanel({
                       {mask.auditRef}
                     </p>
                   </div>
-                  <Badge kind={mask.status === "active" ? "fail" : "warn"}>
-                    {t(`phase34.embargo.status.${mask.status}`)}
+                  <Badge
+                    data-interaction-state={mask.status.label}
+                    kind="neutral"
+                  >
+                    {t(`phase34.embargo.status.${mask.status.label}`)}
                   </Badge>
                 </div>
               </div>
@@ -463,9 +477,15 @@ export function PublicSectorReadinessPanel({
               <p className="eyebrow">{t("phase34.revocation.eyebrow")}</p>
               <h4>{t("phase34.revocation.title")}</h4>
             </div>
-            <Badge kind={snapshot.revocation.blocked ? "fail" : "ok"}>
-              {t(
-                `phase34.revocation.status.${snapshot.revocation.currentStatus}`,
+            <Badge
+              kind="neutral"
+              data-owner-decision-validity={
+                snapshot.revocation.currentStatus ?? ""
+              }
+            >
+              {displayOwnerLabel(
+                snapshot.revocation.currentStatus,
+                t("common.unavailable"),
               )}
             </Badge>
           </div>
@@ -477,8 +497,11 @@ export function PublicSectorReadinessPanel({
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <strong>{entry.policyRef}</strong>
-                  <Badge kind={entry.status === "active" ? "ok" : "warn"}>
-                    {t(`phase34.revocation.entryStatus.${entry.status}`)}
+                  <Badge
+                    kind="neutral"
+                    data-owner-decision-validity={entry.status ?? ""}
+                  >
+                    {displayOwnerLabel(entry.status, t("common.unavailable"))}
                   </Badge>
                 </div>
                 <p className="text-muted mt-1">
@@ -506,7 +529,7 @@ export function PublicSectorReadinessPanel({
             <p className="eyebrow">{t("phase34.slowReview.eyebrow")}</p>
             <h4>{t("phase34.slowReview.title")}</h4>
           </div>
-          <Badge kind={snapshot.slowReview.blocked ? "fail" : "ok"}>
+          <Badge kind="neutral">
             {t("phase34.slowReview.progress", {
               completed: formatNumber(snapshot.slowReview.completed),
               total: formatNumber(snapshot.slowReview.total),
@@ -539,10 +562,8 @@ export function PublicSectorReadinessPanel({
                       {requirement.auditRef}
                     </p>
                   </div>
-                  <Badge kind={requirement.blocked ? "fail" : "ok"}>
-                    {requirement.blocked
-                      ? t("phase34.approval.block")
-                      : t("phase34.approval.ready")}
+                  <Badge kind="neutral">
+                    {requirement.blocked ? "review pending" : "review recorded"}
                   </Badge>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -573,13 +594,6 @@ export function PublicSectorReadinessPanel({
               value: formatNumber(snapshot.auditTrail.length),
             })}
           </p>
-          <Button
-            type="button"
-            disabled={!snapshot.approvalReady}
-            variant={snapshot.approvalReady ? "primary" : "ghost"}
-          >
-            {t("phase34.approval.action")}
-          </Button>
         </div>
       </section>
     </section>

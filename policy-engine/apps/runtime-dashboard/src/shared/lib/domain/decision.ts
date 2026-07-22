@@ -14,9 +14,6 @@ import {
   parseMetricValidationFamilyAdjustment,
 } from "./metricValidation";
 
-export type DecisionVerdict = "APPROVE" | "REJECT" | "REVIEW";
-export type DecisionConfidence = "HIGH" | "MEDIUM" | "LOW";
-
 const METRIC_IDENTIFIABILITY_MEMBERS = {
   assumed: true,
   estimated: true,
@@ -45,13 +42,13 @@ export type DecisionMetric = {
 
 export type DecisionDiagnosticBadge = {
   label: string;
-  kind: "ok" | "warn" | "fail" | "unknown";
+  ownerKind: string | null;
 };
 
 export type DecisionIssues = {
-  blockerCount: number;
-  warningCount: number;
-  infoCount: number;
+  blockerCount: number | null;
+  warningCount: number | null;
+  infoCount: number | null;
   blockedPasses: string[];
 };
 
@@ -83,8 +80,9 @@ export type DecisionDistributional = {
 export type DecisionCardViewModel = {
   runId: string;
   generatedAt: string | null;
-  verdict: DecisionVerdict;
-  confidence: DecisionConfidence;
+  /** Opaque producer verdict; presentation must go through the DS5 swap point. */
+  verdict: string | null;
+  confidence: string | null;
   policySummary: string;
   interventionCount: number;
   keyMetrics: DecisionMetric[];
@@ -103,79 +101,54 @@ export function metricIdentifiability(
   return metric.identifiability ?? "unknown";
 }
 
-function normalizeVerdict(value: string | null): DecisionVerdict {
-  const normalized = (value ?? "").trim().toUpperCase();
-  if (
-    normalized === "APPROVE" ||
-    normalized === "APPROVED" ||
-    normalized === "PASS"
-  ) {
-    return "APPROVE";
-  }
-  if (
-    normalized === "REJECT" ||
-    normalized === "REJECTED" ||
-    normalized === "FAIL"
-  ) {
-    return "REJECT";
-  }
-  return "REVIEW";
+function normalizeConfidence(value: string | null): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
 }
 
-function normalizeConfidence(
-  value: string | null,
-  issues: DecisionIssues,
-): DecisionConfidence {
-  const normalized = (value ?? "").trim().toUpperCase();
-  if (
-    normalized === "HIGH" ||
-    normalized === "MEDIUM" ||
-    normalized === "LOW"
-  ) {
-    return normalized as DecisionConfidence;
-  }
-  if (issues.blockerCount > 0) {
-    return "LOW";
-  }
-  if (issues.warningCount > 0) {
-    return "MEDIUM";
-  }
-  return "HIGH";
-}
-
-function buildIssues(value: unknown): DecisionIssues {
-  const issues = asArray(value);
-  let blockerCount = 0;
-  let warningCount = 0;
-  let infoCount = 0;
-  const blockedPasses = new Set<string>();
-
-  for (const issueValue of issues) {
-    const issue = asRecord(issueValue);
-    if (!issue) {
-      continue;
-    }
-    const severity = (asString(issue.severity) ?? "").toLowerCase();
-    if (severity === "blocker") {
-      blockerCount += 1;
-      const passId = asString(issue.pass_id);
-      if (passId) {
-        blockedPasses.add(passId);
+function buildIssues(value: unknown): {
+  diagnostics: DecisionDiagnosticBadge[];
+  summary: DecisionIssues;
+} {
+  const diagnostics = asArray(value)
+    .map((issueValue, index) => {
+      const ownerLabel = asString(issueValue);
+      if (ownerLabel) {
+        return {
+          label: ownerLabel,
+          ownerKind: null,
+        } satisfies DecisionDiagnosticBadge;
       }
-      continue;
-    }
-    if (severity === "warning") {
-      warningCount += 1;
-      continue;
-    }
-    infoCount += 1;
-  }
+
+      const issue = asRecord(issueValue);
+      if (!issue) {
+        return null;
+      }
+      const passId = asString(issue.pass_id);
+      const message = asString(issue.message);
+      const ownerKind = asString(issue.severity);
+      if (!passId && !message && !ownerKind) {
+        return null;
+      }
+
+      return {
+        label:
+          passId && message
+            ? `${passId}: ${message}`
+            : (passId ?? message ?? `Owner issue ${index + 1}`),
+        ownerKind,
+      } satisfies DecisionDiagnosticBadge;
+    })
+    .filter((item): item is DecisionDiagnosticBadge => item !== null);
 
   return {
-    blockerCount,
-    warningCount,
-    infoCount,
-    blockedPasses: Array.from(blockedPasses).sort(),
+    diagnostics,
+    summary: {
+      blockerCount: null,
+      warningCount: null,
+      infoCount: null,
+      blockedPasses: [],
+    },
   };
 }
 
@@ -479,32 +452,6 @@ function derivePolicySummary(payload: Record<string, unknown>): {
   };
 }
 
-function badgeKindForTransport(
-  value: string | null,
-): DecisionDiagnosticBadge["kind"] {
-  const normalized = (value ?? "").toLowerCase();
-  if (normalized === "direct" || normalized === "transportable") {
-    return "ok";
-  }
-  if (normalized === "non_transportable") {
-    return "fail";
-  }
-  return "warn";
-}
-
-function badgeKindForReplay(
-  value: string | null,
-): DecisionDiagnosticBadge["kind"] {
-  const normalized = (value ?? "").toLowerCase();
-  if (normalized === "complete") {
-    return "ok";
-  }
-  if (normalized === "incomplete") {
-    return "fail";
-  }
-  return "warn";
-}
-
 function deriveDiagnosticBadges(
   record: Record<string, unknown>,
 ): DecisionDiagnosticBadge[] {
@@ -515,16 +462,9 @@ function deriveDiagnosticBadges(
       if (!label) {
         return null;
       }
-      const kind = asString(badge?.kind);
       return {
         label,
-        kind:
-          kind === "ok" ||
-          kind === "warn" ||
-          kind === "fail" ||
-          kind === "unknown"
-            ? kind
-            : "unknown",
+        ownerKind: asString(badge?.kind),
       } satisfies DecisionDiagnosticBadge;
     })
     .filter((item): item is DecisionDiagnosticBadge => item !== null);
@@ -540,29 +480,29 @@ function deriveDiagnosticBadges(
   return [
     {
       label: `transport:${asString(summary.transport_status) ?? "not_available"}`,
-      kind: badgeKindForTransport(asString(summary.transport_status)),
+      ownerKind: null,
     },
     {
       label: Boolean(summary.legal_executed)
         ? "legal:checked"
         : "legal:not_run",
-      kind: Boolean(summary.legal_executed) ? "ok" : "warn",
+      ownerKind: null,
     },
     {
       label: `replay:${asString(summary.replay_readiness) ?? "not_available"}`,
-      kind: badgeKindForReplay(asString(summary.replay_readiness)),
+      ownerKind: null,
     },
     {
       label: Boolean(summary.human_review_needed)
         ? "human-review:required"
         : "human-review:not_required",
-      kind: Boolean(summary.human_review_needed) ? "warn" : "ok",
+      ownerKind: null,
     },
     {
       label: Boolean(summary.uncertainty_available)
         ? "uncertainty:available"
         : "uncertainty:not_available",
-      kind: Boolean(summary.uncertainty_available) ? "ok" : "warn",
+      ownerKind: null,
     },
   ];
 }
@@ -574,16 +514,15 @@ function parseDecisionCardRecord(
   const issuesRecord = asRecord(record.issues);
   const policy = derivePolicySummary(record);
 
+  const blockerCount = asNumber(issuesRecord?.blocker_count);
+  const warningCount = asNumber(issuesRecord?.warning_count);
+  const infoCount = asNumber(issuesRecord?.info_count);
   const issues: DecisionIssues = {
-    blockerCount: Math.max(
-      0,
-      Math.round(asNumber(issuesRecord?.blocker_count) ?? 0),
-    ),
-    warningCount: Math.max(
-      0,
-      Math.round(asNumber(issuesRecord?.warning_count) ?? 0),
-    ),
-    infoCount: Math.max(0, Math.round(asNumber(issuesRecord?.info_count) ?? 0)),
+    blockerCount:
+      blockerCount === null ? null : Math.max(0, Math.round(blockerCount)),
+    warningCount:
+      warningCount === null ? null : Math.max(0, Math.round(warningCount)),
+    infoCount: infoCount === null ? null : Math.max(0, Math.round(infoCount)),
     blockedPasses: asArray(issuesRecord?.blocked_passes)
       .map((item) => asString(item))
       .filter((item): item is string => Boolean(item)),
@@ -592,8 +531,8 @@ function parseDecisionCardRecord(
   return {
     runId: asString(record.run_id) ?? "unknown",
     generatedAt: asString(record.generated_at),
-    verdict: normalizeVerdict(asString(record.verdict)),
-    confidence: normalizeConfidence(asString(record.confidence), issues),
+    verdict: asString(record.verdict),
+    confidence: normalizeConfidence(asString(record.confidence)),
     policySummary: policy.summary,
     interventionCount: policy.interventionCount,
     keyMetrics: asArray(record.key_metrics)
@@ -640,7 +579,7 @@ function parseDecisionPacketRecord(
   record: Record<string, unknown>,
 ): DecisionCardViewModel {
   const governance = asRecord(record.governance) ?? asRecord(record.feedback);
-  const issues = buildIssues(governance?.issues);
+  const issuePresentation = buildIssues(governance?.issues);
   const policy = derivePolicySummary(record);
 
   const simulationResults = asRecord(record.simulation_results);
@@ -662,8 +601,8 @@ function parseDecisionPacketRecord(
   return {
     runId: asString(record.run_id) ?? "unknown",
     generatedAt: asString(record.generated_at),
-    verdict: normalizeVerdict(asString(governance?.verdict)),
-    confidence: normalizeConfidence(null, issues),
+    verdict: asString(governance?.verdict),
+    confidence: null,
     policySummary: policy.summary,
     interventionCount: policy.interventionCount,
     keyMetrics: extractMetrics(
@@ -677,8 +616,11 @@ function parseDecisionPacketRecord(
     metricValidationFamilyAdjustment: parseMetricValidationFamilyAdjustment(
       record.metric_validation_family_adjustment,
     ),
-    diagnosticsBadges: deriveDiagnosticBadges(record),
-    issues,
+    diagnosticsBadges: [
+      ...deriveDiagnosticBadges(record),
+      ...issuePresentation.diagnostics,
+    ],
+    issues: issuePresentation.summary,
     distributional,
     totalDurationMs: duration,
     sourceKind: "decision_packet",

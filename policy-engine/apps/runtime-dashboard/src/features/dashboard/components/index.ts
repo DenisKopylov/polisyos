@@ -4,8 +4,6 @@ export { WidgetContainer } from "./WidgetContainer";
 export { QuickInsightsPanel } from "./QuickInsightsPanel";
 export type { QuickInsight } from "./QuickInsightsPanel";
 export { RecentRunsTimeline } from "./RecentRunsTimeline";
-export { ActiveAlertsStrip } from "./ActiveAlertsStrip";
-export type { ActiveAlert, AlertSeverity } from "./ActiveAlertsStrip";
 export { DataFreshnessMatrix } from "./DataFreshnessMatrix";
 export type {
   DataFreshnessDisplayState,

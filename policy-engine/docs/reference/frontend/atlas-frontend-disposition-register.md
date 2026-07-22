@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **8662**
-- Application lines deleted: **9288**
-- Net application LOC reduction: **626**
-- Application files deleted: **65**
+- Application lines added: **12396**
+- Application lines deleted: **12277**
+- Net application LOC reduction: **-119**
+- Application files deleted: **66**
 
 ## Wave-end full verification
 
@@ -306,7 +306,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 | `ui-compounds-root` | `ui-compounds-root` | 3 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-operator-diagnostics` | `ui-operator-diagnostics` | 0 | `rebind_pending` | `strangled` | `DS4` | `dashboard-operator-diagnostic-generated-evidence-rebind` |
 | `ui-authored-text` | `ui-authored-text` | 11 | `rebind_pending` | `strangled` | `DS4` | `dashboard-authored-candidate-posture` |
-| `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `pending` | `DS4` | `—` |
+| `ui-compounds` | `ui-compounds` | 24 | `rebind_pending` | `strangled` | `DS4` | `dashboard-compound-evidence-generated-waist-rebind` |
 | `ui-counterfactual` | `ui-counterfactual` | 4 | `rebind_pending` | `strangled` | `DS4` | `dashboard-counterfactual-generated-scenario-rebind` |
 | `ui-patterns` | `ui-patterns` | 7 | `rebind_pending` | `pending` | `DS4` | `—` |
 | `ui-quantity` | `ui-quantity` | 34 | `rebind_pending` | `strangled` | `DS4` | `dashboard-quantity-generated-waist-rebind` |
@@ -514,6 +514,7 @@ Retirement is from frontend adoption only; no endpoint is removed by DS19.
 
 ## Commits
 
+- `f444ba719 refactor(dashboard): fail closed on counterfactual projections`
 - `a59efb3dc refactor(dashboard): rebind operator evidence primitives`
 - `8a8c8169e refactor(dashboard): rebind trust view authority`
 - `c4e1b97e3 refactor(dashboard): rebind authored candidate posture`

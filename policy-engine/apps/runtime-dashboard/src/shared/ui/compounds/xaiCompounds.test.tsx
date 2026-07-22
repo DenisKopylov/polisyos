@@ -48,6 +48,7 @@ vi.mock("@/shared/charts/accessibility", () => ({
   ),
 }));
 
+import type { PolicyDesignCaseProjectionBlocker } from "@polisyos/runtime-api-client";
 import { screen, fireEvent } from "@testing-library/react";
 import { renderWithProviders } from "@/test/render";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
@@ -64,19 +65,34 @@ import { NegativeCertificateCard } from "./NegativeCertificateCard";
 import { ProvenanceChain } from "./ProvenanceChain";
 import { MethodologyBadge } from "./MethodologyBadge";
 
+function percentQuantity(metricId: string, point: number | null) {
+  return untracedDecisionQuantity({ metricId, point });
+}
+
+function projectionBlocker(
+  overrides: Partial<PolicyDesignCaseProjectionBlocker> = {},
+): PolicyDesignCaseProjectionBlocker {
+  return {
+    code: "producer_blocker",
+    message: "The producer blocked closeout.",
+    severity: "owner_severity",
+    ...overrides,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // 1. ExplainabilityCard
 // ---------------------------------------------------------------------------
 describe("ExplainabilityCard", () => {
   const baseVerdict = {
-    status: "approved" as const,
-    confidence: 0.92,
+    decisionGrade: "approved",
+    confidence: percentQuantity("decision.confidence", 0.92),
     summary: "Strong evidence",
   };
 
   it("renders glance level with verdict and confidence", () => {
     renderWithProviders(<ExplainabilityCard verdict={baseVerdict} />);
-    expect(screen.getByText("Approved")).toBeInTheDocument();
+    expect(screen.getByText("approved")).toBeInTheDocument();
     expect(screen.getByText("92%")).toBeInTheDocument();
     expect(screen.getByText("Strong evidence")).toBeInTheDocument();
   });
@@ -106,12 +122,17 @@ describe("ExplainabilityCard", () => {
           passed: 3,
           failed: 1,
           warnings: 0,
-          blockers: ["Missing consent"],
+          blockers: [
+            projectionBlocker({
+              code: "missing_consent",
+              message: "Missing consent",
+            }),
+          ],
         }}
       />,
     );
     expect(screen.getByText("Governance blockers")).toBeInTheDocument();
-    expect(screen.getByText("Missing consent")).toBeInTheDocument();
+    expect(screen.getByText(/Missing consent/)).toBeInTheDocument();
   });
 
   it("expands from glance to summary via button", () => {
@@ -140,36 +161,48 @@ describe("ExplainabilityCard", () => {
 // ---------------------------------------------------------------------------
 describe("GovernancePassGrid", () => {
   const passes = [
-    { id: "g1", label: "Data quality", status: "pass" as const },
+    {
+      id: "g1",
+      label: "Data quality",
+      status: "pass" as const,
+      vocabulary: "owner_diagnostic" as const,
+    },
     {
       id: "g2",
       label: "Legal review",
       status: "fail" as const,
       detail: "GDPR concern",
+      vocabulary: "owner_diagnostic" as const,
     },
     {
       id: "g3",
       label: "Ethics check",
       status: "warning" as const,
       durationMs: 120,
+      vocabulary: "owner_diagnostic" as const,
     },
-    { id: "g4", label: "Deferred", status: "skip" as const },
+    {
+      id: "g4",
+      label: "Deferred",
+      status: "skip" as const,
+      vocabulary: "owner_diagnostic" as const,
+    },
   ];
 
   it("renders all pass tiles with correct aria-labels", () => {
     renderWithProviders(<GovernancePassGrid passes={passes} />);
-    expect(screen.getByLabelText("Data quality: Passed")).toBeInTheDocument();
-    expect(screen.getByLabelText("Legal review: Failed")).toBeInTheDocument();
-    expect(screen.getByLabelText("Ethics check: Warning")).toBeInTheDocument();
-    expect(screen.getByLabelText("Deferred: Skipped")).toBeInTheDocument();
+    expect(screen.getByLabelText("Data quality: pass")).toBeInTheDocument();
+    expect(screen.getByLabelText("Legal review: fail")).toBeInTheDocument();
+    expect(screen.getByLabelText("Ethics check: warning")).toBeInTheDocument();
+    expect(screen.getByLabelText("Deferred: skip")).toBeInTheDocument();
   });
 
-  it("shows count summary", () => {
+  it("shows a neutral diagnostic count and preserves owner states", () => {
     renderWithProviders(<GovernancePassGrid passes={passes} />);
-    expect(screen.getByText("Passed: 1")).toBeInTheDocument();
-    expect(screen.getByText("Failed: 1")).toBeInTheDocument();
-    expect(screen.getByText("Warning: 1")).toBeInTheDocument();
-    expect(screen.getByText("Skipped: 1")).toBeInTheDocument();
+    expect(screen.getByText("4 diagnostics")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("governance-pass-grid-owner-states"),
+    ).toHaveTextContent("pass · fail · warning · skip");
   });
 
   it("renders custom title", () => {
@@ -227,7 +260,7 @@ describe("TrustCalibrationDisplay", () => {
     renderWithProviders(
       <TrustCalibrationDisplay
         methodology="DiD"
-        historicalAccuracy={0.87}
+        historicalAccuracy={percentQuantity("trust.accuracy", 0.87)}
         totalPastAnalyses={42}
       />,
     );
@@ -243,7 +276,7 @@ describe("TrustCalibrationDisplay", () => {
     renderWithProviders(
       <TrustCalibrationDisplay
         methodology="SC"
-        historicalAccuracy={0.72}
+        historicalAccuracy={percentQuantity("trust.accuracy", 0.72)}
         totalPastAnalyses={10}
         limitations={["Small sample"]}
         counterArguments={["Selection bias possible"]}
@@ -261,15 +294,19 @@ describe("TrustCalibrationDisplay", () => {
     renderWithProviders(
       <TrustCalibrationDisplay
         methodology="DiD"
-        historicalAccuracy={0.9}
+        historicalAccuracy={percentQuantity("trust.accuracy", 0.9)}
         totalPastAnalyses={50}
         calibrationRecords={[
-          { level: 0.95, expectedCoverage: 0.95, actualCoverage: 0.93 },
+          {
+            level: percentQuantity("coverage.level", 0.95),
+            expectedCoverage: percentQuantity("coverage.expected", 0.95),
+            actualCoverage: percentQuantity("coverage.actual", 0.93),
+          },
         ]}
       />,
     );
     expect(screen.getByText("Calibration check")).toBeInTheDocument();
-    expect(screen.getByText("95% CI")).toBeInTheDocument();
+    expect(screen.getAllByText("95%").length).toBeGreaterThanOrEqual(2);
   });
 });
 
@@ -453,11 +490,13 @@ describe("NegativeCertificateCard", () => {
   it("renders blocking type badge and reason", () => {
     renderWithProviders(
       <NegativeCertificateCard
-        blockingType="identification_failure"
-        reason="Cannot identify causal effect"
+        blocker={projectionBlocker({
+          code: "identification_failure",
+          message: "Cannot identify causal effect",
+        })}
       />,
     );
-    expect(screen.getByText("Not identified")).toBeInTheDocument();
+    expect(screen.getByText("identification_failure")).toBeInTheDocument();
     expect(
       screen.getByText("Cannot identify causal effect"),
     ).toBeInTheDocument();
@@ -469,8 +508,10 @@ describe("NegativeCertificateCard", () => {
   it("renders violated assumptions", () => {
     renderWithProviders(
       <NegativeCertificateCard
-        blockingType="assumption_violation"
-        reason="Failed"
+        blocker={projectionBlocker({
+          code: "assumption_violation",
+          message: "Failed",
+        })}
         assumptions={["Parallel trends", "No spillover"]}
       />,
     );
@@ -482,8 +523,10 @@ describe("NegativeCertificateCard", () => {
   it("renders suggested experiments with feasibility", () => {
     renderWithProviders(
       <NegativeCertificateCard
-        blockingType="data_insufficient"
-        reason="Need more data"
+        blocker={projectionBlocker({
+          code: "data_insufficient",
+          message: "Need more data",
+        })}
         suggestedExperiments={[
           {
             id: "exp1",
@@ -497,14 +540,16 @@ describe("NegativeCertificateCard", () => {
     expect(screen.getByText("Suggested experiments")).toBeInTheDocument();
     expect(screen.getByText("Run RCT")).toBeInTheDocument();
     expect(screen.getByText("Gold standard")).toBeInTheDocument();
-    expect(screen.getByText("High")).toBeInTheDocument();
+    expect(screen.getByText("high")).toBeInTheDocument();
   });
 
   it("handles unknown blocking types gracefully", () => {
     renderWithProviders(
       <NegativeCertificateCard
-        blockingType="custom_block"
-        reason="Unknown reason"
+        blocker={projectionBlocker({
+          code: "custom_block",
+          message: "Unknown reason",
+        })}
       />,
     );
     expect(screen.getByText("custom_block")).toBeInTheDocument();
@@ -517,26 +562,37 @@ describe("NegativeCertificateCard", () => {
 describe("ProvenanceChain", () => {
   const steps = [
     {
-      id: "p1",
-      label: "Input dataset",
-      type: "data" as const,
       detail: "v2.3",
+      lineage: {
+        id: "p1",
+        kind: "dataset" as const,
+        label: "Input dataset",
+      },
+      source: "recorded-lineage" as const,
       timestamp: "2026-03-10",
     },
     {
       id: "p2",
       label: "DiD estimation",
+      source: "diagnostic-summary" as const,
       type: "method" as const,
-      statusLabel: "Completed",
-      status: "ok" as const,
+      diagnosticLabel: "Completed",
     },
     {
-      id: "p3",
-      label: "ATE result",
-      type: "result" as const,
       href: "/artifacts/result-1",
+      lineage: {
+        id: "p3",
+        kind: "result" as const,
+        label: "ATE result",
+      },
+      source: "recorded-lineage" as const,
     },
-    { id: "p4", label: "Compliance gate", type: "governance" as const },
+    {
+      id: "p4",
+      label: "Compliance gate",
+      source: "diagnostic-summary" as const,
+      type: "artifact" as const,
+    },
   ];
 
   it("renders all provenance steps", () => {
@@ -547,7 +603,7 @@ describe("ProvenanceChain", () => {
     expect(screen.getByText("Compliance gate")).toBeInTheDocument();
   });
 
-  it("renders detail, timestamp, and status badge", () => {
+  it("renders detail, timestamp, and diagnostic badge", () => {
     renderWithProviders(<ProvenanceChain steps={steps} />);
     expect(screen.getByText("v2.3")).toBeInTheDocument();
     expect(screen.getByText("2026-03-10")).toBeInTheDocument();

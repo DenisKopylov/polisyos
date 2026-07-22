@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import type {
+  DecisionValidityStatus,
   QuantityUncertainty,
   QuantityValueOutput,
 } from "@polisyos/runtime-api-client";
@@ -36,6 +37,26 @@ const temporalRefSchema = z.object({
 });
 
 const temporalScopeSchema = temporalRefSchema.nullable().optional();
+
+const decisionValidityStatusMembers = {
+  active: true,
+  requires_human_review: true,
+  reissued: true,
+  review_required: true,
+  revoked: true,
+  stale: true,
+  superseded: true,
+  warning: true,
+  withdrawn: true,
+} as const satisfies Record<DecisionValidityStatus, true>;
+
+const decisionValidityStatusSchema = z
+  .string()
+  .refine(
+    (value): value is DecisionValidityStatus =>
+      Object.hasOwn(decisionValidityStatusMembers, value),
+    "unknown generated decision validity status",
+  );
 
 const temporalRangeSchema = z.object({
   earliest: z.string().nullable().optional(),
@@ -162,6 +183,7 @@ const runDetailsSchemaInner = z.object({
   duration_ms: z.number().nullable().optional(),
   tenant_id: z.string().nullable().optional(),
   cell_id: z.string().nullable().optional(),
+  decision_validity_status: decisionValidityStatusSchema.nullable().optional(),
   has_trace: z.boolean().optional(),
   has_workflow_report: z.boolean().optional(),
   manifest_ref: artifactRefSchema.nullable().optional(),

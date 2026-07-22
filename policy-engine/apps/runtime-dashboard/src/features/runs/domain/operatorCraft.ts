@@ -112,7 +112,7 @@ export type ReadingOnboardingStepId =
   | "inspect_glossary"
   | "narrate_provenance"
   | "read_decision"
-  | "safe_approval"
+  | "checklist_complete"
   | "save_evidence"
   | "set_threshold";
 
@@ -122,7 +122,7 @@ const READING_ONBOARDING_STEP_IDS = [
   "inspect_glossary",
   "narrate_provenance",
   "read_decision",
-  "safe_approval",
+  "checklist_complete",
   "save_evidence",
   "set_threshold",
 ] as const satisfies readonly ReadingOnboardingStepId[];
@@ -131,11 +131,11 @@ export type ReadingOnboardingState = {
   auditEvents: ReplayEventEnvelope[];
   completedAt: string | null;
   completedStepIds: ReadingOnboardingStepId[];
-  firstApprovalAt: string | null;
+  firstCompletionAt: string | null;
   runId: string;
   schema: typeof ONBOARDING_SCHEMA;
   startedAt: string;
-  timeToFirstSafeApprovalSeconds: number | null;
+  timeToCompletionSeconds: number | null;
 };
 
 export type ReadingOnboardingStep = {
@@ -146,12 +146,12 @@ export type ReadingOnboardingStep = {
 };
 
 export type ReadingOnboardingSnapshot = {
-  canApprove: boolean;
+  canComplete: boolean;
   completedCount: number;
   progress: number;
   state: ReadingOnboardingState;
   steps: ReadingOnboardingStep[];
-  timeToFirstSafeApprovalSeconds: number | null;
+  timeToCompletionSeconds: number | null;
   totalCount: number;
 };
 
@@ -387,11 +387,11 @@ function defaultReadingOnboardingState(runId: string): ReadingOnboardingState {
     auditEvents: [],
     completedAt: null,
     completedStepIds: [],
-    firstApprovalAt: null,
+    firstCompletionAt: null,
     runId,
     schema: ONBOARDING_SCHEMA,
     startedAt: FALLBACK_NOW,
-    timeToFirstSafeApprovalSeconds: null,
+    timeToCompletionSeconds: null,
   };
 }
 
@@ -419,14 +419,16 @@ function normalizeReadingOnboardingState(
     completedStepIds: Array.from(
       new Set(value.completedStepIds.filter(isReadingOnboardingStepId)),
     ),
-    firstApprovalAt:
-      typeof value.firstApprovalAt === "string" ? value.firstApprovalAt : null,
+    firstCompletionAt:
+      typeof value.firstCompletionAt === "string"
+        ? value.firstCompletionAt
+        : null,
     runId: value.runId || runId,
     schema: ONBOARDING_SCHEMA,
     startedAt: value.startedAt,
-    timeToFirstSafeApprovalSeconds:
-      typeof value.timeToFirstSafeApprovalSeconds === "number"
-        ? value.timeToFirstSafeApprovalSeconds
+    timeToCompletionSeconds:
+      typeof value.timeToCompletionSeconds === "number"
+        ? value.timeToCompletionSeconds
         : null,
   };
 }
@@ -723,7 +725,9 @@ function createOnboardingStepEvent(input: {
 }
 
 function hasCompletedRequiredOnboardingSteps(state: ReadingOnboardingState) {
-  return ONBOARDING_STEP_ORDER.filter((step) => step.id !== "safe_approval")
+  return ONBOARDING_STEP_ORDER.filter(
+    (step) => step.id !== "checklist_complete",
+  )
     .map((step) => step.id)
     .every((stepId) => state.completedStepIds.includes(stepId));
 }
@@ -741,7 +745,7 @@ export function completeReadingOnboardingStep(input: {
     runId: input.runId,
   });
   if (
-    input.stepId === "safe_approval" &&
+    input.stepId === "checklist_complete" &&
     !hasCompletedRequiredOnboardingSteps(current)
   ) {
     return current;
@@ -787,25 +791,25 @@ export function completeReadingOnboardingRun(input: {
   if (!hasCompletedRequiredOnboardingSteps(current)) {
     return current;
   }
-  const withSafeApproval = completeReadingOnboardingStep({
+  const withChecklistCompletion = completeReadingOnboardingStep({
     now: occurredAt,
     packet: input.packet,
     reviewerId: input.reviewerId,
     runId: input.runId,
-    stepId: "safe_approval",
+    stepId: "checklist_complete",
   });
-  const startedAt = Date.parse(withSafeApproval.startedAt);
+  const startedAt = Date.parse(withChecklistCompletion.startedAt);
   const completedAt = Date.parse(occurredAt);
   const seconds =
     Number.isFinite(startedAt) && Number.isFinite(completedAt)
       ? Math.max(0, Math.round((completedAt - startedAt) / 1000))
       : null;
   const next = {
-    ...withSafeApproval,
+    ...withChecklistCompletion,
     completedAt: occurredAt,
-    firstApprovalAt: withSafeApproval.firstApprovalAt ?? occurredAt,
-    timeToFirstSafeApprovalSeconds:
-      withSafeApproval.timeToFirstSafeApprovalSeconds ?? seconds,
+    firstCompletionAt: withChecklistCompletion.firstCompletionAt ?? occurredAt,
+    timeToCompletionSeconds:
+      withChecklistCompletion.timeToCompletionSeconds ?? seconds,
   } satisfies ReadingOnboardingState;
   writeJson(onboardingKey(input.runId), next);
   emitOperatorCraftChanged("onboarding");
@@ -864,7 +868,7 @@ export function buildAnnotationTargets(
     {
       kind: "coverage",
       label: packet.coverageCaveat.summary,
-      ref: `coverage:${packet.coverageCaveat.status}`,
+      ref: `coverage:${packet.coverageCaveat.caveatState.label}`,
       surfaceId: "runs.coverageMap",
     },
     {
@@ -910,26 +914,14 @@ export function buildEvidenceWalletCandidates(
     sourceSurfaceId: "runs.coverageMap" as const,
     summary: region.caveat,
   }));
-  const threshold = packet.thresholdContract.edgeCases
-    .slice(0, 3)
-    .map((edge) => ({
-      kind: "threshold" as const,
-      label: edge.label,
-      ref: edge.id,
-      sourceSurfaceId: "runs.thresholdContract" as const,
-      summary: `${edge.side} threshold by ${edge.distance}.`,
-    }));
-
   const seen = new Set<string>();
-  return [...modelRefs, ...explanations, ...coverage, ...threshold].filter(
-    (candidate) => {
-      if (seen.has(candidate.ref)) {
-        return false;
-      }
-      seen.add(candidate.ref);
-      return true;
-    },
-  );
+  return [...modelRefs, ...explanations, ...coverage].filter((candidate) => {
+    if (seen.has(candidate.ref)) {
+      return false;
+    }
+    seen.add(candidate.ref);
+    return true;
+  });
 }
 
 const ONBOARDING_STEP_ORDER: Array<{
@@ -973,8 +965,8 @@ const ONBOARDING_STEP_ORDER: Array<{
     requiredSurfaceId: "runs.annotationSurface",
   },
   {
-    evidenceRef: "approval.safe_reading",
-    id: "safe_approval",
+    evidenceRef: "onboarding.checklist_complete",
+    id: "checklist_complete",
     requiredSurfaceId: "runs.readingOnboarding",
   },
 ];
@@ -995,16 +987,16 @@ export function buildReadingOnboardingSnapshot(input: {
     completed: completed.has(step.id),
   }));
   const completedCount = steps.filter((step) => step.completed).length;
-  const canApprove = steps
-    .filter((step) => step.id !== "safe_approval")
+  const canComplete = steps
+    .filter((step) => step.id !== "checklist_complete")
     .every((step) => step.completed);
   return {
-    canApprove,
+    canComplete,
     completedCount,
     progress: steps.length ? completedCount / steps.length : 1,
     state: input.state,
     steps,
-    timeToFirstSafeApprovalSeconds: input.state.timeToFirstSafeApprovalSeconds,
+    timeToCompletionSeconds: input.state.timeToCompletionSeconds,
     totalCount: steps.length,
   };
 }

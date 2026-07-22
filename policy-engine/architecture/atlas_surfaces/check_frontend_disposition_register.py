@@ -18,6 +18,7 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 from datetime import date, datetime
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -1527,6 +1528,83 @@ def _expected_resolution_content_roles(
     }
 
 
+@lru_cache(maxsize=32)
+def _chart_quantity_scalar_semantics_hold(
+    chart_source: bytes,
+    quantity_format_source: bytes,
+) -> bool:
+    """Execute the authored scalar adapter with representative set-valued inputs."""
+    dashboard_root = REPO_ROOT / "apps/runtime-dashboard"
+    runner = r"""
+const fs = require("node:fs");
+const path = require("node:path");
+const { createRequire } = require("node:module");
+const dashboardRoot = process.argv[1];
+const requireFromDashboard = createRequire(path.join(dashboardRoot, "package.json"));
+const ts = requireFromDashboard("typescript");
+const input = JSON.parse(fs.readFileSync(0, "utf8"));
+
+function authoredFunction(source, name) {
+  const sourceFile = ts.createSourceFile(
+    `${name}.ts`,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
+  let found = null;
+  function visit(node) {
+    if (ts.isFunctionDeclaration(node) && node.name?.text === name) {
+      found = node.getText(sourceFile).replace(/^export\s+/u, "");
+      return;
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(sourceFile);
+  if (found === null) throw new Error(`missing authored function: ${name}`);
+  return found;
+}
+
+const authored = [
+  authoredFunction(input.quantityFormatSource, "finitePoint"),
+  authoredFunction(input.chartSource, "chartQuantityMembers"),
+  authoredFunction(input.chartSource, "chartQuantityScalarPoint"),
+  "module.exports = { chartQuantityScalarPoint };",
+].join("\n");
+const javascript = ts.transpileModule(authored, {
+  compilerOptions: {
+    module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2022,
+  },
+}).outputText;
+const evaluated = { exports: {} };
+new Function("module", "exports", javascript)(evaluated, evaluated.exports);
+const scalar = evaluated.exports.chartQuantityScalarPoint;
+const quantity = (point) => ({ point });
+const holds =
+  scalar(null) === null &&
+  scalar(quantity(0.5)) === 0.5 &&
+  scalar(quantity(Number.NaN)) === null &&
+  scalar([quantity(1), quantity(2)]) === null &&
+  scalar([quantity(-0.25)]) === -0.25;
+process.exit(holds ? 0 : 1);
+"""
+    completed = subprocess.run(
+        ["node", "-e", runner, str(dashboard_root)],
+        cwd=REPO_ROOT,
+        input=json.dumps(
+            {
+                "chartSource": chart_source.decode("utf-8"),
+                "quantityFormatSource": quantity_format_source.decode("utf-8"),
+            }
+        ),
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    return completed.returncode == 0
+
+
 def _resolution_content_binding_errors(
     lint: Mapping[str, Any],
     *,
@@ -1571,6 +1649,19 @@ def _resolution_content_binding_errors(
                     continue
             if hashlib.sha256(source_bytes).hexdigest() != binding["sha256"]:
                 errors.append(f"lint_resolution_content_hash_drift:{cluster_id}:{path}")
+            if (
+                cluster_id == "C07"
+                and path
+                == "apps/runtime-dashboard/src/shared/charts/quantityChartSemantics.tsx"
+            ):
+                quantity_format_source = (
+                    REPO_ROOT
+                    / "apps/runtime-dashboard/src/shared/ui/quantity/quantity-format.ts"
+                ).read_bytes()
+                if not _chart_quantity_scalar_semantics_hold(
+                    source_bytes, quantity_format_source
+                ):
+                    errors.append(f"lint_c07_scalar_semantic_probe_failed:{path}")
     return errors
 
 
@@ -1759,8 +1850,8 @@ def validate_baseline_manifest(
         if row["cluster_id"] == "C06"
     )
     if c06_classifications != {
-        "quantity_enveloped": 12,
-        "authority_guess_removed": 5,
+        "quantity_enveloped": 10,
+        "authority_guess_removed": 7,
         "collection_control": 2,
         "parser_control": 1,
     }:
@@ -1787,13 +1878,16 @@ def validate_baseline_manifest(
         errors.append("lint_c08_resolution_classification_drift")
     for resolution in lint["resolutions"]:
         identity_id = resolution["origin_identity_sha256"]
-        if (
-            resolution["cluster_id"] == "C06"
-            and resolution["semantic_kind"] == "decision_bearing"
-            and resolution["closure_test_ref"]
-            != "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
-        ):
-            errors.append(f"lint_c06_semantic_closure_drift:{identity_id}")
+        if resolution["cluster_id"] == "C06" and resolution["semantic_kind"] == "decision_bearing":
+            expected_closure = (
+                "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts"
+                if resolution["classification"] == "authority_guess_removed"
+                and resolution["origin_identity"]["path"]
+                == "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+                else "apps/runtime-dashboard/src/shared/ui/quantity/quantityDecisionProducers.test.tsx"
+            )
+            if resolution["closure_test_ref"] != expected_closure:
+                errors.append(f"lint_c06_semantic_closure_drift:{identity_id}")
         if resolution["cluster_id"] == "C07":
             expected_semantic_kind = (
                 "decision_bearing"

@@ -14,6 +14,7 @@ import { formatNumber } from "@/shared/lib/utils";
 import { Badge } from "@polisyos/atlas-ui";
 import { JsonPreview } from "@/shared/ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
+import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 
 const DecisionCardView = lazy(() => import("./DecisionCardView"));
 const SimulationResultsViewer = lazy(
@@ -339,8 +340,9 @@ function PreflightReportViewer({ preview }: { preview: unknown }) {
 }
 
 function EvaluatorReportViewer({ preview }: { preview: unknown }) {
-  const { t, label } = useI18n();
+  const { t } = useI18n();
   const report = asRecord(preview);
+  const decisionGrade = presentDecisionGradeLabel(asString(report?.verdict));
   const scores = asRecord(report?.scores);
   const reasons = asArray(report?.reasons)
     .map((item) => asString(item))
@@ -360,13 +362,13 @@ function EvaluatorReportViewer({ preview }: { preview: unknown }) {
             label: t("pages.artifacts.viewers.verdict"),
             value: (
               <Badge
-                kind={asString(report?.verdict) === "APPROVE" ? "ok" : "warn"}
+                data-decision-grade-presentation={decisionGrade.classification}
+                data-owner-decision-grade={
+                  decisionGrade.ownerLabel ?? undefined
+                }
+                kind="neutral"
               >
-                {label(
-                  "evaluatorVerdicts",
-                  asString(report?.verdict),
-                  asString(report?.verdict) ?? t("common.unknown"),
-                )}
+                {decisionGrade.ownerLabel ?? t("common.unknown")}
               </Badge>
             ),
           },

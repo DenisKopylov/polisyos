@@ -11,22 +11,32 @@ import {
 } from "@/shared/lib/utils";
 import { Badge, EmptyState } from "@polisyos/atlas-ui";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
+import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 
 type AgentPipelinePanelProps = {
   payload: unknown;
 };
 
-function stepStatusKind(status: string): "ok" | "warn" | "fail" | "neutral" {
-  if (status === "ok") {
-    return "ok";
-  }
-  if (status === "warn") {
-    return "warn";
-  }
-  if (status === "fail") {
-    return "fail";
-  }
-  return "neutral";
+function DecisionGradeLabel({
+  className,
+  fallback,
+  ownerValue,
+}: {
+  className?: string;
+  fallback: string;
+  ownerValue: unknown;
+}) {
+  const presentation = presentDecisionGradeLabel(ownerValue);
+
+  return (
+    <span
+      className={className}
+      data-decision-grade-presentation={presentation.classification}
+      data-owner-decision-grade={presentation.ownerLabel ?? undefined}
+    >
+      {presentation.ownerLabel ?? fallback}
+    </span>
+  );
 }
 
 function PipelineScoreQuantity({
@@ -154,11 +164,10 @@ export default function AgentPipelinePanel({
             {t("panels.agentPipeline.latestVerdict")}
           </p>
           <p className="font-semibold">
-            {label(
-              "evaluatorVerdicts",
-              pipeline.latestVerdict,
-              pipeline.latestVerdict ?? "-",
-            )}
+            <DecisionGradeLabel
+              fallback={t("common.unknown")}
+              ownerValue={pipeline.latestVerdict}
+            />
           </p>
         </div>
         <div className="border-line rounded-xl border p-2 text-sm">
@@ -449,14 +458,11 @@ export default function AgentPipelinePanel({
             <h4 className="text-sm font-semibold">
               {t("panels.agentPipeline.evaluatorVerdict")}
             </h4>
-            <Badge
-              kind={pipeline.evaluator.verdict === "APPROVE" ? "ok" : "warn"}
-            >
-              {label(
-                "evaluatorVerdicts",
-                pipeline.evaluator.verdict,
-                pipeline.evaluator.verdict ?? "-",
-              )}
+            <Badge kind="neutral">
+              <DecisionGradeLabel
+                fallback={t("common.unknown")}
+                ownerValue={pipeline.evaluator.verdict}
+              />
             </Badge>
           </div>
           <div className="grid gap-2 text-xs md:grid-cols-3">
@@ -653,17 +659,19 @@ export default function AgentPipelinePanel({
                       attempt: attempt.attempt,
                     })}
                   </h4>
-                  <Badge kind={stepStatusKind(attempt.status)}>
+                  <Badge
+                    data-kind="neutral"
+                    data-owner-status={attempt.status}
+                    kind="neutral"
+                  >
                     {attempt.status}
                   </Badge>
                   {attempt.verdict ? (
-                    <span className="bg-canvas/60 border-line rounded-full border px-2 py-0.5 text-xs">
-                      {label(
-                        "evaluatorVerdicts",
-                        attempt.verdict,
-                        attempt.verdict,
-                      )}
-                    </span>
+                    <DecisionGradeLabel
+                      className="bg-canvas/60 border-line rounded-full border px-2 py-0.5 text-xs"
+                      fallback={t("common.unknown")}
+                      ownerValue={attempt.verdict}
+                    />
                   ) : null}
                 </div>
                 <p className="text-muted text-xs">
@@ -692,7 +700,11 @@ export default function AgentPipelinePanel({
                         <span className="text-xs font-semibold uppercase">
                           {step.agentLabel}
                         </span>
-                        <Badge kind={stepStatusKind(step.status)}>
+                        <Badge
+                          data-kind="neutral"
+                          data-owner-status={step.status}
+                          kind="neutral"
+                        >
                           {step.status}
                         </Badge>
                       </div>
@@ -717,7 +729,11 @@ export default function AgentPipelinePanel({
                 <h4 className="text-sm font-semibold">
                   {selectedStep.agentLabel}
                 </h4>
-                <Badge kind={stepStatusKind(selectedStep.status)}>
+                <Badge
+                  data-kind="neutral"
+                  data-owner-status={selectedStep.status}
+                  kind="neutral"
+                >
                   {selectedStep.status}
                 </Badge>
               </div>

@@ -2,7 +2,7 @@
   "$schema": "./status-retirement-inventory.schema.json",
   "schema_version": "1.1",
   "inventory_id": "atlas-ds4-status-retirement",
-  "as_of": "2026-07-20T13:15:00+03:00",
+  "as_of": "2026-07-22T12:25:00+03:00",
   "authority": {
     "authoritative_for": [
       "DS1 status-definition retirement accounting and assigned successor ownership."
@@ -20,7 +20,7 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:2c87e76bfb15eac794e8c19c1a06ff0e54bfe4fda8909ac9373aa6de604eb887"
+      "sha256": "sha256:90a6a2b381c26895a7f990b06cbb0f78cc88886f89ca6ea0e8c53a90466cb2ad"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -33,10 +33,10 @@
     "ds1_rows": 47,
     "ds1_named": 23,
     "ds1_inline": 24,
-    "current_named": 13,
-    "current_inline": 20,
-    "current_total": 33,
-    "retired_definitions": 13,
+    "current_named": 10,
+    "current_inline": 11,
+    "current_total": 21,
+    "retired_definitions": 25,
     "already_deleted": 1
   },
   "entries": [
@@ -583,7 +583,7 @@
     {
       "unit_id": "status-publication-argument-node",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
         "start_line": 24,
@@ -608,17 +608,18 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "removal_evidence": {
-        "reason": "planned local authority-definition retirement in C14",
-        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "reason": "C14 removes the local argument-node authority vocabulary and retains candidate support relations without a status field.",
+        "verification_ref": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts"
       }
     },
     {
       "unit_id": "status-stress-scene",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.ts",
         "start_line": 92,
@@ -675,6 +676,7 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/scientificDepth.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
@@ -809,7 +811,7 @@
     {
       "unit_id": "status-governance-pass",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/GovernancePassGrid.tsx",
         "start_line": 11,
@@ -844,11 +846,13 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/ui/compounds/GovernancePassGrid.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "removal_evidence": {
-        "reason": "planned local authority-definition retirement in C14",
-        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "reason": "C14 removes the local pass/fail/warning/skip authority union and renders producer labels through explicit unrecognized neutral presentation.",
+        "verification_ref": "apps/runtime-dashboard/src/shared/ui/compounds/GovernancePassGrid.test.tsx"
       }
     },
     {
@@ -1468,7 +1472,7 @@
     {
       "unit_id": "status-inline-compliance-badge",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/platform/ComplianceBadge.tsx",
         "start_line": 15,
@@ -1503,11 +1507,12 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/platform/ComplianceBadge.test.tsx",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "removal_evidence": {
-        "reason": "planned local authority-definition retirement in C14",
-        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "reason": "C14 removes the authored compliance status field and leaves a documentation disclosure that cannot confer compliance authority.",
+        "verification_ref": "apps/runtime-dashboard/src/features/platform/ComplianceBadge.test.tsx"
       }
     },
     {
@@ -1606,7 +1611,7 @@
     {
       "unit_id": "status-inline-publication-claim",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
         "start_line": 134,
@@ -1648,6 +1653,7 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
@@ -1655,7 +1661,7 @@
     {
       "unit_id": "status-inline-publication-ground",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
         "start_line": 139,
@@ -1697,6 +1703,7 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
@@ -1704,7 +1711,7 @@
     {
       "unit_id": "status-inline-readiness-evidence",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
         "start_line": 122,
@@ -1746,6 +1753,7 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
@@ -1753,7 +1761,7 @@
     {
       "unit_id": "status-inline-readiness-gate",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
         "start_line": 153,
@@ -1785,6 +1793,7 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "generated_anchor": {
@@ -1796,7 +1805,7 @@
     {
       "unit_id": "status-inline-readiness-review",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
         "start_line": 160,
@@ -1838,6 +1847,7 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "generated_anchor": {
@@ -1888,7 +1898,7 @@
     {
       "unit_id": "status-inline-governance-comparison-left",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
         "start_line": 12,
@@ -1943,17 +1953,19 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "removal_evidence": {
-        "reason": "planned local authority-definition retirement in C14",
-        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "reason": "C14 removes the local comparison-side authority union and preserves each owner label through the neutral decision-grade presenter.",
+        "verification_ref": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.test.tsx"
       }
     },
     {
       "unit_id": "status-inline-governance-comparison-right",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
         "start_line": 13,
@@ -1993,11 +2005,13 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "removal_evidence": {
-        "reason": "planned local authority-definition retirement in C14",
-        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "reason": "C14 removes the local comparison-side authority union and preserves each owner label through the neutral decision-grade presenter.",
+        "verification_ref": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.test.tsx"
       }
     },
     {
@@ -2082,7 +2096,7 @@
     {
       "unit_id": "status-inline-explainability",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
         "start_line": 18,
@@ -2127,11 +2141,13 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/ui/compounds/compoundAuthorityBindings.test.tsx",
+        "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "removal_evidence": {
-        "reason": "planned local authority-definition retirement in C14",
-        "verification_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+        "reason": "C14 removes the explainability status union and renders generated payload fields plus explicit unrecognized decision-grade presentation.",
+        "verification_ref": "apps/runtime-dashboard/src/shared/ui/compounds/compoundAuthorityBindings.test.tsx"
       }
     },
     {
@@ -2258,7 +2274,7 @@
     },
     {
       "candidate_id": "semantic-decision-verdict",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/shared/lib/domain/decision.ts",
@@ -2270,9 +2286,11 @@
       "type_expression": "\"APPROVE\" | \"REJECT\" | \"REVIEW\"",
       "disposition": "retirement_debt",
       "target_cluster": "C14",
-      "rationale": "The local decision-card verdict normalization retires through the single decision-grade neutral swap point.",
+      "rationale": "C14 deletes the local three-value verdict union and preserves owner labels opaquely through the single decision-grade neutral swap point, including explicit unrecognized presentation.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/lib/domain/decision.test.ts",
+        "apps/runtime-dashboard/src/shared/ui/compounds/decisionGradePresentation.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "does_not_change_ds1_denominator": true
@@ -2321,7 +2339,7 @@
     },
     {
       "candidate_id": "semantic-public-projection-state",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
@@ -2341,9 +2359,10 @@
       "type_expression": "| \"blocked\"\n  | \"contested\"\n  | \"draft\"\n  | \"projection_only\"\n  | \"publishable\"\n  | \"redacted\"\n  | \"stale\"",
       "disposition": "retirement_debt",
       "target_cluster": "C14",
-      "rationale": "Client-composed publishability retires in the publication/decision-grade cluster.",
+      "rationale": "C14 deletes client-composed publishability and preserves generated projection authority, closeout truth, and opaque producer labels without inferring a local projection state.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "does_not_change_ds1_denominator": true
@@ -2381,8 +2400,8 @@
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
-        "start_line": 24,
-        "end_line": 31,
+        "start_line": 31,
+        "end_line": 38,
         "declaration_name": "ReadinessSectionId"
       },
       "literal_members": [
@@ -2406,7 +2425,7 @@
     },
     {
       "candidate_id": "semantic-readiness-severity",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts",
@@ -2418,9 +2437,10 @@
       "type_expression": "\"block\" | \"warn\" | \"pass\"",
       "disposition": "retirement_debt",
       "target_cluster": "C14",
-      "rationale": "Client-composed readiness severity is retired or made diagnostic in the readiness cluster.",
+      "rationale": "C14 deletes client-composed readiness severity; diagnostic presentation uses interaction-only state while decision validity remains generated-owner data.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
       ],
       "does_not_change_ds1_denominator": true
@@ -2497,6 +2517,914 @@
       ],
       "does_not_change_ds1_denominator": true,
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-decision-confidence",
+      "current_definition_state": "retired",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/decision.ts",
+        "start_line": 18,
+        "end_line": 18,
+        "declaration_name": "DecisionConfidence"
+      },
+      "literal_members": ["HIGH", "LOW", "MEDIUM"],
+      "type_expression": "\"HIGH\" | \"MEDIUM\" | \"LOW\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "C14 deletes the client-owned confidence lattice and preserves producer confidence labels opaquely without deriving authority or trust posture.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/lib/domain/decision.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-decision-diagnostic-kind",
+      "current_definition_state": "retired",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/decision.ts",
+        "start_line": 48,
+        "end_line": 48,
+        "field_name": "kind"
+      },
+      "literal_members": ["fail", "ok", "unknown", "warn"],
+      "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"unknown\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "C14 removes locally classified diagnostic severity; an explicit owner kind remains opaque and absence remains neutral.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/lib/domain/decision.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-governance-issue-severity",
+      "current_definition_state": "retired",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/governance.ts",
+        "start_line": 9,
+        "end_line": 13,
+        "declaration_name": "GovernanceIssueSeverity"
+      },
+      "literal_members": ["blocker", "info", "unknown", "warning"],
+      "type_expression": "| \"blocker\"\n  | \"warning\"\n  | \"info\"\n  | \"unknown\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "C14 deletes the guessed governance severity union; owner labels remain opaque and owner-supplied issue summaries provide counts.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/lib/domain/governance.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-audit-trail-severity",
+      "current_definition_state": "retired",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
+        "start_line": 17,
+        "end_line": 17,
+        "declaration_name": "AuditTrailSeverity"
+      },
+      "literal_members": ["fail", "info", "warn"],
+      "type_expression": "\"fail\" | \"warn\" | \"info\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "C14 stops converting governance and runtime values into a local audit severity and keeps only producer-recorded timeline state authoritative.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/compare.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-active-alert-severity",
+      "current_definition_state": "retired",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/dashboard/components/ActiveAlertsStrip.tsx",
+        "start_line": 8,
+        "end_line": 8,
+        "declaration_name": "AlertSeverity"
+      },
+      "literal_members": ["critical", "info", "warning"],
+      "type_expression": "\"critical\" | \"warning\" | \"info\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "C14 retires the dormant alert component and its local severity vocabulary because it has no production consumer; git remains the resurrection anchor.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-public-confidence-ladder",
+      "current_definition_state": "retired",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        "start_line": 90,
+        "end_line": 96,
+        "declaration_name": "ConfidenceLadderRung"
+      },
+      "literal_members": [
+        "disputed",
+        "high_blast_radius",
+        "low_confidence",
+        "strongest_claim",
+        "untraced",
+        "weakest_link"
+      ],
+      "type_expression": "| \"disputed\"\n  | \"high_blast_radius\"\n  | \"low_confidence\"\n  | \"strongest_claim\"\n  | \"untraced\"\n  | \"weakest_link\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "C14 removes the locally calculated confidence ladder and leaves weakest-link and confidence semantics absent unless a producer supplies them.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-public-trust-framing-scenario",
+      "current_definition_state": "retired",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        "start_line": 219,
+        "end_line": 227,
+        "declaration_name": "TrustFramingScenario"
+      },
+      "literal_members": [
+        "disputed",
+        "draft",
+        "frontend_signed",
+        "low_confidence",
+        "override_approved",
+        "simulated",
+        "stale",
+        "untraced"
+      ],
+      "type_expression": "| \"disputed\"\n  | \"draft\"\n  | \"frontend_signed\"\n  | \"low_confidence\"\n  | \"override_approved\"\n  | \"simulated\"\n  | \"stale\"\n  | \"untraced\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "C14 removes frontend-authored trust scenarios; integrity signatures remain explicitly non-authoritative and producer absence remains unknown.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-sentry-sentry-log-level",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/telemetry/sentry.ts",
+        "start_line": 9,
+        "end_line": 9,
+        "declaration_name": "SentryLogLevel"
+      },
+      "literal_members": ["debug", "error", "info", "warning"],
+      "type_expression": "\"debug\" | \"info\" | \"warning\" | \"error\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C05",
+      "rationale": "SentryLogLevel in apps/runtime-dashboard/src/shared/telemetry/sentry.ts is a telemetry, addressing, or progressive-disclosure taxonomy rather than authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-logger-structured-log-level",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/telemetry/logger.ts",
+        "start_line": 13,
+        "end_line": 13,
+        "declaration_name": "StructuredLogLevel"
+      },
+      "literal_members": ["debug", "error", "info", "warn"],
+      "type_expression": "\"debug\" | \"info\" | \"warn\" | \"error\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C05",
+      "rationale": "StructuredLogLevel in apps/runtime-dashboard/src/shared/telemetry/logger.ts is a telemetry, addressing, or progressive-disclosure taxonomy rather than authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-trust-view-bridge-trust-view-mode",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBridge.tsx",
+        "start_line": 9,
+        "end_line": 9,
+        "declaration_name": "TrustViewMode"
+      },
+      "literal_members": ["compact", "expanded", "off"],
+      "type_expression": "\"off\" | \"compact\" | \"expanded\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C11",
+      "rationale": "TrustViewMode in apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBridge.tsx is interaction-only presentation and cannot enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c11"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-trust-view-bridge-trust-inspector-subject-kind",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBridge.tsx",
+        "start_line": 11,
+        "end_line": 16,
+        "declaration_name": "TrustInspectorSubjectKind"
+      },
+      "literal_members": [
+        "artifact",
+        "authored_text",
+        "chart",
+        "lineage",
+        "quantity"
+      ],
+      "type_expression": "| \"quantity\"\n  | \"authored_text\"\n  | \"artifact\"\n  | \"lineage\"\n  | \"chart\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C11",
+      "rationale": "TrustInspectorSubjectKind in apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBridge.tsx is a telemetry, addressing, or progressive-disclosure taxonomy rather than authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c11"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-authorship-provider-trust-display-mode",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/authored-text/AuthorshipProvider.tsx",
+        "start_line": 42,
+        "end_line": 42,
+        "field_name": "trustDisplayMode"
+      },
+      "literal_members": ["compact", "expanded", "off"],
+      "type_expression": "\"compact\" | \"expanded\" | \"off\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C10",
+      "rationale": "trustDisplayMode in apps/runtime-dashboard/src/shared/ui/authored-text/AuthorshipProvider.tsx is interaction-only presentation and cannot enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c10"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-status-run-badge-kind",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/status.ts",
+        "start_line": 7,
+        "end_line": 7,
+        "declaration_name": "RunBadgeKind"
+      },
+      "literal_members": ["fail", "ok", "unknown", "warn"],
+      "type_expression": "\"ok\" | \"fail\" | \"warn\" | \"unknown\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "RunBadgeKind in apps/runtime-dashboard/src/features/runs/domain/status.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-glyph-glyph-intent",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/brand/Glyph.tsx",
+        "start_line": 8,
+        "end_line": 8,
+        "declaration_name": "GlyphIntent"
+      },
+      "literal_members": ["blocked", "default", "pending", "verified"],
+      "type_expression": "\"default\" | \"verified\" | \"blocked\" | \"pending\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "GlyphIntent in apps/runtime-dashboard/src/shared/brand/Glyph.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-quantity-runtime-bridge-quantity-trust-mode",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx",
+        "start_line": 16,
+        "end_line": 16,
+        "declaration_name": "QuantityTrustMode"
+      },
+      "literal_members": ["compact", "expanded", "off"],
+      "type_expression": "\"off\" | \"compact\" | \"expanded\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C06",
+      "rationale": "QuantityTrustMode in apps/runtime-dashboard/src/shared/ui/quantity/QuantityRuntimeBridge.tsx is interaction-only presentation and cannot enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c06"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-explainability-card-explainability-level",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+        "start_line": 17,
+        "end_line": 17,
+        "declaration_name": "ExplainabilityLevel"
+      },
+      "literal_members": ["deep", "glance", "summary"],
+      "type_expression": "\"glance\" | \"summary\" | \"deep\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C14",
+      "rationale": "ExplainabilityLevel in apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx is a telemetry, addressing, or progressive-disclosure taxonomy rather than authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-types-confidence-level",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/charts/types.ts",
+        "start_line": 110,
+        "end_line": 110,
+        "declaration_name": "ConfidenceLevel"
+      },
+      "literal_members": ["high", "low", "medium"],
+      "type_expression": "\"high\" | \"medium\" | \"low\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "ConfidenceLevel in apps/runtime-dashboard/src/shared/charts/types.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-janus-glyph-janus-glyph-intent",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/brand/JanusGlyph.tsx",
+        "start_line": 7,
+        "end_line": 7,
+        "declaration_name": "JanusGlyphIntent"
+      },
+      "literal_members": ["blocked", "default", "pending", "verified"],
+      "type_expression": "\"default\" | \"verified\" | \"blocked\" | \"pending\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "JanusGlyphIntent in apps/runtime-dashboard/src/shared/brand/JanusGlyph.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-simulation-severity",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
+        "start_line": 21,
+        "end_line": 21,
+        "field_name": "severity"
+      },
+      "literal_members": ["high", "low", "medium"],
+      "type_expression": "\"low\" | \"medium\" | \"high\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "severity in apps/runtime-dashboard/src/shared/lib/domain/simulation.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-temporal-capability-banner-tone",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/temporal/TemporalCapabilityBanner.tsx",
+        "start_line": 6,
+        "end_line": 6,
+        "field_name": "tone"
+      },
+      "literal_members": ["gap", "unsupported"],
+      "type_expression": "\"gap\" | \"unsupported\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "tone in apps/runtime-dashboard/src/shared/ui/temporal/TemporalCapabilityBanner.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-toast-provider-toast-tone",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/providers/ToastProvider.tsx",
+        "start_line": 15,
+        "end_line": 15,
+        "declaration_name": "ToastTone"
+      },
+      "literal_members": ["error", "info", "success", "warning"],
+      "type_expression": "\"error\" | \"info\" | \"success\" | \"warning\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C18",
+      "rationale": "ToastTone in apps/runtime-dashboard/src/app/providers/ToastProvider.tsx is interaction-only presentation and cannot enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-composer-mode-sections-tone",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+        "start_line": 154,
+        "end_line": 154,
+        "field_name": "tone"
+      },
+      "literal_members": ["accent", "default"],
+      "type_expression": "\"accent\" | \"default\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C18",
+      "rationale": "tone in apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx is interaction-only presentation and cannot enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-launch-run-page-tone",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
+        "start_line": 82,
+        "end_line": 82,
+        "field_name": "tone"
+      },
+      "literal_members": ["accent", "default"],
+      "type_expression": "\"default\" | \"accent\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C18",
+      "rationale": "tone in apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx is interaction-only presentation and cannot enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-production-slice-retry-profile",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
+        "start_line": 49,
+        "end_line": 49,
+        "field_name": "retryProfile"
+      },
+      "literal_members": ["exhausted", "steady", "watch"],
+      "type_expression": "\"steady\" | \"watch\" | \"exhausted\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "retryProfile in apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-alert-dialog-provider-tone",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/app/providers/AlertDialogProvider.tsx",
+        "start_line": 21,
+        "end_line": 21,
+        "field_name": "tone"
+      },
+      "literal_members": ["danger", "primary"],
+      "type_expression": "\"danger\" | \"primary\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C18",
+      "rationale": "tone in apps/runtime-dashboard/src/app/providers/AlertDialogProvider.tsx is interaction-only presentation and cannot enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-use-chat-store-confidence-level",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts",
+        "start_line": 6,
+        "end_line": 6,
+        "declaration_name": "ConfidenceLevel"
+      },
+      "literal_members": ["high", "low", "medium"],
+      "type_expression": "\"high\" | \"medium\" | \"low\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "ConfidenceLevel in apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-compare-tone-81",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
+        "start_line": 81,
+        "end_line": 81,
+        "field_name": "tone"
+      },
+      "literal_members": ["neutral", "ok", "warn"],
+      "type_expression": "\"neutral\" | \"ok\" | \"warn\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "tone in apps/runtime-dashboard/src/features/runs/domain/compare.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-compare-tone-86",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
+        "start_line": 86,
+        "end_line": 86,
+        "field_name": "tone"
+      },
+      "literal_members": ["neutral", "ok", "warn"],
+      "type_expression": "\"neutral\" | \"ok\" | \"warn\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "tone in apps/runtime-dashboard/src/features/runs/domain/compare.ts remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-outcome-delta-tone",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/OutcomeDelta.tsx",
+        "start_line": 96,
+        "end_line": 96,
+        "field_name": "tone"
+      },
+      "literal_members": ["fail", "neutral", "ok", "warn"],
+      "type_expression": "\"ok\" | \"fail\" | \"warn\" | \"neutral\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "tone in apps/runtime-dashboard/src/features/runs/compare/delta-widgets/OutcomeDelta.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-quick-insights-panel-level",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/dashboard/components/QuickInsightsPanel.tsx",
+        "start_line": 7,
+        "end_line": 7,
+        "field_name": "level"
+      },
+      "literal_members": ["alert", "info", "success", "warning"],
+      "type_expression": "\"info\" | \"success\" | \"warning\" | \"alert\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "level in apps/runtime-dashboard/src/features/dashboard/components/QuickInsightsPanel.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-insight-callout-insight-level",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.tsx",
+        "start_line": 3,
+        "end_line": 3,
+        "declaration_name": "InsightLevel"
+      },
+      "literal_members": ["critical", "info", "insight", "warning"],
+      "type_expression": "\"info\" | \"insight\" | \"warning\" | \"critical\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "InsightLevel in apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-evidence-sigil-fresc-profile",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx",
+        "start_line": 17,
+        "end_line": 22,
+        "declaration_name": "FrescProfile"
+      },
+      "literal_members": [
+        "canonical",
+        "corroborated",
+        "reconnaissance",
+        "replicated",
+        "unclassified"
+      ],
+      "type_expression": "| \"unclassified\"\n  | \"reconnaissance\"\n  | \"corroborated\"\n  | \"replicated\"\n  | \"canonical\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "FrescProfile in apps/runtime-dashboard/src/shared/brand/EvidenceSigil.tsx remains an authority-like local vocabulary registered for C18 retirement; consumers may not treat it as owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-performance-budget-severity",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/telemetry/performanceBudget.ts",
+        "start_line": 45,
+        "end_line": 45,
+        "field_name": "severity"
+      },
+      "literal_members": ["critical", "warning"],
+      "type_expression": "\"critical\" | \"warning\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C05",
+      "rationale": "severity in apps/runtime-dashboard/src/shared/telemetry/performanceBudget.ts is a telemetry, addressing, or progressive-disclosure taxonomy rather than authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c05"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-supported-locales",
+      "current_definition_state": "present",
+      "definition_kind": "const",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
+        "start_line": 1,
+        "end_line": 1,
+        "declaration_name": "SUPPORTED_LOCALES"
+      },
+      "literal_members": ["en", "ru", "uk"],
+      "type_expression": "[\"en\", \"uk\", \"ru\"] as const",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C14",
+      "rationale": "SUPPORTED_LOCALES is a locale-selection taxonomy, not evidence support or authority posture; the as-const definition remains explicitly outside the authority lattice.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-confidence-colors",
+      "current_definition_state": "present",
+      "definition_kind": "const",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/charts/theme.ts",
+        "start_line": 13,
+        "end_line": 17,
+        "declaration_name": "confidenceColors"
+      },
+      "literal_members": [
+        "var(--color-confidence-high)",
+        "var(--color-confidence-low)",
+        "var(--color-confidence-medium)"
+      ],
+      "type_expression": "{\n  high: \"var(--color-confidence-high)\",\n  medium: \"var(--color-confidence-medium)\",\n  low: \"var(--color-confidence-low)\",\n} as const",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "The chart palette encodes a local confidence presentation vocabulary; C18 must retire or neutralize it rather than let color imply owner authority.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-network-visibility-state",
+      "current_definition_state": "present",
+      "definition_kind": "inline",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/network/NetworkStatusProvider.tsx",
+        "start_line": 14,
+        "end_line": 14,
+        "field_name": "visibilityState"
+      },
+      "literal_members": ["unknown"],
+      "type_expression": "DocumentVisibilityState | \"unknown\"",
+      "disposition": "interaction_state",
+      "target_cluster": "C14",
+      "rationale": "Browser document visibility is transport and interaction state, not an authority status; the local unknown extension cannot enter an authority slot.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true,
+      "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
+    },
+    {
+      "candidate_id": "semantic-agent-pipeline-step-status-kind",
+      "current_definition_state": "retired",
+      "definition_kind": "return",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+        "start_line": 42,
+        "end_line": 53,
+        "declaration_name": "stepStatusKind"
+      },
+      "literal_members": ["fail", "neutral", "ok", "warn"],
+      "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C14",
+      "rationale": "C14 retires the local step-status-to-tone vocabulary; AgentPipelinePanel now preserves each producer label opaquely in a neutral presentation.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c14"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-simulation-to-severity",
+      "current_definition_state": "present",
+      "definition_kind": "return",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/domain/simulation.ts",
+        "start_line": 181,
+        "end_line": 193,
+        "declaration_name": "toSeverity"
+      },
+      "literal_members": ["high", "low", "medium"],
+      "type_expression": "\"low\" | \"medium\" | \"high\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "toSeverity is a local return vocabulary that assigns authority-like severity posture and remains registered for C18 retirement.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-composer-resolve-launch-badge-kind",
+      "current_definition_state": "present",
+      "definition_kind": "return",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+        "start_line": 124,
+        "end_line": 138,
+        "declaration_name": "resolveLaunchBadgeKind"
+      },
+      "literal_members": ["fail", "neutral", "ok", "warn"],
+      "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "resolveLaunchBadgeKind maps launch owner state into a local semantic posture and remains registered for C18 retirement.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-launch-run-resolve-status-kind",
+      "current_definition_state": "present",
+      "definition_kind": "return",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
+        "start_line": 60,
+        "end_line": 74,
+        "declaration_name": "resolveLaunchStatusKind"
+      },
+      "literal_members": ["fail", "neutral", "ok", "warn"],
+      "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "resolveLaunchStatusKind maps launch owner state into a local semantic posture and remains registered for C18 retirement.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-workflow-dag-status-kind",
+      "current_definition_state": "present",
+      "definition_kind": "return",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx",
+        "start_line": 24,
+        "end_line": 37,
+        "declaration_name": "statusKind"
+      },
+      "literal_members": ["fail", "neutral", "ok", "warn"],
+      "type_expression": "\"ok\" | \"warn\" | \"fail\" | \"neutral\"",
+      "disposition": "retirement_debt",
+      "target_cluster": "C18",
+      "rationale": "statusKind maps workflow owner labels into a local semantic posture and remains registered for C18 retirement.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
+      ],
+      "does_not_change_ds1_denominator": true
     }
   ]
 }

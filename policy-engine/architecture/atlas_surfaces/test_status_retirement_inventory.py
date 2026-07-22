@@ -259,6 +259,159 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             errors,
         )
 
+    def test_scan_routes_authority_like_confidence_and_severity_unions_to_semantic_candidates(
+        self,
+    ) -> None:
+        scan = checker._scan(
+            {
+                "apps/runtime-dashboard/src/shared/lib/domain/semanticProbe.ts": (
+                    'export type ConfidenceLadderRung = "low" | "high";\n'
+                    'export type RunBadgeKind = "success" | "failure";\n'
+                    'export interface Probe { severity: "low" | "high"; }\n'
+                )
+            }
+        )
+
+        candidates = {
+            fact.get("declarationName") or fact.get("fieldName")
+            for fact in scan["authorityCandidates"]
+        }
+        self.assertEqual(
+            {"ConfidenceLadderRung", "RunBadgeKind", "severity"}, candidates
+        )
+
+    def test_scan_rejects_authority_like_function_and_method_return_unions(
+        self,
+    ) -> None:
+        inventory, debt = _artifacts()
+
+        errors = checker.validate_inventory(
+            inventory,
+            debt,
+            source_overrides={
+                "apps/runtime-dashboard/src/shared/lib/domain/returnVocabulary.ts": (
+                    "export function projectionVerdict(): "
+                    '"admissible" | "blocked" { return "blocked"; }\n'
+                    "export class ProjectionPresenter {\n"
+                    "  authorityTone(): "
+                    '"ok" | "fail" { return "fail"; }\n'
+                    "}\n"
+                )
+            },
+            live_probes=False,
+        )
+
+        self.assertIn(
+            "unregistered_semantic_definition:projectionVerdict",
+            errors,
+        )
+        self.assertIn(
+            "unregistered_semantic_definition:authorityTone",
+            errors,
+        )
+
+    def test_live_scan_rejects_an_interaction_state_reaching_an_authority_slot(
+        self,
+    ) -> None:
+        inventory, _debt = _artifacts()
+        scan = copy.deepcopy(checker._scan())
+        scan["interactionLeaks"].append(
+            {
+                "path": "apps/runtime-dashboard/src/shared/lib/domain/liveLeak.ts",
+                "line": 7,
+            }
+        )
+
+        errors = checker._validate_live_scan(inventory, scan)
+
+        self.assertIn("interaction_state_reaches_authority_slot:liveLeak.ts", errors)
+
+    def test_scan_rejects_a_nullable_semantic_string_vocabulary(self) -> None:
+        inventory, debt = _artifacts()
+
+        errors = checker.validate_inventory(
+            inventory,
+            debt,
+            source_overrides={
+                "apps/runtime-dashboard/src/shared/lib/domain/nullableGrade.ts": (
+                    'export type DecisionGrade = "pass" | "fail" | null;\n'
+                )
+            },
+            live_probes=False,
+        )
+
+        self.assertIn(
+            "unregistered_status_definition:nullableGrade.ts:DecisionGrade",
+            errors,
+        )
+
+    def test_scan_rejects_an_as_const_semantic_vocabulary(self) -> None:
+        inventory, debt = _artifacts()
+
+        errors = checker.validate_inventory(
+            inventory,
+            debt,
+            source_overrides={
+                "apps/runtime-dashboard/src/shared/lib/domain/gradeVocabulary.ts": (
+                    "export const DecisionGradeVocabulary = "
+                    '["pass", "fail"] as const;\n'
+                )
+            },
+            live_probes=False,
+        )
+
+        self.assertIn(
+            "unregistered_semantic_definition:DecisionGradeVocabulary",
+            errors,
+        )
+
+    def test_scan_rejects_aliased_interaction_factory_and_authority_sink(self) -> None:
+        inventory, debt = _artifacts()
+
+        errors = checker.validate_inventory(
+            inventory,
+            debt,
+            source_overrides={
+                "apps/runtime-dashboard/src/shared/lib/domain/aliasedLeak.ts": (
+                    "import { createInteractionState as makeInteraction, "
+                    "presentAuthority as showAuthority } "
+                    'from "./statusOwnership";\n'
+                    'const transport = makeInteraction("ready", "transport");\n'
+                    "showAuthority(transport);\n"
+                )
+            },
+            live_probes=False,
+        )
+
+        self.assertIn(
+            "interaction_state_reaches_authority_slot:aliasedLeak.ts",
+            errors,
+        )
+
+    def test_scan_rejects_an_interaction_state_returned_by_a_helper(self) -> None:
+        inventory, debt = _artifacts()
+
+        errors = checker.validate_inventory(
+            inventory,
+            debt,
+            source_overrides={
+                "apps/runtime-dashboard/src/shared/lib/domain/helperLeak.ts": (
+                    "import { createInteractionState, presentAuthority } "
+                    'from "./statusOwnership";\n'
+                    "function interactionForAuthority() {\n"
+                    '  return createInteractionState("ready", "transport");\n'
+                    "}\n"
+                    "presentAuthority(interactionForAuthority());\n"
+                )
+            },
+            live_probes=False,
+        )
+
+        self.assertIn(
+            "interaction_state_reaches_authority_slot:helperLeak.ts",
+            errors,
+        )
+
     def test_summary_counts_only_live_semantic_retirement_debt(self) -> None:
         inventory, debt = _artifacts()
         expected = sum(

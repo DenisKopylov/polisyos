@@ -1,23 +1,45 @@
+import type {
+  QuantityUncertainty,
+  QuantityValueOutput,
+} from "@polisyos/runtime-api-client";
+
+import { Glyph } from "@/shared/brand/Glyph";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
+import { Quantity } from "@/shared/ui/quantity";
 import { Card } from "@polisyos/atlas-ui";
-import { AnimatedProgress, ConfidenceGauge } from "@/shared/charts";
+
+import { MethodologyBadge } from "./MethodologyBadge";
+
+const LEVEL_LABEL = "Level";
+const EXPECTED_LABEL = "Expected";
 
 export type CalibrationRecord = {
-  level: number;
-  expectedCoverage: number;
-  actualCoverage: number;
+  level: QuantityValueOutput;
+  expectedCoverage: QuantityValueOutput;
+  actualCoverage: QuantityValueOutput;
 };
 
 type TrustCalibrationDisplayProps = {
-  methodology: string;
-  historicalAccuracy: number;
+  methodology: QuantityUncertainty["method"];
+  historicalAccuracy: QuantityValueOutput;
   totalPastAnalyses: number;
   calibrationRecords?: CalibrationRecord[];
   limitations?: string[];
   counterArguments?: string[];
   className?: string;
 };
+
+function Percentage({ value }: { value: QuantityValueOutput }) {
+  return (
+    <Quantity
+      format="percent"
+      provenanceMode="off"
+      value={value}
+      variant="dense"
+    />
+  );
+}
 
 export function TrustCalibrationDisplay({
   methodology,
@@ -29,7 +51,6 @@ export function TrustCalibrationDisplay({
   className,
 }: TrustCalibrationDisplayProps) {
   const { t } = useI18n();
-  const accuracyPct = Math.round(historicalAccuracy * 100);
 
   return (
     <Card className={cn("space-y-5", className)}>
@@ -37,20 +58,17 @@ export function TrustCalibrationDisplay({
         {t("shared.ui.trustCalibrationDisplay.title")}
       </h3>
 
-      {/* Historical accuracy summary */}
-      <div className="flex flex-wrap items-center gap-6">
-        <ConfidenceGauge
-          value={historicalAccuracy}
-          label={t("shared.ui.trustCalibrationDisplay.historicalAccuracyLabel")}
-          size={96}
-        />
-        <div className="space-y-1">
-          <p className="text-sm">
-            {t("shared.ui.trustCalibrationDisplay.summary", {
-              accuracy: `${accuracyPct}%`,
-              methodology,
-            })}
+      <div className="flex flex-wrap items-center gap-4">
+        <div>
+          <p className="text-muted text-xs font-semibold uppercase">
+            {t("shared.ui.trustCalibrationDisplay.historicalAccuracyLabel")}
           </p>
+          <div className="mt-1">
+            <Percentage value={historicalAccuracy} />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <MethodologyBadge methodology={methodology} />
           <p className="text-muted text-xs">
             {t("shared.ui.trustCalibrationDisplay.basedOn", {
               count: totalPastAnalyses,
@@ -59,90 +77,94 @@ export function TrustCalibrationDisplay({
         </div>
       </div>
 
-      {/* Calibration table */}
-      {calibrationRecords.length > 0 && (
+      {calibrationRecords.length > 0 ? (
         <div>
           <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
             {t("shared.ui.trustCalibrationDisplay.calibrationCheck")}
           </p>
           <div className="space-y-2">
-            {calibrationRecords.map((rec, index) => {
-              const gap = Math.abs(rec.actualCoverage - rec.expectedCoverage);
-              const wellCalibrated = gap < 0.05;
-              return (
-                <div key={`${rec.level}-${index}`} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium">
-                      {t("shared.ui.trustCalibrationDisplay.intervalLabel", {
-                        level: Math.round(rec.level * 100),
-                      })}
-                    </span>
-                    <span
-                      className={cn(
-                        "font-semibold",
-                        wellCalibrated
-                          ? "text-[var(--color-status-approved)]"
-                          : "text-[var(--color-status-pending)]",
-                      )}
-                    >
-                      {t("shared.ui.trustCalibrationDisplay.actual", {
-                        actual: `${Math.round(rec.actualCoverage * 100)}%`,
-                      })}
-                    </span>
-                  </div>
-                  <AnimatedProgress
-                    value={rec.actualCoverage * 100}
-                    colorByConfidence
-                    height={6}
-                    label={t(
-                      "shared.ui.trustCalibrationDisplay.intervalLabel",
-                      {
-                        level: Math.round(rec.level * 100),
-                      },
-                    )}
-                  />
+            {calibrationRecords.map((record, index) => (
+              <dl
+                key={`${record.level.metric_id ?? "level"}-${index}`}
+                className="border-line grid gap-3 rounded-xl border p-3 sm:grid-cols-3"
+              >
+                <div>
+                  <dt className="text-muted text-xs font-semibold uppercase">
+                    {LEVEL_LABEL}
+                  </dt>
+                  <dd className="mt-1">
+                    <Percentage value={record.level} />
+                  </dd>
                 </div>
-              );
-            })}
+                <div>
+                  <dt className="text-muted text-xs font-semibold uppercase">
+                    {EXPECTED_LABEL}
+                  </dt>
+                  <dd className="mt-1">
+                    <Percentage value={record.expectedCoverage} />
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-muted text-xs font-semibold uppercase">
+                    {t("shared.ui.counterfactual.actual")}
+                  </dt>
+                  <dd className="mt-1">
+                    <Percentage value={record.actualCoverage} />
+                  </dd>
+                </div>
+              </dl>
+            ))}
           </div>
         </div>
-      )}
+      ) : null}
 
-      {/* Limitations */}
-      {limitations.length > 0 && (
+      {limitations.length > 0 ? (
         <div>
           <p className="text-muted mb-2 text-xs font-semibold tracking-wide uppercase">
             {t("shared.ui.trustCalibrationDisplay.knownLimitations")}
           </p>
           <ul className="space-y-1 text-sm">
-            {limitations.map((lim, index) => (
-              <li key={`${lim}-${index}`} className="flex items-start gap-2">
-                <span className="text-muted mt-0.5">{"\u26A0"}</span>
-                <span>{lim}</span>
+            {limitations.map((limitation, index) => (
+              <li
+                key={`${limitation}-${index}`}
+                className="flex items-start gap-2"
+              >
+                <Glyph
+                  className="text-muted mt-0.5 shrink-0"
+                  decorative
+                  name="evidence"
+                  size={12}
+                />
+                <span>{limitation}</span>
               </li>
             ))}
           </ul>
         </div>
-      )}
+      ) : null}
 
-      {/* Counter-arguments */}
-      {counterArguments.length > 0 && (
-        <div className="rounded-2xl bg-[color-mix(in_srgb,var(--color-status-rejected)_6%,transparent)] p-4">
-          <p className="mb-2 text-xs font-semibold tracking-wide text-[var(--color-status-rejected)] uppercase">
+      {counterArguments.length > 0 ? (
+        <div className="border-line rounded-2xl border p-4">
+          <p className="mb-2 text-xs font-semibold tracking-wide uppercase">
             {t("shared.ui.trustCalibrationDisplay.counterArguments")}
           </p>
           <ul className="space-y-1 text-sm">
-            {counterArguments.map((arg, index) => (
-              <li key={`${arg}-${index}`} className="flex items-start gap-2">
-                <span className="text-[var(--color-status-rejected)]">
-                  {"\u2717"}
-                </span>
-                <span>{arg}</span>
+            {counterArguments.map((argument, index) => (
+              <li
+                key={`${argument}-${index}`}
+                className="flex items-start gap-2"
+              >
+                <Glyph
+                  className="text-muted shrink-0"
+                  decorative
+                  name="counterfactual"
+                  size={12}
+                />
+                <span>{argument}</span>
               </li>
             ))}
           </ul>
         </div>
-      )}
+      ) : null}
     </Card>
   );
 }

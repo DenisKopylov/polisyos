@@ -334,6 +334,88 @@ C15_MIXED_RATIONALE = (
     "evidence exist, while C15 only removes its local status-to-authority color guessing. This "
     "receipt claims no DS2, DS6, or DS16 completion."
 )
+C16_ROOT_ID = "ui-patterns"
+C16_PACKAGE_MIGRATED = {"DetailLayout", "FilterPanel"}
+C16_SEARCHABLE_LIST = "SearchableList"
+C16_SUCCESSOR_ID = "atlas-ui-shared-patterns-and-dashboard-searchable-list"
+C16_REQUIRED_PATHS = {
+    "packages/atlas-ui/src/index.ts",
+    "packages/atlas-ui/src/patterns/DetailLayout.tsx",
+    "packages/atlas-ui/src/patterns/FilterPanel.tsx",
+    "packages/atlas-ui/tests/oneOwner.test.ts",
+    "packages/atlas-ui/tests/patternComponents.a11y.test.tsx",
+    "packages/atlas-ui/tests/patternComponents.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/Patterns.stories.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.tsx",
+    "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts",
+}
+C16_RETIRED_PATHS = {
+    "apps/runtime-dashboard/src/shared/ui/patterns/DetailLayout.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/DetailLayout.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/FilterPanel.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/FilterPanel.tsx",
+}
+C16_EXPECTED_PRODUCTION_CONSUMERS = {
+    "DetailLayout": {
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx"
+    },
+    "FilterPanel": {
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx"
+    },
+}
+C16_CONSUMER_REFS = [
+    "packages/atlas-ui/src/index.ts",
+    "packages/atlas-ui/src/patterns/DetailLayout.tsx",
+    "packages/atlas-ui/src/patterns/FilterPanel.tsx",
+    "packages/atlas-ui/tests/patternComponents.test.tsx",
+    "packages/atlas-ui/tests/patternComponents.a11y.test.tsx",
+    "packages/atlas-ui/tests/oneOwner.test.ts",
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.a11y.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/patterns/Patterns.stories.tsx",
+    "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts",
+]
+C16_FLOW_IDS = {
+    "flow-audit-export",
+    "flow-decision-packet-review",
+    "flow-dispute-appeal",
+    "flow-evidence-intake",
+    "flow-failure-triage",
+    "flow-long-running-jobs",
+    "flow-permission-request",
+}
+C16_FLOW_OWNER_SLICES = ["DS5", "DS7", "DS8", "DS9", "DS12", "DS14", "DS15", "DS17"]
+C16_FLOW_REASON = (
+    "The flow is useful material but remains contract-only until its producer, persisted "
+    "artifact, bridge, consumer, verification, and semantic negative are wired. "
+    "[v4_counterpart=ui-patterns; transitional_winner=living-v4-ui-patterns; "
+)
+C16_FLOW_CLOSURE_SIGNAL = (
+    "Revisit after the named owning slice binds the flow to runtime artifacts, lifecycle "
+    "effects, a live consumer, and DS6 negative/e2e evidence."
+)
+C16_MIXED_RATIONALE = (
+    "C16 records an exact mixed three-component receipt: DetailLayout and FilterPanel are "
+    "package-migrated with direct symbol-derived production consumers and their dashboard "
+    "owners are strangled; SearchableList remains the dashboard-owned use_as_is winner in "
+    "consumer_missing state because it has no production consumer, and its closure signal is "
+    "a real production consumer followed by a separately adjudicated owner migration. The "
+    "responsive-layout DS2 rows remain unresolved until DS4 binds one breakpoint owner and "
+    "DS6 supplies browser, print, touch, zoom, and data-state evidence; component-search-field "
+    "and form-search-source-selection remain unclaimed until their live-consumer and DS6 "
+    "conditions are met. The seven attached flow IDs remain contract_only debt owned by "
+    "DS5/DS7/DS8/DS9/DS12/DS14/DS15/DS17 because producer, artifact, bridge, consumer, "
+    "verification, and semantic-negative evidence are missing; closure requires each named "
+    "owner to bind runtime artifacts, lifecycle effects, a live consumer, and DS6 negative/e2e "
+    "evidence. This receipt claims no DS2, DS6, or product-flow completion."
+)
 
 _TS_MODULE_FACTS_SCRIPT = r"""
 import ts from "typescript";
@@ -886,6 +968,106 @@ def _c15_migrated_consumer_errors(sources: Mapping[str, str]) -> list[str]:
                 "ui_compounds_root_unlocalized_json_preview_consumer:"
                 f"{consumer_path}"
             )
+    return errors
+
+
+def _c16_pattern_consumer_map_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, list[str]]:
+    """Derive direct JSX consumers for each package-migrated C16 pattern."""
+    observed: dict[str, set[str]] = {
+        component: set() for component in C16_PACKAGE_MIGRATED
+    }
+    for fact in _typescript_module_facts(sources):
+        source_path = fact["path"]
+        if not source_path.startswith("apps/runtime-dashboard/src/"):
+            continue
+        if fact["module"] != "@polisyos/atlas-ui" or fact["kind"] != "static":
+            continue
+        used_names = set(fact.get("jsx_element_names", []))
+        for component in used_names & C16_PACKAGE_MIGRATED:
+            observed[component].add(source_path)
+    return {
+        component: sorted(references)
+        for component, references in sorted(observed.items())
+    }
+
+
+def _c16_searchable_list_consumers_from_sources(
+    sources: Mapping[str, str],
+) -> list[str]:
+    """Return production JSX consumers of the dashboard-owned SearchableList."""
+    allowed_modules = {
+        "@/shared/ui",
+        "@/shared/ui/patterns",
+        "@/shared/ui/patterns/SearchableList",
+        "@polisyos/atlas-ui",
+    }
+    return sorted(
+        {
+            fact["path"]
+            for fact in _typescript_module_facts(sources)
+            if fact["path"].startswith("apps/runtime-dashboard/src/")
+            and fact["module"] in allowed_modules
+            and fact["kind"] == "static"
+            and C16_SEARCHABLE_LIST in set(fact.get("jsx_element_names", []))
+        }
+    )
+
+
+def _c16_pattern_source_state_errors(
+    *,
+    sources: Mapping[str, str] | None = None,
+    existing_paths: set[str] | None = None,
+    atlas_exports: set[str] | None = None,
+) -> list[str]:
+    """Recompute the C16 mixed owner and production-consumer invariant."""
+    if sources is None:
+        sources = _typescript_production_sources(["apps/runtime-dashboard/src"])
+    if existing_paths is None:
+        candidates = C16_REQUIRED_PATHS | C16_RETIRED_PATHS | {
+            "packages/atlas-ui/src/patterns/SearchableList.tsx"
+        }
+        existing_paths = {
+            path for path in candidates if (REPO_ROOT / path).exists()
+        }
+    if atlas_exports is None:
+        atlas_exports = _owner_exports(
+            ATLAS_UI_INDEX,
+            (REPO_ROOT / ATLAS_UI_INDEX).read_text(encoding="utf-8"),
+            "./patterns/",
+        )
+
+    errors: list[str] = []
+    for path in sorted(C16_REQUIRED_PATHS - existing_paths):
+        errors.append(f"ui_patterns_required_path_missing:{path}")
+    for path in sorted(C16_RETIRED_PATHS & existing_paths):
+        errors.append(f"ui_patterns_retired_dashboard_path_survives:{path}")
+
+    missing_exports = C16_PACKAGE_MIGRATED - atlas_exports
+    if missing_exports:
+        errors.append(
+            "ui_patterns_package_exports_missing:"
+            + ",".join(sorted(missing_exports))
+        )
+
+    consumer_map = _c16_pattern_consumer_map_from_sources(sources)
+    for component, expected_paths in C16_EXPECTED_PRODUCTION_CONSUMERS.items():
+        observed_paths = set(consumer_map[component])
+        if not expected_paths <= observed_paths:
+            errors.append(f"ui_patterns_production_consumer_missing:{component}")
+        for path in sorted(observed_paths - expected_paths):
+            errors.append(f"ui_patterns_unexpected_production_consumer:{component}:{path}")
+
+    searchable_consumers = _c16_searchable_list_consumers_from_sources(sources)
+    if searchable_consumers:
+        errors.append("ui_patterns_searchable_list_consumer_missing_receipt_stale")
+    package_searchable = "packages/atlas-ui/src/patterns/SearchableList.tsx"
+    if package_searchable in existing_paths or C16_SEARCHABLE_LIST in atlas_exports:
+        if not searchable_consumers:
+            errors.append("ui_patterns_searchable_list_promoted_without_consumer")
+        else:
+            errors.append("ui_patterns_searchable_list_promotion_unadjudicated")
     return errors
 
 
@@ -2691,6 +2873,87 @@ def _validate_c15_mixed_receipt(
                 )
 
 
+def _validate_c16_mixed_receipt(
+    entry: Mapping[str, Any],
+    ds2: Mapping[str, Any],
+    errors: list[str],
+    *,
+    live_probes: bool,
+) -> None:
+    """Bind the C16 mixed receipt to owners, consumers, and explicit non-claims."""
+    if entry["disposition"] != "rebind_pending" or entry["strangle_status"] != "strangled":
+        errors.append("ui_patterns_mixed_transition_invalid")
+    if entry["seed_rule"] != "ds4_c16_mixed_rebind_complete":
+        errors.append("ui_patterns_mixed_seed_rule_invalid")
+    if entry["rationale"] != C16_MIXED_RATIONALE:
+        errors.append("ui_patterns_mixed_rationale_drift")
+
+    successor = entry.get("successor") or {}
+    if successor.get("unit_id") != C16_SUCCESSOR_ID:
+        errors.append("ui_patterns_successor_invalid")
+    if successor.get("consumer_refs") != C16_CONSUMER_REFS:
+        errors.append("ui_patterns_consumer_refs_drift")
+
+    linked_ids = set(entry["evidence_link"]["ds2_adoption_ids"])
+    if linked_ids != C16_FLOW_IDS:
+        errors.append("ui_patterns_flow_id_set_drift")
+
+    ds2_by_id = {row["id"]: row for row in ds2["entries"]}
+    for flow_id in sorted(C16_FLOW_IDS):
+        row = ds2_by_id.get(flow_id)
+        if row is None:
+            errors.append(f"ui_patterns_flow_missing:{flow_id}")
+            continue
+        if not row["reason"].startswith(C16_FLOW_REASON):
+            errors.append(f"ui_patterns_flow_reason_drift:{flow_id}")
+        next_adjudication = row.get("next_adjudication") or {}
+        if next_adjudication.get("owner_slices") != C16_FLOW_OWNER_SLICES:
+            errors.append(f"ui_patterns_flow_owner_drift:{flow_id}")
+        if next_adjudication.get("completion_signal") != C16_FLOW_CLOSURE_SIGNAL:
+            errors.append(f"ui_patterns_flow_closure_signal_drift:{flow_id}")
+
+    responsive_condition = (
+        "Revisit after DS4 binds the pattern to one breakpoint source and DS6 supplies its "
+        "full browser/print/touch evidence cell."
+    )
+    search_field_condition = (
+        "Revisit after the DS4 package has the governed export, a migrated live consumer, "
+        "full state evidence, and a DS6 negative/e2e semantic test."
+    )
+    search_form_condition = (
+        "Revisit after the owning slice binds typed producer data, recovery states, a live "
+        "consumer, and DS6 keyboard/error-path evidence."
+    )
+    expected_nonclaims = {
+        "responsive-layout-two-pane": responsive_condition,
+        "responsive-layout-supporting-pane": responsive_condition,
+        "component-search-field": search_field_condition,
+        "form-search-source-selection": search_form_condition,
+    }
+    for adoption_id, condition in expected_nonclaims.items():
+        row = ds2_by_id.get(adoption_id)
+        if row is None or row["revisit_condition"] != condition:
+            errors.append(f"ui_patterns_nonclaim_condition_drift:{adoption_id}")
+        if adoption_id in linked_ids:
+            errors.append(f"ui_patterns_false_ds2_claim:{adoption_id}")
+
+    if not live_probes:
+        return
+
+    source_errors = _c16_pattern_source_state_errors()
+    errors.extend(source_errors)
+    consumer_map = _c16_pattern_consumer_map_from_sources(
+        _typescript_production_sources(["apps/runtime-dashboard/src"])
+    )
+    successor_paths = set(successor.get("consumer_refs", []))
+    for component, references in consumer_map.items():
+        for consumer_path in references:
+            if consumer_path not in successor_paths:
+                errors.append(
+                    f"ui_patterns_live_consumer_ref_missing:{component}:{consumer_path}"
+                )
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -2796,6 +3059,12 @@ def validate_register(
     )
     _validate_c15_mixed_receipt(
         entry_by_id[C15_ROOT_ID],
+        ds2,
+        errors,
+        live_probes=live_probes,
+    )
+    _validate_c16_mixed_receipt(
+        entry_by_id[C16_ROOT_ID],
         ds2,
         errors,
         live_probes=live_probes,
@@ -3202,6 +3471,15 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     compounds["rationale"] = "C15 complete."
     probes.append(("ui-compounds-root-mixed-rationale-drift", c15_rationale_drift))
 
+    c16_rationale_drift = copy.deepcopy(data)
+    patterns = next(
+        entry
+        for entry in c16_rationale_drift["entries"]
+        if entry["unit_id"] == C16_ROOT_ID
+    )
+    patterns["rationale"] = "C16 complete."
+    probes.append(("ui-patterns-mixed-rationale-drift", c16_rationale_drift))
+
     failures = []
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
@@ -3284,6 +3562,59 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     ]
     if _c15_migrated_consumer_errors(c15_consumers) != expected_missing_consumers:
         failures.append("ui-compounds-root-production-consumption-removed")
+
+    c16_consumers = {
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": (
+            'import { DetailLayout } from "@polisyos/atlas-ui";\n'
+            "const layout = <DetailLayout content={null} />;\n"
+        ),
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx": (
+            'import { FilterPanel } from "@polisyos/atlas-ui";\n'
+            'const filters = <FilterPanel title="Filters" />;\n'
+        ),
+    }
+    valid_c16_errors = _c16_pattern_source_state_errors(
+        sources=c16_consumers,
+        existing_paths=set(C16_REQUIRED_PATHS),
+        atlas_exports=set(C16_PACKAGE_MIGRATED),
+    )
+    if valid_c16_errors:
+        failures.append("ui-patterns-valid-mixed-source-state")
+    for consumer_path, component in (
+        (
+            "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+            "DetailLayout",
+        ),
+        (
+            "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+            "FilterPanel",
+        ),
+    ):
+        reduced_sources = {
+            path: source
+            for path, source in c16_consumers.items()
+            if path != consumer_path
+        }
+        expected_error = f"ui_patterns_production_consumer_missing:{component}"
+        if expected_error not in _c16_pattern_source_state_errors(
+            sources=reduced_sources,
+            existing_paths=set(C16_REQUIRED_PATHS),
+            atlas_exports=set(C16_PACKAGE_MIGRATED),
+        ):
+            failures.append(f"ui-patterns-direct-consumer-removal:{component}")
+    promoted_paths = {
+        *C16_REQUIRED_PATHS,
+        "packages/atlas-ui/src/patterns/SearchableList.tsx",
+    }
+    if (
+        "ui_patterns_searchable_list_promoted_without_consumer"
+        not in _c16_pattern_source_state_errors(
+            sources=c16_consumers,
+            existing_paths=promoted_paths,
+            atlas_exports={*C16_PACKAGE_MIGRATED, C16_SEARCHABLE_LIST},
+        )
+    ):
+        failures.append("ui-patterns-searchable-list-consumerless-promotion")
     return failures
 
 

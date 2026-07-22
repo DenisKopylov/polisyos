@@ -21,6 +21,7 @@ import {
   Button,
   Card,
   EmptyState,
+  FilterPanel,
   Input,
   PanelSkeleton,
   Select,
@@ -32,7 +33,6 @@ import {
   copyShareLink,
   exportCsv,
   exportJson,
-  FilterPanel,
 } from "@/shared/ui";
 import { renderApiErrorAlert } from "@/shared/ui/ApiErrorAlert";
 

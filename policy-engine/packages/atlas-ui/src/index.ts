@@ -37,3 +37,5 @@ export * from "./generated/tokens";
 export * from "./compounds/JsonPreview";
 export * from "./compounds/VirtualList";
 export * from "./compounds/VirtualTable";
+export * from "./patterns/DetailLayout";
+export * from "./patterns/FilterPanel";

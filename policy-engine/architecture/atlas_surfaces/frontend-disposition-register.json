@@ -1567,12 +1567,30 @@
         ]
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
+      "successor": {
+        "unit_id": "atlas-ui-shared-patterns-and-dashboard-searchable-list",
+        "consumer_refs": [
+          "packages/atlas-ui/src/index.ts",
+          "packages/atlas-ui/src/patterns/DetailLayout.tsx",
+          "packages/atlas-ui/src/patterns/FilterPanel.tsx",
+          "packages/atlas-ui/tests/patternComponents.test.tsx",
+          "packages/atlas-ui/tests/patternComponents.a11y.test.tsx",
+          "packages/atlas-ui/tests/oneOwner.test.ts",
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+          "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.tsx",
+          "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/patterns/SearchableList.a11y.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/patterns/Patterns.stories.tsx",
+          "apps/runtime-dashboard/src/shared/ui/sharedUiArchitecture.test.ts"
+        ]
+      },
       "owner": "team-design",
       "owner_slice": "DS4",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-07-22",
+      "seed_rule": "ds4_c16_mixed_rebind_complete",
+      "rationale": "C16 records an exact mixed three-component receipt: DetailLayout and FilterPanel are package-migrated with direct symbol-derived production consumers and their dashboard owners are strangled; SearchableList remains the dashboard-owned use_as_is winner in consumer_missing state because it has no production consumer, and its closure signal is a real production consumer followed by a separately adjudicated owner migration. The responsive-layout DS2 rows remain unresolved until DS4 binds one breakpoint owner and DS6 supplies browser, print, touch, zoom, and data-state evidence; component-search-field and form-search-source-selection remain unclaimed until their live-consumer and DS6 conditions are met. The seven attached flow IDs remain contract_only debt owned by DS5/DS7/DS8/DS9/DS12/DS14/DS15/DS17 because producer, artifact, bridge, consumer, verification, and semantic-negative evidence are missing; closure requires each named owner to bind runtime artifacts, lifecycle effects, a live consumer, and DS6 negative/e2e evidence. This receipt claims no DS2, DS6, or product-flow completion."
     },
     {
       "unit_id": "ui-quantity",

@@ -6,12 +6,14 @@ import {
   Button,
   Card,
   Checkbox,
+  DetailLayout,
+  FilterPanel,
   Radio,
   SegmentedControl,
   Switch,
   ToggleButton,
 } from "@polisyos/atlas-ui";
-import { DetailLayout, FilterPanel, SearchableList } from "@/shared/ui";
+import { SearchableList } from "@/shared/ui";
 
 const meta = {
   title: "Design System/Patterns",

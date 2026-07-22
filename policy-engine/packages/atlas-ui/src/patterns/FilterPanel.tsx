@@ -1,8 +1,8 @@
 import type { PropsWithChildren, ReactNode } from "react";
 
-import { Card } from "@polisyos/atlas-ui";
+import { Card } from "../primitives/Card";
 
-type FilterPanelProps = PropsWithChildren<{
+export type FilterPanelProps = PropsWithChildren<{
   title: string;
   description?: ReactNode;
   actions?: ReactNode;

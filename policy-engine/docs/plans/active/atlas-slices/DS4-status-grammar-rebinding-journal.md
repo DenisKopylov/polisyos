@@ -1592,3 +1592,94 @@ useful provisional evidence, not closure receipts after the final audit edits.
   reference, and this journal. Backend `src/**`, schemas, generated client,
   v15 archive, frozen `ru` locale, master plan, main, and other worktrees are
   untouched.
+
+## 2026-07-22 — DS4-C16 shared patterns: two package migrations, one consumer-missing use-as-is
+
+### Red-first receipt and pattern pass
+
+- Preflight confirmed the re-cut denominator: 3 living implementations / 130
+  LOC across 9 family implementation/test/story files. The binding call is 2
+  package migrations plus 1 `consumer_missing` / `use_as_is`, not the plan's
+  speculative three-package call.
+- The exact package ownership test
+  `rejects a migrated pattern with a surviving dashboard implementation`
+  failed first with the two dashboard owners. Its generic AST witnesses reject
+  named owners, default owners, package re-exports, and differently named
+  sibling owners (P06/P27/P28/P31/P33).
+- The exact dashboard architecture test
+  `accepts an app-owned adapter feeding typed pattern presentation props`
+  failed first because the package pattern owner set was empty. The positive
+  app-adapter witness is paired with static-import, dynamic-import, and
+  re-export corruptions under the live package pattern root (P29/P31/P33).
+- Package behavior, axe, and public-surface tests failed first because both
+  package exports were absent. The register tests failed first because no C16
+  live-source invariant existed for either direct production import or a
+  consumerless `SearchableList` promotion.
+
+### Binding mixed receipt and deliberate non-claims
+
+- `DetailLayout` and `FilterPanel` are now package-owned and directly exported
+  from `@polisyos/atlas-ui`. `RunDetailLayout` and `RunsListPage` import their
+  respective pattern directly from that package. The four retired dashboard
+  implementation/a11y files and both old pattern-barrel exports are removed;
+  no compatibility shim survives.
+- `SearchableList` remains dashboard-owned with its implementation, unit test,
+  a11y test, Storybook coverage, and dashboard barrel path intact. It has no
+  production consumer, so its exact capability state is `consumer_missing`
+  and its disposition is `use_as_is`. The checker rejects creating a package
+  twin/export without a real production consumer.
+- The `ui-patterns` DS19 row is an exact mixed receipt: 2
+  `package_migrated` + 1 dashboard `consumer_missing/use_as_is`. The checker
+  content-binds the exact rationale, successor refs, package exports, removed
+  paths, expected direct JSX consumer map, and absent `SearchableList`
+  production consumer. Removing either direct consumer or promoting
+  `SearchableList` without one fails the corruption suite.
+- `responsive-layout-two-pane` and `responsive-layout-supporting-pane` remain
+  unresolved until DS4 binds one breakpoint source and DS6 supplies browser,
+  print, touch, zoom, and data-state evidence. This physical move claims no
+  DS2 or DS6 completion.
+- `component-search-field` and `form-search-source-selection` remain unclaimed:
+  C16 does not package-export `SearchableList` or invent a consumer. The seven
+  attached flow IDs remain `contract_only` debt owned by
+  DS5/DS7/DS8/DS9/DS12/DS14/DS15/DS17; their reason remains the missing
+  producer/artifact/bridge/consumer/verification/semantic-negative chain, and
+  their closure signal remains runtime artifacts, lifecycle effects, a live
+  consumer, and DS6 negative/e2e evidence.
+
+### Exact denominators and verification
+
+| Measure | Before | After | Receipt |
+| --- | ---: | ---: | --- |
+| C16 component denominator | 3 pending | 2 package + 1 `consumer_missing/use_as_is` | exact three-way mixed classification |
+| atlas-ui source files | 34 | 36 | package architecture PASS |
+| atlas-ui tests | 16 files / 80 tests | 18 files / 86 tests | full package PASS |
+| dashboard affected tests | — | 5 files / 27 tests | live consumers plus retained SearchableList unit/a11y and architecture |
+| dashboard architecture debt | 1 | 1 | baseline comparator PASS; only C18-owned `app/workspaces.ts -> features/runs/api/useRunsSample` |
+| DS19 root entries | 261 | 261 | dispositions unchanged: 200 rebind, 15 deleted, 25 retire, 16 wire, 5 use-as-is |
+| status-retirement DS1 rows | 47 | 47 | 21 current authored, 55 exemptions, 19 retirement debts, 3 waist debts |
+
+| Gate | Result |
+| --- | --- |
+| required RED/GREEN | RED: package 7 failures, dashboard architecture 1 failure, register 2 failures; GREEN: 4 package files / 15 tests, 1 dashboard file / 2 tests, 2 register tests |
+| atlas-ui | PASS; typecheck, 18 files / 86 tests, lint, 36-source architecture and exact public surface |
+| affected dashboard | PASS; 5 files / 27 tests, typecheck, changed-file ESLint |
+| dashboard build | PASS; 3,884 transformed modules, PWA 106 entries, postbuild security, atlas-ui Tailwind-source proof |
+| dashboard architecture | expected raw exit 1 on the single inherited C18 edge; exact 1 -> 1 baseline comparator PASS |
+| frontend disposition | PASS; schema/live source/report parity, source-byte binding, exact mixed receipt and corruption probes |
+| status retirement | PASS; live scanner and corruption probes with unchanged denominators |
+
+### Lockfile, debt, and fence receipt
+
+- No package dependency was added and `pnpm-lock.yaml` is byte-unchanged. The
+  baseline debt manifest changes only the content binding for the import-only
+  `RunDetailLayout` consumer edit; status inventory changes only the DS19
+  source hash. Neither denominator changes.
+- The implementation touches 23 physical paths after adding this journal (21
+  Git change records after the two owner moves are detected as renames): two
+  package owners, two package tests and two package export/owner tests; two
+  live consumers; the retained dashboard story/barrel and architecture test;
+  four retired dashboard owner/a11y paths; the register/checker/tests and their
+  exact generated projection/status hash receipts.
+- Backend `src/**`, schemas, generated runtime client, v15 archive, frozen `ru`
+  locale, master plan, main, other worktrees, and lockfile are untouched. The
+  move holds architecture at 1 -> 1 and makes no strictly-reduced claim.

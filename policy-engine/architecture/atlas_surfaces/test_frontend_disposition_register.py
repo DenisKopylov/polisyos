@@ -539,5 +539,94 @@ class C15CompoundReceiptTests(unittest.TestCase):
         ]
 
 
+class C16PatternReceiptTests(unittest.TestCase):
+    """Prove the mixed pattern receipt requires real consumers and one owner."""
+
+    def test_rejects_removal_of_either_direct_live_production_import(self) -> None:
+        self.assertTrue(
+            hasattr(checker, "_c16_pattern_source_state_errors"),
+            "C16 checker must recompute pattern ownership and consumption",
+        )
+        if not hasattr(checker, "_c16_pattern_source_state_errors"):
+            return
+
+        sources = {
+            "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": (
+                'import { DetailLayout } from "@polisyos/atlas-ui";\n'
+                "const layout = <DetailLayout content={null} />;\n"
+            ),
+            "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx": (
+                'import { FilterPanel } from "@polisyos/atlas-ui";\n'
+                'const filters = <FilterPanel title="Filters" />;\n'
+            ),
+        }
+        expected_paths = {
+            *checker.C16_REQUIRED_PATHS,
+        }
+
+        self.assertEqual(
+            checker._c16_pattern_source_state_errors(
+                sources=sources,
+                existing_paths=expected_paths,
+                atlas_exports={"DetailLayout", "FilterPanel"},
+            ),
+            [],
+        )
+        for removed_path, missing_component in (
+            (
+                "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+                "DetailLayout",
+            ),
+            (
+                "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+                "FilterPanel",
+            ),
+        ):
+            reduced_sources = {
+                path: text for path, text in sources.items() if path != removed_path
+            }
+
+            self.assertIn(
+                f"ui_patterns_production_consumer_missing:{missing_component}",
+                checker._c16_pattern_source_state_errors(
+                    sources=reduced_sources,
+                    existing_paths=expected_paths,
+                    atlas_exports={"DetailLayout", "FilterPanel"},
+                ),
+            )
+
+    def test_rejects_searchable_list_promotion_without_production_consumer(self) -> None:
+        self.assertTrue(
+            hasattr(checker, "_c16_pattern_source_state_errors"),
+            "C16 checker must reject speculative SearchableList promotion",
+        )
+        if not hasattr(checker, "_c16_pattern_source_state_errors"):
+            return
+
+        sources = {
+            "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": (
+                'import { DetailLayout } from "@polisyos/atlas-ui";\n'
+                "const layout = <DetailLayout content={null} />;\n"
+            ),
+            "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx": (
+                'import { FilterPanel } from "@polisyos/atlas-ui";\n'
+                'const filters = <FilterPanel title="Filters" />;\n'
+            ),
+        }
+        promoted_paths = {
+            *checker.C16_REQUIRED_PATHS,
+            "packages/atlas-ui/src/patterns/SearchableList.tsx",
+        }
+
+        self.assertIn(
+            "ui_patterns_searchable_list_promoted_without_consumer",
+            checker._c16_pattern_source_state_errors(
+                sources=sources,
+                existing_paths=promoted_paths,
+                atlas_exports={"DetailLayout", "FilterPanel", "SearchableList"},
+            ),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

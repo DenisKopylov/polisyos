@@ -86,6 +86,11 @@ const COMPOUND_FAMILIES = {
   VirtualTable: ["VirtualTable"],
 } as const;
 
+const PATTERN_FAMILIES = {
+  DetailLayout: ["DetailLayout"],
+  FilterPanel: ["FilterPanel"],
+} as const;
+
 type PrimitiveFamilies = Record<string, readonly string[]>;
 
 function walkTypeScriptFiles(directory: string): string[] {
@@ -576,6 +581,69 @@ describe("compound ownership", () => {
       expect.arrayContaining([
         expect.stringContaining("JsonPreview:"),
         expect.stringContaining("VirtualList:"),
+      ]),
+    );
+  });
+});
+
+describe("pattern ownership", () => {
+  it("rejects a migrated pattern with a surviving dashboard implementation", () => {
+    const roots = [
+      path.join(packageRoot, "src/patterns"),
+      path.join(dashboardRoot, "src/shared/ui"),
+      path.join(dashboardRoot, "src/shared/components"),
+    ];
+    const units = roots
+      .flatMap(walkTypeScriptFiles)
+      .map((file) => sourceUnit(file));
+
+    expect(ownershipViolations(PATTERN_FAMILIES, units, "patterns")).toEqual(
+      [],
+    );
+
+    const namedOwner = path.join(
+      dashboardRoot,
+      "src/shared/ui/patterns/DetailLayout.tsx",
+    );
+    const defaultOwner = path.join(
+      dashboardRoot,
+      "src/shared/ui/patterns/FilterPanel.tsx",
+    );
+    const reexport = path.join(
+      dashboardRoot,
+      "src/shared/ui/PatternCompatibilityShim.ts",
+    );
+    const siblingOwner = path.join(
+      dashboardRoot,
+      "src/shared/components/WorkspacePatterns.tsx",
+    );
+    const corruptedUnits = [
+      ...units,
+      sourceUnit(
+        namedOwner,
+        "export function DetailLayout() { return null; }",
+      ),
+      sourceUnit(
+        defaultOwner,
+        "function LegacyFilterPanel() { return null; }\nexport default LegacyFilterPanel;",
+      ),
+      sourceUnit(
+        reexport,
+        'export { DetailLayout } from "@polisyos/atlas-ui";',
+      ),
+      sourceUnit(
+        siblingOwner,
+        "export const FilterPanel = () => null;",
+      ),
+    ];
+
+    expect(
+      ownershipViolations(PATTERN_FAMILIES, corruptedUnits, "patterns"),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("DetailLayout:"),
+        expect.stringContaining("FilterPanel:"),
+        "package re-export: apps/runtime-dashboard/src/shared/ui/PatternCompatibilityShim.ts -> @polisyos/atlas-ui",
       ]),
     );
   });
